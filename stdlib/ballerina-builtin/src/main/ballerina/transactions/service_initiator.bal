@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.transactions;
 
 import ballerina/log;
 import ballerina/http;
@@ -105,7 +104,7 @@ service InitiatorService bind coordinatorListener {
                 }
 
                 RegistrationResponse regRes = {transactionId:txnId, coordinatorProtocols:coordinatorProtocols};
-                json resPayload = regResponseToJson(regRes);
+                json resPayload = check <json>regRes;
                 http:Response res = new; res.statusCode = http:OK_200;
                 res.setJsonPayload(resPayload);
                 var resResult = conn -> respond(res);

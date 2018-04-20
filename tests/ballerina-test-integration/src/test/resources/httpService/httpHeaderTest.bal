@@ -9,7 +9,7 @@ endpoint http:Listener stockServiceEP {
 };
 
 endpoint http:Client stockqEP {
-    targets:[{url: "http://localhost:9091"}]
+    url: "http://localhost:9091"
 };
 
 @http:ServiceConfig {

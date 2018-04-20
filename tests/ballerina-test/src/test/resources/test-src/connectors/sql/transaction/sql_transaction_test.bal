@@ -549,7 +549,7 @@ function invokeWorkers(jdbc:Client  testDBClient) {
     }
 
     worker w2 {
-        runtime:sleepCurrentWorker(5000);
+        runtime:sleep(5000);
         _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                             values ('James', 'Clerk', 834, 5000.75, 'USA')");
     }

@@ -14,20 +14,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
 
 import ballerina/internal;
 import ballerina/auth;
-import ballerina/caching;
-
-caching:Cache authzCache = new(expiryTimeMillis = 300000);
-@Description {value:"Authz handler instance"}
-HttpAuthzHandler authzHandler = new(authzCache);
+import ballerina/cache;
 
 @Description {value:"Representation of the Authorization filter"}
 @Field {value:"filterRequest: request filter method which attempts to authorize the request"}
 @Field {value:"filterRequest: response filter method (not used this scenario)"}
 public type AuthzFilter object {
+
+    public {
+        HttpAuthzHandler authzHandler;
+    }
+
+    new (authzHandler) {
+    }
     
     @Description {value:"Filter function implementation which tries to authorize the request"}
 	@Param {value:"request: Request instance"}
@@ -49,7 +51,7 @@ public type AuthzFilter object {
         match scopes {
             string[] scopeNames => {
                 if (authzHandler.canHandle(request)) {
-                    authorized = authzHandler.handle(runtime:getInvocationContext().authenticationContext.username,
+                    authorized = authzHandler.handle(runtime:getInvocationContext().userPrincipal.username,
                         context.serviceName, context.resourceName, request.method, scopeNames);
                 } else {
                     authorized = false;

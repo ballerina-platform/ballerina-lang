@@ -148,18 +148,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void exitPackageDeclaration(BallerinaParser.PackageDeclarationContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.setPackageDeclaration(getCurrentPos(ctx), getWS(ctx), this.pkgNameComps, this.pkgVersion);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitPackageName(BallerinaParser.PackageNameContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -1707,12 +1695,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void exitFailStatement(BallerinaParser.FailStatementContext ctx) {
+    public void exitRetryStatement(BallerinaParser.RetryStatementContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
-        this.pkgBuilder.addFailStatement(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.addRetryStatement(getCurrentPos(ctx), getWS(ctx));
     }
 
     /**

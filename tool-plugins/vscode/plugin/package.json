@@ -1,0 +1,175 @@
+{
+    "name": "ballerina",
+    "displayName": "Ballerina",
+    "description": "Intellisense, Diagram View, Debugging, code formatting and refactoring for Ballerina",
+    "version": "0.970.0-beta4-SNAPSHOT",
+    "publisher": "ballerina",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ballerina-lang/ballerina"
+    },
+    "icon": "images/ballerina.png",
+    "engines": {
+        "vscode": "^1.0.0"
+    },
+    "categories": [
+        "Languages"
+    ],
+    "activationEvents": [
+        "onLanguage:ballerina"
+    ],
+    "contributes": {
+        "languages": [
+            {
+                "id": "ballerina",
+                "aliases": [
+                    "Ballerina",
+                    "ballerina"
+                ],
+                "extensions": [
+                    ".bal"
+                ],
+                "configuration": "./ballerina.configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "ballerina",
+                "scopeName": "source.ballerina",
+                "path": "./ballerina-grammar/syntaxes/ballerina.tmLanguage"
+            }
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "Ballerina configuration",
+            "properties": {
+                "ballerina.sdk": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "default": null,
+                    "description": "Specifies the path to the ballerina sdk"
+                },
+                "ballerina.showLSErrors": {
+                    "type": [
+                        "boolean"
+                    ],
+                    "default": false,
+                    "description": "If set to true the language server's error log will be printed in the plugins console"
+                }
+            }
+        },
+        "breakpoints": [
+            {
+                "language": "ballerina"
+            }
+        ],
+        "debuggers": [
+            {
+                "type": "ballerina",
+                "label": "Ballerina Debug",
+                "program": "./debugger/index.js",
+                "runtime": "node",
+                "configurationAttributes": {
+                    "attach": {
+                        "required": [
+                            "port",
+                            "host"
+                        ],
+                        "properties": {
+                            "host": {
+                                "type": "string",
+                                "description": "Remote debug server host",
+                                "default": "127.0.0.1"
+                            },
+                            "port": {
+                                "type": "integer",
+                                "description": "Remote debug server port",
+                                "default": 5000
+                            }
+                        }
+                    },
+                    "launch": {
+                        "properties": {
+                            "required": [
+                                "script"
+                            ],
+                            "ballerina.sdk": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ],
+                                "default": null,
+                                "description": "Specifies the path to the ballerina sdk"
+                            },
+                            "script": {
+                                "type": "string",
+                                "default": "${file}"
+                            },
+                            "debugServerTimeout": {
+                                "type": "integer",
+                                "default": 5000,
+                                "description": "How long to wait for the debug server to start up in miliseconds"
+                            }
+                        }
+                    }
+                },
+                "initialConfigurations": [
+                    {
+                        "type": "ballerina",
+                        "request": "launch",
+                        "name": "Ballerina Debug",
+                        "script": "${file}"
+                    },
+                    {
+                        "type": "ballerina",
+                        "request": "attach",
+                        "name": "Ballerina Remote Debug",
+                        "host": "127.0.0.1",
+                        "port": 5000
+                    }
+                ]
+            }
+        ],
+        "commands": [
+            {
+                "command": "ballerina.showDiagram",
+                "title": "Ballerina: Show Diagram",
+                "icon": {
+                    "dark": "./icons/design-view-white.svg",
+                    "light": "./icons/design-view.svg"
+                }
+            }
+        ],
+        "menus": {
+            "editor/title": [
+                {
+                    "when": "resourceLangId == ballerina",
+                    "command": "ballerina.showDiagram",
+                    "group": "navigation"
+                }
+            ]
+        }
+    },
+    "main": "./extension.js",
+    "scripts": {
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "build:grammar": "tsc -p syntaxes/build && node syntaxes/build/build.js",
+        "test": "node ./node_modules/vscode/bin/test",
+        "clean": "rimraf server-build target",
+        "package": "vsce package"
+    },
+    "dependencies": {
+        "lodash": "^4.17.5",
+        "openport": "0.0.4",
+        "request-promise": "^4.2.2",
+        "vscode": "^1.1.10",
+        "vscode-debugadapter": "^1.25.0",
+        "vscode-languageclient": "^3.4.2",
+        "ws": "^4.0.0"
+    },
+    "devDependencies": {
+        "vsce": "^1.36.2"
+    }
+}

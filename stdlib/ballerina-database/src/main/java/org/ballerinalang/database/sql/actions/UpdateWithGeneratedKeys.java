@@ -29,12 +29,6 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.observability.ObservabilityUtils;
-import org.ballerinalang.util.observability.ObserverContext;
-
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_DB_TYPE_SQL;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_DB_STATEMENT;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_DB_TYPE;
 
 /**
  * {@code UpdateWithGeneratedKeys} is the updateWithGeneratedKeys action implementation of the SQL Connector.
@@ -69,10 +63,7 @@ public class UpdateWithGeneratedKeys extends AbstractSQLAction {
 
             SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CALLER_ACTIONS);
 
-            ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
-            observerContext.addTag(TAG_KEY_DB_STATEMENT, query);
-            observerContext.addTag(TAG_KEY_DB_TYPE, TAG_DB_TYPE_SQL);
-
+            checkAndObserveSQLAction(context, datasource, query);
             executeUpdateWithKeys(context, datasource, query, keyColumns, parameters);
         } catch (Throwable e) {
             context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e));

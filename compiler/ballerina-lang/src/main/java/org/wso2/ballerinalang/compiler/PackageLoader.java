@@ -48,8 +48,9 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
-import org.wso2.ballerinalang.util.HomeRepoUtils;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.net.URI;
 import java.nio.file.Path;
@@ -118,15 +119,15 @@ public class PackageLoader {
     }
 
     private RepoHierarchy genRepoHierarchy(Path sourceRoot) {
-        Path balHomeDir = HomeRepoUtils.createAndGetHomeReposPath();
+        Path balHomeDir = RepoUtils.createAndGetHomeReposPath();
         Path projectHiddenDir = sourceRoot.resolve(".ballerina");
         RepoHierarchyBuilder.RepoNode[] systemArr = loadSystemRepos();
         Converter<Path> converter = sourceDirectory.getConverter();
 
         Repo remote = new RemoteRepo(URI.create("https://api.central.ballerina.io/packages/"));
-        Repo homeCacheRepo = new CacheRepo(balHomeDir);
+        Repo homeCacheRepo = new CacheRepo(balHomeDir, ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME);
         Repo homeRepo = new ZipRepo(balHomeDir);
-        Repo projectCacheRepo = new CacheRepo(projectHiddenDir);
+        Repo projectCacheRepo = new CacheRepo(projectHiddenDir, ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME);
         Repo projectRepo = new ZipRepo(projectHiddenDir);
 
 

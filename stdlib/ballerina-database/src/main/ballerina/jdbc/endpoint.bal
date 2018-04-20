@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.jdbc;
-
 import ballerina/sql;
 
 documentation {
@@ -58,7 +56,7 @@ public type Client object {
     documentation {
         Returns the connector that the client code uses.
     }
-    function getClient() returns sql:CallerActions {
+    public function getCallerActions() returns sql:CallerActions {
         return self.callerActions;
     }
 

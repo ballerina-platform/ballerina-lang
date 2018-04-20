@@ -63,7 +63,7 @@ function startAggregationQuery() returns (StatusCount[]) {
     teacherStream.publish(t2);
     teacherStream.publish(t3);
 
-    runtime:sleepCurrentWorker(1000);
+    runtime:sleep(1000);
 
     return globalStatusCountArray;
 }

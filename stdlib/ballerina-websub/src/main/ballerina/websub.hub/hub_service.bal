@@ -13,15 +13,14 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-package ballerina.websub.hub;
 
-import ballerina/sql;
+import ballerina/crypto;
 import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
-import ballerina/security.crypto;
+import ballerina/sql;
+import ballerina/system;
 import ballerina/time;
-import ballerina/util;
 import ballerina/websub;
 
 endpoint http:Listener hubServiceEP {
@@ -57,7 +56,11 @@ service<http:Service> hubService bind hubServiceEP {
         string mode;
         string topic;
 
-        map params = request.getFormParams() but { http:PayloadError => {} };
+        map params;
+        match (request.getFormParams()) {
+            map<string> reqFormParamMap => { params = reqFormParamMap; }
+            http:PayloadError => {}
+        }
 
         if (params.hasKey(websub:HUB_MODE)) {
             mode = <string> params[websub:HUB_MODE];
@@ -165,7 +168,7 @@ service<http:Service> hubService bind hubServiceEP {
                                 if (secret != "") {
                                     if (request.hasHeader(websub:PUBLISHER_SIGNATURE)) {
                                         string publisherSignature = request.getHeader(websub:PUBLISHER_SIGNATURE);
-                                        string strPayload = payload.toString() but { () => "" };
+                                        string strPayload = payload.toString();
                                         var signatureValidation = websub:validateSignature(publisherSignature,
                                                                                                     strPayload, secret);
                                         match (signatureValidation) {
@@ -233,7 +236,8 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
 @Param {value:"params: Parameters specified in the new subscription/unsubscription request"}
 function verifyIntent(string callback, string topic, map params) {
     endpoint http:Client callbackEp {
-        targets:[{url:callback, secureSocket: secureSocket }]
+        url:callback,
+        secureSocket: secureSocket
     };
 
     string mode = <string> params[websub:HUB_MODE];
@@ -252,7 +256,7 @@ function verifyIntent(string callback, string topic, map params) {
     if (!(leaseSeconds > 0)) {
           leaseSeconds = hubLeaseSeconds;
     }
-    string challenge = util:uuid();
+    string challenge = system:uuid();
 
     http:Request request = new;
 
@@ -468,7 +472,8 @@ function addSubscriptionsOnStartup() {
 @Param {value:"topic: The topic URL to be fetched to retrieve updates"}
 function fetchTopicUpdate(string topic) returns (http:Response | http:HttpConnectorError) {
     endpoint http:Client topicEp {
-        targets:[{url:topic, secureSocket: secureSocket }]
+        url:topic,
+        secureSocket: secureSocket
     };
 
     http:Request request = new;
@@ -483,7 +488,8 @@ function fetchTopicUpdate(string topic) returns (http:Response | http:HttpConnec
 @Param {value:"payload: The update payload to be delivered to the subscribers"}
 public function distributeContent(string callback, websub:SubscriptionDetails subscriptionDetails, json payload) {
     endpoint http:Client callbackEp {
-        targets:[{url:callback, secureSocket: secureSocket }]
+        url:callback,
+        secureSocket: secureSocket
     };
 
     http:Request request = new;
@@ -498,7 +504,7 @@ public function distributeContent(string callback, websub:SubscriptionDetails su
             changeSubscriptionInDatabase(websub:MODE_UNSUBSCRIBE, subscriptionDetails);
         }
     } else {
-        string stringPayload = payload.toString() but { () => "" };
+        string stringPayload = payload.toString();
         request.setHeader(websub:CONTENT_TYPE, mime:APPLICATION_JSON);
         if (subscriptionDetails.secret != "") {
             string xHubSignature = hubSignatureMethod + "=";
@@ -514,7 +520,7 @@ public function distributeContent(string callback, websub:SubscriptionDetails su
             request.setHeader(websub:X_HUB_SIGNATURE, xHubSignature);
         }
 
-        request.setHeader(websub:X_HUB_UUID, util:uuid());
+        request.setHeader(websub:X_HUB_UUID, system:uuid());
         request.setHeader(websub:X_HUB_TOPIC, subscriptionDetails.topic);
         request.setHeader("Link", buildWebSubLinkHeader(hubPublicUrl, subscriptionDetails.topic));
         request.setJsonPayload(payload);

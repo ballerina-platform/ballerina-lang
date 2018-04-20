@@ -9,14 +9,9 @@ options {
 
 // starting point for parsing a bal file
 compilationUnit
-    :   packageDeclaration?
-        (importDeclaration | namespaceDeclaration)*
+    :   (importDeclaration | namespaceDeclaration)*
         (documentationAttachment? deprecatedAttachment? annotationAttachment* definition)*
         EOF
-    ;
-
-packageDeclaration
-    :   PACKAGE packageName SEMICOLON
     ;
 
 packageName
@@ -288,7 +283,7 @@ statement
     |   expressionStmt
     |   transactionStatement
     |   abortStatement
-    |   failStatement
+    |   retryStatement
     |   lockStatement
     |   namespaceDeclarationStatement
     |   foreverStatement
@@ -549,8 +544,8 @@ abortStatement
     :   ABORT SEMICOLON
     ;
 
-failStatement
-    :   FAIL SEMICOLON
+retryStatement
+    :   RETRY SEMICOLON
     ;
 
 retriesStatement
@@ -850,7 +845,7 @@ havingClause
     ;
 
 streamingAction
-    :   EQUAL_GT LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS callableUnitBody
+    :   EQUAL_GT LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 setClause

@@ -22,7 +22,7 @@ import java.util.stream.Stream;
  * in deeper dir including test source
  */
 public class Patten {
-    public static final Part WILDCARD_DIR = new Part();
+    public static final Part LATEST_VERSION_DIR = new Part();
     public static final Part WILDCARD_SOURCE = new Part();
     public static final Part WILDCARD_SOURCE_WITH_TEST = new Part();
     public static final Patten NULL = new Patten() {
@@ -43,7 +43,7 @@ public class Patten {
     public Patten sibling(Part siblingPart) {
         Part last = parts[parts.length - 1];
         Part[] newParts;
-        if (last == WILDCARD_DIR || last == WILDCARD_SOURCE || last == WILDCARD_SOURCE_WITH_TEST) {
+        if (last == LATEST_VERSION_DIR || last == WILDCARD_SOURCE || last == WILDCARD_SOURCE_WITH_TEST) {
             newParts = Arrays.copyOf(parts, parts.length);
             newParts[newParts.length - 1] = siblingPart;
         } else {
@@ -62,8 +62,8 @@ public class Patten {
     public <T> Stream<T> convert(Converter<T> converter) {
         Stream<T> aggregate = Stream.of(converter.start());
         for (Part part : parts) {
-            if (part == WILDCARD_DIR) {
-                aggregate = aggregate.flatMap(converter::expand);
+            if (part == LATEST_VERSION_DIR) {
+                aggregate = aggregate.flatMap(converter::latest);
             } else if (part == WILDCARD_SOURCE) {
                 aggregate = aggregate.flatMap(converter::expandBal);
             } else if (part == WILDCARD_SOURCE_WITH_TEST) {

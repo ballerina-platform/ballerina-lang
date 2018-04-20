@@ -868,7 +868,7 @@ function testDateTimeNullInValues() returns (string) {
     string data;
 
     var j = check <json>dt;
-    data = io:sprintf("%j", [j]);
+    data = io:sprintf("%j", j);
 
     testDB.stop();
     return data;
@@ -985,19 +985,19 @@ function testComplexTypeRetrieval() returns (string, string, string, string) {
 
     table dt = check testDB->select("SELECT * from DataTypeTable where row_id = 1", ());
     var x1 = check <xml>dt;
-    s1 = io:sprintf("%l", [x1]);
+    s1 = io:sprintf("%l", x1);
 
     dt = check testDB->select("SELECT * from DateTimeTypes where row_id = 1", ());
     var x2 = check <xml>dt;
-    s2 = io:sprintf("%l", [x2]);
+    s2 = io:sprintf("%l", x2);
 
     dt = check testDB->select("SELECT * from DataTypeTable where row_id = 1", ());
     var j = check <json>dt;
-    s3 = io:sprintf("%j", [j]);
+    s3 = io:sprintf("%j", j);
 
     dt = check testDB->select("SELECT * from DateTimeTypes where row_id = 1", ());
     j = check <json>dt;
-    s4 = io:sprintf("%j", [j]);
+    s4 = io:sprintf("%j", j);
 
     testDB.stop();
     return (s1, s2, s3, s4);

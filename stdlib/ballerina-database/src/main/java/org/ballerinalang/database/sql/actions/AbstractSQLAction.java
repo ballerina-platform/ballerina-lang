@@ -52,6 +52,8 @@ import org.ballerinalang.util.TableResourceManager;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserverContext;
 
 import java.math.BigDecimal;
 import java.sql.Array;
@@ -76,6 +78,12 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
+
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_DB_TYPE_SQL;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_DB_INSTANCE;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_DB_STATEMENT;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_DB_TYPE;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PEER_ADDRESS;
 
 /**
  * {@code AbstractSQLAction} is the base class for all SQL Action.
@@ -189,7 +197,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             BRefValueArray generatedParams  = constructParameters(context, parameters);
             conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, isInTransaction);
             stmt = getPreparedCall(conn, datasource, query, generatedParams);
-            createProcessedStatement(conn, stmt, generatedParams, datasource.getDatabaseName());
+            createProcessedStatement(conn, stmt, generatedParams, datasource.getDatabaseProductName());
             resultSets = executeStoredProc(stmt);
             boolean refCursorOutParamsPresent = generatedParams != null && isRefCursorOutParamPresent(generatedParams);
             boolean resultSetsReturned = !resultSets.isEmpty();
@@ -294,6 +302,17 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             structType = (BStructType) type.value();
         }
         return structType;
+    }
+
+    protected void checkAndObserveSQLAction(Context context, SQLDatasource datasource, String query) {
+        if (!ObservabilityUtils.isObservabilityEnabled()) {
+            return;
+        }
+        ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
+        observerContext.addTag(TAG_KEY_PEER_ADDRESS, datasource.getPeerAddress());
+        observerContext.addTag(TAG_KEY_DB_INSTANCE, datasource.getDatabaseName());
+        observerContext.addTag(TAG_KEY_DB_STATEMENT, query);
+        observerContext.addTag(TAG_KEY_DB_TYPE, TAG_DB_TYPE_SQL);
     }
 
     private BRefValueArray constructParameters(Context context, BRefValueArray parameters) {
@@ -407,7 +426,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     private PreparedStatement getPreparedStatement(Connection conn, SQLDatasource datasource, String query)
             throws SQLException {
         PreparedStatement stmt;
-        boolean mysql = datasource.getDatabaseName().contains("mysql");
+        boolean mysql = datasource.getDatabaseProductName().contains("mysql");
         /* In MySQL by default, ResultSets are completely retrieved and stored in memory.
            Following properties are set to stream the results back one row at a time.*/
         if (mysql) {
@@ -427,7 +446,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     private CallableStatement getPreparedCall(Connection conn, SQLDatasource datasource, String query,
                                               BRefValueArray parameters) throws SQLException {
         CallableStatement stmt;
-        boolean mysql = datasource.getDatabaseName().contains("mysql");
+        boolean mysql = datasource.getDatabaseProductName().contains("mysql");
         if (mysql) {
             stmt = conn.prepareCall(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             /* Only stream if there aren't any OUT parameters since can't use streaming result sets with callable
@@ -492,7 +511,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     }
 
     private void createProcessedStatement(Connection conn, PreparedStatement stmt, BRefValueArray params, String
-            dataSourceName) {
+            databaseProductName) {
         if (params == null) {
             return;
         }
@@ -531,7 +550,8 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                             throw new BallerinaException("unsupported array type for parameter index " + index);
                         }
                         if (Constants.SQLDataTypes.REFCURSOR.equals(sqlType)) {
-                            setParameter(conn, stmt, sqlType, paramValue, direction, currentOrdinal, dataSourceName);
+                            setParameter(conn, stmt, sqlType, paramValue, direction, currentOrdinal,
+                                    databaseProductName);
                         } else {
                             setParameter(conn, stmt, sqlType, paramValue, direction, currentOrdinal);
                         }
@@ -539,7 +559,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                     }
                 } else {
                     if (Constants.SQLDataTypes.REFCURSOR.equals(sqlType)) {
-                        setParameter(conn, stmt, sqlType, value, direction, currentOrdinal, dataSourceName);
+                        setParameter(conn, stmt, sqlType, value, direction, currentOrdinal, databaseProductName);
                     } else {
                         setParameter(conn, stmt, sqlType, value, direction, currentOrdinal);
                     }
@@ -558,7 +578,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     }
 
     private void setParameter(Connection conn, PreparedStatement stmt, String sqlType, BValue value, int direction,
-            int index, String databaseName) {
+            int index, String databaseProductName) {
         if (sqlType == null || sqlType.isEmpty()) {
             SQLDatasourceUtils.setStringValue(stmt, value, index, direction, Types.VARCHAR);
         } else {
@@ -643,7 +663,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                         .setUserDefinedValue(conn, stmt, value, index, direction, Types.STRUCT);
                 break;
             case Constants.SQLDataTypes.REFCURSOR:
-                SQLDatasourceUtils.setRefCursorValue(conn, stmt, index, direction, databaseName);
+                SQLDatasourceUtils.setRefCursorValue(conn, stmt, index, direction, databaseProductName);
                 break;
             default:
                 throw new BallerinaException("unsupported datatype as parameter: " + sqlType + " index:" + index);

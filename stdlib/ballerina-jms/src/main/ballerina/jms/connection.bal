@@ -1,4 +1,3 @@
-package ballerina.jms;
 
 public type Connection object {
     public {
@@ -11,9 +10,9 @@ public type Connection object {
 
     public native function createConnection();
 
-    public native function start ();
+    public native function start();
 
-    public native function stop ();
+    public native function stop();
 };
 
 public type ConnectionConfiguration {

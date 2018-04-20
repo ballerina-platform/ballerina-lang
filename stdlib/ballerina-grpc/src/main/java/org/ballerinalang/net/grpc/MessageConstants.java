@@ -40,11 +40,15 @@ public class MessageConstants {
     public static final String PROTOCOL_PACKAGE_GRPC = "grpc";
     public static final String PROTOCOL_STRUCT_PACKAGE_GRPC = "ballerina.grpc";
     public static final String ORG_NAME = "ballerina";
+
+    public static final String PACKAGE_BUILTIN = "ballerina.builtin";
+    public static final String STRUCT_GENERIC_ERROR = "error";
+
     //server side endpoint constants.
     public static final String SERVICE_BUILDER = "SERVICE_BUILDER";
     public static final String GRPC_SERVER = "SERVER";
-    public static final String SERVICE_ENDPOINT_TYPE = "Service";
-    public static final String CLIENT_RESPONDER = "ClientResponder";
+    public static final String SERVICE_ENDPOINT_TYPE = "Listener";
+    public static final String CALLER_ACTION = "CallerAction";
     public static final String MESSAGE_CONTEXT = "MessageHeaders";
     public static final String RESPONSE_OBSERVER = "RESPONSE_OBSERVER";
     public static final String RESPONSE_MESSAGE_DEFINITION = "RESPONSE_DEFINITION";
@@ -56,7 +60,7 @@ public class MessageConstants {
     public static final String DEFAULT_HOSTNAME = "localhost";
     public static final String CHANNEL_KEY = "channel";
     public static final String ENUM_KEY = "enum";
-    public static final String SERVICE_STUB = "ServiceStub";
+    public static final String SERVICE_STUB = "Stub";
     public static final String METHOD_DESCRIPTORS = "MethodDescriptors";
     public static final int SERVICE_STUB_REF_INDEX = 0;
     public static final int CLIENT_ENDPOINT_REF_INDEX = 1;
@@ -66,13 +70,9 @@ public class MessageConstants {
     public static final String BLOCKING_TYPE = "blocking";
     public static final String NON_BLOCKING_TYPE = "non-blocking";
     public static final String REQUEST_SENDER = "REQUEST_SENDER";
-    public static final String CLIENT_CONNECTION = "ClientConnection";
+    public static final String GRPC_CLIENT = "GrpcClient";
     public static final String REQUEST_MESSAGE_DEFINITION = "REQUEST_DEFINITION";
-    
-    // Names of error structs registered in gRPC package.
-    public static final String CONNECTOR_ERROR = "ConnectorError";
-    public static final String SERVER_ERROR = "ServerError";
-    public static final String CLIENT_ERROR = "ClientError";
+
     public static final String CLIENT = "Client";
     public static final String ANN_RESOURCE_CONFIG = "resourceConfig";
     public static final String EMPTY_STRING = "";
@@ -122,5 +122,16 @@ public class MessageConstants {
     public static final String BOOLEAN = "boolean";
     public static final String BLOB = "blob";
     
-    
+    //stub template builder constants
+    public static final String COMMA = ",";
+    public static final String INPUT_TYPE_NAME = "req";
+    public static final String RESULT_TYPE_NAME = "result";
+    public static final String IGNORE_CAST = "_";
+    public static final String INIT_EMPTY_STUB = "Empty req = {};";
+    public static final String EMPTY_DATATYPE_NAME = "Empty";
+    public static final String DIAMOND_CAST_OPEN = "<";
+    public static final String DIAMOND_CAST_CLOSE = ">";
+    public static final String BRACKET_OPEN = "(";
+    public static final String BRACKET_CLOSE = ")";
+    public static final String SPACE = " ";
 }

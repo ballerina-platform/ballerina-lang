@@ -18,16 +18,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitCompilationUnit(BallerinaParser.CompilationUnitContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#packageDeclaration}.
-	 * @param ctx the parse tree
-	 */
-	void enterPackageDeclaration(BallerinaParser.PackageDeclarationContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#packageDeclaration}.
-	 * @param ctx the parse tree
-	 */
-	void exitPackageDeclaration(BallerinaParser.PackageDeclarationContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#packageName}.
 	 * @param ctx the parse tree
 	 */
@@ -1274,15 +1264,15 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitAbortStatement(BallerinaParser.AbortStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#failStatement}.
+	 * Enter a parse tree produced by {@link BallerinaParser#retryStatement}.
 	 * @param ctx the parse tree
 	 */
-	void enterFailStatement(BallerinaParser.FailStatementContext ctx);
+	void enterRetryStatement(BallerinaParser.RetryStatementContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#failStatement}.
+	 * Exit a parse tree produced by {@link BallerinaParser#retryStatement}.
 	 * @param ctx the parse tree
 	 */
-	void exitFailStatement(BallerinaParser.FailStatementContext ctx);
+	void exitRetryStatement(BallerinaParser.RetryStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#retriesStatement}.
 	 * @param ctx the parse tree

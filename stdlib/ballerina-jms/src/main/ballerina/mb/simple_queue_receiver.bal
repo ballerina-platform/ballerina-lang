@@ -1,4 +1,3 @@
-package ballerina.mb;
 
 import ballerina/jms;
 import ballerina/log;
@@ -11,7 +10,7 @@ public type SimpleQueueReceiver object {
 
     private {
         jms:SimpleQueueReceiver receiver;
-        QueueReceiverConnector? connector;
+        QueueReceiverActions? consumerActions;
     }
 
     public function init(SimpleQueueListenerEndpointConfiguration config) {
@@ -26,36 +25,36 @@ public type SimpleQueueReceiver object {
                 queueName:config.queueName
             });
 
-        self.connector = new QueueReceiverConnector(self.receiver.getClient());
+        self.consumerActions = new QueueReceiverActions(self.receiver.getCallerActions());
     }
 
-    public function register (typedesc serviceType) {
+    public function register(typedesc serviceType) {
         self.receiver.register(serviceType);
     }
 
-    public function start () {
+    public function start() {
         self.receiver.start();
     }
 
-    public function getClient() returns QueueReceiverConnector {
-        match (self.connector) {
-            QueueReceiverConnector c => return c;
+    public function getCallerActions() returns QueueReceiverActions {
+        match (self.consumerActions) {
+            QueueReceiverActions c => return c;
             () => {
-                error e = {message:"Queue receiver connector cannot be nil."};
+                error e = {message:"Queue receiver consumerActions cannot be nil."};
                 throw e;
             }
         }
     }
 
-    public function stop () {
+    public function stop() {
         receiver.stop();
     }
 
-    public function createTextMessage(string message) returns (Message|Error) {
+    public function createTextMessage(string message) returns Message|error {
         var result = self.receiver.createTextMessage(message);
         match (result) {
             jms:Message m => return new Message(m);
-            Error e => return e;
+            error e => return e;
         }
     }
 };
@@ -74,25 +73,24 @@ public type SimpleQueueListenerEndpointConfiguration {
     string queueName,
 };
 
-public type QueueReceiverConnector object {
+public type QueueReceiverActions object {
 
     public {
-        jms:QueueReceiverConnector helper;
+        jms:QueueReceiverActions helper;
     }
 
     public new(helper) {}
 
-    public function acknowledge (Message message) returns Error|() {
+    public function acknowledge(Message message) returns error? {
         return helper.acknowledge(message.getJMSMessage());
     }
 
-    public function receive (int timeoutInMilliSeconds = 0) returns Message|Error|() {
+    public function receive(int timeoutInMilliSeconds = 0) returns Message|error|() {
         var result = helper.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
         match (result) {
             jms:Message m => return new Message(m);
-            jms:Error e => return e;
+            error e => return e;
             () => return ();
         }
     }
 };
-

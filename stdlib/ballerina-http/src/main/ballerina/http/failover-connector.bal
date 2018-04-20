@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-package ballerina.http;
 
 import ballerina/mime;
 import ballerina/runtime;
@@ -342,7 +341,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
                     if (noOfEndpoints > currentIndex) {
                         Request newOutRequest = new;
                         newOutRequest.setEntity(requestEntity);
-                        runtime:sleepCurrentWorker(failoverInterval);
+                        runtime:sleep(failoverInterval);
                         failoverClient = failoverClients[currentIndex];
                         populateFailoverErrorHttpStatusCodes(inResponse, failoverConnectorError, currentIndex - 1);
                     } else {
@@ -358,7 +357,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
                 newOutRequest.setEntity(requestEntity);
                 failoverRequest = newOutRequest;
                 if (noOfEndpoints > currentIndex) {
-                    runtime:sleepCurrentWorker(failoverInterval);
+                    runtime:sleep(failoverInterval);
                     failoverConnectorError.httpConnectorError[currentIndex - 1] = httpConnectorError;
                     failoverClient = failoverClients[currentIndex];
                 } else {

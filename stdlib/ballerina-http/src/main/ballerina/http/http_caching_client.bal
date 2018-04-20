@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
 
 import ballerina/log;
 import ballerina/runtime;
@@ -183,7 +182,7 @@ public type HttpCachingClient object {
 @Description {value:"Creates an HTTP client capable of caching HTTP responses."}
 public function createHttpCachingClient(string url, ClientEndpointConfig config, CacheConfig cacheConfig) returns HttpClient {
     HttpCachingClient httpCachingClient = new (url, config, cacheConfig);
-    log:printDebug("Created HTTP caching client: " + io:sprintf("%r",[httpCachingClient]));
+    log:printDebug("Created HTTP caching client: " + io:sprintf("%r", httpCachingClient));
     return httpCachingClient;
 }
 
@@ -333,7 +332,7 @@ function getCachedResponse (HttpCache cache, HttpClient httpClient, Request req,
             // validating with the origin server.
             if (!(req.cacheControl.noCache ?: true) && !(cachedResponse.cacheControl.noCache ?: true) && !req.hasHeader(PRAGMA)) {
                 setAgeHeader(cachedResponse);
-                log:printDebug("Serving a cached fresh response without validating with the origin server: " + io:sprintf("%r", [cachedResponse]));
+                log:printDebug("Serving a cached fresh response without validating with the origin server: " + io:sprintf("%r", cachedResponse));
                 return cachedResponse;
             } else {
                 log:printDebug("Serving a cached fresh response after validating with the origin server");
@@ -510,8 +509,8 @@ function getFreshnessLifetime (Response cachedResponse, boolean isSharedCache) r
 
                 if (lengthof dateHeader == 1) {
                     // TODO: See if time parsing errors need to be handled
-                    int freshnessLifetime = (time:parseTo(expiresHeader[0], time:TIME_FORMAT_RFC_1123).time
-                                             - time:parseTo(dateHeader[0], time:TIME_FORMAT_RFC_1123).time) / 1000;
+                    int freshnessLifetime = (time:parse(expiresHeader[0], time:TIME_FORMAT_RFC_1123).time
+                                             - time:parse(dateHeader[0], time:TIME_FORMAT_RFC_1123).time) / 1000;
                     return freshnessLifetime;
                 }
             }
@@ -695,13 +694,13 @@ function getDateValue (Response inboundResponse) returns int {
     if (!inboundResponse.hasHeader(DATE)) {
         log:printDebug("Date header not found. Using current time for the Date header.");
         time:Time currentT = time:currentTime();
-        inboundResponse.setHeader(DATE, currentT.formatTo(time:TIME_FORMAT_RFC_1123));
+        inboundResponse.setHeader(DATE, currentT.format(time:TIME_FORMAT_RFC_1123));
         return currentT.time;
     }
 
     string dateHeader = inboundResponse.getHeader(DATE);
     // TODO: May need to handle invalid date headers
-    time:Time dateHeaderTime = time:parseTo(dateHeader, time:TIME_FORMAT_RFC_1123);
+    time:Time dateHeaderTime = time:parse(dateHeader, time:TIME_FORMAT_RFC_1123);
     return dateHeaderTime.time;
 }
 

@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
 
 @Description {value:"Stands for the round robin algorithm for load balancing."}
 @final public string ROUND_ROBIN = "round-robin";
@@ -27,9 +26,10 @@ public type LoadBalancer object {
        HttpClient[] loadBalanceClientsArray;
        string algorithm;
        int nextIndex; // Keeps to index which needs to be take the next load balance endpoint.
+       boolean failover;
    }
 
-   public new (serviceUri, config, loadBalanceClientsArray, algorithm, nextIndex) {}
+   public new (serviceUri, config, loadBalanceClientsArray, algorithm, nextIndex, failover) {}
 
     @Description {value:"The POST action implementation of the LoadBalancer Connector."}
     @Param {value:"path: Resource path"}
@@ -316,9 +316,12 @@ function performLoadBalanceAction (LoadBalancer lb, string path, Request outRequ
             Response inResponse => return inResponse;
 
             HttpConnectorError httpConnectorError => {
-                loadBalanceConnectorError.httpConnectorError[lb.nextIndex] = httpConnectorError;
-                loadBalanceClient = roundRobin(lb, lb.loadBalanceClientsArray);
-                loadBalanceTermination = loadBalanceTermination + 1;
+                if (!lb.failover) {
+                    return httpConnectorError;
+                } else {
+                    loadBalanceConnectorError.httpConnectorError[lb.nextIndex] = httpConnectorError;
+                    loadBalanceTermination = loadBalanceTermination + 1;
+                }
             }
         }
     }
@@ -352,4 +355,3 @@ function populateGenericLoadBalanceConnectorError (LoadBalanceConnectorError loa
     HttpConnectorError httpConnectorError = loadBalanceConnectorError;
     return httpConnectorError;
 }
-

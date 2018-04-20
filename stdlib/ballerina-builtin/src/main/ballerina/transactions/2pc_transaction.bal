@@ -14,12 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.transactions;
 
 import ballerina/io;
 import ballerina/log;
 import ballerina/time;
-import ballerina/util;
 
 type TwoPhaseCommitTransaction object {
     private {
@@ -38,7 +36,7 @@ type TwoPhaseCommitTransaction object {
 
     // This function will be called by the initiator
     function twoPhaseCommit() returns string|error {
-        log:printInfo(io:sprintf("Running 2-phase commit for transaction: %s:%d", [self.transactionId, self.transactionBlockId]));
+        log:printInfo(io:sprintf("Running 2-phase commit for transaction: %s:%d", self.transactionId, self.transactionBlockId));
         string|error ret = "";
 
         // Prepare local resource managers
@@ -219,7 +217,7 @@ type TwoPhaseCommitTransaction object {
 
     // This function will be called by the initiator
     function abortInitiatorTransaction() returns string|error {
-        log:printInfo(io:sprintf("Aborting initiated transaction: %s:%d", [self.transactionId, self.transactionBlockId]));
+        log:printInfo(io:sprintf("Aborting initiated transaction: %s:%d", self.transactionId, self.transactionBlockId));
         string|error ret = "";
         // return response to the initiator. ( Aborted | Mixed )
         var result = self.notifyParticipants(COMMAND_ABORT, ());

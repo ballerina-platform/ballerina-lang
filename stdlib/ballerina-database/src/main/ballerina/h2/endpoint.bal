@@ -13,7 +13,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-package ballerina.h2;
 
 import ballerina/sql;
 
@@ -65,7 +64,7 @@ public type Client object {
     documentation {
         Returns the connector that the client code uses.
     }
-    function getClient() returns sql:CallerActions {
+    public function getCallerActions() returns sql:CallerActions {
         return self.h2Client;
     }
 

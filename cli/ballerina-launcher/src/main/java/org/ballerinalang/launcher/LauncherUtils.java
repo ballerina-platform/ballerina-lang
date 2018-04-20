@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.ProgramFileWriter;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -61,7 +62,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DOT_BALLERINA_DIR_NAME;
 
 /**
  * Contains utility methods for executing a Ballerina program.
@@ -72,18 +72,17 @@ public class LauncherUtils {
 
     public static void runProgram(Path sourceRootPath, Path sourcePath, boolean runServices,
                                   Map<String, String> runtimeParams, String configFilePath, String[] args,
-                                  boolean offline, boolean observeFlag, Map<String, String> metricsParams,
-                                  Map<String, String> tracingParams) {
+                                  boolean offline, boolean observeFlag) {
         ProgramFile programFile;
         String srcPathStr = sourcePath.toString();
         Path fullPath = sourceRootPath.resolve(sourcePath);
-        loadConfigurations(sourceRootPath, runtimeParams, configFilePath, observeFlag, metricsParams, tracingParams);
+        loadConfigurations(sourceRootPath, runtimeParams, configFilePath, observeFlag);
 
         if (srcPathStr.endsWith(BLangConstants.BLANG_EXEC_FILE_SUFFIX)) {
             programFile = BLangProgramLoader.read(sourcePath);
         } else if (Files.isRegularFile(fullPath) &&
                 srcPathStr.endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX) &&
-                !Files.isDirectory(sourceRootPath.resolve(DOT_BALLERINA_DIR_NAME))) {
+                !RepoUtils.hasProjectRepo(sourceRootPath)) {
             programFile = compile(fullPath.getParent(), fullPath.getFileName(), offline);
         } else if (Files.isDirectory(sourceRootPath)) {
             programFile = compile(sourceRootPath, sourcePath, offline);
@@ -298,12 +297,9 @@ public class LauncherUtils {
      * @param runtimeParams  run time parameters
      * @param configFilePath config file path
      * @param observeFlag    to indicate whether observability is enabled
-     * @param metricsParams  configuration parameters for metrics
-     * @param tracingParams  configuration parameters for tracing
      */
     private static void loadConfigurations(Path sourceRootPath, Map<String, String> runtimeParams,
-                                           String configFilePath, boolean observeFlag,
-                                           Map<String, String> metricsParams, Map<String, String> tracingParams) {
+                                           String configFilePath, boolean observeFlag) {
         Path ballerinaConfPath = sourceRootPath.resolve("ballerina.conf");
         try {
             ConfigRegistry.getInstance().initRegistry(runtimeParams, configFilePath, ballerinaConfPath);
@@ -314,12 +310,6 @@ public class LauncherUtils {
                         .addConfiguration(ObservabilityConstants.CONFIG_METRICS_ENABLED, Boolean.TRUE);
                 ConfigRegistry.getInstance()
                         .addConfiguration(ObservabilityConstants.CONFIG_TRACING_ENABLED, Boolean.TRUE);
-                metricsParams.forEach(
-                        (key, value) -> ConfigRegistry.getInstance()
-                                .addConfiguration(ObservabilityConstants.CONFIG_TABLE_METRICS + "." + key, value));
-                tracingParams.forEach(
-                        (key, value) -> ConfigRegistry.getInstance()
-                                .addConfiguration(ObservabilityConstants.CONFIG_TABLE_TRACING + "." + key, value));
             }
 
         } catch (IOException e) {

@@ -341,7 +341,7 @@ function testToXmlWithinTransaction() returns (string, int) {
             table dt = check testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", ());
 
             var result = check <xml>dt;
-            resultXml = io:sprintf("%l", [result]);
+            resultXml = io:sprintf("%l", result);
         }
         return (resultXml, returnValue);
     } finally {
@@ -364,7 +364,7 @@ function testToJsonWithinTransaction() returns (string, int) {
             table dt = check testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", ());
 
             var j = check <json>dt;
-            result = io:sprintf("%j", [j]);
+            result = io:sprintf("%j", j);
         }
         return (result, returnValue);
     } finally {
@@ -1019,13 +1019,13 @@ function testSignedIntMaxMinValues() returns (int, int, int, string, string, str
     table dt = check dtRet;
 
     var j = check <json>dt;
-    jsonStr = io:sprintf("%j", [j]);
+    jsonStr = io:sprintf("%j", j);
 
     dtRet = testDB->select(selectSQL, ());
     dt = check dtRet;
 
     var x = check <xml>dt;
-    xmlStr = io:sprintf("%l", [x]);
+    xmlStr = io:sprintf("%l", x);
 
     dtRet = testDB->select(selectSQL, ResultSignedInt);
     dt = check dtRet;
@@ -1077,13 +1077,13 @@ function testComplexTypeInsertAndRetrieval() returns (int, int, string, string, 
     table dt = check dtRet;
 
     var j = check <json>dt;
-    jsonStr = io:sprintf("%j", [j]);
+    jsonStr = io:sprintf("%j", j);
 
     dtRet = testDB->select(selectSQL, ());
     dt = check dtRet;
 
     var x = check <xml>dt;
-    xmlStr = io:sprintf("%l", [x]);
+    xmlStr = io:sprintf("%l", x);
 
     dt = check testDB->select(selectSQL, ResultComplexTypes);
 

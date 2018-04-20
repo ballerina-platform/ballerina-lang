@@ -1,4 +1,3 @@
-package ballerina.jms;
 
 import ballerina/log;
 
@@ -37,15 +36,15 @@ public type SimpleTopicPublisher object {
         self.publisher = topicPublisher;
     }
 
-    public function register (typedesc serviceType) {
+    public function register(typedesc serviceType) {
     }
 
-    public function start () {
+    public function start() {
     }
 
-    public function getClient () returns (TopicPublisherConnector) {
+    public function getCallerActions() returns TopicPublisherActions {
         match (publisher) {
-            TopicPublisher s => return s.getClient();
+            TopicPublisher s => return s.getCallerActions();
             () => {
                 error e = {message: "Topic publisher cannot be nil"};
                 throw e;
@@ -53,10 +52,10 @@ public type SimpleTopicPublisher object {
         }
     }
 
-    public function stop () {
+    public function stop() {
     }
 
-    public function createTextMessage(string message) returns (Message | Error) {
+    public function createTextMessage(string message) returns Message|error {
         match (session) {
             Session s => return s.createTextMessage(message);
             () => {
@@ -64,7 +63,6 @@ public type SimpleTopicPublisher object {
                 throw e;
             }
         }
-
     }
 };
 
@@ -76,4 +74,3 @@ public type SimpleTopicPublisherEndpointConfiguration {
     map properties;
     string topicPattern;
 };
-

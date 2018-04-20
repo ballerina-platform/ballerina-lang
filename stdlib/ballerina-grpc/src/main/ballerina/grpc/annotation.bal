@@ -13,31 +13,27 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-package ballerina.grpc;
 
 documentation {
     gRPC service configuration
 
-    F{{rpcEndpoint}} - gRPC resource name. This applies only for client streaming and bidirectional streaming
+    F{{name}} - gRPC resource name. This applies only for client streaming and bidirectional streaming
 where we can define only one resource. In order to generate proto file, we need resource name.
     F{{clientStreaming}} - gRPC client streaming service flag. This applies only for servicestub streaming and
 bidirectional streaming. Flag sets to true, if the service is client/bidirectional streaming.
     F{{serverStreaming}} - gRPC server streaming service flag. This applies only for client streaming and
 bidirectional streaming. Flag sets to true, if the service is bidirectional streaming.
-    F{{generateClientConnector}} - client connector generation flag. Flag sets to true, client connector code is
-    generated automatically.
 }
 public type ServiceConfig {
-    string rpcEndpoint;
+    string name;
     boolean clientStreaming;
     boolean serverStreaming;
-    boolean generateClientConnector;
 };
 
 documentation {
     gRPC service configuration annotation.
 }
-public annotation <service> serviceConfig ServiceConfig;
+public annotation<service> serviceConfig ServiceConfig;
 
 documentation {
     gRPC service resource configuration
@@ -52,15 +48,4 @@ public type ResourceConfig {
 documentation {
     gRPC service resource configuration annotation.
 }
-public annotation <resource> resourceConfig ResourceConfig;
-
-documentation {
-    Identify the service as server message listener.
-}
-public type MessageListener object {
-};
-
-documentation {
-    gRPC service listener annotation.
-}
-public annotation <service> messageListener MessageListener;
+public annotation<resource> resourceConfig ResourceConfig;

@@ -32,24 +32,24 @@ import ballerina/config;
 @final public string COMMAND_COMMIT = "commit";
 @final public string COMMAND_ABORT = "abort";
 
-@final string PREPARE_RESULT_PREPARED_STR = "prepared";
-@final string PREPARE_RESULT_ABORTED_STR = "aborted";
-@final string PREPARE_RESULT_COMMITTED_STR = "committed";
-@final string PREPARE_RESULT_READ_ONLY_STR = "read-only";
+@final public string PREPARE_RESULT_PREPARED_STR = "prepared";
+@final public string PREPARE_RESULT_ABORTED_STR = "aborted";
+@final public string PREPARE_RESULT_COMMITTED_STR = "committed";
+@final public string PREPARE_RESULT_READ_ONLY_STR = "read-only";
 @final string PREPARE_RESULT_FAILED_STR = "failed";
 
-@final string NOTIFY_RESULT_NOT_PREPARED_STR = "not-prepared";
-@final string NOTIFY_RESULT_FAILED_EOT_STR = "failed-eot";
+@final public string NOTIFY_RESULT_NOT_PREPARED_STR = "not-prepared";
+@final public string NOTIFY_RESULT_FAILED_EOT_STR = "failed-eot";
 
-@final string NOTIFY_RESULT_COMMITTED_STR = "committed";
-@final string NOTIFY_RESULT_ABORTED_STR = "aborted";
+@final public string NOTIFY_RESULT_COMMITTED_STR = "committed";
+@final public string NOTIFY_RESULT_ABORTED_STR = "aborted";
 
-@final string OUTCOME_COMMITTED = "committed";
-@final string OUTCOME_ABORTED = "aborted";
+@final public string OUTCOME_COMMITTED = "committed";
+@final public string OUTCOME_ABORTED = "aborted";
 @final string OUTCOME_MIXED = "mixed";
 @final string OUTCOME_HAZARD = "hazard";
 
-@final string TRANSACTION_UNKNOWN = "Transaction-Unknown";
+@final public string TRANSACTION_UNKNOWN = "Transaction-Unknown";
 
 endpoint http:Listener coordinatorListener {
     host:coordinatorHost,

@@ -629,10 +629,10 @@ public class SQLDatasourceUtils {
     }
 
     public static void setRefCursorValue(Connection connection, PreparedStatement stmt, int index, int direction,
-            String databaseName) {
+            String databaseProductName) {
         try {
             if (Constants.QueryParamDirection.OUT == direction) {
-                if (ORACLE_DATABASE_NAME.equals(databaseName)) {
+                if (ORACLE_DATABASE_NAME.equals(databaseProductName)) {
                     // Since oracle does not support general java.sql.Types.REF_CURSOR in manipulating ref cursors it
                     // is required to use oracle.jdbc.OracleTypes.CURSOR here. In order to avoid oracle driver being
                     // a runtime dependency always, we have directly used the value(-10) of general oracle.jdbc

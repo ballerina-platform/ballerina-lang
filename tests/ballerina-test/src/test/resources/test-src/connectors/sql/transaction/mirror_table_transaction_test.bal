@@ -649,7 +649,7 @@ function invokeWorkers(jdbc:Client testDBClient) {
 
     worker w2 {
         table dt0 = check testDB->getProxyTable("CustomersTrx", CustomersTrx);
-        runtime:sleepCurrentWorker(5000);
+        runtime:sleep(5000);
         CustomersTrx c2 = {firstName:"James", lastName:"Clerk", registrationID:834, creditLimit:5000.75, country:"USA"};
         var result2 = dt0.add(c2);
     }

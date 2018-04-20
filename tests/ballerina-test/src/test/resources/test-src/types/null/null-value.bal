@@ -36,12 +36,13 @@ type Person {
     string name;
 };
 
-function testArrayNull () returns (string[], Person[], int) {
-    string[] s;
-    Person[] p;
+function testArrayNull () returns (string[]?, Person[]?, int) {
+    string[]? s;
+    Person[]? p;
     int a = 0;
-    if (p == null) {
-        a = 9;
+    match p {
+        () => a = 9;
+        any => a = 0;
     }
     return (s, p, a);
 }
@@ -55,12 +56,13 @@ function testArrayNotNull () returns (int) {
     return a;
 }
 
-function testMapNull () returns (map, map, int) {
-    map m1;
-    map m2;
+function testMapNull () returns (map?, map?, int) {
+    map? m1;
+    map? m2;
     int a = 0;
-    if (m1 == null) {
-        a = 10;
+    match m1 {
+        () => a = 10;
+        any => a = 0;
     }
     return (m1, m2, a);
 }
@@ -85,11 +87,11 @@ function testCastingNull (any j) returns (xml) {
 }
 
 function testFunctionCallWithNull () returns (any) {
-    xml x;
+    xml? x;
     return foo(x);
 }
 
-function foo (xml x) returns (xml) {
+function foo (xml? x) returns (xml?) {
     return x;
 }
 
@@ -150,20 +152,20 @@ function testNullInForkJoin () returns (json, json) {
     }
 }
 
-//function testArrayOfNulls () returns (Person|null []) {
-//    Person p1 = {};
-//    Person p2 = {};
-//    Person | null p3 = null;
-//    Person p4 = {};
-//    Person|null [] personArray = [p1, p2, p3, p4];
-//    return personArray;
-//}
+function testArrayOfNulls () returns (Person? []) {
+    Person p1 = {};
+    Person p2 = {};
+    Person? p3;
+    Person p4 = {};
+    Person?[] personArray = [p1, p2, p3, p4];
+    return personArray;
+}
 
 function testMapOfNulls () returns (map) {
     string x1 = "<x1>test xml1</x1>";
-    xml x2;
-    xml | () x3;
+    xml? x2;
+    xml? x3;
     string x4 = "<x4>test xml4</x4>";
-    map xmlMap = {"x1":x1, "x2":x2, "x3":x3, "x4":x4, "x5":null};
+    map xmlMap = {"x1":x1, "x2":x2, "x3":x3, "x4":x4, "x5":()};
     return xmlMap;
 }

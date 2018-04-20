@@ -42,7 +42,8 @@ public class GetCurrentTransactionId extends BlockingNativeCallableUnit {
         String currentTransactionId = "";
         LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
         if (localTransactionInfo != null) {
-            currentTransactionId = localTransactionInfo.getGlobalTransactionId();
+            currentTransactionId = localTransactionInfo.getGlobalTransactionId() + ":" + localTransactionInfo
+                    .getCurrentTransactionBlockId();
         }
         ctx.setReturnValues(new BString(currentTransactionId));
     }
