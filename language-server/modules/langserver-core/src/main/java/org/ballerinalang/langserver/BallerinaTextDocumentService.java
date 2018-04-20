@@ -98,8 +98,7 @@ import java.util.concurrent.locks.Lock;
  */
 class BallerinaTextDocumentService implements TextDocumentService {
     // indicates the frequency to send diagnostics to server upon document did change
-    private static final int DIAG_PUSH_DEBOUNCE_DELAY = 200;
-    private static final int DIAG_COMPLETION_DELAY = 210;
+    private static final int DIAG_PUSH_DEBOUNCE_DELAY = 500;
     private final BallerinaLanguageServer ballerinaLanguageServer;
     private final WorkspaceDocumentManager documentManager;
     private Map<String, List<Diagnostic>> lastDiagnosticMap;
@@ -118,13 +117,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<Either<List<CompletionItem>, CompletionList>>
     completion(TextDocumentPositionParams position) {
-        try {
-            //TODO: Revisit this workaround
-            // Make a slight delay to avoid completion processed before onChange() triggered
-            Thread.sleep(DIAG_COMPLETION_DELAY);
-        } catch (InterruptedException e) {
-            //ignore
-        }
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = position.getTextDocument().getUri();
             List<CompletionItem> completions;
@@ -471,8 +463,13 @@ class BallerinaTextDocumentService implements TextDocumentService {
         if (openedPath == null) {
             return;
         }
-
         String content = params.getTextDocument().getText();
+        Optional<Lock> lock = documentManager.lockFile(openedPath);
+        try {
+            documentManager.openFile(openedPath, content);
+        } finally {
+            lock.ifPresent(Lock::unlock);
+        }
         compileAndSendDiagnostics(content, openedPath);
     }
 
@@ -482,8 +479,17 @@ class BallerinaTextDocumentService implements TextDocumentService {
         if (changedPath == null) {
             return;
         }
-
         String content = params.getContentChanges().get(0).getText();
+        Optional<Lock> lock = documentManager.lockFile(changedPath);
+        try {
+            if (documentManager.isFileOpen(changedPath)) {
+                documentManager.updateFile(changedPath, content);
+            } else {
+                documentManager.openFile(changedPath, content);
+            }
+        } finally {
+            lock.ifPresent(Lock::unlock);
+        }
         this.diagPushDebouncer.call(() -> compileAndSendDiagnostics(content, changedPath));
     }
 
