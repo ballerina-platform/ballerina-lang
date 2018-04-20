@@ -239,13 +239,15 @@ class TreeBuilder {
                 }
             }
 
-            for (let i = 0; i < node.ws.length; i++) {
-                if (node.ws[i].text === 'public' && node.ws[i + 1].text === '{') {
-                    publicFieldBlockVisible = true;
-                }
+            if (node.ws) {
+                for (let i = 0; i < node.ws.length; i++) {
+                    if (node.ws[i].text === 'public' && node.ws[i + 1].text === '{') {
+                        publicFieldBlockVisible = true;
+                    }
 
-                if (node.ws[i].text === 'private' && node.ws[i + 1].text === '{') {
-                    privateFieldBlockVisible = true;
+                    if (node.ws[i].text === 'private' && node.ws[i + 1].text === '{') {
+                        privateFieldBlockVisible = true;
+                    }
                 }
             }
 

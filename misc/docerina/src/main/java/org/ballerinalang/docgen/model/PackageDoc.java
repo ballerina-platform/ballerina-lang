@@ -35,8 +35,9 @@ public class PackageDoc {
     /**
      * Constructor.
      *
-     * @param descriptionPath  description of the package.
-     * @param bLangPackage package object.
+     * @param descriptionPath description of the package.
+     * @param bLangPackage    package object.
+     * @throws IOException on error.
      */
     public PackageDoc(Path descriptionPath, BLangPackage bLangPackage) throws IOException {
         this.description = getDescription(descriptionPath);

@@ -47,7 +47,7 @@ public type SecureListener object {
 
     @Description {value:"Returns the connector that client code uses"}
     @Return {value:"The connector that client code uses"}
-    public function getClient() returns (Connection);
+    public function getCallerActions() returns (Connection);
 
     @Description {value:"Stops the registered service"}
     public function stop();
@@ -156,7 +156,7 @@ function createAuthFiltersForSecureListener (SecureEndpointConfiguration config)
 
 function createBasicAuthHandler () returns HttpAuthnHandler  {
     auth:ConfigAuthProvider configAuthProvider = new;
-    auth:AuthProvider authProvider1 = <auth:AuthProvider> configAuthProvider;
+    auth:AuthProvider authProvider1 = check <auth:AuthProvider> configAuthProvider;
     HttpBasicAuthnHandler basicAuthHandler = new(authProvider1);
     return check <HttpAuthnHandler> basicAuthHandler;
 }
@@ -166,7 +166,7 @@ function createAuthHandler (AuthProvider authProvider) returns HttpAuthnHandler 
         auth:AuthProvider authProvider1;
         if (authProvider.authProvider == AUTH_PROVIDER_CONFIG) {
             auth:ConfigAuthProvider configAuthProvider = new;
-            authProvider1 = <auth:AuthProvider> configAuthProvider;
+            authProvider1 = check <auth:AuthProvider> configAuthProvider;
         } else {
             // other auth providers are unsupported yet
             error e = {message:"Invalid auth provider: " + authProvider.authProvider };
@@ -212,8 +212,8 @@ public function SecureListener::start () {
 
 @Description {value:"Returns the connector that client code uses"}
 @Return {value:"The connector that client code uses"}
-public function SecureListener::getClient () returns (Connection) {
-    return self.httpListener.getClient();
+public function SecureListener::getCallerActions () returns (Connection) {
+    return self.httpListener.getCallerActions();
 }
 
 @Description {value:"Stops the registered service"}

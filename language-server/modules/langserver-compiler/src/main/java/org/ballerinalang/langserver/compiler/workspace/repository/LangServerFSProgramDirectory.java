@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.compiler.workspace.repository;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.wso2.ballerinalang.compiler.FileSystemProgramDirectory;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Path;
 
@@ -27,11 +28,31 @@ import java.nio.file.Path;
  * FS program directory handler for the language server.
  */
 public class LangServerFSProgramDirectory extends FileSystemProgramDirectory {
+    private static final CompilerContext.Key<LangServerFSProgramDirectory> LS_PROGRAM_DIRECTORY =
+            new CompilerContext.Key<>();
+
     private Path programDirPath;
     private WorkspaceDocumentManager documentManager;
 
-    public LangServerFSProgramDirectory(Path programDirPath, WorkspaceDocumentManager documentManager) {
+    public static LangServerFSProgramDirectory getInstance(CompilerContext context, Path projectDirPath,
+                                                           WorkspaceDocumentManager documentManager) {
+        LangServerFSProgramDirectory lsFSProgramDirectory = context.get(LS_PROGRAM_DIRECTORY);
+        if (lsFSProgramDirectory == null) {
+            synchronized (LangServerFSProgramDirectory.class) {
+                lsFSProgramDirectory = context.get(LS_PROGRAM_DIRECTORY);
+                if (lsFSProgramDirectory == null) {
+                    lsFSProgramDirectory = new LangServerFSProgramDirectory(context, projectDirPath, documentManager);
+                }
+            }
+        }
+        lsFSProgramDirectory.documentManager = documentManager;
+        return lsFSProgramDirectory;
+    }
+
+    public LangServerFSProgramDirectory(CompilerContext context, Path programDirPath,
+                                        WorkspaceDocumentManager documentManager) {
         super(programDirPath);
+        context.put(LS_PROGRAM_DIRECTORY, this);
         this.programDirPath = programDirPath;
         this.documentManager = documentManager;
     }

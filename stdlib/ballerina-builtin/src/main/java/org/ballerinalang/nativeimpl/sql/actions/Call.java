@@ -43,7 +43,7 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
 @BallerinaFunction(
         orgName = "ballerina", packageName = "sql",
         functionName = "call",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = Constants.SQL_CLIENT),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = Constants.CALLER_ACTIONS),
         args = {
                 @Argument(name = "sqlQuery", type = TypeKind.STRING),
                 @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.STRUCT,
@@ -51,8 +51,7 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
         },
         returnType = {
                 @ReturnType(type = TypeKind.TABLE),
-                @ReturnType(type = TypeKind.STRUCT, structType = "error",
-                            structPackage = "ballerina.builtin")
+                @ReturnType(type = TypeKind.STRUCT, structType = "error", structPackage = "ballerina.builtin")
         }
 )
 public class Call extends AbstractSQLAction {
@@ -65,7 +64,7 @@ public class Call extends AbstractSQLAction {
             BRefValueArray structTypes = (BRefValueArray) context.getNullableRefArgument(1);
             BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(2);
 
-            SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.SQL_CLIENT);
+            SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CALLER_ACTIONS);
 
             ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
             observerContext.addTag(TAG_KEY_DB_STATEMENT, query);

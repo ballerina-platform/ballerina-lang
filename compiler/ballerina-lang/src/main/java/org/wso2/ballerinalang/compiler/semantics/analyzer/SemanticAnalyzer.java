@@ -128,7 +128,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
@@ -138,6 +137,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
@@ -410,8 +410,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         Set<BLangIdentifier> visitedAttributes = new HashSet<>();
         for (BLangDocumentationAttribute attribute : docNode.attributes) {
             if (attribute.docTag == DocTag.ENDPOINT) {
-                if (!this.env.enclObject.getFunctions().stream().anyMatch(bLangFunction -> "getClient".equals
-                        (bLangFunction.getName().toString()))) {
+                if (!this.env.enclObject.getFunctions().stream().anyMatch(bLangFunction ->
+                        Names.EP_SPI_GET_CALLER_ACTIONS.value.equals(bLangFunction.getName().toString()))) {
                     this.dlog.warning(attribute.pos, DiagnosticCode.INVALID_USE_OF_ENDPOINT_DOCUMENTATION_ATTRIBUTE,
                             attribute.docTag.getValue());
                 }
@@ -443,8 +443,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     continue;
                 }
             } else {
-                if (!(attributeSymbol.tag == SymTag.VARIABLE) || ((BVarSymbol) attributeSymbol).docTag != attribute
-                        .docTag) {
+                if (!(attributeSymbol.tag == SymTag.VARIABLE || attributeSymbol.tag == SymTag.ENDPOINT) || (
+                        (BVarSymbol) attributeSymbol).docTag != attribute.docTag) {
                     this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE, attribute
                             .documentationField, attribute.docTag.getValue());
                     continue;
@@ -1041,7 +1041,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangFail failNode) {
+    public void visit(BLangRetry retryNode) {
         /* ignore */
     }
 

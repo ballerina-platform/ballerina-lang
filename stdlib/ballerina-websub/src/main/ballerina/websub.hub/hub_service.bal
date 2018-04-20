@@ -233,7 +233,8 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
 @Param {value:"params: Parameters specified in the new subscription/unsubscription request"}
 function verifyIntent(string callback, string topic, map params) {
     endpoint http:Client callbackEp {
-        targets:[{url:callback, secureSocket: secureSocket }]
+        url:callback,
+        secureSocket: secureSocket
     };
 
     string mode = <string> params[websub:HUB_MODE];
@@ -468,7 +469,8 @@ function addSubscriptionsOnStartup() {
 @Param {value:"topic: The topic URL to be fetched to retrieve updates"}
 function fetchTopicUpdate(string topic) returns (http:Response | http:HttpConnectorError) {
     endpoint http:Client topicEp {
-        targets:[{url:topic, secureSocket: secureSocket }]
+        url:topic,
+        secureSocket: secureSocket
     };
 
     http:Request request = new;
@@ -483,7 +485,8 @@ function fetchTopicUpdate(string topic) returns (http:Response | http:HttpConnec
 @Param {value:"payload: The update payload to be delivered to the subscribers"}
 public function distributeContent(string callback, websub:SubscriptionDetails subscriptionDetails, json payload) {
     endpoint http:Client callbackEp {
-        targets:[{url:callback, secureSocket: secureSocket }]
+        url:callback,
+        secureSocket: secureSocket
     };
 
     http:Request request = new;

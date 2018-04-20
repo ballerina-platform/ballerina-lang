@@ -324,6 +324,8 @@ public class HttpConstants {
     public static final String CONNECTION_THROTTLING_STRUCT_REFERENCE = "connectionThrottling";
     public static final String CONNECTION_THROTTLING_MAX_ACTIVE_CONNECTIONS = "maxActiveConnections";
     public static final String CONNECTION_THROTTLING_WAIT_TIME = "waitTime";
+    public static final String CONNECTION_THROTTLING_MAX_ACTIVE_STREAMS_PER_CONNECTION =
+            "maxActiveStreamsPerConnection";
 
     //FollowRedirect Indexes
     public static final String FOLLOW_REDIRECT_STRUCT_REFERENCE = "followRedirects";
