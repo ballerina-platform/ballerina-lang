@@ -1,6 +1,5 @@
 import ballerina/h2;
 import ballerina/sql;
-import ballerina/mysql;
 import ballerina/io;
 
 public type Customer {

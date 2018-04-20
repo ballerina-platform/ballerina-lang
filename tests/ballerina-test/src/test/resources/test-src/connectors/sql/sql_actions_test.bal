@@ -698,93 +698,93 @@ function testArrayInOutParameters() returns (any, any, any, any, any, any, any) 
     return (para2.value, para3.value, para4.value, para5.value, para6.value, para7.value, para8.value);
 }
 
-//function testBatchUpdate() returns (int[]) {
-//    endpoint jdbc:Client testDB {
-//        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-//        username:"SA",
-//        poolOptions:{maximumPoolSize:1}
-//    };
-//
-//    //Batch 1
-//    sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:"Alex"};
-//    sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:"Smith"};
-//    sql:Parameter para3 = {sqlType:sql:TYPE_INTEGER, value:20};
-//    sql:Parameter para4 = {sqlType:sql:TYPE_DOUBLE, value:3400.5};
-//    sql:Parameter para5 = {sqlType:sql:TYPE_VARCHAR, value:"Colombo"};
-//    sql:Parameter[] parameters1 = [para1, para2, para3, para4, para5];
-//
-//    //Batch 2
-//    para1 = {sqlType:sql:TYPE_VARCHAR, value:"Alex"};
-//    para2 = {sqlType:sql:TYPE_VARCHAR, value:"Smith"};
-//    para3 = {sqlType:sql:TYPE_INTEGER, value:20};
-//    para4 = {sqlType:sql:TYPE_DOUBLE, value:3400.5};
-//    para5 = {sqlType:sql:TYPE_VARCHAR, value:"Colombo"};
-//    sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
-//
-//    int[] updateCount = check testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country}
-//                                     values (?,?,?,?,?)", parameters1, parameters2);
-//    testDB.stop();
-//    return updateCount;
-//}
+function testBatchUpdate() returns (int[]) {
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
+    };
 
-//function testBatchUpdateWithFailure() returns (int[], int) {
-//    endpoint jdbc:Client testDB {
-//        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-//        username:"SA",
-//        poolOptions:{maximumPoolSize:1}
-//    };
-//
-//    //Batch 1
-//    sql:Parameter para0 = {sqlType:sql:TYPE_INTEGER, value:111};
-//    sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:"Alex"};
-//    sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:"Smith"};
-//    sql:Parameter para3 = {sqlType:sql:TYPE_INTEGER, value:20};
-//    sql:Parameter para4 = {sqlType:sql:TYPE_DOUBLE, value:3400.5};
-//    sql:Parameter para5 = {sqlType:sql:TYPE_VARCHAR, value:"Colombo"};
-//    sql:Parameter[] parameters1 = [para0, para1, para2, para3, para4, para5];
-//
-//    //Batch 2
-//    para0 = {sqlType:sql:TYPE_INTEGER, value:222};
-//    para1 = {sqlType:sql:TYPE_VARCHAR, value:"Alex"};
-//    para2 = {sqlType:sql:TYPE_VARCHAR, value:"Smith"};
-//    para3 = {sqlType:sql:TYPE_INTEGER, value:20};
-//    para4 = {sqlType:sql:TYPE_DOUBLE, value:3400.5};
-//    para5 = {sqlType:sql:TYPE_VARCHAR, value:"Colombo"};
-//    sql:Parameter[] parameters2 = [para0, para1, para2, para3, para4, para5];
-//
-//    //Batch 3
-//    para0 = {sqlType:sql:TYPE_INTEGER, value:222};
-//    para1 = {sqlType:sql:TYPE_VARCHAR, value:"Alex"};
-//    para2 = {sqlType:sql:TYPE_VARCHAR, value:"Smith"};
-//    para3 = {sqlType:sql:TYPE_INTEGER, value:20};
-//    para4 = {sqlType:sql:TYPE_DOUBLE, value:3400.5};
-//    para5 = {sqlType:sql:TYPE_VARCHAR, value:"Colombo"};
-//    sql:Parameter[] parameters3 = [para0, para1, para2, para3, para4, para5];
-//
-//    //Batch 4
-//    para0 = {sqlType:sql:TYPE_INTEGER, value:333};
-//    para1 = {sqlType:sql:TYPE_VARCHAR, value:"Alex"};
-//    para2 = {sqlType:sql:TYPE_VARCHAR, value:"Smith"};
-//    para3 = {sqlType:sql:TYPE_INTEGER, value:20};
-//    para4 = {sqlType:sql:TYPE_DOUBLE, value:3400.5};
-//    para5 = {sqlType:sql:TYPE_VARCHAR, value:"Colombo"};
-//    sql:Parameter[] parameters4 = [para0, para1, para2, para3, para4, para5];
-//
-//    int count;
-//
-//    int[] updateCount = check testDB->batchUpdate("Insert into Customers (customerId, firstName,lastName,registrationID,creditLimit,
-//        country) values (?,?,?,?,?,?)", parameters1, parameters2, parameters3, parameters4);
-//    table dt = check testDB->select("SELECT count(*) as countval from Customers where customerId in (111,222,333)",
-//        ResultCount);
-//
-//    while (dt.hasNext()) {
-//        var rs = check <ResultCount>dt.getNext();
-//        count = rs.COUNTVAL;
-//    }
-//
-//    testDB.stop();
-//    return (updateCount, count);
-//}
+    //Batch 1
+    sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:"Alex"};
+    sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:"Smith"};
+    sql:Parameter para3 = {sqlType:sql:TYPE_INTEGER, value:20};
+    sql:Parameter para4 = {sqlType:sql:TYPE_DOUBLE, value:3400.5};
+    sql:Parameter para5 = {sqlType:sql:TYPE_VARCHAR, value:"Colombo"};
+    sql:Parameter[] parameters1 = [para1, para2, para3, para4, para5];
+
+    //Batch 2
+    para1 = {sqlType:sql:TYPE_VARCHAR, value:"Alex"};
+    para2 = {sqlType:sql:TYPE_VARCHAR, value:"Smith"};
+    para3 = {sqlType:sql:TYPE_INTEGER, value:20};
+    para4 = {sqlType:sql:TYPE_DOUBLE, value:3400.5};
+    para5 = {sqlType:sql:TYPE_VARCHAR, value:"Colombo"};
+    sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
+
+    int[] updateCount = check testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                     values (?,?,?,?,?)", parameters1, parameters2);
+    testDB.stop();
+    return updateCount;
+}
+
+function testBatchUpdateWithFailure() returns (int[], int) {
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
+    };
+
+    //Batch 1
+    sql:Parameter para0 = {sqlType:sql:TYPE_INTEGER, value:111};
+    sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:"Alex"};
+    sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:"Smith"};
+    sql:Parameter para3 = {sqlType:sql:TYPE_INTEGER, value:20};
+    sql:Parameter para4 = {sqlType:sql:TYPE_DOUBLE, value:3400.5};
+    sql:Parameter para5 = {sqlType:sql:TYPE_VARCHAR, value:"Colombo"};
+    sql:Parameter[] parameters1 = [para0, para1, para2, para3, para4, para5];
+
+    //Batch 2
+    para0 = {sqlType:sql:TYPE_INTEGER, value:222};
+    para1 = {sqlType:sql:TYPE_VARCHAR, value:"Alex"};
+    para2 = {sqlType:sql:TYPE_VARCHAR, value:"Smith"};
+    para3 = {sqlType:sql:TYPE_INTEGER, value:20};
+    para4 = {sqlType:sql:TYPE_DOUBLE, value:3400.5};
+    para5 = {sqlType:sql:TYPE_VARCHAR, value:"Colombo"};
+    sql:Parameter[] parameters2 = [para0, para1, para2, para3, para4, para5];
+
+    //Batch 3
+    para0 = {sqlType:sql:TYPE_INTEGER, value:222};
+    para1 = {sqlType:sql:TYPE_VARCHAR, value:"Alex"};
+    para2 = {sqlType:sql:TYPE_VARCHAR, value:"Smith"};
+    para3 = {sqlType:sql:TYPE_INTEGER, value:20};
+    para4 = {sqlType:sql:TYPE_DOUBLE, value:3400.5};
+    para5 = {sqlType:sql:TYPE_VARCHAR, value:"Colombo"};
+    sql:Parameter[] parameters3 = [para0, para1, para2, para3, para4, para5];
+
+    //Batch 4
+    para0 = {sqlType:sql:TYPE_INTEGER, value:333};
+    para1 = {sqlType:sql:TYPE_VARCHAR, value:"Alex"};
+    para2 = {sqlType:sql:TYPE_VARCHAR, value:"Smith"};
+    para3 = {sqlType:sql:TYPE_INTEGER, value:20};
+    para4 = {sqlType:sql:TYPE_DOUBLE, value:3400.5};
+    para5 = {sqlType:sql:TYPE_VARCHAR, value:"Colombo"};
+    sql:Parameter[] parameters4 = [para0, para1, para2, para3, para4, para5];
+
+    int count;
+
+    int[] updateCount = check testDB->batchUpdate("Insert into Customers (customerId, firstName,lastName,registrationID,creditLimit,
+        country) values (?,?,?,?,?,?)", parameters1, parameters2, parameters3, parameters4);
+    table dt = check testDB->select("SELECT count(*) as countval from Customers where customerId in (111,222,333)",
+        ResultCount);
+
+    while (dt.hasNext()) {
+        var rs = check <ResultCount>dt.getNext();
+        count = rs.COUNTVAL;
+    }
+
+    testDB.stop();
+    return (updateCount, count);
+}
 
 function testBatchUpdateWithNullParam() returns (int[]) {
     endpoint jdbc:Client testDB {

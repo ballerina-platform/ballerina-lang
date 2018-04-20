@@ -146,7 +146,7 @@ public type Parameter {
     typedesc recordType,
 };
 
-//public type Parameter
+//public type Param
 //(SQLType, any, Direction)|
 //(SQLType, any)|
 //CallParam|//To used with the SQL out parameters
