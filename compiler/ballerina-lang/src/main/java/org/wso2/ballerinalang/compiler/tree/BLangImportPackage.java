@@ -134,6 +134,6 @@ public class BLangImportPackage extends BLangNode implements ImportPackageNode {
             aliasStr = " as " + aliasStr;
         }
 
-        return orgName + '.' + pkgName + versionStr + aliasStr;
+        return (orgName.isEmpty() ? "" : orgName + '.') + pkgName + versionStr + aliasStr;
     }
 }
