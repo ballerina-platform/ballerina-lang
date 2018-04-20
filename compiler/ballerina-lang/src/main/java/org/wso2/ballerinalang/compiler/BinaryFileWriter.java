@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
@@ -38,6 +39,7 @@ import java.nio.file.Path;
 import java.util.ServiceLoader;
 import java.util.stream.Stream;
 
+import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PACKAGE_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_EXEC_FILE_SUFFIX;
@@ -55,6 +57,7 @@ public class BinaryFileWriter {
 
     private final CodeGenerator codeGenerator;
     private final SourceDirectory sourceDirectory;
+    private final boolean testEnabled;
 
     public static BinaryFileWriter getInstance(CompilerContext context) {
         BinaryFileWriter binaryFileWriter = context.get(BINARY_FILE_WRITER_KEY);
@@ -68,6 +71,7 @@ public class BinaryFileWriter {
         context.put(BINARY_FILE_WRITER_KEY, this);
         this.codeGenerator = CodeGenerator.getInstance(context);
         this.sourceDirectory = context.get(SourceDirectory.class);
+        this.testEnabled = Boolean.parseBoolean(CompilerOptions.getInstance(context).get(TEST_ENABLED));
         if (this.sourceDirectory == null) {
             throw new IllegalArgumentException("source directory has not been initialized");
         }
@@ -84,7 +88,7 @@ public class BinaryFileWriter {
         // Generate balo
         Path path = this.sourceDirectory.getPath();
         if (RepoUtils.hasProjectRepo(path)) {
-            ProjectSourceRepo projectSourceRepo = new ProjectSourceRepo(path);
+            ProjectSourceRepo projectSourceRepo = new ProjectSourceRepo(path, testEnabled);
             Patten packageIDPattern = projectSourceRepo.calculate(packageNode.packageID);
             Stream<Path> pathStream = packageIDPattern.convert(projectSourceRepo.getConverterInstance());
             pathStream = Stream.concat(pathStream, packageIDPattern.sibling(path("Package.md")).convert

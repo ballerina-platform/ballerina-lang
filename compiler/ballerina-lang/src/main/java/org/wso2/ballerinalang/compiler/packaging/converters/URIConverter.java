@@ -60,9 +60,14 @@ public class URIConverter implements Converter<URI> {
     }
 
     @Override
-    public Stream<URI> expandBal(URI u) {
+    public Stream<URI> expandBalWithTest(URI u) {
         throw new UnsupportedOperationException();
 
+    }
+
+    @Override
+    public Stream<URI> expandBal(URI uri) {
+        throw new UnsupportedOperationException();
     }
 
     public Stream<PackageSourceEntry> finalize(URI u, PackageID packageID) {

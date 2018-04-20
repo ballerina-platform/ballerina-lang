@@ -40,6 +40,8 @@ public enum CompilerOptionName {
 
     DRY_RUN("dryRun"),
 
+    TEST_ENABLED("testEnabled"),
+
     TARGET_BINARY_PATH("targetBinaryPath");
 
     public final String name;
