@@ -43,8 +43,8 @@ public class TableIterationTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/types/table/table-iteration.bal");
-        resultNegative = BCompileUtil.compile("test-src/types/table/table-iteration-negative.bal");
+        result = BCompileUtil.compile("test-src/types/table/table_iteration.bal");
+        resultNegative = BCompileUtil.compile("test-src/types/table/table_iteration_negative.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/TableIterationTestData.sql");
     }
@@ -181,40 +181,40 @@ public class TableIterationTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(enabled = false)
+    @Test()
     public void testSelect() {
         BValue[] returns = BRunUtil.invoke(result, "testSelect");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
-                "{data: [{id:1, salary:100.0}, {id:2, salary:200.0}, {id:3, salary:300.0}]}");
+                "[{\"id\":1,\"salary\":100.0},{\"id\":2,\"salary\":200.0},{\"id\":3,\"salary\":300.0}]");
     }
 
-    @Test(enabled = false)
+    @Test()
     public void testSelectCompatibleLambdaInput() {
         BValue[] returns = BRunUtil.invoke(result, "testSelectCompatibleLambdaInput");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
-                "{data: [{id:1, salary:100.0}, {id:2, salary:200.0}, {id:3, salary:300.0}]}");
+                "[{\"id\":1,\"salary\":100.0},{\"id\":2,\"salary\":200.0},{\"id\":3,\"salary\":300.0}]");
     }
 
-    @Test(enabled = false)
+    @Test()
     public void testSelectCompatibleLambdaOutput() {
         BValue[] returns = BRunUtil.invoke(result, "testSelectCompatibleLambdaOutput");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
-                "{data: [{id:1, salary:100.0}, {id:2, salary:200.0}, {id:3, salary:300.0}]}");
+                "[{\"id\":1,\"salary\":100.0},{\"id\":2,\"salary\":200.0},{\"id\":3,\"salary\":300.0}]");
     }
 
-    @Test(enabled = false)
+    @Test()
     public void testSelectCompatibleLambdaInputOutput() {
         BValue[] returns = BRunUtil.invoke(result, "testSelectCompatibleLambdaInputOutput");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
-                "{data: [{id:1, salary:100.0}, {id:2, salary:200.0}, {id:3, salary:300.0}]}");
+                "[{\"id\":1,\"salary\":100.0},{\"id\":2,\"salary\":200.0},{\"id\":3,\"salary\":300.0}]");
     }
 
     @AfterSuite

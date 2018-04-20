@@ -55,7 +55,7 @@ function testParseTime() returns (int, string, int) {
 }
 
 function testParseRFC1123Time(string timestamp) returns (int, string, int) {
-    time:Time time = time:parseTo(timestamp, time:TIME_FORMAT_RFC_1123);
+    time:Time time = time:parse(timestamp, time:TIME_FORMAT_RFC_1123);
     int timeValue = time.time;
     string zoneId = time.zone.zoneId;
     int zoneoffset = time.zone.zoneOffset;
@@ -77,7 +77,7 @@ function testFormatTime() returns (string) {
 function testFormatTimeToRFC1123() returns (string) {
     time:Timezone zoneValue = {zoneId:"America/Panama"};
     time:Time time = new(1498488382444, zoneValue);
-    return time.formatTo(time:TIME_FORMAT_RFC_1123);
+    return time.format(time:TIME_FORMAT_RFC_1123);
 }
 
 function testGetFunctions() returns (int, int, int, int, int, int, int, string) {

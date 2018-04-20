@@ -5,13 +5,13 @@ The package has two main types as [Time](time.html#Time) and [Timezone](time.htm
 
 ## Samples
 
-### Get the current time/date
+### Getting the current time/date
 
 ```ballerina
 time:Time time = time:currentTime(); // Create an object of type ‘Time’.
 
 int timeValue = time.time;  // Time in milliseconds since January 1, 1970, 00:00:00 GMT. E.g., 1523513039.
-int nanoTime = time:nanoTime(); // Time in nanoseconds since January 1, 1970, 00:00:00 GMT. E.g., 2426115697486340
+int nanoTime = time:nanoTime(); // Time in nanoseconds since an arbitrary origin. Therefore, it should be used only to calculate durations. E.g., 2426115697486340.
 string zoneId = time.zone.zoneId; // Time zone as an identifier. E.g., “America/Panama”.
 int zoneoffset = time.zone.zoneOffset; // Time zone as an offset. E.g., -05:00.
 
@@ -26,7 +26,7 @@ int milliSecond = time.milliSecond(); // E.g., 555
 string weekday = time.weekday(); // Day of the week. E.g., “TUESDAY”.
 ```
 
-### Create a time/date object
+### Creating a time/date object
 
 ```ballerina
 // Create an object of type ‘Time’ with time zone.
@@ -46,7 +46,7 @@ time:Time dateTime = time:createTime(2018, 3, 28, 23, 42, 45, 554, "America/Pana
 ```
 
 
-### Format a time/date to a string
+### Formatting a time/date to a string
 
 ```ballerina
 time:Timezone zoneValue = {zoneId:"America/Panama"};
@@ -56,23 +56,23 @@ time:Time time = new (1498488382444, zoneValue);
 string time1 = time.format("yyyy-MM-dd'T'HH:mm:ss.SSSZ"); //E.g., “2017-06-26T09:46:22.444-0500”.
 
 //Format a time to a string of the RFC-1123 format.
-string time2 = time.formatTo(time:TIME_FORMAT_RFC_1123); // E.g., "Mon, 26 Jun 2017 09:46:22 -0500”
+string time2 = time.format(time:TIME_FORMAT_RFC_1123); // E.g., "Mon, 26 Jun 2017 09:46:22 -0500”
 
 // Convert a time object to a string value.
 string time3 = time.toString(); //”2017-06-26T09:46:22.444-05:00”
 ```
 
-### Parse a string to time/date
+### Parsing a string to time/date
 
 ```ballerina
 // Parse a time string of a given format. 
 time:Time time1 = time:parse("2017-06-26T09:46:22.444-0500", "yyyy-MM-dd'T'HH:mm:ss.SSSZ"); // The ‘Z’ stands for the time zone.
 
 // Parse a time string of the RFC-1123 format.
-time:Time time2 = time:parseTo("Wed, 28 Mar 2018 11:56:23 +0530", time:TIME_FORMAT_RFC_1123);
+time:Time time2 = time:parse("Wed, 28 Mar 2018 11:56:23 +0530", time:TIME_FORMAT_RFC_1123);
 ```
 
-### Time durations
+### Setting time durations
 
 ```ballerina
 // Add a duration to a given time.

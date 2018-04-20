@@ -51,6 +51,8 @@ public class BLangOrderByVariable extends BLangNode implements OrderByVariableNo
             this.orderByType = "asc";
         } else if (isDescending) {
             this.orderByType = "desc";
+        } else {
+            this.orderByType = "";
         }
     }
 

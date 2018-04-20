@@ -18,8 +18,8 @@
 
 package org.ballerinalang.docgen.docs;
 
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.docgen.model.PackageDoc;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +35,7 @@ public class BallerinaDocDataHolder {
      * Value - {@link PackageDoc}.
      */
     private Map<String, PackageDoc> packageMap;
-    private BLangPackage builtinPackage;
+    private String orgName;
 
     protected BallerinaDocDataHolder() {
         packageMap = new HashMap<String, PackageDoc>();
@@ -53,11 +53,12 @@ public class BallerinaDocDataHolder {
         this.packageMap = packageMap;
     }
 
-    public BLangPackage getBuiltinPackage() {
-        return builtinPackage;
-    }
-
-    public void setBuiltinPackage(BLangPackage builtinPackage) {
-        this.builtinPackage = builtinPackage;
+    public String getOrgName() {
+        if (orgName != null) {
+            return orgName;
+        }
+        orgName = ConfigRegistry.getInstance().getAsString(BallerinaDocConstants.ORG_NAME);
+        orgName = orgName == null ? "ballerina/" : orgName + "/";
+        return orgName;
     }
 }

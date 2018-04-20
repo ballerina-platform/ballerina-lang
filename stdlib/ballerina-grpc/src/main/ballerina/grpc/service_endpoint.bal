@@ -17,12 +17,14 @@ package ballerina.grpc;
 
 documentation {
     Represents the gRPC service endpoint
-
-    F{{config}} - gRPC service endpoint configuration.
 }
-public type Service object {
+public type Listener object {
     public {
-        ServiceEndpointConfiguration config;
+        int id;
+    }
+
+    private {
+        CallerAction conn;
     }
 
     documentation {
@@ -30,15 +32,7 @@ public type Service object {
 
         P{{config}} - The ServiceEndpointConfiguration of the endpoint.
     }
-    public function init (ServiceEndpointConfiguration config) {
-        self.config = config;
-        var err = self.initEndpoint();
-        if (err != ()) {
-            throw err;
-        }
-    }
-
-    public native function initEndpoint() returns (error);
+    public native function init(ServiceEndpointConfiguration config);
 
     documentation {
         Gets called every time a service attaches itself to this endpoint - also happens at package
@@ -46,22 +40,22 @@ public type Service object {
 
         P{{serviceType}} - The type of the service to be registered.
     }
-    public native function register (typedesc serviceType);
+    public native function register(typedesc serviceType);
 
     documentation {
         Starts the registered service
     }
-    public native function start ();
+    public native function start();
 
     documentation {
         Stops the registered service
     }
-    public native function stop ();
+    public native function stop();
 
     documentation {
         Returns the client connection that servicestub code uses
     }
-    public native function getClient () returns (ClientResponder);
+    public native function getCallerActions() returns (CallerAction);
 };
 
 documentation {
@@ -111,8 +105,8 @@ public type SslConfiguration {
     int cacheValidityPeriod;
 };
 
-public type Listener object {
-    function getEndpoint() returns (Service) {
+public type Service object {
+    function getEndpoint() returns Listener {
         return new;
     }
 };

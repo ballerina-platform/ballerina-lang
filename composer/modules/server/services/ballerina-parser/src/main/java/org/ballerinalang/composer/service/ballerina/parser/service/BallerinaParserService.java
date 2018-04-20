@@ -32,7 +32,6 @@ import org.ballerinalang.composer.server.core.ServerConstants;
 import org.ballerinalang.composer.server.spi.ComposerService;
 import org.ballerinalang.composer.server.spi.ServiceInfo;
 import org.ballerinalang.composer.server.spi.ServiceType;
-import org.ballerinalang.composer.service.ballerina.parser.ComposerDocumentManagerImpl;
 import org.ballerinalang.composer.service.ballerina.parser.Constants;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BFile;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BLangSourceFragment;
@@ -41,6 +40,7 @@ import org.ballerinalang.composer.service.ballerina.parser.service.util.BLangFra
 import org.ballerinalang.composer.service.ballerina.parser.service.util.ParserUtils;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
+import org.ballerinalang.langserver.compiler.workspace.ExtendedWorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
@@ -71,6 +71,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -196,7 +197,8 @@ public class BallerinaParserService implements ComposerService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getBallerinaJsonDataModelGivenFragment(BLangSourceFragment sourceFragment) throws IOException {
-        String response = BLangFragmentParser.parseFragment(sourceFragment);
+        WorkspaceDocumentManager documentManager = ExtendedWorkspaceDocumentManagerImpl.getInstance();
+        String response = BLangFragmentParser.parseFragment(documentManager, sourceFragment);
         return Response.ok(response, MediaType.APPLICATION_JSON).header(
                 HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString(), '*').build();
     }
@@ -417,7 +419,7 @@ public class BallerinaParserService implements ComposerService {
      * @param bFileRequest - Object which holds data about Ballerina content.
      * @return List of errors if any
      */
-    private JsonObject validateAndParse(BFile bFileRequest) throws InvocationTargetException,
+    private synchronized JsonObject validateAndParse(BFile bFileRequest) throws InvocationTargetException,
                                                                                 IllegalAccessException {
         final String fileName = bFileRequest.getFileName();
         final String content = bFileRequest.getContent();
@@ -430,9 +432,16 @@ public class BallerinaParserService implements ComposerService {
             filePath = Paths.get(bFileRequest.getFilePath(), bFileRequest.getFileName());
         }
 
-        WorkspaceDocumentManager documentManager = new ComposerDocumentManagerImpl(filePath);
-        BallerinaFile bFile = LSCompiler.compileContent(content, filePath, CompilerPhase.CODE_ANALYZE, documentManager,
-                                                        true);
+        BallerinaFile bFile;
+        ExtendedWorkspaceDocumentManagerImpl documentManager = ExtendedWorkspaceDocumentManagerImpl.getInstance();
+        Optional<Lock> lock = documentManager.lockFile(filePath);
+        documentManager.enableExplicitMode(filePath);
+        try {
+            bFile = LSCompiler.compileContent(content, filePath, CompilerPhase.CODE_ANALYZE, documentManager, true);
+        } finally {
+            documentManager.disableExplicitMode();
+            lock.ifPresent(Lock::unlock);
+        }
         programDir = (bFile.isBallerinaProject()) ? LSCompiler.getSourceRoot(filePath) : "";
 
         final BLangPackage model = bFile.getBLangPackage();

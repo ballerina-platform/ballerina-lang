@@ -29,7 +29,7 @@ public class PattenTest {
             }
 
             @Override
-            public Stream<I> expand(I i) {
+            public Stream<I> latest(I i) {
                 return expand.apply(i);
             }
 
@@ -71,7 +71,7 @@ public class PattenTest {
                                                              s + " > cache2",
                                                              s + " > cache3"),
                                               null);
-        Patten subject = new Patten(Patten.WILDCARD_DIR);
+        Patten subject = new Patten(Patten.LATEST_VERSION_DIR);
 
         List<String> strings = subject.convert(mock).collect(Collectors.toList());
 
@@ -82,7 +82,7 @@ public class PattenTest {
 
     @Test
     public void testSiblingWildcard() {
-        Patten subject = new Patten(path("first", "second"), Patten.WILDCARD_DIR);
+        Patten subject = new Patten(path("first", "second"), Patten.LATEST_VERSION_DIR);
 
         Patten result = subject.sibling(path("third"));
 
@@ -129,7 +129,7 @@ public class PattenTest {
                                                                      return "";
                                                                  })),
                                               null);
-        Patten subject = new Patten(Patten.WILDCARD_DIR);
+        Patten subject = new Patten(Patten.LATEST_VERSION_DIR);
 
         List<String> strings = subject.convert(mock).limit(1).collect(Collectors.toList());
 
@@ -146,7 +146,7 @@ public class PattenTest {
                                               q -> Stream.of(q + " > dir1 > x.bal",
                                                              q + " > y.bal",
                                                              q + " > dir2 > dir3 > f.bal"));
-        Patten subject = new Patten(path("hello"), Patten.WILDCARD_DIR, path("world"), Patten.WILDCARD_SOURCE);
+        Patten subject = new Patten(path("hello"), Patten.LATEST_VERSION_DIR, path("world"), Patten.WILDCARD_SOURCE);
 
         List<String> strings = subject.convert(mock).collect(Collectors.toList());
 

@@ -7,7 +7,7 @@ function getInt() returns int{
         return 1;
     }
     worker w2 {
-        runtime:sleepCurrentWorker(10000);
+        runtime:sleep(10000);
     }
 }
 

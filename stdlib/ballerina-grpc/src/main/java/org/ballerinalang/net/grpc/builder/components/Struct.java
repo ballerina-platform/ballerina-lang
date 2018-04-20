@@ -31,8 +31,8 @@ public class Struct {
         this.structId = structId;
     }
     
-    public void addAttribute(String name, String type) {
-        attribute.add(new Attribute(name, type));
+    public void addAttribute(String name, String type , String label) {
+        attribute.add(new Attribute(name, type, label));
     }
     
     public String getStructId() {

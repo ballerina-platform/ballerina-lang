@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.util;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -57,9 +58,12 @@ public class FileUtils {
      */
     static void generateBalo(BLangPackage bLangPackage, String projectPath, Stream<Path> paths) {
         PackageID packageID = bLangPackage.packageID;
-        Path destPath = Paths.get(projectPath).resolve(".ballerina").resolve("repo")
-                             .resolve(packageID.getOrgName().getValue()).resolve(packageID.getName().getValue())
-                             .resolve(packageID.getPackageVersion().getValue());
+        Path destPath = Paths.get(projectPath, ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
+                                  ProjectDirConstants.CACHES_DIR_NAME,
+                                  ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME,
+                                  packageID.getOrgName().getValue(),
+                                  packageID.getName().getValue(),
+                                  packageID.getPackageVersion().getValue());
         if (!Files.exists(destPath)) {
             try {
                 Files.createDirectories(destPath);

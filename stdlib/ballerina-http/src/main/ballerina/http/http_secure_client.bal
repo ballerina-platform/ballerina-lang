@@ -17,7 +17,6 @@
 package ballerina.http;
 
 import ballerina/io;
-import ballerina/util;
 import ballerina/runtime;
 import ballerina/mime;
 
@@ -39,7 +38,7 @@ public type HttpSecureClient object {
     }
 
     public new(serviceUri, config) {
-        self.httpClient = createHttpClient(serviceUri, config);
+        self.httpClient = createSimpleHttpClient(serviceUri, config);
     }
 
     @Description {value:"The POST action implementation of the HTTP Connector."}
@@ -230,7 +229,7 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
             return httpSecureClient;
         }
         () => {
-            HttpClient httpClient = createHttpClient(url, config);
+            HttpClient httpClient = createSimpleHttpClient(url, config);
             return httpClient;
         }
     }
@@ -244,11 +243,12 @@ function prepareRequest(Request req, ClientEndpointConfig config) returns (()|Ht
     if (scheme == BASIC_SCHEME){
         string username = config.auth.username but { () => EMPTY_STRING };
         string password = config.auth.password but { () => EMPTY_STRING };
-        var encodedStringVar = util:base64EncodeString(username + ":" + password);
+        string str = username + ":" + password;
+        var encodedStringVar = str.base64Encode();
         string encodedString;
         match encodedStringVar {
             string token => encodedString = token;
-            util:Base64EncodeError err => {
+            error err => {
                 HttpConnectorError httpConnectorError = {};
                 httpConnectorError.message = "Failed to encode the username or password with base64";
                 return httpConnectorError;
@@ -278,7 +278,7 @@ function prepareRequest(Request req, ClientEndpointConfig config) returns (()|Ht
             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
         }
     } else if (scheme == JWT_SCHEME){
-        string authToken = runtime:getInvocationContext().authenticationContext.authToken;
+        string authToken = runtime:getInvocationContext().authContext.authToken;
         req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
     }
     return ();
@@ -298,9 +298,9 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     string requestParams = "refresh_token=" + refreshToken + "&grant_type=refresh_token&client_secret=" + clientSecret + "&client_id=" + clientId;
     string base64ClientIdSecret;
     string clientIdSecret = clientId + ":" + clientSecret;
-    match (util:base64EncodeString(clientIdSecret)){
+    match (clientIdSecret.base64Encode()){
         string encodeString => base64ClientIdSecret = encodeString;
-        util:Base64EncodeError err => {
+        error err => {
             HttpConnectorError httpConnectorError = {};
             httpConnectorError.message = err.message;
             return httpConnectorError;

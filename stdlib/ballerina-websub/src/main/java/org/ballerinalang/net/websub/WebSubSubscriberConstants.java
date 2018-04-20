@@ -59,7 +59,7 @@ public class WebSubSubscriberConstants {
     static final String ENTITY_ACCESSED_REQUEST = "entityAccessedRequest";
 
     static final String STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST = "IntentVerificationRequest";
-    static final String STRUCT_WEBSUB_NOTIFICATION_REQUEST = "NotificationRequest";
+    static final String STRUCT_WEBSUB_NOTIFICATION_REQUEST = "Notification";
 
     static final String RESOURCE_NAME_ON_INTENT_VERIFICATION = "onIntentVerification";
     static final String RESOURCE_NAME_ON_NOTIFICATION = "onNotification";

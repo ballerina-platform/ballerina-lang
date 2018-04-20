@@ -4,7 +4,7 @@ import ballerina/runtime;
 
 string response;
 int total = 0;
-function testClientStreaming (string[] args) returns (string) {
+function testClientStreaming(string[] args) returns (string) {
     // Client endpoint configuration
     endpoint HelloWorldClient helloWorldEp {
         host:"localhost",
@@ -13,7 +13,7 @@ function testClientStreaming (string[] args) returns (string) {
 
     endpoint grpc:Client ep;
     // Executing unary non-blocking call registering server message listener.
-    var res = helloWorldEp -> lotsOfGreetings(HelloWorldMessageListener);
+    var res = helloWorldEp->lotsOfGreetings(HelloWorldMessageListener);
     match res {
         grpc:error err => {
             io:print("error");
@@ -27,16 +27,14 @@ function testClientStreaming (string[] args) returns (string) {
 
     foreach greet in args {
         io:print("send greeting: " + greet);
-        grpc:ConnectorError connErr = ep -> send(greet);
-        if (connErr != ()) {
-            io:println("Error at LotsOfGreetings : " + connErr.message);
-        }
+        error? connErr = ep->send(greet);
+        io:println(connErr.message but { () => ("send greeting: " + greet) });
     }
-    _ = ep -> complete();
+    _ = ep->complete();
 
     int wait = 0;
     while(total < 1) {
-        runtime:sleepCurrentWorker(1000);
+        runtime:sleep(1000);
         io:println("msg count: " + total);
         if (wait > 10) {
             break;
@@ -48,24 +46,24 @@ function testClientStreaming (string[] args) returns (string) {
 }
 
 // Server Message Listener.
-service<grpc:Listener> HelloWorldMessageListener {
+service<grpc:Service> HelloWorldMessageListener {
 
     // Resource registered to receive server messages
-    onMessage (string message) {
+    onMessage(string message) {
         response = untaint message;
         io:println("Response received from server: " + message);
         total = 1;
     }
 
     // Resource registered to receive server error messages
-    onError (grpc:ServerError err) {
+    onError(error err) {
         if (err != ()) {
             io:println("Error reported from server: " + err.message);
         }
     }
 
     // Resource registered to receive server completed message.
-    onComplete () {
+    onComplete() {
         total = 1;
         io:println("Server Complete Sending Responses.");
     }
@@ -75,21 +73,20 @@ service<grpc:Listener> HelloWorldMessageListener {
 public type HelloWorldStub object {
     public {
         grpc:Client clientEndpoint;
-        grpc:ServiceStub serviceStub;
+        grpc:Stub stub;
     }
 
-    function initStub (grpc:Client clientEndpoint) {
-        grpc:ServiceStub navStub = new;
+    function initStub(grpc:Client clientEndpoint) {
+        grpc:Stub navStub = new;
         navStub.initStub(clientEndpoint, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
-        self.serviceStub = navStub;
+        self.stub = navStub;
     }
 
-    function lotsOfGreetings (typedesc listener, grpc:Headers... headers) returns (grpc:Client|error) {
-        var res = self.serviceStub.streamingExecute("HelloWorld/lotsOfGreetings", listener, ...headers);
+    function lotsOfGreetings(typedesc listener, grpc:Headers... headers) returns (grpc:Client|error) {
+        var res = self.stub.streamingExecute("HelloWorld/lotsOfGreetings", listener, ...headers);
         match res {
-            grpc:ConnectorError err => {
-                error err1 = {message:err.message};
-                return err1;
+            error err => {
+                return err;
             }
             grpc:Client con => {
                 return con;
@@ -106,7 +103,7 @@ public type HelloWorldClient object {
         HelloWorldStub stub;
     }
 
-    public function init (grpc:ClientEndpointConfig config) {
+    public function init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
         grpc:Client client = new;
         client.init(config);
@@ -117,7 +114,7 @@ public type HelloWorldClient object {
         self.stub = stub;
     }
 
-    public function getClient () returns (HelloWorldStub) {
+    public function getCallerActions() returns (HelloWorldStub) {
         return self.stub;
     }
 };

@@ -25,6 +25,7 @@ import org.ballerinalang.composer.service.ballerina.parser.service.model.BLangSo
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -44,10 +45,10 @@ public class BLangFragmentParser {
     public static final String SYNTAX_ERRORS = "syntax_errors";
     public static final String ERROR = "error";
 
-    public static String parseFragment(BLangSourceFragment sourceFragment) {
+    public static String parseFragment(WorkspaceDocumentManager docManager, BLangSourceFragment sourceFragment) {
         try {
             String parsableString = getParsableString(sourceFragment);
-            JsonElement jsonElement = getJsonModel(parsableString);
+            JsonElement jsonElement = getJsonModel(docManager, parsableString);
             if (jsonElement instanceof JsonObject) {
                 JsonObject jsonModel = (JsonObject) jsonElement;
                 if (jsonModel.getAsJsonArray(SYNTAX_ERRORS) != null) {
@@ -126,11 +127,13 @@ public class BLangFragmentParser {
         return fragmentNode;
     }
 
-    protected static JsonElement getJsonModel(String source) throws IOException {
+    protected static JsonElement getJsonModel(WorkspaceDocumentManager documentManager, String source)
+            throws IOException {
         BLangCompilationUnit compilationUnit = null;
-        BallerinaFile model = LSCompiler.compileContent(source, CompilerPhase.DEFINE);
+        java.nio.file.Path filePath = LSCompiler.createAndGetTempFile(UNTITLED_BAL);
+        BallerinaFile model = LSCompiler.compileContent(source, filePath, CompilerPhase.DEFINE, documentManager, true);
         if (model.getBLangPackage() != null) {
-            compilationUnit =  model.getBLangPackage().getCompilationUnits().stream().
+            compilationUnit = model.getBLangPackage().getCompilationUnits().stream().
                     filter(compUnit -> UNTITLED_BAL.equals(compUnit.getName())).findFirst().get();
         }
         return TextDocumentFormatUtil.generateJSON(compilationUnit, new HashMap<>());
