@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
 
 @Description {value:"Authentication header name"}
 @final string AUTH_HEADER = "Authorization";

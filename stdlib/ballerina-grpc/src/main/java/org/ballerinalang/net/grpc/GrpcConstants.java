@@ -30,7 +30,7 @@ import static io.grpc.Metadata.ASCII_STRING_MARSHALLER;
  *
  * @since 1.0.0
  */
-public class MessageConstants {
+public class GrpcConstants {
     public static final int MAX_MESSAGE_SIZE = 16 * 1024 * 1024;
     public static final Context.Key<String> CONTENT_TYPE_KEY = Context.key("content-type");
     public static final Metadata.Key<String> CONTENT_TYPE_MD_KEY = Metadata.Key.of("content-type",
@@ -134,4 +134,55 @@ public class MessageConstants {
     public static final String BRACKET_OPEN = "(";
     public static final String BRACKET_CLOSE = ")";
     public static final String SPACE = " ";
+    
+    //Service Endpoint Config
+    public static final String ENDPOINT_CONFIG_HOST = "host";
+    public static final String ENDPOINT_CONFIG_TRANSFER_ENCODING = "transferEncoding";
+    public static final String ENDPOINT_CONFIG_PORT = "port";
+    public static final String ENDPOINT_CONFIG_KEEP_ALIVE = "keepAlive";
+    public static final String ENDPOINT_CONFIG_CHUNKING = "chunking";
+    public static final String ENDPOINT_CONFIG_VERSION = "httpVersion";
+    public static final String ENDPOINT_REQUEST_LIMITS = "requestLimits";
+    public static final String REQUEST_LIMITS_MAXIMUM_URL_LENGTH = "maxUriLength";
+    public static final String REQUEST_LIMITS_MAXIMUM_HEADER_SIZE = "maxHeaderSize";
+    public static final String REQUEST_LIMITS_MAXIMUM_ENTITY_BODY_SIZE = "maxEntityBodySize";
+    public static final String ENDPOINT_CONFIG_SECURE_SOCKET = "secureSocket";
+    public static final String TARGET_SERVICES = "targets";
+    public static final String SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
+    public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
+    public static final int GRPC_DEFAULT_PORT = 9090;
+    
+    public static final String ENDPOINT_CONFIG_TRUST_STORE = "trustStore";
+    public static final String FILE_PATH = "path";
+    public static final String PASSWORD = "password";
+    public static final String PROTOCOL_VERSION = "name";
+    public static final String ENABLED_PROTOCOLS = "versions";
+    public static final String ENABLE = "enable";
+    public static final String ENDPOINT_CONFIG_OCSP_STAPLING = "ocspStapling";
+    public static final String ENDPOINT_CONFIG_KEY_STORE = "keyStore";
+    public static final String ENDPOINT_CONFIG_PROTOCOLS = "protocol";
+    public static final String ENDPOINT_CONFIG_VALIDATE_CERT = "certValidation";
+    
+    //SslConfiguration indexes
+    public static final String SSL_CONFIG_SSL_VERIFY_CLIENT = "sslVerifyClient";
+    public static final String SSL_CONFIG_CIPHERS = "ciphers";
+    public static final String SSL_CONFIG_CACHE_SIZE = "cacheSize";
+    public static final String SSL_CONFIG_CACHE_VALIDITY_PERIOD = "cacheValidityPeriod";
+    public static final String SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED = "verifyHostname";
+    public static final String SSL_CONFIG_ENABLE_SESSION_CREATION = "shareSession";
+    public static final String PROTOCOL_HTTPS = "https";
+    public static final String ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
+    public static final String CIPHERS = "ciphers";
+    public static final String PKCS_STORE_TYPE = "PKCS12";
+    
+    //Proxy Indexed
+    public static final String PROXY_STRUCT_REFERENCE = "proxy";
+    public static final String PROXY_HOST = "host";
+    public static final String PROXY_PORT = "port";
+    public static final String PROXY_USERNAME = "userName";
+    public static final String PROXY_PASSWORD = "password";
+    public static final String CLIENT_EP_HTTP_VERSION = "httpVersion";
+    
+    public static final String CLIENT_ENDPOINT_URL = "url";
+    
 }

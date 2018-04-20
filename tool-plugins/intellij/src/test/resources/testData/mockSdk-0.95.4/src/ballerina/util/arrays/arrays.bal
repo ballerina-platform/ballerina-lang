@@ -1,4 +1,3 @@
-package ballerina.util.arrays;
 
 @Description {value:"Copies the specified range of the specified string array "}
 @Param {value:"anyArrayFrom: The any array from which the range will be copied"}

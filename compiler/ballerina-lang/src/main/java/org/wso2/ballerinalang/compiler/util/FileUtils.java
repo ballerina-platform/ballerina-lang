@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.util;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.FileInputStream;
 import java.io.IOException;
