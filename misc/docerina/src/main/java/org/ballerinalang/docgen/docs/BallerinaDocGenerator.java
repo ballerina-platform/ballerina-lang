@@ -20,6 +20,7 @@ package org.ballerinalang.docgen.docs;
 
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.docgen.Generator;
 import org.ballerinalang.docgen.Writer;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
@@ -129,6 +130,8 @@ public class BallerinaDocGenerator {
                 //Generate pages for the packages
                 String packageTemplateName = System.getProperty(BallerinaDocConstants.PACKAGE_TEMPLATE_NAME_KEY,
                         "page");
+                String packageToCTemplateName = System.getProperty(BallerinaDocConstants
+                        .PACKAGE_TOC_TEMPLATE_NAME_KEY, "toc");
                 for (PackageDoc packageDoc : packageList) {
                     BLangPackage bLangPackage = packageDoc.bLangPackage;
                     String pkgDescription = packageDoc.description;
@@ -153,6 +156,11 @@ public class BallerinaDocGenerator {
                     Page page = Generator.generatePage(bLangPackage, packageNameList, pkgDescription, primitives);
                     String filePath = output + File.separator + packagePath + HTML;
                     Writer.writeHtmlDocument(page, packageTemplateName, filePath);
+
+                    if (ConfigRegistry.getInstance().getAsBoolean(BallerinaDocConstants.GENERATE_TOC)) {
+                        String tocFilePath = output + File.separator + packagePath + "-toc" + HTML;
+                        Writer.writeHtmlDocument(page, packageToCTemplateName, tocFilePath);
+                    }
 
                     if ("builtin".equals(packagePath)) {
                         Page primitivesPage = Generator.generatePageForPrimitives(bLangPackage, packageNameList,
