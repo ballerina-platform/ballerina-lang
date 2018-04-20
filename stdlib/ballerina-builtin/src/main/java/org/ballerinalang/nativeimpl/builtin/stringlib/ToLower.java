@@ -29,23 +29,23 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.Locale;
 
 /**
- * Native function ballerina.model.strings:toUpperCase.
+ * Native function ballerina.model.strings:toLower.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "builtin",
-        functionName = "string.toUpperCase",
+        functionName = "string.toLower",
         args = {@Argument(name = "s", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class ToUpperCase extends BlockingNativeCallableUnit {
+public class ToLower extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
         String param1 = context.getStringArgument(0);
-        BString upperCaseString = new BString(param1.toUpperCase(Locale.getDefault()));
-        context.setReturnValues(upperCaseString);
+        BString lowerCaseString = new BString(param1.toLowerCase(Locale.getDefault()));
+        context.setReturnValues(lowerCaseString);
     }
 }

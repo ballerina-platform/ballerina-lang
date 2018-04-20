@@ -77,7 +77,7 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
                     int sizeOfArray = lengthof pathArray;
                     if (sizeOfArray > 3) {
                         pkgVersion = pathArray[sizeOfArray - 2];
-                        string pkgName = fullPkgPath.subString(fullPkgPath.lastIndexOf("/") + 1, fullPkgPath.length());
+                        string pkgName = fullPkgPath.substring(fullPkgPath.lastIndexOf("/") + 1, fullPkgPath.length());
                         fullPkgPath = fullPkgPath + ":" + pkgVersion;
 
                         // Create the version directory
@@ -195,8 +195,8 @@ function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string full
             totalCount = totalCount + readCount;
             float percentage = totalCount / pkgSize;
             noOfBytesRead = totalCount + "/" + pkgSize;
-            string bar = equals.subString(0, <int>(percentage * 10));
-            string spaces = tabspaces.subString(0, 10 - <int>(percentage * 10));
+            string bar = equals.substring(0, <int>(percentage * 10));
+            string spaces = tabspaces.substring(0, 10 - <int>(percentage * 10));
             io:print("\r" + rightPad(msg, 100) + "[" + bar + ">" + spaces + "] " + <int>totalCount + "/" + pkgSize);
         }
     } catch (error err) {
@@ -233,8 +233,8 @@ documentation {
 }
 function truncateString (string text) returns (string) {
     int indexOfVersion = text.lastIndexOf(":");
-    string withoutVersion = text.subString(0, indexOfVersion);
-    string versionOfPkg = text.subString(indexOfVersion, text.length());
+    string withoutVersion = text.substring(0, indexOfVersion);
+    string versionOfPkg = text.substring(indexOfVersion, text.length());
     int minLength = 57;
     int lengthWithoutVersion = withoutVersion.length();
     if (lengthWithoutVersion > minLength) {
@@ -244,8 +244,8 @@ function truncateString (string text) returns (string) {
         int leftFromMiddle = middleOfWithoutVersion - half;
         int rightFromMiddle = middleOfWithoutVersion + half;
 
-        string truncatedLeftStr = withoutVersion.subString(0, leftFromMiddle);
-        string truncatedRightStr = withoutVersion.subString(rightFromMiddle, lengthWithoutVersion);
+        string truncatedLeftStr = withoutVersion.substring(0, leftFromMiddle);
+        string truncatedRightStr = withoutVersion.substring(rightFromMiddle, lengthWithoutVersion);
 
         string truncatedStr = truncatedLeftStr + "…" + truncatedRightStr;
         return truncatedStr + versionOfPkg;

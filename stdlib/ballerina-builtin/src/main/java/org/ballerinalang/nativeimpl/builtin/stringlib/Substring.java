@@ -28,18 +28,18 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 /**
- * Native function ballerina.model.arrays:subString(string, int, int).
+ * Native function ballerina.model.arrays:substring(string, int, int).
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "builtin",
-        functionName = "string.subString",
+        functionName = "string.substring",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
-                @Argument(name = "beginIndex", type = TypeKind.INT),
+                @Argument(name = "startIndex", type = TypeKind.INT),
                 @Argument(name = "endIndex", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class SubString extends BlockingNativeCallableUnit {
+public class Substring extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
@@ -49,12 +49,10 @@ public class SubString extends BlockingNativeCallableUnit {
         long toLong = context.getIntArgument(1);
 
         if (toLong != (int) toLong) {
-            throw BLangExceptionHelper
-                    .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, toLong);
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, toLong);
         }
         if (fromLong != (int) fromLong) {
-            throw BLangExceptionHelper
-                    .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, fromLong);
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, fromLong);
         }
 
         int from = (int) fromLong;

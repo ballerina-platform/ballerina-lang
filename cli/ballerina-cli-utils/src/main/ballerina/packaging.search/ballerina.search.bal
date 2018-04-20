@@ -96,7 +96,7 @@ documentation {
 function printInCLI(string element, int charactersAllowed) {
     int lengthOfElement = element.length();
     if (lengthOfElement > charactersAllowed || lengthOfElement == charactersAllowed) {
-        string trimmedElement = element.subString(0, charactersAllowed - 3) + "...";
+        string trimmedElement = element.substring(0, charactersAllowed - 3) + "...";
         io:print(trimmedElement + "| ");
     } else {
         io:print(element);
