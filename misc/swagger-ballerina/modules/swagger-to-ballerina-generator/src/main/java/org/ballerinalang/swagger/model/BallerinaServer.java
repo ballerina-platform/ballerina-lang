@@ -16,6 +16,7 @@
 
 package org.ballerinalang.swagger.model;
 
+import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.servers.ServerVariable;
 import io.swagger.v3.oas.models.servers.ServerVariables;
@@ -78,6 +79,11 @@ public class BallerinaServer implements BallerinaSwaggerObject<BallerinaServer, 
         }
 
         return this;
+    }
+
+    @Override
+    public BallerinaServer buildContext(Server server, OpenAPI openAPI) throws BallerinaOpenApiException {
+        return buildContext(server);
     }
 
     @Override

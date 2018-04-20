@@ -34,9 +34,9 @@ service<http:Service> testService bind testEP {
         string b = <string> fooMParams["b"];
         outJson.fooMatrix = string `a={{a}};b={{b}}`;
 
-        map queryParams = req.getQueryParams();
-        string x = <string> queryParams["x"];
-        string y = <string> queryParams["y"];
+        map<string> queryParams = req.getQueryParams();
+        string x = queryParams["x"];
+        string y = queryParams["y"];
         outJson.queryParams = string `x={{x}}&y={{y}}`;
 
         res.setJsonPayload(outJson);

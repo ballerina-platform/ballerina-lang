@@ -132,7 +132,6 @@ public class SwaggerResourceMapper {
         String httpOperation = getHttpMethods(resource , true).get(0);
         operationAdaptor.setHttpOperation(httpOperation);
         Path path = pathMap.get(operationAdaptor.getPath());
-        //TODO this check need to be improve to avoid repetition checks and http head support need to add.
         if (path == null) {
             path = new Path();
             pathMap.put(operationAdaptor.getPath(), path);
@@ -349,10 +348,10 @@ public class SwaggerResourceMapper {
                         .filter(a ->
                                 "ResourceConfig".equals(a.getAnnotationName().getValue()))
                         .findFirst();
-        List<BLangRecordLiteral.BLangRecordKeyValue> recordKeyValues =
-                ((BLangRecordLiteral) ((BLangAnnotationAttachment) responsesAnnotationAttachment.get()).
-                        getExpression()).getKeyValuePairs();
         if (responsesAnnotationAttachment.isPresent()) {
+            List<BLangRecordLiteral.BLangRecordKeyValue> recordKeyValues =
+                    ((BLangRecordLiteral) ((BLangAnnotationAttachment) responsesAnnotationAttachment.get()).
+                            getExpression()).getKeyValuePairs();
             Map<String, BLangExpression> recordsMap = listToMapBLangRecords(recordKeyValues);
             if (recordsMap.containsKey("path") && recordsMap.get("path") != null) {
                 String path =  recordsMap.get("path").toString().trim();
@@ -578,10 +577,10 @@ public class SwaggerResourceMapper {
                                 "ResourceConfig".equals(a.getAnnotationName().getValue()))
                         .findFirst();
         Set<String> httpMethods = new LinkedHashSet<>();
-        List<BLangRecordLiteral.BLangRecordKeyValue> recordKeyValues =
-                ((BLangRecordLiteral) ((BLangAnnotationAttachment) responsesAnnotationAttachment.get()).
-                        getExpression()).getKeyValuePairs();
         if (responsesAnnotationAttachment.isPresent()) {
+            List<BLangRecordLiteral.BLangRecordKeyValue> recordKeyValues =
+                    ((BLangRecordLiteral) ((BLangAnnotationAttachment) responsesAnnotationAttachment.get()).
+                            getExpression()).getKeyValuePairs();
             Map<String, BLangExpression> recordsMap = listToMapBLangRecords(recordKeyValues);
             if (recordsMap.containsKey("methods") && recordsMap.get("methods") != null) {
                 BLangExpression methodsValue = ((BLangArrayLiteral) recordsMap.get("methods")).exprs.get(0);

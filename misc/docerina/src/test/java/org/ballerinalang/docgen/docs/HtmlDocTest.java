@@ -75,7 +75,8 @@ public class HtmlDocTest {
 
     @Test(description = "Functions in a package should be shown in the constructs")
     public void testFunctions() throws Exception {
-        BLangPackage bLangPackage = createPackage("package x.y; public function hello(string name) returns (string){}");
+        BLangPackage bLangPackage = createPackage("package x.y; public function hello(string name) returns (string)" +
+                "{return \"a\";}");
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
         Assert.assertEquals(page.constructs.get(0).name, "hello");
@@ -125,24 +126,39 @@ public class HtmlDocTest {
 
     @Test(description = "Connectors in a package should be shown in the constructs with new docerina syntax")
     public void testConnectorsWithNewSyntax() throws Exception {
-        BLangPackage bLangPackage = createPackage("documentation {Test Connector\n" + "E{{}}\n F{{url}} url for " +
-                "endpoint\n" +
-                "F{{path}} path for endpoint\n" + "}\n" + "public type TestConnector object {\n" + "    public {\n" +
-                "        string url;\n" + "        string path;\n" + "    }\n" + "\n" + "    documentation {Test " +
-                "Connector action testAction R{{}} whether successful or not}\n" + "    public function " +
-                "testAction() returns boolean;\n" + "\n" + "    documentation {Test Connector action testSend P{{ep}}" +
-                " endpoint url R{{}} whether successful or not}\n" + "    public function testSend(string ep) " +
-                "returns boolean;\n" + "};");
+        BLangPackage bLangPackage = createPackage("import ballerina/http;\n public type GitHubClientConfig {\n" + " "
+                + "   " + "    " + "http:ClientEndpointConfig clientEndpointConfiguration = {};\n" + "};\n" + "\n" +
+                "documentation { " + "GitHub client\n" + "    E{{}}\n" + "    F{{githubClientConfiguration}} - GitHub" +
+                " client " + "configurations (Access token, Client endpoint configurations)\n" + "    " +
+                "F{{githubConnector}} - " + "GitHub connector object\n" + "}\n" + "public type Client object {\n" + "" +
+                "    public {\n" + "        " + "GitHubClientConfig githubClientConfiguration = {};\n" + "        " +
+                "TestConnector githubConnector = " + "new;\n" + "    }\n" + "\n" + "    documentation { GitHub client" +
+                " endpoint initialization function\n" + "        P{{githubClientConfig}} - GitHub client " +
+                "configuration\n" + "    }\n" + "    public " + "function init (GitHubClientConfig " +
+                "githubClientConfig);\n" + "\n" + "    documentation { Return the " + "GitHub client\n" + "        " +
+                "R{{}} - GitHub client\n" + "    }\n" + "    public function getClient ()" + " returns TestConnector;" +
+                "\n" + "\n" + "};\n" + "documentation {Test Connector\n F{{url}} url for " + "endpoint\n" +
+                "F{{path}} path for endpoint\n" + "}\n" + "public type TestConnector object {\n" + "  " + "  public " +
+                "{\n" + "        string url;\n" + "        string path;\n" + "    }\n" + "\n" + "    " +
+                "documentation {Test " + "Connector action testAction R{{}} whether successful or not}\n" + "    " +
+                "public function " + "testAction() returns boolean;\n" + "\n" + "    documentation {Test Connector "
+                + "action testSend P{{ep}}" + " endpoint url R{{}} whether successful or not}\n" + "    public " +
+                "function" + " testSend(string ep) " + "returns boolean;\n" + "};");
         Page page = generatePage(bLangPackage);
-        Assert.assertEquals(page.constructs.size(), 1);
-        Assert.assertEquals(page.constructs.get(0).name, "TestConnector");
-        Assert.assertEquals(page.constructs.get(0).description, "<p>Test Connector</p>\n");
-        Assert.assertEquals(page.constructs.get(0).icon, "fw-connector");
-        Assert.assertTrue(page.constructs.get(0) instanceof ConnectorDoc, "Invalid documentable type");
-        ConnectorDoc connectorDoc = (ConnectorDoc) page.constructs.get(0);
+        Assert.assertEquals(page.constructs.size(), 2);
+        Assert.assertEquals(page.constructs.get(0).name, "GitHubClientConfig");
+        Assert.assertEquals(page.constructs.get(0).icon, "fw-struct");
+        Assert.assertTrue(page.constructs.get(0) instanceof StructDoc, "Invalid documentable type");
+
+        Assert.assertEquals(page.constructs.get(1).name, "Client");
+        Assert.assertEquals(page.constructs.get(1).icon, "fw-connector");
+        Assert.assertEquals(page.constructs.get(1).description, "<p>GitHub client</p>\n");
+        Assert.assertTrue(page.constructs.get(1) instanceof ConnectorDoc, "Invalid documentable type");
+
+        ConnectorDoc connectorDoc = (ConnectorDoc) page.constructs.get(1);
         Assert.assertEquals(connectorDoc.fields.size(), 2);
         Assert.assertEquals(connectorDoc.fields.get(0).toString(), "string url");
-        Assert.assertEquals(connectorDoc.children.size(), 2);
+        Assert.assertEquals(connectorDoc.children.size(), 4);
         Assert.assertTrue(connectorDoc.children.get(0) instanceof FunctionDoc, "Invalid documentable type");
         FunctionDoc functionDoc1 = (FunctionDoc) connectorDoc.children.get(0);
         Assert.assertEquals(functionDoc1.name, "testAction", "Invalid function name testAction");
@@ -158,6 +174,14 @@ public class HtmlDocTest {
         Assert.assertEquals(functionDoc2.parameters.get(0).description, "<p>endpoint url</p>\n");
         Assert.assertEquals(functionDoc2.returnParams.get(0).toString(), "boolean", "Invalid return type");
         Assert.assertEquals(functionDoc2.returnParams.get(0).description, "<p>whether successful or not</p>\n");
+
+        FunctionDoc functionDoc3 = (FunctionDoc) connectorDoc.children.get(2);
+        Assert.assertEquals(functionDoc3.name, "init", "Invalid function name init");
+        Assert.assertEquals(functionDoc3.icon, "fw-function", "init function is not detected as a function");
+
+        FunctionDoc functionDoc4 = (FunctionDoc) connectorDoc.children.get(3);
+        Assert.assertEquals(functionDoc4.name, "getClient", "Invalid function name getClient");
+        Assert.assertEquals(functionDoc4.icon, "fw-function", "getClient function is not detected as a function");
     }
 
     @Test(description = "Objects in a package should be shown in the constructs")
@@ -325,7 +349,7 @@ public class HtmlDocTest {
                 "@Description { value:\"This function would say hello\"}" +
                 "@Param { value:\"message: The message sent\" }" +
                 "@Return { value:\"int representation of the message\" }" +
-                "public function sayHello(string message) returns (int){}");
+                "public function sayHello(string message) returns (int){return 1;}");
 
         FunctionDoc functionDoc = Generator.createDocForNode(bLangPackage.getFunctions().get(0));
         Assert.assertEquals(functionDoc.name, "sayHello", "Function name should be extracted");
@@ -346,7 +370,7 @@ public class HtmlDocTest {
     public void testFunctionsPropertiesExtractedWithNewSyntax() throws Exception {
         BLangPackage bLangPackage = createPackage("package x.y;\n" + "documentation {This function would say hello\n"
                 + "P{{message}} The message sent\n" + "P{{idx}} an index\n" + "R{{}} int representation of the " +
-                "message\n" + "}\n" + "public function sayHello(string message, int idx) returns (int){}");
+                "message\n" + "}\n" + "public function sayHello(string message, int idx) returns (int){return 1;}");
 
         FunctionDoc functionDoc = Generator.createDocForNode(bLangPackage.getFunctions().get(0));
         Assert.assertEquals(functionDoc.name, "sayHello", "Function name should be extracted");
@@ -381,7 +405,7 @@ public class HtmlDocTest {
                 "@Return { value:\"Error occured during HTTP client invocation\" }\n" +
                 "action post(string path, string req) (string, int) { return \"value within filter\"; }}");
 
-        ConnectorDoc connectorDoc = Generator.createDocForNode(bLangPackage.getObjects().get(0));
+        ConnectorDoc connectorDoc = Generator.createDocForNode(bLangPackage.getObjects().get(0), true);
         Assert.assertEquals(connectorDoc.name, "HttpClient", "Connector name should be extracted");
         Assert.assertEquals(connectorDoc.description, "Http client connector for outbound HTTP requests",
                 "Description of the connector should be extracted");
