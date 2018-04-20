@@ -25,8 +25,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_CONNECTION;
 import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_ENDPOINT_TYPE;
+import static org.ballerinalang.net.grpc.MessageConstants.GRPC_CLIENT;
 import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
@@ -51,7 +51,7 @@ public class GetCallerActions extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BStruct clientEndpoint = (BStruct) context.getRefArgument(0);
-        BStruct clientConnection = (BStruct) clientEndpoint.getNativeData(CLIENT_CONNECTION);
+        BStruct clientConnection = (BStruct) clientEndpoint.getNativeData(GRPC_CLIENT);
         context.setReturnValues(clientConnection);
     }
 }

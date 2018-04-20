@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.net.grpc.nativeimpl.connection.client;
+package org.ballerinalang.net.grpc.nativeimpl.client;
 
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -30,7 +30,8 @@ import org.ballerinalang.net.grpc.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
+import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
+import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.MessageConstants.REQUEST_SENDER;
 
@@ -43,10 +44,10 @@ import static org.ballerinalang.net.grpc.MessageConstants.REQUEST_SENDER;
         orgName = ORG_NAME,
         packageName = MessageConstants.PROTOCOL_PACKAGE_GRPC,
         functionName = "complete",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = MessageConstants.CLIENT_CONNECTION,
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = MessageConstants.GRPC_CLIENT,
                 structPackage = MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC),
-        returnType = @ReturnType(type = TypeKind.STRUCT, structType = CONNECTOR_ERROR,
-                structPackage = MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC),
+        returnType = @ReturnType(type = TypeKind.STRUCT, structType = STRUCT_GENERIC_ERROR, structPackage =
+                PACKAGE_BUILTIN),
         isPublic = true
 )
 public class Complete extends BlockingNativeCallableUnit {

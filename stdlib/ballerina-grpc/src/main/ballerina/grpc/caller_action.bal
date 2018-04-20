@@ -15,37 +15,32 @@
 // under the License.
 package ballerina.grpc;
 
-public type ClientResponder object {
-    public {
-        int id;
-    }
+public type CallerAction object {
 
     documentation {
         Sends outbound response to the caller.
 
         P{{res}} - The outbound response message.
     }
-    public native function send(any res, Headers... headers) returns (ConnectorError);
+    public native function send(any res, Headers... headers) returns error?;
 
     documentation {
         Informs the caller, server finished sending messages.
     }
-    public native function complete(Headers... headers) returns  (ConnectorError);
+    public native function complete(Headers... headers) returns error?;
 
     documentation {
         Checks whether the connection is closed by the caller.
     }
-    public native function isCancelled () returns (boolean);
+    public native function isCancelled() returns boolean;
 
     documentation {
         Sends server error to the caller.
 
-        P{{serverError}} - remote procedure call id.
+        P{{statusCode}} - Error status code.
+        P{{message}} - Error message.
     }
-    public native function errorResponse(ServerError serverError, Headers... headers) returns (ConnectorError);
+    //
+    public native function sendError(int statusCode, string message, Headers... headers) returns error?;
 
-    documentation {
-        Get connection ID which is unique to the connection.
-    }
-    public native function getID() returns (string);
 };
