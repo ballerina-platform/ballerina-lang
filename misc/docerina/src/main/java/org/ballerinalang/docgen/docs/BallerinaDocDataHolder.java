@@ -57,7 +57,7 @@ public class BallerinaDocDataHolder {
         if (orgName != null) {
             return orgName;
         }
-        orgName = ConfigRegistry.getInstance().getAsString("orgName");
+        orgName = ConfigRegistry.getInstance().getAsString(BallerinaDocConstants.ORG_NAME);
         orgName = orgName == null ? "ballerina/" : orgName + "/";
         return orgName;
     }

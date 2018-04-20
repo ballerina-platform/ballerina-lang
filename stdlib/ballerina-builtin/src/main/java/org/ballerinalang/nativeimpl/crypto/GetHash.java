@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.nativeimpl.security.crypto;
+package org.ballerinalang.nativeimpl.crypto;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -30,12 +30,12 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * Native function ballerina.security.crypto:getHash.
+ * Native function ballerina.crypto:getHash.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "security.crypto",
+        orgName = "ballerina", packageName = "crypto",
         functionName = "getHash",
         args = {@Argument(name = "baseString", type = TypeKind.STRING),
                 @Argument(name = "algorithm", type = TypeKind.STRING)},

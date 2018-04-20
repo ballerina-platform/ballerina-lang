@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.security.crypto;
+package org.ballerinalang.nativeimpl.crypto;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -41,7 +41,7 @@ import java.util.zip.Checksum;
  * @since 0.970.0-alpha1
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "security.crypto",
+        orgName = "ballerina", packageName = "crypto",
         functionName = "getCRC32",
         args = {@Argument(name = "content", type = TypeKind.ANY)},
         returnType = {@ReturnType(type = TypeKind.STRING)},

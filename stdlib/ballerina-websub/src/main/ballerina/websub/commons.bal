@@ -18,7 +18,7 @@ package ballerina.websub;
 import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
-import ballerina/security.crypto;
+import ballerina/crypto;
 
 @final public string HUB_CHALLENGE = "hub.challenge";
 @final public string HUB_MODE = "hub.mode";

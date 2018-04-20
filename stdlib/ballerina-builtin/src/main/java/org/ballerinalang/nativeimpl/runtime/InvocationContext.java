@@ -32,7 +32,7 @@ public class InvocationContext {
     private UserPrincipal userPrincipal;
     private AuthContext authContext;
 
-    public InvocationContext(BStruct invocationContextStruct,UserPrincipal userPrincipal, AuthContext
+    public InvocationContext(BStruct invocationContextStruct, UserPrincipal userPrincipal, AuthContext
             authenticationContext) {
         this.invocationContextStruct = invocationContextStruct;
         this.authContext = authenticationContext;
