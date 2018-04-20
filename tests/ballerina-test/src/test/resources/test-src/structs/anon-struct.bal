@@ -3,19 +3,19 @@ function testAnonStructAsFuncParam() returns (int) {
     return testAnonStructFunc(10, {k:14, s:"sameera"});
 }
 
-function testAnonStructFunc(int i, type {int k = 10; string s;} anonSt) returns (int) {
+function testAnonStructFunc(int i, {int k = 10; string s;} anonSt) returns (int) {
     return anonSt.k + i;
 }
 
 
 function testAnonStructAsLocalVar() returns (int) {
-    type {int k = 11; string s;} anonSt = {};
+    {int k = 11; string s;} anonSt = {};
 
     return anonSt.k;
 }
 
 
-type {string fname; string lname; int age;} person;
+{string fname; string lname; int age;} person;
 
 function testAnonStructAsPkgVar() returns (string) {
 
@@ -29,19 +29,20 @@ type employee {
     string fname;
     string lname;
     int age;
-    type { string line01;
-             string line02;
-             string city;
-             string state;
-             string zipcode;
+    {
+        string line01;
+        string line02;
+        string city;
+        string state;
+        string zipcode;
     } address;
 
-    type {
+    {
         string month = "JAN";
         string day = "01";
         string year = "1970";
     } dateOfBirth;
-}
+};
 
 function testAnonStructAsStructField() returns (string) {
 
