@@ -96,11 +96,11 @@ function getDecodedJWTComponents (string[] encodedJWTComponents) returns ((json,
     json jwtHeaderJson = {};
     json jwtPayloadJson = {};
 
-    match util:parseJson(jwtHeader) {
+    match parseJson(jwtHeader) {
         json result => jwtHeaderJson = result;
         error err => return err;
     }
-    match util:parseJson(jwtPayload) {
+    match parseJson(jwtPayload) {
         json result => jwtPayloadJson = result;
         error err => return err;
     }

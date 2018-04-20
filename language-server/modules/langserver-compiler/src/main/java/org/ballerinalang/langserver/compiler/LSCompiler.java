@@ -118,8 +118,7 @@ public class LSCompiler {
                 documentManager.openFile(filePath, content);
             }
 
-            BallerinaFile ballerinaFile = LSCompiler.compile(documentManager, filePath, CompilerPhase.DEFINE,
-                                                             preserveWhitespace);
+            BallerinaFile ballerinaFile = LSCompiler.compile(documentManager, filePath, phase, preserveWhitespace);
 
             documentManager.closeFile(filePath);
             return ballerinaFile;

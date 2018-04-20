@@ -51,6 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -88,6 +89,7 @@ public class Generator {
     public static Page generatePage(BLangPackage balPackage, List<Link> packages, String description, List<Link>
             primitives) {
         ArrayList<Documentable> documentables = new ArrayList<>();
+        List<BLangObject> visitedObjects;
         //TODO till orgName gets fixed
         String currentPackageName = BallerinaDocDataHolder.getInstance().getOrgName() + balPackage.packageID.getName
                 ().getValue();
@@ -123,10 +125,60 @@ public class Generator {
                 }
             }
         }
-        // Check for connectors in the package
+
+        // connectors
+        visitedObjects = balPackage.getObjects().stream().filter(bLangObject -> {
+            if (!bLangObject.getDocumentationAttachments().isEmpty()) {
+                if (!((DocumentableNode) bLangObject).getDocumentationAttachments().isEmpty()) {
+                    DocumentationNode bLangDocumentation = ((DocumentableNode) bLangObject)
+                            .getDocumentationAttachments().get(0);
+                    for (DocumentationAttributeNode attribute : bLangDocumentation.getAttributes()) {
+                        if (attribute instanceof BLangDocumentationAttribute) {
+                            BLangDocumentationAttribute docAttribute = (BLangDocumentationAttribute) attribute;
+                            if (docAttribute.docTag == DocTag.ENDPOINT) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }).collect(Collectors.toList());
+
+        List<ConnectorDoc> connectors = visitedObjects.stream().map(obj -> {
+            BLangIdentifier epName = obj.getName();
+            Optional<BLangFunction> getClientOptional = obj.getFunctions().stream().filter(bLangFunction ->
+                    bLangFunction.getName().getValue().equals("getClient")).findFirst();
+
+            if (getClientOptional.isPresent()) {
+                BLangType returnTypeNode = getClientOptional.get().returnTypeNode;
+                if (returnTypeNode instanceof BLangUserDefinedType) {
+                    Optional<BLangObject> objectDefOptional = balPackage.getObjects().stream().filter(objDef -> {
+                        if (objDef.getName().getValue().equals(((BLangUserDefinedType) returnTypeNode).getTypeName()
+                                .getValue())) {
+                            return true;
+                        }
+                        return false;
+                    }).findFirst();
+                    if (objectDefOptional.isPresent()) {
+                        BLangObject objectDefinition = objectDefOptional.get();
+                        objectDefinition.setName(epName);
+                        String objDesc = description(obj);
+                        return createDocForNode(objectDefinition, obj.functions, objDesc, true);
+                    }
+                }
+            }
+            return null;
+        }).collect(Collectors.toList());
+
+        connectors.forEach(connectorDoc -> visitedObjects.add(connectorDoc.getObject()));
+        documentables.addAll(connectors);
+
+        // Check for objects in the package
+        balPackage.getObjects().removeAll(visitedObjects);
         for (BLangObject connector : balPackage.getObjects()) {
             if (connector.getFlags().contains(Flag.PUBLIC)) {
-                documentables.add(createDocForNode(connector));
+                documentables.add(createDocForNode(connector, false));
             }
         }
         // Check for connectors in the package
@@ -253,23 +305,6 @@ public class Generator {
      */
     public static AnnotationDoc createDocForNode(BLangAnnotation annotationNode) {
         String annotationName = annotationNode.getName().getValue();
-
-//        if (!annotationNode.getDocumentationAttachments().isEmpty()) {
-//            // new syntax
-//
-//        } else {
-//            // older syntax
-//            // Iterate through the attributes of the annotation
-//            if (annotationNode.getAttributes().size() > 0) {
-//                for (BLangAnnotAttribute annotAttribute : annotationNode.getAttributes()) {
-//                    String dataType = getTypeName(annotAttribute.getTypeNode());
-//                    String desc = annotFieldAnnotation(annotationNode, annotAttribute);
-//                    String href = extractLink(annotAttribute.getTypeNode());
-//                    Variable variable = new Variable(annotAttribute.getName().value, dataType, desc, href);
-//                    attributes.add(variable);
-//                }
-//            }
-//        }
         String dataType = "-", href = "";
         if (annotationNode.typeNode != null) {
             dataType = getTypeName(annotationNode.typeNode);
@@ -435,16 +470,12 @@ public class Generator {
         }
     }
 
-    /**
-     * Create documentation for connectors.
-     *
-     * @param connectorNode ballerina connector node.
-     * @return documentation for connectors.
-     */
-    public static ConnectorDoc createDocForNode(BLangObject connectorNode) {
+    public static ConnectorDoc createDocForNode(BLangObject connectorNode, List<BLangFunction> utilitiyFunctions,
+                                                String description, boolean isConnector) {
         String connectorName = connectorNode.getName().value;
         List<Field> parameters = new ArrayList<>();
         List<Documentable> actions = new ArrayList<>();
+        List<Documentable> functions = new ArrayList<>();
 
         // Iterate through the connector parameters
         if (connectorNode.fields.size() > 0) {
@@ -459,39 +490,27 @@ public class Generator {
                 }
             }
         }
-        return new ConnectorDoc(connectorName, description(connectorNode), actions, parameters, isConnector
-                (connectorNode));
+
+        for (BLangFunction func : utilitiyFunctions) {
+            if (func.flagSet.contains(Flag.PUBLIC)) {
+                functions.add(createDocForNode(func));
+            }
+        }
+        ConnectorDoc connectorDoc = new ConnectorDoc(connectorName, description == null ? description(connectorNode)
+                : description, actions, parameters, functions, isConnector);
+        connectorDoc.setObject(connectorNode);
+        return connectorDoc;
     }
 
     /**
-     * Determine whether a given node is a Connector endpoint node.
+     * Create documentation for connectors.
+     *
+     * @param connectorNode ballerina connector node.
+     * @return documentation for connectors.
      */
-    private static boolean isConnector(BLangObject node) {
-        if (!((DocumentableNode) node).getDocumentationAttachments().isEmpty()) {
-            // new syntax
-            if (!((DocumentableNode) node).getDocumentationAttachments().isEmpty()) {
-                DocumentationNode bLangDocumentation = ((DocumentableNode) node).getDocumentationAttachments().get(0);
-                for (DocumentationAttributeNode attribute : bLangDocumentation.getAttributes()) {
-                    if (attribute instanceof BLangDocumentationAttribute) {
-                        BLangDocumentationAttribute docAttr = (BLangDocumentationAttribute) attribute;
-                        if (docAttr.docTag == DocTag.ENDPOINT) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
+    public static ConnectorDoc createDocForNode(BLangObject connectorNode, boolean isConnector) {
+        return createDocForNode(connectorNode, new ArrayList<>(), null, isConnector);
     }
-
-//    private static boolean hasConnectorAnnotation(BLangObject node) {
-//        for (AnnotationAttachmentNode annotation : getAnnotationAttachments(node)) {
-//            if (annotation.getAnnotationName().getValue().equals("Connector")) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
 
     /**
      * Get the type of the variable.
@@ -744,3 +763,4 @@ public class Generator {
         return builder.append("}").toString();
     }
 }
+

@@ -1,7 +1,7 @@
-import ballerina/util;
+import ballerina/internal;
 
-function testParseJson(string s) returns (json|error) {
-    match util:parseJson(s) {
+function testParseJson (string s) returns (json|error) {
+    match internal:parseJson(s) {
         json result => {
             return result;
         }
