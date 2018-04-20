@@ -11,6 +11,6 @@ endpoint http:WebSocketListener echoEP {
 }
 service<http:WebSocketService> echo bind echoEP {
 
-    onText (endpoint conn, int text, boolean more) {
+    onText(endpoint conn, int text, boolean more) {
     }
 }

@@ -19,6 +19,7 @@
 package org.ballerinalang.docgen;
 
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
+import org.ballerinalang.docgen.docs.BallerinaDocDataHolder;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.docgen.model.ActionDoc;
 import org.ballerinalang.docgen.model.AnnotationDoc;
@@ -88,7 +89,8 @@ public class Generator {
             primitives) {
         ArrayList<Documentable> documentables = new ArrayList<>();
         //TODO till orgName gets fixed
-        String currentPackageName = "ballerina/" + balPackage.packageID.getName().getValue();
+        String currentPackageName = BallerinaDocDataHolder.getInstance().getOrgName() + balPackage.packageID.getName
+                ().getValue();
 
         // Check for records in the package
         if (balPackage.getRecords().size() > 0) {

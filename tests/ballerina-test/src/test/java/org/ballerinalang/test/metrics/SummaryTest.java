@@ -66,6 +66,8 @@ public class SummaryTest extends MetricTest {
         Assert.assertEquals(bMap.size(), 5);
         Map<String, BFloat> map = bMap.getMap();
         map.forEach((percentile, value) -> {
+            Double p = Double.parseDouble(percentile);
+            Assert.assertTrue(p >= 0 && p <= 1);
             Assert.assertTrue(value.floatValue() > 0);
         });
     }
