@@ -80,9 +80,11 @@ public class Respond extends ConnectionAction {
         BValue[] outboundResponseStatus = sendOutboundResponseRobust(context, inboundRequestMsg,
                                                                      outboundResponseStruct, outboundResponseMsg);
         ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
-        observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE, String.valueOf(outboundResponseStruct.
-                getIntField(RESPONSE_STATUS_CODE_INDEX)));
-        context.setReturnValues(outboundResponseStatus);
+        if (observerContext != null) {
+            observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE, String.valueOf(outboundResponseStruct.
+                    getIntField(RESPONSE_STATUS_CODE_INDEX)));
+            context.setReturnValues(outboundResponseStatus);
+        }
     }
 
     private void setCacheControlHeader(BStruct outboundRespStruct, HTTPCarbonMessage outboundResponse) {
