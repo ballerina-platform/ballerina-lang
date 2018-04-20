@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.nativeimpl.internal;
+package org.ballerinalang.nativeimpl.reflect;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.values.BFunctionPointer;
@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 0.965.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "internal",
+        orgName = "ballerina", packageName = "reflect",
         functionName = "getFunctionAnnotations"
 )
 public class GetFunctionAnnotations extends AbstractAnnotationReader {
