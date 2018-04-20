@@ -1,4 +1,5 @@
 import ballerina/sql;
+import ballerina/jdbc;
 
 sql:PoolOptions properties = {maximumPoolSize:1,
     idleTimeout:600000, connectionTimeout:30000, autoCommit:true, maxLifetime:1800000,
@@ -17,25 +18,24 @@ map propertiesMap3 = {"url":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR
 sql:PoolOptions properties6 = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource"};
 
 function testConnectionPoolProperties1() returns (json) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username:"SA",
         password:"",
         poolOptions:properties
     };
 
 
-    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
-    table dt = check dtRet;
+    table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
     var j = check <json>dt;
-    _ = testDB->close();
+    testDB.stop();
     return j;
 }
 
 function testConnectionPoolProperties2() returns (json) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username:"SA",
         poolOptions:properties
     };
@@ -44,28 +44,27 @@ function testConnectionPoolProperties2() returns (json) {
     table dt = check dtRet;
 
     var j = check <json>dt;
-    _ = testDB->close();
+    testDB.stop();
     return j;
 }
 
 function testConnectionPoolProperties3() returns (json) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username:"SA"
     };
 
-    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
-    table dt = check dtRet;
+    table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
     var j = check <json>dt;
-    _ = testDB->close();
+    testDB.stop();
     return j;
 }
 
 
 function testConnectorWithDefaultPropertiesForListedDB() returns (json) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username:"SA",
         poolOptions:{}
     };
@@ -74,13 +73,13 @@ function testConnectorWithDefaultPropertiesForListedDB() returns (json) {
     table dt = check dtRet;
 
     var j = check <json>dt;
-    _ = testDB->close();
+    testDB.stop();
     return j;
 }
 
 function testConnectorWithWorkers() returns (json) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username:"SA",
         poolOptions:{}
     };
@@ -89,11 +88,10 @@ function testConnectorWithWorkers() returns (json) {
         int x = 0;
         json y;
 
-        var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
-        table dt = check dtRet;
+        table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
         var j = check <json>dt;
-        _ = testDB->close();
+        testDB.stop();
         return j;
     }
     worker w2 {
@@ -102,67 +100,63 @@ function testConnectorWithWorkers() returns (json) {
 }
 
 function testConnectorWithDataSourceClass() returns (json) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username:"SA",
         poolOptions:properties3,
         dbOptions:propertiesMap
     };
 
-    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
-    table dt = check dtRet;
+    table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
     var j = check <json>dt;
-    _ = testDB->close();
+    testDB.stop();
     return j;
 }
 
 function testConnectorWithDataSourceClassAndProps() returns (json) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username:"SA",
         password:"",
         poolOptions:properties4,
         dbOptions:propertiesMap2
     };
 
-    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
-    table dt = check dtRet;
+    table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
     var j = check <json>dt;
-    _ = testDB->close();
+    testDB.stop();
     return j;
 }
 
 function testConnectorWithDataSourceClassWithoutURL() returns (json) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username:"SA",
         password:"",
         poolOptions:properties5
     };
 
-    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
-    table dt = check dtRet;
+    table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
     var j = check <json>dt;
-    _ = testDB->close();
+    testDB.stop();
     return j;
 }
 
 function testConnectorWithDataSourceClassURLPriority() returns (json) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username:"SA",
         password:"",
         poolOptions:properties6,
         dbOptions:propertiesMap3
     };
 
-    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
-    table dt = check dtRet;
+    table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
     var j = check <json>dt;
-    _ = testDB->close();
+    testDB.stop();
     return j;
 }

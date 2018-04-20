@@ -1110,7 +1110,8 @@ public class SQLDatasourceUtils {
                 .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
 
         SQLDatasource datasource = new SQLDatasource();
-        datasource.init(options, url, "", "", 0, username, password, "", "", dbOptions);
+        String dbType = url.split(":")[1].toUpperCase(Locale.getDefault());
+        datasource.init(options, url, dbType, "", 0, username, password, "", "", dbOptions);
 
         BStruct sqlClient = BLangConnectorSPIUtil
                 .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.CALLER_ACTIONS);

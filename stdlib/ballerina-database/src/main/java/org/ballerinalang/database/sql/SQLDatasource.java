@@ -130,9 +130,12 @@ public class SQLDatasource implements BValue {
                 }
 
                 if (isXA) {
-                    String datasourceClassName = getXADatasourceClassName(dbType, jdbcurl, username, password);
-                    config.setDataSourceClassName(datasourceClassName);
-                    dataSourceConfigMap = setDataSourcePropertiesMap(dataSourceConfigMap, jdbcurl, username, password);
+                    if (dataSourceClassName.isEmpty()) {
+                        String datasourceClassName = getXADatasourceClassName(dbType, jdbcurl, username, password);
+                        config.setDataSourceClassName(datasourceClassName);
+                        dataSourceConfigMap = setDataSourcePropertiesMap(dataSourceConfigMap, jdbcurl, username,
+                                password);
+                    }
                 }
 
                 String connectionInitSQL = options.getStringField(Constants.Options.CONNECTION_INIT_SQL);
