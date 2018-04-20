@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
 
 documentation {
     LoadBalanceClient endpoint provides load balancing functionality over multiple HTTP clients.
@@ -50,7 +49,7 @@ public type LoadBalanceClient object {
     documentation {
         Returns the backing HTTP client used by the load balance client endpoint.
     }
-    public function getCallerActions() returns HttpClient {
+    public function getCallerActions() returns CallerActions {
         return httpEP.httpClient;
     }
 
@@ -79,6 +78,7 @@ documentation {
     F{{acceptEncoding}} - Specifies the way of handling accept-encoding header
     F{{auth}} - HTTP authentication releated configurations
     F{{algorithm}} - The algorithm to be used for load balancing. The HTTP package provides 'roundRobin()' by default
+    F{{failover}} - Configuration for load balancer whether to fail over in case of a failure
 }
 public type LoadBalanceClientEndpointConfiguration {
     CircuitBreakerConfig? circuitBreaker,
@@ -94,9 +94,10 @@ public type LoadBalanceClientEndpointConfiguration {
     ConnectionThrottling? connectionThrottling,
     TargetService[] targets,
     CacheConfig cache = {},
-    string acceptEncoding = "auto",
+    AcceptEncoding acceptEncoding = ACCEPT_ENCODING_AUTO,
     AuthConfig? auth,
     string algorithm = ROUND_ROBIN,
+    boolean failover = true;
 };
 
 documentation {
@@ -142,17 +143,17 @@ function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointCo
     return clientEPConfig;
 }
 
-function createLoadBalancerClient(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig) returns HttpClient {
+function createLoadBalancerClient(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig) returns CallerActions {
     ClientEndpointConfig config = createClientEPConfigFromLoalBalanceEPConfig(loadBalanceClientConfig,
                                                                             loadBalanceClientConfig.targets[0]);
-    HttpClient[] lbClients = createLoadBalanceHttpClientArray(loadBalanceClientConfig);
-    return new LoadBalancer(loadBalanceClientConfig.targets[0].url,
-                                                config, lbClients, loadBalanceClientConfig.algorithm, 0);
+    CallerActions[] lbClients = createLoadBalanceHttpClientArray(loadBalanceClientConfig);
+    return new LoadBalancer(loadBalanceClientConfig.targets[0].url, config, lbClients,
+                                            loadBalanceClientConfig.algorithm, 0, loadBalanceClientConfig.failover);
 }
 
 function createLoadBalanceHttpClientArray (LoadBalanceClientEndpointConfiguration loadBalanceClientConfig)
-                                                                                                returns HttpClient[] {
-    HttpClient[] httpClients = [];
+                                                                                                returns CallerActions[] {
+    CallerActions[] httpClients = [];
     int i = 0;
     boolean httpClientRequired = false;
     string uri = loadBalanceClientConfig.targets[0].url;

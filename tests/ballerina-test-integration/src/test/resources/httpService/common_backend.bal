@@ -14,14 +14,14 @@ service<http:Service> echo bind echoEP{
         methods:["POST"],
         path:"/"
     }
-    echo (endpoint outboundEP, http:Request req) {
+    echo (endpoint caller, http:Request req) {
         http:Response resp = new;
         var result = req.getStringPayload();
         match result {
             http:PayloadError payloadError => io:println(payloadError.message);
             string payload => {
                 resp.setStringPayload(payload);
-                _ = outboundEP -> respond(resp);
+                _ = caller -> respond(resp);
             }
         }
     }

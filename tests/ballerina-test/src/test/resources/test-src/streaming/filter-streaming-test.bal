@@ -63,7 +63,7 @@ function startFilterQuery() returns (Employee[]) {
     teacherStream1.publish(t2);
     teacherStream1.publish(t3);
 
-    runtime:sleepCurrentWorker(1000);
+    runtime:sleep(1000);
 
     return globalEmployeeArray;
 }

@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
 
 documentation{The HTTP response status code: 100 Continue}
 @final public int CONTINUE_100 = 100;
@@ -50,6 +49,8 @@ documentation{The HTTP response status code: 305 Use Proxy}
 @final public int USE_PROXY_305 = 305;
 documentation{The HTTP response status code: 307 Temporary Redirect}
 @final public int TEMPORARY_REDIRECT_307 = 307;
+documentation{The HTTP response status code: 308 Permanent Redirect}
+@final public int PERMANENT_REDIRECT_308 = 308;
 
 documentation{The HTTP response status code: 400 Bad Request}
 @final public int BAD_REQUEST_400 = 400;

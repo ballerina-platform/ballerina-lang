@@ -1,4 +1,3 @@
-package ballerina.builtin;
 
 public annotation Description {
     string value;

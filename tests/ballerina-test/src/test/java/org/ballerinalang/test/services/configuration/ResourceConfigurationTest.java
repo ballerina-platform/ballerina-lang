@@ -19,9 +19,9 @@
 package org.ballerinalang.test.services.configuration;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -33,10 +33,12 @@ public class ResourceConfigurationTest {
 
     private CompileResult compileResult;
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*multiple resource configuration annotations found in resource:.*")
+    @Test(description = "Tests for multiple resource configs in a resource")
     public void testDuplicateResourceConfigAnnotations() {
         compileResult = BCompileUtil.compile("test-src/services/configuration/resource-config-annotation.bal");
-        BServiceUtil.runService(compileResult);
+        Diagnostic[] diag = compileResult.getDiagnostics();
+        Assert.assertEquals(diag.length, 1);
+        Assert.assertEquals(diag[0].getMessage(),
+                            "There cannot be more than one resource annotations");
     }
 }

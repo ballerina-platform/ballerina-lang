@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.time;
 
 @final public TimeFormat TIME_FORMAT_RFC_1123 = "RFC_1123";
 

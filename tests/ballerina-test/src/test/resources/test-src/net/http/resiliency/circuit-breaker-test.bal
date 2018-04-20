@@ -44,12 +44,12 @@ function testTypicalScenario () returns (http:Response[] , http:HttpConnectorErr
     int counter = 0;
     http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getCallerActions();
     MockClient mockClient = new;
-    cbClient.httpClient = <http:HttpClient> mockClient;
+    cbClient.httpClient = <http:CallerActions> mockClient;
 
     while (counter < 8) {
        http:Request request = new;
        request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_TYPICAL);
-       match cbClient.get("/hello", request) {
+       match cbClient.get("/hello", request = request) {
             http:Response res => {
                 responses[counter] = res;
             }
@@ -61,7 +61,7 @@ function testTypicalScenario () returns (http:Response[] , http:HttpConnectorErr
        counter = counter + 1;
        // To ensure the reset timeout period expires
        if (counter == 5) {
-           runtime:sleepCurrentWorker(5000);
+           runtime:sleep(5000);
        }
     }
     return (responses, errs);
@@ -88,12 +88,12 @@ function testTrialRunFailure () returns (http:Response[] , http:HttpConnectorErr
     int counter = 0;
     http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getCallerActions();
     MockClient mockClient = new;
-    cbClient.httpClient = <http:HttpClient> mockClient;
+    cbClient.httpClient = <http:CallerActions> mockClient;
 
     while (counter < 8) {
         http:Request request = new;
        request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_TRIAL_RUN_FAILURE);
-       match cbClient.get("/hello", request) {
+       match cbClient.get("/hello", request = request) {
             http:Response res => {
                 responses[counter] = res;
             }
@@ -105,7 +105,7 @@ function testTrialRunFailure () returns (http:Response[] , http:HttpConnectorErr
        counter = counter + 1;
        // To ensure the reset timeout period expires
        if (counter == 5) {
-           runtime:sleepCurrentWorker(5000);
+           runtime:sleep(5000);
        }
     }
     return (responses, errs);
@@ -132,12 +132,12 @@ function testHttpStatusCodeFailure () returns (http:Response[] , http:HttpConnec
     int counter = 0;
     http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getCallerActions();
     MockClient mockClient = new;
-    cbClient.httpClient = <http:HttpClient> mockClient;
+    cbClient.httpClient = <http:CallerActions> mockClient;
 
     while (counter < 8) {
         http:Request request = new;
        request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_HTTP_SC_FAILURE);
-       match cbClient.get("/hello", request) {
+       match cbClient.get("/hello", request = request) {
             http:Response res => {
                 responses[counter] = res;
             }

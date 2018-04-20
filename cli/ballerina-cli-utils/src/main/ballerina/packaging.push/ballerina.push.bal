@@ -1,17 +1,31 @@
-package packaging.push;
 
-import ballerina/file;
 import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
 
+documentation {
+    Function to pull a package from ballerina central.
+
+    P{{accessToken}} - The access token.
+    P{{mdFileContent}} - The Package.md file content of the package.
+    P{{summary}} - The summary of the package.
+    P{{homePageURL}} - The website URL of the package.
+    P{{repositoryURL}} - The source code URL of the package.
+    P{{apiDocURL}} - The api documentation URL of the package.
+    P{{authors}} - The authors of the package.
+    P{{keywords}} - The keywords which describes the package.
+    P{{license}} - The license of the package.
+    P{{url}} - The url to be invoked to push the package.
+    P{{dirPath}} - The directory path where the archived package resides.
+    P{{msg}} - The message printed when the package is pushed successfully which includes package info.
+}
 function pushPackage (string accessToken, string mdFileContent, string summary, string homePageURL, string repositoryURL,
     string apiDocURL, string authors, string keywords, string license, string url, string dirPath, string msg) {
     endpoint http:Client httpEndpoint {
         url:url,
         secureSocket:{
             trustStore:{
-                filePath:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
                 password:"ballerina"
             },
             verifyHostname:false,
@@ -30,20 +44,24 @@ function pushPackage (string accessToken, string mdFileContent, string summary, 
 
     // Artifact
     mime:Entity filePart = new;
-    mime:MediaType contentTypeOfFilePart = mime:getMediaType(mime:APPLICATION_OCTET_STREAM);
-    filePart.contentType = contentTypeOfFilePart;
-    filePart.contentDisposition = getContentDispositionForFormData("artifact");
-    file:Path filePath = new(dirPath);
-    filePart.setFileAsEntityBody(untaint filePath);
+    filePart.setContentDisposition(getContentDispositionForFormData("artifact"));
+    filePart.setFileAsEntityBody(untaint dirPath);
 
     mime:Entity[] bodyParts = [filePart, mdFileContentBodyPart, summaryBodyPart, homePageURLBodyPart, repositoryURLBodyPart,
                                            apiDocURLBodyPart, authorsBodyPart, keywordsBodyPart, licenseBodyPart];
     http:Request req = new;
     req.addHeader("Authorization", "Bearer " + accessToken);
-    req.setBodyParts(bodyParts, mime:MULTIPART_FORM_DATA);
+    req.setBodyParts(bodyParts, contentType = mime:MULTIPART_FORM_DATA);
     
     var result = httpEndpoint -> post("", req);
-    http:Response httpResponse = check result;
+    http:Response httpResponse = new;
+    match result {
+        http:Response response => httpResponse = response;
+        http:HttpConnectorError e => {
+            io:println("Connection to the remote host failed : " + e.message);
+            return;
+        }
+    }
     string statusCode = <string> httpResponse.statusCode;
     if (statusCode.hasPrefix("5")) {
         io:println("remote registry failed for url :" + url);
@@ -56,10 +74,19 @@ function pushPackage (string accessToken, string mdFileContent, string summary, 
     }
 }
 
+documentation {
+    Main function which invokes the method to push the package.
+}
 function main (string... args) {
     pushPackage(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11]);
 }
 
+documentation {
+    Function to get the content disposition of the form data sent.
+
+    P{{partName}} - The multipart name.
+    R{{}} - `ContentDisposition`
+}
 function getContentDispositionForFormData(string partName) returns (mime:ContentDisposition){
     mime:ContentDisposition contentDisposition = new;
     contentDisposition.name =  partName;
@@ -67,11 +94,16 @@ function getContentDispositionForFormData(string partName) returns (mime:Content
     return contentDisposition;
 }
 
+documentation {
+    Function to add string part information in multiparts.
+
+    P{{key}} - The name of the multipart.
+    P{{value}} - The string value to be included in the multipart.
+    R{{}} - `Entity` Mime entity with the part information.
+}
 function addStringBodyParts (string key, string value) returns (mime:Entity) {
     mime:Entity stringBodyPart = new;
-    mime:MediaType contentTypeOfStringPart = mime:getMediaType(mime:TEXT_PLAIN);
-    stringBodyPart.contentType = contentTypeOfStringPart;
-    stringBodyPart.contentDisposition = getContentDispositionForFormData(key);
+    stringBodyPart.setContentDisposition(getContentDispositionForFormData(key));
     stringBodyPart.setText(value);
     return stringBodyPart;
 }

@@ -78,6 +78,9 @@
              hljs.initHighlighting();
          })
          
+          $(document).ready(function(){
+            $( "#iBallerinaXtoc" ).load( "../ballerinax/package-list.html" );
+          });
       </script>
       <script>var base_url = "";</script>
       <script src="/search/require.js"></script>
@@ -107,22 +110,6 @@
       <div class="row cBallerina-io-Gray-row">
          <div class="container">
             <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 cBallerina-io-Home-Left-col">
-                 <div class="cBlallerina-io-docs-right-nav-container">
-                  <div class="cLectColStyle cLeftColTop">
-                      <div class="cBallerina-io-docs-Title cBallerina-io-x">BALLERINA X</div>
-                        <div class="cCollaps-Menu-first">
-                            {{#each primitives}}
-                                <ul class="">
-                                    <li>
-                                        <a href="{{href}}">
-                                            <span class="bold">{{caption.value}}</span>
-                                        </a>
-                                    </li>
-                                </ul>
-                            {{/each}}
-                        </div>
-                  </div>
-                </div>
                 <div class="cBlallerina-io-docs-right-nav-container">
                   <div class="cLectColStyle cLeftColTop">
                       <div class="cBallerina-io-docs-Title cBallerina-io-primitive-types">PRIMITIVE TYPES</div>
@@ -224,8 +211,6 @@
                                        </div>
                                        <div class="construct-name">
                                           {{name}}
-                                          {{#if isConnector}} ({{#each fields}}<a href="{{href}}">{{dataType}}</a> {{name}}{{#unless
-                                          @last}} ,{{/unless}}{{/each}}) {{/if}}
                                        </div>
                                     </a>
                                  </li>
@@ -496,7 +481,7 @@
                                        {{#if isConnector}}
                                        <h2 id="{{name}}">
                                           <span class="{{icon}} sm-icon"></span>
-                                          public connector {{name}}
+                                          Endpoint {{name}}
                                        </h2>
                                        {{#if description}}
                                        <p>
@@ -505,7 +490,7 @@
                                        {{/if}} {{#if fields}}
                                        <table>
                                           <tr>
-                                             <th class="cAPI-table-name">Parameter Name</th>
+                                             <th class="cAPI-table-name">Field Name</th>
                                              <th class="cAPI-table-type">Data Type</th>
                                              <th class="cAPI-table-default">Default Value</th>
                                              <th class="cAPI-table-desc">Description</th>
@@ -521,17 +506,17 @@
                                        </table>
                                        {{/if}} {{#if children}}
                                        <div class="function-wrapper">
-                                          <h2>Actions:</h2>
+                                          <!--h2>Actions:</h2-->
                                           <ul>
                                              {{#each children}}
                                              <li>
-                                                <h3 id="{{../name}}-{{name}}">
+                                                <h2 id="{{../name}}-{{name}}">
                                                    <span class={{icon}}></span>
                                                    <span class="thin-text light-gray">
                                                    <{{../name}}>
                                                    </span>
                                                    {{name}}({{join parameters ", "}}) {{#if returnParams}}returns ({{join returnParams ", "}}) {{/if}}
-                                                </h3>
+                                                </h2>
                                                 {{#if description}}
                                                 <p>
                                                    <span class="fw-right gray xs-icon"></span>{{{description}}}

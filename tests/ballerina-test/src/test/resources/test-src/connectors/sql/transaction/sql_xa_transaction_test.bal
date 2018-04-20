@@ -1,18 +1,18 @@
-import ballerina/sql;
+import ballerina/jdbc;
 
 type ResultCount {
     int COUNTVAL,
 };
 
 function testXAransactonSuccess() returns (int, int) {
-    endpoint sql:Client testDB1 {
-        url:"h2:file:./target/H2_1/TestDB1",
+    endpoint jdbc:Client testDB1 {
+        url:"jdbc:h2:file:./target/H2_1/TestDB1",
         username:"SA",
         poolOptions:{maximumPoolSize:1, isXA:true}
     };
 
-    endpoint sql:Client testDB2 {
-        url:"h2:file:./target/H2_2/TestDB2",
+    endpoint jdbc:Client testDB2 {
+        url:"jdbc:h2:file:./target/H2_2/TestDB2",
         username:"SA",
         poolOptions:{maximumPoolSize:1, isXA:true}
     };
@@ -26,34 +26,32 @@ function testXAransactonSuccess() returns (int, int) {
     int count1;
     int count2;
     //check whether update action is performed
-    var temp = testDB1->select("Select COUNT(*) as countval from Customers where customerId = 1 ", ResultCount);
-    table dt = check temp;
+    table dt = check testDB1->select("Select COUNT(*) as countval from Customers where customerId = 1 ", ResultCount);
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
         count1 = rs.COUNTVAL;
     }
 
-    temp = testDB2->select("Select COUNT(*) as countval from Salary where id = 1", ResultCount);
-    dt = check temp;
+    dt = check testDB2->select("Select COUNT(*) as countval from Salary where id = 1", ResultCount);
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
         count2 = rs.COUNTVAL;
     }
-    _ = testDB1->close();
-    _ = testDB2->close();
+    testDB1.stop();
+    testDB2.stop();
     return (count1, count2);
 }
 
 function testXAransactonFailed1() returns (int, int) {
 
-    endpoint sql:Client testDB1 {
-        url:"h2:file:./target/H2_1/TestDB1",
+    endpoint jdbc:Client testDB1 {
+        url:"jdbc:h2:file:./target/H2_1/TestDB1",
         username:"SA",
         poolOptions:{maximumPoolSize:1, isXA:true}
     };
 
-    endpoint sql:Client testDB2 {
-        url:"h2:file:./target/H2_2/TestDB2",
+    endpoint jdbc:Client testDB2 {
+        url:"jdbc:h2:file:./target/H2_2/TestDB2",
         username:"SA",
         poolOptions:{maximumPoolSize:1, isXA:true}
     };
@@ -71,34 +69,32 @@ function testXAransactonFailed1() returns (int, int) {
     int count1;
     int count2;
     //check whether update action is performed
-    var temp = testDB1->select("Select COUNT(*) as countval from Customers where customerId = 2", ResultCount);
-    table dt = check temp;
+    table dt = check testDB1->select("Select COUNT(*) as countval from Customers where customerId = 2", ResultCount);
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
         count1 = rs.COUNTVAL;
     }
 
-    temp = testDB2->select("Select COUNT(*) as countval from Salary where id = 2 ", ResultCount);
-    dt = check temp;
+    dt = check testDB2->select("Select COUNT(*) as countval from Salary where id = 2 ", ResultCount);
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
         count2 = rs.COUNTVAL;
     }
-    _ = testDB1->close();
-    _ = testDB2->close();
+    testDB1.stop();
+    testDB2.stop();
     return (count1, count2);
 }
 
 function testXAransactonFailed2() returns (int, int) {
 
-    endpoint sql:Client testDB1 {
-        url:"h2:file:./target/H2_1/TestDB1",
+    endpoint jdbc:Client testDB1 {
+        url:"jdbc:h2:file:./target/H2_1/TestDB1",
         username:"SA",
         poolOptions:{maximumPoolSize:1, isXA:true}
     };
 
-    endpoint sql:Client testDB2 {
-        url:"h2:file:./target/H2_2/TestDB2",
+    endpoint jdbc:Client testDB2 {
+        url:"jdbc:h2:file:./target/H2_2/TestDB2",
         username:"SA",
         poolOptions:{maximumPoolSize:1, isXA:true}
     };
@@ -113,9 +109,7 @@ function testXAransactonFailed2() returns (int, int) {
 
     }
     //check whether update action is performed
-    var temp = testDB1->select("Select COUNT(*) as countval from Customers where customerId = 2",
-        ResultCount);
-    table dt = check temp;
+    table dt = check testDB1->select("Select COUNT(*) as countval from Customers where customerId = 2", ResultCount);
     int count1;
     int count2;
     while (dt.hasNext()) {
@@ -123,27 +117,26 @@ function testXAransactonFailed2() returns (int, int) {
         count1 = rs.COUNTVAL;
     }
 
-    temp = testDB2->select("Select COUNT(*) as countval from Salary where id = 2 ", ResultCount);
-    dt = check temp;
+    dt = check testDB2->select("Select COUNT(*) as countval from Salary where id = 2 ", ResultCount);
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
         count2 = rs.COUNTVAL;
     }
-    _ = testDB1->close();
-    _ = testDB2->close();
+    testDB1.stop();
+    testDB2.stop();
     return (count1, count2);
 }
 
 function testXAransactonRetry() returns (int, int) {
 
-    endpoint sql:Client testDB1 {
-        url:"h2:file:./target/H2_1/TestDB1",
+    endpoint jdbc:Client testDB1 {
+        url:"jdbc:h2:file:./target/H2_1/TestDB1",
         username:"SA",
         poolOptions:{maximumPoolSize:1, isXA:true}
     };
 
-    endpoint sql:Client testDB2 {
-        url:"h2:file:./target/H2_2/TestDB2",
+    endpoint jdbc:Client testDB2 {
+        url:"jdbc:h2:file:./target/H2_2/TestDB2",
         username:"SA",
         poolOptions:{maximumPoolSize:1, isXA:true}
     };
@@ -165,9 +158,8 @@ function testXAransactonRetry() returns (int, int) {
     } catch (error e) {
     }
     //check whether update action is performed
-    var temp = testDB1->select("Select COUNT(*) as countval from Customers where customerId = 4",
+    table dt = check testDB1->select("Select COUNT(*) as countval from Customers where customerId = 4",
         ResultCount);
-    table dt = check temp;
     int count1;
     int count2;
 
@@ -176,13 +168,12 @@ function testXAransactonRetry() returns (int, int) {
         count1 = rs.COUNTVAL;
     }
 
-    temp = testDB2->select("Select COUNT(*) as countval from Salary where id = 4", ResultCount);
-    dt = check temp;
+    dt = check testDB2->select("Select COUNT(*) as countval from Salary where id = 4", ResultCount);
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
         count2 = rs.COUNTVAL;
     }
-    _ = testDB1->close();
-    _ = testDB2->close();
+    testDB1.stop();
+    testDB2.stop();
     return (count1, count2);
 }

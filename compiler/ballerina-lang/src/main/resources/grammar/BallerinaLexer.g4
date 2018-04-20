@@ -13,7 +13,6 @@ lexer grammar BallerinaLexer;
 
 // Reserved words
 
-PACKAGE     : 'package' ;
 IMPORT      : 'import' ;
 AS          : 'as' ;
 PUBLIC      : 'public' ;

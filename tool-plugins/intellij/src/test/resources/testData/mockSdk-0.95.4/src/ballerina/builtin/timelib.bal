@@ -1,4 +1,3 @@
-package ballerina.builtin;
 
 @Description {value:"Ballerina Timezone struct represents the timezone information associated with a particular time."}
 @Field {value:"zoneId: Zone short ID or offset string."}

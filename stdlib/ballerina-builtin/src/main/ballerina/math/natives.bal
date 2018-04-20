@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.math;
 
 @Description {value:"The ratio of the circumference of a circle to its diameter"}
 @final public float PI = 3.141592653589793;

@@ -153,7 +153,7 @@ public class IdentifierLiteralTest {
         Assert.assertEquals(actualString, "sample test");
     }
 
-    @Test(description = "Test connector name with identifier literal")
+    @Test(description = "Test connector name with identifier literal", enabled = false)
     public void testConnectorWithIdentifierLiteral() {
         BValue[] returns = BRunUtil.invoke(result, "testConnectorNameWithIL");
 
@@ -202,9 +202,7 @@ public class IdentifierLiteralTest {
     }
 
     //Error scenarios
-    //TODO : Need to review this test...
-    @Test(description = "Test error message when trying to access undefined global var with identifier literal",
-            enabled = false)
+    @Test(description = "Test error message when trying to access undefined global var with identifier literal")
     public void testTryToAccessUndefinedGlobalVarWithIdentifierLiteral() {
         CompileResult resultNeg = BCompileUtil.compile("test-src/expressions/identifierliteral" +
                 "/identifier-literal-undefined-variable-negative.bal");
@@ -212,18 +210,14 @@ public class IdentifierLiteralTest {
         BAssertUtil.validateError(resultNeg, 0, "undefined symbol 'global v \" ar'", 5, 12);
     }
 
-    //TODO : Need to review this test...
-    @Test(description = "Test wrong character in identifier literal", enabled = false)
+    @Test(description = "Test wrong character in identifier literal")
     public void testIdentifierLiteralWithWrongCharacter() {
         CompileResult resultNeg = BCompileUtil.compile("test-src/expressions/identifierliteral" +
                 "/identifier-literal-wrong-character-negative.bal");
-        Assert.assertEquals(resultNeg.getErrorCount(), 4);
-        Assert.assertTrue(
-                resultNeg.getDiagnostics()[0].getMessage().startsWith("token recognition error at: '| = \"dfs\";"));
-        BAssertUtil.validateError(resultNeg, 1, "missing token ';' before 'var'", 3, 22);
-        BAssertUtil.validateError(resultNeg, 2, "extraneous input 'return'", 4, 5);
-        BAssertUtil.validateError(resultNeg, 3, "mismatched input ';'. expecting {'.', ',', '[', '=', '@'}",
-                4, 25);
+        Assert.assertEquals(resultNeg.getErrorCount(), 3);
+        BAssertUtil.validateError(resultNeg, 0, "missing token ';' before 'var'", 3, 23);
+        BAssertUtil.validateError(resultNeg, 1, "token recognition error at: '\";\\n}\\n\\n\\n'", 4, 25);
+        BAssertUtil.validateError(resultNeg, 2, "missing token ';' before 'ar'", 4, 23);
     }
 
     @Test

@@ -719,13 +719,15 @@ public class CPU {
                         break;
                     case InstructionCodes.LOCK:
                         InstructionLock instructionLock = (InstructionLock) instruction;
-                        if (!handleVariableLock(ctx, instructionLock.types, instructionLock.varRegs)) {
+                        if (!handleVariableLock(ctx, instructionLock.types,
+                                instructionLock.pkgRefs, instructionLock.varRegs)) {
                             return;
                         }
                         break;
                     case InstructionCodes.UNLOCK:
                         InstructionLock instructionUnLock = (InstructionLock) instruction;
-                        handleVariableUnlock(ctx, instructionUnLock.types, instructionUnLock.varRegs);
+                        handleVariableUnlock(ctx, instructionUnLock.types,
+                                instructionUnLock.pkgRefs, instructionUnLock.varRegs);
                         break;
                     case InstructionCodes.AWAIT:
                         ctx = execAwait(ctx, operands);
@@ -1065,6 +1067,7 @@ public class CPU {
         int i;
         int j;
         int k;
+        int pkgIndex;
         int lvIndex; // Index of the local variable
         int fieldIndex;
 
@@ -1228,36 +1231,43 @@ public class CPU {
                 }
                 break;
             case InstructionCodes.IGLOAD:
-                // Global variable index
-                i = operands[0];
+                // package index
+                pkgIndex = operands[0];
+                // package level variable index
+                i = operands[1];
                 // Stack registry index
-                j = operands[1];
-                sf.longRegs[j] = ctx.programFile.getGlobalMemoryBlock().getIntField(i);
+                j = operands[2];
+                sf.longRegs[j] = ctx.programFile.globalMemArea.getIntField(pkgIndex, i);
                 break;
             case InstructionCodes.FGLOAD:
-                i = operands[0];
-                j = operands[1];
-                sf.doubleRegs[j] = ctx.programFile.getGlobalMemoryBlock().getFloatField(i);
+                pkgIndex = operands[0];
+                i = operands[1];
+                j = operands[2];
+                sf.doubleRegs[j] = ctx.programFile.globalMemArea.getFloatField(pkgIndex, i);
                 break;
             case InstructionCodes.SGLOAD:
-                i = operands[0];
-                j = operands[1];
-                sf.stringRegs[j] = ctx.programFile.getGlobalMemoryBlock().getStringField(i);
+                pkgIndex = operands[0];
+                i = operands[1];
+                j = operands[2];
+                sf.stringRegs[j] = ctx.programFile.globalMemArea.getStringField(pkgIndex, i);
                 break;
             case InstructionCodes.BGLOAD:
-                i = operands[0];
-                j = operands[1];
-                sf.intRegs[j] = ctx.programFile.getGlobalMemoryBlock().getBooleanField(i);
+                pkgIndex = operands[0];
+                i = operands[1];
+                j = operands[2];
+                sf.intRegs[j] = ctx.programFile.globalMemArea.getBooleanField(pkgIndex, i);
                 break;
             case InstructionCodes.LGLOAD:
-                i = operands[0];
-                j = operands[1];
-                sf.byteRegs[j] = ctx.programFile.getGlobalMemoryBlock().getBlobField(i);
+                pkgIndex = operands[0];
+                i = operands[1];
+                j = operands[2];
+                sf.byteRegs[j] = ctx.programFile.globalMemArea.getBlobField(pkgIndex, i);
                 break;
             case InstructionCodes.RGLOAD:
-                i = operands[0];
-                j = operands[1];
-                sf.refRegs[j] = ctx.programFile.getGlobalMemoryBlock().getRefField(i);
+                pkgIndex = operands[0];
+                i = operands[1];
+                j = operands[2];
+                sf.refRegs[j] = ctx.programFile.globalMemArea.getRefField(pkgIndex, i);
                 break;
 
             case InstructionCodes.IFIELDLOAD:
@@ -1370,6 +1380,7 @@ public class CPU {
         int i;
         int j;
         int k;
+        int pkgIndex;
         int fieldIndex;
 
         BIntArray bIntArray;
@@ -1502,36 +1513,42 @@ public class CPU {
                 }
                 break;
             case InstructionCodes.IGSTORE:
+                pkgIndex = operands[0];
                 // Stack reg index
-                i = operands[0];
+                i = operands[1];
                 // Global var index
-                j = operands[1];
-                ctx.programFile.getGlobalMemoryBlock().setIntField(j, sf.longRegs[i]);
+                j = operands[2];
+                ctx.programFile.globalMemArea.setIntField(pkgIndex, j, sf.longRegs[i]);
                 break;
             case InstructionCodes.FGSTORE:
-                i = operands[0];
-                j = operands[1];
-                ctx.programFile.getGlobalMemoryBlock().setFloatField(j, sf.doubleRegs[i]);
+                pkgIndex = operands[0];
+                i = operands[1];
+                j = operands[2];
+                ctx.programFile.globalMemArea.setFloatField(pkgIndex, j, sf.doubleRegs[i]);
                 break;
             case InstructionCodes.SGSTORE:
-                i = operands[0];
-                j = operands[1];
-                ctx.programFile.getGlobalMemoryBlock().setStringField(j, sf.stringRegs[i]);
+                pkgIndex = operands[0];
+                i = operands[1];
+                j = operands[2];
+                ctx.programFile.globalMemArea.setStringField(pkgIndex, j, sf.stringRegs[i]);
                 break;
             case InstructionCodes.BGSTORE:
-                i = operands[0];
-                j = operands[1];
-                ctx.programFile.getGlobalMemoryBlock().setBooleanField(j, sf.intRegs[i]);
+                pkgIndex = operands[0];
+                i = operands[1];
+                j = operands[2];
+                ctx.programFile.globalMemArea.setBooleanField(pkgIndex, j, sf.intRegs[i]);
                 break;
             case InstructionCodes.LGSTORE:
-                i = operands[0];
-                j = operands[1];
-                ctx.programFile.getGlobalMemoryBlock().setBlobField(j, sf.byteRegs[i]);
+                pkgIndex = operands[0];
+                i = operands[1];
+                j = operands[2];
+                ctx.programFile.globalMemArea.setBlobField(pkgIndex, j, sf.byteRegs[i]);
                 break;
             case InstructionCodes.RGSTORE:
-                i = operands[0];
-                j = operands[1];
-                ctx.programFile.getGlobalMemoryBlock().setRefField(j, sf.refRegs[i]);
+                pkgIndex = operands[0];
+                i = operands[1];
+                j = operands[2];
+                ctx.programFile.globalMemArea.setRefField(pkgIndex, j, sf.refRegs[i]);
                 break;
 
             case InstructionCodes.IFIELDSTORE:
@@ -2523,56 +2540,60 @@ public class CPU {
         }
     }
 
-    private static boolean handleVariableLock(WorkerExecutionContext ctx, BType[] types, int[] varRegs) {
+    private static boolean handleVariableLock(WorkerExecutionContext ctx, BType[] types,
+                                              int[] pkgRegs, int[] varRegs) {
         boolean lockAcquired = true;
         for (int i = 0; i < varRegs.length && lockAcquired; i++) {
             BType paramType = types[i];
+            int pkgIndex = pkgRegs[i];
             int regIndex = varRegs[i];
             switch (paramType.getTag()) {
                 case TypeTags.INT_TAG:
-                    lockAcquired = ctx.programFile.getGlobalMemoryBlock().lockIntField(ctx, regIndex);
+                    lockAcquired = ctx.programFile.globalMemArea.lockIntField(ctx, pkgIndex, regIndex);
                     break;
                 case TypeTags.FLOAT_TAG:
-                    lockAcquired = ctx.programFile.getGlobalMemoryBlock().lockFloatField(ctx, regIndex);
+                    lockAcquired = ctx.programFile.globalMemArea.lockFloatField(ctx, pkgIndex, regIndex);
                     break;
                 case TypeTags.STRING_TAG:
-                    lockAcquired = ctx.programFile.getGlobalMemoryBlock().lockStringField(ctx, regIndex);
+                    lockAcquired = ctx.programFile.globalMemArea.lockStringField(ctx, pkgIndex, regIndex);
                     break;
                 case TypeTags.BOOLEAN_TAG:
-                    lockAcquired = ctx.programFile.getGlobalMemoryBlock().lockBooleanField(ctx, regIndex);
+                    lockAcquired = ctx.programFile.globalMemArea.lockBooleanField(ctx, pkgIndex, regIndex);
                     break;
                 case TypeTags.BLOB_TAG:
-                    lockAcquired = ctx.programFile.getGlobalMemoryBlock().lockBlobField(ctx, regIndex);
+                    lockAcquired = ctx.programFile.globalMemArea.lockBlobField(ctx, pkgIndex, regIndex);
                     break;
                 default:
-                    lockAcquired = ctx.programFile.getGlobalMemoryBlock().lockRefField(ctx, regIndex);
+                    lockAcquired = ctx.programFile.globalMemArea.lockRefField(ctx, pkgIndex, regIndex);
             }
         }
         return lockAcquired;
     }
 
-    private static void handleVariableUnlock(WorkerExecutionContext ctx, BType[] types, int[] varRegs) {
+    private static void handleVariableUnlock(WorkerExecutionContext ctx, BType[] types,
+                                             int[] pkgRegs, int[] varRegs) {
         for (int i = varRegs.length - 1; i > -1; i--) {
             BType paramType = types[i];
+            int pkgIndex = pkgRegs[i];
             int regIndex = varRegs[i];
             switch (paramType.getTag()) {
                 case TypeTags.INT_TAG:
-                    ctx.programFile.getGlobalMemoryBlock().unlockIntField(regIndex);
+                    ctx.programFile.globalMemArea.unlockIntField(pkgIndex, regIndex);
                     break;
                 case TypeTags.FLOAT_TAG:
-                    ctx.programFile.getGlobalMemoryBlock().unlockFloatField(regIndex);
+                    ctx.programFile.globalMemArea.unlockFloatField(pkgIndex, regIndex);
                     break;
                 case TypeTags.STRING_TAG:
-                    ctx.programFile.getGlobalMemoryBlock().unlockStringField(regIndex);
+                    ctx.programFile.globalMemArea.unlockStringField(pkgIndex, regIndex);
                     break;
                 case TypeTags.BOOLEAN_TAG:
-                    ctx.programFile.getGlobalMemoryBlock().unlockBooleanField(regIndex);
+                    ctx.programFile.globalMemArea.unlockBooleanField(pkgIndex, regIndex);
                     break;
                 case TypeTags.BLOB_TAG:
-                    ctx.programFile.getGlobalMemoryBlock().unlockBlobField(regIndex);
+                    ctx.programFile.globalMemArea.unlockBlobField(pkgIndex, regIndex);
                     break;
                 default:
-                    ctx.programFile.getGlobalMemoryBlock().unlockRefField(regIndex);
+                    ctx.programFile.globalMemArea.unlockRefField(pkgIndex, regIndex);
             }
         }
     }
@@ -2905,10 +2926,11 @@ public class CPU {
     @SuppressWarnings("rawtypes")
     private static boolean handleWorkerReceive(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,
                                                BType type, int reg) {
-        BRefType passedInValue = getWorkerChannel(ctx, workerDataChannelInfo.getChannelName()).tryTakeData(ctx);
+        WorkerDataChannel.WorkerResult passedInValue = getWorkerChannel(
+                ctx, workerDataChannelInfo.getChannelName()).tryTakeData(ctx);
         if (passedInValue != null) {
             WorkerData currentFrame = ctx.workerLocal;
-            copyArgValueForWorkerReceive(currentFrame, reg, type, passedInValue);
+            copyArgValueForWorkerReceive(currentFrame, reg, type, passedInValue.value);
             return true;
         } else {
             return false;
