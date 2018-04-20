@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.nativeimpl.security.crypto;
+package org.ballerinalang.nativeimpl.crypto;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -34,12 +34,12 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * Native function ballerina.security.crypto:getHmac.
+ * Native function ballerina.crypto:getHmac.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "security.crypto",
+        orgName = "ballerina", packageName = "crypto",
         functionName = "getHmac",
         args = {
                 @Argument(name = "baseString", type = TypeKind.STRING),

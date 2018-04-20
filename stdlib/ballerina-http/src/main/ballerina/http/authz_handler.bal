@@ -47,7 +47,7 @@ function HttpAuthzHandler::handle (string username, string serviceName, string r
                                                                                     string[] scopes) returns (boolean) {
     // first, check in the cache. cache key is <username>-<resource>-<http method>,
     // since different resources can have different scopes
-    string authzCacheKey = runtime:getInvocationContext().authenticationContext.username +
+    string authzCacheKey = runtime:getInvocationContext().userPrincipal.username +
                                                     "-" + serviceName +  "-" + resourceName + "-" + method;
     match self.authorizeFromCache(authzCacheKey) {
         boolean isAuthorized => {
@@ -56,7 +56,7 @@ function HttpAuthzHandler::handle (string username, string serviceName, string r
         () => {
             // if there are scopes set in the AuthenticationContext already from a previous authentication phase, try to
             // match against those.
-            string[] authCtxtScopes = runtime:getInvocationContext().authenticationContext.scopes;
+            string[] authCtxtScopes = runtime:getInvocationContext().userPrincipal.scopes;
             if (lengthof authCtxtScopes > 0) {
                 boolean authorized = matchScopes(scopes, authCtxtScopes);
                 if (authorized) {
@@ -132,7 +132,7 @@ already set in the authentication context. If not, the flow cannot continue."}
 @Param {value:"req: Request object"}
 @Return {value:"boolean: true if its possible authorize, else false"}
 function HttpAuthzHandler::canHandle (Request req) returns (boolean) {
-    if (runtime:getInvocationContext().authenticationContext.username.length() == 0) {
+    if (runtime:getInvocationContext().userPrincipal.username.length() == 0) {
         log:printError("Username not set in auth context. Unable to authorize");
         return false;
     }

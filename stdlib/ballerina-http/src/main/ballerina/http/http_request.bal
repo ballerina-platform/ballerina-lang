@@ -25,8 +25,8 @@ public type Request object {
     public native function setEntity (mime:Entity entity);
 
     @Description {value:"Gets the query parameters from the HTTP request as a map"}
-    @Return {value:"The map of query params"}
-    public native function getQueryParams () returns (map);
+    @Return {value:"String map of query params"}
+    public native function getQueryParams () returns (map<string>);
 
     @Description {value:"Get matrix parameters from the request"}
     @Param {value:"path: Path to the location of matrix parameters"}

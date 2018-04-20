@@ -19,7 +19,7 @@ import ballerina/sql;
 import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
-import ballerina/security.crypto;
+import ballerina/crypto;
 import ballerina/time;
 import ballerina/util;
 import ballerina/websub;
