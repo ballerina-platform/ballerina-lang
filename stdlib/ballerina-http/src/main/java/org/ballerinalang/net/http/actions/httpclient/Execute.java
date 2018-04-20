@@ -94,7 +94,6 @@ public class Execute extends AbstractHTTPAction {
                     ENCODING_DEFLATE + ", " + ENCODING_GZIP);
         }
 
-        HttpUtil.checkAndObserveHttpRequest(context, outboundRequestMsg);
         return outboundRequestMsg;
     }
 }
