@@ -15,10 +15,10 @@ service<http:Service> HelloServiceMock bind helloEP {
         methods:["GET"],
         path:"/"
     }
-    getEvents (endpoint client, http:Request req) {
+    getEvents (endpoint caller, http:Request req) {
         http:Response res = new;
         json j = {"Hello":"World"};
         res.setJsonPayload(j);
-        _ = client -> respond(res);
+        _ = caller -> respond(res);
     }
 }
