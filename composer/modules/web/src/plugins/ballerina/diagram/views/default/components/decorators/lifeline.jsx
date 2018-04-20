@@ -91,8 +91,7 @@ class LifeLine extends React.Component {
     render() {
         const bBox = this.props.bBox;
         const iconSize = 18;
-        const lineClass = `${this.props.classes.lineClass} unhoverable`;
-        const textClass = this.props.classes.textClass;
+        const lineClass = this.props.className;
         const titleBoxH = DesignerDefaults.lifeLine.head.height;
         const y2 = bBox.h + bBox.y;
         const solidY1 = bBox.y + (titleBoxH / 2);
@@ -132,14 +131,14 @@ class LifeLine extends React.Component {
                 y1={solidY1}
                 x2={startX}
                 y2={solidY2}
-                className={lineClass}
+                className={`${lineClass} life-line`}
             />
             <line
                 x1={bBox.x}
                 y1={solidY1}
                 x2={bBox.x + bBox.w}
                 y2={solidY1}
-                className={lineClass}
+                className={`${lineClass} life-line`}
             />
             {this.props.icon &&
             <g onClick={this.handleConnectorProps}>
@@ -148,7 +147,7 @@ class LifeLine extends React.Component {
                     y={bBox.y - 5}
                     fontFamily='font-ballerina'
                     fontSize={iconSize}
-                    className={textClass}
+                    className={`${lineClass} life-line-icon`}
                 >
                     {this.props.icon}
                 </text>
@@ -159,7 +158,7 @@ class LifeLine extends React.Component {
                 y1={y2}
                 x2={bBox.x + bBox.w}
                 y2={y2}
-                className={lineClass}
+                className={`${lineClass} life-line`}
             />
             <text
                 x={startX}
@@ -167,7 +166,7 @@ class LifeLine extends React.Component {
                 textAnchor='middle'
                 dominantBaseline='central'
                 fontWeight='400'
-                className={textClass}
+                className={`${lineClass} life-line-title`}
             >{identifier}</text>
             <text
                 x={startX}
@@ -175,7 +174,7 @@ class LifeLine extends React.Component {
                 textAnchor='middle'
                 dominantBaseline='central'
                 fontWeight='400'
-                className={textClass}
+                className={`${lineClass} life-line-title`}
             >{identifier}</text>
             {this.props.onDelete &&
                 <ActionBox
@@ -190,7 +189,7 @@ class LifeLine extends React.Component {
                 <ArrowDecorator
                     start={{ x: startX, y: startY }}
                     end={{ x: startX, y: startY }}
-                    classNameArrow={lineClass + 'client-invocation-arrow'}
+                    classNameArrow={`${lineClass} client-invocation-arrow`}
                 />
             }
         </g>);
@@ -204,10 +203,7 @@ LifeLine.propTypes = {
     bBox: PropTypes.instanceOf(Object).isRequired,
     onDelete: PropTypes.func.isRequired,
     tooltip: PropTypes.string,
-    classes: PropTypes.shape({
-        lineClass: PropTypes.string,
-        textClass: PropTypes.string,
-    }).isRequired,
+    className: PropTypes.string.isRequired,
 };
 
 LifeLine.defaultProps = {
