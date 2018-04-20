@@ -216,8 +216,8 @@ function testSetEntityBodyMultipleTimes (io:ByteChannel byteChannel, string text
     entity.setText(textdata);
     entity.setByteChannel(byteChannel);
     io:ByteChannel receivedByteChannel = check entity.getByteChannel();
-    io:CharacterChannel characterChannel = check io:createCharacterChannel(receivedByteChannel, "utf-8");
-    string result = check characterChannel.readCharacters(30);
+    io:CharacterChannel characterChannel = new io:CharacterChannel(receivedByteChannel, "utf-8");
+    string result = check characterChannel.read(30);
     return result;
 }
 

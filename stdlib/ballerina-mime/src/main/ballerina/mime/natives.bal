@@ -112,32 +112,31 @@ public type Entity object {
         ContentDisposition contentDisposition;
     }
 
-    //TODO:Enable this once the core team fix the 'self' assignment issue
-    //public native function setMediaType (MediaType mediaType) {
-    //    self.mediaType = mediaType;
-    //    self.setHeader(CONTENT_TYPE, mediaType.toString());
-    //}
-    //
-    //public native function getMediaType () returns MediaType | error {
-    //    string contentTypeHeaderValue;
-    //    if (self.hasHeader(CONTENT_TYPE)) {
-    //        contentTypeHeaderValue = self.getHeader(CONTENT_TYPE);
-    //    }
-    //    return getMediaTypeObject(contentTypeHeaderValue);
-    //}
-    //
-    //public native function setContentDisposition (ContentDisposition contentDisposition) {
-    //    self.contentDisposition = contentDisposition;
-    //    self.setHeader(CONTENT_DISPOSITION, contentDisposition.toString());
-    //}
-    //
-    //public native function getContentDisposition () returns ContentDisposition {
-    //    string contentDispositionVal;
-    //    if (self.hasHeader(CONTENT_DISPOSITION)) {
-    //        contentDispositionVal = self.getHeader(CONTENT_DISPOSITION);
-    //    }
-    //    return getContentDispositionObject(contentDispositionVal);
-    //}
+    public function setMediaType (MediaType mediaType) {
+        self.mediaType = mediaType;
+        self.setHeader(CONTENT_TYPE, mediaType.toString());
+    }
+
+    public function getMediaType () returns MediaType | error {
+        string contentTypeHeaderValue;
+        if (self.hasHeader(CONTENT_TYPE)) {
+            contentTypeHeaderValue = self.getHeader(CONTENT_TYPE);
+        }
+        return getMediaTypeObject(contentTypeHeaderValue);
+    }
+
+    public function setContentDisposition (ContentDisposition contentDisposition) {
+        self.contentDisposition = contentDisposition;
+        self.setHeader(CONTENT_DISPOSITION, contentDisposition.toString());
+    }
+
+    public function getContentDisposition () returns ContentDisposition {
+        string contentDispositionVal;
+        if (self.hasHeader(CONTENT_DISPOSITION)) {
+            contentDispositionVal = self.getHeader(CONTENT_DISPOSITION);
+        }
+        return getContentDispositionObject(contentDispositionVal);
+    }
 
     @Description {value:"Set the entity body with a given content"}
     public function setBody ((string | xml | json | blob | io:ByteChannel | Entity[]) entityBody);
