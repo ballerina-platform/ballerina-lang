@@ -21,7 +21,6 @@ package org.ballerinalang.test.services.testutils;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpVersion;
-import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
@@ -31,19 +30,21 @@ public class HTTPTestRequest extends HTTPCarbonMessage {
 
     private TestCallableUnitCallback callback;
     private HTTPCarbonMessage httpCarbonMessage;
+    private TestHttpResponseStatusFuture testHttpResponseStatusFuture;
 
     public HTTPTestRequest() {
         super(new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, ""));
+        testHttpResponseStatusFuture = new TestHttpResponseStatusFuture();
     }
 
     @Override
-    public TestHttpResponseStatusFuture respond(HTTPCarbonMessage httpCarbonMessage) throws ServerConnectorException {
+    public TestHttpResponseStatusFuture respond(HTTPCarbonMessage httpCarbonMessage) {
         this.httpCarbonMessage = httpCarbonMessage;
         if (callback != null) {
             callback.setResponseMsg(httpCarbonMessage);
             this.httpCarbonMessage = null;
         }
-        return new TestHttpResponseStatusFuture();
+        return testHttpResponseStatusFuture;
     }
 
     public void setCallback(TestCallableUnitCallback callback) {
@@ -51,5 +52,9 @@ public class HTTPTestRequest extends HTTPCarbonMessage {
         if (httpCarbonMessage != null) {
             this.callback.setResponseMsg(httpCarbonMessage);
         }
+    }
+
+    public TestHttpResponseStatusFuture getTestHttpResponseStatusFuture() {
+        return testHttpResponseStatusFuture;
     }
 }

@@ -3,7 +3,13 @@ import ballerina/http as x;
 import ballerina/http as y;
 
 function testFunc() {
-    http:ClientConnector httpConnector1;
-    x:ClientConnector httpConnector2;
-    y:ClientConnector httpConnector3;
+    endpoint http:Client clientEndpoint1 {
+       url: "https://postman-echo.com"
+    };
+    endpoint x:Client clientEndpoint2 {
+       url: "https://postman-echo.com"
+    };
+    endpoint y:Client clientEndpoint3 {
+       url: "https://postman-echo.com"
+    };
 }

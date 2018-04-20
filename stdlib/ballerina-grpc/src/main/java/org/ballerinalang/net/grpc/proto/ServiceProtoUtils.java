@@ -67,10 +67,10 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.net.grpc.MessageConstants.ANN_ATTR_RESOURCE_SERVER_STREAM;
-import static org.ballerinalang.net.grpc.MessageConstants.ANN_RESOURCE_CONFIG;
-import static org.ballerinalang.net.grpc.MessageConstants.ON_COMPLETE_RESOURCE;
-import static org.ballerinalang.net.grpc.MessageConstants.ON_MESSAGE_RESOURCE;
+import static org.ballerinalang.net.grpc.GrpcConstants.ANN_ATTR_RESOURCE_SERVER_STREAM;
+import static org.ballerinalang.net.grpc.GrpcConstants.ANN_RESOURCE_CONFIG;
+import static org.ballerinalang.net.grpc.GrpcConstants.ON_COMPLETE_RESOURCE;
+import static org.ballerinalang.net.grpc.GrpcConstants.ON_MESSAGE_RESOURCE;
 
 /**
  * Utility class providing proto file based of the Ballerina service.

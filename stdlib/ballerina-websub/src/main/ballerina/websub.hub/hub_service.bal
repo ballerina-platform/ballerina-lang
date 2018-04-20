@@ -510,11 +510,11 @@ public function distributeContent(string callback, websub:SubscriptionDetails su
             string xHubSignature = hubSignatureMethod + "=";
             string generatedSignature = "";
             if (websub:SHA1.equalsIgnoreCase(hubSignatureMethod)) { //not recommended
-                generatedSignature = crypto:getHmac(stringPayload, subscriptionDetails.secret, crypto:SHA1);
+                generatedSignature = crypto:hmac(stringPayload, subscriptionDetails.secret, crypto:SHA1);
             } else if (websub:SHA256.equalsIgnoreCase(hubSignatureMethod)) {
-                generatedSignature = crypto:getHmac(stringPayload, subscriptionDetails.secret, crypto:SHA256);
+                generatedSignature = crypto:hmac(stringPayload, subscriptionDetails.secret, crypto:SHA256);
             } else if (websub:MD5.equalsIgnoreCase(hubSignatureMethod)) {
-                generatedSignature = crypto:getHmac(stringPayload, subscriptionDetails.secret, crypto:MD5);
+                generatedSignature = crypto:hmac(stringPayload, subscriptionDetails.secret, crypto:MD5);
             }
             xHubSignature = xHubSignature + generatedSignature;
             request.setHeader(websub:X_HUB_SIGNATURE, xHubSignature);

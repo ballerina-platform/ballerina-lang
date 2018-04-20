@@ -126,9 +126,9 @@ function testBase64ToBase16Encoding(string s) returns string {
 }
 
 function testHMACValueFromBase16ToBase64Encoding(string base, string key) returns (string) {
-    return crypto:getHmac(base, key, crypto:MD5).base16ToBase64Encode();
+    return crypto:hmac(base, key, crypto:MD5).base16ToBase64Encode();
 }
 
 function testHMACValueFromBase64ToBase16Encoding(string base, string key) returns (string) {
-    return crypto:getHmac(base, key, crypto:MD5).base16ToBase64Encode().base64ToBase16Encode();
+    return crypto:hmac(base, key, crypto:MD5).base16ToBase64Encode().base64ToBase16Encode();
 }
