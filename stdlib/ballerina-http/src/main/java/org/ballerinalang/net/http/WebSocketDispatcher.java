@@ -98,7 +98,7 @@ public class WebSocketDispatcher {
             bValues[2] = new BBoolean(!textMessage.isFinalFragment());
         }
         //TODO handle BallerinaConnectorException
-        Executor.submit(onTextMessageResource, new WebSocketEmptyCallableUnitCallback(webSocketConnection), null,
+        Executor.submit(onTextMessageResource, new WebSocketResourceCallableUnitCallback(webSocketConnection), null,
                         null, bValues);
     }
 
@@ -120,7 +120,7 @@ public class WebSocketDispatcher {
             bValues[2] = new BBoolean(!binaryMessage.isFinalFragment());
         }
         //TODO handle BallerinaConnectorException
-        Executor.submit(onBinaryMessageResource, new WebSocketEmptyCallableUnitCallback(webSocketConnection), null,
+        Executor.submit(onBinaryMessageResource, new WebSocketResourceCallableUnitCallback(webSocketConnection), null,
                         null, bValues);
     }
 
@@ -150,7 +150,7 @@ public class WebSocketDispatcher {
         bValues[0] = connectionInfo.getWebSocketEndpoint();
         bValues[1] = new BBlob(controlMessage.getByteArray());
         //TODO handle BallerinaConnectorException
-        Executor.submit(onPingMessageResource, new WebSocketEmptyCallableUnitCallback(webSocketConnection), null,
+        Executor.submit(onPingMessageResource, new WebSocketResourceCallableUnitCallback(webSocketConnection), null,
                         null, bValues);
     }
 
@@ -168,7 +168,7 @@ public class WebSocketDispatcher {
         bValues[0] = connectionInfo.getWebSocketEndpoint();
         bValues[1] = new BBlob(controlMessage.getByteArray());
         //TODO handle BallerinaConnectorException
-        Executor.submit(onPongMessageResource, new WebSocketEmptyCallableUnitCallback(webSocketConnection), null,
+        Executor.submit(onPongMessageResource, new WebSocketResourceCallableUnitCallback(webSocketConnection), null,
                         null, bValues);
     }
 
@@ -187,7 +187,7 @@ public class WebSocketDispatcher {
         bValues[1] = new BInteger(closeMessage.getCloseCode());
         bValues[2] = new BString(closeMessage.getCloseReason());
         //TODO handle BallerinaConnectorException
-        Executor.submit(onCloseResource, new WebSocketEmptyCallableUnitCallback(webSocketConnection), null,
+        Executor.submit(onCloseResource, new WebSocketResourceCallableUnitCallback(webSocketConnection), null,
                         null, bValues);
     }
 
@@ -204,7 +204,7 @@ public class WebSocketDispatcher {
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
         //TODO handle BallerinaConnectorException
-        Executor.submit(onIdleTimeoutResource, new WebSocketEmptyCallableUnitCallback(webSocketConnection), null,
+        Executor.submit(onIdleTimeoutResource, new WebSocketResourceCallableUnitCallback(webSocketConnection), null,
                         null, bValues);
     }
 

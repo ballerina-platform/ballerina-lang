@@ -26,11 +26,11 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 /**
  * Empty callback impl for web socket.
  */
-public class WebSocketEmptyCallableUnitCallback implements CallableUnitCallback {
+public class WebSocketResourceCallableUnitCallback implements CallableUnitCallback {
 
     private final WebSocketConnection webSocketConnection;
 
-    public WebSocketEmptyCallableUnitCallback(WebSocketConnection webSocketConnection) {
+    public WebSocketResourceCallableUnitCallback(WebSocketConnection webSocketConnection) {
         this.webSocketConnection = webSocketConnection;
     }
 
