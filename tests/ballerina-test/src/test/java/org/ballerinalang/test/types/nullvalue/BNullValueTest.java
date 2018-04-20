@@ -72,12 +72,6 @@ public class BNullValueTest {
         Assert.assertEquals(vals[2], new BInteger(7));
     }
 
-    @Test(description = "Test null value of a connector", enabled = false)
-    public void testConnectorNotNull() {
-        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testConnectorNotNull", new BValue[] {});
-        Assert.assertEquals(((BInteger) vals[0]).intValue(), 8);
-    }
-
     @Test(description = "Test null value of a array")
     public void testArrayNull() {
         BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testArrayNull", new BValue[]{});
@@ -100,14 +94,11 @@ public class BNullValueTest {
         Assert.assertEquals(vals[2], new BInteger(10));
     }
 
-    @Test(description = "Test casting a nullified value")
+    @Test(description = "Test casting a nullified value",
+            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error:.*NullReferenceException.*")
     void testCastingNullValue() {
-        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testCastingNull", new BValue[]{null});
-        Assert.assertEquals(vals[0], null);
-
-//        vals = BLangFunctions.invoke(bLangProgram, "testCastingNull", new BValue[] { new BJSON("{}") });
-//        Assert.assertTrue(vals[0] instanceof BXML);
-//        Assert.assertEquals(((BXML) vals[0]).getMessageAsString(), "<name>converted xml</name>");
+        BRunUtil.invoke(positiveCompileResult, "testCastingNull", new BValue[]{null});
     }
 
     @Test(description = "Test passing null to a function expects a reference type")
@@ -137,13 +128,15 @@ public class BNullValueTest {
     }
 
 
-    @Test(description = "Test null in worker")
+    @Test(description = "Test null in worker", enabled = false)
     public void testNullInWorker() {
         BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testNullInWorker", new BValue[]{});
         Assert.assertEquals(vals[0], null);
     }
 
-    @Test(description = "Test null in fork-join")
+    @Test(description = "Test null in fork-join",
+            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error:.*message: cannot find key 'foo'.*")
     public void testNullInForkJoin() {
         BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testNullInForkJoin", new BValue[]{});
         Assert.assertEquals(vals[0], null);
@@ -154,12 +147,11 @@ public class BNullValueTest {
     @Test(description = "Test array of null values")
     public void testArrayOfNulls() {
         BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testArrayOfNulls", new BValue[]{});
-        BRefValueArray nullArray = (BRefValueArray) vals[0];
-        Assert.assertTrue(nullArray.get(0) instanceof BStruct);
-        Assert.assertEquals(nullArray.get(1), null);
-        Assert.assertEquals(nullArray.get(2), null);
-        Assert.assertTrue(nullArray.get(3) instanceof BStruct);
-        Assert.assertEquals(nullArray.get(4), null);
+        Assert.assertEquals(vals.length, 4);
+        Assert.assertTrue(vals[0] instanceof BStruct);
+        Assert.assertTrue(vals[1] instanceof BStruct);
+        Assert.assertEquals(vals[2], null);
+        Assert.assertTrue(vals[3] instanceof BStruct);
     }
 
     @Test(description = "Test map of null values")
@@ -174,19 +166,19 @@ public class BNullValueTest {
     }
 
     @Test(description = "Test accessing an element in a null array", expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*error:.*NullReferenceException.*")
+            expectedExceptionsMessageRegExp = ".*error:.*message: array index out of range.*")
     void testNullArrayAccess() {
         BRunUtil.invoke(positiveCompileResult, "testNullArrayAccess", new BValue[]{});
     }
 
     @Test(description = "Test accessing an element in a null map", expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*error:.*NullReferenceException.*")
+            expectedExceptionsMessageRegExp = ".*error:.*message: cannot find key 'maths'.*")
     void testNullMapAccess() {
         BRunUtil.invoke(positiveCompileResult, "testNullMapAccess", new BValue[]{});
     }
 
     @Test(description = "Test accessing an element in a null array", expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*error:.*NullReferenceException.*", enabled = false)
+            expectedExceptionsMessageRegExp = ".*error:.*NullReferenceException.*", enabled = false)
     void testActionInNullConenctor() {
         BRunUtil.invoke(positiveCompileResult, "testActionInNullConenctor", new BValue[]{});
     }
@@ -194,10 +186,10 @@ public class BNullValueTest {
     @Test(description = "Test negative test cases")
     void testNullValueNegative() {
         Assert.assertEquals(negativeResult.getErrorCount(), 5);
-        BAssertUtil.validateError(negativeResult, 0, "operator '==' not defined for 'xml' and 'json'", 5, 9);
-        BAssertUtil.validateError(negativeResult, 1, "operator '>' not defined for 'null' and 'xml'", 22, 13);
-        BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'int', found 'null'", 26, 13);
-        BAssertUtil.validateError(negativeResult, 3, "operator '+' not defined for 'null' and 'null'", 30, 13);
-        BAssertUtil.validateError(negativeResult, 4, "incompatible types: 'null' cannot be cast to 'json'", 38, 14);
+        BAssertUtil.validateError(negativeResult, 0, "operator '==' not defined for 'xml?' and 'json'", 5, 9);
+        BAssertUtil.validateError(negativeResult, 1, "operator '>' not defined for '()' and 'xml'", 23, 13);
+        BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'int', found '()'", 27, 13);
+        BAssertUtil.validateError(negativeResult, 3, "operator '+' not defined for '()' and '()'", 31, 13);
+        BAssertUtil.validateError(negativeResult, 4, "incompatible types: expected 'string', found '()'", 35, 16);
     }
 }
