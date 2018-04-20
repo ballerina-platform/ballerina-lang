@@ -212,6 +212,8 @@
                                     <exclude>org.wso2.carbon.utils:carbon-utils</exclude>
                                     <exclude>org.wso2.orbit.org.yaml:snakeyaml</exclude>
                                     <exclude>org.yaml:snakeyaml</exclude>
+                                    <exclude>org.slf4j:slf4j-log4j12</exclude>
+                                    <exclude>org.slf4j:slf4j-simple</exclude>
                                 </excludes>
                             </artifactSet>
                         </configuration>
