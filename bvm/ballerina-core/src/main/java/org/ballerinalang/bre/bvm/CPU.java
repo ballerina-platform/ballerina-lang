@@ -1364,7 +1364,7 @@ public class CPU {
                 k = operands[2];
                 jsonVal = (BJSON) sf.refRegs[i];
                 if (jsonVal == null) {
-                    handleNullRefError(ctx);
+                    sf.refRegs[k] = null;
                     break;
                 }
 
@@ -2926,10 +2926,11 @@ public class CPU {
     @SuppressWarnings("rawtypes")
     private static boolean handleWorkerReceive(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,
                                                BType type, int reg) {
-        BRefType passedInValue = getWorkerChannel(ctx, workerDataChannelInfo.getChannelName()).tryTakeData(ctx);
+        WorkerDataChannel.WorkerResult passedInValue = getWorkerChannel(
+                ctx, workerDataChannelInfo.getChannelName()).tryTakeData(ctx);
         if (passedInValue != null) {
             WorkerData currentFrame = ctx.workerLocal;
-            copyArgValueForWorkerReceive(currentFrame, reg, type, passedInValue);
+            copyArgValueForWorkerReceive(currentFrame, reg, type, passedInValue.value);
             return true;
         } else {
             return false;

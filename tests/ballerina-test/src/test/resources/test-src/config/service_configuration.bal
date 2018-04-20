@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerina/config;
 
 endpoint http:Listener backendEP {
-    port: getBackendPort()
+    port: config:getAsInt("backendEP.port")
 };
 
 @http:ServiceConfig {
@@ -15,13 +15,8 @@ service<http:Service> hello bind backendEP{
         path:"/"
     }
     sayHello (endpoint caller, http:Request request) {
-        http:Response response = {};
+        http:Response response = new;
         response.setStringPayload("Hello World!!!");
         _ = caller -> respond(response);
     }
-}
-
-function getBackendPort() (int) {
-    var port, err = <int>config:getAsString("backendEP.port");
-    return err == null ? port : 8000;
 }

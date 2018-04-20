@@ -1,5 +1,4 @@
 import ballerina/http;
-import ballerina/http;
 import ballerina/mime;
 import ballerina/file;
 
@@ -17,26 +16,18 @@ service<http:Service> test bind mockEP {
 
         //Create a body part with json content.
         mime:Entity bodyPart1 = new;
-        mime:MediaType contentTypeOfJsonPart = mime:getMediaType(mime:APPLICATION_JSON);
-        bodyPart1.contentType = contentTypeOfJsonPart;
         bodyPart1.setJson({"bodyPart":"jsonPart"});
 
         //Create another body part with a xml file.
         mime:Entity bodyPart2 = new;
-        mime:MediaType textXml = mime:getMediaType(mime:TEXT_XML);
-        bodyPart2.contentType = textXml;
-        bodyPart2.setFileAsEntityBody("src/test/resources/datafiles/mime/file.xml");
+        bodyPart2.setFileAsEntityBody("src/test/resources/datafiles/mime/file.xml", contentType = mime:TEXT_XML);
 
         //Create a text body part.
         mime:Entity bodyPart3 = new;
-        mime:MediaType contentTypeOfTextPart = mime:getMediaType(mime:TEXT_PLAIN);
-        bodyPart3.contentType = contentTypeOfTextPart;
         bodyPart3.setText("Ballerina text body part");
 
         //Create another body part with a text file.
         mime:Entity bodyPart4 = new;
-        mime:MediaType contentTypeOfFilePart = mime:getMediaType(mime:APPLICATION_OCTET_STREAM);
-        bodyPart4.contentType = contentTypeOfFilePart;
         bodyPart4.setFileAsEntityBody("src/test/resources/datafiles/mime/test.tmp");
 
         //Create an array to hold all the body parts.
@@ -45,7 +36,7 @@ service<http:Service> test bind mockEP {
         //Set the body parts to outbound response.
         http:Response outResponse = new;
         string contentType = mime:MULTIPART_MIXED + "; boundary=e3a0b9ad7b4e7cdb";
-        outResponse.setBodyParts(bodyParts, contentType);
+        outResponse.setBodyParts(bodyParts, contentType = contentType);
 
         _ = conn -> respond(outResponse);
     }
@@ -62,7 +53,7 @@ service<http:Service> test bind mockEP {
                 outResponse.setStringPayload(err.message);
             }
             mime:Entity[] bodyParts => {
-                outResponse.setBodyParts(bodyParts, untaint contentType);
+                outResponse.setBodyParts(bodyParts, contentType = contentType);
             }
         }
         _ = conn -> respond(outResponse);
