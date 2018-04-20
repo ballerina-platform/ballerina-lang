@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -34,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -198,6 +200,9 @@ public class CompiledPackageSymbolEnter {
 
         // Resolve unresolved types..
         resolveTypes();
+
+        // Read resource info entries.
+        defineSymbols(dataInStream, rethrow(this::defineResource));
 
         // Define package level variables
         defineSymbols(dataInStream, rethrow(this::definePackageLevelVariables));
@@ -379,6 +384,40 @@ public class CompiledPackageSymbolEnter {
     }
 
     private void defineService(DataInputStream dataInStream) throws IOException {
+        // Read connector name cp index
+        String serviceName = getUTF8CPEntryValue(dataInStream);
+        int flags = dataInStream.readInt();
+        // endpoint type is not required for service symbol.
+        getUTF8CPEntryValue(dataInStream);
+
+        BServiceSymbol serviceSymbol = Symbols.createServiceSymbol(flags,
+                names.fromString(serviceName), this.env.pkgSymbol.pkgID, null, env.pkgSymbol);
+        serviceSymbol.type = new BServiceType(serviceSymbol);
+        this.env.pkgSymbol.scope.define(serviceSymbol.name, serviceSymbol);
+    }
+
+    private void defineResource(DataInputStream dataInStream) throws IOException {
+        int resourceCount = dataInStream.readShort();
+        for (int j = 0; j < resourceCount; j++) {
+            dataInStream.readInt();
+            dataInStream.readInt();
+            int paramNameCPIndexesCount = dataInStream.readShort();
+            for (int k = 0; k < paramNameCPIndexesCount; k++) {
+                dataInStream.readInt();
+            }
+
+            // Read and ignore worker data
+            int noOfWorkerDataBytes = dataInStream.readInt();
+            byte[] workerData = new byte[noOfWorkerDataBytes];
+            int bytesRead = dataInStream.read(workerData);
+            if (bytesRead != noOfWorkerDataBytes) {
+                // TODO throw an error
+            }
+
+            // Read attributes
+            readAttributes(dataInStream);
+        }
+        readAttributes(dataInStream);
     }
 
     private void definePackageLevelVariables(DataInputStream dataInStream) throws IOException {

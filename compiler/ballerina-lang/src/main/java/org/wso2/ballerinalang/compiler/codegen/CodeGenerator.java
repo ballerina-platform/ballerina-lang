@@ -340,7 +340,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public BLangPackage generateBALO(BLangPackage pkgNode) {
         // Reset package level variable indexes.
-        this.pvIndexes = new VariableIndex(VariableIndex.Kind.REG);
+        this.pvIndexes = new VariableIndex(VariableIndex.Kind.PACKAGE);
 
         // Generate code for the given package.
         this.currentPkgInfo = new PackageInfo();

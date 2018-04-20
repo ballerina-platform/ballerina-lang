@@ -569,6 +569,7 @@ public class ProgramFileReader {
 
     private void readResourceInfoEntries(DataInputStream dataInStream,
                                          PackageInfo packageInfo) throws IOException {
+        dataInStream.readShort();   // Ignore service count.
         for (ServiceInfo serviceInfo : packageInfo.getServiceInfoEntries()) {
             int actionCount = dataInStream.readShort();
             for (int j = 0; j < actionCount; j++) {
@@ -605,12 +606,14 @@ public class ProgramFileReader {
                 resourceInfo.setParamNameCPIndexes(paramNameCPIndexes);
                 resourceInfo.setParamNames(paramNames);
 
+                // Read and ignore the workerData length
+                dataInStream.readInt();
                 int workerDataChannelsLength = dataInStream.readShort();
-                for (int k = 0; k < workerDataChannelsLength; k++) {
+                for (int i = 0; i < workerDataChannelsLength; i++) {
                     readWorkerDataChannelEntries(dataInStream, packageInfo, resourceInfo);
                 }
 
-                // Read workers
+                // Read worker info entries
                 readWorkerInfoEntries(dataInStream, packageInfo, resourceInfo);
 
                 // Read attributes of the struct info
