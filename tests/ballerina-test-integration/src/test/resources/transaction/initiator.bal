@@ -18,7 +18,7 @@ import ballerina/http;
 import ballerina/io;
 
 endpoint http:Listener initiatorEP {
-    port:8887
+    port:8888
 };
 
 endpoint http:Client participant1EP {

@@ -49,7 +49,7 @@ public class MicroTransactionTestCase {
 
     @BeforeClass
     private void setup() throws Exception {
-        initiator = ServerInstance.initBallerinaServer(8887);
+        initiator = ServerInstance.initBallerinaServer(8888);
         initiator.
                 startBallerinaServer(new File("src" + File.separator + "test" + File.separator + "resources"
                         + File.separator + "transaction" + File.separator + "initiator.bal").getAbsolutePath(), ARGS);

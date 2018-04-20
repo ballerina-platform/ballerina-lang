@@ -1528,7 +1528,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.142-SNAPSHOT</transport.http.version>
+        <transport.http.version>6.0.139</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
