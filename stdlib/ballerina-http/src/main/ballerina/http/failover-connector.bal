@@ -66,42 +66,42 @@ public type Failover object {
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the function invocation, if any"}
-    public function post(string path, Request request) returns (Response | HttpConnectorError);
+    public function post(string path, Request req) returns (Response | HttpConnectorError);
 
     @Description {value:"The HEAD function implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the function invocation, if any"}
-    public function head(string path, Request request) returns (Response | HttpConnectorError);
+    public function head(string path, Request req) returns (Response | HttpConnectorError);
 
     @Description {value:"The PATCH function implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the functioninvocation, if any"}
-    public function patch(string path, Request request) returns (Response | HttpConnectorError);
+    public function patch(string path, Request req) returns (Response | HttpConnectorError);
 
     @Description {value:"The PUT function  implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the function invocation, if any"}
-    public function put(string path, Request request) returns (Response|HttpConnectorError);
+    public function put(string path, Request req) returns (Response|HttpConnectorError);
 
     @Description {value:"The OPTIONS function implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the function invocation, if any"}
-    public function options(string path, Request request) returns (Response | HttpConnectorError);
+    public function options(string path, Request req) returns (Response | HttpConnectorError);
 
     @Description {value:"The FORWARD function implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the function invocation, if any"}
-    public function forward(string path, Request request) returns (Response | HttpConnectorError);
+    public function forward(string path, Request req) returns (Response | HttpConnectorError);
 
     @Description {value:"The EXECUTE function implementation of the Failover Connector. The Execute function can be used to invoke an HTTP call with the given HTTP verb."}
     @Param {value:"httpVerb: HTTP verb to be used for the request"}
@@ -109,21 +109,21 @@ public type Failover object {
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the function invocation, if any"}
-    public function execute(string httpVerb, string path, Request request) returns (Response | HttpConnectorError);
+    public function execute(string httpVerb, string path, Request req) returns (Response | HttpConnectorError);
 
     @Description {value:"The DELETE function implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the function invocation, if any"}
-    public function delete(string path, Request request) returns (Response | HttpConnectorError);
+    public function delete(string path, Request req) returns (Response | HttpConnectorError);
 
     @Description {value:"The GET function implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the function invocation, if any"}
-    public function get(string path, Request request) returns (Response | HttpConnectorError);
+    public function get(string path, Request? req = ()) returns (Response | HttpConnectorError);
 
     @Description { value:"The submit implementation of the Failover Connector."}
     @Param { value:"httpVerb: The HTTP verb value" }
@@ -167,8 +167,8 @@ public type Failover object {
 @Param {value:"request: A Request struct"}
 @Return {value:"The Response struct"}
 @Return {value:"Error occurred during the function invocation, if any"}
-public function Failover::post(string path, Request request) returns (Response | HttpConnectorError) {
-    return performFailoverAction(path, request, HTTP_POST, self.failoverInferredConfig);
+public function Failover::post(string path, Request req) returns (Response | HttpConnectorError) {
+    return performFailoverAction(path, req, HTTP_POST, self.failoverInferredConfig);
 }
 
 @Description {value:"The HEAD function implementation of the Failover Connector."}
@@ -176,8 +176,8 @@ public function Failover::post(string path, Request request) returns (Response |
 @Param {value:"request: A Request struct"}
 @Return {value:"The Response struct"}
 @Return {value:"Error occurred during the function invocation, if any"}
-public function Failover::head(string path, Request request) returns (Response | HttpConnectorError) {
-    return performFailoverAction(path, request, HTTP_HEAD, self.failoverInferredConfig);
+public function Failover::head(string path, Request req) returns (Response | HttpConnectorError) {
+    return performFailoverAction(path, req, HTTP_HEAD, self.failoverInferredConfig);
 }
 
 @Description {value:"The PATCH function implementation of the Failover Connector."}
@@ -185,8 +185,8 @@ public function Failover::head(string path, Request request) returns (Response |
 @Param {value:"request: A Request struct"}
 @Return {value:"The Response struct"}
 @Return {value:"Error occurred during the functioninvocation, if any"}
-public function Failover::patch(string path, Request request) returns (Response | HttpConnectorError) {
-    return performFailoverAction(path, request, HTTP_PATCH, self.failoverInferredConfig);
+public function Failover::patch(string path, Request req) returns (Response | HttpConnectorError) {
+    return performFailoverAction(path, req, HTTP_PATCH, self.failoverInferredConfig);
 }
 
 @Description {value:"The PUT function  implementation of the Failover Connector."}
@@ -194,8 +194,8 @@ public function Failover::patch(string path, Request request) returns (Response 
 @Param {value:"request: A Request struct"}
 @Return {value:"The Response struct"}
 @Return {value:"Error occurred during the function invocation, if any"}
-public function Failover::put(string path, Request request) returns (Response|HttpConnectorError) {
-    return performFailoverAction(path, request, HTTP_PUT, self.failoverInferredConfig);
+public function Failover::put(string path, Request req) returns (Response|HttpConnectorError) {
+    return performFailoverAction(path, req, HTTP_PUT, self.failoverInferredConfig);
 }
 
 @Description {value:"The OPTIONS function implementation of the Failover Connector."}
@@ -203,8 +203,8 @@ public function Failover::put(string path, Request request) returns (Response|Ht
 @Param {value:"request: A Request struct"}
 @Return {value:"The Response struct"}
 @Return {value:"Error occurred during the function invocation, if any"}
-public function Failover::options(string path, Request request) returns (Response | HttpConnectorError) {
-    return performFailoverAction(path, request, HTTP_OPTIONS, self.failoverInferredConfig);
+public function Failover::options(string path, Request req) returns (Response | HttpConnectorError) {
+    return performFailoverAction(path, req, HTTP_OPTIONS, self.failoverInferredConfig);
 }
 
 @Description {value:"The FORWARD function implementation of the Failover Connector."}
@@ -212,8 +212,8 @@ public function Failover::options(string path, Request request) returns (Respons
 @Param {value:"request: A Request struct"}
 @Return {value:"The Response struct"}
 @Return {value:"Error occurred during the function invocation, if any"}
-public function Failover::forward(string path, Request request) returns (Response | HttpConnectorError) {
-    return performFailoverAction(path, request, HTTP_FORWARD, self.failoverInferredConfig);
+public function Failover::forward(string path, Request req) returns (Response | HttpConnectorError) {
+    return performFailoverAction(path, req, HTTP_FORWARD, self.failoverInferredConfig);
 }
 
 @Description {value:"The EXECUTE function implementation of the Failover Connector. The Execute function can be used to invoke an HTTP call with the given HTTP verb."}
@@ -222,8 +222,8 @@ public function Failover::forward(string path, Request request) returns (Respons
 @Param {value:"request: A Request struct"}
 @Return {value:"The Response struct"}
 @Return {value:"Error occurred during the function invocation, if any"}
-public function Failover::execute(string httpVerb, string path, Request request) returns (Response | HttpConnectorError) {
-    return performExecuteAction(path, request, httpVerb, self.failoverInferredConfig);
+public function Failover::execute(string httpVerb, string path, Request req) returns (Response | HttpConnectorError) {
+    return performExecuteAction(path, req, httpVerb, self.failoverInferredConfig);
 }
 
 @Description {value:"The DELETE function implementation of the Failover Connector."}
@@ -231,8 +231,8 @@ public function Failover::execute(string httpVerb, string path, Request request)
 @Param {value:"request: A Request struct"}
 @Return {value:"The Response struct"}
 @Return {value:"Error occurred during the function invocation, if any"}
-public function Failover::delete(string path, Request request) returns (Response | HttpConnectorError) {
-    return performFailoverAction(path, request, HTTP_DELETE, self.failoverInferredConfig);
+public function Failover::delete(string path, Request req) returns (Response | HttpConnectorError) {
+    return performFailoverAction(path, req, HTTP_DELETE, self.failoverInferredConfig);
 }
 
 @Description {value:"The GET function implementation of the Failover Connector."}
@@ -240,7 +240,8 @@ public function Failover::delete(string path, Request request) returns (Response
 @Param {value:"request: A Request struct"}
 @Return {value:"The Response struct"}
 @Return {value:"Error occurred during the function invocation, if any"}
-public function Failover::get(string path, Request request) returns (Response | HttpConnectorError) {
+public function Failover::get(string path, Request? req = ()) returns (Response | HttpConnectorError) {
+    Request request = req ?: new;
     return performFailoverAction(path, request, HTTP_GET, self.failoverInferredConfig);
 }
 
