@@ -93,8 +93,8 @@ function cleanupTransactions() returns error? {
                     match result {
                         string str => log:printInfo("Auto-committed initiated transaction: " +
                                                     twopcTxn.transactionId + ". Result: " + str);
-                        error err => log:printErrorCause("Auto-commit of participated transaction: " +
-                                                         twopcTxn.transactionId + " failed", err);
+                        error err => log:printError("Auto-commit of participated transaction: " +
+                                                         twopcTxn.transactionId + " failed", err = err);
                     }
                 }
             }
@@ -151,7 +151,7 @@ function respondToBadRequest (http:Listener conn, string msg) {
     var resResult = ep -> respond(res);
     match resResult {
         http:HttpConnectorError respondErr => {
-            log:printErrorCause("Could not send Bad Request error response to caller", respondErr);
+            log:printError("Could not send Bad Request error response to caller", err = respondErr);
         }
         () => return;
     }
@@ -311,7 +311,7 @@ public function registerParticipantWithRemoteInitiator (string transactionId,
     match result {
         error e => {
             string msg = "Cannot register with coordinator for transaction: " + transactionId;
-            log:printErrorCause(msg, e);
+            log:printError(msg, err = e);
             error err = {message:msg, cause:e};
             return err;
         }

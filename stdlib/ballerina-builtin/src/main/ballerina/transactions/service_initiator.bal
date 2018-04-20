@@ -110,8 +110,8 @@ service InitiatorService bind coordinatorListener {
                 res.setJsonPayload(resPayload);
                 var resResult = conn -> respond(res);
                 match resResult {
-                    error err => log:printErrorCause("Sending response for register request for transaction " + txnId +
-                                                     " failed", err);
+                    error err => log:printError("Sending response for register request for transaction " + txnId +
+                                                     " failed", err = err);
                     () => log:printInfo("Registered remote participant: " + participantId + " for transaction: " +
                                           txnId);
                 }
