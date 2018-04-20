@@ -112,7 +112,9 @@ public class CompilerDriver {
             return;
         }
 
-        pkgNode.imports.forEach(importPkgNode -> this.compilePackageSymbol(importPkgNode.symbol));
+        pkgNode.imports.stream()
+                .filter(pkg -> pkg.symbol != null)
+                .forEach(importPkgNode -> this.compilePackageSymbol(importPkgNode.symbol));
         compile(pkgNode);
     }
 
