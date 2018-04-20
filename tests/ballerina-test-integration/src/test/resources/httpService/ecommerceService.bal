@@ -45,7 +45,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
     productsInfo (endpoint outboundEP, http:Request req, string prodId) {
         string reqPath = "/productsservice/" + untaint prodId;
         http:Request clientRequest = new;
-        var clientResponse = productsService -> get(untaint reqPath, clientRequest);
+        var clientResponse = productsService -> get(untaint reqPath, request = clientRequest);
 
         match clientResponse {
             http:HttpConnectorError err => {
@@ -75,7 +75,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
         }
 
         http:Response clientResponse = new;
-        var clientRes = productsService -> post("/productsservice", clientRequest);
+        var clientRes = productsService -> post("/productsservice", request = clientRequest);
         match clientRes {
             http:HttpConnectorError err => {
                 io:println("Error occurred while reading locator response");
@@ -93,7 +93,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
     }
     ordersInfo (endpoint outboundEP, http:Request req) {
         http:Request clientRequest = new;
-        var clientResponse = productsService -> get("/orderservice/orders", clientRequest);
+        var clientResponse = productsService -> get("/orderservice/orders", request = clientRequest);
         match clientResponse {
             http:HttpConnectorError err => {
                 io:println("Error occurred while reading orders response");
@@ -110,7 +110,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
     }
     ordersMgt (endpoint outboundEP, http:Request req) {
         http:Request clientRequest = new;
-        var clientResponse = productsService -> post("/orderservice/orders", clientRequest);
+        var clientResponse = productsService -> post("/orderservice/orders", request = clientRequest);
         match clientResponse {
             http:HttpConnectorError err => {
                 io:println("Error occurred while writing orders response");
@@ -128,7 +128,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
     }
     customersInfo (endpoint outboundEP, http:Request req) {
         http:Request clientRequest = new;
-        var clientResponse = productsService -> get("/customerservice/customers", clientRequest);
+        var clientResponse = productsService -> get("/customerservice/customers", request = clientRequest);
         match clientResponse {
             http:HttpConnectorError err => {
                 io:println("Error occurred while reading customers response");
@@ -146,7 +146,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
     }
     customerMgt (endpoint outboundEP, http:Request req) {
         http:Request clientRequest = new;
-        var clientResponse = productsService -> post("/customerservice/customers", clientRequest);
+        var clientResponse = productsService -> post("/customerservice/customers", request = clientRequest);
         match clientResponse {
             http:HttpConnectorError err => {
                 io:println("Error occurred while writing customers response");

@@ -28,7 +28,7 @@ function openSocketConnectionWithProps (string host, int port, io:SocketProperti
 }
 
 function closeSocket () {
-    error err = socket.closeSocket();
+    error? err = socket.close();
 }
 
 function write (blob content) returns (int | error) {
@@ -59,5 +59,5 @@ function read (int size) returns (blob, int) | error {
 }
 
 function close (io:Socket socket) {
-    error err = socket.closeSocket();
+    error? err = socket.close();
 }

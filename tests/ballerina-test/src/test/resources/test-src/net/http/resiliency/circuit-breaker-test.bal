@@ -49,7 +49,7 @@ function testTypicalScenario () returns (http:Response[] , http:HttpConnectorErr
     while (counter < 8) {
        http:Request request = new;
        request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_TYPICAL);
-       match cbClient.get("/hello", request) {
+       match cbClient.get("/hello", request = request) {
             http:Response res => {
                 responses[counter] = res;
             }
@@ -93,7 +93,7 @@ function testTrialRunFailure () returns (http:Response[] , http:HttpConnectorErr
     while (counter < 8) {
         http:Request request = new;
        request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_TRIAL_RUN_FAILURE);
-       match cbClient.get("/hello", request) {
+       match cbClient.get("/hello", request = request) {
             http:Response res => {
                 responses[counter] = res;
             }
@@ -137,7 +137,7 @@ function testHttpStatusCodeFailure () returns (http:Response[] , http:HttpConnec
     while (counter < 8) {
         http:Request request = new;
        request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_HTTP_SC_FAILURE);
-       match cbClient.get("/hello", request) {
+       match cbClient.get("/hello", request = request) {
             http:Response res => {
                 responses[counter] = res;
             }

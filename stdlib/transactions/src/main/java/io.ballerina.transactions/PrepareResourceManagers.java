@@ -16,7 +16,7 @@
  *  under the License.
  *
  */
-package org.ballerinalang.nativeimpl.transactions;
+package io.ballerina.transactions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -28,24 +28,24 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.transactions.TransactionResourceManager;
 
 /**
- * Native function ballerina.transactions:abortResourceManagers.
+ * Native function ballerina.transactions:prepareResourceManagers.
  *
  * @since 0.964.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "transactions",
-        functionName = "abortResourceManagers",
+        functionName = "prepareResourceManagers",
         args = {@Argument(name = "transactionId", type = TypeKind.STRING),
                 @Argument(name = "transactionBlockId", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)}
 )
-public class AbortResourceManagers extends BlockingNativeCallableUnit {
+public class PrepareResourceManagers extends BlockingNativeCallableUnit {
 
     public void execute(Context ctx) {
         String transactionId = ctx.getStringArgument(0);
         int transactionBlockId = (int) ctx.getIntArgument(0);
-        boolean abortSuccessful =
-                TransactionResourceManager.getInstance().notifyAbort(transactionId, transactionBlockId, false);
-        ctx.setReturnValues(new BBoolean(abortSuccessful));
+        boolean prepareSuccessful =
+                TransactionResourceManager.getInstance().prepare(transactionId, transactionBlockId);
+        ctx.setReturnValues(new BBoolean(prepareSuccessful));
     }
 }

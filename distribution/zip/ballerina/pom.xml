@@ -62,6 +62,10 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-transactions</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-mime</artifactId>
         </dependency>
         <dependency>
@@ -277,7 +281,17 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>
-                                ballerina-builtin,ballerina-http,ballerina-grpc,ballerina-mime,ballerina-logging,strip-bouncycastle,ballerina-websub,ballerina-jms,ballerina-mysql,ballerina-h2
+                                ballerina-builtin,
+                                ballerina-http,
+                                ballerina-transactions,
+                                ballerina-grpc,
+                                ballerina-mime,
+                                ballerina-logging,
+                                strip-bouncycastle,
+                                ballerina-websub,
+                                ballerina-jms,
+                                ballerina-mysql,
+                                ballerina-h2
                             </includeArtifactIds>
                             <outputDirectory>${project.build.directory}/extracted-distributions
                             </outputDirectory>

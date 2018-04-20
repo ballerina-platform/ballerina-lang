@@ -15,14 +15,14 @@
 // under the License.
 
 
-@Description { value:"Checks if the given future is done"}
-@Return { value:"true if the future is done; false otherwise" }
-public native function <future f> isDone () returns boolean;
+@Description {value:"Checks if the given future is done"}
+@Return {value:"true if the future is done; false otherwise"}
+public native function<future f> isDone() returns boolean;
 
-@Description { value:"Checks if the given future is cancelled"}
-@Return { value:"true if the future is cancelled; false otherwise" }
-public native function <future f> isCancelled () returns boolean;
+@Description {value:"Checks if the given future is cancelled"}
+@Return {value:"true if the future is cancelled; false otherwise"}
+public native function<future f> isCancelled() returns boolean;
 
-@Description { value:"Cancels the given future"}
-@Return { value:"true if the future was cancelled; false otherwise" }
-public native function <future f> cancel () returns boolean;
+@Description {value:"Cancels the given future"}
+@Return {value:"true if the future was cancelled; false otherwise"}
+public native function<future f> cancel() returns boolean;

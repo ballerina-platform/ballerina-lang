@@ -50,11 +50,11 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
         orgName = "ballerina", packageName = "http",
         functionName = "respond",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
-                             structPackage = "ballerina.http"),
+                structPackage = "ballerina.http"),
         args = {@Argument(name = "res", type = TypeKind.STRUCT, structType = "Response",
                 structPackage = "ballerina.http")},
         returnType = @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
-                                 structPackage = "ballerina.http"),
+                structPackage = "ballerina.http"),
         isPublic = true
 )
 public class Respond extends ConnectionAction {

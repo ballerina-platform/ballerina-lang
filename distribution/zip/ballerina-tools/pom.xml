@@ -103,7 +103,16 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>
-                                composer-server-distribution,ballerina-composer-web,testerina-core,ballerina-builtin,connectors,ballerina,ballerina-http,ballerina-mime,ballerina-grpc
+                                composer-server-distribution,
+                                ballerina-composer-web,
+                                testerina-core,
+                                ballerina-builtin,
+                                connectors,
+                                ballerina,
+                                ballerina-http,
+                                ballerina-transactions,
+                                ballerina-mime,
+                                ballerina-grpc
                             </includeArtifactIds>
                             <outputDirectory>${project.build.directory}/extracted-distributions
                             </outputDirectory>

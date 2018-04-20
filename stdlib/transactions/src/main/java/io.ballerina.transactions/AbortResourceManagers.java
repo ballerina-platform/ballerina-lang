@@ -16,7 +16,7 @@
  *  under the License.
  *
  */
-package org.ballerinalang.nativeimpl.transactions;
+package io.ballerina.transactions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -28,24 +28,24 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.transactions.TransactionResourceManager;
 
 /**
- * Native function ballerina.transactions:commitResourceManagers.
+ * Native function ballerina.transactions:abortResourceManagers.
  *
  * @since 0.964.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "transactions",
-        functionName = "commitResourceManagers",
+        functionName = "abortResourceManagers",
         args = {@Argument(name = "transactionId", type = TypeKind.STRING),
                 @Argument(name = "transactionBlockId", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)}
 )
-public class CommitResourceManagers extends BlockingNativeCallableUnit {
+public class AbortResourceManagers extends BlockingNativeCallableUnit {
 
     public void execute(Context ctx) {
         String transactionId = ctx.getStringArgument(0);
         int transactionBlockId = (int) ctx.getIntArgument(0);
-        boolean commitSuccessful =
-                TransactionResourceManager.getInstance().notifyCommit(transactionId, transactionBlockId);
-        ctx.setReturnValues(new BBoolean(commitSuccessful));
+        boolean abortSuccessful =
+                TransactionResourceManager.getInstance().notifyAbort(transactionId, transactionBlockId, false);
+        ctx.setReturnValues(new BBoolean(abortSuccessful));
     }
 }
