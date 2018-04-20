@@ -1073,46 +1073,6 @@ public class TypeChecker extends BLangNodeVisitor {
         resultType = types.checkType(bLangMatchExpression, actualType, expType);
     }
 
-    private List<BType> getTypesList(BType type) {
-        if (type.tag == TypeTags.UNION) {
-            BUnionType unionType = (BUnionType) type;
-            return new ArrayList<>(unionType.memberTypes);
-        } else {
-            return Lists.of(type);
-        }
-    }
-
-    private Set<BType> getMatchExpressionTypes(BLangMatchExpression bLangMatchExpression) {
-        List<BType> exprTypes = getTypesList(bLangMatchExpression.expr.type);
-        Set<BType> matchExprTypes = new LinkedHashSet<>();
-        for (BType type : exprTypes) {
-            boolean assignable = false;
-            for (BLangMatchExprPatternClause pattern : bLangMatchExpression.patternClauses) {
-                BType patternExprType = pattern.expr.type;
-
-                // Type of the pattern expression, becomes one of the types of the whole but expression
-                matchExprTypes.addAll(getTypesList(patternExprType));
-
-                if (type.tag == TypeTags.ERROR || patternExprType.tag == TypeTags.ERROR) {
-                    return new HashSet<>(Lists.of(symTable.errType));
-                }
-
-                assignable = this.types.isAssignable(type, pattern.variable.type);
-                if (assignable) {
-                    break;
-                }
-            }
-
-            // If the matching expr type is not matching to any pattern, it becomes one of the types
-            // returned by the whole but expression
-            if (!assignable) {
-                matchExprTypes.add(type);
-            }
-        }
-
-        return matchExprTypes;
-    }
-
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
         BType exprType = checkExpr(checkedExpr.expr, env, symTable.noType);
@@ -1998,8 +1958,43 @@ public class TypeChecker extends BLangNodeVisitor {
         return new BUnionType(null, new LinkedHashSet<>(lhsTypes), false);
     }
 
-    private BType getActualType(BLangExpression expr) {
-        return expr.impConversionExpr == null ? expr.type : getActualType(expr.impConversionExpr);
+    private List<BType> getTypesList(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) type;
+            return new ArrayList<>(unionType.memberTypes);
+        } else {
+            return Lists.of(type);
+        }
     }
 
+    private Set<BType> getMatchExpressionTypes(BLangMatchExpression bLangMatchExpression) {
+        List<BType> exprTypes = getTypesList(bLangMatchExpression.expr.type);
+        Set<BType> matchExprTypes = new LinkedHashSet<>();
+        for (BType type : exprTypes) {
+            boolean assignable = false;
+            for (BLangMatchExprPatternClause pattern : bLangMatchExpression.patternClauses) {
+                BType patternExprType = pattern.expr.type;
+
+                // Type of the pattern expression, becomes one of the types of the whole but expression
+                matchExprTypes.addAll(getTypesList(patternExprType));
+
+                if (type.tag == TypeTags.ERROR || patternExprType.tag == TypeTags.ERROR) {
+                    return new HashSet<>(Lists.of(symTable.errType));
+                }
+
+                assignable = this.types.isAssignable(type, pattern.variable.type);
+                if (assignable) {
+                    break;
+                }
+            }
+
+            // If the matching expr type is not matching to any pattern, it becomes one of the types
+            // returned by the whole but expression
+            if (!assignable) {
+                matchExprTypes.add(type);
+            }
+        }
+
+        return matchExprTypes;
+    }
 }
