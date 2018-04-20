@@ -1,4 +1,3 @@
-package clientConnector.sample;
 
 import ballerina/http;
 import ballerina/net.ws;

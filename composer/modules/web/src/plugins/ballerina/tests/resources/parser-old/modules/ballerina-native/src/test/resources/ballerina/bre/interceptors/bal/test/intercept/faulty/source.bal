@@ -1,4 +1,3 @@
-package bal.test.intercept.faulty;
 
 import ballerina/lang.system;
 

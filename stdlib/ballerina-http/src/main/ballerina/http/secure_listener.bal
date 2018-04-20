@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
 
 import ballerina/auth;
 
@@ -148,9 +147,13 @@ function createAuthFiltersForSecureListener (SecureEndpointConfiguration config)
     Filter[] authFilters = [];
     AuthnHandlerChain authnHandlerChain = new(registry);
     AuthnFilter authnFilter = new(authnHandlerChain);
-    AuthzFilter authzFilter = new;
+    cache:Cache authzCache = new(expiryTimeMillis = 300000);
+    auth:ConfigAuthProvider configAuthProvider = new;
+    auth:AuthProvider authProvider = check <auth:AuthProvider> configAuthProvider;
+    HttpAuthzHandler authzHandler = new(authProvider, authzCache);
+    AuthzFilter authzFilter = new(authzHandler);
     authFilters[0] = check <Filter> authnFilter;
-    authFilters[1] = <Filter> authzFilter;
+    authFilters[1] = check <Filter> authzFilter;
     return authFilters;
 }
 

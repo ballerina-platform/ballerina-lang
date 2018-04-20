@@ -13,7 +13,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-package ballerina.grpc;
 
 documentation {
     gRPC Service Stub for outbound gRPC requests
@@ -39,7 +38,8 @@ public type Stub object {
         P{{methodID}} - remote procedure call id.
         P{{payload}} - Any type of request payload.
     }
-    public native function blockingExecute(string methodID, any payload, Headers... headers) returns ((any, Headers)|error);
+    public native function blockingExecute(string methodID, any payload, Headers... headers) returns ((any, Headers)|
+            error);
 
     documentation {
         Non Blocking execute function implementation of the gRPC client stub.
@@ -48,7 +48,8 @@ public type Stub object {
         P{{payload}} - Any type of request payload.
         P{{listenerService}} - call back listener service.
     }
-    public native function nonBlockingExecute(string methodID, any payload, typedesc listenerService, Headers... headers) returns error?;
+    public native function nonBlockingExecute(string methodID, any payload, typedesc listenerService, Headers... headers
+    ) returns error?;
 
 
     documentation {
@@ -57,6 +58,7 @@ public type Stub object {
         P{{methodID}} - remote procedure call id.
         P{{listenerService}} - call back listener service.
     }
-    public native function streamingExecute(string methodID, typedesc listenerService, Headers... headers) returns (Client|error);
+    public native function streamingExecute(string methodID, typedesc listenerService, Headers... headers) returns (
+            Client|error);
 
 };
