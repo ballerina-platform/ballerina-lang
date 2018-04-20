@@ -120,7 +120,7 @@ public class ConfigTest {
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString || returnVals[0] == null);
-//        Assert.assertNull(returnVals[0].stringValue());
+        Assert.assertEquals(returnVals[0].stringValue(), "");
     }
 
     @Test(description = "test instance method with runtime and custom config file properties")
