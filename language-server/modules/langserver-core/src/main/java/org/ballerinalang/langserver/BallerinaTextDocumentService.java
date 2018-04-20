@@ -466,7 +466,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
         String content = params.getTextDocument().getText();
         Optional<Lock> lock = documentManager.lockFile(openedPath);
         try {
-            documentManager.openFile(openedPath, content);
+            if (documentManager.isFileOpen(openedPath)) {
+                documentManager.openFile(openedPath, content);
+            }
         } finally {
             lock.ifPresent(Lock::unlock);
         }
