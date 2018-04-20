@@ -27,9 +27,18 @@ public type Socket object {
         string address;
         string localAddress;
     }
+
     @Description {value:"Close the socket connection with the remote server"}
-    @Return {value:"Returns an IOError if socket could not be closed"}
-    public native function closeSocket() returns (error);
+    @Return {value:"Returns an error if socket could not be closed"}
+    public native function close() returns error?;
+
+    @Description {value:"Shutdown the connection for reading"}
+    @Return {value:"Returns an error if socket could not be shutdown for reading"}
+    public native function shutdownInput() returns error?;
+
+    @Description {value:"Shutdown the connection for writing"}
+    @Return {value:"Returns an error if socket could not be shutdown for writing"}
+    public native function shutdownOutput() returns error?;
 };
 
 documentation {
