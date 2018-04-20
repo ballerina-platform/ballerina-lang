@@ -38,12 +38,14 @@ public class ObservabilityConstants {
     public static final String TAG_KEY_HTTP_URL = "http.url";
     public static final String TAG_KEY_PROTOCOL = "protocol";
 
+    public static final String TAG_KEY_PEER_ADDRESS = "peer.address";
     public static final String TAG_KEY_PEER_HOSTNAME = "peer.hostname";
     public static final String TAG_KEY_PEER_PORT = "peer.port";
 
     public static final String PROPERTY_HTTP_HOST = "host";
     public static final String PROPERTY_HTTP_PORT = "port";
 
+    public static final String TAG_KEY_DB_INSTANCE = "db.instance";
     public static final String TAG_KEY_DB_STATEMENT = "db.statement";
     public static final String TAG_KEY_DB_TYPE = "db.type";
 

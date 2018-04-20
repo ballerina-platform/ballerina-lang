@@ -65,7 +65,7 @@ public class ObserverContext {
     }
 
     public void addTag(String key, String value) {
-        tags.put(key, value);
+        tags.put(key, value != null ? value : "");
     }
 
     public void addTags(Map<String, String> tags) {
