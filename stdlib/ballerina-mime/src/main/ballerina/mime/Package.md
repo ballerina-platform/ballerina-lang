@@ -18,12 +18,7 @@ Content-Disposition: attachment; filename=genome.jpeg;
 Content-Description: a complete map of the human genome
 ```
 ### Modify and retrieve the data in an `Entity`
-The package provides functions to set and get an entity body from different kinds of message types.  For example, XML, text, JSON, blob, and body parts. Headers can be modified through functions such as `addHeader()`, `setHeader()`, `removeHeader(), etc.
-
-### Encode and decode the body of an `Entity`
-The content of the messages needs to be encoded and decoded when the `Content-Transfer-Encoding` header is used. Ballerina supports Base64 encoding.
-
-The `base64EncodeString()` and `base64DecodeString` encodes and decodes `string` variables. 
+The package provides functions to set and get an entity body from different kinds of message types.  For example, XML, text, JSON, blob, and body parts. Headers can be modified through functions such as `addHeader()`, `setHeader()`, `removeHeader(), etc. 
 ## Samples
 ### Handle multipart request
 The sample service given below handles a multipart request. It gets the message from each part of the body, converts the messages to a `string`, and sends a response.
