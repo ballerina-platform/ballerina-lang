@@ -21,7 +21,7 @@ documentation {
 }
 public type CallerActions object {
 
-    documentation {
+documentation {
         The call action implementation for SQL connector to invoke stored procedures/functions.
 
         P{{sqlQuery}} - SQL statement to execute.
@@ -29,40 +29,40 @@ public type CallerActions object {
         R{{}} -  `table[]` if there are tables returned by the call action and else nill,
                 `error` will be returned if there is any error.
     }
-    public native function call(@sensitive string sqlQuery, typedesc[]? recordType, Param... parameters)
-        returns @tainted table[]|error;
+public native function call(@sensitive string sqlQuery, typedesc[]? recordType, Param... parameters)
+    returns @tainted table[]|error;
 
-    documentation {
+documentation {
         The select action implementation for SQL connector to select data from tables.
 
         P{{sqlQuery}} - SQL query to execute.
         P{{recordType}} - Type of the returned table.
         R{{}} - `table` table returned by the sql query statement else `error` will be returned if there is any error.
     }
-    public native function select(@sensitive string sqlQuery, typedesc? recordType, Param... parameters)
-        returns @tainted table|error;
+public native function select(@sensitive string sqlQuery, typedesc? recordType, Param... parameters)
+    returns @tainted table|error;
 
-    documentation {
+documentation {
         The update action implementation for SQL connector to update data and schema of the database.
 
         P{{sqlQuery}} - SQL statement to execute.
         R{{}} - `int` number of rows updated by the statement and else `error` will be returned if there is any error.
 
     }
-    public native function update(@sensitive string sqlQuery, Param... parameters) returns int|error;
+public native function update(@sensitive string sqlQuery, Param... parameters) returns int|error;
 
 
-    documentation {
+documentation {
         The batchUpdate action implementation for SQL connector to batch data insert.
 
         P{{sqlQuery}} - SQL statement to execute.
         R{{}} - `int[]` An array of updated row count by each of statements in batch and
                 else `error` will be returned if there is any error.
     }
-    public native function batchUpdate(@sensitive string sqlQuery, Parameter[]... parameters) returns int[]|error;
+public native function batchUpdate(@sensitive string sqlQuery, Parameter[]... parameters) returns int[]|error;
 
 
-    documentation {
+documentation {
         The updateWithGeneratedKeys action implementation for SQL connector which returns the auto
         generated keys during the update action.
 
@@ -73,10 +73,10 @@ public type CallerActions object {
             Else `error` will be returned if there is any error.
 
     }
-    public native function updateWithGeneratedKeys(@sensitive string sqlQuery, string[]? keyColumns,
-                                                   Param... parameters) returns (int, string[])|error;
+public native function updateWithGeneratedKeys(@sensitive string sqlQuery, string[]? keyColumns,
+    Param... parameters) returns (int, string[])|error;
 
-    documentation {
+documentation {
         The getProxyTable action implementation for SQL connector which returns a reflection of a database
         table that allows performing select/update operations over the actual database table.
 
@@ -84,7 +84,8 @@ public type CallerActions object {
         P{{recordType}} - The record type of the returned table.
 
     }
-    public native function getProxyTable(@sensitive string tableName, typedesc recordType) returns @tainted table|error;
+public native function getProxyTable(@sensitive string tableName, typedesc recordType) returns @tainted table|error;
+
 };
 
 documentation {
