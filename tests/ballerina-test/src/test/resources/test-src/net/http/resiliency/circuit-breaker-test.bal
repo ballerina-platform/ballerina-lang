@@ -61,7 +61,7 @@ function testTypicalScenario () returns (http:Response[] , http:HttpConnectorErr
        counter = counter + 1;
        // To ensure the reset timeout period expires
        if (counter == 5) {
-           runtime:sleepCurrentWorker(5000);
+           runtime:sleep(5000);
        }
     }
     return (responses, errs);
@@ -105,7 +105,7 @@ function testTrialRunFailure () returns (http:Response[] , http:HttpConnectorErr
        counter = counter + 1;
        // To ensure the reset timeout period expires
        if (counter == 5) {
-           runtime:sleepCurrentWorker(5000);
+           runtime:sleep(5000);
        }
     }
     return (responses, errs);

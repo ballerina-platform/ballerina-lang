@@ -25,7 +25,6 @@ import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.net.grpc.builder.BallerinaFileBuilder;
 import org.ballerinalang.net.grpc.config.ServiceConfiguration;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.proto.definition.EmptyMessage;
@@ -65,7 +64,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -73,7 +71,6 @@ import static org.ballerinalang.net.grpc.MessageConstants.ANN_ATTR_RESOURCE_SERV
 import static org.ballerinalang.net.grpc.MessageConstants.ANN_RESOURCE_CONFIG;
 import static org.ballerinalang.net.grpc.MessageConstants.ON_COMPLETE_RESOURCE;
 import static org.ballerinalang.net.grpc.MessageConstants.ON_MESSAGE_RESOURCE;
-import static org.ballerinalang.net.grpc.proto.definition.StandardDescriptorBuilder.GOOGLE_PROTOBUF_PACKAGE_PREFIX;
 
 /**
  * Utility class providing proto file based of the Ballerina service.
@@ -112,7 +109,6 @@ public class ServiceProtoUtils {
         String rpcEndpoint = null;
         boolean clientStreaming = false;
         boolean serverStreaming = false;
-        boolean generateClientConnector = false;
         
         for (AnnotationAttachmentNode annotationNode : serviceNode.getAnnotationAttachments()) {
             if (!ServiceProtoConstants.ANN_SERVICE_CONFIG.equals(annotationNode.getAnnotationName().getValue())) {
@@ -139,10 +135,6 @@ public class ServiceProtoUtils {
                             serverStreaming = attributeValue != null && Boolean.parseBoolean(attributeValue);
                             break;
                         }
-                        case ServiceProtoConstants.SERVICE_CONFIG_GENERATE_CLIENT: {
-                            generateClientConnector = attributeValue != null && Boolean.parseBoolean(attributeValue);
-                            break;
-                        }
                         default: {
                             break;
                         }
@@ -150,8 +142,7 @@ public class ServiceProtoUtils {
                 }
             }
         }
-        return new ServiceConfiguration(rpcEndpoint, clientStreaming, serverStreaming,
-                generateClientConnector);
+        return new ServiceConfiguration(rpcEndpoint, clientStreaming, serverStreaming);
     }
     
     private static Service getUnaryServiceDefinition(ServiceNode serviceNode, File.Builder fileBuilder) throws
@@ -351,7 +342,7 @@ public class ServiceProtoUtils {
                     requestType = tempType;
                     break;
                 }
-                if ("ballerina.grpc:Service".equals(tempType.tsymbol.toString()) || "ballerina.grpc:Headers"
+                if ("ballerina.grpc:Listener".equals(tempType.tsymbol.toString()) || "ballerina.grpc:Headers"
                         .equals(tempType.tsymbol.toString())) {
                     continue;
                 }
@@ -568,31 +559,23 @@ public class ServiceProtoUtils {
      * @param filename            filename
      * @throws GrpcServerException when error occur while writing content to file.
      */
-    static void writeServiceFiles(File protoFileDefinition, String filename, boolean generateClientConnector)
+    static void writeServiceFiles(Path targetDirPath, String filename, File protoFileDefinition)
             throws GrpcServerException {
+        if (targetDirPath == null) {
+            throw new GrpcServerException("Target file directory path is null");
+        }
         try {
             // write the proto string to the file in protobuf contract directory
-            Path protoFilePath = Paths.get(filename + ServiceProtoConstants.PROTO_FILE_EXTENSION);
+            Path protoFilePath = Paths.get(targetDirPath.toString(), filename + ServiceProtoConstants
+                    .PROTO_FILE_EXTENSION);
             Files.write(protoFilePath, protoFileDefinition.getFileDefinition().getBytes(ServiceProtoConstants
                     .UTF_8_CHARSET));
             
             // write the proto descriptor byte array to the file in protobuf contract directory
             byte[] fileDescriptor = protoFileDefinition.getFileDescriptorProto().toByteArray();
-            Path descFilePath = Paths.get(filename + ServiceProtoConstants.DESC_FILE_EXTENSION);
+            Path descFilePath = Paths.get(targetDirPath.toString(), filename + ServiceProtoConstants
+                    .DESC_FILE_EXTENSION);
             Files.write(descFilePath, fileDescriptor);
-            if (generateClientConnector) {
-                List<byte[]> dependentDescriptorsList = new ArrayList<>();
-                for (String libName : protoFileDefinition.getFileDescriptorProto().getDependencyList()) {
-                    if (libName.startsWith(GOOGLE_PROTOBUF_PACKAGE_PREFIX)) {
-                        dependentDescriptorsList.add(StandardDescriptorBuilder.getFileDescriptor(libName)
-                                .toProto().toByteArray());
-                    }
-                }
-
-                BallerinaFileBuilder ballerinaFileBuilder = new BallerinaFileBuilder(dependentDescriptorsList);
-                ballerinaFileBuilder.setRootDescriptor(fileDescriptor);
-                ballerinaFileBuilder.build();
-            }
         } catch (IOException e) {
             throw new GrpcServerException("Error while writing file descriptor to file.", e);
         }

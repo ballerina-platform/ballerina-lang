@@ -19,7 +19,6 @@ package ballerina.transactions;
 import ballerina/io;
 import ballerina/log;
 import ballerina/time;
-import ballerina/util;
 
 type TwoPhaseCommitTransaction object {
     private {

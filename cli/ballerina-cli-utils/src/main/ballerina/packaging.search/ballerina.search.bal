@@ -24,7 +24,14 @@ function search (string url, string querySearched) {
     };
     http:Request req = new;
     var result = httpEndpoint -> get(untaint querySearched, req);
-    http:Response httpResponse = check result;
+    http:Response httpResponse = new;
+    match result {
+        http:Response response => httpResponse = response;
+        http:HttpConnectorError e => {
+            io:println("Connection to the remote host failed : " + e.message);
+            return;
+        }
+    }
     json jsonResponse = null;
     string statusCode = <string> httpResponse.statusCode;
     if (statusCode.hasPrefix("5")) {

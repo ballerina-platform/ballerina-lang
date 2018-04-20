@@ -193,7 +193,7 @@ service<http:Service> sample3 bind echoEP {
     echo(endpoint conn, http:Request req) {
         lock {
             io:println("************** waiting inside first request");
-            runtime:sleepCurrentWorker(100);
+            runtime:sleep(100);
             message = "sample Response";
             error err = {message:"error occurred"};
             throw err;
