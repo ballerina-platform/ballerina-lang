@@ -64,7 +64,7 @@ function startInlineOperationQuery() returns (Employee[]) {
     teacherStream7.publish(t2);
     teacherStream7.publish(t3);
 
-    runtime:sleepCurrentWorker(1000);
+    runtime:sleep(1000);
 
     return globalEmployeeArray;
 }

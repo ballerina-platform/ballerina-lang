@@ -13,32 +13,35 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.nativeimpl.user;
+
+package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.nativeimpl.Utils;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.BuiltInUtils;
 
 /**
- * Native function ballerina.user:getName.
+ * Native function ballerina.io:base64Encode.
  *
- * @since 0.94.1
+ * @since 0.970.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "user",
-        functionName = "getName",
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        orgName = "ballerina", packageName = "io",
+        functionName = "base64Encode",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "ballerina.io"),
+        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "ballerina.io")},
         isPublic = true
 )
-public class GetName extends BlockingNativeCallableUnit {
-
-    private static final String PROPERTY_NAME = "user.name";
+public class Base64Encode extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        context.setReturnValues(BuiltInUtils.getSystemProperty(PROPERTY_NAME));
+        BStruct channel = (BStruct) context.getRefArgument(0);
+        Utils.encodeByteChannel(context, channel, false);
     }
 }

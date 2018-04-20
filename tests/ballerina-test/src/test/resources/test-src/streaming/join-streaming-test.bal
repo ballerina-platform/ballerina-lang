@@ -72,7 +72,7 @@ function startJoinQuery() returns (StockWithPrice[]) {
     stockStream.publish(s2);
     stockStream.publish(s3);
 
-    runtime:sleepCurrentWorker(3000);
+    runtime:sleep(3000);
     return globalEventsArray;
 }
 
