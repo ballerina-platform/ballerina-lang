@@ -299,16 +299,24 @@ public class CompiledPackageSymbolEnter {
         String objectName = getUTF8CPEntryValue(dataInStream);
         int flags = dataInStream.readInt();
 
-        BStructSymbol objectSymbol = (BStructSymbol) Symbols.createObjectSymbol(flags, names.fromString(objectName),
-                this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol);
-        objectSymbol.scope = new Scope(objectSymbol);
-        BStructType objectType = new BStructType(objectSymbol);
-        objectSymbol.type = objectType;
-        this.env.pkgSymbol.scope.define(objectSymbol.name, objectSymbol);
+        BStructSymbol symbol;
+
+        if (Symbols.isFlagOn(flags, Flags.RECORD)) {
+            symbol = (BStructSymbol) Symbols.createRecordSymbol(flags, names.fromString(objectName),
+                    this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol);
+        } else {
+            symbol = (BStructSymbol) Symbols.createObjectSymbol(flags, names.fromString(objectName),
+                    this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol);
+        }
+
+        symbol.scope = new Scope(symbol);
+        BStructType type = new BStructType(symbol);
+        symbol.type = type;
+        this.env.pkgSymbol.scope.define(symbol.name, symbol);
 
         // Define Object Fields
         defineSymbols(dataInStream, rethrow(dataInputStream ->
-                defineObjectField(dataInStream, objectSymbol, objectType)));
+                defineObjectField(dataInStream, symbol, type)));
 
         // Define attached functions.
         // TODO define attached functions..
@@ -333,8 +341,6 @@ public class CompiledPackageSymbolEnter {
 
         // Read the default value attribute
         Map<AttributeInfo.Kind, byte[]> attrData = readAttributes(dataInStream);
-//        byte[] defaultValueAttrData = attrData.get(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE);
-//        varSymbol.defaultValue = getObjectFieldDefaultValue(defaultValueAttrData);
 
         // The object field type cannot be resolved now. Hence add it to the unresolved type list.
         UnresolvedType unresolvedFieldType = new UnresolvedType(typeSig, type -> {
@@ -383,9 +389,8 @@ public class CompiledPackageSymbolEnter {
                 scopeToDefine = bType.tsymbol.scope;
 
                 if (Names.OBJECT_INIT_SUFFIX.value.equals(funcName)) {
-                    BAttachedFunction attachedFunc = new BAttachedFunction(invokableSymbol.name,
+                    ((BStructSymbol) bType.tsymbol).initializerFunc = new BAttachedFunction(invokableSymbol.name,
                             invokableSymbol, funcType);
-                    ((BStructSymbol) bType.tsymbol).initializerFunc = attachedFunc;
                 }
             }
         }

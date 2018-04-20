@@ -21,7 +21,6 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.elements.TypeFlag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -159,7 +158,6 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
-import org.wso2.ballerinalang.util.TypeFlags;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -904,11 +902,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (objectNode.initFunction.symbol.params.size() > 0) {
             defaultableStatus = false;
         }
+
+        objectNode.symbol.flags += Flags.asMask(EnumSet.of(Flag.DEFAULTABLE_CHECKED));
+
         if (defaultableStatus) {
-            objectNode.symbol.type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED,
-                    TypeFlag.DEFAULTABLE));
-        } else {
-            objectNode.symbol.type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED));
+            objectNode.symbol.flags += Flags.asMask(EnumSet.of(Flag.DEFAULTABLE));
         }
     }
 
@@ -921,11 +919,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             defaultableStatus = false;
             break;
         }
+
+        recordNode.symbol.flags += Flags.asMask(EnumSet.of(Flag.DEFAULTABLE_CHECKED, Flag.RECORD));
+
         if (defaultableStatus) {
-            recordNode.symbol.type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED,
-                    TypeFlag.DEFAULTABLE));
-        } else {
-            recordNode.symbol.type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED));
+            recordNode.symbol.flags += Flags.asMask(EnumSet.of(Flag.DEFAULTABLE));
         }
     }
 
