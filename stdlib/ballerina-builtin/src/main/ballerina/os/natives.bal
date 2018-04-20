@@ -37,3 +37,11 @@ public native function getVersion () returns (string);
 @Description {value:"Returns the architecture of the operating system."}
 @Return { value:"OS architecture if the OS can be identified, an empty string otherwise"}
 public native function getArchitecture () returns (string);
+
+@Description { value:"Execute a given CMD command or a script"}
+@Param {value:"command: Command to be executed"}
+@Param {value:"workingDir: Execution workspace, the command will be executed from here"}
+@Param {value:"timeoutValue: Timeout value for the process to exit, if this is exceeded the process is killed"}
+@Return { value:" Returns a error if the execution is not successfull or user timeout exceeds"}
+public native function runCommand(@sensitive string command, @sensitive string workingDir = "", int timeoutValue = -1)
+                                                                                                        returns error?;
