@@ -19,7 +19,7 @@ function testSelect() returns (int[]) {
         poolOptions:{maximumPoolSize:1}
     };
 
-    var val = testDB->select("select * from Customers where customerId=1 OR customerId=2", Customer);
+    var val = testDB->select("select * from Customers where customerId=1 OR customerId=2", Customer, false);
 
     int[] customerIds;
     match (val) {
@@ -166,7 +166,7 @@ function testAddToMirrorTable() returns (Customer[]) {
             }
             error e => return [];
         }
-        var temp2 = testDB->select("SELECT  * from Customers where customerId=40 OR customerId=41", Customer);
+        var temp2 = testDB->select("SELECT  * from Customers where customerId=40 OR customerId=41", Customer, false);
         match (temp2) {
             table dt2 => {
                 Customer[] customerArray;
@@ -204,7 +204,7 @@ function testUpdateInMemory() returns (int, string) {
     int insertCount = check insertCountRet;
     io:println(insertCount);
 
-    var x = testDB->select("SELECT  * from Customers2", Customer);
+    var x = testDB->select("SELECT  * from Customers2", Customer, false);
     table t = check x;
 
     json j = check <json>t;
@@ -254,7 +254,7 @@ function testInitWithInvalidDbOptions() returns (int[]) {
 function selectFunction(h2:Client testDBClient) returns (int[]) {
     endpoint h2:Client testDB = testDBClient;
     try {
-        var val = testDB->select("select * from Customers where customerId=1 OR customerId=2", Customer);
+        var val = testDB->select("select * from Customers where customerId=1 OR customerId=2", Customer, false);
 
         int[] customerIds;
         match (val) {

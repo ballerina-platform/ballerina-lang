@@ -122,7 +122,7 @@ function testToJson() returns (json) {
     sql:Parameter[] parameters = [];
     try {
         var dtRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
-                  boolean_type, string_type from DataTable WHERE row_id = 1", ());
+                  boolean_type, string_type from DataTable WHERE row_id = 1", (), false);
         table dt = check dtRet;
         return check <json>dt;
     } finally {
@@ -140,7 +140,7 @@ function testToXml() returns (xml) {
 
     try {
         var dtRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
-                   boolean_type, string_type from DataTable WHERE row_id = 1", ());
+                   boolean_type, string_type from DataTable WHERE row_id = 1", (), false);
         table dt = check dtRet;
 
         return check <xml>dt;
@@ -159,7 +159,7 @@ function testToXmlMultipleConsume() returns (xml) {
 
     try {
         var dtRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
-        boolean_type, string_type from DataTable WHERE row_id = 1", ());
+        boolean_type, string_type from DataTable WHERE row_id = 1", (), false);
         table dt = check dtRet;
 
         xml result = check <xml>dt;
@@ -179,17 +179,17 @@ function testToXmlWithAdd() returns (xml) {
     };
 
     try {
-        var dt1Ret = testDB->select("SELECT int_type from DataTable WHERE row_id = 1", ());
+        var dt1Ret = testDB->select("SELECT int_type from DataTable WHERE row_id = 1", (), false);
         table dt1 = check dt1Ret;
         xml result1 = check <xml>dt1;
 
-        var dt2Ret = testDB->select("SELECT int_type from DataTable WHERE row_id = 1", ());
+        var dt2Ret = testDB->select("SELECT int_type from DataTable WHERE row_id = 1", (), false);
         table dt2 = check dt2Ret;
         xml result2 = check <xml>dt2;
 
         xml result = result1 + result2;
 
-        var dt3Ret = testDB->select("SELECT int_type from DataTable WHERE row_id = 1", ());
+        var dt3Ret = testDB->select("SELECT int_type from DataTable WHERE row_id = 1", (), false);
         table dt3 = check dt3Ret;
         return result;
     } finally {
@@ -207,7 +207,7 @@ function testToJsonMultipleConsume() returns (json) {
 
     try {
         var dtRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
-        boolean_type, string_type from DataTable WHERE row_id = 1", ());
+        boolean_type, string_type from DataTable WHERE row_id = 1", (), false);
         table dt = check dtRet;
 
         json result = check <json>dt;
@@ -230,7 +230,7 @@ function toXmlComplex() returns (xml) {
     try {
         var dtRet = testDB->select("SELECT int_type, int_array, long_type, long_array, float_type,
                     float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
-                    from MixTypes where row_id =1", ());
+                    from MixTypes where row_id =1", (), false);
         table dt = check dtRet;
 
         return check <xml>dt;
@@ -250,7 +250,7 @@ function testToXmlComplexWithStructDef() returns (xml) {
     try {
         var dtRet = testDB->select("SELECT int_type, int_array, long_type, long_array, float_type,
                     float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
-                    from MixTypes where row_id =1", TestTypeData);
+                    from MixTypes where row_id =1", TestTypeData, false);
         table dt = check dtRet;
 
         return check <xml>dt;
@@ -271,7 +271,7 @@ function testToJsonComplex() returns (json) {
     try {
         var dtRet = testDB->select("SELECT int_type, int_array, long_type, long_array, float_type,
                     float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
-                    from MixTypes where row_id =1", ());
+                    from MixTypes where row_id =1", (), false);
         table dt = check dtRet;
 
         return check <json>dt;
@@ -292,7 +292,7 @@ function testToJsonComplexWithStructDef() returns (json) {
     try {
         var dtRet = testDB->select("SELECT int_type, int_array, long_type, long_array, float_type,
                     float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
-                    from MixTypes where row_id =1", TestTypeData);
+                    from MixTypes where row_id =1", TestTypeData, false);
         table dt = check dtRet;
 
         return check <json>dt;
@@ -311,7 +311,7 @@ function testJsonWithNull() returns (json) {
 
     try {
         var dtRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
-                  boolean_type, string_type from DataTable WHERE row_id = 2", ());
+                  boolean_type, string_type from DataTable WHERE row_id = 2", (), false);
         table dt = check dtRet;
 
         return check <json>dt;
@@ -330,7 +330,7 @@ function testXmlWithNull() returns (xml) {
 
     try {
         var dtRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
-                   boolean_type, string_type from DataTable WHERE row_id = 2", ());
+                   boolean_type, string_type from DataTable WHERE row_id = 2", (), false);
         table dt = check dtRet;
 
         return check <xml>dt;
@@ -351,7 +351,7 @@ function testToXmlWithinTransaction() returns (string, int) {
     string resultXml;
     try {
         transaction {
-            var dtRet = testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", ());
+            var dtRet = testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", (), false);
             table dt = check dtRet;
 
             var result = check <xml>dt;
@@ -375,7 +375,7 @@ function testToJsonWithinTransaction() returns (string, int) {
     string result;
     try {
         transaction {
-            var dtRet = testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", ());
+            var dtRet = testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", (), false);
             table dt = check dtRet;
 
             var j = check <json>dt;
@@ -396,7 +396,7 @@ function testGetPrimitiveTypes() returns (int, int, float, float, boolean, strin
     };
 
     var dtRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
-              boolean_type, string_type from DataTable WHERE row_id = 1", ResultPrimitive);
+              boolean_type, string_type from DataTable WHERE row_id = 1", ResultPrimitive, false);
     table dt = check dtRet;
 
     int i;
@@ -425,8 +425,8 @@ function testGetComplexTypes() returns (string, string, string) {
         poolOptions:{maximumPoolSize:1}
     };
 
-    var dtRet = testDB->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1", ResultObject
-    );
+    var dtRet = testDB->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1",
+        ResultObject, false);
     table dt = check dtRet;
 
     string blobValue;
@@ -452,7 +452,7 @@ function testArrayData() returns (int[], int[], float[], string[], boolean[]) {
     };
 
     var dtRet = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
-              string_array from ArrayTypes where row_id = 1", ResultMap);
+              string_array from ArrayTypes where row_id = 1", ResultMap, false);
     table dt = check dtRet;
 
     int[] int_arr;
@@ -504,7 +504,7 @@ function testArrayDataInsertAndPrint() returns (int, int, int, int, int, int) {
     int updateRet = check updateRetVal;
 
     var dtRet = testDB->select("SELECT int_array, long_array, float_array, boolean_array, string_array
-                                 from ArrayTypes where row_id = 4", ResultMap);
+                                 from ArrayTypes where row_id = 4", ResultMap, false);
     table dt = check dtRet;
 
     while (dt.hasNext()) {
@@ -547,7 +547,7 @@ function testDateTime(int datein, int timein, int timestampin) returns (string, 
     int countRet = check countRetRet;
 
     var dtRet = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type
-                from DateTimeTypes where row_id = 1", ResultDates);
+                from DateTimeTypes where row_id = 1", ResultDates, false);
     table dt = check dtRet;
 
     while (dt.hasNext()) {
@@ -601,7 +601,7 @@ function testDateTimeAsTimeStruct() returns (int, int, int, int, int, int, int, 
     int count = check countRet;
 
     var dtRet = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type
-                from DateTimeTypes where row_id = 31", ResultDatesStruct);
+                from DateTimeTypes where row_id = 31", ResultDatesStruct, false);
     table dt = check dtRet;
 
     while (dt.hasNext()) {
@@ -640,7 +640,7 @@ function testDateTimeInt(int datein, int timein, int timestampin) returns (int, 
     int countt = check countRet;
 
     var dtRet = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type
-                from DateTimeTypes where row_id = 32", ResultDatesInt);
+                from DateTimeTypes where row_id = 32", ResultDatesInt, false);
     table<ResultDatesInt> dt = check dtRet;
 
     while (dt.hasNext()) {
@@ -662,7 +662,7 @@ function testBlobData() returns (string) {
     };
 
     string blobStringData;
-    var dtRet = testDB->select("SELECT blob_type from ComplexTypes where row_id = 1", ResultBlob);
+    var dtRet = testDB->select("SELECT blob_type from ComplexTypes where row_id = 1", ResultBlob, false);
     table dt = check dtRet;
 
     blob blobData;
@@ -685,7 +685,7 @@ function testColumnAlias() returns (int, int, float, float, boolean, string, int
 
     var dtRet = testDB->select("SELECT dt1.int_type, dt1.long_type, dt1.float_type,
            dt1.double_type,dt1.boolean_type, dt1.string_type,dt2.int_type as dt2int_type from DataTable dt1
-           left join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1;", ResultSetTestAlias);
+           left join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1;", ResultSetTestAlias, false);
     table dt = check dtRet;
 
     int i;
@@ -717,7 +717,7 @@ function testBlobInsert() returns (int) {
         poolOptions:{maximumPoolSize:1}
     };
 
-    var dtRet = testDB->select("SELECT blob_type from ComplexTypes where row_id = 1", ResultBlob);
+    var dtRet = testDB->select("SELECT blob_type from ComplexTypes where row_id = 1", ResultBlob, false);
     table dt = check dtRet;
 
     blob blobData;
@@ -742,7 +742,7 @@ function testTableAutoClose() returns (int, json) {
         poolOptions:{maximumPoolSize:1}
     };
 
-    var dtRet = testDB->select("SELECT int_type from DataTable WHERE row_id = 1", ResultPrimitiveInt);
+    var dtRet = testDB->select("SELECT int_type from DataTable WHERE row_id = 1", ResultPrimitiveInt, false);
     table dt = check dtRet;
 
     int i;
@@ -753,14 +753,14 @@ function testTableAutoClose() returns (int, json) {
     }
 
     var dt2Ret = testDB->select("SELECT int_type, long_type, float_type, double_type,
-              boolean_type, string_type from DataTable WHERE row_id = 1", ());
+              boolean_type, string_type from DataTable WHERE row_id = 1", (), false);
     table dt2 = check dt2Ret;
 
     json jsonData = check <json>dt2;
     _ = jsonData.remove("int_type");
 
     _ = testDB->select("SELECT int_type, long_type, float_type, double_type,
-              boolean_type, string_type from DataTable WHERE row_id = 1", ());
+              boolean_type, string_type from DataTable WHERE row_id = 1", (), false);
 
     _ = testDB->close();
     return (i, jsonData);
@@ -773,7 +773,7 @@ function testTableManualClose() returns (int) {
         poolOptions:{maximumPoolSize:1}
     };
 
-    var dtRet = testDB->select("SELECT int_type from DataTable", ResultPrimitiveInt);
+    var dtRet = testDB->select("SELECT int_type from DataTable", ResultPrimitiveInt, false);
     table dt = check dtRet;
 
     int i = 0;
@@ -788,7 +788,7 @@ function testTableManualClose() returns (int) {
     dt.close();
 
     int data;
-    var dt2Ret = testDB->select("SELECT int_type from DataTable WHERE row_id = 1", ResultPrimitiveInt);
+    var dt2Ret = testDB->select("SELECT int_type from DataTable WHERE row_id = 1", ResultPrimitiveInt, false);
     table dt2 = check dt2Ret;
 
     while (dt2.hasNext()) {
@@ -807,7 +807,8 @@ function testCloseConnectionPool() returns (int) {
         poolOptions:{maximumPoolSize:1}
     };
 
-    var dtRet = testDB->select ("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", ResultCount);
+    var dtRet = testDB->select ("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", ResultCount,
+        false);
     table dt = check dtRet;
 
     int count;
@@ -827,7 +828,7 @@ function testTablePrintAndPrintln() {
     };
 
     var dtRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
-        boolean_type, string_type from DataTable WHERE row_id = 1", ());
+        boolean_type, string_type from DataTable WHERE row_id = 1", (), false);
     table dt = check dtRet;
 
     io:println(dt);
@@ -842,7 +843,7 @@ function testMutltipleRows() returns (int, int) {
         poolOptions:{maximumPoolSize:1}
     };
 
-    var dtRet = testDB->select("SELECT int_type from DataTableRep", ResultPrimitiveInt);
+    var dtRet = testDB->select("SELECT int_type from DataTableRep", ResultPrimitiveInt, false);
     table dt = check dtRet;
 
     ResultPrimitiveInt rs1 = {INT_TYPE:-1};
@@ -868,7 +869,7 @@ function testMutltipleRowsWithoutLoop() returns (int, int, int, int, string, str
     };
 
     //Iterate the whole result
-    var dtRet = testDB->select("SELECT int_type from DataTableRep order by int_type desc", ResultPrimitiveInt);
+    var dtRet = testDB->select("SELECT int_type from DataTableRep order by int_type desc", ResultPrimitiveInt, false);
     table dt = check dtRet;
 
     int i1;
@@ -883,7 +884,7 @@ function testMutltipleRowsWithoutLoop() returns (int, int, int, int, string, str
     }
 
     //Pick the first row only
-    dtRet = testDB->select("SELECT int_type from DataTableRep order by int_type desc", ResultPrimitiveInt);
+    dtRet = testDB->select("SELECT int_type from DataTableRep order by int_type desc", ResultPrimitiveInt, false);
     dt = check dtRet;
 
     if (dt.hasNext()) {
@@ -893,7 +894,7 @@ function testMutltipleRowsWithoutLoop() returns (int, int, int, int, string, str
     dt.close();
 
     //Pick all the rows without checking
-    dtRet = testDB->select("SELECT int_type from DataTableRep order by int_type desc", ResultPrimitiveInt);
+    dtRet = testDB->select("SELECT int_type from DataTableRep order by int_type desc", ResultPrimitiveInt, false);
     dt = check dtRet;
 
     ResultPrimitiveInt rs1 = check <ResultPrimitiveInt>dt.getNext();
@@ -905,7 +906,7 @@ function testMutltipleRowsWithoutLoop() returns (int, int, int, int, string, str
 
     //Pick the first row by checking and next row without checking
     string s1 = "";
-    dtRet = testDB->select("SELECT int_type from DataTableRep order by int_type desc", ResultPrimitiveInt);
+    dtRet = testDB->select("SELECT int_type from DataTableRep order by int_type desc", ResultPrimitiveInt, false);
     dt = check dtRet;
 
     if (dt.hasNext()) {
@@ -926,7 +927,7 @@ function testMutltipleRowsWithoutLoop() returns (int, int, int, int, string, str
 
     //Pick the first row without checking, then check and no fetch, and finally fetch row by checking
     string s2 = "";
-    dtRet = testDB->select("SELECT int_type from DataTableRep order by int_type desc", ResultPrimitiveInt);
+    dtRet = testDB->select("SELECT int_type from DataTableRep order by int_type desc", ResultPrimitiveInt, false);
     dt = check dtRet;
 
     rs = check <ResultPrimitiveInt>dt.getNext();
@@ -952,6 +953,7 @@ function testMutltipleRowsWithoutLoop() returns (int, int, int, int, string, str
     } else {
         s2 = s2 + "_" + "NO";
     }
+    io:println(s2);
     if (dt.hasNext()) {
         s2 = s2 + "_" + "HAS";
     } else {
@@ -968,7 +970,7 @@ function testHasNextWithoutConsume() returns (boolean, boolean, boolean) {
         poolOptions:{maximumPoolSize:1}
     };
 
-    var dtRet = testDB->select("SELECT int_type from DataTableRep order by int_type desc", ResultPrimitiveInt);
+    var dtRet = testDB->select("SELECT int_type from DataTableRep order by int_type desc", ResultPrimitiveInt, false);
     table dt = check dtRet;
 
     boolean b1 = false;
@@ -996,7 +998,7 @@ function testGetFloatTypes() returns (float, float, float, float) {
     };
 
     var dtRet = testDB->select("SELECT float_type, double_type,
-                  numeric_type, decimal_type from FloatTable WHERE row_id = 1", ResultSetFloat);
+                  numeric_type, decimal_type from FloatTable WHERE row_id = 1", ResultSetFloat, false);
     table dt = check dtRet;
 
     float f;
@@ -1060,19 +1062,19 @@ function testSignedIntMaxMinValues() returns (int, int, int, string, string, str
     var nullInsertRet = testDB->update(insertSQL, para1, para2, para3, para4, para5);
     nullInsert = check nullInsertRet;
 
-    var dtRet = testDB->select(selectSQL, ());
+    var dtRet = testDB->select(selectSQL, (), false);
     table dt = check dtRet;
 
     var j = check <json>dt;
     jsonStr = io:sprintf("%j", j);
 
-    dtRet = testDB->select(selectSQL, ());
+    dtRet = testDB->select(selectSQL, (), false);
     dt = check dtRet;
 
     var x = check <xml>dt;
     xmlStr = io:sprintf("%l", x);
 
-    dtRet = testDB->select(selectSQL, ResultSignedInt);
+    dtRet = testDB->select(selectSQL, ResultSignedInt, false);
     dt = check dtRet;
 
     str = "";
@@ -1120,19 +1122,19 @@ function testComplexTypeInsertAndRetrieval() returns (int, int, string, string, 
     var retNullInsertRet = testDB->update(insertSQL, para1, para2, para3, para4);
     retNullInsert = check retNullInsertRet;
 
-    var dtRet = testDB->select(selectSQL, ());
+    var dtRet = testDB->select(selectSQL, (), false);
     table dt = check dtRet;
 
     var j = check <json>dt;
     jsonStr = io:sprintf("%j", j);
 
-    dtRet = testDB->select(selectSQL, ());
+    dtRet = testDB->select(selectSQL, (), false);
     dt = check dtRet;
 
     var x = check <xml>dt;
     xmlStr = io:sprintf("%l", x);
 
-    dtRet = testDB->select(selectSQL, ResultComplexTypes);
+    dtRet = testDB->select(selectSQL, ResultComplexTypes, false);
     dt = check dtRet;
 
     str = "";
@@ -1152,13 +1154,13 @@ function testJsonXMLConversionwithDuplicateColumnNames() returns (json, xml) {
     };
 
     var dtRet = testDB->select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
-            join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", ());
+            join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", (), false);
     table dt = check dtRet;
 
     json j = check <json>dt;
 
     var dt2Ret = testDB->select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
-            join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", ());
+            join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", (), false);
     table dt2 = check dt2Ret;
 
     xml x = check <xml>dt2;
@@ -1174,7 +1176,7 @@ function testStructFieldNotMatchingColumnName() returns (int, int, int, int, int
         poolOptions:{maximumPoolSize:1}
     };
 
-    var dtRet = testDB->select("SELECT count(*) from DataTable WHERE row_id = 1", ResultCount);
+    var dtRet = testDB->select("SELECT count(*) from DataTable WHERE row_id = 1", ResultCount, false);
     table dt = check dtRet;
 
     int countAll;
@@ -1188,7 +1190,7 @@ function testStructFieldNotMatchingColumnName() returns (int, int, int, int, int
     }
 
     var dt2Ret = testDB->select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
-            join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", ResultTest);
+            join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", ResultTest, false);
     table dt2 = check dt2Ret;
 
     while (dt2.hasNext()) {
@@ -1210,7 +1212,7 @@ function testGetPrimitiveTypesWithForEach() returns (int, int, float, float, boo
     };
 
     var dt1Ret = testDB->select("SELECT int_type, long_type, float_type, double_type,
-              boolean_type, string_type from DataTable WHERE row_id = 1", ResultPrimitive);
+              boolean_type, string_type from DataTable WHERE row_id = 1", ResultPrimitive, false);
     table<ResultPrimitive> dt = check dt1Ret;
 
     int i;
@@ -1238,7 +1240,7 @@ function testMutltipleRowsWithForEach() returns (int, int) {
         poolOptions:{maximumPoolSize:1}
     };
 
-    var dt1Ret = testDB->select("SELECT int_type from DataTableRep", ResultPrimitiveInt);
+    var dt1Ret = testDB->select("SELECT int_type from DataTableRep", ResultPrimitiveInt, false);
     table<ResultPrimitiveInt> dt = check dt1Ret;
 
     ResultPrimitiveInt rs1 = {INT_TYPE:-1};
@@ -1263,7 +1265,7 @@ function testTableAddInvalid() {
         poolOptions:{maximumPoolSize:1}
     };
 
-    var dtRet = testDB->select("SELECT int_type from DataTableRep", ResultPrimitiveInt);
+    var dtRet = testDB->select("SELECT int_type from DataTableRep", ResultPrimitiveInt, false);
     table dt = check dtRet;
 
     try {
@@ -1281,7 +1283,7 @@ function testTableRemoveInvalid() {
         poolOptions:{maximumPoolSize:1}
     };
 
-    var dtRet = testDB->select("SELECT int_type from DataTableRep", ResultPrimitiveInt);
+    var dtRet = testDB->select("SELECT int_type from DataTableRep", ResultPrimitiveInt, false);
     table dt = check dtRet;
 
     try {

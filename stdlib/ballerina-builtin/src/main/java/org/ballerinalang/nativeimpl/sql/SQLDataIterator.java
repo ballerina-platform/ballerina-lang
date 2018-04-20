@@ -88,9 +88,13 @@ public class SQLDataIterator extends TableIterator {
         }
     }
 
-    public void reset() {
+    public void reset(boolean isInTransaction) {
         try {
-            rs.beforeFirst();
+            if (rs instanceof CachedRowSet) {
+                rs.beforeFirst();
+            } else {
+                close(isInTransaction);
+            }
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }

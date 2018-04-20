@@ -38,6 +38,53 @@ function testIterateMirrorTable() returns (Employee[], Employee[]) {
     return (employeeArray1, employeeArray2);
 }
 
+function testIterateMirrorTableAfterClose() returns (Employee[], Employee[], error) {
+    endpoint sql:Client testDB {
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
+    };
+
+    var temp = testDB->mirror("employeeItr", Employee);
+    table dt = check temp;
+
+    Employee[] employeeArray1;
+    Employee[] employeeArray2;
+    Employee[] employeeArray3;
+
+    int i = 0;
+    while (dt.hasNext()) {
+        var rs = check <Employee>dt.getNext();
+        Employee e = {id:rs.id, name:rs.name, address:rs.address};
+        employeeArray1[i] = e;
+        i++;
+    }
+
+    i = 0;
+    while (dt.hasNext()) {
+        var rs = check <Employee>dt.getNext();
+        Employee e = {id:rs.id, name:rs.name, address:rs.address};
+        employeeArray2[i] = e;
+        i++;
+    }
+
+    dt.close();
+    i = 0;
+    error e;
+    try {
+        while (dt.hasNext()) {
+            var rs = check <Employee>dt.getNext();
+            Employee e = {id:rs.id, name:rs.name, address:rs.address};
+            employeeArray3[i] = e;
+            i++;
+        }}
+    catch (error err) {
+        e = err;
+    }
+    _ = testDB->close();
+    return (employeeArray1, employeeArray2, e);
+}
+
 function testAddToMirrorTable() returns (Employee[]) {
     endpoint sql:Client testDB {
         url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
@@ -54,7 +101,7 @@ function testAddToMirrorTable() returns (Employee[]) {
     var result1 = dt.add(e1);
     var result2 = dt.add(e2);
 
-    var temp2 = testDB->select("SELECT  * from employeeAdd", Employee);
+    var temp2 = testDB->select("SELECT  * from employeeAdd", Employee, false);
     table dt2 = check temp2;
 
     Employee[] employeeArray;
@@ -108,7 +155,7 @@ function testDeleteFromMirrorTable() returns (boolean, int) {
         TableOperationError e => removedCount = -1;
     }
 
-    var temp2 = testDB->select("SELECT  * from employeeDel", Employee);
+    var temp2 = testDB->select("SELECT  * from employeeDel", Employee, false);
     table dt2 = check temp2;
     boolean hasNext = dt2.hasNext();
 

@@ -92,8 +92,8 @@ public class TableIterator implements DataIterator {
         }
     }
 
-    public void reset() {
-        throw new UnsupportedOperationException();
+    public void reset(boolean isInTransaction) {
+        close(false);
     }
 
     @Override

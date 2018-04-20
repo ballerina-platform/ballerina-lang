@@ -28,7 +28,7 @@ function testConnectionPoolProperties1() returns (json) {
     };
 
 
-    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
+    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", (), false);
     table dt = check dtRet;
 
     var j = check <json>dt;
@@ -43,7 +43,7 @@ function testConnectionPoolProperties2() returns (json) {
         poolOptions:properties
     };
 
-    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
+    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", (), false);
     table dt = check dtRet;
 
     var j = check <json>dt;
@@ -57,7 +57,7 @@ function testConnectionPoolProperties3() returns (json) {
         username:"SA"
     };
 
-    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
+    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", (), false);
     table dt = check dtRet;
 
     var j = check <json>dt;
@@ -73,7 +73,7 @@ function testConnectorWithDefaultPropertiesForListedDB() returns (json) {
         poolOptions:{}
     };
 
-    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
+    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", (), false);
     table dt = check dtRet;
 
     var j = check <json>dt;
@@ -92,7 +92,7 @@ function testConnectorWithWorkers() returns (json) {
         int x = 0;
         json y;
 
-        var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
+        var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", (), false);
         table dt = check dtRet;
 
         var j = check <json>dt;
@@ -111,7 +111,7 @@ function testConnectorWithDataSourceClass() returns (json) {
         poolOptions:properties3
     };
 
-    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
+    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", (), false);
     table dt = check dtRet;
 
     var j = check <json>dt;
@@ -127,7 +127,7 @@ function testConnectorWithDataSourceClassAndProps() returns (json) {
         poolOptions:properties4
     };
 
-    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
+    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", (), false);
     table dt = check dtRet;
 
     var j = check <json>dt;
@@ -143,7 +143,7 @@ function testConnectorWithDataSourceClassWithoutURL() returns (json) {
         poolOptions:properties5
     };
 
-    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
+    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", (), false);
     table dt = check dtRet;
 
     var j = check <json>dt;
@@ -159,7 +159,7 @@ function testConnectorWithDataSourceClassURLPriority() returns (json) {
         poolOptions:properties6
     };
 
-    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
+    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", (), false);
     table dt = check dtRet;
 
     var j = check <json>dt;

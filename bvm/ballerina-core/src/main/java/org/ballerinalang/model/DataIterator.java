@@ -35,7 +35,7 @@ public interface DataIterator {
 
     void close(boolean isInTransaction);
 
-    void reset();
+    void reset(boolean isInTransaction);
 
     String getString(int columnIndex);
 

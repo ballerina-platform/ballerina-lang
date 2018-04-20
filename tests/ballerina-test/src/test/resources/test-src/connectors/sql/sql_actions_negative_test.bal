@@ -23,7 +23,7 @@ function testSelectData() returns (string) {
     };
     string returnData;
     try {
-        var x = testDB->select("SELECT Name from Customers where registrationID = 1", (), ());
+        var x = testDB->select("SELECT Name from Customers where registrationID = 1", (), false, ());
 
         match x {
             table dt => {
@@ -150,7 +150,7 @@ function testInvalidArrayofQueryParameters() returns (string) {
         xml x2 = xml `<book>The Lost World2</book>`;
         xml[] xmlDataArray = [x1, x2];
         sql:Parameter para0 = (sql:TYPE_INTEGER, xmlDataArray);
-        var x = testDB->select("SELECT FirstName from Customers where registrationID in (?)", (), para0);
+        var x = testDB->select("SELECT FirstName from Customers where registrationID in (?)", (), false, para0);
 
         match x {
             table dt => {
