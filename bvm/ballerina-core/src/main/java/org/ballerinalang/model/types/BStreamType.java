@@ -70,7 +70,7 @@ public class BStreamType extends BType {
 
     @Override
     public String toString() {
-        if (constraint == null) {
+        if (constraint == BTypes.typeAny) {
             return super.toString();
         } else {
             return "stream" + "<" + constraint.getName() + ">";
