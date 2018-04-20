@@ -50,7 +50,7 @@ function search (string url, string querySearched) {
                 string summary = jsonElement.summary.toString();
                 printInCLI(summary, 40);
                 
-                string authors;
+                string authors = "";
                 json authorsArr = jsonElement.authors;
                 foreach authorIndex in [0..lengthof authorsArr - 1] {
                     if (authorIndex == lengthof authorsArr - 1) {
