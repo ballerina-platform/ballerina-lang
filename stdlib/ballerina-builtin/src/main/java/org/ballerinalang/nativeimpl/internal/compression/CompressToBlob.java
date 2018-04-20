@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.nativeimpl.compression;
+package org.ballerinalang.nativeimpl.internal.compression;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -36,7 +36,7 @@ import java.nio.file.Path;
  * @since 0.970.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "compression",
+        orgName = "ballerina", packageName = "internal",
         functionName = "compressToBlob",
         args = {@Argument(name = "dirPath", type = TypeKind.STRUCT, structType = "Path",
                 structPackage = "ballerina.file")},
@@ -75,8 +75,8 @@ public class CompressToBlob extends BlockingNativeCallableUnit {
                 context.setReturnValues(readByteBlob);
             } catch (IOException e) {
                 context.setReturnValues(CompressionUtils.createCompressionError(context,
-                                                                                "Error occurred when compressing "
-                                                                                        + e.getMessage()));
+                        "Error occurred when compressing "
+                                + e.getMessage()));
             }
         }
     }

@@ -19,13 +19,6 @@ package org.ballerinalang.observe.metrics.extension.micrometer;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Metrics;
-import io.micrometer.core.instrument.binder.jvm.ClassLoaderMetrics;
-import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
-import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
-import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
-import io.micrometer.core.instrument.binder.system.FileDescriptorMetrics;
-import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
-import io.micrometer.core.instrument.binder.system.UptimeMetrics;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.observe.metrics.extension.micrometer.spi.MeterRegistryProvider;
@@ -87,15 +80,6 @@ public class MicrometerMetricProvider implements MetricProvider {
             // This is a CompositeMeterRegistry and it is like a no-op registry when there are no other registries.
             meterRegistry = Metrics.globalRegistry;
         }
-
-        // Register system metrics
-        new ClassLoaderMetrics().bindTo(meterRegistry);
-        new JvmMemoryMetrics().bindTo(meterRegistry);
-        new JvmGcMetrics().bindTo(meterRegistry);
-        new ProcessorMetrics().bindTo(meterRegistry);
-        new JvmThreadMetrics().bindTo(meterRegistry);
-        new FileDescriptorMetrics().bindTo(meterRegistry);
-        new UptimeMetrics().bindTo(meterRegistry);
 
         this.meterRegistry = meterRegistry;
     }

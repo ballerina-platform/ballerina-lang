@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.nativeimpl.compression;
+package org.ballerinalang.nativeimpl.internal.compression;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -37,7 +37,7 @@ import java.nio.file.Path;
  * @since 0.970.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "compression",
+        orgName = "ballerina", packageName = "internal",
         functionName = "decompress",
         args = {
                 @Argument(name = "dirPath", type = TypeKind.STRUCT, structType = "Path",
@@ -88,8 +88,8 @@ public class Decompress extends BlockingNativeCallableUnit {
                     "decompressed is not available"));
         } else if (!destPath.toFile().exists()) {
             context.setReturnValues(CompressionUtils.createCompressionError(context,
-                                                                            "Path to place the decompressed file " +
-                                                                                    "is not available"));
+                    "Path to place the decompressed file " +
+                            "is not available"));
         } else {
             decompress(srcPath, destPath);
             context.setReturnValues();

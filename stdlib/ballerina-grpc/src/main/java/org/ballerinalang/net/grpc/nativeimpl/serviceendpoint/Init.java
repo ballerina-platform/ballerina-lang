@@ -25,15 +25,12 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.grpc.EndpointConstants;
 import org.ballerinalang.net.grpc.GrpcServicesBuilder;
+import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.config.EndpointConfiguration;
 import org.ballerinalang.net.grpc.nativeimpl.EndpointUtils;
 import org.ballerinalang.net.grpc.ssl.SSLHandlerFactory;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
 
-import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
 import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
@@ -48,20 +45,21 @@ import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_ENDPOINT_TYPE;
 @BallerinaFunction(
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
-        functionName = "initEndpoint",
+        functionName = "init",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = SERVICE_ENDPOINT_TYPE,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         args = {@Argument(name = "config", type = TypeKind.STRUCT, structType = "ServiceEndpointConfiguration",
                         structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC)},
         isPublic = true
 )
-public class InitEndpoint extends BlockingNativeCallableUnit {
+public class Init extends BlockingNativeCallableUnit {
     
     @Override
     public void execute(Context context) {
         try {
             Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-            Struct serviceEndpointConfig = serviceEndpoint.getStructField(EndpointConstants.ENDPOINT_CONFIG);
+            BStruct endpointConfigStruct = (BStruct) context.getRefArgument(1);
+            Struct serviceEndpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
             EndpointConfiguration configuration = EndpointUtils.getEndpointConfiguration(serviceEndpointConfig);
             io.grpc.ServerBuilder serverBuilder;
             if (configuration.getSslConfig() != null) {
@@ -80,14 +78,6 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
     }
     
     private static BStruct getConnectorError(Context context, Throwable throwable) {
-        PackageInfo grpcPackageInfo = context.getProgramFile().getPackageInfo(PROTOCOL_PACKAGE_GRPC);
-        StructInfo errorStructInfo = grpcPackageInfo.getStructInfo(CONNECTOR_ERROR);
-        BStruct grpcConnectorError = new BStruct(errorStructInfo.getType());
-        if (throwable.getMessage() == null) {
-            grpcConnectorError.setStringField(0, "Service Initialization error.");
-        } else {
-            grpcConnectorError.setStringField(0, throwable.getMessage());
-        }
-        return grpcConnectorError;
+        return MessageUtils.getConnectorError(context, throwable);
     }
 }
