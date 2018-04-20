@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.970.0-beta5-SNAPSHOT</version>
+        <version>0.970.0-beta6-SNAPSHOT</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
 
@@ -59,6 +59,10 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-http</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-transactions</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -277,7 +281,17 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>
-                                ballerina-builtin,ballerina-http,ballerina-grpc,ballerina-mime,ballerina-logging,strip-bouncycastle,ballerina-websub,ballerina-jms,ballerina-mysql,ballerina-h2
+                                ballerina-builtin,
+                                ballerina-http,
+                                ballerina-transactions,
+                                ballerina-grpc,
+                                ballerina-mime,
+                                ballerina-logging,
+                                strip-bouncycastle,
+                                ballerina-websub,
+                                ballerina-jms,
+                                ballerina-mysql,
+                                ballerina-h2
                             </includeArtifactIds>
                             <outputDirectory>${project.build.directory}/extracted-distributions
                             </outputDirectory>

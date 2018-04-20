@@ -27,8 +27,8 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.GrpcCallableUnitCallBack;
+import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
-import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.MessageHeaders;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -66,13 +66,13 @@ abstract class MethodListener {
         ProgramFile programFile = getProgramFile(resource);
         // generate client responder struct on request message with response observer and response msg type.
         BStruct clientEndpoint = BLangConnectorSPIUtil.createBStruct(programFile,
-                MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC, MessageConstants.CALLER_ACTION);
-        clientEndpoint.addNativeData(MessageConstants.RESPONSE_OBSERVER, responseObserver);
-        clientEndpoint.addNativeData(MessageConstants.RESPONSE_MESSAGE_DEFINITION, methodDescriptor.getOutputType());
+                GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC, GrpcConstants.CALLER_ACTION);
+        clientEndpoint.addNativeData(GrpcConstants.RESPONSE_OBSERVER, responseObserver);
+        clientEndpoint.addNativeData(GrpcConstants.RESPONSE_MESSAGE_DEFINITION, methodDescriptor.getOutputType());
         
         // create endpoint type instance on request.
         BStruct endpoint = BLangConnectorSPIUtil.createBStruct(programFile,
-                MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC, MessageConstants.SERVICE_ENDPOINT_TYPE);
+                GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC, GrpcConstants.SERVICE_ENDPOINT_TYPE);
         endpoint.setRefField(0, clientEndpoint);
         endpoint.setIntField(0, responseObserver.hashCode());
         return endpoint;
@@ -88,12 +88,12 @@ abstract class MethodListener {
         if (resource == null || resource.getParamDetails() == null || resource.getParamDetails().size() > 3) {
             throw new RuntimeException("Invalid resource input arguments. arguments must not be greater than three");
         }
-
+        
         List<ParamDetail> paramDetails = resource.getParamDetails();
         if ((isHeaderRequired && paramDetails.size() == 3) || (!isHeaderRequired && paramDetails.size() == 2)) {
-            BType requestType = paramDetails.get(MessageConstants.REQUEST_MESSAGE_PARAM_INDEX)
+            BType requestType = paramDetails.get(GrpcConstants.REQUEST_MESSAGE_PARAM_INDEX)
                     .getVarType();
-            String requestName = paramDetails.get(MessageConstants.REQUEST_MESSAGE_PARAM_INDEX)
+            String requestName = paramDetails.get(GrpcConstants.REQUEST_MESSAGE_PARAM_INDEX)
                     .getVarName();
             return MessageUtils.generateRequestStruct(requestMessage, getProgramFile(resource), requestName,
                     requestType);
@@ -101,7 +101,7 @@ abstract class MethodListener {
             return null;
         }
     }
-
+    
     /**
      * Checks whether service method has a response message.
      *
@@ -110,7 +110,7 @@ abstract class MethodListener {
     boolean isEmptyResponse() {
         return methodDescriptor != null && MessageUtils.isEmptyResponse(methodDescriptor.getOutputType());
     }
-
+    
     void onErrorInvoke(Resource resource, StreamObserver<Message> responseObserver, Throwable t) {
         if (resource == null) {
             String message = "Error in listener service definition. onError resource does not exists";
@@ -128,19 +128,19 @@ abstract class MethodListener {
             MessageHeaders context = MessageHeaders.current();
             headerStruct.addNativeData(METADATA_KEY, new MessageHeaders(context));
         }
-
+        
         if (headerStruct != null && signatureParams.length == 3) {
             signatureParams[2] = headerStruct;
         }
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, Boolean.FALSE);
         Executor.submit(resource, callback, null, null, signatureParams);
     }
-
+    
     void onMessageInvoke(Resource resource, Message request, StreamObserver<Message> responseObserver) {
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, isEmptyResponse());
         Executor.submit(resource, callback, null, null, computeMessageParams(resource, request, responseObserver));
     }
-
+    
     BValue[] computeMessageParams(Resource resource, Message request, StreamObserver<Message> responseObserver) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
