@@ -18,7 +18,6 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/sql;
 import ballerina/system;
-import ballerina/util;
 
 endpoint http:Listener participant2EP {
     port:8890

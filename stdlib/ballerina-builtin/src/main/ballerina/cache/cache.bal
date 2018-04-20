@@ -19,7 +19,6 @@ package ballerina.cache;
 import ballerina/system;
 import ballerina/task;
 import ballerina/time;
-import ballerina/util;
 
 @Description {value:"Cache cleanup task starting delay in ms."}
 @final int CACHE_CLEANUP_START_DELAY = 0;

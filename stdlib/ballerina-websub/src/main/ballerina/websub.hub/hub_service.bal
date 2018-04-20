@@ -22,7 +22,6 @@ import ballerina/mime;
 import ballerina/security.crypto;
 import ballerina/system;
 import ballerina/time;
-import ballerina/util;
 import ballerina/websub;
 
 endpoint http:Listener hubServiceEP {

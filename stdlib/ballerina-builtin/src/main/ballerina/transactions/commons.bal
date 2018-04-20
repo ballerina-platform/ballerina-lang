@@ -22,7 +22,6 @@ import ballerina/http;
 import ballerina/system;
 import ballerina/task;
 import ballerina/time;
-import ballerina/util;
 
 documentation {
     ID of the local participant used when registering with the initiator.

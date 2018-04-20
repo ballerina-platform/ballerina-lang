@@ -17,7 +17,6 @@
 package ballerina.http;
 
 import ballerina/io;
-import ballerina/util;
 import ballerina/runtime;
 import ballerina/mime;
 

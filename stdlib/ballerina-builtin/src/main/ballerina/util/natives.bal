@@ -19,28 +19,6 @@ package ballerina.util;
 import ballerina/io;
 
 // Todo - Remove in a future version.
-@Description {value:"Encode a given input with Base64 encoding scheme."}
-@Param {value:"contentToBeEncoded: Content that needs to be encoded can be of type string, blob or io:ByteChannel"}
-@Param {value:"charset: Charset to be used. This is used only with the string input"}
-@Return {value:"If the given input is of type string return value will be an encoded string"}
-@Return {value:"If the given input is of type blob return value will be an encoded blob"}
-@Return {value:"If the given input is of type io:ByteChannel return value will be an encoded io:ByteChannel"}
-@Return {value:"Base64EncodeError will get return, in case of errors"}
-native function base64Encode((string|blob|io:ByteChannel) contentToBeEncoded, string charset = "utf-8") returns (string|
-        blob|io:ByteChannel|error);
-
-// Todo - Remove in a future version.
-@Description {value:"Decode a given input with Base64 encoding scheme."}
-@Param {value:"contentToBeDecoded: Content that needs to be decoded can be of type string, blob or io:ByteChannel"}
-@Param {value:"charset: Charset to be used. This is used only with the string input"}
-@Return {value:"If the given input is of type string return value will be a decoded string"}
-@Return {value:"If the given input is of type blob return value will be a decoded blob"}
-@Return {value:"If the given input is of type io:ByteChannel return value will be a decoded io:ByteChannel"}
-@Return {value:"Base64DecodeError will get return, in case of errors"}
-native function base64Decode((string|blob|io:ByteChannel) contentToBeDecoded, string charset = "utf-8") returns (string|
-        blob|io:ByteChannel|error);
-
-// Todo - Remove in a future version.
 @Description {value:"Encode a given blob with Base64 encoding scheme."}
 @Param {value:"valueToBeEncoded: Content that needs to be encoded"}
 @Return {value:"Return an encoded blob"}
@@ -56,7 +34,7 @@ public function base64EncodeBlob(blob valueToBeEncoded) returns blob|error {
 @Return {value:"Return an encoded string"}
 @Return {value:"Base64EncodeError will get return, in case of errors"}
 public function base64EncodeString(string valueToBeEncoded, string charset = "utf-8") returns string|error {
-    return valueToBeEncoded.base64Encode();
+    return valueToBeEncoded.base64Encode(charset = charset);
 }
 
 // Todo - Remove in a future version.
@@ -84,7 +62,7 @@ public function base64DecodeBlob(blob valueToBeDecoded) returns blob|error {
 @Return {value:"Return a decoded string"}
 @Return {value:"Base64DecodeError will get return, in case of errors"}
 public function base64DecodeString(string valueToBeDecoded, string charset = "utf-8") returns string|error {
-    return valueToBeDecoded.base64Decode(charset);
+    return valueToBeDecoded.base64Decode(charset = charset);
 }
 
 // Todo - Remove in a future version.

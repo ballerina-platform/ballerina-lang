@@ -19,7 +19,6 @@ package ballerina.http;
 import ballerina/auth;
 import ballerina/log;
 import ballerina/runtime;
-import ballerina/util;
 
 @Description {value:"Authentication cache name"}
 @final string AUTH_CACHE = "basic_auth_cache";
