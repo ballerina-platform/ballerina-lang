@@ -8,8 +8,8 @@ int counter = 0;
     packageName : "ballerina.io" ,
     functionName : "println"
 }
-public function mockPrint (any s) {
-    outputs[counter] = s;
+public function mockPrint (any... s) {
+    outputs[counter] = s[0];
     counter++;
 }
 
