@@ -1,5 +1,3 @@
-package servicemocktest2;
-
 import ballerina/http;
 
 public function hadleGetEvents () returns (http:Response) {

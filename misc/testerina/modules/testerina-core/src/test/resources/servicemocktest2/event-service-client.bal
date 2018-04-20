@@ -1,5 +1,3 @@
-package servicemocktest2;
-
 import ballerina/http;
 import ballerina/io;
 import ballerina/mime;

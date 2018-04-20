@@ -188,8 +188,9 @@ public class BTestRunner {
             shouldSkip.set(false);
             TestAnnotationProcessor.injectMocks(suite);
             tReport.addPackageReport(packageName);
-            if (suite.getInitFunction() != null) {
+            if (suite.getInitFunction() != null && Utils.initPackage(packageName)) {
                 suite.getInitFunction().invoke();
+                TesterinaRegistry.getInstance().addInitedPackage(packageName);
             }
 
             suite.getBeforeSuiteFunctions().forEach(test -> {
