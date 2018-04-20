@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.programfile;
 
-
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfoPool;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPool;
@@ -40,6 +39,24 @@ public class CompiledBinaryFile implements ConstantPool, AttributeInfoPool {
 
     private List<ConstantPoolEntry> constPool = new ArrayList<>();
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
+    private boolean mainFucAvailable = false;
+    private boolean servicesAvailable = false;
+
+    public boolean isMainEPAvailable() {
+        return mainFucAvailable;
+    }
+
+    public void setMainEPAvailable(boolean mainFuncAvailable) {
+        this.mainFucAvailable = mainFuncAvailable;
+    }
+
+    public boolean isServiceEPAvailable() {
+        return servicesAvailable;
+    }
+
+    public void setServiceEPAvailable(boolean servicesAvailable) {
+        this.servicesAvailable = servicesAvailable;
+    }
 
     // ConstantPool interface methods
 
@@ -98,11 +115,9 @@ public class CompiledBinaryFile implements ConstantPool, AttributeInfoPool {
         // TODO Finalize the version number;
         private short version = VERSION_NUMBER;
 
-        public Map<String, PackageInfo> packageInfoMap = new LinkedHashMap<>();
+        public Map<String, PackageFile> packageFileMap = new LinkedHashMap<>();
 
         public int entryPkgCPIndex;
-        private boolean mainFucAvailable = false;
-        private boolean servicesAvailable = false;
 
         public int getMagicValue() {
             return ProgramFileConstants.MAGIC_NUMBER;
@@ -115,26 +130,6 @@ public class CompiledBinaryFile implements ConstantPool, AttributeInfoPool {
         public void setVersion(short version) {
             this.version = version;
         }
-
-        public boolean isMainEPAvailable() {
-            return mainFucAvailable;
-        }
-
-        public void setMainEPAvailable(boolean mainFuncAvailable) {
-            this.mainFucAvailable = mainFuncAvailable;
-        }
-
-        public boolean isServiceEPAvailable() {
-            return servicesAvailable;
-        }
-
-        public void setServiceEPAvailable(boolean servicesAvailable) {
-            this.servicesAvailable = servicesAvailable;
-        }
-
-        public PackageInfo[] getPackageInfoEntries() {
-            return packageInfoMap.values().toArray(new PackageInfo[0]);
-        }
     }
 
     /**
@@ -145,10 +140,12 @@ public class CompiledBinaryFile implements ConstantPool, AttributeInfoPool {
     public static class PackageFile extends CompiledBinaryFile {
 
         public static final int MAGIC_VALUE = 0xFFFFFFFF;
+        public static final int LANG_VERSION = VERSION_NUMBER;
 
-        public int langVersion = VERSION_NUMBER;
+        public byte[] pkgBinaryContent;
 
-        // TODO Temp
-        public PackageInfo packageInfo = new PackageInfo();
+        public PackageFile(byte[] pkgBinaryContent) {
+            this.pkgBinaryContent = pkgBinaryContent;
+        }
     }
 }

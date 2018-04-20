@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.builtin;
 
 @Description { value:"Check whether the XML sequence contains only a single element."}
 @Param { value:"x: An XML object" }

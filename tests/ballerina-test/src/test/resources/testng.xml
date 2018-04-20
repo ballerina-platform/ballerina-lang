@@ -73,7 +73,6 @@ under the License.
             <package name="org.ballerinalang.test.object.*"/>
             <package name="org.ballerinalang.test.record.*"/>
             <package name="org.ballerinalang.test.net.grpc"/>
-            <package name="org.ballerinalang.test.metrics.*"/>
             <package name="org.ballerinalang.test.runtime.*"/>
         </packages>
 

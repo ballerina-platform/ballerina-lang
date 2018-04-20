@@ -26,7 +26,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 public class BDiagnostic implements Diagnostic {
 
     public Kind kind;
-    public DiagnosticPosition pos;
+    public DiagnosticPos pos;
     public String msg;
     public DiagnosticCode code;
 
@@ -34,7 +34,7 @@ public class BDiagnostic implements Diagnostic {
     }
 
     public BDiagnostic(Kind kind,
-                       DiagnosticPosition pos,
+                       DiagnosticPos pos,
                        DiagnosticCode code,
                        String msg) {
         this.kind = kind;
@@ -44,7 +44,7 @@ public class BDiagnostic implements Diagnostic {
     }
 
     public BDiagnostic(Kind kind,
-                       DiagnosticPosition pos,
+                       DiagnosticPos pos,
                        String msg) {
         this.kind = kind;
         this.pos = pos;

@@ -13,7 +13,7 @@ function main (string... args) {
     _ = webSubHub.registerTopic("http://www.websubpubtopic.com");
 
     //Allow for subscriber service start up and subscription
-    runtime:sleepCurrentWorker(45000);
+    runtime:sleep(45000);
 
     io:println("Publishing update to internal Hub");
     //Publish to the internal Ballerina Hub directly
@@ -25,5 +25,5 @@ function main (string... args) {
                                                           {"action":"publish","mode":"remote-hub"});
 
     //Allow for notification by the Hub service
-    runtime:sleepCurrentWorker(5000);
+    runtime:sleep(5000);
 }

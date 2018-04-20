@@ -1,4 +1,3 @@
-package benchmark;
 
 import ballerina/io;
 import ballerina/time;

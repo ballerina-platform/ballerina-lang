@@ -1,7 +1,7 @@
 import ballerina/http;
 import ballerina/mime;
 
-const string ACCEPT_ENCODING = "accept-encoding";
+@final string ACCEPT_ENCODING = "accept-encoding";
 
 endpoint http:Listener passthroughEP {
     port:9090
@@ -9,17 +9,17 @@ endpoint http:Listener passthroughEP {
 
 endpoint http:Client acceptEncodingAutoEP {
     url: "http://localhost:9092/hello",
-    acceptEncoding:"auto"
+    acceptEncoding:http:ACCEPT_ENCODING_AUTO
 };
 
 endpoint http:Client acceptEncodingEnableEP {
     url: "http://localhost:9092/hello",
-    acceptEncoding:"enable"
+    acceptEncoding:http:ACCEPT_ENCODING_ALWAYS
 };
 
 endpoint http:Client acceptEncodingDisableEP {
     url: "http://localhost:9092/hello",
-    acceptEncoding:"disable"
+    acceptEncoding:http:ACCEPT_ENCODING_NEVER
 };
 
 service<http:Service> passthrough bind passthroughEP {
@@ -28,7 +28,7 @@ service<http:Service> passthrough bind passthroughEP {
     }
     passthrough (endpoint outboundEP, http:Request req) {
         if (req.getHeader("AcceptValue") == "auto") {
-            var clientResponse = acceptEncodingAutoEP -> post("/", req);
+            var clientResponse = acceptEncodingAutoEP -> post("/", request = req);
             match clientResponse {
                 http:Response res => {
                     _ = outboundEP -> respond(res);
@@ -41,7 +41,7 @@ service<http:Service> passthrough bind passthroughEP {
                 }
             }
         } else if (req.getHeader("AcceptValue") == "enable") {
-            var clientResponse = acceptEncodingEnableEP -> post("/", req);
+            var clientResponse = acceptEncodingEnableEP -> post("/", request = req);
             match clientResponse {
                 http:Response res => {
                     _ = outboundEP -> respond(res);
@@ -54,7 +54,7 @@ service<http:Service> passthrough bind passthroughEP {
                 }
             }
         } else if (req.getHeader("AcceptValue") == "disable") {
-            var clientResponse = acceptEncodingDisableEP -> post("/", req);
+            var clientResponse = acceptEncodingDisableEP -> post("/", request = req);
             match clientResponse {
                 http:Response res => {
                     _ = outboundEP -> respond(res);

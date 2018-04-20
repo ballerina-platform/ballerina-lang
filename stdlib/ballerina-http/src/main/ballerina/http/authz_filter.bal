@@ -14,20 +14,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
 
-import ballerina/internal;
 import ballerina/auth;
 import ballerina/cache;
-
-cache:Cache authzCache = new(expiryTimeMillis = 300000);
-@Description {value:"Authz handler instance"}
-HttpAuthzHandler authzHandler = new(authzCache);
+import ballerina/reflect;
 
 @Description {value:"Representation of the Authorization filter"}
 @Field {value:"filterRequest: request filter method which attempts to authorize the request"}
 @Field {value:"filterRequest: response filter method (not used this scenario)"}
 public type AuthzFilter object {
+
+    public {
+        HttpAuthzHandler authzHandler;
+    }
+
+    new (authzHandler) {
+    }
     
     @Description {value:"Filter function implementation which tries to authorize the request"}
 	@Param {value:"request: Request instance"}
@@ -36,9 +38,9 @@ public type AuthzFilter object {
     public function filterRequest (Request request, FilterContext context) returns FilterResult {
 		// first check if the resource is marked to be authenticated. If not, no need to authorize.
         ListenerAuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, RESOURCE_ANN_NAME,
-            internal:getResourceAnnotations(context.serviceType, context.resourceName));
+            reflect:getResourceAnnotations(context.serviceType, context.resourceName));
         ListenerAuthConfig? serviceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, SERVICE_ANN_NAME,
-            internal:getServiceAnnotations(context.serviceType));
+            reflect:getServiceAnnotations(context.serviceType));
         if (!isResourceSecured(resourceLevelAuthAnn, serviceLevelAuthAnn)) {
             // not secured, no need to authorize
             return createAuthzResult(true);

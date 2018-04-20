@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.statements.packageimport;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -44,7 +43,7 @@ public class PackageImportTest {
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testImportDifferentPkgsWithSameAlias() {
         CompileResult result = BCompileUtil
                 .compile("test-src/statements/package/imports/import-different-pkgs-with-same-alias-negative.bal");
@@ -85,16 +84,18 @@ public class PackageImportTest {
         BAssertUtil.validateError(result, 3, "invalid package declaration: expected 'x.z', found 'x.y.z'", 1, 1);
     }
 
-    @Test(expectedExceptions = { BLangCompilerException.class },
-            expectedExceptionsMessageRegExp = "cannot find package 'abcd'")
+    @Test()
     public void testInvalidImport1() {
-        BCompileUtil.compile("test-src/statements/package/imports/invalid-import-negative1.bal");
+        CompileResult result = BCompileUtil.compile("test-src/statements/package/imports/invalid-import-negative1.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BAssertUtil.validateError(result, 0, "cannot resolve package 'abcd'", 1, 1);
     }
 
-    @Test(expectedExceptions = { BLangCompilerException.class },
-            expectedExceptionsMessageRegExp = "cannot find package 'foo.x'")
+    @Test()
     public void testInvalidImport2() {
-        BCompileUtil.compile("test-src/statements/package/imports/invalid-import-negative2.bal");
+        CompileResult result = BCompileUtil.compile("test-src/statements/package/imports/invalid-import-negative2.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BAssertUtil.validateError(result, 0, "cannot resolve package 'foo.x'", 1, 1);
     }
 
 }

@@ -13,7 +13,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-package ballerina.websub;
 
 import ballerina/http;
 import ballerina/log;
@@ -168,11 +167,11 @@ public function CallerActions::publishUpdate (string topic, json payload,
         string publisherSignature = signatureMethod + "=";
         string generatedSignature = "";
         if (SHA1.equalsIgnoreCase(signatureMethod)) {
-            generatedSignature = crypto:getHmac(stringPayload, secret, crypto:SHA1);
+            generatedSignature = crypto:hmac(stringPayload, secret, crypto:SHA1);
         } else if (SHA256.equalsIgnoreCase(signatureMethod)) {
-            generatedSignature = crypto:getHmac(stringPayload, secret, crypto:SHA256);
+            generatedSignature = crypto:hmac(stringPayload, secret, crypto:SHA256);
         } else if (MD5.equalsIgnoreCase(signatureMethod)) {
-            generatedSignature = crypto:getHmac(stringPayload, secret, crypto:MD5);
+            generatedSignature = crypto:hmac(stringPayload, secret, crypto:MD5);
         }
         publisherSignature = publisherSignature + generatedSignature;
         request.setHeader(PUBLISHER_SIGNATURE, publisherSignature);

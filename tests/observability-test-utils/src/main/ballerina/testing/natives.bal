@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.testing;
 
 @Description {value:"Get the number of finished spans"}
 @Return {value:"Total number of spans finished"}

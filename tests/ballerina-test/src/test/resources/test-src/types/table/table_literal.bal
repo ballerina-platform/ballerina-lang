@@ -1,4 +1,5 @@
 import ballerina/io;
+import ballerina/jdbc;
 import ballerina/sql;
 
 type Person {
@@ -58,25 +59,24 @@ function testEmptyTableCreate() returns (int, int) {
 }
 
 function checkTableCount(string tablePrefix) returns (int) {
-    endpoint sql:Client testDB {
-        url:"h2:mem:TABLEDB",
+    endpoint jdbc:Client testDB {
+        url:"jdbc:h2:mem:TABLEDB",
         username:"sa",
         poolOptions:{maximumPoolSize:1}
     };
 
-    sql:Parameter p1 = (sql:TYPE_VARCHAR, tablePrefix);
+    sql:Parameter p1 = {sqlType:sql:TYPE_VARCHAR, value:tablePrefix};
 
     int count;
     try {
-        var temp = testDB->select("SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME like
+        table dt = check testDB->select("SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME like
          ?", ResultCount, p1);
-        table dt = check temp;
         while (dt.hasNext()) {
             var rs = check <ResultCount>dt.getNext();
             count = rs.COUNTVAL;
         }
     } finally {
-        _ = testDB->close();
+        testDB.stop();
     }
     return count;
 }

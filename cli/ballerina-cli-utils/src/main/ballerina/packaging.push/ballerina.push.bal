@@ -1,4 +1,3 @@
-package packaging.push;
 
 import ballerina/io;
 import ballerina/mime;
@@ -57,7 +56,14 @@ function pushPackage (string accessToken, string mdFileContent, string summary, 
     req.setBodyParts(bodyParts, mime:MULTIPART_FORM_DATA);
     
     var result = httpEndpoint -> post("", req);
-    http:Response httpResponse = check result;
+    http:Response httpResponse = new;
+    match result {
+        http:Response response => httpResponse = response;
+        http:HttpConnectorError e => {
+            io:println("Connection to the remote host failed : " + e.message);
+            return;
+        }
+    }
     string statusCode = <string> httpResponse.statusCode;
     if (statusCode.hasPrefix("5")) {
         io:println("remote registry failed for url :" + url);

@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.io;
 
 @Description {value:"Ballerina DelimitedRecordChannel represents a channel which will allow to read/write text records"}
 public type DelimitedTextRecordChannel object {

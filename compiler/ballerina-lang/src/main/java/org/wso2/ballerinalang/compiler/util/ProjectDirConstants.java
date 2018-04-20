@@ -29,21 +29,18 @@ public class ProjectDirConstants {
 
     public static final String BLANG_SOURCE_EXT = ".bal";
     public static final String BLANG_COMPILED_PROG_EXT = ".balx";
-    public static final String BLANG_COMPILED_PKG_EXT = ".balo";
+    public static final String BLANG_COMPILED_PKG_BINARY_EXT = ".balo";
+    public static final String BLANG_COMPILED_PKG_EXT = ".zip";
 
     public static final String MANIFEST_FILE_NAME = "Ballerina.toml";
+    public static final String PACKAGE_MD_FILE_NAME = "Package.md";
     public static final String DOT_BALLERINA_DIR_NAME = ".ballerina";
+    public static final String DOT_BALLERINA_REPO_DIR_NAME = "repo";
     public static final String TARGET_DIR_NAME = "target";
     public static final String RESOURCE_DIR_NAME = "resource";
     public static final String TEST_DIR_NAME = "test";
     public static final String CACHES_DIR_NAME = "caches";
     public static final String BALLERINA_CENTRAL_DIR_NAME = "central.ballerina.io";
-
-    public static final String BLANG_EXEC_FILE_EXT = "balx";
-    public static final String BLANG_EXEC_FILE_SUFFIX = "." + BLANG_EXEC_FILE_EXT;
-
-    public static final String BLANG_COMPILED_PACKAGE_FILE_EXT = "balo";
-    public static final String BLANG_COMPILED_PACKAGE_FILE_SUFFIX = "." + BLANG_COMPILED_PACKAGE_FILE_EXT;
 
     public static final String HOME_REPO_ENV_KEY = "BALLERINA_HOME_DIR";
     public static final String HOME_REPO_DEFAULT_DIRNAME = ".ballerina";

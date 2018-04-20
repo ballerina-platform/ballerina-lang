@@ -1,4 +1,3 @@
-package ballerina;
 
 import ballerina/time;
 

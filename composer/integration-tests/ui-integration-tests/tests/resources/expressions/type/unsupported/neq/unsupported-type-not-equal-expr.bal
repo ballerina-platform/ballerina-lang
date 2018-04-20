@@ -1,4 +1,3 @@
-package lang.expressions.type.unsupported.neq;
 
 function checkEqulalityOfUnsupportedType() (boolean){
 	json j1;
