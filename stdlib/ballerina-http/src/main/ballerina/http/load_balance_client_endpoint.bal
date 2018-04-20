@@ -79,6 +79,7 @@ documentation {
     F{{acceptEncoding}} - Specifies the way of handling accept-encoding header
     F{{auth}} - HTTP authentication releated configurations
     F{{algorithm}} - The algorithm to be used for load balancing. The HTTP package provides 'roundRobin()' by default
+    F{{failover}} - Configuration for load balancer whether to fail over in case of a failure
 }
 public type LoadBalanceClientEndpointConfiguration {
     CircuitBreakerConfig? circuitBreaker,
@@ -97,6 +98,7 @@ public type LoadBalanceClientEndpointConfiguration {
     string acceptEncoding = "auto",
     AuthConfig? auth,
     string algorithm = ROUND_ROBIN,
+    boolean failover = true;
 };
 
 documentation {
@@ -146,8 +148,8 @@ function createLoadBalancerClient(LoadBalanceClientEndpointConfiguration loadBal
     ClientEndpointConfig config = createClientEPConfigFromLoalBalanceEPConfig(loadBalanceClientConfig,
                                                                             loadBalanceClientConfig.targets[0]);
     HttpClient[] lbClients = createLoadBalanceHttpClientArray(loadBalanceClientConfig);
-    return new LoadBalancer(loadBalanceClientConfig.targets[0].url,
-                                                config, lbClients, loadBalanceClientConfig.algorithm, 0);
+    return new LoadBalancer(loadBalanceClientConfig.targets[0].url, config, lbClients,
+                                            loadBalanceClientConfig.algorithm, 0, loadBalanceClientConfig.failover);
 }
 
 function createLoadBalanceHttpClientArray (LoadBalanceClientEndpointConfiguration loadBalanceClientConfig)
