@@ -96,6 +96,8 @@ import static org.ballerinalang.net.http.HttpConstants.NEVER;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.RESOLVED_REQUESTED_URI;
+import static org.ballerinalang.net.http.HttpConstants.RESOLVED_REQUESTED_URI_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_REASON_PHRASE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_INDEX;
@@ -586,6 +588,11 @@ public class HttpUtil {
             inboundResponse.setStringField(HttpConstants.RESPONSE_SERVER_INDEX,
                                            inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString()));
             inboundResponseMsg.removeHeader(HttpHeaderNames.SERVER.toString());
+        }
+
+        if (inboundResponseMsg.getProperty(RESOLVED_REQUESTED_URI) != null) {
+            inboundResponse.setStringField(RESOLVED_REQUESTED_URI_INDEX,
+                    inboundResponseMsg.getProperty(RESOLVED_REQUESTED_URI).toString());
         }
 
         if (inboundResponseMsg.getHeader(CACHE_CONTROL.toString()) != null) {

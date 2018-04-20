@@ -44,6 +44,7 @@ public class HttpConstants {
     public static final String PROTOCOL_HTTPS = "https";
     public static final String HTTP_METHOD = "HTTP_METHOD";
     public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
+    public static final String RESOLVED_REQUESTED_URI = "RESOLVED_REQUESTED_URI";
     public static final String HTTP_REASON_PHRASE = "HTTP_REASON_PHRASE";
     public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
     public static final String PROTOCOL = "PROTOCOL";
@@ -206,6 +207,7 @@ public class HttpConstants {
     public static final int RESPONSE_STATUS_CODE_INDEX = 0;
     public static final int RESPONSE_REASON_PHRASE_INDEX = 0;
     public static final int RESPONSE_SERVER_INDEX = 1;
+    public static final int RESOLVED_REQUESTED_URI_INDEX = 2;
     public static final int RESPONSE_CACHE_CONTROL_INDEX = 0;
     public static final int IN_RESPONSE_RECEIVED_TIME_INDEX = 1;
 

@@ -10,12 +10,14 @@ import ballerina/time;
 @Field {value:"statusCode: The response status code"}
 @Field {value:"reasonPhrase: The status code reason phrase"}
 @Field {value:"server: The server header"}
+@Field {value:"resolvedRequestedURI: Ultimate request URI that was made to receive the response when redirect is on"}
 @Field {value:"cacheControl: The cache control directives configuration of the response"}
 public type Response object {
     public {
         int statusCode;
         string reasonPhrase;
         string server;
+        string resolvedRequestedURI;
         ResponseCacheControl? cacheControl;
     }
 
