@@ -1,6 +1,6 @@
 import ballerina/http;
 {{#paths}}{{#value}}{{#operations}}{{#value}}
-public function {{operationId}} (http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response {
+public function {{operationId}} (http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}{{#requestBody}}{{>reqBody}}{{/requestBody}}) returns http:Response {
     //stub code - fill as necessary
     http:Response resp = new;
     string payload = "Sample {{operationId}} Response";

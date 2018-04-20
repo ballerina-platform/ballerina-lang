@@ -46,11 +46,12 @@ service {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unless @last}}, {
     @http:ResourceConfig { {{#equals key "multi"}}{{#if methods}}
         methods:[{{#methods}}"{{.}}"{{#unless @last}}, {{/unless}}{{/methods}}],{{/if}}{{else}}
         methods:["{{upper key}}"],{{/equals}}
-        path:"{{../../key}}"
+        path:"{{../../key}}"{{#requestBody}},
+        body:"body"{{/requestBody}}
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
-    {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
-        http:Response res = {{operationId}}(req{{#parameters}}{{#equals in "path"}}, {{name}}{{/equals}}{{/parameters}});
+    {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}{{#requestBody}}{{>reqBody}}{{/requestBody}}) {
+        http:Response res = {{operationId}}(req{{#parameters}}{{#equals in "path"}}, {{name}}{{/equals}}{{/parameters}}{{#requestBody}}, body{{/requestBody}});
         outboundEp->respond(res) but { error e => log:printError("Error while responding", err = e) };
     }
 {{/value}}{{/operations}}{{/value}}{{/paths}}

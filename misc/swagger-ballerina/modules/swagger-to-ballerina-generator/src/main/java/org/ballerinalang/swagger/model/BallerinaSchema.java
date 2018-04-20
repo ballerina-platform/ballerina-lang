@@ -49,7 +49,6 @@ import java.util.Set;
  */
 public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, Schema> {
     private static final String LIST_SUFFIX = "List";
-    private static final String OAS_PATH_SEPARATOR = "/";
     private static final String UNSUPPORTED_PROPERTY_MSG = "// Unsupported Property Found.";
 
     private Schema oasSchema;
@@ -130,7 +129,7 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
 
     private String getReferenceType(String refPath) {
         // null check on refPath is not required since swagger parser always make sure this is not null
-        return refPath.substring(refPath.lastIndexOf(OAS_PATH_SEPARATOR) + 1);
+        return refPath.substring(refPath.lastIndexOf(GeneratorConstants.OAS_PATH_SEPARATOR) + 1);
     }
 
     private String getPropertyType(Schema prop) {
