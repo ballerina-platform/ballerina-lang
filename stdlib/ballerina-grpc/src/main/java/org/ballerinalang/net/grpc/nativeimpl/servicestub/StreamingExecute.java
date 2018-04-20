@@ -49,16 +49,16 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.net.grpc.EndpointConstants.CLIENT_END_POINT;
-import static org.ballerinalang.net.grpc.MessageConstants.CLIENT;
-import static org.ballerinalang.net.grpc.MessageConstants.GRPC_CLIENT;
-import static org.ballerinalang.net.grpc.MessageConstants.METHOD_DESCRIPTORS;
-import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
-import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.MessageConstants.REQUEST_MESSAGE_DEFINITION;
-import static org.ballerinalang.net.grpc.MessageConstants.REQUEST_SENDER;
-import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB;
-import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB_REF_INDEX;
+import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT;
+import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_CLIENT;
+import static org.ballerinalang.net.grpc.GrpcConstants.METHOD_DESCRIPTORS;
+import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_MESSAGE_DEFINITION;
+import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
+import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB;
+import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB_REF_INDEX;
 import static org.ballerinalang.net.grpc.MessageUtils.getMessageHeaders;
 
 /**
