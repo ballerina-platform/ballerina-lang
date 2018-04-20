@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.nativeimpl.compression;
+package org.ballerinalang.nativeimpl.internal.compression;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
@@ -25,7 +25,7 @@ import org.ballerinalang.util.codegen.StructInfo;
  * Util class for compression related operations.
  */
 public class CompressionUtils {
-    public static final String PROTOCOL_PACKAGE_COMPRESSION = "ballerina.compression";
+    public static final String PROTOCOL_PACKAGE_COMPRESSION = "ballerina.internal";
 
     /**
      * Get compression error as a ballerina struct.
