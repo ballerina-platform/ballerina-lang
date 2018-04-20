@@ -25,16 +25,15 @@ import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
 import org.wso2.ballerinalang.programfile.ProgramFileWriter;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ServiceLoader;
 import java.util.stream.Stream;
@@ -84,7 +83,7 @@ public class BinaryFileWriter {
 
         // Generate balo
         Path path = this.sourceDirectory.getPath();
-        if (Files.isDirectory(path.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME))) {
+        if (RepoUtils.hasProjectRepo(path)) {
             ProjectSourceRepo projectSourceRepo = new ProjectSourceRepo(path);
             Patten packageIDPattern = projectSourceRepo.calculate(packageNode.packageID);
             Stream<Path> pathStream = packageIDPattern.convert(projectSourceRepo.getConverterInstance());

@@ -22,11 +22,9 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
-import org.ballerinalang.packerina.UserRepositoryUtils;
+import org.ballerinalang.packerina.PushUtils;
 
 import java.io.PrintStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -34,7 +32,7 @@ import java.util.List;
  *
  * @since 0.90
  */
-@Parameters(commandNames = "install", commandDescription = "install packages to the user repository")
+@Parameters(commandNames = "install", commandDescription = "install packages to the home repository")
 public class InstallCommand implements BLauncherCmd {
 
     private static PrintStream outStream = System.err;
@@ -66,8 +64,7 @@ public class InstallCommand implements BLauncherCmd {
         }
 
         String packageStr = argList.get(0);
-        Path sourceRootPath = Paths.get(System.getProperty("user.dir"));
-        UserRepositoryUtils.installSourcePackage(sourceRootPath, packageStr);
+        PushUtils.pushPackages(packageStr, "home");
     }
 
     @Override
@@ -77,12 +74,12 @@ public class InstallCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("install packages to the user repository \n");
+        out.append("install packages to the home repository \n");
     }
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina install <packagename> \n");
+        out.append("  ballerina install <package-name> \n");
     }
 
     @Override

@@ -54,7 +54,7 @@ public type Listener object {
 
     @Description {value:"Returns the connector that client code uses"}
     @Return {value:"The connector that client code uses"}
-    public native function getClient() returns (Connection);
+    public native function getCallerActions() returns (Connection);
 
     @Description {value:"Stops the registered service"}
     public native function stop();
@@ -199,7 +199,7 @@ public type WebSocketListener object {
     @Description {value:"Returns the connector that client code uses"}
     @Return {value:"The connector that client code uses"}
     @Return {value:"Error occured during registration"}
-    public function getClient() returns (WebSocketConnector) {
+    public function getCallerActions() returns (WebSocketConnector) {
         return conn;
     }
 

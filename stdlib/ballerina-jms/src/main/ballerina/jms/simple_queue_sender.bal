@@ -37,15 +37,15 @@ public type SimpleQueueSender object {
         self.sender = queueSender;
     }
 
-    public function register (typedesc serviceType) {
+    public function register(typedesc serviceType) {
     }
 
-    public function start () {
+    public function start() {
     }
 
-    public function getClient () returns (QueueSenderConnector) {
+    public function getCallerActions() returns QueueSenderActions {
         match (sender) {
-            QueueSender s => return s.getClient();
+            QueueSender s => return s.getCallerActions();
             () => {
                 error e = {message: "Queue sender cannot be nil"};
                 throw e;
@@ -53,10 +53,10 @@ public type SimpleQueueSender object {
         }
     }
 
-    public function stop () {
+    public function stop() {
     }
 
-    public function createTextMessage(string message) returns (Message | Error) {
+    public function createTextMessage(string message) returns Message|error {
         match (session) {
             Session s => return s.createTextMessage(message);
             () => {

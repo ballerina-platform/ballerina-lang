@@ -317,7 +317,6 @@ function performLoadBalanceAction (LoadBalancer lb, string path, Request outRequ
 
             HttpConnectorError httpConnectorError => {
                 loadBalanceConnectorError.httpConnectorError[lb.nextIndex] = httpConnectorError;
-                loadBalanceClient = roundRobin(lb, lb.loadBalanceClientsArray);
                 loadBalanceTermination = loadBalanceTermination + 1;
             }
         }
@@ -352,4 +351,3 @@ function populateGenericLoadBalanceConnectorError (LoadBalanceConnectorError loa
     HttpConnectorError httpConnectorError = loadBalanceConnectorError;
     return httpConnectorError;
 }
-

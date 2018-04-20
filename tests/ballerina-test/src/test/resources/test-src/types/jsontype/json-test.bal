@@ -42,7 +42,7 @@ function testToXMLString (json msg) returns (string) {
     string retVal;
     match(x){
         error|() e => {}
-        xml xmlData => retVal = io:sprintf("%s", [xmlData]);
+        xml xmlData => retVal = io:sprintf("%s", xmlData);
     }
     return retVal;
 }
@@ -52,7 +52,7 @@ function testToXMLWithXMLSequence (json msg) returns (string) {
     string retVal;
     match(x){
         error|() e => {}
-        xml xmlData => retVal = io:sprintf("%s", [xmlData]);
+        xml xmlData => retVal = io:sprintf("%s", xmlData);
     }
     return retVal;
 }

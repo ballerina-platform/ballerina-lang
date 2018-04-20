@@ -82,7 +82,7 @@ public class InitQueueSender implements NativeCallableUnit {
             }
             MessageProducer producer = session.createProducer(queue);
             Struct queueSenderConnectorBObject
-                    = queueSenderBObject.getStructField(Constants.QUEUE_SENDER_FIELD_CONNECTOR);
+                    = queueSenderBObject.getStructField(Constants.QUEUE_SENDER_FIELD_PRODUCER_ACTIONS);
             queueSenderConnectorBObject.addNativeData(Constants.JMS_PRODUCER_OBJECT, producer);
             queueSenderConnectorBObject.addNativeData(Constants.SESSION_CONNECTOR_OBJECT,
                                                       new SessionConnector(session));

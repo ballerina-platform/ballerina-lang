@@ -9,19 +9,15 @@ import ballerina/http;
 
 function pullPackage (string url, string dirPath, string pkgPath, string fileSeparator) {
     endpoint http:Client httpEndpoint {
-        targets: [
-        {
-            url: url,
-            secureSocket: {
-                trustStore: {
-                    filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                    password: "ballerina"
-                },
-                verifyHostname:false,
-                shareSession: true
-             }
+        url:url,
+        secureSocket:{
+            trustStore:{
+                filePath:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                password:"ballerina"
+            },
+            verifyHostname:false,
+            shareSession:true
         }
-        ]
     };
     string fullPkgPath = pkgPath;
     string destDirPath = dirPath;
@@ -67,11 +63,16 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
 
                         // Create the version directory
                         destDirPath = destDirPath + fileSeparator + pkgVersion;
-                        if (!createDirectories(destDirPath)) {
-                            return;
-                        }
+                        
                         string archiveFileName = pkgName + ".zip";
                         string destArchivePath = destDirPath  + fileSeparator + archiveFileName;
+
+                        if (!createDirectories(destDirPath)) {
+                            file:Path pkgArchivePath = new(destArchivePath);
+                            if (file:exists(pkgArchivePath)){  
+                                return;                              
+                            }        
+                        }
 
                         io:ByteChannel destDirChannel = getFileChannel(destArchivePath, "w");
                         string toAndFrom = " [central.ballerina.io -> home repo]";
@@ -199,19 +200,15 @@ function createDirectories(string directoryPath) returns (boolean) {
 
 function callFileServer(string url) returns http:Response {
     endpoint http:Client httpEndpoint {
-        targets: [
-        {
-            url: url,
-            secureSocket: {
-                trustStore: {
-                    filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                    password: "ballerina"
-                },
-                verifyHostname:false,
-                shareSession: true
-             }
+        url:url,
+        secureSocket:{
+            trustStore:{
+                filePath:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                password:"ballerina"
+            },
+            verifyHostname:false,
+            shareSession:true
         }
-        ]
     };
     http:Request req = new;
     var result = httpEndpoint -> get("", req);

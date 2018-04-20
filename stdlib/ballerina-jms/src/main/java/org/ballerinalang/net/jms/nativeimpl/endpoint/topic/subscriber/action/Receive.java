@@ -36,7 +36,7 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.ReceiveActionHandler
                    packageName = "jms",
                    functionName = "receive",
                    receiver = @Receiver(type = TypeKind.STRUCT,
-                                        structType = "TopicSubscriberConnector",
+                                        structType = "TopicSubscriberActions",
                                         structPackage = "ballerina.jms"),
                    args = {
                            @Argument(name = "timeInMilliSeconds",
