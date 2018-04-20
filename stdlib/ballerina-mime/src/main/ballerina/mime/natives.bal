@@ -120,11 +120,15 @@ public type Entity object {
         ContentDisposition contentDisposition;
     }
 
+    @Description {value:"Set the content-type to entity."}
+    @Param {value:"mediaType: content-type that needs to be set to entity"}
     public function setContentType (string mediaType) {
         self.contentType = check getMediaType(mediaType);
         self.setHeader(CONTENT_TYPE, mediaType);
     }
 
+    @Description {value:"Get the content-type of entity."}
+    @Return {value:"Return content-type as a string"}
     public function getContentType () returns string {
         string contentTypeHeaderValue;
         if (self.hasHeader(CONTENT_TYPE)) {
@@ -133,11 +137,15 @@ public type Entity object {
         return contentTypeHeaderValue;
     }
 
+    @Description {value:"Set the content-id of the entity."}
+    @Param {value:"contentId: content-id that needs to be set to entity"}
     public function setContentId(string contentId) {
         self.contentId = contentId;
         self.setHeader(CONTENT_ID, contentId);
     }
 
+    @Description {value:"Get the content-id of entity"}
+    @Return {value:"Return content-id as a string"}
     public function getContentId() returns string {
         string contentId;
         if (self.hasHeader(CONTENT_ID)) {
@@ -146,12 +154,16 @@ public type Entity object {
         return contentId;
     }
 
+    @Description {value:"Set the content-length of the entity."}
+    @Param {value:"contentLength: content-length that needs to be set to entity"}
     public function setContentLength(int contentLength) {
         self.contentLength = contentLength;
         var contentLengthStr = <string>contentLength;
         self.setHeader(CONTENT_LENGTH, contentLengthStr);
     }
 
+    @Description {value:"Get the content-length of entity."}
+    @Return {value:"Return content-length as an int"}
     public function getContentLength() returns int | error {
         string contentLength;
         if (self.hasHeader(CONTENT_LENGTH)) {
@@ -164,11 +176,15 @@ public type Entity object {
         }
     }
 
+    @Description {value:"Set the content-disposition of the entity."}
+    @Param {value:"contentDisposition: content-disposition that needs to be set to entity"}
     public function setContentDisposition (ContentDisposition contentDisposition) {
         self.contentDisposition = contentDisposition;
         self.setHeader(CONTENT_DISPOSITION, contentDisposition.toString());
     }
 
+    @Description {value:"Get the content-disposition of entity."}
+    @Return {value:"Return ContentDisposition object"}
     public function getContentDisposition () returns ContentDisposition {
         string contentDispositionVal;
         if (self.hasHeader(CONTENT_DISPOSITION)) {
