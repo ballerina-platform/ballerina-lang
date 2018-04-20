@@ -1,4 +1,3 @@
-package ballerina.mime;
 
 import ballerina/file;
 import ballerina/io;
@@ -19,7 +18,7 @@ import ballerina/io;
 @final public string DEFAULT_CHARSET = "UTF-8";
 
 @Description {value:"Permission to be used with opening a byte channel for overflow data"}
-@final string READ_PERMISSION = "r";
+@final io:Mode READ_PERMISSION = "r";
 
 @Description {value:"Represent 'content-type' header name"}
 @final public string CONTENT_TYPE = "content-type";

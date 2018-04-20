@@ -1,7 +1,7 @@
 import ballerina/http;
 import ballerina/mime;
 
-const string ACCEPT_ENCODING = "accept-encoding";
+@final string ACCEPT_ENCODING = "accept-encoding";
 
 endpoint http:Listener passthroughEP {
     port:9090
@@ -9,17 +9,17 @@ endpoint http:Listener passthroughEP {
 
 endpoint http:Client acceptEncodingAutoEP {
     url: "http://localhost:9092/hello",
-    acceptEncoding:"auto"
+    acceptEncoding:http:ACCEPT_ENCODING_AUTO
 };
 
 endpoint http:Client acceptEncodingEnableEP {
     url: "http://localhost:9092/hello",
-    acceptEncoding:"enable"
+    acceptEncoding:http:ACCEPT_ENCODING_ALWAYS
 };
 
 endpoint http:Client acceptEncodingDisableEP {
     url: "http://localhost:9092/hello",
-    acceptEncoding:"disable"
+    acceptEncoding:http:ACCEPT_ENCODING_NEVER
 };
 
 service<http:Service> passthrough bind passthroughEP {

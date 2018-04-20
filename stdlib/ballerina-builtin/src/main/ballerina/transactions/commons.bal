@@ -14,19 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.transactions;
 
 import ballerina/cache;
 import ballerina/log;
 import ballerina/http;
+import ballerina/system;
 import ballerina/task;
 import ballerina/time;
-import ballerina/util;
 
 documentation {
     ID of the local participant used when registering with the initiator.
 }
-string localParticipantId = util:uuid();
+string localParticipantId = system:uuid();
 
 documentation {
     This map is used for caching transaction that are initiated.
@@ -181,7 +180,7 @@ function createTransactionContext (string coordinationType,
         error err = {message:msg};
         return err;
     } else {
-        TwoPhaseCommitTransaction txn = new (util:uuid(), transactionBlockId, coordinationType = coordinationType);
+        TwoPhaseCommitTransaction txn = new (system:uuid(), transactionBlockId, coordinationType = coordinationType);
         string txnId = txn.transactionId;
         txn.isInitiated = true;
         initiatedTransactions[txnId] = txn;

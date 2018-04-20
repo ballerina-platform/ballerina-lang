@@ -1,4 +1,3 @@
-package ballerina.test;
 
 @Description { value:"Starts all the services defined in the package specified in the 'packageName' argument" }
 @Param {value:"packageName: Name of the package"}

@@ -1,4 +1,3 @@
-package benchmark;
 
 public function benchmarkIntAddition() {
     int a = 5;

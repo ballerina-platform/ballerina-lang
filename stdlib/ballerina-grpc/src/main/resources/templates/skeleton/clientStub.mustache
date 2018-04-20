@@ -5,22 +5,21 @@ public type {{connectorId}}{{stubTypeName}}{{stubType}}Stub object {
     {{#stubs}}
     public {
         grpc:Client clientEndpoint;
-        grpc:ServiceStub serviceStub;
+        grpc:Stub stub;
     }
 
     function initStub (grpc:Client clientEndpoint) {
-        grpc:ServiceStub navStub = new;
+        grpc:Stub navStub = new;
         navStub.initStub(clientEndpoint, "{{stubType}}", DESCRIPTOR_KEY, descriptorMap);
-        self.serviceStub = navStub;
+        self.stub = navStub;
     }
     {{/stubs}}{{#blockingFunctions}}
     function {{operationId}} ({{inputDataType}}{{&space}}{{inputAttributeName}}{{inputComma}}{{&space}}grpc:Headers... headers) returns (({{outputDataType}}{{outputComma}} grpc:Headers)|error) {
         {{&initEmptyStub}}
-        (any,grpc:Headers)|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("{{methodId}}", req, ...headers);
+        var unionResp = self.stub.blockingExecute("{{methodId}}", req, ...headers);
         match unionResp {
-            grpc:ConnectorError payloadError => {
-                error e = {message:payloadError.message};
-                return e;
+            error payloadError => {
+                return payloadError;
             }
             (any, grpc:Headers) payload => {
                 any result;
@@ -32,20 +31,14 @@ public type {{connectorId}}{{stubTypeName}}{{stubType}}Stub object {
     }
     {{/blockingFunctions}}{{#nonBlockingFunctions}}
     function {{operationId}} ({{inputDataType}}{{&space}}{{inputAttributeName}}{{inputComma}}{{&space}}typedesc listener, grpc:Headers... headers) returns (error?) {
-        var err1 = self.serviceStub.nonBlockingExecute("{{methodId}}", req, listener, ...headers);
-        if (err1 != ()) {
-            error e = {message:err1.message};
-            return e;
-        }
-        return ();
+        return self.stub.nonBlockingExecute("{{methodId}}", req, listener, ...headers);
     }
     {{/nonBlockingFunctions}}{{#streamingFunctions}}
     function {{operationId}} (typedesc listener, grpc:Headers... headers) returns (grpc:Client| error)  {
-        var res = self.serviceStub.streamingExecute("{{methodId}}", listener, ...headers);
+        var res = self.stub.streamingExecute("{{methodId}}", listener, ...headers);
         match res {
-            grpc:ConnectorError err => {
-                error e = {message:err.message};
-                return e;
+            error err => {
+                return err;
             }
             grpc:Client con => {
                 return con;
@@ -74,7 +67,7 @@ public type {{connectorId}}{{stubTypeName}}{{stubType}}Client object {
         self.stub = stub;
     }
 
-    public function getClient () returns ({{connectorId}}{{stubTypeName}}Stub) {
+    public function getCallerActions () returns ({{connectorId}}{{stubTypeName}}Stub) {
         return self.stub;
     }{{/stubObjects}}
 };

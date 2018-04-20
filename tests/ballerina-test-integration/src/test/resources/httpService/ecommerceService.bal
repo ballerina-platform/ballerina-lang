@@ -45,7 +45,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
     productsInfo (endpoint outboundEP, http:Request req, string prodId) {
         string reqPath = "/productsservice/" + untaint prodId;
         http:Request clientRequest = new;
-        var clientResponse = productsService -> get(reqPath, request = clientRequest);
+        var clientResponse = productsService -> get(untaint reqPath, request = clientRequest);
 
         match clientResponse {
             http:HttpConnectorError err => {

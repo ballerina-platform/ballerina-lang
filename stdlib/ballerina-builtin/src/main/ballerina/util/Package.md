@@ -19,13 +19,13 @@ function main(string... args) {
    string contentToBeEncoded = "This is a ballerina sample";
 
    // Encode the ‘contentToBeEncoded’ string.
-   var result = util:base64EncodeString(contentToBeEncoded);
-   // The base64EncodeString() function can return a Base64EncodeError or encoded string.
+   var result = contentToBeEncoded.base64Encode();
+   // The base64EncodeString() function can return an error or encoded string.
    match result {
-       util:Base64EncodeError err => io:println(err);
+       error err => io:println(err);
        // If a base64 encoded string is returned, convert it to a base16 encoded string.
        string encodedString => {
-           string base16encoded = util:base64ToBase16Encode(encodedString);
+           string base16encoded = encodedString.base64ToBase16Encode();
            io:println(base16encoded);
        }
    }
@@ -42,20 +42,20 @@ function main(string... args) {
    // Open the file that is denoted by the path in read access mode.
    io:ByteChannel channel = io:openFile(path, io:MODE_R);
    // Base64 encode the channel.
-   var result = util:base64EncodeByteChannel(channel);
+   var result = channel.base64Encode();
    var channelCloseResult = channel.close();
 
    match result {
        // If the result is an error, print the error
-       util:Base64EncodeError err => io:println(err);
+       error err => io:println(err);
        // If the result is an encoded channel, decode the channel.
        io:ByteChannel encodedChannel => {
-           var decodeResult = util:base64DecodeByteChannel(encodedChannel);
+           var decodeResult = encodedChannel.base64Decode();
            var closeResult = encodedChannel.close();
 
            match decodeResult {
                // If results is an error, print the error.
-               util:Base64DecodeError err => io:println(err);
+               eroor err => io:println(err);
                // If the decoded channel is returned, read the content.
                io:ByteChannel decodedChannel => {
                    var readResult = decodedChannel.read(36);
@@ -70,10 +70,10 @@ function main(string... args) {
                            io:println(encodedString);
 
                            // Decode the encoded string.
-                           var decodeStringResult = util:base64DecodeString(encodedString);
+                           var decodeStringResult = encodedString.base64Decode();
                            match decodeStringResult {
                                string decodedString => io:println(decodeStringResult);
-                               util:Base64DecodeError err => io:println(err);
+                               error err => io:println(err);
                            }
                        }
                        io:IOError err => {

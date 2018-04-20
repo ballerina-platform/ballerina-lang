@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.reflect;
 
 @Description {value:"Check whether 2 values are deeply equal. Supports string, int, float, boolean, type, structs, maps,
  arrays, any, JSON. Any other type returns FALSE."}

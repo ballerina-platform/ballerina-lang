@@ -118,16 +118,16 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         if (epConfig == null) {
             return HttpConstants.AUTO;
         }
-        return epConfig.getStringField(HttpConstants.CLIENT_EP_ACCEPT_ENCODING);
+        return epConfig.getRefField(HttpConstants.CLIENT_EP_ACCEPT_ENCODING).getStringValue();
     }
 
     private static AcceptEncodingConfig getAcceptEncodingConfig(String acceptEncodingConfig) {
         if (HttpConstants.AUTO.equalsIgnoreCase(acceptEncodingConfig)) {
             return AcceptEncodingConfig.AUTO;
-        } else if (HttpConstants.ENABLE.equalsIgnoreCase(acceptEncodingConfig)) {
-            return AcceptEncodingConfig.ENABLE;
-        } else if (HttpConstants.DISABLE.equalsIgnoreCase(acceptEncodingConfig)) {
-            return AcceptEncodingConfig.DISABLE;
+        } else if (HttpConstants.ALWAYS.equalsIgnoreCase(acceptEncodingConfig)) {
+            return AcceptEncodingConfig.ALWAYS;
+        } else if (HttpConstants.NEVER.equalsIgnoreCase(acceptEncodingConfig)) {
+            return AcceptEncodingConfig.NEVER;
         } else {
             throw new BallerinaConnectorException(
                     "Invalid configuration found for Accept-Encoding: " + acceptEncodingConfig);
@@ -136,11 +136,11 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
 
     private void handleAcceptEncodingHeader(HTTPCarbonMessage outboundRequest,
             AcceptEncodingConfig acceptEncodingConfig) {
-        if (acceptEncodingConfig == AcceptEncodingConfig.ENABLE && (
+        if (acceptEncodingConfig == AcceptEncodingConfig.ALWAYS && (
                 outboundRequest.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString()) == null)) {
             outboundRequest
                     .setHeader(HttpHeaderNames.ACCEPT_ENCODING.toString(), ENCODING_DEFLATE + ", " + ENCODING_GZIP);
-        } else if (acceptEncodingConfig == AcceptEncodingConfig.DISABLE && (
+        } else if (acceptEncodingConfig == AcceptEncodingConfig.NEVER && (
                 outboundRequest.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString()) != null)) {
             outboundRequest.removeHeader(HttpHeaderNames.ACCEPT_ENCODING.toString());
         }

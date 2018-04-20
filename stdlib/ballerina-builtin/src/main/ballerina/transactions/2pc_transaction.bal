@@ -14,12 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.transactions;
 
 import ballerina/io;
 import ballerina/log;
 import ballerina/time;
-import ballerina/util;
 
 type TwoPhaseCommitTransaction object {
     private {

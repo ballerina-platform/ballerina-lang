@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
 
 // TODO: Document these. Should we make FORWARD a private constant?
 @final public HttpOperation HTTP_FORWARD = "FORWARD";

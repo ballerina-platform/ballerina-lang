@@ -8,30 +8,30 @@ function openSocketConnection (string host, int port, io:SocketProperties prop) 
         io:Socket s => {
             socket = s;
         }
-        io:IOError err => {
+        error err => {
             throw err;
         }
     }
 }
 
 function closeSocket () {
-    io:IOError err = socket.closeSocket();
+    error err = socket.closeSocket();
 }
 
-function write (blob content) returns (int | io:IOError) {
+function write (blob content) returns (int | error) {
     io:ByteChannel channel = socket.channel;
     var result = channel.write(content, 0);
     match result {
         int numberOfBytesWritten => {
             return numberOfBytesWritten;
         }
-        io:IOError err => {
+        error err => {
             return err;
         }
     }
 }
 
-function read (int size) returns (blob, int) | io:IOError {
+function read (int size) returns (blob, int) | error {
     io:ByteChannel channel = socket.channel;
     var result = channel.read(size);
     match result{
@@ -39,7 +39,7 @@ function read (int size) returns (blob, int) | io:IOError {
             var (bytes, numberOfBytes) = content;
             return (bytes, numberOfBytes);
         }
-        io:IOError err => {
+        error err => {
             return err;
         }
     }

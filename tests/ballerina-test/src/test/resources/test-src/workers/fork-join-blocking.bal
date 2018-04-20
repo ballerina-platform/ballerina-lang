@@ -20,7 +20,7 @@ function testForkJoin() returns (int, int) {
             code -> fork;
         }
         worker w2 {
-            runtime:sleepCurrentWorker(5000);
+            runtime:sleep(5000);
             i = 100;
         }
     } join (all) (map results) {
