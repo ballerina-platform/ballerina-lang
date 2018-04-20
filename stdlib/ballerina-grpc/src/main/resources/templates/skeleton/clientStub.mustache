@@ -67,7 +67,7 @@ public type {{connectorId}}{{stubTypeName}}{{stubType}}Client object {
         self.stub = stub;
     }
 
-    public function getClient () returns ({{connectorId}}{{stubTypeName}}Stub) {
+    public function getCallerActions () returns ({{connectorId}}{{stubTypeName}}Stub) {
         return self.stub;
     }{{/stubObjects}}
 };

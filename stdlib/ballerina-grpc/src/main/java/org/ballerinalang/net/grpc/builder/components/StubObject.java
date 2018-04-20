@@ -20,7 +20,7 @@ package org.ballerinalang.net.grpc.builder.components;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.net.grpc.MessageConstants.EMPTY_DATATYPE_NAME;
+import static org.ballerinalang.net.grpc.GrpcConstants.EMPTY_DATATYPE_NAME;
 
 /**
  * Stub Object bean class.

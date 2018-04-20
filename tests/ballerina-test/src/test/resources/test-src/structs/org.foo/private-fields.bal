@@ -1,4 +1,3 @@
-package org.foo;
 
 public type userFoo {
     int age;

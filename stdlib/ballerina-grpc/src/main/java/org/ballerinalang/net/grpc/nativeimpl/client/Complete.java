@@ -25,15 +25,15 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.grpc.MessageConstants;
+import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
-import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
-import static org.ballerinalang.net.grpc.MessageConstants.REQUEST_SENDER;
+import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
+import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
 
 /**
  * Native function to inform the server, client finished sending messages.
@@ -42,10 +42,10 @@ import static org.ballerinalang.net.grpc.MessageConstants.REQUEST_SENDER;
  */
 @BallerinaFunction(
         orgName = ORG_NAME,
-        packageName = MessageConstants.PROTOCOL_PACKAGE_GRPC,
+        packageName = GrpcConstants.PROTOCOL_PACKAGE_GRPC,
         functionName = "complete",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = MessageConstants.GRPC_CLIENT,
-                structPackage = MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = GrpcConstants.GRPC_CLIENT,
+                structPackage = GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC),
         returnType = @ReturnType(type = TypeKind.STRUCT, structType = STRUCT_GENERIC_ERROR, structPackage =
                 PACKAGE_BUILTIN),
         isPublic = true
