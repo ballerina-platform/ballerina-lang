@@ -6,21 +6,20 @@ import ballerina/io;
 public type ChatStub object {
     public {
         grpc:Client clientEndpoint;
-        grpc:ServiceStub serviceStub;
+        grpc:Stub stub;
     }
 
-    function initStub (grpc:Client clientEndpoint) {
-        grpc:ServiceStub navStub = new;
+    function initStub(grpc:Client clientEndpoint) {
+        grpc:Stub navStub = new;
         navStub.initStub(clientEndpoint, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
-        self.serviceStub = navStub;
+        self.stub = navStub;
     }
 
-    function chat (typedesc listener, grpc:Headers... headers) returns (grpc:Client|error) {
-        var res = self.serviceStub.streamingExecute("Chat/chat", listener, ...headers);
+    function chat(typedesc listener, grpc:Headers... headers) returns (grpc:Client|error) {
+        var res = self.stub.streamingExecute("Chat/chat", listener, ...headers);
         match res {
-            grpc:ConnectorError err => {
-                error e = {message:err.message};
-                return e;
+            error err => {
+                return err;
             }
             grpc:Client con => {
                 return con;
@@ -36,7 +35,7 @@ public type ChatClient object {
         ChatStub stub;
     }
 
-    public function init (grpc:ClientEndpointConfig config) {
+    public function init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
         grpc:Client client = new;
         client.init(config);
@@ -46,7 +45,7 @@ public type ChatClient object {
         stub.initStub(client);
         self.stub = stub;
     }
-    public function getCallerActions () returns (ChatStub) {
+    public function getCallerActions() returns (ChatStub) {
         return self.stub;
     }
 };

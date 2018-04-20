@@ -6,24 +6,23 @@ import ballerina/io;
 public type HelloWorldBlockingStub object {
     public {
         grpc:Client clientEndpoint;
-        grpc:ServiceStub serviceStub;
+        grpc:Stub stub;
     }
 
-    function initStub (grpc:Client clientEndpoint) {
-        grpc:ServiceStub navStub = new;
+    function initStub(grpc:Client clientEndpoint) {
+        grpc:Stub navStub = new;
         navStub.initStub(clientEndpoint, "blocking", DESCRIPTOR_KEY, descriptorMap);
-        self.serviceStub = navStub;
+        self.stub = navStub;
     }
 
-    function hello (string req) returns (string|error) {
-        any|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("HelloWorld/hello", req);
+    function hello(string req) returns (string|error) {
+        var unionResp = self.stub.blockingExecute("HelloWorld/hello", req);
         match unionResp {
-            grpc:ConnectorError payloadError => {
-                error e = {message:payloadError.message};
-                return e;
+            error payloadError => {
+                return payloadError;
             }
             any payload => {
-                string result = <string> payload;
+                string result = <string>payload;
                 return result;
             }
         }
@@ -35,22 +34,17 @@ public type HelloWorldBlockingStub object {
 public type HelloWorldStub object {
     public {
         grpc:Client clientEndpoint;
-        grpc:ServiceStub serviceStub;
+        grpc:Stub stub;
     }
 
-    function initStub (grpc:Client clientEndpoint) {
-        grpc:ServiceStub navStub = new;
+    function initStub(grpc:Client clientEndpoint) {
+        grpc:Stub navStub = new;
         navStub.initStub(clientEndpoint, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
-        self.serviceStub = navStub;
+        self.stub = navStub;
     }
 
-    function hello (string req, typedesc listener) returns (error| ()) {
-        var err1 = self.serviceStub.nonBlockingExecute("HelloWorld/hello", req, listener);
-        if (err1 != ()) {
-            error e = {message:err1.message};
-            return e;
-        }
-        return ();
+    function hello(string req, typedesc listener) returns (error|()) {
+        return self.stub.nonBlockingExecute("HelloWorld/hello", req, listener);
     }
 };
 
@@ -62,7 +56,7 @@ public type HelloWorldBlockingClient object {
         HelloWorldBlockingStub stub;
     }
 
-    public function init (grpc:ClientEndpointConfig config) {
+    public function init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
         grpc:Client client = new;
         client.init(config);
@@ -73,7 +67,7 @@ public type HelloWorldBlockingClient object {
         self.stub = stub;
     }
 
-    public function getCallerActions () returns (HelloWorldBlockingStub) {
+    public function getCallerActions() returns (HelloWorldBlockingStub) {
         return self.stub;
     }
 };
@@ -85,7 +79,7 @@ public type HelloWorldClient object {
         HelloWorldStub stub;
     }
 
-    public function init (grpc:ClientEndpointConfig config) {
+    public function init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
         grpc:Client client = new;
         client.init(config);
@@ -96,7 +90,7 @@ public type HelloWorldClient object {
         self.stub = stub;
     }
 
-    public function getClient () returns (HelloWorldStub) {
+    public function getCallerActions() returns (HelloWorldStub) {
         return self.stub;
     }
 };
