@@ -32,7 +32,7 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
     req.addHeader("Accept-Encoding", "identity");
 
     http:Response httpResponse = new;
-    var result = httpEndpoint -> get("", req);
+    var result = httpEndpoint -> get("", request=req);
 
     match result {
         http:Response response => httpResponse = response;
@@ -275,6 +275,7 @@ documentation {
     P{{url}} - The endpoint url to be invoked.
     R{{}} - `Response` The response got after invoking the endpoint.
 }
+
 function callFileServer(string url) returns http:Response? {
     endpoint http:Client httpEndpoint {
         url:url,
@@ -288,7 +289,7 @@ function callFileServer(string url) returns http:Response? {
         }
     };
     http:Request req = new;
-    var result = httpEndpoint -> get("", req);
+    var result = httpEndpoint -> get("", request=req);
     match result {
         http:Response response => return response;
         http:HttpConnectorError e => {
