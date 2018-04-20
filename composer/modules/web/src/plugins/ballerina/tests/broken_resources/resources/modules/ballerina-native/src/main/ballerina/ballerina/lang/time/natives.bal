@@ -1,4 +1,3 @@
-package ballerina.lang.time;
 
 import ballerina/doc;
 

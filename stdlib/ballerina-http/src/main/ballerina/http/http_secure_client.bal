@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.package http;
 
-package ballerina.http;
 
 import ballerina/io;
 import ballerina/runtime;

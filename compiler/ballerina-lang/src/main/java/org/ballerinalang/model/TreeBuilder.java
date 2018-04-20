@@ -31,7 +31,6 @@ import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.ObjectNode;
-import org.ballerinalang.model.tree.PackageDeclarationNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.RecordNode;
 import org.ballerinalang.model.tree.ResourceNode;
@@ -152,7 +151,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -273,10 +271,6 @@ public class TreeBuilder {
 
     public static PackageNode createPackageNode() {
         return new BLangPackage();
-    }
-
-    public static PackageDeclarationNode createPackageDeclarationNode() {
-        return new BLangPackageDeclaration();
     }
 
     public static IdentifierNode createIdentifierNode() {
