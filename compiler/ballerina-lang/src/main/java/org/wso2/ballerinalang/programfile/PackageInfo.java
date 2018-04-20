@@ -37,6 +37,7 @@ import java.util.Set;
  */
 public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
+    public int orgNameCPIndex;
     public int nameCPIndex;
     public int versionCPIndex;
 
