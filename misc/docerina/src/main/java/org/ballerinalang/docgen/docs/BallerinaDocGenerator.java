@@ -280,7 +280,7 @@ public class BallerinaDocGenerator {
         if (bLangPackage == null) {
             out.println(String.format("docerina: invalid Ballerina package: %s", packagePath));
         } else {
-            String packageName = packageNameToString(bLangPackage.symbol.pkgID);
+            String packageName = packageNameToString(bLangPackage.packageID);
             if (isFilteredPackage(packageName, packageFilter)) {
                 if (BallerinaDocUtils.isDebugEnabled()) {
                     out.println("Package " + packageName + " excluded");
@@ -349,7 +349,7 @@ public class BallerinaDocGenerator {
         if (bLangPackage.getPosition().getSource().getPackageName().equals(".")) {
             return bLangPackage.getPosition().getSource().getCompilationUnitName();
         }
-        return bLangPackage.symbol.pkgID.name.value;
+        return bLangPackage.packageID.getName().getValue();
     }
 
     /**
