@@ -115,7 +115,7 @@ type RemoteParticipant object {
         var result = participantEP -> prepare(self.transactionId);
         match result {
             error err => {
-                log:printErrorCause("Remote participant: " + self.participantId + " failed", err);
+                log:printError("Remote participant: " + self.participantId + " failed", err = err);
                 return err;
             }
             string status => {
@@ -148,7 +148,7 @@ type RemoteParticipant object {
         var result = participantEP -> notify(self.transactionId, action);
         match result {
             error err => {
-                log:printErrorCause("Remote participant: " + self.participantId + " replied with an error", err);
+                log:printError("Remote participant: " + self.participantId + " replied with an error", err = err);
                 return err;
             }
             string notificationStatus => {
