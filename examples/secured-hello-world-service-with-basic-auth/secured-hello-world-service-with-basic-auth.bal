@@ -1,8 +1,6 @@
 import ballerina/http;
-import ballerina/io;
-import ballerina/auth;
 
-// The endpoint used here is 'endpoints:ApiEndpoint', which by default tries to authenticate and authorize each request.
+// The endpoint used here is 'http:SecureListener', which by default tries to authenticate and authorize each request.
 // The developer has the option to override the authentication and authorization at service and resource level.
 endpoint http:SecureListener ep {
     port:9090,
