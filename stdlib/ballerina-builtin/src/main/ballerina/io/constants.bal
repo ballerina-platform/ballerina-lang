@@ -16,11 +16,11 @@
 
 package ballerina.io;
 
-public type Mode "r"|"w"|"rw"|"a";
-
-public type Seperator ","|"\t"|":";
-
+@Description {value : "Supported record formats of CSV"}
 public type Format "default"|"csv"|"tdf";
+
+@Description {value : "Delimiters which will be used to seperate between records"}
+public type Seperator ","|"\t"|":";
 
 @Description {value:"Describes default format to open CSV"}
 @final public Seperator COMMA = ",";
@@ -30,15 +30,3 @@ public type Format "default"|"csv"|"tdf";
 
 @Description {value:"Describes TDF format to open CSV"}
 @final public Seperator COLON = ":";
-
-@Description {value:"Describes access mode for reading"}
-@final public Mode READ = "r";
-
-@Description {value:"Describes access mode for writing"}
-@final public Mode WRITE = "w";
-
-@Description {value:"Describes acces mode for reading and writing"}
-@final public Mode HYBRID = "rw";
-
-@Description {value:"Describes access mode for append"}
-@final public Mode APPEND = "a";

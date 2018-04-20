@@ -28,6 +28,11 @@ public type DelimitedTextRecordChannel object {
         init(channel, fs, rs, fmt);
     }
 
+    @Description {value : "Initialize delimited record channel"}
+    @Param {value : "channel : character channel which will be used for reading/writing records"}
+    @Param {value : "fs : Feild separator which will separate between fields"}
+    @Param {value : "rs : Record separator which will separate between records"}
+    @Param {value : "fmt : Format which will be used to represent the type of record i.e csv"}
     native function init(CharacterChannel channel, string fs, string rs, string fmt);
 
     @Description {value:"Function to check whether next record is available or not"}

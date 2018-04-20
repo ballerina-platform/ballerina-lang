@@ -16,13 +16,11 @@
 
 package ballerina.io;
 
+@Description {value : "Character which will be used to separate betweeen the records"}
 @final string CSV_RECORD_SEPERATOR = "\n";
 
-@final string FS_CSV = ",(?=([^\"]*\"[^\"]*\")*[^\"]*$)";
-
+@Description {value : "Character which will be used to separate colon delimited records"}
 @final string FS_COLON = ":";
-
-@final string FS_TAB = "\\t";
 
 @Description {value:"Ballerina DelimitedRecordChannel represents a channel which will allow to read/write text records"}
 public type CSVChannel object {
@@ -67,13 +65,7 @@ public type CSVChannel object {
     }
 
     @Description {value:"Function to load delimited records to in-memory table"}
-    @Param {value:"filePath: Path to delimited file"}
-    @Param {value:"recordSeparator: Terminating expression to distinguish between records"}
-    @Param {value:"fieldSeparator: Terminating expression to distinguish between fields"}
-    @Param {value:"encoding: The charset/encoding of the content (i.e UTF-8, ASCII)"}
-    @Param {value:"headerLineIncluded: To indicate whether given file included the header line or not"}
     @Param {value:"structType: Name of the struct that each record need to populate"}
-    @Return {value:"table of delimited values"}
     @Return {value:"Returns if there's any error while performaing I/O operation"}
     public native function getTable(typedesc structType) returns @tainted table|error;
 };

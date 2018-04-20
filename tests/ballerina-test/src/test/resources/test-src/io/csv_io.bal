@@ -8,6 +8,10 @@ function initCSVChannel(string filePath, io:Mode permission, string encoding, io
     csvChannel = new io:CSVChannel(charChannel, fs = fieldSeperator);
 }
 
+function initOpenCsv(string filePath, io:Mode permission, string encoding, io:Seperator fs) {
+    csvChannel =check io:openCsvFile(filePath, mode=permission, fieldSeperator=fs,charset=encoding);
+}
+
 function nextRecord() returns (string[]|error) {
     var result = csvChannel.getNext();
     match result {

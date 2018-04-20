@@ -27,6 +27,9 @@ public type CharacterChannel object {
         init(channel, charset);
     }
 
+    @Description {value:"Initialize the character channel"}
+    @Param {value:"channel : byte channel which will be used for reading/writing"}
+    @Param {value:"charset : character which will be used to encode/decode bytes"}
     native function init(ByteChannel channel, string charset);
 
     @Description {value:"Function to read characters"}

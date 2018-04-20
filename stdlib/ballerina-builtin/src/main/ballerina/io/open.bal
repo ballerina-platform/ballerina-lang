@@ -16,6 +16,21 @@
 
 package ballerina.io;
 
+@Description {value : "Permissions which will be used to open file"}
+public type Mode "r"|"w"|"rw"|"a";
+
+@Description {value:"Describes access mode for reading"}
+@final public Mode READ = "r";
+
+@Description {value:"Describes access mode for writing"}
+@final public Mode WRITE = "w";
+
+@Description {value:"Describes acces mode for reading and writing"}
+@final public Mode RW = "rw";
+
+@Description {value:"Describes access mode for append"}
+@final public Mode APPEND = "a";
+
 @Description {value:"Opens a byte channel from a specified file location"}
 @Param {value:"path: path to the file location"}
 @Param {value:"accessMode: whether the file should be opened for read,write or append"}
@@ -42,7 +57,6 @@ public native function openSocket(@sensitive string host,
 public native function openSecureSocket(@sensitive string host,
                                         @sensitive int port,
                                         SocketProperties options) returns @tainted Socket|error;
-
 
 @Description {value:"Function to create CSV channel to read CSV input"}
 @Param {value:"path: Specfies the path to the CSV file"}
