@@ -195,7 +195,8 @@ public class ObservabilityUtils {
      * before calling this method. Otherwise it can cause a {@link NullPointerException}.
      */
     public static ObserverContext getParentContext(Context context) {
-        return enabled ? populateAndGetParentObserverContext(context.getParentWorkerExecutionContext()) : null;
+        return enabled ? populateAndGetParentObserverContext(context.getParentWorkerExecutionContext())
+                : new ObserverContext();
     }
 
     public static Map<String, String> getContextProperties(ObserverContext observerContext) {
@@ -230,7 +231,7 @@ public class ObservabilityUtils {
             }
             parent = parent.parent;
         }
-        ObserverContext observerContext = (ctx != null) ? (ObserverContext) ctx : emptyContext;
+        ObserverContext observerContext = (ctx != null) ? (ObserverContext) ctx : new ObserverContext();
         ancestors.forEach(w -> {
             if (w.localProps == null) {
                 w.localProps = new HashMap<>();
