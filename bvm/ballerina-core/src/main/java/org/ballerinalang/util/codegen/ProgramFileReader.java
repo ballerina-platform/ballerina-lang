@@ -865,7 +865,6 @@ public class ProgramFileReader {
             case 'E':
             case 'D':
             case 'G':
-            case 'H':
             case 'Z':
                 char typeChar = chars[index];
                 // TODO Improve this logic
@@ -904,12 +903,6 @@ public class ProgramFileReader {
                     } else {
                         typeStack.push(new BTableType(packageInfoOfType.getStructInfo(name).getType()));
                     }
-                } else if (typeChar == 'H') {
-                    if (name.isEmpty()) {
-                        typeStack.push(BTypes.typeStream);
-                    } else {
-                        typeStack.push(new BStreamType(packageInfoOfType.getStructInfo(name).getType()));
-                    }
                 } else if (typeChar == 'G') {
                     typeStack.push(packageInfoOfType.getTypeDefinitionInfo(name).getType());
                 } else {
@@ -934,6 +927,11 @@ public class ProgramFileReader {
                     mapType = new BMapType(constrainedType);
                 }
                 typeStack.push(mapType);
+                return index;
+            case 'H':
+                index = createBTypeFromSig(chars, index + 1, typeStack, packageInfo);
+                BType streamConstraintType = typeStack.pop();
+                typeStack.push(new BStreamType(streamConstraintType));
                 return index;
             case 'U':
                 // TODO : Fix this for type casting.
@@ -994,12 +992,13 @@ public class ProgramFileReader {
                 } else {
                     return new BMapType(constrainedType);
                 }
+            case 'H':
+                return new BStreamType(getBTypeFromDescriptor(desc.substring(1)));
             case 'C':
             case 'X':
             case 'J':
             case 'T':
             case 'E':
-            case 'H':
             case 'Z':
             case 'G':
             case 'D':
@@ -1011,8 +1010,6 @@ public class ProgramFileReader {
                         return BTypes.typeJSON;
                     } else if (ch == 'D') {
                         return BTypes.typeTable;
-                    } else if (ch == 'H') { //TODO:CHECK
-                        return BTypes.typeStream;
                     }
                 }
 
@@ -1025,8 +1022,6 @@ public class ProgramFileReader {
                     return packageInfoOfType.getServiceInfo(name).getType();
                 } else if (ch == 'D') {
                     return new BTableType(packageInfoOfType.getStructInfo(name).getType());
-                } else if (ch == 'H') {
-                    return new BStreamType(packageInfoOfType.getStructInfo(name).getType());
                 } else if (ch == 'G') {
                     return packageInfoOfType.getTypeDefinitionInfo(name).getType();
                 } else {
