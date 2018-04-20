@@ -1,4 +1,4 @@
-import ballerina/security.crypto;
+import ballerina/crypto;
 import ballerina/io;
 
 function contains(string source, string substring) returns (boolean) {
