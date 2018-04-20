@@ -1,7 +1,7 @@
 ## Package Overview
 This package offers a cache that supports time-based eviction, and size-based eviction. This means that entries are removed from the cache once the expiry time has elapsed (i.e., time-based eviction), or when the cache runs out of space (i.e., size-based eviction). Caching is useful when a value takes significant cost or time to compute and retrieve, and it is therefore useful to cache it for future use.
 
-### Sample cache
+### Sample
 The following sample creates a cache that can hold a maximum of 10 entries. An entry of this cache expires one minute after its last access. When the cache is full, 20% of the entries (i.e., 2 entries) will be evicted to make space for new entries.
 
 ```ballerina
