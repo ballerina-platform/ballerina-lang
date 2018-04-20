@@ -2540,13 +2540,23 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private Operand[] getOperands(BLangLock lockNode) {
-        Operand[] operands = new Operand[(lockNode.lockVariables.size() * 2) + 1];
+        Operand[] operands = new Operand[(lockNode.lockVariables.size() * 3) + 1];
         int i = 0;
         operands[i++] = new Operand(lockNode.lockVariables.size());
         for (BVarSymbol varSymbol : lockNode.lockVariables) {
+            BPackageSymbol pkgSymbol;
+            BSymbol ownerSymbol = varSymbol.owner;
+            if (ownerSymbol.tag == SymTag.SERVICE) {
+                pkgSymbol = (BPackageSymbol) ownerSymbol.owner;
+            } else {
+                pkgSymbol = (BPackageSymbol) ownerSymbol;
+            }
+            int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.pkgID);
+
             int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, varSymbol.getType().getDesc());
             TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
             operands[i++] = getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
+            operands[i++] = getOperand(pkgRefCPIndex);
             operands[i++] = varSymbol.varIndex;
         }
         return operands;

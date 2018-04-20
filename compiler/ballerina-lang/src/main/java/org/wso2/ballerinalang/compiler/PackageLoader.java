@@ -218,6 +218,11 @@ public class PackageLoader {
     }
 
     public BLangPackage loadEntryPackage(PackageID pkgId) {
+        //even entry package may be already loaded through an import statement.
+        BLangPackage bLangPackage = packageCache.get(pkgId);
+        if (bLangPackage != null) {
+            return bLangPackage;
+        }
         PackageEntity pkgEntity = loadPackageEntity(pkgId);
         if (pkgEntity == null) {
             throw ProjectDirs.getPackageNotFoundError(pkgId);

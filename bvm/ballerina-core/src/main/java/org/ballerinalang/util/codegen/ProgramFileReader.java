@@ -1696,14 +1696,20 @@ public class ProgramFileReader {
                 case InstructionCodes.UNLOCK:
                     int varCount = codeStream.readInt();
                     BType[] varTypes = new BType[varCount];
+                    int[] pkgRefs = new int[varCount];
                     int[] varRegs = new int[varCount];
                     for (int m = 0; m < varCount; m++) {
                         int varSigCPIndex = codeStream.readInt();
                         TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) packageInfo.getCPEntry(varSigCPIndex);
                         varTypes[m] = typeRefCPEntry.getType();
+
+                        pkgRefCPIndex = codeStream.readInt();
+                        pkgRefCPEntry = (PackageRefCPEntry) packageInfo.getCPEntry(pkgRefCPIndex);
+
+                        pkgRefs[m] = pkgRefCPEntry.getPackageInfo().pkgIndex;
                         varRegs[m] = codeStream.readInt();
                     }
-                    packageInfo.addInstruction(new InstructionLock(opcode, varTypes, varRegs));
+                    packageInfo.addInstruction(new InstructionLock(opcode, varTypes, pkgRefs, varRegs));
                     break;
                 default:
                     throw new ProgramFileFormatException("unknown opcode " + opcode +
