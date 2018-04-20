@@ -70,7 +70,6 @@ function startAggregationQuery() returns (StatusCount[]) {
 
 
 function printStatusCount(StatusCount s) {
-    io:println("printStatusCount function invoked for status:" + s.status + " and total count :" + s.totalCount);
     addToGlobalStatusCountArray(s);
 }
 
