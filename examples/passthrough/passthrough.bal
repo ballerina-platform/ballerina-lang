@@ -4,7 +4,7 @@ endpoint http:Listener passthroughEP {
     port:9090
 };
 
-endpoint http:SimpleClient clientEP {
+endpoint http:Client clientEP {
     url:"http://localhost:9092/hello"
 };
 
@@ -14,7 +14,7 @@ service<http:Service> passthrough bind passthroughEP {
     @http:ResourceConfig {
         path:"/"
     }
-    passthrough (endpoint outboundEP, http:Request req) {
+    passthrough (endpoint caller, http:Request req) {
         // When `forward()` is called on the backend client endpoint, it forwards the request that the passthrough
         // resource received to the backend. When forwarding, the request is made using the same HTTP method that was
         // used to invoke the passthrough resource. The `forward()` function returns the response from the backend if
@@ -26,14 +26,14 @@ service<http:Service> passthrough bind passthroughEP {
             http:Response res => {
                 // If the request was successful, an HTTP response is returned.
                 // Here, the received response is forwarded to the client through the outbound endpoint.
-                _ = outboundEP -> respond(res);
+                _ = caller -> respond(res);
             }
             http:HttpConnectorError err => {
                 // If there was an error, the 500 error response is constructed and sent back to the client.
                 http:Response res = new;
                 res.statusCode = 500;
                 res.setStringPayload(err.message);
-                _ = outboundEP -> respond(res);
+                _ = caller -> respond(res);
             }
         }
     }
@@ -51,9 +51,9 @@ service<http:Service> hello bind helloEP {
         methods:["POST", "PUT", "GET"],
         path:"/"
     }
-    helloResource (endpoint outboundEP, http:Request req) {
+    helloResource (endpoint caller, http:Request req) {
         http:Response res = new;
         res.setStringPayload("Hello World!");
-        _ = outboundEP -> respond(res);
+        _ = caller -> respond(res);
     }
 }

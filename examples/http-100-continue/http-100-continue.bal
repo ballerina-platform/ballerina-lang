@@ -14,11 +14,11 @@ service<http:Service> helloWorld bind helloWorldEP{
     @http:ResourceConfig {
         path:"/"
     }
-    hello (endpoint outboundEP, http:Request request) {
+    hello (endpoint caller, http:Request request) {
         // Check if the client expects a 100-continue response.
         if (request.expects100Continue()) {
             // Send a 100-continue response to the client.
-            _ = outboundEP -> continue();
+            _ = caller -> continue();
         }
 
         // The client starts sending the payload once it receives the 100-continue response. Retrieve the payload that is sent by the client.

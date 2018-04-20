@@ -15,7 +15,7 @@ service<http:Service> http2Service bind ep {
  @http:ResourceConfig {
     path:"/main"
  }
- http2Resource (endpoint client, http:Request req) {
+ http2Resource (endpoint caller, http:Request req) {
 
     io:println("Request received");
 
@@ -23,19 +23,19 @@ service<http:Service> http2Service bind ep {
     http:PushPromise promise1 = new;
     promise1.path = "/resource1";
     promise1.method = "POST";
-    _ = client -> promise(promise1);
+    _ = caller -> promise(promise1);
 
     // Send another Push Promise.
     http:PushPromise promise2 = new;
     promise2.path = "/resource2";
     promise2.method = "POST";
-    _ = client -> promise(promise2);
+    _ = caller -> promise(promise2);
 
     // Send one more Push Promise.
     http:PushPromise promise3 = new;
     promise3.path = "/resource3";
     promise3.method = "POST";
-    _ = client -> promise(promise3);
+    _ = caller -> promise(promise3);
 
     // Construct requested resource.
     http:Response response = new;
@@ -43,7 +43,7 @@ service<http:Service> http2Service bind ep {
     response.setJsonPayload(msg);
 
     // Send the requested resource.
-    _ = client -> respond(response);
+    _ = caller -> respond(response);
 
     // Construct promised resource1.
     http:Response push1 = new;
@@ -51,30 +51,26 @@ service<http:Service> http2Service bind ep {
     push1.setJsonPayload(msg);
 
     // Push promised resource1.
-    _ = client -> pushPromisedResponse(promise1, push1);
+    _ = caller -> pushPromisedResponse(promise1, push1);
 
     http:Response push2 = new;
     msg = {"push":{"name":"resource2"}};
     push2.setJsonPayload(msg);
 
     // Push promised resource2.
-    _ = client -> pushPromisedResponse(promise2, push2);
+    _ = caller -> pushPromisedResponse(promise2, push2);
 
     http:Response push3 = new;
     msg = {"push":{"name":"resource3"}};
     push3.setJsonPayload(msg);
 
     // Push promised resource3.
-    _ = client -> pushPromisedResponse(promise3, push3);
+    _ = caller -> pushPromisedResponse(promise3, push3);
   }
 }
 
 endpoint http:Client clientEP {
-    targets: [
-        {
-            url: "http://localhost:7090"
-        }
-    ],
+    url: "http://localhost:7090",
     // HTTP version is set to 2.0.
     httpVersion:"2.0"
 };

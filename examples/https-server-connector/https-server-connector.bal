@@ -20,9 +20,9 @@ service<http:Service> helloWorld bind helloWorldEP {
         path:"/"
     }
 
-    sayHello (endpoint conn, http:Request req) {
+    sayHello (endpoint caller, http:Request req) {
         http:Response res = new;
         res.setStringPayload("Successful");
-        _ = conn -> respond(res);
+        _ = caller -> respond(res);
     }
 }
