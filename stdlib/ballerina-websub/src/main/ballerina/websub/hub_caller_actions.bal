@@ -101,7 +101,7 @@ public function CallerActions::subscribe (SubscriptionChangeRequest subscription
 @tainted (SubscriptionChangeResponse | WebSubError) {
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_SUBSCRIBE, subscriptionRequest);
-    var response = httpClientEndpoint -> post("", builtSubscriptionRequest);
+    var response = httpClientEndpoint -> post("", request = builtSubscriptionRequest);
     return processHubResponse(self.hubUrl, MODE_SUBSCRIBE, subscriptionRequest, response, httpClientEndpoint);
 }
 
@@ -109,14 +109,14 @@ public function CallerActions::unsubscribe (SubscriptionChangeRequest unsubscrip
 @tainted (SubscriptionChangeResponse | WebSubError) {
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request builtUnsubscriptionRequest = buildSubscriptionChangeRequest(MODE_UNSUBSCRIBE, unsubscriptionRequest);
-    var response = httpClientEndpoint -> post("", builtUnsubscriptionRequest);
+    var response = httpClientEndpoint -> post("", request = builtUnsubscriptionRequest);
     return processHubResponse(self.hubUrl, MODE_UNSUBSCRIBE, unsubscriptionRequest, response, httpClientEndpoint);
 }
 
 public function CallerActions::registerTopic (string topic, string secret = "") returns (WebSubError | ()) {
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = buildTopicRegistrationChangeRequest(MODE_REGISTER, topic, secret);
-    var registrationResponse = httpClientEndpoint -> post("", request);
+    var registrationResponse = httpClientEndpoint -> post("", request = request);
     match (registrationResponse) {
         http:Response response => {
             if (response.statusCode != http:ACCEPTED_202) {
@@ -137,7 +137,7 @@ public function CallerActions::registerTopic (string topic, string secret = "") 
 public function CallerActions::unregisterTopic (string topic, string secret = "") returns (WebSubError | ()) {
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = buildTopicRegistrationChangeRequest(MODE_UNREGISTER, topic, secret);
-    var unregistrationResponse = httpClientEndpoint -> post("", request);
+    var unregistrationResponse = httpClientEndpoint -> post("", request = request);
     match (unregistrationResponse) {
         http:Response response => {
             if (response.statusCode != http:ACCEPTED_202) {
@@ -183,7 +183,7 @@ public function CallerActions::publishUpdate (string topic, json payload,
         request.setHeader(strHeaderKey, strHeaderValue);
     }
 
-    var response = httpClientEndpoint -> post(untaint("?" + queryParams), request);
+    var response = httpClientEndpoint -> post(untaint("?" + queryParams), request = request);
         match (response) {
             http:Response => return;
             http:HttpConnectorError httpConnectorError => { WebSubError webSubError = {
@@ -204,7 +204,7 @@ public function CallerActions::notifyUpdate (string topic, json... notificationH
         request.setHeader(strHeaderKey, strHeaderValue);
     }
 
-    var response = httpClientEndpoint -> post(untaint("?" + queryParams), request);
+    var response = httpClientEndpoint -> post(untaint("?" + queryParams), request = request);
     match (response) {
         http:Response => return;
         http:HttpConnectorError httpConnectorError => { WebSubError webSubError = {
