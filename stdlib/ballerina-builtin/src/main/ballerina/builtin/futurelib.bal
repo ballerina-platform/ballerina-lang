@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.builtin;
 
 @Description {value:"Checks if the given future is done"}
 @Return {value:"true if the future is done; false otherwise"}

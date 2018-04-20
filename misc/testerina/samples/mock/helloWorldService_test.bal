@@ -1,4 +1,3 @@
-package mock;
 
 import ballerina/http;
 import ballerina/io;

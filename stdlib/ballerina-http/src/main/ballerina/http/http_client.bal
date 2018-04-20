@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
 
 @Description { value:"An HTTP client for interacting with an HTTP server."}
 public type HttpClient object {

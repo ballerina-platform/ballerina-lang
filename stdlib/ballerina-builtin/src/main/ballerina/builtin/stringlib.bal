@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.builtin;
 
 @Description {value:"Compares two strings, ignoring the case of the strings"}
 @Param {value:"s: The original string argument"}

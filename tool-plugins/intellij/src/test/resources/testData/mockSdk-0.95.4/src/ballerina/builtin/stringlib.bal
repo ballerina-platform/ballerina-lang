@@ -1,4 +1,3 @@
-package ballerina.builtin;
 
 @Description { value:"Compares two strings, ignoring the case of the strings"}
 @Param { value:"mainString: The original string argument" }

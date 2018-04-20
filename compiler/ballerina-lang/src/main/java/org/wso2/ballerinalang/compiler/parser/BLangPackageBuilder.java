@@ -100,7 +100,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
-import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -1338,20 +1337,6 @@ public class BLangPackageBuilder {
         InvokableNode invokableNode = this.invokableNodeStack.peek();
         invokableNode.addWS(ws);
         invokableNode.setBody(block);
-    }
-
-    public void setPackageDeclaration(DiagnosticPos pos, Set<Whitespace> ws, List<String> nameComps, String version) {
-        List<BLangIdentifier> pkgNameComps = new ArrayList<>();
-        nameComps.forEach(e -> pkgNameComps.add((BLangIdentifier) this.createIdentifier(e)));
-        BLangIdentifier versionNode = (BLangIdentifier) this.createIdentifier(version);
-
-        BLangPackageDeclaration pkgDcl = (BLangPackageDeclaration) TreeBuilder.createPackageDeclarationNode();
-        pkgDcl.pos = pos;
-        // TODO: orgname is null, fix it.
-        pkgDcl.addWS(ws);
-        pkgDcl.pkgNameComps = pkgNameComps;
-        pkgDcl.version = versionNode;
-        this.compUnit.addTopLevelNode(pkgDcl);
     }
 
     public void addImportPackageDeclaration(DiagnosticPos pos,

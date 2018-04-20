@@ -1,4 +1,3 @@
-package servicemocktest;
 
 import ballerina/http;
 import ballerina/io;

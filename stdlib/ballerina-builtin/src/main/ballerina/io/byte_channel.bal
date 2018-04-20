@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.io;
 
 @Description {value:"Ballerina ByteChannel represents a channel which will allow I/O operations to be done"}
 public type ByteChannel object {

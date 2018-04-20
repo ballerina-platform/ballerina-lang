@@ -40,7 +40,7 @@ public class Uuid extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        String randomString = UUID.randomUUID().toString().replaceAll("-", "");
+        String randomString = UUID.randomUUID().toString();
         context.setReturnValues(new BString(randomString));
     }
 }
