@@ -38,14 +38,14 @@ import java.nio.file.Path;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "internal",
-        functionName = "exists",
+        functionName = "pathExists",
         args = {
                 @Argument(name = "path", type = TypeKind.STRUCT, structType = "Path",
                         structPackage = "ballerina.file")},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-public class Exists extends BlockingNativeCallableUnit {
+public class PathExists extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {

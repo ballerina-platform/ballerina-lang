@@ -88,7 +88,7 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
 
                         if (!createDirectories(destDirPath)) {
                             internal:Path pkgArchivePath = new(destArchivePath);
-                            if (internal:exists(pkgArchivePath)){
+                            if (internal:pathExists(pkgArchivePath)){
                                 return;                              
                             }        
                         }
@@ -261,7 +261,7 @@ documentation {
 }
 function createDirectories(string directoryPath) returns (boolean) {
     internal:Path dirPath = new(directoryPath);
-    if (!internal:exists(dirPath)){
+    if (!internal:pathExists(dirPath)){
         boolean directoryCreationStatus = check (internal:createDirectory(dirPath));
         return directoryCreationStatus;
     } else {

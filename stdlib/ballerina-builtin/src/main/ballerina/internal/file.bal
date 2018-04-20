@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.internal;
-
 import ballerina/time;
 
 @Description { value: "Represents an I/O error that could occur when processing a file"}
@@ -53,7 +51,7 @@ public type Path object{
 @Description { value: "Check for existance of the file"}
 @Param {value: "path: Refernce to the file location"}
 @Return {value: "true if the file exists"}
-public native function exists(@sensitive Path path) returns boolean;
+public native function pathExists(@sensitive Path path) returns boolean;
 
 @Description { value: "Returns the list of paths in the directory"}
 @Param {value: "path: Reference to the file path location"}
