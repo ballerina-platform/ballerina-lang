@@ -191,8 +191,8 @@ public class ObservabilityUtils {
 
     /**
      * @param context The {@link Context} instance.
-     * @return the parent {@link ObserverContext}. Make sure to check {{@link #isObservabilityEnabled()}}
-     * before calling this method. Otherwise it can cause a {@link NullPointerException}.
+     * @return the parent {@link ObserverContext} or a new {@link ObserverContext} depending on whether observability
+     * is enabled or not.
      */
     public static ObserverContext getParentContext(Context context) {
         return enabled ? populateAndGetParentObserverContext(context.getParentWorkerExecutionContext())
