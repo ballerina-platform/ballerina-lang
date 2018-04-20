@@ -54,6 +54,7 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
 
     private Schema oasSchema;
     private String type;
+    private boolean isComposed;
     private Set<Map.Entry<String, Schema>> properties;
 
     @Override
@@ -72,8 +73,15 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
             return this;
         } else if (schema.get$ref() != null) {
             String refType = getReferenceType(schema.get$ref());
-            this.type = refType;
             schema = openAPI.getComponents().getSchemas().get(refType);
+            if (schema == null) {
+                throw new BallerinaOpenApiException("Reference schema " + refType + " not found.");
+            }
+
+            // recurse with the reference schema found until we meet a concrete schema
+            BallerinaSchema concreteSchema = new BallerinaSchema().buildContext(schema, openAPI);
+            concreteSchema.setType(refType);
+            return concreteSchema;
         } else if (schema.getProperties() == null) {
             if (schema.getType() == null) {
                 throw new BallerinaOpenApiException("Unsupported schema type in schema: " + schema.getName());
@@ -183,6 +191,7 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
 
     private void extractComposedSchema(ComposedSchema cSchema, OpenAPI openAPI) throws BallerinaOpenApiException {
         this.properties = new LinkedHashSet<>();
+        this.isComposed = true;
         List<Schema> allOf = cSchema.getAllOf();
 
         List<BallerinaSchema> childSchemas = new ArrayList<>();
@@ -230,5 +239,13 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
 
     public String getType() {
         return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public boolean isComposed() {
+        return isComposed;
     }
 }
