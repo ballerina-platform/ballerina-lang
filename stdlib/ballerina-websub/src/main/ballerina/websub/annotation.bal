@@ -23,18 +23,18 @@ import ballerina/http;
 documentation {
     Configuration for a WebSubSubscriber service.
 
-    F{{endpoints}} - Array of endpoints the service would be attached to.
-    F{{path}}  - Path of the WebSubSubscriber service.
-    F{{subscribeOnStartUp}} - Whether a subscription request is expected to be sent on start up.
-    F{{resourceUrl}}  - The resource URL for which discovery will be initiated to identify hub and topic if not
+    F{{endpoints}} Array of endpoints the service would be attached to.
+    F{{path}}  Path of the WebSubSubscriber service.
+    F{{subscribeOnStartUp}} Whether a subscription request is expected to be sent on start up.
+    F{{resourceUrl}}  The resource URL for which discovery will be initiated to identify hub and topic if not
                         specified.
-    F{{hub}} - The hub at which the subscription should be registered.
-    F{{topic}} - The topic to which this WebSub subscriber (callback) should be registered.
-    F{{leaseSeconds}} - The period for which the subscription is expected to be active.
-    F{{secret}} - The secret to be used for authenticated content distribution.
-    F{{callback}} - The callback to use when registering, if unspecified host:port/path will be used.
-    F{{auth}} - The auth configuration to use when subscribing at the hub.
-    F{{secureSocket}} - The secure socket configuration to use when subscribing at the hub.
+    F{{hub}} The hub at which the subscription should be registered.
+    F{{topic}} The topic to which this WebSub subscriber (callback) should be registered.
+    F{{leaseSeconds}} The period for which the subscription is expected to be active.
+    F{{secret}} The secret to be used for authenticated content distribution.
+    F{{callback}} The callback to use when registering, if unspecified host:port/path will be used.
+    F{{auth}} The auth configuration to use when subscribing at the hub.
+    F{{secureSocket}} The secure socket configuration to use when subscribing at the hub.
 }
 public type SubscriberServiceConfiguration {
     Listener[] endpoints,

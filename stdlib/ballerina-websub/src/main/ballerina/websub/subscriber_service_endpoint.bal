@@ -23,8 +23,8 @@ import ballerina/http;
 documentation {
     Object representing the WebSubSubscriber Service Endpoint.
 
-    F{{config}} - The configuration for the endpoint.
-    F{{serviceEndpoint}} - The underlying HTTP service endpoint.
+    F{{config}} The configuration for the endpoint.
+    F{{serviceEndpoint}} The underlying HTTP service endpoint.
 }
 public type Listener object {
 
@@ -44,14 +44,14 @@ public type Listener object {
     documentation {
          Gets called when the endpoint is being initialized during package init.
          
-         P{{config}} - The Subscriber Service Endpoint Configuration of the endpoint.
+         P{{config}} The Subscriber Service Endpoint Configuration of the endpoint.
     }
     public function init(SubscriberServiceEndpointConfiguration config);
 
     documentation {
         Gets called whenever a service attaches itself to this endpoint and during package init.
 
-        P{{serviceType}} - The service attached.
+        P{{serviceType}} The service attached.
     }
     public function register(typedesc serviceType);
 
@@ -63,7 +63,7 @@ public type Listener object {
     documentation {
         Returns the connector that client code uses.
 
-        R{{}} - `http:Connection` The connector that client code uses
+        R{{}} `http:Connection` The connector that client code uses
     }
     public function getCallerActions() returns (http:Connection);
 
@@ -89,7 +89,7 @@ public type Listener object {
     documentation {
         Sets the topic to which this service is subscribing, for auto intent verification.
 
-        P{{topic}} - The topic the subscription happened for.
+        P{{topic}} The topic the subscription happened for.
     }
     native function setTopic (string topic);
 
@@ -188,13 +188,13 @@ function Listener::sendSubscriptionRequest() {
 documentation {
     Object representing the configuration for the WebSubSubscriber Service Endpoint.
 
-    F{{host}} - The configuration for the endpoint.
-    F{{port}} - The underlying HTTP service endpoint.
-    F{{secureSocket}} - The SSL configurations for the service endpoint.
-    F{{topicIdentifier}} - The identifier based on which dispatching should happen for custom subscriber services.
-    F{{topicHeader}} - The header to consider if required with dispatching for custom services.
-    F{{topicPayloadKeys}} - The payload keys to consider if required with dispatching for custom services.
-    F{{topicResourceMap}} - The mapping between topics and resources if required for custom services.
+    F{{host}} The configuration for the endpoint.
+    F{{port}} The underlying HTTP service endpoint.
+    F{{secureSocket}} The SSL configurations for the service endpoint.
+    F{{topicIdentifier}} The identifier based on which dispatching should happen for custom subscriber services.
+    F{{topicHeader}} The header to consider if required with dispatching for custom services.
+    F{{topicPayloadKeys}} The payload keys to consider if required with dispatching for custom services.
+    F{{topicResourceMap}} The mapping between topics and resources if required for custom services.
 }
 public type SubscriberServiceEndpointConfiguration {
     string host;
@@ -208,8 +208,8 @@ public type SubscriberServiceEndpointConfiguration {
 
 documentation {
     The function called to discover hub and topic URLs defined by a resource URL.
-    P{{resourceUrl}} - The resource URL advertising hub and topic URLs.
-    R{{}} - `(string, string)` (hub, topic) URLs if successful, `WebSubError` if not.
+    P{{resourceUrl}} The resource URL advertising hub and topic URLs.
+    R{{}} `(string, string)` (hub, topic) URLs if successful, `WebSubError` if not.
 }
 function retrieveHubAndTopicUrl (string resourceUrl, http:SecureSocket? secureSocket) returns @tainted
 ((string, string) | WebSubError) {
@@ -290,9 +290,9 @@ public type SignatureValidationFilter object {
 documentation {
     The function called to validate signature for content received by WebSub services.
 
-    P{{request}} - The request being intercepted.
-    P{{context}} - The filter context.
-    R{{}} - `http:FilterResult` The result of the filter indicating whether or not proceeding can be allowed.
+    P{{request}} The request being intercepted.
+    P{{context}} The filter context.
+    R{{}} `http:FilterResult` The result of the filter indicating whether or not proceeding can be allowed.
 }
 public function interceptWebSubRequest (http:Request request, http:FilterContext context) returns (http:FilterResult) {
     if (request.method == "POST") {
@@ -318,8 +318,8 @@ public function interceptWebSubRequest (http:Request request, http:FilterContext
 documentation {
     Function to invoke the WebSubSubscriberConnector's actions for subscription.
 
-    P{{hub}} - The hub to which the subscription request is to be sent.
-    P{{subscriptionDetails}} - Map containing subscription details.
+    P{{hub}} The hub to which the subscription request is to be sent.
+    P{{subscriptionDetails}} Map containing subscription details.
 }
 function invokeClientConnectorForSubscription (string hub, http:SecureSocket? secureSocket, http:AuthConfig? auth,
 map subscriptionDetails) {
