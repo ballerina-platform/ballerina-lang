@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Comparator;
 import java.util.stream.Stream;
@@ -26,15 +27,6 @@ public class PathConverter implements Converter<Path> {
     private static boolean isBalWithTest(Path path, BasicFileAttributes attributes) {
         Path fileName = path.getFileName();
         return attributes.isRegularFile() && fileName != null && fileName.toString().endsWith(".bal");
-    }
-
-    private static boolean isBal(Path path, BasicFileAttributes attributes) {
-        Path fileName = path.getFileName();
-        Path parentFolder = path.getParent();
-        Path parentFolderName = parentFolder != null ? parentFolder.getFileName() : null;
-        return attributes.isRegularFile() && parentFolderName != null &&
-                !parentFolderName.toString().equals("test") && fileName != null &&
-                fileName.toString().endsWith(".bal");
     }
 
     @Override
@@ -71,10 +63,12 @@ public class PathConverter implements Converter<Path> {
     }
 
     @Override
-    public Stream<Path> expandBal(Path path) { // without tests
+    public Stream<Path> expandBal(Path path) {
         if (Files.isDirectory(path)) {
             try {
-                return Files.find(path, Integer.MAX_VALUE, PathConverter::isBal);
+                FilterSearch filterSearch = new FilterSearch(Paths.get("test"));
+                Files.walkFileTree(path, filterSearch);
+                return filterSearch.getPathList().stream();
             } catch (IOException ignore) {
             }
         }
