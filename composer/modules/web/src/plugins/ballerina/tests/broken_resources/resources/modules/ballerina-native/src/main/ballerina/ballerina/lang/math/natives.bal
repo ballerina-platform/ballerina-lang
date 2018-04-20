@@ -1,4 +1,3 @@
-package ballerina.lang.math;
 
 import ballerina/doc;
 

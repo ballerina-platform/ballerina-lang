@@ -1,4 +1,3 @@
-package org.foo.attached_funcs;
 
 
 public type user {

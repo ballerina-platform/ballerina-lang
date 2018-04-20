@@ -57,7 +57,7 @@ public class GlobalVarServiceTest {
         Assert.assertEquals(bJson.value().get("glbVarFloat").asText(), "99.34323");
     }
 
-    @Test(description = "Test accessing global variables in service level", enabled = false)
+    @Test(description = "Test accessing global variables in service level")
     public void testAccessingGlobalVarInServiceLevel() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar/access-service-level", "GET");
         HTTPCarbonMessage response = Services.invokeNew(result, MOCK_ENDPOINT_NAME, cMsg);

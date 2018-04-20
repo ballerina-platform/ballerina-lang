@@ -5,7 +5,7 @@ endpoint http:Listener passthroughEP {
 };
 
 endpoint http:Client nyseEP {
-    targets:[{url:"http://localhost:9090"}]
+    url:"http://localhost:9090"
 };
 
 @http:ServiceConfig {basePath:"/passthrough"}
@@ -16,7 +16,7 @@ service<http:Service> passthroughService bind passthroughEP {
         path:"/"
     }
     passthrough (endpoint outboundEP, http:Request clientRequest) {
-        var response = nyseEP -> get("/nyseStock/stocks", clientRequest);
+        var response = nyseEP -> get("/nyseStock/stocks", request = clientRequest);
         match response {
             http:Response httpResponse => {
                 _ = outboundEP -> respond(httpResponse);

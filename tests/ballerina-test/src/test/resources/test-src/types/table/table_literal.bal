@@ -1,4 +1,5 @@
 import ballerina/io;
+import ballerina/jdbc;
 import ballerina/sql;
 
 type Person {
@@ -58,25 +59,24 @@ function testEmptyTableCreate() returns (int, int) {
 }
 
 function checkTableCount(string tablePrefix) returns (int) {
-    endpoint sql:Client testDB {
-        url:"h2:mem:TABLEDB",
+    endpoint jdbc:Client testDB {
+        url:"jdbc:h2:mem:TABLEDB",
         username:"sa",
         poolOptions:{maximumPoolSize:1}
     };
 
-    sql:Parameter p1 = (sql:TYPE_VARCHAR, tablePrefix);
+    sql:Parameter p1 = {sqlType:sql:TYPE_VARCHAR, value:tablePrefix};
 
     int count;
     try {
-        var temp = testDB->select("SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME like
+        table dt = check testDB->select("SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME like
          ?", ResultCount, p1);
-        table dt = check temp;
         while (dt.hasNext()) {
             var rs = check <ResultCount>dt.getNext();
             count = rs.COUNTVAL;
         }
     } finally {
-        _ = testDB->close();
+        testDB.stop();
     }
     return count;
 }
@@ -221,11 +221,16 @@ function testPrintData() {
     Person p2 = {id:2, age:20, salary:200.50, name:"martin", married:true};
     Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
 
-    table<Person> dt = table{};
+    table<Person> dt = table{index:["id", "age"], primaryKey:["id", "age"]};
     _ = dt.add(p1);
     _ = dt.add(p2);
     _ = dt.add(p3);
 
+    io:println(dt);
+}
+
+function testPrintDataEmptyTable() {
+    table<Person> dt = table{};
     io:println(dt);
 }
 

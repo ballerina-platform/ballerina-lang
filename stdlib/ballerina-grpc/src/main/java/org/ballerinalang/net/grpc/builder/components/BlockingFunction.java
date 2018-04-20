@@ -17,6 +17,17 @@
  */
 package org.ballerinalang.net.grpc.builder.components;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.BRACKET_CLOSE;
+import static org.ballerinalang.net.grpc.GrpcConstants.BRACKET_OPEN;
+import static org.ballerinalang.net.grpc.GrpcConstants.COMMA;
+import static org.ballerinalang.net.grpc.GrpcConstants.DIAMOND_CAST_CLOSE;
+import static org.ballerinalang.net.grpc.GrpcConstants.DIAMOND_CAST_OPEN;
+import static org.ballerinalang.net.grpc.GrpcConstants.IGNORE_CAST;
+import static org.ballerinalang.net.grpc.GrpcConstants.INIT_EMPTY_STUB;
+import static org.ballerinalang.net.grpc.GrpcConstants.INPUT_TYPE_NAME;
+import static org.ballerinalang.net.grpc.GrpcConstants.RESULT_TYPE_NAME;
+import static org.ballerinalang.net.grpc.GrpcConstants.SPACE;
+
 /**
  * Bean class of blocking function object.
  */
@@ -26,7 +37,18 @@ public class BlockingFunction {
     private String operationId;
     private String inputDataType;
     private String outputDataType;
+    private String initEmptyStub;
     private String methodId;
+    private String inputComma = COMMA;
+    private String inputAttributeName = INPUT_TYPE_NAME;
+    private String outputComma = COMMA;
+    private String resultCast = RESULT_TYPE_NAME;
+    private String resultOut = RESULT_TYPE_NAME;
+    private String castSymbolOpen = DIAMOND_CAST_OPEN;
+    private String castSymbolClose = DIAMOND_CAST_CLOSE;
+    private String openBracket = BRACKET_OPEN;
+    private String closeBracket = BRACKET_CLOSE;
+    private String space = SPACE;
     
     public BlockingFunction(String stubTypeName, String connectorId, String operationId, String inputDataType,
                             String outputDataType, String methodId) {
@@ -84,5 +106,77 @@ public class BlockingFunction {
     
     public void setConnectorId(String connectorId) {
         this.connectorId = connectorId;
+    }
+    
+    public String getInputComma() {
+        return inputComma;
+    }
+    
+    public void setInputComma(String inputComma) {
+        this.inputComma = inputComma;
+        if (inputComma == null) {
+            this.space = null;
+        }
+    }
+    
+    public String getInputAttributeName() {
+        return inputAttributeName;
+    }
+    
+    public void setInputAttributeName(String inputAttributeName) {
+        this.inputAttributeName = inputAttributeName;
+    }
+    
+    public String getOutputComma() {
+        return outputComma;
+    }
+    
+    public void setOutputComma(String outputComma) {
+        this.outputComma = outputComma;
+    }
+    
+    public void initEmptyStruct() {
+        this.initEmptyStub = INIT_EMPTY_STUB;
+    }
+    
+    public String getInitEmptyStub() {
+        return initEmptyStub;
+    }
+    
+    public void ignoreCast() {
+        this.castSymbolClose = null;
+        this.castSymbolOpen = null;
+        this.resultOut = null;
+        this.openBracket = null;
+        this.closeBracket = null;
+        this.resultCast = IGNORE_CAST;
+    }
+    
+    public String getResultCast() {
+        return resultCast;
+    }
+    
+    public String getResultOut() {
+        return resultOut;
+    }
+    
+    public String getCastSymbolOpen() {
+        return castSymbolOpen;
+    }
+    
+    public String getCastSymbolClose() {
+        return castSymbolClose;
+    }
+    
+    public String getOpenBracket() {
+        return openBracket;
+    }
+    
+    public String getCloseBracket() {
+        return closeBracket;
+    }
+    
+    public String getSpace() {
+        return space;
     }
 }

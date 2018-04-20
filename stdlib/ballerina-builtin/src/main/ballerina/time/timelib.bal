@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.time;
 
 @final public TimeFormat TIME_FORMAT_RFC_1123 = "RFC_1123";
 
@@ -46,15 +45,9 @@ public type Time object {
 
     @Description {value:"Returns formatted string representation of the given time."}
     @Param {value:"time: The time object for which needs to get the string representation"}
-    @Param {value:"format: The format which is used to format the given text"}
+    @Param {value:"format: The format which is used to format the time represented by this object"}
     @Return {value:"The formatted string of the given time."}
-    public native function format(string format) returns (string);
-
-    @Description {value:"Formats the given string to the specified standard time format and returns the formatted string."}
-    @Param {value:"time: The time object for which the string representation is needed"}
-    @Param {value:"format: The format which is used to format the given text"}
-    @Return {value:"The formatted string of the given time."}
-    public native function formatTo(TimeFormat format) returns (string);
+    public native function format(string|TimeFormat format) returns (string);
 
     @Description {value:"Returns the year representation of the given time."}
     @Param {value:"time: The time object which needs to get the year representation"}
@@ -168,10 +161,4 @@ string zoneId) returns (Time);
 @Param {value:"data: The time text to parse"}
 @Param {value:"format: The format which is used to parse the given text"}
 @Return {value:"Time object containing time and zone information."}
-public native function parse(string data, string format) returns (Time);
-
-@Description {value:"Returns the time for the given string representation based on the specified standard time format."}
-@Param {value:"timestamp: The time text to parse"}
-@Param {value:"format: The format which is used to parse the given date/time string"}
-@Return {value:"Time object containing time and zone information."}
-public native function parseTo(string timestamp, TimeFormat format) returns Time;
+public native function parse(string data, string|TimeFormat format) returns (Time);

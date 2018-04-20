@@ -1,4 +1,3 @@
-package org.test;
 
 function main (string... args) {
     ClientConnector nyseEP = create ClientConnector("http://localhost:9090");

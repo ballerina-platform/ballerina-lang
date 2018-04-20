@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.swagger;
 
 @Description {value: "Model for additional swagger information of a ballerina service"}
 @Field {value: "title: Title of the swagger definition"}

@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.log;
 
 @Description {value: "Logs the specified value at DEBUG level."}
 @Param {value: "msg: The message to be logged"}

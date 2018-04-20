@@ -1,9 +1,8 @@
-package ballerina.http;
 
 import ballerina/file;
 import ballerina/io;
 import ballerina/mime;
-import ballerina/security.crypto;
+import ballerina/crypto;
 import ballerina/time;
 
 @Description { value:"Represents an HTTP response message"}
@@ -80,7 +79,7 @@ public type Response object {
     public function removeAllHeaders ();
 
     @Description {value:"Get all transport header names from the response."}
-    @Param {value:"res: The response message"}
+    @Return {value:"An array of all transport header names"}
     public function getHeaderNames () returns (string[]);
 
     @Description {value:"Set the content-type header to response"}
@@ -159,7 +158,7 @@ public type Response object {
     @Param {value:"response: The response message"}
     @Param {value:"filePath: Path to the file that needs to be set to the payload"}
     @Param {value:"contentType: Content-Type of the file"}
-    public function setFileAsPayload (file:Path filePath, string contentType);
+    public function setFileAsPayload (string filePath, string contentType);
 
     @Description {value:"Sets a byte channel as the outbound response payload"}
     @Param {value:"response: The response message"}
@@ -296,13 +295,13 @@ public function Response::getBodyParts () returns mime:Entity[] | mime:EntityErr
 }
 
 public function Response::setETag(json|xml|string|blob payload) {
-    string etag = crypto:getCRC32(payload);
+    string etag = crypto:crc32(payload);
     self.setHeader(ETAG, etag);
 }
 
 public function Response::setLastModified() {
     time:Time currentT = time:currentTime();
-    string lastModified = currentT.formatTo(time:TIME_FORMAT_RFC_1123);
+    string lastModified = currentT.format(time:TIME_FORMAT_RFC_1123);
     self.setHeader(LAST_MODIFIED, lastModified);
 }
 
@@ -345,7 +344,7 @@ public function Response::setBodyParts (mime:Entity[] bodyParts, @sensitive stri
     self.setEntity(entity);
 }
 
-public function Response::setFileAsPayload (file:Path filePath, @sensitive string contentType) {
+public function Response::setFileAsPayload (string filePath, @sensitive string contentType) {
     mime:MediaType mediaType = mime:getMediaType(contentType);
     mime:Entity entity = self.getEntityWithoutBody();
     entity.contentType = mediaType;

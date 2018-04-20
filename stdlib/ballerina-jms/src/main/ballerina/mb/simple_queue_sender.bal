@@ -1,4 +1,3 @@
-package ballerina.jms;
 
 import ballerina/log;
 
@@ -9,7 +8,7 @@ public type SimpleQueueSender object {
 
     private {
         jms:SimpleQueueSender? sender;
-        QueueSenderConnector? senderConnector;
+        QueueSenderActions? producerActions;
     }
 
     public function init(SimpleQueueSenderEndpointConfiguration config) {
@@ -22,19 +21,19 @@ public type SimpleQueueSender object {
             queueName: config.queueName
         };
         self.sender = queueSender;
-        self.senderConnector = new QueueSenderConnector(queueSender);
+        self.producerActions = new QueueSenderActions(queueSender);
         self.config = config;
     }
 
-    public function register (typedesc serviceType) {
+    public function register(typedesc serviceType) {
     }
 
-    public function start () {
+    public function start() {
     }
 
-    public function getClient () returns (QueueSenderConnector) {
-        match (self.senderConnector) {
-            QueueSenderConnector s => return s;
+    public function getCallerActions() returns QueueSenderActions {
+        match (self.producerActions) {
+            QueueSenderActions s => return s;
             () => {
                 error e = {message: "Queue sender connector cannot be nil"};
                 throw e;
@@ -42,16 +41,16 @@ public type SimpleQueueSender object {
         }
     }
 
-    public function stop () {
+    public function stop() {
     }
 
-    public function createTextMessage(string message) returns (Message|Error) {
+    public function createTextMessage(string message) returns Message|error {
         match (self.sender) {
             jms:SimpleQueueSender s => {
                 var result = s.createTextMessage(message);
                 match(result) {
                     jms:Message m => return new Message(m);
-                    jms:Error e => return e;
+                    error e => return e;
                 }
             }
             () => {
@@ -63,14 +62,14 @@ public type SimpleQueueSender object {
     }
 };
 
-public type QueueSenderConnector object {
+public type QueueSenderActions object {
     private {
         jms:SimpleQueueSender sender;
     }
 
     new (sender) {}
 
-    public function send (Message m) returns (Error | ()) {
+    public function send(Message m) returns error? {
         endpoint jms:SimpleQueueSender senderEP = self.sender;
         var result = senderEP->send(m.getJMSMessage());
         return result;
@@ -88,4 +87,3 @@ public type SimpleQueueSenderEndpointConfiguration {
     map properties,
     string queueName,
 };
-

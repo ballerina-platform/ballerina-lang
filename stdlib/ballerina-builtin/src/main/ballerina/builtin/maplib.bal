@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.builtin;
 
 @Description { value:"Removes the specified element from the map"}
 @Param { value:"m: The map object" }

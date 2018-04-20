@@ -1,9 +1,7 @@
 import ballerina/http;
 
 endpoint http:Client clientEndpoint {
-    targets: [{
-        url: "https://postman-echo.com"
-    }]
+    url: "https://postman-echo.com"
 };
 
 function main (string... args) {
@@ -14,7 +12,7 @@ function main (string... args) {
     http:Request req = new;
     req.setHeader(headerName, headerValue);
 
-    var response = clientEndpoint -> get("/get?test=" + param, req);
+    var response = clientEndpoint -> get("/get?test=" + param, request = req);
     match response {
         http:Response resp => {
             var msg = resp.getStringPayload();

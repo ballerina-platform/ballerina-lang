@@ -18,10 +18,10 @@
 package org.ballerinalang.repository.fs;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.PackageEntity;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
-import org.ballerinalang.repository.PackageSourceEntry;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -252,27 +252,27 @@ public class GeneralFSPackageRepository implements PackageRepository {
         }
 
         @Override
-        public PackageSourceEntry getPackageSourceEntry(String name) {
-            return new FSPackageSourceEntry(name);
+        public CompilerInput getPackageSourceEntry(String name) {
+            return new FSCompilerInput(name);
         }
 
         @Override
-        public List<PackageSourceEntry> getPackageSourceEntries() {
-            return this.getEntryNames().stream().map(e -> new FSPackageSourceEntry(e)).collect(Collectors.toList());
+        public List<CompilerInput> getPackageSourceEntries() {
+            return this.getEntryNames().stream().map(e -> new FSCompilerInput(e)).collect(Collectors.toList());
         }
 
         /**
-         * This represents local file system based {@link PackageSourceEntry}.
+         * This represents local file system based {@link CompilerInput}.
          *
          * @since 0.94
          */
-        public class FSPackageSourceEntry implements PackageSourceEntry {
+        public class FSCompilerInput implements CompilerInput {
 
             private String name;
 
             private byte[] code;
 
-            public FSPackageSourceEntry(String name) {
+            public FSCompilerInput(String name) {
                 this.name = name;
                 Path filePath = basePath.resolve(name);
                 try {
@@ -281,11 +281,6 @@ public class GeneralFSPackageRepository implements PackageRepository {
                     throw new RuntimeException("Error in loading package source entry '" + filePath +
                             "': " + e.getMessage(), e);
                 }
-            }
-
-            @Override
-            public PackageID getPackageID() {
-                return pkgID;
             }
 
             @Override
@@ -298,11 +293,6 @@ public class GeneralFSPackageRepository implements PackageRepository {
                 return code;
             }
 
-        }
-
-        @Override
-        public PackageRepository getPackageRepository() {
-            return GeneralFSPackageRepository.this;
         }
 
         @Override

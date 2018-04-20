@@ -19,7 +19,7 @@ package org.ballerinalang.langserver.completion;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completion.util.CompletionTestUtil;
 import org.ballerinalang.langserver.completion.util.FileUtils;
 import org.eclipse.lsp4j.CompletionItem;
@@ -60,7 +60,7 @@ public abstract class CompletionTest {
         org.apache.commons.io.FileUtils.copyDirectory(source, destination);
     }
 
-    @Test(dataProvider = "completion-data-provider")
+    @Test(dataProvider = "completion-data-provider", enabled = false)
     public void test(String config, String configPath) {
         String configJsonPath = SAMPLES_COPY_DIR + File.separator + configPath + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
@@ -78,7 +78,7 @@ public abstract class CompletionTest {
         position.setCharacter(positionObj.get("character").getAsInt());
         TextDocumentPositionParams positionParams =
                 CompletionTestUtil.getPositionParams(position, balPath);
-        WorkspaceDocumentManagerImpl documentManager = CompletionTestUtil.prepareDocumentManager(balPath, content);
+        WorkspaceDocumentManager documentManager = CompletionTestUtil.prepareDocumentManager(balPath, content);
         return CompletionTestUtil.getCompletions(documentManager, positionParams);
     }
 

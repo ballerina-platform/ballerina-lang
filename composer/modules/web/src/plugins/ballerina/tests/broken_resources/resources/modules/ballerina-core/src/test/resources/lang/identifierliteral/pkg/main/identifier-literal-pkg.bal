@@ -1,4 +1,3 @@
-package lang.identifierliteral.pkg.main;
 
 import lang.identifierliteral.pkg.variable;
 

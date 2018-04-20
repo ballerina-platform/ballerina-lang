@@ -10,7 +10,7 @@ endpoint http:WebSocketListener echoEP {
     path:"/echo"
 }
 service<http:WebSocketService> echo bind echoEP {
-    onOpen (string conn) {
+    onOpen(string conn) {
     }
 
     onIdleTimeout() {
