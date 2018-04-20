@@ -13,36 +13,40 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.nativeimpl.runtime;
+
+package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import java.util.Properties;
+import java.nio.charset.Charset;
+import java.util.Base64;
+
+import javax.xml.bind.DatatypeConverter;
 
 /**
- * Native function ballerina.runtime:getProperties.
+ * Native function ballerina.model.string:base16ToBase64Encode.
  *
- * @since 0.94.1
+ * @since 0.970.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "runtime",
-        functionName = "getProperties",
-        returnType = {@ReturnType(type = TypeKind.MAP)},
-        isPublic = true
-)
-public class GetProperties extends BlockingNativeCallableUnit {
+        orgName = "ballerina", packageName = "builtin",
+        functionName = "string.base16ToBase64Encode",
+        args = {@Argument(name = "s", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRING)},
+        isPublic = true)
+public class Base16ToBase64Encode extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        Properties properties = System.getProperties();
-        BMap<String, BString> propertyMap = new BMap<>();
-        properties.forEach((key, value) -> propertyMap.put(key.toString(), new BString(value.toString())));
-        context.setReturnValues(propertyMap);
+        String value = context.getStringArgument(0);
+        byte[] base16DecodedValue = DatatypeConverter.parseHexBinary(value);
+        byte[] base64EncodedValue = Base64.getEncoder().encode(base16DecodedValue);
+        context.setReturnValues(new BString(new String(base64EncodedValue, Charset.defaultCharset())));
     }
 }

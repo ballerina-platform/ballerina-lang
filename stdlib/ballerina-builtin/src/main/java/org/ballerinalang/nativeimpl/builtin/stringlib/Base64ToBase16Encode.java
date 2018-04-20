@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.util;
+package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -31,14 +31,14 @@ import java.util.Base64;
 import javax.xml.bind.DatatypeConverter;
 
 /**
- * Native function ballerina.util:base64ToBase16Encode.
+ * Native function ballerina.model.string:base64ToBase16Encode.
  *
- * @since 0.95.2
+ * @since 0.970.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "util",
-        functionName = "base64ToBase16Encode",
-        args = {@Argument(name = "baseString", type = TypeKind.STRING)},
+        orgName = "ballerina", packageName = "builtin",
+        functionName = "string.base64ToBase16Encode",
+        args = {@Argument(name = "s", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true)
 public class Base64ToBase16Encode extends BlockingNativeCallableUnit {

@@ -13,32 +13,34 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.nativeimpl.user;
+
+package org.ballerinalang.nativeimpl.system;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.BuiltInUtils;
+
+import java.util.UUID;
 
 /**
- * Native function ballerina.user:getName.
+ * Native function ballerina.system:uuid.
  *
- * @since 0.94.1
+ * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "user",
-        functionName = "getName",
+        orgName = "ballerina", packageName = "system",
+        functionName = "uuid",
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class GetName extends BlockingNativeCallableUnit {
-
-    private static final String PROPERTY_NAME = "user.name";
+public class Uuid extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        context.setReturnValues(BuiltInUtils.getSystemProperty(PROPERTY_NAME));
+        String randomString = UUID.randomUUID().toString();
+        context.setReturnValues(new BString(randomString));
     }
 }

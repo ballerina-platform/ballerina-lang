@@ -25,8 +25,8 @@ function testServerStreaming(string name) returns (string[]) {
     }
 
     int wait = 0;
-    while (total < 4) {
-        runtime:sleepCurrentWorker(1000);
+    while(total < 4) {
+        runtime:sleep(1000);
         io:println("msg count: " + total);
         if (wait > 10) {
             break;

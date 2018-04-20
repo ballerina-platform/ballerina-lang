@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.nativeimpl.runtime;
+package org.ballerinalang.nativeimpl.system;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -23,19 +23,19 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.BuiltInUtils;
 
 /**
- * Native function ballerina.runtime:getFileEncoding.
+ * Native function ballerina.system:getCurrentDirectory.
  *
  * @since 0.94.1
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "runtime",
-        functionName = "getFileEncoding",
+        orgName = "ballerina", packageName = "system",
+        functionName = "getCurrentDirectory",
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class GetFileEncoding extends BlockingNativeCallableUnit {
+public class GetCurrentDirectory extends BlockingNativeCallableUnit {
 
-    private static final String PROPERTY_NAME = "file.encoding";
+    private static final String PROPERTY_NAME = "user.dir";
 
     @Override
     public void execute(Context context) {

@@ -20,6 +20,7 @@ package org.ballerinalang.net.websub;
 
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
@@ -276,6 +277,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
                     WebSubSubscriberConstants.PARAM_HUB_CHALLENGE).stringValue();
                     response.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(
                             challenge.getBytes(StandardCharsets.UTF_8))));
+                    response.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), Constants.TEXT_PLAIN);
                     response.setProperty(HttpConstants.HTTP_STATUS_CODE, 202);
                     console.println("ballerina: Intent Verification agreed - Mode [" + mode + "], Topic ["
                                             + annotatedTopic + "], Lease Seconds ["

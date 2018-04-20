@@ -36,3 +36,11 @@ function writeBytes (blob content, int startOffset) returns (int|error) {
 function close () {
     var result = channel.close();
 }
+
+function testBase64EncodeByteChannel(io:ByteChannel contentToBeEncoded) returns (io:ByteChannel|error) {
+    return contentToBeEncoded.base64Encode();
+}
+
+function testBase64DecodeByteChannel(io:ByteChannel contentToBeDecoded) returns (io:ByteChannel|error) {
+    return contentToBeDecoded.base64Decode();
+}

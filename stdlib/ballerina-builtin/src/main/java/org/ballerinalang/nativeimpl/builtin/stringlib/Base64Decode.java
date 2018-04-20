@@ -13,44 +13,36 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.nativeimpl.os;
+
+package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.nativeimpl.Utils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.os:getMultivaluedEnv.
+ * Native function ballerina.model.string:base64Decode.
  *
- * @since 0.94.1
+ * @since 0.970.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "os",
-        functionName = "getMultivaluedEnv",
-        args = {@Argument(name = "name", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
+        orgName = "ballerina", packageName = "builtin",
+        functionName = "string.base64Decode",
+        args = {@Argument(name = "s", type = TypeKind.STRING),
+                @Argument(name = "charset", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.UNION)},
         isPublic = true
 )
-public class GetMultivaluedEnv extends BlockingNativeCallableUnit {
-
-    private static final String PROPERTY_NAME = "path.separator";
+public class Base64Decode extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        String str = context.getStringArgument(0);
-        String value = System.getenv(str);
-        String separator = System.getProperty(PROPERTY_NAME);
-        if (value == null || separator == null) {
-            BStringArray valueArray = new BStringArray();
-            context.setReturnValues(valueArray);
-            return;
-        }
-        String[] values = value.split(separator);
-        BStringArray valueArray = new BStringArray(values);
-        context.setReturnValues(valueArray);
+        String s = context.getStringArgument(0);
+        String charset = context.getStringArgument(1);
+        Utils.decodeString(context, s, charset, false);
     }
 }

@@ -13,34 +13,36 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.nativeimpl.runtime;
+
+package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.nativeimpl.Utils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.runtime:setProperty.
+ * Native function ballerina.model.string:base64Encode.
  *
- * @since 0.94.1
+ * @since 0.970.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "runtime",
-        functionName = "setProperty",
-        args = {@Argument(name = "name", type = TypeKind.STRING), @Argument(name = "value", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        orgName = "ballerina", packageName = "builtin",
+        functionName = "string.base64Encode",
+        args = {@Argument(name = "s", type = TypeKind.STRING),
+                @Argument(name = "charset", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.UNION)},
         isPublic = true
 )
-public class SetProperty extends BlockingNativeCallableUnit {
+public class Base64Encode extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        String name = context.getStringArgument(0);
-        String value = context.getStringArgument(1);
-        System.setProperty(name, value);
-        context.setReturnValues();
+        String s = context.getStringArgument(0);
+        String charset = context.getStringArgument(1);
+        Utils.encodeString(context, s, charset, false);
     }
 }
