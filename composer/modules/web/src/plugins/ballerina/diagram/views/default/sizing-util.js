@@ -1338,7 +1338,7 @@ class SizingUtil {
         node.viewState.bBox.w = (this.config.statement.width < width) ? width :
             100;
         components.expression = this.getTextWidth(node.expression.getSource(true, true), 0,
-            node.viewState.bBox.w / 2);
+            node.viewState.bBox.w);
     }
 
 
@@ -1352,12 +1352,13 @@ class SizingUtil {
         const components = node.viewState.components;
         node.viewState.bBox.h = node.statement.viewState.bBox.h + this.config.statement.height;
         node.viewState.bBox.w = node.statement.viewState.bBox.w;
-        components.expression = this.getTextWidth(node.variableNode.getSource(true,true), 0,
-            node.viewState.bBox.w / 2);
 
         node.viewState.bBox.h += 10;
         // Calculate the left margin.
         this.calcLeftMargin(node.viewState.bBox, [node.statement], false, false);
+
+        components.expression = this.getTextWidth(node.variableNode.getSource(true, true), 0,
+            this.getActualWidth(node.viewState.bBox));
     }
 
 
@@ -1750,6 +1751,11 @@ class SizingUtil {
         const defaultGap = (setDefault) ? this.config.flowChartControlStatement.gap.left : 0;
         bBox.leftMargin = (leftMargin === 0) ? defaultGap :
             (leftMargin + ((acumilate) ? this.config.flowChartControlStatement.padding.left : 0));
+    }
+
+    getActualWidth(bBox) {
+        return ((bBox.leftMargin === 0) ? this.config.flowChartControlStatement.gap.left : bBox.leftMargin)
+            + bBox.w;
     }
 
     /**
