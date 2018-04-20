@@ -4,8 +4,7 @@ function main (string[] args) {
     io:println("Iterating over a string array");
     string[] fruits = ["apple", "banana", "cherry"];
     // For arrays: use one variable to get the values defined in the array.
-    // Use two variables as comma separated values to get the value along with its index (int). For example, 'foreach
-    //i, v in fruits'.
+    // Use two variables as comma separated values to get the index and value. For example, `foreach i, v in fruits`.
     foreach v in fruits {
         io:println("fruit: " + v);
     }
@@ -13,7 +12,7 @@ function main (string[] args) {
     io:println("\nIterating over a map.");
     map words = {a:"apple", b:"banana", c:"cherry"};
     // For maps: use 1 variable to get the values defined in the map. Use 2 variables to get both the key (string) and
-    //value.
+    // value.
     foreach k, v in words {
         string|error result = <string>v;
         match result {

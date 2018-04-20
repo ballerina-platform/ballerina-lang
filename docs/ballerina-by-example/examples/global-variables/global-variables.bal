@@ -7,7 +7,7 @@ string content = "";
 
 function main (string[] args) {
 
-    //Accessing a global variable.
+    // Accessing a global variable.
     io:println(total);
 
     content = content + "This is a sample text\n";

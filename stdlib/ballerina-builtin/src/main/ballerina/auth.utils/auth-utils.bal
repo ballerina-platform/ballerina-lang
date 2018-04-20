@@ -51,7 +51,8 @@ public function createCache (string cacheName) returns (caching:Cache|()) {
         int capacity;
         float evictionFactor;
         (expiryTime, capacity, evictionFactor) = getCacheConfigurations(cacheName);
-        return caching:createCache(cacheName, expiryTime, capacity, evictionFactor);
+        caching:Cache cache = new (expiryTimeMillis = expiryTime, capacity = capacity, evictionFactor = evictionFactor);
+        return cache;
     }
     return ();
 }

@@ -19,10 +19,10 @@ function main (string[] args) {
             f -> fork;
         }
     } join (some 1) (map results) {
-        //Here we use 'some 1' as the join condition, which means that the join block needs to wait for any one of the
-        workers to finish executing.
-        //When the join condition has been satisfied, the results 'map' is updated with the value returned by the worker
-        .
+        // Here we use 'some 1' as the join condition, which means that the join block needs to wait for any one of the
+        // workers to finish executing.
+        // When the join condition has been satisfied, the results 'map' is updated with the value returned by the
+        // worker.
 
         // Checks if the worker that finished executing is worker 'w1'.
         if (results["w1"] != null) {
