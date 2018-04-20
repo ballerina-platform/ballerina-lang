@@ -3,7 +3,7 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/file;
 
-function testContentType (http:Request req, string contentTypeValue) returns (string?) {
+function testContentType (http:Request req, string contentTypeValue) returns (string) {
     req.setContentType(contentTypeValue);
     return req.getContentType();
 }
