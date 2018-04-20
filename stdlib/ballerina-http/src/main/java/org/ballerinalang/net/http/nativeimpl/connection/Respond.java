@@ -80,8 +80,10 @@ public class Respond extends ConnectionAction {
         }
 
         ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
-        observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE, String.valueOf(outboundResponseStruct.
-                getIntField(RESPONSE_STATUS_CODE_INDEX)));
+        if (observerContext != null) {
+            observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE, String.valueOf(outboundResponseStruct.
+                    getIntField(RESPONSE_STATUS_CODE_INDEX)));
+        }
         sendOutboundResponseRobust(dataContext, inboundRequestMsg, outboundResponseStruct, outboundResponseMsg);
     }
 
