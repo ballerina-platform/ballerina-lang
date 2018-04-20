@@ -386,22 +386,24 @@ public class PackageLoader {
         Path projectPath = this.sourceDirectory.getPath();
         ProjectSourceRepo projectSourceRepo = new ProjectSourceRepo(projectPath);
         Patten packageIDPattern = projectSourceRepo.calculate(packageID);
-        Stream<Path> srcPathStream = packageIDPattern.convert(projectSourceRepo.getConverterInstance());
-        compiledPackage.srcEntries = srcPathStream
-                .filter(path -> Files.exists(path, LinkOption.NOFOLLOW_LINKS))
-                .map(projectPath::relativize)
-                .map(path -> new PathBasedCompiledPackageEntry(path, CompilerOutputEntry.Kind.SRC))
-                .collect(Collectors.toList());
+        if (packageIDPattern != Patten.NULL) {
+            Stream<Path> srcPathStream = packageIDPattern.convert(projectSourceRepo.getConverterInstance());
+            compiledPackage.srcEntries = srcPathStream
+                    .filter(path -> Files.exists(path, LinkOption.NOFOLLOW_LINKS))
+                    .map(projectPath::relativize)
+                    .map(path -> new PathBasedCompiledPackageEntry(path, CompilerOutputEntry.Kind.SRC))
+                    .collect(Collectors.toList());
 
-        // Get the Package.md file
-        Patten pkgMDPattern = packageIDPattern.sibling(path(PACKAGE_MD_FILE_NAME));
-        pkgMDPattern.convert(projectSourceRepo.getConverterInstance())
-                .filter(pkgMDPath -> Files.exists(pkgMDPath, LinkOption.NOFOLLOW_LINKS))
-                .map(projectPath::relativize)
-                .map(pkgMDPath -> new PathBasedCompiledPackageEntry(pkgMDPath,
-                        CompilerOutputEntry.Kind.ROOT))
-                .findAny()
-                .ifPresent(pkgEntry -> compiledPackage.pkgMDEntry = pkgEntry);
+            // Get the Package.md file
+            Patten pkgMDPattern = packageIDPattern.sibling(path(PACKAGE_MD_FILE_NAME));
+            pkgMDPattern.convert(projectSourceRepo.getConverterInstance())
+                    .filter(pkgMDPath -> Files.exists(pkgMDPath, LinkOption.NOFOLLOW_LINKS))
+                    .map(projectPath::relativize)
+                    .map(pkgMDPath -> new PathBasedCompiledPackageEntry(pkgMDPath,
+                            CompilerOutputEntry.Kind.ROOT))
+                    .findAny()
+                    .ifPresent(pkgEntry -> compiledPackage.pkgMDEntry = pkgEntry);
+        }
         return compiledPackage;
     }
 }
