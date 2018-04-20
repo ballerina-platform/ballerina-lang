@@ -5,8 +5,7 @@ import ballerina/grpc;
 function main(string... args) {
     // Client endpoint configuration
     endpoint HelloWorldBlockingClient helloWorldBlockingEp {
-        host:"localhost",
-        port:9090
+        url:"http://localhost:9090"
     };
 
     //Working with custom headers

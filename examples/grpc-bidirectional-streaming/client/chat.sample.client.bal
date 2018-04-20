@@ -8,8 +8,7 @@ int total = 0;
 function main(string... args) {
 
     endpoint ChatClient chatEp {
-        host:"localhost",
-        port:9090
+        url:"http://localhost:9090"
     };
 
     endpoint grpc:Client ep;
@@ -23,7 +22,7 @@ function main(string... args) {
             ep = con;
         }
     }
-    ChatMessage mes = {name:"Sam", message:"Hi "};
+    ChatMsg mes = {name:"Sam", message:"Hi "};
     error? connErr = ep->send(mes);
     io:println(connErr.message but { () => "" });
     //this will hold forever since this is chat application
