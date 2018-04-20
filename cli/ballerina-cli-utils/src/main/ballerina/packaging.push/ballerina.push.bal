@@ -26,7 +26,7 @@ function pushPackage (string accessToken, string mdFileContent, string summary, 
         url:url,
         secureSocket:{
             trustStore:{
-                filePath:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
                 password:"ballerina"
             },
             verifyHostname:false,

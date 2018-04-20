@@ -20,7 +20,7 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
         url:url,
         secureSocket:{
             trustStore:{
-                filePath:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
                 password:"ballerina"
             },
             verifyHostname:false,
@@ -269,7 +269,7 @@ function callFileServer(string url) returns http:Response {
         url:url,
         secureSocket:{
             trustStore:{
-                filePath:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
                 password:"ballerina"
             },
             verifyHostname:false,
