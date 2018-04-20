@@ -37,7 +37,7 @@ public class PackageImportTest {
         BAssertUtil.validateWarning(result, 0, "redeclared import package 'ballerina.math'", 4, 1);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testImportSamePkgWithDifferentAlias() {
         CompileResult result =
                 BCompileUtil.compile("test-src/statements/package/imports/import-same-pkg-with-different-alias.bal");

@@ -125,9 +125,7 @@ public class ForkJoinWorkerResponseContext extends SyncCallableWorkerResponseCon
         BMap<String, BRefType> mbMap = new BMap<>();
         channelNames.forEach((k, v) -> {
             BRefType workerRes = getWorkerResult(v);
-            if (workerRes != null) {
-                mbMap.put(k, workerRes);
-            }
+            mbMap.put(k, workerRes);
         });
         this.targetCtx.workerLocal.refRegs[timeoutVarReg] = (BRefType) mbMap;
         //Running the timeout call in a new thread.
@@ -139,9 +137,7 @@ public class ForkJoinWorkerResponseContext extends SyncCallableWorkerResponseCon
         BMap<String, BRefType> mbMap = new BMap<>();
         channelNames.forEach((k, v) -> {
             BRefType workerRes = getWorkerResult(v);
-            if (workerRes != null) {
-                mbMap.put(k, workerRes);
-            }
+            mbMap.put(k, workerRes);
         });
         this.targetCtx.workerLocal.refRegs[joinVarReg] = (BRefType) mbMap;
         this.modifyDebugCommands(this.targetCtx, this.currentSignal.getSourceContext());
@@ -154,7 +150,7 @@ public class ForkJoinWorkerResponseContext extends SyncCallableWorkerResponseCon
             return null;
         }
         WorkerDataChannel dataChannel = getWorkerDataChannel(channelName);
-        return dataChannel.tryTakeData();
+        return dataChannel.tryTakeData().value;
     }
 
     private void printError(String workerName, BStruct error) {
