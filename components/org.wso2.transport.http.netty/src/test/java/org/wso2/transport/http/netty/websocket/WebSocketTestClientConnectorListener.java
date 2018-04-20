@@ -47,9 +47,11 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
     private final Queue<ByteBuffer> bufferQueue = new LinkedList<>();
     private final Queue<Throwable> errorsQueue = new LinkedList<>();
     private static final String PING = "ping";
+    private WebSocketCloseMessage closeMessage = null;
     private boolean isPongReceived = false;
     private boolean isPingReceived = false;
     private boolean isIdleTimeout = false;
+    private boolean isClose = false;
 
     public WebSocketTestClientConnectorListener(CountDownLatch latch) {
         this.latch = latch;
@@ -94,7 +96,9 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
 
     @Override
     public void onMessage(WebSocketCloseMessage closeMessage) {
-
+        isClose = true;
+        this.closeMessage = closeMessage;
+        latch.countDown();
     }
 
     @Override
@@ -178,4 +182,27 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
        throw errorsQueue.remove();
     }
 
+    /**
+     * Return whether the connection is closed or not.
+     *
+     * @return true if the connection is closed.
+     * @throws Throwable if any error occurred.
+     */
+    public boolean isClosed() throws Throwable {
+        if (errorsQueue.isEmpty()) {
+            boolean temp = isClose;
+            isClose = false;
+            return temp;
+        }
+        throw errorsQueue.remove();
+    }
+
+    /**
+     * Return the close message.
+     *
+     * @return the close message received.
+     */
+    public WebSocketCloseMessage getCloseMessage() {
+        return closeMessage;
+    }
 }
