@@ -106,10 +106,11 @@ public class BStream implements BRefType<Object> {
      */
     public void publish(BValue data) {
         //TODO: refactor and move checks to compile time
-        if (!data.getType().equals(this.constraintType) && !(constraintType instanceof BUnionType
-                                        && ((BUnionType) constraintType).getMemberTypes().contains(data.getType()))
+        BType dataType = data.getType();
+        if (!dataType.equals(this.constraintType) && !(constraintType instanceof BUnionType
+                                        && ((BUnionType) constraintType).getMemberTypes().contains(dataType))
                                         && !(constraintType instanceof BAnyType)) {
-            throw new BallerinaException("incompatible types: value of type:" + data.getType().getName()
+            throw new BallerinaException("incompatible types: value of type:" + dataType.getName()
                     + " cannot be added to a stream of type:" + this.constraintType.getName());
         }
         BrokerUtils.publish(topicName, new BallerinaStreamByteBuf(data));
@@ -264,7 +265,5 @@ public class BStream implements BRefType<Object> {
             super(UnpooledByteBufAllocator.DEFAULT, 0, 0);
             this.streamEvent = streamEvent;
         }
-
     }
-
 }

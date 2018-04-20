@@ -35,8 +35,7 @@ function testGlobalStream () returns (Employee, Employee, Employee) {
     while (globalEmployee.id == 0 && time:currentTime().time - startTime < 1000) {
         //allow for value update
     }
-    Employee newEmployee = globalEmployee;
-    return (origEmployee, publishedEmployee, newEmployee);
+    return (origEmployee, publishedEmployee, globalEmployee);
 }
 
 function testStreamPublishingAndSubscriptionForObject () returns (Employee, Employee, Employee) {
@@ -49,8 +48,7 @@ function testStreamPublishingAndSubscriptionForObject () returns (Employee, Empl
     while (globalEmployee.id == 0 && time:currentTime().time - startTime < 1000) {
         //allow for value update
     }
-    Employee newEmployee = globalEmployee;
-    return (origEmployee, publishedEmployee, newEmployee);
+    return (origEmployee, publishedEmployee, globalEmployee);
 }
 
 
