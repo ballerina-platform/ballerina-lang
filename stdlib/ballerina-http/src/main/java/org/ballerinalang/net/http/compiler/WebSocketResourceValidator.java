@@ -164,7 +164,8 @@ public class WebSocketResourceValidator {
     private static void validateEndpointParameter(String serviceName, BLangResource resource, DiagnosticLog dlog,
                                                   List<BLangVariable> paramDetails, boolean isClient) {
         if (paramDetails == null || paramDetails.size() == 0 ||
-                (!isClient && !WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(paramDetails.get(0).type.toString())) ||
+                (!isClient && !WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(
+                        paramDetails.get(0).type.toString())) ||
                 (isClient && !WebSocketConstants.WEBSOCKET_CLIENT_ENDPOINT_NAME.equals(
                         paramDetails.get(0).type.toString()))) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
