@@ -7,8 +7,7 @@ int total = 0;
 function testClientStreaming(string[] args) returns (string) {
     // Client endpoint configuration
     endpoint HelloWorldClient helloWorldEp {
-        host:"localhost",
-        port:9090
+        url:"http://localhost:9090"
     };
 
     endpoint grpc:Client ep;

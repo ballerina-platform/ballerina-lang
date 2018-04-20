@@ -17,8 +17,7 @@ import ballerina/io;
 import ballerina/grpc;
 
 endpoint HelloWorldBlockingClient HelloWorldBlockingEp {
-    host:"localhost",
-    port:9090
+    url:"http://localhost:9090"
 };
 
 function testInputNestedStruct(Person p) returns (string) {

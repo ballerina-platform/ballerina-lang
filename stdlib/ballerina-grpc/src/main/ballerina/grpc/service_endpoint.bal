@@ -66,9 +66,9 @@ documentation {
     F{{secureSocket}} - The SSL configurations for the client endpoint.
 }
 public type ServiceEndpointConfiguration {
-    string host;
-    int port;
-    SslConfiguration ssl;
+    string host,
+    int port,
+    ServiceSecureSocket? secureSocket,
 };
 
 @Description {value:"SecureSocket struct represents SSL/TLS options to be used for HTTP service"}

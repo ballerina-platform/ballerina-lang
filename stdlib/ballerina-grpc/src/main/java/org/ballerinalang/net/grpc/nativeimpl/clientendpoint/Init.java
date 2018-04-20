@@ -32,7 +32,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.grpc.EndpointConstants;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.ssl.SSLHandlerFactory;
@@ -80,7 +79,8 @@ public class Init extends BlockingNativeCallableUnit {
         try {
             Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
             // Creating client endpoint with channel as native data.
-            Struct endpointConfig = clientEndpoint.getStructField(EndpointConstants.ENDPOINT_CONFIG);
+            BStruct endpointConfigStruct = (BStruct) context.getRefArgument(1);
+            Struct endpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
             String urlString = endpointConfig.getStringField(GrpcConstants.CLIENT_ENDPOINT_URL);
             String scheme;
             URL url;
@@ -209,31 +209,7 @@ public class Init extends BlockingNativeCallableUnit {
                 senderConfiguration.setParameters(clientParams);
             }
         }
-
-//        Struct proxy = clientEndpointConfig.getStructField(GrpcConstants.PROXY_STRUCT_REFERENCE);
-//        if (proxy != null) {
-//            String proxyHost = proxy.getStringField(GrpcConstants.PROXY_HOST);
-//            int proxyPort = (int) proxy.getIntField(GrpcConstants.PROXY_PORT);
-//            String proxyUserName = proxy.getStringField(GrpcConstants.PROXY_USERNAME);
-//            String proxyPassword = proxy.getStringField(GrpcConstants.PROXY_PASSWORD);
-//            try {
-//                proxyServerConfiguration = new ProxyServerConfiguration(proxyHost, proxyPort);
-//            } catch (UnknownHostException e) {
-//                throw new BallerinaConnectorException("Failed to resolve host" + proxyHost, e);
-//            }
-//            if (!proxyUserName.isEmpty()) {
-//                proxyServerConfiguration.setProxyUsername(proxyUserName);
-//            }
-//            if (!proxyPassword.isEmpty()) {
-//                proxyServerConfiguration.setProxyPassword(proxyPassword);
-//            }
-//            senderConfiguration.setProxyServerConfiguration(proxyServerConfiguration);
-//        }
-
-//        String httpVersion = clientEndpointConfig.getStringField(GrpcConstants.CLIENT_EP_HTTP_VERSION);
-//        if (httpVersion != null) {
-//            senderConfiguration.setHttpVersion(httpVersion);
-//        }
+        // TODO: 4/20/18 Proxy support
         return senderConfiguration;
     }
     

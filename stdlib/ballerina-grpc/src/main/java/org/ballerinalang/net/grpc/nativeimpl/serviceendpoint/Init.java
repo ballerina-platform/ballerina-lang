@@ -29,7 +29,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.grpc.EndpointConstants;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.GrpcServicesBuilder;
 import org.ballerinalang.net.grpc.MessageUtils;
@@ -63,7 +62,7 @@ import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
         receiver = @Receiver(type = TypeKind.STRUCT, structType = SERVICE_ENDPOINT_TYPE,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         args = {@Argument(name = "config", type = TypeKind.STRUCT, structType = "ServiceEndpointConfiguration",
-                        structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC)},
+                structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC)},
         isPublic = true
 )
 public class Init extends BlockingNativeCallableUnit {
@@ -73,7 +72,8 @@ public class Init extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         try {
             Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-            Struct serviceEndpointConfig = serviceEndpoint.getStructField(EndpointConstants.ENDPOINT_CONFIG);
+            BStruct endpointConfigStruct = (BStruct) context.getRefArgument(1);
+            Struct serviceEndpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
             ListenerConfiguration configuration = getListenerConfig(serviceEndpointConfig);
             io.grpc.ServerBuilder serverBuilder;
             if (configuration.getSSLConfig() != null) {
@@ -98,11 +98,6 @@ public class Init extends BlockingNativeCallableUnit {
     private ListenerConfiguration getListenerConfig(Struct endpointConfig) {
         String host = endpointConfig.getStringField(GrpcConstants.ENDPOINT_CONFIG_HOST);
         long port = endpointConfig.getIntField(GrpcConstants.ENDPOINT_CONFIG_PORT);
-        // TODO: 4/19/18 support implementation
-//        String keepAlive = endpointConfig.getRefField(GrpcConstants.ENDPOINT_CONFIG_KEEP_ALIVE).getStringValue();
-//        String transferEncoding =
-//                endpointConfig.getRefField(GrpcConstants.ENDPOINT_CONFIG_TRANSFER_ENCODING).getStringValue();
-//        Struct requestLimits = endpointConfig.getStructField(GrpcConstants.ENDPOINT_REQUEST_LIMITS);
         Struct sslConfig = endpointConfig.getStructField(GrpcConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();

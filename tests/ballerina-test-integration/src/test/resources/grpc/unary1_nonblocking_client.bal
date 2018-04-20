@@ -22,8 +22,7 @@ int total = 0;
 function testUnaryNonBlockingClient() returns (string[]) {
     // Client endpoint configuration
     endpoint HelloWorldClient helloWorldEp {
-        host:"localhost",
-        port:9090
+        url:"http://localhost:9090"
     };
     // Executing unary non-blocking call registering server message listener.
     error? result = helloWorldEp->hello("WSO2", HelloWorldMessageListener);
