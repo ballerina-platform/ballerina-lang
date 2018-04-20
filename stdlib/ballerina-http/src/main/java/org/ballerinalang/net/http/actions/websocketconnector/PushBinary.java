@@ -31,7 +31,6 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 import java.nio.ByteBuffer;
-import javax.websocket.Session;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -53,10 +52,12 @@ public class PushBinary implements NativeCallableUnit {
         try {
             BStruct wsConnection = (BStruct) context.getRefArgument(0);
             WebSocketConnection webSocketConnection =
-                    (WebSocketConnection) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION);
+                    (WebSocketConnection) wsConnection
+                            .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION);
             byte[] binaryData = context.getBlobArgument(0);
-            ChannelFuture webSocketChannelFuture = (ChannelFuture) webSocketConnection.getSession().getAsyncRemote().sendBinary(
-                    ByteBuffer.wrap(binaryData));
+            ChannelFuture webSocketChannelFuture =
+                    (ChannelFuture) webSocketConnection.getSession().getAsyncRemote()
+                            .sendBinary(ByteBuffer.wrap(binaryData));
             WebSocketUtil.getWebSocketError(context, callback, webSocketChannelFuture, "Failed to send binary message");
         } catch (Throwable e) {
             throw new BallerinaException("Cannot send the message. Error occurred.");

@@ -4,34 +4,23 @@ import ballerina/http;
 @final string REMOTE_BACKEND_URL = "ws://localhost:15500/websocket";
 @final string ASSOCIATED_CONNECTION = "ASSOCIATED_CONNECTION";
 
-endpoint http:Listener ep {
+endpoint http:WebSocketListener ep {
     port:9090
 };
 
-service <http:Service> proxy bind ep {
+@http:WebSocketServiceConfig {
+    path: "/proxy/ws"
+}
+service <http:WebSocketService> simpleProxy bind ep {
 
-    @http:ResourceConfig {
-        webSocketUpgrade: {
-            upgradePath: "/ws",
-            upgradeService: simpleProxy
-        }
-    }
-    websocketProxy (endpoint httpEp, http:Request req) {
+    onOpen (endpoint wsEp) {
         endpoint http:WebSocketClient wsClientEp {
             url: REMOTE_BACKEND_URL,
             callbackService: clientCallbackService
         };
-        http:WebSocketListener wsServiceEp = httpEp -> acceptWebSocketUpgrade({"some-header":"some-header-value"});
-        wsServiceEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
-        wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsServiceEp;
+        wsEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
+        wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsEp;
     }
-}
-
-service <http:WebSocketService> simpleProxy {
-
-    //onOpen(endpoint ep) {
-    //    ep -> pushText("send") but {error e => io:println("server text error")};
-    //}
 
     onText (endpoint wsEp, string text) {
         endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint(wsEp);

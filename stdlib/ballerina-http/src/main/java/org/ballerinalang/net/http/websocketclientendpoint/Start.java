@@ -41,8 +41,6 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 
-import javax.websocket.Session;
-
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 
 /**
@@ -116,6 +114,7 @@ public class Start extends BlockingNativeCallableUnit {
             clientConnectorListener.setConnectionInfo(connectionInfo);
             webSocketClientEndpoint.setRefField(1, webSocketConnector);
             context.setReturnValues();
+            webSocketConnection.readNextFrame();
         }
 
         @Override

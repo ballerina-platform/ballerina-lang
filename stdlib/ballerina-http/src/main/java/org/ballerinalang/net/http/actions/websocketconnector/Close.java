@@ -31,7 +31,6 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 import java.io.IOException;
 import javax.websocket.CloseReason;
-import javax.websocket.Session;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -55,8 +54,8 @@ public class Close extends BlockingNativeCallableUnit {
         BStruct webSocketConnector = (BStruct) context.getRefArgument(0);
         int statusCode = (int) context.getIntArgument(0);
         String reason = context.getStringArgument(0);
-        WebSocketConnection webSocketConnection =
-                (WebSocketConnection) webSocketConnector.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION);
+        WebSocketConnection webSocketConnection = (WebSocketConnection) webSocketConnector
+                .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION);
         try {
             webSocketConnection.getSession().close(new CloseReason(() -> statusCode, reason));
             context.setReturnValues();

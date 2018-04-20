@@ -29,7 +29,6 @@ import org.ballerinalang.net.http.WebSocketConstants;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 import java.nio.ByteBuffer;
-import javax.websocket.Session;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -51,8 +50,8 @@ public class Ping extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         try {
             BStruct wsConnection = (BStruct) context.getRefArgument(0);
-            WebSocketConnection webSocketConnection =
-                    (WebSocketConnection) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION);
+            WebSocketConnection webSocketConnection = (WebSocketConnection) wsConnection
+                    .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION);
             byte[] binaryData = context.getBlobArgument(0);
             webSocketConnection.getSession().getAsyncRemote().sendPing(ByteBuffer.wrap(binaryData));
             context.setReturnValues();

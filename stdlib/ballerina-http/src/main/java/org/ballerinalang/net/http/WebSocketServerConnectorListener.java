@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
@@ -130,15 +131,17 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                         // TODO: Change this to readNextFrame
                     } else {
                         Resource onOpenResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_OPEN);
-                        WebSocketOpenConnectionInfo connectionInfo = connectionManager.getConnectionInfo(webSocketInitMessage.getSessionID());
+                        WebSocketOpenConnectionInfo connectionInfo =
+                                connectionManager.getConnectionInfo(webSocketInitMessage.getSessionID());
+                        WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
                         if (onOpenResource != null) {
                             List<ParamDetail> paramDetails =
                                     onOpenResource.getParamDetails();
                             BValue[] bValues = new BValue[paramDetails.size()];
                             bValues[0] = connectionInfo.getWebSocketEndpoint();
                             //TODO handle BallerinaConnectorException
-                            Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(connectionInfo.getWebSocketConnection()), null, null,
-                                            bValues);
+                            Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(webSocketConnection),
+                                            null, null, bValues);
                         } else {
                             connectionInfo.getWebSocketConnection().readNextFrame();
                         }

@@ -97,7 +97,8 @@ public abstract class WebSocketUtil {
 
                 webSocketEndpoint.setRefField(1, webSocketConnector);
                 populateEndpoint(webSocketConnection, webSocketEndpoint);
-                webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION, webSocketConnection);
+                webSocketConnector.addNativeData(
+                        WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION, webSocketConnection);
                 WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService,
                                                                                              webSocketEndpoint);
                 connectionManager.addConnection(webSocketConnection.getId(), connectionInfo);
@@ -112,7 +113,8 @@ public abstract class WebSocketUtil {
                         BValue[] bValues = new BValue[paramDetails.size()];
                         bValues[0] = webSocketEndpoint;
                         //TODO handle BallerinaConnectorException
-                        Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(webSocketConnection), null, null, bValues);
+                        Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(webSocketConnection),
+                                        null, null, bValues);
                     } else {
                         webSocketConnection.readNextFrame();
                     }

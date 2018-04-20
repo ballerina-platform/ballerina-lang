@@ -44,7 +44,8 @@ public class WebSocketOpenConnectionInfo {
     }
 
     public WebSocketConnection getWebSocketConnection() {
-        BStruct websocketConnector = (BStruct) webSocketEndpoint.getRefField(1);
-        return (WebSocketConnection) websocketConnector.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION);
+        BStruct webSocketConnector = (BStruct) webSocketEndpoint.getRefField(1);
+        return (WebSocketConnection) webSocketConnector
+                .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION);
     }
 }
