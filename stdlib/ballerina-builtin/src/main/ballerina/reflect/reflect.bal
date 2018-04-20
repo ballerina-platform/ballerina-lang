@@ -21,4 +21,27 @@ package ballerina.reflect;
 @Param {value:"value1: The first value for equality."}
 @Param {value:"value2: The second value for equality."}
 @Return {value:"TRUE if values are deeply equal, else FALSE."}
-public native function equals (any value1, any value2) returns (boolean);
+public native function equals(any value1, any value2) returns (boolean);
+
+//  Warning..!!!
+//
+//  ballerina.reflect package defines Internal APIs exposed by Ballerina Virtual Machine (BVM).
+//  They are subject to change in a undocumented or unsupported way, use with caution.
+
+public type anyStruct {};
+
+public type annotationData {
+    string name,
+    string pkgName,
+    anyStruct value,
+};
+
+public native function getServiceAnnotations(typedesc serviceType) returns (annotationData[]);
+
+public native function getResourceAnnotations(typedesc serviceType, string resourceName) returns (annotationData[]);
+
+public native function getStructAnnotations(typedesc structType) returns (annotationData[]);
+
+public native function getStructFieldAnnotations(typedesc structType, string fieldName) returns (annotationData[]);
+
+public native function getFunctionAnnotations(any functionPointer) returns (annotationData[]);
