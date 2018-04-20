@@ -44,9 +44,9 @@ Fork/Join
 Fork/Join Condition Some
 Fork/Join Variable Access
 Async
-JDBC Endpoint
-MYSQL Endpoint
-Table with MYSQL Endpoint
+JDBC Client
+MYSQL Client
+Table with MYSQL Client
 Transactions
 Distributed Transactions
 Transformers
