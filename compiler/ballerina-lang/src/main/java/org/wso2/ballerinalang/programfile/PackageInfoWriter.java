@@ -179,6 +179,7 @@ public class PackageInfoWriter {
             writeServiceInfo(dataOutStream, serviceInfo);
         }
 
+        dataOutStream.writeShort(serviceInfoEntries.length);
         for (ServiceInfo serviceInfo : serviceInfoEntries) {
             writeResourceInfo(dataOutStream, serviceInfo);
         }
@@ -344,19 +345,26 @@ public class PackageInfoWriter {
             dataOutStream.writeInt(paramNameCPIndex);
         }
 
-        WorkerDataChannelInfo[] workerDataChannelInfos = resourceInfo.getWorkerDataChannelInfo();
-        dataOutStream.writeShort(workerDataChannelInfos.length);
-        for (WorkerDataChannelInfo dataChannelInfo : workerDataChannelInfos) {
-            writeWorkerDataChannelInfo(dataOutStream, dataChannelInfo);
+        ByteArrayOutputStream workerDataBAOS = new ByteArrayOutputStream();
+        DataOutputStream workerDataDOS = new DataOutputStream(workerDataBAOS);
+
+        WorkerDataChannelInfo[] workerDataChannelInfoEntries = resourceInfo.getWorkerDataChannelInfo();
+        workerDataDOS.writeShort(workerDataChannelInfoEntries.length);
+        for (WorkerDataChannelInfo dataChannelInfo : workerDataChannelInfoEntries) {
+            writeWorkerDataChannelInfo(workerDataDOS, dataChannelInfo);
         }
 
         WorkerInfo defaultWorker = resourceInfo.defaultWorkerInfo;
         WorkerInfo[] workerInfoEntries = resourceInfo.getWorkerInfoEntries();
-        dataOutStream.writeShort(workerInfoEntries.length + 1);
-        writeWorkerInfo(dataOutStream, defaultWorker);
+        workerDataDOS.writeShort(workerInfoEntries.length + 1);
+        writeWorkerInfo(workerDataDOS, defaultWorker);
         for (WorkerInfo workerInfo : workerInfoEntries) {
-            writeWorkerInfo(dataOutStream, workerInfo);
+            writeWorkerInfo(workerDataDOS, workerInfo);
         }
+
+        byte[] workerData = workerDataBAOS.toByteArray();
+        dataOutStream.writeInt(workerData.length);
+        dataOutStream.write(workerData);
 
         writeAttributeInfoEntries(dataOutStream, resourceInfo.getAttributeInfoEntries());
     }
