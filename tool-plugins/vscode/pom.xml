@@ -11,7 +11,7 @@
     <artifactId>vscode-plugin-parent</artifactId>
     <packaging>pom</packaging>
 
-    <name>Ballerina - vscode plugin - Parent</name>
+    <name>Ballerina - VSCode Plugin - Parent</name>
     <url>http://ballerinalang.org</url>
 
     <modules>
