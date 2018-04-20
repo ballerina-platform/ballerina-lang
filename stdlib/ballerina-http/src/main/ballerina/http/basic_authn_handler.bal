@@ -64,11 +64,11 @@ public function HttpBasicAuthnHandler::handle (Request req) returns (boolean) {
             boolean isAuthenticated = self.authProvider.authenticate(username, password);
             if (isAuthenticated) {
                 // set username
-                runtime:getInvocationContext().authenticationContext.username = username;
+                runtime:getInvocationContext().userPrincipal.username = username;
                 // read scopes and set to the invocation context
                 string[] scopes = self.authProvider.getScopes(username);
                 if (lengthof scopes > 0) {
-                    runtime:getInvocationContext().authenticationContext.scopes = scopes;
+                    runtime:getInvocationContext().userPrincipal.scopes = scopes;
                 }
             }
             return isAuthenticated;

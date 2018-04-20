@@ -29,27 +29,33 @@ public class InvocationContext {
 
     public static final int INVOCATION_ID_STRING_FIELD_INDEX = 0;
     private BStruct invocationContextStruct;
-    private AuthenticationContext authenticationContext;
+    private UserPrincipal userPrincipal;
+    private AuthContext authContext;
 
-    public InvocationContext(BStruct invocationContextStruct, AuthenticationContext authenticationContext) {
+    public InvocationContext(BStruct invocationContextStruct,UserPrincipal userPrincipal, AuthContext
+            authenticationContext) {
         this.invocationContextStruct = invocationContextStruct;
-        this.authenticationContext = authenticationContext;
+        this.authContext = authenticationContext;
+        this.userPrincipal = userPrincipal;
     }
 
     public BStruct getInvocationContextStruct() {
         return invocationContextStruct;
     }
 
-    public String getInvocationId() {
+    public String getId() {
         return invocationContextStruct.getStringField(INVOCATION_ID_STRING_FIELD_INDEX);
     }
 
-    public void setInvocationId(String invocationId) {
-        invocationContextStruct.setStringField(INVOCATION_ID_STRING_FIELD_INDEX, invocationId);
+    public void setId(String id) {
+        invocationContextStruct.setStringField(INVOCATION_ID_STRING_FIELD_INDEX, id);
     }
 
-    public AuthenticationContext getAuthenticationContext() {
-        return authenticationContext;
+    public AuthContext getAuthContext() {
+        return authContext;
     }
 
+    public UserPrincipal getUserPrincipal() {
+        return userPrincipal;
+    }
 }
