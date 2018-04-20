@@ -2432,7 +2432,7 @@ public class Desugar extends BLangNodeVisitor {
             return false;
         }
 
-        if (accessExpr.safeNavigate || isNullable(accessExpr.expr.type)) {
+        if (accessExpr.safeNavigate || safeNavigateType(accessExpr.expr.type)) {
             return true;
         }
 
@@ -2446,9 +2446,10 @@ public class Desugar extends BLangNodeVisitor {
         return false;
     }
 
-    private boolean isNullable(BType type) {
-        // Treat JSON as not nullable. Because null is a valid value for json, we handle it at runtime.
-        // This is also required to make function on json such as j.toString(), j.keys() to work.
+    private boolean safeNavigateType(BType type) {
+        // Do not add safe navigation checks for JSON. Because null is a valid value for json,
+        // we handle it at runtime. This is also required to make function on json such as
+        // j.toString(), j.keys() to work.
         if (type.tag == TypeTags.JSON) {
             return false;
         }
