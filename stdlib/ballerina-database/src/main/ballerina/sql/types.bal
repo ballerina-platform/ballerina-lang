@@ -146,10 +146,5 @@ public type Parameter {
     typedesc recordType,
 };
 
-//public type Param
-//(SQLType, any, Direction)|
-//(SQLType, any)|
-//CallParam|//To used with the SQL out parameters
-//any;
-
 public type Param string|int|boolean|float|Parameter;
+

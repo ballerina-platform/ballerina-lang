@@ -7,7 +7,7 @@ type ResultCount {
 
 function getTableCount(string tablePrefix) returns (int) {
     endpoint jdbc:Client testDB {
-        url:"h2:mem:TABLEDB",
+        url:"jdbc:h2:mem:TABLEDB",
         username:"sa",
         poolOptions:{maximumPoolSize:1}
     };

@@ -48,7 +48,7 @@ function testUpdate() returns (int) {
                                 values (15, 'Anne', 1000, 'UK')");
 
     int insertCount = check insertCountRet;
-    _ = testDB->close();
+    testDB.stop();
     return insertCount;
 }
 
@@ -69,7 +69,7 @@ function testCall() returns (string) {
         Customer rs = check <Customer>dts[0].getNext();
         name = rs.name;
     }
-    _ = testDB->close();
+    testDB.stop();
     return name;
 }
 
@@ -99,7 +99,7 @@ function testGeneratedKeyOnInsert() returns (string) {
         }
     }
 
-    _ = testDB->close();
+    testDB.stop();
     return returnVal;
 }
 
@@ -116,17 +116,17 @@ function testBatchUpdate() returns (int[]) {
     string returnVal;
     try {
         //Batch 1
-        sql:Parameter para1 = (sql:TYPE_INTEGER, 10);
-        sql:Parameter para2 = (sql:TYPE_VARCHAR, "Smith");
-        sql:Parameter para3 = (sql:TYPE_DOUBLE, 3400.5);
-        sql:Parameter para4 = (sql:TYPE_VARCHAR, "Australia");
+        sql:Parameter para1 = {sqlType:sql:TYPE_INTEGER, value:10};
+        sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:"Smith"};
+        sql:Parameter para3 = {sqlType:sql:TYPE_DOUBLE, value:3400.5};
+        sql:Parameter para4 = {sqlType:sql:TYPE_VARCHAR, value:"Australia"};
         sql:Parameter[] parameters1 = [para1, para2, para3, para4];
 
         //Batch 2
-        sql:Parameter para5 = (sql:TYPE_INTEGER, 11);
-        sql:Parameter para6 = (sql:TYPE_VARCHAR, "John");
-        sql:Parameter para7 = (sql:TYPE_DOUBLE, 3400.2);
-        sql:Parameter para8 = (sql:TYPE_VARCHAR, "UK");
+        sql:Parameter para5 = {sqlType:sql:TYPE_INTEGER, value:11};
+        sql:Parameter para6 = {sqlType:sql:TYPE_VARCHAR, value:"John"};
+        sql:Parameter para7 = {sqlType:sql:TYPE_DOUBLE, value:3400.2};
+        sql:Parameter para8 = {sqlType:sql:TYPE_VARCHAR, value:"UK"};
         sql:Parameter[] parameters2 = [para5, para6, para7, para8];
 
         var x = testDB->batchUpdate("Insert into Customers values (?,?,?,?)", parameters1, parameters2);
@@ -139,7 +139,7 @@ function testBatchUpdate() returns (int[]) {
             }
         }
     } finally {
-        _ = testDB->close();
+        testDB.stop();
     }
     return [];
 }
@@ -182,7 +182,7 @@ function testAddToMirrorTable() returns (Customer[]) {
             error e => return [];
         }
     } finally {
-        _ = testDB->close();
+        testDB.stop();
     }
     return [];
 }
@@ -209,7 +209,7 @@ function testUpdateInMemory() returns (int, string) {
     json j = check <json>t;
     string s = j.toString();
 
-    _ = testDB->close();
+    testDB.stop();
     return (insertCount, j.toString());
 }
 
@@ -269,7 +269,7 @@ function selectFunction(h2:Client testDBClient) returns (int[]) {
             error err => return [];
         }
     } finally {
-        _ = testDB->close();
+        testDB.stop();
     }
     return [];
 }

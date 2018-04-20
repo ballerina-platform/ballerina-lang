@@ -59,7 +59,7 @@ public type CallerActions object {
         R{{}} - `int[]` An array of updated row count by each of statements in batch and
                 else `error` will be returned if there is any error.
     }
-    public native function batchUpdate(@sensitive string sqlQuery, Param[]... parameters) returns int[]|error;
+    public native function batchUpdate(@sensitive string sqlQuery, Parameter[]... parameters) returns int[]|error;
 
 
     documentation {
