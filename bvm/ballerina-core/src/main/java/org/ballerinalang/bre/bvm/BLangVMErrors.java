@@ -248,7 +248,7 @@ public class BLangVMErrors {
 
         String parentScope = "";
         if (callableUnitInfo instanceof ResourceInfo) {
-            parentScope = ((ResourceInfo) callableUnitInfo).getServiceInfo().getName() + DEFAULT_PKG_PATH;
+            parentScope = ((ResourceInfo) callableUnitInfo).getServiceInfo().getName() + ".";
         }
 
         values[0] = parentScope + callableUnitInfo.getName();
