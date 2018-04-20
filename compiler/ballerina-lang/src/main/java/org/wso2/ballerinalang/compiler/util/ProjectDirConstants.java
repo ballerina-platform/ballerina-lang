@@ -36,6 +36,8 @@ public class ProjectDirConstants {
     public static final String TARGET_DIR_NAME = "target";
     public static final String RESOURCE_DIR_NAME = "resource";
     public static final String TEST_DIR_NAME = "test";
+    public static final String CACHES_DIR_NAME = "caches";
+    public static final String BALLERINA_CENTRAL_DIR_NAME = "central.ballerina.io";
 
     public static final String BLANG_EXEC_FILE_EXT = "balx";
     public static final String BLANG_EXEC_FILE_SUFFIX = "." + BLANG_EXEC_FILE_EXT;

@@ -1,4 +1,3 @@
-package functionTest;
 
 import ballerina/io;
 

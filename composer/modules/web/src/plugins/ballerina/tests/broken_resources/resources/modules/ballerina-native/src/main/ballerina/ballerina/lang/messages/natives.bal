@@ -1,4 +1,3 @@
-package ballerina.lang.messages;
 
 import ballerina/doc;
 

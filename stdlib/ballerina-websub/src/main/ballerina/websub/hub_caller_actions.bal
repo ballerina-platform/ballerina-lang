@@ -13,12 +13,11 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-package ballerina.websub;
 
 import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
-import ballerina/security.crypto;
+import ballerina/crypto;
 
 documentation {
     The HTTP based Caller actions for outbound WebSub Subscription, Unsubscription, Registration, Unregistration and

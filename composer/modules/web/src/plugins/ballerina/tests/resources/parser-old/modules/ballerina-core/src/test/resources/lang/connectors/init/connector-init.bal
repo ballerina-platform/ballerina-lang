@@ -1,4 +1,3 @@
-package lang.connectors.init;
 
 connector Foo (string name, int age) {
 

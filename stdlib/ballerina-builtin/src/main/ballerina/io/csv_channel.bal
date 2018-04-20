@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.io;
 
 @Description {value : "Character which will be used to separate betweeen the records"}
 @final string CSV_RECORD_SEPERATOR = "\n";

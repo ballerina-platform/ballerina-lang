@@ -1,4 +1,3 @@
-package packaging.pull;
 
 import ballerina/file;
 import ballerina/io;
@@ -32,8 +31,16 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
     http:Request req = new;
     req.addHeader("Accept-Encoding", "identity");
 
+    http:Response httpResponse = new;
     var result = httpEndpoint -> get("", req);
-    http:Response httpResponse = check result;
+
+    match result {
+        http:Response response => httpResponse = response;
+        http:HttpConnectorError e => {
+            io:println("Connection to the remote host failed : " + e.message);
+            return;
+        }
+    }
 
     http:Response res = new;
     string statusCode = <string> httpResponse.statusCode;
@@ -41,7 +48,11 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
         string locationHeader;
         if (httpResponse.hasHeader("Location")) {
             locationHeader = httpResponse.getHeader("Location");
-            res = callFileServer(locationHeader);
+            var resultFS = callFileServer(locationHeader);
+            match resultFS {
+                http:Response response => res = response;
+                () => return;
+            }
             if (res.statusCode != 200) {
                 json jsonResponse = check (res.getJsonPayload());
                 string message = jsonResponse.message.toString();
@@ -264,7 +275,7 @@ documentation {
     P{{url}} - The endpoint url to be invoked.
     R{{}} - `Response` The response got after invoking the endpoint.
 }
-function callFileServer(string url) returns http:Response {
+function callFileServer(string url) returns http:Response? {
     endpoint http:Client httpEndpoint {
         url:url,
         secureSocket:{
@@ -278,6 +289,11 @@ function callFileServer(string url) returns http:Response {
     };
     http:Request req = new;
     var result = httpEndpoint -> get("", req);
-    http:Response httpResponse = check result;
-    return httpResponse;
+    match result {
+        http:Response response => return response;
+        http:HttpConnectorError e => {
+            io:println("Connection to the remote host failed : " + e.message);
+            return;
+        }
+    }
 }

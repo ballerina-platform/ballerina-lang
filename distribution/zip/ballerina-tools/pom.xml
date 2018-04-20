@@ -173,6 +173,7 @@
                             <outputDir>${project.build.directory}/api-docs</outputDir>
                             <sourceRoot>${project.build.directory}/extracted-distributions/ballerina</sourceRoot>
                             <nativeCode>true</nativeCode>
+                            <packageFilter>compression</packageFilter>
                         </configuration>
                     </execution>
                 </executions>

@@ -14,9 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.runtime;
 
-@Description { value:"Represents the InvocationContext"}
+@Description {value:"Represents the InvocationContext"}
 public type InvocationContext {
     string id;
     UserPrincipal userPrincipal;
@@ -39,4 +38,4 @@ public type UserPrincipal {
 
 @Description {value:"Creates a InvocationContext instance"}
 @Return {value:"InvocationContext instance"}
-public native function getInvocationContext () returns (InvocationContext);
+public native function getInvocationContext() returns (InvocationContext);

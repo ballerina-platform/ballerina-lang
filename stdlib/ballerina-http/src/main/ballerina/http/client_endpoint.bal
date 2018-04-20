@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
 
 import ballerina/io;
 ////////////////////////////////
@@ -97,7 +96,7 @@ public type ClientEndpointConfig {
     ConnectionThrottling? connectionThrottling,
     SecureSocket? secureSocket,
     CacheConfig cache,
-    string acceptEncoding = "auto",
+    AcceptEncoding acceptEncoding = ACCEPT_ENCODING_AUTO,
     AuthConfig? auth,
 };
 

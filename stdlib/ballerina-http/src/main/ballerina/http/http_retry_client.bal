@@ -1,4 +1,3 @@
-package ballerina.http;
 
 import ballerina/io;
 import ballerina/runtime;
@@ -263,7 +262,7 @@ function performRetryAction (@sensitive string path, Request request, HttpOperat
         if (currentRetryCount != 0) {
            interval = getWaitTime(backOffFactor, maxWaitInterval, interval);
         }
-        runtime:sleepCurrentWorker(interval);
+        runtime:sleep(interval);
         currentRetryCount = currentRetryCount + 1;
     }
     return httpConnectorError;

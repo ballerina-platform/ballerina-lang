@@ -1,4 +1,3 @@
-package ballerina.data.sql;
 
 import ballerina/doc;
 
