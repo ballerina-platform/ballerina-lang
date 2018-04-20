@@ -16,7 +16,7 @@ service<http:Service> echo bind mockEP {
         http:Response response = new;
         mime:Entity responseEntity = new;
         match request.getByteChannel() {
-            http:PayloadError err => log:printInfo("Error in getting byte channel");
+            http:PayloadError err => io:print("Error in getting byte channel");
             io:ByteChannel byteChannel => responseEntity.setByteChannel(byteChannel);
         }
         response.setEntity(responseEntity);
