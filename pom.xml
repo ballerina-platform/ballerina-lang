@@ -176,6 +176,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-transactions</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-builtin</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -1048,6 +1053,7 @@
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
+                <module>stdlib/transactions</module>
                 <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
@@ -1098,6 +1104,7 @@
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
+                <module>stdlib/transactions</module>
                 <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
@@ -1149,6 +1156,7 @@
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
+                <module>stdlib/transactions</module>
                 <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
