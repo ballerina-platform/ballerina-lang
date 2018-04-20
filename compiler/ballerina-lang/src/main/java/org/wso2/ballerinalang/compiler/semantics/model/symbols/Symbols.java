@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -39,6 +40,15 @@ import java.util.Set;
  */
 public class Symbols {
 
+    public static BPackageSymbol createPackageSymbol(PackageID packageID, SymbolTable symTable) {
+        BPackageSymbol pkgSymbol = new BPackageSymbol(packageID, symTable.rootPkgSymbol);
+        if (pkgSymbol.name.value.startsWith(Names.BUILTIN_PACKAGE.value)) {
+            pkgSymbol.scope = symTable.rootScope;
+        } else {
+            pkgSymbol.scope = new Scope(pkgSymbol);
+        }
+        return pkgSymbol;
+    }
 
     public static BTypeSymbol createStructSymbol(int flags,
                                                  Name name,

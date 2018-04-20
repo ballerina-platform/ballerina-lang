@@ -54,7 +54,7 @@ function callNextResource() returns (http:Response | ()) {
         url: "http://localhost:9090/echoService"
     };
     http:Request request = new;
-    var resp = httpEndpoint -> get("/resourceTwo", request);
+    var resp = httpEndpoint -> get("/resourceTwo", request = request);
     match resp {
         http:HttpConnectorError err => return ();
         http:Response response => return response;

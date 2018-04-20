@@ -41,6 +41,9 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
     public BVarSymbol receiverSymbol;
     public boolean bodyExist;
 
+//    public int requiredParamsCount;
+//    public int defaultableParamsCount;
+
     public BInvokableSymbol(int tag,
                             int flags,
                             Name name,
@@ -50,6 +53,7 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
         super(flags, name, pkgID, type, owner);
         this.tag = tag;
         this.params = new ArrayList<>();
+        this.defaultableParams = new ArrayList<>();
     }
 
     @Override

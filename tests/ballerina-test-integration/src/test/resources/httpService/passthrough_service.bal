@@ -16,7 +16,7 @@ service<http:Service> passthroughService bind passthroughEP {
         path:"/"
     }
     passthrough (endpoint outboundEP, http:Request clientRequest) {
-        var response = nyseEP -> get("/nyseStock/stocks", clientRequest);
+        var response = nyseEP -> get("/nyseStock/stocks", request = clientRequest);
         match response {
             http:Response httpResponse => {
                 _ = outboundEP -> respond(httpResponse);
