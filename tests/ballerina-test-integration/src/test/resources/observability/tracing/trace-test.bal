@@ -17,15 +17,15 @@ import ballerina/http;
 import ballerina/testing;
 import ballerina/observe;
 
-endpoint http:Listener ep1 {
+endpoint http:Listener listener {
     port : 9090
 };
 
 @http:ServiceConfig {
     basePath:"/echoService"
 }
-service echoService bind ep1 {
-    resourceOne (endpoint outboundEP, http:Request clientRequest) {
+service echoService bind listener {
+    resourceOne (endpoint caller, http:Request clientRequest) {
         observe:Span span = observe:startSpan("testService", "echo span", (), observe:REFERENCE_TYPE_ROOT, ());
         span.log("TestEvent", "This is a test info log");
         span.logError("TestError", "This is a test error log");
@@ -35,8 +35,8 @@ service echoService bind ep1 {
         http:Response | () response = callNextResource(span);
         outResponse.setStringPayload("Hello, World!");
         match response {
-            http:Response res => _ = outboundEP -> respond(res);
-            () => _ = outboundEP -> respond(new http:Response());
+            http:Response res => _ = caller -> respond(res);
+            () => _ = caller -> respond(new http:Response());
         }
 
         span.finishSpan();
@@ -52,11 +52,11 @@ service echoService bind ep1 {
         span.finishSpan();
     }
 
-    getFinishedSpansCount(endpoint outboundEP, http:Request clientRequest) {
+    getFinishedSpansCount(endpoint caller, http:Request clientRequest) {
         http:Response res = new;
         string returnString = testing:getFinishedSpansCount();
         res.setStringPayload(returnString);
-        _ = outboundEP -> respond(res);
+        _ = caller -> respond(res);
     }
 }
 
