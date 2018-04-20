@@ -112,7 +112,7 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws ServerConnectorException {
-        if (webSocketConnection != null && channelSession.isOpen()) {
+        if (webSocketConnection != null && webSocketConnection.getSession().isOpen()) {
             webSocketConnection.getDefaultWebSocketSession().setIsOpen(false);
             String reasonText = "Server is going away";
             notifyCloseMessage(Constants.WEBSOCKET_STATUS_CODE_GOING_AWAY, reasonText, ctx);

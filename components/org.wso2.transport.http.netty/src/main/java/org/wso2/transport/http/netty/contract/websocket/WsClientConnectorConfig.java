@@ -31,12 +31,15 @@ public class WsClientConnectorConfig {
 
     private final String remoteAddress;
     private List<String> subProtocols;
-    private int idleTimeoutInSeconds = -1;
-    private boolean autoRead = true;
+    private int idleTimeoutInSeconds;
+    private boolean autoRead;
     private final Map<String, String> headers = new HashMap<>();
 
     public WsClientConnectorConfig(String remoteAddress) {
         this.remoteAddress = remoteAddress;
+        this.idleTimeoutInSeconds = -1;
+        this.autoRead = true;
+
     }
 
     public WsClientConnectorConfig(String remoteAddress, List<String> subProtocols,

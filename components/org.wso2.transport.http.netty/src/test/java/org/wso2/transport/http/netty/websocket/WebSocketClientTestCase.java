@@ -30,8 +30,8 @@ import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
@@ -299,8 +299,8 @@ public class WebSocketClientTestCase {
         HandshakeFuture handshakeFuture = handshake(connectorListener);
         handshakeFuture.setHandshakeListener(new HandshakeListener() {
             @Override
-            public void onSuccess(Session session) {
-                session.getAsyncRemote().sendText(closeText);
+            public void onSuccess(WebSocketConnection webSocketConnection) {
+                webSocketConnection.getSession().getAsyncRemote().sendText(closeText);
             }
 
             @Override
@@ -325,8 +325,8 @@ public class WebSocketClientTestCase {
         HandshakeFuture handshakeFuture = handshake(connectorListener);
         handshakeFuture.setHandshakeListener(new HandshakeListener() {
             @Override
-            public void onSuccess(Session session) {
-                session.getAsyncRemote().sendText(closeText);
+            public void onSuccess(WebSocketConnection webSocketConnection) {
+                webSocketConnection.getSession().getAsyncRemote().sendText(closeText);
             }
 
             @Override
@@ -376,8 +376,10 @@ public class WebSocketClientTestCase {
             Assert.assertTrue(true, "Expected exception thrown");
         }
         Assert.assertEquals(textReceived, null);
+        latch = new CountDownLatch(1);
+        connectorListener.setCountDownLatch(latch);
         wsConnection.get().readNextFrame();
-        Thread.sleep(3000);
+        latch.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
         textReceived = connectorListener.getReceivedTextToClient();
         Assert.assertEquals(textReceived, textSent);
     }

@@ -35,7 +35,6 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnection;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketInitMessage;
-import org.wso2.transport.http.netty.internal.websocket.DefaultWebSocketSession;
 import org.wso2.transport.http.netty.internal.websocket.WebSocketUtil;
 
 import java.util.HashMap;

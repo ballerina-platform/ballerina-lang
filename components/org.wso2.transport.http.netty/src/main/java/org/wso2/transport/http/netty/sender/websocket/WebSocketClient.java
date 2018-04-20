@@ -45,7 +45,6 @@ import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnection;
 import org.wso2.transport.http.netty.contractimpl.websocket.HandshakeFutureImpl;
-import org.wso2.transport.http.netty.internal.websocket.DefaultWebSocketSession;
 
 import java.net.URI;
 import java.util.Map;
