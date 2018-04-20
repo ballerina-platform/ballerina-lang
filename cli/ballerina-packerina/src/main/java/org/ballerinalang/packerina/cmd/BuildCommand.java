@@ -50,6 +50,9 @@ public class BuildCommand implements BLauncherCmd {
     @Parameter(names = {"--offline"})
     private boolean offline;
 
+    @Parameter(names = {"--testEnabled"})
+    private boolean testEnabled;
+
     @Parameter(arity = 1)
     private List<String> argList;
 

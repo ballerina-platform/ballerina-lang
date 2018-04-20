@@ -23,9 +23,18 @@ public class PathConverter implements Converter<Path> {
         this.root = root;
     }
 
-    private static boolean isBal(Path path, BasicFileAttributes attributes) {
+    private static boolean isBalWithTest(Path path, BasicFileAttributes attributes) {
         Path fileName = path.getFileName();
         return attributes.isRegularFile() && fileName != null && fileName.toString().endsWith(".bal");
+    }
+
+    private static boolean isBal(Path path, BasicFileAttributes attributes) {
+        Path fileName = path.getFileName();
+        Path parentFolder = path.getParent();
+        Path parentFolderName = parentFolder != null ? parentFolder.getFileName() : null;
+        return attributes.isRegularFile() && parentFolderName != null &&
+                !parentFolderName.toString().equals("test") && fileName != null &&
+                fileName.toString().endsWith(".bal");
     }
 
     @Override
@@ -51,7 +60,18 @@ public class PathConverter implements Converter<Path> {
     }
 
     @Override
-    public Stream<Path> expandBal(Path path) {
+    public Stream<Path> expandBalWithTest(Path path) {
+        if (Files.isDirectory(path)) {
+            try {
+                return Files.find(path, Integer.MAX_VALUE, PathConverter::isBalWithTest);
+            } catch (IOException ignore) {
+            }
+        }
+        return Stream.of();
+    }
+
+    @Override
+    public Stream<Path> expandBal(Path path) { // without tests
         if (Files.isDirectory(path)) {
             try {
                 return Files.find(path, Integer.MAX_VALUE, PathConverter::isBal);

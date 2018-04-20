@@ -21,7 +21,8 @@ public class PattenTest {
     private static <I> Converter<I> mockResolver(I start,
                                                  BiFunction<I, String, I> combine,
                                                  Function<I, Stream<I>> expand,
-                                                 Function<I, Stream<I>> expandBal) {
+                                                 Function<I, Stream<I>> expandBal,
+                                                 Function<I, Stream<I>> expandBalWithTest ) {
         return new Converter<I>() {
             @Override
             public I combine(I i, String pathPart) {
@@ -31,6 +32,11 @@ public class PattenTest {
             @Override
             public Stream<I> latest(I i) {
                 return expand.apply(i);
+            }
+
+            @Override
+            public Stream<I> expandBalWithTest(I i) {
+                return expandBalWithTest.apply(i);
             }
 
             @Override
@@ -55,7 +61,7 @@ public class PattenTest {
         Converter<String> mock = mockResolver("root-dir",
                                               (a, b) -> a + " > " + b,
                                               null,
-                                              null);
+                                              null, null);
         Patten subject = new Patten(path("hello", "world"));
 
         List<String> strings = subject.convert(mock).collect(Collectors.toList());
@@ -70,7 +76,7 @@ public class PattenTest {
                                               s -> Stream.of(s + " > cache1",
                                                              s + " > cache2",
                                                              s + " > cache3"),
-                                              null);
+                                              null, null);
         Patten subject = new Patten(Patten.LATEST_VERSION_DIR);
 
         List<String> strings = subject.convert(mock).collect(Collectors.toList());
@@ -105,7 +111,7 @@ public class PattenTest {
                                               null,
                                               s -> Stream.of(s + " > dir1 > x.bal",
                                                              s + " > y.bal",
-                                                             s + " > dir2 > dir3 > f.bal"));
+                                                             s + " > dir2 > dir3 > f.bal"), null);
         Patten subject = new Patten(Patten.WILDCARD_SOURCE);
 
         List<String> strings = subject.convert(mock).collect(Collectors.toList());
@@ -128,7 +134,7 @@ public class PattenTest {
                                                                      Assert.fail("method called. Hence not lazy.");
                                                                      return "";
                                                                  })),
-                                              null);
+                                              null, null);
         Patten subject = new Patten(Patten.LATEST_VERSION_DIR);
 
         List<String> strings = subject.convert(mock).limit(1).collect(Collectors.toList());
@@ -145,7 +151,7 @@ public class PattenTest {
                                                              s + " > cache3"),
                                               q -> Stream.of(q + " > dir1 > x.bal",
                                                              q + " > y.bal",
-                                                             q + " > dir2 > dir3 > f.bal"));
+                                                             q + " > dir2 > dir3 > f.bal"), null);
         Patten subject = new Patten(path("hello"), Patten.LATEST_VERSION_DIR, path("world"), Patten.WILDCARD_SOURCE);
 
         List<String> strings = subject.convert(mock).collect(Collectors.toList());
