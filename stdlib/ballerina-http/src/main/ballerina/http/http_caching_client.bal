@@ -85,21 +85,21 @@ public type HttpCachingClient object {
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public function post (string path, Request req) returns (Response|HttpConnectorError);
+    public function post (string path, Request request) returns (Response|HttpConnectorError);
 
     @Description {value:"Responses for HEAD requests are cacheable and as such, will be routed through the HTTP cache. Only if a suitable response cannot be found will the request be directed to the origin server."}
     @Param {value:"path: Resource path "}
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public function head (string path, Request? req = ()) returns (Response|HttpConnectorError);
+    public function head (string path, Request? request = ()) returns (Response|HttpConnectorError);
 
     @Description {value:"Responses returned for PUT requests are not cacheable. Therefore, the requests are simply directed to the origin server. In addition, PUT requests invalidate the currently stored responses for the given path."}
     @Param {value:"path: Resource path "}
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public function put (string path, Request req) returns (Response|HttpConnectorError);
+    public function put (string path, Request request) returns (Response|HttpConnectorError);
 
     @Description {value:"Invokes an HTTP call with the specified HTTP method. This is not a cacheable operation, unless the HTTP method used is GET or HEAD."}
     @Param {value:"httpMethod: HTTP method to be used for the request"}
@@ -107,42 +107,42 @@ public type HttpCachingClient object {
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occurred during HTTP client invocation"}
-    public function execute (string httpMethod, string path, Request req) returns (Response|HttpConnectorError);
+    public function execute (string httpMethod, string path, Request request) returns (Response|HttpConnectorError);
 
     @Description {value:"Responses returned for PATCH requests are not cacheable. Therefore, the requests are simply directed to the origin server. Responses received for PATCH requests invalidate the cached responses for the same resource."}
     @Param {value:"path: Resource path "}
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public function patch (string path, Request req) returns (Response|HttpConnectorError);
+    public function patch (string path, Request request) returns (Response|HttpConnectorError);
 
     @Description {value:"Responses returned for DELETE requests are not cacheable. Therefore, the requests are simply directed to the origin server. Responses received for DELETE requests invalidate the cached responses for the same resource."}
     @Param {value:"path: Resource path "}
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public function delete (string path, Request req) returns (Response|HttpConnectorError);
+    public function delete (string path, Request request) returns (Response|HttpConnectorError);
 
     @Description {value:"Responses for GET requests are cacheable and as such, will be routed through the HTTP cache. Only if a suitable response cannot be found will the request be directed to the origin server."}
     @Param {value:"path: Request path"}
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public function get (string path, Request? req = ()) returns (Response|HttpConnectorError);
+    public function get (string path, Request? request = ()) returns (Response|HttpConnectorError);
 
     @Description {value:"Responses returned for OPTIONS requests are not cacheable. Therefore, the requests are simply directed to the origin server. Responses received for OPTIONS requests invalidate the cached responses for the same resource."}
     @Param {value:"path: Request path"}
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public function options (string path, Request req) returns (Response|HttpConnectorError);
+    public function options (string path, Request request) returns (Response|HttpConnectorError);
 
     @Description {value:"Forward action can be used to invoke an HTTP call with inbound request's HTTP method. Only inbound requests of GET and HEAD HTTP method types are cacheable."}
     @Param {value:"path: Request path"}
     @Param {value:"req: An HTTP inbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public function forward (string path, Request req) returns (Response|HttpConnectorError);
+    public function forward (string path, Request request) returns (Response|HttpConnectorError);
 
     @Description {value:"Submits an HTTP request to a service with the specified HTTP verb."}
     @Param {value:"httpVerb: The HTTP verb value"}
@@ -150,7 +150,7 @@ public type HttpCachingClient object {
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The Future for further interactions"}
     @Return {value:"The Error occured during HTTP client invocation"}
-    public function submit (string httpVerb, string path, Request req) returns (HttpFuture|HttpConnectorError);
+    public function submit (string httpVerb, string path, Request request) returns (HttpFuture|HttpConnectorError);
 
     @Description {value:"Retrieves response for a previously submitted request."}
     @Param {value:"httpFuture: The Future which relates to previous async invocation"}
@@ -187,29 +187,10 @@ public function createHttpCachingClient(string url, ClientEndpointConfig config,
     return httpCachingClient;
 }
 
-public function HttpCachingClient::post (string path, Request req) returns (Response|HttpConnectorError) {
-    setRequestCacheControlHeader(req);
-
-    match self.httpClient.post(path, req) {
-        Response inboundResponse => {
-            invalidateResponses(self.cache, inboundResponse, path);
-            return inboundResponse;
-        }
-
-        HttpConnectorError err => return err;
-    }
-}
-
-public function HttpCachingClient::head (string path, Request? req = ()) returns (Response|HttpConnectorError) {
-    Request request = req ?: new;
+public function HttpCachingClient::post (string path, Request request) returns (Response|HttpConnectorError) {
     setRequestCacheControlHeader(request);
-    return getCachedResponse(self.cache, self.httpClient, request, HEAD, path, self.cacheConfig.isShared);
-}
 
-public function HttpCachingClient::put (string path, Request req) returns (Response|HttpConnectorError) {
-    setRequestCacheControlHeader(req);
-
-    match self.httpClient.put(path, req) {
+    match self.httpClient.post(path, request) {
         Response inboundResponse => {
             invalidateResponses(self.cache, inboundResponse, path);
             return inboundResponse;
@@ -219,14 +200,33 @@ public function HttpCachingClient::put (string path, Request req) returns (Respo
     }
 }
 
-public function HttpCachingClient::execute (string httpMethod, string path, Request req) returns (Response|HttpConnectorError) {
+public function HttpCachingClient::head (string path, Request? request = ()) returns (Response|HttpConnectorError) {
+    Request req = request ?: new;
     setRequestCacheControlHeader(req);
+    return getCachedResponse(self.cache, self.httpClient, req, HEAD, path, self.cacheConfig.isShared);
+}
+
+public function HttpCachingClient::put (string path, Request request) returns (Response|HttpConnectorError) {
+    setRequestCacheControlHeader(request);
+
+    match self.httpClient.put(path, request) {
+        Response inboundResponse => {
+            invalidateResponses(self.cache, inboundResponse, path);
+            return inboundResponse;
+        }
+
+        HttpConnectorError err => return err;
+    }
+}
+
+public function HttpCachingClient::execute (string httpMethod, string path, Request request) returns (Response|HttpConnectorError) {
+    setRequestCacheControlHeader(request);
 
     if (httpMethod == GET || httpMethod == HEAD) {
-        return getCachedResponse(self.cache, self.httpClient, req, httpMethod, path, self.cacheConfig.isShared);
+        return getCachedResponse(self.cache, self.httpClient, request, httpMethod, path, self.cacheConfig.isShared);
     }
 
-    match self.httpClient.execute(httpMethod, path, req) {
+    match self.httpClient.execute(httpMethod, path, request) {
         Response inboundResponse => {
             invalidateResponses(self.cache, inboundResponse, path);
             return inboundResponse;
@@ -236,42 +236,42 @@ public function HttpCachingClient::execute (string httpMethod, string path, Requ
     }
 }
 
-public function HttpCachingClient::patch (string path, Request req) returns (Response|HttpConnectorError) {
-    setRequestCacheControlHeader(req);
-
-    match self.httpClient.patch(path, req) {
-        Response inboundResponse => {
-            invalidateResponses(self.cache, inboundResponse, path);
-            return inboundResponse;
-        }
-
-        HttpConnectorError err => return err;
-    }
-}
-
-public function HttpCachingClient::delete (string path, Request req) returns (Response|HttpConnectorError) {
-    setRequestCacheControlHeader(req);
-
-    match self.httpClient.delete(path, req) {
-        Response inboundResponse => {
-            invalidateResponses(self.cache, inboundResponse, path);
-            return inboundResponse;
-        }
-
-        HttpConnectorError err => return err;
-    }
-}
-
-public function HttpCachingClient::get (string path, Request? req = ()) returns (Response|HttpConnectorError) {
-    Request request = req ?: new;
+public function HttpCachingClient::patch (string path, Request request) returns (Response|HttpConnectorError) {
     setRequestCacheControlHeader(request);
-    return getCachedResponse(self.cache, self.httpClient, request, GET, path, self.cacheConfig.isShared);
+
+    match self.httpClient.patch(path, request) {
+        Response inboundResponse => {
+            invalidateResponses(self.cache, inboundResponse, path);
+            return inboundResponse;
+        }
+
+        HttpConnectorError err => return err;
+    }
 }
 
-public function HttpCachingClient::options (string path, Request req) returns (Response|HttpConnectorError) {
+public function HttpCachingClient::delete (string path, Request request) returns (Response|HttpConnectorError) {
+    setRequestCacheControlHeader(request);
+
+    match self.httpClient.delete(path, request) {
+        Response inboundResponse => {
+            invalidateResponses(self.cache, inboundResponse, path);
+            return inboundResponse;
+        }
+
+        HttpConnectorError err => return err;
+    }
+}
+
+public function HttpCachingClient::get (string path, Request? request = ()) returns (Response|HttpConnectorError) {
+    Request req = request ?: new;
     setRequestCacheControlHeader(req);
+    return getCachedResponse(self.cache, self.httpClient, req, GET, path, self.cacheConfig.isShared);
+}
 
-    match self.httpClient.options(path, req) {
+public function HttpCachingClient::options (string path, Request request) returns (Response|HttpConnectorError) {
+    setRequestCacheControlHeader(request);
+
+    match self.httpClient.options(path, request) {
         Response inboundResponse => {
             invalidateResponses(self.cache, inboundResponse, path);
             return inboundResponse;
@@ -281,12 +281,12 @@ public function HttpCachingClient::options (string path, Request req) returns (R
     }
 }
 
-public function HttpCachingClient::forward (string path, Request req) returns (Response|HttpConnectorError) {
-    if (req.method == GET || req.method == HEAD) {
-        return getCachedResponse(self.cache, self.httpClient, req, req.method, path, self.cacheConfig.isShared);
+public function HttpCachingClient::forward (string path, Request request) returns (Response|HttpConnectorError) {
+    if (request.method == GET || request.method == HEAD) {
+        return getCachedResponse(self.cache, self.httpClient, request, request.method, path, self.cacheConfig.isShared);
     }
 
-    match self.httpClient.forward(path, req) {
+    match self.httpClient.forward(path, request) {
         Response inboundResponse => {
             invalidateResponses(self.cache, inboundResponse, path);
             return inboundResponse;
@@ -296,8 +296,8 @@ public function HttpCachingClient::forward (string path, Request req) returns (R
     }
 }
 
-public function HttpCachingClient::submit (string httpVerb, string path, Request req) returns (HttpFuture|HttpConnectorError) {
-    return self.httpClient.submit(httpVerb, path, req);
+public function HttpCachingClient::submit (string httpVerb, string path, Request request) returns (HttpFuture|HttpConnectorError) {
+    return self.httpClient.submit(httpVerb, path, request);
 }
 
 public function HttpCachingClient::getResponse (HttpFuture httpFuture) returns (Response|HttpConnectorError) {
@@ -585,7 +585,7 @@ function sendValidationRequest (HttpClient httpClient, string path, Response cac
 
     // TODO: handle cases where neither of the above 2 headers are present
 
-    match httpClient.get(path, req = validationRequest) {
+    match httpClient.get(path, request = validationRequest) {
         Response validationResponse => return validationResponse;
 
         HttpConnectorError err => return err;
@@ -595,9 +595,9 @@ function sendValidationRequest (HttpClient httpClient, string path, Response cac
 function sendNewRequest(HttpClient httpClient, Request request, string path, string httpMethod)
                                                                             returns (Response|HttpConnectorError) {
     if (httpMethod == GET) {
-        return httpClient.get(path, req = request);
+        return httpClient.get(path, request = request);
     } else if (httpMethod == HEAD) {
-        return httpClient.head(path, req = request);
+        return httpClient.head(path, request = request);
     } else {
         HttpConnectorError err = {message: "HTTP method not supported in caching client: " + httpMethod};
         return err;

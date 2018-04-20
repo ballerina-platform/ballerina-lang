@@ -68,7 +68,7 @@ function callNextResource(observe:Span parentSpan) returns (http:Response | ()) 
     span.setBaggageItem("BaggageItem", "Baggage message");
     http:Request request = new;
     request = span.injectSpanContextToHttpHeader(request, "test-group");
-    var resp = httpEndpoint -> get("/resourceTwo", req = request);
+    var resp = httpEndpoint -> get("/resourceTwo", request = request);
     span.finishSpan();
     match resp {
         http:HttpConnectorError err => return ();
