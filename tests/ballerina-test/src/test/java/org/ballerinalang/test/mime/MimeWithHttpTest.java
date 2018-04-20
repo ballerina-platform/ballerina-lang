@@ -25,6 +25,9 @@ import java.net.URISyntaxException;
 import java.nio.channels.ByteChannel;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * Test mime with http.
+ */
 public class MimeWithHttpTest {
     private static final Logger log = LoggerFactory.getLogger(MimeWithHttpTest.class);
 

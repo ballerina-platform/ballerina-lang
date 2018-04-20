@@ -13,6 +13,10 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.mime.util.Constants.STRING_INDEX;
 
+/**
+ * Construct ContentDisposition object given a content-disposition value.
+ *
+ */
 @BallerinaFunction(orgName = "ballerina", packageName = "mime",
         functionName = "getContentDispositionObject",
         args = {@Argument(name = "contentDisposition",

@@ -89,7 +89,7 @@ public type Response object {
 
     @Description {value:"Get the content-type value from the response"}
     @Return {value:"Returns the content-type header value as a string."}
-    public function getContentType () returns (string?);
+    public function getContentType () returns (string);
 
     @Description {value:"Gets the response payload in JSON format"}
     @Param {value:"response: The response message"}
@@ -225,11 +225,9 @@ public function Response::setContentType (string contentType) {
     entity.setHeader(mime:CONTENT_TYPE, contentType);
 }
 
-public function Response::getContentType () returns (string?) {
-    if (self.hasHeader(mime:CONTENT_TYPE)) {
-        return self.getHeader(mime:CONTENT_TYPE);
-    }
-    return ();
+public function Response::getContentType () returns (string) {
+    mime:Entity entity = self.getEntityWithoutBody();
+    entity.getContentType();
 }
 
 public function Response::getJsonPayload () returns (json | PayloadError) {

@@ -13,10 +13,14 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import static org.ballerinalang.mime.util.Constants.DISPOSITION_INDEX;
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 
+/**
+ * Given a ContentDisposition object, get the string equivalent value that can be used with HTTP header.
+ */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "mime",
         functionName = "toString",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ContentDisposition", structPackage = "ballerina.mime"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ContentDisposition",
+                structPackage = "ballerina.mime"),
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
@@ -29,7 +33,8 @@ public class ToString extends BlockingNativeCallableUnit {
             String disposition = contentDispositionStruct.getStringField(DISPOSITION_INDEX);
             if (disposition != null && !disposition.isEmpty()) {
                 dispositionBuilder.append(disposition);
-                dispositionBuilder = MimeUtil.convertDispositionObjectToString(dispositionBuilder, contentDispositionStruct);
+                dispositionBuilder = MimeUtil.convertDispositionObjectToString(dispositionBuilder,
+                        contentDispositionStruct);
             }
         }
         context.setReturnValues(new BString(dispositionBuilder.toString()));

@@ -272,7 +272,7 @@ public class MimeUtil {
         return dispositionBuilder;
     }
 
-    public static StringBuilder appendSemiColon(StringBuilder disposition) {
+    private static StringBuilder appendSemiColon(StringBuilder disposition) {
         if (!disposition.toString().endsWith(SEMICOLON)) {
             disposition.append(SEMICOLON);
         }

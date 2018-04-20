@@ -39,7 +39,7 @@ function testToStringOnContentDisposition(mime:ContentDisposition contentDisposi
     return contentDisposition.toString();
 }
 
-function testSetMediaTypeToEntity() returns string {
+function testSetMediaTypeToEntity() returns string? {
     mime:Entity entity = new;
     mime:MediaType mediaType = getMediaTypeTestObj();
     entity.setContentType(mediaType.toString());
