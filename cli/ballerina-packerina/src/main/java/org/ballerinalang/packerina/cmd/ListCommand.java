@@ -72,7 +72,7 @@ public class ListCommand implements BLauncherCmd {
 
         if (RepoUtils.hasProjectRepo(sourceRootPath)) {
             Path packagePath = Paths.get(argList.get(0));
-            BuilderUtils.compileAndWrite(sourceRootPath, packagePath, null, false, false, true, true);
+            BuilderUtils.compileAndWrite(sourceRootPath, packagePath, null, false, false, true, true, false);
         } else {
             throw new BLangCompilerException("Current directory is not a project");
         }

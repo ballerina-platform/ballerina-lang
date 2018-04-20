@@ -50,6 +50,9 @@ public class BuildCommand implements BLauncherCmd {
     @Parameter(names = {"--offline"})
     private boolean offline;
 
+    @Parameter(names = {"--testEnabled"})
+    private boolean testEnabled;
+
     @Parameter(arity = 1)
     private List<String> argList;
 
@@ -84,7 +87,7 @@ public class BuildCommand implements BLauncherCmd {
         }
 
         BuilderUtils.compileAndWrite(sourceRootPath, packagePath, targetPath, buildCompiledPkg, offline,
-                                     false, false);
+                                     false, false, testEnabled);
         Runtime.getRuntime().exit(0);
     }
 

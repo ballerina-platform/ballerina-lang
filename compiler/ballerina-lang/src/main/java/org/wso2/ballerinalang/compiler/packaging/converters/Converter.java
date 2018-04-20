@@ -20,6 +20,8 @@ public interface Converter<T> {
 
     Stream<T> latest(T t);
 
+    Stream<T> expandBalWithTest(T t);
+
     Stream<T> expandBal(T t);
 
     T start();

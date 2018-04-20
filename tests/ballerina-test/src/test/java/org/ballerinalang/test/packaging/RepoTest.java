@@ -28,7 +28,17 @@ public class RepoTest {
     @Test
     public void testProjectSourceRepo() {
         PackageID pkg = newPackageID("best_org", "this.pkg", "1.8.3");
-        ProjectSourceRepo subject = new ProjectSourceRepo((PathConverter) null);
+        ProjectSourceRepo subject = new ProjectSourceRepo((PathConverter) null, false);
+
+        Patten prospect = subject.calculate(pkg);
+
+        Assert.assertEquals(prospect.toString(), "$/this.pkg/**~resources/*.bal");
+    }
+
+    @Test
+    public void testProjectSourceRepoWithTests() {
+        PackageID pkg = newPackageID("best_org", "this.pkg", "1.8.3");
+        ProjectSourceRepo subject = new ProjectSourceRepo((PathConverter) null, true);
 
         Patten prospect = subject.calculate(pkg);
 
@@ -42,7 +52,7 @@ public class RepoTest {
 
         Patten patten = subject.calculate(pkg);
 
-        Assert.assertEquals(patten.toString(), "$/repo/my_org/my.pkg/10.2.3/src/**~test~resources/*.bal");
+        Assert.assertEquals(patten.toString(), "$/repo/my_org/my.pkg/10.2.3/src/**~resources/*.bal");
     }
 
     @Test
@@ -53,7 +63,7 @@ public class RepoTest {
         Patten patten = subject.calculate(pkg);
 
         Assert.assertEquals(patten.toString(), "$/caches/test/nice_org/any.pkg/10.2.3/any.pkg.zip/src/" +
-                "**~test~resources/*.bal");
+                "**~resources/*.bal");
     }
 
     @Test
