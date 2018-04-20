@@ -132,10 +132,9 @@ public class DefaultWebSocketInitMessage extends WebSocketMessageImpl implements
         }
 
         try {
-            ChannelFuture future = handshaker.handshake(ctx.channel(), httpRequest, headers,
+            ChannelFuture channelFuture = handshaker.handshake(ctx.channel(), httpRequest, headers,
                                                         ctx.channel().newPromise());
-            handshakeFuture.setChannelFuture(future);
-            future.addListener(future1 -> {
+            channelFuture.addListener(future -> {
                 String selectedSubProtocol = handshaker.selectedSubprotocol();
                 webSocketSourceHandler.setNegotiatedSubProtocol(selectedSubProtocol);
                 setSubProtocol(selectedSubProtocol);

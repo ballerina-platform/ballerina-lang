@@ -19,7 +19,6 @@
 
 package org.wso2.transport.http.netty.contractimpl.websocket;
 
-import io.netty.channel.ChannelFuture;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
@@ -32,17 +31,8 @@ public class HandshakeFutureImpl implements HandshakeFuture {
     private Throwable throwable = null;
     private WebSocketConnection webSocketConnection = null;
     private HandshakeListener handshakeListener;
-    private ChannelFuture channelFuture;
-    private boolean isSync = false;
 
     public HandshakeFutureImpl() {
-    }
-
-    public void setChannelFuture(ChannelFuture channelFuture) throws InterruptedException {
-        this.channelFuture = channelFuture;
-        if (isSync) {
-            this.channelFuture.sync();
-        }
     }
 
     @Override
@@ -73,14 +63,6 @@ public class HandshakeFutureImpl implements HandshakeFuture {
             return;
         }
         handshakeListener.onError(throwable);
-    }
-
-    @Override
-    public void sync() throws InterruptedException {
-        isSync = true;
-        if (channelFuture != null) {
-            channelFuture.sync();
-        }
     }
 
 

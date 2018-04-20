@@ -21,7 +21,6 @@ package org.wso2.transport.http.netty.sender.websocket;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -142,7 +141,7 @@ public class WebSocketClient {
                     });
 
             channel = clientBootstrap.connect(uri.getHost(), port).sync().channel();
-            ChannelFuture future = webSocketTargetHandler
+            webSocketTargetHandler
                     .handshakeFuture().addListener((ChannelFutureListener) clientHandshakeFuture -> {
                 Throwable cause = clientHandshakeFuture.cause();
                 if (clientHandshakeFuture.isSuccess() && cause == null) {
@@ -156,12 +155,10 @@ public class WebSocketClient {
                 } else {
                     handshakeFuture.notifyError(cause);
                 }
-            }).sync();
-            handshakeFuture.setChannelFuture(future);
+            });
         } catch (Throwable t) {
             handshakeFuture.notifyError(t);
         }
-
         return handshakeFuture;
     }
 

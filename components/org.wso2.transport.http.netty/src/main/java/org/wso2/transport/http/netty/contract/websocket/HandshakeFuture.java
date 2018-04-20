@@ -26,11 +26,4 @@ public interface HandshakeFuture {
      * @param throwable error occurred during handshake.
      */
     public void notifyError(Throwable throwable);
-
-    /**
-     * Sync the future.
-     *
-     * @throws InterruptedException if interruption happens during sync time.
-     */
-    public void sync() throws InterruptedException;
 }
