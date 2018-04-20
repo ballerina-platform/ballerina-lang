@@ -121,7 +121,8 @@ public class Compiler {
 
         // 3) Invoke compiler phases. e.g. type_check, code_analyze, taint_analyze, desugar etc.
         packages.stream()
-                .filter(pkgNode -> !pkgNode.diagCollector.hasErrors())
+//                .filter(pkgNode -> !pkgNode.diagCollector.hasErrors())
+                .filter(pkgNode -> pkgNode.symbol != null)
                 .forEach(this.compilerDriver::compilePackage);
 
         return packages;
