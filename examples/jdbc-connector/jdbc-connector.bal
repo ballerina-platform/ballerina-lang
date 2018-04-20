@@ -15,9 +15,7 @@ function main(string... args) {
     var ret = testDB->update("CREATE TABLE STUDENT(ID INT AUTO_INCREMENT, AGE INT,
                                 NAME VARCHAR(255), PRIMARY KEY (ID))");
     match ret {
-        int status => {
-            io:println("Table creation status: " + status);
-        }
+        int status => io:println("Table creation status: " + status);
         error err => {
             io:println("STUDENT table creation failed: " + err.message);
             return;
@@ -32,9 +30,7 @@ function main(string... args) {
                               STUDENT WHERE ID = pInt;
                          END");
     match ret {
-        int status => {
-            io:println("Stored proc creation status: " + status);
-        }
+        int status => io:println("Stored proc creation status: " + status);
         error err => {
             io:println("GETCOUNT procedure creation failed: " + err.message);
             return;
@@ -47,9 +43,7 @@ function main(string... args) {
     sql:Parameter para2 = (sql:TYPE_VARCHAR, "Sam");
     ret = testDB->update("INSERT INTO STUDENT (AGE,NAME) VALUES (?,?)", para1, para2);
     match ret {
-        int rows => {
-            io:println("Inserted row count: " + rows);
-        }
+        int rows => io:println("Inserted row count: " + rows);
         error err => {
             io:println("Update action failed: " + err.message);
             return;
@@ -72,9 +66,7 @@ function main(string... args) {
             io:println("Inserted row count: " + count);
             io:println("Generated key: " + ids[0]);
         }
-        error err1 => {
-            io:println("Update action failed: " + err1.message);
-        }
+        error err1 => io:println("Update action failed: " + err1.message);
     }
 
     //Select data using the `select` action. The `select` action returns a table.
@@ -116,9 +108,7 @@ function main(string... args) {
     //Drop the STUDENT table.
     ret = testDB->update("DROP TABLE STUDENT");
     match ret {
-        int status => {
-            io:println("Table drop status: " + status);
-        }
+        int status => io:println("Table drop status: " + status);
         error err => {
             io:println("Dropping STUDENT table failed: " + err.message);
             return;
@@ -128,9 +118,7 @@ function main(string... args) {
     //Drop the GETCOUNT procedure.
     ret = testDB->update("DROP PROCEDURE GETCOUNT");
     match ret {
-        int status => {
-            io:println("Procedure drop status: " + status);
-        }
+        int status => io:println("Procedure drop status: " + status);
         error err => {
             io:println("Dropping GETCOUNT procedure failed: " + err.message);
             return;

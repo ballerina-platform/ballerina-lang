@@ -40,9 +40,7 @@ function main(string... args) {
     //Create the table named SALARY in the second database.
     ret = testDBEP2->update("CREATE TABLE SALARY (ID INT, VALUE FLOAT)");
     match ret {
-        int retInt => {
-            io:println("SALARY table create status in second DB:" + retInt);
-        }
+        int retInt => io:println("SALARY table create status in second DB:" + retInt);
         error err => {
             io:println("SALARY table Creation failed:" + err.message);
             return;
@@ -69,12 +67,8 @@ function main(string... args) {
         sql:Parameter para1 = (sql:TYPE_INTEGER, returnedKey);
         ret = testDBEP2->update("INSERT INTO SALARY (ID, VALUE) VALUES (?, 2500)", para1);
         match ret {
-            int retInt => {
-                io:println("Inserted count to SALARY table: " + retInt);
-            }
-            error err => {
-                retry;
-            }
+            int retInt => io:println("Inserted count to SALARY table: " + retInt);
+            error err => retry;
         }
 
     } onretry {
@@ -84,21 +78,13 @@ function main(string... args) {
     //Drop the tables created for this sample.
     ret = testDBEP1->update("DROP TABLE CUSTOMER");
     match ret {
-        int retInt => {
-            io:println("CUSTOMER table drop status: " + retInt);
-        }
-        error err => {
-            throw err.cause but { () => err };
-        }
+        int retInt => io:println("CUSTOMER table drop status: " + retInt);
+        error err => throw err.cause but { () => err };
     }
     ret = testDBEP2->update("DROP TABLE SALARY");
     match ret {
-        int retInt => {
-            io:println("SALARY table drop status: " + retInt);
-        }
-        error err => {
-            throw err.cause but { () => err };
-        }
+        int retInt => io:println("SALARY table drop status: " + retInt);
+        error err => throw err.cause but { () => err };
     }
 
     //Close the connection pool.

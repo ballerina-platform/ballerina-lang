@@ -16,9 +16,7 @@ function main(string... args) {
     //Create the tables required for the transaction.
     var updatedRowsResult = testDBEP->update("CREATE TABLE IF NOT EXISTS CUSTOMER (ID INT, NAME VARCHAR(30))");
     match updatedRowsResult {
-        int rows => {
-            updatedRows = rows;
-        }
+        int rows => updatedRows = rows;
         error err => {
             io:println("CUSTOMER table Creation failed:" + err.message);
             return;
@@ -26,9 +24,7 @@ function main(string... args) {
     }
     updatedRowsResult = testDBEP->update("CREATE TABLE IF NOT EXISTS SALARY (ID INT, MON_SALARY FLOAT)");
     match updatedRowsResult {
-        int rows => {
-            updatedRows = rows;
-        }
+        int rows => updatedRows = rows;
         error err => {
             io:println("SALARY table Creation failed:" + err.message);
             return;

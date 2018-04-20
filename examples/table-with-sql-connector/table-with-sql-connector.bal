@@ -37,9 +37,7 @@ function main(string... args) {
         updated TIMESTAMP)");
 
     match returnValue {
-        int val => {
-            count = val;
-        }
+        int val => count = val;
         error e => io:println("Error in executing CREATE TABLE EMPLOYEE");
     }
 
@@ -47,9 +45,7 @@ function main(string... args) {
         '1990-12-31', '11:30:45', '2007-05-23 09:15:28')");
 
     match returnValue {
-        int val => {
-            count = val;
-        }
+        int val => count = val;
         error e => io:println("Error in executing INSERT INTO EMPLOYEE");
     }
 
@@ -57,9 +53,7 @@ function main(string... args) {
         '1999-12-31', '13:40:24', '2017-05-23 09:15:28')");
 
     match returnValue {
-        int val => {
-          count = val;
-        }
+        int val => count = val;
         error e => io:println("Error in executing INSERT INTO EMPLOYEE");
     }
 
@@ -68,9 +62,7 @@ function main(string... args) {
     var returnVal = testDB->select("SELECT * from EMPLOYEE", Employee);
 
     match returnVal {
-        table val => {
-            dt = val;
-        }
+        table val => dt = val;
         error e => io:println("Error in executing SELECT * from EMPLOYEE");
     }
 
@@ -95,9 +87,7 @@ function main(string... args) {
     //Convert a table to JSON.
     var returnVal2 = testDB->select("SELECT id,name FROM EMPLOYEE", ());
     match returnVal2 {
-        table val => {
-            dt = val;
-        }
+        table val => dt = val;
         error e => io:println("Error in executing SELECT id,name FROM EMPLOYEE");
     }
 
@@ -108,9 +98,7 @@ function main(string... args) {
     var returnVal3 = testDB->select("SELECT id,name FROM EMPLOYEE", ());
 
     match returnVal3 {
-        table val => {
-            dt = val;
-        }
+        table val => dt = val;
         error e => io:println("Error in executing SELECT id,name FROM EMPLOYEE");
     }
 
@@ -120,9 +108,7 @@ function main(string... args) {
     //Drop the EMPLOYEE table.
     var returnVal4 = testDB->update("DROP TABLE EMPLOYEE");
     match returnVal4 {
-        int val => {
-            ret = val;
-        }
+        int val => ret = val;
         error e => io:println("Error in executing DROP TABLE EMPLOYEE");
     }
     io:println("Table drop status:" + ret);
@@ -131,8 +117,6 @@ function main(string... args) {
     var onConnectionClose = testDB->close();
     match onConnectionClose {
         error e => io:println("Error in DB Connection close");
-        any|()=> {
-            io:println("DB Connection closed successfully.");
-        }
+        any|() => io:println("DB Connection closed successfully.");
     }
 }
