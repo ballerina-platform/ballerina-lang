@@ -95,7 +95,7 @@ public class PackageImportTest {
     public void testInvalidImport2() {
         CompileResult result = BCompileUtil.compile("test-src/statements/package/imports/invalid-import-negative2.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "cannot resolve package 'foo.x", 1, 1);
+        BAssertUtil.validateError(result, 0, "cannot resolve package 'foo.x'", 1, 1);
     }
 
 }
