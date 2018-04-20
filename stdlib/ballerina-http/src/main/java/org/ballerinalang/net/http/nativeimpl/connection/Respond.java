@@ -31,10 +31,14 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
 import org.ballerinalang.net.http.util.CacheUtils;
+import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserverContext;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_INDEX;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
 
 /**
  * Native function to respond back the caller with outbound response.
@@ -75,6 +79,9 @@ public class Respond extends ConnectionAction {
 
         BValue[] outboundResponseStatus = sendOutboundResponseRobust(context, inboundRequestMsg,
                                                                      outboundResponseStruct, outboundResponseMsg);
+        ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
+        observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE, String.valueOf(outboundResponseStruct.
+                getIntField(RESPONSE_STATUS_CODE_INDEX)));
         context.setReturnValues(outboundResponseStatus);
     }
 

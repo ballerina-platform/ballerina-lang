@@ -18,8 +18,8 @@
 
 package org.ballerinalang.test.jwt.crypto;
 
-import org.ballerinalang.nativeimpl.jwt.crypto.JWSVerifier;
-import org.ballerinalang.nativeimpl.jwt.crypto.RSAVerifier;
+import org.ballerinalang.nativeimpl.internal.jwt.crypto.JWSVerifier;
+import org.ballerinalang.nativeimpl.internal.jwt.crypto.RSAVerifier;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

@@ -12,7 +12,7 @@ endpoint http:Listener echoEP {
     port:9095,
     secureSocket: {
         keyStore: {
-            filePath:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
             password:"ballerina"
         }
     }
