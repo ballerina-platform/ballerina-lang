@@ -49,7 +49,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.net.http.HttpConstants.HTTP_CLIENT;
+import static org.ballerinalang.net.http.HttpConstants.CALLER_ACTIONS;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 
 /**
@@ -105,6 +105,14 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
                         + maxActiveConnections);
             }
             senderConfiguration.getPoolConfiguration().setMaxActivePerPool((int) maxActiveConnections);
+            long maxActiveStreamsPerConnection = connectionThrottling.
+                    getIntField(HttpConstants.CONNECTION_THROTTLING_MAX_ACTIVE_STREAMS_PER_CONNECTION);
+            if (!isInteger(maxActiveStreamsPerConnection)) {
+                throw new BallerinaConnectorException("invalid maxActiveStreamsPerConnection value: "
+                                                      + maxActiveStreamsPerConnection);
+            }
+            senderConfiguration.getPoolConfiguration().setHttp2MaxActiveStreamsPerConnection(
+                    maxActiveStreamsPerConnection == -1 ? Integer.MAX_VALUE : (int) maxActiveStreamsPerConnection);
 
             long waitTime = connectionThrottling
                     .getIntField(HttpConstants.CONNECTION_THROTTLING_WAIT_TIME);
@@ -113,8 +121,8 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
         HttpClientConnector httpClientConnector = httpConnectorFactory
                 .createHttpClientConnector(properties, senderConfiguration);
         BStruct httpClient = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(), HTTP_PACKAGE_PATH,
-                HTTP_CLIENT, urlString, clientEndpointConfig);
-        httpClient.addNativeData(HttpConstants.HTTP_CLIENT, httpClientConnector);
+                CALLER_ACTIONS, urlString, clientEndpointConfig);
+        httpClient.addNativeData(HttpConstants.CALLER_ACTIONS, httpClientConnector);
         httpClient.addNativeData(HttpConstants.CLIENT_ENDPOINT_CONFIG, clientEndpointConfig);
         context.setReturnValues(httpClient);
     }

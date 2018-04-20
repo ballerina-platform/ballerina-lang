@@ -1,4 +1,3 @@
-package ballerina.http;
 
 import ballerina/file;
 import ballerina/io;
@@ -25,8 +24,8 @@ public type Request object {
     public native function setEntity (mime:Entity entity);
 
     @Description {value:"Gets the query parameters from the HTTP request as a map"}
-    @Return {value:"The map of query params"}
-    public native function getQueryParams () returns (map);
+    @Return {value:"String map of query params"}
+    public native function getQueryParams () returns (map<string>);
 
     @Description {value:"Get matrix parameters from the request"}
     @Param {value:"path: Path to the location of matrix parameters"}
@@ -75,6 +74,7 @@ public type Request object {
     public function removeAllHeaders ();
 
     @Description {value:"Get all transport header names from the request."}
+    @Return {value:"An array of all transport header names"}
     public function getHeaderNames () returns (string[]);
 
     @Description {value:"Checks whether the client expects a 100-continue response."}
@@ -142,7 +142,7 @@ public type Request object {
     @Description {value:"Sets the entity body of the request with the given file content"}
     @Param {value:"filePath: Path to the file that needs to be set to the payload"}
     @Param {value:"contentType: Content-Type of the given file"}
-    public function setFileAsPayload (file:Path filePath, string contentType);
+    public function setFileAsPayload (string filePath, string contentType);
 
     @Description {value:"Set a byte channel as the request payload"}
     @Param {value:"payload: The byte channel representation of the message payload"}
@@ -357,7 +357,7 @@ public function Request::setBodyParts (mime:Entity[] bodyParts, @sensitive strin
     self.setEntity(entity);
 }
 
-public function Request::setFileAsPayload (file:Path filePath, @sensitive string contentType) {
+public function Request::setFileAsPayload (string filePath, @sensitive string contentType) {
     mime:MediaType mediaType = mime:getMediaType(contentType);
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setFileAsEntityBody(filePath);

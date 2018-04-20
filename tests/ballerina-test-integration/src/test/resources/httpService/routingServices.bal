@@ -7,11 +7,11 @@ endpoint http:Listener serviceEP {
 };
 
 endpoint http:Client nasdaqEP {
-    targets:[{url:"http://localhost:9090/nasdaqStocks"}]
+    url:"http://localhost:9090/nasdaqStocks"
 };
 
 endpoint http:Client nyseEP {
-    targets:[{url:"http://localhost:9090/nyseStocks"}]
+    url:"http://localhost:9090/nyseStocks"
 };
 
 @http:ServiceConfig {basePath:"/cbr"}
@@ -34,7 +34,7 @@ service<http:Service> contentBasedRouting bind serviceEP{
         http:Request clientRequest = new;
         http:Response clientResponse = new;
         if (nameString == nyseString) {
-            var result = nyseEP -> post("/stocks", clientRequest);
+            var result = nyseEP -> post("/stocks", request = clientRequest);
             match result {
                 http:HttpConnectorError err => {
                     clientResponse.statusCode = 500;
@@ -44,7 +44,7 @@ service<http:Service> contentBasedRouting bind serviceEP{
                 http:Response returnResponse => _ = conn -> respond(returnResponse);
             }
         } else {
-            var result = nasdaqEP -> post("/stocks", clientRequest);
+            var result = nasdaqEP -> post("/stocks", request = clientRequest);
             match result {
                 http:HttpConnectorError err => {
                     clientResponse.statusCode = 500;
@@ -71,7 +71,7 @@ service<http:Service> headerBasedRouting bind serviceEP{
         http:Request clientRequest = new;
         http:Response clientResponse = new;
         if (nameString == nyseString) {
-            var result = nyseEP -> post("/stocks", clientRequest);
+            var result = nyseEP -> post("/stocks", request = clientRequest);
             match result {
                 http:HttpConnectorError err => {
                     clientResponse.statusCode = 500;
@@ -81,7 +81,7 @@ service<http:Service> headerBasedRouting bind serviceEP{
                 http:Response returnResponse => _ = conn -> respond(returnResponse);
             }
         } else {
-            var result = nasdaqEP -> post("/stocks", clientRequest);
+            var result = nasdaqEP -> post("/stocks", request = clientRequest);
             match result {
                 http:HttpConnectorError err => {
                     clientResponse.statusCode = 500;

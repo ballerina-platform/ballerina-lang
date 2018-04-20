@@ -19,6 +19,7 @@ package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.nativeimpl.io.channels.AbstractNativeChannel;
 import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
@@ -54,7 +55,7 @@ public class OpenFile extends AbstractNativeChannel {
     /**
      * Index which will specify the file access mode.
      */
-    private static final int FILE_ACCESS_MODE_INDEX = 1;
+    private static final int FILE_ACCESS_MODE_INDEX = 0;
 
     /**
      * {@inheritDoc}
@@ -62,11 +63,11 @@ public class OpenFile extends AbstractNativeChannel {
     @Override
     public Channel inFlow(Context context) throws BallerinaException {
         String pathUrl = context.getStringArgument(PATH_FIELD_INDEX);
-        String accessMode = context.getStringArgument(FILE_ACCESS_MODE_INDEX);
+        BString accessMode = (BString) context.getRefArgument(FILE_ACCESS_MODE_INDEX);
         Channel channel;
         try {
             Path path = Paths.get(pathUrl);
-            FileChannel fileChannel = IOUtils.openFileChannel(path, accessMode);
+            FileChannel fileChannel = IOUtils.openFileChannel(path, accessMode.stringValue());
             channel = new FileIOChannel(fileChannel);
         } catch (AccessDeniedException e) {
             throw new BallerinaException("Do not have access to write file: ", e);

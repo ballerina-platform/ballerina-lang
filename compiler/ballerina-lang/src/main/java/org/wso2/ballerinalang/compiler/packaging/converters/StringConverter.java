@@ -1,7 +1,7 @@
 package org.wso2.ballerinalang.compiler.packaging.converters;
 
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.repository.PackageSourceEntry;
+import org.ballerinalang.repository.CompilerInput;
 
 import java.util.stream.Stream;
 
@@ -17,7 +17,7 @@ public class StringConverter implements Converter<String> {
 
     @Override
     public Stream<String> latest(String s) {
-        return Stream.of(s + "/*");
+        return Stream.of(s + "/semVer(*)");
     }
 
     @Override
@@ -31,7 +31,7 @@ public class StringConverter implements Converter<String> {
     }
 
     @Override
-    public Stream<PackageSourceEntry> finalize(String s, PackageID id) {
+    public Stream<CompilerInput> finalize(String s, PackageID id) {
         throw new UnsupportedOperationException();
     }
 }

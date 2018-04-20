@@ -1,4 +1,3 @@
-package ballerina.http;
 
 @Description { value:"Represents a HTTP/2 Push Promise"}
 @Field {value:"path: Resource path"}
@@ -11,6 +10,11 @@ public type PushPromise object {
 
     public new (path = "/", method = "GET") {
     }
+
+    @Description {value:"Checks whether the requested header exists"}
+    @Param {value:"headerName: The header name"}
+    @Return {value:"A boolean representing the existence of a given header"}
+    public native function hasHeader (string headerName) returns (boolean);
 
     @Description {value:"Returns the header value with the specified header name. If there are more than one header value for the specified header name, the first value is returned."}
     @Param {value:"headerName: The header name"}
@@ -38,5 +42,9 @@ public type PushPromise object {
 
     @Description {value:"Removes all transport headers from the Push Promise"}
     public native function removeAllHeaders ();
+
+    @Description {value:"Gets all transport header names from the Push Promise."}
+    @Return {value:"An array of all transport header names"}
+    public native function getHeaderNames () returns (string[]);
 };
 

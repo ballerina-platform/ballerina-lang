@@ -22,7 +22,7 @@ endpoint http:Listener participant1EP {
 };
 
 endpoint http:Client participant2EP {
-    targets:[{url: "http://localhost:8890"}]
+    url: "http://localhost:8890"
 };
 
 State state = new();
@@ -106,7 +106,7 @@ service<http:Service> participant1 bind participant1EP {
                     abort;
                 }
                 http:Response forwardRes => {
-                    var getResult = participant2EP -> get("/task2", newReq);
+                    var getResult = participant2EP -> get("/task2", request = newReq);
                     match getResult {
                         http:HttpConnectorError err => {
                             io:print("Participant1 could not send get request to participant2/task2. Error:");
@@ -134,7 +134,7 @@ service<http:Service> participant1 bind participant1EP {
     testSaveToDatabaseSuccessfulInParticipant(endpoint ep, http:Request req) {
         http:Response res = new;  res.statusCode = 500;
         http:Request newReq = new;
-        var result = participant2EP -> get("/testSaveToDatabaseSuccessfulInParticipant", newReq);
+        var result = participant2EP -> get("/testSaveToDatabaseSuccessfulInParticipant", request = newReq);
         match result {
             http:Response participant1Res => {
                 res = participant1Res;
@@ -152,7 +152,7 @@ service<http:Service> participant1 bind participant1EP {
             transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort {
             }
             http:Request newReq = new;
-            var result = participant2EP -> get("/testSaveToDatabaseFailedInParticipant", newReq);
+            var result = participant2EP -> get("/testSaveToDatabaseFailedInParticipant", request = newReq);
             match result {
                 http:Response participant1Res => {
                     res = participant1Res;
@@ -215,7 +215,7 @@ type State object {
     function toString() returns string {
         return io:sprintf("abortedByParticipant=%b,abortedFunctionCalled=%b,committedFunctionCalled=%s," +
                             "localParticipantAbortedFunctionCalled=%s,localParticipantCommittedFunctionCalled=%s",
-                            [abortedByParticipant, abortedFunctionCalled, committedFunctionCalled,
-                            localParticipantAbortedFunctionCalled, localParticipantCommittedFunctionCalled]);
+                            abortedByParticipant, abortedFunctionCalled, committedFunctionCalled,
+                            localParticipantAbortedFunctionCalled, localParticipantCommittedFunctionCalled);
     }
 };

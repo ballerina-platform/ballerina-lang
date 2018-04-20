@@ -1,4 +1,3 @@
-package ballerina.mime;
 
 import ballerina/file;
 import ballerina/io;
@@ -19,7 +18,7 @@ import ballerina/io;
 @final public string DEFAULT_CHARSET = "UTF-8";
 
 @Description {value:"Permission to be used with opening a byte channel for overflow data"}
-@final string READ_PERMISSION = "r";
+@final io:Mode READ_PERMISSION = "r";
 
 @Description {value:"Represent 'content-type' header name"}
 @final public string CONTENT_TYPE = "content-type";
@@ -110,7 +109,7 @@ public type Entity object {
 
     @Description {value:"Set the entity body with a given file handler"}
     @Param {value:"fileHandler: Represent a file"}
-    public function setFileAsEntityBody (@sensitive file:Path fileHandler);
+    public function setFileAsEntityBody (@sensitive string filePath);
 
     @Description {value:"Set the entity body with the given json content"}
     @Param {value:"jsonContent: Json content that needs to be set to entity"}
@@ -212,9 +211,8 @@ public type Entity object {
     public native function hasHeader (@sensitive string headerName) returns boolean;
 };
 
-public function Entity::setFileAsEntityBody (@sensitive file:Path fileHandler) {
-    string path = fileHandler.toAbsolutePath().getPathValue();
-    io:ByteChannel channel = io:openFile(path, READ_PERMISSION);
+public function Entity::setFileAsEntityBody (@sensitive string filePath) {
+    io:ByteChannel channel = io:openFile(filePath, READ_PERMISSION);
     self.setByteChannel(channel);
 }
 

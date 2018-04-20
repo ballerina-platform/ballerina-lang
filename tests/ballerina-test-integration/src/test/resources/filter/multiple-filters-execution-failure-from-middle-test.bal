@@ -50,8 +50,8 @@ service<http:Service> echo bind echoEP {
         methods:["GET"],
         path:"/test"
     }
-    echo (endpoint client, http:Request req) {
+    echo (endpoint caller, http:Request req) {
         http:Response res = new;
-        _ = client -> respond(res);
+        _ = caller -> respond(res);
     }
 }

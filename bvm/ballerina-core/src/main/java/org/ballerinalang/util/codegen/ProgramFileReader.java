@@ -51,10 +51,13 @@ import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.DocumentationAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.DocumentationAttributeInfo.ParameterDocumentInfo;
 import org.ballerinalang.util.codegen.attributes.ErrorTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ParamDefaultValueAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.TaintTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPool;
@@ -107,6 +110,11 @@ public class ProgramFileReader {
 
     private List<ConstantPoolEntry> unresolvedCPEntries = new ArrayList<>();
 
+    // This is used to assign a number to a package.
+    // This number is used as an offset when dealing with package level variables.
+    // A temporary solution until we implement dynamic package loading.
+    private int currentPkgIndex = 0;
+
     public ProgramFile readProgram(Path programFilePath) throws IOException {
         InputStream fileIS = null;
         try {
@@ -147,6 +155,7 @@ public class ProgramFileReader {
         // Read PackageInfo entries
         int pkgInfoCount = dataInStream.readShort();
         for (int i = 0; i < pkgInfoCount; i++) {
+            currentPkgIndex = i;
             readPackageInfo(dataInStream);
         }
 
@@ -156,6 +165,9 @@ public class ProgramFileReader {
 
         // Read program level attributes
         readAttributeInfoEntries(dataInStream, programFile, programFile);
+
+        // TODO This needs to be moved out of this class
+        programFile.initializeGlobalMemArea();
         return programFile;
     }
 
@@ -209,8 +221,16 @@ public class ProgramFileReader {
                 utf8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(cpIndex);
                 int versionCPIndex = dataInStream.readInt();
                 UTF8CPEntry utf8VersionCPEntry = (UTF8CPEntry) constantPool.getCPEntry(versionCPIndex);
-                return new PackageRefCPEntry(cpIndex, utf8CPEntry.getValue(), versionCPIndex,
+                packageRefCPEntry = new PackageRefCPEntry(cpIndex, utf8CPEntry.getValue(), versionCPIndex,
                         utf8VersionCPEntry.getValue());
+                packageInfoOptional = Optional.ofNullable(
+                        programFile.getPackageInfo(packageRefCPEntry.getPackageName()));
+                if (packageInfoOptional.isPresent()) {
+                    packageRefCPEntry.setPackageInfo(packageInfoOptional.get());
+                } else {
+                    unresolvedCPEntries.add(packageRefCPEntry);
+                }
+                return packageRefCPEntry;
 
             case CP_ENTRY_FUNCTION_REF:
                 pkgCPIndex = dataInStream.readInt();
@@ -332,6 +352,7 @@ public class ProgramFileReader {
 
     private void readPackageInfo(DataInputStream dataInStream) throws IOException {
         PackageInfo packageInfo = new PackageInfo();
+        packageInfo.pkgIndex = currentPkgIndex;
 
         // Read constant pool in the package.
         readConstantPool(dataInStream, packageInfo);
@@ -342,12 +363,15 @@ public class ProgramFileReader {
         packageInfo.pkgPath = pkgNameCPEntry.getValue();
 
         int pkgVersionCPIndex = dataInStream.readInt();
-        UTF8CPEntry pkgVersionCPEntry = (UTF8CPEntry) programFile.getCPEntry(pkgVersionCPIndex);
+        UTF8CPEntry pkgVersionCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgVersionCPIndex);
         packageInfo.versionCPIndex = pkgVersionCPIndex;
         packageInfo.pkgVersion = pkgVersionCPEntry.getValue();
 
         packageInfo.setProgramFile(programFile);
         programFile.addPackageInfo(packageInfo.pkgPath, packageInfo);
+
+        // Read import package entries
+        readImportPackageInfoEntries(dataInStream, packageInfo);
 
         // Read struct info entries
         readStructInfoEntries(dataInStream, packageInfo);
@@ -364,17 +388,12 @@ public class ProgramFileReader {
         // Read resource info entries.
         readResourceInfoEntries(dataInStream, packageInfo);
 
-        // Read constant info entries
-        readConstantInfoEntries(dataInStream, packageInfo);
 
         // Read global var info entries
         readGlobalVarInfoEntries(dataInStream, packageInfo);
 
         // Read function info entries in the package
         readFunctionInfoEntries(dataInStream, packageInfo);
-
-        // Read transformer info entries in the package
-        readTransformerInfoEntries(dataInStream, packageInfo);
 
         // TODO Read annotation info entries
 
@@ -390,6 +409,16 @@ public class ProgramFileReader {
         readInstructions(dataInStream, packageInfo);
 
         packageInfo.complete();
+    }
+
+    private void readImportPackageInfoEntries(DataInputStream dataInStream,
+                                              PackageInfo packageInfo) throws IOException {
+        int impPkgCount = dataInStream.readShort();
+        for (int i = 0; i < impPkgCount; i++) {
+            // TODO populate import package info structure
+            dataInStream.readInt();
+            dataInStream.readInt();
+        }
     }
 
     private void readStructInfoEntries(DataInputStream dataInStream,
@@ -540,6 +569,7 @@ public class ProgramFileReader {
 
     private void readResourceInfoEntries(DataInputStream dataInStream,
                                          PackageInfo packageInfo) throws IOException {
+        dataInStream.readShort();   // Ignore service count.
         for (ServiceInfo serviceInfo : packageInfo.getServiceInfoEntries()) {
             int actionCount = dataInStream.readShort();
             for (int j = 0; j < actionCount; j++) {
@@ -576,12 +606,14 @@ public class ProgramFileReader {
                 resourceInfo.setParamNameCPIndexes(paramNameCPIndexes);
                 resourceInfo.setParamNames(paramNames);
 
+                // Read and ignore the workerData length
+                dataInStream.readInt();
                 int workerDataChannelsLength = dataInStream.readShort();
-                for (int k = 0; k < workerDataChannelsLength; k++) {
+                for (int i = 0; i < workerDataChannelsLength; i++) {
                     readWorkerDataChannelEntries(dataInStream, packageInfo, resourceInfo);
                 }
 
-                // Read workers
+                // Read worker info entries
                 readWorkerInfoEntries(dataInStream, packageInfo, resourceInfo);
 
                 // Read attributes of the struct info
@@ -689,6 +721,8 @@ public class ProgramFileReader {
             packageInfo.addFunctionInfo(uniqueFuncName, functionInfo);
         }
 
+        // Read and ignore the workerData length
+        dataInStream.readInt();
         int workerDataChannelsLength = dataInStream.readShort();
         for (int i = 0; i < workerDataChannelsLength; i++) {
             readWorkerDataChannelEntries(dataInStream, packageInfo, functionInfo);
@@ -1122,7 +1156,9 @@ public class ProgramFileReader {
         int attributesCount = dataInStream.readShort();
         for (int k = 0; k < attributesCount; k++) {
             AttributeInfo attributeInfo = getAttributeInfo(dataInStream, constantPool);
-            attributeInfoPool.addAttributeInfo(attributeInfo.getKind(), attributeInfo);
+            if (attributeInfo != null) {
+                attributeInfoPool.addAttributeInfo(attributeInfo.getKind(), attributeInfo);
+            }
         }
     }
 
@@ -1134,6 +1170,9 @@ public class ProgramFileReader {
         if (attribKind == null) {
             throw new ProgramFileFormatException("unknown attribute kind " + attribNameCPEntry.getValue());
         }
+
+        // The length of the attribute data in bytes. Ignoring this value for now.
+        dataInStream.readInt();
 
         switch (attribKind) {
             case CODE_ATTRIBUTE:
@@ -1209,6 +1248,8 @@ public class ProgramFileReader {
                 DefaultValueAttributeInfo defaultValAttrInfo =
                         new DefaultValueAttributeInfo(attribNameCPIndex, defaultValue);
                 return defaultValAttrInfo;
+            case DOCUMENT_ATTACHMENT_ATTRIBUTE:
+                return getDocumentAttachmentAttribute(dataInStream, constantPool, attribNameCPIndex);
             case PARAMETER_DEFAULTS_ATTRIBUTE:
                 ParamDefaultValueAttributeInfo paramDefaultValAttrInfo =
                         new ParamDefaultValueAttributeInfo(attribNameCPIndex);
@@ -1218,9 +1259,54 @@ public class ProgramFileReader {
                     paramDefaultValAttrInfo.addParamDefaultValueInfo(paramDefaultValue);
                 }
                 return paramDefaultValAttrInfo;
+            case PARAMETERS_ATTRIBUTE:
+                // Read and discard required param count, defaultable param and rest param count 
+                dataInStream.readInt();
+                dataInStream.readInt();
+                dataInStream.readInt();
+                return null;
+            case TAINT_TABLE:
+                TaintTableAttributeInfo taintTableAttributeInfo = new TaintTableAttributeInfo(attribNameCPIndex);
+                taintTableAttributeInfo.rowCount = dataInStream.readShort();
+                taintTableAttributeInfo.columnCount = dataInStream.readShort();
+                for (int rowIndex = 0; rowIndex < taintTableAttributeInfo.rowCount; rowIndex++) {
+                    int paramIndex = dataInStream.readShort();
+                    List<Boolean> taintRecord = new ArrayList<>();
+                    for (int columnIndex = 0; columnIndex < taintTableAttributeInfo.columnCount; columnIndex++) {
+                        taintRecord.add(dataInStream.readBoolean());
+                    }
+                    taintTableAttributeInfo.taintTable.put(paramIndex, taintRecord);
+                }
+                return taintTableAttributeInfo;
             default:
                 throw new ProgramFileFormatException("unsupported attribute kind " + attribNameCPEntry.getValue());
         }
+    }
+
+    private AttributeInfo getDocumentAttachmentAttribute(DataInputStream dataInStream,
+                                                         ConstantPool constantPool,
+                                                         int attribNameCPIndex) throws IOException {
+        int descCPIndex = dataInStream.readInt();
+        String docDesc = getUTF8EntryValue(descCPIndex, constantPool);
+        DocumentationAttributeInfo docAttrInfo = new DocumentationAttributeInfo(
+                attribNameCPIndex, descCPIndex, docDesc);
+
+        int noOfParamInfoEntries = dataInStream.readShort();
+        for (int i = 0; i < noOfParamInfoEntries; i++) {
+            int nameCPIndex = dataInStream.readInt();
+            String name = getUTF8EntryValue(nameCPIndex, constantPool);
+            int typeSigCPIndex = dataInStream.readInt();
+            String typeSig = getUTF8EntryValue(typeSigCPIndex, constantPool);
+            int paramKindCPIndex = dataInStream.readInt();
+            String paramKindValue = getUTF8EntryValue(paramKindCPIndex, constantPool);
+            int paramDescCPIndex = dataInStream.readInt();
+            String paramDesc = getUTF8EntryValue(paramDescCPIndex, constantPool);
+            ParameterDocumentInfo paramDocInfo = new ParameterDocumentInfo(nameCPIndex, name, typeSigCPIndex,
+                    typeSig, paramKindCPIndex, paramKindValue, paramDescCPIndex, paramDesc);
+            docAttrInfo.paramDocInfoList.add(paramDocInfo);
+        }
+
+        return docAttrInfo;
     }
 
     private LocalVariableInfo getLocalVariableInfo(DataInputStream dataInStream,
@@ -1261,10 +1347,6 @@ public class ProgramFileReader {
         lineNumberInfo.setPackageInfo((PackageInfo) constantPool);
 
         return lineNumberInfo;
-    }
-
-    private boolean readBoolean(DataInputStream codeStream) throws IOException {
-        return codeStream.readInt() == 1;
     }
 
     private void readInstructions(DataInputStream dataInStream,
@@ -1335,18 +1417,6 @@ public class ProgramFileReader {
                 case InstructionCodes.BMOVE:
                 case InstructionCodes.LMOVE:
                 case InstructionCodes.RMOVE:
-                case InstructionCodes.IGLOAD:
-                case InstructionCodes.FGLOAD:
-                case InstructionCodes.SGLOAD:
-                case InstructionCodes.BGLOAD:
-                case InstructionCodes.LGLOAD:
-                case InstructionCodes.RGLOAD:
-                case InstructionCodes.IGSTORE:
-                case InstructionCodes.FGSTORE:
-                case InstructionCodes.SGSTORE:
-                case InstructionCodes.BGSTORE:
-                case InstructionCodes.LGSTORE:
-                case InstructionCodes.RGSTORE:
                 case InstructionCodes.INEG:
                 case InstructionCodes.FNEG:
                 case InstructionCodes.BNOT:
@@ -1537,6 +1607,25 @@ public class ProgramFileReader {
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j, k, h));
                     break;
 
+                case InstructionCodes.IGLOAD:
+                case InstructionCodes.FGLOAD:
+                case InstructionCodes.SGLOAD:
+                case InstructionCodes.BGLOAD:
+                case InstructionCodes.LGLOAD:
+                case InstructionCodes.RGLOAD:
+                case InstructionCodes.IGSTORE:
+                case InstructionCodes.FGSTORE:
+                case InstructionCodes.SGSTORE:
+                case InstructionCodes.BGSTORE:
+                case InstructionCodes.LGSTORE:
+                case InstructionCodes.RGSTORE:
+                    int pkgRefCPIndex = codeStream.readInt();
+                    i = codeStream.readInt();
+                    j = codeStream.readInt();
+                    PackageRefCPEntry pkgRefCPEntry = (PackageRefCPEntry) packageInfo.getCPEntry(pkgRefCPIndex);
+                    packageInfo.addInstruction(InstructionFactory.get(opcode,
+                            pkgRefCPEntry.getPackageInfo().pkgIndex, i, j));
+                    break;
                 case InstructionCodes.CALL:
                     funcRefCPIndex = codeStream.readInt();
                     flags = codeStream.readInt();
@@ -1607,14 +1696,20 @@ public class ProgramFileReader {
                 case InstructionCodes.UNLOCK:
                     int varCount = codeStream.readInt();
                     BType[] varTypes = new BType[varCount];
+                    int[] pkgRefs = new int[varCount];
                     int[] varRegs = new int[varCount];
                     for (int m = 0; m < varCount; m++) {
                         int varSigCPIndex = codeStream.readInt();
                         TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) packageInfo.getCPEntry(varSigCPIndex);
                         varTypes[m] = typeRefCPEntry.getType();
+
+                        pkgRefCPIndex = codeStream.readInt();
+                        pkgRefCPEntry = (PackageRefCPEntry) packageInfo.getCPEntry(pkgRefCPIndex);
+
+                        pkgRefs[m] = pkgRefCPEntry.getPackageInfo().pkgIndex;
                         varRegs[m] = codeStream.readInt();
                     }
-                    packageInfo.addInstruction(new InstructionLock(opcode, varTypes, varRegs));
+                    packageInfo.addInstruction(new InstructionLock(opcode, varTypes, pkgRefs, varRegs));
                     break;
                 default:
                     throw new ProgramFileFormatException("unknown opcode " + opcode +
@@ -1628,6 +1723,11 @@ public class ProgramFileReader {
             PackageInfo packageInfo;
             StructureRefCPEntry structureRefCPEntry;
             switch (cpEntry.getEntryType()) {
+                case CP_ENTRY_PACKAGE:
+                    PackageRefCPEntry pkgRefCPEntry = (PackageRefCPEntry) cpEntry;
+                    packageInfo = programFile.getPackageInfo(pkgRefCPEntry.getPackageName());
+                    pkgRefCPEntry.setPackageInfo(packageInfo);
+                    break;
                 case CP_ENTRY_FUNCTION_REF:
                     FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) cpEntry;
                     packageInfo = programFile.getPackageInfo(funcRefCPEntry.getPackagePath());
@@ -1795,5 +1895,10 @@ public class ProgramFileReader {
             argRegs[index] = codeStream.readInt();
         }
         return argRegs;
+    }
+
+    private String getUTF8EntryValue(int cpEntryIndex, ConstantPool constantPool) {
+        UTF8CPEntry pkgNameCPEntry = (UTF8CPEntry) constantPool.getCPEntry(cpEntryIndex);
+        return pkgNameCPEntry.getValue();
     }
 }

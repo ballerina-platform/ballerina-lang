@@ -33,6 +33,7 @@ public class BVarSymbol extends BSymbol implements VariableSymbol {
 
     public boolean field;
     public Name originalName = null;
+    public Object defaultValue;
     /**
      * Represent the index of the variable in a memory block of the VM.
      */

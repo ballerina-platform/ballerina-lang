@@ -141,7 +141,7 @@ public class HttpConstants {
     public static final String RESOURCES_CORS = "RESOURCES_CORS";
     public static final String LISTENER_INTERFACE_ID = "listener.interface.id";
 
-    public static final String HTTP_CLIENT = "HttpClient";
+    public static final String CALLER_ACTIONS = "CallerActions";
 
     public static final String REQUEST_URL = "REQUEST_URL";
     public static final String SRC_HANDLER = "SRC_HANDLER";
@@ -286,7 +286,7 @@ public class HttpConstants {
     public static final String ENDPOINT_CONFIG_SECURE_SOCKET = "secureSocket";
 
     public static final String ENDPOINT_CONFIG_TRUST_STORE = "trustStore";
-    public static final String FILE_PATH = "filePath";
+    public static final String FILE_PATH = "path";
     public static final String PASSWORD = "password";
     public static final String PROTOCOL_VERSION = "name";
     public static final String ENABLED_PROTOCOLS = "versions";
@@ -324,6 +324,8 @@ public class HttpConstants {
     public static final String CONNECTION_THROTTLING_STRUCT_REFERENCE = "connectionThrottling";
     public static final String CONNECTION_THROTTLING_MAX_ACTIVE_CONNECTIONS = "maxActiveConnections";
     public static final String CONNECTION_THROTTLING_WAIT_TIME = "waitTime";
+    public static final String CONNECTION_THROTTLING_MAX_ACTIVE_STREAMS_PER_CONNECTION =
+            "maxActiveStreamsPerConnection";
 
     //FollowRedirect Indexes
     public static final String FOLLOW_REDIRECT_STRUCT_REFERENCE = "followRedirects";

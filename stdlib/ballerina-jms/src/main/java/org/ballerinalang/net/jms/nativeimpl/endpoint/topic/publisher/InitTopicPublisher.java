@@ -77,7 +77,7 @@ public class InitTopicPublisher extends AbstractBlockinAction {
             }
             MessageProducer producer = session.createProducer(topic);
             Struct topicProducerConnectorBObject
-                    = topicProducerBObject.getStructField(Constants.TOPIC_PUBLISHER_FIELD_CONNECTOR);
+                    = topicProducerBObject.getStructField(Constants.TOPIC_PUBLISHER_FIELD_PRODUCER_ACTIONS);
             topicProducerConnectorBObject.addNativeData(Constants.JMS_PRODUCER_OBJECT, producer);
             topicProducerConnectorBObject.addNativeData(Constants.SESSION_CONNECTOR_OBJECT,
                                                         new SessionConnector(session));

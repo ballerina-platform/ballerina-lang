@@ -22,9 +22,8 @@ import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 
 /**
- * This represents a Document Manager for the workspace. Example, an in-memory document
- * manager that keeps dirty files in-memory and will match the collection of files currently
- * open in tool's workspace.
+ * This represents a Document Manager for the workspace. Example, an in-memory document manager that keeps dirty files
+ * in-memory and will match the collection of files currently open in tool's workspace.
  */
 public interface WorkspaceDocumentManager {
     /**
@@ -39,14 +38,14 @@ public interface WorkspaceDocumentManager {
      * Opens the given file in document manager.
      *
      * @param filePath Path of the file
-     * @param content Content of the file
+     * @param content  Content of the file
      */
     void openFile(Path filePath, String content);
 
     /**
      * Updates given file in document manager with new content.
      *
-     * @param filePath Path of the file
+     * @param filePath       Path of the file
      * @param updatedContent New content of the file
      */
     void updateFile(Path filePath, String updatedContent);
@@ -68,6 +67,7 @@ public interface WorkspaceDocumentManager {
 
     /**
      * Acquire a file lock.
+     *
      * @param filePath Path of the file
      * @return lock or null
      */

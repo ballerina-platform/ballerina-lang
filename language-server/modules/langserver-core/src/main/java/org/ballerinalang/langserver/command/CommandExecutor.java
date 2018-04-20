@@ -127,8 +127,6 @@ public class CommandExecutor {
             if (!imports.isEmpty()) {
                 BLangImportPackage lastImport = bLangPackage.getImports().get(bLangPackage.getImports().size() - 1);
                 pos = lastImport.getPosition();
-            } else if (imports.isEmpty() && bLangPackage.getPackageDeclaration() != null) {
-                pos = (DiagnosticPos) bLangPackage.getPackageDeclaration().getPosition();
             } else {
                 pos = null;
             }

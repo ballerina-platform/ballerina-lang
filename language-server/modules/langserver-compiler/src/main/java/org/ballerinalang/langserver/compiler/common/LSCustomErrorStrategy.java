@@ -73,13 +73,10 @@ public class LSCustomErrorStrategy extends BallerinaParserErrorStrategy {
         // We need to set the error for the variable definition as well.
         if (context.getParent() instanceof BallerinaParser.VariableDefinitionStatementContext) {
             context.getParent().exception = e;
-            return;
-        }
-
-        if (context instanceof BallerinaParser.NameReferenceContext) {
-            setContextIfConnectorInit(context, e);
         } else if (context instanceof BallerinaParser.ExpressionContext) {
             setContextIfConditionalStatement(context, e);
+        } else {
+            setContextIfCheckedExpression(context, e);
         }
     }
 
@@ -89,19 +86,16 @@ public class LSCustomErrorStrategy extends BallerinaParserErrorStrategy {
      * @param context current parser rule context
      * @param e       exception to set
      */
-    private void setContextIfConnectorInit(ParserRuleContext context, InputMismatchException e) {
-        ParserRuleContext connectorInitContext = context.getParent().getParent().getParent();
-        if (connectorInitContext instanceof BallerinaParser.TypeInitExpressionContext) {
-            ParserRuleContext tempContext = context;
-            while (true) {
-                tempContext.exception = e;
-                tempContext = tempContext.getParent();
-                if (tempContext.equals(connectorInitContext)) {
-                    tempContext.getParent().exception = e;
-                    break;
-                }
-            }
-            connectorInitContext.getParent().exception = e;
+    private void setContextIfCheckedExpression(ParserRuleContext context, InputMismatchException e) {
+        ParserRuleContext parentContext = context.getParent();
+        if (parentContext != null && parentContext instanceof BallerinaParser.CheckedExpressionContext) {
+            context.getParent().exception = e;
+            context.getParent().getParent().exception = e;
+        } else if (parentContext instanceof BallerinaParser.VariableReferenceExpressionContext
+                && parentContext.getParent() instanceof BallerinaParser.CheckedExpressionContext) {
+            parentContext.exception = e;
+            parentContext.getParent().exception = e;
+            parentContext.getParent().getParent().exception = e;
         }
     }
 
@@ -122,6 +116,8 @@ public class LSCustomErrorStrategy extends BallerinaParserErrorStrategy {
             conditionalContext.exception = e;
         } else if (conditionalContext instanceof BallerinaParser.BinaryEqualExpressionContext) {
             setContextIfConditionalStatement(conditionalContext, e);
+        } else if (conditionalContext instanceof BallerinaParser.CheckedExpressionContext) {
+            setContextIfCheckedExpression(context, e);
         }
     }
 }

@@ -19,8 +19,8 @@ package org.ballerinalang.langserver.compiler.workspace.repository;
 
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.repository.PackageSourceEntry;
-import org.wso2.ballerinalang.compiler.packaging.converters.FileSystemSourceEntry;
+import org.ballerinalang.repository.CompilerInput;
+import org.wso2.ballerinalang.compiler.packaging.converters.FileSystemSourceInput;
 import org.wso2.ballerinalang.compiler.packaging.converters.PathConverter;
 
 import java.nio.file.Files;
@@ -39,11 +39,11 @@ class LSPathConverter extends PathConverter {
     }
 
     @Override
-    public Stream<PackageSourceEntry> finalize(Path path, PackageID id) {
+    public Stream<CompilerInput> finalize(Path path, PackageID id) {
         if (documentManager.isFileOpen(path) || !Files.isRegularFile(path)) {
             return Stream.of(new LSInMemorySourceEntry(path, id, documentManager));
         } else {
-            return Stream.of(new FileSystemSourceEntry(path, id));
+            return Stream.of(new FileSystemSourceInput(path));
         }
     }
 }

@@ -1,4 +1,3 @@
-package servicemocktest;
 
 import ballerina/http;
 import ballerina/io;
@@ -24,11 +23,11 @@ service<http:Service> EventServiceMock bind eventEP {
         methods:["GET"],
         path:"/"
     }
-    getEvents (endpoint client, http:Request req) {
+    getEvents (endpoint caller, http:Request req) {
         http:Response res = new;
         json j = {"a":"b"};
         res.setJsonPayload(j);
-        _ = client -> respond(res);
+        _ = caller -> respond(res);
     }
 }
 
@@ -41,7 +40,7 @@ function init() {
 function verify() {
     // verifies whether the service got stopped correctly
     endpoint http:Client httpEndpoint {
-        targets:[{ url:url2 }]
+        url:url2
     };
 
     http:Request req = new;
@@ -58,7 +57,7 @@ function verify() {
 @test:Config{before: "init", after: "verify"}
 function testService () {
     endpoint http:Client httpEndpoint {
-        targets:[{ url:url2 }]
+        url:url2
     };
 
     test:assertTrue(isEventServiceStarted, msg = "Event service failed to start");
