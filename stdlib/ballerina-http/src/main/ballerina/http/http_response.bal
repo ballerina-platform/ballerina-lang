@@ -313,44 +313,37 @@ public function Response::setLastModified() {
 
 public function Response::setJsonPayload (json payload, string contentType="application/json") {
     mime:Entity entity = self.getEntityWithoutBody();
-    entity.setJson(payload);
-    entity.contentType = mime:getMediaType(contentType);
+    entity.setJson(payload, contentType);
     self.setEntity(entity);
 }
 
 public function Response::setXmlPayload (xml payload, string contentType="application/xml") {
     mime:Entity entity = self.getEntityWithoutBody();
-    entity.setXml(payload);
-    entity.contentType = mime:getMediaType(contentType);
+    entity.setXml(payload, contentType);
     self.setEntity(entity);
 }
 
 public function Response::setStringPayload (string payload, string contentType="text/plain") {
     mime:Entity entity = self.getEntityWithoutBody();
-    entity.setText(payload);
-    entity.contentType = mime:getMediaType(contentType);
+    entity.setText(payload, contentType);
     self.setEntity(entity);
 }
 
 public function Response::setBinaryPayload (blob payload, string contentType="application/octec-stream") {
     mime:Entity entity = self.getEntityWithoutBody();
-    entity.setBlob(payload);
-    entity.contentType = mime:getMediaType(contentType);
+    entity.setBlob(payload, contentType);
     self.setEntity(entity);
 }
 
 public function Response::setBodyParts (mime:Entity[] bodyParts, string contentType="multipart/form-data") {
     mime:Entity entity = self.getEntityWithoutBody();
-    entity.contentType = mime:getMediaType(contentType);
-    entity.setBodyParts(bodyParts);
+    entity.setBodyParts(bodyParts, contentType);
     self.setEntity(entity);
 }
 
 public function Response::setFileAsPayload (string filePath, @sensitive string contentType = "application/octec-stream") {
-    mime:MediaType mediaType = mime:getMediaType(contentType);
     mime:Entity entity = self.getEntityWithoutBody();
-    entity.contentType = mediaType;
-    entity.setFileAsEntityBody(filePath);
+    entity.setFileAsEntityBody(filePath, contentType);
     self.setEntity(entity);
 }
 
@@ -362,9 +355,14 @@ public function Response::setByteChannel (io:ByteChannel payload, string content
 }
 
 public function Response::setPayload ((string | xml | json | blob | io:ByteChannel | mime:Entity[]) payload) {
-    mime:Entity entity = self.getEntityWithoutBody();
-    entity.setBody(payload);
-    self.setEntity(entity);
+    match payload {
+        string textContent => self.setStringPayload(textContent);
+        xml xmlContent => self.setXmlPayload(xmlContent);
+        json jsonContent => self.setJsonPayload(jsonContent);
+        blob blobContent => self.setBinaryPayload(blobContent);
+        io:ByteChannel byteChannelContent => self.setByteChannel(byteChannelContent);
+        mime:Entity[] bodyParts => self.setBodyParts(bodyParts);
+    }
 }
 
 @Description {value:"Construct MediaType struct from the content-type header value"}

@@ -18,9 +18,11 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BXML;
@@ -39,7 +41,8 @@ import static org.ballerinalang.mime.util.Constants.SECOND_PARAMETER_INDEX;
 @BallerinaFunction(orgName = "ballerina", packageName = "mime",
         functionName = "setXml",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
-        args = {@Argument(name = "xmlContent", type = TypeKind.XML)},
+        args = {@Argument(name = "xmlContent", type = TypeKind.XML), @Argument(name = "contentType",
+                type = TypeKind.STRING)},
         isPublic = true
 )
 public class SetXml extends BlockingNativeCallableUnit {
@@ -47,7 +50,9 @@ public class SetXml extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
         BXML xmlContent = (BXML) context.getRefArgument(SECOND_PARAMETER_INDEX);
+        String contentType = context.getStringArgument(FIRST_PARAMETER_INDEX);
         EntityBodyHandler.addMessageDataSource(entityStruct, xmlContent);
+        HeaderUtil.setHeaderToEntity(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
         context.setReturnValues();
     }
 }

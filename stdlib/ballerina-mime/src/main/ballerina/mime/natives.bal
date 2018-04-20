@@ -24,6 +24,9 @@ import ballerina/io;
 @Description {value:"Represent 'content-type' header name"}
 @final public string CONTENT_TYPE = "content-type";
 
+@Description {value:"Represent 'content-disposition' header name"}
+@final public string CONTENT_DISPOSITION = "content-disposition";
+
 @Description {value:"Represent values in Content-Disposition header"}
 @Field {value:"fileName: Default filename for storing the bodypart, if the receiving agent wishes to store it in an external file"}
 @Field {value:"disposition: Indicates how the body part should be presented (inline, attachment or as form-data)"}
@@ -36,6 +39,10 @@ public type ContentDisposition object {
        string name;
        map<string> parameters;
    }
+
+   @Description {value:"Convert the ContentDisposition type to a string suitable for use as the value of a corresponding HTTP header."}
+   @Return {value:"Return the ContentDisposition object's content as a string"}
+   public native function toString () returns (string);
 };
 
 @Description {value:"Describes the nature of the data in the body of a MIME entity."}
@@ -98,23 +105,50 @@ level message and an entity(body part) inside of a multipart entity."}
 @Field {value:"size: Represent the size of the entity"}
 @Field {value:"contentDisposition: Represent values related to Content-Disposition header"}
 public type Entity object {
-    public {
-        MediaType contentType;
+    private {
+        MediaType mediaType;
         string contentId;
         int size;
         ContentDisposition contentDisposition;
     }
+
+    //TODO:Enable this once the core team fix the 'self' assignment issue
+    //public native function setMediaType (MediaType mediaType) {
+    //    self.mediaType = mediaType;
+    //    self.setHeader(CONTENT_TYPE, mediaType.toString());
+    //}
+    //
+    //public native function getMediaType () returns MediaType | error {
+    //    string contentTypeHeaderValue;
+    //    if (self.hasHeader(CONTENT_TYPE)) {
+    //        contentTypeHeaderValue = self.getHeader(CONTENT_TYPE);
+    //    }
+    //    return getMediaTypeObject(contentTypeHeaderValue);
+    //}
+    //
+    //public native function setContentDisposition (ContentDisposition contentDisposition) {
+    //    self.contentDisposition = contentDisposition;
+    //    self.setHeader(CONTENT_DISPOSITION, contentDisposition.toString());
+    //}
+    //
+    //public native function getContentDisposition () returns ContentDisposition {
+    //    string contentDispositionVal;
+    //    if (self.hasHeader(CONTENT_DISPOSITION)) {
+    //        contentDispositionVal = self.getHeader(CONTENT_DISPOSITION);
+    //    }
+    //    return getContentDispositionObject(contentDispositionVal);
+    //}
 
     @Description {value:"Set the entity body with a given content"}
     public function setBody ((string | xml | json | blob | io:ByteChannel | Entity[]) entityBody);
 
     @Description {value:"Set the entity body with a given file handler"}
     @Param {value:"fileHandler: Represent a file"}
-    public function setFileAsEntityBody (@sensitive string filePath);
+    public function setFileAsEntityBody (@sensitive string filePath, string contentType = "application/octec-stream");
 
     @Description {value:"Set the entity body with the given json content"}
     @Param {value:"jsonContent: Json content that needs to be set to entity"}
-    public native function setJson (json jsonContent);
+    public native function setJson (json jsonContent, string contentType="application/json");
 
     @Description {value:"Given an entity, get the entity body in json form."}
     @Return {value:"Return json data"}
@@ -123,7 +157,7 @@ public type Entity object {
 
     @Description {value:"Set the entity body with the given xml content"}
     @Param {value:"xmlContent: Xml content that needs to be set to entity"}
-    public native function setXml (xml xmlContent);
+    public native function setXml (xml xmlContent, string contentType="application/xml");
 
     @Description {value:"Given an entity, get the entity body in xml form."}
     @Return {value:"Return xml data"}
@@ -132,7 +166,7 @@ public type Entity object {
 
     @Description {value:"Set the entity body with the given text content"}
     @Param {value:"textContent: Text content that needs to be set to entity"}
-    public native function setText (string textContent);
+    public native function setText (string textContent, string contentType="text/plain");
 
     @Description {value:"Given an entity, get the entity body in text form."}
     @Return {value:"Return text data"}
@@ -142,7 +176,7 @@ public type Entity object {
     @Description {value:"Set the entity body with the given blob content"}
     @Param {value:"blobContent: Blob content that needs to be set to entity"}
     @Return {value:"Return a blob"}
-    public native function setBlob (blob blobContent);
+    public native function setBlob (blob blobContent, string contentType="application/octec-stream");
 
     @Description {value:"Given an entity, get the entity body as a blob. If the entity size is considerably large consider
     using getEntityWrapper() method instead"}
@@ -152,7 +186,7 @@ public type Entity object {
 
     @Description {value:"Set the entity body with the given byte channel content"}
     @Param {value:"byteChannel: Byte channel that needs to be set to entity"}
-    public native function setByteChannel (io:ByteChannel byteChannel);
+    public native function setByteChannel (io:ByteChannel byteChannel, string contentType="application/octec-stream");
 
     @Description {value:"Given an entity, get the entity body as a byte channel."}
     @Return {value:"Return a byte channel"}
@@ -173,7 +207,7 @@ public type Entity object {
     @Description {value:"Set body parts to entity"}
     @Param {value:"entity: Represent a MIME entity"}
     @Param {value:"bodyParts: Represent the body parts that needs to be set to the entity"}
-    public native function setBodyParts (Entity[] bodyParts);
+    public native function setBodyParts (Entity[] bodyParts, string contentType="multipart/form-data");
 
     @Description {value:"Get the header value associated with the given header name"}
     @Param {value:"headerName: Represent header name"}
@@ -212,9 +246,9 @@ public type Entity object {
     public native function hasHeader (@sensitive string headerName) returns boolean;
 };
 
-public function Entity::setFileAsEntityBody (@sensitive string filePath) {
+public function Entity::setFileAsEntityBody (@sensitive string filePath, string contentType = "application/octec-stream") {
     io:ByteChannel channel = io:openFile(filePath, READ_PERMISSION);
-    self.setByteChannel(channel);
+    self.setByteChannel(channel, contentType = contentType);
 }
 
 public function Entity::setBody ((string | xml | json | blob | io:ByteChannel | Entity[]) entityBody) {
@@ -354,7 +388,12 @@ function getEncoding (MediaType contentType) returns (string) {
     return contentType.parameters.CHARSET;
 }
 
-@Description {value:"Given the Content-Type in string, get the MediaType struct populated with it."}
+@Description {value:"Given the Content-Type in string, get the MediaType object populated with it."}
+@Param {value:"contentType: Content-Type in string"}
+@Return {value:"Return MediaType struct or an error in case of error"}
+public native function getMediaTypeObject (string contentType) returns MediaType | error;
+
+@Description {value:"Given the Content-Disposition as a string, get the ContentDisposition struct object with it."}
 @Param {value:"contentType: Content-Type in string"}
 @Return {value:"Return MediaType struct"}
-public native function getMediaType (string contentType) returns (MediaType);
+public native function getContentDispositionObject (string contentDisposition) returns ContentDisposition;

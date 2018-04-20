@@ -63,6 +63,10 @@ import java.nio.channels.ByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILENAME_INDEX;
+import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME_INDEX;
+import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_STRUCT;
+import static org.ballerinalang.mime.util.Constants.DISPOSITION_INDEX;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_INDEX;
 import static org.ballerinalang.mime.util.Constants.PRIMARY_TYPE_INDEX;
@@ -78,15 +82,15 @@ import static org.ballerinalang.mime.util.Constants.SUFFIX_INDEX;
 public class MimeUtilityFunctionTest {
     private static final Logger log = LoggerFactory.getLogger(MimeUtilityFunctionTest.class);
 
-    private CompileResult compileResult, serviceResult;
+    private CompileResult compileResult;
     private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
     private final String mediaTypeStruct = MEDIA_TYPE;
+    private final String contentDispositionStruct = CONTENT_DISPOSITION_STRUCT;
 
     @BeforeClass
     public void setup() {
         String sourceFilePath = "test-src/mime/mime-test.bal";
         compileResult = BCompileUtil.compile(sourceFilePath);
-        serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
     }
 
     @Test(description = "Test 'getMediaType' function in ballerina.mime package")
@@ -128,6 +132,36 @@ public class MimeUtilityFunctionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testToStringOnMediaType", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "application/test+xml; charset=utf-8");
+    }
+
+    @Test(description = "Test 'getContentDispositionObject' function in ballerina.mime package")
+    public void testGetContentDispositionObject() {
+        String contentType = "form-data; name=\"filepart\"; filename=\"file-01.txt\"";
+        BValue[] args = {new BString(contentType)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetContentDispositionObject", args);
+        Assert.assertEquals(returns.length, 1);
+        BStruct contentDisposition = (BStruct) returns[0];
+        Assert.assertEquals(contentDisposition.getStringField(CONTENT_DISPOSITION_FILENAME_INDEX),
+                "file-01.txt");
+        Assert.assertEquals(contentDisposition.getStringField(CONTENT_DISPOSITION_NAME_INDEX),
+                "filepart");
+        Assert.assertEquals(contentDisposition.getStringField(DISPOSITION_INDEX),
+                "form-data");
+        BMap map = (BMap) contentDisposition.getRefField(PARAMETER_MAP_INDEX);
+        Assert.assertEquals(map.size(), 0);
+    }
+
+    @Test
+    public void testToStringOnContentDisposition() {
+        BStruct contentDisposition = BCompileUtil
+                .createAndGetStruct(compileResult.getProgFile(), protocolPackageMime, contentDispositionStruct);
+        contentDisposition.setStringField(CONTENT_DISPOSITION_FILENAME_INDEX, "file-01.txt");
+        contentDisposition.setStringField(DISPOSITION_INDEX, "form-data");
+        contentDisposition.setStringField(CONTENT_DISPOSITION_NAME_INDEX, "test");
+        BValue[] args = {contentDisposition};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testToStringOnContentDisposition", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "form-data;name=\"test\";filename=\"file-01.txt\"");
     }
 
     @Test
@@ -454,30 +488,6 @@ public class MimeUtilityFunctionTest {
                     "data from entity: failed to create json: empty JSON document"));
         } catch (IOException e) {
             log.error("Error occurred in testTempFileDeletion", e.getMessage());
-        }
-    }
-
-    @Test(description = "When the payload exceeds 2MB check whether the response received back matches  " +
-            "the original content length")
-    public void testLargePayload() {
-        String path = "/test/largepayload";
-        try {
-            ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/fileThatExceeds2MB.txt");
-            Channel channel = new MockByteChannel(byteChannel, 10);
-            CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
-            String responseValue = characterChannel.readAll();
-            characterChannel.close();
-            HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST",
-                    responseValue);
-            HTTPCarbonMessage response = Services.invokeNew(serviceResult, "mockEP", cMsg);
-            Assert.assertNotNull(response, "Response message not found");
-            InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
-            Assert.assertNotNull(inputStream, "Inputstream is null");
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            MimeUtil.writeInputToOutputStream(inputStream, outputStream);
-            Assert.assertEquals(outputStream.size(), 2323779);
-        } catch (IOException | URISyntaxException e) {
-            log.error("Error occurred in testLargePayload", e.getMessage());
         }
     }
 

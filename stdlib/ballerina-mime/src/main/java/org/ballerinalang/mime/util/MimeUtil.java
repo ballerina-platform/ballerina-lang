@@ -181,6 +181,13 @@ public class MimeUtil {
      */
     public static void setContentDisposition(BStruct contentDisposition, BStruct bodyPart,
                                              String contentDispositionHeaderWithParams) {
+        populateContentDispositionObject(contentDisposition, contentDispositionHeaderWithParams);
+        bodyPart.setRefField(CONTENT_DISPOSITION_INDEX, contentDisposition);
+
+    }
+
+    public static void populateContentDispositionObject(BStruct contentDisposition,
+                                                        String contentDispositionHeaderWithParams) {
         String dispositionValue;
         if (isNotNullAndEmpty(contentDispositionHeaderWithParams)) {
             if (contentDispositionHeaderWithParams.contains(SEMICOLON)) {
@@ -210,7 +217,6 @@ public class MimeUtil {
                 paramMap.remove(CONTENT_DISPOSITION_NAME);
             }
             contentDisposition.setRefField(CONTENT_DISPOSITION_PARA_MAP_INDEX, paramMap);
-            bodyPart.setRefField(CONTENT_DISPOSITION_INDEX, contentDisposition);
         }
     }
 
@@ -258,7 +264,7 @@ public class MimeUtil {
         return dispositionBuilder.toString();
     }
 
-    private static StringBuilder appendSemiColon(StringBuilder disposition) {
+    public static StringBuilder appendSemiColon(StringBuilder disposition) {
         if (!disposition.toString().endsWith(SEMICOLON)) {
             disposition.append(SEMICOLON);
         }
@@ -363,7 +369,7 @@ public class MimeUtil {
      * @param textValue Represent a text value
      * @return a String surrounded by quotes
      */
-    private static String includeQuotes(String textValue) {
+    public static String includeQuotes(String textValue) {
         if (!textValue.startsWith(DOUBLE_QUOTE)) {
             textValue = DOUBLE_QUOTE + textValue;
         }

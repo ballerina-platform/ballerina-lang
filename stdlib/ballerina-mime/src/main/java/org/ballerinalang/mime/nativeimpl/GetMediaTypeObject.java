@@ -19,6 +19,7 @@
 package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.mime.util.Constants;
@@ -37,20 +38,23 @@ import static org.ballerinalang.mime.util.Constants.STRING_INDEX;
  * @since 0.96
  */
 @BallerinaFunction(orgName = "ballerina", packageName = "mime",
-        functionName = "getMediaType",
+        functionName = "getMediaTypeObject",
         args = {@Argument(name = "contentType",
                 type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRUCT)},
         isPublic = true)
-public class GetMediaType extends BlockingNativeCallableUnit {
+public class GetMediaTypeObject extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        String contentType = context.getStringArgument(STRING_INDEX);
-        BStruct mediaType = ConnectorUtils
-                .createAndGetStruct(context, Constants.PROTOCOL_PACKAGE_MIME,
-                        Constants.MEDIA_TYPE);
-        mediaType = MimeUtil.parseMediaType(mediaType, contentType);
-        context.setReturnValues(mediaType);
+        try {
+            String contentType = context.getStringArgument(STRING_INDEX);
+            BStruct mediaType = ConnectorUtils.createAndGetStruct(context, Constants.PROTOCOL_PACKAGE_MIME,
+                            Constants.MEDIA_TYPE);
+            mediaType = MimeUtil.parseMediaType(mediaType, contentType);
+            context.setReturnValues(mediaType);
+        } catch (Throwable e) {
+            context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));
+        }
     }
 }

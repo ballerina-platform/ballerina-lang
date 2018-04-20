@@ -2,10 +2,9 @@ import ballerina/mime;
 import ballerina/log;
 import ballerina/file;
 import ballerina/io;
-import ballerina/http;
 
-function testGetMediaType (string contentType) returns mime:MediaType {
-    return mime:getMediaType(contentType);
+function testGetMediaType (string contentType) returns mime:MediaType | error {
+    return mime:getMediaTypeObject(contentType);
 }
 
 function testGetBaseTypeOnMediaType (mime:MediaType mediaType) returns (string) {
@@ -14,6 +13,14 @@ function testGetBaseTypeOnMediaType (mime:MediaType mediaType) returns (string) 
 
 function testToStringOnMediaType (mime:MediaType mediaType) returns (string) {
     return mediaType.toString();
+}
+
+function testGetContentDispositionObject (string contentDisposition) returns mime:ContentDisposition{
+    return mime:getContentDispositionObject(contentDisposition);
+}
+
+function testToStringOnContentDisposition (mime:ContentDisposition contentDisposition) returns (string) {
+    return contentDisposition.toString();
 }
 
 function testMimeBase64EncodeString (string contentToBeEncoded) returns (string | mime:Base64EncodeError) {
@@ -204,11 +211,14 @@ function testGetByteChannel (io:ByteChannel byteChannel) returns io:ByteChannel 
     return entity.getByteChannel();
 }
 
-function testSetEntityBodyMultipleTimes (io:ByteChannel byteChannel, string textdata) returns string | mime:EntityError {
+function testSetEntityBodyMultipleTimes (io:ByteChannel byteChannel, string textdata) returns string {
     mime:Entity entity = new;
     entity.setText(textdata);
     entity.setByteChannel(byteChannel);
-    return entity.getText();
+    io:ByteChannel receivedByteChannel = check entity.getByteChannel();
+    io:CharacterChannel characterChannel = check io:createCharacterChannel(receivedByteChannel, "utf-8");
+    string result = check characterChannel.readCharacters(30);
+    return result;
 }
 
 function testSetJsonAndGetByteChannel (json jsonContent) returns io:ByteChannel | mime:EntityError {
@@ -248,28 +258,6 @@ function consumeChannel (io:ByteChannel channel) {
     var result = channel.read(1000000);
 }
 
-endpoint http:NonListener mockEP {
-    port:9090
-};
-
-@http:ServiceConfig {basePath:"/test"}
-service<http:Service> echo bind mockEP {
-    @http:ResourceConfig {
-        methods:["POST"],
-        path:"/largepayload"
-    }
-    getPayloadFromFileChannel (endpoint client, http:Request request) {
-        http:Response response = new;
-        mime:Entity responseEntity = new;
-        match request.getByteChannel() {
-            http:PayloadError err => log:printInfo("invalid value");
-            io:ByteChannel byteChannel => responseEntity.setByteChannel(byteChannel);
-        }
-        response.setEntity(responseEntity);
-        _ = client -> respond(response);
-    }
-}
-
 function testGetXmlWithSuffix (xml xmlContent) returns xml | mime:EntityError {
     mime:Entity entity = new;
     entity.setHeader("content-type", "application/3gpdash-qoe-report+xml");
@@ -279,8 +267,8 @@ function testGetXmlWithSuffix (xml xmlContent) returns xml | mime:EntityError {
 
 function testGetXmlWithNonCompatibleMediaType (xml xmlContent) returns xml | mime:EntityError {
     mime:Entity entity = new;
-    entity.setHeader("content-type", "application/3gpdash-qoe-report");
     entity.setXml(xmlContent);
+    entity.setHeader("content-type", "application/3gpdash-qoe-report");
     return entity.getXml();
 }
 
@@ -293,15 +281,15 @@ function testGetJsonWithSuffix (json jsonContent) returns json | mime:EntityErro
 
 function testGetJsonWithNonCompatibleMediaType (json jsonContent) returns json | mime:EntityError {
     mime:Entity entity = new;
-    entity.setHeader("content-type", "application/whoispp-query");
     entity.setJson(jsonContent);
+    entity.setHeader("content-type", "application/whoispp-query");
     return entity.getJson();
 }
 
 function testGetTextWithNonCompatibleMediaType (string textContent) returns string | mime:EntityError {
     mime:Entity entity = new;
-    entity.setHeader("content-type", "model/vnd.parasolid.transmit");
     entity.setText(textContent);
+    entity.setHeader("content-type", "model/vnd.parasolid.transmit");
     return entity.getText();
 }
 
