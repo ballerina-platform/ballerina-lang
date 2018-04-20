@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -34,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -379,6 +381,19 @@ public class CompiledPackageSymbolEnter {
     }
 
     private void defineService(DataInputStream dataInStream) throws IOException {
+        int serviceCount = dataInStream.readShort();
+        for (int i = 0; i < serviceCount; i++) {
+            // Read connector name cp index
+            String serviceName = getUTF8CPEntryValue(dataInStream);
+            int flags = dataInStream.readInt();
+            // endpoint type is not required for service symbol.
+            getUTF8CPEntryValue(dataInStream);
+
+            BServiceSymbol serviceSymbol = Symbols.createServiceSymbol(flags,
+                    names.fromString(serviceName), this.env.pkgSymbol.pkgID, null, env.pkgSymbol);
+            serviceSymbol.type = new BServiceType(serviceSymbol);
+            this.env.pkgSymbol.scope.define(serviceSymbol.name, serviceSymbol);
+        }
     }
 
     private void definePackageLevelVariables(DataInputStream dataInStream) throws IOException {
