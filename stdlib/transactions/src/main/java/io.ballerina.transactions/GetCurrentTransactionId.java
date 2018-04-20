@@ -16,36 +16,35 @@
  *  under the License.
  *
  */
-package org.ballerinalang.nativeimpl.transactions;
+package io.ballerina.transactions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.transactions.TransactionResourceManager;
+import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
 /**
- * Native function ballerina.transactions:prepareResourceManagers.
+ * Native function ballerina.transactions:GetCurrentTransactionId.
  *
- * @since 0.964.0
+ * @since 0.970.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "transactions",
-        functionName = "prepareResourceManagers",
-        args = {@Argument(name = "transactionId", type = TypeKind.STRING),
-                @Argument(name = "transactionBlockId", type = TypeKind.INT)},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)}
+        functionName = "getCurrentTransactionId",
+        returnType = {@ReturnType(type = TypeKind.STRING)}
 )
-public class PrepareResourceManagers extends BlockingNativeCallableUnit {
+public class GetCurrentTransactionId extends BlockingNativeCallableUnit {
 
     public void execute(Context ctx) {
-        String transactionId = ctx.getStringArgument(0);
-        int transactionBlockId = (int) ctx.getIntArgument(0);
-        boolean prepareSuccessful =
-                TransactionResourceManager.getInstance().prepare(transactionId, transactionBlockId);
-        ctx.setReturnValues(new BBoolean(prepareSuccessful));
+        String currentTransactionId = "";
+        LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
+        if (localTransactionInfo != null) {
+            currentTransactionId = localTransactionInfo.getGlobalTransactionId() + ":" + localTransactionInfo
+                    .getCurrentTransactionBlockId();
+        }
+        ctx.setReturnValues(new BString(currentTransactionId));
     }
 }
