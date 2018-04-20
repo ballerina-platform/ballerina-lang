@@ -93,5 +93,3 @@ public type CallerActions object {
     }
     public native function getProxyTable(@sensitive string tableName, typedesc recordType) returns @tainted table|error;
 };
-
-public native function createSQLClient(ClientEndpointConfiguration config) returns CallerActions;

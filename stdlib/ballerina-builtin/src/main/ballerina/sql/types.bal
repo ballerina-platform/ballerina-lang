@@ -42,23 +42,6 @@ public type PoolOptions {
 };
 
 documentation {
-    The Client endpoint configuration for SQL databases.
-
-    F{{url}} - URL of the database to connect.
-    F{{username}} - Username for the database connection.
-    F{{password}} - Password for the database connection.
-    F{{poolOptions}} - Properties for the connection pool configuration.
-    F{{dbOptions}} - Data source specific properties which are used along with the dataSourceClassName.
-}
-public type ClientEndpointConfiguration {
-    string url,
-    string username,
-    string password,
-    PoolOptions poolOptions,
-    map dbOptions,
-};
-
-documentation {
     The SQL Datatype of the parameter.
 
     VARCHAR - Small, variable-length character string.
