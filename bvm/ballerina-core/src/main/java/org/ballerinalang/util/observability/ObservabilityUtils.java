@@ -208,7 +208,7 @@ public class ObservabilityUtils {
 
     public static void setObserverContextToWorkerExecutionContext(WorkerExecutionContext workerExecutionContext,
                                                                   ObserverContext observerContext) {
-        if (!enabled && observerContext == null) {
+        if (!enabled || observerContext == null) {
             return;
         }
         if (workerExecutionContext.localProps == null) {
