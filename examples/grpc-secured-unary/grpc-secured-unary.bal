@@ -8,12 +8,12 @@ endpoint grpc:Listener ep {
     port:9090,
     secureSocket: {
                       keyStore: {
-                                    filePath: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+                                    path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
                                     password: "ballerina"
                                 },
                       trustStore: {
-                                      filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                                      password: "ballerina"
+                                    path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                                    password: "ballerina"
                                   },
                       protocol: {
                                     name: "TLSv1.2",
