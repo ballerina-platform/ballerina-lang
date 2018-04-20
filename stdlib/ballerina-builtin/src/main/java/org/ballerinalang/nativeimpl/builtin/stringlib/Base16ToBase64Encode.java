@@ -13,32 +13,40 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.nativeimpl.runtime;
+
+package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.BuiltInUtils;
+
+import java.nio.charset.Charset;
+import java.util.Base64;
+
+import javax.xml.bind.DatatypeConverter;
 
 /**
- * Native function ballerina.runtime:getCurrentDirectory.
+ * Native function ballerina.model.string:base16ToBase64Encode.
  *
- * @since 0.94.1
+ * @since 0.970.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "runtime",
-        functionName = "getCurrentDirectory",
+        orgName = "ballerina", packageName = "builtin",
+        functionName = "string.base16ToBase64Encode",
+        args = {@Argument(name = "s", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
-public class GetCurrentDirectory extends BlockingNativeCallableUnit {
-
-    private static final String PROPERTY_NAME = "user.dir";
+        isPublic = true)
+public class Base16ToBase64Encode extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        context.setReturnValues(BuiltInUtils.getSystemProperty(PROPERTY_NAME));
+        String value = context.getStringArgument(0);
+        byte[] base16DecodedValue = DatatypeConverter.parseHexBinary(value);
+        byte[] base64EncodedValue = Base64.getEncoder().encode(base16DecodedValue);
+        context.setReturnValues(new BString(new String(base64EncodedValue, Charset.defaultCharset())));
     }
 }

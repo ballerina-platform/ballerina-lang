@@ -13,32 +13,34 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.nativeimpl.user;
+
+package org.ballerinalang.nativeimpl.builtin.bloblib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.nativeimpl.Utils;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.BuiltInUtils;
 
 /**
- * Native function ballerina.user:getLanguage.
+ * Native function ballerina.model.blob:base64Encode.
  *
- * @since 0.94.1
+ * @since 0.970.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "user",
-        functionName = "getLanguage",
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        orgName = "ballerina", packageName = "builtin",
+        functionName = "blob.base64Encode",
+        args = {@Argument(name = "b", type = TypeKind.BLOB)},
+        returnType = {@ReturnType(type = TypeKind.BLOB)},
         isPublic = true
 )
-public class GetLanguage extends BlockingNativeCallableUnit {
-
-    private static final String PROPERTY_NAME = "user.language";
+public class Base64Encode extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        context.setReturnValues(BuiltInUtils.getSystemProperty(PROPERTY_NAME));
+        byte[] b = context.getBlobArgument(0);
+        Utils.encodeBlob(context, b, false);
     }
 }

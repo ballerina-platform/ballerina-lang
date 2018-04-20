@@ -16,9 +16,18 @@
 
 package ballerina.builtin;
 
-@Description { value:"Converts blob to a string"}
-@Param { value:"b: The blob value to be converted" }
-@Param { value:"encoding: Encoding to used in blob conversion to string" }
-@Return { value:"String representation of the given blob" }
-public native function <blob b> toString (string encoding) returns (string);
+@Description {value:"Converts blob to a string"}
+@Param {value:"b: The blob value to be converted"}
+@Param {value:"encoding: Encoding to used in blob conversion to string"}
+@Return {value:"String representation of the given blob"}
+public native function<blob b> toString(string encoding) returns string;
 
+@Description {value:"Encode a given blob with Base64 encoding scheme."}
+@Param {value:"b: Content that needs to be encoded"}
+@Return {value:"Return an encoded blob"}
+public native function<blob b> base64Encode() returns blob;
+
+@Description {value:"Decode a given blob with Base64 encoding scheme."}
+@Param {value:"b: Content that needs to be decoded"}
+@Return {value:"Return a decoded blob"}
+public native function<blob b> base64Decode() returns blob;

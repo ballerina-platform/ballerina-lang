@@ -33,8 +33,8 @@ function testClientStreaming(string[] args) returns (string) {
     _ = ep->complete();
 
     int wait = 0;
-    while (total < 1) {
-        runtime:sleepCurrentWorker(1000);
+    while(total < 1) {
+        runtime:sleep(1000);
         io:println("msg count: " + total);
         if (wait > 10) {
             break;

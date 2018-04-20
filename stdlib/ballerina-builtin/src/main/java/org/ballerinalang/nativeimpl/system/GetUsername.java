@@ -13,37 +13,32 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-package org.ballerinalang.nativeimpl.util;
+package org.ballerinalang.nativeimpl.system;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.Utils;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.BuiltInUtils;
 
 /**
- * Native function ballerina.util:base64Decode.
+ * Native function ballerina.system:getName.
  *
- * @since 0.8.0
+ * @since 0.94.1
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "util",
-        functionName = "base64Decode",
-        args = {@Argument(name = "contentToBeDecoded", type = TypeKind.UNION), @Argument(name = "charset",
-                type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.UNION)},
+        orgName = "ballerina", packageName = "system",
+        functionName = "getUsername",
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class Base64Decode extends BlockingNativeCallableUnit {
+public class GetUsername extends BlockingNativeCallableUnit {
+
+    private static final String PROPERTY_NAME = "user.name";
 
     @Override
     public void execute(Context context) {
-        BValue result = context.getRefArgument(0);
-        String charset = context.getStringArgument(0);
-        Utils.decode(context, result, charset, false);
+        context.setReturnValues(BuiltInUtils.getSystemProperty(PROPERTY_NAME));
     }
 }

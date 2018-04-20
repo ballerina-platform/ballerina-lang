@@ -13,38 +13,34 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.nativeimpl.os;
+
+package org.ballerinalang.nativeimpl.builtin.bloblib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.nativeimpl.Utils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.os:getEnv.
+ * Native function ballerina.model.blob:base64Decode.
  *
- * @since 0.94.1
+ * @since 0.970.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "os",
-        functionName = "getEnv",
-        args = {@Argument(name = "name", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        orgName = "ballerina", packageName = "builtin",
+        functionName = "blob.base64Decode",
+        args = {@Argument(name = "b", type = TypeKind.BLOB)},
+        returnType = {@ReturnType(type = TypeKind.BLOB)},
         isPublic = true
 )
-public class GetEnv extends BlockingNativeCallableUnit {
+public class Base64Decode extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        String str = context.getStringArgument(0);
-        String value = System.getenv(str);
-        if (value == null) {
-            context.setReturnValues(BTypes.typeString.getZeroValue());
-        }
-        context.setReturnValues(new BString(value));
+        byte[] b = context.getBlobArgument(0);
+        Utils.decodeBlob(context, b, false);
     }
 }

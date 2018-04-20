@@ -13,32 +13,37 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.nativeimpl.os;
+package org.ballerinalang.nativeimpl.runtime;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.bre.bvm.AsyncTimer;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.BuiltInUtils;
 
 /**
- * Native function ballerina.os:getVersion.
+ * Native function ballerina.runtime:sleep.
  *
  * @since 0.94.1
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "os",
-        functionName = "getVersion",
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        orgName = "ballerina", packageName = "runtime",
+        functionName = "sleep",
+        args = {@Argument(name = "millis", type = TypeKind.INT)},
         isPublic = true
 )
-public class GetVersion extends BlockingNativeCallableUnit {
-
-    private static final String PROPERTY_NAME = "os.version";
+public class Sleep implements NativeCallableUnit {
 
     @Override
-    public void execute(Context context) {
-        context.setReturnValues(BuiltInUtils.getSystemProperty(PROPERTY_NAME));
+    public void execute(Context context, CallableUnitCallback callback) {
+        long delayMillis = context.getIntArgument(0);
+        AsyncTimer.schedule(callback::notifySuccess, delayMillis);
+    }
+
+    @Override
+    public boolean isBlocking() {
+        return false;
     }
 }

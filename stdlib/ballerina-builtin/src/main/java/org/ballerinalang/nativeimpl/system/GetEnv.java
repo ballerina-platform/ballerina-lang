@@ -13,38 +13,38 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.nativeimpl.runtime;
+package org.ballerinalang.nativeimpl.system;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.AsyncTimer;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.runtime:sleepCurrentThread.
+ * Native function ballerina.system:getEnv.
  *
  * @since 0.94.1
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "runtime",
-        functionName = "sleepCurrentWorker",
-        args = {@Argument(name = "millis", type = TypeKind.INT)},
+        orgName = "ballerina", packageName = "system",
+        functionName = "getEnv",
+        args = {@Argument(name = "name", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class SleepCurrentWorker implements NativeCallableUnit {
+public class GetEnv extends BlockingNativeCallableUnit {
 
     @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-        long delayMillis = context.getIntArgument(0);
-        AsyncTimer.schedule(callback::notifySuccess, delayMillis);
+    public void execute(Context context) {
+        String str = context.getStringArgument(0);
+        String value = System.getenv(str);
+        if (value == null) {
+            context.setReturnValues(BTypes.typeString.getZeroValue());
+        }
+        context.setReturnValues(new BString(value));
     }
-
-    @Override
-    public boolean isBlocking() {
-        return false;
-    }
-    
 }

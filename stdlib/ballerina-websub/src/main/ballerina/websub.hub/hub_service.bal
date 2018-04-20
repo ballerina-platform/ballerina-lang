@@ -21,7 +21,6 @@ import ballerina/log;
 import ballerina/mime;
 import ballerina/crypto;
 import ballerina/time;
-import ballerina/util;
 import ballerina/websub;
 
 endpoint http:Listener hubServiceEP {
@@ -257,7 +256,7 @@ function verifyIntent(string callback, string topic, map params) {
     if (!(leaseSeconds > 0)) {
           leaseSeconds = hubLeaseSeconds;
     }
-    string challenge = util:uuid();
+    string challenge = system:uuid();
 
     http:Request request = new;
 
@@ -521,7 +520,7 @@ public function distributeContent(string callback, websub:SubscriptionDetails su
             request.setHeader(websub:X_HUB_SIGNATURE, xHubSignature);
         }
 
-        request.setHeader(websub:X_HUB_UUID, util:uuid());
+        request.setHeader(websub:X_HUB_UUID, system:uuid());
         request.setHeader(websub:X_HUB_TOPIC, subscriptionDetails.topic);
         request.setHeader("Link", buildWebSubLinkHeader(hubPublicUrl, subscriptionDetails.topic));
         request.setJsonPayload(payload);

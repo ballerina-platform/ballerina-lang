@@ -13,36 +13,32 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.nativeimpl.runtime;
+package org.ballerinalang.nativeimpl.system;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-
-import java.util.Properties;
+import org.ballerinalang.util.BuiltInUtils;
 
 /**
- * Native function ballerina.runtime:getProperties.
+ * Native function ballerina.system:getCurrentDirectory.
  *
  * @since 0.94.1
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "runtime",
-        functionName = "getProperties",
-        returnType = {@ReturnType(type = TypeKind.MAP)},
+        orgName = "ballerina", packageName = "system",
+        functionName = "getCurrentDirectory",
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class GetProperties extends BlockingNativeCallableUnit {
+public class GetCurrentDirectory extends BlockingNativeCallableUnit {
+
+    private static final String PROPERTY_NAME = "user.dir";
 
     @Override
     public void execute(Context context) {
-        Properties properties = System.getProperties();
-        BMap<String, BString> propertyMap = new BMap<>();
-        properties.forEach((key, value) -> propertyMap.put(key.toString(), new BString(value.toString())));
-        context.setReturnValues(propertyMap);
+        context.setReturnValues(BuiltInUtils.getSystemProperty(PROPERTY_NAME));
     }
 }

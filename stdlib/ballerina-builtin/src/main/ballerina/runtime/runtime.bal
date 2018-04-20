@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2017 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -16,29 +16,12 @@
 
 package ballerina.runtime;
 
-public type NullReferenceException {
-    string message;
-    error? cause;
-};
+@Description {value:"Halts the current worker for a predefined amount of time."}
+@Param {value:"millis: Amount of time to sleep in milliseconds"}
+public native function sleep(int millis);
 
-public type IllegalStateException {
-    string message;
-    error? cause;
-};
-
-public type CallStackElement {
-    string callableName;
-    string packageName;
-    string fileName;
-    int lineNumber;
-};
-
-public native function getCallStack() returns (CallStackElement[]);
-
-public native function getErrorCallStackFrame(error? e) returns (CallStackElement);
-
-public type CallFailedException {
-    string message;
-    error? cause;
-    error[]? causes;
-};
+// Todo - Remove
+@Description {value:"Returns the value associated with the specified property name."}
+@Param {value:"name: Name of the property"}
+@Return {value:"Value of the property if the property exists, an empty string otherwise"}
+public native function getProperty(@sensitive string name) returns (string);
