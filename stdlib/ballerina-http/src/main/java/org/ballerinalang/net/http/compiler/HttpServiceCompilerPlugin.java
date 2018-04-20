@@ -23,7 +23,6 @@ import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
@@ -31,7 +30,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import java.util.List;
 
 import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG;
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 
 /**
  * Compiler plugin for validating HTTP service.
@@ -41,7 +39,7 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 @SupportEndpointTypes(
         value = {@SupportEndpointTypes.EndpointType(orgName = "ballerina", packageName = "http", name = "Listener")}
 )
-public class HTTPServiceCompilerPlugin extends AbstractCompilerPlugin {
+public class HttpServiceCompilerPlugin extends AbstractCompilerPlugin {
 
     private DiagnosticLog dlog = null;
 
@@ -54,19 +52,17 @@ public class HTTPServiceCompilerPlugin extends AbstractCompilerPlugin {
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
         for (AnnotationAttachmentNode annotation : annotations) {
-            if (!PROTOCOL_PACKAGE_HTTP.equals(
-                    ((BLangAnnotationAttachment) annotation).annotationSymbol.pkgID.name.value)) {
-                continue;
-            }
-            if (annotation.getAnnotationName().getValue().equals(ANN_NAME_HTTP_SERVICE_CONFIG) || annotation
-                    .getAnnotationName().getValue().equals(WebSocketConstants.WEBSOCKET_ANNOTATION_CONFIGURATION)) {
+            if (annotation.getAnnotationName().getValue().equals(ANN_NAME_HTTP_SERVICE_CONFIG)) {
                 handleServiceConfigAnnotation(serviceNode, (BLangAnnotationAttachment) annotation);
             }
         }
         final UserDefinedTypeNode serviceType = serviceNode.getServiceTypeStruct();
         if (serviceType != null && HttpConstants.HTTP_SERVICE_TYPE.equals(serviceType.getTypeName().getValue())) {
             List<BLangResource> resources = (List<BLangResource>) serviceNode.getResources();
-            resources.forEach(res -> ResourceSignatureValidator.validate(res.getParameters(), dlog, res.pos));
+            resources.forEach(res -> {
+                ResourceSignatureValidator.validateAnnotation(res, dlog);
+                ResourceSignatureValidator.validate(res.getParameters(), dlog, res.pos);
+            });
         }
         // get value from endpoint.
         // ((BLangSimpleVarRef) serviceNode.getBoundEndpoints().get(0)).varSymbol.getType().tsymbol.name.value

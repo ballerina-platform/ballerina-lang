@@ -19,6 +19,7 @@
 package org.ballerinalang.docgen;
 
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
+import org.ballerinalang.docgen.docs.BallerinaDocDataHolder;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.docgen.model.ActionDoc;
 import org.ballerinalang.docgen.model.AnnotationDoc;
@@ -48,7 +49,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -68,6 +68,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  * Generates the Page objects for bal packages.
@@ -88,7 +89,8 @@ public class Generator {
             primitives) {
         ArrayList<Documentable> documentables = new ArrayList<>();
         //TODO till orgName gets fixed
-        String currentPackageName = "ballerina/" + (balPackage.symbol).pkgID.name.value;
+        String currentPackageName = BallerinaDocDataHolder.getInstance().getOrgName() + balPackage.packageID.getName
+                ().getValue();
 
         // Check for records in the package
         if (balPackage.getRecords().size() > 0) {
@@ -251,27 +253,32 @@ public class Generator {
      */
     public static AnnotationDoc createDocForNode(BLangAnnotation annotationNode) {
         String annotationName = annotationNode.getName().getValue();
-        List<Variable> attributes = new ArrayList<>();
 
-        if (!annotationNode.getDocumentationAttachments().isEmpty()) {
-            // new syntax
-
-
-        } else {
-            // older syntax
-            // Iterate through the attributes of the annotation
-            if (annotationNode.getAttributes().size() > 0) {
-                for (BLangAnnotAttribute annotAttribute : annotationNode.getAttributes()) {
-                    String dataType = getTypeName(annotAttribute.getTypeNode());
-                    String desc = annotFieldAnnotation(annotationNode, annotAttribute);
-                    String href = extractLink(annotAttribute.getTypeNode());
-                    Variable variable = new Variable(annotAttribute.getName().value, dataType, desc, href);
-                    attributes.add(variable);
-                }
-            }
+//        if (!annotationNode.getDocumentationAttachments().isEmpty()) {
+//            // new syntax
+//
+//        } else {
+//            // older syntax
+//            // Iterate through the attributes of the annotation
+//            if (annotationNode.getAttributes().size() > 0) {
+//                for (BLangAnnotAttribute annotAttribute : annotationNode.getAttributes()) {
+//                    String dataType = getTypeName(annotAttribute.getTypeNode());
+//                    String desc = annotFieldAnnotation(annotationNode, annotAttribute);
+//                    String href = extractLink(annotAttribute.getTypeNode());
+//                    Variable variable = new Variable(annotAttribute.getName().value, dataType, desc, href);
+//                    attributes.add(variable);
+//                }
+//            }
+//        }
+        String dataType = "-", href = "";
+        if (annotationNode.typeNode != null) {
+            dataType = getTypeName(annotationNode.typeNode);
+            href = extractLink(annotationNode.typeNode);
         }
+        String attachments = annotationNode.attachmentPoints.stream().map(attachmentPoint -> attachmentPoint
+                .attachmentPoint.getValue()).collect(Collectors.joining(", "));
 
-        return new AnnotationDoc(annotationName, description(annotationNode), new ArrayList<>(), attributes);
+        return new AnnotationDoc(annotationName, description(annotationNode), dataType, href, attachments);
     }
 
     //TODO
@@ -658,29 +665,29 @@ public class Generator {
         return "";
     }
 
-    /**
-     * Get description annotation of the annotation attribute.
-     *
-     * @param annotationNode parent node.
-     * @param annotAttribute annotation attribute.
-     * @return description of the annotation attribute.
-     */
-    private static String annotFieldAnnotation(BLangAnnotation annotationNode, BLangAnnotAttribute annotAttribute) {
-        List<? extends AnnotationAttachmentNode> annotationAttachments = getAnnotationAttachments(annotationNode);
-
-        for (AnnotationAttachmentNode annotation : annotationAttachments) {
-            if ("Field".equals(annotation.getAnnotationName().getValue())) {
-                BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) annotation.getExpression();
-                BLangExpression bLangLiteral = bLangRecordLiteral.getKeyValuePairs().get(0).getValue();
-                String value = bLangLiteral.toString();
-                if (value.startsWith(annotAttribute.getName().getValue())) {
-                    String[] valueParts = value.split(":");
-                    return valueParts.length == 2 ? valueParts[1] : valueParts[0];
-                }
-            }
-        }
-        return "";
-    }
+//    /**
+//     * Get description annotation of the annotation attribute.
+//     *
+//     * @param annotationNode parent node.
+//     * @param annotAttribute annotation attribute.
+//     * @return description of the annotation attribute.
+//     */
+//    private static String annotFieldAnnotation(BLangAnnotation annotationNode, BLangAnnotAttribute annotAttribute) {
+//        List<? extends AnnotationAttachmentNode> annotationAttachments = getAnnotationAttachments(annotationNode);
+//
+//        for (AnnotationAttachmentNode annotation : annotationAttachments) {
+//            if ("Field".equals(annotation.getAnnotationName().getValue())) {
+//                BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) annotation.getExpression();
+//                BLangExpression bLangLiteral = bLangRecordLiteral.getKeyValuePairs().get(0).getValue();
+//                String value = bLangLiteral.toString();
+//                if (value.startsWith(annotAttribute.getName().getValue())) {
+//                    String[] valueParts = value.split(":");
+//                    return valueParts.length == 2 ? valueParts[1] : valueParts[0];
+//                }
+//            }
+//        }
+//        return "";
+//    }
 
     /**
      * Get the description annotation of the node.

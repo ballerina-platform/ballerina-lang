@@ -16,29 +16,25 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.jwt.crypto;
+package org.ballerinalang.nativeimpl.internal.jwt.crypto;
 
 /**
- * JSON web signature verifier.
+ * JSON web signature.
  *
  * @since 0.964.0
  */
-public interface JWSVerifier {
+public interface JWSSigner {
 
     /**
-     * Verifies the signature of the JWS object.
+     * Signs the specified input data.
      *
      * @param data      This input should contain the header and body part of the JWT.
      *                  BASE64URL(UTF8(JOSE header)) || '.' || BASE64URL(JWS payload)
-     * @param signature Signature part of the JWT.
      * @param algorithm JWS algorithm used to secure the JWS.
      *                  This is the 'alg' header parameter.
-     * @return {@code true} if the signature was verified,
-     * {@code false} if the signature is invalid.
-     * @throws JWSException If the JWS algorithm is not supported, or if
-     *                      signature verification failed for some other
-     *                      internal reason.
+     * @return The signature part of the JWS object.
+     * @throws JWSException If the JWS algorithm is not supported or if
+     *                      signing failed for some other internal reason.
      */
-    boolean verify(final String data, final String signature, final String algorithm)
-            throws JWSException;
+    String sign(final String data, final String algorithm) throws JWSException;
 }
