@@ -38,6 +38,7 @@ import java.util.Map;
  */
 public class BLangVMErrors {
 
+    private static final String DEFAULT_PKG_PATH = ".";
     private static final String MSG_CALL_FAILED = "call failed";
     private static final String MSG_CALL_CANCELLED = "call cancelled";
     public static final String PACKAGE_BUILTIN = "ballerina.builtin";
@@ -247,7 +248,7 @@ public class BLangVMErrors {
 
         String parentScope = "";
         if (callableUnitInfo instanceof ResourceInfo) {
-            parentScope = ((ResourceInfo) callableUnitInfo).getServiceInfo().getName() + ".";
+            parentScope = ((ResourceInfo) callableUnitInfo).getServiceInfo().getName() + DEFAULT_PKG_PATH;
         }
 
         values[0] = parentScope + callableUnitInfo.getName();
@@ -315,7 +316,8 @@ public class BLangVMErrors {
 
         BStruct stackFrame = (BStruct) error.getNativeData(STRUCT_CALL_STACK_ELEMENT);
         // Append function/action/resource name with package path (if any)
-        if (stackFrame.getStringField(1).isEmpty() || stackFrame.getStringField(1).equals(PACKAGE_BUILTIN)) {
+        if (stackFrame.getStringField(1).isEmpty() || DEFAULT_PKG_PATH.equals(stackFrame.getStringField(1)) 
+                || stackFrame.getStringField(1).equals(PACKAGE_BUILTIN)) {
             sb.append(stackFrame.getStringField(0));
         } else {
             sb.append(stackFrame.getStringField(1)).append(":").append(stackFrame.getStringField(0));
@@ -347,7 +349,7 @@ public class BLangVMErrors {
 
     private static String getErrorMessage(BStruct error) {
         String errorMsg = error.getType().getName();
-        if (error.getType().getPackagePath() != null && !error.getType().getPackagePath().equals(".") &&
+        if (error.getType().getPackagePath() != null && !error.getType().getPackagePath().equals(DEFAULT_PKG_PATH) &&
                 !error.getType().getPackagePath().equals(PACKAGE_BUILTIN)) {
             errorMsg = error.getType().getPackagePath() + ":" + errorMsg;
         }
