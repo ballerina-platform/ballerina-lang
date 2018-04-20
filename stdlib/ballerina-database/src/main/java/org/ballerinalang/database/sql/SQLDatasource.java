@@ -245,7 +245,7 @@ public class SQLDatasource implements BValue {
      String jdbcurl,
             String username, String password) {
         if (dataSourceConfigMap != null) {
-            if (dataSourceConfigMap.get(Constants.URL) == null) {
+            if (!dataSourceConfigMap.hasKey(Constants.URL)) {
                 dataSourceConfigMap.put(Constants.URL, new BString(jdbcurl));
             }
         } else {

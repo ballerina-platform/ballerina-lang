@@ -16,6 +16,7 @@
 
 import ballerina/crypto;
 import ballerina/http;
+import ballerina/jdbc;
 import ballerina/log;
 import ballerina/mime;
 import ballerina/sql;
@@ -265,7 +266,7 @@ function verifyIntent(string callback, string topic, map params) {
                          + "&" + websub:HUB_CHALLENGE + "=" + challenge
                          + "&" + websub:HUB_LEASE_SECONDS + "=" + leaseSeconds;
 
-    var subscriberResponse = callbackEp -> get(untaint ("?" + queryParams), request);
+    var subscriberResponse = callbackEp -> get(untaint ("?" + queryParams), request = request);
 
     match (subscriberResponse) {
         http:Response response => {
@@ -321,70 +322,67 @@ function verifyIntent(string callback, string topic, map params) {
 @Param {value:"topic: The topic for which registration is changing"}
 @Param {value:"secret: The secret if specified when registering, empty string if not"}
 function changeTopicRegistrationInDatabase(string mode, string topic, string secret) {
-    endpoint sql:Client subscriptionDbEp {
+    endpoint jdbc:Client subscriptionDbEp {
         url: hubDatabaseUrl,
         username: hubDatabaseUsername,
         password: hubDatabasePassword,
         poolOptions: {maximumPoolSize:5}
     };
 
-    sql:Parameter para1 = (sql:TYPE_VARCHAR, topic);
-    sql:Parameter para2 = (sql:TYPE_VARCHAR, secret);
-    sql:Parameter[] sqlParams = [para1, para2];
+    sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:topic};
+    sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:secret};
     if (mode == websub:MODE_REGISTER) {
-        var updateStatus = subscriptionDbEp -> update("INSERT INTO topics (topic,secret) VALUES (?,?)", sqlParams);
+        var updateStatus = subscriptionDbEp -> update("INSERT INTO topics (topic,secret) VALUES (?,?)", para1, para2);
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for registration");
             error err => log:printError("Error occurred updating registration data: " + err.message);
         }
     } else {
         var updateStatus = subscriptionDbEp -> update("DELETE FROM topics WHERE topic=? AND secret=?",
-                                                      sqlParams);
+                                                para1, para2);
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for unregistration");
             error err => log:printError("Error occurred updating unregistration data: " + err.message);
         }
     }
-    _ = subscriptionDbEp -> close();
+    subscriptionDbEp.stop();
 }
 
 @Description {value:"Function to add/change/remove the subscription details in the database"}
 @Param {value:"mode: Whether the subscription change is for unsubscription/unsubscription"}
 @Param {value:"subscriptionDetails: The details of the subscription changing"}
 function changeSubscriptionInDatabase(string mode, websub:SubscriptionDetails subscriptionDetails) {
-    endpoint sql:Client subscriptionDbEp {
+    endpoint jdbc:Client subscriptionDbEp {
         url: hubDatabaseUrl,
         username: hubDatabaseUsername,
         password: hubDatabasePassword,
         poolOptions: {maximumPoolSize:5}
     };
 
-    sql:Parameter para1 = (sql:TYPE_VARCHAR, subscriptionDetails.topic);
-    sql:Parameter para2 = (sql:TYPE_VARCHAR, subscriptionDetails.callback);
-    sql:Parameter[] sqlParams;
+    sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:subscriptionDetails.topic};
+    sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:subscriptionDetails.callback};
     if (mode == websub:MODE_SUBSCRIBE) {
-        sql:Parameter para3 = (sql:TYPE_VARCHAR, subscriptionDetails.secret);
-        sql:Parameter para4 = (sql:TYPE_BIGINT, subscriptionDetails.leaseSeconds);
-        sql:Parameter para5 = (sql:TYPE_BIGINT, subscriptionDetails.createdAt);
-        sqlParams = [para1, para2, para3, para4, para5, para3, para4, para5];
+        sql:Parameter para3 = {sqlType:sql:TYPE_VARCHAR, value:subscriptionDetails.secret};
+        sql:Parameter para4 = {sqlType:sql:TYPE_BIGINT, value:subscriptionDetails.leaseSeconds};
+        sql:Parameter para5 = {sqlType:sql:TYPE_BIGINT, value:subscriptionDetails.createdAt};
         var updateStatus = subscriptionDbEp -> update("INSERT INTO subscriptions"
                                              + " (topic,callback,secret,lease_seconds,created_at) VALUES (?,?,?,?,?) ON"
                                              + " DUPLICATE KEY UPDATE secret=?, lease_seconds=?,created_at=?",
-                                             sqlParams);
+                                        untaint para1, untaint para2, untaint para3, untaint para4, untaint para5);
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for subscription");
             error err => log:printError("Error occurred updating subscription data: " + err.message);
         }
     } else {
-        sqlParams = [para1, para2];
         var updateStatus = subscriptionDbEp -> update(
-                                               "DELETE FROM subscriptions WHERE topic=? AND callback=?", sqlParams);
+                                               "DELETE FROM subscriptions WHERE topic=? AND callback=?", untaint para1,
+                                               untaint para2);
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for unsubscription");
             error err => log:printError("Error occurred updating unsubscription data: " + err.message);
         }
     }
-    _ = subscriptionDbEp -> close();
+    subscriptionDbEp.stop();
 }
 
 @Description {value:"Function to initiate set up activities on startup/restart"}
@@ -400,15 +398,14 @@ function setupOnStartup() {
 
 @Description {value:"Function to load topic registrations from the database"}
 function addTopicRegistrationsOnStartup() {
-    endpoint sql:Client subscriptionDbEp {
+    endpoint jdbc:Client subscriptionDbEp {
         url: hubDatabaseUrl,
         username: hubDatabaseUsername,
         password: hubDatabasePassword,
         poolOptions: {maximumPoolSize:5}
     };
-    sql:Parameter[] sqlParams = [];
     table dt;
-    var dbResult = subscriptionDbEp -> select("SELECT topic, secret FROM topics", TopicRegistration, sqlParams);
+    var dbResult = subscriptionDbEp -> select("SELECT topic, secret FROM topics", TopicRegistration);
     match (dbResult) {
         table t => { dt = t; }
         error sqlErr => {
@@ -429,12 +426,12 @@ function addTopicRegistrationsOnStartup() {
             }
         }
     }
-    _ = subscriptionDbEp -> close();
+    subscriptionDbEp.stop();
 }
 
 @Description {value:"Function to add subscriptions to the broker on startup, if persistence is enabled"}
 function addSubscriptionsOnStartup() {
-    endpoint sql:Client subscriptionDbEp {
+    endpoint jdbc:Client subscriptionDbEp {
         url: hubDatabaseUrl,
         username: hubDatabaseUsername,
         password: hubDatabasePassword,
@@ -442,13 +439,11 @@ function addSubscriptionsOnStartup() {
     };
 
     int time = time:currentTime().time;
-    sql:Parameter para1 = (sql:TYPE_BIGINT, time);
-    sql:Parameter[] sqlParams = [para1];
-    _ = subscriptionDbEp -> update("DELETE FROM subscriptions WHERE ? - lease_seconds > created_at", sqlParams);
-    sqlParams = [];
+    sql:Parameter para1 = {sqlType:sql:TYPE_BIGINT, value:time};
+    _ = subscriptionDbEp -> update("DELETE FROM subscriptions WHERE ? - lease_seconds > created_at", para1);
     table dt;
     var dbResult = subscriptionDbEp -> select("SELECT topic, callback, secret, lease_seconds, created_at"
-                                                + " FROM subscriptions", websub:SubscriptionDetails, sqlParams);
+                                                + " FROM subscriptions", websub:SubscriptionDetails);
     match (dbResult) {
         table t => { dt = t; }
         error sqlErr => {
@@ -465,7 +460,7 @@ function addSubscriptionsOnStartup() {
             }
         }
     }
-    _ = subscriptionDbEp -> close();
+    subscriptionDbEp.stop();
 }
 
 @Description {value:"Function to fetch updates for a particular topic."}
@@ -478,7 +473,7 @@ function fetchTopicUpdate(string topic) returns (http:Response | http:HttpConnec
 
     http:Request request = new;
 
-    var fetchResponse = topicEp -> get("", request);
+    var fetchResponse = topicEp -> get("", request = request);
     return fetchResponse;
 }
 
@@ -524,7 +519,7 @@ public function distributeContent(string callback, websub:SubscriptionDetails su
         request.setHeader(websub:X_HUB_TOPIC, subscriptionDetails.topic);
         request.setHeader("Link", buildWebSubLinkHeader(hubPublicUrl, subscriptionDetails.topic));
         request.setJsonPayload(payload);
-        var contentDistributionRequest = callbackEp -> post("", request);
+        var contentDistributionRequest = callbackEp -> post("", request = request);
         match (contentDistributionRequest) {
             http:Response response => { return; }
             http:HttpConnectorError err => { log:printError("Error delievering content to: " + callback); }
