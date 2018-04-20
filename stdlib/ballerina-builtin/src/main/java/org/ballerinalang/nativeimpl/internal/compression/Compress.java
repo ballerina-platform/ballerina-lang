@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.nativeimpl.compression;
+package org.ballerinalang.nativeimpl.internal.compression;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -42,7 +42,7 @@ import java.util.zip.ZipOutputStream;
  * @since 0.970.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "compression",
+        orgName = "ballerina", packageName = "internal",
         functionName = "compress",
         args = {
                 @Argument(name = "dirPath", type = TypeKind.STRUCT, structType = "Path",
@@ -141,8 +141,8 @@ public class Compress extends BlockingNativeCallableUnit {
                 context.setReturnValues();
             } catch (IOException | BLangRuntimeException e) {
                 context.setReturnValues(CompressionUtils.createCompressionError(context,
-                                                                                "Error occurred when compressing "
-                                                                                        + e.getMessage()));
+                        "Error occurred when compressing "
+                                + e.getMessage()));
             }
         }
     }

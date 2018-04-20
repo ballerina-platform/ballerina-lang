@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.nativeimpl.compression;
+package org.ballerinalang.nativeimpl.internal.compression;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -39,7 +39,7 @@ import java.util.zip.ZipInputStream;
  * @since 0.970.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "compression",
+        orgName = "ballerina", packageName = "internal",
         functionName = "decompressFromBlob",
         args = {@Argument(name = "content", type = TypeKind.BLOB),
                 @Argument(name = "destDir", type = TypeKind.STRUCT, structType = "Path",
@@ -130,14 +130,14 @@ public class DecompressFromBlob extends BlockingNativeCallableUnit {
 
             if (!destPath.toFile().exists()) {
                 context.setReturnValues(CompressionUtils.createCompressionError(context,
-                                              "Path to place the decompressed file is not available"));
+                        "Path to place the decompressed file is not available"));
             } else {
                 try {
                     decompress(inputStream, destPath);
                     context.setReturnValues();
                 } catch (IOException e) {
                     context.setReturnValues(CompressionUtils.createCompressionError(context,
-                                          "Error occurred when decompressing " + e.getMessage()));
+                            "Error occurred when decompressing " + e.getMessage()));
                 }
             }
         }
