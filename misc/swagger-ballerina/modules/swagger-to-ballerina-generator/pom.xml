@@ -103,6 +103,7 @@
                                     <include>org.ballerinalang:ballerina-to-swagger</include>
                                     <include>org.ballerinalang:composer-ballerina-parser-service</include>
                                     <include>org.ballerinalang:language-server-core</include>
+                                    <include>org.ballerinalang:language-server-compiler</include>
                                 </includes>
                             </artifactSet>
                             <filters>
