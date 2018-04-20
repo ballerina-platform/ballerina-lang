@@ -21,8 +21,7 @@ package org.ballerinalang.nativeimpl.builtin.stringlib;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -32,35 +31,26 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 /**
- * Native function ballerina.model.strings:findAllWithRegex.
+ * Native function ballerina.model.strings:matches.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "builtin",
-        functionName = "string.findAllWithRegex",
-        args = {@Argument(name = "mainString", type = TypeKind.STRING),
-                @Argument(name = "reg", type = TypeKind.STRUCT, structType = "Regex",
-                        structPackage = "ballerina.builtin")},
-        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING),
-                @ReturnType(type = TypeKind.STRUCT)},
+        functionName = "string.matches",
+        args = {@Argument(name = "s", type = TypeKind.STRING),
+                @Argument(name = "reg", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.BOOLEAN), @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
-public class FindAllWithRegex extends AbstractRegexFunction {
-
+public class Matches extends AbstractRegexFunction {
     @Override
     public void execute(Context context) {
-        String initialString = context.getStringArgument(0);
-
-        BStruct regexStruct = (BStruct) context.getRefArgument(0);
+        String s = context.getStringArgument(0);
+        String regex = context.getStringArgument(1);
         try {
-            Pattern pattern = validatePattern(regexStruct);
-
-            BStringArray stringArray = new BStringArray();
-            Matcher matcher = pattern.matcher(initialString);
-            int i = 0;
-            while (matcher.find()) {
-                stringArray.add(i++, matcher.group());
-            }
-            context.setReturnValues(stringArray);
+            Pattern pattern = validatePattern(regex);
+            Matcher matcher = pattern.matcher(s);
+            BBoolean matches = new BBoolean(matcher.matches());
+            context.setReturnValues(matches);
         } catch (PatternSyntaxException e) {
             context.setReturnValues(BLangVMErrors.createError(context, 0, e.getMessage()));
         }

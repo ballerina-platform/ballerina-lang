@@ -19,7 +19,6 @@
 package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BStruct;
 
 import java.util.regex.Pattern;
 
@@ -32,16 +31,10 @@ public abstract class AbstractRegexFunction extends BlockingNativeCallableUnit {
      * Validate Regex struct in Ballerina. Validate whether the string is in compiled form if not
      * compile it and store as native data for later reference.
      *
-     * @param regexStruct BStruct which holds compiled pattern.
+     * @param regex a regex string
      * @return Pattern compiled Pattern
      */
-    protected Pattern validatePattern(BStruct regexStruct) {
-        String regex = regexStruct.getStringField(0);
-        Pattern pattern = (Pattern) regexStruct.getNativeData(REGEXConstants.COMPILED_REGEX);
-        if (pattern == null) {
-            pattern = Pattern.compile(regex);
-            regexStruct.addNativeData(REGEXConstants.COMPILED_REGEX, pattern);
-        }
-        return pattern;
+    protected Pattern validatePattern(String regex) {
+        return Pattern.compile(regex);
     }
 }

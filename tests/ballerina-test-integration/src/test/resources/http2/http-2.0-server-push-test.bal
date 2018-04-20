@@ -154,7 +154,7 @@ service<http:Service> frontendHttpService bind frontendEP {
             }
 
             // check whether expected
-            string expectedVal = promise.path.subString(1, 10);
+            string expectedVal = promise.path.substring(1, 10);
             string promisedStringPayload = promisedJsonPayload.toString();
             if (!(promisedStringPayload.contains(expectedVal))) {
                 http:Response errorResponse = new;
