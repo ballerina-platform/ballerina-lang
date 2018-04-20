@@ -74,6 +74,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
     private ChannelHandlerContext originalChannelContext;
     private boolean isIdleHandlerOfTargetChannelRemoved = false;
     private ConnectionManager connectionManager;
+    private String resolvedRequestedURI;
 
     public RedirectHandler(SSLEngine sslEngine, boolean httpTraceLogEnabled, int maxRedirectCount,
                            ConnectionManager connectionManager) {
@@ -423,6 +424,8 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
         }
         currentRedirectCount = redirectCount;
         ctx.channel().attr(Constants.REDIRECT_COUNT).set(redirectCount);
+        resolvedRequestedURI = redirectState.get(HttpHeaderNames.LOCATION.toString());
+        ctx.channel().attr(Constants.RESOLVED_REQUESTED_URI_ATTR).set(resolvedRequestedURI);
         if (LOG.isDebugEnabled()) {
             LOG.debug("Current redirect count." + currentRedirectCount + " and channel id is : " + ctx.channel().id());
         }
@@ -537,6 +540,8 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
         targetRespMsg.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
         HttpResponse httpResponse = (HttpResponse) msg;
         targetRespMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.status().code());
+        targetRespMsg.setProperty(Constants.RESOLVED_REQUESTED_URI,
+                ctx.channel().attr(Constants.RESOLVED_REQUESTED_URI_ATTR).get());
         return targetRespMsg;
     }
 
@@ -643,6 +648,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
         future.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).set(responseFuture);
         future.channel().attr(Constants.ORIGINAL_REQUEST).set(httpCarbonRequest);
         future.channel().attr(Constants.REDIRECT_COUNT).set(currentRedirectCount);
+        future.channel().attr(Constants.RESOLVED_REQUESTED_URI_ATTR).set(resolvedRequestedURI);
         future.channel().attr(Constants.ORIGINAL_CHANNEL_START_TIME).set(channelStartTime);
         future.channel().attr(Constants.ORIGINAL_CHANNEL_TIMEOUT).set(timeoutOfOriginalRequest);
         TargetChannel targetChannel = channelHandlerContext.channel().attr(Constants.TARGET_CHANNEL_REFERENCE).get();
