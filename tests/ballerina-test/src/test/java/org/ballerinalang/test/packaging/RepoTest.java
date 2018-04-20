@@ -48,11 +48,12 @@ public class RepoTest {
     @Test
     public void testCacheRepo() {
         PackageID pkg = newPackageID("nice_org", "any.pkg", "10.2.3");
-        CacheRepo subject = new CacheRepo((PathConverter) null);
+        CacheRepo subject = new CacheRepo((PathConverter) null, "test");
 
         Patten patten = subject.calculate(pkg);
 
-        Assert.assertEquals(patten.toString(), "$/caches/*/nice_org/any.pkg/10.2.3/src/**~test~resources/*.bal");
+        Assert.assertEquals(patten.toString(), "$/caches/test/nice_org/any.pkg/10.2.3/any.pkg.zip/src/" +
+                "**~test~resources/*.bal");
     }
 
     @Test

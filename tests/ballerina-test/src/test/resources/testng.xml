@@ -42,9 +42,7 @@ under the License.
             <package name="org.ballerinalang.test.statements.*">
                 <exclude name="org.ballerinalang.test.statements.transform.*"/>
             </package>
-            <package name="org.ballerinalang.test.types.*">
-                <exclude name="org.ballerinalang.test.types.nullvalue.*"/>
-            </package>
+            <package name="org.ballerinalang.test.types.*"/>
             <package name="org.ballerinalang.test.functions.*"/>
             <package name="org.ballerinalang.test.worker.*"/>
             <package name="org.ballerinalang.test.nativeimpl.*"/>
@@ -68,7 +66,6 @@ under the License.
             <package name="org.ballerinalang.test.task.*"/>
             <package name="org.ballerinalang.test.cache.*"/>
             <package name="org.ballerinalang.test.mime.*"/>
-            <package name="org.ballerinalang.test.security.*"/>
             <package name="org.ballerinalang.test.jwt.*"/>
             <package name="org.ballerinalang.test.taintchecking.*"/>
             <package name="org.ballerinalang.test.config.*"/>
@@ -78,10 +75,6 @@ under the License.
             <package name="org.ballerinalang.test.net.grpc"/>
             <package name="org.ballerinalang.test.metrics.*"/>
             <package name="org.ballerinalang.test.runtime.*"/>
-            <package name="org.ballerinalang.test.net.http.*">
-                <exclude name="org.ballerinalang.test.net.http.resiliency.*"/>
-                <exclude name="org.ballerinalang.test.net.http.HttpCachingClientTest"/>
-            </package>
         </packages>
 
 		<!-- TODO: remove once constraint tests are fixed -->

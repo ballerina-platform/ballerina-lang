@@ -19,9 +19,8 @@ import ballerina/sql;
 import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
-import ballerina/security.crypto;
+import ballerina/crypto;
 import ballerina/time;
-import ballerina/util;
 import ballerina/websub;
 
 endpoint http:Listener hubServiceEP {
@@ -57,7 +56,11 @@ service<http:Service> hubService bind hubServiceEP {
         string mode;
         string topic;
 
-        map params = request.getFormParams() but { http:PayloadError => {} };
+        map params;
+        match (request.getFormParams()) {
+            map<string> reqFormParamMap => { params = reqFormParamMap; }
+            http:PayloadError => {}
+        }
 
         if (params.hasKey(websub:HUB_MODE)) {
             mode = <string> params[websub:HUB_MODE];
@@ -165,7 +168,7 @@ service<http:Service> hubService bind hubServiceEP {
                                 if (secret != "") {
                                     if (request.hasHeader(websub:PUBLISHER_SIGNATURE)) {
                                         string publisherSignature = request.getHeader(websub:PUBLISHER_SIGNATURE);
-                                        string strPayload = payload.toString() but { () => "" };
+                                        string strPayload = payload.toString();
                                         var signatureValidation = websub:validateSignature(publisherSignature,
                                                                                                     strPayload, secret);
                                         match (signatureValidation) {
@@ -253,7 +256,7 @@ function verifyIntent(string callback, string topic, map params) {
     if (!(leaseSeconds > 0)) {
           leaseSeconds = hubLeaseSeconds;
     }
-    string challenge = util:uuid();
+    string challenge = system:uuid();
 
     http:Request request = new;
 
@@ -501,7 +504,7 @@ public function distributeContent(string callback, websub:SubscriptionDetails su
             changeSubscriptionInDatabase(websub:MODE_UNSUBSCRIBE, subscriptionDetails);
         }
     } else {
-        string stringPayload = payload.toString() but { () => "" };
+        string stringPayload = payload.toString();
         request.setHeader(websub:CONTENT_TYPE, mime:APPLICATION_JSON);
         if (subscriptionDetails.secret != "") {
             string xHubSignature = hubSignatureMethod + "=";
@@ -517,7 +520,7 @@ public function distributeContent(string callback, websub:SubscriptionDetails su
             request.setHeader(websub:X_HUB_SIGNATURE, xHubSignature);
         }
 
-        request.setHeader(websub:X_HUB_UUID, util:uuid());
+        request.setHeader(websub:X_HUB_UUID, system:uuid());
         request.setHeader(websub:X_HUB_TOPIC, subscriptionDetails.topic);
         request.setHeader("Link", buildWebSubLinkHeader(hubPublicUrl, subscriptionDetails.topic));
         request.setJsonPayload(payload);

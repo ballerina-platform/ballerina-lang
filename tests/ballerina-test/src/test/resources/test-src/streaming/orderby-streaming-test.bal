@@ -73,7 +73,7 @@ function startOrderBy() returns (Employee[]) {
 
     while (lengthof globalEmployeeArray != 10 || index < 20) {
         index++;
-        runtime:sleepCurrentWorker(500);
+        runtime:sleep(500);
     }
 
     return globalEmployeeArray;
@@ -131,7 +131,7 @@ function startOrderBy2() returns (Employee[]) {
 
     while (lengthof globalEmployeeArray2 != 10 || index < 20) {
         index++;
-        runtime:sleepCurrentWorker(500);
+        runtime:sleep(500);
     }
 
     return globalEmployeeArray2;
@@ -188,7 +188,7 @@ function startOrderBy3() returns (Employee[]) {
 
     while (lengthof globalEmployeeArray3 != 10 || index < 20) {
         index++;
-        runtime:sleepCurrentWorker(500);
+        runtime:sleep(500);
     }
 
     return globalEmployeeArray3;
@@ -245,7 +245,7 @@ function startOrderBy4() returns (Employee[]) {
 
     while (lengthof globalEmployeeArray4 != 10 || index < 20) {
         index++;
-        runtime:sleepCurrentWorker(500);
+        runtime:sleep(500);
     }
 
     return globalEmployeeArray4;
@@ -302,7 +302,7 @@ function startOrderBy5() returns (Employee[]) {
 
     while (lengthof globalEmployeeArray5 != 10 || index < 20) {
         index++;
-        runtime:sleepCurrentWorker(500);
+        runtime:sleep(500);
     }
 
     return globalEmployeeArray5;

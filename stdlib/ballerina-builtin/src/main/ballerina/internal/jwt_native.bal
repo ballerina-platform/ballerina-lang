@@ -44,3 +44,8 @@ type KeyStore {
     string keyStoreFilePath,
     string keyStorePassword,
 };
+
+@Description {value:"Parse JSON string to generate JSON object."}
+@Param {value:"s: JSON string"}
+@Return {value:"JSON object."}
+public native function parseJson (string s) returns (json|error);

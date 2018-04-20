@@ -79,7 +79,8 @@ public class PushUtils {
                                                                                       .DOT_BALLERINA_DIR_NAME);
 
         // Get package path from project directory path
-        Path pkgPathFromPrjtDir = Paths.get(prjDirPath.toString(), "repo", Names.ANON_ORG.getValue(),
+        Path pkgPathFromPrjtDir = Paths.get(prjDirPath.toString(), ProjectDirConstants.CACHES_DIR_NAME,
+                                            ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME, Names.ANON_ORG.getValue(),
                                             packageName, version, packageName + ".zip");
         if (Files.notExists(pkgPathFromPrjtDir)) {
             throw new BLangCompilerException("package does not exist");

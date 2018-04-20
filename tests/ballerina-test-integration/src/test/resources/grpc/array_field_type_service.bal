@@ -16,141 +16,114 @@
 import ballerina/io;
 import ballerina/grpc;
 
-endpoint grpc:Service ep {
+endpoint grpc:Listener ep {
     host:"localhost",
     port:9090
 };
 
-@grpc:serviceConfig {generateClientConnector:false}
-service<grpc:Listener> HelloWorld bind ep {
+@grpc:serviceConfig
+service HelloWorld bind ep {
 
-    testIntArrayInput (endpoint client, TestInt req) {
+    testIntArrayInput(endpoint caller, TestInt req) {
         io:println(req);
-        int [] numbers = req.values;
+        int[] numbers = req.values;
         int result;
         foreach number in numbers {
             result = result + number;
         }
-        io:println("Result: " + result);
-        grpc:ConnectorError err = client -> send(result);
-        if (err != ()) {
-            io:println("Error at helloWorld : " + err.message);
-        }
-        _ = client -> complete();
+        error? err = caller->send(result);
+        io:println(err.message but { () => ("Result: " + result) });
+        _ = caller->complete();
     }
 
-    testStringArrayInput (endpoint client, TestString req) {
+    testStringArrayInput(endpoint caller, TestString req) {
         io:println(req);
         string[] values = req.values;
         string result;
         foreach value in values {
             result = result + "," + value;
         }
-        io:println("Result: " + result);
-        grpc:ConnectorError err = client -> send(result);
-        if (err != ()) {
-            io:println("Error at helloWorld : " + err.message);
-        }
-        _ = client -> complete();
+        error? err = caller->send(result);
+        io:println(err.message but { () => ("Result: " + result) });
+        _ = caller->complete();
     }
 
-    testFloatArrayInput (endpoint client, TestFloat req) {
+    testFloatArrayInput(endpoint caller, TestFloat req) {
         io:println(req);
         float[] values = req.values;
         float result;
         foreach value in values {
             result = result + value;
         }
-        io:println("Result: " + result);
-        grpc:ConnectorError err = client -> send(result);
-        if (err != ()) {
-            io:println("Error at helloWorld : " + err.message);
-        }
-        _ = client -> complete();
+        error? err = caller->send(result);
+        io:println(err.message but { () => ("Result: " + result) });
+        _ = caller->complete();
     }
 
-    testBooleanArrayInput (endpoint client, TestBoolean req) {
+    testBooleanArrayInput(endpoint caller, TestBoolean req) {
         io:println(req);
         boolean[] values = req.values;
         boolean result;
         foreach value in values {
             result = result || value;
         }
-        io:println("Result: " + result);
-        grpc:ConnectorError err = client -> send(result);
-        if (err != ()) {
-            io:println("Error at helloWorld : " + err.message);
-        }
-        _ = client -> complete();
+        error? err = caller->send(result);
+        io:println(err.message but { () => ("Result: " + result) });
+        _ = caller->complete();
     }
 
-    testStructArrayInput (endpoint client, TestStruct req) {
+    testStructArrayInput(endpoint caller, TestStruct req) {
         io:println(req);
         A[] values = req.values;
         string result;
         foreach value in values {
             result = result + "," + value.name;
         }
-        grpc:ConnectorError err = client -> send(result);
-        if (err != ()) {
-            io:println("Error at helloWorld : " + err.message);
-        }
-        _ = client -> complete();
+        error? err = caller->send(result);
+        io:println(err.message but { () => ("Result: " + result) });
+        _ = caller->complete();
     }
 
-    testIntArrayOutput (endpoint client) {
-        TestInt intArray = {values:[1,2,3,4,5]};
-        io:println("Response: ");
+    testIntArrayOutput(endpoint caller) {
+        TestInt intArray = {values:[1, 2, 3, 4, 5]};
+        error? err = caller->send(intArray);
+        io:println(err.message but { () => ("Response: ") });
         io:println(intArray);
-        grpc:ConnectorError err = client -> send(intArray);
-        if (err != ()) {
-            io:println("Error at helloWorld : " + err.message);
-        }
-        _ = client -> complete();
+        _ = caller->complete();
     }
 
-    testStringArrayOutput (endpoint client) {
+    testStringArrayOutput(endpoint caller) {
         TestString stringArray = {values:["A", "B", "C"]};
-        io:println("Response: ");
+        error? err = caller->send(stringArray);
+        io:println(err.message but { () => ("Response: ") });
         io:println(stringArray);
-        grpc:ConnectorError err = client -> send(stringArray);
-        if (err != ()) {
-            io:println("Error at helloWorld : " + err.message);
-        }
-        _ = client -> complete();
+        _ = caller->complete();
     }
 
-    testFloatArrayOutput (endpoint client) {
+    testFloatArrayOutput(endpoint caller) {
         TestFloat floatArray = {values:[1.1, 1.2, 1.3, 1.4, 1.5]};
-        io:println("Response: ");
+        error? err = caller->send(floatArray);
+        io:println(err.message but { () => ("Response: ") });
         io:println(floatArray);
-        grpc:ConnectorError err = client -> send(floatArray);
-        if (err != ()) {
-            io:println("Error at helloWorld : " + err.message);
-        }
-        _ = client -> complete();
+        _ = caller->complete();
     }
 
-    testBooleanArrayOutput (endpoint client) {
+    testBooleanArrayOutput(endpoint caller) {
         TestBoolean booleanArray = {values:[true, false, true]};
-        io:println("Response: ");
+        error? err = caller->send(booleanArray);
+        io:println(err.message but { () => ("Response: ") });
         io:println(booleanArray);
-        grpc:ConnectorError err = client -> send(booleanArray);
-        if (err != ()) {
-            io:println("Error at helloWorld : " + err.message);
-        }
-        _ = client -> complete();
+        _ = caller->complete();
     }
 
-    testStructArrayOutput (endpoint client) {
-        A a1 = {name: "Sam"};
-        A a2 = {name: "John"};
+    testStructArrayOutput(endpoint caller) {
+        A a1 = {name:"Sam"};
+        A a2 = {name:"John"};
         TestStruct structArray = {values:[a1, a2]};
-        grpc:ConnectorError err = client -> send(structArray);
-        if (err != ()) {
-        io:println("Error at helloWorld : " + err.message);
-        }
-        _ = client -> complete();
+        error? err = caller->send(structArray);
+        io:println(err.message but { () => ("Response: ") });
+        io:println(structArray);
+        _ = caller->complete();
     }
 }
 

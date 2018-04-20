@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.970.0-beta2-SNAPSHOT</version>
+    <version>0.970.0-beta5-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -1504,7 +1504,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.970.0-beta2-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.970.0-beta5-SNAPSHOT</ballerina.version>
         <npm.executable>npm</npm.executable>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 

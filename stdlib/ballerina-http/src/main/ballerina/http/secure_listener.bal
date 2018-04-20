@@ -148,9 +148,13 @@ function createAuthFiltersForSecureListener (SecureEndpointConfiguration config)
     Filter[] authFilters = [];
     AuthnHandlerChain authnHandlerChain = new(registry);
     AuthnFilter authnFilter = new(authnHandlerChain);
-    AuthzFilter authzFilter = new;
+    cache:Cache authzCache = new(expiryTimeMillis = 300000);
+    auth:ConfigAuthProvider configAuthProvider = new;
+    auth:AuthProvider authProvider = check <auth:AuthProvider> configAuthProvider;
+    HttpAuthzHandler authzHandler = new(authProvider, authzCache);
+    AuthzFilter authzFilter = new(authzHandler);
     authFilters[0] = check <Filter> authnFilter;
-    authFilters[1] = <Filter> authzFilter;
+    authFilters[1] = check <Filter> authzFilter;
     return authFilters;
 }
 
@@ -180,7 +184,7 @@ function createAuthHandler (AuthProvider authProvider) returns HttpAuthnHandler 
         jwtConfig.audience = authProvider.audience;
         jwtConfig.certificateAlias = authProvider.certificateAlias;
         jwtConfig.clockSkew = authProvider.clockSkew;
-        jwtConfig.trustStoreFilePath = authProvider.trustStore.filePath but {() => ""};
+        jwtConfig.trustStoreFilePath = authProvider.trustStore.path but {() => ""};
         jwtConfig.trustStorePassword = authProvider.trustStore.password but {() => ""};
         auth:JWTAuthProvider jwtAuthProvider = new (jwtConfig);
         HttpJwtAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);

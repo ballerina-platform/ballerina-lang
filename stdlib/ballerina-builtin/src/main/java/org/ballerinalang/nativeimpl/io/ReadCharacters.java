@@ -39,7 +39,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
-        functionName = "readCharacters",
+        functionName = "read",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "CharacterChannel", structPackage = "ballerina.io"),
         args = {@Argument(name = "numberOfChars", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.STRING),
