@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
@@ -400,6 +401,9 @@ public class CompiledPackageSymbolEnter {
         // set parameter symbols to the function symbol
         setParamSymbols(invokableSymbol, attrDataMap);
 
+        // set taint table to the function symbol
+        setTaintTable(invokableSymbol, attrDataMap);
+
         scopeToDefine.define(invokableSymbol.name, invokableSymbol);
     }
 
@@ -495,6 +499,40 @@ public class CompiledPackageSymbolEnter {
             BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(varName), this.env.pkgSymbol.pkgID,
                     funcType.paramTypes.get(requiredParamCount + defaultableParamCount), invokableSymbol);
             invokableSymbol.restParam = varSymbol;
+        }
+    }
+
+    /**
+     * Set taint table to the invokable symbol.
+     *
+     * @param invokableSymbol Invokable symbol
+     * @param attrDataMap Attribute data map
+     * @throws IOException
+     */
+    private void setTaintTable(BInvokableSymbol invokableSymbol, Map<AttributeInfo.Kind, byte[]> attrDataMap)
+            throws IOException {
+
+        if (!attrDataMap.containsKey(Kind.TAINT_TABLE) ||
+                !attrDataMap.containsKey(AttributeInfo.Kind.TAINT_TABLE)) {
+            return;
+        }
+
+        // Get taint table dimensions
+        byte[] taintTableBytes = attrDataMap.get(AttributeInfo.Kind.TAINT_TABLE);
+        DataInputStream taintTableDataInStream = new DataInputStream(new ByteArrayInputStream(taintTableBytes));
+        int rowCount = taintTableDataInStream.readShort();
+        int columnCount = taintTableDataInStream.readShort();
+
+        // Extract and set taint table to the symbol
+        invokableSymbol.taintTable = new HashMap<>();
+        for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+            int paramIndex = taintTableDataInStream.readShort();
+            List<Boolean> retParamTaintedStatus = new ArrayList<>();
+            for (int columnIndex = 0; columnIndex < columnCount; columnIndex++) {
+                retParamTaintedStatus.add(taintTableDataInStream.readBoolean());
+            }
+            TaintRecord taintRecord = new TaintRecord(retParamTaintedStatus, null);
+            invokableSymbol.taintTable.put(paramIndex, taintRecord);
         }
     }
 

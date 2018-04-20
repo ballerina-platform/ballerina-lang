@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.programfile;
 
-
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.programfile.Instruction.Operand;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
@@ -28,6 +27,7 @@ import org.wso2.ballerinalang.programfile.attributes.LineNumberTableAttributeInf
 import org.wso2.ballerinalang.programfile.attributes.LocalVariableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.ParamDefaultValueAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.ParameterAttributeInfo;
+import org.wso2.ballerinalang.programfile.attributes.TaintTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.ActionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPoolEntry;
@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.util.Flags;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Serialize Ballerina {@code PackageInfo} structure to a byte stream.
@@ -59,7 +60,7 @@ public class PackageInfoWriter {
     private static final int NULL_VALUE_FIELD_SIZE_TAG = -1;
 
     public static void writeCP(DataOutputStream dataOutStream,
-                                ConstantPoolEntry[] constPool) throws IOException {
+                               ConstantPoolEntry[] constPool) throws IOException {
         dataOutStream.writeInt(constPool.length);
         for (ConstantPoolEntry cpEntry : constPool) {
             // Emitting the kind of the constant pool entry.
@@ -132,8 +133,29 @@ public class PackageInfoWriter {
         }
     }
 
-    public static void writePackageInfo(DataOutputStream dataOutStream,
-                                        PackageInfo packageInfo) throws IOException {
+    public static byte[] getPackageBinary(PackageInfo packageInfo) throws IOException {
+        try (ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream()) {
+            DataOutputStream dataOutStream = new DataOutputStream(byteArrayOS);
+            writePackageInfo(packageInfo, dataOutStream);
+            return byteArrayOS.toByteArray();
+        }
+    }
+
+    public static void writePackageInfo(PackageInfo packageInfo, DataOutputStream dataOutStream) throws IOException {
+        // Package level CP entries
+        writeCP(dataOutStream, packageInfo.getConstPoolEntries());
+
+        // Write package name and version number
+        dataOutStream.writeInt(packageInfo.nameCPIndex);
+        dataOutStream.writeInt(packageInfo.versionCPIndex);
+
+        // Write import package entries
+        dataOutStream.writeShort(packageInfo.importPkgInfoSet.size());
+        for (ImportPackageInfo importPkgInfo : packageInfo.importPkgInfoSet) {
+            dataOutStream.writeInt(importPkgInfo.nameCPIndex);
+            dataOutStream.writeInt(importPkgInfo.versionCPIndex);
+        }
+
         // Emit struct info entries
         StructInfo[] structTypeInfoEntries = packageInfo.getStructInfoEntries();
         dataOutStream.writeShort(structTypeInfoEntries.length);
@@ -171,7 +193,7 @@ public class PackageInfoWriter {
         // Emit Package level attributes
         writeAttributeInfoEntries(dataOutStream, packageInfo.getAttributeInfoEntries());
 
-        // Emit instructions 
+        // Emit instructions
         Instruction[] instructions = packageInfo.instructionList.toArray(new Instruction[0]);
         byte[] code = writeInstructions(instructions);
         dataOutStream.writeInt(code.length);
@@ -468,6 +490,18 @@ public class PackageInfoWriter {
                 attrDataOutStream.writeInt(parameterAttributeInfo.requiredParamsCount);
                 attrDataOutStream.writeInt(parameterAttributeInfo.defaultableParamsCount);
                 attrDataOutStream.writeInt(parameterAttributeInfo.restParamCount);
+                break;
+            case TAINT_TABLE:
+                TaintTableAttributeInfo taintTableAttributeInfo = (TaintTableAttributeInfo) attributeInfo;
+                attrDataOutStream.writeShort(taintTableAttributeInfo.rowCount);
+                attrDataOutStream.writeShort(taintTableAttributeInfo.columnCount);
+                for (Integer paramIndex : taintTableAttributeInfo.taintTable.keySet()) {
+                    attrDataOutStream.writeShort(paramIndex);
+                    List<Boolean> taintRecord = taintTableAttributeInfo.taintTable.get(paramIndex);
+                    for (Boolean taintStatus : taintRecord) {
+                        attrDataOutStream.writeBoolean(taintStatus);
+                    }
+                }
                 break;
         }
 

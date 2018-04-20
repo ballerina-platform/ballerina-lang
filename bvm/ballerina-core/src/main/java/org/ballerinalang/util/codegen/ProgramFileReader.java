@@ -55,6 +55,7 @@ import org.ballerinalang.util.codegen.attributes.ErrorTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ParamDefaultValueAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.TaintTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPool;
@@ -367,6 +368,9 @@ public class ProgramFileReader {
         packageInfo.setProgramFile(programFile);
         programFile.addPackageInfo(packageInfo.pkgPath, packageInfo);
 
+        // Read import package entries
+        readImportPackageInfoEntries(dataInStream, packageInfo);
+
         // Read struct info entries
         readStructInfoEntries(dataInStream, packageInfo);
 
@@ -403,6 +407,16 @@ public class ProgramFileReader {
         readInstructions(dataInStream, packageInfo);
 
         packageInfo.complete();
+    }
+
+    private void readImportPackageInfoEntries(DataInputStream dataInStream,
+                                              PackageInfo packageInfo) throws IOException {
+        int impPkgCount = dataInStream.readShort();
+        for (int i = 0; i < impPkgCount; i++) {
+            // TODO populate import package info structure
+            dataInStream.readInt();
+            dataInStream.readInt();
+        }
     }
 
     private void readStructInfoEntries(DataInputStream dataInStream,
@@ -1244,6 +1258,19 @@ public class ProgramFileReader {
                 dataInStream.readInt();
                 dataInStream.readInt();
                 return null;
+            case TAINT_TABLE:
+                TaintTableAttributeInfo taintTableAttributeInfo = new TaintTableAttributeInfo(attribNameCPIndex);
+                taintTableAttributeInfo.rowCount = dataInStream.readShort();
+                taintTableAttributeInfo.columnCount = dataInStream.readShort();
+                for (int rowIndex = 0; rowIndex < taintTableAttributeInfo.rowCount; rowIndex++) {
+                    int paramIndex = dataInStream.readShort();
+                    List<Boolean> taintRecord = new ArrayList<>();
+                    for (int columnIndex = 0; columnIndex < taintTableAttributeInfo.columnCount; columnIndex++) {
+                        taintRecord.add(dataInStream.readBoolean());
+                    }
+                    taintTableAttributeInfo.taintTable.put(paramIndex, taintRecord);
+                }
+                return taintTableAttributeInfo;
             default:
                 throw new ProgramFileFormatException("unsupported attribute kind " + attribNameCPEntry.getValue());
         }

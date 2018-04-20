@@ -309,7 +309,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         Name orgName;
         if (importPkgNode.orgName.value == null || importPkgNode.orgName.value.isEmpty()) {
             // means it's in 'import <pkg-name>' style
-            orgName = Names.ANON_ORG;
+            orgName = env.enclPkg.packageID.orgName;
         } else {
             // means it's in 'import <org-name>/<pkg-name>' style
             orgName = names.fromIdNode(importPkgNode.orgName);
