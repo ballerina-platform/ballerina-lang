@@ -6,6 +6,9 @@ package ballerina.http;
 
 @Description {value:"Represents a WebSocket connector in ballerina. This include all connector oriented operations."}
 public type WebSocketConnector object {
+    private {
+        boolean isReady = false;
+    }
 
     @Description {value:"Push text to the connection"}
     @Param {value:"text: Text to be sent"}

@@ -22,6 +22,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
@@ -33,6 +34,7 @@ import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
@@ -109,14 +111,10 @@ public abstract class WebSocketUtil {
                 } else {
                     Resource onOpenResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_OPEN);
                     if (onOpenResource != null) {
-                        List<ParamDetail> paramDetails = onOpenResource.getParamDetails();
-                        BValue[] bValues = new BValue[paramDetails.size()];
-                        bValues[0] = webSocketEndpoint;
-                        //TODO handle BallerinaConnectorException
-                        Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(webSocketConnection),
-                                        null, null, bValues);
+                        executeOnOpenResource(onOpenResource, webSocketEndpoint, webSocketConnection);
                     } else {
                         webSocketConnection.readNextFrame();
+                        webSocketConnector.setBooleanField(0, 1);
                     }
                 }
             }
@@ -136,6 +134,38 @@ public abstract class WebSocketUtil {
                 throw new BallerinaConnectorException("Unable to complete handshake", throwable);
             }
         });
+    }
+
+    public static void executeOnOpenResource(Resource onOpenResource, BStruct webSocketEndpoint,
+                                             WebSocketConnection webSocketConnection) {
+        List<ParamDetail> paramDetails =
+                onOpenResource.getParamDetails();
+        BValue[] bValues = new BValue[paramDetails.size()];
+        bValues[0] = webSocketEndpoint;
+        BStruct webSocketConnector = (BStruct) webSocketEndpoint.getRefField(1);
+
+        CallableUnitCallback onOpenCallableUnitCallback = new CallableUnitCallback() {
+            @Override
+            public void notifySuccess() {
+                if (webSocketConnector.getBooleanField(0) == 0) {
+                    webSocketConnection.readNextFrame();
+                    webSocketConnector.setBooleanField(0, 1);
+                }
+            }
+
+            @Override
+            public void notifyFailure(BStruct error) {
+                if (webSocketConnector.getBooleanField(0) == 0) {
+                    webSocketConnection.readNextFrame();
+                    webSocketConnector.setBooleanField(0, 1);
+                }
+                ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+            }
+        };
+
+        //TODO handle BallerinaConnectorException
+        Executor.submit(onOpenResource, onOpenCallableUnitCallback,
+                        null, null, bValues);
     }
 
     public static void populateEndpoint(WebSocketConnection webSocketConnection, BStruct webSocketEndpoint) {

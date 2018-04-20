@@ -29,6 +29,7 @@ public class WebSocketOpenConnectionInfo {
 
     private final WebSocketService webSocketService;
     private final BStruct webSocketEndpoint;
+    private boolean readingStarted = false;
 
     public WebSocketOpenConnectionInfo(WebSocketService webSocketService, BStruct webSocketEndpoint) {
         this.webSocketService = webSocketService;
@@ -47,5 +48,13 @@ public class WebSocketOpenConnectionInfo {
         BStruct webSocketConnector = (BStruct) webSocketEndpoint.getRefField(1);
         return (WebSocketConnection) webSocketConnector
                 .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION);
+    }
+
+    public void setReadingStarted(boolean readingStarted) {
+        this.readingStarted = readingStarted;
+    }
+
+    public boolean isReadingStarted() {
+        return readingStarted;
     }
 }
