@@ -12,10 +12,6 @@ type Job {
     string description,
 };
 
-function testInvalidStreamDeclaration () {
-    stream t1;
-}
-
 function testInvalidObjectPublishingToStream () {
     stream<Employee> s1;
     Job j1 = { description:"Dummy Description 1" };
@@ -72,7 +68,7 @@ function testStreamPublishingAndSubscriptionForMultipleObjectEvents () returns (
     s1.publish(e2);
     s1.publish(e3);
     int startTime = time:currentTime().time;
-    while (lengthof globalEmployeeArray < 3 && time:currentTime().time - startTime < 3000) {
+    while (lengthof globalEmployeeArray < 3 && time:currentTime().time - startTime < 5000) {
         //allow for value update
     }
     return (publishedEmployees, globalEmployeeArray);
@@ -89,7 +85,7 @@ function testStreamPublishingAndSubscriptionForIntegerStream () returns (int[], 
         intStream.publish(intEvent);
     }
     int startTime = time:currentTime().time;
-    while (lengthof globalIntegerArray < lengthof publishedIntegerEvents && time:currentTime().time - startTime < 3000) {
+    while (lengthof globalIntegerArray < lengthof publishedIntegerEvents && time:currentTime().time - startTime < 5000) {
         //allow for value update
     }
     return (publishedIntegerEvents, globalIntegerArray);
@@ -106,7 +102,7 @@ function testStreamPublishingAndSubscriptionForBooleanStream () returns (boolean
         booleanStream.publish(booleanEvent);
     }
     int startTime = time:currentTime().time;
-    while (lengthof globalBooleanArray < lengthof publishedBooleanEvents && time:currentTime().time - startTime < 3000) {
+    while (lengthof globalBooleanArray < lengthof publishedBooleanEvents && time:currentTime().time - startTime < 5000) {
         //allow for value update
     }
     return (publishedBooleanEvents, globalBooleanArray);
@@ -125,7 +121,7 @@ function testStreamPublishingAndSubscriptionForUnionTypeStream () returns (any[]
         unionStream.publish(event);
     }
     int startTime = time:currentTime().time;
-    while (lengthof globalAnyArray < lengthof publishedEvents && time:currentTime().time - startTime < 3000) {
+    while (lengthof globalAnyArray < lengthof publishedEvents && time:currentTime().time - startTime < 5000) {
         //allow for value update
     }
     return (publishedEvents, globalAnyArray);
@@ -141,7 +137,39 @@ function testStreamPublishingAndSubscriptionForTupleTypeStream () returns (any[]
         tupleStream.publish(event);
     }
     int startTime = time:currentTime().time;
-    while (lengthof globalAnyArray < lengthof publishedEvents && time:currentTime().time - startTime < 3000) {
+    while (lengthof globalAnyArray < lengthof publishedEvents && time:currentTime().time - startTime < 5000) {
+        //allow for value update
+    }
+    return (publishedEvents, globalAnyArray);
+}
+
+function testStreamPublishingAndSubscriptionForAnyTypeStream () returns (any[], any[]) {
+    globalAnyArray = [];
+    arrayIndex = 0;
+    stream<any> anyStream;
+    anyStream.subscribe(addToGlobalAnyArrayForAnyType);
+    any[] publishedEvents = [("Maryam", 1234), "Ziyad", false, 0.5];
+    foreach event in publishedEvents {
+        anyStream.publish(event);
+    }
+    int startTime = time:currentTime().time;
+    while (lengthof globalAnyArray < lengthof publishedEvents && time:currentTime().time - startTime < 5000) {
+        //allow for value update
+    }
+    return (publishedEvents, globalAnyArray);
+}
+
+function testStreamPublishingAndSubscriptionForUnconstrainedStream () returns (any[], any[]) {
+    globalAnyArray = [];
+    arrayIndex = 0;
+    stream unconstrainedStream;
+    unconstrainedStream.subscribe(addToGlobalAnyArrayForAnyType);
+    any[] publishedEvents = [("Maryam", 1234), "Ziyad", false, 0.5];
+    foreach event in publishedEvents {
+        unconstrainedStream.publish(event);
+    }
+    int startTime = time:currentTime().time;
+    while (lengthof globalAnyArray < lengthof publishedEvents && time:currentTime().time - startTime < 5000) {
         //allow for value update
     }
     return (publishedEvents, globalAnyArray);
@@ -176,6 +204,11 @@ function addToGlobalAnyArrayForUnionType (int[]|string|boolean val) {
 }
 
 function addToGlobalAnyArrayForTupleType ((string, int) val) {
+    globalAnyArray[arrayIndex] = val;
+    arrayIndex = arrayIndex + 1;
+}
+
+function addToGlobalAnyArrayForAnyType (any val) {
     globalAnyArray[arrayIndex] = val;
     arrayIndex = arrayIndex + 1;
 }

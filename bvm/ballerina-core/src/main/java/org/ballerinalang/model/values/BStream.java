@@ -24,6 +24,7 @@ import io.ballerina.messaging.broker.core.Message;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.buffer.UnpooledHeapByteBuf;
 import org.ballerinalang.broker.BrokerUtils;
+import org.ballerinalang.model.types.BAnyType;
 import org.ballerinalang.model.types.BIndexedType;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructType;
@@ -104,8 +105,10 @@ public class BStream implements BRefType<Object> {
      * @param data the data to publish to the stream
      */
     public void publish(BValue data) {
+        //TODO: refactor and move checks to compile time
         if (!data.getType().equals(this.constraintType) && !(constraintType instanceof BUnionType
-                                        && ((BUnionType) constraintType).getMemberTypes().contains(data.getType()))) {
+                                        && ((BUnionType) constraintType).getMemberTypes().contains(data.getType()))
+                                        && !(constraintType instanceof BAnyType)) {
             throw new BallerinaException("incompatible types: value of type:" + data.getType().getName()
                     + " cannot be added to a stream of type:" + this.constraintType.getName());
         }

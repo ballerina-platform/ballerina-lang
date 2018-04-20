@@ -897,13 +897,7 @@ public class ProgramFileReader {
             case 'H':
                 index = createBTypeFromSig(chars, index + 1, typeStack, packageInfo);
                 BType streamConstraintType = typeStack.pop();
-                BType streamType;
-                if (streamConstraintType == BTypes.typeAny) {
-                    streamType = BTypes.typeStream;
-                } else {
-                    streamType = new BStreamType(streamConstraintType);
-                }
-                typeStack.push(streamType);
+                typeStack.push(new BStreamType(streamConstraintType));
                 return index;
             case 'U':
                 // TODO : Fix this for type casting.
@@ -965,12 +959,7 @@ public class ProgramFileReader {
                     return new BMapType(constrainedType);
                 }
             case 'H':
-                BType streamConstraintType = getBTypeFromDescriptor(desc.substring(1));
-                if (streamConstraintType == BTypes.typeAny) {
-                    return BTypes.typeStream;
-                } else {
-                    return new BStreamType(streamConstraintType);
-                }
+                return new BStreamType(getBTypeFromDescriptor(desc.substring(1)));
             case 'C':
             case 'X':
             case 'J':

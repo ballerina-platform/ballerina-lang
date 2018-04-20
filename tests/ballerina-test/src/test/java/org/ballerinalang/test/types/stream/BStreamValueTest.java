@@ -43,13 +43,6 @@ public class BStreamValueTest {
         result = BCompileUtil.compile("test-src/types/stream/stream-value.bal");
     }
 
-    @Test(description = "Test invalid stream declaration",
-          expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*message: a stream cannot be declared without a constraint.*")
-    public void testInvalidStreamCreation() {
-        BRunUtil.invoke(result, "testInvalidStreamDeclaration");
-    }
-
     @Test(description = "Test publishing objects of invalid type to a stream",
             expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = ".*message: incompatible types: value of type:Job cannot be added to "
@@ -172,6 +165,39 @@ public class BStreamValueTest {
     @Test(description = "Test receipt of stream constrained by tuple type with correct subscription and publishing")
     public void testStreamPublishingAndSubscriptionForTupleTypeStream() {
         BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingAndSubscriptionForTupleTypeStream");
+        BRefValueArray publishedEvents = (BRefValueArray) returns[0];
+        BRefValueArray receivedEvents = (BRefValueArray) returns[1];
+
+        Assert.assertNotNull(publishedEvents);
+        Assert.assertNotNull(receivedEvents);
+        Assert.assertEquals(publishedEvents.size(), receivedEvents.size(), "Number of Events received does not "
+                + "match the number published");
+        for (int i = 0; i < publishedEvents.size(); i++) {
+            Assert.assertEquals(publishedEvents.get(i), receivedEvents.get(i),
+                                "Received event does not match the published event");
+        }
+    }
+
+    @Test(description = "Test receipt of stream constrained by any type with correct subscription and publishing")
+    public void testStreamPublishingAndSubscriptionForAnyTypeStream() {
+        BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingAndSubscriptionForAnyTypeStream");
+        BRefValueArray publishedEvents = (BRefValueArray) returns[0];
+        BRefValueArray receivedEvents = (BRefValueArray) returns[1];
+
+        Assert.assertNotNull(publishedEvents);
+        Assert.assertNotNull(receivedEvents);
+        Assert.assertEquals(publishedEvents.size(), receivedEvents.size(), "Number of Events received does not "
+                + "match the number published");
+        for (int i = 0; i < publishedEvents.size(); i++) {
+            Assert.assertEquals(publishedEvents.get(i), receivedEvents.get(i),
+                                "Received event does not match the published event");
+        }
+    }
+
+    @Test(description = "Test stream declaration without constraint")
+    public void testStreamPublishingAndSubscriptionForUnconstrainedStream() {
+        BValue[] returns = BRunUtil.invoke(result,
+                                           "testStreamPublishingAndSubscriptionForUnconstrainedStream");
         BRefValueArray publishedEvents = (BRefValueArray) returns[0];
         BRefValueArray receivedEvents = (BRefValueArray) returns[1];
 
