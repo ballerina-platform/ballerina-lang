@@ -53,6 +53,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -80,6 +81,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJ
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
@@ -191,6 +193,8 @@ import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfoPool;
 import org.wso2.ballerinalang.programfile.attributes.CodeAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.DefaultValueAttributeInfo;
+import org.wso2.ballerinalang.programfile.attributes.DocumentationAttributeInfo;
+import org.wso2.ballerinalang.programfile.attributes.DocumentationAttributeInfo.ParameterDocumentInfo;
 import org.wso2.ballerinalang.programfile.attributes.ErrorTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LineNumberTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LocalVariableAttributeInfo;
@@ -413,7 +417,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         pkgNode.functions.forEach(this::createFunctionInfoEntry);
         pkgNode.services.forEach(this::createServiceInfoEntry);
         pkgNode.functions.forEach(this::createFunctionInfoEntry);
-        pkgNode.transformers.forEach(this::createTransformerInfoEntry);
 
         // Visit package builtin function
         visitBuiltinFunctions(pkgNode.initFunction);
@@ -1782,6 +1785,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         pkgVarAttrInfo.localVars.add(localVarInfo);
 
         // TODO Populate annotation attribute
+
+        // Add documentation attributes
+        addDocumentAttachmentAttrInfo(varNode.docAttachments, pkgVarInfo);
     }
 
     private void createStructInfoEntry(BLangStruct structNode) {
@@ -1810,6 +1816,9 @@ public class CodeGenerator extends BLangNodeVisitor {
 
             structInfo.fieldInfoEntries.add(structFieldInfo);
             structField.symbol.varIndex = getFieldIndex(structField.symbol.type.tag);
+
+            // Add documentation attributes
+            addDocumentAttachmentAttrInfo(structField.docAttachments, structFieldInfo);
         }
 
         // Create variable count attribute info
@@ -1830,6 +1839,9 @@ public class CodeGenerator extends BLangNodeVisitor {
             int flags = attachedFunc.symbol.flags;
             structInfo.attachedFuncInfoEntries.add(new AttachedFunctionInfo(funcNameCPIndex, sigCPIndex, flags));
         }
+
+        // Add documentation attributes
+        addDocumentAttachmentAttrInfo(structNode.docAttachments, structInfo);
     }
 
     public void visit(BLangTypeDefinition typeDefinition) {
@@ -1861,6 +1873,9 @@ public class CodeGenerator extends BLangNodeVisitor {
             BLangExpression literal = valueSpaceIterator.next();
             typeDefInfo.valueSpaceItemInfos.add(new ValueSpaceItemInfo(getDefaultValue((BLangLiteral) literal)));
         }
+
+        // Add documentation attributes
+        addDocumentAttachmentAttrInfo(typeDefinition.docAttachments, typeDefInfo);
     }
 
     /**
@@ -1889,6 +1904,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Add parameter default value info
         addParameterAttributeInfo(funcNode, funcInfo);
 
+        // Add documentation attributes
+        addDocumentAttachmentAttrInfo(funcNode.docAttachments, funcInfo);
+
         this.currentPkgInfo.functionInfoMap.put(funcSymbol.name.value, funcInfo);
     }
 
@@ -1912,6 +1930,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Add parameter default value info
         addParameterAttributeInfo(invokable, transformerInfo);
         this.currentPkgInfo.transformerInfoMap.put(transformerSymbol.name.value, transformerInfo);
+
+        // Add documentation attributes
+        addDocumentAttachmentAttrInfo(invokable.docAttachments, transformerInfo);
     }
 
     private void populateInvokableSignature(BInvokableType bInvokableType, CallableUnitInfo callableUnitInfo) {
@@ -1967,6 +1988,9 @@ public class CodeGenerator extends BLangNodeVisitor {
             currentPkgInfo.addServiceInfo(serviceNode.name.value, serviceInfo);
             // Create resource info entries for all resources
             serviceNode.resources.forEach(res -> createResourceInfoEntry(res, serviceInfo));
+
+            // Add documentation attributes
+            addDocumentAttachmentAttrInfo(serviceNode.docAttachments, serviceInfo);
         }
     }
 
@@ -1986,6 +2010,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         resourceNode.workers.forEach(worker -> addWorkerInfoEntry(worker, resourceInfo));
         // Add resource info to the service info
         serviceInfo.resourceInfoMap.put(resourceNode.name.getValue(), resourceInfo);
+
+        // Add documentation attributes
+        addDocumentAttachmentAttrInfo(resourceNode.docAttachments, resourceInfo);
     }
 
     private void addWorkerInfoEntry(BLangWorker worker, CallableUnitInfo callableUnitInfo) {
@@ -3153,6 +3180,29 @@ public class CodeGenerator extends BLangNodeVisitor {
         int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, type.getDesc());
         TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
         return getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
+    }
+
+    private void addDocumentAttachmentAttrInfo(List<BLangDocumentation> docNodeList, AttributeInfoPool attrInfoPool) {
+        docNodeList.forEach(docNode -> addDocumentAttachmentAttrInfo(docNode, attrInfoPool));
+    }
+
+
+    private void addDocumentAttachmentAttrInfo(BLangDocumentation docNode, AttributeInfoPool attrInfoPool) {
+        int docAttrIndex = addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.DOCUMENT_ATTACHMENT_ATTRIBUTE.value());
+        int descCPIndex = addUTF8CPEntry(currentPkgInfo, docNode.documentationText);
+        DocumentationAttributeInfo docAttributeInfo = new DocumentationAttributeInfo(docAttrIndex, descCPIndex);
+
+        for (BLangDocumentationAttribute paramDocNode : docNode.attributes) {
+            int nameCPIndex = addUTF8CPEntry(currentPkgInfo, paramDocNode.documentationField.value);
+            int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, paramDocNode.type.getDesc());
+            int paramKindCPIndex = addUTF8CPEntry(currentPkgInfo, paramDocNode.docTag.getValue());
+            int descriptionCPIndex = addUTF8CPEntry(currentPkgInfo, paramDocNode.documentationText);
+            ParameterDocumentInfo paramDocInfo = new ParameterDocumentInfo(
+                    nameCPIndex, typeSigCPIndex, paramKindCPIndex, descriptionCPIndex);
+            docAttributeInfo.paramDocInfoList.add(paramDocInfo);
+        }
+
+        attrInfoPool.addAttributeInfo(AttributeInfo.Kind.DOCUMENT_ATTACHMENT_ATTRIBUTE, docAttributeInfo);
     }
 
     private void addParameterAttributeInfo(BLangInvokableNode invokableNode, CallableUnitInfo callableUnitInfo) {

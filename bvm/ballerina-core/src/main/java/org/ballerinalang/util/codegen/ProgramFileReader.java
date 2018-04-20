@@ -51,6 +51,8 @@ import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.DocumentationAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.DocumentationAttributeInfo.ParameterDocumentInfo;
 import org.ballerinalang.util.codegen.attributes.ErrorTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
@@ -1243,6 +1245,8 @@ public class ProgramFileReader {
                 DefaultValueAttributeInfo defaultValAttrInfo =
                         new DefaultValueAttributeInfo(attribNameCPIndex, defaultValue);
                 return defaultValAttrInfo;
+            case DOCUMENT_ATTACHMENT_ATTRIBUTE:
+                return getDocumentAttachmentAttribute(dataInStream, constantPool, attribNameCPIndex);
             case PARAMETER_DEFAULTS_ATTRIBUTE:
                 ParamDefaultValueAttributeInfo paramDefaultValAttrInfo =
                         new ParamDefaultValueAttributeInfo(attribNameCPIndex);
@@ -1274,6 +1278,32 @@ public class ProgramFileReader {
             default:
                 throw new ProgramFileFormatException("unsupported attribute kind " + attribNameCPEntry.getValue());
         }
+    }
+
+    private AttributeInfo getDocumentAttachmentAttribute(DataInputStream dataInStream,
+                                                         ConstantPool constantPool,
+                                                         int attribNameCPIndex) throws IOException {
+        int descCPIndex = dataInStream.readInt();
+        String docDesc = getUTF8EntryValue(descCPIndex, constantPool);
+        DocumentationAttributeInfo docAttrInfo = new DocumentationAttributeInfo(
+                attribNameCPIndex, descCPIndex, docDesc);
+
+        int noOfParamInfoEntries = dataInStream.readShort();
+        for (int i = 0; i < noOfParamInfoEntries; i++) {
+            int nameCPIndex = dataInStream.readInt();
+            String name = getUTF8EntryValue(nameCPIndex, constantPool);
+            int typeSigCPIndex = dataInStream.readInt();
+            String typeSig = getUTF8EntryValue(typeSigCPIndex, constantPool);
+            int paramKindCPIndex = dataInStream.readInt();
+            String paramKindValue = getUTF8EntryValue(paramKindCPIndex, constantPool);
+            int paramDescCPIndex = dataInStream.readInt();
+            String paramDesc = getUTF8EntryValue(paramDescCPIndex, constantPool);
+            ParameterDocumentInfo paramDocInfo = new ParameterDocumentInfo(nameCPIndex, name, typeSigCPIndex,
+                    typeSig, paramKindCPIndex, paramKindValue, paramDescCPIndex, paramDesc);
+            docAttrInfo.paramDocInfoList.add(paramDocInfo);
+        }
+
+        return docAttrInfo;
     }
 
     private LocalVariableInfo getLocalVariableInfo(DataInputStream dataInStream,
@@ -1856,5 +1886,10 @@ public class ProgramFileReader {
             argRegs[index] = codeStream.readInt();
         }
         return argRegs;
+    }
+
+    private String getUTF8EntryValue(int cpEntryIndex, ConstantPool constantPool) {
+        UTF8CPEntry pkgNameCPEntry = (UTF8CPEntry) constantPool.getCPEntry(cpEntryIndex);
+        return pkgNameCPEntry.getValue();
     }
 }
