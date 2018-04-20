@@ -28,18 +28,18 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.grpc.MessageConstants;
+import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
-import static org.ballerinalang.net.grpc.MessageConstants.CALLER_ACTION;
-import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_RESPONDER_REF_INDEX;
-import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
-import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.CALLER_ACTION;
+import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_RESPONDER_REF_INDEX;
+import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.MessageUtils.getContextHeader;
 
 /**
@@ -70,7 +70,7 @@ public class Complete extends BlockingNativeCallableUnit {
         BStruct endpointClient = (BStruct) context.getRefArgument(CLIENT_RESPONDER_REF_INDEX);
         BRefValueArray headerValues = (BRefValueArray) context.getRefArgument(MESSAGE_HEADER_REF_INDEX);
         StreamObserver responseObserver = MessageUtils.getResponseObserver(endpointClient);
-        Descriptors.Descriptor outputType = (Descriptors.Descriptor) endpointClient.getNativeData(MessageConstants
+        Descriptors.Descriptor outputType = (Descriptors.Descriptor) endpointClient.getNativeData(GrpcConstants
                 .RESPONSE_MESSAGE_DEFINITION);
         io.grpc.Context msgContext = getContextHeader(headerValues);
 

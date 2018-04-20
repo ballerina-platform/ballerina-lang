@@ -21,31 +21,41 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.netty.NettyChannelBuilder;
 import io.netty.handler.ssl.SslContext;
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
-import org.ballerinalang.net.grpc.config.EndpointConfiguration;
-import org.ballerinalang.net.grpc.nativeimpl.EndpointUtils;
 import org.ballerinalang.net.grpc.ssl.SSLHandlerFactory;
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.transport.http.netty.config.Parameter;
+import org.wso2.transport.http.netty.config.SenderConfiguration;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import static org.ballerinalang.net.grpc.MessageConstants.CHANNEL_KEY;
-import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_ENDPOINT_TYPE;
-import static org.ballerinalang.net.grpc.MessageConstants.DEFAULT_HOSTNAME;
-import static org.ballerinalang.net.grpc.MessageConstants.MAX_MESSAGE_SIZE;
-import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
-import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.CHANNEL_KEY;
+import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_TYPE;
+import static org.ballerinalang.net.grpc.GrpcConstants.DEFAULT_HOSTNAME;
+import static org.ballerinalang.net.grpc.GrpcConstants.MAX_MESSAGE_SIZE;
+import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 
 
 /**
@@ -71,23 +81,32 @@ public class Init extends BlockingNativeCallableUnit {
             // Creating client endpoint with channel as native data.
             BStruct endpointConfigStruct = (BStruct) context.getRefArgument(1);
             Struct endpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
-            EndpointConfiguration configuration = EndpointUtils.getEndpointConfiguration(endpointConfig);
+            String urlString = endpointConfig.getStringField(GrpcConstants.CLIENT_ENDPOINT_URL);
+            String scheme;
+            URL url;
+            try {
+                url = new URL(urlString);
+            } catch (MalformedURLException e) {
+                throw new BallerinaException("Malformed URL: " + urlString);
+            }
+            scheme = url.getProtocol();
+            SenderConfiguration configuration = populateSenderConfigurationOptions(endpointConfig, scheme);
             ManagedChannel channel;
-            if (configuration.getSslConfig() == null) {
-                channel = ManagedChannelBuilder.forAddress(configuration.getHost(), configuration.getPort())
+            if (configuration.getSSLConfig() == null) {
+                channel = ManagedChannelBuilder.forAddress(url.getHost(), url.getPort())
                         .usePlaintext(true)
                         .build();
             } else {
-                SslContext sslContext = new SSLHandlerFactory(configuration.getSslConfig())
+                SslContext sslContext = new SSLHandlerFactory(configuration.getSSLConfig())
                         .createHttp2TLSContextForClient();
                 channel = NettyChannelBuilder
-                        .forAddress(generateSocketAddress(configuration.getHost(), configuration.getPort()))
+                        .forAddress(generateSocketAddress(url.getHost(), url.getPort()))
                         .flowControlWindow(65 * 1024)
                         .maxInboundMessageSize(MAX_MESSAGE_SIZE)
                         .sslContext(sslContext).build();
             }
             clientEndpoint.addNativeData(CHANNEL_KEY, channel);
-
+            
         } catch (Throwable throwable) {
             BStruct errorStruct = MessageUtils.getConnectorError(context, throwable);
             context.setError(errorStruct);
@@ -107,4 +126,91 @@ public class Init extends BlockingNativeCallableUnit {
             throw new RuntimeException(e);
         }
     }
+    
+    private SenderConfiguration populateSenderConfigurationOptions(Struct clientEndpointConfig, String scheme) {
+        SenderConfiguration senderConfiguration = new SenderConfiguration();
+        senderConfiguration.setScheme(scheme);
+        Struct secureSocket = clientEndpointConfig.getStructField(GrpcConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
+        if (secureSocket != null) {
+            Struct trustStore = secureSocket.getStructField(GrpcConstants.ENDPOINT_CONFIG_TRUST_STORE);
+            Struct keyStore = secureSocket.getStructField(GrpcConstants.ENDPOINT_CONFIG_KEY_STORE);
+            Struct protocols = secureSocket.getStructField(GrpcConstants.ENDPOINT_CONFIG_PROTOCOLS);
+            Struct validateCert = secureSocket.getStructField(GrpcConstants.ENDPOINT_CONFIG_VALIDATE_CERT);
+            List<Parameter> clientParams = new ArrayList<>();
+            if (trustStore != null) {
+                String trustStoreFile = trustStore.getStringField(GrpcConstants.FILE_PATH);
+                if (StringUtils.isNotBlank(trustStoreFile)) {
+                    senderConfiguration.setTrustStoreFile(trustStoreFile);
+                }
+                String trustStorePassword = trustStore.getStringField(GrpcConstants.PASSWORD);
+                if (StringUtils.isNotBlank(trustStorePassword)) {
+                    senderConfiguration.setTrustStorePass(trustStorePassword);
+                }
+            }
+            if (keyStore != null) {
+                String keyStoreFile = keyStore.getStringField(GrpcConstants.FILE_PATH);
+                if (StringUtils.isNotBlank(keyStoreFile)) {
+                    senderConfiguration.setKeyStoreFile(keyStoreFile);
+                }
+                String keyStorePassword = keyStore.getStringField(GrpcConstants.PASSWORD);
+                if (StringUtils.isNotBlank(keyStorePassword)) {
+                    senderConfiguration.setKeyStorePassword(keyStorePassword);
+                }
+            }
+            if (protocols != null) {
+                List<Value> sslEnabledProtocolsValueList = Arrays
+                        .asList(protocols.getArrayField(GrpcConstants.ENABLED_PROTOCOLS));
+                if (sslEnabledProtocolsValueList.size() > 0) {
+                    String sslEnabledProtocols = sslEnabledProtocolsValueList.stream().map(Value::getStringValue)
+                            .collect(Collectors.joining(",", "", ""));
+                    Parameter clientProtocols = new Parameter(GrpcConstants.SSL_ENABLED_PROTOCOLS,
+                            sslEnabledProtocols);
+                    clientParams.add(clientProtocols);
+                }
+                String sslProtocol = protocols.getStringField(GrpcConstants.PROTOCOL_VERSION);
+                if (StringUtils.isNotBlank(sslProtocol)) {
+                    senderConfiguration.setSSLProtocol(sslProtocol);
+                }
+            }
+            
+            if (validateCert != null) {
+                boolean validateCertEnabled = validateCert.getBooleanField(GrpcConstants.ENABLE);
+                int cacheSize = (int) validateCert.getIntField(GrpcConstants.SSL_CONFIG_CACHE_SIZE);
+                int cacheValidityPeriod = (int) validateCert
+                        .getIntField(GrpcConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD);
+                senderConfiguration.setValidateCertEnabled(validateCertEnabled);
+                if (cacheValidityPeriod != 0) {
+                    senderConfiguration.setCacheValidityPeriod(cacheValidityPeriod);
+                }
+                if (cacheSize != 0) {
+                    senderConfiguration.setCacheSize(cacheSize);
+                }
+            }
+            boolean hostNameVerificationEnabled = secureSocket
+                    .getBooleanField(GrpcConstants.SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED);
+            boolean ocspStaplingEnabled = secureSocket.getBooleanField(GrpcConstants.ENDPOINT_CONFIG_OCSP_STAPLING);
+            senderConfiguration.setOcspStaplingEnabled(ocspStaplingEnabled);
+            senderConfiguration.setHostNameVerificationEnabled(hostNameVerificationEnabled);
+            
+            List<Value> ciphersValueList = Arrays
+                    .asList(secureSocket.getArrayField(GrpcConstants.SSL_CONFIG_CIPHERS));
+            if (ciphersValueList.size() > 0) {
+                String ciphers = ciphersValueList.stream().map(Value::getStringValue)
+                        .collect(Collectors.joining(",", "", ""));
+                Parameter clientCiphers = new Parameter(GrpcConstants.CIPHERS, ciphers);
+                clientParams.add(clientCiphers);
+            }
+            String enableSessionCreation = String.valueOf(secureSocket
+                    .getBooleanField(GrpcConstants.SSL_CONFIG_ENABLE_SESSION_CREATION));
+            Parameter clientEnableSessionCreation = new Parameter(GrpcConstants.SSL_CONFIG_ENABLE_SESSION_CREATION,
+                    enableSessionCreation);
+            clientParams.add(clientEnableSessionCreation);
+            if (!clientParams.isEmpty()) {
+                senderConfiguration.setParameters(clientParams);
+            }
+        }
+        // TODO: 4/20/18 Proxy support
+        return senderConfiguration;
+    }
+    
 }
