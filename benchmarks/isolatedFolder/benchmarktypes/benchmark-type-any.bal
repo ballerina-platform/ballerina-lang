@@ -1,5 +1,6 @@
-import ballerina/io;
+package benchmarktypes;
 
+import ballerina/io;
 
 public function benchmarkTypeAnyJSONCasting() {
     var abc = jsonReturnFunction();
@@ -13,12 +14,18 @@ function extractFieldValue(json fieldValue) returns (string) {
     }
 }
 
-function benchmarkPrintAnyVal() {
+public function benchmarkPrintAnyVal() {
     any val = jsonReturnFunction();
     io:print(val);
 }
 
-function benchmarkPrintlnAnyVal() {
+public function benchmarkPrintlnAnyVal() {
     any val = jsonReturnFunction();
     io:println(val);
 }
+
+function jsonReturnFunction() returns (json) {
+    json val = {PropertyName:"Value"};
+    return val;
+}
+

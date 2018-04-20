@@ -1,7 +1,18 @@
 #!/usr/bin/env bash
 
+set -e
+
 export BAL_HOME=$1
 chmod +x ${BAL_HOME}/bin/ballerina
 export PATH=${BAL_HOME}/bin:$PATH
-ballerina run benchmark $2 $3 $4
 
+ballerina run benchmark-initializer.bal $2 $3 $4
+
+cd isolatedFolder
+ballerina build benchmark
+cd ..
+
+for word in $(<benchmarkFunctions.txt)
+do
+  ballerina run isolatedFolder/target/benchmark.balx $2 $3 $4 ${word}
+done

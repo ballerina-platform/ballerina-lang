@@ -1,3 +1,4 @@
+package benchmarktypes;
 
 public function benchmarkIntAddition() {
     int a = 5;
@@ -31,7 +32,7 @@ public function benchmarkIntTypesAddition() {
     int e = a + b + c + d;
 }
 
-function benchmarkIntegerTypesMultiplication() {
+public function benchmarkIntegerTypesMultiplication() {
     int b = 1;
     int a = 0x1;
     int c = 0_1;
@@ -39,7 +40,7 @@ function benchmarkIntegerTypesMultiplication() {
     int e = a * b * c * d;
 }
 
-function benchmarkIntegerTypesSubtraction() {
+public function benchmarkIntegerTypesSubtraction() {
     int b = 10;
     int a = 0xa;
     int c = 0_12;
@@ -47,7 +48,7 @@ function benchmarkIntegerTypesSubtraction() {
     int e = (a - b) - (c - d);
 }
 
-function benchmarkIntegerTypesDivision() {
+public function benchmarkIntegerTypesDivision() {
     int b = 10;
     int a = 0xa;
     int c = 0_12;
