@@ -37,9 +37,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
-        functionName = "closeDelimitedRecordChannel",
+        functionName = "close",
         receiver = @Receiver(type = TypeKind.STRUCT,
-                structType = "DelimitedRecordChannel",
+                structType = "DelimitedTextRecordChannel",
                 structPackage = "ballerina.io"),
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true

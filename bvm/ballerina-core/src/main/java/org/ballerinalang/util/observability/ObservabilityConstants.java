@@ -36,6 +36,7 @@ public class ObservabilityConstants {
 
     public static final String TAG_KEY_HTTP_METHOD = "http.method";
     public static final String TAG_KEY_HTTP_URL = "http.url";
+    public static final String TAG_KEY_HTTP_STATUS_CODE = "http.status_code";
     public static final String TAG_KEY_PROTOCOL = "protocol";
 
     public static final String TAG_KEY_PEER_ADDRESS = "peer.address";
@@ -52,6 +53,7 @@ public class ObservabilityConstants {
     public static final String TAG_DB_TYPE_SQL = "sql";
 
     public static final String PROPERTY_TRACE_PROPERTIES = "trace_properties";
+    public static final String PROPERTY_ERROR = "error";
     public static final String PROPERTY_BSTRUCT_ERROR = "bstruct_error";
 
     // TOML Configs

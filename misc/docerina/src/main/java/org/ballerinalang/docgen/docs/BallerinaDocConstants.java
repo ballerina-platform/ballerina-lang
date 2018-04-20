@@ -23,10 +23,16 @@ package org.ballerinalang.docgen.docs;
  */
 public class BallerinaDocConstants {
     public static final String PACKAGE_TEMPLATE_NAME_KEY = "package.template.name";
+    public static final String PACKAGE_TOC_TEMPLATE_NAME_KEY = "package.toc.template.name";
+    public static final String PACKAGE_LIST_TEMPLATE_NAME_KEY = "package.list.template.name";
     public static final String HTML_OUTPUT_PATH_KEY = "html.output.path";
     public static final String TEMPLATES_FOLDER_PATH_KEY = "templates.folder.path";
     public static final String ENABLE_DEBUG_LOGS = "debugDocerina";
     public static final String PRIMITIVE_TYPES_PAGE_NAME = "Primitive Types";
     public static final String PRIMITIVE_TYPES_PAGE_HREF = "primitive-types";
     public static final String OUTPUT_ZIP_PATH = "output.zip.path";
+
+    // config registry environment variables -e flags
+    public static final String ORG_NAME = "orgName";
+    public static final String GENERATE_TOC = "generateToc";
 }

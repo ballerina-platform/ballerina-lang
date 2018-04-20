@@ -100,6 +100,9 @@ public class CodeGenerator {
     public List<GenSrcFile> generate(GenType type, String definitionPath)
             throws IOException, BallerinaOpenApiException {
         OpenAPI api = new OpenAPIV3Parser().read(definitionPath);
+        if (api == null) {
+            throw new BallerinaOpenApiException("Couldn't read the definition from file: " + definitionPath);
+        }
 
         // modelPackage is not in use at the moment. All models will be written into same package as other src files.
         // Therefore value set to modelPackage is ignored here
