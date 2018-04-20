@@ -101,7 +101,7 @@ service<http:Service> testClientConHEAD bind serviceEndpoint {
     }
     passthrough (endpoint client, http:Request req) {
         http:Request clientRequest = new;
-        var response = endPoint -> get("/getQuote/stocks", clientRequest);
+        var response = endPoint -> get("/getQuote/stocks", req = clientRequest);
         match response {
             http:Response httpResponse => {
                 _ = client -> respond(httpResponse);
