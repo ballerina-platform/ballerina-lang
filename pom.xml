@@ -176,6 +176,12 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-http</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-transactions</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -183,6 +189,12 @@
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-builtin</artifactId>
                 <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-builtin</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -1062,6 +1074,7 @@
 
                 <module>stdlib/database/ballerina-mysql</module>
                 <module>stdlib/database/ballerina-h2</module>
+                <module>stdlib/stdlib-compile</module>
 
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
@@ -1113,6 +1126,7 @@
 
                 <module>stdlib/database/ballerina-mysql</module>
                 <module>stdlib/database/ballerina-h2</module>
+                <module>stdlib/stdlib-compile</module>
 
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
@@ -1165,6 +1179,7 @@
 
                 <module>stdlib/database/ballerina-mysql</module>
                 <module>stdlib/database/ballerina-h2</module>
+                <module>stdlib/stdlib-compile</module>
 
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>

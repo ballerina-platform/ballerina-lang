@@ -15,12 +15,11 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler;
+package org.wso2.ballerinalang.compiler.util;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -38,10 +37,16 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 /**
- * Zip Utils needed to zip the packages.
+ * This class contains a set of file manipulation utility methods.
+ *
+ * @since 0.970.0
  */
-class ZipUtils {
+public class FileUtils {
     private static final String SRC_DIR = "src";
+
+    public static void deleteFile(Path filePath) throws IOException {
+        Files.deleteIfExists(filePath);
+    }
 
     /**
      * Generates the balo/zip of the package.
@@ -102,12 +107,12 @@ class ZipUtils {
                                  filepath.getPath() + "!/",
                                  filepath.getQuery(), filepath.getFragment());
         } catch (URISyntaxException ignore) {
-            throw new BLangCompilerException("error creating artifact : " + outDirPath.getFileName());
+            throw new BLangCompilerException("error creating artifact: " + outDirPath.getFileName());
         }
         try (FileSystem zipFS = FileSystems.newFileSystem(zipFileURI, zipFSEnv)) {
             addFileToArchive(filesToBeArchived, zipFS, outDirPath);
         } catch (IOException e) {
-            throw new BLangCompilerException("error creating artifact : " + outDirPath.getFileName());
+            throw new BLangCompilerException("error creating artifact: " + outDirPath.getFileName());
         }
     }
 
@@ -130,7 +135,7 @@ class ZipUtils {
                     copyFileToArchive(new FileInputStream(path.toFile()), dest);
                 }
             } catch (IOException e) {
-                throw new BLangCompilerException("error generating artifact : " + outDirPath.getFileName());
+                throw new BLangCompilerException("error generating artifact: " + outDirPath.getFileName());
             }
         });
     }
