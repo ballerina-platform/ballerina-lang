@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type TransactionState "active" | "prepared" | "committed" | "aborted";
-@final TransactionState TXN_STATE_ACTIVE = "active";
-@final TransactionState TXN_STATE_PREPARED = "prepared";
+public type TransactionState "active" | "prepared" | "committed" | "aborted";
+@final public TransactionState TXN_STATE_ACTIVE = "active";
+@final public TransactionState TXN_STATE_PREPARED = "prepared";
 @final TransactionState TXN_STATE_COMMITTED = "committed";
 @final TransactionState TXN_STATE_ABORTED = "aborted";
 

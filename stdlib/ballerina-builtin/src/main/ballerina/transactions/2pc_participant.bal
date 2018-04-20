@@ -23,7 +23,7 @@ documentation {
 
     F{{name}} - protocol name
 }
-public type Protocol {
+type Protocol {
     @readonly string name;
 };
 
@@ -32,7 +32,7 @@ documentation {
 
     F{{name}} - protocol name
 }
-public type LocalProtocol {
+type LocalProtocol {
     @readonly string name;
 };
 
@@ -53,15 +53,9 @@ type Participant object {
         string participantId;
     }
 
-    function prepare(string protocol) returns ((PrepareResult | () | error), Participant)   {
-        error err = {message: "Unsupported function"};
-        throw err;
-    }
+    function prepare(string protocol) returns ((PrepareResult | error)?, Participant);
 
-    function notify(string action, string? protocolName) returns NotifyResult | () | error {
-        error err = {message: "Unsupported function"};
-        throw err;
-    }
+    function notify(string action, string? protocolName) returns (NotifyResult | error)?;
 };
 
 type RemoteParticipant object {
@@ -73,7 +67,7 @@ type RemoteParticipant object {
 
     new(participantId, transactionId, participantProtocols){}
 
-    function prepare(string protocol) returns ((PrepareResult | () | error), Participant)  {
+    function prepare(string protocol) returns ((PrepareResult | error)?, Participant)  {
         foreach remoteProto in participantProtocols {
             if(remoteProto.name == protocol) {
                 // We are assuming a participant will have only one instance of a protocol
@@ -83,7 +77,7 @@ type RemoteParticipant object {
         return ((), self); // No matching protocol
     }
 
-    function notify(string action, string? protocolName) returns NotifyResult| () | error {
+    function notify(string action, string? protocolName) returns (NotifyResult | error)? {
         match protocolName {
             string proto => {
                 foreach remoteProtocol in participantProtocols {
@@ -182,7 +176,7 @@ type LocalParticipant object {
 
     new(participantId, participatedTxn, participantProtocols){}
 
-    function prepare(string protocol) returns ((PrepareResult | () | error), Participant) {
+    function prepare(string protocol) returns ((PrepareResult | error)?, Participant) {
         foreach localProto in participantProtocols {
             if(localProto.name == protocol) {
                 log:printInfo("Preparing local participant: " + self.participantId);
@@ -218,7 +212,7 @@ type LocalParticipant object {
         }
     }
 
-    function notify(string action, string? protocolName) returns NotifyResult | () | error {
+    function notify(string action, string? protocolName) returns (NotifyResult | error)? {
         match protocolName {
             string proto => {
                 foreach localProto in participantProtocols {

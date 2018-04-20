@@ -75,6 +75,7 @@ public type Request object {
     public function removeAllHeaders ();
 
     @Description {value:"Get all transport header names from the request."}
+    @Return {value:"An array of all transport header names"}
     public function getHeaderNames () returns (string[]);
 
     @Description {value:"Checks whether the client expects a 100-continue response."}

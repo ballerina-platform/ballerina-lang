@@ -158,8 +158,3 @@ public native function base16ToBase64Encode (string baseString) returns (string)
 @Param {value:"s: string to be encoded"}
 @Return {value:"the encoded string."}
 public native function base64ToBase16Encode (string baseString) returns (string);
-
-@Description {value:"Parse JSON string to generate JSON object."}
-@Param {value:"s: JSON string"}
-@Return {value:"JSON object."}
-public native function parseJson (string s) returns (json|error);

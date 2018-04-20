@@ -165,6 +165,12 @@ public class BallerinaDocGenerator {
                 String indexTemplateName = System.getProperty(BallerinaDocConstants.PACKAGE_TEMPLATE_NAME_KEY, "index");
                 String indexFilePath = output + File.separator + "index" + HTML;
                 Writer.writeHtmlDocument(packageNameList, indexTemplateName, indexFilePath);
+
+                String pkgListTemplateName = System.getProperty(BallerinaDocConstants.PACKAGE_LIST_TEMPLATE_NAME_KEY,
+                        "package-list");
+                String pkgListFilePath = output + File.separator + "package-list" + HTML;
+                Writer.writeHtmlDocument(packageNameList, pkgListTemplateName, pkgListFilePath);
+
                 if (BallerinaDocUtils.isDebugEnabled()) {
                     out.println("Copying HTML theme...");
                 }
@@ -280,7 +286,7 @@ public class BallerinaDocGenerator {
         if (bLangPackage == null) {
             out.println(String.format("docerina: invalid Ballerina package: %s", packagePath));
         } else {
-            String packageName = packageNameToString(bLangPackage.symbol.pkgID);
+            String packageName = packageNameToString(bLangPackage.packageID);
             if (isFilteredPackage(packageName, packageFilter)) {
                 if (BallerinaDocUtils.isDebugEnabled()) {
                     out.println("Package " + packageName + " excluded");
@@ -349,7 +355,7 @@ public class BallerinaDocGenerator {
         if (bLangPackage.getPosition().getSource().getPackageName().equals(".")) {
             return bLangPackage.getPosition().getSource().getCompilationUnitName();
         }
-        return bLangPackage.symbol.pkgID.name.value;
+        return bLangPackage.packageID.getName().getValue();
     }
 
     /**
