@@ -47,13 +47,14 @@ public type HttpSecureClient object {
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public function post(string path, Request request) returns (Response|HttpConnectorError) {
-        var details = prepareRequest(request, config);
+    public function post(string path, Request? request = ()) returns (Response|HttpConnectorError) {
+        Request req = request ?: new;
+        var details = prepareRequest(req, config);
         match details {
             () => {}
             HttpConnectorError err => return err;
         }
-        return httpClient.post(path, request);
+        return httpClient.post(path, request = req);
     }
 
     @Description {value:"The HEAD action implementation of the HTTP Connector."}
@@ -76,13 +77,14 @@ public type HttpSecureClient object {
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public function put(string path, Request request) returns (Response|HttpConnectorError) {
-        var details = prepareRequest(request, config);
+    public function put(string path, Request? request = ()) returns (Response|HttpConnectorError) {
+        Request req = request ?: new;
+        var details = prepareRequest(req, config);
         match details {
             () => {}
             HttpConnectorError err => return err;
         }
-        return httpClient.put(path, request);
+        return httpClient.put(path, request = req);
     }
 
     @Description {value:"Invokes an HTTP call with the specified HTTP verb."}
@@ -105,13 +107,14 @@ public type HttpSecureClient object {
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public function patch(string path, Request request) returns (Response|HttpConnectorError) {
-        var details = prepareRequest(request, config);
+    public function patch(string path, Request? request = ()) returns (Response|HttpConnectorError) {
+        Request req = request ?: new;
+        var details = prepareRequest(req, config);
         match details {
             () => {}
             HttpConnectorError err => return err;
         }
-        return httpClient.patch(path, request);
+        return httpClient.patch(path, request = req);
     }
 
     @Description {value:"The DELETE action implementation of the HTTP connector"}
@@ -119,13 +122,14 @@ public type HttpSecureClient object {
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public function delete(string path, Request request) returns (Response|HttpConnectorError) {
-        var details = prepareRequest(request, config);
+    public function delete(string path, Request? request = ()) returns (Response|HttpConnectorError) {
+        Request req = request ?: new;
+        var details = prepareRequest(req, config);
         match details {
             () => {}
             HttpConnectorError err => return err;
         }
-        return httpClient.delete(path, request);
+        return httpClient.delete(path, request = req);
     }
 
     @Description {value:"GET action implementation of the HTTP Connector"}
@@ -148,13 +152,14 @@ public type HttpSecureClient object {
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public function options(string path, Request request) returns (Response|HttpConnectorError) {
-        var details = prepareRequest(request, config);
+    public function options(string path, Request? request = ()) returns (Response|HttpConnectorError) {
+        Request req = request ?: new;
+        var details = prepareRequest(req, config);
         match details {
             () => {}
             HttpConnectorError err => return err;
         }
-        return httpClient.options(path, request);
+        return httpClient.options(path, request = req);
     }
 
     @Description {value:"Forward action can be used to invoke an HTTP call with inbound request's HTTP verb"}
@@ -314,7 +319,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     refreshTokenRequest.setStringPayload("grant_type=refresh_token&refresh_token=" + refreshToken);
     refreshTokenRequest.setStringPayload(requestParams);
     refreshTokenRequestPath = refreshTokenRequestPath + "?" + requestParams;
-    var refreshTokenResponse = refreshTokenClient.post(refreshTokenRequestPath, refreshTokenRequest);
+    var refreshTokenResponse = refreshTokenClient.post(refreshTokenRequestPath, request = refreshTokenRequest);
     Response tokenResponse;
     match refreshTokenResponse {
         Response httpResponse => tokenResponse = httpResponse;

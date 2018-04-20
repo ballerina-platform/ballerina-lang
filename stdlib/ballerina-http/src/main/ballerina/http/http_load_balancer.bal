@@ -36,7 +36,7 @@ public type LoadBalancer object {
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    public function post (string path, Request request) returns (Response | HttpConnectorError);
+    public function post (string path, Request? request = ()) returns (Response | HttpConnectorError);
 
     @Description {value:"The HEAD action implementation of the LoadBalancer Connector."}
     @Param {value:"path: Resource path"}
@@ -50,21 +50,21 @@ public type LoadBalancer object {
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    public function patch (string path, Request request) returns (Response | HttpConnectorError);
+    public function patch (string path, Request? request = ()) returns (Response | HttpConnectorError);
 
     @Description {value:"The PUT action implementation of the Load Balance Connector."}
     @Param {value:"path: Resource path"}
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    public function put (string path, Request request) returns (Response | HttpConnectorError);
+    public function put (string path, Request? request = ()) returns (Response | HttpConnectorError);
 
     @Description {value:"The OPTIONS action implementation of the LoadBalancer Connector."}
     @Param {value:"path: Resource path"}
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    public function options (string path, Request request) returns (Response | HttpConnectorError);
+    public function options (string path, Request? request = ()) returns (Response | HttpConnectorError);
 
     @Description {value:"The FORWARD action implementation of the LoadBalancer Connector."}
     @Param {value:"path: Resource path"}
@@ -86,7 +86,7 @@ public type LoadBalancer object {
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    public function delete (string path, Request request) returns (Response | HttpConnectorError);
+    public function delete (string path, Request? request = ()) returns (Response | HttpConnectorError);
 
     @Description {value:"The GET action implementation of the LoadBalancer Connector."}
     @Param {value:"path: Resource path"}
@@ -151,8 +151,9 @@ public type LoadBalanceConnectorError {
 @Param {value:"request: A Request struct"}
 @Return {value:"The Response struct"}
 @Return {value:"Error occurred during the action invocation, if any"}
-public function LoadBalancer::post (string path, Request request) returns (Response | HttpConnectorError) {
-    return performLoadBalanceAction(self, path, request, HTTP_POST);
+public function LoadBalancer::post (string path, Request? request = ()) returns (Response | HttpConnectorError) {
+    Request req = request ?: new;
+    return performLoadBalanceAction(self, path, req, HTTP_POST);
 }
 
 @Description {value:"The HEAD action implementation of the LoadBalancer Connector."}
@@ -170,8 +171,9 @@ public function LoadBalancer::head (string path, Request? request = ()) returns 
 @Param {value:"request: A Request struct"}
 @Return {value:"The Response struct"}
 @Return {value:"Error occurred during the action invocation, if any"}
-public function LoadBalancer::patch (string path, Request request) returns (Response | HttpConnectorError) {
-    return performLoadBalanceAction(self, path, request, HTTP_PATCH);
+public function LoadBalancer::patch (string path, Request? request = ()) returns (Response | HttpConnectorError) {
+    Request req = request ?: new;
+    return performLoadBalanceAction(self, path, req, HTTP_PATCH);
 }
 
 @Description {value:"The PUT action implementation of the Load Balance Connector."}
@@ -179,8 +181,9 @@ public function LoadBalancer::patch (string path, Request request) returns (Resp
 @Param {value:"request: A Request struct"}
 @Return {value:"The Response struct"}
 @Return {value:"Error occurred during the action invocation, if any"}
-public function LoadBalancer::put (string path, Request request) returns (Response | HttpConnectorError) {
-    return performLoadBalanceAction(self, path, request, HTTP_PUT);
+public function LoadBalancer::put (string path, Request? request = ()) returns (Response | HttpConnectorError) {
+    Request req = request ?: new;
+    return performLoadBalanceAction(self, path, req, HTTP_PUT);
 }
 
 @Description {value:"The OPTIONS action implementation of the LoadBalancer Connector."}
@@ -188,8 +191,9 @@ public function LoadBalancer::put (string path, Request request) returns (Respon
 @Param {value:"request: A Request struct"}
 @Return {value:"The Response struct"}
 @Return {value:"Error occurred during the action invocation, if any"}
-public function LoadBalancer::options (string path, Request request) returns (Response | HttpConnectorError) {
-    return performLoadBalanceAction(self, path, request, HTTP_OPTIONS);
+public function LoadBalancer::options (string path, Request? request = ()) returns (Response | HttpConnectorError) {
+    Request req = request ?: new;
+    return performLoadBalanceAction(self, path, req, HTTP_OPTIONS);
 }
 
 @Description {value:"The FORWARD action implementation of the LoadBalancer Connector."}
@@ -216,8 +220,9 @@ public function LoadBalancer::execute (string httpVerb, string path, Request req
 @Param {value:"request: A Request struct"}
 @Return {value:"The Response struct"}
 @Return {value:"Error occurred during the action invocation, if any"}
-public function LoadBalancer::delete (string path, Request request) returns (Response | HttpConnectorError) {
-    return performLoadBalanceAction(self, path, request, HTTP_DELETE);
+public function LoadBalancer::delete (string path, Request? request = ()) returns (Response | HttpConnectorError) {
+    Request req = request ?: new;
+    return performLoadBalanceAction(self, path, req, HTTP_DELETE);
 }
 
 @Description {value:"The GET action implementation of the LoadBalancer Connector."}

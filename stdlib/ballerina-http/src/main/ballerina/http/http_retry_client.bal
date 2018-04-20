@@ -30,7 +30,7 @@ public type RetryClient object {
         P{{path}} Target service url.
         P{{request}} A request message.
     }
-    public function post (string path, Request request) returns Response|HttpConnectorError;
+    public function post (string path, Request? request = ()) returns Response|HttpConnectorError;
 
     documentation {
         The HEAD function implementation of the HTTP retry client. Protects the invocation of the HEAD function
@@ -48,7 +48,7 @@ public type RetryClient object {
         P{{path}} Target service url.
         P{{request}} A request message.
     }
-    public function put (string path, Request request) returns Response|HttpConnectorError;
+    public function put (string path, Request? request = ()) returns Response|HttpConnectorError;
 
     documentation {
         The FORWARD function implementation of the HTTP retry client. Protects the invocation of the FORWARD function
@@ -76,7 +76,7 @@ public type RetryClient object {
         P{{path}} Target service url.
         P{{request}} A request message.
     }
-    public function patch (string path, Request request) returns Response|HttpConnectorError;
+    public function patch (string path, Request? request = ()) returns Response|HttpConnectorError;
 
     documentation {
         The DELETE function implementation of the HTTP retry client. Protects the invocation of the DELETE function
@@ -85,7 +85,7 @@ public type RetryClient object {
         P{{path}} Target service url.
         P{{request}} A request message.
     }
-    public function delete (string path, Request request) returns Response|HttpConnectorError;
+    public function delete (string path, Request? request = ()) returns Response|HttpConnectorError;
 
     documentation {
         The GET function implementation of the HTTP retry client. Protects the invocation of the GET function
@@ -103,7 +103,7 @@ public type RetryClient object {
         P{{path}} Target service url.
         P{{request}} A request message.
     }
-    public function options (string path, Request request) returns Response|HttpConnectorError;
+    public function options (string path, Request? request = ()) returns Response|HttpConnectorError;
 
     documentation {
         The SUBMIT function implementation of the HTTP retry client.
@@ -150,8 +150,9 @@ public type RetryClient object {
     public function rejectPromise (PushPromise promise);
 };
 
-public function RetryClient::post (string path, Request request) returns Response|HttpConnectorError {
-	return performRetryAction(path, request, HTTP_POST, self);
+public function RetryClient::post (string path, Request? request = ()) returns Response|HttpConnectorError {
+    Request req = request ?: new;
+	return performRetryAction(path, req, HTTP_POST, self);
 }
 
 public function RetryClient::head (string path, Request? request = ()) returns Response|HttpConnectorError {
@@ -159,8 +160,9 @@ public function RetryClient::head (string path, Request? request = ()) returns R
 	return performRetryAction(path, req, HTTP_HEAD, self);
 }
 
-public function RetryClient::put (string path, Request request) returns Response|HttpConnectorError {
-	return performRetryAction(path, request, HTTP_PUT, self);
+public function RetryClient::put (string path, Request? request = ()) returns Response|HttpConnectorError {
+    Request req = request ?: new;
+	return performRetryAction(path, req, HTTP_PUT, self);
 }
 
 public function RetryClient::forward (string path, Request request) returns Response|HttpConnectorError {
@@ -171,12 +173,14 @@ public function RetryClient::execute (string httpVerb, string path, Request requ
 	return performRetryClientExecuteAction(path, request, httpVerb, self);
 }
 
-public function RetryClient::patch (string path, Request request) returns Response|HttpConnectorError {
-	return performRetryAction(path, request, HTTP_PATCH, self);
+public function RetryClient::patch (string path, Request? request = ()) returns Response|HttpConnectorError {
+    Request req = request ?: new;
+	return performRetryAction(path, req, HTTP_PATCH, self);
 }
 
-public function RetryClient::delete (string path, Request request) returns Response|HttpConnectorError {
-	return performRetryAction(path, request, HTTP_DELETE, self);
+public function RetryClient::delete (string path, Request? request = ()) returns Response|HttpConnectorError {
+    Request req = request ?: new;
+	return performRetryAction(path, req, HTTP_DELETE, self);
 }
 
 public function RetryClient::get (string path, Request? request = ()) returns Response|HttpConnectorError {
@@ -184,8 +188,9 @@ public function RetryClient::get (string path, Request? request = ()) returns Re
 	return performRetryAction(path, req, HTTP_GET, self);
 }
 
-public function RetryClient::options (string path, Request request) returns Response|HttpConnectorError {
-	return performRetryAction(path, request, HTTP_OPTIONS, self);
+public function RetryClient::options (string path, Request? request = ()) returns Response|HttpConnectorError {
+    Request req = request ?: new;
+	return performRetryAction(path, req, HTTP_OPTIONS, self);
 }
 
 public function RetryClient::submit (string httpVerb, string path, Request request) returns HttpFuture|HttpConnectorError {

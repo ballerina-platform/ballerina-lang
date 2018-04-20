@@ -35,15 +35,15 @@ public function invokeEndpoint (string path, Request outRequest,
     if (HTTP_GET == requestAction) {
         return httpClient.get(path, request = outRequest);
     } else if (HTTP_POST == requestAction) {
-        return httpClient.post(path, outRequest);
+        return httpClient.post(path, request = outRequest);
     } else if (HTTP_OPTIONS == requestAction) {
-        return httpClient.options(path, outRequest);
+        return httpClient.options(path, request = outRequest);
     } else if (HTTP_PUT == requestAction) {
-        return httpClient.put(path, outRequest);
+        return httpClient.put(path, request = outRequest);
     } else if (HTTP_DELETE == requestAction) {
-        return httpClient.delete(path, outRequest);
+        return httpClient.delete(path, request = outRequest);
     } else if (HTTP_PATCH == requestAction) {
-        return httpClient.patch(path, outRequest);
+        return httpClient.patch(path, request = outRequest);
     } else if (HTTP_FORWARD == requestAction) {
         return httpClient.forward(path, outRequest);
     } else if (HTTP_HEAD == requestAction) {
