@@ -1,4 +1,3 @@
-package functionmocktest2.pkg;
 
 import ballerina/test;
 import ballerina/io;

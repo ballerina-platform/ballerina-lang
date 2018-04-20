@@ -1,4 +1,3 @@
-package ballerina.math;
 
 @Description {value:"The ratio of the circumference of a circle to its diameter"}
 public const float PI = 3.141592653589793;

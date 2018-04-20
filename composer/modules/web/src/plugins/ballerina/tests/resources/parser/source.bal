@@ -1,4 +1,3 @@
-package ballerina.builtin.core;
 
 public struct error {
     string msg;

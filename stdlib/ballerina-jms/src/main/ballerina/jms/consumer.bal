@@ -1,4 +1,3 @@
-package ballerina.jms;
 
 public type Consumer object {
     public function getEndpoint() returns ConsumerTemplate {
