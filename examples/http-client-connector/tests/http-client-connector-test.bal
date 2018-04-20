@@ -97,7 +97,7 @@ function testFunc() {
     };
 
     // Invoking the main function
-    main([]);
+    main();
     test:assertEquals("GET request:", outputs[0]);
     test:assertEquals(jsonRes1, outputs[1]);
     test:assertEquals("\nPOST request:", outputs[2]);

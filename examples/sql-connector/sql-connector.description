@@ -1,4 +1,4 @@
-// Ballerina SQL Connector is used to access and manipulate data in the relational
-// databases. This sample use MySQL DB and before running the sample copy the
-// MySQL JDBC driver to the BALLERINA_HOME/bre/lib folder and change the DB connection
+// The Ballerina SQL Connector is used to access and manipulate data in relational
+// databases. This sample uses MySQL DB. Before running the sample, copy the
+// MySQL JDBC driver to the `BALLERINA_HOME/bre/lib` folder and change the DB connection
 // properties as required.

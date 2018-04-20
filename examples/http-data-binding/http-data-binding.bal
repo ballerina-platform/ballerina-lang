@@ -14,45 +14,45 @@ endpoint http:Listener helloEP {
 @http:ServiceConfig
 service<http:Service> hello bind helloEP {
 
-    @Description {value:"Body annotation represents the entity body of the inbound request."}
+    @Description {value:"The 'body' annotation represents the entity body of the inbound request."}
     @http:ResourceConfig {
         methods:["POST"],
         body:"orderDetails"
     }
-    bindJson (endpoint outboundEP, http:Request req, json orderDetails) {
-        //Access JSON field values
+    bindJson (endpoint caller, http:Request req, json orderDetails) {
+        //Access the JSON field values.
         json details = orderDetails.Details;
         io:println(details);
 
         http:Response res = new;
         res.setJsonPayload(details);
-        _ = outboundEP -> respond(res);
+        _ = caller -> respond(res);
     }
 
-    @Description {value:"Bind xml payload of the inbound request to variable store."}
+    @Description {value:"Bind the XML payload of the inbound request to variable store."}
     @http:ResourceConfig {
         methods:["POST"],
         body:"store",
         consumes:["application/xml"]
     }
-    bindXML (endpoint outboundEP, http:Request req, xml store) {
-        //Access XML content.
+    bindXML (endpoint caller, http:Request req, xml store) {
+        //Access the XML content.
         xml city = store.selectDescendants("city");
         io:println(city);
 
         http:Response res = new;
         res.setXmlPayload(city);
-        _ = outboundEP -> respond(res);
+        _ = caller -> respond(res);
     }
 
-    @Description {value:"Bind JSON payload into a custom struct. Payload content should match with struct."}
+    @Description {value:"Bind the JSON payload to a custom struct. The payload's content should match the struct."}
     @http:ResourceConfig {
         methods:["POST"],
         body:"student",
         consumes:["application/json"]
     }
-    bindStruct (endpoint outboundEP, http:Request req, Student student) {
-        //Access Student struct fields
+    bindStruct (endpoint caller, http:Request req, Student student) {
+        //Access the fields of the struct 'Student'.
         string name = student.Name;
         io:println(name);
 
@@ -64,6 +64,6 @@ service<http:Service> hello bind helloEP {
 
         http:Response res = new;
         res.setJsonPayload({Name:name, Grade:grade});
-        _ = outboundEP -> respond(res);
+        _ = caller -> respond(res);
     }
 }

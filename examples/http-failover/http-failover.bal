@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerina/runtime;
 import ballerina/io;
 
-endpoint http:Listener failoveruEP {
+endpoint http:Listener serviceEP {
     port:9090
 };
 
@@ -10,39 +10,44 @@ endpoint http:Listener backendEP {
     port:8080
 };
 
-endpoint http:Client backendClientEP {
-    availabilityMode: {
-        failoverCodes : [400, 404, 500],
-        interval : 0
-    },
-    targets: [
-             {url: "http://localhost:300000/mock"},
-             {url: "http://localhost:8080/echo"},
-             {url: "http://localhost:8080/mock"}],
-    timeoutMillis:5000
+endpoint http:FailoverClient ClientEP {
+    timeoutMillis:5000,
+    failoverCodes:[501, 502, 503],
+    intervalMillis:5000,
+    targets:[
+        {
+            url:"http://localhost:3000/mock1"
+        },
+        {
+            url:"http://localhost:8080/echo"
+        },
+        {
+            url:"http://localhost:8080/mock"
+        }
+    ]
 };
 
 @http:ServiceConfig {
     basePath:"/fo"
 }
-service<http:Service> failover bind failoveruEP {
+service<http:Service> failoverDemoService bind serviceEP {
 
     @http:ResourceConfig {
         methods:["GET", "POST"],
         path:"/"
     }
-    doFailover (endpoint client, http:Request request) {
+    doFailover(endpoint caller, http:Request request) {
         http:Response response = new;
         http:HttpConnectorError err = {};
-        var backendRes = backendClientEP -> post("/", request);
+        var backendRes = ClientEP -> get("/", request);
         match backendRes {
             http:Response res => {
-            _ = client -> respond(res);}
-        http:HttpConnectorError err1 => {
-            response = new;
-            response.statusCode = 500;
-            response.setStringPayload(err1.message);
-            _ = client -> respond(response);}
+                _ = caller -> respond(res);}
+            http:HttpConnectorError httpConnectorError => {
+                response = new;
+                response.statusCode = 500;
+                response.setStringPayload(httpConnectorError.message);
+                _ = caller -> respond(response);}
         }
     }
 }
@@ -50,30 +55,30 @@ service<http:Service> failover bind failoveruEP {
 @http:ServiceConfig {
     basePath:"/echo"
 }
-service<http:Service> echo bind backendEP{
+service<http:Service> echo bind backendEP {
     @http:ResourceConfig {
         methods:["POST", "PUT", "GET"],
         path:"/"
     }
-    echoResource (endpoint ep, http:Request req) {
+    echoResource(endpoint caller, http:Request req) {
         http:Response outResponse = new;
         runtime:sleepCurrentWorker(30000);
         outResponse.setStringPayload("echo Resource is invoked");
-        _ = ep -> respond(outResponse);
+        _ = caller -> respond(outResponse);
     }
 }
 
 @http:ServiceConfig {
     basePath:"/mock"
 }
-service<http:Service> mock  bind backendEP{
+service<http:Service> mock bind backendEP {
     @http:ResourceConfig {
         methods:["POST", "PUT", "GET"],
         path:"/"
     }
-    mockResource (endpoint ep, http:Request req) {
+    mockResource(endpoint caller, http:Request req) {
         http:Response outResponse = new;
         outResponse.setStringPayload("Mock Resource is Invoked.");
-        _ = ep -> respond(outResponse);
+        _ = caller -> respond(outResponse);
     }
 }

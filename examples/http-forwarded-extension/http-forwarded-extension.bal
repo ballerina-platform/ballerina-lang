@@ -8,11 +8,7 @@ endpoint http:Listener serverEP {
 //Configure client connector forwarded/x-forwarded-- header behaviour by adding disable (default value), enable or transition.
 //Transition config converts available x-forwarded-- headers to forwarded header.
 endpoint http:Client clientEndPoint {
-    targets: [
-       {
-            url: "http://localhost:9090"
-       }
-    ],
+    url: "http://localhost:9090",
     forwarded:"enable"
 };
 
@@ -25,11 +21,11 @@ service<http:Service> proxy bind serverEP {
     @http:ResourceConfig {
         path:"/"
     }
-    sample (endpoint conn, http:Request req) {
+    sample (endpoint caller, http:Request req) {
         var response = clientEndPoint -> forward("/sample", req);
         match response {
             http:Response clientResponse => {
-                _ = conn -> respond(clientResponse);
+                _ = caller -> respond(clientResponse);
             }
             http:HttpConnectorError err => {
                 io:println("Error occurred while invoking the service");
@@ -47,7 +43,7 @@ service<http:Service> sample bind serverEP {
     @http:ResourceConfig {
         path:"/"
     }
-    sampleResource (endpoint conn, http:Request req) {
+    sampleResource (endpoint caller, http:Request req) {
         http:Response res = new;
         string|() header;
         header = req.getHeader("forwarded");
@@ -59,6 +55,6 @@ service<http:Service> sample bind serverEP {
                 res.setStringPayload("forwarded header value not found");
             }
         }
-         _ = conn -> respond(res);
+         _ = caller -> respond(res);
     }
 }

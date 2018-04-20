@@ -13,5 +13,5 @@ function main (string... args) {
     // Create a Text message.
     mb:Message m = check publisher.createTextMessage("Test Text");
     // Send the message to the Ballerina Message Broker.
-    var _ = publisher -> send(m);
+    var _ = publisher->send(m);
 }

@@ -16,7 +16,7 @@ public function mockPrint (any s) {
 @test:Config
 function testFunc() {
     // Invoking the main function
-    main([]);
-    test:assertEquals("Name: Ballerina", outputs[0]);
-    test:assertEquals("Name: ", outputs[1]);
+    main();
+    string out1 = "Event received; status: single and total occurrences: 2";
+    test:assertEquals(out1, outputs[0]);
 }

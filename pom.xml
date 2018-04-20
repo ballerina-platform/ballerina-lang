@@ -17,11 +17,14 @@
   ~ */
   -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
-    <groupId>org.ballerinalang</groupId>
+    <parent>
+        <groupId>io.ballerina</groupId>
+        <artifactId>ballerina</artifactId>
+        <version>0.970.0-beta4</version>
+    </parent>
     <artifactId>ballerina-examples</artifactId>
-    <version>0.970.0-beta0</version>
+    <version>0.970.0-beta5-SNAPSHOT</version>
+    <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
     <name>Ballerina - Examples</name>
     <scm>
@@ -104,5 +107,9 @@
             <url>http://maven.wso2.org/nexus/content/repositories/snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
+
+    <properties>
+        <project.scm.id>ballerina-scm-server</project.scm.id>
+    </properties>
 
 </project>

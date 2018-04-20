@@ -36,7 +36,7 @@ service StoreService bind storeService {
                 match (response.getStringPayload()) {
                     string payload => {
                         //Add tag with response payload to Update Manager Connector Span
-                        childSpan.addTag("Response", payload but { () => "No response" });
+                        childSpan.addTag("Response", payload);
                         outboundResponse.setStringPayload("Item Added Successfully");
                         //Finishing Update Manager Connector Span
                         childSpan.finishSpan();

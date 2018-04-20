@@ -50,9 +50,9 @@ function main(string... args) {
 }
 
 function getLimit() returns (string) {
-    string limit = config:getAsString("sum.limit");
-    if (limit != ""){
-        return limit;
+    string sumLimit = config:getAsString("sum.limit");
+    if (sumLimit != ""){
+        return sumLimit;
     }
 
     io:println("Returning default limit: 1000");

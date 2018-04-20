@@ -6,7 +6,7 @@ endpoint http:Listener helloWorldEP {
 };
 
 endpoint http:Client clientEP {
-    targets:[{url: "http://httpstat.us"}]
+    url: "http://httpstat.us"
 };
 
 @http:ServiceConfig { basePath:"/hello", endpoints:[helloWorldEP] }
@@ -15,11 +15,11 @@ service<http:Service> helloWorld bind helloWorldEP{
         methods:["GET"],
         path:"/"
     }
-    sayHello (endpoint conn, http:Request req) {
+    sayHello (endpoint caller, http:Request req) {
         var resp = clientEP -> forward("/200", req);
         match resp {
             http:HttpConnectorError err => io:println(err.message);
-            http:Response response => _ = conn -> respond(response);
+            http:Response response => _ = caller -> respond(response);
         }
     }
 }

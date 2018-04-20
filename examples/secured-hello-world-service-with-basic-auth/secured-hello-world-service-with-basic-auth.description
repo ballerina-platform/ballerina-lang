@@ -1,7 +1,21 @@
-// A service can be secured using basic authentication and optionally, authorization.
-// The userstore used is a simple file based one. The file based userstore stores
-// usernames, password hashes for authentication purposes, as well as groups and scopes
-// for authorization purposes. Ballerina uses the concept of scopes for authorization.
-// A resource declared in a Service can be bound to a scope. A scope is mapped to one
-// or more groups. To access the resource, a user need to be in the same groups to
-// which the corresponding scope is mapped. 
+// A service can be secured using basic authentication and optionally, by enforcing authorization.
+// The auth provider reads the username and password from a file in ballerina.conf format.
+// This stores usernames, passwords for authentication and scopes for authorization.
+// Ballerina uses the concept of scopes for authorization. A resource declared in a Service
+// can be bound to one/more scope(s). In the config auth provider, scopes are mapped to users.
+// In the authorization phase, the scopes of the resource is compared against the scopes mapped
+// to the user for at least one match between the two sets.
+// the following is a sample ballerina.conf file which has the required format of usernames,
+// passwords and scopes, including their mapping.
+//
+//      ["b7a.users"]
+//
+//      ["b7a.users.tom"]
+//      password="password1"
+//      scopes="scope2,scope3"
+//
+//      ["b7a.users.dick"]
+//      password="password2"
+//      scopes="scope1"
+//
+// Here, there are two users defined - tom and dick. Each has a password and a scopes assigned.

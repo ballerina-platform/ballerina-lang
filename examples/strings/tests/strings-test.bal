@@ -16,7 +16,7 @@ public function mockPrint (any s) {
 @test:Config
 function testFunc() {
     // Invoking the main function
-    main([]);
+    main();
     test:assertEquals("ToUpper: LION IN TOWN. CATCH THE LION ", outputs[0]);
     test:assertEquals("ToLower: lion in town. catch the lion ", outputs[1]);
     test:assertEquals("EqualsIgnoreCase: true", outputs[2]);

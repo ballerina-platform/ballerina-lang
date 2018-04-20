@@ -71,7 +71,7 @@ public type HelloWorldBlockingClient object {
         self.stub = stub;
     }
 
-    public function getClient () returns (HelloWorldBlockingStub) {
+    public function getCallerActions () returns (HelloWorldBlockingStub) {
         return self.stub;
     }
 };

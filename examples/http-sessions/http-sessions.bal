@@ -13,7 +13,7 @@ service<http:Service> sessionTest bind sessionTestEP {
         methods:["GET"],
         path:"/sayHello"
     }
-    sayHello (endpoint outboundEP, http:Request req) {
+    sayHello (endpoint caller, http:Request req) {
         //createSessionIfAbsent() function returns an existing session for a valid session id, otherwise it returns a new session.
         http:Session session = req.createSessionIfAbsent();
         string result;
@@ -27,14 +27,14 @@ service<http:Service> sessionTest bind sessionTestEP {
         session.setAttribute(key, "Session sample");
         http:Response res = new;
         res.setStringPayload(result);
-        _ = outboundEP -> respond(res);
+        _ = caller -> respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/doTask"
     }
-    doTask (endpoint outboundEP, http:Request req) {
+    doTask (endpoint caller, http:Request req) {
         //getSession() returns an existing session for a valid session id. otherwise null.
         http:Session session = req.getSession();
         string attributeValue;
@@ -46,14 +46,14 @@ service<http:Service> sessionTest bind sessionTestEP {
         }
         http:Response res = new;
         res.setStringPayload(attributeValue);
-        _ = outboundEP -> respond(res);
+        _ = caller -> respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/sayBye"
     }
-    sayBye (endpoint outboundEP, http:Request req) {
+    sayBye (endpoint caller, http:Request req) {
         http:Session session = req.getSession();
         http:Response res = new;
         if (session != null) {
@@ -65,6 +65,6 @@ service<http:Service> sessionTest bind sessionTestEP {
         } else {
             res.setStringPayload("Session unavailable");
         }
-        _ = outboundEP -> respond(res);
+        _ = caller -> respond(res);
     }
 }
