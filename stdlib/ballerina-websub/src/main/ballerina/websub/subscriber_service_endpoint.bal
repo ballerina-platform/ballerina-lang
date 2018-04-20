@@ -315,12 +315,6 @@ public function interceptWebSubRequest (http:Request request, http:FilterContext
     }
 }
 
-public function interceptionPlaceholder (http:Response response, http:FilterContext context)
-returns (http:FilterResult) {
-    http:FilterResult filterResult = {canProceed:true, statusCode:200, message:"Allowed Proceeding"};
-    return filterResult;
-}
-
 documentation {
     Function to invoke the WebSubSubscriberConnector's actions for subscription.
 
