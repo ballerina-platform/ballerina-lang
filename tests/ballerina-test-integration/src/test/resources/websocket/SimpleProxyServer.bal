@@ -16,10 +16,12 @@ service <http:WebSocketService> simpleProxy bind ep {
     onOpen (endpoint wsEp) {
         endpoint http:WebSocketClient wsClientEp {
             url: REMOTE_BACKEND_URL,
-            callbackService: clientCallbackService
+            callbackService: clientCallbackService,
+            readyOnConnect: false
         };
         wsEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
         wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsEp;
+        wsClientEp -> ready() but { error e => io:println(e.message) };
     }
 
     onText (endpoint wsEp, string text) {

@@ -74,7 +74,7 @@ public class WebSocketSimpleProxyTestCase extends WebSocketIntegrationTest {
         client.setCountDownLatch(countDownLatch);
         ByteBuffer bufferSent = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
         client.sendBinary(bufferSent);
-        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        countDownLatch.await(1000, TimeUnit.SECONDS);
         Assert.assertEquals(client.getBufferReceived(), bufferSent);
         client.shutDown();
     }
