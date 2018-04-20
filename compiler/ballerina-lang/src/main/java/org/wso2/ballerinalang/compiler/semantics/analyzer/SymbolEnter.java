@@ -659,7 +659,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
         BLangLiteral literal = (BLangLiteral) variable.expr;
-        ((BVarSymbol) varSymbol).defaultValue = literal.value;
+        variable.symbol.defaultValue = literal.value;
     }
 
     @Override
