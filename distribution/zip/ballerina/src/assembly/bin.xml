@@ -92,7 +92,7 @@
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
-    </fileSets>n
+    </fileSets>
 
     <files>
         <file>

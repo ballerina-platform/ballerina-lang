@@ -79,8 +79,8 @@ public class Respond extends ConnectionAction {
             outboundResponseMsg.completeMessage();
         }
 
-        ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
-        if (observerContext != null) {
+        if (ObservabilityUtils.isObservabilityEnabled()) {
+            ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
             observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE, String.valueOf(outboundResponseStruct.
                     getIntField(RESPONSE_STATUS_CODE_INDEX)));
         }

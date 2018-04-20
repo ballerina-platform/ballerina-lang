@@ -295,7 +295,8 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
     private void send(DataContext dataContext, HTTPCarbonMessage outboundRequestMsg, boolean async) throws Exception {
         BStruct bConnector = (BStruct) dataContext.context.getRefArgument(0);
         Struct httpClient = BLangConnectorSPIUtil.toStruct(bConnector);
-        HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.HTTP_CLIENT);
+        HttpClientConnector clientConnector = (HttpClientConnector)
+                httpClient.getNativeData(HttpConstants.CALLER_ACTIONS);
         String contentType = HttpUtil.getContentTypeFromTransportMessage(outboundRequestMsg);
         String boundaryString = null;
 

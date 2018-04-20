@@ -17,7 +17,7 @@ public type RetryClient object {
         string serviceUri;
         ClientEndpointConfig config;
         RetryConfig retryConfig;
-        HttpClient httpClient;
+        CallerActions httpClient;
     }
 
     public new (serviceUri, config, retryConfig, httpClient) {}
@@ -249,7 +249,7 @@ function performRetryAction (@sensitive string path, Request request, HttpOperat
     if (maxWaitInterval == 0) {
         maxWaitInterval = 60000;
     }
-    HttpClient httpClient = retryClient.httpClient;
+    CallerActions httpClient = retryClient.httpClient;
     Response response = new;
     //TODO : Initialize the record type correctly once it is fixed.
     HttpConnectorError httpConnectorError = {statusCode:501};

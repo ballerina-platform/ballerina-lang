@@ -72,7 +72,7 @@ public function HttpBasicAuthnHandler::handle (Request req) returns (boolean) {
             return isAuthenticated;
         }
         error err => {
-            log:printErrorCause("Error in decoding basic authentication header", err);
+            log:printError("Error in decoding basic authentication header", err = err);
             return false;
         }
     }
