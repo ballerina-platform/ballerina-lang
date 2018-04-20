@@ -1,32 +1,26 @@
 import ballerina/runtime;
 
 function testInvocationId () returns (string) {
-    return runtime:getInvocationContext().invocationId;
+    return runtime:getInvocationContext().id;
 }
 
 function testUserId () returns (boolean) {
     string userId = "124876jk23i4";
-    runtime:getInvocationContext().authenticationContext.userId = userId;
-    return userId == runtime:getInvocationContext().authenticationContext.userId;
+    runtime:getInvocationContext().userPrincipal.userId = userId;
+    return userId == runtime:getInvocationContext().userPrincipal.userId;
 }
 
 function testUsername () returns (boolean) {
     string username = "tom";
-    runtime:getInvocationContext().authenticationContext.username = username;
-    return username == runtime:getInvocationContext().authenticationContext.username;
-}
-
-function testUserGroups () returns (boolean) {
-    string[] groups = ["admin", "publisher"];
-    runtime:getInvocationContext().authenticationContext.groups = groups;
-    return "admin" == runtime:getInvocationContext().authenticationContext.groups[0];
+    runtime:getInvocationContext().userPrincipal.username = username;
+    return username == runtime:getInvocationContext().userPrincipal.username;
 }
 
 function testUserClaims () returns (boolean) {
     map claims = {email:"tom@ballerina.com", org:"wso2"};
-    runtime:getInvocationContext().authenticationContext.claims = claims;
-    if (runtime:getInvocationContext().authenticationContext.claims.hasKey("email")) {
-        string emailInContext = <string>runtime:getInvocationContext().authenticationContext.claims["email"];
+    runtime:getInvocationContext().userPrincipal.claims = claims;
+    if (runtime:getInvocationContext().userPrincipal.claims.hasKey("email")) {
+        string emailInContext = <string>runtime:getInvocationContext().userPrincipal.claims["email"];
         return "tom@ballerina.com" == emailInContext;
     }
     return false;
@@ -34,18 +28,18 @@ function testUserClaims () returns (boolean) {
 
 function testAllowedScopes () returns (boolean) {
     string[] scopes = ["email", "profile"];
-    runtime:getInvocationContext().authenticationContext.scopes = scopes;
-    return "email" == runtime:getInvocationContext().authenticationContext.scopes[0];
+    runtime:getInvocationContext().userPrincipal.scopes = scopes;
+    return "email" == runtime:getInvocationContext().userPrincipal.scopes[0];
 }
 
 function testAuthType () returns (boolean) {
     string authType = "JWT";
-    runtime:getInvocationContext().authenticationContext.authType = authType;
-    return authType == runtime:getInvocationContext().authenticationContext.authType;
+    runtime:getInvocationContext().authContext.scheme = authType;
+    return authType == runtime:getInvocationContext().authContext.scheme;
 }
 
 function testAuthToken () returns (boolean) {
     string authToken = "abc.xyz.pqr";
-    runtime:getInvocationContext().authenticationContext.authToken = authToken;
-    return authToken == runtime:getInvocationContext().authenticationContext.authToken;
+    runtime:getInvocationContext().authContext.authToken = authToken;
+    return authToken == runtime:getInvocationContext().authContext.authToken;
 }

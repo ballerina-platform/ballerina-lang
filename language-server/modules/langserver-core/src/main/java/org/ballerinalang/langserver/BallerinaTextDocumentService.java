@@ -463,8 +463,15 @@ class BallerinaTextDocumentService implements TextDocumentService {
         if (openedPath == null) {
             return;
         }
-
         String content = params.getTextDocument().getText();
+        Optional<Lock> lock = documentManager.lockFile(openedPath);
+        try {
+            if (documentManager.isFileOpen(openedPath)) {
+                documentManager.openFile(openedPath, content);
+            }
+        } finally {
+            lock.ifPresent(Lock::unlock);
+        }
         compileAndSendDiagnostics(content, openedPath);
     }
 
@@ -474,8 +481,17 @@ class BallerinaTextDocumentService implements TextDocumentService {
         if (changedPath == null) {
             return;
         }
-
         String content = params.getContentChanges().get(0).getText();
+        Optional<Lock> lock = documentManager.lockFile(changedPath);
+        try {
+            if (documentManager.isFileOpen(changedPath)) {
+                documentManager.updateFile(changedPath, content);
+            } else {
+                documentManager.openFile(changedPath, content);
+            }
+        } finally {
+            lock.ifPresent(Lock::unlock);
+        }
         this.diagPushDebouncer.call(() -> compileAndSendDiagnostics(content, changedPath));
     }
 

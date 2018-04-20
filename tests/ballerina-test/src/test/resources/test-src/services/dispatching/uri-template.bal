@@ -64,9 +64,7 @@ service<http:Service> Ecommerce bind testEP {
     }
      productsInfo4 (endpoint client, http:Request req, string productId) {
         json responseJson;
-        map params = req.getQueryParams();
-        string rID;
-        rID = <string>params.regID;
+        string rID = req.getQueryParams().regID;
         io:println("Product ID " + productId);
         io:println("Reg ID " + rID);
         responseJson = {"Template":"T4", "ProductID":productId, "RegID":rID};
@@ -83,11 +81,9 @@ service<http:Service> Ecommerce bind testEP {
     }
      productsInfo6 (endpoint client, http:Request req) {
         json responseJson;
-        map params = req.getQueryParams();
-        string prdID;
-        string rID;
-        prdID = <string>params.prodID;
-        rID = <string>params.regID;
+        map<string> params = req.getQueryParams();
+        string prdID = params.prodID;
+        string rID= params.regID;
         io:println ("Product ID " + prdID);
         io:println ("Reg ID " + rID);
         responseJson = {"Template":"T6", "ProductID":prdID, "RegID":rID};
@@ -104,9 +100,7 @@ service<http:Service> Ecommerce bind testEP {
     }
      productsInfo5 (endpoint client, http:Request req, string productId) {
         json responseJson;
-        map params = req.getQueryParams();
-        string rID;
-        rID = <string>params.regID;
+        string rID = req.getQueryParams().regID;
         io:println("Product ID " + productId);
         io:println("Reg ID " + rID);
         responseJson = {"Template":"T5", "ProductID":productId, "RegID":rID};
