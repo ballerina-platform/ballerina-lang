@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
 
 @Description {value:"Representation of Authentication handler for HTTP traffic. Any authention interceptor for
 basic authentication should be struct-wise similar to HttpAuthnInterceptor"}

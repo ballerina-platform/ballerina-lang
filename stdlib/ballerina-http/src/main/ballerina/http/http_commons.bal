@@ -1,4 +1,3 @@
-package ballerina.http;
 
 public type Chunking "AUTO" | "ALWAYS" | "NEVER";
 
@@ -11,6 +10,12 @@ public type Compression "AUTO" | "ALWAYS" | "NEVER";
 @final public Compression COMPRESSION_AUTO = "AUTO";
 @final public Compression COMPRESSION_ALWAYS = "ALWAYS";
 @final public Compression COMPRESSION_NEVER = "NEVER";
+
+public type AcceptEncoding "AUTO" | "ALWAYS" | "NEVER";
+
+@final public AcceptEncoding ACCEPT_ENCODING_AUTO = "AUTO";
+@final public AcceptEncoding ACCEPT_ENCODING_ALWAYS = "ALWAYS";
+@final public AcceptEncoding ACCEPT_ENCODING_NEVER = "NEVER";
 
 public type TransferEncoding "CHUNKING";
 

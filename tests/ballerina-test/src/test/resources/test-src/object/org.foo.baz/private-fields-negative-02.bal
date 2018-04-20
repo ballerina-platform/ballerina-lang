@@ -1,4 +1,3 @@
-package org.foo.baz;
 
 public type FooDepartment object {
     public {

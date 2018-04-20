@@ -14,10 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.auth;
 
 import ballerina/config;
-import ballerina/security.crypto;
+import ballerina/crypto;
 
 @final string CONFIG_USER_SECTION = "b7a.users";
 

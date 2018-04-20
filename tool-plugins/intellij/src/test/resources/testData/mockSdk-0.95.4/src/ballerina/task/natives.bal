@@ -1,4 +1,3 @@
-package ballerina.task;
 
 @Description { value:"Schedules a timer task"}
 @Param { value:"onTrigger: The function which gets called when the timer goes off" }

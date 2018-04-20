@@ -5,10 +5,12 @@ import org.ballerinalang.repository.PackageSourceEntry;
 import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,6 +23,7 @@ import java.util.stream.Stream;
 public class URIConverter implements Converter<URI> {
 
     private final URI base;
+    private PrintStream outStream = System.err;
 
     public URIConverter(URI base) {
         this.base = base;
@@ -65,7 +68,10 @@ public class URIConverter implements Converter<URI> {
     public Stream<PackageSourceEntry> finalize(URI u, PackageID packageID) {
         String orgName = packageID.getOrgName().getValue();
         String pkgName = packageID.getName().getValue();
-        Path destDirPath = RepoUtils.createAndGetHomeReposPath().resolve(Paths.get("repo", orgName, pkgName));
+        Path destDirPath = RepoUtils.createAndGetHomeReposPath().resolve(Paths.get(ProjectDirConstants.CACHES_DIR_NAME,
+                                                                                   ProjectDirConstants
+                                                                                           .BALLERINA_CENTRAL_DIR_NAME,
+                                                                                   orgName, pkgName));
         createDirectory(destDirPath);
         try {
             String fullPkgPath = orgName + "/" + pkgName;
@@ -77,7 +83,8 @@ public class URIConverter implements Converter<URI> {
                                         Patten.path(pkgName + ".zip"),
                                         Patten.path("src"), Patten.WILDCARD_SOURCE);
             return pattern.convertToSources(new ZipConverter(destDirPath), packageID);
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            outStream.println("Error occurred when pulling the remote artifact");
         }
         return Stream.of();
     }

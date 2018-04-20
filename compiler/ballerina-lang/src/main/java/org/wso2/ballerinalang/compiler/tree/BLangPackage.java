@@ -28,7 +28,6 @@ import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ObjectNode;
-import org.ballerinalang.model.tree.PackageDeclarationNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.RecordNode;
 import org.ballerinalang.model.tree.ServiceNode;
@@ -54,7 +53,6 @@ import java.util.Set;
  */
 public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangCompilationUnit> compUnits;
-    public BLangPackageDeclaration pkgDecl;
     public List<BLangImportPackage> imports;
     public List<BLangXMLNS> xmlnsList;
     public List<BLangEndpoint> globalEndpoints;
@@ -265,16 +263,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public void addTypeDefinition(TypeDefinition typeDefinition) {
         this.typeDefinitions.add((BLangTypeDefinition) typeDefinition);
         this.topLevelNodes.add(typeDefinition);
-    }
-
-    @Override
-    public void setPackageDeclaration(PackageDeclarationNode pkgDecl) {
-        this.pkgDecl = (BLangPackageDeclaration) pkgDecl;
-    }
-
-    @Override
-    public PackageDeclarationNode getPackageDeclaration() {
-        return pkgDecl;
     }
 
     @Override

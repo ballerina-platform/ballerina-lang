@@ -1,4 +1,3 @@
-package bal.test.intercept.res1;
 
 import ballerina/lang.system;
 import ballerina/lang.messages;

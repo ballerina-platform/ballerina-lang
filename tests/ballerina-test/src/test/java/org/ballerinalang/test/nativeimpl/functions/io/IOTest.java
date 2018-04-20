@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
@@ -31,16 +32,24 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
+import org.ballerinalang.nativeimpl.io.IOConstants;
+import org.ballerinalang.nativeimpl.io.channels.base.Channel;
+import org.ballerinalang.nativeimpl.util.Base64ByteChannel;
+import org.ballerinalang.nativeimpl.util.Base64Wrapper;
+import org.ballerinalang.test.mime.Util;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.stream.Stream;
 
 /**
@@ -412,6 +421,39 @@ public class IOTest {
         lines.forEach(line -> data.append(line.trim()));
         lines.close();
         return data.toString();
+    }
+
+    @Test
+    public void testBase64EncodeByteChannel() {
+        String expectedValue = "SGVsbG8gQmFsbGVyaW5h";
+        BStruct byteChannelStruct = Util.getByteChannelStruct(bytesInputOutputProgramFile);
+        InputStream inputStream = new ByteArrayInputStream("Hello Ballerina".getBytes());
+        Base64ByteChannel base64ByteChannel = new Base64ByteChannel(inputStream);
+        byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new Base64Wrapper(base64ByteChannel));
+        BValue[] args = new BValue[]{byteChannelStruct};
+        BValue[] returnValues = BRunUtil.invoke(bytesInputOutputProgramFile, "testBase64EncodeByteChannel", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
+                "Invalid return value");
+        BStruct decodedByteChannel = (BStruct) returnValues[0];
+        Channel byteChannel = (Channel) decodedByteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
+        Assert.assertEquals(StringUtils.getStringFromInputStream(byteChannel.getInputStream()), expectedValue);
+    }
+
+    @Test
+    public void testBase64DecodeByteChannel() {
+        String expectedValue = "Hello Ballerina!";
+        BStruct byteChannelStruct = Util.getByteChannelStruct(bytesInputOutputProgramFile);
+        byte[] encodedByteArray = Base64.getEncoder().encode(expectedValue.getBytes());
+        InputStream encodedStream = new ByteArrayInputStream(encodedByteArray);
+        Base64ByteChannel base64ByteChannel = new Base64ByteChannel(encodedStream);
+        byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new Base64Wrapper(base64ByteChannel));
+        BValue[] args = new BValue[]{byteChannelStruct};
+        BValue[] returnValues = BRunUtil.invoke(bytesInputOutputProgramFile, "testBase64DecodeByteChannel", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
+                "Invalid return value");
+        BStruct decodedByteChannel = (BStruct) returnValues[0];
+        Channel byteChannel = (Channel) decodedByteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
+        Assert.assertEquals(StringUtils.getStringFromInputStream(byteChannel.getInputStream()), expectedValue);
     }
 }
 
