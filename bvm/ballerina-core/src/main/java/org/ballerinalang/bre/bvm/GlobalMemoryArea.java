@@ -47,6 +47,14 @@ public class GlobalMemoryArea {
         globalMemBlock[pkgIndex].setIntField(varIndex, value);
     }
 
+    public boolean lockIntField(WorkerExecutionContext ctx, int pkgIndex, int varIndex) {
+        return globalMemBlock[pkgIndex].lockIntField(ctx, varIndex);
+    }
+
+    public void unlockIntField(int pkgIndex, int varIndex) {
+        globalMemBlock[pkgIndex].unlockIntField(varIndex);
+    }
+
     public double getFloatField(int pkgIndex, int varIndex) {
         return globalMemBlock[pkgIndex].getFloatField(varIndex);
 
@@ -54,6 +62,14 @@ public class GlobalMemoryArea {
 
     public void setFloatField(int pkgIndex, int varIndex, double value) {
         globalMemBlock[pkgIndex].setFloatField(varIndex, value);
+    }
+
+    public boolean lockFloatField(WorkerExecutionContext ctx, int pkgIndex, int varIndex) {
+        return globalMemBlock[pkgIndex].lockFloatField(ctx, varIndex);
+    }
+
+    public void unlockFloatField(int pkgIndex, int varIndex) {
+        globalMemBlock[pkgIndex].unlockFloatField(varIndex);
     }
 
     public String getStringField(int pkgIndex, int varIndex) {
@@ -64,12 +80,28 @@ public class GlobalMemoryArea {
         globalMemBlock[pkgIndex].setStringField(varIndex, value);
     }
 
+    public boolean lockStringField(WorkerExecutionContext ctx, int pkgIndex, int varIndex) {
+        return globalMemBlock[pkgIndex].lockStringField(ctx, varIndex);
+    }
+
+    public void unlockStringField(int pkgIndex, int varIndex) {
+        globalMemBlock[pkgIndex].unlockStringField(varIndex);
+    }
+
     public int getBooleanField(int pkgIndex, int varIndex) {
         return globalMemBlock[pkgIndex].getBooleanField(varIndex);
     }
 
     public void setBooleanField(int pkgIndex, int varIndex, int value) {
         globalMemBlock[pkgIndex].setBooleanField(varIndex, value);
+    }
+
+    public boolean lockBooleanField(WorkerExecutionContext ctx, int pkgIndex, int varIndex) {
+        return globalMemBlock[pkgIndex].lockBooleanField(ctx, varIndex);
+    }
+
+    public void unlockBooleanField(int pkgIndex, int varIndex) {
+        globalMemBlock[pkgIndex].unlockBooleanField(varIndex);
     }
 
     public byte[] getBlobField(int pkgIndex, int varIndex) {
@@ -80,6 +112,14 @@ public class GlobalMemoryArea {
         globalMemBlock[pkgIndex].setBlobField(varIndex, value);
     }
 
+    public boolean lockBlobField(WorkerExecutionContext ctx, int pkgIndex, int varIndex) {
+        return globalMemBlock[pkgIndex].lockBlobField(ctx, varIndex);
+    }
+
+    public void unlockBlobField(int pkgIndex, int varIndex) {
+        globalMemBlock[pkgIndex].unlockBlobField(varIndex);
+    }
+
     public BRefType getRefField(int pkgIndex, int varIndex) {
         return globalMemBlock[pkgIndex].getRefField(varIndex);
     }
@@ -88,6 +128,13 @@ public class GlobalMemoryArea {
         globalMemBlock[pkgIndex].setRefField(varIndex, value);
     }
 
+    public boolean lockRefField(WorkerExecutionContext ctx, int pkgIndex, int varIndex) {
+        return globalMemBlock[pkgIndex].lockRefField(ctx, varIndex);
+    }
+
+    public void unlockRefField(int pkgIndex, int varIndex) {
+        globalMemBlock[pkgIndex].unlockRefField(varIndex);
+    }
 
     // private methods
 
