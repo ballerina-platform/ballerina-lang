@@ -34,8 +34,10 @@ function main(string... args) {
             return;
         }
     }
-    //Here is the transaction block. Since the update action may throw errors due to SQL errors,
-    //connection pool errors, etc., you can use a `try-catch` here to handle any exceptions.
+    //Here is the transaction block. Update action may return errors due to SQL errors,
+    //connection pool errors, etc., You can decide whether to abort or retry based on the
+    //error returned. If you do not explicitly abort or retry, transaction will be
+    //automatically retried  until the retry count is reached and aborted.
     //The `retry count` is the number of times the transaction is retried before aborting it.
     //By default, a transaction is tried three times before aborting. Only integer literals
     //or constants are allowed for `retry count`.

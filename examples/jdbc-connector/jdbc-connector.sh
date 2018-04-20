@@ -13,6 +13,3 @@ Age 10 count: 1
 Id 1 count: 1
 Table drop status: 0
 Procedure drop status: 0
-
-
-

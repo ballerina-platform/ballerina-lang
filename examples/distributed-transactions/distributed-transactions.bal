@@ -53,15 +53,13 @@ function main(string... args) {
     transaction with oncommit = onCommitFunction, onabort = onAbortFunction {
     //This is the first action participate in the transaction which insert customer
     //name to the first DB and get the generated key.
-        int insertCount; string[] generatedID;
+        int insertCount;
+        string[] generatedID;
         var out = testDBEP1->updateWithGeneratedKeys("INSERT INTO
                                      CUSTOMER(NAME) VALUES ('Anne')", ());
         match out {
-            (int, string[]) output =>
-            (insertCount, generatedID) = output;
-            error err => {
-                throw err.cause but { () => err };
-            }
+            (int, string[]) output => (insertCount, generatedID) = output;
+            error err => throw err.cause but { () => err };
         }
         var returnedKey = check <int>generatedID[0];
         io:println("Inserted count to CUSTOMER table: " + insertCount);
