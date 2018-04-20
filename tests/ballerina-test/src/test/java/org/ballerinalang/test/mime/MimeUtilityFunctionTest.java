@@ -633,4 +633,74 @@ public class MimeUtilityFunctionTest {
             log.error("Error occurred in testSetByteChannel", e.getMessage());
         }
     }
+
+    @Test
+    public void testSetMediaTypeToEntity() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetMediaTypeToEntity");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "application/my-custom-type+json");
+    }
+
+    @Test
+    public void testSetMediaTypeAndGetValueAsHeader() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetMediaTypeAndGetValueAsHeader");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "application/my-custom-type+json");
+    }
+
+    @Test
+    public void testSetHeaderAndGetMediaType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetHeaderAndGetMediaType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "text/plain; charset=UTF-8");
+    }
+
+    @Test
+    public void testSetContentDispositionToEntity() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetContentDispositionToEntity");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "inline;name=\"test\";filename=\"test_file.xml\"");
+    }
+
+    @Test
+    public void testSetContentDispositionAndGetValueAsHeader() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetContentDispositionAndGetValueAsHeader");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "inline;name=\"test\";filename=\"test_file.xml\"");
+    }
+
+    @Test
+    public void testSetHeaderAndGetContentDisposition() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetHeaderAndGetContentDisposition");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "inline;name=\"test\";filename=\"test_file.xml\"");
+    }
+
+    @Test
+    public void testSetContentLengthToEntity() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetContentLengthToEntity");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "45555");
+    }
+
+    @Test
+    public void testSetContentLengthAndGetValueAsHeader() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetContentLengthAndGetValueAsHeader");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "45555");
+    }
+
+    @Test
+    public void testSetContentIdToEntity() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetContentIdToEntity");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "test-id");
+    }
+
+    @Test
+    public void testSetContentIdAndGetValueAsHeader() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetContentIdAndGetValueAsHeader");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "test-id");
+    }
 }

@@ -21,6 +21,12 @@ import ballerina/io;
 @Description {value:"Permission to be used with opening a byte channel for overflow data"}
 @final io:Mode READ_PERMISSION = "r";
 
+@Description {value:"Represent 'content-id' header name"}
+@final public string CONTENT_ID = "content-id";
+
+@Description {value:"Represent 'content-length' header name"}
+@final public string CONTENT_LENGTH = "content-length";
+
 @Description {value:"Represent 'content-type' header name"}
 @final public string CONTENT_TYPE = "content-type";
 
@@ -40,7 +46,7 @@ public type ContentDisposition object {
        map<string> parameters;
    }
 
-   @Description {value:"Convert the ContentDisposition type to a string suitable for use as the value of a corresponding HTTP header."}
+   @Description {value:"Convert the ContentDisposition type to a string suitable for use as the value of a corresponding MIME header."}
    @Return {value:"Return the ContentDisposition object's content as a string"}
    public native function toString () returns (string);
 };
@@ -72,10 +78,13 @@ public function MediaType::getBaseType () returns (string) {
 }
 
 public function MediaType::toString () returns (string) {
-    string contentType = self.getBaseType() + "; ";
+    string contentType = self.getBaseType();
     map<string> parameters = self.parameters;
     string[] arrKeys = self.parameters.keys();
     int size = lengthof arrKeys;
+    if(size > 0) {
+        contentType = contentType + "; ";
+    }
     int index = 0;
     while (index < size) {
         string value = parameters[arrKeys[index]];
@@ -108,7 +117,7 @@ public type Entity object {
     private {
         MediaType mediaType;
         string contentId;
-        int size;
+        int contentLength;
         ContentDisposition contentDisposition;
     }
 
@@ -123,6 +132,37 @@ public type Entity object {
             contentTypeHeaderValue = self.getHeader(CONTENT_TYPE);
         }
         return getMediaTypeObject(contentTypeHeaderValue);
+    }
+
+    public function setContentId(string contentId) {
+        self.contentId = contentId;
+        self.setHeader(CONTENT_ID, contentId);
+    }
+
+    public function getContentId() returns string {
+        string contentId;
+        if (self.hasHeader(CONTENT_ID)) {
+            contentId = self.getHeader(CONTENT_ID);
+        }
+        return contentId;
+    }
+
+    public function setContentLength(int contentLength) {
+        self.contentLength = contentLength;
+        var contentLengthStr = <string>contentLength;
+        self.setHeader(CONTENT_LENGTH, contentLengthStr);
+    }
+
+    public function getContentLength() returns int | error {
+        string contentLength;
+        if (self.hasHeader(CONTENT_LENGTH)) {
+            contentLength = self.getHeader(CONTENT_LENGTH);
+        }
+        if(contentLength == "") {
+            return -1;
+        } else {
+            return <int>contentLength;
+        }
     }
 
     public function setContentDisposition (ContentDisposition contentDisposition) {

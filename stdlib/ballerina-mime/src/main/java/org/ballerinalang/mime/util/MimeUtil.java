@@ -240,33 +240,36 @@ public class MimeUtil {
                 } else {
                     dispositionBuilder.append(disposition);
                 }
-                convertDispositionObjectToString(dispositionBuilder, contentDispositionStruct);
+                if (!dispositionBuilder.toString().isEmpty()) {
+                    dispositionBuilder = convertDispositionObjectToString(dispositionBuilder, contentDispositionStruct);
+                }
             }
         }
         return dispositionBuilder.toString();
     }
 
-    private static void convertDispositionObjectToString(StringBuilder dispositionBuilder,
-                                                         BStruct contentDispositionStruct) {
-        if (!dispositionBuilder.toString().isEmpty()) {
-            String name = contentDispositionStruct.getStringField(CONTENT_DISPOSITION_NAME_INDEX);
-            String fileName = contentDispositionStruct.getStringField(CONTENT_DISPOSITION_FILENAME_INDEX);
-            if (isNotNullAndEmpty(name)) {
-                appendSemiColon(dispositionBuilder).append(CONTENT_DISPOSITION_NAME).append(ASSIGNMENT).append(
-                        includeQuotes(name)).append(SEMICOLON);
-            }
-            if (isNotNullAndEmpty(fileName)) {
-                appendSemiColon(dispositionBuilder).append(CONTENT_DISPOSITION_FILE_NAME).append(ASSIGNMENT)
-                        .append(includeQuotes(fileName)).append(SEMICOLON);
-            }
-            if (contentDispositionStruct.getRefField(CONTENT_DISPOSITION_PARA_MAP_INDEX) != null) {
-                BMap map = (BMap) contentDispositionStruct.getRefField(CONTENT_DISPOSITION_PARA_MAP_INDEX);
-                HeaderUtil.appendHeaderParams(appendSemiColon(dispositionBuilder), map);
-            }
+    public static StringBuilder convertDispositionObjectToString(StringBuilder dispositionBuilder,
+                                                                 BStruct contentDispositionStruct) {
+
+        String name = contentDispositionStruct.getStringField(CONTENT_DISPOSITION_NAME_INDEX);
+        String fileName = contentDispositionStruct.getStringField(CONTENT_DISPOSITION_FILENAME_INDEX);
+        if (isNotNullAndEmpty(name)) {
+            appendSemiColon(dispositionBuilder).append(CONTENT_DISPOSITION_NAME).append(ASSIGNMENT).append(
+                    includeQuotes(name)).append(SEMICOLON);
         }
+        if (isNotNullAndEmpty(fileName)) {
+            appendSemiColon(dispositionBuilder).append(CONTENT_DISPOSITION_FILE_NAME).append(ASSIGNMENT)
+                    .append(includeQuotes(fileName)).append(SEMICOLON);
+        }
+        if (contentDispositionStruct.getRefField(CONTENT_DISPOSITION_PARA_MAP_INDEX) != null) {
+            BMap map = (BMap) contentDispositionStruct.getRefField(CONTENT_DISPOSITION_PARA_MAP_INDEX);
+            HeaderUtil.appendHeaderParams(appendSemiColon(dispositionBuilder), map);
+        }
+
         if (dispositionBuilder.toString().endsWith(SEMICOLON)) {
             dispositionBuilder.setLength(dispositionBuilder.length() - 1);
         }
+        return dispositionBuilder;
     }
 
     public static StringBuilder appendSemiColon(StringBuilder disposition) {
