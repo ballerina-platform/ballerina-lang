@@ -1,7 +1,5 @@
 package org.wso2.transport.http.netty.contract.websocket;
 
-import javax.websocket.Session;
-
 /**
  * Future for WebSocket handshake.
  */
@@ -18,9 +16,9 @@ public interface HandshakeFuture {
     /**
      * Notify the success of the WebSocket handshake.
      *
-     * @param session Session for the successful connection.
+     * @param webSocketConnection {@link WebSocketConnection} for the successful connection.
      */
-    public void notifySuccess(Session session);
+    public void notifySuccess(WebSocketConnection webSocketConnection);
 
     /**
      * Notify any error occurred during the handshake.
@@ -28,11 +26,4 @@ public interface HandshakeFuture {
      * @param throwable error occurred during handshake.
      */
     public void notifyError(Throwable throwable);
-
-    /**
-     * Sync the future.
-     *
-     * @throws InterruptedException if interruption happens during sync time.
-     */
-    public void sync() throws InterruptedException;
 }

@@ -44,16 +44,15 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListen
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
+import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnection;
 import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.WebSocketCloseMessageImpl;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.WebSocketControlMessageImpl;
 import org.wso2.transport.http.netty.exception.UnknownWebSocketFrameTypeException;
-import org.wso2.transport.http.netty.internal.websocket.WebSocketSessionImpl;
 import org.wso2.transport.http.netty.internal.websocket.WebSocketUtil;
 
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
-import javax.websocket.Session;
 
 /**
  * WebSocket Client Handler. This class responsible for handling the inbound messages for the WebSocket Client.
@@ -70,8 +69,9 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
     private final String requestedUri;
     private final WebSocketConnectorListener connectorListener;
     private String actualSubProtocol = null;
-    private WebSocketSessionImpl channelSession;
+    private DefaultWebSocketConnection webSocketConnection;
     private ChannelPromise handshakeFuture;
+    private ChannelHandlerContext ctx;
 
     public WebSocketTargetHandler(WebSocketClientHandshaker handshaker, boolean isSecure, String requestedUri,
                                   WebSocketConnectorListener webSocketConnectorListener) {
@@ -86,12 +86,16 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
         return handshakeFuture;
     }
 
-    public Session getChannelSession() {
-        return channelSession;
+    public DefaultWebSocketConnection getWebSocketConnection() {
+        return webSocketConnection;
     }
 
     public void setActualSubProtocol(String actualSubProtocol) {
         this.actualSubProtocol = actualSubProtocol;
+    }
+
+    public ChannelHandlerContext getCtx() {
+        return this.ctx;
     }
 
     @Override
@@ -101,18 +105,18 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws URISyntaxException {
+        this.ctx = ctx;
         handshaker.handshake(ctx.channel());
-        channelSession = WebSocketUtil.getSession(ctx, isSecure, requestedUri);
+        webSocketConnection = WebSocketUtil.getWebSocketConnection(ctx, isSecure, requestedUri);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws ServerConnectorException {
-        if (channelSession != null) {
-            channelSession.setIsOpen(false);
+        if (webSocketConnection != null && webSocketConnection.getSession().isOpen()) {
+            webSocketConnection.getDefaultWebSocketSession().setIsOpen(false);
+            String reasonText = "Server is going away";
+            notifyCloseMessage(Constants.WEBSOCKET_STATUS_CODE_GOING_AWAY, reasonText, ctx);
         }
-        int statusCode = 1001;
-        String reasonText = "Server is going away";
-        notifyCloseMessage(statusCode, reasonText, ctx);
     }
 
     @Override
@@ -133,7 +137,7 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
             handshaker.finishHandshake(ch, (FullHttpResponse) msg);
             log.debug("WebSocket Client connected!");
             handshakeFuture.setSuccess();
-            channelSession = WebSocketUtil.getSession(ctx, isSecure, requestedUri);
+            webSocketConnection = WebSocketUtil.getWebSocketConnection(ctx, isSecure, requestedUri);
             return;
         }
 
@@ -153,8 +157,8 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
         } else if (frame instanceof PingWebSocketFrame) {
             notifyPingMessage((PingWebSocketFrame) frame, ctx);
         } else if (frame instanceof CloseWebSocketFrame) {
-            if (channelSession != null) {
-                channelSession.setIsOpen(false);
+            if (webSocketConnection != null) {
+                webSocketConnection.getDefaultWebSocketSession().setIsOpen(false);
             }
             notifyCloseMessage((CloseWebSocketFrame) frame, ctx);
             ch.close();
@@ -182,10 +186,10 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
         String reasonText = closeWebSocketFrame.reasonText();
         int statusCode = closeWebSocketFrame.statusCode();
         ctx.channel().close();
-        if (channelSession == null) {
+        if (webSocketConnection == null) {
             throw new ServerConnectorException("Cannot find initialized channel session");
         }
-        channelSession.setIsOpen(false);
+        webSocketConnection.getDefaultWebSocketSession().setIsOpen(false);
         WebSocketMessageImpl webSocketCloseMessage = new WebSocketCloseMessageImpl(statusCode, reasonText);
         closeWebSocketFrame.release();
         setupCommonProperties(webSocketCloseMessage, ctx);
@@ -195,10 +199,10 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
     private void notifyCloseMessage(int statusCode, String reasonText, ChannelHandlerContext ctx)
             throws ServerConnectorException {
         ctx.channel().close();
-        if (channelSession == null) {
+        if (webSocketConnection == null) {
             throw new ServerConnectorException("Cannot find initialized channel session");
         }
-        channelSession.setIsOpen(false);
+        webSocketConnection.getDefaultWebSocketSession().setIsOpen(false);
         WebSocketMessageImpl webSocketCloseMessage = new WebSocketCloseMessageImpl(statusCode, reasonText);
         setupCommonProperties(webSocketCloseMessage, ctx);
         connectorListener.onMessage((WebSocketCloseMessage) webSocketCloseMessage);
@@ -231,7 +235,7 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
                                                        ChannelHandlerContext ctx) {
         webSocketChannelContext.setSubProtocol(actualSubProtocol);
         webSocketChannelContext.setIsConnectionSecured(isSecure);
-        webSocketChannelContext.setChannelSession(channelSession);
+        webSocketChannelContext.setWebSocketConnection(webSocketConnection);
         webSocketChannelContext.setIsServerMessage(false);
 
         webSocketChannelContext.setProperty(Constants.SRC_HANDLER, this);

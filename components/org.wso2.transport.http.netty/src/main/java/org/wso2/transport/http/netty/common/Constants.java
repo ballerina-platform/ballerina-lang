@@ -187,6 +187,9 @@ public final class Constants {
     public static final String WEBSOCKET_MESSAGE = "WEBSOCKET_MESSAGE";
     public static final String WEBSOCKET_HEADER_SUBPROTOCOL = "Sec-WebSocket-Protocol";
 
+    public static final int WEBSOCKET_STATUS_CODE_NORMAL_CLOSURE = 1000;
+    public static final int WEBSOCKET_STATUS_CODE_GOING_AWAY = 1001;
+
     // Callback related parameters
     public static final String HTTP_CONNECTION_CLOSE = "close";
 
@@ -262,6 +265,8 @@ public final class Constants {
     // Trace Logger related parameters
     public static final String TRACE_LOG_UPSTREAM = "http.tracelog.upstream";
     public static final String TRACE_LOG_DOWNSTREAM = "http.tracelog.downstream";
+
+    public static final String ACCESS_LOG = "http.accesslog";
 
     public static final String LISTENER_PORT = "LISTENER_PORT";
 

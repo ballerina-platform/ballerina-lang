@@ -56,8 +56,12 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableEntryException;
 import java.util.concurrent.TimeUnit;
-
 import javax.net.ssl.SSLEngine;
+
+import static org.wso2.transport.http.netty.common.Constants.ACCESS_LOG;
+import static org.wso2.transport.http.netty.common.Constants.HTTP_ACCESS_LOG_HANDLER;
+import static org.wso2.transport.http.netty.common.Constants.HTTP_TRACE_LOG_HANDLER;
+import static org.wso2.transport.http.netty.common.Constants.TRACE_LOG_DOWNSTREAM;
 
 /**
  * A class that responsible for build server side channels.
@@ -178,12 +182,10 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
             serverPipeline.addLast(Constants.HTTP_CHUNK_WRITER, new ChunkedWriteHandler());
 
             if (httpTraceLogEnabled) {
-                serverPipeline.addLast(Constants.HTTP_TRACE_LOG_HANDLER,
-                                       new HTTPTraceLoggingHandler(Constants.TRACE_LOG_DOWNSTREAM));
+                serverPipeline.addLast(HTTP_TRACE_LOG_HANDLER, new HTTPTraceLoggingHandler(TRACE_LOG_DOWNSTREAM));
             }
             if (httpAccessLogEnabled) {
-                serverPipeline.addLast(Constants.HTTP_ACCESS_LOG_HANDLER,
-                                       new HttpAccessLoggingHandler("accesslog.http"));
+                serverPipeline.addLast(HTTP_ACCESS_LOG_HANDLER, new HttpAccessLoggingHandler(ACCESS_LOG));
             }
         }
         serverPipeline.addLast("uriLengthValidator", new UriAndHeaderLengthValidator(this.serverName));
@@ -231,11 +233,11 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         pipeline.addLast(Constants.HTTP_SERVER_CODEC, sourceCodec);
         pipeline.addLast(Constants.HTTP_COMPRESSOR, new CustomHttpContentCompressor());
         if (httpTraceLogEnabled) {
-            pipeline.addLast(Constants.HTTP_TRACE_LOG_HANDLER,
-                                   new HTTPTraceLoggingHandler(Constants.TRACE_LOG_DOWNSTREAM));
+            pipeline.addLast(HTTP_TRACE_LOG_HANDLER,
+                             new HTTPTraceLoggingHandler(TRACE_LOG_DOWNSTREAM));
         }
         if (httpAccessLogEnabled) {
-            pipeline.addLast(Constants.HTTP_ACCESS_LOG_HANDLER, new HttpAccessLoggingHandler("http.accesslog"));
+            pipeline.addLast(HTTP_ACCESS_LOG_HANDLER, new HttpAccessLoggingHandler(ACCESS_LOG));
         }
         pipeline.addLast(Constants.HTTP2_UPGRADE_HANDLER,
                          new HttpServerUpgradeHandler(sourceCodec, upgradeCodecFactory, Integer.MAX_VALUE));

@@ -59,7 +59,7 @@ public class HttpToWebSocketProtocolSwitchMultiThreadTestCase {
     }
 
     @Test
-    public void testWebSocketGetUpgrade() throws IOException {
+    public void testWebSocketGetUpgrade() throws IOException, InterruptedException {
         URL url = baseURI.resolve("/websocket").toURL();
         HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
         urlConn.setRequestMethod("GET");
@@ -73,6 +73,7 @@ public class HttpToWebSocketProtocolSwitchMultiThreadTestCase {
         Assert.assertEquals(urlConn.getHeaderField("upgrade"), "websocket");
         Assert.assertEquals(urlConn.getHeaderField("connection"), "upgrade");
         Assert.assertTrue(urlConn.getHeaderField("sec-websocket-accept") != null);
+        urlConn.disconnect();
     }
 
     @AfterClass

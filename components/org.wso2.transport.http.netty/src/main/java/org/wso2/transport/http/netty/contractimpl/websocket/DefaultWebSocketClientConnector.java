@@ -38,6 +38,7 @@ public class DefaultWebSocketClientConnector implements WebSocketClientConnector
     private final int idleTimeout;
     private final Map<String, String> customHeaders;
     private final EventLoopGroup wsClientEventLoopGroup;
+    private final boolean autoRead;
 
     public DefaultWebSocketClientConnector(WsClientConnectorConfig clientConnectorConfig,
             EventLoopGroup wsClientEventLoopGroup) {
@@ -46,12 +47,13 @@ public class DefaultWebSocketClientConnector implements WebSocketClientConnector
         this.customHeaders = clientConnectorConfig.getHeaders();
         this.idleTimeout = clientConnectorConfig.getIdleTimeoutInMillis();
         this.wsClientEventLoopGroup = wsClientEventLoopGroup;
+        this.autoRead = clientConnectorConfig.isAutoRead();
     }
 
     @Override
     public HandshakeFuture connect(WebSocketConnectorListener connectorListener) {
         WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, subProtocols, idleTimeout,
-                wsClientEventLoopGroup, customHeaders, connectorListener);
+                wsClientEventLoopGroup, customHeaders, connectorListener, autoRead);
         return webSocketClient.handshake();
     }
 }
