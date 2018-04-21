@@ -611,8 +611,8 @@ public class SQLActionsTest {
         Assert.assertEquals(returns[0].stringValue(), "[[{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, "
                 + "name:\"Devni\", address:\"Sri Lanka\"}, {id:3, name:\"Thurani\", address:\"Sri Lanka\"}], [{id:1, "
                 + "name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, name:\"Devni\", address:\"Sri Lanka\"}, {id:3, "
-                + "name:\"Thurani\", address:\"Sri Lanka\"}], {message:\"Trying to perform an operation over a closed"
-                + " table\", cause:null}]");
+                + "name:\"Thurani\", address:\"Sri Lanka\"}], {message:\"Trying to perform hasNext operation over a "
+                + "closed table\", cause:null}]");
     }
 
     @Test(groups = "ConnectorTest",
@@ -637,8 +637,8 @@ public class SQLActionsTest {
         Assert.assertEquals(returns[0].stringValue(), "[[{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, "
                 + "name:\"Devni\", address:\"Sri Lanka\"}, {id:3, name:\"Thurani\", address:\"Sri Lanka\"}], [{id:1, "
                 + "name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, name:\"Devni\", address:\"Sri Lanka\"}, {id:3, "
-                + "name:\"Thurani\", address:\"Sri Lanka\"}], {message:\"Trying to perform an operation over a closed"
-                + " table\", cause:null}]");
+                + "name:\"Thurani\", address:\"Sri Lanka\"}], {message:\"Trying to perform hasNext operation over a "
+                + "closed table\", cause:null}]");
     }
 
     @AfterSuite
