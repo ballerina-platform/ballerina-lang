@@ -407,6 +407,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangDocumentation docNode) {
         Set<BLangIdentifier> visitedAttributes = new HashSet<>();
         for (BLangDocumentationAttribute attribute : docNode.attributes) {
+            attribute.type = symTable.errType;
             if (attribute.docTag == DocTag.ENDPOINT) {
                 if (!this.env.enclObject.getFunctions().stream().anyMatch(bLangFunction ->
                         Names.EP_SPI_GET_CALLER_ACTIONS.value.equals(bLangFunction.getName().toString()))) {
