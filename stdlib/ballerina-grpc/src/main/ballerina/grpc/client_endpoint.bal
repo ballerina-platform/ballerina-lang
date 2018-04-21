@@ -66,7 +66,7 @@ documentation {
 
     F{{trustStore}} - TrustStore related options.
     F{{keyStore}} - KeyStore related options.
-    F{{protocols}} - SSL/TLS protocol related options.
+    F{{protocol}} - SSL/TLS protocol related options.
     F{{certValidation}} - Certificate validation against CRL or OCSP related options.
     F{{ciphers}} - List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA.
     F{{verifyHostname}} - Enable/disable host name verification.

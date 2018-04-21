@@ -20,7 +20,7 @@ service<http:Service> frontendHttpService bind frontendEP {
         methods:["GET"],
         path:"/"
     }
-    frontendHttpResource (endpoint client, http:Request clientRequest) {
+    frontendHttpResource (endpoint caller, http:Request clientRequest) {
 
         http:Request serviceReq = new;
         http:HttpFuture httpFuture = new;
@@ -32,7 +32,7 @@ service<http:Service> frontendHttpService bind frontendEP {
                 http:Response errorResponse = new;
                 json errMsg = {"error":"error occurred while submitting a request"};
                 errorResponse.setJsonPayload(errMsg);
-                _ = client -> respond(errorResponse);
+                _ = caller -> respond(errorResponse);
                 done;
             }
             http:HttpFuture resultantFuture => {
@@ -57,7 +57,7 @@ service<http:Service> frontendHttpService bind frontendEP {
                     http:Response errorResponse = new;
                     json errMsg = {"error":"error occurred while fetching a push promise"};
                     errorResponse.setJsonPayload(errMsg);
-                    _ = client -> respond(errorResponse);
+                    _ = caller -> respond(errorResponse);
                     done;
                 }
             }
@@ -73,7 +73,7 @@ service<http:Service> frontendHttpService bind frontendEP {
             http:Response errorResponse = new;
             json errMsg = {"error":"expected number of promises not received"};
             errorResponse.setJsonPayload(errMsg);
-            _ = client -> respond(errorResponse);
+            _ = caller -> respond(errorResponse);
             done;
         }
         io:println("Number of promises received : " + promiseCount);
@@ -90,7 +90,7 @@ service<http:Service> frontendHttpService bind frontendEP {
                 http:Response errorResponse = new;
                 json errMsg = {"error":"error occurred while fetching response"};
                 errorResponse.setJsonPayload(errMsg);
-                _ = client -> respond(errorResponse);
+                _ = caller -> respond(errorResponse);
                 done;
             }
         }
@@ -105,7 +105,7 @@ service<http:Service> frontendHttpService bind frontendEP {
                 http:Response errorResponse = new;
                 json errMsg = {"error":"expected response message not received"};
                 errorResponse.setJsonPayload(errMsg);
-                _ = client -> respond(errorResponse);
+                _ = caller -> respond(errorResponse);
                 done;
             }
         }
@@ -115,7 +115,7 @@ service<http:Service> frontendHttpService bind frontendEP {
             http:Response errorResponse = new;
             json errMsg = {"error":"expected response message not received"};
             errorResponse.setJsonPayload(errMsg);
-            _ = client -> respond(errorResponse);
+            _ = caller -> respond(errorResponse);
             done;
         }
         io:println("Response : " + responseStringPayload);
@@ -133,7 +133,7 @@ service<http:Service> frontendHttpService bind frontendEP {
                     http:Response errorResponse = new;
                     json errMsg = {"error":"error occurred while fetching promised response"};
                     errorResponse.setJsonPayload(errMsg);
-                    _ = client -> respond(errorResponse);
+                    _ = caller -> respond(errorResponse);
                     done;
                 }
             }
@@ -148,19 +148,19 @@ service<http:Service> frontendHttpService bind frontendEP {
                     http:Response errorResponse = new;
                     json errMsg = {"error":"expected promised response not received"};
                     errorResponse.setJsonPayload(errMsg);
-                    _ = client -> respond(errorResponse);
+                    _ = caller -> respond(errorResponse);
                     done;
                 }
             }
 
             // check whether expected
-            string expectedVal = promise.path.subString(1, 10);
+            string expectedVal = promise.path.substring(1, 10);
             string promisedStringPayload = promisedJsonPayload.toString();
             if (!(promisedStringPayload.contains(expectedVal))) {
                 http:Response errorResponse = new;
                 json errMsg = {"error":"expected promised response not received"};
                 errorResponse.setJsonPayload(errMsg);
-                _ = client -> respond(errorResponse);
+                _ = caller -> respond(errorResponse);
                 done;
             }
             io:println("Promised resource : " + promisedStringPayload);
@@ -170,7 +170,7 @@ service<http:Service> frontendHttpService bind frontendEP {
         http:Response successResponse = new;
         json successMsg = {"status":"successful"};
         successResponse.setJsonPayload(successMsg);
-        _ = client -> respond(successResponse);
+        _ = caller -> respond(successResponse);
     }
 }
 
@@ -188,23 +188,23 @@ service<http:Service> backendHttp2Service bind backendEP {
   @http:ResourceConfig {
      path:"/main"
   }
-  backendHttp2Resource (endpoint client, http:Request req) {
+  backendHttp2Resource (endpoint caller, http:Request req) {
 
     io:println("Request received");
 
     // Send a Push Promise
     http:PushPromise promise1 = new (path = "/resource1", method = "POST");
-    _ = client -> promise(promise1);
+    _ = caller -> promise(promise1);
 
     // Send another Push Promise
     http:PushPromise promise2 = new (path = "/resource2", method = "POST");
-    _ = client -> promise(promise2);
+    _ = caller -> promise(promise2);
 
     // Send one more Push Promise
     http:PushPromise promise3 = new;   // create with default params
     promise3.path = "/resource3";      // set parameters
     promise3.method = "POST";
-    _ = client -> promise(promise3);
+    _ = caller -> promise(promise3);
 
     // Construct requested resource
     http:Response response = new;
@@ -212,7 +212,7 @@ service<http:Service> backendHttp2Service bind backendEP {
     response.setJsonPayload(msg);
 
     // Send the requested resource
-    _ = client -> respond(response);
+    _ = caller -> respond(response);
 
     // Construct promised resource1
     http:Response push1 = new;
@@ -220,20 +220,20 @@ service<http:Service> backendHttp2Service bind backendEP {
     push1.setJsonPayload(msg);
 
     // Push promised resource1
-    _ = client -> pushPromisedResponse(promise1, push1);
+    _ = caller -> pushPromisedResponse(promise1, push1);
 
     http:Response push2 = new;
     msg = {"push":{"name":"resource2"}};
     push2.setJsonPayload(msg);
 
     // Push promised resource2
-    _ = client -> pushPromisedResponse(promise2, push2);
+    _ = caller -> pushPromisedResponse(promise2, push2);
 
     http:Response push3 = new;
     msg = {"push":{"name":"resource3"}};
     push3.setJsonPayload(msg);
 
     // Push promised resource3
-    _ = client -> pushPromisedResponse(promise3, push3);
+    _ = caller -> pushPromisedResponse(promise3, push3);
   }
 }

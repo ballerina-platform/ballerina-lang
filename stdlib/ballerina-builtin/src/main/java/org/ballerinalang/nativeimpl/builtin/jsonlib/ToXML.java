@@ -52,7 +52,13 @@ public class ToXML extends BlockingNativeCallableUnit {
         BStruct error = null;
         try {
             // Accessing Parameters
-            BJSON json = (BJSON) ctx.getRefArgument(0);
+            BJSON json = (BJSON) ctx.getNullableRefArgument(0);
+            if (json == null) {
+                error = Utils.createConversionError(ctx, "cannot convert null json to xml");
+                ctx.setReturnValues(error);
+                return;
+            }
+
             BStruct optionsStruct = ((BStruct) ctx.getRefArgument(1));
             String attributePrefix = optionsStruct.getStringField(0);
             String arrayEntryTag = optionsStruct.getStringField(1);

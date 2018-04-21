@@ -82,6 +82,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
@@ -126,6 +127,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 /**
@@ -1047,15 +1049,17 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangMatchExpression bLangMatchExpression) {
         SymbolEnv matchExprEnv = SymbolEnv.createBlockEnv((BLangBlockStmt) TreeBuilder.createBlockNode(), env);
         checkExpr(bLangMatchExpression.expr, matchExprEnv);
-        Set<BType> matchExprTypes = new LinkedHashSet<>();
+
+        // Type check and resolve patterns and their expressions
         bLangMatchExpression.patternClauses.forEach(pattern -> {
             if (!pattern.variable.name.value.endsWith(Names.IGNORE.value)) {
                 symbolEnter.defineNode(pattern.variable, matchExprEnv);
             }
             checkExpr(pattern.expr, matchExprEnv, expType);
             pattern.variable.type = symResolver.resolveTypeNode(pattern.variable.typeNode, matchExprEnv);
-            matchExprTypes.add(getActualType(pattern.expr));
         });
+
+        Set<BType> matchExprTypes = getMatchExpressionTypes(bLangMatchExpression);
 
         BType actualType;
         if (matchExprTypes.contains(symTable.errType)) {
@@ -1244,8 +1248,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {
         BType actualType = checkInvocationParam(iExpr);
-        // if this is a function invocation on json, then do not add nil to the return types.
-        if (iExpr.expr != null && iExpr.expr.type.tag != TypeTags.JSON) {
+        if (iExpr.expr != null) {
             actualType = getAccessExprFinalType(iExpr, actualType);
         }
 
@@ -1770,7 +1773,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private boolean isNilable(BLangAccessExpression accessExpr, BType actualType) {
         BType parentType = accessExpr.expr.type;
-        if (parentType.isNullable() && actualType.tag != TypeTags.JSON) {
+        if (parentType.isNullable() && parentType.tag != TypeTags.JSON) {
             return true;
         }
 
@@ -1955,8 +1958,43 @@ public class TypeChecker extends BLangNodeVisitor {
         return new BUnionType(null, new LinkedHashSet<>(lhsTypes), false);
     }
 
-    private BType getActualType(BLangExpression expr) {
-        return expr.impConversionExpr == null ? expr.type : getActualType(expr.impConversionExpr);
+    private List<BType> getTypesList(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) type;
+            return new ArrayList<>(unionType.memberTypes);
+        } else {
+            return Lists.of(type);
+        }
     }
 
+    private Set<BType> getMatchExpressionTypes(BLangMatchExpression bLangMatchExpression) {
+        List<BType> exprTypes = getTypesList(bLangMatchExpression.expr.type);
+        Set<BType> matchExprTypes = new LinkedHashSet<>();
+        for (BType type : exprTypes) {
+            boolean assignable = false;
+            for (BLangMatchExprPatternClause pattern : bLangMatchExpression.patternClauses) {
+                BType patternExprType = pattern.expr.type;
+
+                // Type of the pattern expression, becomes one of the types of the whole but expression
+                matchExprTypes.addAll(getTypesList(patternExprType));
+
+                if (type.tag == TypeTags.ERROR || patternExprType.tag == TypeTags.ERROR) {
+                    return new HashSet<>(Lists.of(symTable.errType));
+                }
+
+                assignable = this.types.isAssignable(type, pattern.variable.type);
+                if (assignable) {
+                    break;
+                }
+            }
+
+            // If the matching expr type is not matching to any pattern, it becomes one of the types
+            // returned by the whole but expression
+            if (!assignable) {
+                matchExprTypes.add(type);
+            }
+        }
+
+        return matchExprTypes;
+    }
 }

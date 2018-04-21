@@ -195,7 +195,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private static final CompilerContext.Key<TaintAnalyzer> TAINT_ANALYZER_KEY = new CompilerContext.Key<>();
 
     private SymbolEnv env;
-    private SymbolEnv mainPkgEnv;
     private SymbolEnv currPkgEnv;
     private PackageID mainPkgId;
     private Names names;
@@ -205,7 +204,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private boolean nonOverridingAnalysis;
     private boolean entryPointAnalysis;
     private boolean stopAnalysis;
-    private boolean initialAnalysisComplete;
     private BlockedNode blockedNode;
     private List<Boolean> taintedStatusList;
     private List<Boolean> returnTaintedStatusList;
@@ -220,7 +218,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private static final String ANNOTATION_SENSITIVE = "sensitive";
 
     private static final int ALL_UNTAINTED_TABLE_ENTRY_INDEX = -1;
-    private static final String MAIN_FUNCTION_NAME = "main";
+
+    private enum AnalyzerPhase { INITIAL_ANALYSIS, BLOCKED_NODE_ANALYSIS };
+    private AnalyzerPhase analyzerPhase;
 
     public static TaintAnalyzer getInstance(CompilerContext context) {
         TaintAnalyzer taintAnalyzer = context.get(TAINT_ANALYZER_KEY);
@@ -238,7 +238,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
-        this.mainPkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
         this.mainPkgId = pkgNode.packageID;
         pkgNode.accept(this);
         return pkgNode;
@@ -246,6 +245,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangPackage pkgNode) {
+        analyzerPhase = AnalyzerPhase.INITIAL_ANALYSIS;
         if (pkgNode.completedPhases.contains(CompilerPhase.TAINT_ANALYZE)) {
             return;
         }
@@ -254,14 +254,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         this.currPkgEnv = pkgEnv;
         this.env = pkgEnv;
 
-        pkgNode.imports.forEach(impPkgNode -> impPkgNode.accept(this));
         pkgNode.topLevelNodes.forEach(e -> ((BLangNode) e).accept(this));
-        // Do table generation for blocked invokables after all the import packages are scanned.
-        if (this.mainPkgEnv.equals(this.currPkgEnv)) {
-            initialAnalysisComplete = true;
-            resolveBlockedInvokable();
-            initialAnalysisComplete = false;
-        }
+        analyzerPhase = AnalyzerPhase.BLOCKED_NODE_ANALYSIS;
+        resolveBlockedInvokable();
+
         this.currPkgEnv = prevPkgEnv;
         pkgNode.completedPhases.add(CompilerPhase.TAINT_ANALYZE);
     }
@@ -1719,7 +1715,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (this.blockedNode != null) {
             // Add the function being blocked into the blocked node list for later processing.
             this.blockedNode.invokableNode = invokableNode;
-            if (!initialAnalysisComplete) {
+            if (analyzerPhase == AnalyzerPhase.INITIAL_ANALYSIS) {
                 List<BlockedNode> blockedNodeList = blockedNodeMap.get(blockedNode.blockingNode);
                 if (blockedNodeList == null) {
                     blockedNodeList = new ArrayList<>();
@@ -1889,7 +1885,29 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             // If list is not moving, there is a recursion. Derive the tainted status of all the blocked
             // functions by using annotations and if annotations are not present generate error.
             if (remainingBlockedNodeCount != 0 && analyzedBlockedNodeCount == remainingBlockedNodeCount) {
-                boolean partialResolutionFound = analyzeBlockedNodeWithReturnAnnotations(remainingBlockedNodeMap);
+                boolean partialResolutionFound = false;
+                // Check each stagnated function and derive the tainted / untainted status of the return value based on
+                // annotations.
+                Map<BlockingNode, List<BlockedNode>> remainingBlockedNodesAfterAnnotationCheck = new LinkedHashMap<>();
+                for (BlockingNode blockingNode : remainingBlockedNodeMap.keySet()) {
+                    List<BlockedNode> blockedNodeList = remainingBlockedNodeMap.get(blockingNode);
+                    List<BlockedNode> remainingBlockedNodeList = new ArrayList<>();
+                    for (BlockedNode blockedNode : blockedNodeList) {
+                        boolean retParamIsAnnotated = hasAnnotation(blockedNode.invokableNode.returnTypeAnnAttachments,
+                                ANNOTATION_TAINTED) || hasAnnotation(blockedNode.invokableNode.returnTypeAnnAttachments,
+                                ANNOTATION_UNTAINTED);
+                        if (retParamIsAnnotated) {
+                            attachTaintTableBasedOnAnnotations(blockedNode.invokableNode);
+                            partialResolutionFound = true;
+                        } else {
+                            remainingBlockedNodeList.add(blockedNode);
+                        }
+                    }
+                    if (remainingBlockedNodeList.size() > 0) {
+                        remainingBlockedNodesAfterAnnotationCheck.put(blockingNode, remainingBlockedNodeList);
+                    }
+                }
+                remainingBlockedNodeMap = remainingBlockedNodesAfterAnnotationCheck;
                 if (!partialResolutionFound) {
                     // If returns of remaining blocked nodes are not annotated, generate errors, since
                     // taint analyzer cannot accurately finish the analysis unless required annotations were
@@ -1907,27 +1925,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             }
             sortedBlockedNodeMap = remainingBlockedNodeMap;
         }
-    }
-
-    private boolean analyzeBlockedNodeWithReturnAnnotations(Map<BlockingNode, List<BlockedNode>> blockedNodeMap) {
-        boolean partialResolutionFound = false;
-        for (BlockingNode blockingNode : blockedNodeMap.keySet()) {
-            List<BlockedNode> blockedNodeList = blockedNodeMap.get(blockingNode);
-            for (BlockedNode blockedNode : blockedNodeList) {
-                boolean retParamIsAnnotated = hasAnnotation(blockedNode.invokableNode.returnTypeAnnAttachments,
-                        ANNOTATION_TAINTED) || hasAnnotation(blockedNode.invokableNode.returnTypeAnnAttachments,
-                        ANNOTATION_UNTAINTED);
-
-                if (retParamIsAnnotated) {
-                    attachTaintTableBasedOnAnnotations(blockedNode.invokableNode);
-                    //TODO: Re-enable this once websub looping issue is resolved
-                    //return true;
-                    partialResolutionFound = true;
-                }
-            }
-        }
-        //return false;
-        return partialResolutionFound;
     }
 
     private BLangVariable getParam(BLangInvokableNode invNode, int paramIndex, int requiredParamCount,

@@ -220,3 +220,21 @@ function testMapNilLiftingOnLHS_1() returns map {
 //     m["name"].fname = "John";
 //     return m;
 // }
+
+function testFunctionInvocOnJsonNonExistingField (json inputJson) returns (json, string, string[]) {
+    json j = {name:"John"};
+    string s = j.foo.bar.toString();
+    string[] keys = j.foo.bar.getKeys();
+    return (j, s, keys);
+}
+
+function testCountOnJSON (json inputJson) returns int {
+    json j = {names: ["John", "Doe"]};
+    int count = j.names.count();
+    return count;
+}
+
+function testCountOnNullJSON (json inputJson) {
+    json j = {name:"John"};
+    int count = j.foo.bar.count();
+}

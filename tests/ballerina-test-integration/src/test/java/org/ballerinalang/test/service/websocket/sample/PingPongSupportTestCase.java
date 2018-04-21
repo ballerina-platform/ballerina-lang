@@ -58,7 +58,7 @@ public class PingPongSupportTestCase extends WebSocketIntegrationTest {
         ballerinaServerInstance.startBallerinaServer(balPath);
 
         client = new WebSocketTestClient(URL);
-        handshakeAndAck(client);
+        client.handshake();
     }
 
     @Test
