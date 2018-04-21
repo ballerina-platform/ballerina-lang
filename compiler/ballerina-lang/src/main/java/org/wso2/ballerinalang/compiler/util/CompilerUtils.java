@@ -48,11 +48,14 @@ public class CompilerUtils {
         }
         BInvokableSymbol symbol = funcNode.symbol;
         if (!(symbol.params.size() == 0 && symbol.defaultableParams.size() == 0
-                && symbol.restParam != null && symbol.retType.tag == TypeTags.NIL)) {
+                && symbol.retType.tag == TypeTags.NIL)) {
             return false;
         }
         if (Symbols.isPublic(funcNode.symbol)) {
             return false;
+        }
+        if (symbol.restParam == null) {
+            return true;
         }
         if (symbol.restParam.type.tag == TypeTags.ARRAY) {
             BArrayType argsType = (BArrayType) symbol.restParam.type;

@@ -30,20 +30,29 @@ import org.testng.annotations.Test;
  */
 public class MainFunctionsTest {
 
-    private CompileResult result;
+    private CompileResult result, result2;
     
     @BeforeClass
     public void setup() {
         this.result = BCompileUtil.compile("test-src/vm/main-functions.bal");
+        this.result2 = BCompileUtil.compile("test-src/vm/main-without-arguments.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
+        Assert.assertEquals(result2.getErrorCount(), 0);
     }
     
     @Test
     public void basicMainInvocationTest() {
+        Assert.assertTrue(result.getProgFile().isMainEPAvailable());
         BStringArray args = new BStringArray();
         args.add(0, "V1");
         args.add(1, "V2");
         BRunUtil.invoke(result, "main", new BValue[] { args });
+    }
+    
+    @Test
+    public void mainWithoutArgumentsTest() {
+        Assert.assertTrue(result.getProgFile().isMainEPAvailable());
+        BRunUtil.invoke(result2, "main", new BValue[0]);
     }
     
     @Test

@@ -17,9 +17,6 @@
 */
 package org.ballerinalang;
 
-import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -76,7 +73,8 @@ public class BLangProgramRunner {
 
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
         try {
-            BLangFunctions.invokeEntrypointCallable(programFile, mainPkgInfo, mainFuncInfo, extractMainArgs(args));
+            BLangFunctions.invokeEntrypointCallable(programFile, mainPkgInfo, mainFuncInfo,
+                    extractMainArgs(mainFuncInfo, args));
         } finally {
             if (debugger.isDebugEnabled()) {
                 debugger.notifyExit();
@@ -84,13 +82,24 @@ public class BLangProgramRunner {
             BLangFunctions.invokeVMUtilFunction(mainPkgInfo.getStopFunctionInfo());
         }
     }
+    
+    private static boolean hasParams(FunctionInfo funcInfo) {
+        return funcInfo.getParamTypes().length > 0;
+    }
 
-    private static BValue[] extractMainArgs(String[] args) {
+    private static BValue[] extractMainArgs(FunctionInfo mainFuncInfo, String[] args) {
+        if (!hasParams(mainFuncInfo)) {
+            if (args.length > 0) {
+                throw new BallerinaException("no arguments expected for main");
+            } else {
+                return new BValue[0];
+            }
+        }
         BStringArray arrayArgs = new BStringArray();
         for (int i = 0; i < args.length; i++) {
             arrayArgs.add(i, args[i]);
         }
-        return new BValue[] {arrayArgs};
+        return new BValue[] { arrayArgs };
     }
 
     private static void initDebugger(ProgramFile programFile, Debugger debugger) {
@@ -107,13 +116,6 @@ public class BLangProgramRunner {
 
         FunctionInfo mainFuncInfo = mainPkgInfo.getFunctionInfo("main");
         if (mainFuncInfo == null) {
-            throw new BallerinaException(errorMsg);
-        }
-
-        BType[] paramTypes = mainFuncInfo.getParamTypes();
-        BType[] retParamTypes = mainFuncInfo.getRetParamTypes();
-        BArrayType argsType = new BArrayType(BTypes.typeString);
-        if (paramTypes.length != 1 || !paramTypes[0].equals(argsType) || retParamTypes.length != 0) {
             throw new BallerinaException(errorMsg);
         }
 
