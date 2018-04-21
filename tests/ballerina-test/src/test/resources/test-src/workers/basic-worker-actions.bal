@@ -79,14 +79,14 @@ function forkJoinWithMultipleForkMessages() returns int {
 	     int b = 0;
 	     a -> w2;
 	     b <- w2;
-	     a, b -> fork;
+	     (a, b) -> fork;
 	   }
 	   worker w2 {
 	     int a = 0;
 	     int b = 15;
 	     a <- w1;
 	     b -> w1;
-	     a, b -> fork;
+	     (a, b) -> fork;
 	   }
 	} join (all) (map results) {  io:println(results);  }
 	return x;
@@ -107,7 +107,7 @@ function simpleWorkerMessagePassingTest() {
 }
 
 function forkJoinWithSomeJoin() returns int | error {
-    map m = {};
+    map m;
     m["x"] = 25;
     int ret;
     fork {
@@ -115,12 +115,12 @@ function forkJoinWithSomeJoin() returns int | error {
 	     int a = 5;
 	     int b = 0;
 	     m["x"] = a;
-         runtime:sleepCurrentWorker(1000);
+         runtime:sleep(1000);
 	   }
 	   worker w2 {
 	     int a = 5;
 	     int b = 15;
-         runtime:sleepCurrentWorker(1000);
+         runtime:sleep(1000);
 	     m["x"] = a;
 	   }
 	   worker w3 {
@@ -141,4 +141,3 @@ function workerReturnTest() returns int {
 	    return x + 1;
     }
 }
-

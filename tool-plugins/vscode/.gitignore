@@ -10,15 +10,16 @@ node_modules
 *.war
 *.ear
 
+*.bak
+
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
 server-build
+plugin/renderer/resources/
 
 .project
 .settings
 .vscode
 .idea/
 *.iml
-
-syntaxes/build/build.js

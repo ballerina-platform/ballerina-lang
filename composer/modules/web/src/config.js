@@ -57,9 +57,9 @@ export default {
             dialogContainer: 'dialog-container',
         },
         [HELP_PLUGIN_ID]: {
-            issue_tracker_url: 'https://github.com/ballerinalang/composer/issues/',
+            issue_tracker_url: 'https://github.com/ballerina-lang/ballerina/issues?q=is%3Aopen+is%3Aissue+label%3Acomponent%2FComposer',
             example_url: 'https://ballerinalang.org/docs/by-example/',
-            api_reference_url: 'https://ballerinalang.org/docs/api/0.964.1/',
+            api_reference_url: 'https://ballerinalang.org/docs/api/0.970.0/',
         },
         [WELCOME_TAB_PLUGIN_ID]: {
             userGuide: 'http://ballerinalang.org/docs/user-guide/',
@@ -86,37 +86,12 @@ export default {
                     image: 'preview_passthroughService',
                 },
                 {
-                    name: 'Transformer',
-                    isFile: false,
-                    openFolder: true,
-                    folder: '/resources/composer/samples/transformer',
-                    path: '/resources/composer/samples/transformer/StructTransformer.bal',
-                    image: 'preview_transformStmt',
-                },
-                {
-                    name: 'Service Chaining',
-                    isFile: false,
-                    openFolder: false,
-                    folder: '/resources/composer/samples/serviceChaining/',
-                    path: '/resources/composer/samples/serviceChaining/servicechaining/samples/ATMLocatorService.bal',
-                    image: 'preview_servicechaining',
-                },
-                {
                     name: 'RESTful Service',
                     isFile: false,
                     openFolder: false,
                     folder: '/resources/composer/samples/restfulService/restfulservice',
                     path: '/resources/composer/samples/restfulService/restfulservice/samples/productsService.bal',
                     image: 'preview_restfulService',
-                },
-                {
-                    name: 'Routing Services',
-                    isFile: false,
-                    openFolder: false,
-                    folder: '/resources/composer/samples/routingServices',
-                    path: '/resources/composer/samples/routingServices/' +
-                    'routingServices/samples/contentBasedRoutingService.bal',
-                    image: 'preview_routingServices',
                 },
                 {
                     name: 'WebSocket',

@@ -9,7 +9,7 @@ function testUndeclaredAttributeAccess() {
     dpt["id"] = "HR";       
 }     
       
-struct Department {       
+type Department {
     string dptName;     
     int count;      
-}
+};

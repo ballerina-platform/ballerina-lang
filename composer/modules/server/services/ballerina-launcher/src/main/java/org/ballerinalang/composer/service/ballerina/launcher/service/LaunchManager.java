@@ -23,6 +23,7 @@ import org.ballerinalang.composer.server.core.ServerConfig;
 import org.ballerinalang.composer.service.ballerina.launcher.service.dto.CommandDTO;
 import org.ballerinalang.composer.service.ballerina.launcher.service.dto.MessageDTO;
 import org.ballerinalang.composer.service.ballerina.launcher.service.util.LaunchUtils;
+import org.ballerinalang.composer.service.ballerina.launcher.service.util.LogParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.util.HashSet;
 import javax.websocket.Session;
 
 /**
@@ -52,7 +54,7 @@ public class LaunchManager {
 
     private Command command;
 
-    private String port = StringUtils.EMPTY;
+    private HashSet<String> ports = new HashSet<String>();
 
     /**
      * Instantiates a new Debug manager.
@@ -75,9 +77,15 @@ public class LaunchManager {
         return launchManagerInstance;
     }
 
+    public void pushLogToClient(String logLine) {
+        pushMessageToClient(launchSession, LauncherConstants.OUTPUT,
+                LauncherConstants.TRACE, logLine);
+    }
+
     private void run(Command command) {
         Process program = null;
         this.command = command;
+
         // send a message if ballerina home is not set
         if (null == serverConfig.getBallerinaHome()) {
             pushMessageToClient(launchSession, LauncherConstants.ERROR, LauncherConstants.ERROR, LauncherConstants
@@ -89,17 +97,19 @@ public class LaunchManager {
 
         try {
             String[] cmdArray = command.getCommandArray();
-            if (command.getPackageDir() == null) {
+
+            if (command.getSourceRoot() == null) {
                 program = Runtime.getRuntime().exec(cmdArray);
             } else {
-                program = Runtime.getRuntime().exec(cmdArray, null, new File(command.getPackageDir()));
+                program = Runtime.getRuntime().exec(cmdArray, null, new File(command.getSourceRoot()));
+
             }
 
             command.setProgram(program);
 
 
             pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STARTED, LauncherConstants.INFO,
-                        String.format(LauncherConstants.RUN_MESSAGE, command.getFileName()));
+                    String.format(LauncherConstants.RUN_MESSAGE, command.getFileName()));
 
             if (command.isDebug()) {
                 MessageDTO debugMessage = new MessageDTO();
@@ -122,9 +132,17 @@ public class LaunchManager {
             };
             (new Thread(error)).start();
 
+            new Thread(new Runnable() {
+                public void run() {
+                    LogParser.getLogParserInstance().startListner(launchManagerInstance);
+                }
+            }).start();
+
         } catch (IOException e) {
             pushMessageToClient(launchSession, LauncherConstants.EXIT, LauncherConstants.ERROR, e.getMessage());
         }
+
+
     }
 
     public void streamOutput() {
@@ -148,7 +166,8 @@ public class LaunchManager {
                         && getServerStartedURL() == null) {
                     this.updatePort(line);
                     line = LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_LOCAL + " " +
-                            String.format(LauncherConstants.LOCAL_TRY_IT_URL, LauncherConstants.LOCALHOST, this.port);
+                            String.format(LauncherConstants.LOCAL_TRY_IT_URL,
+                                    LauncherConstants.LOCALHOST, getPort(line));
                     pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.DATA, line);
                 } else {
                     pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.DATA, line);
@@ -157,6 +176,7 @@ public class LaunchManager {
             }
             pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STOPPED, LauncherConstants.INFO,
                     LauncherConstants.END_MESSAGE);
+            LogParser.getLogParserInstance().stopListner();
         } catch (IOException e) {
             logger.error("Error while sending output stream to client.", e);
         } finally {
@@ -211,6 +231,7 @@ public class LaunchManager {
             }
 
             terminator.terminate();
+            LogParser.getLogParserInstance().stopListner();
             pushMessageToClient(launchSession, LauncherConstants.EXECUTION_TERMINATED, LauncherConstants.INFO,
                     LauncherConstants.TERMINATE_MESSAGE);
         }
@@ -305,20 +326,25 @@ public class LaunchManager {
      * @param line The log line.
      */
     private void updatePort(String line) {
-        String hostPort = StringUtils.substringAfterLast(line,
-                LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_LOCAL).trim();
-        String port = StringUtils.substringAfterLast(hostPort, ":");
+        String port = this.getPort(line);
         if (StringUtils.isNotBlank(port)) {
-            this.port = port;
+            this.ports.add(port);
         }
     }
 
+    private String getPort(String line) {
+        String hostPort = StringUtils.substringAfterLast(line,
+                LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_LOCAL).trim();
+        String port = StringUtils.substringAfterLast(hostPort, ":");
+        return port;
+    }
+
     /**
-     * Getter for running port.
+     * Getter for running ports.
      *
-     * @return The port.
+     * @return ports.
      */
-    public String getPort() {
-        return this.port;
+    public HashSet<String> getPorts() {
+        return this.ports;
     }
 }

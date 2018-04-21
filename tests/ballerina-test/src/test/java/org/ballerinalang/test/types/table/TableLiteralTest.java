@@ -53,8 +53,8 @@ public class TableLiteralTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/types/table/table-literal.bal");
-        resultHelper = BCompileUtil.compile("test-src/types/table/table-test-helper.bal");
+        result = BCompileUtil.compile("test-src/types/table/table_literal.bal");
+        resultHelper = BCompileUtil.compile("test-src/types/table/table_test_helper.bal");
     }
 
     @Test(enabled = false) //Issue #5106
@@ -106,9 +106,25 @@ public class TableLiteralTest {
             System.setOut(new PrintStream(outContent));
             BRunUtil.invoke(result, "testPrintData");
             Assert.assertEquals(outContent.toString(),
-                    "{data: [{id:1, age:30, salary:300.5, name:\"jane\", married:true}, "
-                            + "{id:2, age:20, salary:200.5, name:\"martin\", married:true}, "
-                            + "{id:3, age:32, salary:100.5, name:\"john\", married:false}]}\n");
+                    "table<Person> {index: [\"id\", \"age\"], primaryKey: [\"id\", \"age\"], data: [{id:1, age:30, "
+                            + "salary:300.5, name:\"jane\", married:true}, {id:2, age:20, salary:200.5, "
+                            + "name:\"martin\", married:true}, {id:3, age:32, salary:100.5, name:\"john\", "
+                            + "married:false}]}\n");
+        } finally {
+            outContent.close();
+            System.setOut(original);
+        }
+    }
+
+    @Test(priority = 1)
+    public void testPrintDataEmptyTable() throws Exception {
+        PrintStream original = System.out;
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        try {
+            System.setOut(new PrintStream(outContent));
+            BRunUtil.invoke(result, "testPrintDataEmptyTable");
+            Assert.assertEquals(outContent.toString(),
+                    "table<Person> {index: [], primaryKey: [], data: []}\n");
         } finally {
             outContent.close();
             System.setOut(original);
@@ -320,7 +336,7 @@ public class TableLiteralTest {
           expectedExceptions = { BLangRuntimeException.class },
           expectedExceptionsMessageRegExp = ".*message: table cannot be created without a constraint.*",
           enabled = false)
-    public void testFailedGeneratedKeyOnInsert() {
+    public void testEmptyTableCreateInvalid() {
         BRunUtil.invoke(result, "testEmptyTableCreateInvalid");
     }
 

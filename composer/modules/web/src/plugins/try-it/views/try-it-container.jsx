@@ -19,10 +19,10 @@
 import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Label, Segment } from 'semantic-ui-react';
 import { parseFile } from 'api-client/api-client';
 import TreeBuilder from 'plugins/ballerina/model/tree-builder';
 import File from 'core/workspace/model/file';
-import { Label } from 'semantic-ui-react';
 import HttpClient from './http-client';
 
 import './try-it-container.scss';
@@ -79,7 +79,7 @@ class TryItContainer extends React.Component {
         if (this.state.compilationUnit) {
             const services = this.state.compilationUnit.filterTopLevelNodes({ kind: 'Service' });
             return services.filter((serviceNode) => {
-                return serviceNode.getType() === type;
+                return serviceNode.getServiceTypeStruct().getPackageAlias().getValue() === type;
             });
         } else {
             return [];
@@ -100,7 +100,7 @@ class TryItContainer extends React.Component {
                             compilationUnit: ast,
                         });
                     }
-                }).catch(() => {
+                }).catch((e) => {
                     this.setState({
                         compilationUnit: undefined,
                     });
@@ -114,7 +114,7 @@ class TryItContainer extends React.Component {
      * @memberof TryItContainer
      */
     renderClientTypePills() {
-        const httpServices = this.filterServices('HttpService');
+        const httpServices = this.filterServices('http');
         const wsServices = this.filterServices('ws');
         const jmsServices = this.filterServices('jms');
         let activeKey;
@@ -126,7 +126,7 @@ class TryItContainer extends React.Component {
             } else if (jmsServices.length > 0) {
                 activeKey = 'jms';
             } else {
-                return (<span>No Services Found!</span>);
+                return (<Segment inverted><span>No Services Found!</span></Segment>);
             }
         } else {
             activeKey = this.state.selectedClientType;
@@ -144,7 +144,7 @@ class TryItContainer extends React.Component {
      * @memberof TryItContainer
      */
     renderClientView() {
-        const httpServices = this.filterServices('HttpService');
+        const httpServices = this.filterServices('http');
         const wsServices = this.filterServices('ws');
         const jmsServices = this.filterServices('jms');
         let clientType = '';

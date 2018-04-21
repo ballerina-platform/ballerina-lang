@@ -2,12 +2,11 @@ package org.ballerinalang.net.http.serviceendpoint;
 
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
 import org.wso2.transport.http.netty.contract.ServerConnector;
-
-import java.util.LinkedHashSet;
 
 /**
  * Includes common functions to all the actions.
@@ -34,8 +33,12 @@ public abstract class AbstractHttpNativeFunction extends BlockingNativeCallableU
      * @param serviceEndpoint service endpoint struct
      * @return Ordered set of filters
      */
-    protected LinkedHashSet<FilterHolder> getFilters(Struct serviceEndpoint) {
-        return (LinkedHashSet<FilterHolder>) serviceEndpoint.getNativeData(HttpConstants.FILTERS);
+    protected Value[] getFilters(Struct serviceEndpoint) {
+        return (Value[]) serviceEndpoint.getNativeData(HttpConstants.FILTERS);
+    }
+
+    protected boolean isConnectorStarted(Struct serviceEndpoint) {
+        return serviceEndpoint.getNativeData(HttpConstants.CONNECTOR_STARTED) != null;
     }
 
 }

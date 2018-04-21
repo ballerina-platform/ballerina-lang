@@ -19,12 +19,10 @@ package org.ballerinalang.net.http.actions.httpclient;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -35,17 +33,14 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
  * {@code RejectPromise} action can be used to reject a push promise.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "rejectPromise",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
-                structPackage = "ballerina.net.http"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.CALLER_ACTIONS,
+                structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "client", type = TypeKind.STRUCT),
                 @Argument(name = "promise", type = TypeKind.STRUCT, structType = "PushPromise",
-                        structPackage = "ballerina.net.http")
-        },
-        returnType = {
-                @ReturnType(type = TypeKind.BOOLEAN)
+                        structPackage = "ballerina.http")
         }
 )
 public class RejectPromise extends AbstractHTTPAction {
@@ -60,9 +55,8 @@ public class RejectPromise extends AbstractHTTPAction {
         }
         BStruct bConnector = (BStruct) context.getRefArgument(0);
         HttpClientConnector clientConnector =
-                (HttpClientConnector) bConnector.getNativeData(HttpConstants.HTTP_CLIENT);
+                (HttpClientConnector) bConnector.getNativeData(HttpConstants.CALLER_ACTIONS);
         clientConnector.rejectPushResponse(http2PushPromise);
-        context.setReturnValues(new BBoolean(true)); // TODO: Implement a listener to see the progress
         callback.notifySuccess();
     }
 }

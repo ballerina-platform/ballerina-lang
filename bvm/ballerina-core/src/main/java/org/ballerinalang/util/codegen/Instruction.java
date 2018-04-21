@@ -64,16 +64,16 @@ public class Instruction {
 
         public int funcRefCPIndex;
         public FunctionInfo functionInfo;
-        public boolean async;
+        public int flags;
         public int[] argRegs;
         public int[] retRegs;
 
-        InstructionCALL(int opcode, int funcRefCPIndex, FunctionInfo functionInfo, boolean async,
+        InstructionCALL(int opcode, int funcRefCPIndex, FunctionInfo functionInfo, int flags,
                         int[] argRegs, int[] retRegs) {
             super(opcode);
             this.funcRefCPIndex = funcRefCPIndex;
             this.functionInfo = functionInfo;
-            this.async = async;
+            this.flags = flags;
             this.argRegs = argRegs;
             this.retRegs = retRegs;
         }
@@ -82,6 +82,7 @@ public class Instruction {
         public String toString() {
             StringJoiner sj = new StringJoiner(" ");
             sj.add(String.valueOf(funcRefCPIndex));
+            sj.add(String.valueOf(flags));
             sj.add(String.valueOf(argRegs.length));
             Arrays.stream(argRegs).forEach(i -> sj.add(String.valueOf(i)));
             sj.add(String.valueOf(retRegs.length));
@@ -101,8 +102,8 @@ public class Instruction {
         public int receiverRegIndex;
 
         InstructionVCALL(int opcode, int receiverRegIndex, int funcRefCPIndex,
-                        FunctionInfo functionInfo, boolean async, int[] argRegs, int[] retRegs) {
-            super(opcode, funcRefCPIndex, functionInfo, async, argRegs, retRegs);
+                        FunctionInfo functionInfo, int flags, int[] argRegs, int[] retRegs) {
+            super(opcode, funcRefCPIndex, functionInfo, flags, argRegs, retRegs);
             this.receiverRegIndex = receiverRegIndex;
         }
 
@@ -130,16 +131,16 @@ public class Instruction {
 
         public int actionRefCPIndex;
         public String actionName;
-        public boolean async;
+        public int flags;
         public int[] argRegs;
         public int[] retRegs;
 
-        InstructionACALL(int opcode, int actionRefCPIndex, String actionName, boolean async, 
+        InstructionACALL(int opcode, int actionRefCPIndex, String actionName, int flags, 
                 int[] argRegs, int[] retRegs) {
             super(opcode);
             this.actionRefCPIndex = actionRefCPIndex;
             this.actionName = actionName;
-            this.async = async;
+            this.flags = flags;
             this.argRegs = argRegs;
             this.retRegs = retRegs;
         }
@@ -156,16 +157,16 @@ public class Instruction {
 
         public int transformerRefCPIndex;
         public TransformerInfo transformerInfo;
-        public boolean async;
+        public int flags;
         public int[] argRegs;
         public int[] retRegs;
 
-        InstructionTCALL(int opcode, int transformerRefCPIndex, TransformerInfo transformerInfo, boolean async,
+        InstructionTCALL(int opcode, int transformerRefCPIndex, TransformerInfo transformerInfo, int flags,
                          int[] argRegs, int[] retRegs) {
             super(opcode);
             this.transformerRefCPIndex = transformerRefCPIndex;
             this.transformerInfo = transformerInfo;
-            this.async = async;
+            this.flags = flags;
             this.argRegs = argRegs;
             this.retRegs = retRegs;
         }
@@ -181,17 +182,17 @@ public class Instruction {
         public int channelRefCPIndex;
         public WorkerDataChannelInfo dataChannelInfo;
         public int sigCPIndex;
-        public BType[] types;
-        public int[] regs;
+        public BType type;
+        public int reg;
 
         InstructionWRKSendReceive(int opcode, int channelRefCPIndex, WorkerDataChannelInfo dataChannelInfo,
-                                  int sigCPIndex, BType[] types, int[] regs) {
+                                  int sigCPIndex, BType type, int reg) {
             super(opcode);
             this.channelRefCPIndex = channelRefCPIndex;
             this.dataChannelInfo = dataChannelInfo;
             this.sigCPIndex = sigCPIndex;
-            this.types = types;
-            this.regs = regs;
+            this.type = type;
+            this.reg = reg;
         }
 
         @Override
@@ -199,8 +200,7 @@ public class Instruction {
             StringJoiner sj = new StringJoiner(" ");
             sj.add(String.valueOf(channelRefCPIndex));
             sj.add(String.valueOf(sigCPIndex));
-            sj.add(String.valueOf(regs.length));
-            Arrays.stream(regs).forEach(i -> sj.add(String.valueOf(i)));
+            sj.add(String.valueOf(reg));
             return Mnemonics.getMnem(opcode) + " " + sj.toString();
         }
     }
@@ -273,11 +273,13 @@ public class Instruction {
     public static class InstructionLock extends Instruction {
 
         public BType[] types;
+        public int[] pkgRefs;
         public int[] varRegs;
 
-        InstructionLock(int opcode, BType[] types, int[] varRegs) {
+        InstructionLock(int opcode, BType[] types, int[] pkgRefs, int[] varRegs) {
             super(opcode);
             this.types = types;
+            this.pkgRefs = pkgRefs;
             this.varRegs = varRegs;
         }
 
@@ -286,6 +288,7 @@ public class Instruction {
             StringJoiner sj = new StringJoiner(" ");
             for (int i = 0; i < varRegs.length; i++) {
                 sj.add(types[i].toString());
+                sj.add(String.valueOf(pkgRefs[i]));
                 sj.add(String.valueOf(varRegs[i]));
             }
             return Mnemonics.getMnem(opcode) + " " + sj.toString();

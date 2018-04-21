@@ -1,4 +1,4 @@
-public function main (string[] args) {
+function main (string... args) {
     returnString();
 }
 
@@ -7,7 +7,7 @@ public function returnString() {
     secureFunction(data, data);
 }
 
-public function taintedReturn() returns (@tainted string) {
+public function taintedReturn() returns @tainted string {
     return "example";
 }
 

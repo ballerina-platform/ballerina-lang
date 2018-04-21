@@ -1,41 +1,79 @@
-.definition-dropdown{
-    width       : 100px !important;
+.definition-dropdown {
+    width: 100px !important;
     padding-left: 30px !important;
-    height      : 28px;
-    margin      : 4px !important;
-    
+    height: 28px;
+    margin: 4px 10px 4px 4px !important;
+    padding-top: 6px !important;
     .left-icon {
-        position    : absolute;
-        margin      : -14px -26px !important;
-        font-size   : 12px !important;
+        position: absolute;
+        margin: -14px -26px !important;
+        font-size: 12px !important;
     }
 }
-.menu-icon{
-    width       : 30px !important;
-    height      : 30px !important;
-    padding-top : 7px;
-    color       : #222;
-    padding-left: 7px;
+
+.menu-icon:hover {
+    // background: red;
+    border-radius: 50%;
 }
-.package-input{
-    border      : 0 !important;
-    padding     : 0 !important;
-    
-    input{
-        border  : 0 !important;
+
+.package-input {
+    border: 0 !important;
+    padding: 0 !important;
+    display: none !important;
+    input {
+        border: 0 !important;
+        background: #e7eaeb ! important;
     }
 }
 
 .design-view-container {
-   .item{
-       border   : 0;
-       padding  : 0 !important;
-       margin   : 5px !important;
-   }
-   .ui.menu .item:before{
-        width   : 0;
+    .item {
+        border: 0;
+        padding: 0 !important;
+        margin-top: 6px ;
+        a.item:hover{
+            background: pink !important;
+
+        }
+        .menu-icon {
+            width: 26px !important;
+            height: 25px !important;
+            color: #222;
+            padding: 2px 0 26px 8px !important;
+            margin  : 9px 5px 0 0 !important;
+
+            &:hover{
+                width: 26px !important;
+                height: 25px !important;
+                border-radius: 0 !important;
+            }
+        }
+        .menu-icon-right{
+            width: 26px !important;
+            height: 25px !important;
+            color: #222;
+            padding: 0 0 23px 8px !important;
+            margin  :16px 6px 0px 0 !important;
+            
+            &:hover{
+                width: 26px !important;
+                height: 25px !important;
+                border-radius: 0 !important;
+            }
+        }
+
     }
-    a.item:hover{
-        border-radius: 50% !important;
+    .ui.menu .item:before {
+        width: 0;
     }
- }
+    .menu-button{
+        opacity: 0.8;
+        margin-right: 35px !important;
+    }
+    .menu-button:hover{
+        font-weight  : 500 !important;
+        border-radius: 0% !important; 
+        background   : none !important;
+        opacity      : 1 !important;
+    }
+}

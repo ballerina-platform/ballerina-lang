@@ -43,7 +43,7 @@ import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 
 /**
- * Test cases for ballerina.net.http inbound response negative native functions.
+ * Test cases for ballerina/http inbound response negative native functions.
  */
 public class ResponseNativeFunctionNegativeTest {
 
@@ -63,11 +63,17 @@ public class ResponseNativeFunctionNegativeTest {
 
     @Test
     public void testGetHeader() {
-        BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
-        BString key = new BString(HttpHeaderNames.CONTENT_TYPE.toString());
-        BValue[] inputArg = {inResponse, key};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", inputArg);
-        Assert.assertNull(returnVals[0]);
+        try {
+            BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
+                                                                 inRespStruct);
+            BString key = new BString(HttpHeaderNames.CONTENT_TYPE.toString());
+            BValue[] inputArg = {inResponse, key};
+            BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", inputArg);
+            Assert.assertNull(returnVals[0]);
+        } catch (Exception exception) {
+            String errorMessage = exception.getMessage();
+            Assert.assertTrue(errorMessage.contains(" message: http Header does not exist!"));
+        }
     }
 
     @Test(description = "Test method without json payload")
@@ -173,7 +179,7 @@ public class ResponseNativeFunctionNegativeTest {
                 "incompatible types: expected 'int', found 'string'", 4, 22);
         //testInResponseGetMethod
         BAssertUtil.validateError(resultNegative, 1,
-                "undefined field 'method' in struct 'ballerina.net.http:Response'",
+                "undefined field 'method' in struct 'ballerina.http:Response'",
                 9, 21);
     }
 }

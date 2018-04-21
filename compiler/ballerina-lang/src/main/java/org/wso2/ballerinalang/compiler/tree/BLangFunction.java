@@ -20,11 +20,16 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @since 0.94
@@ -34,11 +39,19 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
     public BLangVariable receiver;
 
     //TODO remove this and use ATTACHED flag instead
+    // TODO remove when removing struct
     public boolean attachedFunction;
+    public boolean attachedOuterFunction;
 
     public boolean interfaceFunction;
 
-    public Map<BVarSymbol, BLangStatement> initFunctionStmts = new LinkedHashMap<>();
+    public BLangBlockStmt enclBlockStmt;
+
+    public Set<BVarSymbol> closureVarSymbols =  new LinkedHashSet<>();
+
+    public Map<BSymbol, BLangStatement> initFunctionStmts = new LinkedHashMap<>();
+
+    public BInvokableSymbol originalFuncSymbol;
 
     public VariableNode getReceiver() {
         return receiver;
@@ -46,11 +59,6 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
 
     public void setReceiver(VariableNode receiver) {
         this.receiver = (BLangVariable) receiver;
-    }
-
-    @Override
-    public boolean isInterfaceFunction() {
-        return interfaceFunction;
     }
 
     @Override

@@ -80,7 +80,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
     public BBoolean isSingleton() {
         return new BBoolean(sequence.size() == 1);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -89,8 +89,8 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
         if (sequence.size() == 1) {
             return ((BXMLItem) sequence.get(0)).getItemType();
         }
-        
-        return BTypes.typeString.getZeroValue();
+
+        return new BString(XMLNodeType.SEQUENCE.value());
     }
     
     /**
@@ -203,13 +203,14 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
         }
         return new BXMLSequence(elementsSeq);
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public BXML<?> children() {
         BRefValueArray elementsSeq = new BRefValueArray(BTypes.typeXML);
+        int index = 0;
         for (int i = 0; i < sequence.size(); i++) {
             BXMLItem element = (BXMLItem) sequence.get(i);
             if (element.getNodeType() != XMLNodeType.ELEMENT) {
@@ -217,15 +218,14 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
             }
 
             Iterator<OMNode> childrenItr = ((OMElement) element.value()).getChildren();
-            int j = 0;
             while (childrenItr.hasNext()) {
-                elementsSeq.add(j++, new BXMLItem(childrenItr.next()));
+                elementsSeq.add(index++, new BXMLItem(childrenItr.next()));
             }
         }
-        
+
         return new BXMLSequence(elementsSeq);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -233,6 +233,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
     public BXML<?> children(String qname) {
         BRefValueArray elementsSeq = new BRefValueArray();
         QName name = getQname(qname);
+        int index = 0;
         for (int i = 0; i < sequence.size(); i++) {
             BXMLItem element = (BXMLItem) sequence.get(i);
             if (element.getNodeType() != XMLNodeType.ELEMENT) {
@@ -240,10 +241,9 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
             }
 
             Iterator<OMNode> childrenItr = ((OMElement) element.value()).getChildrenWithName(name);
-            int j = 0;
             while (childrenItr.hasNext()) {
                 OMNode child = childrenItr.next();
-                elementsSeq.add(j++, new BXMLItem(child));
+                elementsSeq.add(index++, new BXMLItem(child));
             }
         }
         return new BXMLSequence(elementsSeq);

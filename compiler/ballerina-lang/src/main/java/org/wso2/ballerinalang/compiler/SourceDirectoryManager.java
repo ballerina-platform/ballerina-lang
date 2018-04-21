@@ -19,8 +19,11 @@ package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.nio.file.Path;
@@ -61,15 +64,30 @@ public class SourceDirectoryManager {
     public Stream<PackageID> listSourceFilesAndPackages() {
         List<String> sourceFileNames = this.sourceDirectory.getSourceFileNames();
         List<String> packageNames = this.sourceDirectory.getSourcePackageNames();
+        Manifest manifest = getManifest();
         return Stream.concat(sourceFileNames.stream().map(PackageID::new),
-                packageNames.stream().map(name -> new PackageID(Names.ANON_ORG,
-                        names.fromString(name), Names.DEFAULT_VERSION)));
+                             packageNames.stream().map(name -> new PackageID(getOrgName(manifest),
+                                                                             names.fromString(name),
+                                                                             new Name(manifest.getVersion()))));
+    }
+
+    private Manifest getManifest() {
+        Manifest manifest;
+        if (sourceDirectory.getManifestContent() == null) {
+            manifest = new Manifest();
+        } else {
+            manifest = ManifestProcessor.parseTomlContentAsStream(sourceDirectory.getManifestContent());
+        }
+        if (manifest.getVersion().isEmpty()) {
+            manifest.setVersion(Names.DEFAULT_VERSION.getValue());
+        }
+        return manifest;
     }
 
     public Stream<PackageID> listPackages() {
         List<String> pkgNames = sourceDirectory.getSourcePackageNames();
         return pkgNames.stream().map(name -> new PackageID(Names.ANON_ORG,
-                names.fromString(name), Names.DEFAULT_VERSION));
+                                                           names.fromString(name), Names.DEFAULT_VERSION));
     }
 
     public PackageID getPackageID(String sourcePackage) {
@@ -80,12 +98,13 @@ public class SourceDirectoryManager {
 
         List<String> packageNames = this.sourceDirectory.getSourcePackageNames();
         if (packageNames.contains(sourcePackage)) {
-            return new PackageID(Names.ANON_ORG, names.fromString(sourcePackage), Names.DEFAULT_VERSION);
+            Manifest manifest = getManifest();
+            return new PackageID(getOrgName(manifest), names.fromString(sourcePackage),
+                    new Name(manifest.getVersion()));
         }
 
         return null;
     }
-
 
     // private methods
 
@@ -112,5 +131,10 @@ public class SourceDirectoryManager {
 
         context.put(SourceDirectory.class, srcDirectory);
         return srcDirectory;
+    }
+
+    private Name getOrgName(Manifest manifest) {
+        return manifest.getName() == null || manifest.getName().isEmpty() ?
+                Names.ANON_ORG : names.fromString(manifest.getName());
     }
 }

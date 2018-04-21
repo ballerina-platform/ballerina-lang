@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.resolvers;
 
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
@@ -33,7 +33,7 @@ import java.util.ArrayList;
 public class DefaultResolver extends AbstractItemResolver {
     @Override
     @SuppressWarnings("unchecked")
-    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
+    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
         CompletionItem workerItem = new CompletionItem();

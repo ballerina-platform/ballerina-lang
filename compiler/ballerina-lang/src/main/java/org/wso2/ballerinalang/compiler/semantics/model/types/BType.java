@@ -22,14 +22,11 @@ import org.ballerinalang.model.types.ValueType;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.wso2.ballerinalang.compiler.util.TypeTags.BLOB;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.BOOLEAN;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.FLOAT;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.INT;
-import static org.wso2.ballerinalang.compiler.util.TypeTags.NULL;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.NIL;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.STRING;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.TYPEDESC;
 
@@ -40,6 +37,7 @@ public class BType implements ValueType {
 
     public int tag;
     public BTypeSymbol tsymbol;
+    public int flags;
 
     public BType(int tag, BTypeSymbol tsymbol) {
         this.tag = tag;
@@ -65,8 +63,8 @@ public class BType implements ValueType {
         }
     }
 
-    public List<BType> getReturnTypes() {
-        return new ArrayList<>(0);
+    public BType getReturnType() {
+        return null;
     }
 
     public boolean isNullable() {
@@ -92,8 +90,8 @@ public class BType implements ValueType {
                 return TypeKind.BLOB;
             case TYPEDESC:
                 return TypeKind.TYPEDESC;
-            case NULL:
-                return TypeKind.NULL;
+            case NIL:
+                return TypeKind.NIL;
             default:
                 return TypeKind.OTHER;
         }

@@ -25,7 +25,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.StringJoiner;
 
 /**
  * {@code BLangMatch} represents a type switch statement in Ballerina.
@@ -58,6 +61,13 @@ public class BLangMatch extends BLangStatement implements MatchNode {
         visitor.visit(this);
     }
 
+    @Override
+    public String toString() {
+        StringJoiner sj = new StringJoiner(";");
+        patternClauses.forEach(pattern -> sj.add(pattern.toString()));
+        return String.valueOf(expr) + " match {" + String.valueOf(sj) + "}";
+    }
+
     /**
      * {@code BLangMatchStmtPatternClause} represents a pattern inside a type switch statement
      *
@@ -67,6 +77,10 @@ public class BLangMatch extends BLangStatement implements MatchNode {
 
         public BLangVariable variable;
         public BLangBlockStmt body;
+
+        // This field is used to capture types that are matched to this pattern.
+        public Set<BType> matchedTypesDirect = new HashSet<>();
+        public Set<BType> matchedTypesIndirect = new HashSet<>();
 
         @Override
         public NodeKind getKind() {
@@ -86,6 +100,11 @@ public class BLangMatch extends BLangStatement implements MatchNode {
         @Override
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
+        }
+        
+        @Override
+        public String toString() {
+            return String.valueOf(variable) + " => " + String.valueOf(body);
         }
     }
 }

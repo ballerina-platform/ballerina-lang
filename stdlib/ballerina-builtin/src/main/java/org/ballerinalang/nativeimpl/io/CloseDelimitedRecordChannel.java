@@ -37,9 +37,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
-        functionName = "closeDelimitedRecordChannel",
+        functionName = "close",
         receiver = @Receiver(type = TypeKind.STRUCT,
-                structType = "DelimitedRecordChannel",
+                structType = "DelimitedTextRecordChannel",
                 structPackage = "ballerina.io"),
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
@@ -52,15 +52,14 @@ public class CloseDelimitedRecordChannel implements NativeCallableUnit {
     private static final int RECORD_CHANNEL_INDEX = 0;
 
     private static EventResult closeResponse(EventResult<Boolean, EventContext> result) {
-        BStruct errorStruct = null;
         EventContext eventContext = result.getContext();
         Context context = eventContext.getContext();
         CallableUnitCallback callback = eventContext.getCallback();
         Throwable error = eventContext.getError();
         if (null != error) {
-            errorStruct = IOUtils.createError(context, error.getMessage());
+            BStruct errorStruct = IOUtils.createError(context, error.getMessage());
+            context.setReturnValues(errorStruct);
         }
-        context.setReturnValues(errorStruct);
         callback.notifySuccess();
         return result;
     }

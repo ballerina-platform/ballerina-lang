@@ -1,6 +1,5 @@
-package globalvar.pkg.srvc;
 
-import ballerina/net.http;
+import ballerina/http;
 import globalvar.pkg.varpkg;
 
 
@@ -17,7 +16,7 @@ float glbVarFunc = functInv();
 
 int glbVarPkgFunc = varpkg:getIntValue();
 
-endpoint http:ServiceEndpoint globalVarEP {
+endpoint http:NonListener globalVarEP {
     port:9090
 };
 
@@ -38,7 +37,7 @@ service<http:Service> GlobalVar bind globalVarEP {
         float pkgFloat = varpkg:glbVarFloat;
         json responseJson = {"glbVarInt":pkgInt, "glbVarString":pkgString, "glbVarFloat":pkgFloat};
 
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);
     }
@@ -49,7 +48,7 @@ service<http:Service> GlobalVar bind globalVarEP {
     }
     assignGlobalVarFromOtherPkg (endpoint conn, http:Request req) {
 
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"glbVarFloat1":glbVarFloat1};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);
@@ -60,7 +59,7 @@ service<http:Service> GlobalVar bind globalVarEP {
         path:"/func-inv-from-same-pkg"
     }
     assignFuncInvocationToGlobalVarFromSamePkg (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"glbVarFunc":glbVarFunc};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);
@@ -71,7 +70,7 @@ service<http:Service> GlobalVar bind globalVarEP {
         path:"/func-inv-from-diff-pkg"
     }
     assignFuncInvocationToGlobalVarFromDiffPkg (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"glbVarPkgFunc":glbVarPkgFunc};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);
@@ -82,7 +81,7 @@ service<http:Service> GlobalVar bind globalVarEP {
         path:"/assign-to-service-var-from-diff-pkg"
     }
     assignGlobalVarToServiceVarFromDiffPkg (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"serviceVarString":serviceVarString};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);
@@ -94,7 +93,7 @@ service<http:Service> GlobalVar bind globalVarEP {
     }
     changeGlobalVarInDiffPkg (endpoint conn, http:Request req) {
 
-        http:Response res = {};
+        http:Response res = new;
         varpkg:glbVarFloatChange = 345432.454;
         _ = conn -> respond(res);
     }
@@ -112,7 +111,7 @@ service<http:Service> GlobalVarSecond bind globalVarEP{
         path:"/get-changed-resource-level"
     }
     getChangedGlobalVarAtResourceLevel (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         float changeVarFloat = varpkg:glbVarFloatChange;
         json responseJson = {"changeVarFloat":changeVarFloat};
         res.setJsonPayload(responseJson);

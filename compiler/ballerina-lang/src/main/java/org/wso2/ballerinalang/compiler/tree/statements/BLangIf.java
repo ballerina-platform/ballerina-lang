@@ -75,6 +75,6 @@ public class BLangIf extends BLangStatement implements IfNode {
 
     @Override
     public String toString() {
-        return "BLangIf: (" + expr + ") " + body + (elseStmt != null ? (" Else: " + elseStmt) : "");
+        return "if (" + expr + ") " + body + (elseStmt != null ? (" else " + elseStmt) : "");
     }
 }

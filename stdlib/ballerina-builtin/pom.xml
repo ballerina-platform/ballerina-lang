@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.964.1-SNAPSHOT</version>
+        <version>0.970.0-beta6-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -78,6 +78,10 @@
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-config</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.transport.file</groupId>
+            <artifactId>org.wso2.transport.local-file-system</artifactId>
+        </dependency>
     </dependencies>
     
     <build>
@@ -96,6 +100,28 @@
             </resource>
     	</resources>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.5.2</version>
+                <executions>
+                    <execution>
+                        <id>distribution</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attached</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>${basedir}/assembly/bin.xml</descriptor>
+                            </descriptors>
+                            <finalName>${project.artifactId}-${project.version}</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- For ballerina annotation processing -->
             <plugin>
                 <groupId>org.bsc.maven</groupId>
@@ -125,7 +151,7 @@
 
     <properties>
         <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
-        <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
+        <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
         <maven.checkstyleplugin.excludes>**/generated/**</maven.checkstyleplugin.excludes>
     </properties>
     

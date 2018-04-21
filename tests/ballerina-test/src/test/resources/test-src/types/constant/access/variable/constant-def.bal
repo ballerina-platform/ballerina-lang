@@ -1,3 +1,2 @@
-package variable;
 
-public const float constFloat = 342342.234;
+@final public float constFloat = 342342.234;

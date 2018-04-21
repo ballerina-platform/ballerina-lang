@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.signature;
 
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.eclipse.lsp4j.Position;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -38,7 +38,7 @@ public class SignatureHelpUtilTest {
         URI fileLocation = CLASS_LOADER.getResource("signature" + File.separator + "util"
                 + File.separator + "testUtil.bal").toURI();
         String stringContent = new String(Files.readAllBytes(Paths.get(fileLocation)));
-        TextDocumentServiceContext serviceContext = new TextDocumentServiceContext();
+        LSServiceOperationContext serviceContext = new LSServiceOperationContext();
         SignatureHelpUtil.captureCallableItemInfo(position, stringContent, serviceContext);
         String capturedFunctionName = serviceContext.get(SignatureKeys.CALLABLE_ITEM_NAME);
         Assert.assertEquals(funcName, capturedFunctionName);

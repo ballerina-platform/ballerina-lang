@@ -44,6 +44,7 @@ import org.ballerinalang.plugins.idea.psi.DoubleBackTickInlineCodeNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.IntegerLiteralNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
@@ -92,6 +93,8 @@ public class BallerinaAnnotator implements Annotator {
             annotateConstants(element, holder);
         } else if (parent instanceof ConstantDefinitionNode) {
             annotateConstants(parent, holder);
+        } else if (element instanceof IntegerLiteralNode) {
+            annotateInteger(parent, holder);
         } else if (element instanceof VariableReferenceNode) {
             annotateVariableReferenceNodes((VariableReferenceNode) element, holder);
         } else if (element instanceof AnnotationDefinitionNode) {
@@ -124,7 +127,8 @@ public class BallerinaAnnotator implements Annotator {
 
     private void annotateLeafPsiElementNodes(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
         IElementType elementType = ((LeafPsiElement) element).getElementType();
-        if (elementType == BallerinaTypes.AT && element.getParent() instanceof AnnotationAttachmentNode) {
+        PsiElement parentElement = element.getParent();
+        if (elementType == BallerinaTypes.AT && parentElement instanceof AnnotationAttachmentNode) {
             Annotation annotation = holder.createInfoAnnotation(element, null);
             annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.ANNOTATION);
         } else if (elementType == BallerinaTypes.QUOTED_STRING) {
@@ -235,7 +239,12 @@ public class BallerinaAnnotator implements Annotator {
             Annotation annotation = holder.createInfoAnnotation(newTextRange, msg);
             annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION_INLINE_CODE);
         } else if (element instanceof IdentifierPSINode) {
-            if (element.getParent() instanceof DocumentationTemplateAttributeDescriptionNode) {
+            if (parentElement.getParent() instanceof AnnotationAttachmentNode) {
+                Annotation annotation = holder.createInfoAnnotation(element, null);
+                annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.ANNOTATION);
+                return;
+            }
+            if (parentElement instanceof DocumentationTemplateAttributeDescriptionNode) {
                 Annotation annotation = holder.createInfoAnnotation(element, null);
                 annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION_INLINE_CODE);
             }
@@ -373,6 +382,11 @@ public class BallerinaAnnotator implements Annotator {
         annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.CONSTANT);
     }
 
+    private void annotateInteger(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
+        Annotation annotation = holder.createInfoAnnotation(element, null);
+        annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.NUMBER);
+    }
+
     private void annotateGlobalVariable(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
         ValueTypeNameNode valueTypeNameNode = PsiTreeUtil.findChildOfType(element, ValueTypeNameNode.class);
         if (valueTypeNameNode == null || valueTypeNameNode.getText().isEmpty()) {
@@ -498,6 +512,17 @@ public class BallerinaAnnotator implements Annotator {
     }
 
     private void annotatePackageNameNodes(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
+
+        PsiElement parent = element.getParent();
+        if (parent != null) {
+            PsiElement superParent = parent.getParent();
+            if (superParent != null && superParent instanceof AnnotationAttachmentNode) {
+                Annotation annotation = holder.createInfoAnnotation(element, null);
+                annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.ANNOTATION);
+                return;
+            }
+        }
+
         ImportDeclarationNode importDeclarationNode = PsiTreeUtil.getParentOfType(element, ImportDeclarationNode.class);
         if (importDeclarationNode != null) {
             return;

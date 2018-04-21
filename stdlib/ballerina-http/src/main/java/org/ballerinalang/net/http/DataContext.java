@@ -50,4 +50,13 @@ public class DataContext {
         }
         callback.notifySuccess();
     }
+
+    public void notifyOutboundResponseStatus(BStruct httpConnectorError) {
+        if (httpConnectorError == null) {
+            context.setReturnValues();
+        } else {
+            context.setReturnValues(httpConnectorError);
+        }
+        callback.notifySuccess();
+    }
 }

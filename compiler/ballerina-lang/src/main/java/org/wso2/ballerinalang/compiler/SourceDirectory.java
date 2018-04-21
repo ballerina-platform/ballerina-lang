@@ -17,8 +17,10 @@
  */
 package org.wso2.ballerinalang.compiler;
 
-import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
+import org.ballerinalang.repository.CompiledPackage;
+import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
@@ -40,9 +42,9 @@ public interface SourceDirectory {
 
     InputStream getLockFileContent();
 
-    void saveCompiledProgram(InputStream source, String fileName);
+    Path saveCompiledProgram(InputStream source, String fileName);
 
-    void saveCompiledPackage(InputStream source, String fileName);
+    void saveCompiledPackage(CompiledPackage compiledPackage, Path dirPath, String fileName) throws IOException;
 
-    Repo getPackageRepository();
+    Converter<Path> getConverter();
 }

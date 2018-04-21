@@ -261,6 +261,7 @@ public class CharacterChannel {
      *
      * @param numberOfCharacters number of characters which needs to be read.
      * @return characters which were read.
+     * @throws IOException during I/O error.
      */
     public String read(int numberOfCharacters) throws IOException {
         StringBuilder content;
@@ -299,6 +300,7 @@ public class CharacterChannel {
      * Reads all content from the I/O source.
      *
      * @return all content which is read.
+     * @throws IOException during I/O error.
      */
     @Deprecated
     public String readAll() throws IOException {

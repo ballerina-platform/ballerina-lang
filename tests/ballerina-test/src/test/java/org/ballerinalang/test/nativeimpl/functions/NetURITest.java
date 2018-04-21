@@ -28,7 +28,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * TestCases for package ballerina.net.uri.
+ * TestCases for package ballerina.http.
  */
 public class NetURITest {
 
@@ -71,7 +71,7 @@ public class NetURITest {
         BRunUtil.invoke(compileResult, "testEncode", inputArg);
     }
 
-    @Test(description = "Test url encode function with invalid character set in ballerina.net.uri package")
+    @Test(description = "Test url encode function with invalid character set in ballerina.http package")
     public void testUrlEncodeWithInvalidCharset() {
         BString url = new BString("http://localhost:9090/echoService#abc");
         BString expected = new BString("Error occurred while encoding the url. abc");
@@ -81,7 +81,7 @@ public class NetURITest {
                 "Error message is not propagated.");
     }
 
-    @Test(description = "Test url decode function against simple url in ballerina.net.uri package")
+    @Test(description = "Test url decode function against simple url in ballerina.http package")
     public void testSimpleUrlDecode() {
         BString url = new BString("http%3A%2F%2Flocalhost%3A9090");
         BString expected = new BString("http://localhost:9090");
@@ -92,7 +92,7 @@ public class NetURITest {
         Assert.assertEquals(returnVals[0].stringValue(), expected.stringValue(), "Decoded url string is not correct.");
     }
 
-    @Test(description = "Test url decode function against url with spaces in ballerina.net.uri package")
+    @Test(description = "Test url decode function against url with spaces in ballerina.http package")
     public void testUrlDecodeWithSpaces() {
         BString url = new BString("http%3A%2F%2Flocalhost%3A9090%2FechoService%2Fhello%20world%2F");
         BString expected = new BString("http://localhost:9090/echoService/hello world/");
@@ -104,7 +104,7 @@ public class NetURITest {
         Assert.assertTrue(returnVals[0].stringValue().contains(" "), "Decoded url string doesn't contain spaces.");
     }
 
-    @Test(description = "Test url decode function against url with # in ballerina.net.uri package")
+    @Test(description = "Test url decode function against url with # in ballerina.http package")
     public void testUrlDecodeWithHashSign() {
         BString url = new BString("http%3A%2F%2Flocalhost%3A9090%2FechoService%23abc");
         BString expected = new BString("http://localhost:9090/echoService#abc");
@@ -116,7 +116,7 @@ public class NetURITest {
         Assert.assertTrue(returnVals[0].stringValue().contains("#"), "Decoded url string doesn't contain # character.");
     }
 
-    @Test(description = "Test url decode function against url with colon(:) in ballerina.net.uri package")
+    @Test(description = "Test url decode function against url with colon(:) in ballerina.http package")
     public void testUrlDecodeWithColon() {
         BString url = new BString("http%3A%2F%2Flocalhost%3A9090%2FechoService%3Aabc");
         BString expected = new BString("http://localhost:9090/echoService:abc");
@@ -128,7 +128,7 @@ public class NetURITest {
         Assert.assertTrue(returnVals[0].stringValue().contains(":"), "Decoded url string doesn't contain : character.");
     }
 
-    @Test(description = "Test url decode function against url with plus(+) in ballerina.net.uri package")
+    @Test(description = "Test url decode function against url with plus(+) in ballerina.http package")
     public void testUrlDecodeWithPlusSign() {
         BString url = new BString("http%3A%2F%2Flocalhost%3A9090%2FechoService%2Babc");
         BString expected = new BString("http://localhost:9090/echoService+abc");
@@ -140,7 +140,7 @@ public class NetURITest {
         Assert.assertTrue(returnVals[0].stringValue().contains(":"), "Decoded url string doesn't contain + character.");
     }
 
-    @Test(description = "Test url decode function against url with asterisk(*) in ballerina.net.uri package")
+    @Test(description = "Test url decode function against url with asterisk(*) in ballerina.http package")
     public void testUrlDecodeWithAsterisk() {
         BString url = new BString("http%3A%2F%2Flocalhost%3A9090%2FechoService%2Aabc");
         BString expected = new BString("http://localhost:9090/echoService*abc");
@@ -152,7 +152,7 @@ public class NetURITest {
         Assert.assertTrue(returnVals[0].stringValue().contains(":"), "Decoded url string doesn't contain * character.");
     }
 
-    @Test(description = "Test url decode function against url with percentage(%) in ballerina.net.uri package")
+    @Test(description = "Test url decode function against url with percentage(%) in ballerina.http package")
     public void testUrlDecodeWithPercentageMark() {
         BString url = new BString("http%3A%2F%2Flocalhost%3A9090%2FechoService%25abc");
         BString expected = new BString("http://localhost:9090/echoService%abc");
@@ -164,7 +164,7 @@ public class NetURITest {
         Assert.assertTrue(returnVals[0].stringValue().contains(":"), "Decoded url string doesn't contain % mark.");
     }
 
-    @Test(description = "Test url decode function against url with tilde(~) in ballerina.net.uri package")
+    @Test(description = "Test url decode function against url with tilde(~) in ballerina.http package")
     public void testUrlDecodeWithTilde() {
         BString url = new BString("http%3A%2F%2Flocalhost%3A9090%2FechoService~abc");
         BString expected = new BString("http://localhost:9090/echoService~abc");
@@ -176,7 +176,7 @@ public class NetURITest {
         Assert.assertTrue(returnVals[0].stringValue().contains(":"), "Decoded url string doesn't contain ~ character.");
     }
 
-    @Test(description = "Test url decode function with invalid character set in ballerina.net.uri package")
+    @Test(description = "Test url decode function with invalid character set in ballerina.http package")
     public void testUrlDecodeWithInvalidCharset() {
         BString url = new BString("http%3A%2F%2Flocalhost%3A9090%2FechoService~abc");
         BString expected = new BString("Error occurred while decoding the url. abc");

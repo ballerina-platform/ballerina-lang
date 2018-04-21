@@ -19,7 +19,6 @@
 package org.ballerinalang.net.grpc.ssl;
 
 import io.grpc.netty.GrpcSslContexts;
-import io.netty.handler.codec.http2.Http2SecurityUtil;
 import io.netty.handler.ssl.ApplicationProtocolConfig;
 import io.netty.handler.ssl.ApplicationProtocolNames;
 import io.netty.handler.ssl.ClientAuth;
@@ -29,6 +28,7 @@ import io.netty.handler.ssl.SupportedCipherSuiteFilter;
 import org.ballerinalang.net.grpc.exception.GrpcSSLValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -87,7 +87,7 @@ public class SSLHandlerFactory {
                 }
             }
             TrustManager[] trustManagers = null;
-            if (sslConfig.getTrustStore() != null) {
+            if ((sslConfig.getTrustStore() != null) && (sslConfig.getTrustStore().isFile())) {
                 KeyStore tks = getKeyStore(sslConfig.getTrustStore(), sslConfig.getTrustStorePass());
                 tmf = TrustManagerFactory.getInstance(algorithm);
                 tmf.init(tks);
@@ -102,13 +102,14 @@ public class SSLHandlerFactory {
         }
     }
     
-    private KeyStore getKeyStore(File keyStore, String keyStorePassword) throws IOException {
+    private KeyStore getKeyStore(File trustStore, String trustStorePassword) throws IOException {
         KeyStore ks = null;
         String tlsStoreType = sslConfig.getTLSStoreType();
-        if (keyStore != null && keyStorePassword != null) {
-            try (InputStream is = new FileInputStream(keyStore)) {
+        if ((trustStore != null && trustStore.isFile()) && (trustStorePassword != null
+                && !trustStorePassword.isEmpty())) {
+            try (InputStream is = new FileInputStream(trustStore)) {
                 ks = KeyStore.getInstance(tlsStoreType);
-                ks.load(is, keyStorePassword.toCharArray());
+                ks.load(is, trustStorePassword.toCharArray());
             } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException e) {
                 throw new IOException(e);
             }
@@ -117,22 +118,21 @@ public class SSLHandlerFactory {
     }
     
     /**
-     * This method will provide netty ssl context which supports HTTP2 over TLS using
+     * This method will provide netty ssl context which supports HTTP2 over TLS using ALPN.
      * Application Layer Protocol Negotiation (ALPN)
      *
      * @return instance of {@link SslContext}
-     * @throws SSLException if any error occurred during building SSL context.
      */
-    public SslContext createHttp2TLSContextForServer() throws SSLException {
+    public SslContext createHttp2TLSContextForServer() {
         
         List<String> ciphers = sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0 ? Arrays
                 .asList(sslConfig.getCipherSuites()) : preferredTestCiphers();
-        SslProvider provider = SslProvider.JDK;
+        SslProvider provider = SslProvider.OPENSSL;
         KeyStore keyStore;
-        File keyfile = new File(SSL_SERVER_KEY_FILE);
-        File certfile = new File(SSL_SERVER_CERT_FILE);
+        File keyFile = new File(SSL_SERVER_KEY_FILE);
+        File certFile = new File(SSL_SERVER_CERT_FILE);
         try {
-            if (keyfile.createNewFile() && certfile.createNewFile()) {
+            if (keyFile.createNewFile() && certFile.createNewFile()) {
                 LOG.debug("Successfully created meta cert and key files. ");
             }
             keyStore = getKeyStore(sslConfig.getKeyStore(), sslConfig.getKeyStorePass());
@@ -144,11 +144,10 @@ public class SSLHandlerFactory {
         } catch (KeyStoreException e) {
             throw new GrpcSSLValidationException("Error writing intermediate cert temporary files.", e);
         }
-        SslContext grpcSslContexts = null;
+        SslContext grpcSslContexts;
         try {
-            grpcSslContexts = GrpcSslContexts.forServer(certfile, keyfile)
+            grpcSslContexts = GrpcSslContexts.forServer(certFile, keyFile)
                     .keyManager(kmf)
-                    .trustManager(tmf)
                     .sslProvider(provider)
                     .ciphers(ciphers, SupportedCipherSuiteFilter.INSTANCE)
                     .applicationProtocolConfig(
@@ -161,22 +160,19 @@ public class SSLHandlerFactory {
         } catch (SSLException e) {
             throw new GrpcSSLValidationException("Error generating SSL context.", e);
         }
-        if (keyfile.delete() && certfile.delete()) {
+        if (keyFile.delete() && certFile.delete()) {
             LOG.debug("Successfully deleted meta cert and key files. ");
         }
         return grpcSslContexts;
     }
     
     public SslContext createHttp2TLSContextForClient() throws SSLException {
-        
         // If sender configuration does not include cipher suites , default ciphers required by the HTTP/2
         // specification will be added.
-        SslProvider provider = SslProvider.JDK;
-        List<String> ciphers = sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0 ?
-                Arrays.asList(sslConfig.getCipherSuites()) :
-                Http2SecurityUtil.CIPHERS;
-        
-        return GrpcSslContexts.forClient().sslProvider(provider).keyManager(kmf).trustManager(tmf)
+        SslProvider provider = SslProvider.OPENSSL;
+        List<String> ciphers = sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0 ? Arrays
+                .asList(sslConfig.getCipherSuites()) : preferredTestCiphers();
+        return GrpcSslContexts.forClient().sslProvider(provider).trustManager(tmf)
                 .protocols(sslConfig.getEnableProtocols()).ciphers(ciphers, SupportedCipherSuiteFilter.INSTANCE)
                 .applicationProtocolConfig(new ApplicationProtocolConfig(ApplicationProtocolConfig.Protocol.ALPN,
                         // NO_ADVERTISE is currently the only mode supported by both OpenSsl and JDK providers.

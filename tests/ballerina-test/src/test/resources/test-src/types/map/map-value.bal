@@ -2,16 +2,14 @@ function testMapWithAny() returns (string){
     map animals;
     animals = {"animal1":"Lion", "animal2":"Cat", "animal3":"Leopard", "animal4":"Dog"};
     any animal = animals["animal1"];
-    string animalString;
-    animalString, _ = (string) animal;
+    string animalString = <string> animal;
     return animalString;
 }
 
 function testMapWithMap() returns (string){
     map list1 = {"item1":"item1", "item2":"item2", "item3":"item3", "item4":"item4"};
     map list2 = list1;
-    string list2String;
-    list2String, _ = (string) list2["item1"];
+    string list2String = <string> list2["item1"];
     return list2String;
 }
 
@@ -19,8 +17,7 @@ function testMapWithAnyValue() returns (int){
     map list1 = {"item1": 1, "item2": 2, "item3": 3, "item4": 4};
     any value = 5;
     list1["item5"] = value;
-    int intVal;
-    intVal, _ = (int) list1["item5"];
+    var intVal = check <int> list1["item5"];
     return intVal;
 }
 
@@ -33,18 +30,15 @@ function testMapWithAnyDifferentValue() returns (any){
 
 function testMapWithBinaryExpression() returns (int){
     map list1 = {"item1": 1, "item2": 2, "item3": 3, "item4": 4};
-    int intItem1;
-    int intItem2;
-    intItem1, _ = (int) list1["item1"];
-    intItem2, _ = (int) list1["item2"];
+    int intItem1= check <int> list1["item1"];
+    int intItem2= check <int> list1["item2"];
     int value = intItem1 + intItem2;
     return value;
 }
 
 function testMapWithFunctionInvocations() returns (string){
     map list1 = {"list1":"item1", "item2":"item2", "item3":"item3", "item4":"item4"};
-    string list1String;
-    list1String, _ = (string) list1["list1"];
+    string list1String = <string> list1["list1"];
     string value = testEcho(list1String);
     return value;
 }
@@ -57,7 +51,7 @@ function testMapWithAnyFunctionInvocations() returns (string){
 
 function testMapOrder() returns (map)
 {
-  map m = {};
+  map m ;
   m["key1"] = "Element 1";
   m["key2"] = "Element 2";
   m["key3"] = "Element 3";
@@ -70,14 +64,13 @@ function testEcho(string value)returns (string){
 }
 
 function testEchoAny(any value)returns (string){
-    string stringVal;
-    stringVal, _ = (string) value;
+    string stringVal = <string> value;
     return stringVal;
 }
 
 function testMapSynchronization() returns (int)
 {
-    map m = {};
+    map m;
 
     fork {
         worker w2 {

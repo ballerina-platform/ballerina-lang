@@ -1,15 +1,15 @@
-$diagram-background: #f9f9f9;
-
+$diagram-background: #e7eaeb;
+$white:#fff;
 .editor-area {
   .rc-tabs-tab-active {
     .tab-title-wrapper {
       &.ballerina-design-view {
-        background-color: #f9f9f9;
+        background-color: #e7eaeb;
         color: #7D7D7D;
+        height: 40px;
         .close-tab {
-          color: #7D7D7D ;
-          background-color: #f9f9f9;
-
+          color: #7D7D7D;
+          background-color: #e7eaeb;
           &:hover {
             color: #474747;
           }
@@ -17,14 +17,12 @@ $diagram-background: #f9f9f9;
       }
     }
   }
-
   .rc-tabs-bar {
     .split-view-icon {
       font-size: 20px;
       margin-right: 20px;
       opacity: 0.6;
     }
-
     .split-view-icon:hover {
       opacity: 1;
       cursor: pointer;
@@ -32,225 +30,249 @@ $diagram-background: #f9f9f9;
   }
 }
 
+.client-line-header, .client-life-line,
+.worker-life-line, .client-invocation-arrow,
+.action-arrow .statement-title-rect, .statement-title-rect, .action-arrow,
+.action-arrow-head, .action-dash-line, .flowchart-action-arrow,
+.default-worker-life-line, .worker-life-line, .action-invocation-statement-rect
+.flowchart-background-empty-rect, .connector-life-line {
+  stroke-width: 0.75;
+}
+
 /*---------------------------
       Default lines
 ---------------------------*/
 
-.client-line-header, .client-life-line, .worker-life-line, .client-invocation-arrow,
-.statement-title-rect   {
-    stroke: #555;
-    stroke-width: 1px;
+.client-line-header,
+.client-life-line,
+.worker-life-line,
+.client-invocation-arrow,
+.action-arrow .statement-title-rect {
+  stroke: $primary-line-bgcolor;
 }
 
-.flowchart-true-text, .flowchart-false-text, .action-invocation-text{
-  fill: #555;
+.statement-title-rect {
+  fill: $white;
+  stroke:$primary-line-bgcolor;
 }
 
-.client-line-header, .statement-title-rect, .struct-type-dropdown-wrapper, .struct-input-value-wrapper, 
-.flowchart-background-empty-rect, .flowchart-separator-line, .panel-header {
-  fill: #f9f9f9;
+.flowchart-true-text,
+.flowchart-false-text {
+  fill: $primary-line-bgcolor;
+  font-weight: 300;
 }
 
-.action-arrow, .action-arrow-head, .action-dash-line {
-  stroke: #555;
-  fill: #555;
+.client-line-header,
+.statement-title-rect,
+.struct-type-dropdown-wrapper,
+.struct-input-value-wrapper,
+.flowchart-background-empty-rect,
+.flowchart-separator-line,
+.panel-header {
+  fill: $white;
+}
+
+.action-arrow,
+.action-arrow-head,
+.action-dash-line {
+  stroke: $primary-line-bgcolor;
+  fill: $primary-line-bgcolor;
 }
 
 /*---------------------------
       Worker lines 
 ---------------------------*/
 
-.flowchart-action-arrow, .default-worker-icon {
-  fill: #0070af;
+.flowchart-action-arrow,
+.default-worker-icon {
+  fill: $worker-color;
+  font-weight: 300;
 }
 
-.flowchart-action-arrow, .default-worker-life-line, .worker-life-line, .flowchart-background-empty-rect   {
-  stroke: #0070af;
-  stroke-width: 1;
+.flowchart-action-arrow,
+.default-worker-life-line,
+.worker-life-line,
+.flowchart-background-empty-rect {
+  stroke: $worker-color;
 }
 
 .flowchart-action-arrow-head {
-  fill: #0070af;
-  stroke: #0070af;
+  fill: $worker-color;
+  stroke: $worker-color;
 }
 
 /*---------------------------
       Endpoint lines
 ---------------------------*/
-.connector-icon{
-  fill: #17a085;
+
+.connector-icon {
+  fill: $connector-color;
+  font-weight: 300;
 }
 
 .connector-life-line {
-  stroke: #17a085;
-  stroke-width: 1;
+  stroke: $connector-color;
 }
 
 .action-invocation-statement-rect {
-  fill: #17a085;
-  stroke-width: 1;
+  fill: $connector-color;
 }
+
 
 .ballerina-editor {
   .design-view-container {
     background-color: $diagram-background;
   }
-
-  .protocol-http, .svg-container {
+  .protocol-http,
+  .svg-container {
     .panel {
       /* -- Service herder Styles -- */
       .panel-header {
-        fill: #f3faff;
-
         .text-placeholder {
           shape-rendering: crispEdges;
           stroke: #a5a5a5;
           stroke-width: 1;
           stroke-dasharray: 4, 2;
         }
-
-        .headingRect {
-          stroke-width: 1;
-          stroke: #c4d5e2;
+        .headingRect, .panel-body-rect{
+          fill: $white;
         }
-
         .editable-text-label {
           fill: #333;
-          stroke-width: 0.5px;
-          stroke: #333;
+          stroke: #2b2b2b;
+          font-weight: 300;
+          stroke-width: 0;
         }
-
+        
         .panel-header-controls-wrapper {
           fill: rgba(255, 255, 255, 0.1);
         }
-
-        text {
-          fill: #333 !important;
+        .control-icons {
+          fill: #636363;
+          font-size: 11px;
         }
 
-        .parameter-text, .parameter-bracket-text, .return-types-opening-brack-text, .parameter-bracket-text, .return-types-closing-brack-text {
+        .title-icon{
+          fill: #636363;        
+        }
+
+        .parameter-text,
+        .parameter-bracket-text,
+        .return-types-opening-brack-text,
+        .parameter-bracket-text,
+        .return-types-closing-brack-text {
           dominant-baseline: text-before-edge;
           cursor: default;
         }
-
         .editor-area {
-          color: #333 !important;
+          color: #333;
           border: 1px solid #333;
         }
-
       }
-
       .panel-body {
+        .panel-body-rect{
+          fill:$white;
+        }
         .client-line-group {
           .client-line-text {
             text-anchor: middle;
             dominant-baseline: central;
-            text-transform: lowercase;
-            fill: #555;
+            fill: $primary-line-bgcolor;
+            font-weight: 300;
+          }
+          text, .title-text {
+            fill: #333;
+            font-weight: 300px;
           }
         }
-
         .action-dash-line {
-          stroke: #555;
-          fill: #555;
+          stroke: $primary-line-bgcolor;
+          fill: $primary-line-bgcolor;
           stroke-dasharray: 5, 5;
         }
-
         .struct-content-operations-wrapper {
           fill: #e4e4e4;
           stroke: #e4e4e4;
         }
-
-        .struct-type-dropdown-wrapper, .struct-input-value-wrapper {
+        .struct-type-dropdown-wrapper,
+        .struct-input-value-wrapper {
           fill: #f9f9f9;
           stroke: #ccc;
           stroke-width: 1.2;
         }
-
         .struct-added-value-wrapper-light {
           fill: #f5f5f5;
           stroke: #ccc;
           stroke-width: 0.5px;
         }
-
         .struct-delete-icon-wrapper-light {
           fill: #f5f5f5;
           stroke: #ccc;
           stroke-dasharray: 0, 150, 50;
         }
-
         .struct-added-value-wrapper-dark {
           fill: #dcdcdc;
           stroke: #ccc;
           stroke-width: 0.5px;
         }
-
         .struct-delete-icon-wrapper-dark {
           fill: #dcdcdc;
           stroke: #ccc;
           stroke-dasharray: 0, 150, 50;
         }
 
-        .panel-body-rect {
-          stroke-width: 1px;
-          stroke: #c4d5e2;
+        .match-expression{
+          dominant-baseline: central;
         }
-
-        .statement-title-rect {
-          fill: #f9f9f9;
-          stroke: #555;
+        .match-pattern-clause{
+          font-style: italic;
         }
-
-        .statement-title-text, .condition-text {
+        
+        .statement-title-text,
+        .condition-text {
           text-anchor: middle;
           dominant-baseline: central;
           text-transform: lowercase;
         }
-
         .statement-title-text {
           text-anchor: middle;
           dominant-baseline: central;
           fill: #777;
           font-style: italic;
         }
-
         .statement-title-text-left {
           text-anchor: start;
           dominant-baseline: central;
           fill: #777;
           font-style: italic;
         }
-
         .compound-statement-rect {
           fill: none;
           stroke: #777;
           stroke-dasharray: 3, 3;
         }
-
         .flowchart-separator-line {
           stroke: #f9f9f9;
           stroke-width: 2;
         }
-
         .flowchart-true-text {
           text-anchor: end;
           font-style: italic;
           font-weight: bolder;
         }
-
         .flowchart-false-text {
           text-anchor: start;
           font-style: italic;
           font-weight: bolder;
         }
-
         .property-pane-action-button-wrapper {
           fill: #e2e2e2;
           padding: 10px;
         }
-
-        .property-pane-action-button-delete, .property-pane-action-button-jump {
+        .property-pane-action-button-delete,
+        .property-pane-action-button-jump {
           opacity: 0.6;
+          fill: #333;
           &:hover {
             opacity: 1;
           }
@@ -258,29 +280,26 @@ $diagram-background: #f9f9f9;
       }
     }
   }
-
   .panel-body {
     .panel {
-      .panel-header, .svg-container {
-        fill: #f9f9f9;
-
-        .headingRect {
-          .panel-header-controls {
-            .panel-header-controls-wrapper {
-              fill: rgba(255, 255, 255, 0.1);
-            }
-          }
-        }
-
-        .parameter-text, .parameter-bracket-text, .return-types-opening-brack-text, .parameter-bracket-text {
+      .panel-header,
+      .svg-container {
+        fill: #fff;
+        stroke-width: 0;
+        .parameter-text,
+        .parameter-bracket-text,
+        .return-types-opening-brack-text,
+        .parameter-bracket-text {
           fill: #444;
           dominant-baseline: text-before-edge;
           cursor: default;
         }
       }
     }
+    .title-text, .condition-text{
+      fill: #555;
+    }
   }
-
   .bottom-right-controls-container {
     position: absolute;
     bottom: 20px;
@@ -290,46 +309,39 @@ $diagram-background: #f9f9f9;
     padding: 0;
     line-height: 30px;
     width: 120px;
-
     .bottom-label-icon-wrapper {
       height: 30px;
       width: 30px;
-      background-color: #e8e8e8;
+      background-color: #3c3c3c;
       margin: 0 5px;
       float: left;
       padding: 2px 8px;
-      border: 1px solid #c1c1c1;
-      color: #333;
+      color: #fff;
+      line-height: 26px; 
     }
-
     .bottom-label-icon-wrapper:hover {
       position: relative;
       cursor: pointer;
-      background-color: #333;
-      border: 1px solid #333;
-      color: #f1f1f1;
+      background-color: #1e1e1e;
+      color: #e7eaeb;
+      font-weight: 400;
     }
-
     .bottom-view-label {
       display: none;
       cursor: pointer;
     }
   }
-
   .zoom-controls {
     bottom: 60px !important;
     width: 30px;
     right: 25px;
   }
-
-  .background-empty-rect{
+  .background-empty-rect {
     fill: #f9f9f9;
   }
-
-  .fork-bar{
+  .fork-bar {
     fill: #a5a5a5;
   }
-
   .diagram-menu {
     position: fixed;
     background: $diagram-background;
@@ -350,18 +362,18 @@ $diagram-background: #f9f9f9;
   width: 100%;
   background-color: rgba(60, 60, 60, 0.0);
   .error-list {
-      position: relative;
-      text-align: left;
-      padding: 10px;
-      width:400px;
-      margin: auto;
-      top: 20px;
-      background-color: #d8d8d8;
-      .list-heading {
-          text-align: center;
-          font-size: 16px;
-          color:#CC0000;
-      }
+    position: relative;
+    text-align: left;
+    padding: 10px;
+    width: 400px;
+    margin: auto;
+    top: 20px;
+    background-color: #988686;
+    .list-heading {
+      text-align: center;
+      font-size: 16px;
+      color: #e7eaeb;
+    }
   }
 }
 
@@ -395,14 +407,14 @@ $diagram-background: #f9f9f9;
   opacity: 0.5;
 }
 
-#parse-pending-loader{
+#parse-pending-loader {
   left: calc(50% - 132px);
   top: 50%;
-  position:absolute;
-  width:234px;
-  height:28px;
+  position: absolute;
+  width: 234px;
+  height: 28px;
   font-size: 30px;
-  margin:auto;
+  margin: auto;
   color: #fff;
   font-weight: 500;
 }
@@ -410,9 +422,10 @@ $diagram-background: #f9f9f9;
 #parse-pending-loader:after {
   overflow: hidden;
   vertical-align: bottom;
-  -webkit-animation: ellipsis steps(4,end) 900ms infinite;
-  animation: ellipsis steps(4,end) 900ms infinite;
-  content: "\2026"; /* ascii code for the ellipsis character */
+  -webkit-animation: ellipsis steps(4, end) 900ms infinite;
+  animation: ellipsis steps(4, end) 900ms infinite;
+  content: "\2026";
+  /* ascii code for the ellipsis character */
   width: 0px;
   display: block;
   margin-top: -40px;
@@ -426,7 +439,7 @@ $diagram-background: #f9f9f9;
   }
 }
 
-  @-webkit-keyframes ellipsis {
+@-webkit-keyframes ellipsis {
   to {
     width: 1.25em;
   }
@@ -436,7 +449,7 @@ $diagram-background: #f9f9f9;
   background: #FFF;
 }
 
-.swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
   font-weight: normal;
   line-height: normal;
 }
@@ -480,4 +493,151 @@ $diagram-background: #f9f9f9;
   float: left;
   margin-top: 6px;
   padding-right: 8px;
+}
+
+.divider {
+  fill: #e7eaeb;
+}
+
+.hidden-code {
+  font-size: 10px;
+}
+
+.title-bg {
+  
+}
+
+.panel-header-title text{
+  font-weight: 500 !important;
+}
+
+.title-icon{
+  fill: #636363;
+}
+
+.top-menu {
+  position: fixed;
+  padding: 3px 26px 6px !important;
+  height: 40px;
+}
+
+.top-bar {
+  height: 30px;
+  margin-top: 5px;
+  width: auto;
+  margin-right: 10px !important;
+  .row {
+    padding: 0 !important;
+    width: 160px;
+    margin-top: 20px;
+    height: 30px !important;
+    .column {
+      min-width: 150px;
+      width: 50%;
+      padding: 0 !important;
+      background: $white;
+      box-shadow: none !important;
+      .top-bar-row {
+        background: $white !important;
+        margin-top: 0px !important;
+        border-bottom: 1px solid #ececec;
+        .ui.label {
+          background-color: $white !important;
+        }
+      }
+    }
+  }
+}
+
+.ui.bottom.right.popup{
+  margin-right: -1em !important;
+}
+
+.ui.bottom.center.popup {
+  transform-origin: center top;
+  background: #f8f8f8;
+  border: 1px solid #e7eaeb;
+}
+
+.ui.bottom.popup:before{
+  background: #f8f8f8 !important;
+}
+
+.ui.bottom.center.popup:before{
+  box-shadow:-1px -1px 0px 0px #e7eaeb !important;
+}
+
+.title-text {
+  fill: #333;
+}
+
+.menu-pop-content {
+  background: #f8f8f8 !important;
+  width: 500px;
+  .column {
+    width: 250px !important;
+    .ui.header {
+      .content {
+        font-weight: 400;
+        color: #3c3c3c;
+      }
+      .icon {
+        font-size: 15px !important;
+      }
+    }
+  }
+}
+
+.definition-icon {
+  opacity: 0 !important;
+}
+
+.definition-name:hover .definition-icon {
+  padding-left: 5px;
+  opacity: 1 !important;
+}
+
+.definition-name {
+  cursor: pointer;
+  font-size: 12px !important; 
+  font-weight: 300px !important;
+  color: #555 !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 165px;
+  white-space: nowrap;
+}
+
+a.item.menu-button.ui.button.primary {
+  background: $brand-primary;
+  color: #fff;
+  padding: 7px 10px !important;
+  margin-top: 3px;
+  margin-left: 5px;
+  font-weight: 300;
+  
+  &:hover {
+    background: #27a9a3 !important;
+    font-weight: 300 !important;
+  }
+  
+  .icon {
+    padding-right: 25px !important;
+  }
+}
+.composer-logo{
+  font-size: 15px;
+}
+.brand-color{
+  color: $brand-primary;
+}
+.brand .brand-color {
+    margin-left: 0.3em;
+}
+.aboutWrapper{
+  margin: 0em 0em 1em;
+  line-height: 1em;
+  font-weight: 300;
+  line-height: 1.3em;
+  color: #ccc;
 }

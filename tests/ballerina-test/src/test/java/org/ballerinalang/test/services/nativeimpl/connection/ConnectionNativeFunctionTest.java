@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
- * Test cases for ballerina.net.http.response native functions.
+ * Test cases for ballerina/http.response native functions.
  */
 public class ConnectionNativeFunctionTest {
 

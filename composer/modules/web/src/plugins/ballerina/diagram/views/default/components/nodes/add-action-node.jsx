@@ -106,7 +106,7 @@ class AddActionNode extends React.Component {
                     width={14}
                     height={14}
                     fill='#fff'
-                    xlinkHref={ImageUtil.getSVGIconString('add-white')}
+                    xlinkHref={ImageUtil.getCodePoint('add')}
                     className='add-resource-button-label'
                 />
                 <polygon

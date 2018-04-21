@@ -16,14 +16,6 @@
   transition: opacity 300ms ease-in;
 }
 
-.panel-body-rect {
-    fill: none;
-    fill-opacity: 0;
-    stroke-width: 1px;
-    shape-rendering: crispEdges;
-    stroke: #d8d8d8;
-}
-
 .panel-header-controls-wrapper{
     fill: #666769;
 }

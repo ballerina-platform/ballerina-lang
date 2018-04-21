@@ -17,31 +17,28 @@ package org.ballerinalang.net.grpc.listener;
 
 import com.google.protobuf.Descriptors;
 import io.grpc.stub.StreamObserver;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.Executor;
+import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.grpc.GrpcCallableUnitCallBack;
+import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
-import org.ballerinalang.net.grpc.MessageConstants;
-import org.ballerinalang.net.grpc.MessageRegistry;
+import org.ballerinalang.net.grpc.MessageHeaders;
 import org.ballerinalang.net.grpc.MessageUtils;
-import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Map;
+import java.util.List;
 
-import static org.ballerinalang.net.grpc.MessageConstants.BOOLEAN;
-import static org.ballerinalang.net.grpc.MessageConstants.DOUBLE;
-import static org.ballerinalang.net.grpc.MessageConstants.FLOAT;
-import static org.ballerinalang.net.grpc.MessageConstants.INT;
-import static org.ballerinalang.net.grpc.MessageConstants.STRING;
+import static org.ballerinalang.net.grpc.MessageHeaders.METADATA_KEY;
+import static org.ballerinalang.net.grpc.MessageUtils.getHeaderStruct;
 import static org.ballerinalang.net.grpc.MessageUtils.getProgramFile;
 
 /**
@@ -50,58 +47,61 @@ import static org.ballerinalang.net.grpc.MessageUtils.getProgramFile;
  *
  * @since 1.0.0
  */
-public abstract class MethodListener {
+abstract class MethodListener {
     
     private Descriptors.MethodDescriptor methodDescriptor;
-
-    public MethodListener(Descriptors.MethodDescriptor methodDescriptor) {
+    private static final Logger LOG = LoggerFactory.getLogger(MethodListener.class);
+    
+    MethodListener(Descriptors.MethodDescriptor methodDescriptor) {
         this.methodDescriptor = methodDescriptor;
     }
-
+    
     /**
      * Returns endpoint instance which is used to respond to the client.
      *
      * @param responseObserver client responder instance.
      * @return instance of endpoint type.
      */
-    BValue getConnectionParameter(Resource resource, StreamObserver<Message> responseObserver) {
+    private BValue getConnectionParameter(Resource resource, StreamObserver<Message> responseObserver) {
         ProgramFile programFile = getProgramFile(resource);
         // generate client responder struct on request message with response observer and response msg type.
         BStruct clientEndpoint = BLangConnectorSPIUtil.createBStruct(programFile,
-                MessageConstants.PROTOCOL_PACKAGE_GRPC, MessageConstants.CLIENT_RESPONDER);
-        clientEndpoint.setIntField(0, responseObserver.hashCode());
-        clientEndpoint.addNativeData(MessageConstants.RESPONSE_OBSERVER, responseObserver);
-        clientEndpoint.addNativeData(MessageConstants.RESPONSE_MESSAGE_DEFINITION, methodDescriptor.getOutputType());
-
+                GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC, GrpcConstants.CALLER_ACTION);
+        clientEndpoint.addNativeData(GrpcConstants.RESPONSE_OBSERVER, responseObserver);
+        clientEndpoint.addNativeData(GrpcConstants.RESPONSE_MESSAGE_DEFINITION, methodDescriptor.getOutputType());
+        
         // create endpoint type instance on request.
         BStruct endpoint = BLangConnectorSPIUtil.createBStruct(programFile,
-                MessageConstants.PROTOCOL_PACKAGE_GRPC, MessageConstants.SERVICE_ENDPOINT_TYPE);
+                GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC, GrpcConstants.SERVICE_ENDPOINT_TYPE);
         endpoint.setRefField(0, clientEndpoint);
+        endpoint.setIntField(0, responseObserver.hashCode());
         return endpoint;
     }
-
+    
     /**
      * Returns BValue object corresponding to the protobuf request message.
      *
      * @param requestMessage protobuf request message.
      * @return b7a message.
      */
-    BValue getRequestParameter(Resource resource, Message requestMessage) {
-        if (resource == null || resource.getParamDetails() == null || resource.getParamDetails().size() > 2) {
-            throw new RuntimeException("Invalid resource input arguments. arguments must not be greater than two");
+    private BValue getRequestParameter(Resource resource, Message requestMessage, boolean isHeaderRequired) {
+        if (resource == null || resource.getParamDetails() == null || resource.getParamDetails().size() > 3) {
+            throw new RuntimeException("Invalid resource input arguments. arguments must not be greater than three");
         }
         
-        if (resource.getParamDetails().size() == 2) {
-            BType requestType = resource.getParamDetails().get(MessageConstants.REQUEST_MESSAGE_PARAM_INDEX)
+        List<ParamDetail> paramDetails = resource.getParamDetails();
+        if ((isHeaderRequired && paramDetails.size() == 3) || (!isHeaderRequired && paramDetails.size() == 2)) {
+            BType requestType = paramDetails.get(GrpcConstants.REQUEST_MESSAGE_PARAM_INDEX)
                     .getVarType();
-            String requestName = resource.getParamDetails().get(MessageConstants.REQUEST_MESSAGE_PARAM_INDEX)
+            String requestName = paramDetails.get(GrpcConstants.REQUEST_MESSAGE_PARAM_INDEX)
                     .getVarName();
-            return generateRequestStruct(requestMessage, getProgramFile(resource), requestName, requestType);
+            return MessageUtils.generateRequestStruct(requestMessage, getProgramFile(resource), requestName,
+                    requestType);
         } else {
             return null;
         }
     }
-
+    
     /**
      * Checks whether service method has a response message.
      *
@@ -110,111 +110,53 @@ public abstract class MethodListener {
     boolean isEmptyResponse() {
         return methodDescriptor != null && MessageUtils.isEmptyResponse(methodDescriptor.getOutputType());
     }
-
-    private BValue generateRequestStruct(Message request, ProgramFile programFile, String fieldName, BType structType) {
-        BValue bValue = null;
-        int stringIndex = 0;
-        int intIndex = 0;
-        int floatIndex = 0;
-        int boolIndex = 0;
-        int refIndex = 0;
-        
-        if (structType instanceof BStructType) {
-            BStruct requestStruct = BLangConnectorSPIUtil.createBStruct(programFile, structType
-                    .getPackagePath(), structType.getName());
-            for (BStructType.StructField structField : ((BStructType) structType).getStructFields()) {
-                String structFieldName = structField.getFieldName();
-                if (structField.getFieldType() instanceof BRefType) {
-                    BType bType = structField.getFieldType();
-                    if (MessageRegistry.getInstance().getMessageDescriptorMap().containsKey(bType.getName())) {
-                        Message message = (Message) request.getFields().get(structFieldName);
-                        requestStruct.setRefField(refIndex++, (BRefType) generateRequestStruct(message,
-                                programFile, structFieldName, structField.getFieldType()));
-                    }
-                } else {
-                    if (request.getFields().containsKey(structFieldName)) {
-                        String fieldType = structField.getFieldType().getName();
-                        switch (fieldType) {
-                            case STRING: {
-                                requestStruct.setStringField(stringIndex++, (String) request.getFields().get
-                                        (structFieldName));
-                                break;
-                            }
-                            case INT: {
-                                requestStruct.setIntField(intIndex++, (Long) request.getFields().get
-                                        (structFieldName));
-                                break;
-                            }
-                            case FLOAT: {
-                                Float value = (Float) request.getFields().get(structFieldName);
-                                if (value != null) {
-                                    requestStruct.setFloatField(floatIndex++, Double.parseDouble(value.toString()));
-                                }
-                                break;
-                            }
-                            case DOUBLE: {
-                                Double value = (Double) request.getFields().get(structFieldName);
-                                if (value != null) {
-                                    requestStruct.setFloatField(floatIndex++, Double.parseDouble(value.toString()));
-                                }
-                                break;
-                            }
-                            case BOOLEAN: {
-                                requestStruct.setBooleanField(boolIndex++, (Integer) request.getFields().get
-                                        (structFieldName));
-                                break;
-                            }
-                            default: {
-                                throw new UnsupportedFieldTypeException("Error while generating request struct. Field" +
-                                        " type is not supported : " + fieldType);
-                            }
-                        }
-                    }
-                }
-            }
-            bValue = requestStruct;
-        } else {
-            Map<String, Object> fields = request.getFields();
-            if (fields.size() == 1 && fields.containsKey("value")) {
-                fieldName = "value";
-            }
-            if (fields.containsKey(fieldName)) {
-                String fieldType = structType.getName();
-                switch (fieldType) {
-                    case STRING: {
-                        bValue = new BString((String) fields.get(fieldName));
-                        break;
-                    }
-                    case INT: {
-                        bValue = new BInteger((Long) fields.get(fieldName));
-                        break;
-                    }
-                    case FLOAT: {
-                        Float value = (Float) fields.get(fieldName);
-                        if (value != null) {
-                            bValue = new BFloat(Double.parseDouble(value.toString()));
-                        }
-                        break;
-                    }
-                    case DOUBLE: {
-                        Double value = (Double) fields.get(fieldName);
-                        if (value != null) {
-                            bValue = new BFloat(Double.parseDouble(value.toString()));
-                        }
-                        break;
-                    }
-                    case BOOLEAN: {
-                        bValue = new BBoolean((Boolean) fields.get(fieldName));
-                        break;
-                    }
-                    default: {
-                        throw new UnsupportedFieldTypeException("Error while generating request struct. Field " +
-                                "type is not supported : " + fieldType);
-                    }
-                }
-            }
+    
+    void onErrorInvoke(Resource resource, StreamObserver<Message> responseObserver, Throwable t) {
+        if (resource == null) {
+            String message = "Error in listener service definition. onError resource does not exists";
+            LOG.error(message);
+            throw new RuntimeException(message);
+        }
+        List<ParamDetail> paramDetails = resource.getParamDetails();
+        BValue[] signatureParams = new BValue[paramDetails.size()];
+        signatureParams[0] = getConnectionParameter(resource, responseObserver);
+        BType errorType = paramDetails.get(1).getVarType();
+        BStruct errorStruct = MessageUtils.getConnectorError((BStructType) errorType, t);
+        signatureParams[1] = errorStruct;
+        BStruct headerStruct = getHeaderStruct(resource);
+        if (headerStruct != null && MessageHeaders.isPresent()) {
+            MessageHeaders context = MessageHeaders.current();
+            headerStruct.addNativeData(METADATA_KEY, new MessageHeaders(context));
         }
         
-        return bValue;
+        if (headerStruct != null && signatureParams.length == 3) {
+            signatureParams[2] = headerStruct;
+        }
+        CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, Boolean.FALSE);
+        Executor.submit(resource, callback, null, null, signatureParams);
+    }
+    
+    void onMessageInvoke(Resource resource, Message request, StreamObserver<Message> responseObserver) {
+        CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, isEmptyResponse());
+        Executor.submit(resource, callback, null, null, computeMessageParams(resource, request, responseObserver));
+    }
+    
+    BValue[] computeMessageParams(Resource resource, Message request, StreamObserver<Message> responseObserver) {
+        List<ParamDetail> paramDetails = resource.getParamDetails();
+        BValue[] signatureParams = new BValue[paramDetails.size()];
+        signatureParams[0] = getConnectionParameter(resource, responseObserver);
+        BStruct headerStruct = getHeaderStruct(resource);
+        if (headerStruct != null && MessageHeaders.isPresent()) {
+            MessageHeaders context = MessageHeaders.current();
+            headerStruct.addNativeData(METADATA_KEY, new MessageHeaders(context));
+        }
+        BValue requestParam = getRequestParameter(resource, request, (headerStruct != null));
+        if (requestParam != null) {
+            signatureParams[1] = requestParam;
+        }
+        if (headerStruct != null) {
+            signatureParams[signatureParams.length - 1] = headerStruct;
+        }
+        return signatureParams;
     }
 }

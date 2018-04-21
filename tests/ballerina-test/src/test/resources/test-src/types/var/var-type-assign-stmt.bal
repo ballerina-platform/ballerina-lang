@@ -1,200 +1,193 @@
-struct Person {
+type Person {
     string name;
     int age;
-    Person parent;
+    Person? parent;
     json info;
     map address;
     int[] marks;
     any a;
     float score;
     boolean alive;
-}
+};
 
-function testVarDeclarationWithAtLeaseOneNonDeclaredSymbol () (int, error) {
-    int a;
-    string s = "10";
-    var a, err = <int>s;
-    return a, err;
-}
-
-function testIntToVarAssignment() (int) {
+function testIntToVarAssignment() returns (int) {
     var age = 81;
     return age;
 }
 
-function testMultipleIntToVarAssignment() (int,int,int,int) {
-    var age, age1, age2, age3 = retFourInt();
-    return age, age1, age2, age3;
+function testMultipleIntToVarAssignment() returns (int,int,int,int) {
+    var (age, age1, age2, age3) = retFourInt();
+    return (age, age1, age2, age3);
 }
 
-function testMultipleIntToVarAssignmentWithUnderscore() (int,int) {
-    var age, age1, _, _ = retFourInt();
-    return age, age1;
+function testMultipleIntToVarAssignmentWithUnderscore() returns (int,int) {
+    var (age, age1, a, b) = retFourInt();
+    return (age, age1);
 }
 
-function testMultipleIntToVarAssignmentWithUnderscoreOrderCaseOne() (int,int) {
-    var age, _, age1, _ = retFourInt();
-    return age, age1;
+function testMultipleIntToVarAssignmentWithUnderscoreOrderCaseOne() returns (int,int) {
+    var (age, b, age1, c) = retFourInt();
+    return (age, age1);
 }
 
-function testMultipleIntToVarAssignmentWithUnderscoreOrderCaseTwo() (int,int) {
-    var age, _, _, age1 = retFourInt();
-    return age, age1;
+function testMultipleIntToVarAssignmentWithUnderscoreOrderCaseTwo() returns (int,int) {
+    var (age, a, b, age1) = retFourInt();
+    return (age, age1);
 }
 
-function retFourInt()(int,int,int,int){
-    return 100, 200, 300, 400;
+function retFourInt() returns (int,int,int,int){
+    return (100, 200, 300, 400);
 }
 
-function testStringToVarAssignment() (string) {
+function testStringToVarAssignment() returns (string) {
     var name = "name";
     return name;
 }
 
-function testMultipleStringToVarAssignment() (string,string,string,string) {
-    var name, name1, name2, name3 = retFourString();
-    return name, name1, name2, name3;
+function testMultipleStringToVarAssignment() returns (string,string,string,string) {
+    var (name, name1, name2, name3) = retFourString();
+    return (name, name1, name2, name3);
 }
 
-function retFourString()(string,string,string,string){
-    return "name_1", "name_2", "name_3", "name_4";
+function retFourString() returns (string,string,string,string){
+    return ("name_1", "name_2", "name_3", "name_4");
 }
 
-function testBooleanToVarAssignment() (boolean) {
+function testBooleanToVarAssignment() returns (boolean) {
     var isHappy = true;
     return isHappy;
 }
 
-function testAnyToStringWithErrors()(string, error) {
+function testAnyToStringWithErrors() returns (string) {
     any a = 5;
 
-    var s, err = (string) a;
+    var s = <string> a;
 
-    return s, err;
+    return s;
 }
 
-function testAnyNullToStringWithErrors()(string, error) {
+function testAnyNullToStringWithErrors() returns (string) {
     any a = null;
 
-    var s, err = (string) a;
+    var s = <string> a;
 
-    return s, err;
+    return s;
 }
 
-function testAnyToBooleanWithErrors()(boolean, error) {
+function testAnyToBooleanWithErrors() returns (boolean | error) {
     any a = 5;
 
-    var b, err = (boolean) a;
+    var b = <boolean> a;
 
-    return b, err;
+    return b;
 }
 
-function testAnyNullToBooleanWithErrors()(boolean, error) {
+function testAnyNullToBooleanWithErrors() returns (boolean | error) {
     any a = null;
 
-    var b, err = (boolean) a;
+    var b = <boolean> a;
 
-    return b, err;
+    return b;
 }
 
-function testAnyToIntWithErrors()(int, error) {
+function testAnyToIntWithErrors() returns (int | error) {
     any a = "foo";
 
-    var b, err = (int) a;
+    var b = <int> a;
 
-    return b, err;
+    return b;
 }
 
-function testAnyNullToIntWithErrors()(int, error) {
+function testAnyNullToIntWithErrors() returns (int | error) {
     any a = null;
 
-    var b, err = (int) a;
+    var b = <int> a;
 
-    return b, err;
+    return b;
 }
 
-function testAnyToFloatWithErrors()(float, error) {
+function testAnyToFloatWithErrors() returns (float | error) {
     any a = "foo";
 
-    var b, err = (float) a;
+    var b = <float> a;
 
-    return b, err;
+    return b;
 }
 
-function testAnyNullToFloatWithErrors()(float, error) {
+function testAnyNullToFloatWithErrors() returns (float | error) {
     any a = null;
 
-    var b, err = (float) a;
+    var b = <float> a;
 
-    return b, err;
+    return b;
 }
 
-function testAnyToMapWithErrors()(map, error) {
+function testAnyToMapWithErrors() returns (map | error) {
     any a = "foo";
 
-    var b, err = (map) a;
+    var b = <map> a;
 
-    return b, err;
+    return b;
 }
 
 
-function testIncompatibleJsonToStructWithErrors() (Person, error) {
+function testIncompatibleJsonToStructWithErrors() returns (Person | error) {
     json j = { name:"Child",
-               age:25,
-               parent:{
-                    name:"Parent",
-                    age:50,
-                    parent: "Parent",
-                    address:{"city":"Colombo", "country":"SriLanka"},
-                    info:null,
-                    marks:null
-               },
-               address:{"city":"Colombo", "country":"SriLanka"},
-               info:{status:"single"},
-               marks:[87,94,72]
+                 age:25,
+                 parent:{
+                            name:"Parent",
+                            age:50,
+                            parent: "Parent",
+                            address:{"city":"Colombo", "country":"SriLanka"},
+                            info:null,
+                            marks:null
+                        },
+                 address:{"city":"Colombo", "country":"SriLanka"},
+                 info:{status:"single"},
+                 marks:[87,94,72]
              };
-    var p, err = <Person> j;
-    return p, err;
+    var p = <Person> j;
+    return p;
 }
 
-struct PersonA {
+type PersonA {
     string name;
     int age;
-}
+};
 
-function testJsonToStructWithErrors() (PersonA, error) {
+function testJsonToStructWithErrors() returns (PersonA | error) {
     json j = {name:"supun", age:"25"};
 
-    var person, err = <PersonA> j;
+    var p = <PersonA> j;
 
-    return person, err;
+    return p;
 }
 
-struct A {
+type A {
     string x;
     int y;
-}
+};
 
-struct B {
+type B {
     string x;
-}
+};
 
-function testCompatibleStructForceCasting()(A, error) {
+function testCompatibleStructForceCasting() returns (A | error) {
     A a = {x: "x-valueof-a", y:4};
     B b = {x: "x-valueof-b"};
 
-    b = (B) a;
+    b = <B> a;
 
-    var c, err = (A) b;
+    var c = <A> b;
 
     a.x = "updated-x-valueof-a";
-    return c, err;
+    return c;
 }
 
-function testInCompatibleStructForceCasting()(A, error) {
+function testInCompatibleStructForceCasting() returns (A | error) {
     B b = {x: "x-valueof-b"};
 
-    var a, err = (A) b;
+    var a = <A> b;
 
-    return a, err;
+    return a;
 }

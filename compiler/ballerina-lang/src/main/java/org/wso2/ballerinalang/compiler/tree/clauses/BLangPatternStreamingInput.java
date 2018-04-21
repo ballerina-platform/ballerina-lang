@@ -21,6 +21,7 @@ package org.wso2.ballerinalang.compiler.tree.clauses;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.clauses.PatternStreamingEdgeInputNode;
 import org.ballerinalang.model.tree.clauses.PatternStreamingInputNode;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -37,12 +38,14 @@ public class BLangPatternStreamingInput extends BLangNode implements PatternStre
 
     private PatternStreamingInputNode patternStreamingInput;
     private List<PatternStreamingEdgeInputNode> patternStreamingEdgeInputNodeList = new ArrayList<>();
+    private ExpressionNode timeExpr;
     private boolean isFollowedBy;
-    private boolean isEnclosedInParanthesis;
-    private boolean isForEach;
+    private boolean isEnclosedInParenthesis;
     private boolean isNotWithFor;
     private boolean isNotWithAnd;
-    private boolean isOrAndOnly;
+    private boolean isAndOnly;
+    private boolean isOrOnly;
+    private boolean isCommaSeparated;
 
     @Override
     public NodeKind getKind() {
@@ -61,7 +64,7 @@ public class BLangPatternStreamingInput extends BLangNode implements PatternStre
 
     @Override
     public void addPatternStreamingEdgeInput(PatternStreamingEdgeInputNode patternStreamingEdgeInput) {
-        this.patternStreamingEdgeInputNodeList.add(patternStreamingEdgeInput);
+        this.patternStreamingEdgeInputNodeList.add(0, patternStreamingEdgeInput);
     }
 
     @Override
@@ -80,23 +83,13 @@ public class BLangPatternStreamingInput extends BLangNode implements PatternStre
     }
 
     @Override
-    public void setEnclosedInParanthesis(boolean enclosedInParanthesis) {
-        this.isEnclosedInParanthesis = enclosedInParanthesis;
+    public void setEnclosedInParenthesis(boolean enclosedInParenthesis) {
+        this.isEnclosedInParenthesis = enclosedInParenthesis;
     }
 
     @Override
-    public boolean enclosedInParanthesis() {
-        return isEnclosedInParanthesis;
-    }
-
-    @Override
-    public void setForEach(boolean isForEach) {
-        this.isForEach = isForEach;
-    }
-
-    @Override
-    public boolean isForEach() {
-        return isForEach;
+    public boolean enclosedInParenthesis() {
+        return isEnclosedInParenthesis;
     }
 
     @Override
@@ -120,13 +113,43 @@ public class BLangPatternStreamingInput extends BLangNode implements PatternStre
     }
 
     @Override
-    public void setAndOrOnly(boolean isAndOrOnly) {
-        this.isOrAndOnly = isAndOrOnly;
+    public void setAndOnly(boolean isAndOrOnly) {
+        this.isAndOnly = isAndOrOnly;
     }
 
     @Override
-    public boolean isAndOrOnly() {
-        return isOrAndOnly;
+    public boolean isAndOnly() {
+        return isAndOnly;
+    }
+
+    @Override
+    public void setOrOnly(boolean isOrOnly) {
+        this.isOrOnly = isOrOnly;
+    }
+
+    @Override
+    public boolean isOrOnly() {
+        return isOrOnly;
+    }
+
+    @Override
+    public void setCommaSeparated(boolean isCommaSeparated) {
+        this.isCommaSeparated = isCommaSeparated;
+    }
+
+    @Override
+    public boolean isCommaSeparated() {
+        return isCommaSeparated;
+    }
+
+    @Override
+    public void setTimeExpr(ExpressionNode timeExpr) {
+        this.timeExpr = timeExpr;
+    }
+
+    @Override
+    public ExpressionNode getTimeExpr() {
+        return timeExpr;
     }
 
     @Override

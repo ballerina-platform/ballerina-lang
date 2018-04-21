@@ -67,7 +67,9 @@ class Client extends React.Component {
                 rx={hHeight / 2}
                 ry={hHeight / 2}
                 className='client-line-header'
-            />
+            >
+                <title> {this.props.title} </title>
+            </rect>
             <rect
                 x={bottomHeaderCentreX - (hWidth / 2)}
                 y={bottomHeaderCentreY - (hHeight / 2)}
@@ -76,27 +78,34 @@ class Client extends React.Component {
                 rx={hHeight / 2}
                 ry={hHeight / 2}
                 className='client-line-header'
-            />
+            >
+                <title> {this.props.title} </title>
+            </rect>
             <g>
                 <text
                     x={topHeaderCentreX}
                     y={topHeaderCentreY}
                     className='client-line-text'
-                >{this.props.title}</text>
+                >
+                    {this.props.title}
+                    <title> {this.props.title} </title>
+                </text>
                 <text
                     x={bottomHeaderCentreX}
                     y={bottomHeaderCentreY}
                     className='client-line-text'
-                >{this.props.title}
+                >
+                    {this.props.title}
+                    <title> {this.props.title} </title>
                 </text>
             </g>
             <g>
                 <text
                     x={line.x1 + this.context.designer.config.statement.gutter.h}
-                    y={topBox.y + topBox.h + (this.context.designer.config.statement.height / 2)}
-                    className='action-invocation-text'
-                >{bBox.text}</text>
-                <title> {bBox.fullText} </title>
+                    y={topBox.y + topBox.h + (this.context.designer.config.statement.height - 5)}
+                >{bBox.text}
+                    <title> {bBox.fullText} </title>
+                </text>
             </g>
             <line
                 x1={line.x1}

@@ -1,34 +1,17 @@
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/log;
 
-public struct Filter1 {
-    function (http:Request request, http:FilterContext context) returns (http:FilterResult) filterRequest;
-    function (http:Response response, http:FilterContext context) returns (http:FilterResult) filterResponse;
-}
+public type Filter1 object {
+    public function filterRequest (http:Request request, http:FilterContext context) returns http:FilterResult {
+        log:printInfo("Intercepting request for filter 1");
+        http:FilterResult filterResponse = {canProceed:true, statusCode:200, message:"successful"};
+        return filterResponse;
+    }
+};
 
-public function <Filter1 filter> init () {
-    log:printInfo("Initializing filter 1");
-}
+Filter1 filter1;
 
-public function <Filter1 filter> terminate () {
-    log:printInfo("Stopping filter 1");
-}
-
-public function interceptRequest1 (http:Request request, http:FilterContext context) returns (http:FilterResult) {
-    log:printInfo("Intercepting request for filter 1");
-    http:FilterResult filterResponse = {canProceed:true, statusCode:200, message:"successful"};
-    return filterResponse;
-}
-
-public function interceptResponse1 (http:Response response, http:FilterContext context) returns (http:FilterResult) {
-    log:printInfo("Intercepting response for filter 1");
-    http:FilterResult filterResponse = {canProceed:true, statusCode:200, message:"successful"};
-    return filterResponse;
-}
-
-Filter1 filter1 = {filterRequest:interceptRequest1, filterResponse:interceptResponse1};
-
-endpoint http:ServiceEndpoint echoEP {
+endpoint http:Listener echoEP {
     port:9090,
     filters:[filter1]
 };
@@ -41,8 +24,8 @@ service<http:Service> echo bind echoEP {
         methods:["GET"],
         path:"/test"
     }
-    echo (endpoint client, http:Request req) {
-        http:Response res = {};
-        _ = client -> respond(res);
+    echo (endpoint caller, http:Request req) {
+        http:Response res = new;
+        _ = caller -> respond(res);
     }
 }

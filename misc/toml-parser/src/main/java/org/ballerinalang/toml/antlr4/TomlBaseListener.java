@@ -220,6 +220,18 @@ public class TomlBaseListener implements TomlListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterBasicStringValue(TomlParser.BasicStringValueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitBasicStringValue(TomlParser.BasicStringValueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterBasicChar(TomlParser.BasicCharContext ctx) { }
 	/**
 	 * {@inheritDoc}

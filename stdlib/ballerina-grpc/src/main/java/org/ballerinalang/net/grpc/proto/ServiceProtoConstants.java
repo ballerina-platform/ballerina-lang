@@ -50,7 +50,7 @@ public class ServiceProtoConstants {
     public static final String ANN_SERVICE_CONFIG = "serviceConfig";
     public static final String ANN_MESSAGE_LISTENER = "messageListener";
 
-    public static final String SERVICE_CONFIG_RPC_ENDPOINT = "rpcEndpoint";
+    public static final String SERVICE_CONFIG_RPC_ENDPOINT = "name";
     public static final String SERVICE_CONFIG_CLIENT_STREAMING = "clientStreaming";
     public static final String SERVICE_CONFIG_SERVER_STREAMING = "serverStreaming";
     public static final String SERVICE_CONFIG_GENERATE_CLIENT = "generateClientConnector";
@@ -67,9 +67,11 @@ public class ServiceProtoConstants {
     public static final String WRAPPER_STRING_MESSAGE = "StringValue";
     public static final String WRAPPER_BYTES_MESSAGE = "BytesValue";
 
+    public static final String STRUCT_LIST_MESSAGE = "ListValue";
+
     public static final Map<Integer, String> FIELD_TYPE_MAP;
     static {
-        Map<Integer, String> sTypeMap = new HashMap<>();;
+        Map<Integer, String> sTypeMap = new HashMap<>();
         sTypeMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE_VALUE, "double");
         sTypeMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT_VALUE, "float");
         sTypeMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT64_VALUE, "int64");

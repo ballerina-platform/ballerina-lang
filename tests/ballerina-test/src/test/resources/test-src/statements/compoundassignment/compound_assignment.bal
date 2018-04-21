@@ -64,10 +64,10 @@ function testCompoundAssignmentDivisionArrayElement() returns (int){
      return x[0];
 }
 
-struct Company {
+type Company {
    int count;
    int count2;
-}
+};
 
 function testCompoundAssignmentAdditionStructElement() returns (int){
     Company ibm = {};
@@ -152,7 +152,7 @@ function testIntFloatCompoundAssignmentAddition() returns (float){
 }
 
 function testXMLAttributeWithCompoundAssignment() returns (string){
-    var x1, _ = <xml> "<root xmlns:ns3=\"http://sample.com/wso2/f\"></root>";
+    xml x1 = xml `<root xmlns:ns3="http://sample.com/wso2/f"></root>`;
     x1@[ns0:foo1] = "bar1";
     x1@[ns0:foo1] += "bar2";
     return x1@[ns0:foo1];

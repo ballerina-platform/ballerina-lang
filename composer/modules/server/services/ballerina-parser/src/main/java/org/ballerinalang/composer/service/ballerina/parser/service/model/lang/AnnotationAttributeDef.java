@@ -80,7 +80,7 @@ public class AnnotationAttributeDef {
 
         return tempAnnotationAttributeDef;
     }
-    
+
     /**
      * {@inheritDoc}
      */

@@ -1,69 +1,77 @@
-import ballerina/net.http.authadaptor;
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/mime;
+import ballerina/auth;
 
 function testCanHandleHttpBasicAuthWithoutHeader () returns (boolean) {
-    authadaptor:HttpBasicAuthnHandler handler = {};
-    http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
-                                   userAgent:"curl/7.35.0", extraPathInfo:"null"};
+    auth:ConfigAuthProvider configAuthProvider = new;
+    auth:AuthProvider authProvider = check <auth:AuthProvider> configAuthProvider;
+    http:HttpBasicAuthnHandler handler = new(authProvider);
+    http:Request inRequest = createRequest();
     string basicAutheaderValue = "123Basic xxxxxx";
-    mime:Entity requestEntity = {};
+    mime:Entity requestEntity = new;
     requestEntity.setHeader("123Authorization", basicAutheaderValue);
     inRequest.setEntity(requestEntity);
     return handler.canHandle(inRequest);
 }
 
 function testCanHandleHttpBasicAuth () returns (boolean) {
-    authadaptor:HttpBasicAuthnHandler handler = {};
-    http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
-                                   userAgent:"curl/7.35.0", extraPathInfo:"null"};
+    auth:ConfigAuthProvider configAuthProvider = new;
+    auth:AuthProvider authProvider = check <auth:AuthProvider> configAuthProvider;
+    http:HttpBasicAuthnHandler handler = new(authProvider);
+    http:Request inRequest = createRequest();
     string basicAutheaderValue = "Basic xxxxxx";
-    mime:Entity requestEntity = {};
+    mime:Entity requestEntity = new;
     requestEntity.setHeader("Authorization", basicAutheaderValue);
     inRequest.setEntity(requestEntity);
     return handler.canHandle(inRequest);
 }
 
 function testHandleHttpBasicAuthFailure () returns (boolean) {
-    authadaptor:HttpBasicAuthnHandler handler = {};
-    http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
-                                   userAgent:"curl/7.35.0", extraPathInfo:"null"};
+    auth:ConfigAuthProvider configAuthProvider = new;
+    auth:AuthProvider authProvider = check <auth:AuthProvider> configAuthProvider;
+    http:HttpBasicAuthnHandler handler = new(authProvider);
+    http:Request inRequest = createRequest();
     string basicAutheaderValue = "Basic YW1pbGE6cHFy";
-    mime:Entity requestEntity = {};
+    mime:Entity requestEntity = new;
     requestEntity.setHeader("Authorization", basicAutheaderValue);
     inRequest.setEntity(requestEntity);
     return handler.handle(inRequest);
 }
 
 function testHandleHttpBasicAuth () returns (boolean) {
-    authadaptor:HttpBasicAuthnHandler handler = {};
-    http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
-                                   userAgent:"curl/7.35.0", extraPathInfo:"null"};
+    auth:ConfigAuthProvider configAuthProvider = new;
+    auth:AuthProvider authProvider = check <auth:AuthProvider> configAuthProvider;
+    http:HttpBasicAuthnHandler handler = new(authProvider);
+    http:Request inRequest = createRequest();
     string basicAutheaderValue = "Basic aXN1cnU6eHh4";
-    mime:Entity requestEntity = {};
+    mime:Entity requestEntity = new;
     requestEntity.setHeader("Authorization", basicAutheaderValue);
     inRequest.setEntity(requestEntity);
     return handler.handle(inRequest);
 }
 
-function testExtractInvalidBasicAuthHeaderValue () returns (string, error) {
+function testNonExistingBasicAuthHeaderValue () returns (string|()) {
     // create dummy request
-    http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
-                                 userAgent:"curl/7.35.0", extraPathInfo:"null"};
-    string basicAutheaderValue = ".Basic FSADFfgfsagas423gfdGSdfa";
-    mime:Entity requestEntity = {};
-    requestEntity.setHeader("Authorization", basicAutheaderValue);
+    http:Request inRequest = createRequest();
+    mime:Entity requestEntity = new;
     inRequest.setEntity(requestEntity);
-    return authadaptor:extractBasicAuthHeaderValue(inRequest);
+    return http:extractBasicAuthHeaderValue(inRequest);
 }
 
-function testExtractBasicAuthHeaderValue () returns (string, error) {
+function testExtractBasicAuthHeaderValue () returns (string|()) {
     // create dummy request
-    http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
-                                 userAgent:"curl/7.35.0", extraPathInfo:"null"};
+    http:Request inRequest = createRequest();
+    mime:Entity requestEntity = new;
     string basicAutheaderValue = "Basic aXN1cnU6eHh4";
-    mime:Entity requestEntity = {};
     requestEntity.setHeader("Authorization", basicAutheaderValue);
     inRequest.setEntity(requestEntity);
-    return authadaptor:extractBasicAuthHeaderValue(inRequest);
+    return http:extractBasicAuthHeaderValue(inRequest);
+}
+
+function createRequest () returns (http:Request) {
+    http:Request inRequest = new;
+    inRequest.rawPath = "/helloWorld/sayHello";
+    inRequest.method = "GET";
+    inRequest.httpVersion = "1.1";
+    return inRequest;
 }

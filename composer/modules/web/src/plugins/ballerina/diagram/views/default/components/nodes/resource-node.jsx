@@ -76,15 +76,12 @@ class ResourceNode extends React.Component {
             textClass: 'default-worker-icon',
         };
 
-        const connectors = this.props.model.body.statements.filter((element) => {
-            const typeNode = _.get(element, 'variable.typeNode');
-            return typeNode && TreeUtil.isEndpointType(typeNode);
-        }).map((statement) => {
+        const endpoints = this.props.model.endpointNodes.map((endpoint) => {
             return (
                 <EndpointDecorator
-                    model={statement}
-                    title={statement.variable.name.value}
-                    bBox={statement.viewState.bBox}
+                    model={endpoint}
+                    title={endpoint.name.value}
+                    bBox={endpoint.viewState.bBox}
                 />);
         });
 
@@ -122,10 +119,12 @@ class ResourceNode extends React.Component {
             };
         }
 
+        const client = this.props.model.viewState.components.client;
+
         return (
             <g>
                 <PanelDecorator
-                    icon='tool-icons/resource'
+                    icon='resource'
                     title={name}
                     bBox={bBox}
                     model={this.props.model}
@@ -136,8 +135,8 @@ class ResourceNode extends React.Component {
                     {...panelAdditionalProps}
                 >
                     <Client
-                        title={protocolPkgIdentifier + ' conn'}
-                        bBox={this.props.model.viewState.components.client}
+                        title={client.title}
+                        bBox={client}
                     />
                     <g>
                         { this.props.model.getWorkers().length === 0 &&
@@ -174,7 +173,7 @@ class ResourceNode extends React.Component {
                             })
                         }
                         {workers}
-                        {connectors}
+                        {endpoints}
                     </g>
                 </PanelDecorator>
             </g>);

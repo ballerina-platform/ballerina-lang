@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Area from './area';
@@ -43,7 +44,7 @@ const renderSuggestion = (suggestion, value) => {
     return (<div>
         {suggestion.packageName.split(/[.]+/).pop()}
         -&gt;
-        <strong>{suggestion.action.getName()}</strong>
+        <strong>{suggestion.functionDef.getName()}</strong>
     </div>);
 };
 /**
@@ -62,7 +63,7 @@ class LifelineButton extends React.Component {
             value: '',
             suggestions: [],
         };
-        this.showConnectors = this.showConnectors.bind(this);
+        this.showEndpoints = this.showEndpoints.bind(this);
         this.hideConnectors = this.hideConnectors.bind(this);
         this.showActions = this.showActions.bind(this);
         this.hideActions = this.hideActions.bind(this);
@@ -132,27 +133,28 @@ class LifelineButton extends React.Component {
         }
     }
 
-    getAllSugestions(connectorName) {
+    getAllSugestions(endpointNode) {
+        const suggestions = [];
         const environment = this.context.editor.environment;
         const packages = environment.getFilteredPackages([]);
-        const suggestions = [];
-        packages.forEach((pkg) => {
-            const pkgname = pkg.getName();
-            const connectors = pkg.getConnectors();
-            connectors.forEach((connector) => {
-                const conName = connector.getName();
-                if (connectorName === conName) {
-                    const actions = connector.getActions();
-                    actions.forEach((action) => {
-                        suggestions.push({
-                            pkg,
-                            action,
-                            connector,
-                            packageName: pkgname,
-                            fullPackageName: pkgname,
-                        });
-                    });
-                }
+        const endpointTypeName = endpointNode.endPointType.typeName.value;
+        let endpointTypePkg = endpointNode.endPointType.packageAlias.getValue();
+        endpointTypePkg = (endpointTypePkg === '') ? 'Current Package' : endpointTypePkg;
+        const pkg = _.find(packages, (ownerPackage) => (ownerPackage.getName().endsWith(endpointTypePkg)));
+        const getClientFunction = _.find(pkg.getFunctionDefinitions(),
+            (functionItem) => functionItem._name === 'getClient' && functionItem._receiverType === endpointTypeName);
+        const clientStructType = ((getClientFunction)._returnParams[0]).type;
+        const structTypeComponents = clientStructType.split(":");
+        
+        _.filter(pkg.getFunctionDefinitions(), (functionDef) => {
+            return functionDef._receiverType === structTypeComponents[structTypeComponents.length - 1];
+        }).forEach((functionDef) => {
+            const pkgName = structTypeComponents.length > 1 ? structTypeComponents[0] : '';
+            suggestions.push({
+                pkg,
+                functionDef,
+                packageName: pkgName,
+                fullPackageName: pkgName,
             });
         });
         return suggestions;
@@ -174,13 +176,12 @@ class LifelineButton extends React.Component {
         this.setState({ listConnectors: false, listActions: true });
     }
 
-    showConnectors(connectorName, endpointName) {
+    showEndpoints(endpoint) {
         this.setState({
             listConnectors: true,
             listActions: false,
-            selectedConnecter: connectorName,
-            selectedEndpoint: endpointName,
-            suggestions: this.getAllSugestions(connectorName),
+            selectedEndpoint: endpoint.getName().getValue(),
+            suggestions: this.getAllSugestions(endpoint),
         });
     }
 
@@ -232,7 +233,7 @@ class LifelineButton extends React.Component {
             value,
             onChange: this.onChange,
         };
-        const currentEndpoints = TreeUtil.getCurrentEndpoints(this.props.model);
+        const currentEndpoints = TreeUtil.getAllEndpoints(this.props.model);
         return (
             <Area bBox={this.props.bBox}>
                 <Button
@@ -268,11 +269,9 @@ class LifelineButton extends React.Component {
                             {
                             currentEndpoints.map((statement) => {
                                 return (<Item
-                                    label={statement.getVariable().getName().getValue()}
+                                    label={statement.name.getValue()}
                                     icon='fw fw-endpoint'
-                                    callback={() => this.showConnectors(
-                                        statement.getVariable().getTypeNode().getConstraint().getTypeName().getValue()
-                                        , statement.getVariable().getName().getValue())}
+                                    callback={() => this.showEndpoints(statement)}
                                     closeMenu={false}
                                 />);
                             })

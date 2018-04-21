@@ -20,7 +20,6 @@ package org.ballerinalang.bre.bvm;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -39,6 +38,7 @@ import java.util.Map;
  */
 public class BLangVMErrors {
 
+    private static final String DEFAULT_PKG_PATH = ".";
     private static final String MSG_CALL_FAILED = "call failed";
     private static final String MSG_CALL_CANCELLED = "call cancelled";
     public static final String PACKAGE_BUILTIN = "ballerina.builtin";
@@ -149,7 +149,8 @@ public class BLangVMErrors {
     public static BStruct createCallFailedException(WorkerExecutionContext context, Map<String, BStruct> errors) {
         PackageInfo errorPackageInfo = context.programFile.getPackageInfo(PACKAGE_RUNTIME);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_CALL_FAILED_EXCEPTION);
-        return generateError(context, true, errorStructInfo, MSG_CALL_FAILED, createErrorCauseArray(errors));
+        return generateError(context, true, errorStructInfo, MSG_CALL_FAILED, errors.isEmpty() ? null : 
+            errors.values().iterator().next(), createErrorCauseArray(errors));
     }
     
     public static BStruct createCallCancelledException(CallableUnitInfo callableUnitInfo) {
@@ -248,8 +249,6 @@ public class BLangVMErrors {
         String parentScope = "";
         if (callableUnitInfo instanceof ResourceInfo) {
             parentScope = ((ResourceInfo) callableUnitInfo).getServiceInfo().getName() + ".";
-        } else if (callableUnitInfo instanceof ActionInfo) {
-            parentScope = ((ActionInfo) callableUnitInfo).getConnectorInfo().getName() + ".";
         }
 
         values[0] = parentScope + callableUnitInfo.getName();
@@ -275,14 +274,26 @@ public class BLangVMErrors {
         return getStackFrame(context.callableUnitInfo, context.ip);
     }
     
+    private static boolean isCFE(BStruct error) {
+        return error.getType().getName().equals(STRUCT_CALL_FAILED_EXCEPTION);
+    }
+    
     public static String getPrintableStackTrace(BStruct error) {
-        BRefValueArray cause = (BRefValueArray) error.getRefField(0);
+        BRefValueArray causeArray = null;
+        BStruct causeStruct = null;
+        if (isCFE(error)) {
+            causeArray = (BRefValueArray) error.getRefField(1);
+        } else {
+            causeStruct = (BStruct) error.getRefField(0);
+        }
 
         /* skip the first call failed error, since it would be the root context that calls the
          * entry point functions (i.e. main etc..). The error at the root context will have all
          * the errors as causes of the entry point function */
-        if (cause != null) {
-            return getCauseStackTraceArray(cause);
+        if (causeArray != null) {
+            return getCauseStackTraceArray(causeArray);
+        } else if (causeStruct != null) {
+            return getCasueStackTrace(error);
         }
 
         return null;
@@ -305,7 +316,8 @@ public class BLangVMErrors {
 
         BStruct stackFrame = (BStruct) error.getNativeData(STRUCT_CALL_STACK_ELEMENT);
         // Append function/action/resource name with package path (if any)
-        if (stackFrame.getStringField(1).isEmpty() || stackFrame.getStringField(1).equals(PACKAGE_BUILTIN)) {
+        if (stackFrame.getStringField(1).isEmpty() || DEFAULT_PKG_PATH.equals(stackFrame.getStringField(1)) 
+                || stackFrame.getStringField(1).equals(PACKAGE_BUILTIN)) {
             sb.append(stackFrame.getStringField(0));
         } else {
             sb.append(stackFrame.getStringField(1)).append(":").append(stackFrame.getStringField(0));
@@ -320,9 +332,16 @@ public class BLangVMErrors {
         }
         sb.append(")");
 
-        BRefValueArray cause = (BRefValueArray) error.getRefField(0);
-        if (cause != null && cause.size() > 0) {
-            sb.append("\ncaused by ").append(getCauseStackTraceArray(cause));
+        if (isCFE(error)) {
+            BRefValueArray cause = (BRefValueArray) error.getRefField(1);
+            if (cause != null && cause.size() > 0) {
+                sb.append("\ncaused by ").append(getCauseStackTraceArray(cause));
+            }
+        } else {
+            BStruct cause = (BStruct) error.getRefField(0);
+            if (cause != null) {
+                sb.append("\ncaused by ").append(getCasueStackTrace(cause));
+            }
         }
 
         return sb.toString();
@@ -330,7 +349,7 @@ public class BLangVMErrors {
 
     private static String getErrorMessage(BStruct error) {
         String errorMsg = error.getType().getName();
-        if (error.getType().getPackagePath() != null && !error.getType().getPackagePath().equals(".") &&
+        if (error.getType().getPackagePath() != null && !error.getType().getPackagePath().equals(DEFAULT_PKG_PATH) &&
                 !error.getType().getPackagePath().equals(PACKAGE_BUILTIN)) {
             errorMsg = error.getType().getPackagePath() + ":" + errorMsg;
         }
@@ -353,15 +372,24 @@ public class BLangVMErrors {
     }
     
     public static String getAggregatedRootErrorMessages(BStruct error) {
-        BRefValueArray causesArray = (BRefValueArray) error.getRefField(0);
-        if (causesArray != null && causesArray.size() > 0) {
-            List<String> messages = new ArrayList<>();
-            for (int i = 0; i < causesArray.size(); i++) {
-                messages.add(getAggregatedRootErrorMessages((BStruct) causesArray.get(i)));
+        if (isCFE(error)) {
+            BRefValueArray causesArray = (BRefValueArray) error.getRefField(1);
+            if (causesArray != null && causesArray.size() > 0) {
+                List<String> messages = new ArrayList<>();
+                for (int i = 0; i < causesArray.size(); i++) {
+                    messages.add(getAggregatedRootErrorMessages((BStruct) causesArray.get(i)));
+                }
+                return String.join(", ", messages.toArray(new String[0]));
+            } else {
+                return error.getStringField(0);
             }
-            return String.join(", ", messages.toArray(new String[0]));
         } else {
-            return error.getStringField(0);
+            BStruct cause = (BStruct) error.getRefField(0);
+            if (cause != null) {
+                return getAggregatedRootErrorMessages(cause);
+            } else {
+                return error.getStringField(0);
+            }
         }
     }
     

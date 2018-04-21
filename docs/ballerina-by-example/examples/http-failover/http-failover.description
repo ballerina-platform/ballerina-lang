@@ -1,1 +1,0 @@
-// Ballerina users can configure multiple connectors in a given failover group so that if one of the connectors (dependencies) fails, Ballerina will automatically failover to another endpoint.

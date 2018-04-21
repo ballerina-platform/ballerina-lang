@@ -115,26 +115,6 @@ public class AnnotationTest {
         // Assert.assertEquals(paramAnnotVal, "input parameter for oderPizza resource");
     }
 
-    @Test(description = "Test connector annotation", enabled = false)
-    public void testConnectorAnnotation() {
-        AnnotationAttributeInfo annotationInfo = (AnnotationAttributeInfo) compileResult.getProgFile()
-                .getEntryPackage().getConnectorInfoEntries()[0]
-                .getAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
-        AnnAttachmentInfo[] attachmentInfos = annotationInfo.getAttachmentInfoEntries();
-        String attributeValue = attachmentInfos[0].getAttributeValue("value").getStringValue();
-        Assert.assertEquals(attributeValue, "Test connector");
-    }
-
-    @Test(description = "Test action annotation", enabled = false)
-    public void testActionAnnotation() {
-        AnnotationAttributeInfo annotationInfo = (AnnotationAttributeInfo) compileResult.getProgFile()
-                .getEntryPackage().getConnectorInfoEntries()[0].getActionInfoEntries()[1]
-                .getAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
-        AnnAttachmentInfo[] attachmentInfos = annotationInfo.getAttachmentInfoEntries();
-        String attributeValue = attachmentInfos[0].getAttributeValue("value").getStringValue();
-        Assert.assertEquals(attributeValue, "Test action of test connector");
-    }
-
     @Test(description = "Test struct annotation", enabled = false)
     public void testStructAnnotation() {
         AnnotationAttributeInfo annotationInfo = (AnnotationAttributeInfo) compileResult.getProgFile()
@@ -147,7 +127,7 @@ public class AnnotationTest {
 
     @Test(description = "Test constant annotation", enabled = false)
     public void testConstantAnnotation() {
-//        if (varNode.symbol.flags == Flags.CONST) {
+//        if (varNode.symbol.flags == Flags.FINAL) {
 //            PackageVarInfo varInfo = currentPkgInfo.pkgVarInfoMap.get(varNode.getName().getValue());
 //
 //            int annotationAttribNameIndex = addUTF8CPEntry(currentPkgInfo,
@@ -232,8 +212,7 @@ public class AnnotationTest {
 
     @Test(description = "Test child annotation from a wrong package")
     public void testInvalidChildAnnotation() {
-        CompileResult resNegative = BCompileUtil.compile(this, "test-src",
-                "lang/annotations/invalid-child-annotation.bal");
+        CompileResult resNegative = BCompileUtil.compile("test-src/lang/annotations/invalid-child-annotation.bal");
         Assert.assertEquals(resNegative.getErrorCount(), 2);
         BAssertUtil.validateError(resNegative, 0, "undefined field 'val' in struct 'Arguments'",
                 1, 7);

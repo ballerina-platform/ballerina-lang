@@ -19,6 +19,7 @@ package org.ballerinalang.nativeimpl.io.channels.base;
 
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.nativeimpl.io.BallerinaIOException;
+import org.ballerinalang.nativeimpl.io.csv.Format;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,14 +87,72 @@ public class DelimitedRecordChannel {
      */
     private int numberOfRecordsWrittenToChannel = 0;
 
+    /**
+     * Specifies the format for the record. This will be optional
+     */
+    private Format format;
+
     private static final Logger log = LoggerFactory.getLogger(DelimitedRecordChannel.class);
 
+    public DelimitedRecordChannel(CharacterChannel channel, Format format) {
+        this.channel = channel;
+        this.format = format;
+        this.persistentCharSequence = new StringBuilder();
+    }
 
     public DelimitedRecordChannel(CharacterChannel channel, String recordSeparator, String fieldSeparator) {
         this.recordSeparator = recordSeparator;
         this.fieldSeparator = fieldSeparator;
         this.channel = channel;
         this.persistentCharSequence = new StringBuilder();
+    }
+
+    /**
+     * Retrieves the record separator for reading records.
+     *
+     * @return the record separator.
+     */
+    private String getRecordSeparatorForReading() {
+        if (null == format) {
+            return recordSeparator;
+        }
+        return format.getReadRecSeparator();
+    }
+
+    /**
+     * Retrieves field separator for reading.
+     *
+     * @return the field separator.
+     */
+    private String getFieldSeparatorForReading() {
+        if (null == format) {
+            return fieldSeparator;
+        }
+        return format.getReadFieldSeparator();
+    }
+
+    /**
+     * Retrieves record separator for writing.
+     *
+     * @return the record separator.
+     */
+    private String getRecordSeparatorForWriting() {
+        if (null == format) {
+            return recordSeparator;
+        }
+        return format.getWriteRecSeparator();
+    }
+
+    /**
+     * Retrieves field separator for writing.
+     *
+     * @return the field separator.
+     */
+    private String getFieldSeparatorForWriting() {
+        if (null == format) {
+            return fieldSeparator;
+        }
+        return format.getWriteFieldSeparator();
     }
 
     /**
@@ -114,7 +173,8 @@ public class DelimitedRecordChannel {
                 log.trace("char[] remaining in memory " + persistentCharSequence);
             }
             //We need to split the string into 2
-            String[] delimitedRecord = persistentCharSequence.toString().split(recordSeparator, numberOfSplits);
+            String[] delimitedRecord = persistentCharSequence.toString().
+                    split(getRecordSeparatorForReading(), numberOfSplits);
             if (delimitedRecord.length > minimumRecordCount) {
                 record = processIdentifiedRecord(delimitedRecord);
                 int recordCharacterLength = record.length();
@@ -219,7 +279,7 @@ public class DelimitedRecordChannel {
      * @return fields which are separated as records.
      */
     private String[] getFields(String record) {
-        return record.split(fieldSeparator);
+        return record.split(getFieldSeparatorForReading());
     }
 
     /**
@@ -232,6 +292,7 @@ public class DelimitedRecordChannel {
      * </p>
      *
      * @return the list of fields.
+     * @throws IOException during I/O error.
      */
     public String[] read() throws IOException {
         final int emptyArrayIndex = 0;
@@ -284,7 +345,7 @@ public class DelimitedRecordChannel {
             recordConsolidator.append(currentFieldString);
             if (fieldCount < secondLastFieldIndex) {
                 //The idea here is to omit appending the field separator after the final field
-                recordConsolidator.append(fieldSeparator);
+                recordConsolidator.append(getFieldSeparatorForWriting());
             }
         }
         finalizedRecord = recordConsolidator.toString();
@@ -300,7 +361,7 @@ public class DelimitedRecordChannel {
     public void write(BStringArray fields) throws IOException {
         final int writeOffset = 0;
         String record = composeRecord(fields);
-        record = record + recordSeparator;
+        record = record + getRecordSeparatorForWriting();
         if (log.isTraceEnabled()) {
             log.trace("The record " + numberOfRecordsWrittenToChannel + " composed for writing, " + record);
         }

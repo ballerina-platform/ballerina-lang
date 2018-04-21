@@ -1,0 +1,90 @@
+import ballerina/io;
+import ballerina/http;
+
+//=====================================
+//============Client Config============
+//=====================================
+public type {{name}}ClientConfig {
+    string serviceUrl;
+};
+
+//=======================================
+//============Client Endpoint============
+//=======================================
+public type {{name}}ClientEp object {
+    public {
+        http:Client client;
+        {{name}}ClientConfig config;
+    }
+
+    public function init({{name}}ClientConfig config);
+    public function getCallerActions() returns ({{name}}Client);
+};
+
+public function {{name}}ClientEp::init({{name}}ClientConfig config) {
+    endpoint http:Client httpEp {
+        targets:[{url: config.serviceUrl}]
+    };
+
+    self.client = httpEp;
+    self.config = config;
+}
+
+public function {{name}}ClientEp::getCallerActions() returns ({{name}}Client) {
+    return new {{name}}Client(self);
+}
+
+//==============================
+//============Client============
+//==============================
+public type {{name}}Client object {
+    public {
+        {{name}}ClientEp clientEp;
+    }
+
+    new (clientEp) {}
+    {{#resources}}
+    public function {{name}}({{#parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/parameters}}) returns http:Response | error;{{/resources}}
+};
+
+{{#resources}}
+public function {{../name}}Client::{{name}}({{#parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/parameters}}) returns http:Response | error {
+    endpoint http:Client ep = self.clientEp.client;
+    http:Request request = new;
+
+    //Create the required request as needed{{#contentType}}
+    request.setHeader("Content-Type", "{{contentType}}");{{/contentType}}
+    string path = string `{{path}}`;
+    var res = ep -> {{lower method}}(path, request);
+
+    match res {
+        http:HttpConnectorError httpError => {
+            error err = {message: httpError.message};
+            return err;
+        }
+        http:Response resp => return resp;
+    }
+}
+{{/resources}}
+{{#if endpoints}}//======================================================
+//============Invocation of Generated Client============
+//======================================================
+function main (string[] args) { {{#endpoints}}
+    endpoint {{../name}}ClientEp ep{{@index}} {
+        serviceUrl: "{{url}}"
+    };{{/endpoints}}
+
+    {{#resources.0}}
+    // Sample invocation of the generated client connector
+    var res = ep0 -> {{name}}({{#parameters}}{{>arguments}}{{/parameters}});
+    match (res) {
+        error err => io:println(err.message);
+            http:Response resp => {
+                var payload = resp.getStringPayload();
+                match payload {
+                    http:PayloadError err => io:println(err.message);
+                    string message => io:println(message);
+                }
+            }
+    }{{/resources.0}}
+}{{/if}}

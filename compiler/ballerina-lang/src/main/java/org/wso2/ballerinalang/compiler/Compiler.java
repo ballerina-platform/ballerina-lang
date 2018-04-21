@@ -24,6 +24,11 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 /**
  * @since 0.94
  */
@@ -35,6 +40,7 @@ public class Compiler {
     private final SourceDirectoryManager sourceDirectoryManager;
     private final CompilerDriver compilerDriver;
     private final BinaryFileWriter binaryFileWriter;
+    private final DependencyTree dependencyTree;
     private final BLangDiagnosticLog dlog;
     private final PackageLoader pkgLoader;
 
@@ -52,6 +58,7 @@ public class Compiler {
         this.sourceDirectoryManager = SourceDirectoryManager.getInstance(context);
         this.compilerDriver = CompilerDriver.getInstance(context);
         this.binaryFileWriter = BinaryFileWriter.getInstance(context);
+        this.dependencyTree = DependencyTree.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
     }
@@ -62,42 +69,34 @@ public class Compiler {
             throw ProjectDirs.getPackageNotFoundError(sourcePackage);
         }
 
-        return compile(packageID);
-    }
-
-    public BLangPackage compile(PackageID packageID) {
-        BLangPackage packageNode = this.pkgLoader.loadPackage(packageID);
-        if (packageNode == null) {
-            throw ProjectDirs.getPackageNotFoundError(packageID);
-        }
-
-        if (dlog.errorCount > 0) {
-            return packageNode;
-        }
-        return compile(packageNode);
-    }
-
-    public BLangPackage compile(BLangPackage packageNode) {
-        return this.compilerDriver.compilePackage(packageNode);
+        return compilePackage(packageID);
     }
 
     public void build() {
-        // TODO Check for compilation errors
-        this.sourceDirectoryManager.listSourceFilesAndPackages()
-                .map(this.pkgLoader::loadPackage)
-                .map(this.compilerDriver::compilePackage)
-                .filter(bLangPackage -> this.dlog.errorCount == 0)
-                .forEach(this.binaryFileWriter::writeExecutableBinary);
+        compilePackages().forEach(this.binaryFileWriter::write);
     }
 
     public void build(String sourcePackage, String targetFileName) {
         BLangPackage bLangPackage = compile(sourcePackage);
-        if (this.dlog.errorCount > 0) {
+        if (bLangPackage.diagCollector.hasErrors()) {
             return;
         }
 
         // Code gen and save...
-        this.binaryFileWriter.writeExecutableBinary(bLangPackage, targetFileName);
+        this.binaryFileWriter.write(bLangPackage, targetFileName);
+    }
+
+    public void list() {
+        compilePackages().forEach(this.dependencyTree::listDependencyPackages);
+    }
+
+    public void list(String sourcePackage) {
+        BLangPackage bLangPackage = compile(sourcePackage);
+        if (bLangPackage.diagCollector.hasErrors()) {
+            return;
+        }
+
+        this.dependencyTree.listDependencyPackages(bLangPackage);
     }
 
     public ProgramFile getExecutableProgram(BLangPackage entryPackageNode) {
@@ -105,5 +104,41 @@ public class Compiler {
             return null;
         }
         return this.binaryFileWriter.genExecutable(entryPackageNode);
+    }
+
+
+    // private methods
+
+    private List<BLangPackage> compilePackages(Stream<PackageID> pkgIdStream) {
+        // TODO This is hack to load the builtin package. We will fix this with BALO support
+        this.compilerDriver.loadBuiltinPackage();
+
+        // 1) Load all source packages. i.e. source-code -> BLangPackageNode
+        // 2) Define all package level symbols for all the packages including imported packages in the AST
+        List<BLangPackage> packages = pkgIdStream
+                .map(this.pkgLoader::loadEntryPackage)
+                .collect(Collectors.toList());
+
+        // 3) Invoke compiler phases. e.g. type_check, code_analyze, taint_analyze, desugar etc.
+        packages.stream()
+//                .filter(pkgNode -> !pkgNode.diagCollector.hasErrors())
+                .filter(pkgNode -> pkgNode.symbol != null)
+                .forEach(this.compilerDriver::compilePackage);
+
+        return packages;
+    }
+
+    private List<BLangPackage> compilePackages() {
+        List<BLangPackage> compiledPackages = compilePackages(
+                this.sourceDirectoryManager.listSourceFilesAndPackages());
+        if (this.dlog.errorCount > 0) {
+            return new ArrayList<>();
+        }
+
+        return compiledPackages;
+    }
+
+    private BLangPackage compilePackage(PackageID packageID) {
+        return compilePackages(Stream.of(packageID)).get(0);
     }
 }

@@ -28,7 +28,7 @@ import org.ballerinalang.model.values.BStruct;
  */
 public class GrpcCallableUnitCallBack implements CallableUnitCallback {
 
-    private StreamObserver<Message> requestSender = null;
+    private StreamObserver<Message> requestSender;
     private boolean emptyResponse;
     
     public GrpcCallableUnitCallBack(StreamObserver<Message> requestSender, boolean isEmptyResponse) {
@@ -46,7 +46,8 @@ public class GrpcCallableUnitCallBack implements CallableUnitCallback {
         // notify success only if response message is empty. Service impl doesn't send empty message. Empty response
         // scenarios handles here.
         if (emptyResponse && requestSender != null) {
-            requestSender.onNext(Message.newBuilder(null).build());
+            requestSender.onNext(Message.newBuilder("Empty").build());
+            requestSender.onCompleted();
         }
     }
     

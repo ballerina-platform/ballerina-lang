@@ -17,8 +17,8 @@
 */
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
-import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
@@ -49,7 +49,7 @@ public class ParserRuleConditionalClauseContextResolver extends AbstractItemReso
     private static final String WHILE_KEY_WORD = "while";
     
     @Override
-    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
+    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<SymbolInfo> symbolInfos =
                 this.filterConditionalSymbols(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));

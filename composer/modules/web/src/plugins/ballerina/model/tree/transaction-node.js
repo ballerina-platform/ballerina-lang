@@ -33,8 +33,8 @@ class TransactionNode extends AbstractTransactionNode {
         if (this.committedBody) {
             this.committedBody.viewState.compound = true;
         }
-        if (this.failedBody) {
-            this.failedBody.viewState.compound = true;
+        if (this.onRetryBody) {
+            this.onRetryBody.viewState.compound = true;
         }
         if (this.transactionBody) {
             this.transactionBody.viewState.compound = true;

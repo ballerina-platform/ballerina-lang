@@ -1,5 +1,5 @@
-import ballerina/net.http;
+import ballerina/http;
 
-function testParseHeader (string value) returns (string, map, error) {
+function testParseHeader (string value) returns (string, map) | error {
     return http:parseHeader(value);
 }

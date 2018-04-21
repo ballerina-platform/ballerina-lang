@@ -33,8 +33,7 @@ public abstract class BLangNode implements Node {
      * The type of this node.
      */
     public BType type;
-
-    public boolean desugered;
+    public BLangNode parent = null;
 
     /**
      * Indicates whether the node has already been desugared.

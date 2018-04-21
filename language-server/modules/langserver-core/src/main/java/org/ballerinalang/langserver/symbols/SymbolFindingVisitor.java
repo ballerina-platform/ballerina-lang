@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langserver.symbols;
 
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -39,7 +39,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
@@ -63,7 +62,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
@@ -79,6 +78,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -110,7 +110,7 @@ public class SymbolFindingVisitor extends BLangNodeVisitor {
     private List<SymbolInformation> symbols = new ArrayList<SymbolInformation>();
     private String uri = "";
 
-    public SymbolFindingVisitor(TextDocumentServiceContext documentServiceContext) {
+    public SymbolFindingVisitor(LSServiceOperationContext documentServiceContext) {
         this.symbols = documentServiceContext.get(DocumentServiceKeys.SYMBOL_LIST_KEY);
         this.uri = documentServiceContext.get(DocumentServiceKeys.FILE_URI_KEY);
     }
@@ -184,10 +184,6 @@ public class SymbolFindingVisitor extends BLangNodeVisitor {
         // ignore
     }
 
-    public void visit(BLangPackageDeclaration packageDecNode) {
-        // ignore
-    }
-
     public void visit(BLangPackage pkgNode) {
         // ignore
     }
@@ -245,6 +241,10 @@ public class SymbolFindingVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangAbort abortNode) {
+        // ignore
+    }
+    
+    public void visit(BLangDone doneNode) {
         // ignore
     }
 
@@ -344,7 +344,7 @@ public class SymbolFindingVisitor extends BLangNodeVisitor {
         // ignore
     }
 
-    public void visit(BLangTypeofExpr accessExpr) {
+    public void visit(BLangTypedescExpr accessExpr) {
         // ignore
     }
 

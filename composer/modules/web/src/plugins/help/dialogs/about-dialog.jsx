@@ -57,20 +57,16 @@ class AboutDialog extends React.Component {
                 title={
                     <div>
                         <div className='brand'>
-                            <img
-                                src='images/BallerinaLogo.svg'
-                                alt='Ballerina Composer'
-                                className='logo'
-                            />
-                            <span className='appname'>Composer</span>
+                            <i className='fw fw-ballerina-logo fw-lg'/>
+                            <i className='fw fw-composer fw-lg brand-color'/>
                         </div>
-                        <div className='version'>v0.963.1.SNAPSHOT</div>
+                        <div className='version'>v0.970.0-beta0</div>
                     </div>
                 }
                 onHide={this.onDialogHide}
                 className='modal-about'
             >
-                <p>
+                <p className='aboutWrapper'>
                     Ballerina Composer provides a flexible and powerful browser-based tool for creating your
                     Ballerina programs. You can build your integrations by creating sequence diagrams, dragging
                     elements from a tool palette onto a canvas. As you build the diagrams, the underlying code

@@ -1,6 +1,10 @@
-import ballerina/net.http;
-const int const1 = 0;
-const string const2 = "test const";
+import ballerina/http;
+
+@final
+int const1 = 0;
+
+@final
+string const2 = "test const";
 
 service<http:Service> hello {
     sayHello (endpoint client, http:Request request) {

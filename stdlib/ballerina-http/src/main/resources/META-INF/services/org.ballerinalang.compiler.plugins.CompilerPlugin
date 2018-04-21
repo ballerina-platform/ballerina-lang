@@ -1,1 +1,2 @@
-org.ballerinalang.net.http.compiler.HTTPServiceCompilerPlugin
+org.ballerinalang.net.http.compiler.HttpServiceCompilerPlugin
+org.ballerinalang.net.http.compiler.WebSocketServiceCompilerPlugin

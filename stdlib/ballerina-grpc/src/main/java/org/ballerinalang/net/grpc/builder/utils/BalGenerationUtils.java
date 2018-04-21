@@ -66,7 +66,7 @@ public class BalGenerationUtils {
     }
     
     /**
-     * This function returns the ballerina data type which is mapped to  protobuff data type.
+     * This function returns the ballerina data type which is mapped to  protobuf data type.
      *
      * @param protoType .proto data type
      * @return Ballerina data type.
@@ -166,7 +166,29 @@ public class BalGenerationUtils {
             }
         }
     }
-    
+    /**
+     * Method is for getting ballerina data type which is map to the .proto data type.
+     *
+     * @param num .
+     * @return .
+     */
+    public static String getLabelName(int num) {
+        switch (num) {
+            case DescriptorProtos.FieldDescriptorProto.Label.LABEL_REPEATED_VALUE: {
+                return "[]";
+            }
+            case DescriptorProtos.FieldDescriptorProto.Label.LABEL_OPTIONAL_VALUE: {
+                return null;
+            }
+            case DescriptorProtos.FieldDescriptorProto.Label.LABEL_REQUIRED_VALUE: {
+                throw new UnsupportedFieldTypeException("Required type is not supported yet." + num);
+            }
+            default: {
+                throw new UnsupportedFieldTypeException("Error while decoding request message. Field " +
+                        "label is not supported : " + num);
+            }
+        }
+    }
     /**
      * Write ballerina definition of a <code>object</code> to a file as described by <code>template.</code>
      *

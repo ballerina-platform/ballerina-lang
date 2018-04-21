@@ -4,28 +4,29 @@ import ballerina/task;
 int w1Count;
 error errorW1;
 string errorMsgW1;
+task:Appointment? app;
 
-function scheduleAppointment (string cronExpression, string errMsgW1) returns (string) {
+function scheduleAppointment(string cronExpression, string errMsgW1) {
     worker default {
-        string w1TaskId;
         errorMsgW1 = errMsgW1;
-        w1TaskId <- w1;
-        return w1TaskId;
+        app <- w1;
     }
     worker w1 {
-        function () returns (error|null) onTriggerFunction = onTriggerW1;
-        string w1TaskIdX;
+        (function() returns error?) onTriggerFunction = onTriggerW1;
+        task:Appointment? appW1;
         if (errMsgW1 == "") {
-            w1TaskIdX =? task:scheduleAppointment(onTriggerFunction, null, cronExpression);
+            appW1 = new task:Appointment(onTriggerFunction, (), cronExpression);
+            _ = appW1.schedule();
         } else {
-            function (error) onErrorFunction = onErrorW1;
-            w1TaskIdX =? task:scheduleAppointment(onTriggerFunction, onErrorFunction, cronExpression);
+            function(error) onErrorFunction = onErrorW1;
+            appW1 = new task:Appointment(onTriggerFunction, onErrorFunction, cronExpression);
+            _ = appW1.schedule();
         }
-        w1TaskIdX -> default;
+        appW1 -> default;
     }
 }
 
-function onTriggerW1 () returns (error|null) {
+function onTriggerW1() returns error? {
     w1Count = w1Count + 1;
     io:println("w1:onTriggerW1");
     if (errorMsgW1 != "") {
@@ -33,19 +34,19 @@ function onTriggerW1 () returns (error|null) {
         error e = {message:errorMsgW1};
         return e;
     }
-    return null;
+    return ();
 }
 
-function onErrorW1 (error e) {
+function onErrorW1(error e) {
     io:println("w1:onErrorW1");
     errorW1 = e;
 }
 
-function getCount () returns (int) {
+function getCount() returns (int) {
     return w1Count;
 }
 
-function getError () returns (string) {
+function getError() returns (string) {
     string w1ErrMsg;
     if (errorW1 != null) {
         w1ErrMsg = errorW1.message;
@@ -53,10 +54,7 @@ function getError () returns (string) {
     return w1ErrMsg;
 }
 
-function stopTask (string w1TaskId) returns (error) {
-    error w1StopError = task:stopTask(w1TaskId);
-    if (w1StopError == null) {
-        w1Count = -1;
-    }
-    return w1StopError;
+function cancelAppointment() {
+    _ = app.cancel();
+    w1Count = -1;
 }

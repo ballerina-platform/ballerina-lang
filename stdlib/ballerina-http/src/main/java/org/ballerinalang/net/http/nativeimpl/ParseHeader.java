@@ -21,13 +21,18 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
+import org.ballerinalang.model.types.BTupleType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BallerinaException;
+
+import java.util.Arrays;
 
 import static org.ballerinalang.mime.util.Constants.COMMA;
 import static org.ballerinalang.mime.util.Constants.PARSER_ERROR;
@@ -39,7 +44,7 @@ import static org.ballerinalang.mime.util.Constants.SEMICOLON;
  * @since 0.96.1
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "parseHeader",
         args = {@Argument(name = "headerValue", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING),
@@ -48,6 +53,9 @@ import static org.ballerinalang.mime.util.Constants.SEMICOLON;
         isPublic = true
 )
 public class ParseHeader extends BlockingNativeCallableUnit {
+
+    private static final BTupleType parseHeaderTupleType = new BTupleType(
+            Arrays.asList(BTypes.typeString, BTypes.typeMap));
 
     @Override
     public void execute(Context context) {
@@ -63,7 +71,11 @@ public class ParseHeader extends BlockingNativeCallableUnit {
             if (headerValue.contains(SEMICOLON)) {
                 value = HeaderUtil.getHeaderValue(value);
             }
-            context.setReturnValues(new BString(value), HeaderUtil.getParamMap(headerValue));
+            BRefValueArray contentTuple = new BRefValueArray(parseHeaderTupleType);
+            contentTuple.add(0, new BString(value));
+            contentTuple.add(1, HeaderUtil.getParamMap(headerValue));
+
+            context.setReturnValues(contentTuple);
             return;
         } catch (BLangNullReferenceException ex) {
             errMsg = PARSER_ERROR + "header value cannot be null";
@@ -72,6 +84,6 @@ public class ParseHeader extends BlockingNativeCallableUnit {
         }
 
         // set parse error
-        context.setReturnValues(null, null, MimeUtil.getParserError(context, errMsg));
+        context.setReturnValues(MimeUtil.getParserError(context, errMsg));
     }
 }

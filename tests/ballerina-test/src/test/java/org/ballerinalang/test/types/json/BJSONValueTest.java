@@ -398,7 +398,7 @@ public class BJSONValueTest {
             expectedExceptionsMessageRegExp = ".*failed to get element from json: array index out of " +
                     "range: index: 5, size: 3.*")
     public void testGetArrayOutofBoundElement() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testGetArrayOutofBoundElement");
+        BRunUtil.invoke(compileResult, "testGetArrayOutofBoundElement");
     }
 
     @Test
@@ -406,14 +406,7 @@ public class BJSONValueTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetElementFromPrimitive");
         Assert.assertNull(returns[0]);
     }
-
-//    @Test
-//    public void testJsonArrayWithVariable() {
-//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testJsonArrayWithVariable");
-//        Assert.assertTrue(returns[0] instanceof BJSON);
-//        Assert.assertEquals(returns[0].stringValue(), "[\"a\",\"b\",\"c\",{\"name\":\"supun\"}]");
-//    }
-
+    
     @Test
     public void testUpdateNestedElement() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testUpdateNestedElement");
@@ -464,10 +457,8 @@ public class BJSONValueTest {
     @Test
     public void testJsonToJsonArrayInvalidCasting() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToJsonArrayInvalidCasting");
-        Assert.assertEquals(returns[0], null);
-
-        Assert.assertTrue(returns[1] instanceof BStruct);
-        String errorMsg = ((BStruct) returns[1]).getStringField(0);
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        String errorMsg = ((BStruct) returns[0]).getStringField(0);
         Assert.assertEquals(errorMsg, "'json[]' cannot be cast to 'json[][][]'");
     }
 
@@ -483,14 +474,14 @@ public class BJSONValueTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error:.*NullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error:.*'null' cannot be cast to 'string'.*")
     public void testGetFromNull() {
         BRunUtil.invoke(compileResult, "testGetFromNull");
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error:.*NullReferenceException.*")
+    @Test
     public void testAddToNull() {
-        BRunUtil.invoke(compileResult, "testAddToNull");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAddToNull");
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"Supun\",\"address\":{\"country\":\"SriLanka\"}}");
     }
 }

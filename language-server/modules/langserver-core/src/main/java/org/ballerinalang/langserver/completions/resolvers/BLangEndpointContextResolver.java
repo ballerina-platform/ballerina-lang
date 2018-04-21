@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.resolvers;
 
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.eclipse.lsp4j.CompletionItem;
@@ -41,7 +41,7 @@ public class BLangEndpointContextResolver extends AbstractItemResolver {
     
     @Override
     @SuppressWarnings("unchecked")
-    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
+    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         BLangNode bLangEndpoint = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         ArrayList<SymbolInfo> configurationFields = new ArrayList<>();

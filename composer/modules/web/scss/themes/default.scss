@@ -1,6 +1,8 @@
-$brand-primary: #f17b31;
+$brand-primary: #2fb8b0;
+$primaryBackgroundColor: #e7eaeb;
+$secondary-color:#575a5e;
 
-$header-bgcolor: #212121;
+$header-bgcolor: #1a1b1d;
 $header-brand-color: #fff;
 
 $footer-bgcolor: #3C3F41;
@@ -49,7 +51,10 @@ $panel-body-border-color: $panel-header-border-color;
 $panel-body-dropzone-bgcolor: #fff;
 
 $package-configs-bgcolor: #eee;
-$worker-life-line-color: #000;
+$worker-color: #0070af;
+$connector-color:#26A69A;
+$package-definition-color: #fff;
+
 $package-definition-color: #000;
 
 $btn-primary-bgcolor: $brand-primary;
@@ -67,10 +72,10 @@ $modal-btn-primary-color: #fff;
 $modal-btn-primary-hover-bgcolor: darken($modal-btn-primary-bgcolor, 10%);
 $modal-btn-primary-hover-color: #fff;
 
-$primary-line-bgcolor: #666769;
-$default-worker-lifeline-color: #0070af;
-$worker-lifeline-color: #0070af;
-$connector-lifeline-color: #26A69A;
+$primary-line-bgcolor: #555;
+$default-worker-lifeline-color: $worker-color;
+$worker-lifeline-color: $worker-color;
+$connector-lifeline-color: $connector-color;
 
 $annotation-wrapper-bgcolor: #eee;
 $annotation-wrapper-text-color: #666769;

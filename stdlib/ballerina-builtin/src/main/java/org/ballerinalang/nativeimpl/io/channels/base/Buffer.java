@@ -216,13 +216,13 @@ public class Buffer {
      * </p>
      * <p>
      * The operation will return slice of the bytes requested. The size of the buffer returned would be =
-     * numberOfBytesRequested. If numberOfBytesRequested < minimumSizeOfBuffer the size of the buffer will be
+     * numberOfBytesRequested. If numberOfBytesRequested &lt; minimumSizeOfBuffer the size of the buffer will be
      * minimumSizeOfBuffer
      * </p>
      *
      * @param numberOfBytesRequested number of bytes requested from the buffer.
      * @param channel                byte channel which will perform I/O ops necessary for reading.
-     * @return buffer which will contain bytes >= numberOfBytesRequested
+     * @return buffer which will contain bytes &gt;= numberOfBytesRequested
      * @throws IOException errors which occur while reading from the channel.
      */
     public ByteBuffer get(int numberOfBytesRequested, Channel channel) throws IOException {

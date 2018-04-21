@@ -19,14 +19,11 @@ package org.ballerinalang.connector.api;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.connector.impl.ConnectorSPIModelHelper;
-import org.ballerinalang.connector.impl.ServiceImpl;
 import org.ballerinalang.model.types.BServiceType;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.ConnectorInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.PackageVarInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -72,7 +69,9 @@ public final class BLangConnectorSPIUtil {
         }
         final BServiceType serviceType = (BServiceType) ((BTypeDescValue) result).value();
         final ProgramFile programFile = context.getProgramFile();
-        return getService(programFile, serviceType);
+        final Service service = getService(programFile, serviceType);
+        BLangFunctions.invokeServiceInitFunction(service.getServiceInfo().getInitFunctionInfo());
+        return service;
     }
 
     /**
@@ -100,6 +99,23 @@ public final class BLangConnectorSPIUtil {
         return BLangVMStructs.createBStruct(structInfo, values);
     }
 
+
+    public static BStruct createObject(Context context, String pkgPath, String structName, BValue... values) {
+        return createObject(context.getProgramFile(), pkgPath, structName, values);
+    }
+
+    public static BStruct createObject(ProgramFile programFile, String pkgPath, String structName, BValue... values) {
+        PackageInfo packageInfo = programFile.getPackageInfo(pkgPath);
+        if (packageInfo == null) {
+            throw new BallerinaConnectorException("package - " + pkgPath + " does not exist");
+        }
+        StructInfo structInfo = packageInfo.getStructInfo(structName);
+        if (structInfo == null) {
+            throw new BallerinaConnectorException("struct - " + structName + " does not exist");
+        }
+        return BLangVMStructs.createObject(structInfo, values);
+    }
+
     /**
      * Wrap BVM struct value to {@link Struct}
      *
@@ -110,27 +126,6 @@ public final class BLangConnectorSPIUtil {
         return ConnectorSPIModelHelper.createStruct(bStruct);
     }
 
-    /**
-     * Creates a VM connector value.
-     *
-     * @param programFile   program file
-     * @param pkgPath       package path of the connector
-     * @param connectorName name of the connector
-     * @param args          args of the connector in the defined order
-     * @return created struct
-     */
-    public static BConnector createBConnector(ProgramFile programFile, String pkgPath, String connectorName,
-                                              Object... args) {
-        PackageInfo packageInfo = programFile.getPackageInfo(pkgPath);
-        if (packageInfo == null) {
-            throw new BallerinaConnectorException("package - " + pkgPath + " does not exist");
-        }
-        ConnectorInfo connectorInfo = packageInfo.getConnectorInfo(connectorName);
-        if (connectorInfo == null) {
-            throw new BallerinaConnectorException("connector - " + connectorName + " does not exist");
-        }
-        return BLangVMStructs.createBConnector(connectorInfo, args);
-    }
 
     public static Service getServiceFromType(ProgramFile programFile, Value value) {
         if (value == null || value.getType() != Value.Type.TYPEDESC) {
@@ -152,14 +147,13 @@ public final class BLangConnectorSPIUtil {
         if (packageVarInfo == null) {
             throw new BallerinaConnectorException("Can't locate " + endpointName + " endpoint variable");
         }
-        return (BStruct) programFile.getGlobalMemoryBlock().getRefField(packageVarInfo.getGlobalMemIndex());
+        return (BStruct) programFile.globalMemArea.getRefField(packageInfo.pkgIndex,
+                packageVarInfo.getGlobalMemIndex());
     }
 
     public static Service getService(ProgramFile programFile, BServiceType serviceType) {
         final ServiceInfo serviceInfo = programFile.getPackageInfo(serviceType.getPackagePath())
                 .getServiceInfo(serviceType.getName());
-            final ServiceImpl service = ConnectorSPIModelHelper.createService(programFile, serviceInfo);
-        BLangFunctions.invokeServiceInitFunction(serviceInfo.getInitFunctionInfo());
-        return service;
+        return ConnectorSPIModelHelper.createService(programFile, serviceInfo);
     }
 }

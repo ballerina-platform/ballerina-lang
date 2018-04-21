@@ -30,7 +30,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -39,6 +38,7 @@ import org.testng.annotations.Test;
  * Test Native functions in ballerina.model.json.
  */
 @SuppressWarnings("javadoc")
+@Test
 public class JSONTest {
 
     private CompileResult compileResult;
@@ -170,9 +170,9 @@ public class JSONTest {
     public void testParseMalformedString() {
         BValue[] args = {new BString("some words without quotes")};
         BValue[] returns = BRunUtil.invoke(compileResult, "testParse", args);
-        Assert.assertNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertEquals(((BStruct) returns[1]).getStringField(0), "unrecognized token 'some' at line: 1 column: 6");
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0),
+                "Failed to parse json string: unrecognized token 'some' at line: 1 column: 6");
     }
 
     @Test(description = "Convert complex json object in to xml")
@@ -456,9 +456,7 @@ public class JSONTest {
     @Test(description = "Convert a string to json")
     public void testStringToJSONConversion() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStringToJSONConversion");
-        Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "{\"foo\":\"bar\"}");
-        Assert.assertNull(returns[1]);
     }
 
     @Test
@@ -468,10 +466,10 @@ public class JSONTest {
         Assert.assertEquals(returns[0].stringValue(), "[{\"a\":\"b\"},{\"c\":\"d\"}]");
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: ballerina.runtime:NullReferenceException.*")
+    @Test
     public void testFieldAccessOfNullableJSON() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/jsontype/nullable-json-test.bal");
-        BRunUtil.invoke(compileResult, "testFieldAccessOfNullableJSON");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFieldAccessOfNullableJSON");
+        Assert.assertNull(returns[0]);
     }
 }

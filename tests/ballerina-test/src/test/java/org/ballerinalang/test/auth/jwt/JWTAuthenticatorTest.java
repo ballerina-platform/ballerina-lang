@@ -26,8 +26,8 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.jwt.crypto.JWSSigner;
-import org.ballerinalang.nativeimpl.jwt.crypto.RSASigner;
+import org.ballerinalang.nativeimpl.internal.jwt.crypto.JWSSigner;
+import org.ballerinalang.nativeimpl.internal.jwt.crypto.RSASigner;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -87,12 +87,15 @@ public class JWTAuthenticatorTest {
     private CompileResult compileResult;
     private String resourceRoot;
     private String jwtToken;
+    private String trustStorePath;
     private static final String BALLERINA_CONF = "ballerina.conf";
     private static final String KEY_STORE = "ballerinaKeystore.p12";
     private static final String TRUST_SORE = "ballerinaTruststore.p12";
 
     @BeforeClass
     public void setup() throws Exception {
+        trustStorePath = getClass().getClassLoader().getResource(
+                "datafiles/security/keyStore/ballerinaTruststore.p12").getPath();
         resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
         Path sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
         Path ballerinaConfPath = Paths
@@ -122,13 +125,12 @@ public class JWTAuthenticatorTest {
         Assert.assertTrue(returns[0] instanceof BStruct);
     }
 
-    //TODO Enable this test after config api get the capability to set new properties.
+    @Test(description = "Test case for JWT authenticator for authentication success")
     public void testAuthenticationSuccess() {
-        BValue[] inputBValues = {new BString(jwtToken)};
+        BValue[] inputBValues = {new BString(jwtToken), new BString(trustStorePath)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationSuccess", inputBValues);
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-        Assert.assertNull(returns[1]);
     }
 
     @AfterClass

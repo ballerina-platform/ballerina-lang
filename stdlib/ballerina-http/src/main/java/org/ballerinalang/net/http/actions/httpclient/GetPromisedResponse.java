@@ -39,19 +39,19 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
  * previous asynchronous invocation.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "getPromisedResponse",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
-                structPackage = "ballerina.net.http"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.CALLER_ACTIONS,
+                structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "client", type = TypeKind.STRUCT),
                 @Argument(name = "promise", type = TypeKind.STRUCT, structType = "PushPromise",
-                        structPackage = "ballerina.net.http")
+                        structPackage = "ballerina.http")
         },
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "InResponse", structPackage = "ballerina.net.http"),
+                @ReturnType(type = TypeKind.STRUCT, structType = "InResponse", structPackage = "ballerina.http"),
                 @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
-                        structPackage = "ballerina.net.http"),
+                        structPackage = "ballerina.http"),
         }
 )
 public class GetPromisedResponse extends AbstractHTTPAction {
@@ -67,7 +67,7 @@ public class GetPromisedResponse extends AbstractHTTPAction {
         }
         BStruct bConnector = (BStruct) context.getRefArgument(0);
         HttpClientConnector clientConnector =
-                (HttpClientConnector) bConnector.getNativeData(HttpConstants.HTTP_CLIENT);
+                (HttpClientConnector) bConnector.getNativeData(HttpConstants.CALLER_ACTIONS);
         clientConnector.getPushResponse(http2PushPromise).
                 setPushResponseListener(new PushResponseListener(dataContext), http2PushPromise.getPromisedStreamId());
     }

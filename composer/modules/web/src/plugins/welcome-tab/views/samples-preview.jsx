@@ -18,6 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Grid, Card } from 'semantic-ui-react';
 
 /**
  * React component of a preview of a ballerina program shown in welcome page.
@@ -38,12 +39,10 @@ class SamplesPreview extends React.Component {
         let previewThumbnails = (null);
         if (this.props.sampleConfigs) {
             previewThumbnails = this.props.sampleConfigs.map((config, index) => (
-                <div
-                    className='four wide column thumbnail-wrapper'
-                    key={config.sampleName}
-                >
-                    <div
-                        className={config.isFile ? 'thumbnail' : 'thumbnail multiple'}
+                <Grid.Column mobile={16} tablet={7} computer={3} 
+                    key={config.sampleName} className='thumbnail-wrapper'>
+                    <Grid.Column   
+                        className={'thumbnail'}
                         onClick={config.clickEventCallback}
                         style={{ textAlign: 'center' }}
                     >
@@ -63,8 +62,9 @@ class SamplesPreview extends React.Component {
                         <div className='caption'>
                             <h4>{config.sampleName}</h4>
                         </div>
-                    </div>
-                </div>));
+                    </Grid.Column>
+                </Grid.Column>
+                ));
         }
 
         return (previewThumbnails);

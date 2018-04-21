@@ -36,12 +36,12 @@ public class CodeAttributeInfo implements AttributeInfo {
 
     // 4 bytes per register
 
-    private int maxLongRegs;
-    private int maxDoubleRegs;
-    private int maxStringRegs;
-    private int maxIntRegs;
-    private int maxByteRegs;
-    private int maxBValueRegs;
+    public int maxLongRegs;
+    public int maxDoubleRegs;
+    public int maxStringRegs;
+    public int maxIntRegs;
+    public int maxByteRegs;
+    public int maxBValueRegs;
 
     // Base code address in the instruction array
     private int codeAddrs = -1;

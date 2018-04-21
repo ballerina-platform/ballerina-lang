@@ -1,41 +1,32 @@
-import ballerina/net.http;
+import ballerina/http;
 
 documentation { Documentation for Test annotation
 F{{a}} annotation `field a` documentation
 F{{a}} annotation `field a` documentation
 F{{b}} annotation `field b` documentation
 F{{c}} annotation `field c` documentation}
-struct Tst {
+type Tst {
     string a;
     string b;
     string cd;
-}
+};
 
 annotation Test Tst;
 
 documentation { Documentation for testConst constant
 V{{testConst}} abc description}
-const string testConst = "TestConstantDocumentation";
-
-documentation { Documentation for state enum
-F{{foo}} enum `field foo` documentation
-F{{foo}} enum `field foo` documentation
-F{{bar}} enum `field bar` documentation}
-enum state {
-    foo,
-    bars
-}
+@final string testConst = "TestConstantDocumentation";
 
 documentation { Documentation for Test struct
 F{{a}} struct `field a` documentation
 F{{a}} struct `field a` documentation
 F{{b}} struct `field b` documentation
 F{{c}} struct `field c` documentation}
-struct Test {
+type Test {
     int a;
     int b;
     int cdd;
-}
+};
 
 documentation {
 Gets a access parameter value (`true` or `false`) for a given key. Please note that #foo will always be bigger than #bar.
@@ -44,7 +35,7 @@ Example:
 T{{file}} file path ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
 T{{file}} file path ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
 P{{accessMode}} read or write mode
-R{{successfuls}} boolean `true` or `false`
+R{{successful}} boolean `true` or `false`
 }
 public function <File file> open (string accessMode) returns (boolean) {
     boolean successful;
@@ -54,43 +45,43 @@ public function <File file> open (string accessMode) returns (boolean) {
 documentation { Documentation for File struct
 F{{path}} struct `field path` documentation
 }
-public struct File {
+public type File {
     string path;
-}
+};
 
-documentation {
- Transformer Foo Person -> Employee
- T{{pa}} input struct Person source used for transformation
- T{{e}} output struct Employee struct which Person transformed to
- T{{e}} output struct Employee struct which Person transformed to
- P{{defaultAddress}} address which serves Eg: `POSTCODE 112`
-}
-transformer <Person p, Employee e> Foo(any defaultAddress) {
-    e.name = p.firstName;
-}
+//documentation {
+// Transformer Foo Person -> Employee
+// T{{pa}} input struct Person source used for transformation
+// T{{e}} output struct Employee struct which Person transformed to
+// T{{e}} output struct Employee struct which Person transformed to
+// P{{defaultAddress}} address which serves Eg: `POSTCODE 112`
+//}
+//transformer <Person p, Employee e> Foo(any defaultAddress) {
+//    e.name = p.firstName;
+//}
 
-struct Person {
+type Person {
     string firstName;
     string lastName;
     int age;
     string city;
-}
+};
 
-struct Employee {
+type Employee {
     string name;
     int age;
     string address;
     any ageAny;
-}
+};
 
 documentation {
 Test Connector
 F{{url}} url for endpoint
 F{{url}} url for endpoint
 P{{urls}} urls for endpoint}
-struct TestConnector {
+type TestConnector {
   string url;
-}
+};
 
 //documentation {Test Connector action testAction
 //    R{{s}} which represent successful or not
@@ -102,21 +93,26 @@ struct TestConnector {
 
 documentation { PizzaService HTTP Service
 P{{conn}} HTTP connection.}
+@http:ServiceConfig {
+    basePath:"/hello"
+}
 service<http:Service> PizzaService {
 
+    @http:ResourceConfig {
+        path:"/"
+    }
     documentation {
     Check orderPizza resource.
     P{{req}} In request.
     P{{req}} In request.
     P{{reqest}} In request.}
 //  P{{conn}} HTTP connection. Commented due to https://github.com/ballerina-lang/ballerina/issues/5586 issue
-
     orderPizza(endpoint conn, http:Request req) {
-        http:Response res = {};
-        _ = conn -> respond(res);
+            http:Response res = new;
+            _ = conn -> respond(res);
+        }
     }
-}
 
 documentation { Documentation for testConst constant
 V{{testConstd}} abc description}
-const string testConsts = "TestConstantDocumentation";
+@final string testConsts = "TestConstantDocumentation";

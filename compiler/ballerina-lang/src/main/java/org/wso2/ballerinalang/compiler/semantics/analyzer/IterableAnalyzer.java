@@ -23,14 +23,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableContext;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.Operation;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntermediateCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIterableTypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleCollectionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -56,7 +56,7 @@ public class IterableAnalyzer {
     private TypeChecker typeChecker;
     private BLangDiagnosticLog dlog;
 
-    private final BIterableTypeVisitor lambdaTypeChecker, terminalInputTypeChecker, terminalTypeChecker;
+    private final BIterableTypeVisitor lambdaTypeChecker, terminalInputTypeChecker, terminalOutputTypeChecker;
 
     private IterableAnalyzer(CompilerContext context) {
         context.put(ITERABLE_ANALYZER_KEY, this);
@@ -66,8 +66,8 @@ public class IterableAnalyzer {
         this.typeChecker = TypeChecker.getInstance(context);
 
         this.lambdaTypeChecker = new LambdaBasedTypeChecker(dlog, symTable);
-        this.terminalTypeChecker = new TerminalOperationTypeChecker(dlog, symTable);
-        this.terminalInputTypeChecker = new TerminalOperationInputTypeChecker(dlog, symTable);
+        this.terminalInputTypeChecker = new TerminalInputTypeChecker(dlog, symTable);
+        this.terminalOutputTypeChecker = new TerminalOutputTypeChecker(dlog, symTable);
     }
 
     public static IterableAnalyzer getInstance(CompilerContext context) {
@@ -78,72 +78,137 @@ public class IterableAnalyzer {
         return iterableAnalyzer;
     }
 
-    public void handlerIterableOperation(BLangInvocation iExpr, List<BType> expTypes, SymbolEnv env) {
+    public void handlerIterableOperation(BLangInvocation iExpr, BType expectedType, SymbolEnv env) {
         final IterableContext context;
-
-        if (iExpr.expr.type.tag != TypeTags.TUPLE_COLLECTION) {
-            context = new IterableContext(iExpr.expr);   // This is a new iteration chain.
+        if (iExpr.expr.type.tag != TypeTags.INTERMEDIATE_COLLECTION) {
+            context = new IterableContext(iExpr.expr, env);              // This is a new iteration chain.
         } else {
-            context = ((BLangInvocation) iExpr.expr).iContext; // Get context from previous invocation.
+            context = ((BLangInvocation) iExpr.expr).iContext;      // Get context from previous invocation.
         }
         iExpr.iContext = context;
 
         final IterableKind iterableKind = IterableKind.getFromString(iExpr.name.value);
-
-        final Operation iOperation = new Operation(iterableKind, iExpr, expTypes, env);
+        final Operation iOperation = new Operation(iterableKind, iExpr, expectedType);
         iExpr.iContext.addOperation(iOperation);
 
         if (iterableKind.isLambdaRequired()) {
-            handleLambdaBasedIterableOperation(iOperation);
+            handleLambdaBasedIterableOperation(context, iOperation);
         } else {
             handleSimpleTerminalOperations(iOperation);
         }
         validateIterableContext(context);
-    }
-
-    private void handleSimpleTerminalOperations(Operation operation) {
-        if (operation.iExpr.argExprs.size() > 0) {
-            dlog.error(operation.pos, DiagnosticCode.ITERABLE_NO_ARGS_REQUIRED, operation.kind);
-            operation.resultTypes = Lists.of(symTable.errType);
-            return;
-        }
-        operation.iExpr.requiredArgs = operation.iExpr.argExprs;
-        operation.resultTypes = operation.collectionType.accept(terminalTypeChecker, operation);
-        operation.argTypes = operation.collectionType.accept(terminalInputTypeChecker, operation);
-        if (operation.kind.isTerminal()) {
-            operation.retArgTypes = operation.resultTypes;
+        if (iOperation.resultType != symTable.errType && context.foreachTypes.isEmpty()) {
+            calculateForeachTypes(context);
         }
     }
 
-    private void handleLambdaBasedIterableOperation(Operation operation) {
+    private void calculateForeachTypes(IterableContext context) {
+        context.foreachTypes = context.collectionExpr.type.accept(lambdaTypeChecker, context.getFirstOperation());
+    }
+
+    private void handleSimpleTerminalOperations(Operation op) {
+        if (op.iExpr.argExprs.size() > 0) {
+            dlog.error(op.pos, DiagnosticCode.ITERABLE_NO_ARGS_REQUIRED, op.kind);
+        }
+        op.arity = 1;
+        op.iExpr.requiredArgs = op.iExpr.argExprs;
+        op.inputType = op.collectionType.accept(terminalInputTypeChecker, op).get(0);
+        op.resultType = op.outputType = op.collectionType.accept(terminalOutputTypeChecker, op).get(0);
+    }
+
+    private void handleLambdaBasedIterableOperation(IterableContext context, Operation operation) {
+        // Require at least one param.
         if (operation.iExpr.argExprs.size() != 1) {
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_LAMBDA_REQUIRED);
-            operation.resultTypes = Lists.of(symTable.errType);
+            operation.outputType = operation.resultType = symTable.errType;
+            return;
+        }
+
+        // Given param should be an invokable type (lambda type).
+        final BType operationParams = typeChecker.checkExpr(operation.iExpr.argExprs.get(0), context.env);
+        if (operationParams == null || operationParams.tag != TypeTags.INVOKABLE) {
+            dlog.error(operation.pos, DiagnosticCode.ITERABLE_LAMBDA_REQUIRED);
+            operation.outputType = operation.resultType = symTable.errType;
             return;
         }
 
         if (operation.kind == IterableKind.SELECT && operation.collectionType.tag != TypeTags.TABLE) {
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_OPERATION, IterableKind.SELECT.getKind());
-            operation.resultTypes = Lists.of(symTable.errType);
+            operation.outputType = operation.resultType = symTable.errType;
             return;
         }
 
-        final List<BType> bTypes = typeChecker.checkExpr(operation.iExpr.argExprs.get(0), operation.env);
-        if (bTypes.size() != 1 || bTypes.get(0).tag != TypeTags.INVOKABLE) {
-            dlog.error(operation.pos, DiagnosticCode.ITERABLE_LAMBDA_REQUIRED);
-            operation.resultTypes = Lists.of(symTable.errType);
-            return;
-        }
-
+        // Operation's inputType and OutputType is defined by this lambda function.
         operation.iExpr.requiredArgs = operation.iExpr.argExprs;
-        operation.lambdaType = (BInvokableType) bTypes.get(0);
-        operation.arity = operation.lambdaType.getParameterTypes().size();
-        final List<BType> givenArgTypes = operation.lambdaType.getParameterTypes(); // given args type of lambda.
-        final List<BType> givenRetTypes = operation.lambdaType.getReturnTypes(); // given return type of lambda.
+        operation.lambdaType = (BInvokableType) operationParams;
 
-        // calculated lambda's args types.(By looking collection type)
-        final List<BType> supportedArgTypes = operation.collectionType.accept(lambdaTypeChecker, operation);
-        final List<BType> supportedRetTypes;    // calculated lambda's return types. (By looking operation type)
+        // Process given/expected input and output types.
+        if (operation.lambdaType.getParameterTypes().isEmpty() ||
+                operation.lambdaType.getParameterTypes().size() > 1) {
+            // Lambda should have a single arg.
+            dlog.error(operation.pos, DiagnosticCode.ITERABLE_LAMBDA_TUPLE_REQUIRED);
+            operation.outputType = operation.resultType = symTable.errType;
+            return;
+        }
+
+
+        final List<BType> givenArgTypes = calculatedGivenInputArgs(operation);
+        final List<BType> givenRetTypes = calculatedGivenOutputArgs(operation);
+
+        final List<BType> expectedArgTypes = calculateExpectedInputArgs(operation);
+        final List<BType> expectedRetTypes = calculateExpectedOutputArgs(operation, givenRetTypes);
+
+        operation.inputType = operation.lambdaType.getParameterTypes().get(0);
+
+        // Cross Validate given and expected types and calculate output type;
+        validateLambdaInputArgs(operation, expectedArgTypes, givenArgTypes);
+        validateLambdaReturnArgs(operation, expectedRetTypes, givenRetTypes);
+        if (operation.outputType == symTable.errType) {
+            operation.resultType = symTable.errType;
+            return;
+        }
+        // Assign actual output value.
+        assignOutputAndResultType(operation, expectedArgTypes, expectedRetTypes);
+    }
+
+    private List<BType> calculatedGivenInputArgs(Operation operation) {
+        final BType inputParam = operation.lambdaType.getParameterTypes().get(0);
+        final List<BType> givenArgTypes;
+        if (inputParam.tag == TypeTags.TUPLE) {
+            final BTupleType bTupleType = (BTupleType) inputParam;
+            givenArgTypes = bTupleType.tupleTypes;
+        } else {
+            givenArgTypes = operation.lambdaType.getParameterTypes();
+        }
+        operation.arity = givenArgTypes.size();
+        return givenArgTypes;
+    }
+
+    private List<BType> calculatedGivenOutputArgs(Operation operation) {
+        final List<BType> givenRetTypes;
+        final BType lamdaReturnType = operation.lambdaType.getReturnType();
+        if (lamdaReturnType == null || lamdaReturnType == symTable.nilType) {
+            givenRetTypes = Collections.emptyList();
+            operation.outputType = symTable.nilType;
+        } else {
+            final BType returnType = operation.outputType = operation.lambdaType.getReturnType();
+            if (returnType.tag == TypeTags.TUPLE) {
+                givenRetTypes = ((BTupleType) returnType).tupleTypes;
+            } else {
+                givenRetTypes = Lists.of(operation.lambdaType.getReturnType());
+            }
+        }
+        return givenRetTypes;
+    }
+
+    private List<BType> calculateExpectedInputArgs(Operation operation) {
+        // calculated lambda's args types. (By looking collection type)
+        return operation.collectionType.accept(lambdaTypeChecker, operation);
+    }
+
+    private List<BType> calculateExpectedOutputArgs(Operation operation, List<BType> givenRetTypes) {
+        // calculated lambda's return types. (By looking operation type)
+        final List<BType> supportedRetTypes;
         switch (operation.kind) {
             case MAP:
             case SELECT:
@@ -154,20 +219,15 @@ public class IterableAnalyzer {
                 break;
             case FOREACH:
             default:
-            supportedRetTypes = Collections.emptyList();
+                supportedRetTypes = Collections.emptyList();
                 break;
         }
-        validateLambdaArgs(operation, supportedArgTypes, givenArgTypes);
-        validateLambdaReturnArgs(operation, supportedRetTypes, givenRetTypes);
-        if (operation.resultTypes != null) {
-            return;
-        }
-        assignInvocationType(operation, supportedArgTypes, supportedRetTypes);
+        return supportedRetTypes;
     }
 
-    private void validateLambdaArgs(Operation operation, List<BType> supportedTypes, List<BType> givenTypes) {
+    private void validateLambdaInputArgs(Operation operation, List<BType> supportedTypes, List<BType> givenTypes) {
         if (supportedTypes.get(0).tag == TypeTags.ERROR) {
-            operation.resultTypes = Lists.of(symTable.errType);
+            operation.outputType = operation.resultType = symTable.errType;
             return;
         }
         for (int i = 0; i < givenTypes.size(); i++) {
@@ -176,8 +236,8 @@ public class IterableAnalyzer {
             }
             BType result = types.checkType(operation.pos, givenTypes.get(i), supportedTypes.get(i),
                     DiagnosticCode.ITERABLE_LAMBDA_INCOMPATIBLE_TYPES);
-            if (result.tag == TypeTags.ERROR && operation.resultTypes == null) {
-                operation.resultTypes = Lists.of(symTable.errType);
+            if (result.tag == TypeTags.ERROR) {
+                operation.outputType = operation.resultType = symTable.errType;
             }
         }
     }
@@ -189,39 +249,45 @@ public class IterableAnalyzer {
         }
         if (givenTypes.size() > supportedTypes.size()) {
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_TOO_MANY_RETURN_VARIABLES, operation.kind);
-            operation.resultTypes = Lists.of(symTable.errType);
+            operation.outputType = operation.resultType = symTable.errType;
             return;
         } else if (givenTypes.size() < supportedTypes.size()) {
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_NOT_ENOUGH_RETURN_VARIABLES, operation.kind);
-            operation.resultTypes = Lists.of(symTable.errType);
+            operation.outputType = operation.resultType = symTable.errType;
             return;
         }
         for (int i = 0; i < givenTypes.size(); i++) {
             if (givenTypes.get(i).tag == TypeTags.ERROR) {
                 return;
             }
-            types.checkType(operation.pos, givenTypes.get(i), supportedTypes.get(i),
+            BType result = types.checkType(operation.pos, givenTypes.get(i), supportedTypes.get(i),
                     DiagnosticCode.ITERABLE_LAMBDA_INCOMPATIBLE_TYPES);
+            if (result.tag == TypeTags.ERROR) {
+                operation.outputType = operation.resultType = symTable.errType;
+            }
         }
     }
 
-    private void assignInvocationType(Operation operation, List<BType> argTypes, List<BType> supportedRetTypes) {
-        operation.argTypes = argTypes;
-        operation.retArgTypes = supportedRetTypes;
+    private void assignOutputAndResultType(Operation op, List<BType> argTypes, List<BType> supportedRetTypes) {
         if (supportedRetTypes.isEmpty()) {
-            operation.resultTypes = Collections.emptyList();
-            operation.iExpr.type = symTable.noType;
+            op.outputType = op.resultType = symTable.nilType;
             return;
         }
-        if (operation.kind.isTerminal()) {
-            operation.resultTypes = supportedRetTypes;
+        if (op.kind.isTerminal()) {
+            op.outputType = op.resultType = supportedRetTypes.get(0);
             return;
         }
-        if (operation.kind == IterableKind.FILTER) {
-            operation.resultTypes = Lists.of(new BTupleCollectionType(argTypes));
+        if (op.kind == IterableKind.FILTER) {
+            op.outputType = new BTupleType(argTypes);
+            op.resultType = new BIntermediateCollectionType((BTupleType) op.outputType);
             return;
         }
-        operation.resultTypes = Lists.of(new BTupleCollectionType(supportedRetTypes));
+        if (supportedRetTypes.size() == 1) {
+            op.outputType = supportedRetTypes.get(0);
+        } else {
+            op.outputType = new BTupleType(supportedRetTypes);
+        }
+        op.resultType = new BIntermediateCollectionType(new BTupleType(supportedRetTypes));
     }
 
     /* Iterable Operation type checkers */
@@ -304,12 +370,8 @@ public class IterableAnalyzer {
         }
 
         @Override
-        public List<BType> visit(BUnionType t, Operation s) {
-            return null;
-        }
-
-        @Override
-        public List<BType> visit(BTupleCollectionType type, Operation op) {
+        public List<BType> visit(BIntermediateCollectionType collectionType, Operation op) {
+            BTupleType type = collectionType.tupleType;
             if (type.tupleTypes.size() == op.arity) {
                 return type.tupleTypes;
             } else if (type.tupleTypes.size() < op.arity) {
@@ -321,63 +383,28 @@ public class IterableAnalyzer {
         }
     }
 
-
     /**
-     * Type checker for Simple terminal operations.
+     * Type checker for checking output of a simple terminal operation.
      *
      * @since 0.961.0
      */
-    private static class TerminalOperationTypeChecker extends BIterableTypeVisitor {
+    private static class TerminalOutputTypeChecker extends BIterableTypeVisitor.TerminalOperationTypeChecker {
 
-        TerminalOperationTypeChecker(BLangDiagnosticLog dlog, SymbolTable symTable) {
+        TerminalOutputTypeChecker(BLangDiagnosticLog dlog, SymbolTable symTable) {
             super(dlog, symTable);
         }
 
         @Override
-        public List<BType> visit(BMapType t, Operation operation) {
-            return Lists.of(calculateType(operation, t.constraint));
-        }
-
-        @Override
-        public List<BType> visit(BXMLType t, Operation operation) {
-            return Lists.of(calculateType(operation, t));
-        }
-
-        @Override
-        public List<BType> visit(BJSONType t, Operation operation) {
-            return Lists.of(calculateType(operation, t));
-        }
-
-        @Override
-        public List<BType> visit(BArrayType t, Operation operation) {
-            return Lists.of(calculateType(operation, t.eType));
-        }
-
-        @Override
-        public List<BType> visit(BTupleCollectionType t, Operation operation) {
-            return Lists.of(calculateType(operation, t));
-        }
-
-        @Override
-        public List<BType> visit(BTableType t, Operation operation) {
-            return Lists.of(calculateType(operation, t));
-        }
-
-        @Override
-        public List<BType> visit(BUnionType t, Operation s) {
-            return null;
-        }
-
-        BType calculateType(Operation operation, BType type) {
+        public BType calculateType(Operation operation, BType type) {
             BType elementType = type;
             switch (operation.kind) {
                 case MAX:
                 case MIN:
                 case SUM:
-                    if (elementType.tag == TypeTags.TUPLE_COLLECTION) {
-                        BTupleCollectionType tupleType = (BTupleCollectionType) elementType;
-                        if (tupleType.tupleTypes.size() == 1) {
-                            elementType = tupleType.tupleTypes.get(0);
+                    if (elementType.tag == TypeTags.INTERMEDIATE_COLLECTION) {
+                        BIntermediateCollectionType collectionType = (BIntermediateCollectionType) elementType;
+                        if (collectionType.tupleType.tupleTypes.size() == 1) {
+                            elementType = collectionType.tupleType.tupleTypes.get(0);
                         }
                     }
                     if (elementType.tag == TypeTags.INT || elementType.tag == TypeTags.FLOAT) {
@@ -385,10 +412,10 @@ public class IterableAnalyzer {
                     }
                     break;
                 case AVERAGE:
-                    if (elementType.tag == TypeTags.TUPLE_COLLECTION) {
-                        BTupleCollectionType tupleType = (BTupleCollectionType) elementType;
-                        if (tupleType.tupleTypes.size() == 1) {
-                            elementType = tupleType.tupleTypes.get(0);
+                    if (elementType.tag == TypeTags.INTERMEDIATE_COLLECTION) {
+                        BIntermediateCollectionType collectionType = (BIntermediateCollectionType) elementType;
+                        if (collectionType.tupleType.tupleTypes.size() == 1) {
+                            elementType = collectionType.tupleType.tupleTypes.get(0);
                         }
                     }
                     if (elementType.tag == TypeTags.INT || elementType.tag == TypeTags.FLOAT) {
@@ -410,23 +437,23 @@ public class IterableAnalyzer {
      *
      * @since 0.961.0
      */
-    private static class TerminalOperationInputTypeChecker extends TerminalOperationTypeChecker {
+    private static class TerminalInputTypeChecker extends BIterableTypeVisitor.TerminalOperationTypeChecker {
 
-        TerminalOperationInputTypeChecker(BLangDiagnosticLog dlog, SymbolTable symTable) {
+        TerminalInputTypeChecker(BLangDiagnosticLog dlog, SymbolTable symTable) {
             super(dlog, symTable);
         }
 
         @Override
-        BType calculateType(Operation operation, BType type) {
+        public BType calculateType(Operation operation, BType type) {
             BType elementType = type;
             switch (operation.kind) {
                 case MAX:
                 case MIN:
                 case SUM:
-                    if (elementType.tag == TypeTags.TUPLE_COLLECTION) {
-                        BTupleCollectionType tupleType = (BTupleCollectionType) elementType;
-                        if (tupleType.tupleTypes.size() == 1) {
-                            elementType = tupleType.tupleTypes.get(0);
+                    if (elementType.tag == TypeTags.INTERMEDIATE_COLLECTION) {
+                        BIntermediateCollectionType collectionType = (BIntermediateCollectionType) elementType;
+                        if (collectionType.tupleType.tupleTypes.size() == 1) {
+                            elementType = collectionType.tupleType.tupleTypes.get(0);
                         }
                     }
                     if (elementType.tag == TypeTags.INT || elementType.tag == TypeTags.FLOAT) {
@@ -434,10 +461,10 @@ public class IterableAnalyzer {
                     }
                     break;
                 case AVERAGE:
-                    if (elementType.tag == TypeTags.TUPLE_COLLECTION) {
-                        BTupleCollectionType tupleType = (BTupleCollectionType) elementType;
-                        if (tupleType.tupleTypes.size() == 1) {
-                            elementType = tupleType.tupleTypes.get(0);
+                    if (elementType.tag == TypeTags.INTERMEDIATE_COLLECTION) {
+                        BIntermediateCollectionType collectionType = (BIntermediateCollectionType) elementType;
+                        if (collectionType.tupleType.tupleTypes.size() == 1) {
+                            elementType = collectionType.tupleType.tupleTypes.get(0);
                         }
                     }
                     if (elementType.tag == TypeTags.INT || elementType.tag == TypeTags.FLOAT) {
@@ -445,8 +472,9 @@ public class IterableAnalyzer {
                     }
                     break;
                 case COUNT:
-                    if (elementType.tag == TypeTags.TUPLE_COLLECTION) {
-                        elementType = ((BTupleCollectionType) elementType).tupleTypes.get(0);
+                    if (elementType.tag == TypeTags.INTERMEDIATE_COLLECTION) {
+                        BIntermediateCollectionType collectionType = (BIntermediateCollectionType) elementType;
+                        elementType = collectionType.tupleType.tupleTypes.get(0);
                     }
                     return elementType;
                 default:
@@ -458,42 +486,39 @@ public class IterableAnalyzer {
 
     public void validateIterableContext(IterableContext context) {
         final Operation lastOperation = context.operations.getLast();
-        final List<BType> expectedTypes = lastOperation.expectedTypes;
-        final List<BType> resultTypes = lastOperation.resultTypes;
-        if (expectedTypes.isEmpty() && resultTypes.isEmpty()) {
+        final BType expectedType = lastOperation.expectedType;
+        final BType outputType = lastOperation.resultType;
+        if (expectedType.tag == TypeTags.VOID && outputType.tag == TypeTags.VOID) {
             context.resultType = symTable.noType;
             return;
         }
-        if (expectedTypes.isEmpty()) {
+        if (expectedType.tag == TypeTags.VOID) {
             // This error already logged.
             return;
         }
-        if (expectedTypes.size() > 1) {
-            // Iterable collection always return a single value.
-            dlog.error(lastOperation.pos, DiagnosticCode.ASSIGNMENT_COUNT_MISMATCH, 1, expectedTypes.size());
+        if (expectedType == symTable.errType) {
+            context.resultType = symTable.errType;
             return;
         }
-        if (expectedTypes.get(0) == symTable.errType) {
-            context.resultType = expectedTypes.get(0);
-            return;
-        }
-        if (resultTypes.isEmpty()) {
+        if (outputType.tag == TypeTags.VOID) {
             dlog.error(lastOperation.pos, DiagnosticCode.DOES_NOT_RETURN_VALUE, lastOperation.kind);
+            context.resultType = symTable.errType;
             return;
         }
-        // resultTypes holds the return values of the lambda function
-        if (resultTypes.get(0).tag == TypeTags.TUPLE_COLLECTION) {
-            final BTupleCollectionType tupleType = (BTupleCollectionType) resultTypes.get(0);
-            if (expectedTypes.get(0).tag == TypeTags.ARRAY && tupleType.tupleTypes.size() == 1) {
+        // Calculate expected type, if this is an chained iterable operation.
+        if (outputType.tag == TypeTags.INTERMEDIATE_COLLECTION) {
+            BIntermediateCollectionType collectionType = (BIntermediateCollectionType) outputType;
+            final BTupleType tupleType = collectionType.tupleType;
+            if (expectedType.tag == TypeTags.ARRAY && tupleType.tupleTypes.size() == 1) {
+                // Convert result into an array.
                 context.resultType = new BArrayType(tupleType.tupleTypes.get(0));
-                lastOperation.resultTypes = Lists.of(context.resultType);
                 return;
-            } else if (expectedTypes.get(0).tag == TypeTags.MAP && tupleType.tupleTypes.size() == 2
+            } else if (expectedType.tag == TypeTags.MAP && tupleType.tupleTypes.size() == 2
                     && tupleType.tupleTypes.get(0).tag == TypeTags.STRING) {
-                context.resultType = symTable.mapType;
-                lastOperation.resultTypes = Lists.of(context.resultType);
+                // Convert result into a map.
+                context.resultType = new BMapType(TypeTags.MAP, tupleType.tupleTypes.get(1), null);
                 return;
-            } else if (expectedTypes.get(0).tag == TypeTags.TABLE) {
+            } else if (expectedType.tag == TypeTags.TABLE) {
                 // expectedTypes hold the types of expected return values (types of references) of the iterable
                 // function call.
                 // Here we validate,
@@ -501,25 +526,29 @@ public class IterableAnalyzer {
                 // 2. Whether it is a struct that is returned
                 // 3. Whether the returned struct is compatible with the constraint struct of the expected type(table)
                 if (tupleType.getTupleTypes().size() == 1 && tupleType.getTupleTypes().get(0).tag == TypeTags.STRUCT
-                        && types.isAssignable(tupleType.getTupleTypes().get(0), ((BTableType) expectedTypes.get(0))
+                        && types.isAssignable(tupleType.getTupleTypes().get(0), ((BTableType) expectedType)
                         .constraint)) {
                     context.resultType = symTable.tableType;
-                    lastOperation.resultTypes = Lists.of(context.resultType);
                 } else {
-                    context.resultType = types.checkType(lastOperation.pos, resultTypes.get(0),
-                            ((BTableType) expectedTypes.get(0)).constraint, DiagnosticCode.INCOMPATIBLE_TYPES);
+                    context.resultType = types.checkType(lastOperation.pos, outputType,
+                            ((BTableType) expectedType).constraint, DiagnosticCode.INCOMPATIBLE_TYPES);
                 }
                 return;
-            } else if (expectedTypes.get(0).tag == TypeTags.ANY) {
+            } else if (expectedType.tag == TypeTags.TUPLE) {
+                context.resultType = symTable.errType;
+                return;
+            } else if (expectedType.tag == TypeTags.ANY) {
                 context.resultType = symTable.errType;
                 dlog.error(lastOperation.pos, DiagnosticCode.ITERABLE_RETURN_TYPE_MISMATCH, lastOperation.kind);
                 return;
-            } else if (expectedTypes.get(0).tag == TypeTags.NONE) {
+            } else if (expectedType.tag == TypeTags.NONE) {
                 context.resultType = symTable.noType;
                 return;
             }
         }
-        context.resultType = types.checkType(lastOperation.pos, resultTypes.get(0), expectedTypes.get(0),
+
+        // Validate compatibility with calculated and expected type.
+        context.resultType = types.checkType(lastOperation.pos, outputType, expectedType,
                 DiagnosticCode.INCOMPATIBLE_TYPES);
     }
 }

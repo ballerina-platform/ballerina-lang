@@ -13,29 +13,33 @@ function tableReturnTestAsAny() returns (any) {
     return abc;
 }
 
-function inputAnyAsTableTest() returns (table) {
-    return anyToTableCastFunction(tableReturnFunction());
+function inputAnyAsTableTest() returns (json) | error {
+    table t = check anyToTableCastFunction(tableReturnFunction());
+    return <json> t;
 }
 
-function anyToTableCastFunction (any aTable) returns (table) {
-    var casted, err = (table) aTable;
-    return casted;
+function anyToTableCastFunction (any aTable) returns (table) | error {
+    var result = <table> aTable;
+    match result {
+        table casted => return casted;
+        error e => return e;
+    }
 }
 
 function tableReturnFunction () returns (table) {
-    table < Employee> tb = {};
+    table <Employee> tb = table{};
     Employee e1 = {id:1, name:"Jane"};
     Employee e2 = {id:2, name:"Anne"};
-    tb.add(e1);
-    tb.add(e2);
+    _ = tb.add(e1);
+    _ = tb.add(e2);
 
     return tb;
 }
 
-struct Employee {
+type Employee {
     int id;
     string name;
-}
+};
 
 
 function anyMethodParameter() returns (any) {
@@ -45,7 +49,7 @@ function anyMethodParameter() returns (any) {
 
 function anyParam(any val) returns (int) {
   int m;
-  m, _ = (int)val;
+  m = check <int>val;
   return m;
 }
 
@@ -55,17 +59,17 @@ function anyInStructTest() returns (any) {
   return sample.val;
 }
 
-struct Sample {
+type Sample {
   int i;
   any val;
   string msg;
-}
+};
 
 
 function successfulIntCasting() returns (int) {
   any abc = floatReturn();
   float floatVal;
-  floatVal, _ = (float)abc;
+  floatVal = check <float>abc;
   //Int to float is a conversion now
   int intVal;
   intVal = <int>floatVal;

@@ -14,13 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.math;
 
 @Description {value:"The ratio of the circumference of a circle to its diameter"}
-public const float PI = 3.141592653589793;
+@final public float PI = 3.141592653589793;
 
 @Description {value:"The base of the natural logarithms"}
-public const float E = 2.718281828459045;
+@final public float E = 2.718281828459045;
 
 @Description {value:"Returns Euler's number, that is 'e' raised to the power of exponent"}
 @Param {value:"val: Exponent value to raise"}
@@ -38,10 +37,10 @@ public native function pow (float a, float b) returns (float);
 public native function random () returns (float);
 
 @Description {value:"Returns a random number between given start(inclusive) and end(exclusive) values"}
-@Param {value:"start: Range start value"}
-@Param {value:"end: Range end value"}
+@Param {value:"startRange: Range start value"}
+@Param {value:"endRange: Range end value"}
 @Return { value:"Random value"}
-public native function randomInRange (int start, int end) returns (int);
+public native function randomInRange (int startRange, int endRange) returns (int);
 
 @Description {value:"Returns rounded positive square root of the given value"}
 @Param {value:"val: Value to get square root"}

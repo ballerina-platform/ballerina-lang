@@ -1,6 +1,5 @@
-package routingServices.samples;
 
-import ballerina/net.http;
+import ballerina/http;
 
 @http:configuration {basePath:"/nasdaqStocks"}
 service<http> nasdaqStocksQuote {

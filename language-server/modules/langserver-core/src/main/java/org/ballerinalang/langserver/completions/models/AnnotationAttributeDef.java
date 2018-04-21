@@ -81,9 +81,6 @@ public class AnnotationAttributeDef {
         return tempAnnotationAttributeDef;
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String toString() {
         return "AnnotationAttributeDef{" + "bType='" + bType + '\'' + ", packagePath='" + packagePath + '\'' + ", " +

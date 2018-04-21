@@ -47,12 +47,14 @@ public class SQLActionsTest {
     private static final double DELTA = 0.01;
     private CompileResult result;
     private CompileResult resultNegative;
+    private CompileResult resultMirror;
     private static final String DB_NAME = "TEST_SQL_CONNECTOR";
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/connectors/sql/sql-actions-test.bal");
-        resultNegative = BCompileUtil.compile("test-src/connectors/sql/sql-actions-negative.bal");
+        result = BCompileUtil.compile("test-src/connectors/sql/sql_actions_test.bal");
+        resultNegative = BCompileUtil.compile("test-src/connectors/sql/sql_actions_negative_test.bal");
+        resultMirror = BCompileUtil.compile("test-src/connectors/sql/sql_mirror_table_test.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/SQLConnectorDataFile.sql");
     }
@@ -146,8 +148,35 @@ public class SQLActionsTest {
         final String expected = "Peter";
         BString retValue2 = (BString) returns[1];
         final String expected2 = "John";
+        BString retValue3 = (BString) returns[2];
+        final String expected3 = "Watson";
         Assert.assertEquals(retValue.stringValue(), expected);
         Assert.assertEquals(retValue2.stringValue(), expected2);
+        Assert.assertEquals(retValue3.stringValue(), expected3);
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testCallProcedureWithMultipleResultSetsAndLowerConstraintCount() {
+        BValue[] returns = BRunUtil
+                .invoke(resultNegative, "testCallProcedureWithMultipleResultSetsAndLowerConstraintCount");
+        Assert.assertTrue(returns[0].stringValue().contains("message:\"execute stored procedure failed: Mismatching "
+                + "record type count: 1 and returned result set count: 2 from the stored procedure\""));
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testCallProcedureWithMultipleResultSetsAndNilConstraintCount() {
+        BValue[] returns = BRunUtil
+                .invoke(resultNegative, "testCallProcedureWithMultipleResultSetsAndNilConstraintCount");
+        Assert.assertTrue(returns[0].stringValue().contains("message:\"execute stored procedure failed: Mismatching "
+                + "record type count: 0 and returned result set count: 2 from the stored procedure\""));
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testCallProcedureWithMultipleResultSetsAndHigherConstraintCount() {
+        BValue[] returns = BRunUtil
+                .invoke(resultNegative, "testCallProcedureWithMultipleResultSetsAndHigherConstraintCount");
+        Assert.assertTrue(returns[0].stringValue().contains("message:\"execute stored procedure failed: Mismatching "
+                + "record type count: 3 and returned result set count: 2 from the stored procedure\""));
     }
 
     @Test(groups = "ConnectorTest")
@@ -159,8 +188,30 @@ public class SQLActionsTest {
     }
 
     @Test(groups = "ConnectorTest")
+    public void testQueryParameters2() {
+        BValue[] returns = BRunUtil.invoke(result, "testQueryParameters2");
+        BString retValue = (BString) returns[0];
+        final String expected = "Peter";
+        Assert.assertEquals(retValue.stringValue(), expected);
+    }
+
+    @Test(groups = "ConnectorTest")
     public void testInsertTableDataWithParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testInsertTableDataWithParameters");
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 1);
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testInsertTableDataWithParameters2() {
+        BValue[] returns = BRunUtil.invoke(result, "testInsertTableDataWithParameters2");
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 1);
+    }
+
+    @Test(groups = "ConnectorTest", enabled = false)
+    public void testInsertTableDataWithParameters3() {
+        BValue[] returns = BRunUtil.invoke(result, "testInsertTableDataWithParameters3");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
@@ -230,13 +281,6 @@ public class SQLActionsTest {
     @Test(groups = "ConnectorTest")
     public void testNullINParameterValues() {
         BValue[] returns = BRunUtil.invoke(result, "testNullINParameterValues");
-        BInteger retValue = (BInteger) returns[0];
-        Assert.assertEquals(retValue.intValue(), 1);
-    }
-
-    @Test(groups = "ConnectorTest", enabled = false)
-    public void testNullINParameters() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullINParameters");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
@@ -445,7 +489,7 @@ public class SQLActionsTest {
     }
 
 
-    @Test(groups = "ConnectorTest")
+    @Test(groups = "ConnectorTest", enabled = false)
     public void testStructOutParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testStructOutParameters");
         BString retValue = (BString) returns[0];
@@ -487,40 +531,75 @@ public class SQLActionsTest {
                 + "\"TIMESTAMP_TYPE\":\"2017-02-03 11:53:00.000000\"}]");
     }
 
-    @Test(groups = "ConnectorTest",
-          description = "Test failed select query")
+    @Test(groups = "ConnectorTest", description = "Test failed select query")
     public void testFailedSelect() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testSelectData");
         Assert.assertTrue(returns[0].stringValue().contains("execute query failed:"));
     }
 
-    @Test(groups = "ConnectorTest",
-          description = "Test failed update with generated id action")
+    @Test(groups = "ConnectorTest", description = "Test failed update with generated id action")
     public void testFailedGeneratedKeyOnInsert() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testGeneratedKeyOnInsert");
         Assert.assertTrue(returns[0].stringValue().contains("execute update with generated keys failed:"));
     }
 
-    @Test(groups = "ConnectorTest",
-          description = "Test failed call procedure")
+    @Test(groups = "ConnectorTest", description = "Test failed call procedure")
     public void testFailedCallProcedure() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testCallProcedure");
         Assert.assertTrue(returns[0].stringValue().contains("execute stored procedure failed:"));
     }
 
-    @Test(groups = "ConnectorTest",
-          description = "Test failed batch update")
+    @Test(groups = "ConnectorTest", description = "Test failed batch update")
     public void testFailedBatchUpdate() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testBatchUpdate");
         Assert.assertTrue(returns[0].stringValue().contains("execute batch update failed:"));
     }
 
-    @Test(groups = "ConnectorTest",
-          description = "Test failed parameter array update")
+    @Test(groups = "ConnectorTest", description = "Test failed parameter array update")
     public void testInvalidArrayofQueryParameters() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testInvalidArrayofQueryParameters");
         Assert.assertTrue(returns[0].stringValue()
                 .contains("execute query failed: unsupported array type for parameter index 0"));
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test failure scenario in adding data to mirrored table")
+    public void testAddToMirrorTableNegative() throws Exception {
+        BValue[] returns = BRunUtil.invoke(resultMirror, "testAddToMirrorTableNegative");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns[0].stringValue(), "{message:\"execute update failed: integrity constraint "
+                + "violation: unique constraint or index violation; SYS_PK_10179 table: EMPLOYEEADDNEGATIVE\", "
+                + "cause:null}");
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test adding data to mirrored table")
+    public void testAddToMirrorTable() throws Exception {
+        BValue[] returns = BRunUtil.invoke(resultMirror, "testAddToMirrorTable");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns[0].stringValue(), "{id:1, name:\"Manuri\", address:\"Sri Lanka\"}");
+        Assert.assertEquals(returns[1].stringValue(), "{id:2, name:\"Devni\", address:\"Sri Lanka\"}");
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test deleting data from mirrored table")
+    public void testDeleteFromMirrorTable() throws Exception {
+        BValue[] returns = BRunUtil.invoke(resultMirror, "testDeleteFromMirrorTable");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test iterating data of a mirrored table multiple times")
+    public void testIterateMirrorTable() throws Exception {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invokeFunction(resultMirror, "testIterateMirrorTable", args);
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns[0].stringValue(), "[[{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, "
+                + "name:\"Devni\", address:\"Sri Lanka\"}, {id:3, name:\"Thurani\", address:\"Sri Lanka\"}], [{id:1, "
+                + "name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, name:\"Devni\", address:\"Sri Lanka\"}, {id:3, "
+                + "name:\"Thurani\", address:\"Sri Lanka\"}]]");
     }
 
     @AfterSuite

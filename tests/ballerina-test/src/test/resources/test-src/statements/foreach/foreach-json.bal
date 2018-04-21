@@ -26,9 +26,13 @@ function testJSONArray () returns (string) {
     return output;
 }
 
-function testArrayOfJSON () returns (string) {
+function testArrayOfJSON () returns string | error {
     output = "";
-    var array, _ = (json[]) j1.subjects;
+    json[] array;
+    match <json[]> j1.subjects {
+        json[] arr1 => array = arr1;
+        error err1 => return err1;
+    }
     foreach i, j in array {
         concatIntString(i, j.toString());
     }
@@ -67,24 +71,28 @@ function testJSONNull () returns (string) {
     return output;
 }
 
-struct Protocols {
+type Protocols {
     string data;
     Protocol[] plist;
-}
+};
 
-struct Protocol {
+type Protocol {
     string name;
     string url;
-}
+};
 
-function testJSONToStructCast () returns (string) {
+function testJSONToStructCast () returns string | error {
     json j = {data:"data", plist:[{name:"a", url:"h1"}, {name:"b", url:"h2"}]};
-    var protocolsData, _ = <Protocols>j;
-    output = "";
-    foreach protocol in protocolsData.plist {
-        concatString(protocol.name + "-" + protocol.url);
+    match <Protocols> j {
+        Protocols p => {
+                output = "";
+                foreach protocol in p.plist {
+                    concatString(protocol.name + "-" + protocol.url);
+                }
+                return output;
+        }
+        error err => return err;
     }
-    return output;
 }
 
 function testAddWhileIteration () returns (string) {
@@ -93,7 +101,6 @@ function testAddWhileIteration () returns (string) {
         if (j.toString() == "bob") {
             j1["lastname"] = "smith";
         }
-        concatString(j.toString());
     }
     foreach j in j1 {
         concatString(j.toString());
@@ -104,11 +111,13 @@ function testAddWhileIteration () returns (string) {
 function testDeleteWhileIteration () returns (string) {
     output = "";
     foreach j in j1 {
-        if (j.toString() == "bob") {
-            j1.remove("subjects");
+        string str = j.toString();
+        if (str == "bob") {
+           any x = j1.remove("subjects");
         }
-        concatString(j.toString());
+        concatString(str);
     }
+
     foreach j in j1 {
         concatString(j.toString());
     }

@@ -1,10 +1,11 @@
 package org.wso2.ballerinalang.compiler.packaging;
 
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.repository.PackageSourceEntry;
+import org.ballerinalang.repository.CompilerInput;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 
+import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,6 +21,8 @@ public class RepoHierarchy {
 
     private final Repo[] repos;
     private final RepoHierarchy[] dags;
+    private static final boolean verbose = false;
+    private static final PrintStream out = System.out;
 
     RepoHierarchy(Repo[] repos, RepoHierarchy[] dags) {
         this.repos = repos;
@@ -27,27 +30,50 @@ public class RepoHierarchy {
     }
 
     public Resolution resolve(PackageID pkg) {
-//        PrintStream out = System.out;
-//        out.println("Searching " + pkg);
+        log1(pkg);
         for (int i = 0; i < repos.length; i++) {
             Repo repo = repos[i];
             Patten patten = repo.calculate(pkg);
             if (patten != Patten.NULL) {
                 Converter converter = repo.getConverterInstance();
-                List<PackageSourceEntry> paths = patten.convertToSources(converter, pkg)
-                                                       .collect(Collectors.toList());
-//                out.println("\t looking in " + repo + " for patten\n\t\t" +
-//                                    patten + " and found \n\t\t\t" +
-//                                    sources);
+                List<CompilerInput> paths = patten.convertToSources(converter, pkg)
+                                                  .collect(Collectors.toList());
+                log2(repo, patten, paths);
                 if (!paths.isEmpty()) {
                     return new Resolution(getChildHierarchyForRepo(i), paths);
                 }
             } else {
-//                out.println("\t skipping " + repo);
+                log3(repo);
             }
         }
-//        out.println("\t could not find");
+        log4();
         return Resolution.NOT_FOUND;
+    }
+
+    private void log1(PackageID pkg) {
+        if (verbose) {
+            out.println("Searching " + pkg);
+        }
+    }
+
+    private void log2(Repo repo, Patten patten, List<CompilerInput> paths) {
+        if (verbose) {
+            out.println("\t looking in " + repo + " for patten\n\t\t" +
+                                patten + " and found \n\t\t\t" +
+                                paths);
+        }
+    }
+
+    private void log3(Repo repo) {
+        if (verbose) {
+            out.println("\t skipping " + repo);
+        }
+    }
+
+    private void log4() {
+        if (verbose) {
+            out.println("\t could not find");
+        }
     }
 
     private RepoHierarchy getChildHierarchyForRepo(int repoIndex) {

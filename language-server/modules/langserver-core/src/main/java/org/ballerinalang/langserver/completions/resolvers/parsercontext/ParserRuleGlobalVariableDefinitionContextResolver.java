@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
 
@@ -29,7 +29,7 @@ import java.util.ArrayList;
  */
 public class ParserRuleGlobalVariableDefinitionContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
+    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         // currently we are returning a empty List
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         return completionItems;

@@ -19,10 +19,10 @@ package org.ballerinalang.langserver.completions.resolvers;
 
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
@@ -32,10 +32,17 @@ import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,7 +53,7 @@ import java.util.List;
  */
 public abstract class AbstractItemResolver {
     
-    public abstract ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext);
+    public abstract ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext);
 
     /**
      * Populate the completion item list by considering the.
@@ -138,7 +145,7 @@ public abstract class AbstractItemResolver {
      * @param symbolInfo - symbol information
      * @return completion item
      */
-    private CompletionItem populateBTypeCompletionItem(SymbolInfo symbolInfo) {
+    public CompletionItem populateBTypeCompletionItem(SymbolInfo symbolInfo) {
         CompletionItem completionItem = new CompletionItem();
         completionItem.setLabel(symbolInfo.getSymbolName());
         String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
@@ -183,7 +190,28 @@ public abstract class AbstractItemResolver {
         List<BVarSymbol> parameterDefs = bInvokableSymbol.getParameters();
 
         for (int itr = 0; itr < parameterDefs.size(); itr++) {
-            signature.append(parameterDefs.get(itr).getType().toString()).append(" ")
+            BType paramType = parameterDefs.get(itr).getType();
+            String typeName;
+            if (paramType instanceof BInvokableType) {
+                // Check for the case when we can give a function as a parameter
+                typeName = parameterDefs.get(itr).type.toString();
+            } else if (paramType instanceof BUnionType) {
+                typeName = paramType.toString();
+            } else {
+                BTypeSymbol tSymbol;
+                tSymbol = (paramType instanceof BArrayType) ?
+                        ((BArrayType) paramType).eType.tsymbol : paramType.tsymbol;
+                List<Name> nameComps = tSymbol.pkgID.nameComps;
+                if (tSymbol.pkgID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())
+                        || tSymbol.pkgID.getName().getValue().equals(Names.DOT.getValue())) {
+                    typeName = tSymbol.getName().getValue();
+                } else {
+                    typeName = nameComps.get(nameComps.size() - 1).getValue() + UtilSymbolKeys.PKG_DELIMITER_KEYWORD
+                            + tSymbol.getName().getValue();
+                }
+            }
+
+            signature.append(typeName).append(" ")
                     .append(parameterDefs.get(itr).getName());
             insertText.append("${")
                     .append((itr + 1))
@@ -198,19 +226,13 @@ public abstract class AbstractItemResolver {
         signature.append(")");
         insertText.append(")");
         String initString = "(";
-        String endString = "";
+        String endString = ")";
 
-        List<BType> returnTypes = bInvokableSymbol.type.getReturnTypes();
-        List<BVarSymbol> returnParams = bInvokableSymbol.getReturnParameters();
-        for (int itr = 0; itr < returnTypes.size(); itr++) {
-            signature.append(initString).append(returnTypes.get(itr).toString());
-            if (returnParams.size() > itr) {
-                signature.append(" ").append(returnParams.get(itr).getName());
-            }
-            initString = ", ";
-            endString = ")";
+        BType returnType = bInvokableSymbol.type.getReturnType();
+        if (returnType != null && !(returnType instanceof BNilType)) {
+            signature.append(initString).append(returnType.toString());
+            signature.append(endString);
         }
-        signature.append(endString);
         return new FunctionSignature(insertText.toString(), signature.toString());
     }
 
@@ -219,8 +241,8 @@ public abstract class AbstractItemResolver {
      * @param documentServiceContext - Completion operation context
      * @return {@link Boolean}
      */
-    protected boolean isInvocationOrFieldAccess(TextDocumentServiceContext documentServiceContext) {
-        ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(new String[]{";", "}", "{", "(", ")"}));
+    protected boolean isInvocationOrFieldAccess(LSServiceOperationContext documentServiceContext) {
+        ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(new String[]{";", "}", "{", "(", ")", "="}));
         TokenStream tokenStream = documentServiceContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         if (tokenStream == null) {
             return false;
@@ -258,11 +280,14 @@ public abstract class AbstractItemResolver {
 
     /**
      * Check whether the token stream contains an annotation start (@).
-     * @param documentServiceContext - Completion operation context
+     * @param ctx - Completion operation context
      * @return {@link Boolean}
      */
-    boolean isAnnotationContext(TextDocumentServiceContext documentServiceContext) {
-        return findPreviousToken(documentServiceContext, "@", 3) >= 0;
+    protected boolean isAnnotationContext(LSServiceOperationContext ctx) {
+        return ctx.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY) != null
+                && UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY
+                .equals(ctx.get(DocumentServiceKeys.TOKEN_STREAM_KEY).get(ctx.get(DocumentServiceKeys.TOKEN_INDEX_KEY))
+                        .getText());
     }
 
     /**
@@ -295,7 +320,7 @@ public abstract class AbstractItemResolver {
         }
     }
 
-    int findPreviousToken(TextDocumentServiceContext documentServiceContext, String needle, int maxSteps) {
+    int findPreviousToken(LSServiceOperationContext documentServiceContext, String needle, int maxSteps) {
         TokenStream tokenStream = documentServiceContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         if (tokenStream == null) {
             return -1;
@@ -342,5 +367,27 @@ public abstract class AbstractItemResolver {
                 completionItems.add(this.populateBTypeCompletionItem(symbolInfo));
             }
         });
+    }
+
+    /**
+     * Remove the invalid symbols such as anon types, injected packages and invokable symbols without receiver.
+     * @param symbolInfoList    Symbol info list to be filtered
+     * @return {@link List}     List of filtered symbols
+     */
+    protected List<SymbolInfo> removeInvalidStatementScopeSymbols(List<SymbolInfo> symbolInfoList) {
+        // We need to remove the functions having a receiver symbol and the bTypes of the following
+        // ballerina.coordinator, ballerina.runtime, and anonStructs
+        ArrayList<String> invalidPkgs = new ArrayList<>(Arrays.asList("runtime",
+                "transactions"));
+        symbolInfoList.removeIf(symbolInfo -> {
+            BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+            String symbolName = bSymbol.getName().getValue();
+            return (bSymbol instanceof BInvokableSymbol && (((BInvokableSymbol) bSymbol).receiverSymbol) != null
+                    && !bSymbol.kind.equals(SymbolKind.RESOURCE))
+                    || (bSymbol instanceof BPackageSymbol && invalidPkgs.contains(symbolName))
+                    || (symbolName.startsWith("$anonStruct"));
+        });
+        
+        return symbolInfoList;
     }
 }

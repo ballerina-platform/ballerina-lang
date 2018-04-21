@@ -1,0 +1,61 @@
+import ballerina/io;
+import ballerina/mime;
+import ballerina/http;
+
+//=====================================
+//============Client Config============
+//=====================================
+public type {{cut info.title " "}}ClientConfig {
+    string serviceUrl,
+};
+
+//=======================================
+//============Client Endpoint============
+//=======================================
+public type {{cut info.title " "}}ClientEp object {
+    public {
+        http:Client client;
+        {{cut info.title " "}}ClientConfig config;
+    }
+
+    public function init({{cut info.title " "}}ClientConfig config) {
+        endpoint http:Client httpEp {
+            targets:[{url: config.serviceUrl}]
+        };
+
+        self.client = httpEp;
+        self.config = config;
+    }
+
+    public function getCallerActions() returns ({{cut info.title " "}}Client) {
+        return new {{cut info.title " "}}Client(self);
+    }
+};
+
+//==============================
+//============Client============
+//==============================
+public type {{cut info.title " "}}Client object {
+    public {
+        {{cut info.title " "}}ClientEp clientEp;
+    }
+
+    new (clientEp) {}
+{{#paths}}{{#value}}{{#operations}}{{#value}}
+    public function {{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
+        endpoint http:Client ep = self.clientEp.client;
+        http:Request request = new;
+
+        //Create the required request as needed
+        var res = ep -> {{key}}("{{../../key}}", request);
+
+        match res {
+            http:HttpConnectorError httpError => {
+                error err = {message: httpError.message};
+                return err;
+            }
+            http:Response resp => return resp;
+        }
+    }
+{{/value}}{{/operations}}{{/value}}{{/paths}}
+};

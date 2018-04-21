@@ -18,7 +18,8 @@
 package org.ballerinalang.langserver.rename;
 
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.compiler.common.LSDocument;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -43,10 +44,11 @@ public class RenameUtil {
 
     /**
      * Get the list of rename related TextEdits.
-     * @param locationList          List of locations of occurrences
-     * @param documentManager       {@link WorkspaceDocumentManager} instance
-     * @param newName               New name to be replaced with
-     * @param replaceSymbolName     Symbol name being replaced
+     *
+     * @param locationList      List of locations of occurrences
+     * @param documentManager   {@link WorkspaceDocumentManager} instance
+     * @param newName           New name to be replaced with
+     * @param replaceSymbolName Symbol name being replaced
      * @return {@link List}         List of TextEdits
      */
     public static List<TextDocumentEdit> getRenameTextEdits(List<Location> locationList,
@@ -55,8 +57,8 @@ public class RenameUtil {
         Map<String, ArrayList<Location>> documentLocationMap = new HashMap<>();
         List<TextDocumentEdit> documentEdits = new ArrayList<>();
         Comparator<Location> locationComparator = (location1, location2)
-                ->location1.getRange().getStart().getCharacter() - location2.getRange().getStart().getCharacter();
-        
+                -> location1.getRange().getStart().getCharacter() - location2.getRange().getStart().getCharacter();
+
         locationList.forEach(location -> {
             if (documentLocationMap.containsKey(location.getUri())) {
                 documentLocationMap.get(location.getUri()).add(location);
@@ -64,10 +66,10 @@ public class RenameUtil {
                 documentLocationMap.put(location.getUri(), (ArrayList<Location>) Lists.of(location));
             }
         });
-        
+
         documentLocationMap.forEach((uri, locations) -> {
             Collections.sort(locations, locationComparator);
-            String fileContent = documentManager.getFileContent(CommonUtil.getPath(uri));
+            String fileContent = documentManager.getFileContent(CommonUtil.getPath(new LSDocument(uri)));
             String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
             int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf("\n"), fileContent.lastIndexOf("\r"));
             int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
@@ -97,27 +99,29 @@ public class RenameUtil {
                     Collections.singletonList(textEdit));
             documentEdits.add(textDocumentEdit);
         });
-        
+
         return documentEdits;
     }
 
     /**
      * Get the symbol name to replace.
-     * @param params                {@link RenameParams} for operation   
-     * @param documentManager       {@link WorkspaceDocumentManager} instance
+     *
+     * @param params          {@link RenameParams} for operation
+     * @param documentManager {@link WorkspaceDocumentManager} instance
      * @return {@link String}       Symbol name to replace
      */
     public static String getReplaceSymbolName(RenameParams params, WorkspaceDocumentManager documentManager) {
         Position position = params.getPosition();
         int line = position.getLine();
         int column = position.getCharacter();
-        String fileContent = documentManager.getFileContent(CommonUtil.getPath(params.getTextDocument().getUri()));
+        String fileContent = documentManager.getFileContent(CommonUtil
+                .getPath(new LSDocument(params.getTextDocument().getUri())));
         String lineContent = fileContent.split("\\n|\\r\\n|\\r")[line];
-        
+
         return getIdentifierLiterals(lineContent, column - 1, -1).reverse().toString()
                 + getIdentifierLiterals(lineContent, column, 1).toString();
     }
-    
+
     private static StringBuilder getIdentifierLiterals(String lineContent, int startIndex, int incrementer) {
         int counter = startIndex;
         StringBuilder returnString = new StringBuilder();
@@ -129,7 +133,7 @@ public class RenameUtil {
             returnString.append(charAtIndex);
             counter += incrementer;
         }
-        
+
         return returnString;
     }
 }

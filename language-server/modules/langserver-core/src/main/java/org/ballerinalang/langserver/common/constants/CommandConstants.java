@@ -16,7 +16,7 @@
 package org.ballerinalang.langserver.common.constants;
 
 /**
- * Constants related to {@link org.eclipse.lsp4j.Command}
+ * Constants related to {@link org.eclipse.lsp4j.Command}.
  * @since v0.964.0
  */
 public class CommandConstants {

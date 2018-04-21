@@ -20,7 +20,7 @@
     <parent>
         <artifactId>composer-services-parent</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.964.1-SNAPSHOT</version>
+        <version>0.970.0-beta6-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -36,6 +36,10 @@
             <groupId>org.ballerinalang</groupId>
             <artifactId>composer-server-core</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>language-server-compiler</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>

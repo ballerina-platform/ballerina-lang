@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
@@ -39,7 +39,7 @@ import java.util.ArrayList;
 public class ParserRuleStatementContextResolver extends AbstractItemResolver {
     @Override
     @SuppressWarnings("unchecked")
-    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
+    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         ArrayList<SymbolInfo> filteredSymbols = new ArrayList<>();
 
@@ -49,7 +49,8 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
         } else {
             filteredSymbols.addAll(SymbolFilters.getFilterByClass(ConnectorInitExpressionItemFilter.class)
                     .filterItems(completionContext));
-            filteredSymbols.addAll(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
+            filteredSymbols.addAll(this.removeInvalidStatementScopeSymbols(completionContext
+                    .get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
             completionItems.addAll(SymbolFilters.getFilterByClass(StatementTemplateFilter.class)
                     .filterItems(completionContext));
 

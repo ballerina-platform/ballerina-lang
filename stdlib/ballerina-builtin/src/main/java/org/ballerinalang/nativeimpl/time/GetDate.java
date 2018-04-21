@@ -18,14 +18,19 @@
 package org.ballerinalang.nativeimpl.time;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import java.util.Arrays;
+
+import static org.ballerinalang.nativeimpl.Utils.STRUCT_TYPE_TIME;
 
 /**
  * Get the year,month and date value for the given time.
@@ -34,9 +39,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
-        functionName = "Time.getDate",
-        args = {@Argument(name = "time", type = TypeKind.STRUCT, structType = "Time",
-                          structPackage = "ballerina.time")},
+        functionName = "getDate",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = STRUCT_TYPE_TIME, structPackage = "ballerina.time"),
         returnType = {@ReturnType(type = TypeKind.INT),
                       @ReturnType(type = TypeKind.INT),
                       @ReturnType(type = TypeKind.INT)},
@@ -44,10 +48,13 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class GetDate extends AbstractTimeFunction {
 
+    private static final BTupleType getDateTupleType = new BTupleType(
+            Arrays.asList(BTypes.typeInt, BTypes.typeInt, BTypes.typeInt));
+
     @Override
     public void execute(Context context) {
         BStruct timeStruct = ((BStruct) context.getRefArgument(0));
-        BRefValueArray date = new BRefValueArray(BTypes.typeInt);
+        BRefValueArray date = new BRefValueArray(getDateTupleType);
         date.add(0, new BInteger(getYear(timeStruct)));
         date.add(1, new BInteger(getMonth(timeStruct)));
         date.add(2, new BInteger(getDay(timeStruct)));

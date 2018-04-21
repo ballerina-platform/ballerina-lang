@@ -35,24 +35,25 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Locale;
 
+
 /**
  * {@code Forward} action can be used to invoke an http call with incoming request httpVerb.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "forward",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
-                structPackage = "ballerina.net.http"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.CALLER_ACTIONS,
+                structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "client", type = TypeKind.STRUCT),
                 @Argument(name = "path", type = TypeKind.STRING),
                 @Argument(name = "req", type = TypeKind.STRUCT, structType = "Request",
-                        structPackage = "ballerina.net.http")
+                        structPackage = "ballerina.http")
         },
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "Response", structPackage = "ballerina.net.http"),
+                @ReturnType(type = TypeKind.STRUCT, structType = "Response", structPackage = "ballerina.http"),
                 @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
-                        structPackage = "ballerina.net.http"),
+                        structPackage = "ballerina.http"),
         }
 )
 public class Forward extends AbstractHTTPAction {
@@ -65,7 +66,7 @@ public class Forward extends AbstractHTTPAction {
             executeNonBlockingAction(dataContext, createOutboundRequestMsg(context));
         } catch (ClientConnectorException clientConnectorException) {
             BallerinaException exception = new BallerinaException("Failed to invoke 'forward' action in " +
-                    HttpConstants.HTTP_CLIENT + ". " + clientConnectorException.getMessage(), context);
+                    HttpConstants.CALLER_ACTIONS + ". " + clientConnectorException.getMessage(), context);
             dataContext.notifyReply(null, HttpUtil.getHttpConnectorError(context, exception));
         }
     }
@@ -85,7 +86,6 @@ public class Forward extends AbstractHTTPAction {
 
         String httpVerb = (String) outboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD);
         outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
-
         return outboundRequestMsg;
     }
 }

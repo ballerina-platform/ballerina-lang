@@ -20,7 +20,7 @@
     <parent>
         <artifactId>composer-server-parent</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.964.1-SNAPSHOT</version>
+        <version>0.970.0-beta6-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>composer-server-distribution</artifactId>
@@ -212,6 +212,8 @@
                                     <exclude>org.wso2.carbon.utils:carbon-utils</exclude>
                                     <exclude>org.wso2.orbit.org.yaml:snakeyaml</exclude>
                                     <exclude>org.yaml:snakeyaml</exclude>
+                                    <exclude>org.slf4j:slf4j-log4j12</exclude>
+                                    <exclude>org.slf4j:slf4j-simple</exclude>
                                 </excludes>
                             </artifactSet>
                         </configuration>

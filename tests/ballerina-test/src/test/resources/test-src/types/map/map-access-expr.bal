@@ -1,19 +1,19 @@
 function mapAccessTest(int x, int y) returns (int) {
-    map testMap = {};
+    map testMap;
     int xx;
     int yy;
     testMap["first"] = x;
     testMap["second"] = y;
     testMap["third"] = x + y;
     testMap["forth"] = x - y;
-    xx, _ = (int) testMap["first"];
-    yy, _ = (int) testMap["second"];
+    xx = check <int> testMap["first"];
+    yy = check <int> testMap["second"];
 
     return xx + yy;
 }
 
 function mapReturnTest(string firstName, string lastName) returns (map) {
-    map testMap = {};
+    map testMap;
     testMap["fname"] = firstName;
     testMap["lname"] = lastName;
     testMap[ firstName + lastName ] = firstName + lastName;
@@ -24,12 +24,12 @@ function testArrayAccessAsIndexOfMapt() returns (string) {
     map namesMap = {fname:"Supun",lname:"Setunga"};
     string[] keys = ["fname","lname"];
     string key;
-    key, _ = (string)namesMap[keys[0]];
+    key = <string> namesMap[keys[0]];
     return key;
 }
 
 function testAccessThroughVar() returns (string) {
-    map m = {};
+    map m;
     m["x"] = "a";
     m["y"] = "b";
     m["z"] = "c";
@@ -43,7 +43,7 @@ function constructString(map m) returns (string) {
     string returnStr = "";
     while (i < len) {
         string key = keys[i];
-        var val, e = (string) m[key];
+        string val = <string> m[key];
         returnStr = returnStr + key + ":" + val + ", ";
         i = i + 1;
     }
@@ -69,24 +69,24 @@ function testHasKeyNegative() returns (boolean) {
 function testGetMapValues () returns (string, string) {
     json j = {"city":"Colombo", "country":"SriLanka"};
     int[] arr = [7,8,9];
+    map address = {city:"CA", "country":"USA"};
+    map<map>[] addressArray=[{address:{city:"Colombo", "country":"SriLanka"}},
+                               {address:{city:"Kandy", "country":"SriLanka"}},
+                               {address:{city:"Galle", "country":"SriLanka"}}];
     map m = { name:"Supun",
                   age:25,
                   gpa:2.81,
                   status:true,
                   info:null,
-                  address:{city:"CA", "country":"USA"},
+                  address:address,
                   intArray:arr,
-                  addressArray:[
-                        {address:{city:"Colombo", "country":"SriLanka"}},
-                        {address:{city:"Kandy", "country":"SriLanka"}},
-                        {address:{city:"Galle", "country":"SriLanka"}}
-                  ],
+                  addressArray:addressArray,
                   finfo:j
                 };
     any[] values = m.values();
-    var nam, _ = (string) values[0];
-    var jsn, _ = (json) values[8];
-    var city, _ = (string) jsn.city;
+    var nam = <string> values[0];
+    var jsn = check <json> values[8];
+    var city = check <string> jsn.city;
     return (nam, city);
 }
 

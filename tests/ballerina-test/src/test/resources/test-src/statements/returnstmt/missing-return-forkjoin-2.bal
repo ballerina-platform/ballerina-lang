@@ -12,12 +12,12 @@ function testNullInForkJoin () returns (string, string) {
         }
     } join (all) (map allReplies) {
         any[] temp;
-        temp =? <any[]> allReplies["foo"];
+        temp = check <any[]> allReplies["foo"];
         string m1;
-        m1 =? <string> temp[0];
-        temp =? <any[]> allReplies["bar"];
+        m1 = <string> temp[0];
+        temp = check <any[]> allReplies["bar"];
         string m2;
-        m2 =? <string> temp[0];
+        m2 = <string> temp[0];
         return (m1,m2);
     } timeout (30000) (map msgs) {
 

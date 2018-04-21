@@ -29,6 +29,7 @@ import ActionSizingUtil from './views/action/sizing-util';
 import DefaultPositioningUtil from './views/default/positioning-util';
 import ActionPositioningUtil from './views/action/positioning-util';
 
+import EndpointAggregatorUtil from './views/default/endpoint-aggregator-util';
 
 import DefaultWorkerInvocationSyncUtil from './views/default/worker-invocation-sync-util';
 import WorkerInvocationArrowPositionUtil from './views/default/worker-invocation-arrow-position-util';
@@ -49,6 +50,7 @@ const actionSizingUtil = new ActionSizingUtil();
 
 const defaultPositioningUtil = new DefaultPositioningUtil();
 const actionPositioningUtil = new ActionPositioningUtil();
+const endpointAggregatorUtil = new EndpointAggregatorUtil();
 
 const defaultWorkerInvocationSyncUtil = new DefaultWorkerInvocationSyncUtil();
 const defaultInvocationArrowPositionUtil = new WorkerInvocationArrowPositionUtil();
@@ -146,6 +148,10 @@ function getPositioningUtil(mode) {
     }
 }
 
+function getEndpointAggregatorUtil(mode) {
+    return endpointAggregatorUtil;
+}
+
 
 function getErrorCollectorUtil(mode) {
     return defaultErrorCollectorUtil;
@@ -198,6 +204,7 @@ export {
     requireAll,
     getSizingUtil,
     getPositioningUtil,
+    getEndpointAggregatorUtil,
     getWorkerInvocationSyncUtil,
     getInvocationArrowPositionUtil,
     getOverlayComponent,

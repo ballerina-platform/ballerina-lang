@@ -40,7 +40,7 @@ import java.io.IOException;
  *
  * @since 0.94
  */
-public class XMLLiteralTest {
+public class    XMLLiteralTest {
 
     CompileResult result;
     CompileResult literalWithNamespacesResult;

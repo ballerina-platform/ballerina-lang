@@ -1,37 +1,42 @@
-import ballerina/data.sql;
+import ballerina/mysql;
 
-struct Employee {
+type Employee {
     int id;
     string name;
+};
+
+function main(string... args) {
+    testSelectWithUntaintedQueryProducingTaintedReturnNegative(...args);
 }
 
-public function main (string[] args) {
-    testSelectWithUntaintedQueryProducingTaintedReturnNegative(args);
-}
-
-public function testSelectWithUntaintedQueryProducingTaintedReturnNegative(string[] args) {
-    endpoint sql:Client testDB {
-        database: sql:DB.MYSQL,
-        host: "localhost",
-        port: 3306,
-        name: "testdb",
-        username: "root",
-        password: "root",
-        options: {maximumPoolSize:5}
+public function testSelectWithUntaintedQueryProducingTaintedReturnNegative(string... args) {
+    endpoint mysql:Client testDB {
+        host:"localhost",
+        port:3306,
+        name:"testdb",
+        username:"root",
+        password:"root",
+        poolOptions:{maximumPoolSize:5}
     };
 
-    table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
-    while (dt.hasNext()) {
-        var rs = <Employee>dt.getNext();
-        match rs {
-            Employee emp => testFunction(emp.name, emp.name);
-            error => return;
+    var output = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
+    match output {
+        table dt => {
+            while (dt.hasNext()) {
+                var rs = <Employee>dt.getNext();
+                match rs {
+                    Employee emp => testFunction(emp.name);
+                    error => return;
+                }
+            }
         }
+        error => return;
     }
-    testDB -> close();
+    testDB.stop();
     return;
 }
 
-public function testFunction (@sensitive string sensitiveValue, string anyValue) {
+public function testFunction(@sensitive string anyValue) {
 
 }
+

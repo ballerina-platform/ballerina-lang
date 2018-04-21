@@ -76,13 +76,18 @@ public class BLangObject extends BLangNode implements ObjectNode {
     }
 
     @Override
-    public List<? extends FunctionNode> getFunctions() {
+    public List<BLangFunction> getFunctions() {
         return functions;
     }
 
     @Override
     public void addFunction(FunctionNode function) {
         this.functions.add((BLangFunction) function);
+    }
+
+    @Override
+    public FunctionNode getInitFunction() {
+        return initFunction;
     }
 
     @Override

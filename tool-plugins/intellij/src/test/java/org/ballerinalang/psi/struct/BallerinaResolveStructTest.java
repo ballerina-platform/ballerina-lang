@@ -32,29 +32,29 @@ public class BallerinaResolveStructTest extends BallerinaResolveTestBase {
         return getTestDataPath("psi/resolve/struct");
     }
 
-    public void testStructInSameFileInAction() {
-        doFileTest();
-    }
-
-    public void testStructInSameFileInConnector() {
-        doFileTest();
-    }
+    //    public void testStructInSameFileInAction() {
+    //        doFileTest();
+    //    }
+    //
+    //    public void testStructInSameFileInConnector() {
+    //        doFileTest();
+    //    }
 
     public void testStructInSameFileInFunction() {
         doFileTest();
     }
 
-    public void testStructInSameFileInService() {
-        doFileTest();
-    }
+    //    public void testStructInSameFileInService() {
+    //        doFileTest();
+    //    }
 
-    public void testStructInDifferentFileInAction() throws IOException {
-        doFileTest(struct);
-    }
-
-    public void testStructInDifferentFileInConnector() throws IOException {
-        doFileTest(struct);
-    }
+    //    public void testStructInDifferentFileInAction() throws IOException {
+    //        doFileTest(struct);
+    //    }
+    //
+    //    public void testStructInDifferentFileInConnector() throws IOException {
+    //        doFileTest(struct);
+    //    }
 
     public void testStructInDifferentFileInFunction() throws IOException {
         doFileTest(struct);
@@ -64,13 +64,13 @@ public class BallerinaResolveStructTest extends BallerinaResolveTestBase {
         doFileTest(struct);
     }
 
-    public void testStructInDifferentPackageInAction() throws IOException {
-        doFileTest(struct, "org/test/test.bal");
-    }
-
-    public void testStructInDifferentPackageInConnector() throws IOException {
-        doFileTest(struct, "org/test/test.bal");
-    }
+    //    public void testStructInDifferentPackageInAction() throws IOException {
+    //        doFileTest(struct, "org/test/test.bal");
+    //    }
+    //
+    //    public void testStructInDifferentPackageInConnector() throws IOException {
+    //        doFileTest(struct, "org/test/test.bal");
+    //    }
 
     public void testStructInDifferentPackageInFunction() throws IOException {
         doFileTest(struct, "org/test/test.bal");

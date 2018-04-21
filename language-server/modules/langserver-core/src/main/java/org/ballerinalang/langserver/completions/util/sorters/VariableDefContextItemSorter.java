@@ -18,8 +18,8 @@
 package org.ballerinalang.langserver.completions.util.sorters;
 
 import org.antlr.v4.runtime.TokenStream;
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
 
@@ -36,7 +36,7 @@ public class VariableDefContextItemSorter extends CompletionItemSorter {
      * @param completionItems List of initial completion items
      */
     @Override
-    public void sortItems(TextDocumentServiceContext ctx, List<CompletionItem> completionItems) {
+    public void sortItems(LSServiceOperationContext ctx, List<CompletionItem> completionItems) {
         this.setPriorities(completionItems);
         String variableType = this.getVariableType(ctx);
         int startTokenIndex = ctx.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY).getStart().getTokenIndex();
@@ -84,7 +84,7 @@ public class VariableDefContextItemSorter extends CompletionItemSorter {
      * @param ctx   Document Service context (Completion context)
      * @return      {@link String} type of the variable
      */
-    String getVariableType(TextDocumentServiceContext ctx) {
+    String getVariableType(LSServiceOperationContext ctx) {
         return ctx.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY).start.getText();
     }
 }

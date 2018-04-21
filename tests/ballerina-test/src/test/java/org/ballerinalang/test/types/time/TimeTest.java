@@ -20,6 +20,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -31,7 +32,7 @@ import org.testng.annotations.Test;
  */
 public class TimeTest {
 
-    CompileResult result;
+    private CompileResult result;
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/time/time-type.bal");
@@ -42,6 +43,16 @@ public class TimeTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "testCurrentTime", args);
         Assert.assertTrue(((BInteger) returns[0]).intValue() > 1498621376460L);
+    }
+
+    @Test(description = "Test nanoTime function.")
+    public void testNanoTime() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "testNanoTime", args);
+        Assert.assertEquals(returns[0].getClass().getSimpleName(), "BInteger");
+        Assert.assertTrue(((BInteger) returns[0]).intValue() > 0, "nanoTime returned should be greater than zero");
+        Assert.assertTrue(((BInteger) returns[0]).intValue() < System.nanoTime(),
+                "nanoTime returned should be less than the current system nano time");
     }
 
     @Test(description = "Test create time with offset ID provided.")
@@ -76,6 +87,21 @@ public class TimeTest {
         Assert.assertEquals(((BInteger) returns[2]).intValue(), -18000);
     }
 
+    @Test(description = "Test parsing a given time string to RFC 1123 format")
+    public void testParseToRFC1123Time() {
+        BValue[] args = {new BString("Wed, 28 Mar 2018 11:56:23 +0530")};
+        BValue[] returns = BRunUtil.invoke(result, "testParseRFC1123Time", args);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1522218383000L);
+        Assert.assertEquals((returns[1]).stringValue(), "+05:30");
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 19800);
+
+        args = new BValue[]{new BString("Tue, 27 Mar 2018 10:00:24 GMT")};
+        returns = BRunUtil.invoke(result, "testParseRFC1123Time", args);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1522144824000L);
+        Assert.assertEquals((returns[1]).stringValue(), "Z");
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 0);
+    }
+
     @Test(description = "Test To String funciton.")
     public void testToStringWithCreateTime() {
         BValue[] args = {};
@@ -95,6 +121,13 @@ public class TimeTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "testFormatTime", args);
         Assert.assertEquals((returns[0]).stringValue(), "2017-06-26T09:46:22.444-0500");
+    }
+
+    @Test(description = "Test Format Time according to the given format.")
+    public void testFormatTimeToRFC1123() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "testFormatTimeToRFC1123", args);
+        Assert.assertEquals((returns[0]).stringValue(), "Mon, 26 Jun 2017 09:46:22 -0500");
     }
 
     @Test(description = "Test Get Year Functions for date time values.")
@@ -197,15 +230,15 @@ public class TimeTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*parse date 2017-06-26T09:46:22.444-0500 for the format "
-                  + "yyyy-MM-dd failed.*")
+          expectedExceptionsMessageRegExp = ".*parse date \"2017-06-26T09:46:22.444-0500\" for the format "
+                  + "\"yyyy-MM-dd\" failed.*")
     public void testParseTimenFormatMismatch() {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "testParseTimenFormatMismatch", args);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*invalid pattern for formatting test.*")
+          expectedExceptionsMessageRegExp = ".*invalid pattern for formatting: test.*")
     public void testFormatTimeInvalidPattern() {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "testFormatTimeInvalidPattern", args);

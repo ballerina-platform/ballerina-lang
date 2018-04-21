@@ -1,8 +1,7 @@
-package ballerina.builtin.core;
 
 public struct error {
     string msg;
-    error[] cause;
+    error? cause;
     stackFrame[] stackTrace;
 }
 
@@ -15,7 +14,7 @@ public struct stackFrame {
 
 public struct TypeCastError {
     string msg;
-    error[] cause;
+    error? cause;
     stackFrame[] stackTrace;
     string sourceType;
     string targetType;
@@ -23,7 +22,7 @@ public struct TypeCastError {
 
 public struct TypeConversionError {
     string msg;
-    error[] cause;
+    error? cause;
     stackFrame[] stackTrace;
     string sourceType;
     string targetType;

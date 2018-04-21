@@ -136,15 +136,14 @@ class AddResourceDefinition extends React.Component {
                     className={'add-resource-button'}
                     fill={!_.isEmpty(this.props.model.viewState.overlayContainer) ? '#63605f' : '#a09c9b'}
                 />
-                <image
+                <text
                     x={button.x + 5.5}
                     y={button.y + 5.5}
                     width={14}
                     height={14}
-                    fill='#fff'
-                    xlinkHref={ImageUtil.getSVGIconString('add-white')}
                     className='add-resource-button-label'
-                />
+                >{ImageUtil.getCodePoint('add')}
+                </text>
                 <polygon
                     points={`${label.x},${label.y} ${label.x + 12.5},${label.y - 12.5} ${label.x + 120},${label.y - 12.5} ${label.x + 120},${label.y + 12.5} ${label.x + 12.5},${label.y + 12.5}`}
                     fill='#dcdcdc'

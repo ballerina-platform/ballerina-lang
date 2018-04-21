@@ -32,7 +32,6 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketService;
-import org.ballerinalang.net.http.WebSocketServiceValidator;
 import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 
 import java.util.Arrays;
@@ -46,10 +45,10 @@ import java.util.Map;
  */
 
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "initEndpoint",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSocketClient",
-                             structPackage = "ballerina.net.http"),
+                             structPackage = "ballerina.http"),
         args = {@Argument(name = "epName", type = TypeKind.STRING),
                 @Argument(name = "config", type = TypeKind.STRUCT, structType = "ServiceEndpointConfiguration")},
         isPublic = true
@@ -67,10 +66,10 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         if (service == null) {
             throw new BallerinaConnectorException("Cannot find client service: " + clientServiceType);
         }
-        if (WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(service.getEndpointName())) {
+        if (WebSocketConstants.WEBSOCKET_CLIENT_ENDPOINT_NAME.equals(service.getEndpointName())) {
             WebSocketService wsService = new WebSocketService(service);
-            WebSocketServiceValidator.validateServiceEndpoint(wsService);
             WsClientConnectorConfig clientConnectorConfig = new WsClientConnectorConfig(remoteUrl);
+            clientConnectorConfig.setAutoRead(false); // Frames are read sequentially in ballerina.
             Value[] subProtocolValues = clientEndpointConfig
                     .getArrayField(WebSocketConstants.CLIENT_SUBPROTOCOLS_CONFIG);
             if (subProtocolValues != null) {

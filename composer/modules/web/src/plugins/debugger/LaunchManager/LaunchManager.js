@@ -94,6 +94,14 @@ class LaunchManager extends EventChannel {
      * @memberof LaunchManager
      */
     processMesssage(message) {
+        if (message.code === 'PONG') {
+            // if a pong message is received we will ignore.
+            return;
+        }
+        if (message.code === 'INVALID_CMD') {
+            // ignore and return.
+            return;
+        }
         this._messages.push(message);
         if (message.code === 'OUTPUT') {
             if (_.endsWith(message.message, this.debugPort)) {
@@ -104,6 +112,7 @@ class LaunchManager extends EventChannel {
         if (message.code === 'EXECUTION_STARTED') {
             this.active = true;
             this.trigger('execution-started');
+            this._messages = [message];
         }
         if (message.code === 'EXECUTION_STOPPED' || message.code === 'EXECUTION_TERMINATED') {
             this.active = false;
@@ -121,12 +130,10 @@ class LaunchManager extends EventChannel {
             this.channel.close();
             // this.tryItUrl = undefined;
         }
-        if (message.code === 'PONG') {
-            // if a pong message is received we will ignore.
-            return;
-        }
-        if (message.code === 'INVALID_CMD') {
-            // ignore and return.
+        if (message.type === 'TRACE') {
+            message.message = JSON.parse(message.message);
+            message.message.meta = JSON.parse(message.message.meta);
+            this.trigger('print-trace-message', message);
             return;
         }
         this.trigger('print-message', message);

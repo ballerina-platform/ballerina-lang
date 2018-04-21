@@ -35,13 +35,20 @@ public class FunctionSignatureNegativeTest {
 
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'any[]', found 'int[]'", 10, 36);
 
+        BAssertUtil.validateError(result, i++, "redeclared argument 'a'", 17, 19);
+
         BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'c'", 21, 19);
 
         BAssertUtil.validateError(result, i++, "invalid rest arguments", 29, 25);
 
+        BAssertUtil.validateError(result, i++, "this function must return a result", 32, 1);
+
         BAssertUtil.validateError(result, i++, "invalid rest arguments", 33, 25);
 
-        BAssertUtil.validateError(result, i++, "redeclared argument 'a'", 17, 19);
+        BAssertUtil.validateError(result, i++, "invalid value for parameter 'j': only simple literals allowed", 40,
+                61);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected 'json', found 'xml'", 40, 61);
+
     }
 
     @Test

@@ -1,5 +1,5 @@
 import   ballerina.   net.http;
-import ballerina/net.http.response;
+import ballerina/http.response;
 import ballerina    .   net.http.request;
 
     @   http   :  configuration  {  basePath    :   "/echo"  }

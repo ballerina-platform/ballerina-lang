@@ -1,7 +1,8 @@
 deprecated {
    This function is deprecated.
 }
-function randomNumber() (int) {
+
+function randomNumber() returns (int) {
    int a = 20;
    return a;
 }

@@ -1,7 +1,7 @@
 import ballerina/lang.system;
 import ballerina/lang.jsons;
 
-function main (string[] args) {
+function main (string... args) {
     //Create json.
     json j1 = {"Store":{"@id":"AST", "name":"Anne", "address":
                                                     {"street":"Main", "city":"94"}, "codes":["4", "8"]}};

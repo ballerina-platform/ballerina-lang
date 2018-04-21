@@ -105,7 +105,7 @@ class ActionNode extends React.Component {
         return (
             <g>
                 <PanelDecorator
-                    icon='tool-icons/action'
+                    icon='action'
                     title={name}
                     bBox={bBox}
                     model={this.props.model}

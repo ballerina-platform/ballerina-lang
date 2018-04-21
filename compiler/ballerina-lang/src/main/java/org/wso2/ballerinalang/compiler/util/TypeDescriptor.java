@@ -30,16 +30,19 @@ public class TypeDescriptor {
     public static final String SIG_JSON = "J";
     public static final String SIG_TABLE = "D";
     public static final String SIG_STREAM = "H";
-    public static final String SIG_MAP = "N";
+    public static final String SIG_MAP = "M";
     public static final String SIG_CONNECTOR = "C";
     public static final String SIG_SERVICE = "X";
     public static final String SIG_STRUCT = "T";
     public static final String SIG_ENUM = "E";
+    public static final String SIG_FINITE = "G";
     public static final String SIG_FUNCTION = "U";
     public static final String SIG_ARRAY = "[";
     public static final String SIG_ANY = "A";
     public static final String SIG_TYPEDESC = "Y";
     public static final String SIG_VOID = "V";
     public static final String SIG_ANNOTATION = "@";
-
+    public static final String SIG_UNION = "O";
+    public static final String SIG_NULL = "N";
+    public static final String SIG_TUPLE = "P";
 }

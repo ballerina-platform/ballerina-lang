@@ -83,7 +83,7 @@ public class AnnotationAttributeValue {
             return null;
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */

@@ -47,6 +47,9 @@ public class BuildCommand implements BLauncherCmd {
     @Parameter(names = {"-o"}, description = "write output to the given file")
     private String outputFileName;
 
+    @Parameter(names = {"--offline"})
+    private boolean offline;
+
     @Parameter(arity = 1)
     private List<String> argList;
 
@@ -63,24 +66,29 @@ public class BuildCommand implements BLauncherCmd {
             return;
         }
 
-        if (argList == null || argList.size() == 0) {
-            throw LauncherUtils.createUsageException("no ballerina program given");
-        }
-
-        if (argList.size() > 1) {
+        if (argList != null && argList.size() > 1) {
             throw LauncherUtils.createUsageException("too many arguments");
         }
 
         // Get source root path.
         Path sourceRootPath = Paths.get(System.getProperty(USER_DIR));
-        Path packagePath = Paths.get(argList.get(0));
+        if (argList == null || argList.size() == 0) {
+            // ballerina build
+            BuilderUtils.compileAndWrite(sourceRootPath, offline);
+        } else {
+            // ballerina build pkgName [-o outputFileName]
+            String targetFileName;
+            String pkgName = argList.get(0);
+            if (outputFileName != null && !outputFileName.isEmpty()) {
+                targetFileName = outputFileName;
+            } else {
+                targetFileName = pkgName;
+            }
 
-        Path targetPath = null;
-        if (outputFileName != null && !outputFileName.isEmpty()) {
-            targetPath = Paths.get(outputFileName);
+            BuilderUtils.compileAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg, offline);
         }
 
-        BuilderUtils.compileAndWrite(sourceRootPath, packagePath, targetPath, buildCompiledPkg);
+        Runtime.getRuntime().exit(0);
     }
 
     @Override

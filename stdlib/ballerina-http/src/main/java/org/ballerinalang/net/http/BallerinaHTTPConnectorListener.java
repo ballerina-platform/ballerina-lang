@@ -18,15 +18,20 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Executor;
+import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.connector.api.Value;
+import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.serviceendpoint.FilterHolder;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,10 +39,14 @@ import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
+import static org.ballerinalang.util.observability.ObservabilityConstants.SERVER_CONNECTOR_HTTP;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PROTOCOL;
 
 /**
  * HTTP connector listener for Ballerina.
@@ -49,10 +58,10 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     private final HTTPServicesRegistry httpServicesRegistry;
 
-    private final HashSet<FilterHolder> filterHolders;
+    private final Value[] filterHolders;
 
     public BallerinaHTTPConnectorListener(HTTPServicesRegistry httpServicesRegistry,
-            HashSet<FilterHolder> filterHolders) {
+                                          Value[] filterHolders) {
         this.httpServicesRegistry = httpServicesRegistry;
         this.filterHolders = filterHolders;
     }
@@ -84,24 +93,43 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     protected void extractPropertiesAndStartResourceExecution(HTTPCarbonMessage httpCarbonMessage,
                                                               HttpResource httpResource) {
-        boolean isTransactionInfectable = httpResource.getParentService().isTransactionInfectable();
+        boolean isTransactionInfectable = httpResource.isTransactionInfectable();
         Map<String, Object> properties = collectRequestProperties(httpCarbonMessage, isTransactionInfectable);
-        properties.put(HttpConstants.REMOTE_ADDRESS, httpCarbonMessage.getProperty(HttpConstants.REMOTE_ADDRESS));
-        properties.put(HttpConstants.ORIGIN_HOST, httpCarbonMessage.getHeader(HttpConstants.ORIGIN_HOST));
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);
         // invoke the request path filters
-        invokeRequestFilters(httpCarbonMessage, signatureParams[1], getRequestFilterContext(httpResource));
+        WorkerExecutionContext parentCtx = new WorkerExecutionContext(
+                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile());
+        invokeRequestFilters(httpCarbonMessage, signatureParams[1], getRequestFilterContext(httpResource), parentCtx);
+
+        Resource balResource = httpResource.getBalResource();
+
+        ObserverContext ctx = null;
+        if (ObservabilityUtils.isObservabilityEnabled()) {
+            ctx = ObservabilityUtils.startServerObservation(SERVER_CONNECTOR_HTTP,
+                    balResource.getServiceName(),
+                    balResource.getName(), null);
+            Map<String, String> httpHeaders = new HashMap<>();
+            httpCarbonMessage.getHeaders().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
+            if (ctx != null) {
+                ctx.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
+                ctx.addTag(TAG_KEY_HTTP_METHOD, (String) httpCarbonMessage.getProperty(HttpConstants.HTTP_METHOD));
+                ctx.addTag(TAG_KEY_PROTOCOL, (String) httpCarbonMessage.getProperty(HttpConstants.PROTOCOL));
+                ctx.addTag(TAG_KEY_HTTP_URL, (String) httpCarbonMessage.getProperty(HttpConstants.REQUEST_URL));
+            }
+        }
+
         CallableUnitCallback callback = new HttpCallableUnitCallback(httpCarbonMessage);
         //TODO handle BallerinaConnectorException
-        Executor.submit(httpResource.getBalResource(), callback, properties, signatureParams);
+        Executor.submit(balResource, callback, properties, ctx, parentCtx, signatureParams);
     }
 
-    private BValue getRequestFilterContext(HttpResource httpResource) {
+    protected BValue getRequestFilterContext(HttpResource httpResource) {
         BStruct filterCtxtStruct = BLangConnectorSPIUtil.createBStruct(
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                 PROTOCOL_PACKAGE_HTTP, "FilterContext");
         filterCtxtStruct.setRefField(0,
-                new BTypeDescValue(httpResource.getBalResource().getResourceInfo().getServiceInfo().getType()));
+                                     new BTypeDescValue(httpResource.getBalResource().getResourceInfo().getServiceInfo()
+                                                                .getType()));
         filterCtxtStruct.setStringField(0, httpResource.getParentService().getName());
         filterCtxtStruct.setStringField(1, httpResource.getName());
         return filterCtxtStruct;
@@ -111,41 +139,56 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         return httpCarbonMessage.getProperty(HTTP_RESOURCE) != null;
     }
 
-    protected Map<String, Object> collectRequestProperties(HTTPCarbonMessage httpCarbonMessage, boolean isInfectable) {
+    private Map<String, Object> collectRequestProperties(HTTPCarbonMessage httpCarbonMessage, boolean isInfectable) {
         Map<String, Object> properties = new HashMap<>();
         if (httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER) != null) {
             Object srcHandler = httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER);
             properties.put(HttpConstants.SRC_HANDLER, srcHandler);
         }
-        if (!isInfectable || httpCarbonMessage.getHeader(HttpConstants.HEADER_X_XID) == null ||
-                httpCarbonMessage.getHeader(HttpConstants.HEADER_X_REGISTER_AT_URL) == null) {
+        String txnId = httpCarbonMessage.getHeader(HttpConstants.HEADER_X_XID);
+        String registerAtUrl = httpCarbonMessage.getHeader(HttpConstants.HEADER_X_REGISTER_AT_URL);
+        //Return 500 if txn context is received when transactionInfectable=false
+        if (!isInfectable && txnId != null) {
+            throw new BallerinaConnectorException("Cannot create transaction context: " +
+                                                          "resource is not transactionInfectable");
+        }
+        if (isInfectable && txnId != null && registerAtUrl != null) {
+            properties.put(Constants.GLOBAL_TRANSACTION_ID, txnId);
+            properties.put(Constants.TRANSACTION_URL, registerAtUrl);
             return properties;
         }
-        properties.put(Constants.GLOBAL_TRANSACTION_ID, httpCarbonMessage.getHeader(HttpConstants.HEADER_X_XID));
-        properties.put(Constants.TRANSACTION_URL, httpCarbonMessage.getHeader(HttpConstants.HEADER_X_REGISTER_AT_URL));
+        properties.put(HttpConstants.REMOTE_ADDRESS, httpCarbonMessage.getProperty(HttpConstants.REMOTE_ADDRESS));
+        properties.put(HttpConstants.ORIGIN_HOST, httpCarbonMessage.getHeader(HttpConstants.ORIGIN_HOST));
+        properties.put(HttpConstants.POOLED_BYTE_BUFFER_FACTORY,
+                       httpCarbonMessage.getHeader(HttpConstants.POOLED_BYTE_BUFFER_FACTORY));
         return properties;
     }
 
     /**
-     * Invokes the set of filters for the request path. If one filter fails, the execution would stop and the
-     * relevant error message given from the filter will be returned to the user.
+     * Invokes the set of filters for the request path. If one filter fails, the execution would stop and the relevant
+     * error message given from the filter will be returned to the user.
      *
      * @param httpCarbonMessage {@link HTTPCarbonMessage} instance
      * @param requestObject     Representation of ballerina.net.Request struct
      * @param filterCtxt        filtering criteria
+     * @param parentCtx         WorkerExecutionContext instance, which corresponds to the current worker execution
+     *                          context
      */
-    private void invokeRequestFilters(HTTPCarbonMessage httpCarbonMessage, BValue requestObject, BValue filterCtxt) {
+    protected void invokeRequestFilters(HTTPCarbonMessage httpCarbonMessage, BValue requestObject, BValue filterCtxt,
+                                        WorkerExecutionContext parentCtx) {
 
         if (!hasFilters()) {
             // no filters, return
             return;
         }
 
-        for (FilterHolder filterHolder : filterHolders) {
+        for (Value filterHolder : filterHolders) {
+            BStructType structType = (BStructType) filterHolder.getVMValue().getType();
             // get the request filter function and invoke
             BValue[] returnValue = BLangFunctions
-                    .invokeCallable(filterHolder.getRequestFilterFunction().getFunctionInfo(),
-                            new BValue[] { requestObject, filterCtxt });
+                    .invokeCallable(structType.structInfo.funcInfoEntries
+                                            .get(HttpConstants.HTTP_REQUEST_FILTER_FUNCTION_NAME).functionInfo,
+                                    parentCtx, new BValue[]{filterHolder.getVMValue(), requestObject, filterCtxt});
             BStruct filterResultStruct = (BStruct) returnValue[0];
             if (filterResultStruct.getBooleanField(0) == 0) {
                 // filter returned false, stop further execution
@@ -164,7 +207,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
      * Method to retrive if filters have been specified.
      */
     protected boolean hasFilters() {
-        return filterHolders != null && !filterHolders.isEmpty();
+        return filterHolders != null && filterHolders.length > 0;
     }
 
 }

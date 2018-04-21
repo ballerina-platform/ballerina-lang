@@ -32,35 +32,36 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
  * @since 0.93
  */
 public class WebSocketClientConnectorListener implements WebSocketConnectorListener {
-    WebSocketService webSocketService;
+    private WebSocketOpenConnectionInfo connectionInfo;
 
-    public void setWebSocketService(WebSocketService connectionInfo) {
-        this.webSocketService = connectionInfo;
+
+    public void setConnectionInfo(WebSocketOpenConnectionInfo connectionInfo) {
+        this.connectionInfo = connectionInfo;
     }
 
     @Override
     public void onMessage(WebSocketInitMessage webSocketInitMessage) {
-        throw new BallerinaConnectorException("onOpen resource is yet supported for client services");
+        throw new BallerinaConnectorException("onOpen resource is not supported for client services");
     }
 
     @Override
     public void onMessage(WebSocketTextMessage webSocketTextMessage) {
-        WebSocketDispatcher.dispatchTextMessage(webSocketService, webSocketTextMessage);
+        WebSocketDispatcher.dispatchTextMessage(connectionInfo, webSocketTextMessage);
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage webSocketBinaryMessage) {
-        WebSocketDispatcher.dispatchBinaryMessage(webSocketService, webSocketBinaryMessage);
+        WebSocketDispatcher.dispatchBinaryMessage(connectionInfo, webSocketBinaryMessage);
     }
 
     @Override
     public void onMessage(WebSocketControlMessage webSocketControlMessage) {
-        WebSocketDispatcher.dispatchControlMessage(webSocketService, webSocketControlMessage);
+        WebSocketDispatcher.dispatchControlMessage(connectionInfo, webSocketControlMessage);
     }
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
-        WebSocketDispatcher.dispatchCloseMessage(webSocketService, webSocketCloseMessage);
+        WebSocketDispatcher.dispatchCloseMessage(connectionInfo, webSocketCloseMessage);
     }
 
     @Override
@@ -70,7 +71,7 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
 
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
-        WebSocketDispatcher.dispatchIdleTimeout(webSocketService, controlMessage);
+        WebSocketDispatcher.dispatchIdleTimeout(connectionInfo, controlMessage);
     }
 
 }

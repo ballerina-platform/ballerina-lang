@@ -43,9 +43,9 @@ public class BuiltinLoadingTest {
     @Test
     public void testRedeclaredSymbols() {
         CompileResult result = BCompileUtil.compile("test-src/natives/builtin-symbol-negative.bal");
-        BAssertUtil.validateError(result, 0, "redeclared builtin symbol 'error'", 5, 1);
-        BAssertUtil.validateError(result, 1, "function 'getMessage' defined on non-local type 'error'", 13, 11);
+        BAssertUtil.validateError(result, 0, "break cannot be used outside of a loop", 2, 5);
+        BAssertUtil.validateError(result, 1, "redeclared builtin symbol 'error'", 5, 1);
         BAssertUtil.validateError(result, 2, "redeclared builtin symbol 'error'", 10, 5);
-        BAssertUtil.validateError(result, 3, "break cannot be used outside of a loop", 2, 5);
+        BAssertUtil.validateError(result, 3, "function 'getMessage' defined on non-local type 'error'", 13, 11);
     }
 }

@@ -38,16 +38,16 @@
         </fileSet>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/testerina-core-jar/META-INF/natives
+                ${project.build.directory}/extracted-distributions/testerina-core-jar/META-INF/ballerina
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
-        <fileSet>
-            <directory>
-                ${project.build.directory}/api-docs
-            </directory>
-            <outputDirectory>docs/api</outputDirectory>
-        </fileSet>
+        <!--<fileSet>-->
+            <!--<directory>-->
+                <!--${project.build.directory}/api-docs-->
+            <!--</directory>-->
+            <!--<outputDirectory>docs/api</outputDirectory>-->
+        <!--</fileSet>-->
         <!-- TODO remove below and find a better solution later -->
         <fileSet>
             <directory>
@@ -130,11 +130,11 @@
         <dependencySet>
             <outputDirectory>bre/lib</outputDirectory>
             <includes>
-                <include>org.ballerinalang:ballerina-packerina:jar</include>
+                <include>org.ballerinalang:ballerina-cli-utils:jar</include>
                 <include>org.ballerinalang:testerina-core:jar</include>
                 <include>org.ballerinalang:swagger-to-ballerina-generator:jar</include>
                 <include>org.ballerinalang:protobuf-ballerina:jar</include>
-                <include>org.ballerinalang:ballerina-container-support:jar</include>
+                <include>org.ballerinalang:ballerina-codegen:jar</include>
                 <include>org.ballerinalang:docerina:jar</include>
                 <include>com.fasterxml.jackson.core:jackson-databind</include>
                 <include>com.fasterxml.jackson.core:jackson-core</include>

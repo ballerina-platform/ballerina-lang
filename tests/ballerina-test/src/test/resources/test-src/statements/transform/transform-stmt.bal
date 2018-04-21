@@ -1,20 +1,20 @@
-struct Person {
+type Person {
     string firstName;
     string lastName;
     int age;
     string city;
-}
+};
 
-struct Employee {
+type Employee {
     string name;
     int age;
     string address;
-}
+};
 
-function unnamedTransform() returns (string, int, string){
+function unnamedTransform() returns (string){
     Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
-    Employee e = <Employee> p;
-    return (e.name, e.age, e.address);
+    string s = <string> p;
+    return (s);
 }
 
 function namedTransform() returns (string, int, string){
@@ -29,10 +29,8 @@ function namedTransformWithParams() returns (string, int, string){
     return (e.name, e.age, e.address);
 }
 
-transformer <Person p, Employee e> {
-    e.address = p.city;
-    e.name = p.firstName;
-    e.age = p.age;
+transformer <Person p, string s> {
+    s = p.firstName + p.age + p.city;
 }
 
 transformer <Person p, Employee e> Foo() {
@@ -86,12 +84,12 @@ transformer <Person p, Employee e> transformerWithVarDef() {
 }
 
 
-struct Employee_1 {
+type Employee_1 {
     string name;
     int age;
     any anyAge;
     string address;
-}
+};
 
 function castAndConversionInTransform() returns (string, int, string, any){
     Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
@@ -102,9 +100,9 @@ function castAndConversionInTransform() returns (string, int, string, any){
 
 transformer <Person p, Employee_1 e> transformerWithCastAndConversion(any defaultAddress) {
     string age = "20";
-    e.address, _ = (string) defaultAddress; //unsafe explicit cast
+    e.address = <string> defaultAddress; //unsafe explicit cast
     e.name = getPrefixedName(p.firstName);
-    e.age, _ = <int> age; //unsafe conversion
+    e.age =? <int> age; //unsafe conversion
     e.anyAge = p.age; // implicit cast
 }
 

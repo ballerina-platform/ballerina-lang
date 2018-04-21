@@ -49,6 +49,7 @@ public class HttpResource {
     private static final String CONSUMES_FIELD = "consumes";
     private static final String PRODUCES_FIELD = "produces";
     private static final String CORS_FIELD = "cors";
+    private static final String TRANSACTION_INFECTABLE_FIELD = "transactionInfectable";
 
     private Resource balResource;
     private List<String> methods;
@@ -60,6 +61,7 @@ public class HttpResource {
     private CorsHeaders corsHeaders;
     private SignatureParams signatureParams;
     private HttpService parentService;
+    private boolean transactionInfectable = true; //default behavior
 
     protected HttpResource(Resource resource, HttpService parentService) {
         this.balResource = resource;
@@ -100,15 +102,11 @@ public class HttpResource {
     }
 
     public void setPath(String resourcePath) {
-        if (resourcePath == null) {
+        if (resourcePath == null || resourcePath.isEmpty()) {
             log.debug("Path not specified in the Resource instance, using default sub path");
             path = balResource.getName();
         } else {
             path = resourcePath;
-        }
-
-        if (path.isEmpty()) {
-            path = HttpConstants.DEFAULT_BASE_PATH;
         }
     }
 
@@ -152,6 +150,14 @@ public class HttpResource {
         this.corsHeaders = corsHeaders;
     }
 
+    public boolean isTransactionInfectable() {
+        return transactionInfectable;
+    }
+
+    public void setTransactionInfectable(boolean transactionInfectable) {
+        this.transactionInfectable = transactionInfectable;
+    }
+
     public String getEntityBodyAttributeValue() {
         return entityBodyAttribute;
     }
@@ -181,6 +187,7 @@ public class HttpResource {
         httpResource.setProduces(getAsStringList(resourceConfig.getArrayField(PRODUCES_FIELD)));
         httpResource.setEntityBodyAttributeValue(resourceConfig.getStringField(BODY_FIELD));
         httpResource.setCorsHeaders(CorsHeaders.buildCorsHeaders(resourceConfig.getStructField(CORS_FIELD)));
+        httpResource.setTransactionInfectable(resourceConfig.getBooleanField(TRANSACTION_INFECTABLE_FIELD));
 
         processResourceCors(httpResource, httpService);
         httpResource.prepareAndValidateSignatureParams();
@@ -237,8 +244,9 @@ public class HttpResource {
         corsHeaders.setAllowMethods(DispatcherUtil.addAllMethods());
     }
 
-    protected void prepareAndValidateSignatureParams() {
+    private void prepareAndValidateSignatureParams() {
         signatureParams = new SignatureParams(this, balResource.getParamDetails());
         signatureParams.validate();
     }
+
 }

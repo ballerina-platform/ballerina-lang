@@ -59,7 +59,9 @@ string : mlBasicString | basicString | mlLiteralString | literalString;
 
 // Basic String
 
-basicString : QUOTATION_MARK basicChar* QUOTATION_MARK;
+basicString : QUOTATION_MARK basicStringValue QUOTATION_MARK;
+
+basicStringValue : basicChar*;
 
 basicChar : escaped | alpha | BASICUNESCAPED | SPACE | PLUS | HYPHEN | PERIOD | UNDERSCORE | COLON | COMMA
             | SLASH | APOSTROPHE| EQUALS | HASH | LEFT_BRACKET | RIGHT_BRACKET | LEFT_BRACE | RIGHT_BRACE | digit;

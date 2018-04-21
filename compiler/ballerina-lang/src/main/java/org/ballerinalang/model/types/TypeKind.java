@@ -58,7 +58,6 @@ public enum TypeKind {
     FUTURE("future"),
     PACKAGE("package"),
     STRUCT("struct"),
-    OBJECT("object"),
     ENUM("enum"),
     SERVICE("service"),
     CONNECTOR("connector"),
@@ -68,13 +67,15 @@ public enum TypeKind {
     ARRAY("[]"),
     UNION("|"),
     VOID(""),
-    NULL("null"),
+    NIL("null"),
     NONE(""),
     OTHER("other"),
     MESSAGE("message"),
     XML_ATTRIBUTES("xml-attributes"),
     INTERMEDIATE_COLLECTION("intermediate_collection"),
     TUPLE("tuple"),
+    RECORD("record"),
+    FINITE("finite"),
     ;
 
     private String name;

@@ -23,14 +23,15 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMText;
+import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.TableJSONDataSource;
-import org.ballerinalang.model.types.BAnyType;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonNode.Type;
 import org.ballerinalang.model.values.BBoolean;
@@ -63,6 +64,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Common utility methods used for JSON manipulation.
@@ -88,6 +90,10 @@ public class JSONUtils {
         JsonNode jsonNode = json.value();
         return jsonNode.has(elementName);
     }
+    
+    public static BJSON convertMapToJSON(BMap<String, BValue> map) {
+        return convertMapToJSON(map, null);
+    }
 
     /**
      * Convert {@link BMap} to {@link BJSON}.
@@ -96,7 +102,7 @@ public class JSONUtils {
      * @return JSON representation of the provided map
      */
     @SuppressWarnings("unchecked")
-    public static BJSON convertMapToJSON(BMap<String, BValue> map) {
+    public static BJSON convertMapToJSON(BMap<String, BValue> map, BJSONType targetType) {
         Set<String> keys = map.keySet();
         BJSON bjson = new BJSON(new JsonNode(Type.OBJECT));
         JsonNode jsonNode = bjson.value();
@@ -129,6 +135,14 @@ public class JSONUtils {
                 handleError(e, key);
             }
         }
+        
+        if (targetType != null) {
+            if (!CPU.isAssignable(bjson, targetType)) {
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON, 
+                        targetType, bjson.getType());
+            }
+        }
+        
         return bjson;
     }
 
@@ -248,15 +262,26 @@ public class JSONUtils {
         }
         return bjson;
     }
-
+    
     /**
      * Convert {@link BStruct} to {@link BJSON}.
      *
      * @param struct {@link BStruct} to be converted to {@link BJSON}
      * @return JSON representation of the provided array
      */
-    @SuppressWarnings("unchecked")
     public static BJSON convertStructToJSON(BStruct struct) {
+        return convertStructToJSON(struct, null);
+    }
+
+    /**
+     * Convert {@link BStruct} to {@link BJSON}.
+     *
+     * @param struct {@link BStruct} to be converted to {@link BJSON}
+     * @param targetType the target JSON type to be convert to
+     * @return JSON representation of the provided array
+     */
+    @SuppressWarnings("unchecked")
+    public static BJSON convertStructToJSON(BStruct struct, BJSONType targetType) {
         BJSON bjson = new BJSON(new JsonNode(Type.OBJECT));
         JsonNode jsonNode = bjson.value();
         BStructType structType = (BStructType) struct.getType();
@@ -307,10 +332,17 @@ public class JSONUtils {
                 handleError(e, key);
             }
         }
+        
+        if (targetType != null) {
+            if (!CPU.isAssignable(bjson, targetType)) {
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON, 
+                        targetType, bjson.getType());
+            }
+        }
 
         return bjson;
     }
-
+    
     /**
      * Convert {@link BTable} to {@link BJSON}.
      *
@@ -649,7 +681,7 @@ public class JSONUtils {
      * @return If the provided JSON is of object-type, this method will return a {@link BMap} containing the values
      * of the JSON object. Otherwise a {@link BallerinaException} will be thrown.
      */
-    private static BMap<String, ?> jsonNodeToBMap(JsonNode jsonNode, BMapType mapType) {
+    public static BMap<String, ?> jsonNodeToBMap(JsonNode jsonNode, BMapType mapType) {
         BMap<String, BValue> map = new BMap<>(mapType);
         if (!jsonNode.isObject()) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
@@ -659,14 +691,8 @@ public class JSONUtils {
         Iterator<Entry<String, JsonNode>> fields = jsonNode.fields();
         while (fields.hasNext()) {
             Entry<String, JsonNode> field = fields.next();
-            BValue bValue = getBValue(field.getValue());
-            if (mapType.getConstrainedType() == BTypes.typeAny ||
-                    mapType.getConstrainedType().equals(bValue.getType())) {
-                map.put(field.getKey(), bValue);
-            } else {
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
-                        mapType.getConstrainedType(), getTypeName(field.getValue()));
-            }
+            BValue bValue = getBValue(field.getValue(), mapType.getConstrainedType());
+            map.put(field.getKey(), bValue);
         }
         return map;
     }
@@ -702,55 +728,74 @@ public class JSONUtils {
         int stringRegIndex = -1;
         int booleanRegIndex = -1;
         int refRegIndex = -1;
+        int blobRegIndex = -1;
 
         BStruct bStruct = new BStruct(structType);
         StructInfo structInfo = structType.structInfo;
+        boolean fieldExists;
         for (StructFieldInfo fieldInfo : structInfo.getFieldInfoEntries()) {
             BType fieldType = fieldInfo.getFieldType();
             String fieldName = fieldInfo.getName();
             try {
-                if (!jsonNode.has(fieldName)) {
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.MISSING_FIELD_IN_JSON, fieldName);
-                }
-
+                fieldExists = jsonNode.has(fieldName);
                 JsonNode jsonValue = jsonNode.get(fieldName);
                 switch (fieldType.getTag()) {
                     case TypeTags.INT_TAG:
-                        bStruct.setIntField(++longRegIndex, jsonNodeToInt(jsonValue));
+                        longRegIndex++;
+                        if (fieldExists) {
+                            bStruct.setIntField(longRegIndex, jsonNodeToInt(jsonValue));
+                        }
                         break;
                     case TypeTags.FLOAT_TAG:
-                        bStruct.setFloatField(++doubleRegIndex, jsonNodeToFloat(jsonValue));
+                        doubleRegIndex++;
+                        if (fieldExists) {
+                            bStruct.setFloatField(doubleRegIndex, jsonNodeToFloat(jsonValue));
+                        }
                         break;
                     case TypeTags.STRING_TAG:
+                        stringRegIndex++;
                         String stringVal;
-                        if (jsonValue.isString()) {
+                        if (!fieldExists) {
+                            stringVal = "";
+                        } else if (jsonValue.isString()) {
                             stringVal = jsonValue.stringValue();
                         } else {
                             stringVal = jsonValue.toString();
                         }
-                        bStruct.setStringField(++stringRegIndex, stringVal);
+                        bStruct.setStringField(stringRegIndex, stringVal);
                         break;
                     case TypeTags.BOOLEAN_TAG:
-                        bStruct.setBooleanField(++booleanRegIndex, jsonNodeToBool(jsonValue) ? 1 : 0);
+                        booleanRegIndex++;
+                        if (fieldExists) {
+                            bStruct.setBooleanField(booleanRegIndex, jsonNodeToBool(jsonValue) ? 1 : 0);
+                        }
                         break;
-                    default:
+                    case TypeTags.UNION_TAG:
+                    case TypeTags.STRUCT_TAG:
+                    case TypeTags.ANY_TAG:
+                    case TypeTags.JSON_TAG:
+                    case TypeTags.ARRAY_TAG:
+                    case TypeTags.MAP_TAG:
+                    case TypeTags.NULL_TAG:
                         refRegIndex++;
-                        if ((jsonValue == null || jsonValue.isNull())) {
-                            bStruct.setRefField(refRegIndex, null);
-                        } else if (fieldType instanceof BJSONType || fieldType instanceof BAnyType) {
-                            bStruct.setRefField(refRegIndex, new BJSON(jsonValue));
-                        } else if (fieldType instanceof BMapType) {
-                            bStruct.setRefField(refRegIndex, jsonNodeToBMap(jsonValue, (BMapType) fieldType));
-                        } else if (fieldType instanceof BStructType) {
-                            bStruct.setRefField(refRegIndex,
-                                    convertJSONNodeToStruct(jsonValue, (BStructType) fieldType));
-                        } else if (fieldType instanceof BArrayType) {
-                            bStruct.setRefField(refRegIndex,
-                                    jsonNodeToBArray(jsonValue, (BArrayType) fieldType));
-                        } else {
+                        if (fieldExists) {
+                            bStruct.setRefField(refRegIndex, (BRefType<?>) convertJSON(jsonValue, fieldType));
+                        }
+                        break;
+                    case TypeTags.FUNCTION_POINTER_TAG:
+                        if (fieldExists) {
                             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
                                     fieldName, getTypeName(jsonValue));
                         }
+                        // TODO: set the default value
+                        bStruct.setRefField(++refRegIndex, null);
+                        break;
+                    case TypeTags.BLOB_TAG:
+                        bStruct.setBlobField(++blobRegIndex, new byte[0]);
+                        break;
+                    default:
+                        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
+                                fieldName, getTypeName(jsonValue));
                 }
             } catch (Exception e) {
                 handleError(e, fieldName);
@@ -758,6 +803,56 @@ public class JSONUtils {
         }
 
         return bStruct;
+    }
+
+    public static Object convertJSON(JsonNode jsonValue, BType targetType) {
+        switch (targetType.getTag()) {
+            case TypeTags.INT_TAG:
+                return jsonNodeToInt(jsonValue);
+            case TypeTags.FLOAT_TAG:
+                return jsonNodeToFloat(jsonValue);
+            case TypeTags.STRING_TAG:
+                if (jsonValue.isString()) {
+                    return jsonValue.stringValue();
+                } else {
+                    return jsonValue.toString();
+                }
+            case TypeTags.BOOLEAN_TAG:
+                return jsonNodeToBool(jsonValue);
+            case TypeTags.UNION_TAG:
+                BUnionType type = (BUnionType) targetType;
+                if (jsonValue.isNull() && type.isNullable()) {
+                    return null;
+                }
+                List<BType> matchingTypes = type.getMemberTypes().stream()
+                        .filter(memberType -> memberType != BTypes.typeNull)
+                        .collect(Collectors.toList());
+                if (matchingTypes.size() == 1) {
+                    return convertJSON(jsonValue, matchingTypes.get(0));
+                }
+                break;
+            case TypeTags.STRUCT_TAG:
+                return convertJSONNodeToStruct(jsonValue, (BStructType) targetType);
+            case TypeTags.ANY_TAG:
+            case TypeTags.JSON_TAG:
+                if (jsonValue.isNull()) {
+                    return null;
+                }
+                return new BJSON(jsonValue);
+            case TypeTags.ARRAY_TAG:
+                return jsonNodeToBArray(jsonValue, (BArrayType) targetType);
+            case TypeTags.MAP_TAG:
+                return jsonNodeToBMap(jsonValue, (BMapType) targetType);
+            case TypeTags.NULL_TAG:
+                if (jsonValue.isNull()) {
+                    return null;
+                }
+                break;
+            default:
+                break;
+        }
+        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING, targetType,
+                getTypeName(jsonValue));
     }
 
     /**
@@ -783,6 +878,34 @@ public class JSONUtils {
             keys.add(keysItr.next());
         }
         return new BStringArray(keys.toArray(new String[keys.size()]));
+    }
+
+    public static BRefType<?> convertUnionTypeToJSON(BRefType<?> source) {
+        if (source == null) {
+            return null;
+        }
+
+        switch (source.getType().getTag()) {
+            case TypeTags.INT_TAG:
+                return new BJSON(new JsonNode(((BInteger) source).intValue()));
+            case TypeTags.FLOAT_TAG:
+                return new BJSON(new JsonNode(((BFloat) source).floatValue()));
+            case TypeTags.STRING_TAG:
+                return new BJSON(new JsonNode(((BString) source).stringValue()));
+            case TypeTags.BOOLEAN_TAG:
+                return new BJSON(new JsonNode(((BBoolean) source).booleanValue()));
+            case TypeTags.NULL_TAG:
+                return null;
+            case TypeTags.MAP_TAG:
+                return convertMapToJSON((BMap<String, BValue>) source);
+            case TypeTags.STRUCT_TAG:
+                return convertStructToJSON((BStruct) source);
+            case TypeTags.JSON_TAG:
+                return source;
+            default:
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
+                        BTypes.typeJSON, source.getType());
+        }
     }
 
     /**
@@ -895,30 +1018,67 @@ public class JSONUtils {
         }
         return booleanArray;
     }
+    
+    private static BValue getBValue(JsonNode json) {
+        return getBValue(json, null);
+    }
 
+    private static boolean checkTypes(BType lhs, BType rhs) {
+        if (lhs == null) {
+            return true;
+        }
+        if (lhs.getTag() == rhs.getTag()) {
+            return true;
+        }
+        if (lhs.getTag() == TypeTags.ANY_TAG) {
+            return true;
+        }
+        return false;
+    }
+    
     /**
      * Get the corresponding BValue to hold the json-value, depending on its type.
      * 
      * @param json json node to get the BValue
+     * @param type the type the value should be read as
      * @return BValue represents provided json
      */
-    private static BValue getBValue(JsonNode json) {
+    private static BValue getBValue(JsonNode json, BType type) {
         if (json == null || json.isNull()) {
             return null;
         } else if (json.isString()) {
-            return new BString(json.stringValue());
+            if (checkTypes(type, BTypes.typeString)) {
+                return new BString(json.stringValue());
+            }
         } else if (json.isLong()) {
-            return new BInteger(json.longValue());
+            if (checkTypes(type, BTypes.typeInt)) {
+                return new BInteger(json.longValue());
+            }
         } else if (json.isDouble()) {
-            return new BFloat(json.doubleValue());
+            if (checkTypes(type, BTypes.typeFloat)) {
+                return new BFloat(json.doubleValue());
+            }
         } else if (json.isBoolean()) {
-            return new BBoolean(json.booleanValue());
+            if (checkTypes(type, BTypes.typeBoolean)) {
+                return new BBoolean(json.booleanValue());
+            }
+        } else {
+            if (type == null || type.getTag() == BTypes.typeAny.getTag()) {
+                return new BJSON(json);
+            } else if (type instanceof BStructType) {
+                return convertJSONNodeToStruct(json, (BStructType) type);
+            }
         }
         
-        return new BJSON(json);
+        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
+                type, getTypeName(json));
     }
     
     public static String getTypeName(JsonNode jsonValue) {
+        if (jsonValue == null) {
+            return "null";
+        }
+
         Type nodeType = jsonValue.getType();
         switch(nodeType) {
             case LONG:

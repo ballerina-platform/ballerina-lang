@@ -43,14 +43,15 @@ public class Remove extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context ctx) {
-        String fieldName = null;
         try {
             // Accessing Parameters.
-            BJSON json = (BJSON) ctx.getRefArgument(0);
-            fieldName = ctx.getStringArgument(0);
+            BJSON json = (BJSON) ctx.getNullableRefArgument(0);
 
             // Removing the element
-            JSONUtils.remove(json, fieldName);
+            if (json != null) {
+                String fieldName = ctx.getStringArgument(0);
+                JSONUtils.remove(json, fieldName);
+            }
         } catch (Throwable e) {
             ErrorHandler.handleJsonException(OPERATION, e);
         }

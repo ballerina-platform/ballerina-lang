@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
@@ -27,10 +28,13 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
  *
  * @since 0.94
  */
-public class BLangIndexBasedAccess extends BLangVariableReference implements IndexBasedAccessNode {
+public class BLangIndexBasedAccess extends BLangAccessExpression implements IndexBasedAccessNode {
 
     public BLangExpression indexExpr;
-    public BLangVariableReference expr;
+
+    public BLangIndexBasedAccess() {
+        this.safeNavigate = false;
+    }
 
     @Override
     public BLangVariableReference getExpression() {
@@ -79,10 +83,20 @@ public class BLangIndexBasedAccess extends BLangVariableReference implements Ind
      */
     public static class BLangMapAccessExpr extends BLangIndexBasedAccess {
 
+        public boolean except = true;
+
         public BLangMapAccessExpr(DiagnosticPos pos, BLangVariableReference varExpr, BLangExpression keyExpr) {
             this.pos = pos;
             this.expr = varExpr;
             this.indexExpr = keyExpr;
+        }
+
+        public BLangMapAccessExpr(DiagnosticPos pos, BLangVariableReference varExpr, BLangExpression keyExpr,
+                boolean except) {
+            this.pos = pos;
+            this.expr = varExpr;
+            this.indexExpr = keyExpr;
+            this.except = except;
         }
 
         @Override
@@ -113,10 +127,21 @@ public class BLangIndexBasedAccess extends BLangVariableReference implements Ind
      */
     public static class BLangXMLAccessExpr extends BLangIndexBasedAccess {
 
+        public FieldKind fieldType;
+        
         public BLangXMLAccessExpr(DiagnosticPos pos, BLangVariableReference varRef, BLangExpression indexExpr) {
             this.pos = pos;
             this.expr = varRef;
             this.indexExpr = indexExpr;
+            this.fieldType = FieldKind.SINGLE;
+        }
+
+        public BLangXMLAccessExpr(DiagnosticPos pos, BLangVariableReference varRef, BLangExpression indexExpr,
+                FieldKind fieldType) {
+            this.pos = pos;
+            this.expr = varRef;
+            this.indexExpr = indexExpr;
+            this.fieldType = fieldType;
         }
 
         @Override

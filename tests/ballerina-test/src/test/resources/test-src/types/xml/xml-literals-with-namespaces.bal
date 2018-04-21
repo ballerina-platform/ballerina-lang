@@ -6,7 +6,7 @@ function testElementLiteralWithNamespaces() returns (xml, xml) {
     xmlns "http://ballerina.com/c" as ns1;
 
     xml x1 = xml `<root ns0:id="456"><foo>123</foo><bar ns1:status="complete"></bar></root>`;
-    xml x2 = x1.children();
+    xml x2 = x1.*;
     return (x1, x2);
 }
 

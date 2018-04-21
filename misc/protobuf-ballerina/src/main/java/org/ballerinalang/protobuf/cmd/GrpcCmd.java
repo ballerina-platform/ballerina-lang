@@ -66,6 +66,8 @@ public class GrpcCmd implements BLauncherCmd {
     private static final Logger LOG = LoggerFactory.getLogger(GrpcCmd.class);
     
     private static final PrintStream outStream = System.out;
+    private static final PrintStream errStream = System.err;
+    
     private JCommander parentCmdParser;
     
     @Parameter(names = {"--proto_path"},
@@ -100,6 +102,15 @@ public class GrpcCmd implements BLauncherCmd {
     
     @Override
     public void execute() {
+        
+        File protoFile = new File(protoPath);
+        if (!protoFile.isFile() || !protoFile.exists() || EMPTY_STRING.equals(protoPath) ||
+                !protoPath.contains(".proto")) {
+            String errorMessage = "Invalid proto file location. Please input valid proto file location.";
+            errStream.println(errorMessage);
+            throw new BalGenToolException(errorMessage);
+        }
+        
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "build");
             outStream.println(commandUsageInfo);
@@ -223,11 +234,11 @@ public class GrpcCmd implements BLauncherCmd {
      */
     private void downloadProtocexe() {
         if (exePath == null) {
-            outStream.println("Downloading proc executor ...");
             exePath = "protoc-" + org.ballerinalang.protobuf.cmd.OSDetector.getDetectedClassifier() + ".exe";
             File exeFile = new File(exePath);
             exePath = exeFile.getAbsolutePath(); // if file already exists will do nothing
             if (!exeFile.isFile()) {
+                outStream.println("Downloading proc executor ...");
                 try {
                     boolean newFile = exeFile.createNewFile();
                     if (newFile) {

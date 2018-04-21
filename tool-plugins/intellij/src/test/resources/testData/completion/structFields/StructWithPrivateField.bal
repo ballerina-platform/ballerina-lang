@@ -9,7 +9,7 @@ function getUser (string name, int age) (User user) {
     return;
 }
 
-function main (string[] args) {
+function main (string... args) {
     User user = getUser("Ballerina", 1);
     user.<caret>
 }

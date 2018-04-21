@@ -37,6 +37,7 @@ public final class ClassFilter {
 
     /**
      * Returns a builder for a filter which satisfies all selected predicates.
+     * @return Builder object
      */
     public static UnionBuilder only() {
         return new Builder();
@@ -68,6 +69,8 @@ public final class ClassFilter {
     public interface Predicate {
         /**
          * Returns true if the class should be included in the result.
+         * @param klass input class
+         * @return true or false based on match
          */
         boolean matches(Class<?> klass);
     }
@@ -76,8 +79,13 @@ public final class ClassFilter {
      * Interface for filter builder.
      */
     public interface FilterBuilder extends Predicate {
+
         /**
          * Filters given classes.
+         *
+         * @param classes input classes
+         * @param <T> Output class type
+         * @return filtered classes
          */
         <T> Iterable<Class<? extends T>> from(Iterable<Class<? extends T>> classes);
     }
@@ -90,26 +98,33 @@ public final class ClassFilter {
          * Satisfies given predicate.
          *
          * @param predicate predicate to satisfy
+         * @return union builder
          */
         UnionBuilder satisfying(Predicate predicate);
 
         /**
          * Returns top level classes.
+         * @return union builder
          */
         UnionBuilder topLevel();
 
         /**
          * Returns top level or static nested classes.
+         * @return union builder
          */
         UnionBuilder topLevelOrStaticNested();
 
         /**
          * Returns classes nested (directly or indirectly) in given class.
+         * @param enclosing classes to be nested
+         * @return union builder
          */
         UnionBuilder enclosedIn(final Class<?> enclosing);
 
         /**
          * Returns classes nested directly in given class.
+         * @param enclosing input class
+         * @return union builder
          */
         UnionBuilder enclosedDirectlyIn(final Class<?> enclosing);
 
@@ -119,7 +134,8 @@ public final class ClassFilter {
          * As opposed to {@link ClassIndex#getAnnotated(Class)} this method only works if annotation
          * is itself annotation with {@link Retention} set to {@link RetentionPolicy#RUNTIME}.
          * </p>
-         *
+         * @param annotation class annotation
+         * @return union builder
          * @throws IllegalStateException if annotation retention policy is not set equal to
          *                               {@link RetentionPolicy#RUNTIME}.
          */
@@ -129,6 +145,7 @@ public final class ClassFilter {
          * Returns classes marked with given modifiers.
          *
          * @param modifiers modifiers to expect, see {@link Modifier}
+         * @return union builder
          */
         UnionBuilder withModifiers(int modifiers);
 
@@ -136,6 +153,7 @@ public final class ClassFilter {
          * Returns classes not marked with given modifiers.
          *
          * @param modifiers modifiers to expect, see {@link Modifier}
+         * @return union builder
          */
         UnionBuilder withoutModifiers(int modifiers);
 
@@ -144,20 +162,24 @@ public final class ClassFilter {
          * <p>
          * Default constructor is a constructor without any parameters.
          * Note that (non-static) inner classes never have the default constructor
-         * (see: <a href="http://thecodersbreakfast.net/index.php?post/2011/09/26/
-         * Inner-classes-and-the-myth-of-the-default-constructor">Inner classes and the
-         * myth of the default constructor</a>)
+         * (see: "http://thecodersbreakfast.net/index.php?post/2011/09/26/
+         * Inner-classes-and-the-myth-of-the-default-constructor" Inner classes and the
+         * myth of the default constructor)
          * </p>
+         *
+         * @return union builder
          */
         UnionBuilder withPublicDefaultConstructor();
 
         /**
          * Returns only interfaces.
+         * @return union builder
          */
         UnionBuilder interfaces();
 
         /**
          * Returns only classes - filters out any interfaces.
+         * @return union builder
          */
         UnionBuilder classes();
     }

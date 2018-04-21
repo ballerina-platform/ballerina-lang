@@ -48,9 +48,9 @@ function test3() returns (string){
     return "Function end";
 }
 
-struct Test4Val {
+type Test4Val {
     string value;
-}
+};
 
 function test4() returns (Test4Val){
     Test4Val data = { value : ""};
@@ -203,39 +203,39 @@ function testNext1 () returns (Test4Val) {
     return data;
 }
 
-//function testAbort1 () (Test4Val) {
-//    int i = 0;
-//    Test4Val data = {value:"s"};
-//    transaction {
-//        try {
-//            data.value = data.value + " t";
-//            if (i == 0) {
-//                abort;
-//            }
-//            data.value = data.value + "-";
-//        }finally {
-//             data.value = data.value + "f";
-//         }
-//    }
-//    return data;
-//}
+function testAbort1 () returns (Test4Val) {
+    int i = 0;
+    Test4Val data = {value:"s"};
+    transaction {
+        try {
+            data.value = data.value + " t";
+            if (i == 0) {
+                abort;
+            }
+            data.value = data.value + "-";
+        }finally {
+            data.value = data.value + "f";
+        }
+    }
+    return data;
+}
 
-//function testAbort2 () (Test4Val) {
-//    int i = 0;
-//    Test4Val data = {value:"s"};
-//    transaction {
-//        while (i < 5) {
-//            i = i + 1;
-//            try {
-//                data.value = data.value + " t";
-//                if (i == 2) {
-//                    abort;
-//                }
-//                data.value = data.value + "-";
-//            }finally {
-//                 data.value = data.value + "f" + i;
-//             }
-//        }
-//    }
-//    return data;
-//}
+function testAbort2 () returns (Test4Val) {
+    int i = 0;
+    Test4Val data = {value:"s"};
+    transaction {
+        while (i < 5) {
+            i = i + 1;
+            try {
+                data.value = data.value + " t";
+                if (i == 2) {
+                    abort;
+                }
+                data.value = data.value + "-";
+            }finally {
+                data.value = data.value + "f" + i;
+            }
+        }
+    }
+    return data;
+}

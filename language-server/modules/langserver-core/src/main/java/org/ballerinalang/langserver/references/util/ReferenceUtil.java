@@ -16,8 +16,8 @@
 
 package org.ballerinalang.langserver.references.util;
 
-import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.references.ReferencesTreeVisitor;
 import org.eclipse.lsp4j.Location;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -35,7 +35,7 @@ public class ReferenceUtil {
      * @param currentBLangPackage current package that is visiting.
      * @return position
      */
-    public static List<Location> getReferences(TextDocumentServiceContext referencesContext,
+    public static List<Location> getReferences(LSServiceOperationContext referencesContext,
                                                BLangPackage currentBLangPackage) {
         currentBLangPackage.accept(new ReferencesTreeVisitor(referencesContext));
         return referencesContext.get(NodeContextKeys.REFERENCE_NODES_KEY);

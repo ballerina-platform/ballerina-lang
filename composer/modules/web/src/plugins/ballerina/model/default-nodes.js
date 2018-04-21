@@ -4,5301 +4,5711 @@
 */
 
 export default {
-    createXmlns: {
-        position: {
-            startColumn: 13,
-            startLine: 3,
-            endColumn: 40,
-            endLine: 3,
+    "createImportWithOrg": {
+        "ws": [
+            {
+                "ws": "",
+                "i": 0,
+                "text": "import",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 2,
+                "text": "ballerina",
+                "static": false
+            },
+            {
+                "ws": "",
+                "i": 3,
+                "text": "/",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 4,
+                "text": "http",
+                "static": false
+            },
+            {
+                "ws": "",
+                "i": 5,
+                "text": ";",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 1,
+            "startLine": 1,
+            "endColumn": 22,
+            "endLine": 1
         },
-        namespaceDeclaration: {
-            ws: [
+        "orgName": {
+            "literal": false,
+            "value": "ballerina",
+            "kind": "Identifier"
+        },
+        "alias": {
+            "literal": false,
+            "value": "http",
+            "kind": "Identifier"
+        },
+        "packageName": [
+            {
+                "literal": false,
+                "value": "http",
+                "kind": "Identifier"
+            }
+        ],
+        "kind": "Import",
+        "packageVersion": {
+            "literal": false,
+            "value": "",
+            "kind": "Identifier"
+        }
+    },
+    "createHTTPEndpointDef": {
+        "ws": [
+            {
+                "ws": "\n            ",
+                "i": 2,
+                "text": "endpoint",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 8,
+                "text": "endpointName",
+                "static": false
+            },
+            {
+                "ws": "",
+                "i": 19,
+                "text": ";",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 13,
+            "startLine": 2,
+            "endColumn": 14,
+            "endLine": 4
+        },
+        "symbolType": [
+            "other"
+        ],
+        "configurationExpression": {
+            "ws": [
                 {
-                    ws: '\n\n            ',
-                    i: 8,
-                    text: 'xmlns',
-                    static: true,
+                    "ws": " ",
+                    "i": 10,
+                    "text": "{",
+                    "static": true
                 },
                 {
-                    ws: ' ',
-                    i: 12,
-                    text: 'as',
-                    static: true,
-                },
-                {
-                    ws: ' ',
-                    i: 14,
-                    text: 'xn',
-                    static: false,
-                },
-                {
-                    ws: '',
-                    i: 15,
-                    text: ';',
-                    static: true,
-                },
+                    "ws": "\n            ",
+                    "i": 18,
+                    "text": "}",
+                    "static": true
+                }
             ],
-            position: {
-                startColumn: 13,
-                startLine: 3,
-                endColumn: 40,
-                endLine: 3,
+            "position": {
+                "startColumn": 49,
+                "startLine": 2,
+                "endColumn": 13,
+                "endLine": 4
             },
-            namespaceURI: {
-                ws: [
-                    {
-                        ws: ' ',
-                        i: 10,
-                        text: '"namespace.uri"',
-                        static: false,
-                    },
-                ],
-                position: {
-                    startColumn: 13,
-                    startLine: 3,
-                    endColumn: 40,
-                    endLine: 3,
-                },
-                value: '"namespace.uri"',
-                unescapedValue: 'namespace.uri',
-                kind: 'Literal',
-            },
-            kind: 'Xmlns',
-            prefix: {
-                position: {
-                    startColumn: 13,
-                    startLine: 3,
-                    endColumn: 40,
-                    endLine: 3,
-                },
-                literal: false,
-                value: 'xn',
-                kind: 'Identifier',
-            },
-        },
-        kind: 'Xmlns',
-    },
-    createEnum: {
-        position: {
-            startColumn: 13,
-            startLine: 2,
-            endColumn: -1,
-            endLine: -1,
-        },
-        name: {
-            literal: false,
-            value: 'name',
-            kind: 'Identifier',
-        },
-        deprecatedAttachments: [],
-        enumerators: [
-            {
-                ws: [
-                    {
-                        ws: '\n                ',
-                        i: 9,
-                        text: 'ENUMERATOR',
-                        static: false,
-                    },
-                ],
-                position: {
-                    startColumn: 17,
-                    startLine: 3,
-                    endColumn: 17,
-                    endLine: 3,
-                },
-                name: {
-                    literal: false,
-                    value: 'ENUMERATOR',
-                    kind: 'Identifier',
-                },
-                kind: 'Enumerator',
-            },
-        ],
-        annotationAttachments: [],
-        documentationAttachments: [],
-        kind: 'Enum',
-        public: false,
-        native: false,
-        const: false,
-        attached: false,
-        lambda: false,
-        parallel: false,
-        connector: false,
-        deprecated: false,
-        endpoint: false,
-    },
-    createBreak: {
-        ws: [
-            {
-                ws: '\n\n            ',
-                i: 8,
-                text: 'break',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 9,
-                text: ';',
-                static: true,
-            },
-        ],
-        position: {
-            startColumn: 13,
-            startLine: 3,
-            endColumn: 18,
-            endLine: 3,
-        },
-        kind: 'Break',
-    },
-    createInvocation: {
-        ws: [
-            {
-                ws: '',
-                i: 12,
-                text: ';',
-                static: true,
-            },
-        ],
-        position: {
-            startColumn: 13,
-            startLine: 3,
-            endColumn: 33,
-            endLine: 3,
-        },
-        expression: {
-            ws: [
-                {
-                    ws: '\n\n            ',
-                    i: 8,
-                    text: 'invokeFunction',
-                    static: false,
-                },
-                {
-                    ws: '',
-                    i: 9,
-                    text: '(',
-                    static: true,
-                },
-                {
-                    ws: '',
-                    i: 11,
-                    text: ')',
-                    static: true,
-                },
+            "symbolType": [
+                "other"
             ],
-            position: {
-                startColumn: 13,
-                startLine: 3,
-                endColumn: 32,
-                endLine: 3,
-            },
-            symbolType: [],
-            packageAlias: {
-                literal: false,
-                value: '',
-                kind: 'Identifier',
-            },
-            name: {
-                literal: false,
-                value: 'invokeFunction',
-                kind: 'Identifier',
-            },
-            iterableOperation: false,
-            argumentExpressions: [
+            "keyValuePairs": [
                 {
-                    ws: [
+                    "ws": [
                         {
-                            ws: '',
-                            i: 10,
-                            text: 'arg1',
-                            static: false,
-                        },
+                            "ws": "",
+                            "i": 14,
+                            "text": ":",
+                            "static": true
+                        }
                     ],
-                    position: {
-                        startColumn: 28,
-                        startLine: 3,
-                        endColumn: 28,
-                        endLine: 3,
-                    },
-                    variableName: {
-                        literal: false,
-                        value: 'arg1',
-                        kind: 'Identifier',
-                    },
-                    packageAlias: {
-                        literal: false,
-                        value: '',
-                        kind: 'Identifier',
-                    },
-                    kind: 'SimpleVariableRef',
-                },
-            ],
-            actionInvocation: false,
-            kind: 'Invocation',
-        },
-        kind: 'ExpressionStatement',
-    },
-    createMainFunction: {
-        ws: [
-            {
-                ws: '\n            ',
-                i: 2,
-                text: 'function',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 4,
-                text: 'main',
-                static: false,
-            },
-            {
-                ws: '',
-                i: 5,
-                text: '(',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 11,
-                text: ')',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 13,
-                text: '{',
-                static: true,
-            },
-            {
-                ws: '\n\n            ',
-                i: 16,
-                text: '}',
-                static: true,
-            },
-        ],
-        position: {
-            startColumn: 13,
-            startLine: 2,
-            endColumn: 13,
-            endLine: 4,
-        },
-        workers: [],
-        name: {
-            literal: false,
-            value: 'main',
-            kind: 'Identifier',
-        },
-        annotationAttachments: [],
-        documentationAttachments: [],
-        deprecatedAttachments: [],
-        endpointNodes: [],
-        body: {
-            statements: [],
-            kind: 'Block',
-        },
-        returnParameters: [],
-        parameters: [
-            {
-                ws: [
-                    {
-                        ws: ' ',
-                        i: 10,
-                        text: 'args',
-                        static: false,
-                    },
-                ],
-                position: {
-                    startColumn: 27,
-                    startLine: 2,
-                    endColumn: 36,
-                    endLine: 2,
-                },
-                symbolType: [
-                    '[]',
-                ],
-                typeNode: {
-                    ws: [
-                        {
-                            ws: '',
-                            i: 7,
-                            text: '[',
-                            static: true,
-                        },
-                        {
-                            ws: '',
-                            i: 8,
-                            text: ']',
-                            static: true,
-                        },
-                    ],
-                    position: {
-                        startColumn: 27,
-                        startLine: 2,
-                        endColumn: 34,
-                        endLine: 2,
-                    },
-                    symbolType: [
-                        '[]',
-                    ],
-                    dimensions: 1,
-                    elementType: {
-                        ws: [
+                    "value": {
+                        "ws": [
                             {
-                                ws: '',
-                                i: 6,
-                                text: 'string',
-                                static: true,
-                            },
+                                "ws": "",
+                                "i": 15,
+                                "text": "9095",
+                                "static": false
+                            }
                         ],
-                        position: {
-                            startColumn: 27,
-                            startLine: 2,
-                            endColumn: 27,
-                            endLine: 2,
+                        "position": {
+                            "startColumn": 22,
+                            "startLine": 3,
+                            "endColumn": 22,
+                            "endLine": 3
                         },
-                        symbolType: [
-                            'string',
-                        ],
-                        typeKind: 'string',
-                        kind: 'ValueType',
+                        "value": "9095",
+                        "kind": "Literal"
                     },
-                    kind: 'ArrayType',
-                },
-                deprecatedAttachments: [],
-                annotationAttachments: [],
-                name: {
-                    literal: false,
-                    value: 'args',
-                    kind: 'Identifier',
-                },
-                documentationAttachments: [],
-                kind: 'Variable',
-                public: false,
-                native: false,
-                const: false,
-                attached: false,
-                lambda: false,
-                parallel: false,
-                connector: false,
-                deprecated: false,
-                endpoint: false,
-            },
-        ],
-        kind: 'Function',
-        public: false,
-        native: false,
-        const: false,
-        attached: false,
-        lambda: false,
-        parallel: false,
-        connector: false,
-        deprecated: false,
-        endpoint: false,
-    },
-    createNext: {
-        ws: [
-            {
-                ws: '\n\n            ',
-                i: 8,
-                text: 'next',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 9,
-                text: ';',
-                static: true,
-            },
-        ],
-        position: {
-            startColumn: 13,
-            startLine: 3,
-            endColumn: 17,
-            endLine: 3,
-        },
-        kind: 'Next',
-    },
-    createTransformer: {
-        ws: [
-            {
-                ws: '\n            ',
-                i: 2,
-                text: 'transformer',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 4,
-                text: '<',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 8,
-                text: ',',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 13,
-                text: '>',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 15,
-                text: 'newTransformer',
-                static: false,
-            },
-            {
-                ws: ' ',
-                i: 17,
-                text: '(',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 18,
-                text: ')',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 19,
-                text: '{',
-                static: true,
-            },
-            {
-                ws: '\n\n            ',
-                i: 22,
-                text: '}',
-                static: true,
-            },
-        ],
-        position: {
-            startColumn: 13,
-            startLine: 2,
-            endColumn: 13,
-            endLine: 4,
-        },
-        workers: [],
-        name: {
-            literal: false,
-            value: 'newTransformer',
-            kind: 'Identifier',
-        },
-        annotationAttachments: [],
-        documentationAttachments: [],
-        deprecatedAttachments: [],
-        endpointNodes: [],
-        body: {
-            statements: [],
-            kind: 'Block',
-        },
-        returnParameters: [
-            {
-                ws: [
-                    {
-                        ws: ' ',
-                        i: 12,
-                        text: 'b',
-                        static: false,
-                    },
-                ],
-                position: {
-                    startColumn: 36,
-                    startLine: 2,
-                    endColumn: 43,
-                    endLine: 2,
-                },
-                symbolType: [
-                    'other',
-                ],
-                typeNode: {
-                    ws: [
-                        {
-                            ws: ' ',
-                            i: 10,
-                            text: 'Target',
-                            static: false,
-                        },
-                    ],
-                    position: {
-                        startColumn: 36,
-                        startLine: 2,
-                        endColumn: 36,
-                        endLine: 2,
-                    },
-                    symbolType: [
-                        'other',
-                    ],
-                    packageAlias: {
-                        literal: false,
-                        value: '',
-                        kind: 'Identifier',
-                    },
-                    typeName: {
-                        literal: false,
-                        value: 'Target',
-                        kind: 'Identifier',
-                    },
-                    kind: 'UserDefinedType',
-                },
-                deprecatedAttachments: [],
-                annotationAttachments: [],
-                name: {
-                    literal: false,
-                    value: 'b',
-                    kind: 'Identifier',
-                },
-                documentationAttachments: [],
-                kind: 'Variable',
-                public: false,
-                native: false,
-                const: false,
-                attached: false,
-                lambda: false,
-                parallel: false,
-                connector: false,
-                deprecated: false,
-                endpoint: false,
-            },
-        ],
-        parameters: [],
-        source: {
-            ws: [
-                {
-                    ws: ' ',
-                    i: 7,
-                    text: 'a',
-                    static: false,
-                },
-            ],
-            position: {
-                startColumn: 26,
-                startLine: 2,
-                endColumn: 33,
-                endLine: 2,
-            },
-            symbolType: [
-                'other',
-            ],
-            typeNode: {
-                ws: [
-                    {
-                        ws: '',
-                        i: 5,
-                        text: 'Source',
-                        static: false,
-                    },
-                ],
-                position: {
-                    startColumn: 26,
-                    startLine: 2,
-                    endColumn: 26,
-                    endLine: 2,
-                },
-                symbolType: [
-                    'other',
-                ],
-                packageAlias: {
-                    literal: false,
-                    value: '',
-                    kind: 'Identifier',
-                },
-                typeName: {
-                    literal: false,
-                    value: 'Source',
-                    kind: 'Identifier',
-                },
-                kind: 'UserDefinedType',
-            },
-            deprecatedAttachments: [],
-            annotationAttachments: [],
-            name: {
-                literal: false,
-                value: 'a',
-                kind: 'Identifier',
-            },
-            documentationAttachments: [],
-            kind: 'Variable',
-            public: false,
-            native: false,
-            const: false,
-            attached: false,
-            lambda: false,
-            parallel: false,
-            connector: false,
-            deprecated: false,
-            endpoint: false,
-        },
-        kind: 'Transformer',
-        public: false,
-        native: false,
-        const: false,
-        attached: false,
-        lambda: false,
-        parallel: false,
-        connector: false,
-        deprecated: false,
-        endpoint: false,
-    },
-    createHTTPResource: {
-        ws: [
-            {
-                ws: '\n\n            ',
-                i: 9,
-                text: 'resource',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 11,
-                text: 'echo1',
-                static: false,
-            },
-            {
-                ws: ' ',
-                i: 13,
-                text: '(',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 19,
-                text: ',',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 26,
-                text: ')',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 28,
-                text: '{',
-                static: true,
-            },
-            {
-                ws: '\n\n            ',
-                i: 31,
-                text: '}',
-                static: true,
-            },
-        ],
-        position: {
-            startColumn: 13,
-            startLine: 3,
-            endColumn: 13,
-            endLine: 5,
-        },
-        workers: [],
-        name: {
-            literal: false,
-            value: 'echo1',
-            kind: 'Identifier',
-        },
-        deprecatedAttachments: [],
-        annotationAttachments: [],
-        endpointNodes: [],
-        body: {
-            statements: [],
-            kind: 'Block',
-        },
-        returnParameters: [],
-        parameters: [
-            {
-                ws: [
-                    {
-                        ws: ' ',
-                        i: 18,
-                        text: 'conn',
-                        static: false,
-                    },
-                ],
-                position: {
-                    startColumn: 29,
-                    startLine: 3,
-                    endColumn: 45,
-                    endLine: 3,
-                },
-                symbolType: [
-                    'other',
-                ],
-                typeNode: {
-                    ws: [
-                        {
-                            ws: '',
-                            i: 14,
-                            text: 'http',
-                            static: false,
-                        },
-                        {
-                            ws: '',
-                            i: 15,
-                            text: ':',
-                            static: true,
-                        },
-                        {
-                            ws: '',
-                            i: 16,
-                            text: 'Connection',
-                            static: false,
-                        },
-                    ],
-                    position: {
-                        startColumn: 29,
-                        startLine: 3,
-                        endColumn: 34,
-                        endLine: 3,
-                    },
-                    symbolType: [
-                        'other',
-                    ],
-                    packageAlias: {
-                        literal: false,
-                        value: 'http',
-                        kind: 'Identifier',
-                    },
-                    typeName: {
-                        literal: false,
-                        value: 'Connection',
-                        kind: 'Identifier',
-                    },
-                    kind: 'UserDefinedType',
-                },
-                deprecatedAttachments: [],
-                annotationAttachments: [],
-                name: {
-                    literal: false,
-                    value: 'conn',
-                    kind: 'Identifier',
-                },
-                documentationAttachments: [],
-                kind: 'Variable',
-                public: false,
-                native: false,
-                const: false,
-                attached: false,
-                lambda: false,
-                parallel: false,
-                connector: false,
-                deprecated: false,
-                endpoint: false,
-            },
-            {
-                ws: [
-                    {
-                        ws: ' ',
-                        i: 25,
-                        text: 'req',
-                        static: false,
-                    },
-                ],
-                position: {
-                    startColumn: 51,
-                    startLine: 3,
-                    endColumn: 66,
-                    endLine: 3,
-                },
-                symbolType: [
-                    'other',
-                ],
-                typeNode: {
-                    ws: [
-                        {
-                            ws: ' ',
-                            i: 21,
-                            text: 'http',
-                            static: false,
-                        },
-                        {
-                            ws: '',
-                            i: 22,
-                            text: ':',
-                            static: true,
-                        },
-                        {
-                            ws: '',
-                            i: 23,
-                            text: 'InRequest',
-                            static: false,
-                        },
-                    ],
-                    position: {
-                        startColumn: 51,
-                        startLine: 3,
-                        endColumn: 56,
-                        endLine: 3,
-                    },
-                    symbolType: [
-                        'other',
-                    ],
-                    packageAlias: {
-                        literal: false,
-                        value: 'http',
-                        kind: 'Identifier',
-                    },
-                    typeName: {
-                        literal: false,
-                        value: 'InRequest',
-                        kind: 'Identifier',
-                    },
-                    kind: 'UserDefinedType',
-                },
-                deprecatedAttachments: [],
-                annotationAttachments: [],
-                name: {
-                    literal: false,
-                    value: 'req',
-                    kind: 'Identifier',
-                },
-                documentationAttachments: [],
-                kind: 'Variable',
-                public: false,
-                native: false,
-                const: false,
-                attached: false,
-                lambda: false,
-                parallel: false,
-                connector: false,
-                deprecated: false,
-                endpoint: false,
-            },
-        ],
-        documentationAttachments: [],
-        kind: 'Resource',
-        public: true,
-        native: false,
-        const: false,
-        attached: false,
-        lambda: false,
-        parallel: false,
-        connector: false,
-        deprecated: false,
-        endpoint: false,
-    },
-    createDefaultWorkerFragment: {
-        ws: [
-            {
-                ws: '\n\n            ',
-                i: 8,
-                text: 'worker',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 10,
-                text: 'default',
-                static: false,
-            },
-            {
-                ws: ' ',
-                i: 12,
-                text: '{',
-                static: true,
-            },
-            {
-                ws: '\n            ',
-                i: 15,
-                text: '}',
-                static: true,
-            },
-        ],
-        position: {
-            startColumn: 13,
-            startLine: 3,
-            endColumn: 13,
-            endLine: 4,
-        },
-        workers: [],
-        name: {
-            literal: false,
-            value: 'default',
-            kind: 'Identifier',
-        },
-        deprecatedAttachments: [],
-        annotationAttachments: [],
-        endpointNodes: [],
-        body: {
-            statements: [],
-            kind: 'Block',
-        },
-        returnParameters: [],
-        parameters: [],
-        documentationAttachments: [],
-        kind: 'Worker',
-        public: false,
-        native: false,
-        const: false,
-        attached: false,
-        lambda: false,
-        parallel: false,
-        connector: false,
-        deprecated: false,
-        endpoint: false,
-    },
-    createAbort: {
-        ws: [
-            {
-                ws: '\n\n            ',
-                i: 8,
-                text: 'abort',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 9,
-                text: ';',
-                static: true,
-            },
-        ],
-        position: {
-            startColumn: 13,
-            startLine: 3,
-            endColumn: 18,
-            endLine: 3,
-        },
-        kind: 'Abort',
-    },
-    createVarDefStmt: {
-        ws: [
-            {
-                ws: '',
-                i: 14,
-                text: ';',
-                static: true,
-            },
-        ],
-        position: {
-            startColumn: 1,
-            startLine: 2,
-            endColumn: 10,
-            endLine: 2,
-        },
-        variable: {
-            ws: [
-                {
-                    ws: ' ',
-                    i: 9,
-                    text: 'a',
-                    static: false,
-                },
-                {
-                    ws: ' ',
-                    i: 11,
-                    text: '=',
-                    static: true,
-                },
-            ],
-            position: {
-                startColumn: 1,
-                startLine: 2,
-                endColumn: 10,
-                endLine: 2,
-            },
-            typeNode: {
-                ws: [
-                    {
-                        ws: '\n',
-                        i: 7,
-                        text: 'int',
-                        static: true,
-                    },
-                ],
-                position: {
-                    startColumn: 1,
-                    startLine: 2,
-                    endColumn: 1,
-                    endLine: 2,
-                },
-                typeKind: 'int',
-                kind: 'ValueType',
-            },
-            deprecatedAttachments: [],
-            annotationAttachments: [],
-            name: {
-                literal: false,
-                value: 'a',
-                kind: 'Identifier',
-            },
-            initialExpression: {
-                ws: [
-                    {
-                        ws: ' ',
-                        i: 13,
-                        text: '1',
-                        static: false,
-                    },
-                ],
-                position: {
-                    startColumn: 9,
-                    startLine: 2,
-                    endColumn: 9,
-                    endLine: 2,
-                },
-                value: '1',
-                kind: 'Literal',
-            },
-            documentationAttachments: [],
-            kind: 'Variable',
-            public: false,
-            native: false,
-            const: false,
-            attached: false,
-            lambda: false,
-            parallel: false,
-            connector: false,
-            deprecated: false,
-            endpoint: false,
-        },
-        kind: 'VariableDef',
-    },
-    createAnnotation: {
-        error: 'Incorrect format of the generated JSON',
-    },
-    createAssignmentStmt: {
-        ws: [
-            {
-                ws: '\n',
-                i: 7,
-                text: 'var',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 11,
-                text: '=',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 14,
-                text: ';',
-                static: true,
-            },
-        ],
-        position: {
-            startColumn: 1,
-            startLine: 2,
-            endColumn: 10,
-            endLine: 2,
-        },
-        variables: [
-            {
-                ws: [
-                    {
-                        ws: ' ',
-                        i: 9,
-                        text: 'a',
-                        static: false,
-                    },
-                ],
-                position: {
-                    startColumn: 5,
-                    startLine: 2,
-                    endColumn: 5,
-                    endLine: 2,
-                },
-                variableName: {
-                    literal: false,
-                    value: 'a',
-                    kind: 'Identifier',
-                },
-                packageAlias: {
-                    literal: false,
-                    value: '',
-                    kind: 'Identifier',
-                },
-                kind: 'SimpleVariableRef',
-            },
-        ],
-        expression: {
-            ws: [
-                {
-                    ws: ' ',
-                    i: 13,
-                    text: '1',
-                    static: false,
-                },
-            ],
-            position: {
-                startColumn: 9,
-                startLine: 2,
-                endColumn: 9,
-                endLine: 2,
-            },
-            value: '1',
-            kind: 'Literal',
-        },
-        declaredWithVar: true,
-        kind: 'Assignment',
-    },
-    createJMSServiceDef: {
-        ws: [
-            {
-                ws: '\n                ',
-                i: 2,
-                text: 'service',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 3,
-                text: '<',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 5,
-                text: '>',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 7,
-                text: 'service1',
-                static: false,
-            },
-            {
-                ws: ' ',
-                i: 9,
-                text: '{',
-                static: true,
-            },
-            {
-                ws: '\n                ',
-                i: 30,
-                text: '}',
-                static: true,
-            },
-        ],
-        position: {
-            startColumn: 17,
-            startLine: 2,
-            endColumn: 17,
-            endLine: 6,
-        },
-        resources: [
-            {
-                ws: [
-                    {
-                        ws: '\n                    ',
-                        i: 12,
-                        text: 'resource',
-                        static: true,
-                    },
-                    {
-                        ws: ' ',
-                        i: 14,
-                        text: 'echo1',
-                        static: false,
-                    },
-                    {
-                        ws: ' ',
-                        i: 16,
-                        text: '(',
-                        static: true,
-                    },
-                    {
-                        ws: '',
-                        i: 22,
-                        text: ')',
-                        static: true,
-                    },
-                    {
-                        ws: ' ',
-                        i: 24,
-                        text: '{',
-                        static: true,
-                    },
-                    {
-                        ws: '\n\n                    ',
-                        i: 27,
-                        text: '}',
-                        static: true,
-                    },
-                ],
-                position: {
-                    startColumn: 21,
-                    startLine: 3,
-                    endColumn: 21,
-                    endLine: 5,
-                },
-                workers: [],
-                name: {
-                    literal: false,
-                    value: 'echo1',
-                    kind: 'Identifier',
-                },
-                deprecatedAttachments: [],
-                annotationAttachments: [],
-                endpointNodes: [],
-                body: {
-                    statements: [],
-                    kind: 'Block',
-                },
-                returnParameters: [],
-                parameters: [
-                    {
-                        ws: [
+                    "key": {
+                        "ws": [
                             {
-                                ws: ' ',
-                                i: 21,
-                                text: 'request',
-                                static: false,
-                            },
+                                "ws": "\n                ",
+                                "i": 13,
+                                "text": "port",
+                                "static": false
+                            }
                         ],
-                        position: {
-                            startColumn: 37,
-                            startLine: 3,
-                            endColumn: 52,
-                            endLine: 3,
+                        "position": {
+                            "startColumn": 17,
+                            "startLine": 3,
+                            "endColumn": 17,
+                            "endLine": 3
                         },
-                        symbolType: [
-                            'other',
-                        ],
-                        typeNode: {
-                            ws: [
-                                {
-                                    ws: '',
-                                    i: 17,
-                                    text: 'jms',
-                                    static: false,
-                                },
-                                {
-                                    ws: '',
-                                    i: 18,
-                                    text: ':',
-                                    static: true,
-                                },
-                                {
-                                    ws: '',
-                                    i: 19,
-                                    text: 'JMSMessage',
-                                    static: false,
-                                },
-                            ],
-                            position: {
-                                startColumn: 37,
-                                startLine: 3,
-                                endColumn: 41,
-                                endLine: 3,
-                            },
-                            symbolType: [
-                                'other',
-                            ],
-                            packageAlias: {
-                                literal: false,
-                                value: 'jms',
-                                kind: 'Identifier',
-                            },
-                            typeName: {
-                                literal: false,
-                                value: 'JMSMessage',
-                                kind: 'Identifier',
-                            },
-                            kind: 'UserDefinedType',
+                        "variableName": {
+                            "literal": false,
+                            "value": "port",
+                            "kind": "Identifier"
                         },
-                        deprecatedAttachments: [],
-                        annotationAttachments: [],
-                        name: {
-                            literal: false,
-                            value: 'request',
-                            kind: 'Identifier',
+                        "packageAlias": {
+                            "literal": false,
+                            "value": "",
+                            "kind": "Identifier"
                         },
-                        documentationAttachments: [],
-                        kind: 'Variable',
-                        public: false,
-                        native: false,
-                        const: false,
-                        attached: false,
-                        lambda: false,
-                        parallel: false,
-                        connector: false,
-                        deprecated: false,
-                        endpoint: false,
+                        "kind": "SimpleVariableRef"
                     },
-                ],
-                documentationAttachments: [],
-                kind: 'Resource',
-                public: true,
-                native: false,
-                const: false,
-                attached: false,
-                lambda: false,
-                parallel: false,
-                connector: false,
-                deprecated: false,
-                endpoint: false,
-            },
-        ],
-        deprecatedAttachments: [],
-        endpointType: {
-            ws: [
-                {
-                    ws: '',
-                    i: 4,
-                    text: 'jms',
-                    static: false,
-                },
+                    "kind": "RecordLiteralKeyValue"
+                }
             ],
-            position: {
-                startColumn: 17,
-                startLine: 2,
-                endColumn: 17,
-                endLine: 6,
-            },
-            packageAlias: {
-                literal: false,
-                value: '',
-                kind: 'Identifier',
-            },
-            typeName: {
-                literal: false,
-                value: 'jms',
-                kind: 'Identifier',
-            },
-            kind: 'UserDefinedType',
+            "kind": "RecordLiteralExpr"
         },
-        annotationAttachments: [],
-        initFunction: {
-            position: {
-                startColumn: 17,
-                startLine: 2,
-                endColumn: 17,
-                endLine: 6,
-            },
-            workers: [],
-            name: {
-                literal: false,
-                value: 'service1.<init>',
-                kind: 'Identifier',
-            },
-            annotationAttachments: [],
-            documentationAttachments: [],
-            deprecatedAttachments: [],
-            endpointNodes: [],
-            body: {
-                position: {
-                    startColumn: 17,
-                    startLine: 2,
-                    endColumn: 17,
-                    endLine: 6,
-                },
-                statements: [
-                    {
-                        position: {
-                            startColumn: 17,
-                            startLine: 2,
-                            endColumn: 17,
-                            endLine: 6,
-                        },
-                        expressions: [],
-                        kind: 'Return',
-                    },
-                ],
-                kind: 'Block',
-            },
-            returnParameters: [],
-            parameters: [],
-            kind: 'Function',
-            public: true,
-            native: false,
-            const: false,
-            attached: false,
-            lambda: false,
-            parallel: false,
-            connector: false,
-            deprecated: false,
-            endpoint: false,
+        "name": {
+            "literal": false,
+            "value": "endpointName",
+            "kind": "Identifier"
         },
-        variables: [],
-        name: {
-            literal: false,
-            value: 'service1',
-            kind: 'Identifier',
-        },
-        endpointNodes: [],
-        documentationAttachments: [],
-        kind: 'Service',
-    },
-    createFunction: {
-        ws: [
-            {
-                ws: '\n                    ',
-                i: 2,
-                text: 'function',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 4,
-                text: 'function1',
-                static: false,
-            },
-            {
-                ws: '',
-                i: 5,
-                text: '(',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 6,
-                text: ')',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 8,
-                text: '{',
-                static: true,
-            },
-            {
-                ws: '\n\n                    ',
-                i: 11,
-                text: '}',
-                static: true,
-            },
-        ],
-        position: {
-            startColumn: 21,
-            startLine: 2,
-            endColumn: 21,
-            endLine: 4,
-        },
-        workers: [],
-        name: {
-            literal: false,
-            value: 'function1',
-            kind: 'Identifier',
-        },
-        annotationAttachments: [],
-        documentationAttachments: [],
-        deprecatedAttachments: [],
-        endpointNodes: [],
-        body: {
-            statements: [],
-            kind: 'Block',
-        },
-        returnParameters: [],
-        parameters: [],
-        kind: 'Function',
-        public: false,
-        native: false,
-        const: false,
-        attached: false,
-        lambda: false,
-        parallel: false,
-        connector: false,
-        deprecated: false,
-        endpoint: false,
-    },
-    createWhile: {
-        ws: [
-            {
-                ws: '\n\n            ',
-                i: 8,
-                text: 'while',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 9,
-                text: '(',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 11,
-                text: ')',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 13,
-                text: '{',
-                static: true,
-            },
-            {
-                ws: '\n\n            ',
-                i: 16,
-                text: '}',
-                static: true,
-            },
-        ],
-        position: {
-            startColumn: 13,
-            startLine: 3,
-            endColumn: 13,
-            endLine: 5,
-        },
-        condition: {
-            ws: [
+        "annotationAttachments": [],
+        "kind": "Endpoint",
+        "endPointType": {
+            "ws": [
                 {
-                    ws: '',
-                    i: 10,
-                    text: 'true',
-                    static: false,
+                    "ws": " ",
+                    "i": 4,
+                    "text": "http",
+                    "static": false
                 },
+                {
+                    "ws": "",
+                    "i": 5,
+                    "text": ":",
+                    "static": true
+                },
+                {
+                    "ws": "",
+                    "i": 6,
+                    "text": "Listener",
+                    "static": false
+                }
             ],
-            position: {
-                startColumn: 19,
-                startLine: 3,
-                endColumn: 19,
-                endLine: 3,
+            "position": {
+                "startColumn": 22,
+                "startLine": 2,
+                "endColumn": 27,
+                "endLine": 2
             },
-            value: 'true',
-            kind: 'Literal',
-        },
-        kind: 'While',
-        body: {
-            position: {
-                startColumn: 13,
-                startLine: 3,
-                endColumn: 13,
-                endLine: 5,
-            },
-            statements: [],
-            kind: 'Block',
-        },
-    },
-    createStruct: {
-        ws: [
-            {
-                ws: '\n            ',
-                i: 2,
-                text: 'struct',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 4,
-                text: 'struct1',
-                static: false,
-            },
-            {
-                ws: ' ',
-                i: 6,
-                text: '{',
-                static: true,
-            },
-            {
-                ws: '\n\n            ',
-                i: 9,
-                text: '}',
-                static: true,
-            },
-        ],
-        position: {
-            startColumn: 13,
-            startLine: 2,
-            endColumn: 13,
-            endLine: 4,
-        },
-        deprecatedAttachments: [],
-        annotationAttachments: [],
-        name: {
-            literal: false,
-            value: 'struct1',
-            kind: 'Identifier',
-        },
-        documentationAttachments: [],
-        kind: 'Struct',
-        fields: [],
-        public: false,
-        native: false,
-        const: false,
-        attached: false,
-        lambda: false,
-        parallel: false,
-        connector: false,
-        deprecated: false,
-        endpoint: false,
-    },
-    createFTPServiceDef: {
-        ws: [
-            {
-                ws: '\n            ',
-                i: 2,
-                text: 'service',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 3,
-                text: '<',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 5,
-                text: '>',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 7,
-                text: 'service1',
-                static: false,
-            },
-            {
-                ws: ' ',
-                i: 9,
-                text: '{',
-                static: true,
-            },
-            {
-                ws: '\n            ',
-                i: 30,
-                text: '}',
-                static: true,
-            },
-        ],
-        position: {
-            startColumn: 13,
-            startLine: 2,
-            endColumn: 13,
-            endLine: 6,
-        },
-        resources: [
-            {
-                ws: [
-                    {
-                        ws: '\n                ',
-                        i: 12,
-                        text: 'resource',
-                        static: true,
-                    },
-                    {
-                        ws: ' ',
-                        i: 14,
-                        text: 'echo1',
-                        static: false,
-                    },
-                    {
-                        ws: ' ',
-                        i: 16,
-                        text: '(',
-                        static: true,
-                    },
-                    {
-                        ws: '',
-                        i: 22,
-                        text: ')',
-                        static: true,
-                    },
-                    {
-                        ws: ' ',
-                        i: 24,
-                        text: '{',
-                        static: true,
-                    },
-                    {
-                        ws: '\n\n                ',
-                        i: 27,
-                        text: '}',
-                        static: true,
-                    },
-                ],
-                position: {
-                    startColumn: 17,
-                    startLine: 3,
-                    endColumn: 17,
-                    endLine: 5,
-                },
-                workers: [],
-                name: {
-                    literal: false,
-                    value: 'echo1',
-                    kind: 'Identifier',
-                },
-                deprecatedAttachments: [],
-                annotationAttachments: [],
-                endpointNodes: [],
-                body: {
-                    statements: [],
-                    kind: 'Block',
-                },
-                returnParameters: [],
-                parameters: [
-                    {
-                        ws: [
-                            {
-                                ws: ' ',
-                                i: 21,
-                                text: 'm',
-                                static: false,
-                            },
-                        ],
-                        position: {
-                            startColumn: 33,
-                            startLine: 3,
-                            endColumn: 52,
-                            endLine: 3,
-                        },
-                        symbolType: [
-                            'other',
-                        ],
-                        typeNode: {
-                            ws: [
-                                {
-                                    ws: '',
-                                    i: 17,
-                                    text: 'ftp',
-                                    static: false,
-                                },
-                                {
-                                    ws: '',
-                                    i: 18,
-                                    text: ':',
-                                    static: true,
-                                },
-                                {
-                                    ws: '',
-                                    i: 19,
-                                    text: 'FTPServerEvent',
-                                    static: false,
-                                },
-                            ],
-                            position: {
-                                startColumn: 33,
-                                startLine: 3,
-                                endColumn: 37,
-                                endLine: 3,
-                            },
-                            symbolType: [
-                                'other',
-                            ],
-                            packageAlias: {
-                                literal: false,
-                                value: 'ftp',
-                                kind: 'Identifier',
-                            },
-                            typeName: {
-                                literal: false,
-                                value: 'FTPServerEvent',
-                                kind: 'Identifier',
-                            },
-                            kind: 'UserDefinedType',
-                        },
-                        deprecatedAttachments: [],
-                        annotationAttachments: [],
-                        name: {
-                            literal: false,
-                            value: 'm',
-                            kind: 'Identifier',
-                        },
-                        documentationAttachments: [],
-                        kind: 'Variable',
-                        public: false,
-                        native: false,
-                        const: false,
-                        attached: false,
-                        lambda: false,
-                        parallel: false,
-                        connector: false,
-                        deprecated: false,
-                        endpoint: false,
-                    },
-                ],
-                documentationAttachments: [],
-                kind: 'Resource',
-                public: true,
-                native: false,
-                const: false,
-                attached: false,
-                lambda: false,
-                parallel: false,
-                connector: false,
-                deprecated: false,
-                endpoint: false,
-            },
-        ],
-        deprecatedAttachments: [],
-        endpointType: {
-            ws: [
-                {
-                    ws: '',
-                    i: 4,
-                    text: 'ftp',
-                    static: false,
-                },
+            "symbolType": [
+                "other"
             ],
-            position: {
-                startColumn: 13,
-                startLine: 2,
-                endColumn: 13,
-                endLine: 6,
+            "packageAlias": {
+                "literal": false,
+                "value": "http",
+                "kind": "Identifier"
             },
-            packageAlias: {
-                literal: false,
-                value: '',
-                kind: 'Identifier',
+            "grouped": false,
+            "typeName": {
+                "literal": false,
+                "value": "Listener",
+                "kind": "Identifier"
             },
-            typeName: {
-                literal: false,
-                value: 'ftp',
-                kind: 'Identifier',
-            },
-            kind: 'UserDefinedType',
+            "nullable": false,
+            "kind": "UserDefinedType"
         },
-        annotationAttachments: [],
-        initFunction: {
-            position: {
-                startColumn: 13,
-                startLine: 2,
-                endColumn: 13,
-                endLine: 6,
-            },
-            workers: [],
-            name: {
-                literal: false,
-                value: 'service1.<init>',
-                kind: 'Identifier',
-            },
-            annotationAttachments: [],
-            documentationAttachments: [],
-            deprecatedAttachments: [],
-            endpointNodes: [],
-            body: {
-                position: {
-                    startColumn: 13,
-                    startLine: 2,
-                    endColumn: 13,
-                    endLine: 6,
-                },
-                statements: [
-                    {
-                        position: {
-                            startColumn: 13,
-                            startLine: 2,
-                            endColumn: 13,
-                            endLine: 6,
-                        },
-                        expressions: [],
-                        kind: 'Return',
-                    },
-                ],
-                kind: 'Block',
-            },
-            returnParameters: [],
-            parameters: [],
-            kind: 'Function',
-            public: true,
-            native: false,
-            const: false,
-            attached: false,
-            lambda: false,
-            parallel: false,
-            connector: false,
-            deprecated: false,
-            endpoint: false,
-        },
-        variables: [],
-        name: {
-            literal: false,
-            value: 'service1',
-            kind: 'Identifier',
-        },
-        endpointNodes: [],
-        documentationAttachments: [],
-        kind: 'Service',
+        "public": false,
+        "native": false,
+        "final": false,
+        "attached": false,
+        "lambda": false,
+        "parallel": false,
+        "connector": false,
+        "deprecated": false,
+        "readonly": false,
+        "function_final": false,
+        "interface": false
     },
-    createReturn: {
-        ws: [
+    "createHTTPResource": {
+        "ws": [
             {
-                ws: '\n\n            ',
-                i: 8,
-                text: 'return',
-                static: true,
+                "ws": "\n\n            ",
+                "i": 15,
+                "text": "echo1",
+                "static": false
             },
             {
-                ws: '',
-                i: 11,
-                text: ';',
-                static: true,
+                "ws": " ",
+                "i": 17,
+                "text": "(",
+                "static": true
             },
+            {
+                "ws": "",
+                "i": 23,
+                "text": ",",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 30,
+                "text": ")",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 32,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "\n\n            ",
+                "i": 35,
+                "text": "}",
+                "static": true
+            }
         ],
-        position: {
-            startColumn: 13,
-            startLine: 3,
-            endColumn: 21,
-            endLine: 3,
+        "position": {
+            "startColumn": 13,
+            "startLine": 3,
+            "endColumn": 13,
+            "endLine": 5
         },
-        expressions: [
-            {
-                ws: [
-                    {
-                        ws: ' ',
-                        i: 10,
-                        text: 'm',
-                        static: false,
-                    },
-                ],
-                position: {
-                    startColumn: 20,
-                    startLine: 3,
-                    endColumn: 20,
-                    endLine: 3,
-                },
-                variableName: {
-                    literal: false,
-                    value: 'm',
-                    kind: 'Identifier',
-                },
-                packageAlias: {
-                    literal: false,
-                    value: '',
-                    kind: 'Identifier',
-                },
-                kind: 'SimpleVariableRef',
-            },
-        ],
-        kind: 'Return',
-    },
-    createIfElse: {
-        ws: [
-            {
-                ws: '\n\n            ',
-                i: 8,
-                text: 'if',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 10,
-                text: '(',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 12,
-                text: ')',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 14,
-                text: '{',
-                static: true,
-            },
-            {
-                ws: '\n\n            ',
-                i: 17,
-                text: '}',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 19,
-                text: 'else',
-                static: true,
-            },
-        ],
-        position: {
-            startColumn: 13,
-            startLine: 3,
-            endColumn: 13,
-            endLine: 5,
+        "workers": [],
+        "returnTypeAnnotationAttachments": [],
+        "name": {
+            "literal": false,
+            "value": "echo1",
+            "kind": "Identifier"
         },
-        body: {
-            statements: [],
-            kind: 'Block',
-        },
-        condition: {
-            ws: [
-                {
-                    ws: '',
-                    i: 11,
-                    text: 'true',
-                    static: false,
-                },
+        "annotationAttachments": [],
+        "documentationAttachments": [],
+        "returnTypeNode": {
+            "position": {
+                "startColumn": 13,
+                "startLine": 3,
+                "endColumn": 13,
+                "endLine": 5
+            },
+            "symbolType": [
+                "null"
             ],
-            position: {
-                startColumn: 17,
-                startLine: 3,
-                endColumn: 17,
-                endLine: 3,
-            },
-            value: 'true',
-            kind: 'Literal',
+            "typeKind": "nil",
+            "grouped": false,
+            "nullable": false,
+            "kind": "ValueType"
         },
-        elseStatement: {
-            ws: [
-                {
-                    ws: ' ',
-                    i: 21,
-                    text: 'if',
-                    static: true,
-                },
-                {
-                    ws: ' ',
-                    i: 23,
-                    text: '(',
-                    static: true,
-                },
-                {
-                    ws: '',
-                    i: 25,
-                    text: ')',
-                    static: true,
-                },
-                {
-                    ws: ' ',
-                    i: 27,
-                    text: '{',
-                    static: true,
-                },
-                {
-                    ws: '\n            \n            ',
-                    i: 32,
-                    text: '}',
-                    static: true,
-                },
-                {
-                    ws: ' ',
-                    i: 34,
-                    text: 'else',
-                    static: true,
-                },
-                {
-                    ws: ' ',
-                    i: 36,
-                    text: '{',
-                    static: true,
-                },
-                {
-                    ws: '\n            \n            ',
-                    i: 41,
-                    text: '}',
-                    static: true,
-                },
-            ],
-            position: {
-                startColumn: 15,
-                startLine: 5,
-                endColumn: 13,
-                endLine: 7,
-            },
-            body: {
-                statements: [],
-                kind: 'Block',
-            },
-            condition: {
-                ws: [
+        "defaultableParameters": [],
+        "deprecatedAttachments": [],
+        "body": {
+            "statements": [],
+            "kind": "Block"
+        },
+        "endpointNodes": [],
+        "parameters": [
+            {
+                "ws": [
                     {
-                        ws: '',
-                        i: 24,
-                        text: 'true',
-                        static: false,
-                    },
+                        "ws": " ",
+                        "i": 22,
+                        "text": "conn",
+                        "static": false
+                    }
                 ],
-                position: {
-                    startColumn: 24,
-                    startLine: 5,
-                    endColumn: 24,
-                    endLine: 5,
+                "position": {
+                    "startColumn": 20,
+                    "startLine": 3,
+                    "endColumn": 36,
+                    "endLine": 3
                 },
-                value: 'true',
-                kind: 'Literal',
-            },
-            elseStatement: {
-                position: {
-                    startColumn: 15,
-                    startLine: 7,
-                    endColumn: 13,
-                    endLine: 9,
-                },
-                statements: [],
-                kind: 'Block',
-            },
-            kind: 'If',
-        },
-        kind: 'If',
-    },
-    createConnector: {
-        ws: [
-            {
-                ws: '\n            ',
-                i: 2,
-                text: 'connector',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 4,
-                text: 'ClientConnector',
-                static: false,
-            },
-            {
-                ws: '',
-                i: 5,
-                text: '(',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 9,
-                text: ')',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 11,
-                text: '{',
-                static: true,
-            },
-            {
-                ws: '\n            ',
-                i: 25,
-                text: '}',
-                static: true,
-            },
-        ],
-        position: {
-            startColumn: 13,
-            startLine: 2,
-            endColumn: 13,
-            endLine: 6,
-        },
-        actions: [
-            {
-                ws: [
-                    {
-                        ws: '\n                ',
-                        i: 14,
-                        text: 'action',
-                        static: true,
-                    },
-                    {
-                        ws: ' ',
-                        i: 16,
-                        text: 'action1',
-                        static: false,
-                    },
-                    {
-                        ws: '',
-                        i: 17,
-                        text: '(',
-                        static: true,
-                    },
-                    {
-                        ws: '',
-                        i: 18,
-                        text: ')',
-                        static: true,
-                    },
-                    {
-                        ws: '',
-                        i: 19,
-                        text: '{',
-                        static: true,
-                    },
-                    {
-                        ws: '\n\n                ',
-                        i: 22,
-                        text: '}',
-                        static: true,
-                    },
+                "symbolType": [
+                    "other"
                 ],
-                position: {
-                    startColumn: 17,
-                    startLine: 3,
-                    endColumn: 17,
-                    endLine: 5,
-                },
-                workers: [],
-                name: {
-                    literal: false,
-                    value: 'action1',
-                    kind: 'Identifier',
-                },
-                deprecatedAttachments: [],
-                annotationAttachments: [],
-                endpointNodes: [],
-                body: {
-                    statements: [],
-                    kind: 'Block',
-                },
-                returnParameters: [],
-                parameters: [],
-                documentationAttachments: [],
-                kind: 'Action',
-                public: true,
-                native: false,
-                const: false,
-                attached: false,
-                lambda: false,
-                parallel: false,
-                connector: false,
-                deprecated: false,
-                endpoint: false,
-            },
-        ],
-        name: {
-            literal: false,
-            value: 'ClientConnector',
-            kind: 'Identifier',
-        },
-        annotationAttachments: [],
-        documentationAttachments: [],
-        initAction: {
-            position: {
-                startColumn: 13,
-                startLine: 2,
-                endColumn: 13,
-                endLine: 6,
-            },
-            workers: [],
-            name: {
-                literal: false,
-                value: '<init>',
-                kind: 'Identifier',
-            },
-            deprecatedAttachments: [],
-            annotationAttachments: [],
-            endpointNodes: [],
-            returnParameters: [],
-            parameters: [],
-            documentationAttachments: [],
-            kind: 'Action',
-            public: true,
-            native: true,
-            const: false,
-            attached: false,
-            lambda: false,
-            parallel: false,
-            connector: false,
-            deprecated: false,
-            endpoint: false,
-        },
-        variableDefs: [],
-        endpointNodes: [],
-        deprecatedAttachments: [],
-        initFunction: {
-            position: {
-                startColumn: 13,
-                startLine: 2,
-                endColumn: 13,
-                endLine: 6,
-            },
-            workers: [],
-            name: {
-                literal: false,
-                value: 'ClientConnector.<init>',
-                kind: 'Identifier',
-            },
-            annotationAttachments: [],
-            documentationAttachments: [],
-            deprecatedAttachments: [],
-            endpointNodes: [],
-            body: {
-                position: {
-                    startColumn: 13,
-                    startLine: 2,
-                    endColumn: 13,
-                    endLine: 6,
-                },
-                statements: [
-                    {
-                        position: {
-                            startColumn: 13,
-                            startLine: 2,
-                            endColumn: 13,
-                            endLine: 6,
+                "safeAssignment": false,
+                "typeNode": {
+                    "ws": [
+                        {
+                            "ws": "",
+                            "i": 18,
+                            "text": "http",
+                            "static": false
                         },
-                        expressions: [],
-                        kind: 'Return',
-                    },
-                ],
-                kind: 'Block',
-            },
-            returnParameters: [],
-            parameters: [
-                {
-                    position: {
-                        startColumn: 13,
-                        startLine: 2,
-                        endColumn: 13,
-                        endLine: 6,
-                    },
-                    symbolType: [
-                        'connector',
+                        {
+                            "ws": "",
+                            "i": 19,
+                            "text": ":",
+                            "static": true
+                        },
+                        {
+                            "ws": "",
+                            "i": 20,
+                            "text": "Connection",
+                            "static": false
+                        }
                     ],
-                    typeNode: {
-                        position: {
-                            startColumn: 13,
-                            startLine: 2,
-                            endColumn: 13,
-                            endLine: 6,
-                        },
-                        symbolType: [
-                            'connector',
-                        ],
-                        packageAlias: {
-                            literal: false,
-                            value: '',
-                            kind: 'Identifier',
-                        },
-                        public: false,
-                        native: false,
-                        const: false,
-                        attached: false,
-                        lambda: false,
-                        parallel: false,
-                        connector: true,
-                        deprecated: false,
-                        endpoint: false,
-                        typeName: {
-                            literal: false,
-                            value: 'ClientConnector',
-                            kind: 'Identifier',
-                        },
-                        kind: 'UserDefinedType',
+                    "position": {
+                        "startColumn": 20,
+                        "startLine": 3,
+                        "endColumn": 25,
+                        "endLine": 3
                     },
-                    deprecatedAttachments: [],
-                    annotationAttachments: [],
-                    name: {
-                        literal: false,
-                        value: 'connector',
-                        kind: 'Identifier',
+                    "symbolType": [
+                        "other"
+                    ],
+                    "packageAlias": {
+                        "literal": false,
+                        "value": "http",
+                        "kind": "Identifier"
                     },
-                    documentationAttachments: [],
-                    kind: 'Variable',
-                    public: false,
-                    native: false,
-                    const: false,
-                    attached: false,
-                    lambda: false,
-                    parallel: false,
-                    connector: false,
-                    deprecated: false,
-                    endpoint: false,
+                    "grouped": false,
+                    "typeName": {
+                        "literal": false,
+                        "value": "Connection",
+                        "kind": "Identifier"
+                    },
+                    "nullable": false,
+                    "kind": "UserDefinedType"
                 },
-            ],
-            kind: 'Function',
-            public: true,
-            native: false,
-            const: false,
-            attached: false,
-            lambda: false,
-            parallel: false,
-            connector: false,
-            deprecated: false,
-            endpoint: false,
-        },
-        parameters: [
+                "deprecatedAttachments": [],
+                "annotationAttachments": [],
+                "name": {
+                    "literal": false,
+                    "value": "conn",
+                    "kind": "Identifier"
+                },
+                "documentationAttachments": [],
+                "kind": "Variable",
+                "public": false,
+                "native": false,
+                "final": false,
+                "attached": false,
+                "lambda": false,
+                "parallel": false,
+                "connector": false,
+                "deprecated": false,
+                "readonly": false,
+                "function_final": false,
+                "interface": false
+            },
             {
-                ws: [
+                "ws": [
                     {
-                        ws: ' ',
-                        i: 8,
-                        text: 'url',
-                        static: false,
-                    },
+                        "ws": " ",
+                        "i": 29,
+                        "text": "req",
+                        "static": false
+                    }
                 ],
-                position: {
-                    startColumn: 39,
-                    startLine: 2,
-                    endColumn: 46,
-                    endLine: 2,
+                "position": {
+                    "startColumn": 42,
+                    "startLine": 3,
+                    "endColumn": 55,
+                    "endLine": 3
                 },
-                symbolType: [
-                    'string',
+                "symbolType": [
+                    "other"
                 ],
-                typeNode: {
-                    ws: [
+                "safeAssignment": false,
+                "typeNode": {
+                    "ws": [
                         {
-                            ws: '',
-                            i: 6,
-                            text: 'string',
-                            static: true,
+                            "ws": " ",
+                            "i": 25,
+                            "text": "http",
+                            "static": false
                         },
+                        {
+                            "ws": "",
+                            "i": 26,
+                            "text": ":",
+                            "static": true
+                        },
+                        {
+                            "ws": "",
+                            "i": 27,
+                            "text": "Request",
+                            "static": false
+                        }
                     ],
-                    position: {
-                        startColumn: 39,
-                        startLine: 2,
-                        endColumn: 39,
-                        endLine: 2,
+                    "position": {
+                        "startColumn": 42,
+                        "startLine": 3,
+                        "endColumn": 47,
+                        "endLine": 3
                     },
-                    symbolType: [
-                        'string',
+                    "symbolType": [
+                        "other"
                     ],
-                    typeKind: 'string',
-                    kind: 'ValueType',
+                    "packageAlias": {
+                        "literal": false,
+                        "value": "http",
+                        "kind": "Identifier"
+                    },
+                    "grouped": false,
+                    "typeName": {
+                        "literal": false,
+                        "value": "Request",
+                        "kind": "Identifier"
+                    },
+                    "nullable": false,
+                    "kind": "UserDefinedType"
                 },
-                deprecatedAttachments: [],
-                annotationAttachments: [],
-                name: {
-                    literal: false,
-                    value: 'url',
-                    kind: 'Identifier',
+                "deprecatedAttachments": [],
+                "annotationAttachments": [],
+                "name": {
+                    "literal": false,
+                    "value": "req",
+                    "kind": "Identifier"
                 },
-                documentationAttachments: [],
-                kind: 'Variable',
-                public: false,
-                native: false,
-                const: false,
-                attached: false,
-                lambda: false,
-                parallel: false,
-                connector: false,
-                deprecated: false,
-                endpoint: false,
-            },
+                "documentationAttachments": [],
+                "kind": "Variable",
+                "public": false,
+                "native": false,
+                "final": false,
+                "attached": false,
+                "lambda": false,
+                "parallel": false,
+                "connector": false,
+                "deprecated": false,
+                "readonly": false,
+                "function_final": false,
+                "interface": false
+            }
         ],
-        kind: 'Connector',
-        public: false,
-        native: false,
-        const: false,
-        attached: false,
-        lambda: false,
-        parallel: false,
-        connector: false,
-        deprecated: false,
-        endpoint: false,
+        "kind": "Resource",
+        "public": true,
+        "native": false,
+        "final": false,
+        "attached": false,
+        "lambda": false,
+        "parallel": false,
+        "connector": false,
+        "deprecated": false,
+        "readonly": false,
+        "function_final": false,
+        "interface": false
     },
-    createHTTPServiceDef: {
-        ws: [
+    "createWSEndpointDef": {
+        "ws": [
             {
-                ws: '\n                ',
-                i: 2,
-                text: 'service',
-                static: true,
+                "ws": "\n            ",
+                "i": 2,
+                "text": "endpoint",
+                "static": true
             },
             {
-                ws: '',
-                i: 3,
-                text: '<',
-                static: true,
+                "ws": " ",
+                "i": 8,
+                "text": "wsEnpointName",
+                "static": false
             },
             {
-                ws: '',
-                i: 5,
-                text: '>',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 7,
-                text: 'service1',
-                static: false,
-            },
-            {
-                ws: ' ',
-                i: 9,
-                text: '{',
-                static: true,
-            },
-            {
-                ws: '\n                ',
-                i: 37,
-                text: '}',
-                static: true,
-            },
+                "ws": "",
+                "i": 19,
+                "text": ";",
+                "static": true
+            }
         ],
-        position: {
-            startColumn: 17,
-            startLine: 2,
-            endColumn: 17,
-            endLine: 6,
+        "position": {
+            "startColumn": 13,
+            "startLine": 2,
+            "endColumn": 14,
+            "endLine": 4
         },
-        resources: [
-            {
-                ws: [
-                    {
-                        ws: '\n                    ',
-                        i: 12,
-                        text: 'resource',
-                        static: true,
-                    },
-                    {
-                        ws: ' ',
-                        i: 14,
-                        text: 'echo1',
-                        static: false,
-                    },
-                    {
-                        ws: ' ',
-                        i: 16,
-                        text: '(',
-                        static: true,
-                    },
-                    {
-                        ws: '',
-                        i: 22,
-                        text: ',',
-                        static: true,
-                    },
-                    {
-                        ws: '',
-                        i: 29,
-                        text: ')',
-                        static: true,
-                    },
-                    {
-                        ws: ' ',
-                        i: 31,
-                        text: '{',
-                        static: true,
-                    },
-                    {
-                        ws: '\n\n                    ',
-                        i: 34,
-                        text: '}',
-                        static: true,
-                    },
-                ],
-                position: {
-                    startColumn: 21,
-                    startLine: 3,
-                    endColumn: 21,
-                    endLine: 5,
-                },
-                workers: [],
-                name: {
-                    literal: false,
-                    value: 'echo1',
-                    kind: 'Identifier',
-                },
-                deprecatedAttachments: [],
-                annotationAttachments: [],
-                endpointNodes: [],
-                body: {
-                    statements: [],
-                    kind: 'Block',
-                },
-                returnParameters: [],
-                parameters: [
-                    {
-                        ws: [
-                            {
-                                ws: ' ',
-                                i: 21,
-                                text: 'conn',
-                                static: false,
-                            },
-                        ],
-                        position: {
-                            startColumn: 37,
-                            startLine: 3,
-                            endColumn: 53,
-                            endLine: 3,
-                        },
-                        symbolType: [
-                            'other',
-                        ],
-                        typeNode: {
-                            ws: [
-                                {
-                                    ws: '',
-                                    i: 17,
-                                    text: 'http',
-                                    static: false,
-                                },
-                                {
-                                    ws: '',
-                                    i: 18,
-                                    text: ':',
-                                    static: true,
-                                },
-                                {
-                                    ws: '',
-                                    i: 19,
-                                    text: 'Connection',
-                                    static: false,
-                                },
-                            ],
-                            position: {
-                                startColumn: 37,
-                                startLine: 3,
-                                endColumn: 42,
-                                endLine: 3,
-                            },
-                            symbolType: [
-                                'other',
-                            ],
-                            packageAlias: {
-                                literal: false,
-                                value: 'http',
-                                kind: 'Identifier',
-                            },
-                            typeName: {
-                                literal: false,
-                                value: 'Connection',
-                                kind: 'Identifier',
-                            },
-                            kind: 'UserDefinedType',
-                        },
-                        deprecatedAttachments: [],
-                        annotationAttachments: [],
-                        name: {
-                            literal: false,
-                            value: 'conn',
-                            kind: 'Identifier',
-                        },
-                        documentationAttachments: [],
-                        kind: 'Variable',
-                        public: false,
-                        native: false,
-                        const: false,
-                        attached: false,
-                        lambda: false,
-                        parallel: false,
-                        connector: false,
-                        deprecated: false,
-                        endpoint: false,
-                    },
-                    {
-                        ws: [
-                            {
-                                ws: ' ',
-                                i: 28,
-                                text: 'req',
-                                static: false,
-                            },
-                        ],
-                        position: {
-                            startColumn: 59,
-                            startLine: 3,
-                            endColumn: 74,
-                            endLine: 3,
-                        },
-                        symbolType: [
-                            'other',
-                        ],
-                        typeNode: {
-                            ws: [
-                                {
-                                    ws: ' ',
-                                    i: 24,
-                                    text: 'http',
-                                    static: false,
-                                },
-                                {
-                                    ws: '',
-                                    i: 25,
-                                    text: ':',
-                                    static: true,
-                                },
-                                {
-                                    ws: '',
-                                    i: 26,
-                                    text: 'InRequest',
-                                    static: false,
-                                },
-                            ],
-                            position: {
-                                startColumn: 59,
-                                startLine: 3,
-                                endColumn: 64,
-                                endLine: 3,
-                            },
-                            symbolType: [
-                                'other',
-                            ],
-                            packageAlias: {
-                                literal: false,
-                                value: 'http',
-                                kind: 'Identifier',
-                            },
-                            typeName: {
-                                literal: false,
-                                value: 'InRequest',
-                                kind: 'Identifier',
-                            },
-                            kind: 'UserDefinedType',
-                        },
-                        deprecatedAttachments: [],
-                        annotationAttachments: [],
-                        name: {
-                            literal: false,
-                            value: 'req',
-                            kind: 'Identifier',
-                        },
-                        documentationAttachments: [],
-                        kind: 'Variable',
-                        public: false,
-                        native: false,
-                        const: false,
-                        attached: false,
-                        lambda: false,
-                        parallel: false,
-                        connector: false,
-                        deprecated: false,
-                        endpoint: false,
-                    },
-                ],
-                documentationAttachments: [],
-                kind: 'Resource',
-                public: true,
-                native: false,
-                const: false,
-                attached: false,
-                lambda: false,
-                parallel: false,
-                connector: false,
-                deprecated: false,
-                endpoint: false,
-            },
+        "symbolType": [
+            "other"
         ],
-        deprecatedAttachments: [],
-        endpointType: {
-            ws: [
+        "configurationExpression": {
+            "ws": [
                 {
-                    ws: '',
-                    i: 4,
-                    text: 'http',
-                    static: false,
+                    "ws": " ",
+                    "i": 10,
+                    "text": "{",
+                    "static": true
                 },
-            ],
-            position: {
-                startColumn: 17,
-                startLine: 2,
-                endColumn: 17,
-                endLine: 6,
-            },
-            packageAlias: {
-                literal: false,
-                value: '',
-                kind: 'Identifier',
-            },
-            typeName: {
-                literal: false,
-                value: 'http',
-                kind: 'Identifier',
-            },
-            kind: 'UserDefinedType',
-        },
-        annotationAttachments: [],
-        initFunction: {
-            position: {
-                startColumn: 17,
-                startLine: 2,
-                endColumn: 17,
-                endLine: 6,
-            },
-            workers: [],
-            name: {
-                literal: false,
-                value: 'service1.<init>',
-                kind: 'Identifier',
-            },
-            annotationAttachments: [],
-            documentationAttachments: [],
-            deprecatedAttachments: [],
-            endpointNodes: [],
-            body: {
-                position: {
-                    startColumn: 17,
-                    startLine: 2,
-                    endColumn: 17,
-                    endLine: 6,
-                },
-                statements: [
-                    {
-                        position: {
-                            startColumn: 17,
-                            startLine: 2,
-                            endColumn: 17,
-                            endLine: 6,
-                        },
-                        expressions: [],
-                        kind: 'Return',
-                    },
-                ],
-                kind: 'Block',
-            },
-            returnParameters: [],
-            parameters: [],
-            kind: 'Function',
-            public: true,
-            native: false,
-            const: false,
-            attached: false,
-            lambda: false,
-            parallel: false,
-            connector: false,
-            deprecated: false,
-            endpoint: false,
-        },
-        variables: [],
-        name: {
-            literal: false,
-            value: 'service1',
-            kind: 'Identifier',
-        },
-        endpointNodes: [],
-        documentationAttachments: [],
-        kind: 'Service',
-    },
-    createIf: {
-        ws: [
-            {
-                ws: '\n\n            ',
-                i: 8,
-                text: 'if',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 10,
-                text: '(',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 12,
-                text: ')',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 14,
-                text: '{',
-                static: true,
-            },
-            {
-                ws: '\n\n            ',
-                i: 17,
-                text: '}',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 19,
-                text: 'else',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 21,
-                text: '{',
-                static: true,
-            },
-            {
-                ws: '\n            \n            ',
-                i: 26,
-                text: '}',
-                static: true,
-            },
-        ],
-        position: {
-            startColumn: 13,
-            startLine: 3,
-            endColumn: 13,
-            endLine: 5,
-        },
-        body: {
-            statements: [],
-            kind: 'Block',
-        },
-        condition: {
-            ws: [
                 {
-                    ws: '',
-                    i: 11,
-                    text: 'true',
-                    static: false,
-                },
+                    "ws": "\n            ",
+                    "i": 18,
+                    "text": "}",
+                    "static": true
+                }
             ],
-            position: {
-                startColumn: 17,
-                startLine: 3,
-                endColumn: 17,
-                endLine: 3,
+            "position": {
+                "startColumn": 50,
+                "startLine": 2,
+                "endColumn": 13,
+                "endLine": 4
             },
-            value: 'true',
-            kind: 'Literal',
-        },
-        elseStatement: {
-            position: {
-                startColumn: 15,
-                startLine: 5,
-                endColumn: 13,
-                endLine: 7,
-            },
-            statements: [],
-            kind: 'Block',
-        },
-        kind: 'If',
-    },
-    createWorkerInvocation: {
-        ws: [
-            {
-                ws: ' ',
-                i: 10,
-                text: '->',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 12,
-                text: 'worker1',
-                static: false,
-            },
-            {
-                ws: ' ',
-                i: 14,
-                text: ';',
-                static: true,
-            },
-        ],
-        position: {
-            startColumn: 13,
-            startLine: 3,
-            endColumn: 26,
-            endLine: 3,
-        },
-        workerName: {
-            literal: false,
-            value: 'worker1',
-            kind: 'Identifier',
-        },
-        expressions: [
-            {
-                ws: [
-                    {
-                        ws: '\n\n            ',
-                        i: 8,
-                        text: 'm',
-                        static: false,
-                    },
-                ],
-                position: {
-                    startColumn: 13,
-                    startLine: 3,
-                    endColumn: 13,
-                    endLine: 3,
-                },
-                variableName: {
-                    literal: false,
-                    value: 'm',
-                    kind: 'Identifier',
-                },
-                packageAlias: {
-                    literal: false,
-                    value: '',
-                    kind: 'Identifier',
-                },
-                kind: 'SimpleVariableRef',
-            },
-        ],
-        forkJoinedSend: false,
-        kind: 'WorkerSend',
-    },
-    createWorkerFragment: {
-        ws: [
-            {
-                ws: '\n\n            ',
-                i: 8,
-                text: 'worker',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 10,
-                text: 'worker1',
-                static: false,
-            },
-            {
-                ws: ' ',
-                i: 12,
-                text: '{',
-                static: true,
-            },
-            {
-                ws: '\n            ',
-                i: 15,
-                text: '}',
-                static: true,
-            },
-        ],
-        position: {
-            startColumn: 13,
-            startLine: 3,
-            endColumn: 13,
-            endLine: 4,
-        },
-        workers: [],
-        name: {
-            literal: false,
-            value: 'worker1',
-            kind: 'Identifier',
-        },
-        deprecatedAttachments: [],
-        annotationAttachments: [],
-        endpointNodes: [],
-        body: {
-            statements: [],
-            kind: 'Block',
-        },
-        returnParameters: [],
-        parameters: [],
-        documentationAttachments: [],
-        kind: 'Worker',
-        public: false,
-        native: false,
-        const: false,
-        attached: false,
-        lambda: false,
-        parallel: false,
-        connector: false,
-        deprecated: false,
-        endpoint: false,
-    },
-    createTry: {
-        ws: [
-            {
-                ws: '\n\n            ',
-                i: 8,
-                text: 'try',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 10,
-                text: '{',
-                static: true,
-            },
-            {
-                ws: '\n\n            ',
-                i: 13,
-                text: '}',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 28,
-                text: 'finally',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 30,
-                text: '{',
-                static: true,
-            },
-            {
-                ws: '\n            \n            ',
-                i: 35,
-                text: '}',
-                static: true,
-            },
-        ],
-        position: {
-            startColumn: 13,
-            startLine: 3,
-            endColumn: 13,
-            endLine: 9,
-        },
-        finallyBody: {
-            position: {
-                startColumn: 15,
-                startLine: 7,
-                endColumn: 13,
-                endLine: 9,
-            },
-            statements: [],
-            kind: 'Block',
-        },
-        body: {
-            position: {
-                startColumn: 15,
-                startLine: 5,
-                endColumn: -1,
-                endLine: -1,
-            },
-            statements: [],
-            kind: 'Block',
-        },
-        catchBlocks: [
-            {
-                ws: [
-                    {
-                        ws: ' ',
-                        i: 15,
-                        text: 'catch',
-                        static: true,
-                    },
-                    {
-                        ws: ' ',
-                        i: 17,
-                        text: '(',
-                        static: true,
-                    },
-                    {
-                        ws: '',
-                        i: 21,
-                        text: ')',
-                        static: true,
-                    },
-                    {
-                        ws: ' ',
-                        i: 23,
-                        text: '{',
-                        static: true,
-                    },
-                    {
-                        ws: '\n\n            ',
-                        i: 26,
-                        text: '}',
-                        static: true,
-                    },
-                ],
-                position: {
-                    startColumn: 15,
-                    startLine: 5,
-                    endColumn: 13,
-                    endLine: 7,
-                },
-                body: {
-                    statements: [],
-                    kind: 'Block',
-                },
-                parameter: {
-                    ws: [
-                        {
-                            ws: ' ',
-                            i: 20,
-                            text: 'err',
-                            static: false,
-                        },
-                    ],
-                    position: {
-                        startColumn: 22,
-                        startLine: 5,
-                        endColumn: 22,
-                        endLine: 5,
-                    },
-                    typeNode: {
-                        ws: [
-                            {
-                                ws: '',
-                                i: 18,
-                                text: 'error',
-                                static: false,
-                            },
-                        ],
-                        position: {
-                            startColumn: 22,
-                            startLine: 5,
-                            endColumn: 22,
-                            endLine: 5,
-                        },
-                        packageAlias: {
-                            literal: false,
-                            value: '',
-                            kind: 'Identifier',
-                        },
-                        typeName: {
-                            literal: false,
-                            value: 'error',
-                            kind: 'Identifier',
-                        },
-                        kind: 'UserDefinedType',
-                    },
-                    deprecatedAttachments: [],
-                    annotationAttachments: [],
-                    name: {
-                        literal: false,
-                        value: 'err',
-                        kind: 'Identifier',
-                    },
-                    documentationAttachments: [],
-                    kind: 'Variable',
-                    public: false,
-                    native: false,
-                    const: false,
-                    attached: false,
-                    lambda: false,
-                    parallel: false,
-                    connector: false,
-                    deprecated: false,
-                    endpoint: false,
-                },
-                kind: 'Catch',
-            },
-        ],
-        kind: 'Try',
-    },
-    createJMSResource: {
-        ws: [
-            {
-                ws: '\n\n            ',
-                i: 9,
-                text: 'resource',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 11,
-                text: 'echo1',
-                static: false,
-            },
-            {
-                ws: ' ',
-                i: 13,
-                text: '(',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 19,
-                text: ')',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 21,
-                text: '{',
-                static: true,
-            },
-            {
-                ws: '\n\n            ',
-                i: 24,
-                text: '}',
-                static: true,
-            },
-        ],
-        position: {
-            startColumn: 13,
-            startLine: 3,
-            endColumn: 13,
-            endLine: 5,
-        },
-        workers: [],
-        name: {
-            literal: false,
-            value: 'echo1',
-            kind: 'Identifier',
-        },
-        deprecatedAttachments: [],
-        annotationAttachments: [],
-        endpointNodes: [],
-        body: {
-            statements: [],
-            kind: 'Block',
-        },
-        returnParameters: [],
-        parameters: [
-            {
-                ws: [
-                    {
-                        ws: ' ',
-                        i: 18,
-                        text: 'request',
-                        static: false,
-                    },
-                ],
-                position: {
-                    startColumn: 29,
-                    startLine: 3,
-                    endColumn: 44,
-                    endLine: 3,
-                },
-                symbolType: [
-                    'other',
-                ],
-                typeNode: {
-                    ws: [
-                        {
-                            ws: '',
-                            i: 14,
-                            text: 'jms',
-                            static: false,
-                        },
-                        {
-                            ws: '',
-                            i: 15,
-                            text: ':',
-                            static: true,
-                        },
-                        {
-                            ws: '',
-                            i: 16,
-                            text: 'JMSMessage',
-                            static: false,
-                        },
-                    ],
-                    position: {
-                        startColumn: 29,
-                        startLine: 3,
-                        endColumn: 33,
-                        endLine: 3,
-                    },
-                    symbolType: [
-                        'other',
-                    ],
-                    packageAlias: {
-                        literal: false,
-                        value: 'jms',
-                        kind: 'Identifier',
-                    },
-                    typeName: {
-                        literal: false,
-                        value: 'JMSMessage',
-                        kind: 'Identifier',
-                    },
-                    kind: 'UserDefinedType',
-                },
-                deprecatedAttachments: [],
-                annotationAttachments: [],
-                name: {
-                    literal: false,
-                    value: 'request',
-                    kind: 'Identifier',
-                },
-                documentationAttachments: [],
-                kind: 'Variable',
-                public: false,
-                native: false,
-                const: false,
-                attached: false,
-                lambda: false,
-                parallel: false,
-                connector: false,
-                deprecated: false,
-                endpoint: false,
-            },
-        ],
-        documentationAttachments: [],
-        kind: 'Resource',
-        public: true,
-        native: false,
-        const: false,
-        attached: false,
-        lambda: false,
-        parallel: false,
-        connector: false,
-        deprecated: false,
-        endpoint: false,
-    },
-    createBindStmt: {
-        error: 'Incorrect format of the generated JSON',
-    },
-    createWorkerReceive: {
-        ws: [
-            {
-                ws: ' ',
-                i: 10,
-                text: '<-',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 12,
-                text: 'worker1',
-                static: false,
-            },
-            {
-                ws: ' ',
-                i: 14,
-                text: ';',
-                static: true,
-            },
-        ],
-        position: {
-            startColumn: 13,
-            startLine: 3,
-            endColumn: 26,
-            endLine: 3,
-        },
-        workerName: {
-            literal: false,
-            value: 'worker1',
-            kind: 'Identifier',
-        },
-        expressions: [
-            {
-                ws: [
-                    {
-                        ws: '\n\n            ',
-                        i: 8,
-                        text: 'm',
-                        static: false,
-                    },
-                ],
-                position: {
-                    startColumn: 13,
-                    startLine: 3,
-                    endColumn: 13,
-                    endLine: 3,
-                },
-                variableName: {
-                    literal: false,
-                    value: 'm',
-                    kind: 'Identifier',
-                },
-                packageAlias: {
-                    literal: false,
-                    value: '',
-                    kind: 'Identifier',
-                },
-                kind: 'SimpleVariableRef',
-            },
-        ],
-        kind: 'WorkerReceive',
-    },
-    createFSServiceDef: {
-        ws: [
-            {
-                ws: '\n            ',
-                i: 2,
-                text: 'service',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 3,
-                text: '<',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 5,
-                text: '>',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 7,
-                text: 'service1',
-                static: false,
-            },
-            {
-                ws: ' ',
-                i: 9,
-                text: '{',
-                static: true,
-            },
-            {
-                ws: '\n            ',
-                i: 30,
-                text: '}',
-                static: true,
-            },
-        ],
-        position: {
-            startColumn: 13,
-            startLine: 2,
-            endColumn: 13,
-            endLine: 6,
-        },
-        resources: [
-            {
-                ws: [
-                    {
-                        ws: '\n                ',
-                        i: 12,
-                        text: 'resource',
-                        static: true,
-                    },
-                    {
-                        ws: ' ',
-                        i: 14,
-                        text: 'echo1',
-                        static: false,
-                    },
-                    {
-                        ws: ' ',
-                        i: 16,
-                        text: '(',
-                        static: true,
-                    },
-                    {
-                        ws: '',
-                        i: 22,
-                        text: ')',
-                        static: true,
-                    },
-                    {
-                        ws: ' ',
-                        i: 24,
-                        text: '{',
-                        static: true,
-                    },
-                    {
-                        ws: '\n\n                ',
-                        i: 27,
-                        text: '}',
-                        static: true,
-                    },
-                ],
-                position: {
-                    startColumn: 17,
-                    startLine: 3,
-                    endColumn: 17,
-                    endLine: 5,
-                },
-                workers: [],
-                name: {
-                    literal: false,
-                    value: 'echo1',
-                    kind: 'Identifier',
-                },
-                deprecatedAttachments: [],
-                annotationAttachments: [],
-                endpointNodes: [],
-                body: {
-                    statements: [],
-                    kind: 'Block',
-                },
-                returnParameters: [],
-                parameters: [
-                    {
-                        ws: [
-                            {
-                                ws: ' ',
-                                i: 21,
-                                text: 'm',
-                                static: false,
-                            },
-                        ],
-                        position: {
-                            startColumn: 33,
-                            startLine: 3,
-                            endColumn: 52,
-                            endLine: 3,
-                        },
-                        symbolType: [
-                            'other',
-                        ],
-                        typeNode: {
-                            ws: [
-                                {
-                                    ws: '',
-                                    i: 17,
-                                    text: 'fs',
-                                    static: false,
-                                },
-                                {
-                                    ws: '',
-                                    i: 18,
-                                    text: ':',
-                                    static: true,
-                                },
-                                {
-                                    ws: '',
-                                    i: 19,
-                                    text: 'FileSystemEvent',
-                                    static: false,
-                                },
-                            ],
-                            position: {
-                                startColumn: 33,
-                                startLine: 3,
-                                endColumn: 36,
-                                endLine: 3,
-                            },
-                            symbolType: [
-                                'other',
-                            ],
-                            packageAlias: {
-                                literal: false,
-                                value: 'fs',
-                                kind: 'Identifier',
-                            },
-                            typeName: {
-                                literal: false,
-                                value: 'FileSystemEvent',
-                                kind: 'Identifier',
-                            },
-                            kind: 'UserDefinedType',
-                        },
-                        deprecatedAttachments: [],
-                        annotationAttachments: [],
-                        name: {
-                            literal: false,
-                            value: 'm',
-                            kind: 'Identifier',
-                        },
-                        documentationAttachments: [],
-                        kind: 'Variable',
-                        public: false,
-                        native: false,
-                        const: false,
-                        attached: false,
-                        lambda: false,
-                        parallel: false,
-                        connector: false,
-                        deprecated: false,
-                        endpoint: false,
-                    },
-                ],
-                documentationAttachments: [],
-                kind: 'Resource',
-                public: true,
-                native: false,
-                const: false,
-                attached: false,
-                lambda: false,
-                parallel: false,
-                connector: false,
-                deprecated: false,
-                endpoint: false,
-            },
-        ],
-        deprecatedAttachments: [],
-        endpointType: {
-            ws: [
+            "symbolType": [
+                "other"
+            ],
+            "keyValuePairs": [
                 {
-                    ws: '',
-                    i: 4,
-                    text: 'fs',
-                    static: false,
-                },
-            ],
-            position: {
-                startColumn: 13,
-                startLine: 2,
-                endColumn: 13,
-                endLine: 6,
-            },
-            packageAlias: {
-                literal: false,
-                value: '',
-                kind: 'Identifier',
-            },
-            typeName: {
-                literal: false,
-                value: 'fs',
-                kind: 'Identifier',
-            },
-            kind: 'UserDefinedType',
-        },
-        annotationAttachments: [],
-        initFunction: {
-            position: {
-                startColumn: 13,
-                startLine: 2,
-                endColumn: 13,
-                endLine: 6,
-            },
-            workers: [],
-            name: {
-                literal: false,
-                value: 'service1.<init>',
-                kind: 'Identifier',
-            },
-            annotationAttachments: [],
-            documentationAttachments: [],
-            deprecatedAttachments: [],
-            endpointNodes: [],
-            body: {
-                position: {
-                    startColumn: 13,
-                    startLine: 2,
-                    endColumn: 13,
-                    endLine: 6,
-                },
-                statements: [
-                    {
-                        position: {
-                            startColumn: 13,
-                            startLine: 2,
-                            endColumn: 13,
-                            endLine: 6,
-                        },
-                        expressions: [],
-                        kind: 'Return',
-                    },
-                ],
-                kind: 'Block',
-            },
-            returnParameters: [],
-            parameters: [],
-            kind: 'Function',
-            public: true,
-            native: false,
-            const: false,
-            attached: false,
-            lambda: false,
-            parallel: false,
-            connector: false,
-            deprecated: false,
-            endpoint: false,
-        },
-        variables: [],
-        name: {
-            literal: false,
-            value: 'service1',
-            kind: 'Identifier',
-        },
-        endpointNodes: [],
-        documentationAttachments: [],
-        kind: 'Service',
-    },
-    createFSResource: {
-        ws: [
-            {
-                ws: '\n\n            ',
-                i: 9,
-                text: 'resource',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 11,
-                text: 'echo1',
-                static: false,
-            },
-            {
-                ws: ' ',
-                i: 13,
-                text: '(',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 19,
-                text: ')',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 21,
-                text: '{',
-                static: true,
-            },
-            {
-                ws: '\n\n            ',
-                i: 24,
-                text: '}',
-                static: true,
-            },
-        ],
-        position: {
-            startColumn: 13,
-            startLine: 3,
-            endColumn: 13,
-            endLine: 5,
-        },
-        workers: [],
-        name: {
-            literal: false,
-            value: 'echo1',
-            kind: 'Identifier',
-        },
-        deprecatedAttachments: [],
-        annotationAttachments: [],
-        endpointNodes: [],
-        body: {
-            statements: [],
-            kind: 'Block',
-        },
-        returnParameters: [],
-        parameters: [
-            {
-                ws: [
-                    {
-                        ws: ' ',
-                        i: 18,
-                        text: 'm',
-                        static: false,
-                    },
-                ],
-                position: {
-                    startColumn: 29,
-                    startLine: 3,
-                    endColumn: 48,
-                    endLine: 3,
-                },
-                symbolType: [
-                    'other',
-                ],
-                typeNode: {
-                    ws: [
+                    "ws": [
                         {
-                            ws: '',
-                            i: 14,
-                            text: 'fs',
-                            static: false,
-                        },
-                        {
-                            ws: '',
-                            i: 15,
-                            text: ':',
-                            static: true,
-                        },
-                        {
-                            ws: '',
-                            i: 16,
-                            text: 'FileSystemEvent',
-                            static: false,
-                        },
+                            "ws": "",
+                            "i": 14,
+                            "text": ":",
+                            "static": true
+                        }
                     ],
-                    position: {
-                        startColumn: 29,
-                        startLine: 3,
-                        endColumn: 32,
-                        endLine: 3,
+                    "value": {
+                        "ws": [
+                            {
+                                "ws": "",
+                                "i": 15,
+                                "text": "9090",
+                                "static": false
+                            }
+                        ],
+                        "position": {
+                            "startColumn": 22,
+                            "startLine": 3,
+                            "endColumn": 22,
+                            "endLine": 3
+                        },
+                        "value": "9090",
+                        "kind": "Literal"
                     },
-                    symbolType: [
-                        'other',
-                    ],
-                    packageAlias: {
-                        literal: false,
-                        value: 'fs',
-                        kind: 'Identifier',
+                    "key": {
+                        "ws": [
+                            {
+                                "ws": "\n                ",
+                                "i": 13,
+                                "text": "port",
+                                "static": false
+                            }
+                        ],
+                        "position": {
+                            "startColumn": 17,
+                            "startLine": 3,
+                            "endColumn": 17,
+                            "endLine": 3
+                        },
+                        "variableName": {
+                            "literal": false,
+                            "value": "port",
+                            "kind": "Identifier"
+                        },
+                        "packageAlias": {
+                            "literal": false,
+                            "value": "",
+                            "kind": "Identifier"
+                        },
+                        "kind": "SimpleVariableRef"
                     },
-                    typeName: {
-                        literal: false,
-                        value: 'FileSystemEvent',
-                        kind: 'Identifier',
-                    },
-                    kind: 'UserDefinedType',
-                },
-                deprecatedAttachments: [],
-                annotationAttachments: [],
-                name: {
-                    literal: false,
-                    value: 'm',
-                    kind: 'Identifier',
-                },
-                documentationAttachments: [],
-                kind: 'Variable',
-                public: false,
-                native: false,
-                const: false,
-                attached: false,
-                lambda: false,
-                parallel: false,
-                connector: false,
-                deprecated: false,
-                endpoint: false,
-            },
-        ],
-        documentationAttachments: [],
-        kind: 'Resource',
-        public: true,
-        native: false,
-        const: false,
-        attached: false,
-        lambda: false,
-        parallel: false,
-        connector: false,
-        deprecated: false,
-        endpoint: false,
-    },
-    createForkJoin: {
-        ws: [
-            {
-                ws: '\n\n            ',
-                i: 8,
-                text: 'fork',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 10,
-                text: '{',
-                static: true,
-            },
-            {
-                ws: '\n            ',
-                i: 33,
-                text: '}',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 35,
-                text: 'join',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 36,
-                text: '(',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 37,
-                text: 'all',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 38,
-                text: ')',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 39,
-                text: '(',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 43,
-                text: ')',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 45,
-                text: '{',
-                static: true,
-            },
-            {
-                ws: '\n            \n            ',
-                i: 50,
-                text: '}',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 52,
-                text: 'timeout',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 53,
-                text: '(',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 55,
-                text: ')',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 56,
-                text: '(',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 60,
-                text: ')',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 62,
-                text: '{',
-                static: true,
-            },
-            {
-                ws: '\n            \n            ',
-                i: 67,
-                text: '}',
-                static: true,
-            },
-        ],
-        position: {
-            startColumn: 13,
-            startLine: 3,
-            endColumn: 13,
-            endLine: 12,
-        },
-        timeOutExpression: {
-            ws: [
-                {
-                    ws: '',
-                    i: 54,
-                    text: '100',
-                    static: false,
-                },
+                    "kind": "RecordLiteralKeyValue"
+                }
             ],
-            position: {
-                startColumn: 23,
-                startLine: 10,
-                endColumn: 23,
-                endLine: 10,
-            },
-            value: '100',
-            kind: 'Literal',
+            "kind": "RecordLiteralExpr"
         },
-        joinType: 'all',
-        timeOutVariable: {
-            ws: [
+        "name": {
+            "literal": false,
+            "value": "wsEnpointName",
+            "kind": "Identifier"
+        },
+        "annotationAttachments": [],
+        "kind": "Endpoint",
+        "endPointType": {
+            "ws": [
                 {
-                    ws: ' ',
-                    i: 59,
-                    text: 'results1',
-                    static: false,
+                    "ws": " ",
+                    "i": 4,
+                    "text": "http",
+                    "static": false
                 },
-            ],
-            position: {
-                startColumn: 28,
-                startLine: 10,
-                endColumn: 28,
-                endLine: 10,
-            },
-            typeNode: {
-                ws: [
-                    {
-                        ws: '',
-                        i: 57,
-                        text: 'map',
-                        static: true,
-                    },
-                ],
-                position: {
-                    startColumn: 28,
-                    startLine: 10,
-                    endColumn: 28,
-                    endLine: 10,
-                },
-                typeKind: 'map',
-                kind: 'BuiltInRefType',
-            },
-            deprecatedAttachments: [],
-            annotationAttachments: [],
-            name: {
-                literal: false,
-                value: 'results1',
-                kind: 'Identifier',
-            },
-            documentationAttachments: [],
-            kind: 'Variable',
-            public: false,
-            native: false,
-            const: false,
-            attached: false,
-            lambda: false,
-            parallel: false,
-            connector: false,
-            deprecated: false,
-            endpoint: false,
-        },
-        workers: [
-            {
-                ws: [
-                    {
-                        ws: '\n                ',
-                        i: 13,
-                        text: 'worker',
-                        static: true,
-                    },
-                    {
-                        ws: ' ',
-                        i: 15,
-                        text: 'worker1',
-                        static: false,
-                    },
-                    {
-                        ws: ' ',
-                        i: 17,
-                        text: '{',
-                        static: true,
-                    },
-                    {
-                        ws: '\n                ',
-                        i: 20,
-                        text: '}',
-                        static: true,
-                    },
-                ],
-                position: {
-                    startColumn: 17,
-                    startLine: 4,
-                    endColumn: 17,
-                    endLine: 5,
-                },
-                workers: [],
-                name: {
-                    literal: false,
-                    value: 'worker1',
-                    kind: 'Identifier',
-                },
-                deprecatedAttachments: [],
-                annotationAttachments: [],
-                endpointNodes: [],
-                body: {
-                    statements: [],
-                    kind: 'Block',
-                },
-                returnParameters: [],
-                parameters: [],
-                documentationAttachments: [],
-                kind: 'Worker',
-                public: false,
-                native: false,
-                const: false,
-                attached: false,
-                lambda: false,
-                parallel: false,
-                connector: false,
-                deprecated: false,
-                endpoint: false,
-            },
-            {
-                ws: [
-                    {
-                        ws: '\n                ',
-                        i: 23,
-                        text: 'worker',
-                        static: true,
-                    },
-                    {
-                        ws: ' ',
-                        i: 25,
-                        text: 'worker2',
-                        static: false,
-                    },
-                    {
-                        ws: ' ',
-                        i: 27,
-                        text: '{',
-                        static: true,
-                    },
-                    {
-                        ws: '\n                ',
-                        i: 30,
-                        text: '}',
-                        static: true,
-                    },
-                ],
-                position: {
-                    startColumn: 17,
-                    startLine: 6,
-                    endColumn: 17,
-                    endLine: 7,
-                },
-                workers: [],
-                name: {
-                    literal: false,
-                    value: 'worker2',
-                    kind: 'Identifier',
-                },
-                deprecatedAttachments: [],
-                annotationAttachments: [],
-                endpointNodes: [],
-                body: {
-                    statements: [],
-                    kind: 'Block',
-                },
-                returnParameters: [],
-                parameters: [],
-                documentationAttachments: [],
-                kind: 'Worker',
-                public: false,
-                native: false,
-                const: false,
-                attached: false,
-                lambda: false,
-                parallel: false,
-                connector: false,
-                deprecated: false,
-                endpoint: false,
-            },
-        ],
-        joinedWorkerIdentifiers: [],
-        joinResultVar: {
-            ws: [
                 {
-                    ws: ' ',
-                    i: 42,
-                    text: 'results',
-                    static: false,
+                    "ws": "",
+                    "i": 5,
+                    "text": ":",
+                    "static": true
                 },
-            ],
-            position: {
-                startColumn: 25,
-                startLine: 8,
-                endColumn: 25,
-                endLine: 8,
-            },
-            typeNode: {
-                ws: [
-                    {
-                        ws: '',
-                        i: 40,
-                        text: 'map',
-                        static: true,
-                    },
-                ],
-                position: {
-                    startColumn: 25,
-                    startLine: 8,
-                    endColumn: 25,
-                    endLine: 8,
-                },
-                typeKind: 'map',
-                kind: 'BuiltInRefType',
-            },
-            deprecatedAttachments: [],
-            annotationAttachments: [],
-            name: {
-                literal: false,
-                value: 'results',
-                kind: 'Identifier',
-            },
-            documentationAttachments: [],
-            kind: 'Variable',
-            public: false,
-            native: false,
-            const: false,
-            attached: false,
-            lambda: false,
-            parallel: false,
-            connector: false,
-            deprecated: false,
-            endpoint: false,
-        },
-        joinBody: {
-            statements: [],
-            kind: 'Block',
-        },
-        timeoutBody: {
-            statements: [],
-            kind: 'Block',
-        },
-        kind: 'ForkJoin',
-        joinCount: -1,
-    },
-    createWSServiceDef: {
-        ws: [
-            {
-                ws: '\n                ',
-                i: 2,
-                text: 'service',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 3,
-                text: '<',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 5,
-                text: '>',
-                static: true,
-            },
-            {
-                ws: ' ',
-                i: 7,
-                text: 'service1',
-                static: false,
-            },
-            {
-                ws: ' ',
-                i: 9,
-                text: '{',
-                static: true,
-            },
-            {
-                ws: '\n                ',
-                i: 83,
-                text: '}',
-                static: true,
-            },
-        ],
-        position: {
-            startColumn: 17,
-            startLine: 2,
-            endColumn: 17,
-            endLine: 12,
-        },
-        resources: [
-            {
-                ws: [
-                    {
-                        ws: '\n                    ',
-                        i: 12,
-                        text: 'resource',
-                        static: true,
-                    },
-                    {
-                        ws: ' ',
-                        i: 14,
-                        text: 'onOpen',
-                        static: false,
-                    },
-                    {
-                        ws: '',
-                        i: 15,
-                        text: '(',
-                        static: true,
-                    },
-                    {
-                        ws: '',
-                        i: 21,
-                        text: ')',
-                        static: true,
-                    },
-                    {
-                        ws: ' ',
-                        i: 23,
-                        text: '{',
-                        static: true,
-                    },
-                    {
-                        ws: '\n            \n                    ',
-                        i: 28,
-                        text: '}',
-                        static: true,
-                    },
-                ],
-                position: {
-                    startColumn: 21,
-                    startLine: 3,
-                    endColumn: 21,
-                    endLine: 5,
-                },
-                workers: [],
-                name: {
-                    literal: false,
-                    value: 'onOpen',
-                    kind: 'Identifier',
-                },
-                deprecatedAttachments: [],
-                annotationAttachments: [],
-                endpointNodes: [],
-                body: {
-                    statements: [],
-                    kind: 'Block',
-                },
-                returnParameters: [],
-                parameters: [
-                    {
-                        ws: [
-                            {
-                                ws: ' ',
-                                i: 20,
-                                text: 'conn',
-                                static: false,
-                            },
-                        ],
-                        position: {
-                            startColumn: 37,
-                            startLine: 3,
-                            endColumn: 51,
-                            endLine: 3,
-                        },
-                        symbolType: [
-                            'other',
-                        ],
-                        typeNode: {
-                            ws: [
-                                {
-                                    ws: '',
-                                    i: 16,
-                                    text: 'ws',
-                                    static: false,
-                                },
-                                {
-                                    ws: '',
-                                    i: 17,
-                                    text: ':',
-                                    static: true,
-                                },
-                                {
-                                    ws: '',
-                                    i: 18,
-                                    text: 'Connection',
-                                    static: false,
-                                },
-                            ],
-                            position: {
-                                startColumn: 37,
-                                startLine: 3,
-                                endColumn: 40,
-                                endLine: 3,
-                            },
-                            symbolType: [
-                                'other',
-                            ],
-                            packageAlias: {
-                                literal: false,
-                                value: 'ws',
-                                kind: 'Identifier',
-                            },
-                            typeName: {
-                                literal: false,
-                                value: 'Connection',
-                                kind: 'Identifier',
-                            },
-                            kind: 'UserDefinedType',
-                        },
-                        deprecatedAttachments: [],
-                        annotationAttachments: [],
-                        name: {
-                            literal: false,
-                            value: 'conn',
-                            kind: 'Identifier',
-                        },
-                        documentationAttachments: [],
-                        kind: 'Variable',
-                        public: false,
-                        native: false,
-                        const: false,
-                        attached: false,
-                        lambda: false,
-                        parallel: false,
-                        connector: false,
-                        deprecated: false,
-                        endpoint: false,
-                    },
-                ],
-                documentationAttachments: [],
-                kind: 'Resource',
-                public: true,
-                native: false,
-                const: false,
-                attached: false,
-                lambda: false,
-                parallel: false,
-                connector: false,
-                deprecated: false,
-                endpoint: false,
-            },
-            {
-                ws: [
-                    {
-                        ws: '\n                    ',
-                        i: 31,
-                        text: 'resource',
-                        static: true,
-                    },
-                    {
-                        ws: ' ',
-                        i: 33,
-                        text: 'onTextMessage',
-                        static: false,
-                    },
-                    {
-                        ws: '',
-                        i: 34,
-                        text: '(',
-                        static: true,
-                    },
-                    {
-                        ws: '',
-                        i: 40,
-                        text: ',',
-                        static: true,
-                    },
-                    {
-                        ws: '',
-                        i: 47,
-                        text: ')',
-                        static: true,
-                    },
-                    {
-                        ws: ' ',
-                        i: 49,
-                        text: '{',
-                        static: true,
-                    },
-                    {
-                        ws: '\n            \n                    ',
-                        i: 54,
-                        text: '}',
-                        static: true,
-                    },
-                ],
-                position: {
-                    startColumn: 21,
-                    startLine: 6,
-                    endColumn: 21,
-                    endLine: 8,
-                },
-                workers: [],
-                name: {
-                    literal: false,
-                    value: 'onTextMessage',
-                    kind: 'Identifier',
-                },
-                deprecatedAttachments: [],
-                annotationAttachments: [],
-                endpointNodes: [],
-                body: {
-                    statements: [],
-                    kind: 'Block',
-                },
-                returnParameters: [],
-                parameters: [
-                    {
-                        ws: [
-                            {
-                                ws: ' ',
-                                i: 39,
-                                text: 'conn',
-                                static: false,
-                            },
-                        ],
-                        position: {
-                            startColumn: 44,
-                            startLine: 6,
-                            endColumn: 58,
-                            endLine: 6,
-                        },
-                        symbolType: [
-                            'other',
-                        ],
-                        typeNode: {
-                            ws: [
-                                {
-                                    ws: '',
-                                    i: 35,
-                                    text: 'ws',
-                                    static: false,
-                                },
-                                {
-                                    ws: '',
-                                    i: 36,
-                                    text: ':',
-                                    static: true,
-                                },
-                                {
-                                    ws: '',
-                                    i: 37,
-                                    text: 'Connection',
-                                    static: false,
-                                },
-                            ],
-                            position: {
-                                startColumn: 44,
-                                startLine: 6,
-                                endColumn: 47,
-                                endLine: 6,
-                            },
-                            symbolType: [
-                                'other',
-                            ],
-                            packageAlias: {
-                                literal: false,
-                                value: 'ws',
-                                kind: 'Identifier',
-                            },
-                            typeName: {
-                                literal: false,
-                                value: 'Connection',
-                                kind: 'Identifier',
-                            },
-                            kind: 'UserDefinedType',
-                        },
-                        deprecatedAttachments: [],
-                        annotationAttachments: [],
-                        name: {
-                            literal: false,
-                            value: 'conn',
-                            kind: 'Identifier',
-                        },
-                        documentationAttachments: [],
-                        kind: 'Variable',
-                        public: false,
-                        native: false,
-                        const: false,
-                        attached: false,
-                        lambda: false,
-                        parallel: false,
-                        connector: false,
-                        deprecated: false,
-                        endpoint: false,
-                    },
-                    {
-                        ws: [
-                            {
-                                ws: ' ',
-                                i: 46,
-                                text: 'frame',
-                                static: false,
-                            },
-                        ],
-                        position: {
-                            startColumn: 64,
-                            startLine: 6,
-                            endColumn: 77,
-                            endLine: 6,
-                        },
-                        symbolType: [
-                            'other',
-                        ],
-                        typeNode: {
-                            ws: [
-                                {
-                                    ws: ' ',
-                                    i: 42,
-                                    text: 'ws',
-                                    static: false,
-                                },
-                                {
-                                    ws: '',
-                                    i: 43,
-                                    text: ':',
-                                    static: true,
-                                },
-                                {
-                                    ws: '',
-                                    i: 44,
-                                    text: 'TextFrame',
-                                    static: false,
-                                },
-                            ],
-                            position: {
-                                startColumn: 64,
-                                startLine: 6,
-                                endColumn: 67,
-                                endLine: 6,
-                            },
-                            symbolType: [
-                                'other',
-                            ],
-                            packageAlias: {
-                                literal: false,
-                                value: 'ws',
-                                kind: 'Identifier',
-                            },
-                            typeName: {
-                                literal: false,
-                                value: 'TextFrame',
-                                kind: 'Identifier',
-                            },
-                            kind: 'UserDefinedType',
-                        },
-                        deprecatedAttachments: [],
-                        annotationAttachments: [],
-                        name: {
-                            literal: false,
-                            value: 'frame',
-                            kind: 'Identifier',
-                        },
-                        documentationAttachments: [],
-                        kind: 'Variable',
-                        public: false,
-                        native: false,
-                        const: false,
-                        attached: false,
-                        lambda: false,
-                        parallel: false,
-                        connector: false,
-                        deprecated: false,
-                        endpoint: false,
-                    },
-                ],
-                documentationAttachments: [],
-                kind: 'Resource',
-                public: true,
-                native: false,
-                const: false,
-                attached: false,
-                lambda: false,
-                parallel: false,
-                connector: false,
-                deprecated: false,
-                endpoint: false,
-            },
-            {
-                ws: [
-                    {
-                        ws: '\n                    ',
-                        i: 57,
-                        text: 'resource',
-                        static: true,
-                    },
-                    {
-                        ws: ' ',
-                        i: 59,
-                        text: 'onClose',
-                        static: false,
-                    },
-                    {
-                        ws: '',
-                        i: 60,
-                        text: '(',
-                        static: true,
-                    },
-                    {
-                        ws: '',
-                        i: 66,
-                        text: ',',
-                        static: true,
-                    },
-                    {
-                        ws: '',
-                        i: 73,
-                        text: ')',
-                        static: true,
-                    },
-                    {
-                        ws: ' ',
-                        i: 75,
-                        text: '{',
-                        static: true,
-                    },
-                    {
-                        ws: '\n            \n                    ',
-                        i: 80,
-                        text: '}',
-                        static: true,
-                    },
-                ],
-                position: {
-                    startColumn: 21,
-                    startLine: 9,
-                    endColumn: 21,
-                    endLine: 11,
-                },
-                workers: [],
-                name: {
-                    literal: false,
-                    value: 'onClose',
-                    kind: 'Identifier',
-                },
-                deprecatedAttachments: [],
-                annotationAttachments: [],
-                endpointNodes: [],
-                body: {
-                    statements: [],
-                    kind: 'Block',
-                },
-                returnParameters: [],
-                parameters: [
-                    {
-                        ws: [
-                            {
-                                ws: ' ',
-                                i: 65,
-                                text: 'conn',
-                                static: false,
-                            },
-                        ],
-                        position: {
-                            startColumn: 38,
-                            startLine: 9,
-                            endColumn: 52,
-                            endLine: 9,
-                        },
-                        symbolType: [
-                            'other',
-                        ],
-                        typeNode: {
-                            ws: [
-                                {
-                                    ws: '',
-                                    i: 61,
-                                    text: 'ws',
-                                    static: false,
-                                },
-                                {
-                                    ws: '',
-                                    i: 62,
-                                    text: ':',
-                                    static: true,
-                                },
-                                {
-                                    ws: '',
-                                    i: 63,
-                                    text: 'Connection',
-                                    static: false,
-                                },
-                            ],
-                            position: {
-                                startColumn: 38,
-                                startLine: 9,
-                                endColumn: 41,
-                                endLine: 9,
-                            },
-                            symbolType: [
-                                'other',
-                            ],
-                            packageAlias: {
-                                literal: false,
-                                value: 'ws',
-                                kind: 'Identifier',
-                            },
-                            typeName: {
-                                literal: false,
-                                value: 'Connection',
-                                kind: 'Identifier',
-                            },
-                            kind: 'UserDefinedType',
-                        },
-                        deprecatedAttachments: [],
-                        annotationAttachments: [],
-                        name: {
-                            literal: false,
-                            value: 'conn',
-                            kind: 'Identifier',
-                        },
-                        documentationAttachments: [],
-                        kind: 'Variable',
-                        public: false,
-                        native: false,
-                        const: false,
-                        attached: false,
-                        lambda: false,
-                        parallel: false,
-                        connector: false,
-                        deprecated: false,
-                        endpoint: false,
-                    },
-                    {
-                        ws: [
-                            {
-                                ws: ' ',
-                                i: 72,
-                                text: 'frame',
-                                static: false,
-                            },
-                        ],
-                        position: {
-                            startColumn: 58,
-                            startLine: 9,
-                            endColumn: 72,
-                            endLine: 9,
-                        },
-                        symbolType: [
-                            'other',
-                        ],
-                        typeNode: {
-                            ws: [
-                                {
-                                    ws: ' ',
-                                    i: 68,
-                                    text: 'ws',
-                                    static: false,
-                                },
-                                {
-                                    ws: '',
-                                    i: 69,
-                                    text: ':',
-                                    static: true,
-                                },
-                                {
-                                    ws: '',
-                                    i: 70,
-                                    text: 'CloseFrame',
-                                    static: false,
-                                },
-                            ],
-                            position: {
-                                startColumn: 58,
-                                startLine: 9,
-                                endColumn: 61,
-                                endLine: 9,
-                            },
-                            symbolType: [
-                                'other',
-                            ],
-                            packageAlias: {
-                                literal: false,
-                                value: 'ws',
-                                kind: 'Identifier',
-                            },
-                            typeName: {
-                                literal: false,
-                                value: 'CloseFrame',
-                                kind: 'Identifier',
-                            },
-                            kind: 'UserDefinedType',
-                        },
-                        deprecatedAttachments: [],
-                        annotationAttachments: [],
-                        name: {
-                            literal: false,
-                            value: 'frame',
-                            kind: 'Identifier',
-                        },
-                        documentationAttachments: [],
-                        kind: 'Variable',
-                        public: false,
-                        native: false,
-                        const: false,
-                        attached: false,
-                        lambda: false,
-                        parallel: false,
-                        connector: false,
-                        deprecated: false,
-                        endpoint: false,
-                    },
-                ],
-                documentationAttachments: [],
-                kind: 'Resource',
-                public: true,
-                native: false,
-                const: false,
-                attached: false,
-                lambda: false,
-                parallel: false,
-                connector: false,
-                deprecated: false,
-                endpoint: false,
-            },
-        ],
-        deprecatedAttachments: [],
-        endpointType: {
-            ws: [
                 {
-                    ws: '',
-                    i: 4,
-                    text: 'ws',
-                    static: false,
-                },
+                    "ws": "",
+                    "i": 6,
+                    "text": "Listener",
+                    "static": false
+                }
             ],
-            position: {
-                startColumn: 17,
-                startLine: 2,
-                endColumn: 17,
-                endLine: 12,
+            "position": {
+                "startColumn": 22,
+                "startLine": 2,
+                "endColumn": 27,
+                "endLine": 2
             },
-            packageAlias: {
-                literal: false,
-                value: '',
-                kind: 'Identifier',
+            "symbolType": [
+                "other"
+            ],
+            "packageAlias": {
+                "literal": false,
+                "value": "http",
+                "kind": "Identifier"
             },
-            typeName: {
-                literal: false,
-                value: 'ws',
-                kind: 'Identifier',
+            "grouped": false,
+            "typeName": {
+                "literal": false,
+                "value": "Listener",
+                "kind": "Identifier"
             },
-            kind: 'UserDefinedType',
+            "nullable": false,
+            "kind": "UserDefinedType"
         },
-        annotationAttachments: [],
-        initFunction: {
-            position: {
-                startColumn: 17,
-                startLine: 2,
-                endColumn: 17,
-                endLine: 12,
-            },
-            workers: [],
-            name: {
-                literal: false,
-                value: 'service1.<init>',
-                kind: 'Identifier',
-            },
-            annotationAttachments: [],
-            documentationAttachments: [],
-            deprecatedAttachments: [],
-            endpointNodes: [],
-            body: {
-                position: {
-                    startColumn: 17,
-                    startLine: 2,
-                    endColumn: 17,
-                    endLine: 12,
-                },
-                statements: [
-                    {
-                        position: {
-                            startColumn: 17,
-                            startLine: 2,
-                            endColumn: 17,
-                            endLine: 12,
-                        },
-                        expressions: [],
-                        kind: 'Return',
-                    },
-                ],
-                kind: 'Block',
-            },
-            returnParameters: [],
-            parameters: [],
-            kind: 'Function',
-            public: true,
-            native: false,
-            const: false,
-            attached: false,
-            lambda: false,
-            parallel: false,
-            connector: false,
-            deprecated: false,
-            endpoint: false,
-        },
-        variables: [],
-        name: {
-            literal: false,
-            value: 'service1',
-            kind: 'Identifier',
-        },
-        endpointNodes: [],
-        documentationAttachments: [],
-        kind: 'Service',
+        "public": false,
+        "native": false,
+        "final": false,
+        "attached": false,
+        "lambda": false,
+        "parallel": false,
+        "connector": false,
+        "deprecated": false,
+        "readonly": false,
+        "function_final": false,
+        "interface": false
     },
-    createConnectorAction: {
-        ws: [
+    "createWorkerReceive": {
+        "ws": [
             {
-                ws: '\n\n            ',
-                i: 11,
-                text: 'action',
-                static: true,
+                "ws": " ",
+                "i": 10,
+                "text": "<-",
+                "static": true
             },
             {
-                ws: ' ',
-                i: 13,
-                text: 'action1',
-                static: false,
+                "ws": " ",
+                "i": 12,
+                "text": "worker1",
+                "static": false
             },
             {
-                ws: '',
-                i: 14,
-                text: '(',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 15,
-                text: ')',
-                static: true,
-            },
-            {
-                ws: '',
-                i: 16,
-                text: '{',
-                static: true,
-            },
-            {
-                ws: '\n\n            ',
-                i: 19,
-                text: '}',
-                static: true,
-            },
+                "ws": " ",
+                "i": 14,
+                "text": ";",
+                "static": true
+            }
         ],
-        position: {
-            startColumn: 13,
-            startLine: 3,
-            endColumn: 13,
-            endLine: 5,
+        "position": {
+            "startColumn": 13,
+            "startLine": 3,
+            "endColumn": 26,
+            "endLine": 3
         },
-        workers: [],
-        name: {
-            literal: false,
-            value: 'action1',
-            kind: 'Identifier',
+        "expression": {
+            "ws": [
+                {
+                    "ws": "\n\n            ",
+                    "i": 8,
+                    "text": "m",
+                    "static": false
+                }
+            ],
+            "position": {
+                "startColumn": 13,
+                "startLine": 3,
+                "endColumn": 13,
+                "endLine": 3
+            },
+            "symbolType": [
+                "other"
+            ],
+            "variableName": {
+                "literal": false,
+                "value": "m",
+                "kind": "Identifier"
+            },
+            "packageAlias": {
+                "literal": false,
+                "value": "",
+                "kind": "Identifier"
+            },
+            "kind": "SimpleVariableRef"
         },
-        deprecatedAttachments: [],
-        annotationAttachments: [],
-        endpointNodes: [],
-        body: {
-            statements: [],
-            kind: 'Block',
+        "workerName": {
+            "literal": false,
+            "value": "worker1",
+            "kind": "Identifier"
         },
-        returnParameters: [],
-        parameters: [],
-        documentationAttachments: [],
-        kind: 'Action',
-        public: true,
-        native: false,
-        const: false,
-        attached: false,
-        lambda: false,
-        parallel: false,
-        connector: false,
-        deprecated: false,
-        endpoint: false,
+        "kind": "WorkerReceive"
     },
-    createFTPResource: {
-        ws: [
+    "createIf": {
+        "ws": [
             {
-                ws: '\n\n            ',
-                i: 9,
-                text: 'resource',
-                static: true,
+                "ws": "\n\n            ",
+                "i": 8,
+                "text": "if",
+                "static": true
             },
             {
-                ws: ' ',
-                i: 11,
-                text: 'echo1',
-                static: false,
+                "ws": " ",
+                "i": 10,
+                "text": "(",
+                "static": true
             },
             {
-                ws: ' ',
-                i: 13,
-                text: '(',
-                static: true,
+                "ws": "",
+                "i": 12,
+                "text": ")",
+                "static": true
             },
             {
-                ws: '',
-                i: 19,
-                text: ')',
-                static: true,
+                "ws": " ",
+                "i": 14,
+                "text": "{",
+                "static": true
             },
             {
-                ws: ' ',
-                i: 21,
-                text: '{',
-                static: true,
+                "ws": "\n\n            ",
+                "i": 17,
+                "text": "}",
+                "static": true
             },
             {
-                ws: '\n\n            ',
-                i: 24,
-                text: '}',
-                static: true,
+                "ws": " ",
+                "i": 19,
+                "text": "else",
+                "static": true
             },
+            {
+                "ws": " ",
+                "i": 21,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "\n            \n            ",
+                "i": 26,
+                "text": "}",
+                "static": true
+            }
         ],
-        position: {
-            startColumn: 13,
-            startLine: 3,
-            endColumn: 13,
-            endLine: 5,
+        "position": {
+            "startColumn": 13,
+            "startLine": 3,
+            "endColumn": 13,
+            "endLine": 5
         },
-        workers: [],
-        name: {
-            literal: false,
-            value: 'echo1',
-            kind: 'Identifier',
+        "body": {
+            "statements": [],
+            "kind": "Block"
         },
-        deprecatedAttachments: [],
-        annotationAttachments: [],
-        endpointNodes: [],
-        body: {
-            statements: [],
-            kind: 'Block',
+        "condition": {
+            "ws": [
+                {
+                    "ws": "",
+                    "i": 11,
+                    "text": "true",
+                    "static": false
+                }
+            ],
+            "position": {
+                "startColumn": 17,
+                "startLine": 3,
+                "endColumn": 17,
+                "endLine": 3
+            },
+            "symbolType": [
+                "boolean"
+            ],
+            "value": "true",
+            "kind": "Literal"
         },
-        returnParameters: [],
-        parameters: [
+        "elseStatement": {
+            "position": {
+                "startColumn": 15,
+                "startLine": 5,
+                "endColumn": 13,
+                "endLine": 7
+            },
+            "statements": [],
+            "kind": "Block"
+        },
+        "kind": "If"
+    },
+    "createFTPResource": {
+        "ws": [
             {
-                ws: [
+                "ws": "\n\n            ",
+                "i": 15,
+                "text": "echo1",
+                "static": false
+            },
+            {
+                "ws": " ",
+                "i": 17,
+                "text": "(",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 23,
+                "text": ")",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 25,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "\n\n            ",
+                "i": 28,
+                "text": "}",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 13,
+            "startLine": 3,
+            "endColumn": 13,
+            "endLine": 5
+        },
+        "workers": [],
+        "returnTypeAnnotationAttachments": [],
+        "name": {
+            "literal": false,
+            "value": "echo1",
+            "kind": "Identifier"
+        },
+        "annotationAttachments": [],
+        "documentationAttachments": [],
+        "returnTypeNode": {
+            "position": {
+                "startColumn": 13,
+                "startLine": 3,
+                "endColumn": 13,
+                "endLine": 5
+            },
+            "symbolType": [
+                "null"
+            ],
+            "typeKind": "nil",
+            "grouped": false,
+            "nullable": false,
+            "kind": "ValueType"
+        },
+        "defaultableParameters": [],
+        "deprecatedAttachments": [],
+        "body": {
+            "statements": [],
+            "kind": "Block"
+        },
+        "endpointNodes": [],
+        "parameters": [
+            {
+                "ws": [
                     {
-                        ws: ' ',
-                        i: 18,
-                        text: 'm',
-                        static: false,
-                    },
+                        "ws": " ",
+                        "i": 22,
+                        "text": "m",
+                        "static": false
+                    }
                 ],
-                position: {
-                    startColumn: 29,
-                    startLine: 3,
-                    endColumn: 48,
-                    endLine: 3,
+                "position": {
+                    "startColumn": 20,
+                    "startLine": 3,
+                    "endColumn": 39,
+                    "endLine": 3
                 },
-                symbolType: [
-                    'other',
+                "symbolType": [
+                    "other"
                 ],
-                typeNode: {
-                    ws: [
+                "safeAssignment": false,
+                "typeNode": {
+                    "ws": [
                         {
-                            ws: '',
-                            i: 14,
-                            text: 'ftp',
-                            static: false,
+                            "ws": "",
+                            "i": 18,
+                            "text": "ftp",
+                            "static": false
                         },
                         {
-                            ws: '',
-                            i: 15,
-                            text: ':',
-                            static: true,
+                            "ws": "",
+                            "i": 19,
+                            "text": ":",
+                            "static": true
                         },
                         {
-                            ws: '',
-                            i: 16,
-                            text: 'FTPServerEvent',
-                            static: false,
+                            "ws": "",
+                            "i": 20,
+                            "text": "FTPServerEvent",
+                            "static": false
+                        }
+                    ],
+                    "position": {
+                        "startColumn": 20,
+                        "startLine": 3,
+                        "endColumn": 24,
+                        "endLine": 3
+                    },
+                    "symbolType": [
+                        "other"
+                    ],
+                    "packageAlias": {
+                        "literal": false,
+                        "value": "ftp",
+                        "kind": "Identifier"
+                    },
+                    "grouped": false,
+                    "typeName": {
+                        "literal": false,
+                        "value": "FTPServerEvent",
+                        "kind": "Identifier"
+                    },
+                    "nullable": false,
+                    "kind": "UserDefinedType"
+                },
+                "deprecatedAttachments": [],
+                "annotationAttachments": [],
+                "name": {
+                    "literal": false,
+                    "value": "m",
+                    "kind": "Identifier"
+                },
+                "documentationAttachments": [],
+                "kind": "Variable",
+                "public": false,
+                "native": false,
+                "final": false,
+                "attached": false,
+                "lambda": false,
+                "parallel": false,
+                "connector": false,
+                "deprecated": false,
+                "readonly": false,
+                "function_final": false,
+                "interface": false
+            }
+        ],
+        "kind": "Resource",
+        "public": true,
+        "native": false,
+        "final": false,
+        "attached": false,
+        "lambda": false,
+        "parallel": false,
+        "connector": false,
+        "deprecated": false,
+        "readonly": false,
+        "function_final": false,
+        "interface": false
+    },
+    "createTry": {
+        "ws": [
+            {
+                "ws": "\n\n            ",
+                "i": 8,
+                "text": "try",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 10,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "\n\n            ",
+                "i": 13,
+                "text": "}",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 28,
+                "text": "finally",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 30,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "\n            \n            ",
+                "i": 35,
+                "text": "}",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 13,
+            "startLine": 3,
+            "endColumn": 13,
+            "endLine": 9
+        },
+        "finallyBody": {
+            "position": {
+                "startColumn": 15,
+                "startLine": 7,
+                "endColumn": 13,
+                "endLine": 9
+            },
+            "statements": [],
+            "kind": "Block"
+        },
+        "body": {
+            "position": {
+                "startColumn": 15,
+                "startLine": 5,
+                "endColumn": -1,
+                "endLine": -1
+            },
+            "statements": [],
+            "kind": "Block"
+        },
+        "catchBlocks": [
+            {
+                "ws": [
+                    {
+                        "ws": " ",
+                        "i": 15,
+                        "text": "catch",
+                        "static": true
+                    },
+                    {
+                        "ws": " ",
+                        "i": 17,
+                        "text": "(",
+                        "static": true
+                    },
+                    {
+                        "ws": "",
+                        "i": 21,
+                        "text": ")",
+                        "static": true
+                    },
+                    {
+                        "ws": " ",
+                        "i": 23,
+                        "text": "{",
+                        "static": true
+                    },
+                    {
+                        "ws": "\n\n            ",
+                        "i": 26,
+                        "text": "}",
+                        "static": true
+                    }
+                ],
+                "position": {
+                    "startColumn": 15,
+                    "startLine": 5,
+                    "endColumn": 13,
+                    "endLine": 7
+                },
+                "body": {
+                    "statements": [],
+                    "kind": "Block"
+                },
+                "parameter": {
+                    "ws": [
+                        {
+                            "ws": " ",
+                            "i": 20,
+                            "text": "err",
+                            "static": false
+                        }
+                    ],
+                    "position": {
+                        "startColumn": 22,
+                        "startLine": 5,
+                        "endColumn": 22,
+                        "endLine": 5
+                    },
+                    "symbolType": [
+                        "struct"
+                    ],
+                    "safeAssignment": false,
+                    "typeNode": {
+                        "ws": [
+                            {
+                                "ws": "",
+                                "i": 18,
+                                "text": "error",
+                                "static": false
+                            }
+                        ],
+                        "position": {
+                            "startColumn": 22,
+                            "startLine": 5,
+                            "endColumn": 22,
+                            "endLine": 5
                         },
-                    ],
-                    position: {
-                        startColumn: 29,
-                        startLine: 3,
-                        endColumn: 33,
-                        endLine: 3,
+                        "symbolType": [
+                            "struct"
+                        ],
+                        "packageAlias": {
+                            "literal": false,
+                            "value": "",
+                            "kind": "Identifier"
+                        },
+                        "grouped": false,
+                        "typeName": {
+                            "literal": false,
+                            "value": "error",
+                            "kind": "Identifier"
+                        },
+                        "nullable": false,
+                        "kind": "UserDefinedType"
                     },
-                    symbolType: [
-                        'other',
-                    ],
-                    packageAlias: {
-                        literal: false,
-                        value: 'ftp',
-                        kind: 'Identifier',
+                    "deprecatedAttachments": [],
+                    "annotationAttachments": [],
+                    "name": {
+                        "literal": false,
+                        "value": "err",
+                        "kind": "Identifier"
                     },
-                    typeName: {
-                        literal: false,
-                        value: 'FTPServerEvent',
-                        kind: 'Identifier',
-                    },
-                    kind: 'UserDefinedType',
+                    "documentationAttachments": [],
+                    "kind": "Variable",
+                    "public": false,
+                    "native": false,
+                    "final": false,
+                    "attached": false,
+                    "lambda": false,
+                    "parallel": false,
+                    "connector": false,
+                    "deprecated": false,
+                    "readonly": false,
+                    "function_final": false,
+                    "interface": false
                 },
-                deprecatedAttachments: [],
-                annotationAttachments: [],
-                name: {
-                    literal: false,
-                    value: 'm',
-                    kind: 'Identifier',
-                },
-                documentationAttachments: [],
-                kind: 'Variable',
-                public: false,
-                native: false,
-                const: false,
-                attached: false,
-                lambda: false,
-                parallel: false,
-                connector: false,
-                deprecated: false,
-                endpoint: false,
-            },
+                "kind": "Catch"
+            }
         ],
-        documentationAttachments: [],
-        kind: 'Resource',
-        public: true,
-        native: false,
-        const: false,
-        attached: false,
-        lambda: false,
-        parallel: false,
-        connector: false,
-        deprecated: false,
-        endpoint: false,
+        "kind": "Try"
     },
-    createThrow: {
-        ws: [
+    "createAssignmentStmt": {
+        "ws": [
             {
-                ws: '\n\n            ',
-                i: 8,
-                text: 'throw',
-                static: true,
+                "ws": "\n",
+                "i": 7,
+                "text": "var",
+                "static": true
             },
             {
-                ws: '',
-                i: 11,
-                text: ';',
-                static: true,
+                "ws": " ",
+                "i": 11,
+                "text": "=",
+                "static": true
             },
+            {
+                "ws": "",
+                "i": 14,
+                "text": ";",
+                "static": true
+            }
         ],
-        position: {
-            startColumn: 13,
-            startLine: 3,
-            endColumn: 20,
-            endLine: 3,
+        "position": {
+            "startColumn": 1,
+            "startLine": 2,
+            "endColumn": 10,
+            "endLine": 2
         },
-        kind: 'Throw',
-        expressions: {
-            ws: [
+        "variable": {
+            "ws": [
                 {
-                    ws: ' ',
-                    i: 10,
-                    text: 'e',
-                    static: false,
-                },
+                    "ws": " ",
+                    "i": 9,
+                    "text": "a",
+                    "static": false
+                }
             ],
-            position: {
-                startColumn: 19,
-                startLine: 3,
-                endColumn: 19,
-                endLine: 3,
+            "position": {
+                "startColumn": 5,
+                "startLine": 2,
+                "endColumn": 5,
+                "endLine": 2
             },
-            variableName: {
-                literal: false,
-                value: 'e',
-                kind: 'Identifier',
+            "symbolType": [
+                "int"
+            ],
+            "variableName": {
+                "literal": false,
+                "value": "a",
+                "kind": "Identifier"
             },
-            packageAlias: {
-                literal: false,
-                value: '',
-                kind: 'Identifier',
+            "packageAlias": {
+                "literal": false,
+                "value": "",
+                "kind": "Identifier"
             },
-            kind: 'SimpleVariableRef',
+            "kind": "SimpleVariableRef"
         },
+        "expression": {
+            "ws": [
+                {
+                    "ws": " ",
+                    "i": 13,
+                    "text": "1",
+                    "static": false
+                }
+            ],
+            "position": {
+                "startColumn": 9,
+                "startLine": 2,
+                "endColumn": 9,
+                "endLine": 2
+            },
+            "symbolType": [
+                "int"
+            ],
+            "value": "1",
+            "kind": "Literal"
+        },
+        "declaredWithVar": true,
+        "kind": "Assignment"
     },
-    createTransaction: {
-        error: 'Incorrect format of the generated JSON',
+    "createDefaultWorkerFragment": {
+        "ws": [
+            {
+                "ws": "\n\n            ",
+                "i": 8,
+                "text": "worker",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 10,
+                "text": "default",
+                "static": false
+            },
+            {
+                "ws": " ",
+                "i": 12,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "\n            ",
+                "i": 15,
+                "text": "}",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 13,
+            "startLine": 3,
+            "endColumn": 13,
+            "endLine": 4
+        },
+        "workers": [],
+        "returnTypeAnnotationAttachments": [],
+        "name": {
+            "literal": false,
+            "value": "default",
+            "kind": "Identifier"
+        },
+        "annotationAttachments": [],
+        "documentationAttachments": [],
+        "returnTypeNode": {
+            "position": {
+                "startColumn": 10,
+                "startLine": 1,
+                "endColumn": 23,
+                "endLine": 1
+            },
+            "symbolType": [
+                "null"
+            ],
+            "typeKind": "nil",
+            "grouped": false,
+            "nullable": false,
+            "kind": "ValueType"
+        },
+        "defaultableParameters": [],
+        "deprecatedAttachments": [],
+        "body": {
+            "statements": [],
+            "kind": "Block"
+        },
+        "endpointNodes": [],
+        "parameters": [],
+        "kind": "Worker",
+        "public": false,
+        "native": false,
+        "final": false,
+        "attached": false,
+        "lambda": false,
+        "parallel": false,
+        "connector": false,
+        "deprecated": false,
+        "readonly": false,
+        "function_final": false,
+        "interface": false
     },
-};
+    "createMainFunction": {
+        "ws": [
+            {
+                "ws": "\n            ",
+                "i": 2,
+                "text": "function",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 4,
+                "text": "main",
+                "static": false
+            },
+            {
+                "ws": "",
+                "i": 5,
+                "text": "(",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 10,
+                "text": ")",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 12,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "\n\n            ",
+                "i": 15,
+                "text": "}",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 13,
+            "startLine": 2,
+            "endColumn": 13,
+            "endLine": 4
+        },
+        "workers": [],
+        "returnTypeAnnotationAttachments": [],
+        "name": {
+            "literal": false,
+            "value": "main",
+            "kind": "Identifier"
+        },
+        "annotationAttachments": [],
+        "documentationAttachments": [],
+        "returnTypeNode": {
+            "position": {
+                "startColumn": 22,
+                "startLine": 2,
+                "endColumn": 41,
+                "endLine": 2
+            },
+            "symbolType": [
+                "null"
+            ],
+            "typeKind": "nil",
+            "grouped": false,
+            "nullable": false,
+            "kind": "ValueType"
+        },
+        "defaultableParameters": [],
+        "deprecatedAttachments": [],
+        "body": {
+            "statements": [],
+            "kind": "Block"
+        },
+        "endpointNodes": [],
+        "parameters": [],
+        "restParameters": {
+            "ws": [
+                {
+                    "ws": "",
+                    "i": 7,
+                    "text": "...",
+                    "static": true
+                },
+                {
+                    "ws": " ",
+                    "i": 9,
+                    "text": "args",
+                    "static": false
+                }
+            ],
+            "position": {
+                "startColumn": 27,
+                "startLine": 2,
+                "endColumn": 37,
+                "endLine": 2
+            },
+            "symbolType": [
+                "[]"
+            ],
+            "safeAssignment": false,
+            "typeNode": {
+                "symbolType": [
+                    "[]"
+                ],
+                "dimensions": 1,
+                "elementType": {
+                    "ws": [
+                        {
+                            "ws": "",
+                            "i": 6,
+                            "text": "string",
+                            "static": true
+                        }
+                    ],
+                    "position": {
+                        "startColumn": 27,
+                        "startLine": 2,
+                        "endColumn": 27,
+                        "endLine": 2
+                    },
+                    "symbolType": [
+                        "string"
+                    ],
+                    "typeKind": "string",
+                    "grouped": false,
+                    "nullable": false,
+                    "kind": "ValueType"
+                },
+                "grouped": false,
+                "nullable": false,
+                "kind": "ArrayType"
+            },
+            "deprecatedAttachments": [],
+            "annotationAttachments": [],
+            "name": {
+                "literal": false,
+                "value": "args",
+                "kind": "Identifier"
+            },
+            "documentationAttachments": [],
+            "kind": "Variable",
+            "public": false,
+            "native": false,
+            "final": false,
+            "attached": false,
+            "lambda": false,
+            "parallel": false,
+            "connector": false,
+            "deprecated": false,
+            "readonly": false,
+            "function_final": false,
+            "interface": false
+        },
+        "kind": "Function",
+        "public": false,
+        "native": false,
+        "final": false,
+        "attached": false,
+        "lambda": false,
+        "parallel": false,
+        "connector": false,
+        "deprecated": false,
+        "readonly": false,
+        "function_final": false,
+        "interface": false
+    },
+    "createTransaction": {
+        "ws": [
+            {
+                "ws": "\n\n            ",
+                "i": 8,
+                "text": "transaction",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 10,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "\n\n            ",
+                "i": 13,
+                "text": "}",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 15,
+                "text": "onretry",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 17,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "\n        \n            ",
+                "i": 22,
+                "text": "}",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 13,
+            "startLine": 3,
+            "endColumn": 13,
+            "endLine": 7
+        },
+        "onRetryBody": {
+            "position": {
+                "startColumn": 15,
+                "startLine": 5,
+                "endColumn": 13,
+                "endLine": 7
+            },
+            "statements": [],
+            "kind": "Block"
+        },
+        "transactionBody": {
+            "position": {
+                "startColumn": 13,
+                "startLine": 3,
+                "endColumn": 13,
+                "endLine": 5
+            },
+            "statements": [],
+            "kind": "Block"
+        },
+        "kind": "Transaction"
+    },
+    "createWorkerInvocation": {
+        "ws": [
+            {
+                "ws": " ",
+                "i": 10,
+                "text": "->",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 12,
+                "text": "worker1",
+                "static": false
+            },
+            {
+                "ws": " ",
+                "i": 14,
+                "text": ";",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 13,
+            "startLine": 3,
+            "endColumn": 26,
+            "endLine": 3
+        },
+        "workerName": {
+            "literal": false,
+            "value": "worker1",
+            "kind": "Identifier"
+        },
+        "expression": {
+            "ws": [
+                {
+                    "ws": "\n\n            ",
+                    "i": 8,
+                    "text": "m",
+                    "static": false
+                }
+            ],
+            "position": {
+                "startColumn": 13,
+                "startLine": 3,
+                "endColumn": 13,
+                "endLine": 3
+            },
+            "symbolType": [
+                "other"
+            ],
+            "variableName": {
+                "literal": false,
+                "value": "m",
+                "kind": "Identifier"
+            },
+            "packageAlias": {
+                "literal": false,
+                "value": "",
+                "kind": "Identifier"
+            },
+            "kind": "SimpleVariableRef"
+        },
+        "forkJoinedSend": false,
+        "kind": "WorkerSend"
+    },
+    "createIfElse": {
+        "ws": [
+            {
+                "ws": "\n\n            ",
+                "i": 8,
+                "text": "if",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 10,
+                "text": "(",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 12,
+                "text": ")",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 14,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "\n\n            ",
+                "i": 17,
+                "text": "}",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 19,
+                "text": "else",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 13,
+            "startLine": 3,
+            "endColumn": 13,
+            "endLine": 5
+        },
+        "body": {
+            "statements": [],
+            "kind": "Block"
+        },
+        "condition": {
+            "ws": [
+                {
+                    "ws": "",
+                    "i": 11,
+                    "text": "true",
+                    "static": false
+                }
+            ],
+            "position": {
+                "startColumn": 17,
+                "startLine": 3,
+                "endColumn": 17,
+                "endLine": 3
+            },
+            "symbolType": [
+                "boolean"
+            ],
+            "value": "true",
+            "kind": "Literal"
+        },
+        "elseStatement": {
+            "ws": [
+                {
+                    "ws": " ",
+                    "i": 21,
+                    "text": "if",
+                    "static": true
+                },
+                {
+                    "ws": " ",
+                    "i": 23,
+                    "text": "(",
+                    "static": true
+                },
+                {
+                    "ws": "",
+                    "i": 25,
+                    "text": ")",
+                    "static": true
+                },
+                {
+                    "ws": " ",
+                    "i": 27,
+                    "text": "{",
+                    "static": true
+                },
+                {
+                    "ws": "\n            \n            ",
+                    "i": 32,
+                    "text": "}",
+                    "static": true
+                },
+                {
+                    "ws": " ",
+                    "i": 34,
+                    "text": "else",
+                    "static": true
+                },
+                {
+                    "ws": " ",
+                    "i": 36,
+                    "text": "{",
+                    "static": true
+                },
+                {
+                    "ws": "\n            \n            ",
+                    "i": 41,
+                    "text": "}",
+                    "static": true
+                }
+            ],
+            "position": {
+                "startColumn": 15,
+                "startLine": 5,
+                "endColumn": 13,
+                "endLine": 7
+            },
+            "body": {
+                "statements": [],
+                "kind": "Block"
+            },
+            "condition": {
+                "ws": [
+                    {
+                        "ws": "",
+                        "i": 24,
+                        "text": "true",
+                        "static": false
+                    }
+                ],
+                "position": {
+                    "startColumn": 24,
+                    "startLine": 5,
+                    "endColumn": 24,
+                    "endLine": 5
+                },
+                "symbolType": [
+                    "boolean"
+                ],
+                "value": "true",
+                "kind": "Literal"
+            },
+            "elseStatement": {
+                "position": {
+                    "startColumn": 15,
+                    "startLine": 7,
+                    "endColumn": 13,
+                    "endLine": 9
+                },
+                "statements": [],
+                "kind": "Block"
+            },
+            "kind": "If"
+        },
+        "kind": "If"
+    },
+    "createFunction": {
+        "ws": [
+            {
+                "ws": "\n            ",
+                "i": 2,
+                "text": "function",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 4,
+                "text": "function1",
+                "static": false
+            },
+            {
+                "ws": "",
+                "i": 5,
+                "text": "(",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 6,
+                "text": ")",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 8,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "\n\n            ",
+                "i": 11,
+                "text": "}",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 13,
+            "startLine": 2,
+            "endColumn": 13,
+            "endLine": 4
+        },
+        "workers": [],
+        "returnTypeAnnotationAttachments": [],
+        "name": {
+            "literal": false,
+            "value": "function1",
+            "kind": "Identifier"
+        },
+        "annotationAttachments": [],
+        "documentationAttachments": [],
+        "returnTypeNode": {
+            "position": {
+                "startColumn": 22,
+                "startLine": 2,
+                "endColumn": 32,
+                "endLine": 2
+            },
+            "symbolType": [
+                "null"
+            ],
+            "typeKind": "nil",
+            "grouped": false,
+            "nullable": false,
+            "kind": "ValueType"
+        },
+        "defaultableParameters": [],
+        "deprecatedAttachments": [],
+        "body": {
+            "statements": [],
+            "kind": "Block"
+        },
+        "endpointNodes": [],
+        "parameters": [],
+        "kind": "Function",
+        "public": false,
+        "native": false,
+        "final": false,
+        "attached": false,
+        "lambda": false,
+        "parallel": false,
+        "connector": false,
+        "deprecated": false,
+        "readonly": false,
+        "function_final": false,
+        "interface": false
+    },
+    "createJMSResource": {
+        "ws": [
+            {
+                "ws": "\n\n            ",
+                "i": 15,
+                "text": "echo1",
+                "static": false
+            },
+            {
+                "ws": " ",
+                "i": 17,
+                "text": "(",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 23,
+                "text": ")",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 25,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "\n\n            ",
+                "i": 28,
+                "text": "}",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 13,
+            "startLine": 3,
+            "endColumn": 13,
+            "endLine": 5
+        },
+        "workers": [],
+        "returnTypeAnnotationAttachments": [],
+        "name": {
+            "literal": false,
+            "value": "echo1",
+            "kind": "Identifier"
+        },
+        "annotationAttachments": [],
+        "documentationAttachments": [],
+        "returnTypeNode": {
+            "position": {
+                "startColumn": 13,
+                "startLine": 3,
+                "endColumn": 13,
+                "endLine": 5
+            },
+            "symbolType": [
+                "null"
+            ],
+            "typeKind": "nil",
+            "grouped": false,
+            "nullable": false,
+            "kind": "ValueType"
+        },
+        "defaultableParameters": [],
+        "deprecatedAttachments": [],
+        "body": {
+            "statements": [],
+            "kind": "Block"
+        },
+        "endpointNodes": [],
+        "parameters": [
+            {
+                "ws": [
+                    {
+                        "ws": " ",
+                        "i": 22,
+                        "text": "request",
+                        "static": false
+                    }
+                ],
+                "position": {
+                    "startColumn": 20,
+                    "startLine": 3,
+                    "endColumn": 35,
+                    "endLine": 3
+                },
+                "symbolType": [
+                    "other"
+                ],
+                "safeAssignment": false,
+                "typeNode": {
+                    "ws": [
+                        {
+                            "ws": "",
+                            "i": 18,
+                            "text": "jms",
+                            "static": false
+                        },
+                        {
+                            "ws": "",
+                            "i": 19,
+                            "text": ":",
+                            "static": true
+                        },
+                        {
+                            "ws": "",
+                            "i": 20,
+                            "text": "JMSMessage",
+                            "static": false
+                        }
+                    ],
+                    "position": {
+                        "startColumn": 20,
+                        "startLine": 3,
+                        "endColumn": 24,
+                        "endLine": 3
+                    },
+                    "symbolType": [
+                        "other"
+                    ],
+                    "packageAlias": {
+                        "literal": false,
+                        "value": "jms",
+                        "kind": "Identifier"
+                    },
+                    "grouped": false,
+                    "typeName": {
+                        "literal": false,
+                        "value": "JMSMessage",
+                        "kind": "Identifier"
+                    },
+                    "nullable": false,
+                    "kind": "UserDefinedType"
+                },
+                "deprecatedAttachments": [],
+                "annotationAttachments": [],
+                "name": {
+                    "literal": false,
+                    "value": "request",
+                    "kind": "Identifier"
+                },
+                "documentationAttachments": [],
+                "kind": "Variable",
+                "public": false,
+                "native": false,
+                "final": false,
+                "attached": false,
+                "lambda": false,
+                "parallel": false,
+                "connector": false,
+                "deprecated": false,
+                "readonly": false,
+                "function_final": false,
+                "interface": false
+            }
+        ],
+        "kind": "Resource",
+        "public": true,
+        "native": false,
+        "final": false,
+        "attached": false,
+        "lambda": false,
+        "parallel": false,
+        "connector": false,
+        "deprecated": false,
+        "readonly": false,
+        "function_final": false,
+        "interface": false
+    },
+    "createVarDefStmt": {
+        "ws": [
+            {
+                "ws": "",
+                "i": 14,
+                "text": ";",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 1,
+            "startLine": 2,
+            "endColumn": 10,
+            "endLine": 2
+        },
+        "variable": {
+            "ws": [
+                {
+                    "ws": " ",
+                    "i": 9,
+                    "text": "a",
+                    "static": false
+                },
+                {
+                    "ws": " ",
+                    "i": 11,
+                    "text": "=",
+                    "static": true
+                }
+            ],
+            "position": {
+                "startColumn": 1,
+                "startLine": 2,
+                "endColumn": 10,
+                "endLine": 2
+            },
+            "symbolType": [
+                "int"
+            ],
+            "safeAssignment": false,
+            "typeNode": {
+                "ws": [
+                    {
+                        "ws": "\n",
+                        "i": 7,
+                        "text": "int",
+                        "static": true
+                    }
+                ],
+                "position": {
+                    "startColumn": 1,
+                    "startLine": 2,
+                    "endColumn": 1,
+                    "endLine": 2
+                },
+                "symbolType": [
+                    "int"
+                ],
+                "typeKind": "int",
+                "grouped": false,
+                "nullable": false,
+                "kind": "ValueType"
+            },
+            "deprecatedAttachments": [],
+            "annotationAttachments": [],
+            "name": {
+                "literal": false,
+                "value": "a",
+                "kind": "Identifier"
+            },
+            "initialExpression": {
+                "ws": [
+                    {
+                        "ws": " ",
+                        "i": 13,
+                        "text": "1",
+                        "static": false
+                    }
+                ],
+                "position": {
+                    "startColumn": 9,
+                    "startLine": 2,
+                    "endColumn": 9,
+                    "endLine": 2
+                },
+                "symbolType": [
+                    "int"
+                ],
+                "value": "1",
+                "kind": "Literal"
+            },
+            "documentationAttachments": [],
+            "kind": "Variable",
+            "public": false,
+            "native": false,
+            "final": false,
+            "attached": false,
+            "lambda": false,
+            "parallel": false,
+            "connector": false,
+            "deprecated": false,
+            "readonly": false,
+            "function_final": false,
+            "interface": false
+        },
+        "kind": "VariableDef"
+    },
+    "createFSResource": {
+        "ws": [
+            {
+                "ws": "\n\n            ",
+                "i": 15,
+                "text": "echo1",
+                "static": false
+            },
+            {
+                "ws": " ",
+                "i": 17,
+                "text": "(",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 23,
+                "text": ")",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 25,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "\n\n            ",
+                "i": 28,
+                "text": "}",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 13,
+            "startLine": 3,
+            "endColumn": 13,
+            "endLine": 5
+        },
+        "workers": [],
+        "returnTypeAnnotationAttachments": [],
+        "name": {
+            "literal": false,
+            "value": "echo1",
+            "kind": "Identifier"
+        },
+        "annotationAttachments": [],
+        "documentationAttachments": [],
+        "returnTypeNode": {
+            "position": {
+                "startColumn": 13,
+                "startLine": 3,
+                "endColumn": 13,
+                "endLine": 5
+            },
+            "symbolType": [
+                "null"
+            ],
+            "typeKind": "nil",
+            "grouped": false,
+            "nullable": false,
+            "kind": "ValueType"
+        },
+        "defaultableParameters": [],
+        "deprecatedAttachments": [],
+        "body": {
+            "statements": [],
+            "kind": "Block"
+        },
+        "endpointNodes": [],
+        "parameters": [
+            {
+                "ws": [
+                    {
+                        "ws": " ",
+                        "i": 22,
+                        "text": "m",
+                        "static": false
+                    }
+                ],
+                "position": {
+                    "startColumn": 20,
+                    "startLine": 3,
+                    "endColumn": 39,
+                    "endLine": 3
+                },
+                "symbolType": [
+                    "other"
+                ],
+                "safeAssignment": false,
+                "typeNode": {
+                    "ws": [
+                        {
+                            "ws": "",
+                            "i": 18,
+                            "text": "fs",
+                            "static": false
+                        },
+                        {
+                            "ws": "",
+                            "i": 19,
+                            "text": ":",
+                            "static": true
+                        },
+                        {
+                            "ws": "",
+                            "i": 20,
+                            "text": "FileSystemEvent",
+                            "static": false
+                        }
+                    ],
+                    "position": {
+                        "startColumn": 20,
+                        "startLine": 3,
+                        "endColumn": 23,
+                        "endLine": 3
+                    },
+                    "symbolType": [
+                        "other"
+                    ],
+                    "packageAlias": {
+                        "literal": false,
+                        "value": "fs",
+                        "kind": "Identifier"
+                    },
+                    "grouped": false,
+                    "typeName": {
+                        "literal": false,
+                        "value": "FileSystemEvent",
+                        "kind": "Identifier"
+                    },
+                    "nullable": false,
+                    "kind": "UserDefinedType"
+                },
+                "deprecatedAttachments": [],
+                "annotationAttachments": [],
+                "name": {
+                    "literal": false,
+                    "value": "m",
+                    "kind": "Identifier"
+                },
+                "documentationAttachments": [],
+                "kind": "Variable",
+                "public": false,
+                "native": false,
+                "final": false,
+                "attached": false,
+                "lambda": false,
+                "parallel": false,
+                "connector": false,
+                "deprecated": false,
+                "readonly": false,
+                "function_final": false,
+                "interface": false
+            }
+        ],
+        "kind": "Resource",
+        "public": true,
+        "native": false,
+        "final": false,
+        "attached": false,
+        "lambda": false,
+        "parallel": false,
+        "connector": false,
+        "deprecated": false,
+        "readonly": false,
+        "function_final": false,
+        "interface": false
+    },
+    "createThrow": {
+        "ws": [
+            {
+                "ws": "\n\n            ",
+                "i": 8,
+                "text": "throw",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 11,
+                "text": ";",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 13,
+            "startLine": 3,
+            "endColumn": 20,
+            "endLine": 3
+        },
+        "kind": "Throw",
+        "expressions": {
+            "ws": [
+                {
+                    "ws": " ",
+                    "i": 10,
+                    "text": "e",
+                    "static": false
+                }
+            ],
+            "position": {
+                "startColumn": 19,
+                "startLine": 3,
+                "endColumn": 19,
+                "endLine": 3
+            },
+            "symbolType": [
+                "other"
+            ],
+            "variableName": {
+                "literal": false,
+                "value": "e",
+                "kind": "Identifier"
+            },
+            "packageAlias": {
+                "literal": false,
+                "value": "",
+                "kind": "Identifier"
+            },
+            "kind": "SimpleVariableRef"
+        }
+    },
+    "createReturn": {
+        "ws": [
+            {
+                "ws": "\n\n            ",
+                "i": 8,
+                "text": "return",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 11,
+                "text": ";",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 13,
+            "startLine": 3,
+            "endColumn": 21,
+            "endLine": 3
+        },
+        "expression": {
+            "ws": [
+                {
+                    "ws": " ",
+                    "i": 10,
+                    "text": "m",
+                    "static": false
+                }
+            ],
+            "position": {
+                "startColumn": 20,
+                "startLine": 3,
+                "endColumn": 20,
+                "endLine": 3
+            },
+            "symbolType": [
+                "other"
+            ],
+            "variableName": {
+                "literal": false,
+                "value": "m",
+                "kind": "Identifier"
+            },
+            "packageAlias": {
+                "literal": false,
+                "value": "",
+                "kind": "Identifier"
+            },
+            "kind": "SimpleVariableRef"
+        },
+        "kind": "Return"
+    },
+    "createInvocation": {
+        "ws": [
+            {
+                "ws": "",
+                "i": 12,
+                "text": ";",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 13,
+            "startLine": 3,
+            "endColumn": 33,
+            "endLine": 3
+        },
+        "expression": {
+            "ws": [
+                {
+                    "ws": "",
+                    "i": 9,
+                    "text": "(",
+                    "static": true
+                },
+                {
+                    "ws": "",
+                    "i": 11,
+                    "text": ")",
+                    "static": true
+                }
+            ],
+            "position": {
+                "startColumn": 13,
+                "startLine": 3,
+                "endColumn": 32,
+                "endLine": 3
+            },
+            "symbolType": [
+                "other"
+            ],
+            "iterableOperation": false,
+            "argumentExpressions": [
+                {
+                    "ws": [
+                        {
+                            "ws": "",
+                            "i": 10,
+                            "text": "arg1",
+                            "static": false
+                        }
+                    ],
+                    "position": {
+                        "startColumn": 28,
+                        "startLine": 3,
+                        "endColumn": 28,
+                        "endLine": 3
+                    },
+                    "variableName": {
+                        "literal": false,
+                        "value": "arg1",
+                        "kind": "Identifier"
+                    },
+                    "packageAlias": {
+                        "literal": false,
+                        "value": "",
+                        "kind": "Identifier"
+                    },
+                    "kind": "SimpleVariableRef"
+                }
+            ],
+            "packageAlias": {
+                "literal": false,
+                "value": "",
+                "kind": "Identifier"
+            },
+            "async": false,
+            "actionInvocation": false,
+            "name": {
+                "literal": false,
+                "value": "invokeFunction",
+                "kind": "Identifier"
+            },
+            "kind": "Invocation"
+        },
+        "kind": "ExpressionStatement"
+    },
+    "createBindStmt": {
+        "error": "Index: 0, Size: 0"
+    },
+    "createFSServiceDef": {
+        "ws": [
+            {
+                "ws": "\n            ",
+                "i": 2,
+                "text": "service",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 3,
+                "text": "<",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 5,
+                "text": ">",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 7,
+                "text": "service1",
+                "static": false
+            },
+            {
+                "ws": " ",
+                "i": 9,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "\n            ",
+                "i": 28,
+                "text": "}",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 13,
+            "startLine": 2,
+            "endColumn": 13,
+            "endLine": 6
+        },
+        "annotationAttachments": [],
+        "serviceTypeStruct": {
+            "ws": [
+                {
+                    "ws": "",
+                    "i": 4,
+                    "text": "fs",
+                    "static": false
+                }
+            ],
+            "position": {
+                "startColumn": 13,
+                "startLine": 2,
+                "endColumn": 13,
+                "endLine": 6
+            },
+            "symbolType": [
+                "other"
+            ],
+            "packageAlias": {
+                "literal": false,
+                "value": "",
+                "kind": "Identifier"
+            },
+            "grouped": false,
+            "typeName": {
+                "literal": false,
+                "value": "fs",
+                "kind": "Identifier"
+            },
+            "nullable": false,
+            "kind": "UserDefinedType"
+        },
+        "initFunction": {
+            "position": {
+                "startColumn": 13,
+                "startLine": 2,
+                "endColumn": 13,
+                "endLine": 6
+            },
+            "workers": [],
+            "returnTypeAnnotationAttachments": [],
+            "name": {
+                "literal": false,
+                "value": "service1.<init>",
+                "kind": "Identifier"
+            },
+            "annotationAttachments": [],
+            "documentationAttachments": [],
+            "returnTypeNode": {
+                "position": {
+                    "startColumn": 13,
+                    "startLine": 2,
+                    "endColumn": 13,
+                    "endLine": 6
+                },
+                "symbolType": [
+                    "null"
+                ],
+                "typeKind": "nil",
+                "grouped": false,
+                "nullable": false,
+                "kind": "ValueType"
+            },
+            "defaultableParameters": [],
+            "deprecatedAttachments": [],
+            "body": {
+                "position": {
+                    "startColumn": 13,
+                    "startLine": 2,
+                    "endColumn": 13,
+                    "endLine": 6
+                },
+                "statements": [],
+                "kind": "Block"
+            },
+            "endpointNodes": [],
+            "parameters": [],
+            "kind": "Function",
+            "public": true,
+            "native": false,
+            "final": false,
+            "attached": false,
+            "lambda": false,
+            "parallel": false,
+            "connector": false,
+            "deprecated": false,
+            "readonly": false,
+            "function_final": false,
+            "interface": false
+        },
+        "endpointNodes": [],
+        "documentationAttachments": [],
+        "boundEndpoints": [],
+        "resources": [
+            {
+                "ws": [
+                    {
+                        "ws": "\n                ",
+                        "i": 12,
+                        "text": "echo1",
+                        "static": false
+                    },
+                    {
+                        "ws": " ",
+                        "i": 14,
+                        "text": "(",
+                        "static": true
+                    },
+                    {
+                        "ws": "",
+                        "i": 20,
+                        "text": ")",
+                        "static": true
+                    },
+                    {
+                        "ws": " ",
+                        "i": 22,
+                        "text": "{",
+                        "static": true
+                    },
+                    {
+                        "ws": "\n\n                ",
+                        "i": 25,
+                        "text": "}",
+                        "static": true
+                    }
+                ],
+                "position": {
+                    "startColumn": 17,
+                    "startLine": 3,
+                    "endColumn": 17,
+                    "endLine": 5
+                },
+                "workers": [],
+                "returnTypeAnnotationAttachments": [],
+                "name": {
+                    "literal": false,
+                    "value": "echo1",
+                    "kind": "Identifier"
+                },
+                "annotationAttachments": [],
+                "documentationAttachments": [],
+                "returnTypeNode": {
+                    "position": {
+                        "startColumn": 17,
+                        "startLine": 3,
+                        "endColumn": 17,
+                        "endLine": 5
+                    },
+                    "symbolType": [
+                        "null"
+                    ],
+                    "typeKind": "nil",
+                    "grouped": false,
+                    "nullable": false,
+                    "kind": "ValueType"
+                },
+                "defaultableParameters": [],
+                "deprecatedAttachments": [],
+                "body": {
+                    "statements": [],
+                    "kind": "Block"
+                },
+                "endpointNodes": [],
+                "parameters": [
+                    {
+                        "ws": [
+                            {
+                                "ws": " ",
+                                "i": 19,
+                                "text": "m",
+                                "static": false
+                            }
+                        ],
+                        "position": {
+                            "startColumn": 24,
+                            "startLine": 3,
+                            "endColumn": 43,
+                            "endLine": 3
+                        },
+                        "symbolType": [
+                            "other"
+                        ],
+                        "safeAssignment": false,
+                        "typeNode": {
+                            "ws": [
+                                {
+                                    "ws": "",
+                                    "i": 15,
+                                    "text": "fs",
+                                    "static": false
+                                },
+                                {
+                                    "ws": "",
+                                    "i": 16,
+                                    "text": ":",
+                                    "static": true
+                                },
+                                {
+                                    "ws": "",
+                                    "i": 17,
+                                    "text": "FileSystemEvent",
+                                    "static": false
+                                }
+                            ],
+                            "position": {
+                                "startColumn": 24,
+                                "startLine": 3,
+                                "endColumn": 27,
+                                "endLine": 3
+                            },
+                            "symbolType": [
+                                "other"
+                            ],
+                            "packageAlias": {
+                                "literal": false,
+                                "value": "fs",
+                                "kind": "Identifier"
+                            },
+                            "grouped": false,
+                            "typeName": {
+                                "literal": false,
+                                "value": "FileSystemEvent",
+                                "kind": "Identifier"
+                            },
+                            "nullable": false,
+                            "kind": "UserDefinedType"
+                        },
+                        "deprecatedAttachments": [],
+                        "annotationAttachments": [],
+                        "name": {
+                            "literal": false,
+                            "value": "m",
+                            "kind": "Identifier"
+                        },
+                        "documentationAttachments": [],
+                        "kind": "Variable",
+                        "public": false,
+                        "native": false,
+                        "final": false,
+                        "attached": false,
+                        "lambda": false,
+                        "parallel": false,
+                        "connector": false,
+                        "deprecated": false,
+                        "readonly": false,
+                        "function_final": false,
+                        "interface": false
+                    }
+                ],
+                "kind": "Resource",
+                "public": true,
+                "native": false,
+                "final": false,
+                "attached": false,
+                "lambda": false,
+                "parallel": false,
+                "connector": false,
+                "deprecated": false,
+                "readonly": false,
+                "function_final": false,
+                "interface": false
+            }
+        ],
+        "deprecatedAttachments": [],
+        "variables": [],
+        "name": {
+            "literal": false,
+            "value": "service1",
+            "kind": "Identifier"
+        },
+        "kind": "Service"
+    },
+    "createAbort": {
+        "ws": [
+            {
+                "ws": "\n\n            ",
+                "i": 8,
+                "text": "abort",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 9,
+                "text": ";",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 13,
+            "startLine": 3,
+            "endColumn": 18,
+            "endLine": 3
+        },
+        "kind": "Abort"
+    },
+    "createStruct": {
+        "ws": [
+            {
+                "ws": " ",
+                "i": 4,
+                "text": "struct1",
+                "static": false
+            }
+        ],
+        "position": {
+            "startColumn": 13,
+            "startLine": 4,
+            "endColumn": 28,
+            "endLine": 2
+        },
+        "deprecatedAttachments": [],
+        "annotationAttachments": [],
+        "fields": [],
+        "documentationAttachments": [],
+        "kind": "Record",
+        "name": {
+            "literal": false,
+            "value": "$anonRecord$24",
+            "kind": "Identifier"
+        },
+        "public": true,
+        "native": false,
+        "final": false,
+        "attached": false,
+        "lambda": false,
+        "parallel": false,
+        "connector": false,
+        "deprecated": false,
+        "readonly": false,
+        "function_final": false,
+        "interface": false
+    },
+    "createForkJoin": {
+        "ws": [
+            {
+                "ws": "\n\n            ",
+                "i": 8,
+                "text": "fork",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 10,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "\n            ",
+                "i": 33,
+                "text": "}",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 35,
+                "text": "join",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 36,
+                "text": "(",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 37,
+                "text": "all",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 38,
+                "text": ")",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 39,
+                "text": "(",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 43,
+                "text": ")",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 45,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "\n            \n            ",
+                "i": 50,
+                "text": "}",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 52,
+                "text": "timeout",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 53,
+                "text": "(",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 55,
+                "text": ")",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 56,
+                "text": "(",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 60,
+                "text": ")",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 62,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "\n            \n            ",
+                "i": 67,
+                "text": "}",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 13,
+            "startLine": 3,
+            "endColumn": 13,
+            "endLine": 12
+        },
+        "timeOutExpression": {
+            "ws": [
+                {
+                    "ws": "",
+                    "i": 54,
+                    "text": "100",
+                    "static": false
+                }
+            ],
+            "position": {
+                "startColumn": 23,
+                "startLine": 10,
+                "endColumn": 23,
+                "endLine": 10
+            },
+            "symbolType": [
+                "int"
+            ],
+            "value": "100",
+            "kind": "Literal"
+        },
+        "joinType": "all",
+        "timeOutVariable": {
+            "ws": [
+                {
+                    "ws": " ",
+                    "i": 59,
+                    "text": "results1",
+                    "static": false
+                }
+            ],
+            "position": {
+                "startColumn": 28,
+                "startLine": 10,
+                "endColumn": 28,
+                "endLine": 10
+            },
+            "symbolType": [
+                "map"
+            ],
+            "safeAssignment": false,
+            "typeNode": {
+                "ws": [
+                    {
+                        "ws": "",
+                        "i": 57,
+                        "text": "map",
+                        "static": true
+                    }
+                ],
+                "position": {
+                    "startColumn": 28,
+                    "startLine": 10,
+                    "endColumn": 28,
+                    "endLine": 10
+                },
+                "symbolType": [
+                    "map"
+                ],
+                "grouped": false,
+                "typeKind": "map",
+                "nullable": false,
+                "kind": "BuiltInRefType"
+            },
+            "deprecatedAttachments": [],
+            "annotationAttachments": [],
+            "name": {
+                "literal": false,
+                "value": "results1",
+                "kind": "Identifier"
+            },
+            "documentationAttachments": [],
+            "kind": "Variable",
+            "public": false,
+            "native": false,
+            "final": false,
+            "attached": false,
+            "lambda": false,
+            "parallel": false,
+            "connector": false,
+            "deprecated": false,
+            "readonly": false,
+            "function_final": false,
+            "interface": false
+        },
+        "workers": [
+            {
+                "ws": [
+                    {
+                        "ws": "\n                ",
+                        "i": 13,
+                        "text": "worker",
+                        "static": true
+                    },
+                    {
+                        "ws": " ",
+                        "i": 15,
+                        "text": "worker1",
+                        "static": false
+                    },
+                    {
+                        "ws": " ",
+                        "i": 17,
+                        "text": "{",
+                        "static": true
+                    },
+                    {
+                        "ws": "\n                ",
+                        "i": 20,
+                        "text": "}",
+                        "static": true
+                    }
+                ],
+                "position": {
+                    "startColumn": 17,
+                    "startLine": 4,
+                    "endColumn": 17,
+                    "endLine": 5
+                },
+                "workers": [],
+                "returnTypeAnnotationAttachments": [],
+                "name": {
+                    "literal": false,
+                    "value": "worker1",
+                    "kind": "Identifier"
+                },
+                "annotationAttachments": [],
+                "documentationAttachments": [],
+                "defaultableParameters": [],
+                "deprecatedAttachments": [],
+                "body": {
+                    "statements": [],
+                    "kind": "Block"
+                },
+                "endpointNodes": [],
+                "parameters": [],
+                "kind": "Worker",
+                "public": false,
+                "native": false,
+                "final": false,
+                "attached": false,
+                "lambda": false,
+                "parallel": false,
+                "connector": false,
+                "deprecated": false,
+                "readonly": false,
+                "function_final": false,
+                "interface": false
+            },
+            {
+                "ws": [
+                    {
+                        "ws": "\n                ",
+                        "i": 23,
+                        "text": "worker",
+                        "static": true
+                    },
+                    {
+                        "ws": " ",
+                        "i": 25,
+                        "text": "worker2",
+                        "static": false
+                    },
+                    {
+                        "ws": " ",
+                        "i": 27,
+                        "text": "{",
+                        "static": true
+                    },
+                    {
+                        "ws": "\n                ",
+                        "i": 30,
+                        "text": "}",
+                        "static": true
+                    }
+                ],
+                "position": {
+                    "startColumn": 17,
+                    "startLine": 6,
+                    "endColumn": 17,
+                    "endLine": 7
+                },
+                "workers": [],
+                "returnTypeAnnotationAttachments": [],
+                "name": {
+                    "literal": false,
+                    "value": "worker2",
+                    "kind": "Identifier"
+                },
+                "annotationAttachments": [],
+                "documentationAttachments": [],
+                "defaultableParameters": [],
+                "deprecatedAttachments": [],
+                "body": {
+                    "statements": [],
+                    "kind": "Block"
+                },
+                "endpointNodes": [],
+                "parameters": [],
+                "kind": "Worker",
+                "public": false,
+                "native": false,
+                "final": false,
+                "attached": false,
+                "lambda": false,
+                "parallel": false,
+                "connector": false,
+                "deprecated": false,
+                "readonly": false,
+                "function_final": false,
+                "interface": false
+            }
+        ],
+        "joinedWorkerIdentifiers": [],
+        "joinResultVar": {
+            "ws": [
+                {
+                    "ws": " ",
+                    "i": 42,
+                    "text": "results",
+                    "static": false
+                }
+            ],
+            "position": {
+                "startColumn": 25,
+                "startLine": 8,
+                "endColumn": 25,
+                "endLine": 8
+            },
+            "symbolType": [
+                "map"
+            ],
+            "safeAssignment": false,
+            "typeNode": {
+                "ws": [
+                    {
+                        "ws": "",
+                        "i": 40,
+                        "text": "map",
+                        "static": true
+                    }
+                ],
+                "position": {
+                    "startColumn": 25,
+                    "startLine": 8,
+                    "endColumn": 25,
+                    "endLine": 8
+                },
+                "symbolType": [
+                    "map"
+                ],
+                "grouped": false,
+                "typeKind": "map",
+                "nullable": false,
+                "kind": "BuiltInRefType"
+            },
+            "deprecatedAttachments": [],
+            "annotationAttachments": [],
+            "name": {
+                "literal": false,
+                "value": "results",
+                "kind": "Identifier"
+            },
+            "documentationAttachments": [],
+            "kind": "Variable",
+            "public": false,
+            "native": false,
+            "final": false,
+            "attached": false,
+            "lambda": false,
+            "parallel": false,
+            "connector": false,
+            "deprecated": false,
+            "readonly": false,
+            "function_final": false,
+            "interface": false
+        },
+        "joinBody": {
+            "statements": [],
+            "kind": "Block"
+        },
+        "timeoutBody": {
+            "statements": [],
+            "kind": "Block"
+        },
+        "kind": "ForkJoin",
+        "joinCount": -1
+    },
+    "createWhile": {
+        "ws": [
+            {
+                "ws": "\n\n            ",
+                "i": 8,
+                "text": "while",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 9,
+                "text": "(",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 11,
+                "text": ")",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 13,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "\n\n            ",
+                "i": 16,
+                "text": "}",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 13,
+            "startLine": 3,
+            "endColumn": 13,
+            "endLine": 5
+        },
+        "condition": {
+            "ws": [
+                {
+                    "ws": "",
+                    "i": 10,
+                    "text": "true",
+                    "static": false
+                }
+            ],
+            "position": {
+                "startColumn": 19,
+                "startLine": 3,
+                "endColumn": 19,
+                "endLine": 3
+            },
+            "symbolType": [
+                "boolean"
+            ],
+            "value": "true",
+            "kind": "Literal"
+        },
+        "kind": "While",
+        "body": {
+            "position": {
+                "startColumn": 13,
+                "startLine": 3,
+                "endColumn": 13,
+                "endLine": 5
+            },
+            "statements": [],
+            "kind": "Block"
+        }
+    },
+    "createWorkerFragment": {
+        "ws": [
+            {
+                "ws": "\n\n            ",
+                "i": 8,
+                "text": "worker",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 10,
+                "text": "worker1",
+                "static": false
+            },
+            {
+                "ws": " ",
+                "i": 12,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "\n            ",
+                "i": 15,
+                "text": "}",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 13,
+            "startLine": 3,
+            "endColumn": 13,
+            "endLine": 4
+        },
+        "workers": [],
+        "returnTypeAnnotationAttachments": [],
+        "name": {
+            "literal": false,
+            "value": "worker1",
+            "kind": "Identifier"
+        },
+        "annotationAttachments": [],
+        "documentationAttachments": [],
+        "returnTypeNode": {
+            "position": {
+                "startColumn": 10,
+                "startLine": 1,
+                "endColumn": 23,
+                "endLine": 1
+            },
+            "symbolType": [
+                "null"
+            ],
+            "typeKind": "nil",
+            "grouped": false,
+            "nullable": false,
+            "kind": "ValueType"
+        },
+        "defaultableParameters": [],
+        "deprecatedAttachments": [],
+        "body": {
+            "statements": [],
+            "kind": "Block"
+        },
+        "endpointNodes": [],
+        "parameters": [],
+        "kind": "Worker",
+        "public": false,
+        "native": false,
+        "final": false,
+        "attached": false,
+        "lambda": false,
+        "parallel": false,
+        "connector": false,
+        "deprecated": false,
+        "readonly": false,
+        "function_final": false,
+        "interface": false
+    },
+    "createFTPServiceDef": {
+        "ws": [
+            {
+                "ws": "\n            ",
+                "i": 2,
+                "text": "service",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 3,
+                "text": "<",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 5,
+                "text": ">",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 7,
+                "text": "service1",
+                "static": false
+            },
+            {
+                "ws": " ",
+                "i": 9,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "\n            ",
+                "i": 28,
+                "text": "}",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 13,
+            "startLine": 2,
+            "endColumn": 13,
+            "endLine": 6
+        },
+        "annotationAttachments": [],
+        "serviceTypeStruct": {
+            "ws": [
+                {
+                    "ws": "",
+                    "i": 4,
+                    "text": "ftp",
+                    "static": false
+                }
+            ],
+            "position": {
+                "startColumn": 13,
+                "startLine": 2,
+                "endColumn": 13,
+                "endLine": 6
+            },
+            "symbolType": [
+                "other"
+            ],
+            "packageAlias": {
+                "literal": false,
+                "value": "",
+                "kind": "Identifier"
+            },
+            "grouped": false,
+            "typeName": {
+                "literal": false,
+                "value": "ftp",
+                "kind": "Identifier"
+            },
+            "nullable": false,
+            "kind": "UserDefinedType"
+        },
+        "initFunction": {
+            "position": {
+                "startColumn": 13,
+                "startLine": 2,
+                "endColumn": 13,
+                "endLine": 6
+            },
+            "workers": [],
+            "returnTypeAnnotationAttachments": [],
+            "name": {
+                "literal": false,
+                "value": "service1.<init>",
+                "kind": "Identifier"
+            },
+            "annotationAttachments": [],
+            "documentationAttachments": [],
+            "returnTypeNode": {
+                "position": {
+                    "startColumn": 13,
+                    "startLine": 2,
+                    "endColumn": 13,
+                    "endLine": 6
+                },
+                "symbolType": [
+                    "null"
+                ],
+                "typeKind": "nil",
+                "grouped": false,
+                "nullable": false,
+                "kind": "ValueType"
+            },
+            "defaultableParameters": [],
+            "deprecatedAttachments": [],
+            "body": {
+                "position": {
+                    "startColumn": 13,
+                    "startLine": 2,
+                    "endColumn": 13,
+                    "endLine": 6
+                },
+                "statements": [],
+                "kind": "Block"
+            },
+            "endpointNodes": [],
+            "parameters": [],
+            "kind": "Function",
+            "public": true,
+            "native": false,
+            "final": false,
+            "attached": false,
+            "lambda": false,
+            "parallel": false,
+            "connector": false,
+            "deprecated": false,
+            "readonly": false,
+            "function_final": false,
+            "interface": false
+        },
+        "endpointNodes": [],
+        "documentationAttachments": [],
+        "boundEndpoints": [],
+        "resources": [
+            {
+                "ws": [
+                    {
+                        "ws": "\n                ",
+                        "i": 12,
+                        "text": "echo1",
+                        "static": false
+                    },
+                    {
+                        "ws": " ",
+                        "i": 14,
+                        "text": "(",
+                        "static": true
+                    },
+                    {
+                        "ws": "",
+                        "i": 20,
+                        "text": ")",
+                        "static": true
+                    },
+                    {
+                        "ws": " ",
+                        "i": 22,
+                        "text": "{",
+                        "static": true
+                    },
+                    {
+                        "ws": "\n\n                ",
+                        "i": 25,
+                        "text": "}",
+                        "static": true
+                    }
+                ],
+                "position": {
+                    "startColumn": 17,
+                    "startLine": 3,
+                    "endColumn": 17,
+                    "endLine": 5
+                },
+                "workers": [],
+                "returnTypeAnnotationAttachments": [],
+                "name": {
+                    "literal": false,
+                    "value": "echo1",
+                    "kind": "Identifier"
+                },
+                "annotationAttachments": [],
+                "documentationAttachments": [],
+                "returnTypeNode": {
+                    "position": {
+                        "startColumn": 17,
+                        "startLine": 3,
+                        "endColumn": 17,
+                        "endLine": 5
+                    },
+                    "symbolType": [
+                        "null"
+                    ],
+                    "typeKind": "nil",
+                    "grouped": false,
+                    "nullable": false,
+                    "kind": "ValueType"
+                },
+                "defaultableParameters": [],
+                "deprecatedAttachments": [],
+                "body": {
+                    "statements": [],
+                    "kind": "Block"
+                },
+                "endpointNodes": [],
+                "parameters": [
+                    {
+                        "ws": [
+                            {
+                                "ws": " ",
+                                "i": 19,
+                                "text": "m",
+                                "static": false
+                            }
+                        ],
+                        "position": {
+                            "startColumn": 24,
+                            "startLine": 3,
+                            "endColumn": 43,
+                            "endLine": 3
+                        },
+                        "symbolType": [
+                            "other"
+                        ],
+                        "safeAssignment": false,
+                        "typeNode": {
+                            "ws": [
+                                {
+                                    "ws": "",
+                                    "i": 15,
+                                    "text": "ftp",
+                                    "static": false
+                                },
+                                {
+                                    "ws": "",
+                                    "i": 16,
+                                    "text": ":",
+                                    "static": true
+                                },
+                                {
+                                    "ws": "",
+                                    "i": 17,
+                                    "text": "FTPServerEvent",
+                                    "static": false
+                                }
+                            ],
+                            "position": {
+                                "startColumn": 24,
+                                "startLine": 3,
+                                "endColumn": 28,
+                                "endLine": 3
+                            },
+                            "symbolType": [
+                                "other"
+                            ],
+                            "packageAlias": {
+                                "literal": false,
+                                "value": "ftp",
+                                "kind": "Identifier"
+                            },
+                            "grouped": false,
+                            "typeName": {
+                                "literal": false,
+                                "value": "FTPServerEvent",
+                                "kind": "Identifier"
+                            },
+                            "nullable": false,
+                            "kind": "UserDefinedType"
+                        },
+                        "deprecatedAttachments": [],
+                        "annotationAttachments": [],
+                        "name": {
+                            "literal": false,
+                            "value": "m",
+                            "kind": "Identifier"
+                        },
+                        "documentationAttachments": [],
+                        "kind": "Variable",
+                        "public": false,
+                        "native": false,
+                        "final": false,
+                        "attached": false,
+                        "lambda": false,
+                        "parallel": false,
+                        "connector": false,
+                        "deprecated": false,
+                        "readonly": false,
+                        "function_final": false,
+                        "interface": false
+                    }
+                ],
+                "kind": "Resource",
+                "public": true,
+                "native": false,
+                "final": false,
+                "attached": false,
+                "lambda": false,
+                "parallel": false,
+                "connector": false,
+                "deprecated": false,
+                "readonly": false,
+                "function_final": false,
+                "interface": false
+            }
+        ],
+        "deprecatedAttachments": [],
+        "variables": [],
+        "name": {
+            "literal": false,
+            "value": "service1",
+            "kind": "Identifier"
+        },
+        "kind": "Service"
+    },
+    "createWSServiceDef": {
+        "ws": [
+            {
+                "ws": "\n            ",
+                "i": 35,
+                "text": "service",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 36,
+                "text": "<",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 40,
+                "text": ">",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 42,
+                "text": "WSServer",
+                "static": false
+            },
+            {
+                "ws": " ",
+                "i": 44,
+                "text": "bind",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 48,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "\n            ",
+                "i": 119,
+                "text": "}",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 13,
+            "startLine": 7,
+            "endColumn": 13,
+            "endLine": 20
+        },
+        "annotationAttachments": [
+            {
+                "ws": [
+                    {
+                        "ws": "\n            ",
+                        "i": 2,
+                        "text": "@",
+                        "static": true
+                    },
+                    {
+                        "ws": "",
+                        "i": 3,
+                        "text": "http",
+                        "static": false
+                    },
+                    {
+                        "ws": "",
+                        "i": 4,
+                        "text": ":",
+                        "static": true
+                    },
+                    {
+                        "ws": "",
+                        "i": 5,
+                        "text": "WebSocketServiceConfig",
+                        "static": false
+                    }
+                ],
+                "position": {
+                    "startColumn": 13,
+                    "startLine": 2,
+                    "endColumn": 13,
+                    "endLine": 6
+                },
+                "expression": {
+                    "ws": [
+                        {
+                            "ws": " ",
+                            "i": 7,
+                            "text": "{",
+                            "static": true
+                        },
+                        {
+                            "ws": "",
+                            "i": 13,
+                            "text": ",",
+                            "static": true
+                        },
+                        {
+                            "ws": "",
+                            "i": 24,
+                            "text": ",",
+                            "static": true
+                        },
+                        {
+                            "ws": "\n            ",
+                            "i": 32,
+                            "text": "}",
+                            "static": true
+                        }
+                    ],
+                    "position": {
+                        "startColumn": 42,
+                        "startLine": 2,
+                        "endColumn": 13,
+                        "endLine": 6
+                    },
+                    "keyValuePairs": [
+                        {
+                            "ws": [
+                                {
+                                    "ws": "",
+                                    "i": 11,
+                                    "text": ":",
+                                    "static": true
+                                }
+                            ],
+                            "value": {
+                                "ws": [
+                                    {
+                                        "ws": "",
+                                        "i": 12,
+                                        "text": "\"/basic/ws\"",
+                                        "static": false
+                                    }
+                                ],
+                                "position": {
+                                    "startColumn": 26,
+                                    "startLine": 3,
+                                    "endColumn": 26,
+                                    "endLine": 3
+                                },
+                                "value": "\"/basic/ws\"",
+                                "unescapedValue": "/basic/ws",
+                                "kind": "Literal"
+                            },
+                            "key": {
+                                "ws": [
+                                    {
+                                        "ws": "\n                ",
+                                        "i": 10,
+                                        "text": "basePath",
+                                        "static": false
+                                    }
+                                ],
+                                "position": {
+                                    "startColumn": 17,
+                                    "startLine": 3,
+                                    "endColumn": 17,
+                                    "endLine": 3
+                                },
+                                "variableName": {
+                                    "literal": false,
+                                    "value": "basePath",
+                                    "kind": "Identifier"
+                                },
+                                "packageAlias": {
+                                    "literal": false,
+                                    "value": "",
+                                    "kind": "Identifier"
+                                },
+                                "kind": "SimpleVariableRef"
+                            },
+                            "kind": "RecordLiteralKeyValue"
+                        },
+                        {
+                            "ws": [
+                                {
+                                    "ws": "",
+                                    "i": 17,
+                                    "text": ":",
+                                    "static": true
+                                }
+                            ],
+                            "value": {
+                                "ws": [
+                                    {
+                                        "ws": "",
+                                        "i": 18,
+                                        "text": "[",
+                                        "static": true
+                                    },
+                                    {
+                                        "ws": "",
+                                        "i": 20,
+                                        "text": ",",
+                                        "static": true
+                                    },
+                                    {
+                                        "ws": "",
+                                        "i": 23,
+                                        "text": "]",
+                                        "static": true
+                                    }
+                                ],
+                                "position": {
+                                    "startColumn": 30,
+                                    "startLine": 4,
+                                    "endColumn": 44,
+                                    "endLine": 4
+                                },
+                                "expressions": [
+                                    {
+                                        "ws": [
+                                            {
+                                                "ws": "",
+                                                "i": 19,
+                                                "text": "\"xml\"",
+                                                "static": false
+                                            }
+                                        ],
+                                        "position": {
+                                            "startColumn": 31,
+                                            "startLine": 4,
+                                            "endColumn": 31,
+                                            "endLine": 4
+                                        },
+                                        "value": "\"xml\"",
+                                        "unescapedValue": "xml",
+                                        "kind": "Literal"
+                                    },
+                                    {
+                                        "ws": [
+                                            {
+                                                "ws": " ",
+                                                "i": 22,
+                                                "text": "\"json\"",
+                                                "static": false
+                                            }
+                                        ],
+                                        "position": {
+                                            "startColumn": 38,
+                                            "startLine": 4,
+                                            "endColumn": 38,
+                                            "endLine": 4
+                                        },
+                                        "value": "\"json\"",
+                                        "unescapedValue": "json",
+                                        "kind": "Literal"
+                                    }
+                                ],
+                                "kind": "ArrayLiteralExpr"
+                            },
+                            "key": {
+                                "ws": [
+                                    {
+                                        "ws": "\n                ",
+                                        "i": 16,
+                                        "text": "subProtocols",
+                                        "static": false
+                                    }
+                                ],
+                                "position": {
+                                    "startColumn": 17,
+                                    "startLine": 4,
+                                    "endColumn": 17,
+                                    "endLine": 4
+                                },
+                                "variableName": {
+                                    "literal": false,
+                                    "value": "subProtocols",
+                                    "kind": "Identifier"
+                                },
+                                "packageAlias": {
+                                    "literal": false,
+                                    "value": "",
+                                    "kind": "Identifier"
+                                },
+                                "kind": "SimpleVariableRef"
+                            },
+                            "kind": "RecordLiteralKeyValue"
+                        },
+                        {
+                            "ws": [
+                                {
+                                    "ws": "",
+                                    "i": 28,
+                                    "text": ":",
+                                    "static": true
+                                }
+                            ],
+                            "value": {
+                                "ws": [
+                                    {
+                                        "ws": "",
+                                        "i": 29,
+                                        "text": "120",
+                                        "static": false
+                                    }
+                                ],
+                                "position": {
+                                    "startColumn": 38,
+                                    "startLine": 5,
+                                    "endColumn": 38,
+                                    "endLine": 5
+                                },
+                                "value": "120",
+                                "kind": "Literal"
+                            },
+                            "key": {
+                                "ws": [
+                                    {
+                                        "ws": "\n                ",
+                                        "i": 27,
+                                        "text": "idleTimeoutInSeconds",
+                                        "static": false
+                                    }
+                                ],
+                                "position": {
+                                    "startColumn": 17,
+                                    "startLine": 5,
+                                    "endColumn": 17,
+                                    "endLine": 5
+                                },
+                                "variableName": {
+                                    "literal": false,
+                                    "value": "idleTimeoutInSeconds",
+                                    "kind": "Identifier"
+                                },
+                                "packageAlias": {
+                                    "literal": false,
+                                    "value": "",
+                                    "kind": "Identifier"
+                                },
+                                "kind": "SimpleVariableRef"
+                            },
+                            "kind": "RecordLiteralKeyValue"
+                        }
+                    ],
+                    "kind": "RecordLiteralExpr"
+                },
+                "attributes": [],
+                "annotationName": {
+                    "literal": false,
+                    "value": "WebSocketServiceConfig",
+                    "kind": "Identifier"
+                },
+                "packageAlias": {
+                    "literal": false,
+                    "value": "http",
+                    "kind": "Identifier"
+                },
+                "kind": "AnnotationAttachment"
+            }
+        ],
+        "serviceTypeStruct": {
+            "ws": [
+                {
+                    "ws": "",
+                    "i": 37,
+                    "text": "http",
+                    "static": false
+                },
+                {
+                    "ws": "",
+                    "i": 38,
+                    "text": ":",
+                    "static": true
+                },
+                {
+                    "ws": "",
+                    "i": 39,
+                    "text": "WebSocketService",
+                    "static": false
+                }
+            ],
+            "position": {
+                "startColumn": 13,
+                "startLine": 7,
+                "endColumn": 13,
+                "endLine": 20
+            },
+            "symbolType": [
+                "other"
+            ],
+            "packageAlias": {
+                "literal": false,
+                "value": "http",
+                "kind": "Identifier"
+            },
+            "grouped": false,
+            "typeName": {
+                "literal": false,
+                "value": "WebSocketService",
+                "kind": "Identifier"
+            },
+            "nullable": false,
+            "kind": "UserDefinedType"
+        },
+        "initFunction": {
+            "position": {
+                "startColumn": 13,
+                "startLine": 7,
+                "endColumn": 13,
+                "endLine": 20
+            },
+            "workers": [],
+            "returnTypeAnnotationAttachments": [],
+            "name": {
+                "literal": false,
+                "value": "WSServer.<init>",
+                "kind": "Identifier"
+            },
+            "annotationAttachments": [],
+            "documentationAttachments": [],
+            "returnTypeNode": {
+                "position": {
+                    "startColumn": 13,
+                    "startLine": 7,
+                    "endColumn": 13,
+                    "endLine": 20
+                },
+                "symbolType": [
+                    "null"
+                ],
+                "typeKind": "nil",
+                "grouped": false,
+                "nullable": false,
+                "kind": "ValueType"
+            },
+            "defaultableParameters": [],
+            "deprecatedAttachments": [],
+            "body": {
+                "position": {
+                    "startColumn": 13,
+                    "startLine": 7,
+                    "endColumn": 13,
+                    "endLine": 20
+                },
+                "statements": [],
+                "kind": "Block"
+            },
+            "endpointNodes": [],
+            "parameters": [],
+            "kind": "Function",
+            "public": true,
+            "native": false,
+            "final": false,
+            "attached": false,
+            "lambda": false,
+            "parallel": false,
+            "connector": false,
+            "deprecated": false,
+            "readonly": false,
+            "function_final": false,
+            "interface": false
+        },
+        "endpointNodes": [],
+        "documentationAttachments": [],
+        "boundEndpoints": [
+            {
+                "ws": [
+                    {
+                        "ws": " ",
+                        "i": 46,
+                        "text": "wsEnpointName",
+                        "static": false
+                    }
+                ],
+                "position": {
+                    "startColumn": 58,
+                    "startLine": 7,
+                    "endColumn": 58,
+                    "endLine": 7
+                },
+                "symbolType": [
+                    "other"
+                ],
+                "variableName": {
+                    "literal": false,
+                    "value": "wsEnpointName",
+                    "kind": "Identifier"
+                },
+                "packageAlias": {
+                    "literal": false,
+                    "value": "",
+                    "kind": "Identifier"
+                },
+                "kind": "SimpleVariableRef"
+            }
+        ],
+        "resources": [
+            {
+                "ws": [
+                    {
+                        "ws": "\n            \n                ",
+                        "i": 53,
+                        "text": "onOpen",
+                        "static": false
+                    },
+                    {
+                        "ws": " ",
+                        "i": 55,
+                        "text": "(",
+                        "static": true
+                    },
+                    {
+                        "ws": " ",
+                        "i": 58,
+                        "text": "conn",
+                        "static": false
+                    },
+                    {
+                        "ws": "",
+                        "i": 59,
+                        "text": ")",
+                        "static": true
+                    },
+                    {
+                        "ws": " ",
+                        "i": 61,
+                        "text": "{",
+                        "static": true
+                    },
+                    {
+                        "ws": "\n\n                ",
+                        "i": 64,
+                        "text": "}",
+                        "static": true
+                    }
+                ],
+                "position": {
+                    "startColumn": 17,
+                    "startLine": 9,
+                    "endColumn": 17,
+                    "endLine": 11
+                },
+                "workers": [],
+                "returnTypeAnnotationAttachments": [],
+                "name": {
+                    "literal": false,
+                    "value": "onOpen",
+                    "kind": "Identifier"
+                },
+                "annotationAttachments": [],
+                "documentationAttachments": [],
+                "returnTypeNode": {
+                    "position": {
+                        "startColumn": 17,
+                        "startLine": 9,
+                        "endColumn": 17,
+                        "endLine": 11
+                    },
+                    "symbolType": [
+                        "null"
+                    ],
+                    "typeKind": "nil",
+                    "grouped": false,
+                    "nullable": false,
+                    "kind": "ValueType"
+                },
+                "defaultableParameters": [],
+                "deprecatedAttachments": [],
+                "body": {
+                    "statements": [],
+                    "kind": "Block"
+                },
+                "endpointNodes": [],
+                "parameters": [
+                    {
+                        "ws": [
+                            {
+                                "ws": "",
+                                "i": 56,
+                                "text": "endpoint",
+                                "static": true
+                            }
+                        ],
+                        "position": {
+                            "startColumn": 25,
+                            "startLine": 9,
+                            "endColumn": 34,
+                            "endLine": 9
+                        },
+                        "symbolType": [
+                            "other"
+                        ],
+                        "safeAssignment": false,
+                        "deprecatedAttachments": [],
+                        "annotationAttachments": [],
+                        "name": {
+                            "literal": false,
+                            "value": "conn",
+                            "kind": "Identifier"
+                        },
+                        "documentationAttachments": [],
+                        "kind": "Variable",
+                        "public": false,
+                        "native": false,
+                        "final": false,
+                        "attached": false,
+                        "lambda": false,
+                        "parallel": false,
+                        "connector": false,
+                        "deprecated": false,
+                        "readonly": false,
+                        "function_final": false,
+                        "interface": false
+                    }
+                ],
+                "kind": "Resource",
+                "public": true,
+                "native": false,
+                "final": false,
+                "attached": false,
+                "lambda": false,
+                "parallel": false,
+                "connector": false,
+                "deprecated": false,
+                "readonly": false,
+                "function_final": false,
+                "interface": false
+            },
+            {
+                "ws": [
+                    {
+                        "ws": "\n            \n\n                ",
+                        "i": 69,
+                        "text": "onText",
+                        "static": false
+                    },
+                    {
+                        "ws": " ",
+                        "i": 71,
+                        "text": "(",
+                        "static": true
+                    },
+                    {
+                        "ws": "",
+                        "i": 75,
+                        "text": ",",
+                        "static": true
+                    },
+                    {
+                        "ws": "",
+                        "i": 80,
+                        "text": ",",
+                        "static": true
+                    },
+                    {
+                        "ws": "",
+                        "i": 85,
+                        "text": ")",
+                        "static": true
+                    },
+                    {
+                        "ws": " ",
+                        "i": 87,
+                        "text": "{",
+                        "static": true
+                    },
+                    {
+                        "ws": "\n\n                ",
+                        "i": 90,
+                        "text": "}",
+                        "static": true
+                    }
+                ],
+                "position": {
+                    "startColumn": 17,
+                    "startLine": 14,
+                    "endColumn": 17,
+                    "endLine": 16
+                },
+                "workers": [],
+                "returnTypeAnnotationAttachments": [],
+                "name": {
+                    "literal": false,
+                    "value": "onText",
+                    "kind": "Identifier"
+                },
+                "annotationAttachments": [],
+                "documentationAttachments": [],
+                "returnTypeNode": {
+                    "position": {
+                        "startColumn": 17,
+                        "startLine": 14,
+                        "endColumn": 17,
+                        "endLine": 16
+                    },
+                    "symbolType": [
+                        "null"
+                    ],
+                    "typeKind": "nil",
+                    "grouped": false,
+                    "nullable": false,
+                    "kind": "ValueType"
+                },
+                "defaultableParameters": [],
+                "deprecatedAttachments": [],
+                "body": {
+                    "statements": [],
+                    "kind": "Block"
+                },
+                "endpointNodes": [],
+                "parameters": [
+                    {
+                        "ws": [
+                            {
+                                "ws": "",
+                                "i": 72,
+                                "text": "endpoint",
+                                "static": true
+                            },
+                            {
+                                "ws": " ",
+                                "i": 74,
+                                "text": "conn",
+                                "static": false
+                            }
+                        ],
+                        "position": {
+                            "startColumn": 25,
+                            "startLine": 14,
+                            "endColumn": 61,
+                            "endLine": 14
+                        },
+                        "symbolType": [
+                            "other"
+                        ],
+                        "safeAssignment": false,
+                        "deprecatedAttachments": [],
+                        "annotationAttachments": [],
+                        "name": {
+                            "literal": false,
+                            "value": "conn",
+                            "kind": "Identifier"
+                        },
+                        "documentationAttachments": [],
+                        "kind": "Variable",
+                        "public": false,
+                        "native": false,
+                        "final": false,
+                        "attached": false,
+                        "lambda": false,
+                        "parallel": false,
+                        "connector": false,
+                        "deprecated": false,
+                        "readonly": false,
+                        "function_final": false,
+                        "interface": false
+                    },
+                    {
+                        "ws": [
+                            {
+                                "ws": " ",
+                                "i": 79,
+                                "text": "text",
+                                "static": false
+                            }
+                        ],
+                        "position": {
+                            "startColumn": 40,
+                            "startLine": 14,
+                            "endColumn": 47,
+                            "endLine": 14
+                        },
+                        "symbolType": [
+                            "string"
+                        ],
+                        "safeAssignment": false,
+                        "typeNode": {
+                            "ws": [
+                                {
+                                    "ws": " ",
+                                    "i": 77,
+                                    "text": "string",
+                                    "static": true
+                                }
+                            ],
+                            "position": {
+                                "startColumn": 40,
+                                "startLine": 14,
+                                "endColumn": 40,
+                                "endLine": 14
+                            },
+                            "symbolType": [
+                                "string"
+                            ],
+                            "typeKind": "string",
+                            "grouped": false,
+                            "nullable": false,
+                            "kind": "ValueType"
+                        },
+                        "deprecatedAttachments": [],
+                        "annotationAttachments": [],
+                        "name": {
+                            "literal": false,
+                            "value": "text",
+                            "kind": "Identifier"
+                        },
+                        "documentationAttachments": [],
+                        "kind": "Variable",
+                        "public": false,
+                        "native": false,
+                        "final": false,
+                        "attached": false,
+                        "lambda": false,
+                        "parallel": false,
+                        "connector": false,
+                        "deprecated": false,
+                        "readonly": false,
+                        "function_final": false,
+                        "interface": false
+                    },
+                    {
+                        "ws": [
+                            {
+                                "ws": " ",
+                                "i": 84,
+                                "text": "more",
+                                "static": false
+                            }
+                        ],
+                        "position": {
+                            "startColumn": 53,
+                            "startLine": 14,
+                            "endColumn": 61,
+                            "endLine": 14
+                        },
+                        "symbolType": [
+                            "boolean"
+                        ],
+                        "safeAssignment": false,
+                        "typeNode": {
+                            "ws": [
+                                {
+                                    "ws": " ",
+                                    "i": 82,
+                                    "text": "boolean",
+                                    "static": true
+                                }
+                            ],
+                            "position": {
+                                "startColumn": 53,
+                                "startLine": 14,
+                                "endColumn": 53,
+                                "endLine": 14
+                            },
+                            "symbolType": [
+                                "boolean"
+                            ],
+                            "typeKind": "boolean",
+                            "grouped": false,
+                            "nullable": false,
+                            "kind": "ValueType"
+                        },
+                        "deprecatedAttachments": [],
+                        "annotationAttachments": [],
+                        "name": {
+                            "literal": false,
+                            "value": "more",
+                            "kind": "Identifier"
+                        },
+                        "documentationAttachments": [],
+                        "kind": "Variable",
+                        "public": false,
+                        "native": false,
+                        "final": false,
+                        "attached": false,
+                        "lambda": false,
+                        "parallel": false,
+                        "connector": false,
+                        "deprecated": false,
+                        "readonly": false,
+                        "function_final": false,
+                        "interface": false
+                    }
+                ],
+                "kind": "Resource",
+                "public": true,
+                "native": false,
+                "final": false,
+                "attached": false,
+                "lambda": false,
+                "parallel": false,
+                "connector": false,
+                "deprecated": false,
+                "readonly": false,
+                "function_final": false,
+                "interface": false
+            },
+            {
+                "ws": [
+                    {
+                        "ws": "\n            \n                ",
+                        "i": 95,
+                        "text": "onClose",
+                        "static": false
+                    },
+                    {
+                        "ws": " ",
+                        "i": 97,
+                        "text": "(",
+                        "static": true
+                    },
+                    {
+                        "ws": "",
+                        "i": 101,
+                        "text": ",",
+                        "static": true
+                    },
+                    {
+                        "ws": "",
+                        "i": 106,
+                        "text": ",",
+                        "static": true
+                    },
+                    {
+                        "ws": "",
+                        "i": 111,
+                        "text": ")",
+                        "static": true
+                    },
+                    {
+                        "ws": " ",
+                        "i": 113,
+                        "text": "{",
+                        "static": true
+                    },
+                    {
+                        "ws": "\n                ",
+                        "i": 116,
+                        "text": "}",
+                        "static": true
+                    }
+                ],
+                "position": {
+                    "startColumn": 17,
+                    "startLine": 18,
+                    "endColumn": 17,
+                    "endLine": 19
+                },
+                "workers": [],
+                "returnTypeAnnotationAttachments": [],
+                "name": {
+                    "literal": false,
+                    "value": "onClose",
+                    "kind": "Identifier"
+                },
+                "annotationAttachments": [],
+                "documentationAttachments": [],
+                "returnTypeNode": {
+                    "position": {
+                        "startColumn": 17,
+                        "startLine": 18,
+                        "endColumn": 17,
+                        "endLine": 19
+                    },
+                    "symbolType": [
+                        "null"
+                    ],
+                    "typeKind": "nil",
+                    "grouped": false,
+                    "nullable": false,
+                    "kind": "ValueType"
+                },
+                "defaultableParameters": [],
+                "deprecatedAttachments": [],
+                "body": {
+                    "statements": [],
+                    "kind": "Block"
+                },
+                "endpointNodes": [],
+                "parameters": [
+                    {
+                        "ws": [
+                            {
+                                "ws": "",
+                                "i": 98,
+                                "text": "endpoint",
+                                "static": true
+                            },
+                            {
+                                "ws": " ",
+                                "i": 100,
+                                "text": "conn",
+                                "static": false
+                            }
+                        ],
+                        "position": {
+                            "startColumn": 26,
+                            "startLine": 18,
+                            "endColumn": 64,
+                            "endLine": 18
+                        },
+                        "symbolType": [
+                            "other"
+                        ],
+                        "safeAssignment": false,
+                        "deprecatedAttachments": [],
+                        "annotationAttachments": [],
+                        "name": {
+                            "literal": false,
+                            "value": "conn",
+                            "kind": "Identifier"
+                        },
+                        "documentationAttachments": [],
+                        "kind": "Variable",
+                        "public": false,
+                        "native": false,
+                        "final": false,
+                        "attached": false,
+                        "lambda": false,
+                        "parallel": false,
+                        "connector": false,
+                        "deprecated": false,
+                        "readonly": false,
+                        "function_final": false,
+                        "interface": false
+                    },
+                    {
+                        "ws": [
+                            {
+                                "ws": " ",
+                                "i": 105,
+                                "text": "statusCode",
+                                "static": false
+                            }
+                        ],
+                        "position": {
+                            "startColumn": 41,
+                            "startLine": 18,
+                            "endColumn": 45,
+                            "endLine": 18
+                        },
+                        "symbolType": [
+                            "int"
+                        ],
+                        "safeAssignment": false,
+                        "typeNode": {
+                            "ws": [
+                                {
+                                    "ws": " ",
+                                    "i": 103,
+                                    "text": "int",
+                                    "static": true
+                                }
+                            ],
+                            "position": {
+                                "startColumn": 41,
+                                "startLine": 18,
+                                "endColumn": 41,
+                                "endLine": 18
+                            },
+                            "symbolType": [
+                                "int"
+                            ],
+                            "typeKind": "int",
+                            "grouped": false,
+                            "nullable": false,
+                            "kind": "ValueType"
+                        },
+                        "deprecatedAttachments": [],
+                        "annotationAttachments": [],
+                        "name": {
+                            "literal": false,
+                            "value": "statusCode",
+                            "kind": "Identifier"
+                        },
+                        "documentationAttachments": [],
+                        "kind": "Variable",
+                        "public": false,
+                        "native": false,
+                        "final": false,
+                        "attached": false,
+                        "lambda": false,
+                        "parallel": false,
+                        "connector": false,
+                        "deprecated": false,
+                        "readonly": false,
+                        "function_final": false,
+                        "interface": false
+                    },
+                    {
+                        "ws": [
+                            {
+                                "ws": " ",
+                                "i": 110,
+                                "text": "reason",
+                                "static": false
+                            }
+                        ],
+                        "position": {
+                            "startColumn": 57,
+                            "startLine": 18,
+                            "endColumn": 64,
+                            "endLine": 18
+                        },
+                        "symbolType": [
+                            "string"
+                        ],
+                        "safeAssignment": false,
+                        "typeNode": {
+                            "ws": [
+                                {
+                                    "ws": " ",
+                                    "i": 108,
+                                    "text": "string",
+                                    "static": true
+                                }
+                            ],
+                            "position": {
+                                "startColumn": 57,
+                                "startLine": 18,
+                                "endColumn": 57,
+                                "endLine": 18
+                            },
+                            "symbolType": [
+                                "string"
+                            ],
+                            "typeKind": "string",
+                            "grouped": false,
+                            "nullable": false,
+                            "kind": "ValueType"
+                        },
+                        "deprecatedAttachments": [],
+                        "annotationAttachments": [],
+                        "name": {
+                            "literal": false,
+                            "value": "reason",
+                            "kind": "Identifier"
+                        },
+                        "documentationAttachments": [],
+                        "kind": "Variable",
+                        "public": false,
+                        "native": false,
+                        "final": false,
+                        "attached": false,
+                        "lambda": false,
+                        "parallel": false,
+                        "connector": false,
+                        "deprecated": false,
+                        "readonly": false,
+                        "function_final": false,
+                        "interface": false
+                    }
+                ],
+                "kind": "Resource",
+                "public": true,
+                "native": false,
+                "final": false,
+                "attached": false,
+                "lambda": false,
+                "parallel": false,
+                "connector": false,
+                "deprecated": false,
+                "readonly": false,
+                "function_final": false,
+                "interface": false
+            }
+        ],
+        "deprecatedAttachments": [],
+        "variables": [],
+        "name": {
+            "literal": false,
+            "value": "WSServer",
+            "kind": "Identifier"
+        },
+        "kind": "Service"
+    },
+    "createHTTPServiceDef": {
+        "ws": [
+            {
+                "ws": "\n            ",
+                "i": 2,
+                "text": "service",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 3,
+                "text": "<",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 7,
+                "text": ">",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 9,
+                "text": "serviceName",
+                "static": false
+            },
+            {
+                "ws": " ",
+                "i": 11,
+                "text": "bind",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 15,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "\n            ",
+                "i": 67,
+                "text": "}",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 13,
+            "startLine": 2,
+            "endColumn": 13,
+            "endLine": 8
+        },
+        "annotationAttachments": [],
+        "serviceTypeStruct": {
+            "ws": [
+                {
+                    "ws": "",
+                    "i": 4,
+                    "text": "http",
+                    "static": false
+                },
+                {
+                    "ws": "",
+                    "i": 5,
+                    "text": ":",
+                    "static": true
+                },
+                {
+                    "ws": "",
+                    "i": 6,
+                    "text": "Service",
+                    "static": false
+                }
+            ],
+            "position": {
+                "startColumn": 13,
+                "startLine": 2,
+                "endColumn": 13,
+                "endLine": 8
+            },
+            "symbolType": [
+                "other"
+            ],
+            "packageAlias": {
+                "literal": false,
+                "value": "http",
+                "kind": "Identifier"
+            },
+            "grouped": false,
+            "typeName": {
+                "literal": false,
+                "value": "Service",
+                "kind": "Identifier"
+            },
+            "nullable": false,
+            "kind": "UserDefinedType"
+        },
+        "initFunction": {
+            "position": {
+                "startColumn": 13,
+                "startLine": 2,
+                "endColumn": 13,
+                "endLine": 8
+            },
+            "workers": [],
+            "returnTypeAnnotationAttachments": [],
+            "name": {
+                "literal": false,
+                "value": "serviceName.<init>",
+                "kind": "Identifier"
+            },
+            "annotationAttachments": [],
+            "documentationAttachments": [],
+            "returnTypeNode": {
+                "position": {
+                    "startColumn": 13,
+                    "startLine": 2,
+                    "endColumn": 13,
+                    "endLine": 8
+                },
+                "symbolType": [
+                    "null"
+                ],
+                "typeKind": "nil",
+                "grouped": false,
+                "nullable": false,
+                "kind": "ValueType"
+            },
+            "defaultableParameters": [],
+            "deprecatedAttachments": [],
+            "body": {
+                "position": {
+                    "startColumn": 13,
+                    "startLine": 2,
+                    "endColumn": 13,
+                    "endLine": 8
+                },
+                "statements": [],
+                "kind": "Block"
+            },
+            "endpointNodes": [],
+            "parameters": [],
+            "kind": "Function",
+            "public": true,
+            "native": false,
+            "final": false,
+            "attached": false,
+            "lambda": false,
+            "parallel": false,
+            "connector": false,
+            "deprecated": false,
+            "readonly": false,
+            "function_final": false,
+            "interface": false
+        },
+        "endpointNodes": [],
+        "documentationAttachments": [],
+        "boundEndpoints": [
+            {
+                "ws": [
+                    {
+                        "ws": " ",
+                        "i": 13,
+                        "text": "endpointName",
+                        "static": false
+                    }
+                ],
+                "position": {
+                    "startColumn": 52,
+                    "startLine": 2,
+                    "endColumn": 52,
+                    "endLine": 2
+                },
+                "symbolType": [
+                    "other"
+                ],
+                "variableName": {
+                    "literal": false,
+                    "value": "endpointName",
+                    "kind": "Identifier"
+                },
+                "packageAlias": {
+                    "literal": false,
+                    "value": "",
+                    "kind": "Identifier"
+                },
+                "kind": "SimpleVariableRef"
+            }
+        ],
+        "resources": [
+            {
+                "ws": [
+                    {
+                        "ws": "\n                ",
+                        "i": 18,
+                        "text": "getAction",
+                        "static": false
+                    },
+                    {
+                        "ws": " ",
+                        "i": 20,
+                        "text": "(",
+                        "static": true
+                    },
+                    {
+                        "ws": " ",
+                        "i": 23,
+                        "text": "client",
+                        "static": false
+                    },
+                    {
+                        "ws": "",
+                        "i": 24,
+                        "text": ")",
+                        "static": true
+                    },
+                    {
+                        "ws": "",
+                        "i": 25,
+                        "text": "{",
+                        "static": true
+                    },
+                    {
+                        "ws": "\n                ",
+                        "i": 64,
+                        "text": "}",
+                        "static": true
+                    }
+                ],
+                "position": {
+                    "startColumn": 17,
+                    "startLine": 3,
+                    "endColumn": 17,
+                    "endLine": 7
+                },
+                "workers": [],
+                "returnTypeAnnotationAttachments": [],
+                "name": {
+                    "literal": false,
+                    "value": "getAction",
+                    "kind": "Identifier"
+                },
+                "annotationAttachments": [],
+                "documentationAttachments": [],
+                "returnTypeNode": {
+                    "position": {
+                        "startColumn": 17,
+                        "startLine": 3,
+                        "endColumn": 17,
+                        "endLine": 7
+                    },
+                    "symbolType": [
+                        "null"
+                    ],
+                    "typeKind": "nil",
+                    "grouped": false,
+                    "nullable": false,
+                    "kind": "ValueType"
+                },
+                "defaultableParameters": [],
+                "deprecatedAttachments": [],
+                "body": {
+                    "statements": [
+                        {
+                            "ws": [
+                                {
+                                    "ws": "",
+                                    "i": 37,
+                                    "text": ";",
+                                    "static": true
+                                }
+                            ],
+                            "position": {
+                                "startColumn": 21,
+                                "startLine": 4,
+                                "endColumn": 44,
+                                "endLine": 4
+                            },
+                            "variable": {
+                                "ws": [
+                                    {
+                                        "ws": " ",
+                                        "i": 32,
+                                        "text": "res",
+                                        "static": false
+                                    },
+                                    {
+                                        "ws": " ",
+                                        "i": 34,
+                                        "text": "=",
+                                        "static": true
+                                    }
+                                ],
+                                "position": {
+                                    "startColumn": 21,
+                                    "startLine": 4,
+                                    "endColumn": 44,
+                                    "endLine": 4
+                                },
+                                "symbolType": [
+                                    "other"
+                                ],
+                                "safeAssignment": false,
+                                "typeNode": {
+                                    "ws": [
+                                        {
+                                            "ws": "\n                    ",
+                                            "i": 28,
+                                            "text": "http",
+                                            "static": false
+                                        },
+                                        {
+                                            "ws": "",
+                                            "i": 29,
+                                            "text": ":",
+                                            "static": true
+                                        },
+                                        {
+                                            "ws": "",
+                                            "i": 30,
+                                            "text": "Response",
+                                            "static": false
+                                        }
+                                    ],
+                                    "position": {
+                                        "startColumn": 21,
+                                        "startLine": 4,
+                                        "endColumn": 26,
+                                        "endLine": 4
+                                    },
+                                    "symbolType": [
+                                        "other"
+                                    ],
+                                    "packageAlias": {
+                                        "literal": false,
+                                        "value": "http",
+                                        "kind": "Identifier"
+                                    },
+                                    "grouped": false,
+                                    "typeName": {
+                                        "literal": false,
+                                        "value": "Response",
+                                        "kind": "Identifier"
+                                    },
+                                    "nullable": false,
+                                    "kind": "UserDefinedType"
+                                },
+                                "deprecatedAttachments": [],
+                                "annotationAttachments": [],
+                                "name": {
+                                    "literal": false,
+                                    "value": "res",
+                                    "kind": "Identifier"
+                                },
+                                "initialExpression": {
+                                    "ws": [
+                                        {
+                                            "ws": " ",
+                                            "i": 36,
+                                            "text": "new",
+                                            "static": true
+                                        }
+                                    ],
+                                    "position": {
+                                        "startColumn": 41,
+                                        "startLine": 4,
+                                        "endColumn": 41,
+                                        "endLine": 4
+                                    },
+                                    "symbolType": [
+                                        "other"
+                                    ],
+                                    "expressions": [],
+                                    "kind": "TypeInitExpr"
+                                },
+                                "documentationAttachments": [],
+                                "kind": "Variable",
+                                "public": false,
+                                "native": false,
+                                "final": false,
+                                "attached": false,
+                                "lambda": false,
+                                "parallel": false,
+                                "connector": false,
+                                "deprecated": false,
+                                "readonly": false,
+                                "function_final": false,
+                                "interface": false
+                            },
+                            "kind": "VariableDef"
+                        },
+                        {
+                            "ws": [
+                                {
+                                    "ws": "",
+                                    "i": 46,
+                                    "text": ";",
+                                    "static": true
+                                }
+                            ],
+                            "position": {
+                                "startColumn": 21,
+                                "startLine": 5,
+                                "endColumn": 55,
+                                "endLine": 5
+                            },
+                            "expression": {
+                                "ws": [
+                                    {
+                                        "ws": "",
+                                        "i": 41,
+                                        "text": ".",
+                                        "static": true
+                                    },
+                                    {
+                                        "ws": "",
+                                        "i": 42,
+                                        "text": "setStringPayload",
+                                        "static": false
+                                    },
+                                    {
+                                        "ws": "",
+                                        "i": 43,
+                                        "text": "(",
+                                        "static": true
+                                    },
+                                    {
+                                        "ws": "",
+                                        "i": 45,
+                                        "text": ")",
+                                        "static": true
+                                    }
+                                ],
+                                "position": {
+                                    "startColumn": 21,
+                                    "startLine": 5,
+                                    "endColumn": 54,
+                                    "endLine": 5
+                                },
+                                "symbolType": [
+                                    "other"
+                                ],
+                                "iterableOperation": false,
+                                "argumentExpressions": [
+                                    {
+                                        "ws": [
+                                            {
+                                                "ws": "",
+                                                "i": 44,
+                                                "text": "\"Successful\"",
+                                                "static": false
+                                            }
+                                        ],
+                                        "position": {
+                                            "startColumn": 42,
+                                            "startLine": 5,
+                                            "endColumn": 42,
+                                            "endLine": 5
+                                        },
+                                        "value": "\"Successful\"",
+                                        "unescapedValue": "Successful",
+                                        "kind": "Literal"
+                                    }
+                                ],
+                                "packageAlias": {
+                                    "literal": false,
+                                    "value": "",
+                                    "kind": "Identifier"
+                                },
+                                "async": false,
+                                "actionInvocation": false,
+                                "name": {
+                                    "literal": false,
+                                    "value": "setStringPayload",
+                                    "kind": "Identifier"
+                                },
+                                "expression": {
+                                    "ws": [
+                                        {
+                                            "ws": "\n                    ",
+                                            "i": 40,
+                                            "text": "res",
+                                            "static": false
+                                        }
+                                    ],
+                                    "position": {
+                                        "startColumn": 21,
+                                        "startLine": 5,
+                                        "endColumn": 21,
+                                        "endLine": 5
+                                    },
+                                    "symbolType": [
+                                        "other"
+                                    ],
+                                    "variableName": {
+                                        "literal": false,
+                                        "value": "res",
+                                        "kind": "Identifier"
+                                    },
+                                    "packageAlias": {
+                                        "literal": false,
+                                        "value": "",
+                                        "kind": "Identifier"
+                                    },
+                                    "kind": "SimpleVariableRef"
+                                },
+                                "kind": "Invocation"
+                            },
+                            "kind": "ExpressionStatement"
+                        },
+                        {
+                            "ws": [
+                                {
+                                    "ws": " ",
+                                    "i": 51,
+                                    "text": "=",
+                                    "static": true
+                                },
+                                {
+                                    "ws": "",
+                                    "i": 61,
+                                    "text": ";",
+                                    "static": true
+                                }
+                            ],
+                            "position": {
+                                "startColumn": 21,
+                                "startLine": 6,
+                                "endColumn": 47,
+                                "endLine": 6
+                            },
+                            "variable": {
+                                "ws": [
+                                    {
+                                        "ws": "\n                    ",
+                                        "i": 49,
+                                        "text": "_",
+                                        "static": false
+                                    }
+                                ],
+                                "position": {
+                                    "startColumn": 21,
+                                    "startLine": 6,
+                                    "endColumn": 21,
+                                    "endLine": 6
+                                },
+                                "symbolType": [
+                                    "other"
+                                ],
+                                "variableName": {
+                                    "literal": false,
+                                    "value": "_",
+                                    "kind": "Identifier"
+                                },
+                                "packageAlias": {
+                                    "literal": false,
+                                    "value": "",
+                                    "kind": "Identifier"
+                                },
+                                "kind": "SimpleVariableRef"
+                            },
+                            "expression": {
+                                "ws": [
+                                    {
+                                        "ws": " ",
+                                        "i": 55,
+                                        "text": "->",
+                                        "static": true
+                                    },
+                                    {
+                                        "ws": "",
+                                        "i": 58,
+                                        "text": "(",
+                                        "static": true
+                                    },
+                                    {
+                                        "ws": "",
+                                        "i": 60,
+                                        "text": ")",
+                                        "static": true
+                                    }
+                                ],
+                                "position": {
+                                    "startColumn": 25,
+                                    "startLine": 6,
+                                    "endColumn": 46,
+                                    "endLine": 6
+                                },
+                                "symbolType": [
+                                    "other"
+                                ],
+                                "iterableOperation": false,
+                                "argumentExpressions": [
+                                    {
+                                        "ws": [
+                                            {
+                                                "ws": "",
+                                                "i": 59,
+                                                "text": "res",
+                                                "static": false
+                                            }
+                                        ],
+                                        "position": {
+                                            "startColumn": 43,
+                                            "startLine": 6,
+                                            "endColumn": 43,
+                                            "endLine": 6
+                                        },
+                                        "variableName": {
+                                            "literal": false,
+                                            "value": "res",
+                                            "kind": "Identifier"
+                                        },
+                                        "packageAlias": {
+                                            "literal": false,
+                                            "value": "",
+                                            "kind": "Identifier"
+                                        },
+                                        "kind": "SimpleVariableRef"
+                                    }
+                                ],
+                                "packageAlias": {
+                                    "literal": false,
+                                    "value": "",
+                                    "kind": "Identifier"
+                                },
+                                "async": false,
+                                "actionInvocation": true,
+                                "name": {
+                                    "literal": false,
+                                    "value": "respond",
+                                    "kind": "Identifier"
+                                },
+                                "expression": {
+                                    "ws": [
+                                        {
+                                            "ws": " ",
+                                            "i": 53,
+                                            "text": "client",
+                                            "static": false
+                                        }
+                                    ],
+                                    "position": {
+                                        "startColumn": 25,
+                                        "startLine": 6,
+                                        "endColumn": 25,
+                                        "endLine": 6
+                                    },
+                                    "symbolType": [
+                                        "other"
+                                    ],
+                                    "variableName": {
+                                        "literal": false,
+                                        "value": "client",
+                                        "kind": "Identifier"
+                                    },
+                                    "packageAlias": {
+                                        "literal": false,
+                                        "value": "",
+                                        "kind": "Identifier"
+                                    },
+                                    "kind": "SimpleVariableRef"
+                                },
+                                "kind": "Invocation"
+                            },
+                            "declaredWithVar": false,
+                            "kind": "Assignment"
+                        }
+                    ],
+                    "kind": "Block"
+                },
+                "endpointNodes": [],
+                "parameters": [
+                    {
+                        "ws": [
+                            {
+                                "ws": "",
+                                "i": 21,
+                                "text": "endpoint",
+                                "static": true
+                            }
+                        ],
+                        "position": {
+                            "startColumn": 28,
+                            "startLine": 3,
+                            "endColumn": 37,
+                            "endLine": 3
+                        },
+                        "symbolType": [
+                            "other"
+                        ],
+                        "safeAssignment": false,
+                        "deprecatedAttachments": [],
+                        "annotationAttachments": [],
+                        "name": {
+                            "literal": false,
+                            "value": "client",
+                            "kind": "Identifier"
+                        },
+                        "documentationAttachments": [],
+                        "kind": "Variable",
+                        "public": false,
+                        "native": false,
+                        "final": false,
+                        "attached": false,
+                        "lambda": false,
+                        "parallel": false,
+                        "connector": false,
+                        "deprecated": false,
+                        "readonly": false,
+                        "function_final": false,
+                        "interface": false
+                    }
+                ],
+                "kind": "Resource",
+                "public": true,
+                "native": false,
+                "final": false,
+                "attached": false,
+                "lambda": false,
+                "parallel": false,
+                "connector": false,
+                "deprecated": false,
+                "readonly": false,
+                "function_final": false,
+                "interface": false
+            }
+        ],
+        "deprecatedAttachments": [],
+        "variables": [],
+        "name": {
+            "literal": false,
+            "value": "serviceName",
+            "kind": "Identifier"
+        },
+        "kind": "Service"
+    },
+    "createJMSServiceDef": {
+        "error": "Index: 0, Size: 0"
+    }
+}

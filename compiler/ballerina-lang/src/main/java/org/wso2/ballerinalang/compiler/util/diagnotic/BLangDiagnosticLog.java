@@ -17,10 +17,13 @@
  */
 package org.wso2.ballerinalang.compiler.util.diagnotic;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.text.MessageFormat;
@@ -47,6 +50,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
     public int errorCount = 0;
 
     private DiagnosticListener listener;
+    private PackageCache pkgCache;
 
     public static BLangDiagnosticLog getInstance(CompilerContext context) {
         BLangDiagnosticLog dLogger = context.get(DIAGNOSTIC_LOG_KEY);
@@ -60,41 +64,53 @@ public class BLangDiagnosticLog implements DiagnosticLog {
     private BLangDiagnosticLog(CompilerContext context) {
         context.put(DIAGNOSTIC_LOG_KEY, this);
 
-        listener = context.get(DiagnosticListener.class);
-        if (listener == null) {
-            listener = new DefaultDiagnosticListener();
+        this.pkgCache = PackageCache.getInstance(context);
+        this.listener = context.get(DiagnosticListener.class);
+        if (this.listener == null) {
+            this.listener = new DefaultDiagnosticListener();
         }
     }
 
     public void error(DiagnosticPos pos, DiagnosticCode code, Object... args) {
         String msg = formatMessage(errMsgKeyPrefix, code, args);
-        BDiagnostic diagnostic = new BDiagnostic(Diagnostic.Kind.ERROR, pos, code, msg);
-
-        listener.received(diagnostic);
-        errorCount++;
+        reportDiagnostic(new BDiagnostic(Diagnostic.Kind.ERROR, pos, code, msg));
     }
 
     public void warning(DiagnosticPos pos, DiagnosticCode code, Object... args) {
         String msg = formatMessage(warningMsgKeyPrefix, code, args);
-        BDiagnostic diagnostic = new BDiagnostic(Diagnostic.Kind.WARNING, pos, code, msg);
-        listener.received(diagnostic);
+        reportDiagnostic(new BDiagnostic(Diagnostic.Kind.WARNING, pos, code, msg));
     }
 
     public void note(DiagnosticPos pos, DiagnosticCode code, Object... args) {
         String msg = formatMessage(noteMsgKeyPrefix, code, args);
-        BDiagnostic diagnostic = new BDiagnostic(Diagnostic.Kind.NOTE, pos, code, msg);
-        listener.received(diagnostic);
+        reportDiagnostic(new BDiagnostic(Diagnostic.Kind.NOTE, pos, code, msg));
     }
+
+    @Override
+    public void logDiagnostic(Diagnostic.Kind kind, Diagnostic.DiagnosticPosition pos, CharSequence message) {
+        reportDiagnostic(new BDiagnostic(kind, (DiagnosticPos) pos, message.toString()));
+    }
+
+
+    // private methods
 
     private String formatMessage(String prefix, DiagnosticCode code, Object[] args) {
         String msgKey = messages.getString(prefix + code.getValue());
         return MessageFormat.format(msgKey, args);
     }
 
-    @Override
-    public void logDiagnostic(Diagnostic.Kind kind, Diagnostic.DiagnosticPosition pos, CharSequence message) {
-        BDiagnostic diagnostic = new BDiagnostic(Diagnostic.Kind.WARNING,
-                pos, message.toString());
-        listener.received(diagnostic);
+    private void reportDiagnostic(BDiagnostic diagnostic) {
+        if (diagnostic.kind == Diagnostic.Kind.ERROR) {
+            errorCount++;
+        }
+        storeDiagnosticInPackage(diagnostic.pos.src.pkgID, diagnostic);
+
+        // Notify the listener
+        this.listener.received(diagnostic);
+    }
+
+    private void storeDiagnosticInPackage(PackageID pkgId, BDiagnostic diagnostic) {
+        BLangPackage pkgNode = this.pkgCache.get(pkgId);
+        pkgNode.diagCollector.addDiagnostic(diagnostic);
     }
 }

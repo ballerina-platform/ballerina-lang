@@ -1,17 +1,15 @@
 
 import org.test;
 
-enum state {
-    INSTALLED,
-    RESOLVED,
-    UNINSTALLED,
-    STARTING,
-    ACTIVE,
-    STOPPING
-}
+type state "ACTIVE" | "RESOLVED" | "INSTALLED" | "ABORTED";
+
+public state activeState = "ACTIVE" ;
+public state resolvedState = "RESOLVED" ;
+public state installedState = "INSTALLED";
+public state abortedState = "ABORTED" ;
 
 function testBasicEnumSupport() returns (int) {
-    boolean result = testEnumAsParameter(state.ACTIVE);
+    boolean result = testEnumAsParameter(activeState);
     if(result) {
         return 14;
     }
@@ -20,24 +18,22 @@ function testBasicEnumSupport() returns (int) {
 
 function testEnumAsParameter(state st) returns (boolean) {
 
-    if ( st == state.ACTIVE) {
+    if ( st == activeState) {
         return true;
     } else {
         return false;
     }
 }
 
-struct person {
-    string name;
-    int age;
-    state st;
-
-}
+type person {
+        string name;
+        int age;
+        state st;
+};
 
 function testEnumInStruct() returns (int) {
-
-    person p = {name:"test", st: state.RESOLVED};
-    if( p.st == state.ACTIVE) {
+    person p = {name:"test", st: resolvedState};
+    if( p.st == activeState) {
         return 10;
     }
 
@@ -48,33 +44,33 @@ function testEnumInStruct() returns (int) {
 function testEnumInAnotherPackage() returns (int) {
 
     test:kind k = test:getEnumeratorInPackage();
-    if (k == test:kind.PLUS) {
+    if (k == test:plus) {
         return 100;
     }
 
     return 200;
-    
+
 }
 
-function testEnumToAnyCast() returns (int) {
-    state st = state.INSTALLED;
-    state st1 = state.ACTIVE;
-    any a = st;
-    any b = (any)st1;
-
-    var ast, _ = (state) a;
-    var ast1, _ = (state) b;
-
-    if ( ast == ast1) {
-        return 404;
-    } else {
-        return 201;
-    }
-}
+//function testEnumToAnyCast() returns (int) {
+//    state st = installedState;
+//    state st1 = activeState;
+//    any a = st;
+//    any b = st1;
+//
+//    var ast = a;
+//    var ast1 = b;
+//
+//    if ( ast == ast1) {
+//        return 404;
+//    } else {
+//        return 201;
+//    }
+//}
 
 function testEnumSameTypeCast() returns (int) {
-    state st = state.INSTALLED;
-    state st1 = (state)st;
+    state st = installedState;
+    state st1 = st;
 
 
     if ( st == st1) {

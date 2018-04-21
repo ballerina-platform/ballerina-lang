@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
+import java.nio.channels.NonReadableChannelException;
 
 /**
  * Attempts to fill the entire buffer with content.
@@ -40,8 +41,6 @@ public class BlockingReader implements Reader {
 
     /**
      * Reads bytes in blocking mode. Could be used if it's required to readFull().
-     * <p>
-     * <p>
      * {@inheritDoc}
      */
     @Override
@@ -69,7 +68,7 @@ public class BlockingReader implements Reader {
                 }
             }
             return totalNumberOfReadBytes;
-        } catch (IOException e) {
+        } catch (IOException | NonReadableChannelException e) {
             String message = "Could not read from the channel";
             log.error(message, e);
             throw new IOException(message, e);

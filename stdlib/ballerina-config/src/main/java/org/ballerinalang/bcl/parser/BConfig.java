@@ -10,18 +10,18 @@ import java.util.Map;
  */
 public class BConfig {
 
-    private Map<String, String> configEntries = new HashMap<>();
+    private Map<String, Object> configEntries = new HashMap<>();
     private boolean hasEncryptedValues;
 
-    public void addConfiguration(String key, String value) {
+    public void addConfiguration(String key, Object value) {
         configEntries.put(key, value);
     }
 
-    public void addConfigurations(Map<String, String> configs) {
+    public void addConfigurations(Map<String, Object> configs) {
         configEntries.putAll(configs);
     }
 
-    public Map<String, String> getConfigurations() {
+    public Map<String, Object> getConfigurations() {
         return configEntries;
     }
 

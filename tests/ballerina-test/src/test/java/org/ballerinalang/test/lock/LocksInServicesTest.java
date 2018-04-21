@@ -42,6 +42,7 @@ import java.util.concurrent.TimeUnit;
 public class LocksInServicesTest {
 
     CompileResult compileResult;
+    private static final String MOCK_ENDPOINT_NAME = "echoEP";
 
     @BeforeClass()
     public void setup() {
@@ -49,7 +50,7 @@ public class LocksInServicesTest {
                 .setupProgramFile(this, "test-src/lock/locks-in-services.bal");
     }
 
-    @Test(description = "Test locking service level variable basic", enabled = false)
+    @Test(description = "Test locking service level variable basic")
     public void testServiceLvlVarLockBasic() {
         Semaphore semaphore = new Semaphore(-9999);
 
@@ -65,7 +66,7 @@ public class LocksInServicesTest {
             }
             String path = "/sample/getCount";
             HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-            HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
+            HTTPCarbonMessage response = Services.invokeNew(compileResult, MOCK_ENDPOINT_NAME, cMsg);
 
             Assert.assertNotNull(response, "Response message not found");
             String responseMsgPayload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response)
@@ -77,7 +78,7 @@ public class LocksInServicesTest {
     }
 
 
-    @Test(description = "Test locking service level variable complex", enabled = false)
+    @Test(description = "Test locking service level variable complex")
     public void testServiceLvlVarLockComplex() {
         Semaphore semaphore = new Semaphore(-11);
 
@@ -95,7 +96,7 @@ public class LocksInServicesTest {
             }
             String path = "/sample1/getResult";
             HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-            HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
+            HTTPCarbonMessage response = Services.invokeNew(compileResult, MOCK_ENDPOINT_NAME, cMsg);
 
             Assert.assertNotNull(response, "Response message not found");
             String responseMsgPayload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response)
@@ -107,7 +108,7 @@ public class LocksInServicesTest {
         }
     }
 
-    @Test(description = "Test locking service level and package level variable complex", enabled = false)
+    @Test(description = "Test locking service level and package level variable complex")
     public void testServiceLvlPkgLvlVarLockComplex() {
         Semaphore semaphore = new Semaphore(-11);
 
@@ -125,7 +126,7 @@ public class LocksInServicesTest {
             }
             String path = "/sample2/getResult";
             HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-            HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
+            HTTPCarbonMessage response = Services.invokeNew(compileResult, MOCK_ENDPOINT_NAME, cMsg);
 
             Assert.assertNotNull(response, "Response message not found");
             String responseMsgPayload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response)
@@ -137,7 +138,7 @@ public class LocksInServicesTest {
         }
     }
 
-    @Test(description = "Test throwing error inside lock statement", enabled = false)
+    @Test(description = "Test throwing error inside lock statement")
     public void testThrowErrorInsideLock() {
         Semaphore semaphore = new Semaphore(0);
 
@@ -151,7 +152,7 @@ public class LocksInServicesTest {
             }
             String path = "/sample3/getMsg";
             HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-            HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
+            HTTPCarbonMessage response = Services.invokeNew(compileResult, MOCK_ENDPOINT_NAME, cMsg);
 
             Assert.assertNotNull(response, "Response message not found");
             String responseMsgPayload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response)
@@ -179,7 +180,7 @@ public class LocksInServicesTest {
         @Override
         public void run() {
             HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-            Services.invokeNew(compileResult, cMsg);
+            Services.invokeNew(compileResult, MOCK_ENDPOINT_NAME, cMsg);
             semaphore.release();
         }
     }

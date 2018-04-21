@@ -38,7 +38,7 @@
             @extend .sub-menu-item-common;
             &.rc-menu-submenu-active {
                 & > .rc-menu-submenu-title {
-                    background-color: #f17b31;
+                    background-color: $brand-primary;
                     color: white;
                 }
             }

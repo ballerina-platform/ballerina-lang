@@ -78,8 +78,13 @@ public class Field {
         }
 
         public Builder setLabel(String label) {
+            // ignore the label when label is null.
+            if (label == null) {
+                return this;
+            }
+
             fieldLabel = label;
-            DescriptorProtos.FieldDescriptorProto.Label protoLabel = sLabelMap.get(label);
+            DescriptorProtos.FieldDescriptorProto.Label protoLabel = STRING_LABEL_MAP.get(label);
             if (protoLabel == null) {
                 throw new IllegalArgumentException("Illegal label: " + label);
             }
@@ -88,12 +93,12 @@ public class Field {
         }
 
         public Builder setType(String type) {
-            fieldType = type;
-            DescriptorProtos.FieldDescriptorProto.Type primType = sTypeMap.get(type);
+            fieldType = BALLERINA_TO_PROTO_MAP.get(type) != null ? BALLERINA_TO_PROTO_MAP.get(type) : type;
+            DescriptorProtos.FieldDescriptorProto.Type primType = STRING_TYPE_MAP.get(fieldType);
             if (primType != null) {
                 fieldDescriptorBuilder.setType(primType);
             } else {
-                fieldDescriptorBuilder.setTypeName(type);
+                fieldDescriptorBuilder.setTypeName(fieldType);
             }
             return this;
         }
@@ -112,30 +117,41 @@ public class Field {
     }
 
 
-    private static Map<String, DescriptorProtos.FieldDescriptorProto.Type> sTypeMap;
-    private static Map<String, DescriptorProtos.FieldDescriptorProto.Label> sLabelMap;
+    private static final Map<String, DescriptorProtos.FieldDescriptorProto.Type> STRING_TYPE_MAP;
+    private static final Map<String, DescriptorProtos.FieldDescriptorProto.Label> STRING_LABEL_MAP;
+    private static final Map<String, String> BALLERINA_TO_PROTO_MAP;
 
     static {
-        sTypeMap = new HashMap<>();
-        sTypeMap.put("double", DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE);
-        sTypeMap.put("float", DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT);
-        sTypeMap.put("int32", DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT32);
-        sTypeMap.put("int64", DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT64);
-        sTypeMap.put("uint32", DescriptorProtos.FieldDescriptorProto.Type.TYPE_UINT32);
-        sTypeMap.put("uint64", DescriptorProtos.FieldDescriptorProto.Type.TYPE_UINT64);
-        sTypeMap.put("sint32", DescriptorProtos.FieldDescriptorProto.Type.TYPE_SINT32);
-        sTypeMap.put("sint64", DescriptorProtos.FieldDescriptorProto.Type.TYPE_SINT64);
-        sTypeMap.put("fixed32", DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED32);
-        sTypeMap.put("fixed64", DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED64);
-        sTypeMap.put("sfixed32", DescriptorProtos.FieldDescriptorProto.Type.TYPE_SFIXED32);
-        sTypeMap.put("sfixed64", DescriptorProtos.FieldDescriptorProto.Type.TYPE_SFIXED64);
-        sTypeMap.put("bool", DescriptorProtos.FieldDescriptorProto.Type.TYPE_BOOL);
-        sTypeMap.put("string", DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING);
-        sTypeMap.put("bytes", DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES);
+        STRING_TYPE_MAP = new HashMap<>();
+        STRING_TYPE_MAP.put("double", DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE);
+        STRING_TYPE_MAP.put("float", DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT);
+        STRING_TYPE_MAP.put("int32", DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT32);
+        STRING_TYPE_MAP.put("int64", DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT64);
+        STRING_TYPE_MAP.put("uint32", DescriptorProtos.FieldDescriptorProto.Type.TYPE_UINT32);
+        STRING_TYPE_MAP.put("uint64", DescriptorProtos.FieldDescriptorProto.Type.TYPE_UINT64);
+        STRING_TYPE_MAP.put("sint32", DescriptorProtos.FieldDescriptorProto.Type.TYPE_SINT32);
+        STRING_TYPE_MAP.put("sint64", DescriptorProtos.FieldDescriptorProto.Type.TYPE_SINT64);
+        STRING_TYPE_MAP.put("fixed32", DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED32);
+        STRING_TYPE_MAP.put("fixed64", DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED64);
+        STRING_TYPE_MAP.put("sfixed32", DescriptorProtos.FieldDescriptorProto.Type.TYPE_SFIXED32);
+        STRING_TYPE_MAP.put("sfixed64", DescriptorProtos.FieldDescriptorProto.Type.TYPE_SFIXED64);
+        STRING_TYPE_MAP.put("bool", DescriptorProtos.FieldDescriptorProto.Type.TYPE_BOOL);
+        STRING_TYPE_MAP.put("string", DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING);
+        STRING_TYPE_MAP.put("bytes", DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES);
 
-        sLabelMap = new HashMap<>();
-        sLabelMap.put("optional", DescriptorProtos.FieldDescriptorProto.Label.LABEL_OPTIONAL);
-        sLabelMap.put("required", DescriptorProtos.FieldDescriptorProto.Label.LABEL_REQUIRED);
-        sLabelMap.put("repeated", DescriptorProtos.FieldDescriptorProto.Label.LABEL_REPEATED);
+        STRING_TYPE_MAP.put("int", DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT64);
+        STRING_TYPE_MAP.put("boolean", DescriptorProtos.FieldDescriptorProto.Type.TYPE_BOOL);
+        STRING_TYPE_MAP.put("blob", DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES);
+
+        STRING_LABEL_MAP = new HashMap<>();
+        STRING_LABEL_MAP.put("optional", DescriptorProtos.FieldDescriptorProto.Label.LABEL_OPTIONAL);
+        STRING_LABEL_MAP.put("required", DescriptorProtos.FieldDescriptorProto.Label.LABEL_REQUIRED);
+        STRING_LABEL_MAP.put("repeated", DescriptorProtos.FieldDescriptorProto.Label.LABEL_REPEATED);
+
+        BALLERINA_TO_PROTO_MAP = new HashMap<>();
+        BALLERINA_TO_PROTO_MAP.put("int", "int64");
+        BALLERINA_TO_PROTO_MAP.put("boolean", "bool");
+        BALLERINA_TO_PROTO_MAP.put("string", "string");
+        BALLERINA_TO_PROTO_MAP.put("blob", "byte");
     }
 }

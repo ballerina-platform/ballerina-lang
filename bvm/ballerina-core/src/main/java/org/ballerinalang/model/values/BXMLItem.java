@@ -25,6 +25,7 @@ import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMProcessingInstruction;
 import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.OMXMLBuilderFactory;
+import org.apache.axiom.om.impl.common.OMChildrenQNameIterator;
 import org.apache.axiom.om.impl.common.OMNamespaceImpl;
 import org.apache.axiom.om.impl.dom.CommentImpl;
 import org.apache.axiom.om.impl.dom.TextImpl;
@@ -445,7 +446,16 @@ public final class BXMLItem extends BXML<OMNode> {
         BRefValueArray elementsSeq = new BRefValueArray();
         switch (nodeType) {
             case ELEMENT:
-                Iterator<OMNode> childrenItr = ((OMElement) omNode).getChildrenWithName(getQname(qname));
+                /*
+                 * Here we are not using "((OMElement) omNode).getChildrenWithName(qname))" method, since as per the 
+                 * documentation of AxiomContainer.getChildrenWithName, if the namespace part of the qname is empty, it
+                 * will look for the elements which matches only the local part and returns. i.e: It will not match the
+                 * namespace. This is not the behavior we want. Hence we are explicitly creating an iterator which 
+                 * will return elements that will match both namespace and the localName, regardless whether they are
+                 * empty or not.
+                 */
+                Iterator<OMNode> childrenItr =
+                        new OMChildrenQNameIterator(((OMElement) omNode).getFirstOMChild(), getQname(qname));
                 int i = 0;
                 while (childrenItr.hasNext()) {
                     OMNode node = childrenItr.next();

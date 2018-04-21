@@ -16,13 +16,15 @@
 
 package org.ballerinalang.langserver.definition.util;
 
-import org.ballerinalang.langserver.BLangPackageContext;
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSPackageCache;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.definition.DefinitionTreeVisitor;
+import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -30,7 +32,6 @@ import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,12 +45,12 @@ public class DefinitionUtil {
     /**
      * Get definition position for the given definition context.
      *
-     * @param definitionContext   context of the definition.
-     * @param bLangPackageContext package context for language server.
-     * @return position
+     * @param definitionContext context of the definition.
+     * @param lSPackageCache    package context for language server.
+     * @return {@link List} list of locations
      */
-    public static List<Location> getDefinitionPosition(TextDocumentServiceContext definitionContext,
-                                                       BLangPackageContext bLangPackageContext) {
+    public static List<Location> getDefinitionPosition(LSServiceOperationContext definitionContext,
+                                                       LSPackageCache lSPackageCache) {
         List<Location> contents = new ArrayList<>();
         if (definitionContext.get(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY) == null) {
             return contents;
@@ -57,7 +58,7 @@ public class DefinitionUtil {
         String nodeKind = definitionContext.get(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY);
 
         BLangPackage bLangPackage = getPackageOfTheOwner(definitionContext
-                .get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY).name, definitionContext, bLangPackageContext);
+                .get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY), definitionContext, lSPackageCache);
         BLangNode bLangNode = null;
         switch (nodeKind) {
             case ContextConstants.FUNCTION:
@@ -72,14 +73,23 @@ public class DefinitionUtil {
                                 .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
                 break;
-            case ContextConstants.ENUM:
-                bLangNode = bLangPackage.enums.stream()
-                        .filter(enm -> enm.name.getValue()
+            case ContextConstants.OBJECT:
+                bLangNode = bLangPackage.objects.stream()
+                        .filter(object -> object.name.getValue()
                                 .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
-                // Fixing the position issue with enum node.
-                bLangNode.getPosition().eLine = bLangNode.getPosition().sLine;
-                bLangNode.getPosition().eCol = bLangNode.getPosition().sCol;
+                break;
+            case ContextConstants.RECORD:
+                bLangNode = bLangPackage.records.stream()
+                        .filter(record -> record.name.getValue()
+                                .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
+                        .findAny().orElse(null);
+                break;
+            case ContextConstants.TYPE_DEF:
+                bLangNode = bLangPackage.typeDefinitions.stream()
+                        .filter(typeDef -> typeDef.name.getValue()
+                                .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
+                        .findAny().orElse(null);
                 break;
             case ContextConstants.CONNECTOR:
                 bLangNode = bLangPackage.connectors.stream()
@@ -144,7 +154,7 @@ public class DefinitionUtil {
 
         Location l = new Location();
         TextDocumentPositionParams position = definitionContext.get(DocumentServiceKeys.POSITION_KEY);
-        Path parentPath = CommonUtil.getPath(position.getTextDocument().getUri()).getParent();
+        Path parentPath = CommonUtil.getPath(new LSDocument(position.getTextDocument().getUri())).getParent();
         if (parentPath != null) {
             String fileName = bLangNode.getPosition().getSource().getCompilationUnitName();
             Path filePath = Paths
@@ -168,10 +178,14 @@ public class DefinitionUtil {
 
     /**
      * Get the package of the owner of given node.
+     *
+     * @param packageID         package id
+     * @param definitionContext definition context
+     * @param lSPackageCache    ls package cache
+     * @return {@link BLangPackage} package of the owner
      */
-    private static BLangPackage getPackageOfTheOwner(Name packageName, TextDocumentServiceContext definitionContext,
-                                                     BLangPackageContext bLangPackageContext) {
-        return bLangPackageContext
-                .getPackageByName(definitionContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY), packageName);
+    private static BLangPackage getPackageOfTheOwner(PackageID packageID, LSServiceOperationContext definitionContext,
+                                                     LSPackageCache lSPackageCache) {
+        return lSPackageCache.findPackage(definitionContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY), packageID);
     }
 }

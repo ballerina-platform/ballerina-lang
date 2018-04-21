@@ -21,13 +21,12 @@ package org.ballerinalang.net.http.serviceendpoint;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BFunctionPointer;
-import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -37,7 +36,6 @@ import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
-import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
@@ -45,9 +43,12 @@ import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.ballerinalang.net.http.HttpConstants.HTTP_DEFAULT_PORT;
+import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 
 /**
  * Get the ID of the connection.
@@ -56,13 +57,15 @@ import java.util.List;
  */
 
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
-                             structPackage = "ballerina.net.http"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener",
+                             structPackage = "ballerina.http"),
         isPublic = true
 )
 public class InitEndpoint extends BlockingNativeCallableUnit {
+
+    private static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
 
     @Override
     public void execute(Context context) {
@@ -71,7 +74,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
 
             // Creating server connector
             Struct serviceEndpointConfig = serviceEndpoint.getStructField(HttpConstants.SERVICE_ENDPOINT_CONFIG);
-            ListenerConfiguration listenerConfiguration = getListerConfig(serviceEndpointConfig);
+            ListenerConfiguration listenerConfiguration = getListenerConfig(serviceEndpointConfig);
             ServerConnector httpServerConnector =
                     HttpConnectionManager.getInstance().createHttpServerConnector(listenerConfiguration);
             serviceEndpoint.addNativeData(HttpConstants.HTTP_SERVER_CONNECTOR, httpServerConnector);
@@ -103,44 +106,33 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             // no filters
             return;
         }
-        HashSet<FilterHolder> filterFunctionSet = new LinkedHashSet<>();
-        for (Value filterValue : filterValues) {
-            filterFunctionSet.add(new FilterHolder(extractFilterFunction(filterValue.getVMValue(), 0),
-                    extractFilterFunction(filterValue.getVMValue(), 1)));
-        }
-
-        serviceEndpoint.addNativeData(HttpConstants.FILTERS, filterFunctionSet);
+        serviceEndpoint.addNativeData(HttpConstants.FILTERS, filterValues);
     }
 
-    private FunctionRefCPEntry extractFilterFunction(BValue functionValue, int refIndex) {
-        if (functionValue == null) {
-            return null;
-        }
-        BRefType bRefOnRequestFunction = ((BStruct) functionValue).getRefField(refIndex);
-        if (bRefOnRequestFunction == null) {
-            return null;
-        }
-        return ((BFunctionPointer) bRefOnRequestFunction).value();
-    }
-
-    private ListenerConfiguration getListerConfig(Struct endpointConfig) {
+    private ListenerConfiguration getListenerConfig(Struct endpointConfig) {
         String host = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_HOST);
         long port = endpointConfig.getIntField(HttpConstants.ENDPOINT_CONFIG_PORT);
-        String keepAlive = endpointConfig.getEnumField(HttpConstants.ENDPOINT_CONFIG_KEEP_ALIVE);
-        String transferEncoding = endpointConfig.getEnumField(HttpConstants.ENDPOINT_CONFIG_TRANSFER_ENCODING);
-        String chunking = endpointConfig.getEnumField(HttpConstants.ENDPOINT_CONFIG_CHUNKING);
+        String keepAlive = endpointConfig.getRefField(HttpConstants.ENDPOINT_CONFIG_KEEP_ALIVE).getStringValue();
+        String transferEncoding =
+                endpointConfig.getRefField(HttpConstants.ENDPOINT_CONFIG_TRANSFER_ENCODING).getStringValue();
         Struct sslConfig = endpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         String httpVersion = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_VERSION);
         Struct requestLimits = endpointConfig.getStructField(HttpConstants.ENDPOINT_REQUEST_LIMITS);
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
 
-        if (host == null || host.isEmpty()) {
-            listenerConfiguration.setHost(HttpConstants.HTTP_DEFAULT_HOST);
+        if (host == null || host.trim().isEmpty()) {
+            listenerConfiguration.setHost(
+                    configRegistry.getConfigOrDefault("b7a.http.host", HttpConstants.HTTP_DEFAULT_HOST));
         } else {
             listenerConfiguration.setHost(host);
         }
+
+        if (port == HTTP_DEFAULT_PORT && configRegistry.contains("b7a.http.port")) {
+            port = Long.parseLong(configRegistry.getAsString("b7a.http.port"));
+        }
         listenerConfiguration.setPort(Math.toIntExact(port));
+
         listenerConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAlive));
 
         // For the moment we don't have to pass it down to transport as we only support
@@ -150,8 +142,6 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             throw new BallerinaConnectorException("Unsupported configuration found for Transfer-Encoding : "
                                                           + transferEncoding);
         }
-
-        listenerConfiguration.setChunkConfig(HttpUtil.getChunkConfig(chunking));
 
         // Set Request validation limits.
         if (requestLimits != null) {
@@ -166,6 +156,8 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         if (sslConfig != null) {
             return setSslConfig(sslConfig, listenerConfiguration);
         }
+
+        listenerConfiguration.setServerHeader(getServerName());
 
         return listenerConfiguration;
     }
@@ -204,12 +196,24 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         }
     }
 
+    private String getServerName() {
+        String userAgent;
+        String version = System.getProperty(BALLERINA_VERSION);
+        if (version != null) {
+            userAgent = "ballerina/" + version;
+        } else {
+            userAgent = "ballerina";
+        }
+        return userAgent;
+    }
+
     private ListenerConfiguration setSslConfig(Struct sslConfig, ListenerConfiguration listenerConfiguration) {
         listenerConfiguration.setScheme(HttpConstants.PROTOCOL_HTTPS);
         Struct trustStore = sslConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_TRUST_STORE);
         Struct keyStore = sslConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_KEY_STORE);
         Struct protocols = sslConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_PROTOCOLS);
         Struct validateCert = sslConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT);
+        Struct ocspStapling = sslConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_OCSP_STAPLING);
 
         if (keyStore != null) {
             String keyStoreFile = keyStore.getStringField(HttpConstants.FILE_PATH);
@@ -244,21 +248,27 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         List<Parameter> serverParamList = new ArrayList<>();
         Parameter serverParameters;
         if (protocols != null) {
-            String sslEnabledProtocols = protocols.getStringField(HttpConstants.ENABLED_PROTOCOLS);
-            String sslProtocol = protocols.getStringField(HttpConstants.PROTOCOL_VERSION);
-            if (StringUtils.isNotBlank(sslEnabledProtocols)) {
+            List<Value> sslEnabledProtocolsValueList = Arrays
+                    .asList(protocols.getArrayField(HttpConstants.ENABLED_PROTOCOLS));
+            if (sslEnabledProtocolsValueList.size() > 0) {
+                String sslEnabledProtocols = sslEnabledProtocolsValueList.stream().map(Value::getStringValue)
+                        .collect(Collectors.joining(",", "", ""));
                 serverParameters = new Parameter(HttpConstants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS,
                         sslEnabledProtocols);
                 serverParamList.add(serverParameters);
             }
+
+            String sslProtocol = protocols.getStringField(HttpConstants.PROTOCOL_VERSION);
             if (StringUtils.isNotBlank(sslProtocol)) {
                 listenerConfiguration.setSSLProtocol(sslProtocol);
             }
         }
 
-        String cipher = sslConfig.getStringField(HttpConstants.SSL_CONFIG_CIPHERS);
-        if (StringUtils.isNotBlank(cipher)) {
-            serverParameters = new Parameter(HttpConstants.ANN_CONFIG_ATTR_CIPHERS, cipher);
+        List<Value> ciphersValueList = Arrays.asList(sslConfig.getArrayField(HttpConstants.SSL_CONFIG_CIPHERS));
+        if (ciphersValueList.size() > 0) {
+            String ciphers = ciphersValueList.stream().map(Value::getStringValue)
+                    .collect(Collectors.joining(",", "", ""));
+            serverParameters = new Parameter(HttpConstants.CIPHERS, ciphers);
             serverParamList.add(serverParameters);
         }
         if (validateCert != null) {
@@ -267,6 +277,21 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             long cacheValidationPeriod = validateCert.getIntField(HttpConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD);
             listenerConfiguration.setValidateCertEnabled(validateCertificateEnabled);
             if (validateCertificateEnabled) {
+                if (cacheSize != 0) {
+                    listenerConfiguration.setCacheSize(Math.toIntExact(cacheSize));
+                }
+                if (cacheValidationPeriod != 0) {
+                    listenerConfiguration.setCacheValidityPeriod(Math.toIntExact(cacheValidationPeriod));
+                }
+            }
+        }
+        if (ocspStapling != null) {
+            boolean ocspStaplingEnabled = ocspStapling.getBooleanField(HttpConstants.ENABLE);
+            listenerConfiguration.setOcspStaplingEnabled(ocspStaplingEnabled);
+            long cacheSize = ocspStapling.getIntField(HttpConstants.SSL_CONFIG_CACHE_SIZE);
+            long cacheValidationPeriod = ocspStapling.getIntField(HttpConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD);
+            listenerConfiguration.setValidateCertEnabled(ocspStaplingEnabled);
+            if (ocspStaplingEnabled) {
                 if (cacheSize != 0) {
                     listenerConfiguration.setCacheSize(Math.toIntExact(cacheSize));
                 }

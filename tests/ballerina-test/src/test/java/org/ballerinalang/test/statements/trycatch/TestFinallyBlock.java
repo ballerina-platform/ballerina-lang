@@ -144,7 +144,7 @@ public class TestFinallyBlock {
         Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "s t-f1 t-f2 tf3 t-f4 t-f5");
     }
 
-    @Test(description = "check abort with finally ", enabled = false)
+    @Test(description = "check abort with finally ")
     public void testAbortWithFinallyBlock() {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(compileResult, "testAbort1", args);
@@ -153,7 +153,7 @@ public class TestFinallyBlock {
         Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "s tf");
     }
 
-    @Test(description = "check abort with finally ", enabled = false)
+    @Test(description = "check abort with finally ")
     public void testAbortWithFinallyBlock2() {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(compileResult, "testAbort2", args);

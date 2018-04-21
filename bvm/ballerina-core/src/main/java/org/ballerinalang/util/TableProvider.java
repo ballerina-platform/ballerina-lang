@@ -17,24 +17,16 @@
 */
 package org.ballerinalang.util;
 
-import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
-import org.ballerinalang.model.types.BTableType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBlobArray;
-import org.ballerinalang.model.values.BBooleanArray;
-import org.ballerinalang.model.values.BFloatArray;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayInputStream;
-import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -51,9 +43,11 @@ public class TableProvider {
 
     private static TableProvider tableProvider = null;
     private int tableID;
+    private int indexID;
 
     private TableProvider() {
         tableID = 0;
+        indexID = 0;
     }
 
     public static TableProvider getInstance() {
@@ -72,11 +66,20 @@ public class TableProvider {
         return this.tableID++;
     }
 
-    public String createTable(BType constrainedType) {
-        String tableName = TableConstants.TABLE_PREFIX + ((BTableType) constrainedType).getConstrainedType().getName()
+    private synchronized int getIndexID() {
+        return this.indexID++;
+    }
+
+    public String createTable(BType constrainedType, BStringArray primaryKeys, BStringArray indexeColumns) {
+        String tableName = TableConstants.TABLE_PREFIX + (constrainedType).getName()
                 .toUpperCase() + "_" + getTableID();
-        String sqlStmt = generateCreateTableStatment(tableName, constrainedType);
+        String sqlStmt = generateCreateTableStatment(tableName, constrainedType, primaryKeys);
         executeStatement(sqlStmt);
+
+        //Add Index Data
+        if (indexeColumns != null) {
+            generateIndexesForTable(tableName, indexeColumns);
+        }
         return tableName;
     }
 
@@ -100,13 +103,13 @@ public class TableProvider {
     }
 
     public String insertData(String tableName, BStruct constrainedType) {
-        String sqlStmt = generateInsertDataStatment(tableName, constrainedType);
+        String sqlStmt = TableUtils.generateInsertDataStatment(tableName, constrainedType);
         prepareAndExecuteStatement(sqlStmt, constrainedType);
         return tableName;
     }
 
     public void deleteData(String tableName, BStruct constrainedType) {
-        String sqlStmt = generateDeteleDataStatment(tableName, constrainedType);
+        String sqlStmt = TableUtils.generateDeleteDataStatment(tableName, constrainedType);
         prepareAndExecuteStatement(sqlStmt, constrainedType);
     }
 
@@ -143,11 +146,10 @@ public class TableProvider {
         return conn;
     }
 
-    private String generateCreateTableStatment(String tableName, BType constrainedType) {
+    private String generateCreateTableStatment(String tableName, BType constrainedType, BStringArray primaryKeys) {
         StringBuilder sb = new StringBuilder();
         sb.append(TableConstants.SQL_CREATE).append(tableName).append(" (");
-        BStructType.StructField[] structFields = ((BStructType) ((BTableType) constrainedType).getConstrainedType())
-                .getStructFields();
+        BStructType.StructField[] structFields = ((BStructType) constrainedType).getStructFields();
         String seperator = "";
         for (BStructType.StructField sf : structFields) {
             int type = sf.getFieldType().getTag();
@@ -181,6 +183,19 @@ public class TableProvider {
             }
             seperator = ",";
         }
+        //Add primary key information
+        if (primaryKeys != null) {
+            seperator = "";
+            int primaryKeyCount = (int) primaryKeys.size();
+            if (primaryKeyCount > 0) {
+                sb.append(TableConstants.PRIMARY_KEY);
+                for (int i = 0; i < primaryKeyCount; i++) {
+                    sb.append(seperator).append(primaryKeys.get(i));
+                    seperator = ",";
+                }
+                sb.append(")");
+            }
+        }
         sb.append(")");
         return sb.toString();
     }
@@ -192,35 +207,19 @@ public class TableProvider {
         return sb.toString();
     }
 
-    private String generateInsertDataStatment(String tableName, BStruct constrainedType) {
-        StringBuilder sbSql = new StringBuilder();
-        StringBuilder sbValues = new StringBuilder();
-        sbSql.append(TableConstants.SQL_INSERT_INTO).append(tableName).append(" (");
-        BStructType.StructField[] structFields = constrainedType.getType().getStructFields();
-        String sep = "";
-        for (BStructType.StructField sf : structFields) {
-            String name = sf.getFieldName();
-            sbSql.append(sep).append(name).append(" ");
-            sbValues.append(sep).append("?");
-            sep = ",";
+    private void generateIndexesForTable(String tableName, BStringArray indexColumns) {
+        int indexCount = (int) indexColumns.size();
+        if (indexCount > 0) {
+            for (int i = 0; i < indexCount; i++) {
+                StringBuilder sb = new StringBuilder();
+                String columnName = indexColumns.get(i);
+                sb.append(TableConstants.SQL_CREATE_INDEX).append(TableConstants.INDEX).append(columnName)
+                        .append(getIndexID()).append(TableConstants.SQL_ON).append(tableName).append("(")
+                        .append(columnName).append(")");
+                executeStatement(sb.toString());
+            }
         }
-        sbSql.append(") values (").append(sbValues).append(")");
-        return sbSql.toString();
     }
-
-    private String generateDeteleDataStatment(String tableName, BStruct constrainedType) {
-        StringBuilder sbSql = new StringBuilder();
-        sbSql.append(TableConstants.SQL_DELETE_FROM).append(tableName).append(TableConstants.SQL_WHERE);
-        BStructType.StructField[] structFields = constrainedType.getType().getStructFields();
-        String sep = "";
-        for (BStructType.StructField sf : structFields) {
-            String name = sf.getFieldName();
-            sbSql.append(sep).append(name).append(" = ? ");
-            sep = TableConstants.SQL_AND;
-        }
-        return sbSql.toString();
-    }
-
 
     private void executeStatement(String queryStatement) {
         Statement stmt = null;
@@ -265,7 +264,7 @@ public class TableProvider {
                         stmt.setBlob(index, new ByteArrayInputStream(blobData), blobData.length);
                         break;
                     case TypeTags.ARRAY_TAG:
-                        Object[] arrayData = getArrayData(param);
+                        Object[] arrayData = TableUtils.getArrayData(param);
                         stmt.setObject(index, arrayData);
                         break;
                 }
@@ -284,107 +283,13 @@ public class TableProvider {
         Connection conn = this.getConnection();
         try {
             stmt = conn.prepareStatement(queryStatement);
-            BStructType.StructField[] structFields = constrainedType.getType().getStructFields();
-            int intFieldIndex = 0;
-            int floatFieldIndex = 0;
-            int stringFieldIndex = 0;
-            int booleanFieldIndex = 0;
-            int refFieldIndex = 0;
-            int blobFieldIndex = 0;
-            int index = 1;
-            for (BStructType.StructField sf : structFields) {
-                int type = sf.getFieldType().getTag();
-                switch (type) {
-                    case TypeTags.INT_TAG:
-                        stmt.setLong(index, constrainedType.getIntField(intFieldIndex));
-                        ++intFieldIndex;
-                        break;
-                    case TypeTags.STRING_TAG:
-                        stmt.setString(index, constrainedType.getStringField(stringFieldIndex));
-                        ++stringFieldIndex;
-                        break;
-                    case TypeTags.FLOAT_TAG:
-                        stmt.setDouble(index, constrainedType.getFloatField(floatFieldIndex));
-                        ++floatFieldIndex;
-                        break;
-                    case TypeTags.BOOLEAN_TAG:
-                        stmt.setBoolean(index, constrainedType.getBooleanField(booleanFieldIndex) == 1);
-                        ++booleanFieldIndex;
-                        break;
-                    case TypeTags.XML_TAG:
-                    case TypeTags.JSON_TAG:
-                        stmt.setString(index, constrainedType.getRefField(refFieldIndex).toString());
-                        ++refFieldIndex;
-                        break;
-                    case TypeTags.BLOB_TAG:
-                        byte[] blobData = constrainedType.getBlobField(blobFieldIndex);
-                        stmt.setBlob(index, new ByteArrayInputStream(blobData), blobData.length);
-                        ++blobFieldIndex;
-                        break;
-                    case TypeTags.ARRAY_TAG:
-                        Object[] arrayData = getArrayData(constrainedType.getRefField(refFieldIndex));
-                        stmt.setObject(index, arrayData);
-                        ++refFieldIndex;
-                        break;
-                    }
-                ++index;
-            }
-            stmt.executeUpdate();
+            TableUtils.prepareAndExecuteStatement(stmt, constrainedType);
         } catch (SQLException e) {
             throw new BallerinaException(
                     "error in executing statement : " + queryStatement + " error:" + e.getMessage());
         } finally {
             releaseResources(conn, stmt);
         }
-    }
-
-    private static Object[] getArrayData(BValue value) {
-        if (value == null) {
-            return new Object[] {null};
-        }
-        int typeTag = ((BArrayType) value.getType()).getElementType().getTag();
-        Object[] arrayData;
-        int arrayLength;
-        switch (typeTag) {
-        case TypeTags.INT_TAG:
-            arrayLength = (int) ((BIntArray) value).size();
-            arrayData = new Long[arrayLength];
-            for (int i = 0; i < arrayLength; i++) {
-                arrayData[i] = ((BIntArray) value).get(i);
-            }
-            break;
-        case TypeTags.FLOAT_TAG:
-            arrayLength = (int) ((BFloatArray) value).size();
-            arrayData = new Double[arrayLength];
-            for (int i = 0; i < arrayLength; i++) {
-                arrayData[i] = ((BFloatArray) value).get(i);
-            }
-            break;
-        case TypeTags.STRING_TAG:
-            arrayLength = (int) ((BStringArray) value).size();
-            arrayData = new String[arrayLength];
-            for (int i = 0; i < arrayLength; i++) {
-                arrayData[i] = ((BStringArray) value).get(i);
-            }
-            break;
-        case TypeTags.BOOLEAN_TAG:
-            arrayLength = (int) ((BBooleanArray) value).size();
-            arrayData = new Boolean[arrayLength];
-            for (int i = 0; i < arrayLength; i++) {
-                arrayData[i] = ((BBooleanArray) value).get(i) > 0;
-            }
-            break;
-        case TypeTags.BLOB_TAG:
-            arrayLength = (int) ((BBlobArray) value).size();
-            arrayData = new Blob[arrayLength];
-            for (int i = 0; i < arrayLength; i++) {
-                arrayData[i] = ((BBlobArray) value).get(i);
-            }
-            break;
-        default:
-            throw new BallerinaException("unsupported data type for array parameter");
-        }
-        return arrayData;
     }
 
     private void releaseResources(Connection conn, Statement stmt) {

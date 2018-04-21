@@ -1,21 +1,19 @@
 import ballerina/io;
-import ballerina/net.http;
-import ballerina/net.http.mock;
+import ballerina/http;
 
-endpoint<mock:NonListeningService> testEP {
+endpoint http:NonListener testEP {
     port:9090
-}
+};
 
 @http:ServiceConfig {
-    basePath:"/ecommerceservice",
-    endpoints:[testEP]
+    basePath:"/ecommerceservice"
 }
-service<http:Service> Ecommerce {
+service<http:Service> Ecommerce bind testEP {
     @http:ResourceConfig {
         methods:["GET"],
         path:"/products/{productId}/{regId}"
     }
-    resource productsInfo1 (http:ServerConnector conn, http:Request req, string productId, string regId) {
+     productsInfo1 (endpoint caller, http:Request req, string productId, string regId) {
         string orderId = req.getHeader("X-ORDER-ID");
         io:println("Order ID " + orderId);
         io:println("Product ID " + productId);
@@ -23,146 +21,139 @@ service<http:Service> Ecommerce {
         json responseJson = {"X-ORDER-ID":orderId, "ProductID":productId, "RegID":regId};
         io:println(responseJson.toString());
 
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload(responseJson);
-        _ = conn -> respond(res);
+        _ = caller -> respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/products2/{productId}/{regId}/item"
     }
-    resource productsInfo2 (http:ServerConnector conn, http:Request req, string productId, string regId) {
+     productsInfo2 (endpoint caller, http:Request req, string productId, string regId) {
         json responseJson;
         io:println("Product ID " + productId);
         io:println("Reg ID " + regId);
         responseJson = {"Template":"T2", "ProductID":productId, "RegID":regId};
         io:println(responseJson.toString());
 
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload(responseJson);
-        _ = conn -> respond(res);
+        _ = caller -> respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/products3/{productId}/{regId}/*"
     }
-    resource productsInfo3 (http:ServerConnector conn, http:Request req, string productId, string regId) {
+     productsInfo3 (endpoint caller, http:Request req, string productId, string regId) {
         json responseJson;
         io:println("Product ID " + productId);
         io:println("Reg ID " + regId);
         responseJson = {"Template":"T3", "ProductID":productId, "RegID":regId};
         io:println(responseJson.toString());
 
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload(responseJson);
-        _ = conn -> respond(res);
+        _ = caller -> respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/products/{productId}"
     }
-    resource productsInfo4 (http:ServerConnector conn, http:Request req, string productId) {
+     productsInfo4 (endpoint caller, http:Request req, string productId) {
         json responseJson;
-        map params = req.getQueryParams();
-        string rID;
-        rID, _ = (string)params.regID;
+        string rID = req.getQueryParams().regID;
         io:println("Product ID " + productId);
         io:println("Reg ID " + rID);
         responseJson = {"Template":"T4", "ProductID":productId, "RegID":rID};
         io:println(responseJson.toString());
 
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload(responseJson);
-        _ = conn -> respond(res);
+        _ = caller -> respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/products"
     }
-    resource productsInfo6 (http:ServerConnector conn, http:Request req) {
+     productsInfo6 (endpoint caller, http:Request req) {
         json responseJson;
-        map params = req.getQueryParams();
-        string prdID;
-        string rID;
-        prdID, _ = (string)params.prodID;
-        rID, _ = (string)params.regID;
+        map<string> params = req.getQueryParams();
+        string prdID = params.prodID;
+        string rID= params.regID;
         io:println ("Product ID " + prdID);
         io:println ("Reg ID " + rID);
         responseJson = {"Template":"T6", "ProductID":prdID, "RegID":rID};
         io:println (responseJson.toString ());
 
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload(responseJson);
-        _ = conn -> respond(res);
+        _ = caller -> respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/products5/{productId}/reg"
     }
-    resource productsInfo5 (http:ServerConnector conn, http:Request req, string productId) {
+     productsInfo5 (endpoint caller, http:Request req, string productId) {
         json responseJson;
-        map params = req.getQueryParams();
-        string rID;
-        rID, _ = (string)params.regID;
+        string rID = req.getQueryParams().regID;
         io:println("Product ID " + productId);
         io:println("Reg ID " + rID);
         responseJson = {"Template":"T5", "ProductID":productId, "RegID":rID};
         io:println(responseJson.toString());
 
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload(responseJson);
-        _ = conn -> respond(res);
+        _ = caller -> respond(res);
     }
 
     @http:ResourceConfig {
         path:""
     }
-    resource echo1 (http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
+     echo1 (endpoint caller, http:Request req) {
+        http:Response res = new;
         json responseJson = {"echo11":"echo11"};
         res.setJsonPayload(responseJson);
-        _ = conn -> respond(res);
+        _ = caller -> respond(res);
     }
 }
 
 @http:ServiceConfig {
-    basePath:"/options",
-    endpoints:[testEP]
+    basePath:"/options"
 }
-service<http:Service> echo111 {
+service<http:Service> echo111 bind testEP {
 
     @http:ResourceConfig {
         methods:["POST", "UPDATE"],
         path : "/test"
     }
-    resource productsInfo99 (http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
-        _ = conn -> respond(res);
+     productsInfo99 (endpoint caller, http:Request req) {
+        http:Response res = new;
+        _ = caller -> respond(res);
     }
 
     @http:ResourceConfig {
         methods:["OPTIONS"],
         path : "/hi"
     }
-    resource productsOptions (http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
+     productsOptions (endpoint caller, http:Request req) {
+        http:Response res = new;
         json responseJson = {"echo":"wso2"};
         res.setJsonPayload(responseJson);
-        _ = conn -> respond(res);
+        _ = caller -> respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET", "PUT"],
         path : "/test"
     }
-    resource productsInfo98 (http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
-        _ = conn -> respond(res);
+     productsInfo98 (endpoint caller, http:Request req) {
+        http:Response res = new;
+        _ = caller -> respond(res);
 
     }
 
@@ -170,93 +161,89 @@ service<http:Service> echo111 {
         methods:["GET"],
         path : "/getme"
     }
-    resource productsGet (http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
+     productsGet (endpoint caller, http:Request req) {
+        http:Response res = new;
         json responseJson = {"echo":"get"};
         res.setJsonPayload(responseJson);
-        _ = conn -> respond(res);
+        _ = caller -> respond(res);
     }
 
     @http:ResourceConfig {
         methods:["POST"],
         path : "/post"
     }
-    resource productsPOST (http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
+     productsPOST (endpoint caller, http:Request req) {
+        http:Response res = new;
         json responseJson = {"echo":"post"};
         res.setJsonPayload(responseJson);
-        _ = conn -> respond(res);
+        _ = caller -> respond(res);
     }
 
     @http:ResourceConfig {
         methods:["PUT"],
         path : "/put"
     }
-    resource productsPUT (http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
+     productsPUT (endpoint caller, http:Request req) {
+        http:Response res = new;
         json responseJson = {"echo":"put"};
         res.setJsonPayload(responseJson);
-        _ = conn -> respond(res);
+        _ = caller -> respond(res);
     }
 }
 
 @http:ServiceConfig {
-    basePath:"/noResource",
-    endpoints:[testEP]
+    basePath:"/noResource"
 }
-service<http:Service> echo112 {
+service<http:Service> echo112 bind testEP {
 }
 
 @http:ServiceConfig {
-    basePath:"hello/",
-    endpoints:[testEP]
+    basePath:"hello/"
 }
-service<http:Service> serviceHello {
+service<http:Service> serviceHello bind testEP {
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/test/"
     }
-    resource productsInfo (http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
+     productsInfo (endpoint caller, http:Request req) {
+        http:Response res = new;
         json responseJson = {"echo":"sanitized"};
         res.setJsonPayload(responseJson);
-        _ = conn -> respond(res);
+        _ = caller -> respond(res);
     }
 }
 
 @http:ServiceConfig {
-    basePath:"/ech[o",
-    endpoints:[testEP]
+    basePath:"/ech[o"
 }
-service<http:Service> echo113 {
+service<http:Service> echo113 bind testEP {
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/ech[o/{foo}"
     }
-    resource productsInfo (http:ServerConnector conn, http:Request req, string foo) {
-        http:Response res = {};
+     productsInfo (endpoint caller, http:Request req, string foo) {
+        http:Response res = new;
         json responseJson = {"echo113": foo};
         res.setJsonPayload(responseJson);
-        _ = conn -> respond(res);
+        _ = caller -> respond(res);
     }
 }
 
 @http:ServiceConfig {
-    basePath:"/ech%5Bo14",
-    endpoints:[testEP]
+    basePath:"/ech%5Bo14"
 }
-service<http:Service> echo114 {
+service<http:Service> echo114 bind testEP {
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/ech%5Bo14/{foo}"
     }
-    resource productsInfo (http:ServerConnector conn, http:Request req, string foo) {
-        http:Response res = {};
+     productsInfo (endpoint caller, http:Request req, string foo) {
+        http:Response res = new;
         json responseJson = {"echo114": foo};
         res.setJsonPayload(responseJson);
-        _ = conn -> respond(res);
+        _ = caller -> respond(res);
     }
 }

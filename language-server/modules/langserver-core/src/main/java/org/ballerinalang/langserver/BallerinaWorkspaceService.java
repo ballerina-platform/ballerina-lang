@@ -17,7 +17,8 @@ package org.ballerinalang.langserver;
 
 import org.ballerinalang.langserver.command.CommandExecutor;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
-import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl; 
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
@@ -32,17 +33,15 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Workspace service implementation for Ballerina.
  */
-public class BallerinaWorkspaceService implements WorkspaceService {
+class BallerinaWorkspaceService implements WorkspaceService {
     private BallerinaLanguageServer ballerinaLanguageServer;
-    private WorkspaceDocumentManagerImpl workspaceDocumentManager;
-    private BLangPackageContext bLangPackageContext;
-    
-    public BallerinaWorkspaceService(BallerinaLanguageServer ballerinaLanguageServer,
-                                     WorkspaceDocumentManagerImpl workspaceDocumentManager,
-                                     BLangPackageContext packageContext) {
-        this.ballerinaLanguageServer = ballerinaLanguageServer;
-        this.workspaceDocumentManager = workspaceDocumentManager;
-        this.bLangPackageContext = packageContext;
+    private WorkspaceDocumentManager workspaceDocumentManager;
+    private LSGlobalContext lsGlobalContext;
+
+    BallerinaWorkspaceService(LSGlobalContext globalContext) {
+        this.lsGlobalContext = globalContext;
+        this.ballerinaLanguageServer = this.lsGlobalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
+        this.workspaceDocumentManager = this.lsGlobalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
     }
 
     @Override
@@ -61,14 +60,13 @@ public class BallerinaWorkspaceService implements WorkspaceService {
 
     @Override
     public CompletableFuture<Object> executeCommand(ExecuteCommandParams params) {
-        WorkspaceServiceContext executeCommandContext = new WorkspaceServiceContext();
+        LSServiceOperationContext executeCommandContext = new LSServiceOperationContext();
         executeCommandContext.put(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY, params.getArguments());
         executeCommandContext.put(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY, this.workspaceDocumentManager);
-        executeCommandContext.put(ExecuteCommandKeys.BALLERINA_PKG_CONTEXT_KEY, this.bLangPackageContext);
         executeCommandContext.put(ExecuteCommandKeys.LANGUAGE_SERVER_KEY, this.ballerinaLanguageServer);
         
         return CompletableFuture.supplyAsync(() -> {
-            CommandExecutor.executeCommand(params, executeCommandContext);
+            CommandExecutor.executeCommand(params, executeCommandContext, this.lsGlobalContext);
             return true;
         });
     }

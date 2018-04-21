@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.964.1-SNAPSHOT</version>
+        <version>0.970.0-beta6-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -37,9 +37,9 @@
     </properties>
 
     <modules>
-        <module>modules/ballerina-to-swagger-generator</module>
         <module>modules/swagger-to-ballerina-generator</module>
         <module>modules/ballerina-to-swagger</module>
+        <module>modules/ballerina-code-generator</module>
     </modules>
 
 </project>

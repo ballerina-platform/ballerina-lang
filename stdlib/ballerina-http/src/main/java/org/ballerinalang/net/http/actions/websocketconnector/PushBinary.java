@@ -16,44 +16,56 @@
 
 package org.ballerinalang.net.http.actions.websocketconnector;
 
+import io.netty.channel.ChannelFuture;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.WebSocketConstants;
+import org.ballerinalang.net.http.WebSocketUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 import java.nio.ByteBuffer;
-import javax.websocket.Session;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "pushBinary",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
-                structPackage = "ballerina.net.http"),
+                             structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "wsConnector", type = TypeKind.STRUCT),
                 @Argument(name = "data", type = TypeKind.BLOB)
         }
 )
-public class PushBinary extends BlockingNativeCallableUnit {
+public class PushBinary implements NativeCallableUnit {
 
     @Override
-    public void execute(Context context) {
+    public void execute(Context context, CallableUnitCallback callback) {
         try {
             BStruct wsConnection = (BStruct) context.getRefArgument(0);
-            Session session = (Session) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION);
+            WebSocketConnection webSocketConnection =
+                    (WebSocketConnection) wsConnection
+                            .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION);
             byte[] binaryData = context.getBlobArgument(0);
-            session.getBasicRemote().sendBinary(ByteBuffer.wrap(binaryData));
+            ChannelFuture webSocketChannelFuture =
+                    (ChannelFuture) webSocketConnection.getSession().getAsyncRemote()
+                            .sendBinary(ByteBuffer.wrap(binaryData));
+            WebSocketUtil.getWebSocketError(context, callback, webSocketChannelFuture, "Failed to send binary message");
         } catch (Throwable e) {
             throw new BallerinaException("Cannot send the message. Error occurred.");
         }
-        context.setReturnValues();
+    }
+
+    @Override
+    public boolean isBlocking() {
+        return false;
     }
 }

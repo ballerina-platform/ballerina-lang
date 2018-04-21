@@ -19,6 +19,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 
+
 class EditableText extends React.Component {
     constructor(props) {
         super(props);
@@ -90,6 +91,7 @@ class EditableText extends React.Component {
     }
 
     render() {
+        const bBox = this.props.bBox;
         let {
             x, y, onClick, labelClass = 'editable-text-label', displayText, children,
         } = this.props;

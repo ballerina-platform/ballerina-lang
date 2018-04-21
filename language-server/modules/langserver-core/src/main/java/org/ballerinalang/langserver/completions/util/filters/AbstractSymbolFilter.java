@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.util.filters;
 
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,5 +31,5 @@ public abstract class AbstractSymbolFilter {
      * @param completionContext - Completion operation context
      * @return {@link ArrayList}
      */
-    public abstract List filterItems(TextDocumentServiceContext completionContext);
+    public abstract List filterItems(LSServiceOperationContext completionContext);
 }

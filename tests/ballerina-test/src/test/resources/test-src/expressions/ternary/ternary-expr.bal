@@ -30,21 +30,20 @@ function foo (int a, string b, boolean c) returns (string) {
     return a + b + c;
 }
 
-struct Person {
+type Person {
     string name;
     string location;
-}
+};
 
 function test6 (string s) returns (string) {
     Person p = {name : s == "admin" ? "super" : "tom"};
     return p.name;
 }
 
-function test7 (string s) returns (string, int) {
-    map m = {"data" : s == "one" ? <string>1 : 2};
-    var x =? <string>m["data"];
-    var y =? <int>m["data"];
-    return (x, y);
+function test7 (string s) returns (int) {
+    map m = {"data" : s == "one" ? 1 : 2};
+    var y = check <int>m["data"];
+    return y;
 }
 
 function test8 (string s) returns (string) {

@@ -2,7 +2,7 @@ package org.wso2.ballerinalang.compiler.packaging.converters;
 
 
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.repository.PackageSourceEntry;
+import org.ballerinalang.repository.CompilerInput;
 
 import java.util.stream.Stream;
 
@@ -18,11 +18,11 @@ public interface Converter<T> {
 
     T combine(T t, String pathPart);
 
-    Stream<T> expand(T t);
+    Stream<T> latest(T t);
 
     Stream<T> expandBal(T t);
 
     T start();
 
-    Stream<PackageSourceEntry> finalize(T t, PackageID id);
+    Stream<CompilerInput> finalize(T t, PackageID id);
 }

@@ -106,20 +106,20 @@ public interface Struct {
     Map<String, Value> getMapField(String fieldName);
 
     /**
-     * Returns value of an enum field.
-     *
-     * @param fieldName given field name
-     * @return value
-     */
-    String getEnumField(String fieldName);
-
-    /**
      * Returns value of an Type field.
      *
      * @param fieldName given field name
      * @return value
      */
     Value getTypeField(String fieldName);
+
+    /**
+     * Returns value of an Ref field.
+     *
+     * @param fieldName given field name
+     * @return value
+     */
+    Value getRefField(String fieldName);
 
     // TODO Implement XML and JSON
 

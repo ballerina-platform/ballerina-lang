@@ -20,7 +20,6 @@
 import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
 import SimpleBBox from './../../../../../model/view/simple-bounding-box';
 import * as DesignerDefaults from './../../designer-defaults';
 import TreeUtils from './../../../../../model/tree-util';
@@ -71,14 +70,6 @@ class LifeLine extends React.Component {
         }
     }
 
-    openExpressionEditor(e) {
-        const options = this.props.editorOptions;
-        const packageScope = this.context.enviornment;
-        if (options) {
-            new ExpressionEditor(this.topBox, text => this.onUpdate(text), options, packageScope)
-                .render(this.context.getOverlayContainer());
-        }
-    }
 
     handleConnectorProps() {
         const model = this.props.model;
@@ -177,7 +168,6 @@ class LifeLine extends React.Component {
                 dominantBaseline='central'
                 fontWeight='400'
                 className={textClass}
-                onClick={e => this.openExpressionEditor(e)}
             >{identifier}</text>
             <text
                 x={startX}
@@ -196,9 +186,7 @@ class LifeLine extends React.Component {
                     isDefaultWorker={isDefaultWorker}
                 />
             }
-            { (!TreeUtils.isEndpointTypeVariableDef(this.props.model) &&
-                !TreeUtils.isForkJoin(this.props.model.parent)
-                ) &&
+            { (isDefaultWorker || TreeUtils.isWorker(this.props.model)) &&
                 <ArrowDecorator
                     start={{ x: startX, y: startY }}
                     end={{ x: startX, y: startY }}
@@ -210,7 +198,6 @@ class LifeLine extends React.Component {
 }
 
 LifeLine.propTypes = {
-    editorOptions: PropTypes.shape(),
     model: PropTypes.instanceOf(Object).isRequired,
     title: PropTypes.string,
     icon: PropTypes.string,

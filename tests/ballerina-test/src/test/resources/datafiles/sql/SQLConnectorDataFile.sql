@@ -70,7 +70,8 @@ CREATE PROCEDURE SelectPersonDataMultiple()
   READS SQL DATA DYNAMIC RESULT SETS 2
   BEGIN ATOMIC
   DECLARE result1 CURSOR WITH RETURN FOR SELECT firstName FROM Customers where registrationID = 1 FOR READ ONLY;
-  DECLARE result2 CURSOR WITH RETURN FOR SELECT firstName FROM Customers where registrationID = 2 FOR READ ONLY;
+  DECLARE result2 CURSOR WITH RETURN FOR SELECT firstName, lastName FROM Customers where registrationID = 2 FOR READ
+  ONLY;
   open result1;
   open result2;
   END
@@ -214,4 +215,23 @@ CREATE PROCEDURE TestStructInOut (OUT countVal INTEGER, INOUT var customtype)
  SELECT structdata INTO var from structdatatable where id = 1;
   END
 /
-
+CREATE TABLE employeeItr (id INTEGER NOT NULL, name VARCHAR(20), address VARCHAR(20));
+/
+INSERT INTO employeeItr VALUES (1, 'Manuri', 'Sri Lanka');
+/
+INSERT INTO employeeItr VALUES (2, 'Devni', 'Sri Lanka');
+/
+INSERT INTO employeeItr VALUES (3, 'Thurani', 'Sri Lanka');
+/
+CREATE TABLE employeeAdd (id INTEGER NOT NULL, name VARCHAR(20), address VARCHAR(20));
+/
+CREATE TABLE employeeDel (id INTEGER NOT NULL, name VARCHAR(20), address VARCHAR(20));
+/
+INSERT INTO employeeDel VALUES (1, 'Manuri', 'Sri Lanka');
+/
+INSERT INTO employeeDel VALUES (2, 'Devni', 'Sri Lanka');
+/
+CREATE TABLE employeeAddNegative (id INTEGER NOT NULL, name VARCHAR(20), address VARCHAR(20), PRIMARY KEY (id));
+/
+INSERT INTO employeeAddNegative VALUES (1, 'Manuri', 'Sri Lanka');
+/

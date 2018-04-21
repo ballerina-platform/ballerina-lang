@@ -1,8 +1,8 @@
-public struct InvalidNameError {
+public type InvalidNameError {
     string message;
-    error[] cause;
+    error? cause;
     string companyName;
-}
+};
 
 function getQuote(string name) returns (float|InvalidNameError) {
 
@@ -26,7 +26,7 @@ function testReturnError() returns (string, string, string, string) {
     float quoteValue;
     // Special identifier "=?" will be used to ignore values.
 
-    quoteValue =? getQuote("FOO");
+    quoteValue =check getQuote("FOO");
     a = "FOO:" + quoteValue;
 
     // Ignore error.
@@ -63,7 +63,12 @@ function testReturnAndThrowError() returns (string){
     try{
         checkAndThrow();
     }catch(error e){
-        return e.cause[0].message;
+        error c;
+        match e.cause { 
+            error s => c = s;
+            () => c = {}; 
+        }
+        return c.message;
     }
     return "OK";
 }

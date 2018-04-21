@@ -32,21 +32,21 @@ import org.wso2.transport.http.netty.contract.ClientConnectorException;
  * {@code Submit} action can be used to invoke a http call with any httpVerb in asynchronous manner.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "submit",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
-                structPackage = "ballerina.net.http"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.CALLER_ACTIONS,
+                structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "client", type = TypeKind.STRUCT),
                 @Argument(name = "httpVerb", type = TypeKind.STRING),
                 @Argument(name = "path", type = TypeKind.STRING),
                 @Argument(name = "req", type = TypeKind.STRUCT, structType = "OutRequest",
-                        structPackage = "ballerina.net.http")
+                        structPackage = "ballerina.http")
         },
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "HttpHandle", structPackage = "ballerina.net.http"),
+                @ReturnType(type = TypeKind.STRUCT, structType = "HttpFuture", structPackage = "ballerina.http"),
                 @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
-                        structPackage = "ballerina.net.http"),
+                        structPackage = "ballerina.http"),
         }
 )
 public class Submit extends Execute {
@@ -58,7 +58,7 @@ public class Submit extends Execute {
             // Execute the operation
             executeNonBlockingAction(dataContext, createOutboundRequestMsg(context), true);
         } catch (ClientConnectorException clientConnectorException) {
-            throw new BallerinaException("Failed to invoke 'executeAsync' action in " + HttpConstants.HTTP_CLIENT
+            throw new BallerinaException("Failed to invoke 'executeAsync' action in " + HttpConstants.CALLER_ACTIONS
                                          + ". " + clientConnectorException.getMessage(), context);
         }
     }

@@ -175,26 +175,26 @@ public class BallerinaFileLevelCompletionTest extends BallerinaCompletionTestBas
                 "int", "string");
     }
 
-    public void testImportAfterImport() {
-        List<String> expectedLookups = new LinkedList<>();
-        expectedLookups.addAll(OTHER_TYPES);
-        expectedLookups.addAll(XMLNS_TYPE);
-        expectedLookups.addAll(DATA_TYPES);
-        expectedLookups.addAll(REFERENCE_TYPES);
-        expectedLookups.add("public");
-        expectedLookups.add("import");
-        expectedLookups.add("const");
-        expectedLookups.add("service");
-        expectedLookups.add("function");
-        expectedLookups.add("connector");
-        expectedLookups.add("struct");
-        expectedLookups.add("annotation");
-        expectedLookups.add("enum");
-        expectedLookups.add("test");
-        expectedLookups.add("transformer");
-        myFixture.addFileToProject("test/file.bal", "string s = \"\";");
-        doTest("import test; \n<caret> \nfunction A(){}", expectedLookups.toArray(new String[expectedLookups.size()]));
-    }
+//    public void testImportAfterImport() {
+//        List<String> expectedLookups = new LinkedList<>();
+//        expectedLookups.addAll(OTHER_TYPES);
+//        expectedLookups.addAll(XMLNS_TYPE);
+//        expectedLookups.addAll(DATA_TYPES);
+//        expectedLookups.addAll(REFERENCE_TYPES);
+//        expectedLookups.add("public");
+//        expectedLookups.add("import");
+//        expectedLookups.add("const");
+//        expectedLookups.add("service");
+//        expectedLookups.add("function");
+//        expectedLookups.add("connector");
+//        expectedLookups.add("struct");
+//        expectedLookups.add("annotation");
+//        expectedLookups.add("enum");
+//        expectedLookups.add("test");
+//        expectedLookups.add("transformer");
+//        myFixture.addFileToProject("test/file.bal", "string s = \"\";");
+//        doTest("import test; \n<caret> \nfunction A(){}", expectedLookups.toArray(new String[expectedLookups.size()]));
+//    }
 
     public void testImportAfterImportPartialIdentifier() {
         doTest("import test; \ni<caret> \nfunction A(){}", "public", "annotation", "function", "import", "service",

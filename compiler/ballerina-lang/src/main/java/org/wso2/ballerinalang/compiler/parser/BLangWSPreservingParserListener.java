@@ -70,9 +70,12 @@ public class BLangWSPreservingParserListener extends BLangParserListener {
     }
 
     private void closeLastRange(int rangeEndIndex) {
-        Stack<TokenRange> rangesOfLastRuleContext = rangesOfRuleContext.peek();
-        TokenRange range = rangesOfLastRuleContext.peek();
-        range.to = rangeEndIndex;
+        // TODO: check why rangesOfRuleContext become empty before closing the last range.
+        if (!rangesOfRuleContext.isEmpty()) {
+            Stack<TokenRange> rangesOfLastRuleContext = rangesOfRuleContext.peek();
+            TokenRange range = rangesOfLastRuleContext.peek();
+            range.to = rangeEndIndex;
+        }
     }
 
     @Override
@@ -104,7 +107,11 @@ public class BLangWSPreservingParserListener extends BLangParserListener {
 
         closeLastRange(rangeEndTokenIndex);
 
-        Stack<TokenRange> tokenRanges = rangesOfRuleContext.pop();
+        Stack<TokenRange> tokenRanges = new Stack<>();
+        // TODO: check why rangesOfRuleContext become empty before closing the last range.
+        if (!rangesOfRuleContext.isEmpty()) {
+            tokenRanges = rangesOfRuleContext.pop();
+        }
 
         Stack<Whitespace> ws = new Stack<>();
         for (TokenRange range : tokenRanges) {

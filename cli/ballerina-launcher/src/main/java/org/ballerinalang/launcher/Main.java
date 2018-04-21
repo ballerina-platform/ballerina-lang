@@ -213,6 +213,9 @@ public class Main {
         @Parameter(names = {"--help", "-h"}, hidden = true)
         private boolean helpFlag;
 
+        @Parameter(names = {"--offline"})
+        private boolean offline;
+
         @Parameter(names = "--debug", hidden = true)
         private String debugPort;
 
@@ -221,6 +224,9 @@ public class Main {
 
         @Parameter(names = {"--config", "-c"}, description = "path to the Ballerina configuration file")
         private String configFilePath;
+
+        @Parameter(names = "--observe", description = "enable observability with default configs")
+        private boolean observeFlag;
 
         @DynamicParameter(names = "-e", description = "Ballerina environment parameters")
         private Map<String, String> runtimeParams = new HashMap<>();
@@ -254,8 +260,8 @@ public class Main {
                     throw LauncherUtils.createUsageException("too many arguments");
                 }
 
-                LauncherUtils.runProgram(sourceRootPath, Paths.get(argList.get(0)), true, runtimeParams, configFilePath,
-                                         new String[0]);
+                LauncherUtils.runProgram(sourceRootPath, Paths.get(argList.get(0)), true, runtimeParams,
+                        configFilePath, new String[0], offline, observeFlag);
                 return;
             }
 
@@ -269,7 +275,8 @@ public class Main {
                 programArgs = new String[0];
             }
 
-            LauncherUtils.runProgram(sourceRootPath, sourcePath, false, runtimeParams, configFilePath, programArgs);
+            LauncherUtils.runProgram(sourceRootPath, sourcePath, false, runtimeParams, configFilePath,
+                    programArgs, offline, observeFlag);
         }
 
         @Override

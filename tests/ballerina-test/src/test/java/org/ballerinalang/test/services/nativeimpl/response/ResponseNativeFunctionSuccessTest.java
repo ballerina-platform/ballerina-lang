@@ -27,7 +27,6 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.util.StringUtils;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
@@ -37,6 +36,7 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
@@ -57,9 +57,10 @@ import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
+import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
 
 /**
- * Test cases for ballerina.net.http inbound inResponse success native functions.
+ * Test cases for ballerina/http inbound inResponse success native functions.
  */
 public class ResponseNativeFunctionSuccessTest {
 
@@ -67,6 +68,7 @@ public class ResponseNativeFunctionSuccessTest {
     private final String inResStruct = HttpConstants.RESPONSE;
     private final String entityStruct = HttpConstants.ENTITY;
     private final String mediaTypeStruct = MEDIA_TYPE;
+    private final String resCacheControlStruct = RESPONSE_CACHE_CONTROL;
     private final String protocolPackageHttp = HttpConstants.PROTOCOL_PACKAGE_HTTP;
     private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
     private static final String MOCK_ENDPOINT_NAME = "mockEP";
@@ -76,6 +78,16 @@ public class ResponseNativeFunctionSuccessTest {
         String sourceFilePath = "test-src/statements/services/nativeimpl/response/in-response-native-function.bal";
         result = BCompileUtil.compile(sourceFilePath);
         serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
+    }
+
+    @Test
+    public void testContentType() {
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResStruct);
+        BString contentType = new BString("application/x-custom-type+json");
+        BValue[] inputArg = {response, contentType};
+        BValue[] returnVals = BRunUtil.invoke(result, "testContentType", inputArg);
+        Assert.assertNotNull(returnVals[0]);
+        Assert.assertEquals(((BString) returnVals[0]).value(), "application/x-custom-type+json");
     }
 
     @Test
@@ -140,13 +152,16 @@ public class ResponseNativeFunctionSuccessTest {
 
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        HttpUtil.populateInboundResponse(inResponse, entity, mediaType, inResponseMsg);
+        BStruct cacheControl = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
+                                                               resCacheControlStruct);
+        ResponseCacheControlStruct cacheControlStruct = new ResponseCacheControlStruct(cacheControl);
+        HttpUtil.populateInboundResponse(inResponse, entity, mediaType, cacheControlStruct, inResponseMsg);
 
         BValue[] inputArg = {inResponse};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetContentLength", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertEquals(payload.length(), ((BInteger) returnVals[0]).intValue());
+        Assert.assertEquals(String.valueOf(payload.length()), returnVals[0].stringValue());
     }
 
     @Test
@@ -159,7 +174,10 @@ public class ResponseNativeFunctionSuccessTest {
 
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        HttpUtil.populateInboundResponse(inResponse, entity, mediaType, inResponseMsg);
+        BStruct cacheControl = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
+                                                               resCacheControlStruct);
+        ResponseCacheControlStruct cacheControlStruct = new ResponseCacheControlStruct(cacheControl);
+        HttpUtil.populateInboundResponse(inResponse, entity, mediaType, cacheControlStruct, inResponseMsg);
 
         BString key = new BString(HttpHeaderNames.CONTENT_TYPE.toString());
         BValue[] inputArg = {inResponse, key};
@@ -192,7 +210,10 @@ public class ResponseNativeFunctionSuccessTest {
         inResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 200);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        HttpUtil.populateInboundResponse(inResponse, entity, mediaType, inResponseMsg);
+        BStruct cacheControl = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
+                                                               resCacheControlStruct);
+        ResponseCacheControlStruct cacheControlStruct = new ResponseCacheControlStruct(cacheControl);
+        HttpUtil.populateInboundResponse(inResponse, entity, mediaType, cacheControlStruct, inResponseMsg);
 
         BString key = new BString("test-header");
         BValue[] inputArg = {inResponse, key};
@@ -232,36 +253,6 @@ public class ResponseNativeFunctionSuccessTest {
         Assert.assertNotNull(responseMsg, "Response message not found");
         Assert.assertEquals(new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream()).stringValue(),
                 value);
-    }
-
-    @Test
-    public void testGetProperty() {
-        BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResStruct);
-        HTTPCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
-        String propertyName = "wso2";
-        String propertyValue = "Ballerina";
-        inResponseMsg.setProperty(propertyName, propertyValue);
-        HttpUtil.addCarbonMsg(inResponse, inResponseMsg);
-        BString name = new BString(propertyName);
-        BValue[] inputArg = {inResponse, name};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetProperty", inputArg);
-
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertEquals(returnVals[0].stringValue(), propertyValue);
-    }
-
-    @Test(description = "Test GetProperty function within a service")
-    public void testServiceGetProperty() {
-        String propertyName = "wso2";
-        String propertyValue = "Ballerina";
-        String path = "/hello/GetProperty/" + propertyName + "/" + propertyValue;
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("value").asText(), propertyValue);
     }
 
     @Test
@@ -467,21 +458,6 @@ public class ResponseNativeFunctionSuccessTest {
     }
 
     @Test
-    public void testSetProperty() {
-        String propertyName = "wso2";
-        String propertyValue = "Ballerina";
-        BString name = new BString(propertyName);
-        BString value = new BString(propertyValue);
-        BValue[] inputArg = {name, value};
-        BValue[] returnVals = BRunUtil.invoke(result, "testSetProperty", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertTrue(returnVals[0] instanceof BStruct);
-        HTTPCarbonMessage responseMsg = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
-        Assert.assertEquals(responseMsg.getProperty(propertyName), propertyValue);
-    }
-
-    @Test
     public void testSetReasonPhase() {
         String phase = "ballerina";
         String path = "/hello/12/" + phase;
@@ -527,5 +503,14 @@ public class ResponseNativeFunctionSuccessTest {
         BXML xmlValue = (BXML) EntityBodyHandler.getMessageDataSource(entity);
         Assert.assertEquals(xmlValue.getTextValue().stringValue(), "Ballerina",
                 "Payload is not set properly");
+    }
+
+    @Test
+    public void testSetPayloadAndGetText() {
+        BString textContent = new BString("Hello Ballerina !");
+        BValue[] args = {textContent};
+        BValue[] returns = BRunUtil.invoke(result, "testSetPayloadAndGetText", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), textContent.stringValue());
     }
 }

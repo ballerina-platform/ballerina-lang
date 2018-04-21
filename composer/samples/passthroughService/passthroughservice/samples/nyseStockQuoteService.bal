@@ -1,6 +1,5 @@
-package passthroughservice.samples;
 
-import ballerina/net.http;
+import ballerina/http;
 
 @http:configuration {basePath:"/nyseStock"}
 service<http> nyseStockQuote {

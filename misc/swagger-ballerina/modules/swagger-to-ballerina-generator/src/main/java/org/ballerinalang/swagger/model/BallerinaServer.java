@@ -16,9 +16,10 @@
 
 package org.ballerinalang.swagger.model;
 
-import io.swagger.oas.models.servers.Server;
-import io.swagger.oas.models.servers.ServerVariable;
-import io.swagger.oas.models.servers.ServerVariables;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.servers.Server;
+import io.swagger.v3.oas.models.servers.ServerVariable;
+import io.swagger.v3.oas.models.servers.ServerVariables;
 import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
 
 import java.net.MalformedURLException;
@@ -78,6 +79,11 @@ public class BallerinaServer implements BallerinaSwaggerObject<BallerinaServer, 
         }
 
         return this;
+    }
+
+    @Override
+    public BallerinaServer buildContext(Server server, OpenAPI openAPI) throws BallerinaOpenApiException {
+        return buildContext(server);
     }
 
     @Override

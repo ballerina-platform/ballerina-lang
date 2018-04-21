@@ -107,8 +107,17 @@ public class PackageID {
             return false;
         }
 
-        PackageID packageID = (PackageID) o;
-        return name.equals(packageID.name) && version.equals(packageID.version);
+        PackageID other = (PackageID) o;
+        boolean samePkg = false;
+
+        boolean xor = this.isUnnamed && other.isUnnamed;
+        if (!xor && this.isUnnamed) {
+            samePkg = this.sourceFileName.equals(other.sourceFileName);
+        } else if (!xor) {
+            samePkg = true;
+        }
+
+        return samePkg && name.equals(other.name) && version.equals(other.version);
     }
 
     @Override
@@ -125,11 +134,11 @@ public class PackageID {
             orgName = this.orgName + "/";
         }
 
-        if (version == Names.DEFAULT_VERSION || version == Names.EMPTY) {
+        if (version == Names.DEFAULT_VERSION || version.equals(Names.EMPTY)) {
             return orgName + this.name.value;
         }
 
-        return orgName + this.name + "[" + this.version + "]";
+        return orgName + this.name + ":" + this.version;
     }
 
     public Name getOrgName() {

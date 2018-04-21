@@ -77,41 +77,19 @@ public class AnnotationTest {
     }
     // Test @tainted annotation.
 
-    @Test (enabled = false)
+    @Test
     public void testTainted() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/annotations/tainted.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 2);
+        Assert.assertTrue(result.getDiagnostics().length == 1);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 2, 20);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 3, 20);
-    }
-
-    @Test (enabled = false)
-    public void testTaintedWithMultiReturn() {
-        CompileResult result = BCompileUtil
-                .compile("test-src/taintchecking/annotations/tainted-with-multi-return.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 4);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 5, 20);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 11, 20);
-        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'secureIn'", 18, 20);
-        BAssertUtil.validateError(result, 3, "tainted value passed to sensitive parameter 'secureIn'", 24, 20);
     }
 
     // Test @untainted annotation.
 
-    @Test (enabled = false)
+    @Test
     public void testUntainted() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/annotations/untainted.bal");
         Assert.assertTrue(result.getDiagnostics().length == 0);
     }
 
-    @Test (enabled = false)
-    public void testUntaintedWithMultiReturn() {
-        CompileResult result = BCompileUtil
-                .compile("test-src/taintchecking/annotations/untainted-with-multi-return.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 4);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 6, 20);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 12, 20);
-        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'secureIn'", 17, 20);
-        BAssertUtil.validateError(result, 3, "tainted value passed to sensitive parameter 'secureIn'", 23, 20);
-    }
 }

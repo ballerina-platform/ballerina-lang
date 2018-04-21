@@ -42,12 +42,12 @@ import java.util.NoSuchElementException;
  * @since 0.89
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "createSessionIfAbsent",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
-                             structPackage = "ballerina.net.http"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Request",
+                structPackage = "ballerina.http"),
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Session",
-                structPackage = "ballerina.net.http")},
+                structPackage = "ballerina.http")},
         isPublic = true
 )
 public class CreateSessionIfAbsent extends BlockingNativeCallableUnit {
@@ -57,10 +57,10 @@ public class CreateSessionIfAbsent extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         try {
-            BStruct connectionStruct  = ((BStruct) context.getRefArgument(0));
+            BStruct requestStruct  = ((BStruct) context.getRefArgument(0));
             //TODO check below line
             HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                    .getCarbonMsg(connectionStruct, HttpUtil.createHttpCarbonMessage(true));
+                    .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
             String cookieHeader = httpCarbonMessage.getHeader(HttpConstants.COOKIE_HEADER);
             String path = (String) httpCarbonMessage.getProperty(HttpConstants.BASE_PATH);
             Session session = (Session) httpCarbonMessage.getProperty(HttpConstants.HTTP_SESSION);

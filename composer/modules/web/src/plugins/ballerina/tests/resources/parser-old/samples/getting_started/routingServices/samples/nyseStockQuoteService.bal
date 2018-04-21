@@ -1,7 +1,6 @@
-package routingServices.samples;
 
 import ballerina/lang.messages;
-import ballerina/net.http;
+import ballerina/http;
 
 @http:configuration {basePath:"/nyseStocks"}
 service<http> nyseStockQuote {

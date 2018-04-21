@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.964.1-SNAPSHOT</version>
+        <version>0.970.0-beta6-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -16,6 +16,10 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-builtin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-tcnative-boringssl-static</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -71,6 +75,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-netty</artifactId>
         </dependency>
@@ -79,12 +88,21 @@
             <artifactId>grpc-protobuf</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-grpc</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-stub</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.ballerina.messaging</groupId>
+            <artifactId>broker-amqp</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -98,23 +116,31 @@
         </extensions>
         <plugins>
             <plugin>
-                <groupId>org.xolstice.maven.plugins</groupId>
-                <artifactId>protobuf-maven-plugin</artifactId>
-                <configuration>
-                    <protocArtifact>com.google.protobuf:protoc:3.4.0:exe:${os.detected.classifier}</protocArtifact>
-                    <pluginId>grpc-java</pluginId>
-                    <pluginArtifact>io.grpc:protoc-gen-grpc-java:1.7.0:exe:${os.detected.classifier}
-                    </pluginArtifact>
-                </configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
                         <goals>
-                            <goal>compile</goal>
-                            <goal>compile-custom</goal>
+                            <goal>copy</goal>
                         </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.hsqldb</groupId>
+                                    <artifactId>hsqldb</artifactId>
+                                    <version>${hyperSQL.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -124,6 +150,12 @@
                         <server.zip>
                             ${basedir}/../../distribution/zip/ballerina/target/ballerina-${project.version}.zip
                         </server.zip>
+                        <observability-test-natives.jar>
+                            ${basedir}/../../tests/observability-test-utils/target/observability-test-utils-${project.version}.jar
+                        </observability-test-natives.jar>
+                        <hsqldb.jar>
+                            ${project.build.directory}/hsqldb-${hyperSQL.version}.jar
+                        </hsqldb.jar>
                         <project.build.directory>${project.build.directory}</project.build.directory>
                         <java.util.logging.config.file>${project.build.testOutputDirectory}/logging.properties</java.util.logging.config.file>
                     </systemPropertyVariables>
@@ -136,6 +168,13 @@
     </build>
     <properties>
         <!-- Path to the generated natives ballerina files temp directory -->
-        <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
+        <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
+        <maven.checkstyleplugin.excludes>
+            **/grpc-java/**,
+            **/protobuf/java/org/ballerinalang/test/util/grpc/**,
+            **/protobuf/grpc-java/org/ballerinalang/test/util/grpc/**,
+            **/generated/**,
+            **/generated-sources/**
+        </maven.checkstyleplugin.excludes>
     </properties>
 </project>

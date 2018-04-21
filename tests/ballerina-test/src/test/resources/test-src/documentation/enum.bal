@@ -1,7 +1,13 @@
-documentation { Documentation for state enum
-F{{foo}} enum `field foo` documentation
-F{{bar}} enum `field bar` documentation}
-enum state {
-    foo,
-    bar
+documentation { Documentation for state enum}
+type state "foo" | "bar";
+
+documentation {
+V{{foo}} constant variable `foo`
 }
+@final string foo = "foo";
+
+documentation {
+V{{bar}} constant variable `bar`
+}
+@final string bar = "bar";
+

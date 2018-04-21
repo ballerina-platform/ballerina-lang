@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.util.sorters;
 
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
 import org.ballerinalang.langserver.completions.util.Snippet;
@@ -37,7 +37,7 @@ public abstract class CompletionItemSorter {
      * @param ctx               Completion context
      * @param completionItems   List of initial completion items
      */
-    public abstract void sortItems(TextDocumentServiceContext ctx, List<CompletionItem> completionItems);
+    public abstract void sortItems(LSServiceOperationContext ctx, List<CompletionItem> completionItems);
 
     /**
      * Assign the Priorities to the completion items.
@@ -77,17 +77,8 @@ public abstract class CompletionItemSorter {
                 case ItemResolverConstants.B_TYPE:
                     completionItem.setSortText(Priority.PRIORITY170.toString());
                     break;
-                case ItemResolverConstants.ENUM_TYPE:
-                    completionItem.setSortText(Priority.PRIORITY160.toString());
-                    break;
-                case ItemResolverConstants.STRUCT:
-                    completionItem.setSortText(Priority.PRIORITY150.toString());
-                    break;
                 case ItemResolverConstants.PACKAGE_TYPE:
                     completionItem.setSortText(Priority.PRIORITY140.toString());
-                    break;
-                case ItemResolverConstants.ACTION_TYPE:
-                    completionItem.setSortText(Priority.PRIORITY130.toString());
                     break;
                 case ItemResolverConstants.FUNCTION_TYPE:
                     completionItem.setSortText(Priority.PRIORITY120.toString());

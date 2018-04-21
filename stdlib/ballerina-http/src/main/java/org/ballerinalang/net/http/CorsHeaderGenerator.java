@@ -54,7 +54,7 @@ public class CorsHeaderGenerator {
             resourceCors = (CorsHeaders) requestMsg.getProperty(HttpConstants.RESOURCES_CORS);
             String origin = requestMsg.getHeader(HttpHeaderNames.ORIGIN.toString());
             //resourceCors cannot be null here
-            if (origin == null || !resourceCors.isAvailable()) {
+            if (origin == null || resourceCors == null || !resourceCors.isAvailable()) {
                 return;
             }
             if ((responseHeaders = processSimpleRequest(origin, resourceCors)) != null) {
@@ -144,11 +144,11 @@ public class CorsHeaderGenerator {
         //6.2.10 - set allow-headers
         if (requestHeaders != null) {
             responseHeaders.put(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS.toString(),
-                                DispatcherUtil.concatValues(requestHeaders, false));
+                    DispatcherUtil.concatValues(requestHeaders, false));
         }
         //6.2.8 - set max-age
         responseHeaders.put(HttpHeaderNames.ACCESS_CONTROL_MAX_AGE.toString(),
-                            String.valueOf(resourceCors.getMaxAge()));
+                String.valueOf(resourceCors.getMaxAge()));
         return responseHeaders;
     }
 
@@ -230,7 +230,7 @@ public class CorsHeaderGenerator {
             responseHeaders.put(HttpHeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString(), String.valueOf(true));
         }
         responseHeaders.put(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString(),
-                            DispatcherUtil.concatValues(effectiveOrigins, true));
+                DispatcherUtil.concatValues(effectiveOrigins, true));
     }
 
     private static List<String> getOriginValues(String originValue) {

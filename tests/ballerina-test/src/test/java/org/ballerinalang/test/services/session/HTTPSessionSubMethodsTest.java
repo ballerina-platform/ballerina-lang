@@ -72,7 +72,7 @@ public class HTTPSessionSubMethodsTest {
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
-        Assert.assertEquals(responseMsgPayload, "null");
+        Assert.assertEquals(responseMsgPayload, "");
     }
 
     @Test(description = "Test for isNew Function")

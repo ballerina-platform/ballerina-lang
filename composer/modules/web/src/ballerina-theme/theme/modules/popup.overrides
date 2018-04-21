@@ -1,3 +1,27 @@
 /*******************************
         User Overrides
 *******************************/
+
+.ui.popup {
+  display: none;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+
+  /* Fixes content being squished when inline (moz only) */
+  min-width: min-content;
+  z-index: @zIndex;
+
+  border: @border;
+  line-height: @lineHeight;
+  max-width: @maxWidth;
+  background: @background;
+
+  padding: @verticalPadding @horizontalPadding;
+  font-weight: @fontWeight;
+  font-style: @fontStyle;
+  color: @color;
+
+  border-radius: @borderRadius;
+  box-shadow: @boxShadow;
+}

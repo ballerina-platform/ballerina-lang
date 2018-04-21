@@ -22,7 +22,6 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -49,6 +48,10 @@ public class VarDeclaredAssignmentStmtTest {
     public void testIntToVarAssignment() {
         BValue[] returns = BRunUtil.invoke(result, "testIntToVarAssignment",
                 new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 81);
     }
 
@@ -134,14 +137,6 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(((BString) returns[3]).stringValue(), "name_4");
     }
 
-    @Test(description = "Test var with at least non declared ref in LHS expr.")
-    public void testVarDeclarationWithAtLeaseOneNonDeclaredSymbol() {
-        BValue[] returns = BRunUtil.invoke(result, "testVarDeclarationWithAtLeaseOneNonDeclaredSymbol",
-                new BValue[]{});
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
-        Assert.assertNull(returns[1]);
-    }
-
     @Test(description = "Test boolean to var assignment.")
     public void testBooleanToVarAssignment() {
         BValue[] returns = BRunUtil.invoke(result, "testBooleanToVarAssignment",
@@ -154,7 +149,7 @@ public class VarDeclaredAssignmentStmtTest {
         //var type is not not allowed in variable def statements
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-type-variable-def-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "mismatched input ';'. expecting {'.', ',', '[', '=', '@', '=?'}", 2, 12);
+        BAssertUtil.validateError(res, 0, "mismatched input ';'. expecting {'.', '[', '=', '!', '@'}", 2, 12);
     }
 
     @Test(description = "Test var in global variable def.")
@@ -163,7 +158,8 @@ public class VarDeclaredAssignmentStmtTest {
         CompileResult res = BCompileUtil.compile("test-src/types/var/global-variable-def-var-type-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 2);
         BAssertUtil.validateError(res, 0, "extraneous input 'var'", 1, 1);
-        BAssertUtil.validateError(res, 1, "invalid token '='", 1, 15);
+        BAssertUtil.validateError(res, 1,
+                "mismatched input '='. expecting {'[', '?', '|', Identifier}", 1, 15);
     }
 
     @Test
@@ -176,9 +172,8 @@ public class VarDeclaredAssignmentStmtTest {
     @Test
     public void testVarDeclarationWithStructFieldAssignmentLHSExpr() {
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-invalid-usage-struct-field-negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 2);
+        Assert.assertEquals(res.getErrorCount(), 1);
         BAssertUtil.validateError(res, 0, "invalid assignment in variable 'human.name'", 9, 8);
-        BAssertUtil.validateError(res, 1, "no new variables on left side", 9, 4);
     }
 
     @Test
@@ -188,18 +183,20 @@ public class VarDeclaredAssignmentStmtTest {
         BAssertUtil.validateError(res, 0, "redeclared symbol 'age'", 2, 15);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testVarDeclarationWithArrayInit() {
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-declaration-with-array-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "array literal not allowed here", 2, 17);
+        BAssertUtil.validateError(res, 0, "invalid variable definition; can not infer the assignment type.", 2, 17);
     }
 
     @Test
     public void testVarDeclarationWithAllDeclaredSymbols() {
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-declared-symbols-negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "no new variables on left side", 5, 5);
+        Assert.assertEquals(res.getErrorCount(), 3);
+        BAssertUtil.validateError(res, 0, "redeclared symbol 'a'", 4, 10);
+        BAssertUtil.validateError(res, 1, "redeclared symbol 's'", 4, 13);
+        BAssertUtil.validateError(res, 2, "redeclared symbol 'a'", 14, 10);
     }
 
     @Test
@@ -213,52 +210,49 @@ public class VarDeclaredAssignmentStmtTest {
     public void testIncompatibleJsonToStructWithErrors() {
         BValue[] returns = BRunUtil.invoke(result, "testIncompatibleJsonToStructWithErrors",
                 new BValue[]{});
-        Assert.assertNull(returns[0]);
-        Assert.assertTrue(returns[1] instanceof BStruct);
-        BStruct error = (BStruct) returns[1];
-        String errorMsg = error.getStringField(0);
-        Assert.assertEquals(errorMsg, "cannot convert 'json' to type 'Person': error while mapping" +
-                " 'parent': incompatible types: expected 'json-object', found 'string'");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStruct.class);
+
+        Assert.assertEquals(returns[0].stringValue(),
+                "{message:\"cannot convert 'json' to type 'Person': error while mapping"
+                        + " 'parent': incompatible types: expected 'json-object', found 'string'\", cause:null}");
     }
 
     @Test(description = "Test incompatible json to struct with errors.")
     public void testJsonToStructWithErrors() {
         BValue[] returns = BRunUtil.invoke(result, "testJsonToStructWithErrors",
                 new BValue[]{});
-        Assert.assertNull(returns[0]);
-        Assert.assertTrue(returns[1] instanceof BStruct);
-        BStruct error = (BStruct) returns[1];
-        String errorMsg = error.getStringField(0);
-        Assert.assertEquals(errorMsg, "cannot convert 'json' to type 'PersonA': error while mapping 'age': " +
-                "incompatible types: expected 'int', found 'string' in json");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStruct.class);
+
+        Assert.assertEquals(returns[0].stringValue(),
+                "{message:\"cannot convert 'json' to type 'PersonA': error while mapping 'age': "
+                        + "incompatible types: expected 'int', found 'string' in json\", cause:null}");
     }
 
     @Test(description = "Test compatible struct with force casting.")
     public void testCompatibleStructForceCasting() {
         BValue[] returns = BRunUtil.invoke(result, "testCompatibleStructForceCasting", new BValue[]{});
-        Assert.assertTrue(returns[0] instanceof BStruct);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStruct.class);
         BStruct structC = (BStruct) returns[0];
 
         Assert.assertEquals(structC.getStringField(0), "updated-x-valueof-a");
 
         Assert.assertEquals(structC.getIntField(0), 4);
-
-        // check whether error is null
-        Assert.assertNull(returns[1]);
     }
 
     @Test(description = "Test incompatible struct with force casting.")
     public void testInCompatibleStructForceCasting() {
         BValue[] returns = BRunUtil.invoke(result, "testInCompatibleStructForceCasting", new BValue[]{});
 
-        // check whether struct is null
-        Assert.assertNull(returns[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStruct.class);
 
-        // check the error
-        Assert.assertTrue(returns[1] instanceof BStruct);
-        BStruct error = (BStruct) returns[1];
-        String errorMsg = error.getStringField(0);
-        Assert.assertEquals(errorMsg, "'B' cannot be cast to 'A'");
+        Assert.assertEquals(returns[0].stringValue(), "{message:\"'B' cannot be cast to 'A'\", cause:null}");
     }
 
     @Test(description = "Test any to string with errors.")
@@ -267,126 +261,86 @@ public class VarDeclaredAssignmentStmtTest {
 
         // check whether string is null
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertNull(returns[0].stringValue());
-
-        // check the error
-        Assert.assertTrue(returns[1] instanceof BStruct);
-        BStruct error = (BStruct) returns[1];
-        String errorMsg = error.getStringField(0);
-        Assert.assertEquals(errorMsg, "'int' cannot be cast to 'string'");
+        Assert.assertEquals(returns[0].stringValue(), "5");
     }
 
-    @Test(description = "Test any null to string with errors.")
+    @Test(description = "Test any null to string with errors.") //TODO check this
     public void testAnyNullToStringWithErrors() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToStringWithErrors", new BValue[]{});
 
         // check whether string is null
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertNull(returns[0].stringValue());
-
-        // check the error
-        Assert.assertTrue(returns[1] instanceof BStruct);
-        BStruct error = (BStruct) returns[1];
-        String errorMsg = error.getStringField(0);
-        Assert.assertEquals(errorMsg, "'null' cannot be cast to 'string'");
+        Assert.assertEquals(returns[0].stringValue(), null);
     }
 
     @Test(description = "Test any to boolean with errors.")
     public void testAnyToBooleanWithErrors() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyToBooleanWithErrors", new BValue[]{});
 
-        // check whether string is empty
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStruct.class);
 
-        // check the error
-        Assert.assertTrue(returns[1] instanceof BStruct);
-        BStruct error = (BStruct) returns[1];
-        String errorMsg = error.getStringField(0);
-        Assert.assertEquals(errorMsg, "'int' cannot be cast to 'boolean'");
+        Assert.assertEquals(returns[0].stringValue(), "{message:\"'int' cannot be cast to 'boolean'\", cause:null}");
     }
 
     @Test(description = "Test any null to boolean with errors.")
     public void testAnyNullToBooleanWithErrors() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToBooleanWithErrors", new BValue[]{});
 
-        // check whether string is empty
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStruct.class);
 
-        // check the error
-        Assert.assertTrue(returns[1] instanceof BStruct);
-        BStruct error = (BStruct) returns[1];
-        String errorMsg = error.getStringField(0);
-        Assert.assertEquals(errorMsg, "'null' cannot be cast to 'boolean'");
+        Assert.assertEquals(returns[0].stringValue(), "{message:\"'null' cannot be cast to 'boolean'\", cause:null}");
     }
 
     @Test(description = "Test any to int with errors.")
     public void testAnyToIntWithErrors() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyToIntWithErrors", new BValue[]{});
 
-        // check whether int is zero
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStruct.class);
 
-        // check the error
-        Assert.assertTrue(returns[1] instanceof BStruct);
-        BStruct error = (BStruct) returns[1];
-        String errorMsg = error.getStringField(0);
-        Assert.assertEquals(errorMsg, "'string' cannot be cast to 'int'");
+        Assert.assertEquals(returns[0].stringValue(), "{message:\"'string' cannot be cast to 'int'\", cause:null}");
     }
 
     @Test(description = "Test any null to int with errors.")
     public void testAnyNullToIntWithErrors() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToIntWithErrors", new BValue[]{});
 
-        // check whether int is zero
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStruct.class);
 
-        // check the error
-        Assert.assertTrue(returns[1] instanceof BStruct);
-        BStruct error = (BStruct) returns[1];
-        String errorMsg = error.getStringField(0);
-        Assert.assertEquals(errorMsg, "'null' cannot be cast to 'int'");
+        Assert.assertEquals(returns[0].stringValue(), "{message:\"'null' cannot be cast to 'int'\", cause:null}");
     }
 
     @Test(description = "Test any to float with errors.")
     public void testAnyToFloatWithErrors() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyToFloatWithErrors", new BValue[]{});
 
-        // check whether float is zero
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 0.0);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStruct.class);
 
-        // check the error
-        Assert.assertTrue(returns[1] instanceof BStruct);
-        BStruct error = (BStruct) returns[1];
-        String errorMsg = error.getStringField(0);
-        Assert.assertEquals(errorMsg, "'string' cannot be cast to 'float'");
+        Assert.assertEquals(returns[0].stringValue(), "{message:\"'string' cannot be cast to 'float'\", cause:null}");
     }
 
     @Test(description = "Test any null to float with errors.")
     public void testAnyNullToFloatWithErrors() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToFloatWithErrors", new BValue[]{});
 
-        // check whether float is zero
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 0.0);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStruct.class);
 
-        // check the error
-        Assert.assertTrue(returns[1] instanceof BStruct);
-        BStruct error = (BStruct) returns[1];
-        String errorMsg = error.getStringField(0);
-        Assert.assertEquals(errorMsg, "'null' cannot be cast to 'float'");
+        Assert.assertEquals(returns[0].stringValue(), "{message:\"'null' cannot be cast to 'float'\", cause:null}");
     }
 
     @Test(description = "Test any to map with errors.")
     public void testAnyToMapWithErrors() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyToMapWithErrors", new BValue[]{});
 
-        // check whether map is null
-        Assert.assertNull(returns[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStruct.class);
 
-        // check the error
-        Assert.assertTrue(returns[1] instanceof BStruct);
-        BStruct error = (BStruct) returns[1];
-        String errorMsg = error.getStringField(0);
-        Assert.assertEquals(errorMsg, "'string' cannot be cast to 'map'");
+        Assert.assertEquals(returns[0].stringValue(), "{message:\"'string' cannot be cast to 'map'\", cause:null}");
     }
 
 }

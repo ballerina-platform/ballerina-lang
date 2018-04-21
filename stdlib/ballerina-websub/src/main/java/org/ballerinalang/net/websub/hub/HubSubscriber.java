@@ -20,13 +20,13 @@ package org.ballerinalang.net.websub.hub;
 
 import io.ballerina.messaging.broker.core.BrokerException;
 import io.ballerina.messaging.broker.core.Consumer;
-import io.ballerina.messaging.broker.core.ContentChunk;
 import io.ballerina.messaging.broker.core.Message;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.broker.BrokerUtils;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 
 import java.nio.charset.StandardCharsets;
@@ -47,25 +47,18 @@ class HubSubscriber extends Consumer {
     HubSubscriber(String queue, String topic, String callback, BStruct subscriptionDetails) {
         this.queue = queue;
         this.topic = topic;
-        if (!callback.endsWith("/")) {
-            callback = callback.concat("/");
-        }
         this.callback = callback;
         this.subscriptionDetails = subscriptionDetails;
     }
 
     @Override
     protected void send(Message message) throws BrokerException {
-        CompileResult result = Hub.getInstance().getHubCompileResult();
-        byte[] bytes = new byte[0];
-        for (ContentChunk chunk:message.getContentChunks()) {
-            bytes = new byte[chunk.getBytes().readableBytes()];
-            chunk.getBytes().getBytes(0, bytes);
-        }
+        ProgramFile programFile = Hub.getInstance().getHubProgramFile();
+        byte[] bytes = BrokerUtils.retrieveBytes(message);
         BValue[] args = {new BString(callback),
                 subscriptionDetails,
                 new BJSON(new String(bytes, StandardCharsets.UTF_8))};
-        BLangFunctions.invokeCallable(result.getProgFile().getPackageInfo("ballerina.net.websub.hub")
+        BLangFunctions.invokeCallable(programFile.getPackageInfo("websub.hub")
                                      .getFunctionInfo("distributeContent"), args);
     }
 

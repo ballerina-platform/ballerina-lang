@@ -2,7 +2,7 @@ function testMapElementIncrement()  returns (int){
     map namesMap = {fname:1};
     namesMap["fname"]++;
     int x;
-    x, _ = (int)namesMap["fname"];
+    x = check <int>namesMap["fname"];
     return x;
 }
 
@@ -10,7 +10,7 @@ function testMapElementDecrement() returns (int){
     map namesMap = {fname:1};
     namesMap["fname"]--;
     int x;
-    x, _ = (int)namesMap["fname"];
+    x = check <int>namesMap["fname"];
     return x;
 }
 

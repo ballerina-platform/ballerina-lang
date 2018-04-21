@@ -21,11 +21,11 @@ function funcReturnInt() returns (int){
     return a;
 }
 
-public struct TestError {
+public type TestError {
     string message;
-    error[] cause;
+    error? cause;
     string code;
-}
+};
 
 function testInvalid4() returns (string){
 

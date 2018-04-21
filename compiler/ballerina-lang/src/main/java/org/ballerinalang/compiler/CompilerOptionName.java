@@ -28,6 +28,8 @@ public enum CompilerOptionName {
 
     PRESERVE_WHITESPACE("preserveWhitespace"),
 
+    OFFLINE("offline"),
+
     COMPILER_PHASE("compilerPhase"),
 
     TRANSACTION_EXISTS("transactionBlockExists"),

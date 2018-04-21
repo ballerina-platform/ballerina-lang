@@ -107,7 +107,7 @@ public class AnnotationAttachment {
             return null;
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */

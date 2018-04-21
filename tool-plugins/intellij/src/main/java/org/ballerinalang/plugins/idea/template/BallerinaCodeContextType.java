@@ -260,9 +260,7 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
                 PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(element);
                 if (nextVisibleLeaf != null && nextVisibleLeaf instanceof LeafPsiElement) {
                     IElementType elementType = ((LeafPsiElement) nextVisibleLeaf).getElementType();
-                    if (elementType == BallerinaTypes.ACTION) {
-                        return true;
-                    } else if (elementType == BallerinaTypes.RBRACE) {
+                    if (elementType == BallerinaTypes.RBRACE) {
                         ConnectorDefinitionNode connectorDefinitionNode = PsiTreeUtil.getParentOfType(originalElement,
                                 ConnectorDefinitionNode.class);
                         if (connectorDefinitionNode != null) {

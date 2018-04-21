@@ -1,3 +1,6 @@
+import ballerina/crypto;
+import ballerina/io;
+
 function contains(string source, string substring) returns (boolean) {
     return source.contains(substring);
 }
@@ -34,16 +37,16 @@ function replaceFirst(string s, string source, string target) returns (string) {
     return s.replaceFirst(source, target);
 }
 
-function subString(string s, int beginIndex, int endIndex) returns (string) {
-    return s.subString(beginIndex, endIndex);
+function substring(string s, int beginIndex, int endIndex) returns (string) {
+    return s.substring(beginIndex, endIndex);
 }
 
-function toLowerCase(string s) returns (string) {
-    return s.toLowerCase();
+function toLower(string s) returns (string) {
+    return s.toLower();
 }
 
-function toUpperCase(string s) returns (string) {
-    return s.toUpperCase();
+function toUpper(string s) returns (string) {
+    return s.toUpper();
 }
 
 function trim(string s) returns (string) {
@@ -67,10 +70,10 @@ function stringValueOf(string s) returns (string) {
 }
 
 function xmlValueOf(xml x) returns (string) {
-    return <string>(x);
+    return io:sprintf("%s", x);
 }
 
-function jsonValueOf(json j) returns (string) {
+function jsonValueOf(json j) returns (string?) {
     return j.toString();
 }
 
@@ -90,27 +93,42 @@ function toBlob(string l, string m) returns (blob) {
     return l.toBlob(m);
 }
 
-function nullInString() returns (string, string) {
-    string s1;
-    string s2 = null;
-    return (s1, s2);
+function testEncodeDecode(string content) returns (string|error) {
+    match content.base64Encode() {
+        string returnString => return returnString.base64Decode();
+        error e => return e;
+    }
 }
 
-function concatNullString() returns (string) {
-    string s1;
-    string s2 = null;
-    return s1 + s2;
+function testBase64EncodeString(string contentToBeEncoded) returns (string|error) {
+    return contentToBeEncoded.base64Encode();
 }
 
-function compareNullStringWithNull() returns (boolean, boolean, boolean, boolean,
-                              boolean, boolean, boolean, boolean) {
-    string s1;
-    string s2 = null;
-    return (s1 == "", "" == s1, s1 != "", "" != s1, s2 == null, null == s2, s2 != null, null != s2);
+function testBase64DecodeString(string contentToBeDecoded) returns (string|error) {
+    return contentToBeDecoded.base64Decode();
 }
 
-function compareNotNullStringWithNull() returns (boolean, boolean, boolean, boolean) {
-    string s1 = "hello";
-    string s2 = null;
-    return (s1 == null, s1 != null, s1 == s2, s1 != s2);
+function testBase64EncodeBlob(blob contentToBeEncoded) returns blob {
+    return contentToBeEncoded.base64Encode();
+}
+
+function testBase64DecodeBlob(blob contentToBeDecoded) returns blob {
+    return contentToBeDecoded.base64Decode();
+}
+
+
+function testBase16ToBase64Encoding(string s) returns string {
+    return s.base16ToBase64Encode();
+}
+
+function testBase64ToBase16Encoding(string s) returns string {
+    return s.base64ToBase16Encode();
+}
+
+function testHMACValueFromBase16ToBase64Encoding(string base, string key) returns (string) {
+    return crypto:hmac(base, key, crypto:MD5).base16ToBase64Encode();
+}
+
+function testHMACValueFromBase64ToBase16Encoding(string base, string key) returns (string) {
+    return crypto:hmac(base, key, crypto:MD5).base16ToBase64Encode().base64ToBase16Encode();
 }

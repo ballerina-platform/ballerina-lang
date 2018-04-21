@@ -52,16 +52,10 @@ public class TransformerTest {
     public void unnamedTransform() {
         BValue[] returns = BRunUtil.invoke(result, "unnamedTransform");
 
-        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(returns.length, 1);
 
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "John");
-
-        Assert.assertTrue(returns[1] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 30);
-
-        Assert.assertTrue(returns[2] instanceof BString);
-        Assert.assertEquals(returns[2].stringValue(), "London");
+        Assert.assertEquals(returns[0].stringValue(), "John30London");
     }
 
     @Test(description = "Test simple named transformer")
@@ -313,7 +307,7 @@ public class TransformerTest {
         BAssertUtil.validateError(resNegative, i++, "'next' statement is not allowed inside a transformer", 86, 5);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testTransformerPackage() {
         CompileResult result = BCompileUtil.compile(this, "test-src/statements/transform/", "a.b");
         BValue[] returns = BRunUtil.invoke(result, "a.b", "testTransformer");

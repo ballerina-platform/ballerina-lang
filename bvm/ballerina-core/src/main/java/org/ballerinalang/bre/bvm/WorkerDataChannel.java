@@ -31,36 +31,51 @@ public class WorkerDataChannel {
     private WorkerExecutionContext pendingCtx;
 
     @SuppressWarnings("rawtypes")
-    private Queue<BRefType[]> channel = new LinkedList<>();
+    private Queue<WorkerResult> channel = new LinkedList<>();
 
     @SuppressWarnings("rawtypes")
-    public synchronized void putData(BRefType[] data) {
-        if (data != null) {
-            this.channel.add(data);
-            if (this.pendingCtx != null) {
-                BLangScheduler.resume(this.pendingCtx);
-                this.pendingCtx = null;
-            }
+    public synchronized void putData(BRefType data) {
+        this.channel.add(new WorkerResult(data));
+        if (this.pendingCtx != null) {
+            BLangScheduler.resume(this.pendingCtx);
+            this.pendingCtx = null;
         }
     }
     
     @SuppressWarnings("rawtypes")
-    public synchronized BRefType[] tryTakeData(WorkerExecutionContext ctx) {
-        BRefType[] data = this.channel.peek();
-        if (data != null) {
+    public synchronized WorkerResult tryTakeData(WorkerExecutionContext ctx) {
+        WorkerResult result = this.channel.peek();
+        if (result != null) {
             this.channel.remove();
-            return data;
+            return result;
         } else {
             this.pendingCtx = ctx;
             ctx.ip--; // we are going to execute the same worker receive operation later
-            BLangScheduler.switchToWaitForResponse(ctx);
+            BLangScheduler.workerWaitForResponse(ctx);
             return null;
         }
     }
 
     @SuppressWarnings("rawtypes")
-    public synchronized BRefType[] tryTakeData() {
+    public synchronized WorkerResult tryTakeData() {
         return this.channel.poll();
     }
-    
+
+    /**
+     * This represents a worker result value. This is done as a value to be used in the
+     * queues used for worker communication. In this way, the queue can distinguish the
+     * case of a value not there when the peek, by returning null, and then, if they
+     * return a WorkerResult, the value inside it can be either null or not to mention
+     * Ballerina null value and non-null value.
+     */
+    public static class WorkerResult {
+
+        public BRefType value;
+
+        public WorkerResult(BRefType value) {
+            this.value = value;
+        }
+
+    }
+
 }

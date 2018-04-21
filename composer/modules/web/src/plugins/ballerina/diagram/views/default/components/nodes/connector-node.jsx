@@ -159,7 +159,7 @@ class ConnectorNode extends React.Component {
                 onMouseEnter={this.onMouseEnter}
             >
                 <PanelDecorator
-                    icon='tool-icons/connector'
+                    icon='connector'
                     title={title}
                     bBox={bBox}
                     model={model}

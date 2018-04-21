@@ -24,7 +24,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -34,16 +34,16 @@ public class FailoverConnectorTest {
 
     private CompileResult compileResult;
 
-    @BeforeTest
+    @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/net/http/resiliency/failover-connector-test.bal");
     }
 
     /**
      * Test case scenario:
-     * * First endpoint returns HttpConnectorError for the request.
-     * * Failover connector should retry the second endpoint.
-     * * Second endpoints returns success response.
+     * - First endpoint returns HttpConnectorError for the request.
+     * - Failover connector should retry the second endpoint.
+     * - Second endpoints returns success response.
      */
     @Test(description = "Test case for failover connector for at least one endpoint send success response.")
     public void testSuccessScenario() {
@@ -51,7 +51,7 @@ public class FailoverConnectorTest {
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testSuccessScenario");
 
         Assert.assertNotNull(returnVals);
-        Assert.assertEquals(returnVals.length, 2);
+        Assert.assertEquals(returnVals.length, 1);
         BStruct res = (BStruct) returnVals[0];
 
         if (res != null) {
@@ -62,19 +62,20 @@ public class FailoverConnectorTest {
 
     /**
      * Test case scenario:
-     * * All Endpoints return HttpConnectorError for the requests.
-     * * Once all endpoints were tried out failover connector responds with
-     * * status code of 500 and the error return from the last endpoint.
+     * - All Endpoints return HttpConnectorError for the requests.
+     * - Once all endpoints were tried out failover connector responds with
+     * - status code of 500 and the error return from the last endpoint.
      */
     @Test(description = "Test case for failover connector when all endpoints return error response.")
     public void testFailureScenario() {
         long expectedHttpSC = 500;
-        String expectedErrprMessageContent = "All the failover endpoints failed. Last error was Connection refused";
+        String expectedErrprMessageContent =
+                "All the failover endpoints failed. Last endpoint returned response is: 502 ";
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testFailureScenario");
 
         Assert.assertNotNull(returnVals);
-        Assert.assertEquals(returnVals.length, 2);
-        BStruct res = (BStruct) returnVals[1];
+        Assert.assertEquals(returnVals.length, 1);
+        BStruct res = (BStruct) returnVals[0];
 
         if (res != null) {
             long statusCode = res.getIntField(0);

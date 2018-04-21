@@ -21,25 +21,19 @@ package org.ballerinalang.net.websub.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.connector.impl.ConnectorSPIModelHelper;
-import org.ballerinalang.logging.BLogManager;
-import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConnectorPortBindingListener;
 import org.ballerinalang.net.http.serviceendpoint.AbstractHttpNativeFunction;
-import org.ballerinalang.net.http.serviceendpoint.FilterHolder;
-import org.ballerinalang.net.http.util.ConnectorStartupSynchronizer;
 import org.ballerinalang.net.websub.BallerinaWebSubConnectionListener;
 import org.ballerinalang.net.websub.WebSubServicesRegistry;
 import org.ballerinalang.net.websub.WebSubSubscriberConstants;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-
-import java.util.HashSet;
-import java.util.logging.LogManager;
 
 /**
  * Set WebSub connection listener on startup.
@@ -48,10 +42,10 @@ import java.util.logging.LogManager;
  */
 
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.websub",
+        orgName = "ballerina", packageName = "websub",
         functionName = "startWebSubSubscriberServiceEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "SubscriberServiceEndpoint",
-                structPackage = "ballerina.net.websub"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener",
+                structPackage = WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH),
         isPublic = true
 )
 public class StartWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunction {
@@ -63,26 +57,14 @@ public class StartWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunc
                 (BStruct) ((BStruct) (subscriberServiceEndpoint.getVMValue())).getRefField(1));
 
         ServerConnector serverConnector = getServerConnector(serviceEndpoint);
-        if (isHTTPTraceLoggerEnabled()) {
-            ((BLogManager) BLogManager.getLogManager()).setHttpTraceLogHandler();
-        }
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
         WebSubServicesRegistry webSubServicesRegistry = (WebSubServicesRegistry) serviceEndpoint.getNativeData(
                                                                 WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY);
-        HashSet<FilterHolder> filterHolder = getFilters(serviceEndpoint);
+        Value[] filterHolder = getFilters(serviceEndpoint);
         serverConnectorFuture.setHttpConnectorListener(new BallerinaWebSubConnectionListener(webSubServicesRegistry,
                                                                                              filterHolder));
-        // TODO: set startup server port binder. Do we really need it with new design?
-        ConnectorStartupSynchronizer startupSynchronizer = new ConnectorStartupSynchronizer(1);
-        serverConnectorFuture.setPortBindingEventListener(
-                new HttpConnectorPortBindingListener(startupSynchronizer, serverConnector.getConnectorID()));
+        serverConnectorFuture.setPortBindingEventListener(new HttpConnectorPortBindingListener());
 
         context.setReturnValues();
-    }
-
-    private boolean isHTTPTraceLoggerEnabled() {
-        // TODO: Take a closer look at this since looking up from the Config Registry here caused test failures
-        return ((BLogManager) LogManager.getLogManager()).getPackageLogLevel(
-                org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG) == BLogLevel.TRACE;
     }
 }

@@ -112,9 +112,7 @@ public class AnnotationDef {
     public void setAnnotationAttachments(List<AnnotationAttachment> annotationAttachments) {
         this.annotationAttachments = annotationAttachments;
     }
-    /**
-     * {@inheritDoc}
-     */
+
     @Override
     public String toString() {
         return "Annotation{" + "packagePath='" + packagePath + '\'' + ", name='" + name + '\'' + ", " +

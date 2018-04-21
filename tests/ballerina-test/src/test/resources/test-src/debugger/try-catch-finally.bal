@@ -1,21 +1,21 @@
 public struct testError {
     string message;
-    error[] cause;
+    error? cause;
     string code;
 }
 
 public struct testDataError {
     string message;
-    error[] cause;
+    error? cause;
     string data;
 }
 public struct testInputError {
     string message;
-    error[] cause;
+    error? cause;
     string input;
 }
 
-function main(string[] args) {
+function main(string... args) {
     _ = testTryCatch(11);
     _ = testTryCatch(-1);
     _ = testTryCatch(5);

@@ -26,7 +26,6 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.TempFileIOChannel;
@@ -58,7 +57,6 @@ import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.FIRST_BODY_PART_INDEX;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_DATA_SOURCE;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
-import static org.ballerinalang.mime.util.Constants.SIZE_INDEX;
 
 /**
  * Entity body related operations are included here.
@@ -73,16 +71,17 @@ public class EntityBodyHandler {
      * a file channel. After that delete the temp file. If the size does not exceed, then wrap the inputstream with an
      * EntityBodyChannel.
      *
-     * @param entityStruct Represent an 'Entity'
-     * @param inputStream  Represent input stream coming from the request/response
+     * @param entityStruct      Represent an 'Entity'
+     * @param inputStream       Represent input stream coming from the request/response
+     * @param numberOfBytesRead Number of bytes read
      */
-    public static void setDiscreteMediaTypeBodyContent(BStruct entityStruct, InputStream inputStream) {
-        long contentLength = entityStruct.getIntField(SIZE_INDEX);
-        if (contentLength > Constants.BYTE_LIMIT) {
+    public static void setDiscreteMediaTypeBodyContent(BStruct entityStruct, InputStream inputStream,
+                                                       int numberOfBytesRead) {
+        if (numberOfBytesRead < Constants.BYTE_LIMIT) {
+            entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(new EntityBodyChannel(inputStream)));
+        } else {
             String temporaryFilePath = MimeUtil.writeToTemporaryFile(inputStream, BALLERINA_TEMP_FILE);
             entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, getByteChannelForTempFile(temporaryFilePath));
-        } else {
-            entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(new EntityBodyChannel(inputStream)));
         }
     }
 
@@ -184,7 +183,7 @@ public class EntityBodyHandler {
         try {
             Channel byteChannel = getByteChannel(entityStruct);
             if (byteChannel == null) {
-                return new BXMLItem();
+                throw new BallerinaIOException("Empty xml payload");
             }
             BXML xmlContent = XMLUtils.parse(byteChannel.getInputStream());
             byteChannel.close();
@@ -204,7 +203,7 @@ public class EntityBodyHandler {
         try {
             Channel byteChannel = getByteChannel(entityStruct);
             if (byteChannel == null) {
-                return null;
+                throw new BallerinaIOException("Payload is null");
             }
             String textContent = StringUtils.getStringFromInputStream(byteChannel.getInputStream());
             byteChannel.close();

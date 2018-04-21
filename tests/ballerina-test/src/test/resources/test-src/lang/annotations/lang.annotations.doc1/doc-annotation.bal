@@ -1,4 +1,3 @@
-package lang.annotations.doc1;
 
 @Description{
     value:"Self annotating an annotation",
@@ -13,7 +12,7 @@ package lang.annotations.doc1;
     code:[7,8,9],
     args: {}
 }
-public annotation <service, resource, function, streamlet, struct, annotation, enum, parameter, const, transformer, endpoint> Description Desc;
+public annotation <service, resource, function, streamlet, struct, annotation, enum, parameter, transformer, endpoint> Description Desc;
 
 struct Desc {
     string value = "Description of the service/function";

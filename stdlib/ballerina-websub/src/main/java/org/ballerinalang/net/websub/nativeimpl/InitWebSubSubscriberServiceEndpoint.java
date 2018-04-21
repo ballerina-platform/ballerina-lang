@@ -20,9 +20,13 @@ package org.ballerinalang.net.websub.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.impl.ConnectorSPIModelHelper;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -38,11 +42,10 @@ import org.ballerinalang.net.websub.WebSubSubscriberConstants;
  */
 
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.websub",
+        orgName = "ballerina", packageName = "websub",
         functionName = "initWebSubSubscriberServiceEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "SubscriberServiceEndpoint",
-                structPackage = "ballerina.net.websub"),
-        isPublic = true
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener",
+                structPackage = WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH)
 )
 public class InitWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunction {
 
@@ -52,8 +55,45 @@ public class InitWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunct
         Struct subscriberServiceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         Struct serviceEndpoint = ConnectorSPIModelHelper.createStruct(
                 (BStruct) ((BStruct) (subscriberServiceEndpoint.getVMValue())).getRefField(1));
-
+        BStruct config = (BStruct) ((BStruct) context.getRefArgument(0)).getRefField(0);
         WebSubServicesRegistry webSubServicesRegistry = new WebSubServicesRegistry(new WebSocketServicesRegistry());
+        BString topicIdentifier = (BString) config.getRefField(1);
+        if (topicIdentifier != null) {
+            String stringTopicIdentifier = topicIdentifier.stringValue();
+            webSubServicesRegistry.setTopicIdentifier(stringTopicIdentifier);
+            if (WebSubSubscriberConstants.TOPIC_ID_HEADER.equals(stringTopicIdentifier)) {
+                BString topicHeader = (BString) config.getRefField(2);
+                if (topicHeader != null) {
+                    webSubServicesRegistry.setTopicHeader(topicHeader.stringValue());
+                } else {
+                    throw new BallerinaConnectorException("Topic Header not specified to dispatch by Header");
+                }
+            } else if (WebSubSubscriberConstants.TOPIC_ID_PAYLOAD_KEY.equals(stringTopicIdentifier)) {
+                BStringArray topicPayloadKeys = (BStringArray) config.getRefField(3);
+                if (topicPayloadKeys != null) {
+                    webSubServicesRegistry.setTopicPayloadKeys(topicPayloadKeys);
+                } else {
+                    throw new BallerinaConnectorException("Payload Keys not specified to dispatch by Payload Key");
+                }
+            } else {
+                BString topicHeader = (BString) config.getRefField(2);
+                BStringArray topicPayloadKeys = (BStringArray) config.getRefField(3);
+                if (topicHeader != null && topicPayloadKeys != null) {
+                    webSubServicesRegistry.setTopicHeader(topicHeader.stringValue());
+                    webSubServicesRegistry.setTopicPayloadKeys(topicPayloadKeys);
+                } else {
+                    throw new BallerinaConnectorException("Topic Header and/or Payload Keys not specified to dispatch"
+                                                                  + " by Topic Header and Payload Key");
+                }
+            }
+            if (!((BMap<String, BMap<String, BString>>) config.getRefField(4)).isEmpty()) {
+                webSubServicesRegistry.setTopicResourceMap(
+                                                    (BMap<String, BMap<String, BString>>) config.getRefField(4));
+            } else {
+                throw new BallerinaConnectorException("Topic-Resource Map not specified to dispatch by "
+                                                     + stringTopicIdentifier);
+            }
+        }
         serviceEndpoint.addNativeData(WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY, webSubServicesRegistry);
 
         context.setReturnValues();

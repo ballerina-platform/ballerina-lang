@@ -192,7 +192,6 @@ done
     -Djava.util.logging.config.file="$BAL_COMPOSER_HOME/resources/composer/conf/composer-logging.properties" \
     $JAVA_OPTS \
     -classpath "$COMPOSER_CLASSPATH" \
-    -Djava.io.tmpdir="$BAL_COMPOSER_HOME/tmp" \
     -Djava.command="$JAVACMD" \
     -Dballerina.home="$BAL_COMPOSER_HOME" \
     -Dcomposer.config.path="$BAL_COMPOSER_HOME/resources/composer/conf/composer-config.yml" \

@@ -23,11 +23,12 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.LanguageServerContext;
-import org.ballerinalang.langserver.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,9 +37,12 @@ import java.util.List;
  * Capture possible errors from source.
  */
 public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
-    private LanguageServerContext context;
 
-    public CompletionCustomErrorStrategy(LanguageServerContext context) {
+    private LSContext context;
+
+    private boolean overriddenTokenIndex = false;
+
+    public CompletionCustomErrorStrategy(LSContext context) {
         super(context);
         this.context = context;
     }
@@ -64,6 +68,10 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
     }
 
     private void fillContext(Parser parser, Token currentToken) {
+        // If the token index is overridden then we skip rest of the errors
+        if (overriddenTokenIndex) {
+            return;
+        }
         ParserRuleContext currentContext = parser.getContext();
         /*
         TODO: Specific check  is added in order to handle the completion inside an 
@@ -79,7 +87,9 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
             this.context.put(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY, currentContext);
             this.context.put(DocumentServiceKeys.TOKEN_STREAM_KEY, parser.getTokenStream());
             this.context.put(DocumentServiceKeys.VOCABULARY_KEY, parser.getVocabulary());
-            this.context.put(DocumentServiceKeys.TOKEN_INDEX_KEY, parser.getCurrentToken().getTokenIndex());
+            if (!overriddenTokenIndex) {
+                this.context.put(DocumentServiceKeys.TOKEN_INDEX_KEY, parser.getCurrentToken().getTokenIndex());
+            }
         }
     }
 
@@ -105,6 +115,18 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
             }
         }
         if (lastNonHiddenToken != null) {
+            Token tokenBefore = CommonUtil.getPreviousDefaultToken(parser.getTokenStream(),
+                    lastNonHiddenToken.getTokenIndex());
+            if (tokenBefore != null && ((UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY.equals(tokenBefore.getText())
+                    && parser.getContext() instanceof BallerinaParser.ServiceBodyContext)
+                    || (UtilSymbolKeys.IMPORT_KEYWORD_KEY.equals(tokenBefore.getText())
+                    && parser.getContext() instanceof BallerinaParser.ImportDeclarationContext)
+                    || (UtilSymbolKeys.MATCH_KEYWORD_KEY.equals(tokenBefore.getText())
+                    && parser.getContext() instanceof BallerinaParser.MatchStatementContext))) {
+                overriddenTokenIndex = true;
+                this.context.put(DocumentServiceKeys.TOKEN_INDEX_KEY, tokenBefore.getTokenIndex());
+                return true;
+            }
 
             // Convert the token lines and char positions to zero based indexing
             int lastNonHiddenTokenLine = lastNonHiddenToken.getLine() - 1;

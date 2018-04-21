@@ -18,8 +18,8 @@
 package org.ballerinalang.langserver.completions.util.sorters;
 
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
@@ -39,7 +39,7 @@ class TransformerContextItemSorter extends CompletionItemSorter {
      * @param completionItems List of initial completion items
      */
     @Override
-    public void sortItems(TextDocumentServiceContext ctx, List<CompletionItem> completionItems) {
+    public void sortItems(LSServiceOperationContext ctx, List<CompletionItem> completionItems) {
         ParserRuleContext parserRuleContext = ctx.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY);
         if (parserRuleContext == null || parserRuleContext instanceof BallerinaParser.StatementContext) {
             List<String> typesToRemove = new ArrayList<>(Arrays.asList(ItemResolverConstants.STATEMENT_TYPE,

@@ -18,13 +18,11 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.net.http.util.ConnectorStartupSynchronizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.PortBindingEventListener;
 
 import java.io.PrintStream;
-import java.net.BindException;
 
 /**
  * An implementation of the LifeCycleEventListener. This can be used to listen to the HTTP connector life cycle events.
@@ -36,40 +34,26 @@ public class HttpConnectorPortBindingListener implements PortBindingEventListene
     private static final Logger log = LoggerFactory.getLogger(HttpConnectorPortBindingListener.class);
     private static final PrintStream console = System.out;
 
-    private ConnectorStartupSynchronizer connectorStartupSynchronizer;
-    private String serverConnectorId;
-
-    public HttpConnectorPortBindingListener(ConnectorStartupSynchronizer connectorStartupSynchronizer,
-                                            String serverConnectorId) {
-        this.connectorStartupSynchronizer = connectorStartupSynchronizer;
-        this.serverConnectorId = serverConnectorId;
-    }
-
     @Override
     public void onOpen(String serverConnectorId, boolean isHttps) {
         if (isHttps) {
-            console.println("ballerina: started HTTPS/WSS server connector " + serverConnectorId);
+            console.println("ballerina: started HTTPS/WSS endpoint " + serverConnectorId);
         } else {
-            console.println("ballerina: started HTTP/WS server connector " + serverConnectorId);
+            console.println("ballerina: started HTTP/WS endpoint " + serverConnectorId);
         }
-        connectorStartupSynchronizer.addServerConnector(serverConnectorId);
     }
 
     @Override
     public void onClose(String serverConnectorId, boolean isHttps) {
         if (isHttps) {
-            console.println("ballerina: stopped HTTPS/WSS server connector " + serverConnectorId);
+            console.println("ballerina: stopped HTTPS/WSS endpoint " + serverConnectorId);
         } else {
-            console.println("ballerina: stopped HTTP/WS server connector " + serverConnectorId);
+            console.println("ballerina: stopped HTTP/WS endpoint " + serverConnectorId);
         }
     }
 
     @Override
     public void onError(Throwable throwable) {
-        log.error("Error in http server connector", throwable);
-
-        if (throwable instanceof BindException) {
-            connectorStartupSynchronizer.addException(serverConnectorId, (BindException) throwable);
-        }
+        log.error("Error in http endpoint", throwable);
     }
 }

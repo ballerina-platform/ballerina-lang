@@ -73,7 +73,6 @@ paths:
                 $ref: "#/components/schemas/Error"
     post:
       summary: Create a pet
-      operationId: createPets
       tags:
         - pets
       responses:
@@ -125,6 +124,15 @@ components:
           type: string
         tag:
           type: string
+        type:
+          type: string
+    Dog:
+      allOf:
+      - $ref: "#/components/schemas/Pet"
+      - type: object
+        properties:
+          bark:
+            type: boolean
     Pets:
       type: array
       items:

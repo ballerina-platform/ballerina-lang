@@ -32,24 +32,25 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
+
 /**
  * {@code Options} is the OPTIONS action implementation of the HTTP Connector.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "options",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
-                structPackage = "ballerina.net.http"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.CALLER_ACTIONS,
+                structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "client", type = TypeKind.CONNECTOR),
                 @Argument(name = "path", type = TypeKind.STRING),
                 @Argument(name = "req", type = TypeKind.STRUCT, structType = "Request",
-                        structPackage = "ballerina.net.http")
+                        structPackage = "ballerina.http")
         },
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "Response", structPackage = "ballerina.net.http"),
+                @ReturnType(type = TypeKind.STRUCT, structType = "Response", structPackage = "ballerina.http"),
                 @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
-                        structPackage = "ballerina.net.http"),
+                        structPackage = "ballerina.http"),
         }
 )
 public class Options extends AbstractHTTPAction {
@@ -61,7 +62,7 @@ public class Options extends AbstractHTTPAction {
             executeNonBlockingAction(dataContext, createOutboundRequestMsg(context));
         } catch (ClientConnectorException clientConnectorException) {
             BallerinaException exception = new BallerinaException("Failed to invoke 'options' action in " +
-                    HttpConstants.HTTP_CLIENT + ". " + clientConnectorException.getMessage(), context);
+                    HttpConstants.CALLER_ACTIONS + ". " + clientConnectorException.getMessage(), context);
             dataContext.notifyReply(null, HttpUtil.getHttpConnectorError(context, exception));
         }
     }

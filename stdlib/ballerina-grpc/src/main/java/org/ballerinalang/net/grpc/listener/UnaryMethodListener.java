@@ -18,15 +18,8 @@ package org.ballerinalang.net.grpc.listener;
 import com.google.protobuf.Descriptors;
 import io.grpc.stub.ServerCalls.UnaryMethod;
 import io.grpc.stub.StreamObserver;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.Executor;
-import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.grpc.GrpcCallableUnitCallBack;
 import org.ballerinalang.net.grpc.Message;
-
-import java.util.List;
 
 
 /**
@@ -35,25 +28,17 @@ import java.util.List;
  * @since 1.0.0
  */
 public class UnaryMethodListener extends MethodListener implements UnaryMethod<Message, Message> {
-
+    
     public Resource resource;
-
+    
     public UnaryMethodListener(Descriptors.MethodDescriptor methodDescriptor, Resource resource) {
         super(methodDescriptor);
         this.resource = resource;
     }
-
+    
     @Override
     public void invoke(Message request, StreamObserver<Message> responseObserver) {
-        List<ParamDetail> paramDetails = resource.getParamDetails();
-        BValue[] signatureParams = new BValue[paramDetails.size()];
-        signatureParams[0] = getConnectionParameter(resource, responseObserver);
-        BValue requestParam = getRequestParameter(resource, request);
-        if (requestParam != null) {
-            signatureParams[1] = requestParam;
-        }
-        CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, isEmptyResponse());
-        Executor.submit(resource, callback, null, signatureParams);
+        onMessageInvoke(resource, request, responseObserver);
     }
-
+    
 }

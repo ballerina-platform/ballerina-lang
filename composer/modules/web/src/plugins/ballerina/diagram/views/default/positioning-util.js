@@ -43,15 +43,10 @@ class PositioningUtil {
             const arrowStartBBox = new SimpleBBox();
             const arrowEndBBox = new SimpleBBox();
             const dropDown = new SimpleBBox();
-            let variableRefName;
-            if (TreeUtil.isVariableDef(node)) {
-                variableRefName = node.variable.initialExpression.expression.variableName.value;
-            } else if (TreeUtil.isAssignment(node) || TreeUtil.isExpressionStatement(node)) {
-                variableRefName = node.expression.expression.variableName.value;
-            }
+            const variableRefName = TreeUtil.getVariableReference(node);
             const allVisibleEndpoints = TreeUtil.getAllVisibleEndpoints(node.parent);
-            const endpoint = _.find(allVisibleEndpoints, (varDef) => {
-                return varDef.variable.name.value === variableRefName;
+            const endpoint = _.find(allVisibleEndpoints, (endpoint) => {
+                return endpoint.name.value === variableRefName;
             });
 
             // Move the x cordinates to centre align the action invocation statement
@@ -92,6 +87,10 @@ class PositioningUtil {
             arrowStartBBox.x = viewState.components['statement-box'].x;
             arrowStartBBox.y = viewState.components['statement-box'].y
                                 + this.config.actionInvocationStatement.text.height;
+
+            if (!TreeUtil.isReturn(node)) {
+                arrowStartBBox.x += 3;
+            }
 
             if (parentConstructNode) {
                 viewState.components.invocation = {
@@ -199,9 +198,7 @@ class PositioningUtil {
         let height = this.config.canvas.padding.top;
         // filter out visible children from top level nodes.
         const children = node.filterTopLevelNodes((child) => {
-            return TreeUtil.isFunction(child) || TreeUtil.isService(child)
-                || TreeUtil.isConnector(child)
-                || TreeUtil.isTransformer(child);
+            return TreeUtil.isFunction(child) || TreeUtil.isService(child);
         });
 
         children.forEach((child) => {
@@ -321,16 +318,14 @@ class PositioningUtil {
             });
         }
 
-        // Position Connectors
-        const statements = node.body.statements;
-        statements.forEach((statement) => {
-            if (TreeUtil.isEndpointTypeVariableDef(statement)) {
-                statement.viewState.bBox.x = xindex;
-                statement.viewState.bBox.y = cmp.defaultWorker.y;
-                xindex += statement.viewState.bBox.w + this.config.lifeLine.gutter.h;
-                if (statement.viewState.showOverlayContainer) {
-                    OverlayComponentsRenderingUtil.showConnectorPropertyWindow(statement);
-                }
+        // Position Endpoints
+        const endpoints = node.endpointNodes;
+        endpoints.forEach((endpointNode) => {
+            endpointNode.viewState.bBox.x = xindex;
+            endpointNode.viewState.bBox.y = cmp.defaultWorker.y;
+            xindex += endpointNode.viewState.bBox.w + this.config.lifeLine.gutter.h;
+            if (endpointNode.viewState.showOverlayContainer) {
+                OverlayComponentsRenderingUtil.showConnectorPropertyWindow(endpointNode);
             }
         });
     }
@@ -586,7 +581,7 @@ class PositioningUtil {
         node.body.viewState.bBox.x = node.viewState.bBox.x + (cmp.lifeLine.w / 2);
         node.body.viewState.bBox.y = node.viewState.bBox.y + this.config.lifeLine.head.height;
 
-        if (!TreeUtil.isForkJoin(node.parent)) {
+        if (node.parent && !TreeUtil.isForkJoin(node.parent)) {
             node.body.viewState.bBox.y += this.config.statement.height;
         }
     }
@@ -812,24 +807,23 @@ class PositioningUtil {
 
 
     /**
-     * Calculate position of XmlElementLiteral nodes.
+     * Calculate position of MatchExpression nodes.
      *
-     * @param {object} node XmlElementLiteral object
+     * @param {object} node MatchExpression object
      */
-    positionXmlElementLiteralNode(node) {
+    positionMatchExpressionNode(node) {
         // Not implemented.
     }
 
 
     /**
-     * Calculate position of XmlTextLiteral nodes.
+     * Calculate position of MatchExpressionPatternClause nodes.
      *
-     * @param {object} node XmlTextLiteral object
+     * @param {object} node MatchExpressionPatternClause object
      */
-    positionXmlTextLiteralNode(node) {
+    positionMatchExpressionPatternClauseNode(node) {
         // Not implemented.
     }
-
 
     /**
      * Calculate position of XmlCommentLiteral nodes.
@@ -1036,6 +1030,33 @@ class PositioningUtil {
         viewState.components['statement-box'].y = y + viewState.components['drop-zone'].h;
     }
 
+
+    /**
+     * Calculate position of Match nodes.
+     *
+     * @param {object} node Match object
+     */
+    positionMatchNode(node) {
+        let y = node.viewState.bBox.y + this.config.statement.height;
+        const x = node.viewState.bBox.x;
+        node.patternClauses.forEach((element) => {
+            element.viewState.bBox.x = x;
+            element.viewState.bBox.y = y;
+            y += element.viewState.bBox.h;
+        });
+    }
+
+
+    /**
+     * Calculate position of MatchPatternClause nodes.
+     *
+     * @param {object} node MatchPatternClause object
+     */
+    positionMatchPatternClauseNode(node) {
+        node.statement.viewState.bBox.x = node.viewState.bBox.x;
+        node.statement.viewState.bBox.y = node.viewState.bBox.y + this.config.statement.height;
+    }
+
     /**
      * Position the Else node
      * @param {object} node - else node
@@ -1090,7 +1111,7 @@ class PositioningUtil {
      * @param {object} node Transaction object
      */
     positionTransactionNode(node) {
-        const failedBody = node.failedBody;
+        const onRetryBody = node.onRetryBody;
         const transactionBody = node.transactionBody;
         const viewState = node.viewState;
         const bBox = viewState.bBox;
@@ -1108,13 +1129,13 @@ class PositioningUtil {
             nextComponentY += transactionBody.viewState.components['statement-box'].h;
         }
 
-        // Set the position of the failed body
-        if (failedBody) {
-            failedBody.viewState.bBox.x = bBox.x + this.config.compoundStatement.gap.left +
+        // Set the position of the retry body
+        if (onRetryBody) {
+            onRetryBody.viewState.bBox.x = bBox.x + this.config.compoundStatement.gap.left +
                 transactionBody.viewState.bBox.w;
-            failedBody.viewState.bBox.y = transactionBody.viewState.bBox.y +
+            onRetryBody.viewState.bBox.y = transactionBody.viewState.bBox.y +
                 transactionBody.viewState.components['statement-box'].h - this.config.compoundStatement.padding.top;
-            this.positionCompoundStatementComponents(failedBody);
+            this.positionCompoundStatementComponents(onRetryBody);
         }
     }
 
@@ -1130,7 +1151,7 @@ class PositioningUtil {
      *
      * @param {object} node Transaction Failed object
      */
-    positionFailedNode(node) {
+    positionNode(node) {
         // Not implemented.
     }
 

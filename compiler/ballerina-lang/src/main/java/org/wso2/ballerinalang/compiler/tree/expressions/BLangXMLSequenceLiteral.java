@@ -35,6 +35,7 @@ public class BLangXMLSequenceLiteral extends BLangExpression implements XMLLiter
     public BLangXMLSequenceLiteral(BType type) {
         this.xmlItems = new ArrayList<>();
         this.type = type;
+        this.desugared = true;
     }
 
     @Override

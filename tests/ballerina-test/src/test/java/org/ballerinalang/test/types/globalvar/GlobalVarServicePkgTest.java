@@ -37,74 +37,76 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 public class GlobalVarServicePkgTest {
 
     CompileResult result;
+    private static final String MOCK_ENDPOINT_NAME = "globalVarEP";
+    private static final String PKG_NAME = "globalvar.pkg.srvc";
+    private static final String ORG_PKG_NAME = "globalvar.pkg.main." + PKG_NAME;
 
-    @BeforeClass(enabled = false)
+    @BeforeClass
     public void setup() {
-        result = BServiceUtil.setupProgramFile(this, "test-src/statements/variabledef/", "globalvar.pkg.srvc");
+        result = BServiceUtil.setupProgramFile(this, "test-src/statements/variabledef/", PKG_NAME);
     }
 
-    @Test(description = "Test accessing global variables in other packages", enabled = false)
+    @Test(description = "Test accessing global variables in other packages")
     public void testAccessingGlobalVarInOtherPackages() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar-pkg/defined", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(result, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(result, ORG_PKG_NAME, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
-        //Expected Json message : {"glbVarInt":22343, "glbVarString":"stringval", "glbVarFloat":6342.234234}
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("glbVarInt").asText(), "22343");
         Assert.assertEquals(bJson.value().get("glbVarString").asText(), "stringval");
         Assert.assertEquals(bJson.value().get("glbVarFloat").asText(), "6342.234234");
     }
 
-    @Test(description = "Test assigning global variable from other package when defining", enabled = false)
+    @Test(description = "Test assigning global variable from other package when defining")
     public void testAssignGlobalVarFromOtherPkgWhenDefining() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar-pkg/assign-from-other-pkg", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(result, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(result, ORG_PKG_NAME, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"glbVarFloat1":6342.234234}
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("glbVarFloat1").asText(), "6342.234234");
     }
 
-    @Test(description = "Test assigning function invocation from same package", enabled = false)
+    @Test(description = "Test assigning function invocation from same package")
     public void testAssigningFuncInvFromSamePkg() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar-pkg/func-inv-from-same-pkg", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(result, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(result, ORG_PKG_NAME, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"glbVarFunc":423277.72343}
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("glbVarFunc").asText(), "423277.72343");
     }
 
-    @Test(description = "Test assigning function invocation from different package", enabled = false)
+    @Test(description = "Test assigning function invocation from different package")
     public void testAssigningFuncInvFromDiffPkg() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar-pkg/func-inv-from-diff-pkg", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(result, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(result, ORG_PKG_NAME, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"glbVarPkgFunc":8876}
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("glbVarPkgFunc").asText(), "8876");
     }
 
-    @Test(description = "Test assigning global variable to service variable from different package", enabled = false)
+    @Test(description = "Test assigning global variable to service variable from different package")
     public void testAssigningGlobalVarToServiceVarFromDiffPkg() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar-pkg/assign-to-service-var-from-diff-pkg",
                                                                   "GET");
-        HTTPCarbonMessage response = Services.invokeNew(result, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(result, ORG_PKG_NAME, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"serviceVarString":"stringval"}
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("serviceVarString").asText(), "stringval");
     }
 
-    @Test(description = "Test change global var in different package and access it", enabled = false)
+    @Test(description = "Test change global var in different package and access it")
     public void testChangeAndAccessGlobalVarInDiffPkg() {
         HTTPTestRequest cMsgChange = MessageUtils.generateHTTPMessage("/globalvar-pkg/change-global-var-diff-pkg",
                                                                         "GET");
-        Services.invokeNew(result, cMsgChange);
+        Services.invokeNew(result, ORG_PKG_NAME, MOCK_ENDPOINT_NAME, cMsgChange);
 
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar-second-pkg/get-changed-resource-level",
                                                                   "GET");
-        HTTPCarbonMessage response = Services.invokeNew(result, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(result, ORG_PKG_NAME, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"changeVarFloat":345432.454}
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());

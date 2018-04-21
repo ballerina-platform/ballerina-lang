@@ -1,4 +1,3 @@
-package ballerina.builtin;
 
 @Description { value: "Options struct for XML to JSON conversion "}
 @Field {value:"attributePrefix:  prefix to add to the key to identify a XML attribute and namespaces, default value is '@'."}
@@ -43,17 +42,6 @@ public native function <xml x> getElementName() (string);
 @Param { value:"x: An XML object" }
 @Return { value:"Text value of the xml" }
 public native function <xml x> getTextValue() (string);
-
-@Description { value:"Selects all the children of the elements in an XML, and return as a sequence."}
-@Param { value:"x: An XML object" }
-@Return { value:"All the children of the elements in the xml" }
-public native function <xml x> children() (xml);
-
-@Description { value:"Selects all the children of the elements in this sequence that matches the given qualified name."}
-@Param { value:"x: An XML object" }
-@Param { value:"qname: Qualified name of the element" }
-@Return { value:"All the children of the elements in this sequence that matches the given qualified name" }
-public native function <xml x> selectChildren(string qname) (xml);
 
 @Description { value:"Set the children of an XML if its a singleton. An Error otherwise. Any existing children will be removed."}
 @Param { value:"x: An XML object" }

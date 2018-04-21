@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.common.constants;
 
-import org.ballerinalang.langserver.LanguageServerContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Location;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -27,26 +27,26 @@ import java.util.Stack;
  * Keys for the hover context.
  */
 public class NodeContextKeys {
-    public static final LanguageServerContext.Key<BLangNode> NODE_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<PackageID> PACKAGE_OF_NODE_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<String> NAME_OF_NODE_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<String> SYMBOL_KIND_OF_NODE_PARENT_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<Object> PREVIOUSLY_VISITED_NODE_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<String> NODE_OWNER_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<PackageID> NODE_OWNER_PACKAGE_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<Stack<BLangNode>> NODE_STACK_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<String> SYMBOL_KIND_OF_NODE_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<String> VAR_NAME_OF_NODE_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<List<Location>> REFERENCE_NODES_KEY
-            = new LanguageServerContext.Key<>();
+    public static final LSContext.Key<BLangNode> NODE_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<PackageID> PACKAGE_OF_NODE_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<String> NAME_OF_NODE_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<String> SYMBOL_KIND_OF_NODE_PARENT_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<Object> PREVIOUSLY_VISITED_NODE_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<String> NODE_OWNER_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<PackageID> NODE_OWNER_PACKAGE_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<Stack<BLangNode>> NODE_STACK_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<String> SYMBOL_KIND_OF_NODE_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<String> VAR_NAME_OF_NODE_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<List<Location>> REFERENCE_NODES_KEY
+            = new LSContext.Key<>();
 }

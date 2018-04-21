@@ -9,10 +9,7 @@ function testMapWithArityOne () returns (string) | error {
     output = "";
     string val;
     foreach v in m {
-        match <string> v {
-            string val1 => val = val1;
-            error err => return err;
-        }
+        val = <string> v;
         stringConcat("_", val);
     }
     return output;
@@ -23,10 +20,7 @@ function testMapWithArityTwo () returns (string) | error {
     output = "";
     string val;
     foreach k,v in m {
-        match <string> v {
-            string val1 => val = val1;
-            error err => return err;
-        }
+        val = <string> v;
         stringConcat(k, val);
     }
     return output;
@@ -38,17 +32,15 @@ function testDeleteWhileIteration () returns (string) | error {
     string val;
     string mval;
     foreach k, v in m {
-        match <string> v {
-            string val1 => val = val1;
-            error err1 => return err1;
-        }
+        val = <string> v;
         if (k == "a") {
             _ = m.remove("c");
         }
         stringConcat(k, val);
-        match <string> m[k] {
-            string val2 => mval = val2;
-            error err2 => return err2;
+        if (m.hasKey(k)){
+            mval = <string>m[k];
+        } else {
+            mval = "null";
         }
         stringConcat(k, mval);
     }
@@ -61,17 +53,11 @@ function testAddWhileIteration () returns (string) | error {
     string val1;
     string val2;
     foreach k1, v1 in m {
-        match <string> v1 {
-            string tempval1 => val1 = tempval1;
-            error err1 => return err1;
-        }
+		val1 = <string> v1;
         stringConcat(k1, val1);
         m[k1 + k1] = val1 + val1;
         foreach k2, v2 in m {
-            match <string> v2 {
-                string tempval2 => val2 = tempval2;
-                error err2 => return err2;
-            }
+            val2 = <string> v2;
             stringConcat(k2, val2);
         }
         output = output + "\n";

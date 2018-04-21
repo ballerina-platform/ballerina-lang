@@ -1,20 +1,19 @@
-import ballerina/net.http;
+import ballerina/http;
 
-endpoint http:ServiceEndpoint headerServiceEP {
+endpoint http:Listener headerServiceEP {
     port: 9090
 };
 
-endpoint http:ServiceEndpoint stockServiceEP {
+endpoint http:Listener stockServiceEP {
     port: 9091
 };
 
-endpoint http:ClientEndpoint stockqEP {
-    targets: [{uri: "http://localhost:9091"}]
+endpoint http:Client stockqEP {
+    url: "http://localhost:9091"
 };
 
 @http:ServiceConfig {
-    basePath:"/product",
-    endpoints: [headerServiceEP]
+    basePath:"/product"
 }
 service<http:Service> headerService bind headerServiceEP {
 
@@ -22,44 +21,43 @@ service<http:Service> headerService bind headerServiceEP {
         req.setHeader("core", "aaa");
         req.addHeader("core", "bbb");
 
-        var result = stockqEP -> get("/sample/stocks", req);
+        var result = stockqEP -> get("/sample/stocks", request = req);
         match result {
             http:Response clientResponse => {
-                _ = conn -> forward(clientResponse);
+                _ = conn -> respond(clientResponse);
             }
-            any|null => { return;}
+            any|() => {}
         }
     }
 
     id (endpoint conn, http:Request req) {
-        http:Response clntResponse = {};
+        http:Response clntResponse = new;
         var reply = stockqEP -> forward("/sample/customers", req);
 
         match reply {
             http:Response clientResponse => {
-                var result = clientResponse.getHeaders("person");
-                match result {
-                    string[] headers => {
-                        json payload = {header1:headers[0] , header2:headers[1]};
-                        http:Response res = {};
-                        res.setJsonPayload(payload);
-                        _ = conn -> respond(res);
+                json payload = {};
+                if (clientResponse.hasHeader("person")) {
+                    string[] headers = clientResponse.getHeaders("person");
+                    if (lengthof(headers) == 2) {
+                        payload = {header1:headers[0], header2:headers[1]};
+                    } else {
+                        payload = {"response":"expected number of 'person' headers not found"};
                     }
-                    any|null => {
-                        return;
-                    }
+                } else {
+                    payload = {"response":"person header not available"};
                 }
+                http:Response res = new;
+                res.setJsonPayload(payload);
+                _ = conn -> respond(res);
             }
-            any|null => {
-                return;
-            }
+            any|() => {}
         }
     }
 }
 
 @http:ServiceConfig {
-    basePath:"/sample",
-    endpoints: [headerServiceEP]
+    basePath:"/sample"
 }
 service<http:Service> quoteService bind stockServiceEP {
 
@@ -68,19 +66,20 @@ service<http:Service> quoteService bind stockServiceEP {
         path:"/stocks"
     }
     company (endpoint conn, http:Request req) {
-        //string[] headers = req.getHeaders("core");
-        var result = req.getHeaders("core");
-        match result {
-            string[] headers => {
-                json payload = {header1:headers[0] , header2:headers[1]};
-                http:Response res = {};
-                res.setJsonPayload(payload);
-                _ = conn -> respond(res);
+        json payload = {};
+        if (req.hasHeader("core")) {
+            string[] headers = req.getHeaders("core");
+            if (lengthof(headers) == 2) {
+                payload = {header1:headers[0], header2:headers[1]};
+            } else {
+                payload = {"response":"expected number of 'core' headers not found"};
             }
-            any|null => {
-                return;
-            }
+        } else {
+            payload = {"response":"core header not available"};
         }
+        http:Response res = new;
+        res.setJsonPayload(payload);
+        _ = conn -> respond(res);
     }
 
     @http:ResourceConfig {
@@ -88,7 +87,7 @@ service<http:Service> quoteService bind stockServiceEP {
         path:"/customers"
     }
     product (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         res.setHeader("person", "kkk");
         res.addHeader("person", "jjj");
         _ = conn -> respond(res);

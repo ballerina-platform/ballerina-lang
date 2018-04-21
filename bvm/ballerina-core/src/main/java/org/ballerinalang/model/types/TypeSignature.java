@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.model.types;
 
+import java.util.List;
+
 /**
  * @since 0.87
  */
@@ -31,7 +33,7 @@ public class TypeSignature {
     public static final String SIG_TABLE = "D";
     public static final String SIG_FUTURE = "X";
     public static final String SIG_STREAM = "H";
-    public static final String SIG_MAP = "N";
+    public static final String SIG_MAP = "M";
     public static final String SIG_CONNECTOR = "C";
     public static final String SIG_STRUCT = "T";
     public static final String SIG_ENUM = "E";
@@ -41,9 +43,14 @@ public class TypeSignature {
     public static final String SIG_TYPEDESC = "Y";
     public static final String SIG_VOID = "V";
     public static final String SIG_ANNOTATION = "@";
+    public static final String SIG_UNION = "O";
+    public static final String SIG_NULL = "N";
+    public static final String SIG_TUPLE = "P";
+    public static final String SIG_FINITE_TYPE = "G";
 
     private String sigChar;
     private TypeSignature elementTypeSig;
+    private List<TypeSignature> memberTypeSigs;
     private String pkgPath;
     private String name;
 
@@ -56,6 +63,11 @@ public class TypeSignature {
         this.elementTypeSig = elementTypeSig;
     }
 
+    public TypeSignature(String sigChar, List<TypeSignature> memberTypeSigs) {
+        this(sigChar);
+        this.memberTypeSigs = memberTypeSigs;
+    }
+    
     public TypeSignature(String sigChar, String name) {
         this(sigChar);
         this.name = name;
@@ -87,6 +99,10 @@ public class TypeSignature {
     public String toString() {
         if (elementTypeSig != null) {
             return sigChar + elementTypeSig.toString();
+        } else if (memberTypeSigs != null) {
+            StringBuilder sig = new StringBuilder(sigChar + memberTypeSigs.size() + ";");
+            memberTypeSigs.forEach(memberSig -> sig.append(memberSig));
+            return sig.toString();
         } else if (pkgPath != null) {
             return sigChar + pkgPath + ":" + name + ";";
         } else if (name != null) {

@@ -114,17 +114,6 @@ public class TypeUnificationTest {
     }
 
     @Test
-    public void testMapInitWithAnyType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMapInitWithAnyType");
-
-        Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(((BMap<String, BString>) returns[0]).get("name").stringValue(), "Supun");
-
-        Assert.assertTrue(returns[1] instanceof BMap);
-        Assert.assertEquals(((BMap<String, BString>) returns[1]).get("name").stringValue(), "Supun");
-    }
-
-    @Test
     public void testSetValueToJsonInStruct() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetValueToJsonInStruct");
         Assert.assertTrue(returns[0] instanceof BJSON);

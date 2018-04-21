@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.util.sorters;
 
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
@@ -37,7 +37,7 @@ import java.util.List;
  */
 public class ServiceContextItemSorter extends CompletionItemSorter {
     @Override
-    public void sortItems(TextDocumentServiceContext ctx, List<CompletionItem> completionItems) {
+    public void sortItems(LSServiceOperationContext ctx, List<CompletionItem> completionItems) {
         BLangNode previousNode = ctx.get(CompletionKeys.PREVIOUS_NODE_KEY);
         
         /*

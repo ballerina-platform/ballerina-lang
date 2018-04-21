@@ -1,6 +1,8 @@
-$brand-primary: #f17b31;
+$brand-primary: #2fb8b0;
+$primaryBackgroundColor: #e7eaeb;
+$secondary-color:#575a5e;
 
-$header-bgcolor: #1e1e1e;
+$header-bgcolor: #1a1b1d;
 $header-brand-color: #fff;
 
 $footer-bgcolor: #151515;
@@ -17,7 +19,7 @@ $menubar-file-dropdown-menu-link-hover-bgcolor: #d4d4d4;
 $breadcrumb-bgcolor: #151515;
 $breadcrumb-active-color: #fff;
 
-$left-toolbar-bgcolor: #151515;
+$left-toolbar-bgcolor: #2b2b2b;
 $left-toolbar-link-color: #999999;
 
 $tab-container-bgcolor: #fff;
@@ -48,8 +50,9 @@ $panel-body-bgcolor: #3c3c3c;
 $panel-body-border-color: $panel-header-border-color;
 $panel-body-dropzone-bgcolor: #fff;
 
-$package-configs-bgcolor: #3c3c3c;
-$worker-life-line-color: #fff;
+$package-configs-bgcolor: #eee;
+$worker-color: #0070af;
+$connector-color:#26A69A;
 $package-definition-color: #fff;
 
 $btn-primary-bgcolor: #5b5b5b;
@@ -68,9 +71,9 @@ $modal-btn-primary-hover-bgcolor: darken($modal-btn-primary-bgcolor, 10%);
 $modal-btn-primary-hover-color: #fff;
 
 $primary-line-bgcolor: #666769;
-$default-worker-lifeline-color: #0070af;
-$worker-lifeline-color: #0070af;
-$connector-lifeline-color: #26A69A;
+$default-worker-lifeline-color: $worker-color;
+$worker-lifeline-color: $worker-color;
+$connector-lifeline-color: $connector-color;
 
 $annotation-wrapper-bgcolor: #eee;
 $annotation-wrapper-text-color: #666769;

@@ -14,10 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.builtin;
 
-public annotation <parameter, const> sensitive;
+public annotation <type, parameter> sensitive;
 
-public annotation <parameter, const> tainted;
+public annotation <type, parameter> tainted;
 
-public annotation <parameter, const> untainted;
+public annotation <type, parameter> untainted;

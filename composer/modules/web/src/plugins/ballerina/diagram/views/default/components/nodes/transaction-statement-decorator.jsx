@@ -160,8 +160,9 @@ class TransactionStatementDecorator extends React.Component {
         const viewState = model.viewState;
         const titleH = designer.config.statement.height;
         const statementBBox = viewState.components['statement-box'];
-        const gapLeft = viewState.components['left-margin'].w;
+        const gapLeft = viewState.bBox.leftMargin;
         const gapTop = designer.config.compoundStatement.padding.top;
+        const bottomPadding = 10;
 
         // Defining coordinates of the diagram
         // (x,y)
@@ -228,7 +229,7 @@ class TransactionStatementDecorator extends React.Component {
                     x={p1X}
                     y={p1Y}
                     width={blockBox.w}
-                    height={blockBox.h}
+                    height={bBox.y + bBox.h - p1Y}
                     className={statementRectClass}
                     rx='5'
                     ry='5'
@@ -263,19 +264,19 @@ class TransactionStatementDecorator extends React.Component {
                     disableButtons={this.props.disableButtons}
                 />
                 {(() => {
-                    if (model.failedBody) {
-                        const connectorEdgeBottomY = model.viewState.bBox.y + model.viewState.bBox.h;
+                    if (model.onRetryBody) {
+                        const connectorEdgeBottomY = model.viewState.bBox.y + model.viewState.bBox.h - bottomPadding;
                         const connectorEdgeTopX = p4X;
                         const connectorEdgeBottomX = p4X;
                         return (
                         [<TransactionFailedDecorator
-                            bBox={model.failedBody.viewState.bBox}
-                            model={model.failedBody}
-                            body={model.failedBody}
+                            bBox={model.onRetryBody.viewState.bBox}
+                            model={model.onRetryBody}
+                            body={model.onRetryBody}
                             connectorStartX={connectorEdgeTopX}
                         />,
                             <line
-                                x1={model.failedBody.viewState.bBox.x}
+                                x1={model.onRetryBody.viewState.bBox.x}
                                 y1={connectorEdgeBottomY}
                                 x2={connectorEdgeBottomX}
                                 y2={connectorEdgeBottomY}
@@ -283,12 +284,12 @@ class TransactionStatementDecorator extends React.Component {
                             />,
                             <ArrowDecorator
                                 start={{
-                                    x: p4X,
-                                    y: bBox.y + bBox.h,
+                                    x: p4X + 1,
+                                    y: bBox.y + bBox.h - bottomPadding,
                                 }}
                                 end={{
-                                    x: bBox.x,
-                                    y: bBox.y + bBox.h,
+                                    x: p4X,
+                                    y: bBox.y + bBox.h - bottomPadding,
                                 }}
                                 classNameArrow='flowchart-action-arrow'
                                 classNameArrowHead='flowchart-action-arrow-head'

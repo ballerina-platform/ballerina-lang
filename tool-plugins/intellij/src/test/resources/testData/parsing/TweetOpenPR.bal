@@ -1,12 +1,12 @@
 import ballerina/lang.strings;
 import ballerina/lang.system;
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/net.uri;
 import ballerina/utils;
-import ballerina/net.http.request;
-import ballerina/net.http.response;
+import ballerina/http.request;
+import ballerina/http.response;
 
-function main (string[] args) {
+function main (string... args) {
 
     http:ClientConnector tweeterEP = create http:ClientConnector("https://api.twitter.com");
     http:ClientConnector gitHubEP = create http:ClientConnector("https://api.github.com");

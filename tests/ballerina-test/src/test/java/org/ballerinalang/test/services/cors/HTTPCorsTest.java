@@ -50,7 +50,7 @@ public class HTTPCorsTest {
         Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), statusCode);
         Assert.assertEquals(response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString()), origin);
         Assert.assertEquals(response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()),
-                            credentials);
+                credentials);
         Assert.assertEquals(response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS.toString()), headers);
         Assert.assertEquals(response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS.toString()), methods);
         Assert.assertEquals(response.getHeader(HttpHeaderNames.ACCESS_CONTROL_MAX_AGE.toString()), maxAge);
@@ -67,7 +67,7 @@ public class HTTPCorsTest {
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("echo").asText(), "resCors");
         Assert.assertEquals("http://www.wso2.com",
-                            response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString()));
+                response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString()));
         Assert.assertEquals("true", response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()));
     }
 
@@ -81,9 +81,9 @@ public class HTTPCorsTest {
         Assert.assertNotNull(response);
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("echo").asText(), "serCors");
-        Assert.assertEquals("http://www.hello.com",
-                            response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString()));
-        Assert.assertEquals("true", response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()));
+        Assert.assertEquals(response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString()),
+                "http://www.hello.com");
+        Assert.assertEquals(response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()), "true");
     }
 
     @Test(description = "Test for resource only CORS declaration")
@@ -97,10 +97,10 @@ public class HTTPCorsTest {
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("echo").asText(), "resOnlyCors");
         Assert.assertEquals("http://www.hello.com",
-                            response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString()));
+                response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString()));
         Assert.assertEquals(null, response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()));
         Assert.assertEquals("X-Content-Type-Options, X-PINGOTHER",
-                            response.getHeader(HttpHeaderNames.ACCESS_CONTROL_EXPOSE_HEADERS.toString()));
+                response.getHeader(HttpHeaderNames.ACCESS_CONTROL_EXPOSE_HEADERS.toString()));
     }
 
     @Test(description = "Test simple request with multiple origins")
@@ -114,7 +114,7 @@ public class HTTPCorsTest {
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("echo").asText(), "moreOrigins");
         Assert.assertEquals("http://www.wso2.com http://www.amazon.com",
-                            response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString()));
+                response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString()));
         Assert.assertEquals("true", response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()));
     }
 
@@ -157,7 +157,7 @@ public class HTTPCorsTest {
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("echo").asText(), "resOnlyCors");
         Assert.assertEquals("http://www.facebook.com",
-                            response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString()));
+                response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString()));
     }
 
     @Test(description = "Test for CORS override at two levels with preflight")

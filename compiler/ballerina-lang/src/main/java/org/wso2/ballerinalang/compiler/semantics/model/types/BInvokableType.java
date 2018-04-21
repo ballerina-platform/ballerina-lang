@@ -30,17 +30,12 @@ import java.util.List;
 public class BInvokableType extends BType implements InvokableType {
 
     public List<BType> paramTypes;
-    public List<BType> retTypes;
-    private String typeDescriptor = TypeDescriptor.SIG_FUNCTION;
+    public BType retType;
 
-    // This field is only applicable for functions and actions at the moment.
-    private BType receiverType;
-
-    public BInvokableType(List<BType> paramTypes,
-                          List<BType> retTypes, BTypeSymbol tsymbol) {
+    public BInvokableType(List<BType> paramTypes, BType retType, BTypeSymbol tsymbol) {
         super(TypeTags.INVOKABLE, tsymbol);
         this.paramTypes = paramTypes;
-        this.retTypes = retTypes;
+        this.retType = retType;
     }
 
     @Override
@@ -49,21 +44,13 @@ public class BInvokableType extends BType implements InvokableType {
     }
 
     @Override
-    public List<BType> getReturnTypes() {
-        return retTypes;
+    public BType getReturnType() {
+        return retType;
     }
 
     @Override
     public String getDesc() {
-        return typeDescriptor;
-    }
-
-    public BType getReceiverType() {
-        return receiverType;
-    }
-
-    public void setReceiverType(BType receiverType) {
-        this.receiverType = receiverType;
+        return TypeDescriptor.SIG_FUNCTION;
     }
 
     @Override
@@ -73,7 +60,7 @@ public class BInvokableType extends BType implements InvokableType {
 
     @Override
     public String toString() {
-        return getTypeName(typeDescriptor, paramTypes, retTypes);
+        return getTypeName(TypeDescriptor.SIG_FUNCTION, paramTypes, retType);
     }
 
     @Override
@@ -89,31 +76,28 @@ public class BInvokableType extends BType implements InvokableType {
         if (paramTypes != null ? !paramTypes.equals(that.paramTypes) : that.paramTypes != null) {
             return false;
         }
-        if (retTypes != null ? !retTypes.equals(that.retTypes) : that.retTypes != null) {
+
+        if (retType != null ? !retType.equals(that.retType) : that.retType != null) {
             return false;
         }
-        if (typeDescriptor != null ? !typeDescriptor.equals(that.typeDescriptor) : that.typeDescriptor != null) {
-            return false;
-        }
-        return receiverType != null ? receiverType.equals(that.receiverType) : that.receiverType == null;
+
+        return true;
     }
 
     @Override
     public int hashCode() {
         int result = paramTypes != null ? paramTypes.hashCode() : 0;
-        result = 31 * result + (retTypes != null ? retTypes.hashCode() : 0);
-        result = 31 * result + (typeDescriptor != null ? typeDescriptor.hashCode() : 0);
-        result = 31 * result + (receiverType != null ? receiverType.hashCode() : 0);
+        result = 31 * result + (retType != null ? retType.hashCode() : 0);
         return result;
     }
 
-    public static String getTypeName(String typeDescriptor, List<BType> paramType, List<BType> retType) {
+    private static String getTypeName(String typeDescriptor, List<BType> paramType, BType retType) {
         return (TypeDescriptor.SIG_FUNCTION.equals(typeDescriptor) ? "function " : "")
-                + "(" + (paramType.size() != 0 ? getBTypListAsString(paramType) : "") + ")"
-                + (retType.size() != 0 ? " returns (" + getBTypListAsString(retType) + ")" : "");
+                + "(" + (paramType.size() != 0 ? getBTypeListAsString(paramType) : "") + ")"
+                + " returns (" + retType + ")"; // TODO improve this with void type
     }
 
-    private static String getBTypListAsString(List<BType> typeNames) {
+    private static String getBTypeListAsString(List<BType> typeNames) {
         StringBuffer br = new StringBuffer();
         int i = 0;
         for (BType type : typeNames) {

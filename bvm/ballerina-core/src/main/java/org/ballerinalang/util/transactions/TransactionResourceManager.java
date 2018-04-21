@@ -18,6 +18,7 @@
 package org.ballerinalang.util.transactions;
 
 import org.ballerinalang.model.values.BFunctionPointer;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -154,7 +155,7 @@ public class TransactionResourceManager {
                 }
             }
         }
-        invokeCommittedFunction(transactionBlockId);
+        invokeCommittedFunction(transactionId, transactionBlockId);
         removeContextsFromRegistry(combinedId);
         return commitSuccess;
     }
@@ -190,7 +191,7 @@ public class TransactionResourceManager {
         //For the retry  attempt failures the aborted function should not be invoked. It should invoked only when the
         //whole transaction aborts after all the retry attempts.
         if (!isRetryAttempt) {
-            invokeAbortedFunction(transactionBlockId);
+            invokeAbortedFunction(transactionId, transactionBlockId);
         }
         removeContextsFromRegistry(combinedId);
         return abortSuccess;
@@ -259,18 +260,18 @@ public class TransactionResourceManager {
         return transactionId + ":" + transactionBlockId;
     }
 
-    private void invokeCommittedFunction (int transactionBlockId) {
+    private void invokeCommittedFunction (String transactionId, int transactionBlockId) {
         BFunctionPointer fp = committedFuncRegistry.get(transactionBlockId);
         if (fp != null) {
-            BValue[] args = {};
+            BValue[] args = { new BString(transactionId + ":" + transactionBlockId)};
             BLangFunctions.invokeCallable(fp.value().getFunctionInfo(), args);
         }
     }
 
-    private void invokeAbortedFunction (int transactionBlockId) {
+    private void invokeAbortedFunction (String transactionId, int transactionBlockId) {
         BFunctionPointer fp = abortedFuncRegistry.get(transactionBlockId);
         if (fp != null) {
-            BValue[] args = {};
+            BValue[] args = { new BString(transactionId + ":" + transactionBlockId)};
             BLangFunctions.invokeCallable(fp.value().getFunctionInfo(), args);
         }
     }

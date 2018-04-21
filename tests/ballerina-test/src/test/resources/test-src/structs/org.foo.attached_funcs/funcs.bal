@@ -1,12 +1,11 @@
-package org.foo.attached_funcs;
 
 
-public struct user {
+public type user {
     int age;
     string name;
     string address;
     string zipcode = "23468";
-}
+};
 
 public function <user u> getName() returns (string) {
     return u.name;
@@ -18,7 +17,7 @@ function <user u> getAge() returns (int) {
 
 
 
-public struct person {
+public type person {
     int age;
     string name;
     string address;
@@ -26,7 +25,7 @@ public struct person {
     private:
     string ssn;
         int id;
-}
+};
 
 
 public function <person p> getName() returns (string) {
@@ -45,7 +44,7 @@ public function <person p> setSSN(string ssn) {
     p.ssn = ssn;
 }
 
-public struct employee {
+public type employee {
     int age;
     string name;
     string address;
@@ -54,7 +53,7 @@ public struct employee {
         string ssn;
         int id;
         int employeeId = 123456;
-}
+};
 
 public function <employee e> getName() returns (string) {
     return e.name;

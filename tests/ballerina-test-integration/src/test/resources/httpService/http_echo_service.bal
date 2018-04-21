@@ -1,10 +1,10 @@
-import ballerina/net.http;
+import ballerina/http;
 
-endpoint http:ServiceEndpoint echoEP1 {
+endpoint http:Listener echoEP1 {
     port:9094
 };
 
-endpoint http:ServiceEndpoint echoEP2 {
+endpoint http:Listener echoEP2 {
     port:9090
 };
 
@@ -16,10 +16,10 @@ service<http:Service> echo bind echoEP1 {
         methods:["POST"],
         path:"/"
     }
-    echo (endpoint outboundEP, http:Request req) {
-        http:Response res = {};
+    echo (endpoint caller, http:Request req) {
+        http:Response res = new;
         res.setStringPayload("hello world");
-        _ = outboundEP -> respond(res);
+        _ = caller -> respond(res);
     }
 }
 
@@ -31,10 +31,10 @@ service<http:Service> echoOne bind echoEP1 {
         methods:["POST"],
         path:"/abc"
     }
-    echoAbc (endpoint outboundEP, http:Request req) {
-        http:Response res = {};
+    echoAbc (endpoint caller, http:Request req) {
+        http:Response res = new;
         res.setStringPayload("hello world");
-        _ = outboundEP -> respond(res);
+        _ = caller -> respond(res);
     }
 }
 
@@ -47,19 +47,19 @@ service<http:Service> echoDummy bind echoEP2 {
         methods:["POST"],
         path:"/"
     }
-    echoDummy (endpoint outboundEP, http:Request req) {
-        http:Response res = {};
+    echoDummy (endpoint caller, http:Request req) {
+        http:Response res = new;
         res.setStringPayload("hello world");
-        _ = outboundEP -> respond(res);
+        _ = caller -> respond(res);
     }
 
     @http:ResourceConfig {
         methods:["OPTIONS"],
         path:"/getOptions"
     }
-    echoOptions (endpoint outboundEP, http:Request req) {
-        http:Response res = {};
+    echoOptions (endpoint caller, http:Request req) {
+        http:Response res = new;
         res.setStringPayload("hello Options");
-        _ = outboundEP -> respond(res);
+        _ = caller -> respond(res);
     }
 }

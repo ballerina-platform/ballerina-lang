@@ -40,7 +40,7 @@ public class GeneratorConstants {
         }
     }
 
-    public static final String CLIENT_TEMPLATE_NAME = "skeleton";
+    public static final String CLIENT_TEMPLATE_NAME = "client";
     public static final String OPEN_API_TEMPLATE_NAME = "skeleton";
     public static final String SWAGGER_TEMPLATE_NAME = "skeleton";
 
@@ -51,4 +51,19 @@ public class GeneratorConstants {
     public static final String DEFAULT_OPEN_API_DIR = DEFAULT_TEMPLATE_DIR + File.separator + "oas3";
     public static final String DEFAULT_SWAGGER_DIR = DEFAULT_TEMPLATE_DIR + File.separator + "swagger2";
 
+    public static final String RES_CONFIG_ANNOTATION = "ResourceConfig";
+    public static final String HTTP_PKG_ALIAS = "http";
+    public static final String SWAGGER_PKG_ALIAS = "swagger";
+
+    public static final String ATTR_METHODS = "methods";
+    public static final String ATTR_CONSUMES = "consumes";
+    public static final String ATTR_PATH = "path";
+    public static final String ATTR_HTTP_PORT = "port";
+    public static final String ATTR_HTTPS_PORT = "httpsPort";
+    public static final String ATTR_HOST = "host";
+    public static final String ATTR_BASE_PATH = "basePath";
+    public static final String ATTR_HTTP = "http://";
+    public static final String ATTR_HTTPS = "https://";
+    public static final String ATTR_DEF_HOST = "localhost";
+    public static final String ATTR_DEF_PORT = "80";
 }

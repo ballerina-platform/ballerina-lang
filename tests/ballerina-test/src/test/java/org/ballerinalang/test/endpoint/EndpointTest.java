@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.test.endpoint;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -50,13 +51,11 @@ public class EndpointTest {
         Assert.assertEquals(returns[0].stringValue(), "<test3>init:DummyEndpoint;start:DummyEndpoint;" +
                 "getClient:DummyEndpoint;invoke1:DummyClient;getClient:DummyEndpoint;invoke2:DummyClient;t2");
 
-        String errMsg = "";
         try {
             BRunUtil.invoke(testEndpointsInFunction, "test4");
         } catch (BLangRuntimeException e) {
-            errMsg = e.getMessage();
+            Assert.fail("NullReferenceException was thrown at test4 of EndpointTest.");
         }
-        Assert.assertTrue(errMsg.contains("NullReferenceException"));
     }
 
     @Test(description = "Test endpoint testEndpoint with Service")
@@ -69,5 +68,48 @@ public class EndpointTest {
                 "<test1>");
     }
 
+    @Test(description = "Test anonymous endpoint testEndpoint with Service")
+    public void testAnonymousEndpointWithService() {
+        CompileResult testEndpointsInFunction = BCompileUtil.compile("test-src/endpoint/test_anonymous_endpoint.bal");
+
+        BValue[] returns = BRunUtil.invoke(testEndpointsInFunction, "test1");
+        Assert.assertTrue(returns.length == 1);
+        Assert.assertEquals(returns[0].stringValue(), "init:DummyEndpoint;register:DummyEndpoint;start:DummyEndpoint;" +
+                "<test1>");
+    }
+
+    @Test(description = "Test anonymous endpoint testEndpoint with Service")
+    public void testAnonymousEndpointNegative() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/test_anonymous_endpoint_negative.bal");
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        BAssertUtil.validateError(compileResult, 0, "undefined field 'confX' in struct 'DummyEndpointConfig'", 62, 39);
+    }
+
+    @Test(description = "Test action positive")
+    public void testActionPositive() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/test_action_positive.bal");
+
+        BValue[] result = BRunUtil.invoke(compileResult, "testCheck");
+        Assert.assertEquals(result.length, 1);
+        Assert.assertEquals(result[0].stringValue(), "{message:\"i1\", cause:null}");
+
+        result = BRunUtil.invoke(compileResult, "testBut");
+        Assert.assertEquals(result.length, 7);
+        Assert.assertEquals(result[0].stringValue(), "string");
+        Assert.assertEquals(result[1].stringValue(), "int");
+        Assert.assertEquals(result[2].stringValue(), "boolean");
+        Assert.assertEquals(result[3].stringValue(), "string");
+        Assert.assertEquals(result[4].stringValue(), "elvis");
+        Assert.assertEquals(result[5].stringValue(), "string6");
+        Assert.assertEquals(result[6].stringValue(), "");
+    }
+
+    @Test(description = "Test action negative")
+    public void testActionNegative() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/test_action_negative.bal");
+        Assert.assertEquals(compileResult.getDiagnostics().length, 2);
+        BAssertUtil.validateError(compileResult, 0, "action invocation as an expression not allowed here", 25, 9);
+        BAssertUtil.validateError(compileResult, 1, "action invocation as an expression not allowed here", 27, 17);
+    }
 
 }

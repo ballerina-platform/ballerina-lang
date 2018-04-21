@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 /**
  * @since 0.94
@@ -65,7 +66,9 @@ public class BLangBlockStmt extends BLangStatement implements BlockNode {
     
     @Override
     public String toString() {
-        return "BLangBlockStmt: " + this.stmts.toString();
+        StringJoiner sj = new StringJoiner("; ");
+        this.stmts.forEach(stmt -> sj.add(stmt.toString()));
+        return "{" + sj.toString() + "}";
     }
     
 }

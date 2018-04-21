@@ -46,8 +46,8 @@ function testGetString () returns (string, string) {
     json j2 = {name:"Setunga"};
     string j1String;
     string j2String;
-    j1String, _ = (string)j1;
-    j2String, _ = (string)j2.name;
+    j1String =check <string>j1;
+    j2String =check <string>j2.name;
     return (j1String, j2String);
 }
 
@@ -56,22 +56,22 @@ function testGetInt () returns (int, int) {
     json j2 = {age:43};
     int j1Int;
     int j2Int;
-    j1Int, _ = (int)j1;
-    j2Int, _ = (int)j2.age;
+    j1Int =check <int>j1;
+    j2Int =check <int>j2.age;
     return (j1Int, j2Int);
 }
 
 function testGetFloat () returns (float) {
     json j = {score:9.73};
     float jFloat;
-    jFloat, _ = (float)j.score;
+    jFloat =check <float>j.score;
     return jFloat;
 }
 
 function testGetBoolean () returns (boolean) {
     json j = {pass:true};
     boolean jBoolean;
-    jBoolean, _ = (boolean)j.pass;
+    jBoolean =check <boolean>j.pass;
     return jBoolean;
 }
 
@@ -196,10 +196,10 @@ function testGetNestedJsonElement () returns (string, string, string, string) {
     string cityString2;
     string cityString3;
     string cityString4;
-    cityString1, _ = (string)j.address.city;
-    cityString2, _ = (string)j["address"]["city"];
-    cityString3, _ = (string)j.address["city"];
-    cityString4, _ = (string)j[addressKey][cityKey];
+    cityString1 =check <string>j.address.city;
+    cityString2 =check <string>j["address"]["city"];
+    cityString3 =check <string>j.address["city"];
+    cityString4 =check <string>j[addressKey][cityKey];
     return (cityString1, cityString2, cityString3, cityString4);
 }
 
@@ -212,9 +212,9 @@ function testJsonExprAsIndex () returns (string) {
     //Moving index expression into another line since with new changes, it is a unsafe cast,
     //which returns a error value if any.
     string key;
-    key, _ = (string)j.address.area;
+    key =check <string>j.address.area;
     string value;
-    value, _ = (string)j.address[key];
+    value =check <string>j.address[key];
     return value;
 }
 
@@ -262,14 +262,14 @@ function testGetFromNonObjectWithKey () returns (json, json, json) {
 function testGetStringInArray () returns (string) {
     json j = ["a", "b", "c"];
     string value;
-    value, _ = (string)j[1];
+    value =check <string>j[1];
     return value;
 }
 
 function testGetArrayOutofBoundElement () returns (string) {
     json j = [1, 2, 3];
     string value;
-    value, _ = (string)j[5];
+    value =check <string>j[5];
     return value;
 }
 
@@ -286,17 +286,17 @@ function testUpdateNestedElement () returns (json) {
 
 function testEmptyStringToJson () returns (json) {
     string s = "";
-    return (json)s;
+    return <json>s;
 }
 
 function testJsonStringToJson () returns (json) {
     string s = "{\"name\", \"supun\"}";
-    return (json)s;
+    return <json>s;
 }
 
 function testStringWithEscapedCharsToJson () returns (json) {
     string s = "{\\\"name\\\", \"supun\"}";
-    return (json)s;
+    return <json>s;
 }
 
 function testJsonLength () returns (int, int) {
@@ -310,31 +310,31 @@ function testJsonLength () returns (int, int) {
 function testJsonArrayToJsonCasting () returns (json) {
     json[][] j1 = [[1, 2, 3], [3, 4, 5], [7, 8, 9]];
 
-    json j2 = (json)j1;
+    json j2 = <json>j1;
     return j2;
 }
 
-function testJsonToJsonArrayCasting () returns (json[], json[][], error) {
+function testJsonToJsonArrayCasting () returns (json[], json[][]) {
     json j1 = [[1, 2, 3], [3, 4, 5], [7, 8, 9]];
 
-    var j2, e = (json[])j1;
-    var j3, e = (json[][])j1;
+    var j2 =check <json[]>j1;
+    var j3 =check <json[][]>j1;
 
-    return (j2, j3, e);
+    return (j2, j3);
 }
 
-function testJsonToJsonArrayInvalidCasting () returns (json[][][], error) {
+function testJsonToJsonArrayInvalidCasting () returns (json[][][] | error) {
     json j1 = [[1, 2, 3], [3, 4, 5], [7, 8, 9]];
 
-    var j2, e = (json[][][])j1;
+    var j2 = <json[][][]>j1;
 
-    return (j2, e);
+    return j2;
 }
 
 function testGetFromNull () returns (string) {
     json j2 = {age:43, name:null};
     string value;
-    value, _ = (string)j2.name.fname;
+    value =check <string>j2.name.fname;
     return value;
 }
 

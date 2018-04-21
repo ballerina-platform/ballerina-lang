@@ -18,6 +18,8 @@
 package org.ballerinalang.docgen.model;
 
 
+import org.wso2.ballerinalang.compiler.tree.BLangObject;
+
 import java.util.List;
 
 /**
@@ -25,18 +27,41 @@ import java.util.List;
  */
 public class ConnectorDoc extends Documentable {
     public final boolean isConnector;
-    public final List<Variable> parameters;
+    public final boolean isObject;
+    public final List<Field> fields;
+    private BLangObject object;
 
     /**
      * Constructor.
-     * @param name connector name.
+     *
+     * @param name        connector name.
      * @param description description.
-     * @param children connector actions.
-     * @param parameters parameters of the connector.
+     * @param children    connector actions.
+     * @param fields      fields of the connector.
+     * @param isConnector whether a connector or an object.
      */
-    public ConnectorDoc(String name, String description, List<Documentable> children, List<Variable> parameters) {
+    public ConnectorDoc(String name, String description, List<Documentable> children, List<Field> fields,
+                        List<Documentable> utilityFunctions, boolean isConnector) {
         super(name, "fw-connector", description, children);
-        this.parameters = parameters;
-        isConnector = true;
+        if (!isConnector) {
+            super.icon = "fw-struct";
+        }
+        if (isConnector) {
+            for (Documentable doc : children) {
+                doc.icon = "fw-action";
+            }
+        }
+        children.addAll(utilityFunctions);
+        this.fields = fields;
+        this.isConnector = isConnector;
+        this.isObject = !isConnector;
+    }
+
+    public BLangObject getObject() {
+        return object;
+    }
+
+    public void setObject(BLangObject object) {
+        this.object = object;
     }
 }

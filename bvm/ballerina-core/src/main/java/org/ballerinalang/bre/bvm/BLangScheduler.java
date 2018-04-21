@@ -19,18 +19,24 @@ package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CPU.HandleErrorException;
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
+import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
+import org.ballerinalang.util.observability.CallbackObserver;
+import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.program.BLangVMUtils;
 
 import java.io.PrintStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.LongAdder;
 
 /**
  * This represents the Ballerina worker scheduling functionality. 
@@ -39,9 +45,22 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class BLangScheduler {
     
+    private static final String SCHEDULER_STATS_CONFIG_PROP = "b7a.runtime.scheduler.statistics";
+
     private static AtomicInteger workerCount = new AtomicInteger(0);
     
     private static Semaphore workersDoneSemaphore = new Semaphore(1);
+    
+    private static SchedulerStats schedulerStats = new SchedulerStats();
+    
+    private static boolean schedulerStatsEnabled;
+    
+    static {
+        String statsConfigProp = ConfigRegistry.getInstance().getAsString(SCHEDULER_STATS_CONFIG_PROP);
+        if (statsConfigProp != null) {
+            schedulerStatsEnabled = Boolean.parseBoolean(statsConfigProp);
+        }
+    }
     
     public static WorkerExecutionContext schedule(WorkerExecutionContext ctx) {
         return schedule(ctx, ctx.runInCaller);
@@ -77,7 +96,7 @@ public class BLangScheduler {
     }
     
     public static WorkerExecutionContext schedule(WorkerExecutionContext ctx, boolean runInCaller) {
-        ctx.state = WorkerState.READY;
+        workerReady(ctx);
         workerCountUp();
         if (runInCaller) {
             return ctx;
@@ -96,7 +115,7 @@ public class BLangScheduler {
         if (ctx == null) {
             return null;
         }
-        ctx.state = WorkerState.READY;
+        workerReady(ctx);
         if (runInCaller) {
             return ctx;
         } else {
@@ -129,20 +148,40 @@ public class BLangScheduler {
     }
     
     public static void workerDone(WorkerExecutionContext ctx) {
+        schedulerStats.stateTransition(ctx, WorkerState.DONE);
         ctx.state = WorkerState.DONE;
         workerCountDown();
     }
+    
+    public static void workerReady(WorkerExecutionContext ctx) {
+        schedulerStats.stateTransition(ctx, WorkerState.READY);
+        ctx.state = WorkerState.READY;
+    }
 
     public static void workerPaused(WorkerExecutionContext ctx) {
+        schedulerStats.stateTransition(ctx, WorkerState.PAUSED);
         ctx.state = WorkerState.PAUSED;
     }
     
-    public static void switchToWaitForResponse(WorkerExecutionContext ctx) {
+    public static void workerWaitForResponse(WorkerExecutionContext ctx) {
+        schedulerStats.stateTransition(ctx, WorkerState.WAITING_FOR_RESPONSE);
         ctx.state = WorkerState.WAITING_FOR_RESPONSE;
     }
 
     public static void workerWaitForLock(WorkerExecutionContext ctx) {
+        schedulerStats.stateTransition(ctx, WorkerState.WAITING_FOR_LOCK);
         ctx.state = WorkerState.WAITING_FOR_LOCK;
+    }
+    
+    public static void workerRunning(WorkerExecutionContext ctx) {
+        schedulerStats.stateTransition(ctx, WorkerState.RUNNING);
+        ctx.state = WorkerState.RUNNING;
+    }
+    
+    public static void workerExcepted(WorkerExecutionContext ctx) {
+        schedulerStats.stateTransition(ctx, WorkerState.EXCEPTED);
+        ctx.state = WorkerState.EXCEPTED;
+        workerCountDown();
     }
     
     public static void waitForWorkerCompletion() {
@@ -150,11 +189,6 @@ public class BLangScheduler {
             workersDoneSemaphore.acquire();
             workersDoneSemaphore.release();
         } catch (InterruptedException ignore) { /* ignore */ }
-    }
-    
-    public static void workerExcepted(WorkerExecutionContext ctx) {
-        ctx.state = WorkerState.EXCEPTED;
-        workerCountDown();
     }
     
     public static void dumpCallStack(WorkerExecutionContext ctx) {
@@ -167,23 +201,40 @@ public class BLangScheduler {
     }
     
     public static AsyncInvocableWorkerResponseContext executeBlockingNativeAsync(NativeCallableUnit nativeCallable, 
-            Context nativeCtx) {
+            Context nativeCtx, int flags) {
         CallableUnitInfo callableUnitInfo = nativeCtx.getCallableUnitInfo();
         AsyncInvocableWorkerResponseContext respCtx = new AsyncInvocableWorkerResponseContext(callableUnitInfo);
+        checkAndObserveNativeAsync(nativeCtx, respCtx, callableUnitInfo, flags);
         NativeCallExecutor exec = new NativeCallExecutor(nativeCallable, nativeCtx, respCtx);
         ThreadPoolFactory.getInstance().getWorkerExecutor().submit(exec);
         return respCtx;
     }
     
     public static AsyncInvocableWorkerResponseContext executeNonBlockingNativeAsync(NativeCallableUnit nativeCallable,
-            Context nativeCtx) {
+            Context nativeCtx, int flags) {
         CallableUnitInfo callableUnitInfo = nativeCtx.getCallableUnitInfo();
         AsyncInvocableWorkerResponseContext respCtx = new AsyncInvocableWorkerResponseContext(callableUnitInfo);
+        checkAndObserveNativeAsync(nativeCtx, respCtx, callableUnitInfo, flags);
         BLangAsyncCallableUnitCallback callback = new BLangAsyncCallableUnitCallback(respCtx, nativeCtx);
         nativeCallable.execute(nativeCtx, callback);
         return respCtx;
     }
     
+    public static SchedulerStats getStats() {
+        return schedulerStats;
+    }
+
+    private static void checkAndObserveNativeAsync(Context nativeCtx, AsyncInvocableWorkerResponseContext respCtx,
+                                              CallableUnitInfo callableUnitInfo, int flags) {
+        if (ObservabilityUtils.isObservabilityEnabled() && FunctionFlags.isObserved(flags)) {
+            ObserverContext observerContext = ObservabilityUtils.startClientObservation(callableUnitInfo.attachedToType
+                            .toString(), callableUnitInfo.getName(), nativeCtx.getParentWorkerExecutionContext());
+            respCtx.registerResponseCallback(new CallbackObserver(observerContext));
+            ObservabilityUtils.setObserverContextToWorkerExecutionContext(nativeCtx.getParentWorkerExecutionContext(),
+                    observerContext);
+        }
+    }
+
     /**
      * This represents the thread used to execute a runnable worker.
      */
@@ -288,6 +339,74 @@ public class BLangScheduler {
             BLangScheduler.resume(ctx);
         }
 
+    }
+    
+    /**
+     * This class represents the scheduler statistics.
+     */
+    public static class SchedulerStats {
+        
+        private LongAdder[] stateCounts;
+        
+        public SchedulerStats() {
+            this.stateCounts = new LongAdder[6];
+            for (int i = 0; i < this.stateCounts.length; i++) {
+                this.stateCounts[i] = new LongAdder();
+            }
+        }
+
+        public long getReadyWorkerCount() {
+            return this.stateCounts[0].longValue();
+        }
+
+        public long getRunningWorkerCount() {
+            return this.stateCounts[1].longValue();
+        }
+
+        public long getExceptedWorkerCount() {
+            return this.stateCounts[2].longValue();
+        }
+
+        public long getWaitingForResponseWorkerCount() {
+            return this.stateCounts[3].longValue();
+        }
+
+        public long getPausedWorkerCount() {
+            return this.stateCounts[4].longValue();
+        }
+
+        public long getWaitingForLockWorkerCount() {
+            return this.stateCounts[5].longValue();
+        }
+        
+        public void stateTransition(WorkerExecutionContext currentCtx, WorkerState newState) {
+            if (!schedulerStatsEnabled || currentCtx.isRootContext()) {
+                return;
+            }
+            WorkerState oldState = currentCtx.state;
+            /* we are not considering CREATED state */
+            if (oldState != WorkerState.CREATED) {
+                this.stateCounts[oldState.ordinal()].decrement();
+            }
+            /* we are not counting the DONE state, since it is an ever increasing value */
+            if (newState != WorkerState.DONE) {
+                this.stateCounts[newState.ordinal()].increment();
+            }
+        }
+        
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("Worker Status:- \n");
+            builder.append("\tREADY: " + this.getReadyWorkerCount() + "\n");
+            builder.append("\tRUNNING: " + this.getRunningWorkerCount() + "\n");
+            builder.append("\tEXCEPTED: " + this.getExceptedWorkerCount() + "\n");
+            builder.append("\tWAITING FOR RESPONSE: " + this.getWaitingForResponseWorkerCount() + "\n");
+            builder.append("\tPAUSED: " + this.getPausedWorkerCount() + "\n");
+            builder.append("\tWAITING FOR LOCK: " + this.getWaitingForLockWorkerCount() + "\n");
+            return builder.toString();
+        }
+        
     }
     
 }

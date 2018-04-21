@@ -58,13 +58,37 @@
         </fileSet>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-http-jar/META-INF/natives
+                ${project.build.directory}/extracted-distributions/ballerina-http-jar/META-INF/ballerina
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-mime-jar/META-INF/natives
+                ${project.build.directory}/extracted-distributions/ballerina-mime-jar/META-INF/ballerina
+            </directory>
+            <outputDirectory>src</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/ballerina-grpc-jar/META-INF/ballerina
+            </directory>
+            <outputDirectory>src</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/ballerina-websub-jar/META-INF/ballerina
+            </directory>
+            <outputDirectory>src</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/ballerina-jms-jar/META-INF/ballerina
+            </directory>
+            <outputDirectory>src</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/ballerina-database-jar/META-INF/ballerina
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
@@ -127,9 +151,15 @@
                 <include>org.ballerinalang:ballerina-builtin:jar</include>
                 <include>org.ballerinalang:ballerina-logging:jar</include>
                 <include>org.ballerinalang:ballerina-http:jar</include>
+                <include>org.ballerinalang:ballerina-transactions:jar</include>
                 <include>org.ballerinalang:ballerina-grpc:jar</include>
                 <include>org.ballerinalang:ballerina-mime:jar</include>
                 <include>org.ballerinalang:ballerina-websub:jar</include>
+                <include>org.ballerinalang:ballerina-jms:jar</include>
+                <include>org.ballerinalang:ballerina-database:jar</include>
+                <include>org.ballerinalang:strip-bouncycastle:jar</include>
+                <include>org.ballerinalang:ballerina-packerina:jar</include>
+                <include>org.ballerinalang:ballerina-cli-utils:jar</include>
                 <include>org.ballerinalang:toml-parser:jar</include>
                 <include>org.wso2.orbit.org.antlr:antlr4-runtime</include>
                 <include>org.wso2.transport.http:org.wso2.transport.http.netty</include>
@@ -183,8 +213,28 @@
                 <include>io.ballerina.messaging:broker-common</include>
                 <include>io.ballerina.messaging:broker-rest-runner</include>
                 <include>io.ballerina.messaging:broker-coordination</include>
-                <include>com.google.guava:guava</include>
+                <include>io.ballerina.messaging:broker-auth</include>
                 <include>org.wso2.carbon.metrics:org.wso2.carbon.metrics.core</include>
+                <include>io.netty:netty-tcnative-boringssl-static</include>
+
+                <!-- Observability Dependencies -->
+                <include>org.ballerinalang:ballerina-jaeger-extension:jar</include>
+                <include>io.opentracing:opentracing-api</include>
+                <include>io.opentracing:opentracing-util</include>
+                <include>com.uber.jaeger:jaeger-core</include>
+                <include>com.uber.jaeger:jaeger-thrift</include>
+                <include>org.apache.thrift:libthrift</include>
+                <include>com.squareup.okhttp3:okhttp</include>
+                <include>com.squareup.okio:okio</include>
+                <include>io.micrometer:micrometer-core</include>
+                <include>org.ballerinalang:ballerina-micrometer-extension</include>
+                <include>org.ballerinalang:ballerina-prometheus-extension</include>
+                <include>io.micrometer:micrometer-registry-prometheus</include>
+                <include>org.hdrhistogram:HdrHistogram</include>
+                <include>org.latencyutils:LatencyUtils</include>
+                <include>io.prometheus:simpleclient</include>
+                <include>io.prometheus:simpleclient_common</include>
+                <include>io.prometheus:simpleclient_httpserver</include>
 
                 <!-- Siddhi Dependencies -->
                 <include>org.ballerinalang:siddhi-core:jar</include>
@@ -194,8 +244,12 @@
 
                 <include>org.wso2.orbit.com.lmax:disruptor:jar</include>
                 <include>io.dropwizard.metrics:metrics-core:jar</include>
-                <include>io.ballerina.messaging:broker-common:jar</include>
-                <include>io.ballerina.messaging:broker-core:jar</include>
+                <include>org.wso2.transport.file:org.wso2.transport.local-file-system</include>
+
+                <!-- JMS connector dependencies -->
+                <include>javax.jms:javax.jms-api:jar</include>
+                <include>org.wso2.andes.wso2:andes-client:jar</include>
+                <include>org.wso2.securevault:org.wso2.securevault:jar</include>
 
             </includes>
         </dependencySet>

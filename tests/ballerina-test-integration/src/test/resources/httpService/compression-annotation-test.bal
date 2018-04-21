@@ -1,56 +1,56 @@
-import ballerina/net.http;
+import ballerina/http;
 
-endpoint<http:Service> mockEP {
+endpoint http:Listener mockEP {
     port:9090
-}
+};
 
-@http:serviceConfig {endpoints:[mockEP], compression: http:Compression.AUTO}
-service<http:Service> autoCompress {
-    @http:resourceConfig {
+@http:ServiceConfig {basePath:"/autoCompress", compression: http:COMPRESSION_AUTO}
+service<http:Service> autoCompress bind mockEP {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
-    resource test1 (http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
+    test1 (endpoint conn, http:Request req) {
+        http:Response res = new;
         res.setStringPayload("Hello World!!!");
         _ = conn -> respond(res);
     }
 }
 
-@http:serviceConfig {endpoints:[mockEP], compression: http:Compression.ALWAYS}
-service<http:Service> alwaysCompress {
-     @http:resourceConfig {
+@http:ServiceConfig {basePath:"/alwaysCompress", compression: http:COMPRESSION_ALWAYS}
+service<http:Service> alwaysCompress bind mockEP {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/"
-        }
-    resource test2 (http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
+    }
+    test2 (endpoint conn, http:Request req) {
+        http:Response res = new;
         res.setStringPayload("Hello World!!!");
         _ = conn -> respond(res);
     }
 }
 
-@http:serviceConfig {endpoints:[mockEP], compression: http:Compression.NEVER}
-service<http:Service> neverCompress {
-    @http:resourceConfig {
+@http:ServiceConfig {basePath:"/neverCompress", compression: http:COMPRESSION_NEVER}
+service<http:Service> neverCompress bind mockEP {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
-    resource test3 (http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
+    test3 (endpoint conn, http:Request req) {
+        http:Response res = new;
         res.setStringPayload("Hello World!!!");
         _ = conn -> respond(res);
     }
 }
 
-@http:serviceConfig {endpoints:[mockEP], compression: http:Compression.NEVER}
-service<http:Service> userOverridenValue {
-    @http:resourceConfig {
-            methods:["GET"],
-            path:"/"
+@http:ServiceConfig {basePath:"/userOverridenValue", compression: http:COMPRESSION_NEVER}
+service<http:Service> userOverridenValue bind mockEP {
+    @http:ResourceConfig {
+        methods:["GET"],
+        path:"/"
     }
-    resource test3 (http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
+    test3 (endpoint conn, http:Request req) {
+        http:Response res = new;
         res.setStringPayload("Hello World!!!");
         res.setHeader("content-encoding", "deflate");
         _ = conn -> respond(res);

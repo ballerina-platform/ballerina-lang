@@ -137,6 +137,7 @@ class IconButton extends React.Component {
                     <span
                         onClick={this.props.onClick}
                         title={this.props.tooltip}
+                        className={'menu-wrapper'}
                     >
                         <i className={`fw fw-${this.props.icon} fw-lg`} />
                     </span>

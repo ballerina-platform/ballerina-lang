@@ -28,8 +28,6 @@ import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BTypeDescValue;
-import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
-import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventManager;
@@ -38,18 +36,12 @@ import org.ballerinalang.nativeimpl.io.events.records.DelimitedRecordReadAllEven
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.channels.FileChannel;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -60,14 +52,17 @@ import java.util.concurrent.CompletableFuture;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
-        functionName = "loadToTable",
+        functionName = "getTable",
+        receiver = @Receiver(type = TypeKind.STRUCT,
+                structType = "CSVChannel",
+                structPackage = "ballerina.io"),
         args = {@Argument(name = "path", type = TypeKind.STRING),
                 @Argument(name = "recordSeparator", type = TypeKind.STRING),
                 @Argument(name = "fieldSeparator", type = TypeKind.STRING),
                 @Argument(name = "encoding", type = TypeKind.STRING),
                 @Argument(name = "headerLineIncluded", type = TypeKind.BOOLEAN)},
         returnType = {@ReturnType(type = TypeKind.TABLE),
-                      @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
+                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
 public class LoadToTable implements NativeCallableUnit {
@@ -77,26 +72,12 @@ public class LoadToTable implements NativeCallableUnit {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         final String filePath = context.getStringArgument(0);
-        Path path;
+        final String recordSeparator = context.getStringArgument(1);
+        final String fieldSeparator = context.getStringArgument(2);
+        final String encoding = context.getStringArgument(3);
         try {
-            path = Paths.get(filePath);
-        } catch (InvalidPathException e) {
-            String msg = "Unable to resolve the file path[" + filePath + "]: " + e.getMessage();
-            context.setReturnValues(IOUtils.createError(context, msg));
-            callback.notifySuccess();
-            return;
-        }
-        if (Files.notExists(path)) {
-            String msg = "Unable to find a file in given path: " + filePath;
-            context.setReturnValues(IOUtils.createError(context, msg));
-            callback.notifySuccess();
-            return;
-        }
-        try {
-            FileChannel sourceChannel = FileChannel.open(path, StandardOpenOption.READ);
-            // FileChannel will close once we completely read the content.
-            // Close will happen in DelimitedRecordReadAllEvent.
-            DelimitedRecordChannel recordChannel = getDelimitedRecordChannel(context, sourceChannel);
+            DelimitedRecordChannel recordChannel = IOUtils.createDelimitedRecordChannel(filePath, encoding,
+                    recordSeparator, fieldSeparator);
             EventContext eventContext = new EventContext(context, callback);
             DelimitedRecordReadAllEvent event = new DelimitedRecordReadAllEvent(recordChannel, eventContext);
             CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
@@ -139,7 +120,7 @@ public class LoadToTable implements NativeCallableUnit {
 
     private static BTable getbTable(Context context, List records) throws BallerinaIOException {
         BTypeDescValue type = (BTypeDescValue) context.getRefArgument(0);
-        BTable table = new BTable(new BTableType(type.value()));
+        BTable table = new BTable(new BTableType(type.value()), null);
         BStructType structType = (BStructType) type.value();
         boolean skipHeaderLine = context.getBooleanArgument(0);
         if (skipHeaderLine && !records.isEmpty()) {
@@ -174,33 +155,25 @@ public class LoadToTable implements NativeCallableUnit {
                 final BStructType.StructField internalStructField = internalStructFields[i];
                 final int type = internalStructField.getFieldType().getTag();
                 switch (type) {
-                case TypeTags.INT_TAG:
-                    struct.setIntField(++longRegIndex, Long.parseLong(value));
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    struct.setFloatField(++doubleRegIndex, Double.parseDouble(value));
-                    break;
-                case TypeTags.STRING_TAG:
-                    struct.setStringField(++stringRegIndex, value);
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    struct.setBooleanField(++booleanRegIndex, (Boolean.parseBoolean(value)) ? 1 : 0);
-                    break;
-                default:
-                    throw new BallerinaIOException("Type casting support only for int, float, boolean and string. "
-                            + "Invalid value for the struct field: " + value);
+                    case TypeTags.INT_TAG:
+                        struct.setIntField(++longRegIndex, Long.parseLong(value));
+                        break;
+                    case TypeTags.FLOAT_TAG:
+                        struct.setFloatField(++doubleRegIndex, Double.parseDouble(value));
+                        break;
+                    case TypeTags.STRING_TAG:
+                        struct.setStringField(++stringRegIndex, value);
+                        break;
+                    case TypeTags.BOOLEAN_TAG:
+                        struct.setBooleanField(++booleanRegIndex, (Boolean.parseBoolean(value)) ? 1 : 0);
+                        break;
+                    default:
+                        throw new BallerinaIOException("Type casting support only for int, float, boolean and string. "
+                                + "Invalid value for the struct field: " + value);
                 }
             }
         }
         return struct;
     }
 
-    private DelimitedRecordChannel getDelimitedRecordChannel(Context context, FileChannel sourceChannel) {
-        final String recordSeparator = context.getStringArgument(1);
-        final String fieldSeparator = context.getStringArgument(2);
-        final String encoding = context.getStringArgument(3);
-        FileIOChannel fileIOChannel = new FileIOChannel(sourceChannel);
-        CharacterChannel characterChannel = new CharacterChannel(fileIOChannel, Charset.forName(encoding).name());
-        return new DelimitedRecordChannel(characterChannel, recordSeparator, fieldSeparator);
-    }
 }

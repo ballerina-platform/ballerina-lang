@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 /**
  * Advanced worker related tests.
  */
+@Test
 public class NotSoBasicWorkerTest {
 
     private CompileResult result;
@@ -164,22 +165,13 @@ public class NotSoBasicWorkerTest {
         Assert.assertEquals(vals[0].stringValue(), "W1: data1, W2: data2");
     }
 
-    @Test(enabled = false)
-    public void testWorkerStackCreation() {
-        BValue[] values = BRunUtil.invoke(result, "testWorkerStackCreation", new BValue[0]);
-        Assert.assertEquals(values.length, 1);
-        Assert.assertEquals(((BInteger) values[0]).intValue(), 1);
-    }
-
-//    @Test
+    @Test
     public void testForkJoinWorkersWithNonBlockingConnector() {
         CompileResult result = BCompileUtil.compile("test-src/workers/fork-join-blocking.bal");
         BValue[] vals = BRunUtil.invoke(result, "testForkJoin", new BValue[0]);
         Assert.assertEquals(vals.length, 2);
-        Assert.assertEquals(((BInteger) vals[0]).intValue(), 0);
-        Assert.assertTrue(((BInteger) vals[1]).intValue() > 0);
-        //ctx.await(20);
-        Assert.assertEquals(result.getProgFile().getGlobalMemoryBlock().getIntField(0), 10);
+        Assert.assertEquals(((BInteger) vals[0]).intValue(), 200);
+        Assert.assertEquals(((BInteger) vals[1]).intValue(), 100);
     }
 
     @Test
@@ -187,7 +179,8 @@ public class NotSoBasicWorkerTest {
         CompileResult result = BCompileUtil.compile("test-src/workers/void-function-workers.bal");
         BValue[] vals = BRunUtil.invoke(result, "testVoidFunction", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
-        Assert.assertEquals(((BInteger) vals[0]).intValue(), 5);
-        Assert.assertEquals(result.getProgFile().getGlobalMemoryBlock().getIntField(0), 10);
+        Assert.assertEquals(((BInteger) vals[0]).intValue(), 10);
+        int pkgIndex = result.getProgFile().getEntryPackage().pkgIndex;
+        Assert.assertEquals(result.getProgFile().globalMemArea.getIntField(pkgIndex, 0), 10);
     }
 }

@@ -29,9 +29,7 @@ import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_actionDefinition;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_annotationDefinition;
-import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_connectorDefinition;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_constantDefinition;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_endpointDeclaration;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_enumDefinition;
@@ -82,10 +80,6 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
         switch (elType.getRuleIndex()) {
             case RULE_functionDefinition:
                 return "Function";
-            case RULE_connectorDefinition:
-                return "Connector";
-            case RULE_actionDefinition:
-                return "Action";
             case RULE_serviceDefinition:
                 return "Service";
             case RULE_variableDefinitionStatement:

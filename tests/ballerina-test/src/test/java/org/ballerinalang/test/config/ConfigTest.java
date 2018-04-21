@@ -23,6 +23,8 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
@@ -118,12 +120,12 @@ public class ConfigTest {
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString || returnVals[0] == null);
-//        Assert.assertNull(returnVals[0].stringValue());
+        Assert.assertEquals(returnVals[0].stringValue(), "");
     }
 
     @Test(description = "test instance method with runtime and custom config file properties")
     public void testGetInstanceValuesWithRuntime() throws IOException {
-        BString key = new BString("http1.ballerina.http.port");
+        BString key = new BString("http1.port");
         BValue[] inputArg = {key};
 
         registry.initRegistry(getRuntimeProperties(), customConfigFilePath, ballerinaConfPath);
@@ -138,7 +140,7 @@ public class ConfigTest {
 
     @Test(description = "test instance method with default config file properties")
     public void testGetInstanceValuesWithDefaultConfigFile() throws IOException {
-        BString key = new BString("http1.ballerina.http.port");
+        BString key = new BString("http1.port");
         BValue[] inputArg = {key};
 
         registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
@@ -153,7 +155,7 @@ public class ConfigTest {
 
     @Test(description = "test instance method with runtime, custom and default config file properties")
     public void testGetInstanceValuesWithAllProperties() throws IOException {
-        BString key = new BString("http1.ballerina.http.port");
+        BString key = new BString("http1.port");
         BValue[] inputArg = {key};
 
         registry.initRegistry(getRuntimeProperties(), customConfigFilePath, ballerinaConfPath);
@@ -181,7 +183,7 @@ public class ConfigTest {
 
     @Test(description = "Test config entries with trailing whitespaces")
     public void testEntriesWithTrailingWhitespace() throws IOException {
-        BString key = new BString("http3.ballerina.http.port");
+        BString key = new BString("http3.port");
         BValue[] inputArg = {key};
 
         registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
@@ -205,7 +207,7 @@ public class ConfigTest {
         BRunUtil.invoke(compileResult, "testSetConfig", inputArgs);
 
         // The config we set in Ballerina code should overwrite the configs set from other sources
-        Assert.assertEquals(registry.getConfiguration(key.stringValue()), value.stringValue());
+        Assert.assertEquals(registry.getAsString(key.stringValue()), value.stringValue());
     }
 
     @Test(description = "Test contains() method")
@@ -220,7 +222,7 @@ public class ConfigTest {
         Assert.assertTrue(((BBoolean) returnVals[0]).booleanValue());
     }
 
-    @Test(description = "Test for configuring a service", enabled = false)
+    @Test(description = "Test for configuring a service")
     public void testConfiguringAService() throws IOException {
         registry.initRegistry(null, Paths.get(resourceRoot, "datafiles", "config", "service-config.conf").toString(),
                               null);
@@ -234,10 +236,101 @@ public class ConfigTest {
         Assert.assertNotNull(responseMsg);
     }
 
+    @Test(description = "Test for getAsInt")
+    public void testGetAsInt() throws IOException {
+        BString key = new BString("http1.port");
+        BValue[] inputArg = {key};
+
+        registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
+
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsInt", inputArg);
+
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                           "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returnVals[0]).intValue(), (long) 8085);
+    }
+
+    @Test(description = "Test for getAsFloat")
+    public void testGetAsFloat() throws IOException {
+        BString key = new BString("http1.eviction_factor");
+        BValue[] inputArg = {key};
+
+        registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
+
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsFloat", inputArg);
+
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                           "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BFloat);
+        Assert.assertEquals(((BFloat) returnVals[0]).floatValue(), (double) 0.3455);
+    }
+
+    @Test(description = "Test for getting an int as a float")
+    public void testGetIntAsFloat() throws IOException {
+        BString key = new BString("http1.request_limit");
+        BValue[] inputArg = {key};
+
+        registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
+
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsFloat", inputArg);
+
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                           "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BFloat);
+        Assert.assertEquals(((BFloat) returnVals[0]).floatValue(), 50.0D);
+    }
+
+    @Test(description = "Test for getAsBoolean")
+    public void testGetAsBoolean() throws IOException {
+        BString key = new BString("http1.caching_enabled");
+        BValue[] inputArg = {key};
+
+        registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
+
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsBoolean", inputArg);
+
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                           "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returnVals[0]).booleanValue());
+    }
+
+    @Test(description = "Test for non-string types as CLI params")
+    public void testNonStringCLIParams() throws IOException {
+        Map<String, String> runtimeParams = new HashMap<>();
+        runtimeParams.put("host", "localhost");
+        runtimeParams.put("port", "7777");
+        runtimeParams.put("trace.enabled", "true");
+        runtimeParams.put("evic_factor", "0.23333");
+
+        registry.initRegistry(runtimeParams, null, null);
+
+        BValue[] inputArg = {new BString("host")};
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsString", inputArg);
+        Assert.assertTrue(returnVals[0] instanceof BString);
+        Assert.assertEquals(returnVals[0].stringValue(), "localhost");
+
+        inputArg = new BValue[]{new BString("port")};
+        returnVals = BRunUtil.invoke(compileResult, "testGetAsInt", inputArg);
+        Assert.assertTrue(returnVals[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returnVals[0]).intValue(), 7777);
+
+        inputArg = new BValue[]{new BString("trace.enabled")};
+        returnVals = BRunUtil.invoke(compileResult, "testGetAsBoolean", inputArg);
+        Assert.assertTrue(returnVals[0] instanceof BBoolean);
+        Assert.assertEquals(((BBoolean) returnVals[0]).booleanValue(), true);
+
+        inputArg = new BValue[]{new BString("evic_factor")};
+        returnVals = BRunUtil.invoke(compileResult, "testGetAsFloat", inputArg);
+        Assert.assertTrue(returnVals[0] instanceof BFloat);
+        Assert.assertEquals(((BFloat) returnVals[0]).floatValue(), 0.23333);
+    }
+
     private Map<String, String> getRuntimeProperties() {
         Map<String, String> runtimeConfigs = new HashMap<>();
         runtimeConfigs.put("ballerina.http.host", "10.100.1.201");
-        runtimeConfigs.put("http1.ballerina.http.port", "8082");
+        runtimeConfigs.put("http1.port", "8082");
         return runtimeConfigs;
     }
 }

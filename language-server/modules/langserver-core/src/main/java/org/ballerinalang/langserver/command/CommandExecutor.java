@@ -16,13 +16,14 @@
 package org.ballerinalang.langserver.command;
 
 import com.google.gson.internal.LinkedTreeMap;
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceUtil;
-import org.ballerinalang.langserver.WorkspaceServiceContext;
-import org.ballerinalang.langserver.common.LSCustomErrorStrategy;
+import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.model.tree.Node;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
@@ -67,16 +68,17 @@ public class CommandExecutor {
      * @param params    Parameters for the command
      * @param context   Workspace service context
      */
-    public static void executeCommand(ExecuteCommandParams params, WorkspaceServiceContext context) {
+    public static void executeCommand(ExecuteCommandParams params, LSServiceOperationContext context,
+                                      LSGlobalContext lsGlobalContext) {
         switch (params.getCommand()) {
             case CommandConstants.CMD_IMPORT_PACKAGE:
-                executeImportPackage(context);
+                executeImportPackage(context, lsGlobalContext);
                 break;
             case CommandConstants.CMD_ADD_DOCUMENTATION:
-                executeAddDocumentation(context);
+                executeAddDocumentation(context, lsGlobalContext);
                 break;
             case CommandConstants.CMD_ADD_ALL_DOC:
-                executeAddAllDocumentation(context);
+                executeAddAllDocumentation(context, lsGlobalContext);
                 break;
             default:
                 // Do Nothing
@@ -88,7 +90,7 @@ public class CommandExecutor {
      * Execute the command, import package.
      * @param context   Workspace service context
      */
-    private static void executeImportPackage(WorkspaceServiceContext context) {
+    private static void executeImportPackage(LSServiceOperationContext context, LSGlobalContext lsGlobalContext) {
         String documentUri = null;
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
         
@@ -109,9 +111,9 @@ public class CommandExecutor {
             int totalLines = contentComponents.length;
             int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf("\n"), fileContent.lastIndexOf("\r"));
             int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
-            BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(context,
-                    context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false,
-                    LSCustomErrorStrategy.class, false).get(0);
+            BLangPackage bLangPackage = LSCompiler.getBLangPackage(context,
+                                                                   context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY),
+                                                                   false, LSCustomErrorStrategy.class, false).get(0);
             context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                     bLangPackage.symbol.getName().getValue());
             String pkgName = context.get(ExecuteCommandKeys.PKG_NAME_KEY);
@@ -125,8 +127,6 @@ public class CommandExecutor {
             if (!imports.isEmpty()) {
                 BLangImportPackage lastImport = bLangPackage.getImports().get(bLangPackage.getImports().size() - 1);
                 pos = lastImport.getPosition();
-            } else if (imports.isEmpty() && bLangPackage.getPackageDeclaration() != null) {
-                pos = (DiagnosticPos) bLangPackage.getPackageDeclaration().getPosition();
             } else {
                 pos = null;
             }
@@ -158,7 +158,7 @@ public class CommandExecutor {
      * Execute the add documentation command.
      * @param context   Workspace service context
      */
-    private static void executeAddDocumentation(WorkspaceServiceContext context) {
+    private static void executeAddDocumentation(LSServiceOperationContext context, LSGlobalContext lsGlobalContext) {
         String topLevelNodeType = "";
         String documentUri = "";
         int line = 0;
@@ -175,9 +175,8 @@ public class CommandExecutor {
             }
         }
 
-        BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(context,
-                context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false,
-                LSCustomErrorStrategy.class, false).get(0);
+        BLangPackage bLangPackage = LSCompiler.getBLangPackage(context,
+                context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class, false).get(0);
 
         CommandUtil.DocAttachmentInfo docAttachmentInfo = getDocumentEditForNodeByPosition(topLevelNodeType,
                 bLangPackage, line);
@@ -201,7 +200,8 @@ public class CommandExecutor {
      * Generate workspace edit for generating doc comments for all top level nodes and resources.
      * @param context   Workspace Service Context
      */
-    private static void executeAddAllDocumentation(WorkspaceServiceContext context) {
+    private static void executeAddAllDocumentation(LSServiceOperationContext context,
+                                                   LSGlobalContext lsGlobalContext) {
         String documentUri = "";
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
 
@@ -212,9 +212,9 @@ public class CommandExecutor {
                 context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
             }
         }
-
-        BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(context,
-                context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class, false).get(0);
+        BLangPackage bLangPackage = LSCompiler.getBLangPackage(context,
+                context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class,
+                                                                            false).get(0);
 
         String fileContent = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY)
                 .getFileContent(Paths.get(URI.create(documentUri)));

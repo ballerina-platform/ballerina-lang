@@ -22,6 +22,11 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * {@code {@link BFunctionPointer}} represents a function pointer reference value in Ballerina.
  *
@@ -31,6 +36,12 @@ public class BFunctionPointer implements BRefType<FunctionRefCPEntry> {
 
     FunctionRefCPEntry funcRefCPEntry;
 
+    //container which keeps the closure variables values
+    private List<BClosure> closureVars = new ArrayList<>();
+
+    //map which keeps tracks of additional index count needed for closure vars
+    private Map<Integer, Integer> additionalIndexes = new HashMap<>();
+
     public BFunctionPointer(FunctionRefCPEntry funcRefCPEntryIndex) {
         this.funcRefCPEntry = funcRefCPEntryIndex;
     }
@@ -38,6 +49,22 @@ public class BFunctionPointer implements BRefType<FunctionRefCPEntry> {
     @Override
     public FunctionRefCPEntry value() {
         return funcRefCPEntry;
+    }
+
+    public List<BClosure> getClosureVars() {
+        return closureVars;
+    }
+
+    public void addClosureVar(BClosure closure, int tag) {
+        if (closureVars.contains(closure)) {
+            return;
+        }
+        closureVars.add(closure);
+        additionalIndexes.merge(tag, 1, Integer::sum);
+    }
+
+    public Integer getAdditionalIndexCount(int type) {
+        return additionalIndexes.getOrDefault(type, 0);
     }
 
     @Override

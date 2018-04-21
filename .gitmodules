@@ -1,3 +1,6 @@
 [submodule "adaptor"]
 	path = tool-plugins/intellij/adaptor
 	url = https://github.com/antlr/jetbrains.git
+[submodule "tool-plugins/vscode/plugin/ballerina-grammar"]
+	path = tool-plugins/vscode/plugin/ballerina-grammar
+	url = https://github.com/ballerina-platform/ballerina-grammar

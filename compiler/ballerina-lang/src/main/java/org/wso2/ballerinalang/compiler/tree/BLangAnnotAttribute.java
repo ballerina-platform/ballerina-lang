@@ -114,7 +114,7 @@ public class BLangAnnotAttribute extends BLangNode implements AnnotationAttribut
 
     @Override
     public String toString() {
-        return "BLangAnnotAttribute: " + (this.getFlags().contains(Flag.CONST) ? "const " : "") +
+        return "BLangAnnotAttribute: " + (this.getFlags().contains(Flag.FINAL) ? "const " : "") +
                 (this.name != null ? this.name : "") + "[" + this.typeNode + "]" +
                 (this.expr != null ? " = " + this.expr : "");
     }

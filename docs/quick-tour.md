@@ -1,31 +1,35 @@
 # Quick Tour
 
-Now that you know [a little bit about Ballerina](index.md), let's take it for a spin! 
+Now that you know a little bit [about Ballerina](https://ballerinalang.org/), let's take it for a spin! 
+
+These are the available sections in this tour.
+
+- [Install Ballerina](#install-ballerina)
+- [Run HelloWorld](#run-helloworld)
+- [Set up the Editor](#set-up-the-editor)
+- [Write and Call an Integration Service](#write-and-call-an-integration-service)
+- [Deploying on Kubernetes](#deploying-on-kubernetes)
+- [Run the Composer](#run-the-composer)
 
 ## Install Ballerina
 
 1. Go to [http://www.ballerinalang.org](http://www.ballerinalang.org) and click **Download**. 
-1. Download the Ballerina Tools distribution and unzip it on your computer. Ballerina Tools includes the Ballerina runtime plus the visual editor (Composer) and other tools. 
-1. Add the `<ballerina_home>/bin` directory to your $PATH environment variable so that you can run the Ballerina commands from anywhere. 
+1. Download Ballerina for your OS and follow the instructions given to set it up. 
 
->NOTE: Throughout this documentation, `<ballerina_home>` refers to the Ballerina directory you just installed. 
+> NOTE: Throughout this documentation, `<ballerina_home>` refers to the Ballerina directory you just installed. 
 
 ## Run HelloWorld
 
-The HelloWorld sample will show you how easy it is to run Ballerina, send it a request, and get a response. 
+Let's get started with a simple Hello World program in Ballerina. Create a file called `hello-world.bal` and copy the following code into it.
 
-Let's take a look at what the code looks like in the Ballerina programming language:
-
-```
+```Ballerina
 import ballerina.io;
 function main (string[] args) {
     io:println("Hello, World!");
 }
 ``` 
 
-The above code doesn't take any specific input, so simply running it will cause it to print "Hello, World!" at the command line. To run this, copy the above code into a hello-world.bal file.
-
-At the command prompt, navigate to the directory that contains the hello-world.bal file and enter the following line:
+At the command line, navigate to the directory that contains the hello-world.bal file and enter the following command.
 
 ```
 $ ballerina run hello-world.bal
@@ -37,71 +41,194 @@ You will see the following response:
 Hello, World!
 ```
 
-You just started Ballerina, ran a simple code, and got a response within seconds. 
+You just started Ballerina, ran a simple code, and got a response within seconds.
 
-Pretty simple and straightforward, right? Now, let's look at something a little more interesting: the Composer.
+## Set up the Editor
 
-## Why Ballerina Composer
+To run this, copy the above code into a hello-world.bal file. Let's try this on VS Code.
 
-The Ballerina Composer provides a flexible and powerful browser-based tool for creating your Ballerina programs. This is a revolutionary way of doing programming for integration due to its use of sequence diagrams, enabling you to architecturally generate your code while designing your solution. The Ballerina Composer sets Ballerina apart from other integration paradigms due to its unique visual representation.
+```
+code hello-world.bal
+```
 
-You can build your integrations by creating sequence diagrams, dragging elements from a tool palette onto a canvas. As you build the diagrams, the underlying code is written for you, which you can work with in the Source view. You can also use the Swagger view to define services by writing Swagger definitions. You can switch seamlessly between the Design view, Source view, and Swagger view and create your programs in the way that you like to work.
+Now your file is created and you can add your code inside it. You can find a plugin for Ballerina in the VS Code marketplace. This helps read the `.bal` file using an ideal theme.  
+
+Check if annotations work by entering some text and seeing proposed suggestions.
+
+![VS Code Annotations](images/vscode_annotations.png)
+
+You can use your [favourite editor to work on Ballerina code](tools-ides-ballerina-composer.md).
+
+Now, let's look at running the same Hello World program you created earlier as a service.
+
+## Write and Call an Integration Service
+
+Let's change the Hello World program to a service. Open the `hello-world.bal` file you created and replace the existing code with the following.
+
+```Ballerina
+import ballerina/http;
+import ballerina/io;
+
+// A service endpoint listens to HTTP request on port 9090
+endpoint http:Listener listener {
+    port:9090
+};
+
+// A service is a network-accessible API
+// Advertised on '/hello', the port comes from the listener endpoint
+service<http:Service> hello bind listener {
+
+    // A resource is an invokable API method
+    // Accessible on '/hello/sayHello
+    // 'caller' is the client invoking this resource 
+    sayHello (endpoint caller, http:Request request) {
+        http:Response response = {};
+        // A response is what you receive back from the service
+        // Set the response payload
+        response.setStringPayload("Hello Ballerina!\n");
+        // Send a response back to caller
+        // Errors that could occur are ignored using '_'
+        _ = caller -> respond(response);
+    }
+}
+```
+
+You can run the service by using the same run command you used to run the program earlier.
+
+```
+$ ballerina run hello-world.bal
+```
+
+You will see the following response.
+
+```
+ballerina: deploying service(s) in 'hello-world.bal'
+ballerina: started HTTP/WS server connector 0.0.0.0:9090
+```
+
+This means your service is up and running. You can call the service by opening a new command line window and using the following cURL command.
+
+```
+curl http://localhost:9090/hello/sayHello
+```
+
+You get the following response.
+
+```
+Hello Ballerina!
+```
+
+## Deploying on Kubernetes
+
+Now that your service is created, you can deploy this on Kubernetes. 
+
+> TIP: This was tested on the community edition version of Docker Edge with Kubernetes enabled and running in the background. Docker Edge comes with the option of enabling Kubernetes under Docker preferences.
+
+First, as usual add the corresponding package:
+
+```
+import ballerinax/kubernetes;
+```
+
+Now, let’s add the code you need to run the service in Kubernetes.
+
+```
+// Kubernetes configurations
+// This is the Kubernetes service annotation added to our listener 
+// This tells us that we want to expose it from Kubernetes 
+// The type is NodePort under the name of hello-world:
+
+@kubernetes:SVC{
+   serviceType:"NodePort",
+   name:"hello-world"
+}
+endpoint http:Listener listener {
+  port:9090
+};
+
+
+// This creates a docker image and a deployment into which it puts it.
+
+@kubernetes:Deployment {
+   image: "hello/hello-world",
+   name: "hello-world"
+}
+```
+
+That's it - let’s go ahead and build it.
+
+```
+$ ballerina build hello-world.bal
+```
+
+Once you build it, you get the following response. This means the service is successfully deployed in Kubernetes.
+
+```
+@docker                                  - complete 3/3
+@kubernetes:Deployment                   - complete 1/1
+@kubernetes:Service                      - complete 1/1
+```
+
+Run the following command to deploy Kubernetes artifacts:
+
+```
+kubectl apply -f /Users/Sam/Documents/Micropatch/Ballerina/QuickTour/KubTest/kubernetes/
+```
+
+This creates a folder called kubernetes and puts the deployment artifacts and the docker image inside it.
+
+```
+$ docker images |grep demo
+```
+
+```
+demo/ballerina-demo                            latest     7bb8a49ef708        38 seconds ago      120MB
+```
+
+You can now deploy it to Kubernetes using the following command.
+
+```
+$ kubectl apply -f kubernetes
+```
+
+You see the following on your console.
+
+```
+deployment "ballerina-demo" created
+service "ballerina-demo" created
+```
+
+Let’s see if it is running:
+
+```
+$ kubectl get svc
+```
+This results in output similar to the following. Make note of the port number that Kubernetes provides (31977 in this case).
+
+```
+NAME             TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)  AGE
+ballerina-demo   NodePort    10.98.238.0   <none>        9090:31977/TCP  24s
+kubernetes       ClusterIP   10.96.0.1     <none>        443/TCP  2d
+```
+
+We can now invoke the service. This example is done using local Kubernetes but the same behavior would happen in the cloud. Using the port number that Kubernetes gave us, run the following cURL command.
+
+```
+$ curl -X POST  http://localhost:31977/demo
+```
+
+You get the output from Kubernetes itself.
+
+```
+Hello World!
+```
 
 ## Run the Composer
 
-1. At the command prompt, type `composer`.
+1. In the command line, type `composer`.
 
 1. Access the Composer from the following URL in your browser: http://localhost:9091
 
     The welcome page of Ballerina Composer appears. 
-    
     ![alt text](images/ComposerNew1.png "Welcome page")
     
-Let's open a sample and take a look around. 
-
-## Explore the Ballerina Composer
-
-Once you have accessed the composer, you can have a look around using the available samples in the welcome page of the Ballerina Composer.
-
-1. Click **Echo Service**.
-
-    The Echo Service program displays in the Composer.
-    
-    ![alt text](images/echoServiceNew1.png "Echo Service program")
-
-    Notice that on the top you have an add button containing the various constructs that you'll use to build your integration. When you select a construct it is drawn in the canvas. This is where you build your sequence diagrams that define your integration logic.
-        
-    ![alt text](images/ConstructsNew1.png "Constructs")
-    
-    Some constructs have a **life line** of execution where you program the statements to be executed. This defines the flow of execution. The life line is represented by a vertical line in the default program or any other construct of the **echoService**.
-    
-    ![alt text](images/LifelineNew1.png "Ballerina construct life line")
-    
-    There are packages called **Connectors** and **Libraries** that are available to be used by your Ballerina program. By default, the Composer imports few commonly used packages to this section. If you add an import to a different package, it is added to this section. Click on the plus icon on the right of the diagram and select Endpoint to see the list of connectors.
-    
-    ![alt text](images/Connectors.png "Ballerina connectors and libraries")
-
-    Notice the **Source View** button and the **Split View** button in the lower right corner. Also note the **Swagger Source** button associated with the service.
-    
-    ![alt text](images/SourceSwaggerButtons1.png "Source and Swagger buttons")
-   
-2. Click **Source View**. 
-
-    ![alt text](images/EchoSourceNew1.png "Source view")
-
-    You'll see the source code editor that represents the sequence diagram as code in the Ballerina language. You can go back and forth between the visual editor and the source code and make your edits in either place. This can be done by clicking **Design View** in the lower right corner.
-
-3. Click **Swagger View**. 
-
-    ![alt text](images/EchoSwaggerNew1.png "Swagger view")
-
-    If your Ballerina program contains services and resources, you can view the generated Swagger definition for your program by switching to the Swagger view. This editor allows you to write Swagger definitions to create services. All the changes made on the Swagger definition will reflect on the Ballerina program when you switch back to Source or Design view.
-
-4. Click **Design View** to return to the visual editor. If you happen to write the source code completely in the source view, when you switch to Design view, the Visual representation is created.
-
-5. You can run your program from the Composer itself. Click the **Run** button on the left of the Composer and choose whether you want to run your program as an **Application** or a **Service**. You can stop the application by clicking **Stop Application**.
-
-    ![alt text](images/BallerinaRunNew1.png "Run application")
-
-6. Click the "x" to the right of "echoService.bal" in the tab title to close this sample, and click **Don't Save** when prompted.
-

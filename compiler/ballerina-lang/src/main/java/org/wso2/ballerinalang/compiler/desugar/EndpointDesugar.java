@@ -17,14 +17,16 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.OperatorKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.EndpointSPIAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -36,8 +38,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -65,6 +67,7 @@ public class EndpointDesugar {
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private final Names names;
+    private final EndpointSPIAnalyzer endpointSPIAnalyzer;
 
     public static EndpointDesugar getInstance(CompilerContext context) {
         EndpointDesugar endpointDesugar = context.get(ENDPOINT_DESUGAR_KEY);
@@ -79,6 +82,7 @@ public class EndpointDesugar {
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.names = Names.getInstance(context);
+        this.endpointSPIAnalyzer = EndpointSPIAnalyzer.getInstance(context);
     }
 
     void rewriteAllEndpointsInPkg(BLangPackage pkgNode, SymbolEnv env) {
@@ -99,6 +103,16 @@ public class EndpointDesugar {
                 resourceNode.endpoints.forEach(endpoint -> rewriteEndpoint(endpoint, resourceEnv));
             });
         });
+    }
+
+    void rewriteAnonymousEndpointsInPkg(BLangPackage pkgNode, SymbolEnv pkgEnv) {
+        pkgNode.services.forEach(service -> rewriteAnonymousEndpointInService(service, pkgEnv));
+    }
+
+    void rewriteAnonymousEndpointInService(BLangService service, SymbolEnv pkgEnv) {
+        if (service.anonymousEndpointBind != null) {
+            defineGlobalAnonymousEndpoint(service, pkgEnv);
+        }
     }
 
     void rewriteServiceBoundToEndpointInPkg(BLangPackage pkgNode, SymbolEnv pkgEnv) {
@@ -125,6 +139,30 @@ public class EndpointDesugar {
         epVariable.symbol = (BVarSymbol) symResolver.lookupMemberSymbol(ep.pos, env.enclPkg.symbol.scope, env,
                 names.fromIdNode(ep.name), SymTag.VARIABLE);
         env.enclPkg.globalVars.add(epVariable);
+    }
+
+    void defineGlobalAnonymousEndpoint(BLangService service, SymbolEnv env) {
+        BLangEndpoint ep = (BLangEndpoint) TreeBuilder.createEndpointNode();
+        final BLangRecordLiteral anonymousEndpointBind = service.anonymousEndpointBind;
+        ep.pos = anonymousEndpointBind.pos;
+        ep.configurationExpr = anonymousEndpointBind;
+        ep.name = ASTBuilderUtil.createIdentifier(anonymousEndpointBind.pos, service.name.value + "$Endpoint");
+        ep.type = service.endpointType;
+
+        BEndpointVarSymbol varSymbol = new BEndpointVarSymbol(0, names.fromIdNode(ep.name),
+                env.enclPkg.symbol.pkgID, service.endpointType, env.enclPkg.symbol);
+        if (service.endpointType.tsymbol.kind == SymbolKind.OBJECT
+                || service.endpointType.tsymbol.kind == SymbolKind.RECORD) {
+            endpointSPIAnalyzer.populateEndpointSymbol((BStructSymbol) service.endpointType.tsymbol, varSymbol);
+        }
+        ep.symbol = varSymbol;
+        env.enclPkg.symbol.scope.define(varSymbol.name, varSymbol);
+
+        final BLangVariable epVariable = ASTBuilderUtil.createVariable(ep.pos, ep.name.value, ep.symbol.type);
+        epVariable.symbol = varSymbol;
+        env.enclPkg.globalEndpoints.add(ep);
+        service.boundEndpoints.add(ASTBuilderUtil.createVariableRef(anonymousEndpointBind.pos, varSymbol));
+        ((BServiceSymbol) service.symbol).boundEndpoints.add(varSymbol);
     }
 
     void rewriteEndpoint(BLangEndpoint endpoint, SymbolEnv env) {
@@ -211,7 +249,7 @@ public class EndpointDesugar {
                 env.enclService.vars.add(epVarDef);
             }
             final BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(pos, temp);
-            assignmentStmt.varRefs.add(ASTBuilderUtil.createVariableRef(pos, epVariable.symbol));
+            assignmentStmt.varRef = ASTBuilderUtil.createVariableRef(pos, epVariable.symbol);
             assignmentStmt.expr = newExpr;
         }
         return temp;
@@ -305,11 +343,7 @@ public class EndpointDesugar {
         serviceTypeDef.var = ASTBuilderUtil.createVariable(pos, service.name + "type", symTable.typeDesc);
         ASTBuilderUtil.defineVariable(serviceTypeDef.var, varEncSymbol, names);
 
-        final BLangUnaryExpr typeOfExpr = ASTBuilderUtil.createUnaryExpr(pos);
-        serviceTypeDef.var.expr = typeOfExpr;
-        typeOfExpr.operator = OperatorKind.TYPEOF;
-        typeOfExpr.expr = getTypeAccessExpression(pos, service.symbol.type);
-        typeOfExpr.type = symTable.typeDesc;
+        serviceTypeDef.var.expr = getTypeAccessExpression(pos, service.symbol.type);
 
         List<BLangVariable> args = Lists.of(serviceTypeDef.var);
         if (endpoint.registerFunction != null && endpoint.registerFunction.params.size() == 2) {
@@ -326,9 +360,9 @@ public class EndpointDesugar {
         return temp;
     }
 
-    private BLangTypeofExpr getTypeAccessExpression(DiagnosticPos pos,
-                                                    BType serviceType) {
-        BLangTypeofExpr typeAccessExpr = (BLangTypeofExpr) TreeBuilder.createTypeAccessNode();
+    private BLangTypedescExpr getTypeAccessExpression(DiagnosticPos pos,
+                                                      BType serviceType) {
+        BLangTypedescExpr typeAccessExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode();
         typeAccessExpr.pos = pos;
         typeAccessExpr.resolvedType = serviceType;
         typeAccessExpr.type = symTable.typeDesc;

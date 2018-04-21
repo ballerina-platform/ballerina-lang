@@ -74,7 +74,7 @@ function testElementLiteralWithTemplateChildren() returns (xml, xml) {
     xml x2 = xml `<lname>Doe</lname>`;
     
     xml x3 = xml `<root>hello {{v2}} good morning {{x1}} {{x2}}. Have a nice day!<foo>123</foo><bar></bar></root>`;
-    xml x4 = x3.children();
+    xml x4 = x3.*;
     return (x3, x4);
 }
 

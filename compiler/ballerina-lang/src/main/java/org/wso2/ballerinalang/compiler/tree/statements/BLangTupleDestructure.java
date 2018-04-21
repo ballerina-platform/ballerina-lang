@@ -17,26 +17,58 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.statements.TupleDestructureStatementNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
+import org.ballerinalang.model.tree.statements.TupleDestructureNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implementation of {@link TupleDestructureStatementNode}
+ * Implementation of {@link TupleDestructureNode}
  *
  * @since 0.966.0
  */
-public class BLangTupleDestructure extends BLangAssignment implements TupleDestructureStatementNode {
+public class BLangTupleDestructure extends BLangStatement implements TupleDestructureNode {
+    public List<BLangExpression> varRefs;
+    public BLangExpression expr;
+    public boolean declaredWithVar;
 
-    public List<BConversionOperatorSymbol> convOperatorSymbols = new ArrayList<>();
+    public BLangTupleDestructure() {
+        this.varRefs = new ArrayList<>();
+    }
 
     @Override
     public List<BLangExpression> getVariableRefs() {
         return this.varRefs;
+    }
+
+    @Override
+    public void addVariableRef(VariableReferenceNode variableReferenceNode) {
+        varRefs.add((BLangVariableReference) variableReferenceNode);
+    }
+
+    @Override
+    public BLangExpression getExpression() {
+        return expr;
+    }
+
+    @Override
+    public void setExpression(ExpressionNode expression) {
+        this.expr = (BLangExpression) expression;
+    }
+
+    @Override
+    public boolean isDeclaredWithVar() {
+        return this.declaredWithVar;
+    }
+
+    @Override
+    public void setDeclaredWithVar(boolean isDeclaredWithVar) {
+        this.declaredWithVar = isDeclaredWithVar;
     }
 
     @Override

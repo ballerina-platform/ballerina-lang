@@ -32,14 +32,14 @@ public class ReturnStmtNegativeTest {
     public void testReturnInResource() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/return-in-resource.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "return value is not expected", 3, 9);
+        BAssertUtil.validateError(result, 0, "return statement is not allowed inside a resource", 3, 9);
     }
 
     @Test(description = "Test not enough arguments to return")
     public void testNotEnoughArgsToReturn1() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/not-enough-args-to-return-1.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "not enough return values", 2, 5);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected '(int,int)', found '()'", 2, 5);
     }
 
     @Test(description = "Test not enough arguments to return")
@@ -53,14 +53,18 @@ public class ReturnStmtNegativeTest {
     public void testNotEnoughArgsToReturn3() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/not-enough-args-to-return-3.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "single value return is expected", 2, 5);
+        BAssertUtil.validateError(result, 0,
+                "mismatched input ','. expecting {'but', ';', '.', '[', '?', '+', '-', '*', '/', '^', '%', '!', " +
+                "'==', '!=', '>', '<', '>=', '<=', '&&', '||', '@', '?:'}", 2, 20);
     }
 
     @Test(description = "Test too many arguments to return")
     public void testTooManyArgsToReturn1() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/too-many-args-to-return-1.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "single value return is expected", 2, 5);
+        BAssertUtil.validateError(result, 0,
+                "mismatched input ','. expecting {'but', ';', '.', '[', '?', '+', '-', '*', '/', '^', '%', '!', " +
+                "'==', '!=', '>', '<', '>=', '<=', '&&', '||', '@', '?:'}", 2, 20);
     }
 
     @Test(description = "Test too many arguments to return")

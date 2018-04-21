@@ -18,6 +18,7 @@
 
 package org.ballerinalang.net.http;
 
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,27 +27,18 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class WebSocketConnectionManager {
 
-    private static final WebSocketConnectionManager CONNECTION_MANAGER = new WebSocketConnectionManager();
-
     // Map <sessionId, WebSocketConnectionStruct>
-    private final Map<String, WebSocketService> wsConnectionsMap = new ConcurrentHashMap<>();
+    private final Map<String, WebSocketOpenConnectionInfo> wsConnectionsMap = new ConcurrentHashMap<>();
 
-    private WebSocketConnectionManager() {
-    }
-
-    public static WebSocketConnectionManager getInstance() {
-        return CONNECTION_MANAGER;
-    }
-
-    public WebSocketService getWebSocketService(String connectionID) {
+    public WebSocketOpenConnectionInfo getConnectionInfo(String connectionID) {
         return wsConnectionsMap.get(connectionID);
     }
 
-    public void addService(String connectionID, WebSocketService wsConnection) {
+    public void addConnection(String connectionID, WebSocketOpenConnectionInfo wsConnection) {
         wsConnectionsMap.put(connectionID, wsConnection);
     }
 
-    public WebSocketService removeConnection(String connectionID) {
+    public WebSocketOpenConnectionInfo removeConnectionInfo(String connectionID) {
         return wsConnectionsMap.remove(connectionID);
     }
 }

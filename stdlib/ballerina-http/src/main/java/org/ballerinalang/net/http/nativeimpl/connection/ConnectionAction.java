@@ -18,15 +18,16 @@
 
 package org.ballerinalang.net.http.nativeimpl.connection;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.http.DataContext;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -34,6 +35,7 @@ import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
+import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -43,63 +45,48 @@ import java.io.OutputStream;
  *
  * @since 0.96
  */
-public abstract class ConnectionAction extends BlockingNativeCallableUnit {
+public abstract class ConnectionAction implements NativeCallableUnit {
 
-    @Override
-    public void execute(Context context) {
-        BStruct connectionStruct = (BStruct) context.getRefArgument(0);
-        HTTPCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionStruct, null);
-        HttpUtil.checkFunctionValidity(connectionStruct, inboundRequestMsg);
-
-        BStruct outboundResponseStruct = (BStruct) context.getRefArgument(1);
-        HTTPCarbonMessage outboundResponseMsg = HttpUtil
-                .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
-
-        HttpUtil.prepareOutboundResponse(context, inboundRequestMsg, outboundResponseMsg, outboundResponseStruct);
-
-        BValue[] outboundResponseStatus = sendOutboundResponseRobust(context, inboundRequestMsg,
-                outboundResponseStruct, outboundResponseMsg);
-        context.setReturnValues(outboundResponseStatus);
-    }
-
-    private BValue[] sendOutboundResponseRobust(Context context, HTTPCarbonMessage requestMessage,
+    protected void sendOutboundResponseRobust(DataContext dataContext, HTTPCarbonMessage requestMessage,
                                                 BStruct outboundResponseStruct, HTTPCarbonMessage responseMessage) {
         String contentType = HttpUtil.getContentTypeFromTransportMessage(responseMessage);
         String boundaryString = null;
         if (HeaderUtil.isMultipart(contentType)) {
             boundaryString = HttpUtil.addBoundaryIfNotExist(responseMessage, contentType);
         }
+
+        HttpMessageDataStreamer outboundMsgDataStreamer = getMessageDataStreamer(responseMessage);
         HttpResponseFuture outboundRespStatusFuture = HttpUtil.sendOutboundResponse(requestMessage, responseMessage);
+        HttpConnectorListener outboundResStatusConnectorListener =
+                new HttpResponseConnectorListener(dataContext, outboundMsgDataStreamer);
+        outboundRespStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
+
+        OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
         BStruct entityStruct = MimeUtil.extractEntity(outboundResponseStruct);
         if (entityStruct != null) {
             if (boundaryString != null) {
-                serializeMultiparts(responseMessage, boundaryString, outboundRespStatusFuture, entityStruct);
+                serializeMultiparts(boundaryString, entityStruct, messageOutputStream);
             } else {
                 MessageDataSource outboundMessageSource = EntityBodyHandler.getMessageDataSource(entityStruct);
-                serializeMsgDataSource(responseMessage, outboundMessageSource, outboundRespStatusFuture, entityStruct);
+                serializeMsgDataSource(outboundMessageSource, entityStruct, messageOutputStream);
             }
         }
-        return handleResponseStatus(context, outboundRespStatusFuture);
     }
 
     /**
-     * Serlaize multipart entity body. If an array of body parts exist, encode body parts else serialize body content
+     * Serialize multipart entity body. If an array of body parts exist, encode body parts else serialize body content
      * if it exist as a byte channel.
      *
-     * @param responseMessage          Response message that needs to be sent out.
      * @param boundaryString           Boundary string that should be used in encoding body parts
-     * @param outboundRespStatusFuture Represent the future events and results of connectors
      * @param entityStruct             Represent the entity that holds the actual body
+     * @param messageOutputStream      Represent the output stream
      */
-    private void serializeMultiparts(HTTPCarbonMessage responseMessage, String boundaryString,
-                                     HttpResponseFuture outboundRespStatusFuture, BStruct entityStruct) {
+    private void serializeMultiparts(String boundaryString, BStruct entityStruct, OutputStream messageOutputStream) {
         BRefValueArray bodyParts = EntityBodyHandler.getBodyPartArray(entityStruct);
         if (bodyParts != null && bodyParts.size() > 0) {
             MultipartDataSource multipartDataSource = new MultipartDataSource(entityStruct, boundaryString);
-            serializeMsgDataSource(responseMessage, multipartDataSource, outboundRespStatusFuture,
-                    entityStruct);
+            serializeMsgDataSource(multipartDataSource, entityStruct, messageOutputStream);
         } else {
-            OutputStream messageOutputStream = getOutputStream(responseMessage, outboundRespStatusFuture);
             try {
                 EntityBodyHandler.writeByteChannelToOutputStream(entityStruct, messageOutputStream);
             } catch (IOException e) {
@@ -111,23 +98,14 @@ public abstract class ConnectionAction extends BlockingNativeCallableUnit {
         }
     }
 
-    protected BValue[] handleResponseStatus(Context context, HttpResponseFuture outboundResponseStatusFuture) {
-        try {
-            outboundResponseStatusFuture = outboundResponseStatusFuture.sync();
-        } catch (InterruptedException e) {
-            throw new BallerinaException("interrupted sync: " + e.getMessage());
-        }
-        Throwable cause = outboundResponseStatusFuture.getStatus().getCause();
-        if (cause != null) {
-            outboundResponseStatusFuture.resetStatus();
-            return new BValue[]{HttpUtil.getHttpConnectorError(context, cause)};
-        }
-        return new BValue[0];
+    protected void setResponseConnectorListener(DataContext dataContext, HttpResponseFuture outResponseStatusFuture) {
+        HttpConnectorListener outboundResStatusConnectorListener =
+                new HttpResponseConnectorListener(dataContext);
+        outResponseStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
     }
 
-    protected void serializeMsgDataSource(HTTPCarbonMessage responseMessage, MessageDataSource outboundMessageSource,
-                                        HttpResponseFuture outboundResponseStatusFuture, BStruct entityStruct) {
-        OutputStream messageOutputStream = getOutputStream(responseMessage, outboundResponseStatusFuture);
+    protected void serializeMsgDataSource(MessageDataSource outboundMessageSource, BStruct entityStruct,
+                                          OutputStream messageOutputStream) {
         try {
             if (outboundMessageSource != null) {
                 outboundMessageSource.serializeData(messageOutputStream);
@@ -141,32 +119,55 @@ public abstract class ConnectionAction extends BlockingNativeCallableUnit {
         }
     }
 
-    private OutputStream getOutputStream(HTTPCarbonMessage responseMessage, HttpResponseFuture
-            outboundResponseStatusFuture) {
-        HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(responseMessage);
-        HttpConnectorListener outboundResStatusConnectorListener =
-                new HttpResponseConnectorListener(outboundMsgDataStreamer);
-        outboundResponseStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
-        return outboundMsgDataStreamer.getOutputStream();
+    protected HttpMessageDataStreamer getMessageDataStreamer(HTTPCarbonMessage outboundResponse) {
+        final HttpMessageDataStreamer outboundMsgDataStreamer;
+        final PooledDataStreamerFactory pooledDataStreamerFactory = (PooledDataStreamerFactory)
+                outboundResponse.getProperty(HttpConstants.POOLED_BYTE_BUFFER_FACTORY);
+        if (pooledDataStreamerFactory != null) {
+            outboundMsgDataStreamer = pooledDataStreamerFactory.createHttpDataStreamer(outboundResponse);
+        } else {
+            outboundMsgDataStreamer = new HttpMessageDataStreamer(outboundResponse);
+        }
+        return outboundMsgDataStreamer;
     }
 
-    private static class HttpResponseConnectorListener implements HttpConnectorListener {
+    @Override
+    public boolean isBlocking() {
+        return false;
+    }
 
+    static class HttpResponseConnectorListener implements HttpConnectorListener {
+
+        private final DataContext dataContext;
         private HttpMessageDataStreamer outboundMsgDataStreamer;
 
-        HttpResponseConnectorListener(HttpMessageDataStreamer outboundMsgDataStreamer) {
+        HttpResponseConnectorListener(DataContext dataContext) {
+            this.dataContext = dataContext;
+        }
+
+        HttpResponseConnectorListener(DataContext dataContext, HttpMessageDataStreamer outboundMsgDataStreamer) {
+            this.dataContext = dataContext;
             this.outboundMsgDataStreamer = outboundMsgDataStreamer;
         }
 
         @Override
         public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
+            this.dataContext.notifyOutboundResponseStatus(null);
         }
 
         @Override
         public void onError(Throwable throwable) {
-            if (throwable instanceof IOException) {
-                outboundMsgDataStreamer.setIoException((IOException) throwable);
+            BStruct httpConnectorError = BLangConnectorSPIUtil.createBStruct(this.dataContext.context,
+                                            HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.HTTP_CONNECTOR_ERROR);
+            if (outboundMsgDataStreamer != null) {
+                if (throwable instanceof IOException) {
+                    this.outboundMsgDataStreamer.setIoException((IOException) throwable);
+                } else {
+                    this.outboundMsgDataStreamer.setIoException(new IOException(throwable.getMessage()));
+                }
             }
+            httpConnectorError.setStringField(0, throwable.getMessage());
+            this.dataContext.notifyOutboundResponseStatus(httpConnectorError);
         }
     }
 }

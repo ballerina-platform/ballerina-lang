@@ -18,11 +18,9 @@
 
 package org.ballerinalang.docgen.model;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
+import org.ballerinalang.docgen.docs.BallerinaDocDataHolder;
+
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 /**
@@ -47,46 +45,10 @@ public class PackageName extends Caption {
      * @return Package names as a link.
      */
     public static List<Link> convertList(List<String> packageNames) {
-    
-        // Contains the common part of all packages
-        List<String> commonPackagePart = null;
-        for (String packageName : packageNames) {
-            String[] packageNameParts = packageName.split("\\.");
-        
-            // Setting the first common package.
-            if (commonPackagePart == null) {
-                commonPackagePart = new LinkedList<>(Arrays.asList(packageNameParts));
-                if (packageNameParts.length - 1 > 0) {
-                    // Last package path is ignored.
-                    commonPackagePart.remove(packageNameParts.length - 1);
-                    continue;
-                }
-            }
-        
-            // Evaluating the common package.
-            for (int i = 0; i < commonPackagePart.size(); i++) {
-                if (!packageNameParts[i].equals(commonPackagePart.get(i))) {
-                    List<String> newCommonPackagePart = new ArrayList<>();
-                    newCommonPackagePart.addAll(Arrays.asList(packageNameParts).subList(0, i));
-                    commonPackagePart = newCommonPackagePart;
-                }
-            }
-        }
-    
-        // Collecting the package names.
-        if (null != commonPackagePart) {
-            String prefix = String.join(".", commonPackagePart);
-            if (!"".equals(prefix)) {
-                prefix += ".";
-            }
-            String finalPrefix = prefix;
-            return packageNames.stream()
-                    .map((packageName) -> new PackageName(finalPrefix, packageName.replace(finalPrefix, "")))
-                    .map((packageObj -> new Link(packageObj, packageObj.value.toLowerCase(Locale.getDefault()), true)))
-                    .collect(Collectors.toList());
-        } else {
-            return new ArrayList<>();
-        }
+        // TODO currently org name doesn't come, hence hard coding ballerina/
+        return packageNames.stream().map(packageName -> new PackageName(BallerinaDocDataHolder.getInstance()
+                .getOrgName(), packageName)).map(packageObj -> new Link(packageObj, packageObj.suffix, true)).collect
+                (Collectors.toList());
     }
     
     /**

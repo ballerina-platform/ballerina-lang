@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.connector.impl;
 
+import org.ballerinalang.bre.bvm.GlobalMemoryArea;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.LockableStructureType;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.PackageVarInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -56,12 +56,15 @@ public class ConnectorSPIModelHelper {
     public static BMap getAnnotationVariable(String pkgPath, ProgramFile programFile) {
         PackageInfo packageInfo = programFile.getPackageInfo(pkgPath);
         PackageVarInfo annotationData = packageInfo.getPackageVarInfo(ANNOTATION_DATA);
-        final LockableStructureType globalMemoryBlock = programFile.getGlobalMemoryBlock();
-        return (BMap) globalMemoryBlock.getRefField(annotationData.getGlobalMemIndex());
+        final GlobalMemoryArea globalMemArea = programFile.globalMemArea;
+        return (BMap) globalMemArea.getRefField(packageInfo.pkgIndex, annotationData.getGlobalMemIndex());
     }
 
     private static void processAnnotations(String pkgPath, ProgramFile programFile, AnnotatableNode annotatableNode) {
         final BMap bMap = getAnnotationVariable(pkgPath, programFile);
+        if (!bMap.hasKey(annotatableNode.getAnnotationEntryKey())) {
+            return;
+        }
         final BValue map = bMap.get(annotatableNode.getAnnotationEntryKey());
         if (map == null || map.getType().getTag() != BTypes.typeMap.getTag()) {
             return;

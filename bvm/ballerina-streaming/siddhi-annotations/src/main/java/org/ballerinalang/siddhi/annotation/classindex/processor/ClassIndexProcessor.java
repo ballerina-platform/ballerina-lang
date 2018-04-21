@@ -111,6 +111,7 @@ public class ClassIndexProcessor extends AbstractProcessor {
 
     /**
      * Adds given annotations for indexing.
+     * @param classes classes to index annotations
      */
     protected final void indexAnnotations(Class<?>... classes) {
         for (Class<?> klass : classes) {
@@ -121,6 +122,7 @@ public class ClassIndexProcessor extends AbstractProcessor {
 
     /**
      * Adds given classes for subclass indexing.
+     * @param classes classes to index subclasses
      */
     protected final void indexSubclasses(Class<?>... classes) {
         for (Class<?> klass : classes) {
@@ -131,6 +133,7 @@ public class ClassIndexProcessor extends AbstractProcessor {
 
     /**
      * Adds given package for indexing.
+     * @param packages packages to be indexed
      */
     protected final void indexPackages(String... packages) {
         Collections.addAll(indexedPackages, packages);

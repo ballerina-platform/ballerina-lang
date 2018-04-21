@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions;
 
-import org.ballerinalang.langserver.LanguageServerContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
@@ -28,26 +28,30 @@ import java.util.List;
  * @since 0.95.5
  */
 public class CompletionKeys {
-    public static final LanguageServerContext.Key<BLangNode> SYMBOL_ENV_NODE_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<List<SymbolInfo>> VISIBLE_SYMBOLS_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<Node> BLOCK_OWNER_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<BLangNode> PREVIOUS_NODE_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<Integer> LOOP_COUNT_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<Boolean> CURRENT_NODE_TRANSACTION_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<Integer> TRANSACTION_COUNT_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<Boolean> INVOCATION_STATEMENT_KEY
-            = new LanguageServerContext.Key<>();
+    public static final LSContext.Key<BLangNode> SYMBOL_ENV_NODE_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<List<SymbolInfo>> VISIBLE_SYMBOLS_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<Node> BLOCK_OWNER_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<BLangNode> PREVIOUS_NODE_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<BLangNode> NEXT_NODE_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<Integer> LOOP_COUNT_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<Boolean> CURRENT_NODE_TRANSACTION_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<Integer> TRANSACTION_COUNT_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<Boolean> INVOCATION_STATEMENT_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<String> ATTACHMENT_POINT_NODE_TYPE_KEY
+            = new LSContext.Key<>();
     
     // Meta context Keys
-    public static final LanguageServerContext.Key<Boolean> META_CONTEXT_IS_ENDPOINT_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<String> META_CONTEXT_ENDPOINT_NAME_KEY
-            = new LanguageServerContext.Key<>();
+    public static final LSContext.Key<Boolean> META_CONTEXT_IS_ENDPOINT_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<String> META_CONTEXT_ENDPOINT_NAME_KEY
+            = new LSContext.Key<>();
 }

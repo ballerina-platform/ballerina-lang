@@ -15,32 +15,35 @@
  */
 package org.ballerinalang.composer.service.ballerina.parser.service.util;
 
-import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.composer.service.ballerina.parser.service.model.BallerinaFile;
+import com.google.common.io.Files;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BuiltInType;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.SymbolInformation;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Action;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.AnnotationAttachment;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.AnnotationDef;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Connector;
+import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Endpoint;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Enum;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Enumerator;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Function;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.ModelPackage;
+import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.ObjectField;
+import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.ObjectModel;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Parameter;
+import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.RecordModel;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Struct;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.StructField;
+import org.ballerinalang.langserver.compiler.LSContextManager;
+import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.ballerinalang.repository.PackageRepository;
-import org.ballerinalang.util.diagnostic.Diagnostic;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
@@ -55,7 +58,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -64,22 +69,18 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnostic;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
-import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
-import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 
 /**
  * Parser Utils.
@@ -88,10 +89,28 @@ public class ParserUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(ParserUtils.class);
 
+    private static Path untitledProject;
+
+    private static final String UNTITLED_BAL = "untitled.bal";
+
+    static {
+        // Here we will create a tmp directory as the untitled project repo.
+        File untitledDir = Files.createTempDir();
+        untitledProject = untitledDir.toPath();
+        // Now lets create a empty untitled.bal to fool compiler.
+        File untitledBal = new File(Paths.get(untitledProject.toString(),
+                                              UNTITLED_BAL).toString());
+        try {
+            untitledBal.createNewFile();
+        } catch (IOException e) {
+            logger.error("Unable to create untitled project directory, " +
+                                 "unsaved files might not work properly.");
+        }
+    }
+
     /**
-     *
      * @param directoryCount - packagePath
-     * @param filePath - file path to parent directory of the .bal file
+     * @param filePath       - file path to parent directory of the .bal file
      * @return parent dir
      */
     public static java.nio.file.Path getProgramDirectory(int directoryCount, java.nio.file.Path filePath) {
@@ -101,43 +120,6 @@ public class ParserUtils {
             parentDir = parentDir.getParent();
         }
         return parentDir;
-    }
-
-    /**
-     * This method is designed to generate the Ballerina model and Diagnostic information for a given Ballerina file.
-     * saved in the file-system.
-     *
-     *
-     * @param programDir - Path of the program directory.
-     * @param compilationUnitName - compilationUnitName name.
-     * @return BallerinaFile - Object which contains Ballerina model and Diagnostic information
-     */
-    public static BallerinaFile getBallerinaFile(String programDir, String compilationUnitName) {
-        CompilerContext context = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(PROJECT_DIR, programDir);
-        options.put(COMPILER_PHASE, CompilerPhase.CODE_ANALYZE.toString());
-        options.put(PRESERVE_WHITESPACE, Boolean.TRUE.toString());
-        return getBallerinaFile(compilationUnitName, context);
-    }
-
-    /**
-     * This method is designed to generate the Ballerina model and Diagnostic information for a given Ballerina content.
-     * Ideal use case is generating Ballerina model and Diagnostic information for unsaved Ballerina files.
-     *
-     * @param fileName      - File name. This can be any arbitrary name as as we haven't save the file yet.
-     * @param source        - Ballerina source content that needs to be parsed.
-     * @param compilerPhase - This will tell up to which point(compiler phase) we should process the model
-     * @return BallerinaFile - Object which contains Ballerina model and Diagnostic information
-     */
-    public static BallerinaFile getBallerinaFileForContent(String fileName, String source,
-                                                           CompilerPhase compilerPhase) {
-        CompilerContext context = prepareCompilerContext(fileName, source);
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(COMPILER_PHASE, compilerPhase.toString());
-        options.put(PRESERVE_WHITESPACE, Boolean.TRUE.toString());
-
-        return getBallerinaFile(fileName, context);
     }
 
     /**
@@ -159,81 +141,29 @@ public class ParserUtils {
     }
 
     /**
-     * Returns an object which contains Ballerina model and Diagnostic information.
-     *
-     * @param fileName - File name
-     * @param context  - CompilerContext
-     * @return BallerinaFile - Object which contains Ballerina model and Diagnostic information
-     */
-    private static BallerinaFile getBallerinaFile(String fileName, CompilerContext context) {
-        List<Diagnostic> diagnostics = new ArrayList<>();
-        ComposerDiagnosticListener composerDiagnosticListener = new ComposerDiagnosticListener(diagnostics);
-        context.put(DiagnosticListener.class, composerDiagnosticListener);
-        Compiler compiler = Compiler.getInstance(context);
-
-        BallerinaFile ballerinaFile = new BallerinaFile();
-        try {
-            ballerinaFile.setBLangPackage(compiler.compile(fileName));
-        } catch (Exception ex) {
-            BDiagnostic catastrophic = new BDiagnostic();
-            catastrophic.msg = "Failed in the runtime parse/analyze. " + ex.getMessage();
-            diagnostics.add(catastrophic);
-        }
-
-        ballerinaFile.setDiagnostics(diagnostics);
-        return ballerinaFile;
-    }
-
-    /**
      * Get All Native Packages.
      *
      * @return {@link Map} Package name, package functions and connectors
      */
     public static Map<String, ModelPackage> getAllPackages() {
         final Map<String, ModelPackage> modelPackage = new HashMap<>();
-
-        CompilerContext context = prepareCompilerContext("", "");
-        // load builtin packages - ballerina.builtin and ballerina.builtin.core explicitly
         try {
-            BLangPackage builtInPackage = loadBuiltInPackage(context);
-            String builtInPackageName = builtInPackage.getPackageDeclaration().getPackageName().stream()
-                    .map(name -> name.getValue()).collect(Collectors.joining("."));
-            loadPackageMap(builtInPackageName, builtInPackage, modelPackage);
+            CompilerContext context = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
+            List<BLangPackage> builtInPackages = LSPackageLoader.getBuiltinPackages(context);
+            for (BLangPackage bLangPackage : builtInPackages) {
+                loadPackageMap(bLangPackage.packageID.getName().getValue(), bLangPackage, modelPackage);
+            }
+
+            for (String packageName : LSPackageLoader.getStaticPkgNames()) {
+                PackageID packageID = new PackageID(new Name("ballerina"),
+                        new Name(packageName), new Name("0.0.0"));
+                BLangPackage bLangPackage = LSPackageLoader.getPackageById(context, packageID);
+                loadPackageMap(bLangPackage.packageID.getName().getValue(), bLangPackage, modelPackage);
+            }
         } catch (Exception e) {
             // Above catch is to fail safe composer front end due to core errors.
-            logger.warn("Error while loading package ballerina.builtin");
+            logger.warn("Error while loading package: " + e.getMessage());
         }
-        PackageLoader packageLoader = PackageLoader.getInstance(context);
-        // max depth for the recursive function which search for child directories
-        int maxDepth = 15;
-        Set<PackageID> packages = packageLoader.listPackages(maxDepth);
-        packages.stream().forEach(pkg -> {
-            Name version = pkg.getPackageVersion();
-            BLangIdentifier bLangIdentifier = new BLangIdentifier();
-            bLangIdentifier.setValue(version.getValue());
-
-            BLangIdentifier orgNameNode = new BLangIdentifier();
-            orgNameNode.setValue(pkg.getOrgName().getValue());
-
-            List<BLangIdentifier> pkgNameComps = pkg.getNameComps().stream().map(nameToBLangIdentifier)
-                    .collect(Collectors.<BLangIdentifier>toList());
-            try {
-                // we have already loaded ballerina.builtin and ballerina.builtin.core. hence skipping loading those
-                // packages.
-                if (!"ballerina.builtin".equals(pkg.getName().getValue())
-                        && !"ballerina.builtin.core".equals(pkg.getName().getValue())) {
-                    org.wso2.ballerinalang.compiler.tree.BLangPackage bLangPackage = packageLoader
-                            .loadAndDefinePackage(orgNameNode, pkgNameComps, bLangIdentifier);
-                    loadPackageMap(pkg.getName().getValue(), bLangPackage, modelPackage);
-                }
-            } catch (Exception e) {
-                // Its wrong to catch java.lang.Exception. But this is temporary thing and ideally there shouldn't be
-                // any error while loading packages.
-                String pkgName = pkg.getNameComps().stream().map(name -> name.getValue())
-                        .collect(Collectors.joining("."));
-                logger.warn("Error while loading package " + pkgName);
-            }
-        });
         return modelPackage;
     }
 
@@ -317,45 +247,9 @@ public class ParserUtils {
             pkg.getAnnotations().forEach((annotation) -> extractAnnotation(packages, packageName, annotation));
             pkg.getConnectors().forEach((connector) -> extractConnector(packages, packageName, connector));
             pkg.getEnums().forEach((enumerator) -> extractEnums(packages, packageName, enumerator));
-        }
-    }
-
-
-    /**
-     * Remove constructs from given file in given package from given package map.
-     *
-     * @param pkgName Name of the package
-     * @param fileName Name of the File
-     * @param packageMap Package constructs map
-     */
-    public static void removeConstructsOfFile(String pkgName, String fileName,
-                                              Map<String, ModelPackage> packageMap) {
-        ModelPackage newPkg = new ModelPackage();
-        newPkg.setName(pkgName);
-        if (packageMap.containsKey(pkgName)) {
-            ModelPackage currentPkg = packageMap.get(pkgName);
-            currentPkg.getFunctions().forEach((Function func) -> {
-                if (!func.getFileName().equals(fileName)) {
-                    newPkg.addFunctionsItem(func);
-                }
-            });
-            currentPkg.getStructs().forEach((Struct struct) -> {
-                if (!struct.getFileName().equals(fileName)) {
-                    newPkg.addStructsItem(struct);
-                }
-            });
-            currentPkg.getAnnotations().forEach((AnnotationDef annotation) -> {
-                if (!annotation.getFileName().equals(fileName)) {
-                    newPkg.addAnnotationsItem(annotation);
-                }
-            });
-            currentPkg.getConnectors().forEach((Connector connector) -> {
-                if (!connector.getFileName().equals(fileName)) {
-                    newPkg.addConnectorsItem(connector);
-                }
-            });
-            packageMap.remove(pkgName);
-            packageMap.put(pkgName, newPkg);
+            pkg.objects.forEach((object) -> extractObjects(packages, packageName, object));
+            pkg.records.forEach((record) -> extractRecords(packages, packageName, record));
+            extractEndpoints(packages, packageName, pkg.structs, pkg.functions);
         }
     }
 
@@ -401,7 +295,7 @@ public class ParserUtils {
             addActions(actions, connector.getActions());
 
             modelPackage.addConnectorsItem(createNewConnector(connector.getName().getValue(),
-                    annotations, actions, parameters, null, fileName));
+                                                              annotations, actions, parameters, null, fileName));
         } else {
             ModelPackage modelPackage = new ModelPackage();
             modelPackage.setName(packagePath);
@@ -416,7 +310,7 @@ public class ParserUtils {
             addActions(actions, connector.getActions());
 
             modelPackage.addConnectorsItem(createNewConnector(connector.getName().getValue(),
-                    annotations, actions, parameters, null, fileName));
+                                                              annotations, actions, parameters, null, fileName));
             packages.put(packagePath, modelPackage);
         }
     }
@@ -426,7 +320,7 @@ public class ParserUtils {
      *
      * @param packages    packages to send.
      * @param packagePath packagePath.
-     * @param bLangEnum      enum.
+     * @param bLangEnum   enum.
      */
     private static void extractEnums(Map<String, ModelPackage> packages, String packagePath,
                                      EnumNode bLangEnum) {
@@ -460,7 +354,7 @@ public class ParserUtils {
             addParameters(parameters, function.getParameters());
 
             List<Parameter> returnParameters = new ArrayList<>();
-            addParameters(returnParameters, function.getReturnParameters());
+            //addParameters(returnParameters, function.getReturnTypeNode());
 
             List<AnnotationAttachment> annotations = new ArrayList<>();
             addAnnotations(annotations, function.getAnnotationAttachments());
@@ -479,7 +373,7 @@ public class ParserUtils {
             addParameters(parameters, function.getParameters());
 
             List<Parameter> returnParameters = new ArrayList<>();
-            addParameters(returnParameters, function.getReturnParameters());
+            //addParameters(returnParameters, function.getReturnTypeNode());
 
             List<AnnotationAttachment> annotations = new ArrayList<>();
             addAnnotations(annotations, function.getAnnotationAttachments());
@@ -541,6 +435,60 @@ public class ParserUtils {
         }
     }
 
+    private static void extractObjects(Map<String, ModelPackage> packages, String packagePath, BLangObject object) {
+        String fileName = object.getPosition().getSource().getCompilationUnitName();
+        if (packages.containsKey(packagePath)) {
+            ModelPackage modelPackage = packages.get(packagePath);
+            modelPackage.addObjectItem(
+                    createNewObject(object.name.getValue(), object.fields, object.functions, fileName));
+        } else {
+            ModelPackage modelPackage = new ModelPackage();
+            modelPackage.setName(packagePath);
+            modelPackage.addObjectItem(
+                    createNewObject(object.name.getValue(), object.fields, object.functions, fileName));
+            packages.put(packagePath, modelPackage);
+        }
+    }
+
+    private static void extractRecords(Map<String, ModelPackage> packages, String packagePath, BLangRecord record) {
+        String fileName = record.getPosition().getSource().getCompilationUnitName();
+        if (packages.containsKey(packagePath)) {
+            ModelPackage modelPackage = packages.get(packagePath);
+            modelPackage.addRecord(createNewRecord(record.name.getValue(), record.fields, fileName));
+        } else {
+            ModelPackage modelPackage = new ModelPackage();
+            modelPackage.setName(packagePath);
+            modelPackage.addRecord(createNewRecord(record.name.getValue(), record.fields, fileName));
+            packages.put(packagePath, modelPackage);
+        }
+    }
+
+    private static void extractEndpoints(Map<String, ModelPackage> packages, String packagePath,
+                                         List<BLangStruct> structs, List<BLangFunction> functions) {
+        functions.forEach((function) -> {
+            if (function.getName().getValue().equals("register") && function.receiver != null &&
+                    function.receiver.getTypeNode() instanceof UserDefinedTypeNode) {
+                String structName = function.receiver.getTypeNode().type.tsymbol.name.getValue();
+                structs.forEach((struct) -> {
+                    if (struct.name.getValue().equals(structName)) {
+                        String fileName = struct.getPosition().getSource().getCompilationUnitName();
+                        if (packages.containsKey(packagePath)) {
+                            ModelPackage modelPackage = packages.get(packagePath);
+                            modelPackage.addEndpointItem(createNewEndpoint(struct.name.getValue(),
+                                    new ArrayList<>(), struct.fields, packagePath, fileName));
+                        } else {
+                            ModelPackage modelPackage = new ModelPackage();
+                            modelPackage.setName(packagePath);
+                            modelPackage.addEndpointItem(createNewEndpoint(struct.name.getValue(), new ArrayList<>(),
+                                    struct.fields, packagePath, fileName));
+                            packages.put(packagePath, modelPackage);
+                        }
+                    }
+                });
+            }
+        });
+    }
+
     /**
      * Add parameters to a list from ballerina lang param list.
      *
@@ -590,7 +538,7 @@ public class ParserUtils {
         addAnnotations(annotations, action.getAnnotationAttachments());
 
         List<Parameter> returnParameters = new ArrayList<>();
-        addParameters(returnParameters, action.getReturnParameters());
+        //addParameters(returnParameters, action.getReturnParameters());
 
         String fileName = action.getPosition().getSource().getCompilationUnitName();
         return createNewAction(action.getName().getValue(), parameters, returnParameters, annotations, fileName);
@@ -681,6 +629,70 @@ public class ParserUtils {
     }
 
     /**
+     * Create new object model.
+     *
+     * @param name      name of the object
+     * @param fields    object fields
+     * @param functions object bound functions
+     * @param fileName  fileName
+     * @return {@link ObjectModel}
+     */
+    private static ObjectModel createNewObject(String name, List<BLangVariable> fields, List<BLangFunction> functions,
+                                               String fileName) {
+        ObjectModel objectModel = new ObjectModel(name);
+        fields.forEach((field) -> {
+            ObjectField objectField = new ObjectField(field.name.getValue(), field.getTypeNode().type.toString());
+            objectModel.addField(objectField);
+        });
+
+        functions.forEach((function) -> {
+            List<AnnotationAttachment> annotations = new ArrayList<>();
+            addAnnotations(annotations, function.getAnnotationAttachments());
+            List<Parameter> parameters = new ArrayList<>();
+            addParameters(parameters, function.getParameters());
+            objectModel.addFunction(createNewFunction(function.name.getValue(), annotations, parameters,
+                    new ArrayList<>(), function.receiver.getTypeNode().type.toString(), false, fileName));
+        });
+
+        return objectModel;
+    }
+
+    /**
+     * Create a new Record Model.
+     *
+     * @param name     Record Name
+     * @param fields   List of Fields
+     * @param fileName File name
+     * @return {@link RecordModel}  New Record Model
+     */
+    private static RecordModel createNewRecord(String name, List<BLangVariable> fields, String fileName) {
+        RecordModel recordModel = new RecordModel(name);
+
+        fields.forEach((field) -> {
+            ObjectField objectField = new ObjectField(field.name.getValue(), field.getTypeNode().type.toString());
+            recordModel.addField(objectField);
+        });
+        recordModel.setFileName(fileName);
+
+        return recordModel;
+    }
+
+    private static Endpoint createNewEndpoint(String name, List<BLangFunction> functions, List<BLangVariable> fields,
+                                              String packageName, String fileName) {
+        Endpoint endpoint = new Endpoint(name);
+        endpoint.setFileName(fileName);
+        // TODO: find actions for the endpoint
+        endpoint.setActions(new ArrayList<>());
+        endpoint.setPackageName(packageName);
+
+        fields.forEach((field) -> {
+            endpoint.addField(createNewStructField(field.name.getValue(), field.getTypeNode().type.toString(),
+                    ""));
+        });
+        return endpoint;
+    }
+
+    /**
      * create a new struct field.
      *
      * @param name name of the field
@@ -695,7 +707,7 @@ public class ParserUtils {
     /**
      * Create new enum.
      *
-     * @param name   name of the enum
+     * @param name        name of the enum
      * @param enumerators
      * @return {Enum} enum
      */

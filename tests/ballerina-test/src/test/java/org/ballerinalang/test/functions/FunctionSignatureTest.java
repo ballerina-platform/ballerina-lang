@@ -23,7 +23,6 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.NativeElementRepository;
@@ -322,8 +321,8 @@ public class FunctionSignatureTest {
     @Test
     public void testInvokeFuncWithAnyRestParam1() {
         BValue[] returns = BRunUtil.invoke(result, "testInvokeFuncWithAnyRestParam1");
-        Assert.assertTrue(returns[0] instanceof BRefValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "[[10, 20, 30], {\"name\":\"John\"}]");
+        Assert.assertTrue(returns[0] instanceof BIntArray);
+        Assert.assertEquals(returns[0].stringValue(), "[10, 20, 30]");
     }
 
     @Test
@@ -418,5 +417,49 @@ public class FunctionSignatureTest {
 
         Assert.assertTrue(returns[5] instanceof BIntArray);
         Assert.assertEquals(returns[5].stringValue(), "[4, 5, 6]");
+    }
+
+    @Test
+    public void testFuncWithUnionTypedDefaultParam() {
+        BValue[] returns = BRunUtil.invoke(result, "testFuncWithUnionTypedDefaultParam");
+        Assert.assertEquals(returns[0].stringValue(), "John");
+    }
+
+    @Test
+    public void testFuncWithNilDefaultParamExpr() {
+        BValue[] returns = BRunUtil.invoke(result, "testFuncWithNilDefaultParamExpr");
+        Assert.assertNull(returns[0]);
+        Assert.assertNull(returns[1]);
+    }
+
+    @Test
+    public void testAttachedFunction() {
+        BValue[] returns = BRunUtil.invoke(result, "testAttachedFunction");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 110);
+    }
+
+    @Test(description = "Test object function with defaultableParam")
+    public void defaultValueForObjectFunctionParam() {
+        BValue[] returns = BRunUtil.invoke(result, "testDefaultableParamInnerFunc");
+
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BString.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 60);
+        Assert.assertEquals(returns[1].stringValue(), "hello world");
+    }
+
+    @Test(description = "Test object outer function with defaultable param")
+    public void defaultValueForObjectOuterFunctionParam() {
+        BValue[] returns = BRunUtil.invoke(result, "testDefaultableParamOuterFunc");
+
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BString.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 50);
+        Assert.assertEquals(returns[1].stringValue(), "hello world");
     }
 }

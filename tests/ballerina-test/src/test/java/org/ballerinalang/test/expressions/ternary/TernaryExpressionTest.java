@@ -113,13 +113,11 @@ public class TernaryExpressionTest {
     public void testInMapLiteral() {
         BValue[] args = {new BString("one")};
         BValue[] results = BRunUtil.invoke(compileResult, "test7", args);
-        Assert.assertEquals(results[0].stringValue(), "1");
-        Assert.assertEquals(((BInteger) results[1]).intValue(), 0);
+        Assert.assertEquals(((BInteger) results[0]).intValue(), 1);
 
         args = new BValue[]{new BString("two")};
         results = BRunUtil.invoke(compileResult, "test7", args);
-        Assert.assertEquals(results[0].stringValue(), null);
-        Assert.assertEquals(((BInteger) results[1]).intValue(), 2);
+        Assert.assertEquals(((BInteger) results[0]).intValue(), 2);
     }
 
     @Test

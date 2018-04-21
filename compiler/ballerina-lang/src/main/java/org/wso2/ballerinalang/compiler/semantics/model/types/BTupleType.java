@@ -61,7 +61,9 @@ public class BTupleType extends BType implements TupleType {
     @Override
     public String getDesc() {
         if (tupleTypes.size() > 1) {
-            return TypeDescriptor.SIG_ARRAY + TypeDescriptor.SIG_ANY;
+            StringBuilder sig = new StringBuilder(TypeDescriptor.SIG_TUPLE + tupleTypes.size() + ";");
+            tupleTypes.forEach(memberType -> sig.append(memberType.getDesc()));
+            return sig.toString();
         }
         return tupleTypes.get(0).getDesc();
     }

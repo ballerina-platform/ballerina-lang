@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.builtin;
 
 @Description { value:"Removes each element that matches the given key."}
 @Param { value:"j: A JSON object" }
@@ -35,7 +34,6 @@ public native function <json j> getKeys() returns (string[]);
 @Param { value:"j: A JSON object" }
 @Param { value:"options: jsonOptions struct for JSON to XML conversion properties" }
 @Return { value:"The XML representation of the JSON" }
-public native function <json j> toXML (struct {
-                                           string attributePrefix = "@";
+public native function <json j> toXML ({ string attributePrefix = "@";
                                            string arrayEntryTag = "item";
                                        } options) returns (xml| error);

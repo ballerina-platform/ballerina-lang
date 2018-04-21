@@ -46,15 +46,17 @@ class PanelDecoratorButton extends React.Component {
                 ry='0'
                 className='panel-header-controls-wrapper'
             />
-            <image
+            <text
                 x={bBox.x + 8}
-                y={bBox.y + 8}
+                y={bBox.y + 21}
                 width={iconSize}
                 height={iconSize}
                 className='control'
-                xlinkHref={this.props.icon}
+                fontFamily='font-ballerina'
+                fontSize={iconSize}
+                className='control-icons'
                 onClick={this.props.onClick}
-            ><title>{this.props.tooltip}</title></image>
+            >{this.props.icon}</text>
         </g>);
     }
 }

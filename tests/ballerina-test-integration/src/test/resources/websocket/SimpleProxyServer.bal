@@ -1,103 +1,67 @@
 import ballerina/io;
-import ballerina/net.ws;
+import ballerina/http;
 
-@ws:configuration {
-    basePath: "/proxy/ws/{name}",
+@final string REMOTE_BACKEND_URL = "ws://localhost:15500/websocket";
+@final string ASSOCIATED_CONNECTION = "ASSOCIATED_CONNECTION";
+
+endpoint http:WebSocketListener ep {
     port:9090
+};
+
+@http:WebSocketServiceConfig {
+    path: "/proxy/ws"
 }
-service<ws> SimpleProxyServer {
+service <http:WebSocketService> simpleProxy bind ep {
 
-    endpoint<ws:WsClient> c {
-        create ws:WsClient("ws://localhost:15500/websocket", "ClientService");
-    }
-    map clientConnMap = {};
-
-    resource onHandshake(ws:HandshakeConnection con, string name) {
-        ws:ClientConnectorConfig clientConnectorConfig = {parentConnectionID:con.connectionID};
-        var clientConn, e = c.connect(clientConnectorConfig);
-        if (e != null) {
-            io:println("Error occcurred : " + e.message);
-            con.cancelHandshake(1001, "Cannot connect to remote server");
-        } else {
-            clientConn.attributes["name"] = name;
-            clientConnMap[con.connectionID] = clientConn;
-            map queryParams = con.getQueryParams();
-            var age, err = (string)queryParams.age;
-            if (err == null) {
-                clientConn.attributes["age"] = age;
-            }
-        }
+    onOpen (endpoint wsEp) {
+        endpoint http:WebSocketClient wsClientEp {
+            url: REMOTE_BACKEND_URL,
+            callbackService: clientCallbackService,
+            readyOnConnect: false
+        };
+        wsEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
+        wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsEp;
+        wsClientEp -> ready() but { error e => io:println(e.message) };
     }
 
-    resource onTextMessage(ws:Connection conn, ws:TextFrame frame, string name) {
-        var clientConn, _ = (ws:Connection) clientConnMap[conn.getID()];
-        string text = frame.text;
-
-        if (text == "closeMe") {
-            clientConn.closeConnection(1001, "Client is going away");
-            conn.closeConnection(1001, "You told to close your connection");
-        } else if (text == "ping") {
-            conn.ping(text.toBlob("UTF-8"));
-        } else if (text == "client_ping") {
-            clientConn.ping(text.toBlob("UTF-8"));
-        } else if (text == "client_ping_req") {
-            clientConn.pushText("ping");
-        } else if (clientConn != null) {
-            map params = conn.getQueryParams();
-            var age, err = (string)params.age;
-            if (err != null) {
-                clientConn.pushText(name + " " + text);
-            } else {
-                clientConn.pushText(name + "(" + age + ") " + text);
-            }
-        }
+    onText (endpoint wsEp, string text) {
+        endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint(wsEp);
+        clientEp -> pushText(text) but {error e => io:println("server text error")};
     }
 
-    resource onPing(ws:Connection conn, ws:PingFrame frame) {
-        conn.pong(frame.data);
+    onBinary (endpoint wsEp, blob data) {
+        endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint(wsEp);
+        clientEp -> pushBinary(data) but {error e => io:println("server binary error")};
     }
 
-    resource onPong(ws:Connection conn, ws:PongFrame frame, string name) {
-        conn.pushText(name + ": pong_received");
+    onClose (endpoint wsEp, int statusCode, string reason) {
+        endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint(wsEp);
+        clientEp -> close(statusCode, reason) but {error e => io:println("server closing error")};
     }
 
-    resource onClose(ws:Connection conn, ws:CloseFrame frame) {
-        var clientConn, _ = (ws:Connection) clientConnMap[conn.getID()];
-        clientConn.closeConnection(1001, "Client closing connection");
-        _ = clientConnMap.remove(conn.getID());
+}
+
+service <http:WebSocketClientService> clientCallbackService {
+    onText (endpoint wsEp, string text) {
+        endpoint http:WebSocketListener serviceEp = getAssociatedListener(wsEp);
+        serviceEp -> pushText(text)  but {error e => io:println("client text error")};
+    }
+
+    onBinary (endpoint wsEp, blob data) {
+        endpoint http:WebSocketListener serviceEp = getAssociatedListener(wsEp);
+        serviceEp -> pushBinary(data) but {error e => io:println("client binary error")};
+    }
+
+    onClose (endpoint wsEp, int statusCode, string reason) {
+        endpoint http:WebSocketListener serviceEp = getAssociatedListener(wsEp);
+        serviceEp -> close(statusCode, reason) but {error e => io:println("client closing error")};
     }
 }
 
-@ws:clientService {}
-service<ws> ClientService {
+public function getAssociatedClientEndpoint(http:WebSocketListener wsServiceEp) returns (http:WebSocketClient) {
+    return check <http:WebSocketClient> wsServiceEp.attributes[ASSOCIATED_CONNECTION];
+}
 
-    resource onTextMessage(ws:Connection conn, ws:TextFrame frame) {
-        ws:Connection parentConn = conn.getParentConnection();
-        var parentName, _ = (string) conn.attributes["name"];
-        var age, err = (string) conn.attributes["age"];
-        if(err != null) {
-            parentConn.pushText(parentName + " client service: " + frame.text);
-        } else {
-            parentConn.pushText(parentName + "(" + age + ") client service: " + frame.text);
-        }
-    }
-
-    resource onPing(ws:Connection conn, ws:PingFrame frame) {
-        ws:Connection parentConn = conn.getParentConnection();
-        var parentName, _ = (string) conn.attributes["name"];
-        parentConn.pushText(parentName + " remote_server_ping");
-    }
-
-    resource onPong(ws:Connection conn, ws:PongFrame frame) {
-        ws:Connection parentConn = conn.getParentConnection();
-        var parentName, _ = (string) conn.attributes["name"];
-        parentConn.pushText(parentName + " remote_server_pong");
-    }
-
-    resource onClose(ws:Connection conn, ws:CloseFrame frame) {
-        ws:Connection parentCon = conn.getParentConnection();
-        var parentName, _ = (string) conn.attributes["name"];
-        parentCon.closeConnection(1001, parentName + " server closing connection");
-    }
-
+public function getAssociatedListener(http:WebSocketClient wsClientEp) returns (http:WebSocketListener) {
+    return check <http:WebSocketListener> wsClientEp.attributes[ASSOCIATED_CONNECTION];
 }

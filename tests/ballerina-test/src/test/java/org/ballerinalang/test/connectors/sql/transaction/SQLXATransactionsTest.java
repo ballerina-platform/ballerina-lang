@@ -35,12 +35,15 @@ import java.io.File;
  */
 public class SQLXATransactionsTest {
     private CompileResult result;
+    private CompileResult resultMirror;
     private static final String DB_NAME1 = "TestDB1";
     private static final String DB_NAME2 = "TestDB2";
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/connectors/sql/transaction/sql-xa-transactions.bal");
+        result = BCompileUtil.compile("test-src/connectors/sql/transaction/sql_xa_transaction_test.bal");
+        resultMirror = BCompileUtil
+                .compile("test-src/connectors/sql/transaction/mirror_table_xa_transaction_test.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY_H2_1), DB_NAME1);
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY_H2_2), DB_NAME2);
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY_H2_1, DB_NAME1, "datafiles/sql/SQLH2CustomerTableCreate.sql");
@@ -71,6 +74,34 @@ public class SQLXATransactionsTest {
     @Test
     public void testXAransactonRetry() {
         BValue[] returns = BRunUtil.invoke(result, "testXAransactonRetry");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
+    }
+
+    @Test
+    public void testXATransactionSuccessMirrorTable() {
+        BValue[] returns = BRunUtil.invoke(resultMirror, "testXATransactionSuccess");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
+    }
+
+    @Test
+    public void testXAransactonFailed1MirrorTable() {
+        BValue[] returns = BRunUtil.invoke(resultMirror, "testXATransactionFailed1");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
+    }
+
+    @Test
+    public void testXATransactionFailed2MirrorTable() {
+        BValue[] returns = BRunUtil.invoke(resultMirror, "testXATransactionFailed2");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
+    }
+
+    @Test
+    public void testXATransactionRetryMirrorTable() {
+        BValue[] returns = BRunUtil.invoke(resultMirror, "testXATransactionRetry");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
     }

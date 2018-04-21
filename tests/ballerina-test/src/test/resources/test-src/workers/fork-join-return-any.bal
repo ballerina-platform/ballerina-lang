@@ -8,21 +8,18 @@ function testForkJoinReturnAnyType() returns (int, string) {
         worker W1 {
             int x = 23;
             string a = "aaaaa";
-            x, a -> fork;
+            (x, a) -> fork;
         }
         worker W2 {
             string s = "test";
             float u = 10.23;
-            s, u -> fork;
+            (s, u) -> fork;
         }
     } join (all) (map results) {
-        any[] t1;
-        t1 =? <any[]> results["W1"];
-        p =? <int> t1[0];
-        q =? <string> t1[1];
-        t1 =? <any[]> results["W2"];
-        r =? <string> t1[0];
-        t =? <float> t1[1];
+        any t1 = <any> results["W1"];
+        (p, q) = check <(int,string)> t1;
+        any t2 = <any> results["W2"];
+        (r, t) = check <(string,float)> t2;
     }
     return (p, q);
 }

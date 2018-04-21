@@ -28,9 +28,9 @@ public class BallerinaHiddenTemplateCompletionTest extends BallerinaCompletionTe
         doCheckResult("test.bal", "package<caret>", "package ", null);
     }
 
-    public void testImportKeyword() {
-        doCheckResult("test.bal", "import<caret>", "import ", null);
-    }
+//    public void testImportKeyword() {
+//        doCheckResult("test.bal", "import<caret>", "import ", null);
+//    }
 
     public void testIfKeyword() {
         doCheckResult("test.bal", "function test(){ if<caret> }", "function test(){ if () {\n    \n} }", null);

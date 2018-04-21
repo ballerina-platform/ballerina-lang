@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 
 function testAddHeader (http:PushPromise promise, string key, string value) returns http:PushPromise {
     promise.addHeader(key, value);
@@ -6,8 +6,15 @@ function testAddHeader (http:PushPromise promise, string key, string value) retu
 }
 
 function testGetHeader (http:PushPromise promise, string key) returns string {
-    string contentType = promise.getHeader(key);
-    return contentType;
+    return promise.getHeader(key);
+}
+
+function testHasHeader (http:PushPromise promise, string key) returns boolean {
+    return promise.hasHeader(key);
+}
+
+function testGetHeaderNames (http:PushPromise promise) returns string[] {
+    return promise.getHeaderNames();
 }
 
 function testGetHeaders (http:PushPromise promise, string key) returns string[] {

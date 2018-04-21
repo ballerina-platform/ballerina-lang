@@ -20,6 +20,7 @@ package org.ballerinalang.test.services.nativeimpl.promise;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
@@ -32,7 +33,7 @@ import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
 /**
- * Test cases for ballerina.net.http inbound inResponse success native functions.
+ * Test cases for ballerina/http inbound inResponse success native functions.
  */
 public class PushPromiseNativeFunctionTest {
 
@@ -175,5 +176,48 @@ public class PushPromiseNativeFunctionTest {
         Http2PushPromise retrievedHttp2PushPromise =
                 (Http2PushPromise) ((BStruct) returnVal[0]).getNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE);
         Assert.assertEquals(retrievedHttp2PushPromise.getHeader(headerName), targetHeaderValue);
+    }
+
+    @Test(description = "Test hasHeader function of PushPromise")
+    public void testHasHeader() {
+        BStruct promise = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, promiseStruct);
+        Http2PushPromise http2PushPromise =
+                new Http2PushPromise(HttpConstants.HTTP_METHOD_GET, HttpConstants.DEFAULT_BASE_PATH);
+        String headerName = "header1";
+        String headerValue = "value1";
+        http2PushPromise.addHeader(headerName, headerValue);
+        HttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
+
+        BString key = new BString(headerName);
+        BValue[] inputArg = {promise, key};
+        BValue[] returnVal = BRunUtil.invoke(result, "testHasHeader", inputArg);
+
+        Assert.assertFalse(returnVal == null || returnVal.length == 0 || returnVal[0] == null,
+                           "Invalid Return Values.");
+        Assert.assertTrue(((BBoolean) returnVal[0]).booleanValue(), "hasHeader function failed");
+    }
+
+    @Test(description = "Test getHeaderNames function of PushPromise")
+    public void testGetHeaderNames() {
+        BStruct promise = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, promiseStruct);
+        Http2PushPromise http2PushPromise =
+                new Http2PushPromise(HttpConstants.HTTP_METHOD_GET, HttpConstants.DEFAULT_BASE_PATH);
+        String headerName1 = "header1";
+        String headerName2 = "header2";
+        http2PushPromise.addHeader(headerName1, "value1");
+        http2PushPromise.addHeader(headerName2, "value2");
+        HttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
+
+        BValue[] inputArg = {promise};
+        BValue[] returnVal = BRunUtil.invoke(result, "testGetHeaderNames", inputArg);
+
+        Assert.assertFalse(returnVal == null || returnVal.length == 0 || returnVal[0] == null,
+                           "Invalid Return Values.");
+        String result1 = ((BStringArray) returnVal[0]).get(0);
+        String result2 = ((BStringArray) returnVal[0]).get(1);
+        Assert.assertTrue((result1.equals(headerName1) && result2.equals(headerName2) ||
+                           result1.equals(headerName2) && result2.equals(headerName1)),
+                          "Expected header names not found");
+        Assert.assertEquals(((BStringArray) returnVal[0]).get(1), headerName2);
     }
 }

@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/io;
 function testFunction() {
 
 }

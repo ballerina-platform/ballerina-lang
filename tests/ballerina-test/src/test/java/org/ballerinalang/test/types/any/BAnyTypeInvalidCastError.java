@@ -34,10 +34,14 @@ public class BAnyTypeInvalidCastError {
 
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
 
-        BAssertUtil.validateError(resultNegative, 0,
-                                 "unsafe cast from 'any' to 'float', use multi-return cast expression", 3, 15);
-        BAssertUtil.validateError(resultNegative, 1,
-                "unsafe cast from 'any' to 'int', use multi-return cast expression", 14, 11);
+        BAssertUtil.validateError(resultNegative, 0, 3, 15);
+        BAssertUtil.validateErrorMessageOnly(resultNegative, 0,
+                "incompatible types: expected 'float', found ");
+        BAssertUtil.validateErrorMessageOnly(resultNegative, 0, new String[] {"float|error", "error|float"});
+        BAssertUtil.validateError(resultNegative, 1, 14, 11);
+        BAssertUtil.validateErrorMessageOnly(resultNegative, 1,
+                "incompatible types: expected 'int', found ");
+        BAssertUtil.validateErrorMessageOnly(resultNegative, 1, new String[] {"int|error", "error|int"});
         //TODO: This needs to have another error, for casting a null value. Add that check when it's fixed.
     }
 }

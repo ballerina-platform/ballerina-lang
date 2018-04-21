@@ -247,7 +247,7 @@ class TransactionFailedDecorator extends React.Component {
                     x={p2X + designer.config.compoundStatement.text.padding}
                     y={(p1Y + p2Y) / 2}
                     className='statement-title-text-left'
-                >failed
+                >onretry
                 </text>
                 <DropZone
                     x={p11X}
@@ -263,7 +263,7 @@ class TransactionFailedDecorator extends React.Component {
                     x1={p8X}
                     y1={p8Y}
                     x2={p6X}
-                    y2={p6Y}
+                    y2={p6Y - 10}
                     className='flowchart-background-empty-rect'
                 />
                 { isBreakpoint && this.renderBreakpointIndicator() }

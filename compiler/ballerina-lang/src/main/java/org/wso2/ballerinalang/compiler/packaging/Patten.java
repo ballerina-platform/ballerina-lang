@@ -2,17 +2,17 @@ package org.wso2.ballerinalang.compiler.packaging;
 
 
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.repository.PackageSourceEntry;
+import org.ballerinalang.repository.CompilerInput;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.converters.StringConverter;
 
+import java.util.Arrays;
 import java.util.stream.Stream;
 
 /**
  * Patten of a set of resource (usually source files).
  * EG: patten of bal in a jar. url patten. file patten.
- * <p>
- * <p>
+ *
  * Made out of 4 types of parts.
  * Path                      - exact match to the a dir or file name
  * Wildcard                  - any dir matches
@@ -22,7 +22,7 @@ import java.util.stream.Stream;
  * in deeper dir including test source
  */
 public class Patten {
-    public static final Part WILDCARD_DIR = new Part();
+    public static final Part LATEST_VERSION_DIR = new Part();
     public static final Part WILDCARD_SOURCE = new Part();
     public static final Part WILDCARD_SOURCE_WITH_TEST = new Part();
     public static final Patten NULL = new Patten() {
@@ -40,6 +40,21 @@ public class Patten {
         this.parts = parts;
     }
 
+    public Patten sibling(Part siblingPart) {
+        Part last = parts[parts.length - 1];
+        Part[] newParts;
+        if (last == LATEST_VERSION_DIR || last == WILDCARD_SOURCE || last == WILDCARD_SOURCE_WITH_TEST) {
+            newParts = Arrays.copyOf(parts, parts.length);
+            newParts[newParts.length - 1] = siblingPart;
+        } else {
+            newParts = Arrays.copyOf(parts, parts.length + 1);
+            String[] newValues = Arrays.copyOf(last.values, last.values.length - 1);
+            newParts[newParts.length - 2] = new Part(newValues);
+            newParts[newParts.length - 1] = siblingPart;
+        }
+        return new Patten(newParts);
+    }
+
     public static Part path(String... path) {
         return new Part(path);
     }
@@ -47,8 +62,8 @@ public class Patten {
     public <T> Stream<T> convert(Converter<T> converter) {
         Stream<T> aggregate = Stream.of(converter.start());
         for (Part part : parts) {
-            if (part == WILDCARD_DIR) {
-                aggregate = aggregate.flatMap(converter::expand);
+            if (part == LATEST_VERSION_DIR) {
+                aggregate = aggregate.flatMap(converter::latest);
             } else if (part == WILDCARD_SOURCE) {
                 aggregate = aggregate.flatMap(converter::expandBal);
             } else if (part == WILDCARD_SOURCE_WITH_TEST) {
@@ -62,7 +77,7 @@ public class Patten {
     }
 
     @SuppressWarnings("unchecked")
-    public Stream<PackageSourceEntry> convertToSources(Converter converter, PackageID id) {
+    public Stream<CompilerInput> convertToSources(Converter converter, PackageID id) {
         return convert(converter).flatMap(t -> converter.finalize(t, id));
     }
 

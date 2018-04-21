@@ -120,10 +120,7 @@ public class AnnotationAttachment {
             return null;
         }
     }
-    
-    /**
-     * {@inheritDoc}
-     */
+
     @Override
     public String toString() {
         return "AnnotationAttachment{" + "name='" + name + '\'' + ", packagePath='" + packagePath + '\'' + ", " +

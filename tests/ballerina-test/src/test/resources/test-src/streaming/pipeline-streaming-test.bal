@@ -17,47 +17,48 @@
 import ballerina/runtime;
 import ballerina/io;
 
-struct StatusCount {
+type StatusCount {
     string status;
     int totalCount;
-}
+};
 
-struct Teacher {
+type Teacher {
     string name;
     int age;
     string status;
     string batch;
     string school;
-}
+};
 
 StatusCount[] globalStatusCountArray = [];
 int index = 0;
-stream<StatusCount> filteredStatusCountStream1 = {};
-stream<Teacher> preProcessedStatusCountStream = {};
-stream<Teacher> teacherStream3 = {};
 
-function testPipelineQuery () {
+stream<StatusCount> filteredStatusCountStream1;
+stream<Teacher> preProcessedStatusCountStream;
+stream<Teacher> teacherStream3;
 
-    whenever{
+function testPipelineQuery() {
+
+    forever {
         from teacherStream3 where age > 18
         select *
-        => (Teacher [] emp) {
+        => (Teacher[] emp) {
             preProcessedStatusCountStream.publish(emp);
         }
     }
 
-    whenever{
+    forever {
         from preProcessedStatusCountStream window lengthBatch(3)
-        select status, count( status) as totalCount
+        select status, count(status) as totalCount
         group by status
         having totalCount > 1
-        => (StatusCount [] emp) {
-                filteredStatusCountStream1.publish(emp);
+        => (StatusCount[] emp) {
+            filteredStatusCountStream1.publish(emp);
         }
     }
 }
 
-function startPipelineQuery () returns (StatusCount []) {
+function startPipelineQuery() returns (StatusCount[]) {
 
     testPipelineQuery();
 
@@ -70,18 +71,22 @@ function startPipelineQuery () returns (StatusCount []) {
     teacherStream3.publish(t1);
     teacherStream3.publish(t2);
     teacherStream3.publish(t3);
-
-    runtime:sleepCurrentWorker(1000);
-
+    int count = 0;
+    while(true) {
+        runtime:sleep(500);
+        count++;
+        if((lengthof globalStatusCountArray) > 0 || count == 10) {
+            break;
+        }
+    }
     return globalStatusCountArray;
 }
 
-function printStatusCount (StatusCount s) {
-    io:println("printStatusCount function invoked for status:" + s.status +" and total count :"+s.totalCount);
+function printStatusCount(StatusCount s) {
     addToGlobalStatusCountArray(s);
 }
 
-function addToGlobalStatusCountArray (StatusCount s) {
+function addToGlobalStatusCountArray(StatusCount s) {
     globalStatusCountArray[index] = s;
     index = index + 1;
 }

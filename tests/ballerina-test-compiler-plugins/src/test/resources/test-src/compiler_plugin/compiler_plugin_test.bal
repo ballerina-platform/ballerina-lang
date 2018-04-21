@@ -2,7 +2,7 @@ import images.jpeg;
 import images.gif;
 import images.png;
 import formats.yaml;
-import ballerina/net.http;
+import ballerina/http;
 
 @jpeg:IConfig {
     value: "routerFunc"

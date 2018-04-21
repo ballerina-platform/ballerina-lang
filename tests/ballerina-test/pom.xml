@@ -16,11 +16,12 @@
   ~ under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.964.1-SNAPSHOT</version>
+        <version>0.970.0-beta6-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -66,6 +67,14 @@
             <artifactId>ballerina-http</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-transactions</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-database</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
             <scope>test</scope>
@@ -88,6 +97,22 @@
             <artifactId>mockito-all</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-grpc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>protobuf-ballerina</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-micrometer-extension</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-prometheus-extension</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -100,7 +125,8 @@
                         <testEnvironmentVariable>EnvironmentVariable</testEnvironmentVariable>
                     </environmentVariables>
                     <systemPropertyVariables>
-                        <java.util.logging.config.file>${project.build.testOutputDirectory}/logging.properties</java.util.logging.config.file>
+                        <java.util.logging.config.file>${project.build.testOutputDirectory}/logging.properties
+                        </java.util.logging.config.file>
                         <java.util.logging.manager>org.ballerinalang.logging.BLogManager</java.util.logging.manager>
                     </systemPropertyVariables>
                     <suiteXmlFiles>
@@ -127,7 +153,8 @@
                             <excludes>
                                 <exclude>org/wso2/ballerinalang/compiler/parser/antlr4/**</exclude>
                             </excludes>
-                            <propertyName>jacoco.agent.argLine</propertyName> (2)
+                            <propertyName>jacoco.agent.argLine</propertyName>
+                            (2)
                             <destFile>${project.build.directory}/coverage-reports/jacoco.exec</destFile>
                         </configuration>
                     </execution>

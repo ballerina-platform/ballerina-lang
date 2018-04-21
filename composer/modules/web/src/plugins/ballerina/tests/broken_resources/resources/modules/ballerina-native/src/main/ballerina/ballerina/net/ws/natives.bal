@@ -1,4 +1,3 @@
-package ballerina.net.ws;
 
 import ballerina/doc;
 

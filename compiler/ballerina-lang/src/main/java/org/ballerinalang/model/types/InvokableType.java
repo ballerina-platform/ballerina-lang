@@ -26,5 +26,5 @@ public interface InvokableType extends Type {
 
     List<? extends Type> getParameterTypes();
 
-    List<? extends Type> getReturnTypes();
+    Type getReturnType();
 }

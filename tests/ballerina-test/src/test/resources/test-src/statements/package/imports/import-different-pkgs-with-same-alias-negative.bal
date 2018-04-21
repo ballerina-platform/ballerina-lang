@@ -1,6 +1,8 @@
-import ballerina/net.http as x;
-import ballerina/data.sql as x;
+import ballerina/http as x;
+import ballerina/sql as x;
 
 function testFunc() {
-    x:HttpClient httpClient = {};
+    endpoint x:Client clientEndpoint1 {
+       url: "https://postman-echo.com"
+    };
 }

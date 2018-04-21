@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.plugin.maven.doc;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -24,12 +25,21 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
+import org.ballerinalang.launcher.LauncherUtils;
+import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
+
+import java.io.PrintStream;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Generates Ballerina API docs for a given ballerina package.
  */
 @Mojo(name = "docerina", defaultPhase = LifecyclePhase.PROCESS_SOURCES)
 public class DocerinaMojo extends AbstractMojo {
+    private final PrintStream err = System.err;
     /**
      * Location of the output directory.
      */
@@ -39,8 +49,14 @@ public class DocerinaMojo extends AbstractMojo {
     /**
      * Comma separated list of the ballerina sources.
      */
-    @Parameter(property = "sourceDir", required = true)
+    @Parameter(property = "sourceDir", required = false)
     private String sourceDir;
+
+    /**
+     * Source root of the ballerina project.
+     */
+    @Parameter(property = "sourceRoot", required = false)
+    private String sourceRoot;
     
     /**
      * A custom templates directory.
@@ -60,6 +76,9 @@ public class DocerinaMojo extends AbstractMojo {
     @Parameter(property = "nativeCode", required = false)
     private boolean nativeCode;
 
+    @Parameter(property = "outputZip", required = false)
+    private String outputZip;
+
     /**
      * enable debug level logs.
      */
@@ -73,7 +92,24 @@ public class DocerinaMojo extends AbstractMojo {
         if (templatesDir != null) {
             System.setProperty(BallerinaDocConstants.TEMPLATES_FOLDER_PATH_KEY, templatesDir);
         }
-        String[] sources = sourceDir.split(",");
-        BallerinaDocGenerator.generateApiDocs(outputDir, packageFilter, nativeCode, sources);
+        if (outputZip != null) {
+            System.setProperty(BallerinaDocConstants.OUTPUT_ZIP_PATH, outputZip);
+        }
+
+        Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
+        List<String> sources;
+        if (sourceDir == null || sourceDir.isEmpty()) {
+            SourceDirectory srcDirectory = new FileSystemProjectDirectory(sourceRootPath);
+            sources = srcDirectory.getSourcePackageNames();
+        } else {
+            sources = Arrays.asList(sourceDir.split(","));
+        }
+
+        try {
+            BallerinaDocGenerator.generateApiDocs(sourceRoot, outputDir, packageFilter, nativeCode, sources.toArray
+                    (new String[sources.size()]));
+        } catch (Throwable e) {
+            err.println(ExceptionUtils.getStackTrace(e));
+        }
     }
 }

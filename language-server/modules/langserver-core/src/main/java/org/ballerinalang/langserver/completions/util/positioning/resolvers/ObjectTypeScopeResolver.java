@@ -17,13 +17,13 @@
 */
 package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.TreeVisitor;
-import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -45,8 +45,8 @@ public class ObjectTypeScopeResolver extends CursorPositionResolver {
      * @return {@link Boolean}      Whether the cursor is before the node start or not
      */
     @Override
-    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, Node node, TreeVisitor treeVisitor,
-                                      TextDocumentServiceContext completionContext) {
+    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, BLangNode node, TreeVisitor treeVisitor,
+                                      LSServiceOperationContext completionContext) {
         if (!(treeVisitor.getBlockOwnerStack().peek() instanceof BLangObject)) {
             return false;
         }
@@ -60,7 +60,8 @@ public class ObjectTypeScopeResolver extends CursorPositionResolver {
         
         
         if ((!ownerObject.fields.isEmpty() && node instanceof BLangVariable
-                && ownerObject.fields.indexOf(node) == ownerObject.fields.size() - 1)
+                && ownerObject.fields.indexOf(node) == ownerObject.fields.size() - 1
+                && ownerObject.functions.isEmpty())
                 || (!ownerObject.functions.isEmpty() && node instanceof BLangFunction 
                 && ownerObject.functions.indexOf(node) == ownerObject.functions.size() - 1)) {
             isLastField = true;
@@ -68,13 +69,14 @@ public class ObjectTypeScopeResolver extends CursorPositionResolver {
         
         if ((line < zeroBasedPos.getStartLine()
                 || (line == zeroBasedPos.getStartLine() && col < zeroBasedPos.getStartColumn()))
-                || (isLastField && (blockOwnerPos.getEndLine() > line
+                || (isLastField && ((blockOwnerPos.getEndLine() > line && zeroBasedPos.getEndLine() < line)
                 || (blockOwnerPos.getEndLine() == line && blockOwnerPos.getEndColumn() > col)))) {
             
             Map<Name, Scope.ScopeEntry> visibleSymbolEntries =
                     treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv());
             treeVisitor.populateSymbols(visibleSymbolEntries, null);
             treeVisitor.setTerminateVisitor(true);
+            treeVisitor.setNextNode(node);
             return true;
         }
         

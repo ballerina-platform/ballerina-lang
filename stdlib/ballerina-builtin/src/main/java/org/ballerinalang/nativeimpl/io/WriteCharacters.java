@@ -39,7 +39,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
-        functionName = "writeCharacters",
+        functionName = "write",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "CharacterChannel", structPackage = "ballerina.io"),
         args = {@Argument(name = "content", type = TypeKind.STRING),
                 @Argument(name = "startOffset", type = TypeKind.INT)},
@@ -70,16 +70,15 @@ public class WriteCharacters implements NativeCallableUnit {
      * @return the response returned from the event.
      */
     private static EventResult writeResponse(EventResult<Integer, EventContext> result) {
-        BStruct errorStruct = null;
         EventContext eventContext = result.getContext();
-        Integer numberOfCharactersWritten = result.getResponse();
         Context context = eventContext.getContext();
         CallableUnitCallback callback = eventContext.getCallback();
         Throwable error = eventContext.getError();
         if (null != error) {
-            errorStruct = IOUtils.createError(context, error.getMessage());
+            BStruct errorStruct = IOUtils.createError(context, error.getMessage());
             context.setReturnValues(errorStruct);
         } else {
+            Integer numberOfCharactersWritten = result.getResponse();
             context.setReturnValues(new BInteger(numberOfCharactersWritten));
         }
         callback.notifySuccess();

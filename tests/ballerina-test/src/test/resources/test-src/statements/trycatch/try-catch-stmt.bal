@@ -1,22 +1,22 @@
 import ballerina/runtime;
 
-public struct testError {
+public type testError {
     string message;
-    error[] cause;
+    error? cause;
     string code;
-}
+};
 
-public struct testDataError {
+public type testDataError {
     string message;
-    error[] cause;
+    error? cause;
     string data;
-}
+};
 
-public struct testInputError {
+public type testInputError {
     string message;
-    error[] cause;
+    error? cause;
     string input;
-}
+};
 
 function testTryCatch (int value) returns (string) {
     string path = "start ";
@@ -89,13 +89,13 @@ function testUncaughtException () {
 }
 
 function testErrorCallStackFrame () returns (runtime:CallStackElement, runtime:CallStackElement) {
-    runtime:CallStackElement trace1; 
-    runtime:CallStackElement trace2;
+    runtime:CallStackElement trace1 = {}; 
+    runtime:CallStackElement trace2 = {};
     try {
         testUncaughtException();
     } catch (error e) {
         trace1 = runtime:getErrorCallStackFrame(e); 
-        trace2 = runtime:getErrorCallStackFrame(e.cause[0]);
+        trace2 = runtime:getErrorCallStackFrame(e.cause);
     }
     return (trace1, trace2);
 }

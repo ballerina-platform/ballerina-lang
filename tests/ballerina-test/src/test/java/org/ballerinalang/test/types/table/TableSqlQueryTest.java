@@ -34,8 +34,8 @@ public class TableSqlQueryTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/types/table/table-sql.bal");
-        resultHelper = BCompileUtil.compile("test-src/types/table/table-test-helper.bal");
+        result = BCompileUtil.compile("test-src/types/table/table_sql.bal");
+        resultHelper = BCompileUtil.compile("test-src/types/table/table_test_helper.bal");
     }
 
     @Test(groups = "TableQueryTest", description = "Do a simple select all")
@@ -66,9 +66,31 @@ public class TableSqlQueryTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
+    @Test(groups = "TableQueryTest", description = "Do a simple join with the select and where along with group by")
+    public void testSelectWithJoinAndWhereWithGroupBy() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "testSelectWithJoinAndWhereWithGroupBy", args);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 4);
+    }
+
     @Test(dependsOnGroups = "TableQueryTest")
     public void testSessionCount() {
         BValue[] returns = BRunUtil.invoke(resultHelper, "getSessionCount");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+    }
+
+    @Test(groups = "TableQueryTest", description = "Do a simple select all with limit")
+    public void testSimpleSelectAllWithLimit() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "testSimpleSelectAllWithLimit", args);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+    }
+
+    @Test(groups = "TableQueryTest", description = "Do a simple join with the select and where along with group by " +
+                                                   "with limit")
+    public void testSelectWithJoinAndWhereWithGroupByWithLimit() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "testSelectWithJoinAndWhereWithGroupByWithLimit", args);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
     }
 }

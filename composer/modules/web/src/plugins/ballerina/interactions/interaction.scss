@@ -43,16 +43,24 @@
     opacity: 1 !important;
 }
 
+.right-arrow{
+    width: 0; 
+    height: 0; 
+    border-top: 60px solid transparent;
+    border-bottom: 60px solid transparent;
+    border-left: 60px solid green;
+}
+
 .button:hover .button-background-secondary, .button-show-always:hover .button-background-secondary {
-    color:#f1772a;
+    color:#2fb8b0;
     opacity: 1 !important;
-    border:1px solid #f1772a;
+    border:1px solid #2fb8b0;
 }
 
 .button-background {
-    color: #f1772a;
-    background-color: #f1772a;
-    border-radius: 50%;
+    color: #2fb8b0;
+    background-color: #2fb8b0;
+    border-radius: 0%;
     -webkit-box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 1px 5px 0 rgba(0,0,0,0.12), 0 3px 1px -2px rgba(0,0,0,0.2);
     box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 1px 5px 0 rgba(0,0,0,0.12), 0 3px 1px -2px rgba(0,0,0,0.2);
     height: 33Px;
@@ -72,7 +80,7 @@
     border: 1px solid #e2e2e2;
     text-decoration: none;
     background-color: #f9f9f9;
-    border-radius: 50%;
+    border-radius: 0%;
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
 
     &:hover {
@@ -276,4 +284,9 @@
 .nav-button {
     padding-right: 10px;
     cursor: pointer;
+}
+
+.menu-wrapper{
+    margin-left: 7px;
+    opacity: 0.3;
 }

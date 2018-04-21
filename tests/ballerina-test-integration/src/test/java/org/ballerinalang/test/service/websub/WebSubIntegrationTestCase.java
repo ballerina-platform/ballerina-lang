@@ -17,16 +17,26 @@
 */
 package org.ballerinalang.test.service.websub;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.util.HttpClientRequest;
+import org.ballerinalang.test.util.HttpResponse;
+import org.ballerinalang.test.util.HttpsClientRequest;
+import org.ballerinalang.test.util.TestConstant;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.net.ConnectException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executors;
+
+import static org.awaitility.Awaitility.given;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * This class includes an integration scenario which covers the following:
@@ -41,29 +51,36 @@ import java.util.concurrent.Executors;
  */
 public class WebSubIntegrationTestCase extends IntegrationTestCase {
 
+    private static String hubUrl = "https://localhost:9292/websub/hub";
     private static final String INTENT_VERIFICATION_SUBSCRIBER_LOG = "\"Intent verified for subscription request\"";
     private static final String INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_LOG =
             "WebSub Notification Received: {\"action\":\"publish\",\"mode\":\"internal-hub\"}";
     private static final String REMOTE_HUB_NOTIFICATION_SUBSCRIBER_LOG =
             "WebSub Notification Received: {\"action\":\"publish\",\"mode\":\"remote-hub\"}";
 
-    private LogLeecher intentVerificationLogLeecher;
     private LogLeecher internalHubNotificationLogLeecher;
     private LogLeecher remoteHubNotificationLogLeecher;
 
     private ServerInstance ballerinaWebSubSubscriber;
     private ServerInstance ballerinaWebSubPublisher;
 
-    @BeforeClass
-    public void setUp() throws BallerinaTestException, InterruptedException {
+    @Test
+    public void testStartUpAndIntentVerification() throws BallerinaTestException, InterruptedException {
         String[] clientArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
-                        + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath()};
+                          + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath(),
+                          "-ehub.remote_publishing.enabled=true"};
+        ballerinaWebSubPublisher = ServerInstance.initBallerinaServer();
 
-        intentVerificationLogLeecher = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_LOG);
+        LogLeecher intentVerificationLogLeecher = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_LOG);
         internalHubNotificationLogLeecher = new LogLeecher(INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_LOG);
         remoteHubNotificationLogLeecher = new LogLeecher(REMOTE_HUB_NOTIFICATION_SUBSCRIBER_LOG);
 
-        ballerinaWebSubPublisher = ServerInstance.initBallerinaServer();
+        String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
+                        + File.separator + "websub" + File.separator + "websub_test_subscriber.bal").getAbsolutePath();
+        ballerinaWebSubSubscriber = ServerInstance.initBallerinaServer(8181);
+        ballerinaWebSubSubscriber.addLogLeecher(intentVerificationLogLeecher);
+        ballerinaWebSubSubscriber.addLogLeecher(internalHubNotificationLogLeecher);
+        ballerinaWebSubSubscriber.addLogLeecher(remoteHubNotificationLogLeecher);
 
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
@@ -74,34 +91,35 @@ public class WebSubIntegrationTestCase extends IntegrationTestCase {
         });
 
         //Allow to bring up the hub
-        Thread.sleep(15000);
+        given().ignoreException(ConnectException.class).await().atMost(60, SECONDS).until(() -> {
+            HttpResponse response = HttpsClientRequest.doGet(hubUrl, ballerinaWebSubPublisher.getServerHome());
+            return response.getResponseCode() == 202;
+        });
 
-        String subscriberBal = new File(
-                "src" + File.separator + "test" + File.separator + "resources" + File.separator + "websub"
-                        + File.separator + "websub_test_subscriber.bal").getAbsolutePath();
-        ballerinaWebSubSubscriber = ServerInstance.initBallerinaServer(8181);
-        ballerinaWebSubSubscriber.addLogLeecher(intentVerificationLogLeecher);
-        ballerinaWebSubSubscriber.addLogLeecher(internalHubNotificationLogLeecher);
-        ballerinaWebSubSubscriber.addLogLeecher(remoteHubNotificationLogLeecher);
         ballerinaWebSubSubscriber.startBallerinaServer(subscriberBal);
 
-        //Allow for subscription and publishing
-        Thread.sleep(15000);
-    }
+        //Allow to start up the subscriber service
+        given().ignoreException(ConnectException.class).await().atMost(60, SECONDS).until(() -> {
+            Map<String, String> headers = new HashMap<>();
+            headers.put("X-Hub-Signature", "SHA256=5262411828583e9dc7eaf63aede0abac8e15212e06320bb021c433a20f27d553");
+            headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
+            HttpResponse response = HttpClientRequest.doPost(
+                    ballerinaWebSubSubscriber.getServiceURLHttp("websub"), "{\"dummy\":\"body\"}",
+                    headers);
+            return response.getResponseCode() == 202;
+        });
 
-    @Test
-    public void testSendingSubscriptionRequestAndIntentVerification() throws BallerinaTestException {
         intentVerificationLogLeecher.waitForText(10000);
     }
 
-    @Test
+    @Test(dependsOnMethods = "testStartUpAndIntentVerification")
     public void testContentReceiptForDirectHubNotification() throws BallerinaTestException {
-        internalHubNotificationLogLeecher.waitForText(10000);
+        internalHubNotificationLogLeecher.waitForText(20000);
     }
 
-    @Test
+    @Test(dependsOnMethods = "testStartUpAndIntentVerification")
     public void testContentReceiptForRemoteHubNotification() throws BallerinaTestException {
-        remoteHubNotificationLogLeecher.waitForText(10000);
+        remoteHubNotificationLogLeecher.waitForText(20000);
     }
 
     @AfterClass

@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.util.filters;
 
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
@@ -33,7 +33,7 @@ import java.util.List;
  */
 public class StatementTemplateFilter extends AbstractSymbolFilter {
     @Override
-    public List filterItems(TextDocumentServiceContext completionContext) {
+    public List filterItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
         // Populate the statement templates
@@ -108,6 +108,13 @@ public class StatementTemplateFilter extends AbstractSymbolFilter {
         workerReplyItem.setInsertText(Snippet.WORKER_REPLY.toString());
         workerReplyItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         completionItems.add(workerReplyItem);
+        
+        // Populate Match statement template
+        CompletionItem matchItem = new CompletionItem();
+        matchItem.setLabel(ItemResolverConstants.MATCH);
+        matchItem.setInsertText(Snippet.MATCH.toString());
+        matchItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
+        completionItems.add(matchItem);
         
         if (completionContext.get(CompletionKeys.LOOP_COUNT_KEY) > 0
                 && !completionContext.get(CompletionKeys.CURRENT_NODE_TRANSACTION_KEY)) {

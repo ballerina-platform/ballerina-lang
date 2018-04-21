@@ -1,4 +1,4 @@
-function f1 (string data) returns (@untainted string) {
+function f1 (string data) returns @untainted string {
     return f2(data);
 }
 

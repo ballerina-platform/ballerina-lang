@@ -73,14 +73,7 @@ public interface InstructionCodes {
 
     int MAPLOAD = 46;
     int JSONLOAD = 47;
-    int ENUMERATORLOAD = 48;
 
-    int ISTORE = 49;
-    int FSTORE = 50;
-    int SSTORE = 51;
-    int BSTORE = 52;
-    int LSTORE = 53;
-    int RSTORE = 54;
     int IASTORE = 55;
     int FASTORE = 56;
     int SASTORE = 57;
@@ -156,7 +149,6 @@ public interface InstructionCodes {
     int TR_RETRY = 119;
     int CALL = 120;
     int VCALL = 121;
-    int ACALL = 122;
     int THROW = 123;
     int ERRSTORE = 124;
     int FPCALL = 125;
@@ -225,6 +217,8 @@ public interface InstructionCodes {
     int ANY2TYPE = 182;
     int S2JSONX = 183;
     int NULL2S = 184;
+    int MAP2JSON = 194;
+    int JSON2MAP = 195;
 
     int LOCK = 185;
     int UNLOCK = 186;
@@ -239,6 +233,12 @@ public interface InstructionCodes {
     
     int AWAIT = 193;
 
+    int IS_ASSIGNABLE = 196;
+    int CHECK_CONVERSION = 197;
+    
+    int ARRAY2JSON = 198;
+    int JSON2ARRAY = 199;
+
     int INEWARRAY = 200;
     int FNEWARRAY = 201;
     int SNEWARRAY = 202;
@@ -250,7 +250,6 @@ public interface InstructionCodes {
     int LENGTHOF = 208;
 
     int NEWSTRUCT = 210;
-    int NEWCONNECTOR = 211;
     int NEWMAP = 212;
     int NEWJSON = 213;
     int NEWTABLE = 215;
@@ -261,28 +260,30 @@ public interface InstructionCodes {
     int ITR_HAS_NEXT = 221;
     int ITR_NEXT = 222;
 
-    int IRET = 231;
-    int FRET = 232;
-    int SRET = 233;
-    int BRET = 234;
-    int LRET = 235;
-    int RRET = 236;
-    int RET = 237;
+    int IRET = 229;
+    int FRET = 230;
+    int SRET = 231;
+    int BRET = 232;
+    int LRET = 233;
+    int RRET = 234;
+    int RET = 235;
 
-    int XML2XMLATTRS = 238;
-    int XMLATTRS2MAP = 239;
-    int XMLATTRLOAD = 240;
-    int XMLATTRSTORE = 241;
-    int S2QNAME = 242;
-    int NEWQNAME = 243;
-    int NEWXMLELEMENT = 244;
-    int NEWXMLCOMMENT = 245;
-    int NEWXMLTEXT = 246;
-    int NEWXMLPI = 247;
-    int XMLSTORE = 248;
-    int XMLLOAD = 249;
+    int XML2XMLATTRS = 236;
+    int XMLATTRS2MAP = 237;
+    int XMLATTRLOAD = 238;
+    int XMLATTRSTORE = 239;
+    int S2QNAME = 240;
+    int NEWQNAME = 241;
+    int NEWXMLELEMENT = 242;
+    int NEWXMLCOMMENT = 243;
+    int NEWXMLTEXT = 244;
+    int NEWXMLPI = 245;
+    int XMLSEQSTORE = 246;
+    int XMLSEQLOAD = 247;
+    int XMLLOAD = 248;
+    int XMLLOADALL = 249;
     int NEWXMLSEQ = 250;
-    
+
     int TYPEOF = 251;
     int TYPELOAD = 252;
 

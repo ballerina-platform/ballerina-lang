@@ -63,12 +63,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.LGLOAD] = "lgload";
         mnemonics[InstructionCodes.RGLOAD] = "rgload";
 
-        mnemonics[InstructionCodes.ISTORE] = "istore";
-        mnemonics[InstructionCodes.FSTORE] = "fstore";
-        mnemonics[InstructionCodes.SSTORE] = "sstore";
-        mnemonics[InstructionCodes.BSTORE] = "bstore";
-        mnemonics[InstructionCodes.LSTORE] = "lstore";
-        mnemonics[InstructionCodes.RSTORE] = "rstore";
         mnemonics[InstructionCodes.IASTORE] = "iastore";
         mnemonics[InstructionCodes.FASTORE] = "fastore";
         mnemonics[InstructionCodes.SASTORE] = "sastore";
@@ -100,8 +94,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.MAPSTORE] = "mapstore";
         mnemonics[InstructionCodes.JSONLOAD] = "jsonload";
         mnemonics[InstructionCodes.JSONSTORE] = "jsonstore";
-
-        mnemonics[InstructionCodes.ENUMERATORLOAD] = "enumeratorload";
 
         mnemonics[InstructionCodes.IADD] = "iadd";
         mnemonics[InstructionCodes.FADD] = "fadd";
@@ -153,7 +145,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.TR_RETRY] = "tr_retry";
         mnemonics[InstructionCodes.CALL] = "call";
         mnemonics[InstructionCodes.VCALL] = "ncall";
-        mnemonics[InstructionCodes.ACALL] = "acall";
         mnemonics[InstructionCodes.THROW] = "throw";
         mnemonics[InstructionCodes.ERRSTORE] = "errstore";
         mnemonics[InstructionCodes.FPCALL] = "fp_call";
@@ -206,6 +197,9 @@ public class Mnemonics {
         mnemonics[InstructionCodes.CHECKCAST] = "checkcast";
         mnemonics[InstructionCodes.DT2JSON] = "dt2json";
         mnemonics[InstructionCodes.DT2XML] = "dt2xml";
+        mnemonics[InstructionCodes.MAP2JSON] = "map2json";
+        mnemonics[InstructionCodes.JSON2MAP] = "json2map";
+        mnemonics[InstructionCodes.CHECK_CONVERSION] = "checkconversion";
 
         // Transactions
         mnemonics[InstructionCodes.TR_BEGIN] = "tr_begin";
@@ -227,7 +221,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.ARRAYLEN] = "arraylength";
 
         mnemonics[InstructionCodes.NEWSTRUCT] = "newstruct";
-        mnemonics[InstructionCodes.NEWCONNECTOR] = "newconnector";
         mnemonics[InstructionCodes.NEWMAP] = "newmap";
         mnemonics[InstructionCodes.NEWJSON] = "newjson";
         mnemonics[InstructionCodes.NEWTABLE] = "newtable";
@@ -256,8 +249,10 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NEWXMLCOMMENT] = "newxmlcomment";
         mnemonics[InstructionCodes.NEWXMLTEXT] = "newxmltext";
         mnemonics[InstructionCodes.NEWXMLPI] = "newxmlpi";
-        mnemonics[InstructionCodes.XMLSTORE] = "xmlstore";
+        mnemonics[InstructionCodes.XMLSEQSTORE] = "xmlseqstore";
+        mnemonics[InstructionCodes.XMLSEQLOAD] = "xmlseqload";
         mnemonics[InstructionCodes.XMLLOAD] = "xmlload";
+        mnemonics[InstructionCodes.XMLLOADALL] = "xmlloadall";
         mnemonics[InstructionCodes.NEWXMLSEQ] = "newxmlseq";
         mnemonics[InstructionCodes.S2XML] = "s2xml";
         mnemonics[InstructionCodes.XML2S] = "xml2s";

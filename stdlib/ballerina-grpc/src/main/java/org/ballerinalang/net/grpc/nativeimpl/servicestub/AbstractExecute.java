@@ -26,25 +26,27 @@ import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 
-import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
-import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
+import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 
 /**
  * {@code AbstractExecute} is the Execute action implementation of the gRPC Connector.
  *
  * @since 1.0.0
  */
-public abstract class AbstractExecute extends BlockingNativeCallableUnit {
-
+abstract class AbstractExecute extends BlockingNativeCallableUnit {
+    
     /**
      * Returns corresponding Ballerina type for the proto buffer type.
      *
      * @param protoType Protocol buffer type
-     * @param context Ballerina Context
+     * @param context   Ballerina Context
      * @return .
      */
     BType getBalType(String protoType, Context context) {
@@ -67,36 +69,28 @@ public abstract class AbstractExecute extends BlockingNativeCallableUnit {
             return context.getProgramFile().getEntryPackage().getStructInfo(protoType).getType();
         }
     }
-
+    
     MethodDescriptor.MethodType getMethodType(Descriptors.MethodDescriptor
-                                                                    methodDescriptor) throws GrpcClientException {
+                                                      methodDescriptor) throws GrpcClientException {
         if (methodDescriptor == null) {
             throw new GrpcClientException("Error while processing method type. Method descriptor cannot be null.");
         }
         DescriptorProtos.MethodDescriptorProto methodDescriptorProto = methodDescriptor.toProto();
-        if (methodDescriptorProto.getClientStreaming() && methodDescriptorProto.getServerStreaming()) {
-            return MethodDescriptor.MethodType.BIDI_STREAMING;
-        } else if (!(methodDescriptorProto.getClientStreaming() || methodDescriptorProto.getServerStreaming())) {
-            return MethodDescriptor.MethodType.UNARY;
-        } else if (methodDescriptorProto.getServerStreaming()) {
-            return MethodDescriptor.MethodType.SERVER_STREAMING;
-        } else if (methodDescriptorProto.getClientStreaming()) {
-            return MethodDescriptor.MethodType.CLIENT_STREAMING;
-        } else {
-            return MethodDescriptor.MethodType.UNKNOWN;
-        }
+        return MessageUtils.getMethodType(methodDescriptorProto);
     }
-
+    
     BStruct createStruct(Context context, String structName) {
         PackageInfo httpPackageInfo = context.getProgramFile()
-                .getPackageInfo(PROTOCOL_PACKAGE_GRPC);
+                .getPackageInfo(PROTOCOL_STRUCT_PACKAGE_GRPC);
         StructInfo structInfo = httpPackageInfo.getStructInfo(structName);
         BStructType structType = structInfo.getType();
         return new BStruct(structType);
     }
-
+    
     void notifyErrorReply(Context context, String errorMessage) {
-        BStruct outboundError = createStruct(context, CONNECTOR_ERROR);
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_BUILTIN);
+        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
+        BStruct outboundError = new BStruct(errorStructInfo.getType());
         outboundError.setStringField(0, errorMessage);
         context.setError(outboundError);
     }

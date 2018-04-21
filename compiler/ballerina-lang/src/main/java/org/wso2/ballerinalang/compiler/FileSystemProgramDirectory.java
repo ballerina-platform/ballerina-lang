@@ -18,10 +18,12 @@
 package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.wso2.ballerinalang.compiler.packaging.repo.ProgramingSourceRepo;
-import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
+import org.ballerinalang.repository.CompiledPackage;
+import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
+import org.wso2.ballerinalang.compiler.packaging.converters.PathConverter;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.AccessDeniedException;
@@ -81,7 +83,7 @@ public class FileSystemProgramDirectory implements SourceDirectory {
 
     @Override
     public InputStream getManifestContent() {
-        throw new UnsupportedOperationException("manifest file is not available in a program directory");
+        return new ByteArrayInputStream(new byte[0]);
     }
 
     @Override
@@ -90,10 +92,11 @@ public class FileSystemProgramDirectory implements SourceDirectory {
     }
 
     @Override
-    public void saveCompiledProgram(InputStream source, String fileName) {
+    public Path saveCompiledProgram(InputStream source, String fileName) {
         Path targetFilePath = programDirPath.resolve(fileName);
         try {
             Files.copy(source, targetFilePath, StandardCopyOption.REPLACE_EXISTING);
+            return targetFilePath;
         } catch (DirectoryNotEmptyException e) {
             throw new BLangCompilerException("A directory exists with the same name as the file name '" +
                     targetFilePath.toString() + "'");
@@ -105,12 +108,14 @@ public class FileSystemProgramDirectory implements SourceDirectory {
     }
 
     @Override
-    public void saveCompiledPackage(InputStream source, String fileName) {
+    public void saveCompiledPackage(CompiledPackage compiledPackage,
+                                    Path dirPath,
+                                    String fileName)  throws IOException {
 
     }
 
     @Override
-    public Repo getPackageRepository() {
-        return new ProgramingSourceRepo(programDirPath);
+    public Converter<Path> getConverter() {
+        return new PathConverter(programDirPath);
     }
 }

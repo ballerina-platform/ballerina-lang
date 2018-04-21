@@ -178,6 +178,16 @@ public interface TomlListener extends ParseTreeListener {
 	 */
 	void exitBasicString(TomlParser.BasicStringContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link TomlParser#basicStringValue}.
+	 * @param ctx the parse tree
+	 */
+	void enterBasicStringValue(TomlParser.BasicStringValueContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link TomlParser#basicStringValue}.
+	 * @param ctx the parse tree
+	 */
+	void exitBasicStringValue(TomlParser.BasicStringValueContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link TomlParser#basicChar}.
 	 * @param ctx the parse tree
 	 */

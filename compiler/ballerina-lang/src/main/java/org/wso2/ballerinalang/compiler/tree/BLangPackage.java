@@ -28,19 +28,22 @@ import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ObjectNode;
-import org.ballerinalang.model.tree.PackageDeclarationNode;
 import org.ballerinalang.model.tree.PackageNode;
+import org.ballerinalang.model.tree.RecordNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TransformerNode;
+import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 import org.ballerinalang.repository.PackageRepository;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnostic;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -51,7 +54,6 @@ import java.util.Set;
  */
 public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangCompilationUnit> compUnits;
-    public BLangPackageDeclaration pkgDecl;
     public List<BLangImportPackage> imports;
     public List<BLangXMLNS> xmlnsList;
     public List<BLangEndpoint> globalEndpoints;
@@ -61,11 +63,14 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangFunction> functions;
     public List<BLangStruct> structs;
     public List<BLangObject> objects;
+    public List<BLangTypeDefinition> typeDefinitions;
     public List<BLangEnum> enums;
     public List<BLangAnnotation> annotations;
+    public List<BLangRecord> records;
     public BLangFunction initFunction, startFunction, stopFunction;
     public Set<CompilerPhase> completedPhases;
     public List<BLangTransformer> transformers;
+    public List<BSymbol> objAttachedFunctions;
     public List<TopLevelNode> topLevelNodes;
 
     public PackageID packageID;
@@ -73,8 +78,8 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public PackageRepository packageRepository;
 
     // TODO Revisit these instance variables
-    public Path loadedFilePath;
-    public boolean loadedFromProjectDir;
+    public BDiagnosticCollector diagCollector;
+
     public RepoHierarchy repos;
 
     public BLangPackage() {
@@ -88,12 +93,16 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.functions = new ArrayList<>();
         this.structs = new ArrayList<>();
         this.objects = new ArrayList<>();
+        this.records = new ArrayList<>();
+        this.typeDefinitions = new ArrayList<>();
         this.enums = new ArrayList<>();
         this.annotations = new ArrayList<>();
         this.transformers = new ArrayList<>();
 
+        this.objAttachedFunctions = new ArrayList<>();
         this.topLevelNodes = new ArrayList<>();
         this.completedPhases = EnumSet.noneOf(CompilerPhase.class);
+        this.diagCollector = new BDiagnosticCollector();
     }
 
     @Override
@@ -147,8 +156,13 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
-    public List<? extends ObjectNode> getObjects() {
+    public List<BLangObject> getObjects() {
         return objects;
+    }
+
+    @Override
+    public List<BLangTypeDefinition> getTypeDefinitions() {
+        return typeDefinitions;
     }
 
     @Override
@@ -164,6 +178,11 @@ public class BLangPackage extends BLangNode implements PackageNode {
     @Override
     public List<? extends TransformerNode> getTransformers() {
         return transformers;
+    }
+
+    @Override
+    public List<BLangRecord> getRecords() {
+        return records;
     }
 
     @Override
@@ -237,17 +256,44 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
-    public void setPackageDeclaration(PackageDeclarationNode pkgDecl) {
-        this.pkgDecl = (BLangPackageDeclaration) pkgDecl;
+    public void addRecord(RecordNode recordNode) {
+        this.records.add((BLangRecord) recordNode);
+        this.topLevelNodes.add(recordNode);
     }
 
     @Override
-    public PackageDeclarationNode getPackageDeclaration() {
-        return pkgDecl;
+    public void addTypeDefinition(TypeDefinition typeDefinition) {
+        this.typeDefinitions.add((BLangTypeDefinition) typeDefinition);
+        this.topLevelNodes.add(typeDefinition);
     }
 
     @Override
     public NodeKind getKind() {
         return NodeKind.PACKAGE;
+    }
+
+    /**
+     * This class collect diagnostics.
+     *
+     * @since 0.970.0
+     */
+    public static class BDiagnosticCollector {
+        private int errorCount;
+        private List<BDiagnostic> diagnostics;
+
+        public BDiagnosticCollector() {
+            this.diagnostics = new ArrayList<>();
+        }
+
+        public void addDiagnostic(BDiagnostic diagnostic) {
+            this.diagnostics.add(diagnostic);
+            if (diagnostic.getKind() == Diagnostic.Kind.ERROR) {
+                this.errorCount++;
+            }
+        }
+
+        public boolean hasErrors() {
+            return this.errorCount > 0;
+        }
     }
 }

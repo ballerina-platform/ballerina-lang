@@ -94,13 +94,23 @@ function testUnreachableBreak() returns (string){
     return "done";
 }
 
-public struct testError {
+public type testError {
     string message;
-    error[] cause;
+    error? cause;
     string code;
-}
+};
 
 function testUnreachableThrow (int value) returns (string) {
+    if (value > 10) {
+        testError tError = {message:"error", code:"test"};
+        return "unreachable throw";
+        throw tError;
+    }
+    return "done";
+}
+
+function testRedeclareFunctionArgument (int value) returns (string) {
+    int value = 11;
     if (value > 10) {
         testError tError = {message:"error", code:"test"};
         return "unreachable throw";

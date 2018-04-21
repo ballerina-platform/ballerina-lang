@@ -18,14 +18,19 @@
 package org.ballerinalang.nativeimpl.time;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import java.util.Arrays;
+
+import static org.ballerinalang.nativeimpl.Utils.STRUCT_TYPE_TIME;
 
 /**
  * Get the hour, minute, second and millisecond value for the given time.
@@ -34,9 +39,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
-        functionName = "Time.getTime",
-        args = {@Argument(name = "time", type = TypeKind.STRUCT, structType = "Time",
-                          structPackage = "ballerina.time")},
+        functionName = "getTime",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = STRUCT_TYPE_TIME, structPackage = "ballerina.time"),
         returnType = {@ReturnType(type = TypeKind.INT),
                       @ReturnType(type = TypeKind.INT),
                       @ReturnType(type = TypeKind.INT),
@@ -45,10 +49,13 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class GetTime extends AbstractTimeFunction {
 
+    private static final BTupleType getTimeTupleType = new BTupleType(
+            Arrays.asList(BTypes.typeInt, BTypes.typeInt, BTypes.typeInt, BTypes.typeInt));
+
     @Override
     public void execute(Context context) {
         BStruct timeStruct = ((BStruct) context.getRefArgument(0));
-        BRefValueArray time = new BRefValueArray(BTypes.typeInt);
+        BRefValueArray time = new BRefValueArray(getTimeTupleType);
         time.add(0, new BInteger(getHour(timeStruct)));
         time.add(1, new BInteger(getMinute(timeStruct)));
         time.add(2, new BInteger(getSecond(timeStruct)));

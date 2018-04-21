@@ -34,6 +34,7 @@ function requireAll(requireContext) {
 }
 
 const treeNodes = requireAll(require.context('./tree/', true, /\.js$/));
+
 /**
  * A utill class to build the client side AST from serialized JSON.
  *
@@ -122,7 +123,7 @@ class TreeBuilder {
 
         if (kind === 'Identifier') {
             if (node.literal) {
-                node.valueWithBar = '|' + node.value + '|';
+                node.valueWithBar = '^"' + node.value + '"';
             } else {
                 node.valueWithBar = node.value;
             }
@@ -133,6 +134,10 @@ class TreeBuilder {
                 if ((node.alias.value !== node.packageName[node.packageName.length - 1].value)) {
                     node.userDefinedAlias = true;
                 }
+            }
+            if (node.packageName.length === 2
+                && node.packageName[0].value === 'transactions' && node.packageName[1].value === 'coordinator') {
+                node.isInternal = true;
             }
         }
 
@@ -150,6 +155,21 @@ class TreeBuilder {
             node.endpoint = true;
         }
 
+        if (node.kind === 'Service') {
+            if (!node.serviceTypeStruct) {
+                node.isServiceTypeUnavailable = true;
+            }
+        }
+
+        // Mark the first argument ad a service endpoint.
+        if (node.kind === 'Resource' && node.parameters[0]) {
+            const endpointParam = node.parameters[0];
+            const valueWithBar = endpointParam.name.valueWithBar || endpointParam.name.value;
+            endpointParam.serviceEndpoint = true;
+            endpointParam.name.setValue(endpointParam.name.getValue().replace('$', ''));
+            endpointParam.name.valueWithBar = valueWithBar.replace('$', '');
+        }
+
         // Add the positions for the join and timeout bodies.
         if (node.kind === 'ForkJoin') {
             if (node.joinBody) {
@@ -158,6 +178,148 @@ class TreeBuilder {
 
             if (node.timeoutBody) {
                 node.timeoutBody.position = node.timeOutExpression.position;
+            }
+        }
+
+        // Check if sorrounded by curlies
+        if (node.kind === 'MatchPatternClause') {
+            if (!node.ws) {
+                node.withoutCurlies = true;
+            }
+        }
+
+        // Check if sorrounded by parantheses
+        if (node.kind === 'ValueType') {
+            if (node.ws && node.ws.length > 2) {
+                node.withParantheses = true;
+            }
+        }
+
+        if (node.kind === 'UnionTypeNode') {
+            if (node.ws && node.ws.length > 2) {
+                node.withParantheses = true;
+            }
+        }
+
+        if (node.kind === 'Function') {
+            if (node.returnTypeNode && node.returnTypeNode.typeKind !== 'nil') {
+                node.hasReturns = true;
+                if (node.ws) {
+                    for (let i = 0; i < node.ws.length; i++) {
+                        if (node.ws[i].text === ')' && node.ws[i + 1].text !== 'returns') {
+                            for (let j = 0; j < node.returnTypeNode.ws.length; j++) {
+                                if (node.returnTypeNode.ws[j].text === 'returns') {
+                                    node.ws.splice((i + 1), 0, node.returnTypeNode.ws[j]);
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (node.receiver && !node.receiver.ws) {
+                node.noVisibleReceiver = true;
+            }
+        }
+
+        if (node.kind === 'Object') {
+            node.publicFields = [];
+            node.privateFields = [];
+            let fields = node.fields;
+            let privateFieldBlockVisible = false;
+            let publicFieldBlockVisible = false;
+
+            for (let i = 0; i < fields.length; i++) {
+                if (fields[i].public) {
+                    node.publicFields.push(fields[i]);
+                } else {
+                    node.privateFields.push(fields[i]);
+                }
+            }
+
+            if (node.ws) {
+                for (let i = 0; i < node.ws.length; i++) {
+                    if (node.ws[i].text === 'public' && node.ws[i + 1].text === '{') {
+                        publicFieldBlockVisible = true;
+                    }
+
+                    if (node.ws[i].text === 'private' && node.ws[i + 1].text === '{') {
+                        privateFieldBlockVisible = true;
+                    }
+                }
+            }
+
+            if (node.privateFields.length <= 0 && !privateFieldBlockVisible) {
+                node.noPrivateFieldsAvailable = true;
+            }
+
+            if (node.publicFields.length <= 0 && !publicFieldBlockVisible) {
+                node.noPublicFieldAvailable = true;
+            }
+
+            if (fields.length <= 0 && node.noPrivateFieldsAvailable && node.noPublicFieldAvailable) {
+                node.noFieldsAvailable = true;
+            }
+
+            if (node.initFunction) {
+                if (!node.initFunction.ws) {
+                    node.initFunction.defaultConstructor = true;
+                } else {
+                    node.initFunction.isConstructor = true;
+                }
+            }
+        }
+
+        if (node.kind === 'TypeInitExpr') {
+            if (node.expressions.length <= 0) {
+                node.noExpressionAvailable = true;
+            }
+
+            if (!node.type) {
+                node.noTypeAttached = true;
+            } else {
+                node.typeName = node.type.typeName;
+            }
+        }
+
+        if (node.kind === 'Return') {
+            if (node.expression && node.expression.kind === 'Literal') {
+                if (node.expression.value === '()') {
+                    node.noExpressionAvailable = true;
+                }
+
+                if (node.expression.value === 'null') {
+                    node.emptyBrackets = true;
+                }
+            }
+        }
+
+        if (node.kind === "Documentation") {
+            for (let j = 0; j < node.attributes.length; j++) {
+                let attribute = node.attributes[j];
+                if (attribute.ws) {
+                    let wsLength = attribute.ws.length;
+                    for (let i = 0; i < wsLength; i++) {
+                        let text = attribute.ws[i].text;
+                        if (text.includes('{{') && !attribute.paramType) {
+                            let lastIndex = text.indexOf('{{');
+                            let paramType = text.substr(0, lastIndex);
+                            let startCurl = text.substr(lastIndex, text.length);
+                            attribute.ws[i].text = paramType;
+                            attribute.paramType = paramType;
+                            attribute.ws.splice((++i), 0, {text: startCurl, ws: "", static: false});
+                        }
+                    }
+                }
+            }
+        }
+
+        // Tag rest variable nodes
+        if (node.kind === 'Function' || node.kind === 'Resource') {
+            if (node.restParameters) {
+                node.restParameters.rest = true;
             }
         }
     }

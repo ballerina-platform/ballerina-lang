@@ -27,7 +27,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
  */
 public class BConversionOperatorSymbol extends BOperatorSymbol {
 
-    public boolean safe;
+//    public boolean safe;
     public boolean implicit;
 
     public BConversionOperatorSymbol(PackageID pkgID,
@@ -37,7 +37,7 @@ public class BConversionOperatorSymbol extends BOperatorSymbol {
                                      boolean safe,
                                      int opcode) {
         super(Names.CONVERSION_OP, pkgID, type, owner, opcode);
-        this.safe = safe;
+//        this.safe = safe;
         this.implicit = implicit;
     }
 }

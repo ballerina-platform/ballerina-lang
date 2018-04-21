@@ -29,12 +29,12 @@ import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import java.io.PrintStream;
 
 import static org.ballerinalang.net.grpc.EndpointConstants.SERVICE_ENDPOINT_INDEX;
+import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_SERVER;
+import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_TYPE;
 import static org.ballerinalang.net.grpc.GrpcServicesBuilder.stop;
-import static org.ballerinalang.net.grpc.MessageConstants.GRPC_SERVER;
-import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
-import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_ENDPOINT_TYPE;
 
 /**
  * Native function to start gRPC server instance.
@@ -51,6 +51,7 @@ import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_ENDPOINT_TYPE;
 )
 public class Start extends AbstractGrpcNativeFunction {
     private static final PrintStream console = System.out;
+    private static final PrintStream consoleErr = System.err;
     
     @Override
     public void execute(Context context) {
@@ -63,6 +64,7 @@ public class Start extends AbstractGrpcNativeFunction {
             console.println("ballerina: started gRPC server connector on port " + server.getPort());
             GrpcServicesBuilder.blockUntilShutdown(server);
         } catch (GrpcServerException e) {
+            consoleErr.println("ballerina: failed to bind gRPC server to port. address already in use ");
             context.setError(MessageUtils.getConnectorError(context, new GrpcServerException("Error in starting gRPC " +
                     "service.", e)));
         } catch (InterruptedException e) {

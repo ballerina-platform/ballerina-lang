@@ -38,8 +38,8 @@ import com.intellij.psi.PsiManager;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
+import org.ballerinalang.plugins.idea.psi.FormalParameterListNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
@@ -167,8 +167,8 @@ public class BallerinaRunUtil {
             return false;
         }
         // Get the ParameterListNode which contains all the parameters in the function.
-        ParameterListNode parameterListNode = PsiTreeUtil.getChildOfType(functionDefinitionNode, ParameterListNode
-                .class);
+        FormalParameterListNode parameterListNode = PsiTreeUtil.getChildOfType(functionDefinitionNode,
+                FormalParameterListNode.class);
         if (parameterListNode == null) {
             return false;
         }

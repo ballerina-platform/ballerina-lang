@@ -55,7 +55,7 @@ public class BLangVMWorkers {
 //
 //            BLangVM bLangVM = new BLangVM(programFile);
 //            ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
-//            WorkerExecutor workerRunner = new WorkerExecutor(bLangVM, workerContext, workerInfo, 
+//            WorkerExecutor workerRunner = new WorkerExecutor(bLangVM, workerContext, workerInfo,
 //                    new ConcurrentLinkedQueue<>());
 //            workerContext.startTrackWorker();
 //            executor.submit(workerRunner);
@@ -126,7 +126,7 @@ public class BLangVMWorkers {
         private Queue<WorkerResult> resultHolder;
         private Semaphore resultCounter;
 
-        public WorkerExecutor(Context bContext, WorkerInfo workerInfo, 
+        public WorkerExecutor(Context bContext, WorkerInfo workerInfo,
                 Queue<WorkerResult> resultHolder) {
 //            this.bLangVM = bLangVM;
             this.bContext = bContext;
@@ -177,11 +177,11 @@ public class BLangVMWorkers {
 //                this.resultCounter.release();
 //            }
         }
-//        
+//
 //        public void setResultCounterSemaphore(Semaphore resultCounter) {
 //            this.resultCounter = resultCounter;
 //        }
-//        
+//
     }
 
     static class WorkerReturnIndex {

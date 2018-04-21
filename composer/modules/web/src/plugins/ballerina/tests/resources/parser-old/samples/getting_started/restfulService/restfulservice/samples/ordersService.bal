@@ -1,8 +1,7 @@
-package restfulservice.samples;
 
 import ballerina/lang.messages;
 import ballerina/lang.strings;
-import ballerina/net.http;
+import ballerina/http;
 
 @http:configuration {basePath:"/orderservice"}
 service<http> OrderMgtService {

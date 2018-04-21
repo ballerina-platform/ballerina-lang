@@ -30,6 +30,7 @@ import DebuggerPanel from './views/DebuggerPanel';
 import DebuggerConsole from './views/DebugConsole';
 import LauncherConfigDialog from './views/LauncherConfigDialog';
 import RemoteDebugDialog from './views/RemoteDebugDialog';
+import TraceLog from './views/TraceLog/TraceLog';
 
 import LaunchManager from './LaunchManager';
 import DebugManager from './DebugManager';
@@ -151,6 +152,31 @@ class DebuggerPlugin extends Plugin {
                     regionOptions: {
                         panelTitle: 'Console',
                         panelActions: [
+                        ],
+                    },
+                    displayOnLoad: true,
+                },
+                {
+                    id: VIEW_IDS.LOGS_CONSOLE,
+                    component: TraceLog,
+                    propsProvider: () => {
+                        LaunchManager.init(getServiceEndpoint('ballerina-launcher'));
+                        return {
+                            debuggerPlugin: this,
+                            LaunchManager,
+                        };
+                    },
+                    region: REGIONS.BOTTOM_PANEL,
+                    // region specific options for bottom views
+                    regionOptions: {
+                        panelTitle: 'Trace Logs',
+                        panelActions: [
+                            {
+                                icon: 'start',
+                                handleAction: () => {
+
+                                },
+                            },
                         ],
                     },
                     displayOnLoad: true,

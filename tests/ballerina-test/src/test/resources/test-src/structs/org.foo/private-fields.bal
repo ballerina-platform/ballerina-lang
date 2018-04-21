@@ -1,48 +1,46 @@
-package org.foo;
 
-public struct userFoo {
+public type userFoo {
     int age;
     string name;
     string address;
     string zipcode = "23468";
-}
+    string ssn;
+};
 
-public function <userFoo u> getName() returns (string) {
-    return u.name;
-}
-
-public function <userFoo u> getAge() returns (int) {
-    return u.age;
-}
-
-public struct user {
+public type user {
     int age;
     string name;
     string address;
     string zipcode = "23468";
-}
+};
 
-public struct person {
+public type person  {
     int age;
     string name;
-    private:
-        string ssn;
-        int id;
-}
+    string ssn;
+    int id;
+};
 
-struct student {
+type student {
     int age;
     string name;
-    private:
-        string ssn;
-        int id;
-        int schoolId;
-}
+    string ssn;
+    int id;
+    int schoolId;
+};
 
 public function newPerson() returns (person) {
-    return {age:12, name:"mad", ssn:"234-90-8887"};
+    person p = {};
+    p.age = 12;
+    p.name = "mad";
+    p.ssn = "234-90-8887";
+    return p;
 }
 
 public function newUser() returns (user) {
-    return {age:56, name:"mal", zipcode:"23126"};
+    user u = {};
+    u.age = 56;
+    u.name = "mal";
+    u.zipcode = "23126";
+    return u;
 }

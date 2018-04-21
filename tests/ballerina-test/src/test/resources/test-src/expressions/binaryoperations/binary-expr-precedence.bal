@@ -27,6 +27,6 @@ function multiBinaryANDExpr(boolean one, boolean two, boolean three) returns (in
 function getBoolean() returns (boolean ) {
     json j = {};
     string val = "ss";
-    val, _ = (string)j.isPresent;
+    val = check <string>j.isPresent;
     return (val == "test");
 }

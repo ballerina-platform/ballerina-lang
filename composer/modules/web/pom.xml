@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>composer</artifactId>
-        <version>0.964.1-SNAPSHOT</version>
+        <version>0.970.0-beta6-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -51,6 +51,18 @@
                             <appendAssemblyId>false</appendAssemblyId>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>library-distribution</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attached</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>${basedir}/library/assembly/bin.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -58,6 +70,20 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.5.0</version>
                 <executions>
+                    <execution>
+                        <id>backup-package-lock</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>validate</phase>
+                        <configuration>
+                            <skip>${skipClientSideBuild}</skip>
+                            <executable>node</executable>
+                            <arguments>
+                                <argument>../scripts/npm-preinstall</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
                     <execution>
                         <id>npm install (initialize)</id>
                         <goals>
@@ -72,35 +98,17 @@
                             </arguments>
                         </configuration>
                     </execution>
-                    <!-- 'npm run clean' which is run in clean lifecycle needs 'rimraf' node module.
-                     Make sure it is installed  -->
                     <execution>
-                      <id>npm install rimraf (clean)</id>
-                      <goals>
-                        <goal>exec</goal>
-                      </goals>
-                      <phase>pre-clean</phase>
-                      <configuration>
-                        <skip>${skipClientSideBuild}</skip>
-                        <executable>${npm.executable}</executable>
-                        <arguments>
-                          <argument>install</argument>
-                          <argument>rimraf</argument>
-                        </arguments>
-                      </configuration>
-                    </execution>
-                    <execution>
-                        <id>npm run clean (clean)</id>
+                        <id>replace-package-lock</id>
                         <goals>
                             <goal>exec</goal>
                         </goals>
-                        <phase>clean</phase>
+                        <phase>generate-sources</phase>
                         <configuration>
                             <skip>${skipClientSideBuild}</skip>
-                            <executable>${npm.executable}</executable>
+                            <executable>node</executable>
                             <arguments>
-                                <argument>run</argument>
-                                <argument>clean</argument>
+                                <argument>../scripts/npm-postinstall</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -116,6 +124,21 @@
                             <arguments>
                                 <argument>run</argument>
                                 <argument>${npm.build.command}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm run build (compile) library</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <skip>${skipClientSideBuild}</skip>
+                            <executable>${npm.executable}</executable>
+                            <arguments>
+                                <argument>run</argument>
+                                <argument>build-library</argument>
                             </arguments>
                         </configuration>
                     </execution>

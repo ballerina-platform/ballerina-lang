@@ -39,9 +39,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
-        functionName = "writeTextRecord",
+        functionName = "write",
         receiver = @Receiver(type = TypeKind.STRUCT,
-                structType = "DelimitedRecordChannel",
+                structType = "DelimitedTextRecordChannel",
                 structPackage = "ballerina.io"),
         args = {@Argument(name = "content", type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
@@ -66,15 +66,14 @@ public class WriteTextRecord implements NativeCallableUnit {
      * @return the result context.
      */
     private static EventResult writeResponse(EventResult<Integer, EventContext> result) {
-        BStruct errorStruct = null;
         EventContext eventContext = result.getContext();
         Context context = eventContext.getContext();
         CallableUnitCallback callback = eventContext.getCallback();
         Throwable error = eventContext.getError();
         if (null != error) {
-            errorStruct = IOUtils.createError(context, error.getMessage());
+            BStruct errorStruct = IOUtils.createError(context, error.getMessage());
+            context.setReturnValues(errorStruct);
         }
-        context.setReturnValues(errorStruct);
         callback.notifySuccess();
         return result;
     }

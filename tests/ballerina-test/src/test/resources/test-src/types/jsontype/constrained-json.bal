@@ -1,24 +1,24 @@
-struct Person {
+type Person  {
     string name;
     int age;
     string address;
-}
+};
 
-struct Student {
+type Student {
     string name;
     int age;
     string address;
     string class;
-}
+};
 
-function testJsonStructConstraint() returns (json, json, json, string, int, string) {
+function testJsonStructConstraint() returns (json, json, json, string|error, int|error, string|error) {
     json<Person> j = {};
     j.name = "John Doe";
     j.age = 30;
     j.address = "London";
-    var name, _ = (string) j.name;
-    var age, _ = (int) j.age;
-    var address, _ = (string) j.address;
+    var name = <string> j.name;
+    var age = <int> j.age;
+    var address = <string> j.address;
     return (j.name, j.age, j.address, name, age, address);
 }
 
@@ -62,24 +62,24 @@ function getStudent() returns (json<Student>){
     return j;
 }
 
-struct Employee {
+type Employee {
     string first_name;
     string last_name;
     int age;
     Address address;
-}
+};
 
-struct Address {
+type Address {
     string number;
     string street;
     string city;
     PhoneNumber phoneNumber;
-}
+};
 
-struct PhoneNumber {
+type PhoneNumber {
     string areaCode;
     string number;
-}
+};
 
 function testContrainingWithNestedStructs() returns (json, json, json) {
     json<Employee> e = {first_name:"John", last_name:"Doe", age:30, address:{phoneNumber:{number:"1234"}, street:"York St"}};
@@ -88,87 +88,86 @@ function testContrainingWithNestedStructs() returns (json, json, json) {
 
 function testConstraintJSONToJSONCast() returns (json) {
     json<Person> j1 = getPerson();
-    json j2 = (json) j1;
+    json j2 = <json> j1;
     return j2;
 }
 
-function testJSONToConstraintJsonUnsafeCast() returns (json, error) {
-    json<Person> j;
-    error err;
-    j,err = (json<Person>)getPlainJson();
-    return (j,err);
-}
-
-function testJSONToConstraintJsonUnsafeCastPositive() returns (json, json, json, error) {
-    json<Person> j;
-    var j, e = (json<Person>)getPersonEquivalentPlainJson();
-    return (j.name, j.age, j.address, e);
-}
-
-function testConstraintJSONToConstraintJsonCast() returns (json) {
-    json<Person> j = (json<Person>) getStudent();
+function testJSONToConstraintJsonUnsafeCast() returns (json | error) {
+    var j = <json<Person>>getPlainJson();
     return j;
 }
 
-function testConstraintJSONToConstraintJsonUnsafePositiveCast() returns (json, error) {
-    json<Person> jp = (json<Person>) getStudent();
-    var js, e = (json<Student>) jp;
-    return (js, e);
+function testJSONToConstraintJsonUnsafeCastPositive() returns (json, json, json) {
+    json<Person> j;
+    j =check <json<Person>>getPersonEquivalentPlainJson();
+    return (j.name, j.age, j.address);
 }
 
-function testConstraintJSONToConstraintJsonUnsafeNegativeCast() returns (json, error) {
+
+function testConstraintJSONToConstraintJsonCast() returns (json) {
+    json<Person> j = <json<Person>> getStudent();
+    return j;
+}
+
+function testConstraintJSONToConstraintJsonUnsafePositiveCast() returns (json | error) {
+    json<Person> jp = <json<Person>> getStudent();
+    var js  = <json<Student>> jp;
+    return js;
+}
+
+function testConstraintJSONToConstraintJsonUnsafeNegativeCast() returns (json | error) {
     json<Employee> je = {first_name:"John", last_name:"Doe", age:30, address:{phoneNumber:{number:"1234"}, street:"York St"}};
-    var js, e = (json<Student>) je;
-    return (js, e);
+    var js = <json<Student>> je;
+    return js;
 }
 
-function testJSONArrayToConstraintJsonArrayCastPositive() returns (json<Student>[], error) {
+function testJSONArrayToConstraintJsonArrayCastPositive() returns (json<Student>[] | error) {
     json j1 = [getStudent()];
-    var j2, e = (json<Student>[]) j1;
-    return (j2, e);
+    var j2 = <json<Student>[]> j1;
+    return j2;
 }
 
-function testJSONArrayToConstraintJsonArrayCastNegative() returns (json<Student>[], error) {
+function testJSONArrayToConstraintJsonArrayCastNegative() returns (json<Student>[] | error) {
     json j1 = [{"a":"b"}, {"c":"d"}];
-    var j2, e = (json<Student>[]) j1;
-    return (j2, e);
+    var j2 = <json<Student>[]> j1;
+    return j2;
 }
 
-function testJSONArrayToCJsonArrayCast() returns (json<Student>[], error) {
+function testJSONArrayToCJsonArrayCast() returns (json<Student>[] | error) {
     json[] j1 = [{"name":"John Doe", "age":30, "address":"London", "class":"B"}];
     json j2 = j1;
-    var j3, e = (json<Student>[]) j2;
-    return (j3, e);
+    var j3 = <json<Student>[]> j2;
+    return j3;
 }
 
-function testJSONArrayToCJsonArrayCastNegative() returns (json<Student>[], error) {
+function testJSONArrayToCJsonArrayCastNegative() returns (json<Student>[] | error) {
     json[] j1 = [{name:"John Doe", age:30, address:"London"}]; // one field is missing
     json j2 = j1;
-    var j3, e = (json<Student>[]) j2;
-    return (j3, e);
+    var j3 = <json<Student>[]> j2;
+    return j3;
 }
 
 function testCJSONArrayToJsonAssignment() returns (json) {
     json<Person> tempJ = getPerson();
-    tempJ.age = 40; 
+    tempJ.age = 40;
     json<Person>[] j1 = [getPerson(), tempJ];
     json j2 = j1;
     return j2;
 }
 
-function testMixedTypeJSONArrayToCJsonArrayCastNegative() returns (json<Student>[], error) {
+function testMixedTypeJSONArrayToCJsonArrayCastNegative() returns (json<Student>[] | error) {
     json[] j1 = [{name:"John Doe", age:30, address:"London", "class":"B"}, [4, 6]];
     json j2 = j1;
-    var j3, e = (json<Student>[]) j2;
-    return (j3, e);
+    var j3 = <json<Student>[]> j2;
+    return j3;
 }
 
-function testConstrainedJsonWithFunctions() returns (string){
+function testConstrainedJsonWithFunctions() returns (string | ()){
     json<Person> j = {name:"John Doe", age:30, address:"London"};
     return j.toString();
 }
 
-function testConstrainedJsonWithFunctionGetKeys() returns (string[]){
+function testConstrainedJsonWithFunctionGetKeys() returns (string[] | ()){
     json<Person> j = {name:"John Doe", age:30, address:"London"};
     return j.getKeys();
 }

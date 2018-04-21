@@ -28,10 +28,6 @@ public interface PackageNode extends Node {
 
     void addCompilationUnit(CompilationUnitNode compUnit);
 
-    void setPackageDeclaration(PackageDeclarationNode pkgDecl);
-
-    PackageDeclarationNode getPackageDeclaration();
-
     List<? extends ImportPackageNode> getImports();
 
     void addImport(ImportPackageNode importPkg);
@@ -66,6 +62,10 @@ public interface PackageNode extends Node {
 
     void addObject(ObjectNode object);
 
+    List<? extends TypeDefinition> getTypeDefinitions();
+
+    void addTypeDefinition(TypeDefinition typeDefinition);
+
     List<? extends EnumNode> getEnums();
 
     void addEnum(EnumNode enumNode);
@@ -77,4 +77,8 @@ public interface PackageNode extends Node {
     List<? extends TransformerNode> getTransformers();
 
     void addTransformer(TransformerNode transformer);
+
+    List<? extends RecordNode> getRecords();
+
+    void addRecord(RecordNode recordNode);
 }

@@ -53,16 +53,14 @@ public class StructNegativeTest {
         // test undeclared struct access
         BAssertUtil.validateError(result, 4, "undefined symbol 'dpt1'", 23, 5);
 
-        BAssertUtil.validateError(result, 5, "variable 'dpt' is not initialized", 28, 5);
-
         // test undeclared struct-field access
-        BAssertUtil.validateError(result, 6, "undefined field 'id' in struct 'Department'", 29, 5);
+        BAssertUtil.validateError(result, 5, "undefined field 'id' in struct 'Department'", 29, 5);
 
         // test undeclared field init
-        BAssertUtil.validateError(result, 7, "undefined field 'age' in struct 'Department'", 34, 37);
+        BAssertUtil.validateError(result, 6, "undefined field 'age' in struct 'Department'", 34, 37);
 
         // test field init with mismatching type
-        BAssertUtil.validateError(result, 8, "incompatible types: expected 'string', found 'int'", 39, 31);
+        BAssertUtil.validateError(result, 7, "incompatible types: expected 'string', found 'int'", 39, 31);
     }
 
     @Test
@@ -86,7 +84,7 @@ public class StructNegativeTest {
         Assert.assertEquals(compileResult.getWarnCount(), 0);
         Assert.assertEquals(compileResult.getErrorCount(), 1);
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
-                            "missing token {'int', 'float', 'boolean', 'string', 'blob'} before 'Person'");
+                            "incompatible types: expected 'constants:Person', found 'int'");
     }
 
     @Test(description = "Test accessing an field of a noninitialized struct",

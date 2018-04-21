@@ -1,217 +1,219 @@
-import ballerina/net.http;
-import ballerina/net.http.mock;
+import ballerina/http;
 import ballerina/mime;
+import ballerina/io;
 
-function testGetContentLength (http:Response res) (int) {
-    int length = res.getContentLength();
-    return length;
+function testContentType (http:Response res, string contentTypeValue) returns (string?) {
+    res.setContentType(contentTypeValue);
+    return res.getContentType();
 }
 
-function testAddHeader (http:Response res, string key, string value) (http:Response) {
+function testGetContentLength (http:Response res) returns (string) {
+    return res.getHeader("content-length");
+}
+
+function testAddHeader (http:Response res, string key, string value) returns (http:Response) {
     res.addHeader(key, value);
     return res;
 }
 
-function testGetHeader (http:Response res, string key) (string) {
+function testGetHeader (http:Response res, string key) returns (string) {
     string contentType = res.getHeader(key);
     return contentType;
 }
 
-function testGetHeaders (http:Response res, string key) (string[]) {
+function testGetHeaders (http:Response res, string key) returns (string[]) {
     return res.getHeaders(key);
 }
 
-function testGetJsonPayload (http:Response res) (json, mime:EntityError) {
+function testGetJsonPayload (http:Response res) returns (json | http:PayloadError) {
     return res.getJsonPayload();
 }
 
-function testGetProperty (http:Response res, string propertyName) (string) {
-    string payload = res.getProperty(propertyName);
-    return payload;
-}
-
-function testGetStringPayload (http:Response res) (string, mime:EntityError) {
+function testGetStringPayload (http:Response res) returns (string | http:PayloadError) {
     return res.getStringPayload();
 }
 
-function testGetBinaryPayload (http:Response res) (blob, mime:EntityError) {
+function testGetBinaryPayload (http:Response res) returns (blob | http:PayloadError) {
     return res.getBinaryPayload();
 }
 
-function testGetXmlPayload (http:Response res) (xml, mime:EntityError) {
+function testGetXmlPayload (http:Response res) returns (xml | http:PayloadError) {
     return res.getXmlPayload();
 }
 
-function testRemoveHeader (http:Response res, string key) (http:Response) {
+function testSetPayloadAndGetText ((string | xml | json | blob | io:ByteChannel) payload) returns string | http:PayloadError {
+    http:Response res = new;
+    res.setPayload(payload);
+    return res.getStringPayload();
+}
+
+function testRemoveHeader (http:Response res, string key) returns (http:Response) {
     res.removeHeader(key);
     return res;
 }
 
-function testRemoveAllHeaders (http:Response res) (http:Response) {
+function testRemoveAllHeaders (http:Response res) returns (http:Response) {
     res.removeAllHeaders();
     return res;
 }
 
-function testSetHeader (string key, string value) (http:Response) {
-    http:Response res = {};
+function testSetHeader (string key, string value) returns (http:Response) {
+    http:Response res = new;
     res.setHeader(key, value);
     return res;
 }
 
-function testSetJsonPayload (json value) (http:Response) {
-    http:Response res = {};
+function testSetJsonPayload (json value) returns (http:Response) {
+    http:Response res = new;
     res.setJsonPayload(value);
     return res;
 }
 
-function testSetProperty (string name, string value) (http:Response) {
-    http:Response res = {};
-    res.setProperty(name, value);
-    return res;
-}
-
-function testSetStringPayload (string value) (http:Response) {
-    http:Response res = {};
+function testSetStringPayload (string value) returns (http:Response) {
+    http:Response res = new;
     res.setStringPayload(value);
     return res;
 }
 
-function testSetXmlPayload (xml value) (http:Response) {
-    http:Response res = {};
+function testSetXmlPayload (xml value) returns (http:Response) {
+    http:Response res = new;
     res.setXmlPayload(value);
     return res;
 }
 
-endpoint<mock:NonListeningService> mockEP {
+endpoint http:NonListener mockEP {
     port:9090
-}
+};
 
-@http:serviceConfig {endpoints:[mockEP]}
-service<http:Service> hello {
+@http:ServiceConfig {basePath : "/hello"}
+service<http:Service> hello bind mockEP {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/11"
     }
-    resource echo1 (http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
-        _ = conn -> forward(res);
+    echo1 (endpoint conn, http:Request req) {
+        http:Response res = new;
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/12/{phase}"
     }
-    resource echo2 (http:ServerConnector conn, http:Request req, string phase) {
-        http:Response res = {};
+    echo2 (endpoint conn, http:Request req, string phase) {
+        http:Response res = new;
         res.reasonPhrase = phase;
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/13"
     }
-    resource echo3 (http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
+    echo3 (endpoint conn, http:Request req) {
+        http:Response res = new;
         res.statusCode = 203;
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/addheader/{key}/{value}"
     }
-    resource addheader (http:ServerConnector conn, http:Request req, string key, string value) {
-        http:Response res = {};
+    addheader (endpoint conn, http:Request req, string key, string value) {
+        http:Response res = new;
         res.addHeader(key, value);
         string result = res.getHeader(key);
         res.setJsonPayload({lang:result});
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/getHeader/{header}/{value}"
     }
-    resource getHeader (http:ServerConnector conn, http:Request req, string header, string value) {
-        http:Response res = {};
+    getHeader (endpoint conn, http:Request req, string header, string value) {
+        http:Response res = new;
         res.setHeader(header, value);
         string result = res.getHeader(header);
         res.setJsonPayload({value:result});
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/getJsonPayload/{value}"
     }
-    resource GetJsonPayload(http:ServerConnector conn, http:Request req, string value) {
-        http:Response res = {};
+    GetJsonPayload(endpoint conn, http:Request req, string value) {
+        http:Response res = new;
         json jsonStr = {lang:value};
         res.setJsonPayload(jsonStr);
-        var result, _ = res.getJsonPayload();
-        json lang = result.lang;
-        res.setJsonPayload(lang);
+        var returnResult = res.getJsonPayload();
+        match returnResult {
+            http:PayloadError err => {
+                res.setStringPayload("Error occurred");
+                res.statusCode = 500;
+            }
+            json payload => {
+                res.setJsonPayload(payload.lang);
+            }
+        }
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
-        path:"/GetProperty/{key}/{value}"
-    }
-    resource GetProperty (http:ServerConnector conn, http:Request req, string key, string value) {
-        http:Response res = {};
-        res.setProperty(key, value);
-        string property = res.getProperty(key);
-        res.setJsonPayload({value:property});
-        _ = conn -> respond(res);
-    }
-
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/GetStringPayload/{valueStr}"
     }
-    resource GetStringPayload(http:ServerConnector conn, http:Request req, string valueStr) {
-        http:Response res = {};
+    GetStringPayload(endpoint conn, http:Request req, string valueStr) {
+        http:Response res = new;
         res.setStringPayload(valueStr);
-        var value, _ = res.getStringPayload();
-        res.setStringPayload(value);
+        match res.getStringPayload() {
+            http:PayloadError err => {res.setStringPayload("Error occurred"); res.statusCode =500;}
+            string payload =>  res.setStringPayload(payload);
+        }
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/GetXmlPayload"
     }
-    resource GetXmlPayload(http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
+    GetXmlPayload(endpoint conn, http:Request req) {
+        http:Response res = new;
         xml xmlStr = xml `<name>ballerina</name>`;
         res.setXmlPayload(xmlStr);
-        var value, _ = res.getXmlPayload();
-        var name = value.getTextValue();
-        res.setStringPayload(name);
+        match res.getXmlPayload() {
+           http:PayloadError err => {
+                res.setStringPayload("Error occurred");
+                res.statusCode =500;
+           }
+           xml xmlPayload => {
+                var name = xmlPayload.getTextValue();
+                res.setStringPayload(name);
+           }
+        }
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/RemoveHeader/{key}/{value}"
     }
-    resource RemoveHeader (http:ServerConnector conn, http:Request req, string key, string value) {
-        http:Response res = {};
+    RemoveHeader (endpoint conn, http:Request req, string key, string value) {
+        http:Response res = new;
         res.setHeader(key, value);
         res.removeHeader(key);
-        var headerValue = res.getHeader(key);
         string header;
-        if (headerValue == null) {
+        if (!res.hasHeader(key)) {
             header = "value is null";
         }
         res.setJsonPayload({value:header});
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/RemoveAllHeaders"
     }
-    resource RemoveAllHeaders (http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
+    RemoveAllHeaders (endpoint conn, http:Request req) {
+        http:Response res = new;
         res.setHeader("Expect", "100-continue");
         res.setHeader("Range", "bytes=500-999");
         res.removeAllHeaders();
-        var headerValue = res.getHeader("Range");
         string header;
-        if (headerValue == null) {
+        if(!res.hasHeader("Range")) {
             header = "value is null";
         }
         res.setJsonPayload({value:header});

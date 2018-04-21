@@ -85,7 +85,8 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
     }
 
     protected void modifyDebugCommands(WorkerExecutionContext parent, WorkerExecutionContext child) {
-        if (child.programFile == null || !child.programFile.getDebugger().isDebugEnabled()
+        /* the child context can be null in a situation like a native async call signaling */
+        if (child == null || child.programFile == null || !child.programFile.getDebugger().isDebugEnabled()
                 || parent == null || parent.getDebugContext() == null) {
             return;
         }

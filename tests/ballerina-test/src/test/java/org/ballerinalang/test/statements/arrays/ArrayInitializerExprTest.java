@@ -110,7 +110,7 @@ public class ArrayInitializerExprTest {
         Assert.assertEquals(elementArray.get(2), 8);
         Assert.assertEquals(elementArray.get(3), 9);
     }
-    
+
     @Test(description = "Test array of maps inline initializing")
     public void testArrayOfMapsInit() {
         BValue[] args = {};
@@ -139,19 +139,6 @@ public class ArrayInitializerExprTest {
         address = ((BMap) adrs3).get("address");
         Assert.assertTrue(address instanceof BMap<?, ?>);
         Assert.assertEquals(((BMap) address).get("city").stringValue(), "Galle");
-    }
-    
-    @Test(description = "Test array of maps inline initializing")
-    public void testAnyAsArray() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testAnyAsArray", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BRefValueArray.class);
-
-        BRefValueArray arrayValue = (BRefValueArray) returns[0];
-        Assert.assertEquals(arrayValue.size(), 3);
-        Assert.assertEquals(((Long) arrayValue.get(0).value()).longValue(), 1);
     }
 
     @Test(description = "Test float array initialization with integer values")

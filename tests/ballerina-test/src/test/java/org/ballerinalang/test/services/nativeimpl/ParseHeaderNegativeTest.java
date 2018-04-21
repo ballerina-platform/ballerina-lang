@@ -30,7 +30,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Negative test cases for ballerina.net.http parseHeader native function.
+ * Negative test cases for ballerina/http parseHeader native function.
  */
 public class ParseHeaderNegativeTest {
 
@@ -48,10 +48,8 @@ public class ParseHeaderNegativeTest {
         BValue[] returnVals = BRunUtil.invoke(result, "testParseHeader", inputArg);
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0, "Invalid Return Values.");
-        Assert.assertNull(returnVals[0].stringValue());
-        Assert.assertNull(returnVals[1]);
-        Assert.assertTrue(returnVals[2] instanceof BStruct);
-        Assert.assertEquals(((BStruct) returnVals[2]).getStringField(0),
+        Assert.assertTrue(returnVals[0] instanceof BStruct);
+        Assert.assertEquals(((BStruct) returnVals[0]).getStringField(0),
                 "failed to parse: header value cannot be null");
     }
 
@@ -62,10 +60,8 @@ public class ParseHeaderNegativeTest {
         BValue[] returnVals = BRunUtil.invoke(result, "testParseHeader", inputArg);
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0, "Invalid Return Values.");
-        Assert.assertNull(returnVals[0].stringValue());
-        Assert.assertNull(returnVals[1]);
-        Assert.assertTrue(returnVals[2] instanceof BStruct);
-        Assert.assertEquals(((BStruct) returnVals[2]).getStringField(0),
+        Assert.assertTrue(returnVals[0] instanceof BStruct);
+        Assert.assertEquals(((BStruct) returnVals[0]).getStringField(0),
                 "failed to parse: invalid header value: ;a = 2");
     }
 
@@ -76,10 +72,8 @@ public class ParseHeaderNegativeTest {
         BValue[] returnVals = BRunUtil.invoke(result, "testParseHeader", inputArg);
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0, "Invalid Return Values.");
-        Assert.assertNull(returnVals[0].stringValue());
-        Assert.assertNull(returnVals[1]);
-        Assert.assertTrue(returnVals[2] instanceof BStruct);
-        Assert.assertEquals(((BStruct) returnVals[2]).getStringField(0),
+        Assert.assertTrue(returnVals[0] instanceof BStruct);
+        Assert.assertEquals(((BStruct) returnVals[0]).getStringField(0),
                 "failed to parse: invalid header parameter: a =");
     }
 
@@ -90,10 +84,8 @@ public class ParseHeaderNegativeTest {
         BValue[] returnVals = BRunUtil.invoke(result, "testParseHeader", inputArg);
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0, "Invalid Return Values.");
-        Assert.assertNull(returnVals[0].stringValue());
-        Assert.assertNull(returnVals[1]);
-        Assert.assertTrue(returnVals[2] instanceof BStruct);
-        Assert.assertEquals(((BStruct) returnVals[2]).getStringField(0),
+        Assert.assertTrue(returnVals[0] instanceof BStruct);
+        Assert.assertEquals(((BStruct) returnVals[0]).getStringField(0),
                 "failed to parse: invalid header parameter: =");
     }
 
@@ -104,10 +96,8 @@ public class ParseHeaderNegativeTest {
         BValue[] returnVals = BRunUtil.invoke(result, "testParseHeader", inputArg);
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0, "Invalid Return Values.");
-        Assert.assertNull(returnVals[0].stringValue());
-        Assert.assertNull(returnVals[1]);
-        Assert.assertTrue(returnVals[2] instanceof BStruct);
-        Assert.assertEquals(((BStruct) returnVals[2]).getStringField(0),
+        Assert.assertTrue(returnVals[0] instanceof BStruct);
+        Assert.assertEquals(((BStruct) returnVals[0]).getStringField(0),
                 "failed to parse: invalid header parameter: = 2");
     }
 }

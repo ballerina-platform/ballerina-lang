@@ -1,6 +1,0 @@
-//JSON to XML conversion can be done using 'toXML' function. This function takes
-//the JSON to be converted and struct of options as arguments. The options
-//struct has two fields, attributePrefix which is used as the prefix to identify
-//XML attribute where default value is '@'. And arrayEntryTag as the
-//name of the tag to be added to each entry of JSON arrays.
-

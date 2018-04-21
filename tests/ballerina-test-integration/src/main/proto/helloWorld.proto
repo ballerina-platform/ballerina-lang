@@ -1,6 +1,0 @@
-syntax = "proto3";
-import "google/protobuf/wrappers.proto";
-option java_package = "org.ballerinalang.test.util.grpc";
-service helloWorld {
-		rpc hello(google.protobuf.StringValue) returns (google.protobuf.StringValue);
-}

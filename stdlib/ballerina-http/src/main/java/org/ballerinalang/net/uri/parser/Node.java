@@ -19,6 +19,7 @@
 package org.ballerinalang.net.uri.parser;
 
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.uri.URITemplateException;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -46,7 +47,8 @@ public abstract class Node<DataType, InboundMsgType> {
         return dataElement;
     }
 
-    public Node<DataType, InboundMsgType> addChild(Node<DataType, InboundMsgType> childNode) {
+    public Node<DataType, InboundMsgType> addChild(Node<DataType, InboundMsgType> childNode)
+            throws URITemplateException {
         Node<DataType, InboundMsgType> node = childNode;
         Node<DataType, InboundMsgType> matchingChildNode = getMatchingChildNode(childNode, childNodesList);
         if (matchingChildNode != null) {
@@ -128,13 +130,16 @@ public abstract class Node<DataType, InboundMsgType> {
 
     abstract char getFirstCharacter();
 
+    @SuppressWarnings("unchecked")
     private Node<DataType, InboundMsgType> getMatchingChildNode(Node<DataType, InboundMsgType> prospectiveChild,
-                                                       List<Node<DataType, InboundMsgType>> existingChildren) {
+            List<Node<DataType, InboundMsgType>> existingChildren) throws URITemplateException {
         boolean isExpression = prospectiveChild instanceof Expression;
         String prospectiveChildToken = prospectiveChild.getToken();
 
         for (Node<DataType, InboundMsgType> existingChild : existingChildren) {
             if (isExpression && existingChild instanceof Expression) {
+                ((Expression) existingChild).variableList.add(new Variable(prospectiveChild.token));
+                existingChild.token = existingChild.token + "+" + prospectiveChild.token;
                 return existingChild;
             }
             if (existingChild.getToken().equals(prospectiveChildToken)) {

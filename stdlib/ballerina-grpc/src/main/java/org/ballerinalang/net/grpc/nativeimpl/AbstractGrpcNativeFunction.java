@@ -20,11 +20,11 @@ package org.ballerinalang.net.grpc.nativeimpl;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.values.BStruct;
 
-import static org.ballerinalang.net.grpc.MessageConstants.GRPC_SERVER;
-import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_BUILDER;
+import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_SERVER;
+import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_BUILDER;
 
 /**
- * Actract class of gRPC service endpoint native functions.
+ * Abstract class of gRPC service endpoint native functions.
  *
  * @since 1.0.0
  */

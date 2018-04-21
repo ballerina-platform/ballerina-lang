@@ -1,10 +1,9 @@
-package lang.annotations.foo;
 
 import lang.annotations.doc1 as doc;
-import ballerina/net.http;
+import ballerina/http;
 
 @doc:Description{value:"Constant holding the name of the current ballerina program"}
-const string programName = "TestAnnotations";
+@final string programName = "TestAnnotations";
 
 @doc:Description{value:"This is a test function",
                  paramValue:@doc:Param{},

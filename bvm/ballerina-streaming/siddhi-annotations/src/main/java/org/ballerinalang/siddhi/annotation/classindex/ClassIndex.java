@@ -34,17 +34,14 @@ import java.util.Set;
 
 /**
  * Access to the compile-time generated index of classes.
- * <p/>
  * <p>
  * Use &#064;{@link IndexAnnotated} and &#064;{@link IndexSubclasses} annotations to force the classes to be indexed.
  * </p>
- * <p/>
  * <p>
  * Keep in mind that the class is indexed only when it is compiled with
  * classindex.jar file in classpath.
  * </p>
- * <p/>
- * <p>
+ *
  * Also to preserve class-index data when creating shaded jar you should use the following
  * Maven configuration:
  * <pre>
@@ -77,7 +74,6 @@ import java.util.Set;
  * </build>
  * }
  * </pre>
- * </p>
  */
 public class ClassIndex {
     public static final String SUBCLASS_INDEX_PREFIX = "META-INF/services/";
@@ -91,13 +87,12 @@ public class ClassIndex {
 
     /**
      * Retrieves a list of subclasses of the given class.
-     * <p/>
      * <p>
      * The class must be annotated with {@link IndexSubclasses} for it's subclasses to be indexed
      * at compile-time by {@link org.ballerinalang.siddhi.annotation.classindex.processor.ClassIndexProcessor}.
      * </p>
-     *
-     * @param superClass class to find subclasses for
+     * @param superClass superClass class to find subclasses for
+     * @param <T> super class type
      * @return list of subclasses
      */
     @SuppressWarnings("unchecked")
@@ -107,7 +102,6 @@ public class ClassIndex {
 
     /**
      * Retrieves a list of subclasses of the given class.
-     * <p/>
      * <p>
      * The class must be annotated with {@link IndexSubclasses} for it's subclasses to be indexed
      * at compile-time by {@link org.ballerinalang.siddhi.annotation.classindex.processor.ClassIndexProcessor}.
@@ -115,6 +109,7 @@ public class ClassIndex {
      *
      * @param superClass  class to find subclasses for
      * @param classLoader classloader for loading classes
+     * @param <T> super class type
      * @return list of subclasses
      */
     @SuppressWarnings("unchecked")
@@ -135,13 +130,13 @@ public class ClassIndex {
 
     /**
      * Retrieves names of subclasses of the given class.
-     * <p/>
      * <p>
      * The class must be annotated with {@link IndexSubclasses} for it's subclasses to be indexed
      * at compile-time by {@link org.ballerinalang.siddhi.annotation.classindex.processor.ClassIndexProcessor}.
      * </p>
      *
      * @param superClass class to find subclasses for
+     * @param <T> super class type
      * @return names of subclasses
      */
     @SuppressWarnings("unchecked")
@@ -151,7 +146,6 @@ public class ClassIndex {
 
     /**
      * Retrieves names of subclasses of the given class.
-     * <p/>
      * <p>
      * The class must be annotated with {@link IndexSubclasses} for it's subclasses to be indexed
      * at compile-time by {@link org.ballerinalang.siddhi.annotation.classindex.processor.ClassIndexProcessor}.
@@ -159,6 +153,7 @@ public class ClassIndex {
      *
      * @param superClass  class to find subclasses for
      * @param classLoader classloader for loading index file
+     * @param <T> super class type
      * @return names of subclasses
      */
     @SuppressWarnings("unchecked")
@@ -168,7 +163,6 @@ public class ClassIndex {
 
     /**
      * Retrieves a list of classes from given package.
-     * <p/>
      * <p>
      * The package must be annotated with {@link IndexSubclasses} for the classes inside
      * to be indexed at compile-time by
@@ -184,7 +178,6 @@ public class ClassIndex {
 
     /**
      * Retrieves a list of classes from given package.
-     * <p/>
      * <p>
      * The package must be annotated with {@link IndexSubclasses} for the classes inside
      * to be indexed at compile-time by
@@ -210,7 +203,6 @@ public class ClassIndex {
 
     /**
      * Retrieves names of classes from given package.
-     * <p/>
      * <p>
      * The package must be annotated with {@link IndexSubclasses} for the classes inside
      * to be indexed at compile-time by
@@ -226,7 +218,6 @@ public class ClassIndex {
 
     /**
      * Retrieves names of classes from given package.
-     * <p/>
      * <p>
      * The package must be annotated with {@link IndexSubclasses} for the classes inside
      * to be indexed at compile-time by
@@ -249,7 +240,6 @@ public class ClassIndex {
 
     /**
      * Retrieves a list of classes annotated by given annotation.
-     * <p/>
      * <p>
      * The annotation must be annotated with {@link IndexAnnotated} for annotated classes
      * to be indexed at compile-time by
@@ -265,7 +255,6 @@ public class ClassIndex {
 
     /**
      * Retrieves a list of classes annotated by given annotation.
-     * <p/>
      * <p>
      * The annotation must be annotated with {@link IndexAnnotated} for annotated classes
      * to be indexed at compile-time by
@@ -285,7 +274,6 @@ public class ClassIndex {
 
     /**
      * Retrieves names of classes annotated by given annotation.
-     * <p/>
      * <p>
      * The annotation must be annotated with {@link IndexAnnotated} for annotated classes
      * to be indexed at compile-time by
@@ -305,7 +293,6 @@ public class ClassIndex {
 
     /**
      * Retrieves names of classes annotated by given annotation.
-     * <p/>
      * <p>
      * The annotation must be annotated with {@link IndexAnnotated} for annotated classes
      * to be indexed at compile-time by
@@ -336,8 +323,8 @@ public class ClassIndex {
      *
      * @param klass class to retrieve summary for
      * @return summary for given class, or null if it does not exists
-     * @see <a href="http://www.oracle.com/technetwork/java/javase/documentation/index-137868.html#
-     * writingdoccomments">Writing doc comments</a>
+     * @see "http://www.oracle.com/technetwork/java/javase/documentation/index-137868.html#
+     * writingdoccomments"
      */
     public static String getClassSummary(Class<?> klass) {
         return getClassSummary(klass, Thread.currentThread().getContextClassLoader());
@@ -356,8 +343,8 @@ public class ClassIndex {
      * @param klass       class to retrieve summary for
      * @param classLoader classloader for loading classes
      * @return summary for given class, or null if it does not exists
-     * @see <a href="http://www.oracle.com/technetwork/java/javase/documentation/index-137868.html#
-     * writingdoccomments">Writing doc comments</a>
+     * @see "http://www.oracle.com/technetwork/java/javase/documentation/index-137868.html#
+     * writingdoccomments"
      */
     public static String getClassSummary(Class<?> klass, ClassLoader classLoader) {
         URL resource = classLoader.getResource(JAVADOC_PREFIX + klass.getCanonicalName());

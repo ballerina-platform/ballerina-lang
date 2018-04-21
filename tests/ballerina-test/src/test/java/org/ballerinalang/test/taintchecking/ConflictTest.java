@@ -33,15 +33,13 @@ public class ConflictTest {
 
     // Test recursions.
 
-    @Test (enabled = false)
+    @Test
     public void testRecursion() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/conflicts/recursion.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 1);
-        BAssertUtil.validateWarning(result, 0, "taint checking for 'f1' partially done based on return annotations",
-                1, 1);
+        Assert.assertTrue(result.getDiagnostics().length == 0);
     }
 
-    @Test (enabled = false)
+    @Test
     public void testRecursionNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/conflicts/recursion-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length == 1);
@@ -50,28 +48,47 @@ public class ConflictTest {
                 "@untainted to returns", 3, 12);
     }
 
-    // Test cyclic function invocations.
-
-    @Test (enabled = false)
-    public void testCyclicCall() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/conflicts/cyclic-call.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 1);
-        BAssertUtil.validateWarning(result, 0, "taint checking for 'f1' partially done based on return annotations",
-                1, 1);
+    @Test
+    public void testRecursionWithinAttachedExternalFunctions() {
+        CompileResult result = BCompileUtil
+                .compile("test-src/taintchecking/conflicts/recursion-within-attached-external-function.bal");
+        Assert.assertTrue(result.getDiagnostics().length == 0);
     }
 
-    @Test (enabled = false)
+    @Test
+    public void testRecursionWithinAttachedExternalFunctionsNegative() {
+        CompileResult result = BCompileUtil
+                .compile("test-src/taintchecking/conflicts/recursion-within-attached-external-function-negative.bal");
+        Assert.assertTrue(result.getDiagnostics().length == 2);
+
+        BAssertUtil.validateError(result, 0,
+                "taint checking for 'testFunction' could not complete due to recursion with 'TestObject.testFunction'" +
+                        ", add @tainted or @untainted to returns", 7, 12);
+        BAssertUtil.validateError(result, 1,
+                "taint checking for 'main' could not complete due to recursion with 'TestObject.testFunction', add " +
+                        "@tainted or @untainted to returns", 16, 26);
+    }
+
+    // Test cyclic function invocations.
+
+    @Test
+    public void testCyclicCall() {
+        CompileResult result = BCompileUtil.compile("test-src/taintchecking/conflicts/cyclic-call.bal");
+        Assert.assertTrue(result.getDiagnostics().length == 0);
+    }
+
+    @Test
     public void testCyclicCallNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/conflicts/cyclic-call-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length == 3);
-        BAssertUtil.validateWarning(result, 0,
-                "taint checking for 'f3' could not complete due to recursion with 'f1', add @tainted or " +
-                "@untainted to returns", 10, 12);
-        BAssertUtil.validateError(result, 1,
+        BAssertUtil.validateError(result, 0,
                 "taint checking for 'f1' could not complete due to recursion with 'f2', add @tainted or " +
                 "@untainted to returns", 2, 12);
-        BAssertUtil.validateError(result, 2,
+        BAssertUtil.validateError(result, 1,
                 "taint checking for 'f2' could not complete due to recursion with 'f3', add @tainted or " +
                 "@untainted to returns", 6, 12);
+        BAssertUtil.validateError(result, 2,
+                "taint checking for 'f3' could not complete due to recursion with 'f1', add @tainted or " +
+                        "@untainted to returns", 10, 12);
     }
 }

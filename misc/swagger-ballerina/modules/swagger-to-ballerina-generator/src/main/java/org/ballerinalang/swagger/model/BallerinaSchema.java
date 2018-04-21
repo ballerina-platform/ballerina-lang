@@ -16,12 +16,29 @@
 
 package org.ballerinalang.swagger.model;
 
-import io.swagger.oas.models.media.ArraySchema;
-import io.swagger.oas.models.media.Schema;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.BinarySchema;
+import io.swagger.v3.oas.models.media.BooleanSchema;
+import io.swagger.v3.oas.models.media.ByteArraySchema;
+import io.swagger.v3.oas.models.media.ComposedSchema;
+import io.swagger.v3.oas.models.media.DateSchema;
+import io.swagger.v3.oas.models.media.DateTimeSchema;
+import io.swagger.v3.oas.models.media.EmailSchema;
+import io.swagger.v3.oas.models.media.FileSchema;
+import io.swagger.v3.oas.models.media.IntegerSchema;
+import io.swagger.v3.oas.models.media.MapSchema;
+import io.swagger.v3.oas.models.media.NumberSchema;
+import io.swagger.v3.oas.models.media.PasswordSchema;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.StringSchema;
 import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
+import org.ballerinalang.swagger.utils.GeneratorConstants;
 
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -36,51 +53,66 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
     private static final String UNSUPPORTED_PROPERTY_MSG = "// Unsupported Property Found.";
 
     private Schema oasSchema;
+    private String type;
     private Set<Map.Entry<String, Schema>> properties;
 
     @Override
-    public BallerinaSchema buildContext(Schema schema) throws BallerinaOpenApiException {
+    public BallerinaSchema buildContext(Schema schema, OpenAPI openAPI) throws BallerinaOpenApiException {
         this.oasSchema = schema;
 
         // identify array type schema definitions
         if (schema instanceof ArraySchema) {
-            properties = new LinkedHashSet<>();
-            Schema propSchema = new Schema();
+            extractArraySchema((ArraySchema) schema);
+            return this;
+        } else if (schema instanceof ComposedSchema) {
+            extractComposedSchema((ComposedSchema) schema, openAPI);
+            return this;
+        } else if (isValueTypeSchema(schema)) {
+            this.type = getPropertyType(schema);
+            return this;
+        } else if (schema.get$ref() != null) {
+            String refType = getReferenceType(schema.get$ref());
+            this.type = refType;
+            schema = openAPI.getComponents().getSchemas().get(refType);
+        } else if (schema.getProperties() == null) {
+            if (schema.getType() == null) {
+                throw new BallerinaOpenApiException("Unsupported schema type in schema: " + schema.getName());
+            }
 
-            String type = getReferenceType(((ArraySchema) schema).getItems().get$ref());
-            String name = type.toLowerCase(Locale.ENGLISH) + LIST_SUFFIX;
-            type = type.isEmpty() ? UNSUPPORTED_PROPERTY_MSG : type + "[]";
-
-            propSchema.setType(type);
-            AbstractMap.SimpleEntry entry = new AbstractMap.SimpleEntry<>(name, propSchema);
-            properties.add(entry);
-
+            this.type = getPropertyType(schema);
             return this;
         }
 
-        if (schema.getProperties() == null) {
-            throw new BallerinaOpenApiException("Unsupported schema type in schema: " + schema.getName());
-        }
-
         Set<Map.Entry<String, Schema>> entries = schema.getProperties().entrySet();
+        Set<Map.Entry<String, Schema>> newEntries = new LinkedHashSet<>();
 
         // change conflicting swagger data types to ballerina data types
-        for (Map.Entry entry : entries) {
-            Schema prop = (Schema) entry.getValue();
+        for (Map.Entry<String, Schema> entry : entries) {
+            Schema prop = entry.getValue();
+            String name;
 
             // Extract reference type objects
             if (prop.get$ref() != null) {
                 String type = getReferenceType(prop.get$ref());
                 type = type.isEmpty() ? UNSUPPORTED_PROPERTY_MSG : type;
+                name = toPropertyName(entry.getKey());
                 prop.setType(type);
+                newEntries.add(new AbstractMap.SimpleEntry<>(name, prop));
                 continue;
             }
 
+            name = toPropertyName(entry.getKey());
             prop.setType(getPropertyType(prop));
+            newEntries.add(new AbstractMap.SimpleEntry<>(name, prop));
         }
 
-        this.properties = entries;
+        this.properties = newEntries;
         return this;
+    }
+
+    @Override
+    public BallerinaSchema buildContext(Schema schema) throws BallerinaOpenApiException {
+        return buildContext(schema, null);
     }
 
     @Override
@@ -94,7 +126,7 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
     }
 
     private String getPropertyType(Schema prop) {
-        String type = "any";
+        String type;
 
         switch (prop.getType()) {
             case "integer":
@@ -129,6 +161,65 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
         return type;
     }
 
+    private void extractArraySchema(ArraySchema schema) {
+        this.properties = new LinkedHashSet<>();
+        Schema propSchema = new Schema();
+        String type;
+
+        if (schema.getItems().get$ref() != null) {
+            type = getReferenceType(schema.getItems().get$ref());
+        } else {
+            type = schema.getItems().getType();
+        }
+        String name = type.toLowerCase(Locale.ENGLISH) + LIST_SUFFIX;
+        name = toPropertyName(name);
+        type = type.isEmpty() ? UNSUPPORTED_PROPERTY_MSG : type + "[]";
+
+        propSchema.setType(type);
+        this.type = type; // this schema type is an array of some type
+        AbstractMap.SimpleEntry entry = new AbstractMap.SimpleEntry<>(name, propSchema);
+        this.properties.add(entry);
+    }
+
+    private void extractComposedSchema(ComposedSchema cSchema, OpenAPI openAPI) throws BallerinaOpenApiException {
+        this.properties = new LinkedHashSet<>();
+        List<Schema> allOf = cSchema.getAllOf();
+
+        List<BallerinaSchema> childSchemas = new ArrayList<>();
+        for (Schema schema: allOf) {
+            childSchemas.add(new BallerinaSchema().buildContext(schema, openAPI));
+        }
+
+        childSchemas.forEach(schema -> this.properties.addAll(schema.getProperties()));
+    }
+
+    /**
+     * Verify if {@code origName} is reserved ballerina keyword and prefix the {@code origName} with an '_'.
+     * Ex: toPropertyName("type") will return "_type".
+     *
+     * @param origName original property name
+     * @return keyword escaped property name
+     */
+    private String toPropertyName(String origName) {
+        String escapedName = origName;
+        boolean isKeyword = GeneratorConstants.RESERVED_KEYWORDS.stream().anyMatch(key -> key.equals(origName));
+        if (isKeyword) {
+            escapedName = '_' + origName;
+        }
+
+        return escapedName;
+    }
+
+    private boolean isValueTypeSchema(Schema schema) {
+        // its easier to check what it is not but its not possible here as there are
+        // Schema type definitions as well
+        return (schema instanceof BinarySchema || schema instanceof BooleanSchema || schema instanceof ByteArraySchema
+                || schema instanceof DateSchema || schema instanceof DateTimeSchema || schema instanceof EmailSchema
+                || schema instanceof FileSchema || schema instanceof IntegerSchema || schema instanceof BooleanSchema
+                || schema instanceof MapSchema || schema instanceof NumberSchema || schema instanceof PasswordSchema
+                || schema instanceof StringSchema);
+    }
+
     public Schema getOasSchema() {
         return oasSchema;
     }
@@ -137,4 +228,7 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
         return properties;
     }
 
+    public String getType() {
+        return type;
+    }
 }

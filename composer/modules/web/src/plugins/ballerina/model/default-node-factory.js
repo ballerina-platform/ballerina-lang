@@ -25,9 +25,9 @@ import ConnectorHelper from './../env/helpers/connector-helper';
 
 export const WsResources = [
     {
-        resourceName: 'onHandshake',
+        resourceName: 'onUpgrade',
         fragment: `
-        resource onHandshake(ws:HandshakeConnection conn) {
+        onUpgrade (endpoint ep, http:Request req) {
 
         }
     `,
@@ -35,7 +35,7 @@ export const WsResources = [
     {
         resourceName: 'onOpen',
         fragment: `
-        resource onOpen(ws:Connection conn) {
+        onOpen (endpoint ep) {
 
         }
     `,
@@ -43,7 +43,7 @@ export const WsResources = [
     {
         resourceName: 'onTextMessage',
         fragment: `
-        resource onTextMessage(ws:Connection conn, ws:TextFrame frame) {
+        onTextMessage (endpoint conn, http:TextFrame frame) {
 
         }
     `,
@@ -51,7 +51,7 @@ export const WsResources = [
     {
         resourceName: 'onBinaryMessage',
         fragment: `
-        resource onBinaryMessage(ws:Connection conn, ws:BinaryFrame frame) {
+        onBinaryMessage (endpoint conn, http:BinaryFrame frame) {
 
         }
     `,
@@ -59,7 +59,7 @@ export const WsResources = [
     {
         resourceName: 'onClose',
         fragment: `
-        resource onClose(ws:Connection conn, ws:CloseFrame frame) {
+        onClose (endpoint conn, http:CloseFrame closeFrame) {
 
         }
     `,
@@ -67,7 +67,7 @@ export const WsResources = [
     {
         resourceName: 'onIdleTimeOut',
         fragment: `
-        resource onIdleTimeOut(ws:Connection conn) {
+        onIdleTimeout (endpoint ep) {
 
         }
     `,
@@ -75,7 +75,7 @@ export const WsResources = [
     {
         resourceName: 'onPing',
         fragment: `
-        resource onPing(ws:Connection conn, ws:PingFrame frame) {
+        onPong (endpoint conn, http:PongFrame frame) {
 
         }
     `,
@@ -83,7 +83,7 @@ export const WsResources = [
     {
         resourceName: 'onPong',
         fragment: `
-        resource onPong(ws:Connection conn, ws:PongFrame frame) {
+        onPong (endpoint conn, http:PongFrame frame) {
 
         }
     `,
@@ -126,33 +126,40 @@ function getPackageDefinition(fullPackageName) {
  * */
 class DefaultNodeFactory {
 
+    createImportWithOrg() {
+        const importSt = getStaticDefaultNode('createImportWithOrg');
+        return importSt;
+    }
+
     createHTTPServiceDef() {
-        const node = getStaticDefaultNode('createHTTPServiceDef');
-        node.setFullPackageName('ballerina.net.http');
-        return node;
+        const service = getStaticDefaultNode('createHTTPServiceDef');
+        const endpoint = getStaticDefaultNode('createHTTPEndpointDef');
+        const importSt = getStaticDefaultNode('createImportWithOrg');
+        return [importSt, endpoint, service];
     }
 
     createWSServiceDef() {
-        const node = getStaticDefaultNode('createWSServiceDef');
-        node.setFullPackageName('ballerina.net.ws');
-        return node;
+        const service = getStaticDefaultNode('createWSServiceDef');
+        const endpoint = getStaticDefaultNode('createWSEndpointDef');
+        const importSt = getStaticDefaultNode('createImportWithOrg');
+        return [importSt, endpoint, service];
     }
 
     createJMSServiceDef() {
         const node = getStaticDefaultNode('createJMSServiceDef');
-        node.setFullPackageName('ballerina.net.jms');
+        node.setFullPackageName('ballerina/net.jms');
         return node;
     }
 
     createFSServiceDef() {
         const node = getStaticDefaultNode('createFSServiceDef');
-        node.setFullPackageName('ballerina.net.fs');
+        node.setFullPackageName('ballerina/net.fs');
         return node;
     }
 
     createFTPServiceDef() {
         const node = getStaticDefaultNode('createFTPServiceDef');
-        node.setFullPackageName('ballerina.net.ftp');
+        node.setFullPackageName('ballerina/net.ftp');
         return node;
     }
 
@@ -349,63 +356,29 @@ class DefaultNodeFactory {
     }
 
     createEndpoint(args) {
-        const node = getNodeForFragment(FragmentUtils.createEndpointVarDefFragment(`
-            endpoint <http:HttpClient> endpoint1 {
-                create http:HttpClient("",{});
-            }
-        `));
-        const { connector, packageName, fullPackageName } = args;
+        const { endpoint, packageName, fullPackageName } = args;
+        let endpointPackageAlias = (packageName !== 'Current Package' && packageName !== '' &&
+            packageName !== 'builtin') ? (packageName + ':') : '';
+        endpointPackageAlias = endpointPackageAlias !== '' ? endpointPackageAlias.split(/[.]+/).pop() : '';
 
-        // Iterate through the params
-        const parameters = [];
-        const pkgStr = packageName !== 'Current Package' ? packageName.split(/[.]+/).pop() : '';
-        if (connector && connector.getParams()) {
-            connector.getParams().forEach((param) => {
-                let defaultValue = Environment.getDefaultValue(param.type);
-                if (defaultValue === undefined) {
-                // Check if its a struct or enum
-                    const packageDef = getPackageDefinition(fullPackageName);
-                    const identifier = param.type.split(':')[1];
-                    // TODO: Current package content should handle properly
-                    const structs = packageDef ? packageDef.getStructDefinitions() : [];
-                    const enums = packageDef ? packageDef.getEnums() : [];
-                    const type = ConnectorHelper.getTypeOfParam(identifier, structs, enums);
-                    if (type === 'struct') {
-                        defaultValue = '{}';
-                    } else {
-                        defaultValue = 'null';
-                    }
-                }
-                const paramNode = getNodeForFragment(FragmentUtils.createExpressionFragment(defaultValue));
-                parameters.push(paramNode.getVariable().getInitialExpression());
-            });
-            node.getVariable().getInitialExpression().setExpressions(parameters);
-            node.getVariable().getTypeNode().getConstraint().getTypeName()
-                .setValue(connector.getName());
-            node.getVariable().getTypeNode().getConstraint().getPackageAlias()
-                .setValue(pkgStr);
-            node.getVariable().getInitialExpression().getConnectorType().getPackageAlias()
-                .setValue(pkgStr);
-            node.getVariable().getInitialExpression().getConnectorType().getTypeName()
-                .setValue(connector.getName());
-            node.getVariable().getInitialExpression().setFullPackageName(fullPackageName);
-        }
-        return node;
+        return getNodeForFragment(FragmentUtils.createEndpointVarDefFragment(`
+            endpoint ${endpointPackageAlias + endpoint.getName()} ep {};
+        `));
     }
 
     createConnectorActionInvocationAssignmentStatement(args) {
         let stmtString = '';
-        const { action, packageName, fullPackageName, endpoint } = args;
+        const { functionDef, packageName, fullPackageName, endpoint } = args;
 
-        if (action && action.getReturnParams().length > 0) {
+        if (functionDef && functionDef.getReturnParams().length > 0) {
             stmtString = 'var var1 = ';
         }
-        stmtString += 'endpoint1.action1();';
+        stmtString += 'endpoint1->action1();';
 
         const node = getNodeForFragment(FragmentUtils.createStatementFragment(stmtString));
 
-        if (action && action.getParameters().length > 0) {
-            const parameters = action.getParameters().map((param) => {
+        if (functionDef && functionDef.getParameters().length > 0) {
+            const parameters = functionDef.getParameters().map((param) => {
                 let defaultValue = Environment.getDefaultValue(param.type);
                 if (defaultValue === undefined) {
                     defaultValue = '{}';
@@ -416,8 +389,8 @@ class DefaultNodeFactory {
             node.getExpression().setArgumentExpressions(parameters);
         }
 
-        if (action && action.getReturnParams().length > 0) {
-            const varRefNames = action.getReturnParams().map((param, index) => {
+        if (functionDef && functionDef.getReturnParams().length > 0) {
+            const varRefNames = functionDef.getReturnParams().map((param, index) => {
                 return 'variable' + index + 1;
             });
             const varRefListString = `var ${varRefNames.join(', ')} = function1();`;
@@ -425,9 +398,9 @@ class DefaultNodeFactory {
             node.setVariables(returnNode.getVariables());
         }
 
-        if (action) {
+        if (functionDef) {
             const pkgStr = packageName !== 'Current Package' ? packageName.split(/[.]+/).pop() : '';
-            node.getExpression().getName().setValue(action.getName());
+            node.getExpression().getName().setValue(functionDef.getName());
             node.getExpression().setFullPackageName(fullPackageName);
             node.getExpression().getPackageAlias().setValue(pkgStr);
         }

@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.964.1-SNAPSHOT</version>
+    <version>0.970.0-beta6-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -176,8 +176,25 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-http</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-transactions</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-builtin</artifactId>
                 <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-builtin</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -191,7 +208,17 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-cli-utils</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-logging</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jaeger-extension</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
@@ -201,7 +228,27 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jms</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-database</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>strip-bouncycastle</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>language-server-core</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>language-server-compiler</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
@@ -232,12 +279,17 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>protobuf-ballerina</artifactId>
+                <artifactId>ballerina-to-swagger</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-container-support</artifactId>
+                <artifactId>ballerina-codegen</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>protobuf-ballerina</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
@@ -510,11 +562,6 @@
                 <version>${handlebars.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>docker-client</artifactId>
-                <version>${docker.client.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${commons.io.version}</version>
@@ -619,9 +666,19 @@
                 <scope>compile</scope>
             </dependency>
             <dependency>
+                <groupId>io.swagger.parser.v3</groupId>
+                <artifactId>swagger-parser</artifactId>
+                <version>${swagger.v3.parser.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-models</artifactId>
                 <version>${swagger.models.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-models</artifactId>
+                <version>${swagger.v3.models.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
@@ -786,6 +843,132 @@
                 <artifactId>broker-core</artifactId>
                 <version>${broker.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.ballerina.messaging</groupId>
+                <artifactId>broker-amqp</artifactId>
+                <version>${broker.version}</version>
+            </dependency>
+
+            <!-- Observability dependency-->
+            <dependency>
+                <groupId>io.opentracing</groupId>
+                <artifactId>opentracing-api</artifactId>
+                <version>${open.tracing.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.opentracing</groupId>
+                <artifactId>opentracing-util</artifactId>
+                <version>${open.tracing.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.opentracing</groupId>
+                <artifactId>opentracing-mock</artifactId>
+                <version>${open.tracing.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.uber.jaeger</groupId>
+                <artifactId>jaeger-core</artifactId>
+                <version>${jaeger.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.uber.jaeger</groupId>
+                <artifactId>jaeger-thrift</artifactId>
+                <version>${jaeger.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.thrift</groupId>
+                <artifactId>libthrift</artifactId>
+                <version>${libthrift.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>${okhttp.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.squareup.okio</groupId>
+                <artifactId>okio</artifactId>
+                <version>${okio.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-tcnative-boringssl-static</artifactId>
+                <version>${netty-tcnative-boringssl-static.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-micrometer-extension</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-prometheus-extension</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-core</artifactId>
+                <version>${micrometer.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-registry-prometheus</artifactId>
+                <version>${micrometer.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hdrhistogram</groupId>
+                <artifactId>HdrHistogram</artifactId>
+                <version>${hdrhistogram.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.latencyutils</groupId>
+                <artifactId>LatencyUtils</artifactId>
+                <version>${latencyutils.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient</artifactId>
+                <version>${prometheus.simple.client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient_common</artifactId>
+                <version>${prometheus.simple.client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient_httpserver</artifactId>
+                <version>${prometheus.simple.client.version}</version>
+            </dependency>
+
+            <!-- JMS connector dependencies -->
+            <dependency>
+                <groupId>org.wso2.transport.jms</groupId>
+                <artifactId>transport-jms</artifactId>
+                <version>${wso2.transport.jms.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.jms</groupId>
+                <artifactId>javax.jms-api</artifactId>
+                <version>${javax.jms.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.andes.wso2</groupId>
+                <artifactId>andes-client</artifactId>
+                <version>${andes.client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.securevault</groupId>
+                <artifactId>org.wso2.securevault</artifactId>
+                <version>${wso2.securevault.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.wso2.transport.file</groupId>
+                <artifactId>org.wso2.transport.local-file-system</artifactId>
+                <version>${file.transport.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -877,9 +1060,15 @@
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
+                <module>stdlib/transactions</module>
                 <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
+                <module>stdlib/ballerina-jms</module>
+                <module>stdlib/ballerina-database</module>
+                <module>stdlib/strip-bouncycastle</module>
+
+                <module>stdlib/stdlib-compile</module>
 
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
@@ -887,23 +1076,29 @@
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
 
+                <!--Should Run Before tests/ballerina-test-->
+                <module>misc/protobuf-ballerina</module>
+
                 <module>tests/ballerina-test</module>
+
+                <module>cli/ballerina-cli-utils</module>
 
                 <module>language-server</module>
                 <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/swagger-ballerina</module>
-                <!--<module>misc/testerina</module>-->
+                <module>misc/testerina</module>
                 <module>misc/toml-parser</module>
-                <module>misc/protobuf-ballerina</module>
-                <module>composer</module>
+                <module>misc/metrics-extensions</module>
+                <module>misc/tracing-extensions</module>
 
-                <module>distribution/docker</module>
+                <module>composer</module>
                 <module>distribution/zip/ballerina</module>
                 <module>distribution/zip/ballerina-tools</module>
 
+                <module>tests/observability-test-utils</module>
                 <module>tests/ballerina-test-integration</module>
-
+                <module>tests/ballerina-test-compiler-plugins</module>
                 <module>tool-plugins/intellij</module>
                 <module>tool-plugins/vscode</module>
             </modules>
@@ -916,9 +1111,15 @@
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
+                <module>stdlib/transactions</module>
                 <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
+                <module>stdlib/ballerina-jms</module>
+                <module>stdlib/ballerina-database</module>
+                <module>stdlib/strip-bouncycastle</module>
+
+                <module>stdlib/stdlib-compile</module>
 
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
@@ -926,17 +1127,29 @@
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
 
+                <!--Should Run Before tests/ballerina-test-->
+                <module>misc/protobuf-ballerina</module>
                 <module>tests/ballerina-test</module>
                 <module>tests/ballerina-test-compiler-plugins</module>
+                <module>cli/ballerina-cli-utils</module>
 
-                <!--<module>misc/docerina</module>-->
+                <module>language-server</module>
+                <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/toml-parser</module>
-                <module>misc/protobuf-ballerina</module>
+                <module>misc/metrics-extensions</module>
+                <module>misc/tracing-extensions</module>
 
                 <module>distribution/zip/ballerina</module>
 
+                <module>tests/observability-test-utils</module>
                 <module>tests/ballerina-test-integration</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>benchmarks</id>
+            <modules>
+                <module>benchmarks</module>
             </modules>
         </profile>
         <profile>
@@ -950,9 +1163,15 @@
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
+                <module>stdlib/transactions</module>
                 <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
+                <module>stdlib/ballerina-jms</module>
+                <module>stdlib/ballerina-database</module>
+                <module>stdlib/strip-bouncycastle</module>
+
+                <module>stdlib/stdlib-compile</module>
 
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
@@ -960,22 +1179,29 @@
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
 
+                <!--Should Run Before tests/ballerina-test-->
+                <module>misc/protobuf-ballerina</module>
+
                 <module>tests/ballerina-test</module>
                 <module>tests/ballerina-test-compiler-plugins</module>
+
+                <module>cli/ballerina-cli-utils</module>
 
                 <module>language-server</module>
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/docerina</module>
                 <module>misc/swagger-ballerina</module>
-                <!--<module>misc/testerina</module>-->
+                <module>misc/testerina</module>
                 <module>misc/toml-parser</module>
-                <module>misc/protobuf-ballerina</module>
+                <module>misc/metrics-extensions</module>
+                <module>misc/tracing-extensions</module>
+
                 <module>composer</module>
 
-                <module>distribution/docker</module>
                 <module>distribution/zip/ballerina</module>
                 <module>distribution/zip/ballerina-tools</module>
 
+                <module>tests/observability-test-utils</module>
                 <module>tests/ballerina-test-integration</module>
 
                 <!-- Intellij build disabled in default build -->
@@ -1213,16 +1439,16 @@
                     <version>${clirr.maven.plugin.version}</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>findbugs-maven-plugin</artifactId>
-                    <version>${maven.findbugsplugin.version}</version>
+                    <groupId>com.github.spotbugs</groupId>
+                    <artifactId>spotbugs-maven-plugin</artifactId>
+                    <version>${maven.spotbugsplugin.version}</version>
                     <configuration>
                         <effort>Max</effort>
                         <threshold>Low</threshold>
                         <xmlOutput>true</xmlOutput>
-                        <findbugsXmlOutputDirectory>${project.build.directory}/findbugs</findbugsXmlOutputDirectory>
+                        <spotbugsXmlOutputDirectory>${project.build.directory}/spotbugs</spotbugsXmlOutputDirectory>
                         <!--Exclude sources-->
-                        <excludeFilterFile>${mavan.findbugsplugin.exclude.file}</excludeFilterFile>
+                        <excludeFilterFile>${maven.spotbugsplugin.exclude.file}</excludeFilterFile>
                     </configuration>
                     <executions>
                         <execution>
@@ -1252,8 +1478,8 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
             </plugin>
             <!-- We want to package up license resources in the JARs produced -->
             <plugin>
@@ -1293,7 +1519,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.964.1-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.970.0-beta6-SNAPSHOT</ballerina.version>
         <npm.executable>npm</npm.executable>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
@@ -1310,7 +1536,6 @@
 
 
 
-        <docker.client.version>1.2.1</docker.client.version>
         <testng.version>6.9.4</testng.version>
         <commons.io.version>2.5</commons.io.version>
         <handlebars.version>4.0.6</handlebars.version>
@@ -1318,7 +1543,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.114</transport.http.version>
+        <transport.http.version>6.0.146</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
@@ -1344,9 +1569,9 @@
         <commons.pool.version>1.5.6.wso2v1</commons.pool.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
         <jcommander.version>1.60</jcommander.version>
-        <com.zaxxer.hikaricp.version>2.5.1</com.zaxxer.hikaricp.version>
-        <hyperSQL.version>2.3.4</hyperSQL.version>
-        <h2.version>1.3.175</h2.version>
+        <com.zaxxer.hikaricp.version>3.1.0</com.zaxxer.hikaricp.version>
+        <hyperSQL.version>2.4.0</hyperSQL.version>
+        <h2.version>1.4.197</h2.version>
         <gson.version>2.7</gson.version>
         <maven.wagon.ssh.version>2.10</maven.wagon.ssh.version>
         <lambdaj.version>2.3.3</lambdaj.version>
@@ -1360,6 +1585,8 @@
         <com.fasterxml.jackson.datatype.version>2.4.1</com.fasterxml.jackson.datatype.version>
         <swagger.parser.version>1.0.34</swagger.parser.version>
         <swagger.models.version>1.5.16</swagger.models.version>
+        <swagger.v3.parser.version>2.0.0-rc3</swagger.v3.parser.version>
+        <swagger.v3.models.version>2.0.0</swagger.v3.models.version>
         <swagger.parser.v2.converter.version>2.0.0-rc3</swagger.parser.v2.converter.version>
         <com.fasterxml.jackson.core.annotations.version>2.8.0</com.fasterxml.jackson.core.annotations.version>
         <rs-api.version>2.0</rs-api.version>
@@ -1371,7 +1598,8 @@
         <jackson-core.version>2.8.6</jackson-core.version>
         <apache.mina.core>2.0.16</apache.mina.core>
         <mimepull.version>1.9.7</mimepull.version>
-        <broker.version>0.1.20</broker.version>
+        <broker.version>0.1.55</broker.version>
+        <netty-tcnative-boringssl-static.version>2.0.7.Final</netty-tcnative-boringssl-static.version>
 
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>
         <wso2.maven.compiler.target>1.8</wso2.maven.compiler.target>
@@ -1391,7 +1619,7 @@
         <maven.docck.plugin.version>1.1</maven.docck.plugin.version>
         <maven.enforcer.plugin.version>1.4.1</maven.enforcer.plugin.version>
         <maven.failsafe.plugin.version>2.19.1</maven.failsafe.plugin.version>
-        <maven.findbugsplugin.version>3.0.3</maven.findbugsplugin.version>
+        <maven.spotbugsplugin.version>3.1.1</maven.spotbugsplugin.version>
         <maven.gpg.plugin.version>1.6</maven.gpg.plugin.version>
         <maven.install.plugin.version>2.5.2</maven.install.plugin.version>
         <maven.invoker.plugin.version>2.0.0</maven.invoker.plugin.version>
@@ -1425,6 +1653,28 @@
         <disruptor.version>3.3.2.wso2v2</disruptor.version>
         <guava.version>19.0</guava.version>
         <metrics.version>3.1.0</metrics.version>
+
+        <!-- Observability -->
+        <open.tracing.version>0.31.0</open.tracing.version>
+        <jaeger.version>0.24.0</jaeger.version>
+        <libthrift.version>0.10.0</libthrift.version>
+        <okhttp.version>3.9.1</okhttp.version>
+        <okio.version>1.13.0</okio.version>
+        <micrometer.version>1.0.3</micrometer.version>
+        <hdrhistogram.version>2.1.10</hdrhistogram.version>
+        <latencyutils.version>2.0.3</latencyutils.version>
+        <prometheus.simple.client.version>0.3.0</prometheus.simple.client.version>
+
+        <!-- JMS Connector -->
+        <wso2.transport.jms.version>6.0.50</wso2.transport.jms.version>
+        <javax.jms.version>2.0.1</javax.jms.version>
+        <andes.client.version>3.2.49</andes.client.version>
+        <wso2.securevault.version>1.0.0-wso2v2</wso2.securevault.version>
+
+        <file.transport.version>6.0.53</file.transport.version>
+
+        <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
+
     </properties>
 
 </project>

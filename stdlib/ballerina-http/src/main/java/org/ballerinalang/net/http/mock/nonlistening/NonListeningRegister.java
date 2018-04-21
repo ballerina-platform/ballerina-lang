@@ -19,10 +19,18 @@
 package org.ballerinalang.net.http.mock.nonlistening;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.http.HTTPServicesRegistry;
+import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.WebSocketConstants;
+import org.ballerinalang.net.http.WebSocketService;
+import org.ballerinalang.net.http.WebSocketServicesRegistry;
 
 /**
  * Get the ID of the connection.
@@ -31,10 +39,10 @@ import org.ballerinalang.natives.annotations.Receiver;
  */
 
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http.mock",
+        orgName = "ballerina", packageName = "http",
         functionName = "register",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "NonListeningServiceEndpoint",
-                structPackage = "ballerina.net.http.mock"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "NonListener",
+                structPackage = "ballerina.http"),
         args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC)},
         isPublic = true
 )
@@ -42,6 +50,21 @@ public class NonListeningRegister extends org.ballerinalang.net.http.serviceendp
 
     @Override
     public void execute(Context context) {
-        super.execute(context);
+        Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
+        Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+
+        HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
+        WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
+
+        // TODO: Check if this is valid.
+        // TODO: In HTTP to WebSocket upgrade register WebSocket service in WebSocketServiceRegistry
+        if (HttpConstants.HTTP_SERVICE_ENDPOINT_NAME.equals(service.getEndpointName())) {
+            httpServicesRegistry.registerService(service);
+        }
+        if (WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(service.getEndpointName())) {
+            WebSocketService webSocketService = new WebSocketService(service);
+            webSocketServicesRegistry.registerService(webSocketService);
+        }
+        context.setReturnValues();
     }
 }

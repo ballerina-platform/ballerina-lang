@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.964.1-SNAPSHOT</version>
+        <version>0.970.0-beta6-SNAPSHOT</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
 
@@ -47,23 +47,19 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-packerina</artifactId>
+            <artifactId>ballerina-cli-utils</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>swagger-to-ballerina-generator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-codegen</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>protobuf-ballerina</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>swagger-to-ballerina-generator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-container-support</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -107,7 +103,16 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>
-                                composer-server-distribution,ballerina-composer-web,testerina-core,connectors,ballerina
+                                composer-server-distribution,
+                                ballerina-composer-web,
+                                testerina-core,
+                                ballerina-builtin,
+                                connectors,
+                                ballerina,
+                                ballerina-http,
+                                ballerina-transactions,
+                                ballerina-mime,
+                                ballerina-grpc
                             </includeArtifactIds>
                             <outputDirectory>${project.build.directory}/extracted-distributions
                             </outputDirectory>
@@ -119,40 +124,72 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <!--TODO fix after test migration-->
-            <!--<plugin>-->
-                <!--<groupId>org.ballerinalang</groupId>-->
-                <!--<artifactId>docerina-maven-plugin</artifactId>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<phase>package</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>docerina</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<outputDir>${project.build.directory}/api-docs</outputDir>-->
-                            <!--<sourceDir>-->
-                                <!--${project.build.directory}/extracted-distributions/ballerina-zip/ballerina-${project.version}/src,${project.build.directory}/extracted-distributions/testerina-core-jar/META-INF/natives-->
-                            <!--</sourceDir>-->
-                            <!--<nativeCode>true</nativeCode>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-                <!--<dependencies>-->
-                    <!--<dependency>-->
-                        <!--<groupId>org.ballerinalang</groupId>-->
-                        <!--<artifactId>ballerina-http</artifactId>-->
-                        <!--<version>${project.version}</version>-->
-                    <!--</dependency>-->
-                    <!--<dependency>-->
-                        <!--<groupId>org.ballerinalang</groupId>-->
-                        <!--<artifactId>ballerina-mime</artifactId>-->
-                        <!--<version>${project.version}</version>-->
-                    <!--</dependency>-->
-                <!--</dependencies>-->
-            <!--</plugin>-->
-
+            <!-- Copy resources -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven.resources.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/extracted-distributions/ballerina</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.build.directory}/extracted-distributions/ballerina-builtin-jar/META-INF/ballerina</directory>
+                                </resource>
+                                <resource>
+                                    <directory>${project.build.directory}/extracted-distributions/ballerina-mime-jar/META-INF/ballerina</directory>
+                                </resource>
+                                <resource>
+                                    <directory>${project.build.directory}/extracted-distributions/ballerina-http-jar/META-INF/ballerina</directory>
+                                </resource>
+                                <resource>
+                                    <directory>${project.build.directory}/extracted-distributions/testerina-core-jar/META-INF/ballerina</directory>
+                                </resource>
+                                <resource>
+                                    <directory>${project.build.directory}/extracted-distributions/ballerina-grpc-jar/META-INF/ballerina</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>docerina-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>docerina</goal>
+                        </goals>
+                        <configuration>
+                            <outputZip>${project.build.directory}/ballerina-api-docs-${project.version}.zip</outputZip>
+                            <outputDir>${project.build.directory}/api-docs</outputDir>
+                            <sourceRoot>${project.build.directory}/extracted-distributions/ballerina</sourceRoot>
+                            <nativeCode>true</nativeCode>
+                            <packageFilter>compression</packageFilter>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.ballerinalang</groupId>
+                        <artifactId>ballerina-http</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.ballerinalang</groupId>
+                        <artifactId>ballerina-mime</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -184,6 +221,20 @@
                 <version>1.8</version>
                 <executions>
                     <execution>
+                        <id>1</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <mkdir dir="${project.build.directory}/extracted-distributions/ballerina" />
+                                <chmod file="${project.build.directory}/extracted-distributions/ballerina" perm="u+x" />
+                            </target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>2</id>
                         <phase>verify</phase>
                         <goals>
                             <goal>run</goal>

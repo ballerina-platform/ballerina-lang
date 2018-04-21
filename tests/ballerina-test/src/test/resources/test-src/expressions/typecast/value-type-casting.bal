@@ -18,7 +18,7 @@ function intToBoolean (int value) returns (boolean) {
 
 function intToAny (int value) returns (any) {
     any result;
-    result = (any)value;
+    result = <any>value;
     return result;
 }
 
@@ -42,31 +42,31 @@ function floatToBoolean (float value) returns (boolean) {
 
 function floatToAny (float value) returns (any) {
     any result;
-    result = (any)value;
+    result = <any>value;
     return result;
 }
 
 function stringToInt(string value) returns (int) {
     int result;
-    result, _ = <int>value;
+    result = check <int>value;
     return result;
 }
 
 function stringToFloat(string value) returns (float) {
     float result;
-    result, _ = <float>value;
+    result = check <float>value;
     return result;
 }
 
 function stringToBoolean(string value) returns (boolean) {
     boolean result;
-    result, _ = <boolean>value;
+    result = <boolean>value;
     return result;
 }
 
 function stringToAny(string value) returns (any) {
     any result;
-    result = (any)value;
+    result = <any>value;
     return result;
 }
 
@@ -90,13 +90,13 @@ function booleanToString(boolean value) returns (string) {
 
 function booleanToAny(boolean value) returns (any) {
     any result;
-    result = (any)value;
+    result = <any>value;
     return result;
 }
 
 function blobToAny(blob value) returns (any) {
     any result;
-    result = (any)value;
+    result = <any>value;
     return result;
 }
 
@@ -104,7 +104,7 @@ function anyToInt () returns (int) {
     int i = 5;
     any a = i;
     int value;
-    value, _ = (int)a;
+    value = check <int>a;
     return value;
 }
 
@@ -112,7 +112,7 @@ function anyToFloat () returns (float) {
     float f = 5.0;
     any a = f;
     float value;
-    value, _ = (float)a;
+    value = check <float>a;
     return value;
 }
 
@@ -120,7 +120,7 @@ function anyToString () returns (string) {
     string s = "test";
     any a = s;
     string value;
-    value, _ = (string)a;
+    value = <string>a;
     return value;
 }
 
@@ -128,7 +128,7 @@ function anyToBoolean () returns (boolean) {
     boolean b;
     any a = b;
     boolean value;
-    value, _ = (boolean)a;
+    value = check <boolean>a;
     return value;
 }
 
@@ -136,7 +136,7 @@ function anyToBlob (blob data) returns (blob) {
     blob b = data;
     any a = b;
     blob value;
-    value, _ = (blob)a;
+    value = check <blob>a;
     return value;
 }
 

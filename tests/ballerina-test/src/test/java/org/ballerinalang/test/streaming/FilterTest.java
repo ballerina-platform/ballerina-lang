@@ -34,15 +34,32 @@ import org.testng.annotations.Test;
 public class FilterTest {
 
     private CompileResult result;
+    private CompileResult resultWithReference;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/streaming/filter-streaming-test.bal");
+        resultWithReference = BCompileUtil.compile("test-src/streaming/filter-streaming-with-reference-test.bal");
     }
 
     @Test(description = "Test filter streaming query")
     public void testFilterQuery() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startFilterQuery");
+        Assert.assertNotNull(outputEmployeeEvents);
+
+        Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");
+
+        BStruct employee0 = (BStruct) outputEmployeeEvents[0];
+        BStruct employee1 = (BStruct) outputEmployeeEvents[1];
+
+        Assert.assertEquals(employee0.getIntField(0), 33);
+        Assert.assertEquals(employee1.getIntField(0), 45);
+    }
+
+
+    @Test(description = "Test filter streaming query")
+    public void testFilterQueryWithFuntionParam() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(resultWithReference, "startFilterQuery");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");

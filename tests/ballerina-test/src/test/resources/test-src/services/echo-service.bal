@@ -1,18 +1,20 @@
-import ballerina/net.http;
-import ballerina/net.http.mock;
+import ballerina/mime;
+import ballerina/http;
+import ballerina/io;
 
-const string constPath = getConstPath();
+@final string constPath = getConstPath();
 
-struct Person {
-    string name;
-    int age;
-}
-endpoint<mock:NonListeningService> echoEP {
+type Person {
+    string name,
+    int age,
+};
+
+endpoint http:NonListener echoEP {
     port:9090
-}
+};
 
-@http:ServiceConfig {basePath:"/echo", endpoints:[echoEP]}
-service<http:Service> echo {
+@http:ServiceConfig {basePath:"/echo"}
+service<http:Service> echo bind echoEP {
 
     string serviceLevelStr;
 
@@ -22,8 +24,8 @@ service<http:Service> echo {
         methods:["GET"],
         path:"/message"
     }
-    resource echo (http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
+    echo (endpoint conn, http:Request req) {
+        http:Response res = new;
         _ = conn -> respond(res);
     }
 
@@ -31,9 +33,9 @@ service<http:Service> echo {
         methods:["GET"],
         path:"/message_worker"
     }
-    resource echo_worker (http:ServerConnector conn, http:Request req) {
+    echo_worker (endpoint conn, http:Request req) {
         worker w1 {
-            http:Response res = {};
+            http:Response res = new;
             _ = conn -> respond(res);
         }
         worker w2 {
@@ -46,10 +48,18 @@ service<http:Service> echo {
         methods:["POST"],
         path:"/setString"
     }
-    resource setString (http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
+    setString (endpoint conn, http:Request req) {
+        http:Response res = new;
         string payloadData;
-        payloadData, _ = req.getStringPayload();
+        var payload = req.getStringPayload();
+        match payload {
+            http:PayloadError err => {
+                done;
+            }
+            string s => {
+                payloadData = s;
+            }
+        }
         serviceLevelStr = untaint payloadData;
         //res.setStringPayload(res, serviceLevelStr);
         _ = conn -> respond(res);
@@ -59,8 +69,8 @@ service<http:Service> echo {
         methods:["GET"],
         path:"/getString"
     }
-    resource getString (http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
+    getString (endpoint conn, http:Request req) {
+        http:Response res = new;
         res.setStringPayload(serviceLevelStr);
         _ = conn -> respond(res);
     }
@@ -68,8 +78,8 @@ service<http:Service> echo {
     @http:ResourceConfig {
         methods:["GET"]
     }
-    resource removeHeaders (http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
+    removeHeaders (endpoint conn, http:Request req) {
+        http:Response res = new;
         res.setHeader("header1", "wso2");
         res.setHeader("header2", "ballerina");
         res.setHeader("header3", "hello");
@@ -81,8 +91,8 @@ service<http:Service> echo {
         methods:["GET"],
         path:"/getServiceLevelString"
     }
-    resource getServiceLevelString (http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
+    getServiceLevelString (endpoint conn, http:Request req) {
+        http:Response res = new;
         res.setStringPayload(serviceLevelStringVar);
         _ = conn -> respond(res);
     }
@@ -91,8 +101,8 @@ service<http:Service> echo {
         methods:["GET"],
         path:constPath
     }
-    resource connstValueAsAttributeValue (http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
+    connstValueAsAttributeValue (endpoint conn, http:Request req) {
+        http:Response res = new;
         res.setStringPayload("constant path test");
         _ = conn -> respond(res);
     }
@@ -101,23 +111,33 @@ service<http:Service> echo {
         methods:["GET"],
         path:"/testEmptyResourceBody"
     }
-    resource testEmptyResourceBody (http:ServerConnector conn, http:Request req) {
+    testEmptyResourceBody (endpoint conn, http:Request req) {
     }
 
     @http:ResourceConfig {
         methods:["POST"],
         path:"/getFormParams"
     }
-    resource getFormParams (http:ServerConnector conn, http:Request req) {
-        var params, _ = req.getFormParams();
+    getFormParams (endpoint conn, http:Request req) {
+        var params = req.getFormParams();
         string name;
-        name,_ = (string)params.firstName;
         string team;
-        team,_ = (string)params.team;
-        json responseJson = {"Name":name , "Team":team};
-
-        http:Response res = {};
-        res.setJsonPayload(responseJson);
+        http:Response res = new;
+        match params {
+            map<string> p => {
+                if (p.hasKey("firstName")) {
+                    name = p.firstName;
+                }
+                if (p.hasKey("team")) {
+                    team = p.team;
+                }
+                json responseJson = {"Name":name , "Team":team};
+                res.setJsonPayload(responseJson);
+            }
+            http:PayloadError err => {
+                res.setStringPayload(err.message);
+            }
+        }
         _ = conn -> respond(res);
     }
 
@@ -125,13 +145,13 @@ service<http:Service> echo {
         methods:["PATCH"],
         path:"/modify"
     }
-    resource modify11 (http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
+    modify11 (endpoint conn, http:Request req) {
+        http:Response res = new;
         res.statusCode = 204;
         _ = conn -> respond(res);
     }
 }
 
-function getConstPath() (string) {
+function getConstPath() returns (string) {
     return "/constantPath";
 }

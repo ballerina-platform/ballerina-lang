@@ -17,20 +17,15 @@
 package org.ballerinalang.composer.service.ballerina.launcher.service;
 
 import org.ballerinalang.composer.service.ballerina.launcher.service.util.LaunchUtils;
-import org.ballerinalang.composer.service.ballerina.parser.service.model.BallerinaFile;
-import org.ballerinalang.composer.service.ballerina.parser.service.util.ParserUtils;
-import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Command class represent the launcher commands.
@@ -44,8 +39,8 @@ public class Command {
     private int port;
     private Process program;
     private boolean errorOutputEnabled = true;
-    private String packageDir = null;
-    private String packagePath = null;
+    private String sourceRoot = null;
+    private String packageName = null;
     private static final Logger logger = LoggerFactory.getLogger(Command.class);
 
     public Command(String fileName, String filePath, boolean debug) {
@@ -120,38 +115,31 @@ public class Command {
         }
         commandList.add(ballerinaExecute);
         commandList.add("run");
+        sourceRoot = LSCompiler.getSourceRoot(Paths.get(filePath + fileName));
 
-        BallerinaFile ballerinaFile = ParserUtils.getBallerinaFile(filePath, fileName);
-        // assuming there will be only one compilation unit in the list, I'm getting the first element from the list
-        BLangCompilationUnit currentBLangCompilationUnit = ballerinaFile.getBLangPackage().compUnits.get(0);
-        List<TopLevelNode> topLevelNodes = currentBLangCompilationUnit.getTopLevelNodes();
-        // filter out the BLangPackageDeclaration from top level nodes list
-        List<TopLevelNode> bLangPackageDeclarations = topLevelNodes.stream()
-                .filter(topLevelNode -> topLevelNode instanceof BLangPackageDeclaration).collect(Collectors.toList());
-        if (!bLangPackageDeclarations.isEmpty()) {
-            BLangPackageDeclaration bLangPackageDeclaration = (BLangPackageDeclaration) bLangPackageDeclarations.get(0);
-            if (bLangPackageDeclaration != null) {
-                List<String> pkgNameCompsInString = bLangPackageDeclaration.pkgNameComps.stream()
-                        .map(ParserUtils.B_LANG_IDENTIFIER_TO_STRING).collect(Collectors.<String>toList());
-                if (!(pkgNameCompsInString.size() == 1 && ".".equals(pkgNameCompsInString.get(0)))) {
-                    packagePath = String.join(File.separator, pkgNameCompsInString);
-                    packageDir = ParserUtils.getProgramDirectory(
-                            pkgNameCompsInString.size(), Paths.get(scriptLocation)
-                    ).toString();
-                }
-            }
+        if (filePath != null && !filePath.equals(sourceRoot + File.separator)) {
+            packageName =
+                    LSCompiler.getPackageNameForGivenFile(sourceRoot, filePath + fileName);
+            commandList.add("--sourceroot");
+            commandList.add(sourceRoot);
         }
 
-        if (packagePath == null) {
+        if (packageName == null) {
             commandList.add(scriptLocation);
         } else {
-            commandList.add(packagePath);
+            commandList.add(packageName);
         }
 
         if (debug) {
             commandList.add("--debug");
             commandList.add(String.valueOf(this.port));
         }
+
+        commandList.add("-e");
+        commandList.add("b7a.http.tracelog.host=localhost");
+
+        commandList.add("-e");
+        commandList.add("b7a.http.tracelog.port=5010");
 
         if (this.commandArgs != null) {
             commandList.addAll(Arrays.asList(this.commandArgs));
@@ -160,15 +148,15 @@ public class Command {
         return commandList.toArray(new String[0]);
     }
 
-    public String getPackageDir() {
-        return this.packageDir;
+    public String getSourceRoot() {
+        return this.sourceRoot;
     }
 
     public String getCommandIdentifier() {
-        if (this.packagePath == null) {
+        if (this.packageName == null) {
             return this.getScriptLocation();
         } else {
-            return this.packagePath;
+            return this.packageName;
         }
     }
 

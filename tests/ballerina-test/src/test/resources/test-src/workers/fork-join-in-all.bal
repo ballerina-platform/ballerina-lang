@@ -15,12 +15,10 @@ function testForkJoinAll() returns int[] {
                 x -> fork;
             }
         } join (all) (map airlineResponses) {
-            any[] abc;
-            any[] xyz;
-            abc =? <any[]> airlineResponses["ABC_Airline"];
-            xyz =? <any[]> airlineResponses["XYZ_Airline"];
-            results[0] =? <int> abc[0];
-            results[1] =? <int> xyz[0];
+            int abc = check <int> airlineResponses["ABC_Airline"];
+            int xyz = check <int> airlineResponses["XYZ_Airline"];
+            results[0] = abc;
+            results[1] = xyz;
         } timeout (30000) (map airlineResponses) {
             results[0] = -1;
             results[0] = -1;

@@ -64,7 +64,7 @@ class HttpServiceHeader extends React.Component {
             <g className='http-service-header'>
                 <text
                     style={{ dominantBaseline: 'central' }}
-                    x={x + 50}
+                    x={x + 80}
                     y={basePathY}
                     fill='white'
                     className='editable-text-label base-path'

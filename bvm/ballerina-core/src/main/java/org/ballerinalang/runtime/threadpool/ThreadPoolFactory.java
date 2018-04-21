@@ -15,8 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.ballerinalang.runtime.threadpool;
+
+import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.omg.PortableServer.ThreadPolicyOperations;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,27 +31,49 @@ import java.util.concurrent.Executors;
  */
 public class ThreadPoolFactory {
 
-    private static ThreadPoolFactory instance = new ThreadPoolFactory();
+    private static final int DEFAULT_THREAD_POOL_SIZE = 100;
+    private static final int MAX_THREAD_POOL_SIZE = 1000;
+    private static final int MIN_THREAD_POOL_SIZE = 1;
 
-    //TODO: Make the thread count configurable.
-    // Ideally number of threads need to be calculated and spawned intelligently
-    // based on the environment and runtime status (CPU Usage, memory, etc).
-    // A configuration parameter which is user configurable is also required.
-    // Issue#1929
-    private ExecutorService executorService = Executors.newFixedThreadPool(500, new BLangThreadFactory("BLangWorker"));
+    private static final String WORKER_THREAD_POOL_SIZE_PROP = "b7a.runtime.scheduler.threadpoolsize";
 
-    //TODO: Make the number of threads configurable
-    private ExecutorService workerExecutor = Executors.newFixedThreadPool(100,
-            new BLangThreadFactory(new ThreadGroup("worker"), "worker-thread-pool"));
+    private static ThreadPoolFactory instance;
 
-    private ThreadPoolFactory() {};
+    private ExecutorService workerExecutor;
 
-    public static ThreadPoolFactory getInstance() {
-        return instance;
+    private ThreadPoolFactory() {
+        int poolSize = this.extractThreadPoolSize();
+        this.workerExecutor = Executors.newFixedThreadPool(poolSize,
+                new BLangThreadFactory(new ThreadGroup("worker"), "worker-thread-pool"));
+    };
+    
+    private int extractThreadPoolSize() {
+        int poolSize = DEFAULT_THREAD_POOL_SIZE;
+        String workerThreadPoolSizeProp = ConfigRegistry.getInstance().getAsString(WORKER_THREAD_POOL_SIZE_PROP);
+        if (workerThreadPoolSizeProp != null) {
+            try {
+                poolSize = Integer.parseInt(workerThreadPoolSizeProp);
+                if (poolSize < MIN_THREAD_POOL_SIZE || poolSize > MAX_THREAD_POOL_SIZE) {
+                    throw new BallerinaException(WORKER_THREAD_POOL_SIZE_PROP + " must be between "
+                            + MIN_THREAD_POOL_SIZE + " and " + MAX_THREAD_POOL_SIZE + " (inclusive)");
+                }
+            } catch (NumberFormatException ignore) { 
+                throw new BallerinaException("invalid value for '" + WORKER_THREAD_POOL_SIZE_PROP 
+                        + "': " + workerThreadPoolSizeProp);
+            }
+        }
+        return poolSize;
     }
 
-    public ExecutorService getExecutor() {
-        return executorService;
+    public static ThreadPoolFactory getInstance() {
+        if (instance == null) {
+            synchronized (ThreadPolicyOperations.class) {
+                if (instance == null) {
+                    instance = new ThreadPoolFactory();
+                }
+            }
+        }
+        return instance;
     }
 
     public ExecutorService getWorkerExecutor() {
