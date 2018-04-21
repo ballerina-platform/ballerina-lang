@@ -50,15 +50,15 @@ public class Utils {
         initDebugger(programFile, debugger);
 
         // Invoke package init function
-        if (initPackage(programFile.getEntryPkgName())) {
+        if (isPackageInitialized(programFile.getEntryPkgName())) {
             BLangFunctions.invokePackageInitFunction(servicesPackage.getInitFunctionInfo());
-            TesterinaRegistry.getInstance().addInitedPackage(programFile.getEntryPkgName());
+            TesterinaRegistry.getInstance().addInitializedPackage(programFile.getEntryPkgName());
         }
         BLangFunctions.invokeVMUtilFunction(servicesPackage.getStartFunctionInfo());
     }
 
-    public static boolean initPackage(String entryPkgName) {
-        return !TesterinaRegistry.getInstance().getInitedPackages().contains(entryPkgName);
+    public static boolean isPackageInitialized(String entryPkgName) {
+        return !TesterinaRegistry.getInstance().getInitializedPackages().contains(entryPkgName);
     }
 
     /**

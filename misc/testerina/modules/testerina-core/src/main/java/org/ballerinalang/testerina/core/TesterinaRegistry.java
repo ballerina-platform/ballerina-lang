@@ -38,7 +38,7 @@ public class TesterinaRegistry {
     private Map<String, TestSuite> testSuites = new HashMap<>();
 
     // This is use to keep track of packages that are already inited.
-    private List<String> initedPackages = new ArrayList<>();
+    private List<String> initializedPackages = new ArrayList<>();
     /**
      * This is required to stop the annotation processor from processing annotations upon the compilation of the
      * service skeleton. This flag will make sure that @{@link TestAnnotationProcessor}'s methods will skip the
@@ -110,11 +110,11 @@ public class TesterinaRegistry {
         skeletonProgramFiles.add(programFile);
     }
 
-    public void addInitedPackage(String packageName) {
-        initedPackages.add(packageName);
+    public void addInitializedPackage(String packageName) {
+        initializedPackages.add(packageName);
     }
 
-    public List<String> getInitedPackages() {
-        return initedPackages;
+    public List<String> getInitializedPackages() {
+        return initializedPackages;
     }
  }
