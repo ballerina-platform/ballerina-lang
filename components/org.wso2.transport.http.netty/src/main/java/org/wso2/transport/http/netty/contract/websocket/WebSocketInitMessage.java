@@ -70,6 +70,22 @@ public interface WebSocketInitMessage extends WebSocketMessage {
                               HttpHeaders responseHeaders);
 
     /**
+     * Complete the handshake of a given request. The connection will be timed out if the connection is idle for given
+     * time period.
+     *
+     * @param subProtocols Sub-Protocols which are allowed by the service.
+     * @param allowExtensions whether the extensions are allowed or not.
+     * @param idleTimeout Idle timeout in milli-seconds for WebSocket connection.
+     * @param responseHeaders Extra headers to add to the handshake response or {@code null} if no extra headers should
+     *                        be added.
+     * @param maxFramePayloadLength Maximum allowable frame payload length. Setting this value to your application's
+     *            requirement may reduce denial of service attacks using long data frames.
+     * @return the handshake future.
+     */
+    HandshakeFuture handshake(String[] subProtocols, boolean allowExtensions, int idleTimeout,
+                              HttpHeaders responseHeaders, int maxFramePayloadLength);
+
+    /**
      * Cancel the handshake.
      *
      * @param closeCode close code for cancelling the handshake.
