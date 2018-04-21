@@ -9,88 +9,88 @@
       "label":"new()",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"120",
+      "sortText":"119",
       "insertText":"new()",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"post(string path, http:Request req)(ballerina.http:Response|ballerina.http:HttpConnectorError)",
+      "label":"post(string path, string path \u003d ())(ballerina.http:Response|ballerina.http:HttpConnectorError)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"post(${1:path}, ${2:req})",
+      "insertText":"post(${1:path}, path \u003d ${2:()})",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"head(string path, http:Request req)(ballerina.http:Response|ballerina.http:HttpConnectorError)",
+      "label":"head(string path, string path \u003d ())(ballerina.http:Response|ballerina.http:HttpConnectorError)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"head(${1:path}, ${2:req})",
+      "insertText":"head(${1:path}, path \u003d ${2:()})",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"put(string path, http:Request req)(ballerina.http:Response|ballerina.http:HttpConnectorError)",
+      "label":"put(string path, string path \u003d ())(ballerina.http:Response|ballerina.http:HttpConnectorError)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"put(${1:path}, ${2:req})",
+      "insertText":"put(${1:path}, path \u003d ${2:()})",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"execute(string httpVerb, string path, http:Request req)(ballerina.http:Response|ballerina.http:HttpConnectorError)",
+      "label":"execute(string httpVerb, string path, http:Request request)(ballerina.http:Response|ballerina.http:HttpConnectorError)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"execute(${1:httpVerb}, ${2:path}, ${3:req})",
+      "insertText":"execute(${1:httpVerb}, ${2:path}, ${3:request})",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"patch(string path, http:Request req)(ballerina.http:Response|ballerina.http:HttpConnectorError)",
+      "label":"patch(string path, string path \u003d ())(ballerina.http:Response|ballerina.http:HttpConnectorError)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"patch(${1:path}, ${2:req})",
+      "insertText":"patch(${1:path}, path \u003d ${2:()})",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"delete(string path, http:Request req)(ballerina.http:Response|ballerina.http:HttpConnectorError)",
+      "label":"delete(string path, string path \u003d ())(ballerina.http:Response|ballerina.http:HttpConnectorError)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"delete(${1:path}, ${2:req})",
+      "insertText":"delete(${1:path}, path \u003d ${2:()})",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"get(string path, http:Request req)(ballerina.http:Response|ballerina.http:HttpConnectorError)",
+      "label":"get(string path, string path \u003d ())(ballerina.http:Response|ballerina.http:HttpConnectorError)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"get(${1:path}, ${2:req})",
+      "insertText":"get(${1:path}, path \u003d ${2:()})",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"options(string path, http:Request req)(ballerina.http:Response|ballerina.http:HttpConnectorError)",
+      "label":"options(string path, string path \u003d ())(ballerina.http:Response|ballerina.http:HttpConnectorError)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"options(${1:path}, ${2:req})",
+      "insertText":"options(${1:path}, path \u003d ${2:()})",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"forward(string path, http:Request req)(ballerina.http:Response|ballerina.http:HttpConnectorError)",
+      "label":"forward(string path, http:Request request)(ballerina.http:Response|ballerina.http:HttpConnectorError)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"forward(${1:path}, ${2:req})",
+      "insertText":"forward(${1:path}, ${2:request})",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"submit(string httpVerb, string path, http:Request req)(ballerina.http:HttpFuture|ballerina.http:HttpConnectorError)",
+      "label":"submit(string httpVerb, string path, http:Request request)(ballerina.http:HttpFuture|ballerina.http:HttpConnectorError)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"submit(${1:httpVerb}, ${2:path}, ${3:req})",
+      "insertText":"submit(${1:httpVerb}, ${2:path}, ${3:request})",
       "insertTextFormat":"Snippet"
     },
     {
