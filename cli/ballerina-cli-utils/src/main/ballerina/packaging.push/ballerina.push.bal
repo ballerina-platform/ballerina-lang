@@ -44,18 +44,17 @@ function pushPackage (string accessToken, string mdFileContent, string summary, 
 
     // Artifact
     mime:Entity filePart = new;
-    mime:MediaType contentTypeOfFilePart = mime:getMediaType(mime:APPLICATION_OCTET_STREAM);
-    filePart.contentType = contentTypeOfFilePart;
-    filePart.contentDisposition = getContentDispositionForFormData("artifact");
+    filePart.setContentDisposition(getContentDispositionForFormData("artifact"));
     filePart.setFileAsEntityBody(untaint dirPath);
+    filePart.setContentType(mime:APPLICATION_OCTET_STREAM);
 
     mime:Entity[] bodyParts = [filePart, mdFileContentBodyPart, summaryBodyPart, homePageURLBodyPart, repositoryURLBodyPart,
                                            apiDocURLBodyPart, authorsBodyPart, keywordsBodyPart, licenseBodyPart];
     http:Request req = new;
     req.addHeader("Authorization", "Bearer " + accessToken);
-    req.setBodyParts(bodyParts, mime:MULTIPART_FORM_DATA);
-    
-    var result = httpEndpoint -> post("", req);
+    req.setBodyParts(bodyParts, contentType = mime:MULTIPART_FORM_DATA);
+
+    var result = httpEndpoint -> post("", request=req);
     http:Response httpResponse = new;
     match result {
         http:Response response => httpResponse = response;
@@ -105,9 +104,8 @@ documentation {
 }
 function addStringBodyParts (string key, string value) returns (mime:Entity) {
     mime:Entity stringBodyPart = new;
-    mime:MediaType contentTypeOfStringPart = mime:getMediaType(mime:TEXT_PLAIN);
-    stringBodyPart.contentType = contentTypeOfStringPart;
-    stringBodyPart.contentDisposition = getContentDispositionForFormData(key);
+    stringBodyPart.setContentDisposition(getContentDispositionForFormData(key));
     stringBodyPart.setText(value);
+    stringBodyPart.setContentType(mime:TEXT_PLAIN);
     return stringBodyPart;
 }

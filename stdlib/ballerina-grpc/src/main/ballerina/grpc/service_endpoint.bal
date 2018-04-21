@@ -62,46 +62,35 @@ documentation {
 
     F{{host}} - The server hostname.
     F{{port}} - The server port.
-    F{{ssl}} - The SSL configurations for the client endpoint.
+    F{{secureSocket}} - The SSL configurations for the client endpoint.
 }
 public type ServiceEndpointConfiguration {
-    string host;
-    int port;
-    SslConfiguration ssl;
+    string host,
+    int port,
+    ServiceSecureSocket? secureSocket,
 };
 
 documentation {
-    SslConfiguration struct represents SSL/TLS options to be used for client invocation
+    SecureSocket struct represents SSL/TLS options to be used for gRPC service
 
-    F{{trustStoreFile}} - File path to trust store file.
-    F{{trustStorePassword}} - Trust store password.
-    F{{keyStoreFile}} - File path to key store file.
-    F{{keyStorePassword}} - Key store password.
-    F{{sslEnabledProtocols}} - SSL/TLS protocols to be enabled. eg: TLSv1,TLSv1.1,TLSv1.2.
-    F{{ciphers}} - List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-    TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA.
-    F{{sslProtocol}} - SSL Protocol to be used. eg: TLS1.2
-    F{{validateCertEnabled}} - The status of validateCertEnabled
-    F{{sslVerifyClient}} - SSL Verify client
-    F{{certPassword}} - certificate password
-    F{{tlsStoreType}} - TLS store type
-    F{{cacheSize}} - Maximum size of the cache
-    F{{cacheValidityPeriod}} - Time duration of cache validity period
+    F{{trustStore}} - TrustStore related options.
+    F{{keyStore}} - KeyStore related options.
+    F{{protocol}} - SSL/TLS protocol related options.
+    F{{certValidation}} - Certificate validation against CRL or OCSP related options.
+    F{{ciphers}} - List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA.
+    F{{sslVerifyClient}} - The type of client certificate verification.
+    F{{shareSession}} - Enable/disable new ssl session creation.
+    F{{ocspStapling}} - Enable/disable ocsp stapling.
 }
-public type SslConfiguration {
-    string trustStoreFile;
-    string trustStorePassword;
-    string keyStoreFile;
-    string keyStorePassword;
-    string sslEnabledProtocols;
-    string ciphers;
-    string sslProtocol;
-    boolean validateCertEnabled;
-    string sslVerifyClient;
-    string certPassword;
-    string tlsStoreType;
-    int cacheSize;
-    int cacheValidityPeriod;
+public type ServiceSecureSocket {
+    TrustStore? trustStore,
+    KeyStore? keyStore,
+    Protocols? protocol,
+    ValidateCert? certValidation,
+    string[] ciphers,
+    string sslVerifyClient,
+    boolean shareSession = true,
+    ServiceOcspStapling? ocspStapling,
 };
 
 public type Service object {

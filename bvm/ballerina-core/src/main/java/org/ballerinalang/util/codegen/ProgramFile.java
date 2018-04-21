@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.bre.bvm.GlobalMemoryArea;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BStruct;
@@ -70,6 +71,7 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
     private Path programFilePath;
 
     private LockableStructureType globalMemoryBlock;
+    public GlobalMemoryArea globalMemArea;
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
@@ -144,6 +146,11 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
     public void setServerConnectorRegistry(ServerConnectorRegistry serverConnectorRegistry) {
         this.serverConnectorRegistry = serverConnectorRegistry;
     }
+
+    public void initializeGlobalMemArea() {
+        this.globalMemArea = new GlobalMemoryArea(this.getPackageInfoEntries());
+    }
+
 
     // CP
     @Override

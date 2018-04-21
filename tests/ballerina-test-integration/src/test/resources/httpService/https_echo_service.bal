@@ -27,10 +27,10 @@ service<http:Service> echo bind echoEP {
         methods:["POST"],
         path:"/"
     }
-    echo (endpoint outboundEP, http:Request req) {
+    echo (endpoint caller, http:Request req) {
         http:Response res = new;
         res.setStringPayload("hello world");
-        _ = outboundEP -> respond(res);
+        _ = caller -> respond(res);
     }
 }
 
@@ -42,10 +42,10 @@ service<http:Service> echoOne bind echoEP, echoHttpEP {
         methods:["POST"],
         path:"/abc"
     }
-    echoAbc (endpoint outboundEP, http:Request req) {
+    echoAbc (endpoint caller, http:Request req) {
         http:Response res = new;
         res.setStringPayload("hello world");
-        _ = outboundEP -> respond(res);
+        _ = caller -> respond(res);
     }
 }
 
@@ -58,9 +58,9 @@ service<http:Service> echoDummy bind echoDummyEP {
         methods:["POST"],
         path:"/"
     }
-    echoDummy (endpoint outboundEP, http:Request req) {
+    echoDummy (endpoint caller, http:Request req) {
         http:Response res = new;
         res.setStringPayload("hello world");
-        _ = outboundEP -> respond(res);
+        _ = caller -> respond(res);
     }
 }

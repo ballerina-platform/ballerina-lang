@@ -15,9 +15,9 @@
 // under the License.
 
 
-import ballerina/internal;
 import ballerina/auth;
 import ballerina/cache;
+import ballerina/reflect;
 
 @Description {value:"Representation of the Authorization filter"}
 @Field {value:"filterRequest: request filter method which attempts to authorize the request"}
@@ -38,9 +38,9 @@ public type AuthzFilter object {
     public function filterRequest (Request request, FilterContext context) returns FilterResult {
 		// first check if the resource is marked to be authenticated. If not, no need to authorize.
         ListenerAuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, RESOURCE_ANN_NAME,
-            internal:getResourceAnnotations(context.serviceType, context.resourceName));
+            reflect:getResourceAnnotations(context.serviceType, context.resourceName));
         ListenerAuthConfig? serviceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, SERVICE_ANN_NAME,
-            internal:getServiceAnnotations(context.serviceType));
+            reflect:getServiceAnnotations(context.serviceType));
         if (!isResourceSecured(resourceLevelAuthAnn, serviceLevelAuthAnn)) {
             // not secured, no need to authorize
             return createAuthzResult(true);

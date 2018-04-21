@@ -72,7 +72,7 @@ public function HttpBasicAuthnHandler::handle (Request req) returns (boolean) {
             return isAuthenticated;
         }
         error err => {
-            log:printErrorCause("Error in decoding basic authentication header", err);
+            log:printError("Error in decoding basic authentication header", err = err);
             return false;
         }
     }
@@ -104,7 +104,7 @@ function extractBasicAuthCredentials (string authHeader) returns (string, string
     // extract user credentials from basic auth header
     string decodedBasicAuthHeader;
     try {
-        decodedBasicAuthHeader = check authHeader.subString(5, authHeader.length()).trim().base64Decode();
+        decodedBasicAuthHeader = check authHeader.substring(5, authHeader.length()).trim().base64Decode();
     } catch (error err) {
         return err;
     }

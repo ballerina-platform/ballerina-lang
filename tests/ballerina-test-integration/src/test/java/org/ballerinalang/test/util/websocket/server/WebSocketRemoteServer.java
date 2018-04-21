@@ -30,6 +30,11 @@ import io.netty.handler.logging.LoggingHandler;
  */
 public final class WebSocketRemoteServer {
 
+    public static void main(String[] args) throws InterruptedException {
+        WebSocketRemoteServer remoteServer = new WebSocketRemoteServer(15500);
+        remoteServer.run();
+    }
+
     private final int port;
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
@@ -39,8 +44,8 @@ public final class WebSocketRemoteServer {
     }
 
     public void run() throws InterruptedException {
-        bossGroup = new NioEventLoopGroup();
-        workerGroup = new NioEventLoopGroup(2);
+        bossGroup = new NioEventLoopGroup(1);
+        workerGroup = new NioEventLoopGroup(5);
 
         ServerBootstrap bootstrap = new ServerBootstrap();
         bootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
