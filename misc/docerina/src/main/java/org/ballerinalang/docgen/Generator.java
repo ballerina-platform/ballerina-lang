@@ -67,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
@@ -285,17 +286,10 @@ public class Generator {
      */
     public static EnumDoc createDocForNode(BLangTypeDefinition enumNode) {
         String enumName = enumNode.getName().getValue();
-        List<Variable> enumerators = new ArrayList<>();
+        String values = enumNode.getValueSet().stream().map(value -> value.toString()).sorted(Collections
+                .reverseOrder()).collect(Collectors.joining(" | "));
 
-        // Iterate through the enumerators
-        if (enumNode.getValueSet().size() > 0) {
-            for (BLangExpression enumerator : enumNode.getValueSet()) {
-//                String desc = fieldAnnotation((BLangNode) enumNode, (BLangNode) enumerator);
-//                Variable variable = new Variable(enumerator., "", desc);
-//                enumerators.add(variable);
-            }
-        }
-        return new EnumDoc(enumName, description((BLangNode) enumNode), new ArrayList<>(), enumerators);
+        return new EnumDoc(enumName, description(enumNode), new ArrayList<>(), values);
     }
 
     /**
