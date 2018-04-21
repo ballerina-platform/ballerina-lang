@@ -36,6 +36,7 @@ import org.ballerinalang.util.codegen.StructInfo;
 abstract class AbstractAnnotationReader extends BlockingNativeCallableUnit {
 
     private static final String PKG_INTERNAL = "ballerina.internal";
+    private static final String PKG_REFELCT = "ballerina.reflect";
     private static final String STRUCT_ANNOTATION = "annotationData";
     static final String DOT = ".";
 
@@ -48,7 +49,7 @@ abstract class AbstractAnnotationReader extends BlockingNativeCallableUnit {
         if (map == null || map.getType().getTag() != BTypes.typeMap.getTag()) {
             return null;
         }
-        final PackageInfo packageInfo = context.getProgramFile().getPackageInfo(PKG_INTERNAL);
+        final PackageInfo packageInfo = context.getProgramFile().getPackageInfo(PKG_REFELCT);
         final StructInfo structInfo = packageInfo.getStructInfo(STRUCT_ANNOTATION);
         BRefValueArray annotationArray = new BRefValueArray(structInfo.getType());
         BMap<String, BValue> annotationMap = (BMap<String, BValue>) map;
