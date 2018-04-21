@@ -38,9 +38,11 @@ public class WebSocketService implements Service {
     private final Service service;
     private final String[] negotiableSubProtocols;
     private final int idleTimeoutInSeconds;
+    private final int maxFrameSize;
     private final Map<String, Resource> resourceMap = new ConcurrentHashMap<>();
     private String basePath;
     private Resource upgradeResource;
+    private static final int DEFAULT_MAX_FRAME_SIZE = 65536;
 
     public WebSocketService(Service service) {
         this.service = service;
@@ -50,13 +52,15 @@ public class WebSocketService implements Service {
 
         Annotation configAnnotation =
                 WebSocketUtil.getServiceConfigAnnotation(service, HttpConstants.PROTOCOL_PACKAGE_HTTP);
-        Struct val;
-        if (configAnnotation != null && (val = configAnnotation.getValue()) != null) {
-            negotiableSubProtocols = findNegotiableSubProtocols(val);
-            idleTimeoutInSeconds = findIdleTimeoutInSeconds(val);
+        Struct configAnnotationStruct;
+        if (configAnnotation != null && (configAnnotationStruct = configAnnotation.getValue()) != null) {
+            negotiableSubProtocols = findNegotiableSubProtocols(configAnnotationStruct);
+            idleTimeoutInSeconds = findIdleTimeoutInSeconds(configAnnotationStruct);
+            maxFrameSize = findMaxFrameSize(configAnnotationStruct);
         } else {
             negotiableSubProtocols = null;
             idleTimeoutInSeconds = 0;
+            maxFrameSize = DEFAULT_MAX_FRAME_SIZE;
         }
         basePath = findFullWebSocketUpgradePath(this);
         upgradeResource = null;
@@ -126,6 +130,10 @@ public class WebSocketService implements Service {
         return idleTimeoutInSeconds;
     }
 
+    public int getMaxFrameSize() {
+        return maxFrameSize;
+    }
+
     private String[] findNegotiableSubProtocols(Struct annAttrSubProtocols) {
         if (annAttrSubProtocols == null) {
             return null;
@@ -145,10 +153,15 @@ public class WebSocketService implements Service {
     }
 
     private int findIdleTimeoutInSeconds(Struct annAttrIdleTimeout) {
-        if (annAttrIdleTimeout == null) {
-            return 0;
-        }
         return (int) annAttrIdleTimeout.getIntField(WebSocketConstants.ANNOTATION_ATTR_IDLE_TIMEOUT);
+    }
+
+    private int findMaxFrameSize(Struct annotation) {
+        int size = (int) annotation.getIntField(WebSocketConstants.ANNOTATION_ATTR_MAX_FRAME_SIZE);
+        if (size <= 0) {
+            size = DEFAULT_MAX_FRAME_SIZE;
+        }
+        return size;
     }
 
     public String getBasePath() {
