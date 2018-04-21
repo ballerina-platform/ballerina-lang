@@ -210,13 +210,15 @@ service<http:Service> hubService bind hubServiceEP {
     }
 }
 
-@Description {value:"Function to validate a subscription/unsubscription request, by validating the mode, topic and
-                    callback specified."}
-@Param {value:"mode: Mode specified in the subscription change request parameters"}
-@Param {value:"topic: Topic specified in the subscription change request parameters"}
-@Param {value:"callback: Callback specified in the subscription change request parameters"}
-@Return {value:"Whether the subscription/unsubscription request is valid"}
-@Return {value:"If invalid, the error with the subscription/unsubscription request"}
+documentation {
+    Function to validate a subscription/unsubscription request, by validating the mode, topic and callback specified.
+
+    P{{mode}} Mode specified in the subscription change request parameters
+    P{{topic}} Topic specified in the subscription change request parameters
+    P{{callback}} Callback specified in the subscription change request parameters
+    R{{}} Whether the subscription/unsubscription request is valid
+    R{{}} If invalid, the error with the subscription/unsubscription request
+}
 function validateSubscriptionChangeRequest(string mode, string topic, string callback) returns (boolean|string) {
     if (topic != "" && callback != "") {
         PendingSubscriptionChangeRequest pendingRequest = new(mode, topic, callback);
@@ -232,10 +234,12 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
     return "Topic/Callback cannot be null for subscription/unsubscription request";
 }
 
-@Description {value:"Function to initiate intent verification for a valid subscription/unsubscription request received."
+documentation {
+    Function to initiate intent verification for a valid subscription/unsubscription request received.
+
+    P{{callback}} The callback URL of the new subscription/unsubscription request
+    P{{params}} Parameters specified in the new subscription/unsubscription request
 }
-@Param {value:"callback: The callback URL of the new subscription/unsubscription request"}
-@Param {value:"params: Parameters specified in the new subscription/unsubscription request"}
 function verifyIntent(string callback, string topic, map params) {
     endpoint http:Client callbackEp {
         url:callback,
@@ -318,10 +322,13 @@ function verifyIntent(string callback, string topic, map params) {
     }
 }
 
-@Description {value:"Function to add/remove the details of topics registered, in the database"}
-@Param {value:"mode: Whether the change is for addition/removal"}
-@Param {value:"topic: The topic for which registration is changing"}
-@Param {value:"secret: The secret if specified when registering, empty string if not"}
+documentation {
+    Function to add/remove the details of topics registered, in the database.
+
+    P{{mode}} Whether the change is for addition/removal
+    P{{topic}} The topic for which registration is changing
+    P{{secret}} The secret if specified when registering, empty string if not
+}
 function changeTopicRegistrationInDatabase(string mode, string topic, string secret) {
     endpoint jdbc:Client subscriptionDbEp {
         url:hubDatabaseUrl,
@@ -349,9 +356,12 @@ function changeTopicRegistrationInDatabase(string mode, string topic, string sec
     subscriptionDbEp.stop();
 }
 
-@Description {value:"Function to add/change/remove the subscription details in the database"}
-@Param {value:"mode: Whether the subscription change is for unsubscription/unsubscription"}
-@Param {value:"subscriptionDetails: The details of the subscription changing"}
+documentation {
+    Function to add/change/remove the subscription details in the database.
+
+    P{{mode}} Whether the subscription change is for unsubscription/unsubscription
+    P{{subscriptionDetails}} The details of the subscription changing
+}
 function changeSubscriptionInDatabase(string mode, websub:SubscriptionDetails subscriptionDetails) {
     endpoint jdbc:Client subscriptionDbEp {
         url:hubDatabaseUrl,
@@ -386,7 +396,9 @@ function changeSubscriptionInDatabase(string mode, websub:SubscriptionDetails su
     subscriptionDbEp.stop();
 }
 
-@Description {value:"Function to initiate set up activities on startup/restart"}
+documentation {
+    Function to initiate set up activities on startup/restart.
+}
 function setupOnStartup() {
     if (hubPersistenceEnabled) {
         if (hubTopicRegistrationRequired) {
@@ -397,7 +409,9 @@ function setupOnStartup() {
     return;
 }
 
-@Description {value:"Function to load topic registrations from the database"}
+documentation {
+    Function to load topic registrations from the database.
+}
 function addTopicRegistrationsOnStartup() {
     endpoint jdbc:Client subscriptionDbEp {
         url:hubDatabaseUrl,
@@ -430,7 +444,9 @@ function addTopicRegistrationsOnStartup() {
     subscriptionDbEp.stop();
 }
 
-@Description {value:"Function to add subscriptions to the broker on startup, if persistence is enabled"}
+documentation {
+    Function to add subscriptions to the broker on startup, if persistence is enabled.
+}
 function addSubscriptionsOnStartup() {
     endpoint jdbc:Client subscriptionDbEp {
         url:hubDatabaseUrl,
@@ -464,8 +480,11 @@ function addSubscriptionsOnStartup() {
     subscriptionDbEp.stop();
 }
 
-@Description {value:"Function to fetch updates for a particular topic."}
-@Param {value:"topic: The topic URL to be fetched to retrieve updates"}
+documentation {
+    Function to fetch updates for a particular topic.
+
+    P{{topic}} The topic URL to be fetched to retrieve updates
+}
 function fetchTopicUpdate(string topic) returns http:Response|http:HttpConnectorError {
     endpoint http:Client topicEp {
         url:topic,
@@ -478,10 +497,13 @@ function fetchTopicUpdate(string topic) returns http:Response|http:HttpConnector
     return fetchResponse;
 }
 
-@Description {value:"Function to distribute content to a subscriber on notification from publishers."}
-@Param {value:"callback: The callback URL registered for the subscriber"}
-@Param {value:"subscriptionDetails: The subscription details for the particular subscriber"}
-@Param {value:"payload: The update payload to be delivered to the subscribers"}
+documentation {
+    Function to distribute content to a subscriber on notification from publishers.
+
+    P{{callback}} The callback URL registered for the subscriber
+    P{{subscriptionDetails}} The subscription details for the particular subscriber
+    P{{payload}} The update payload to be delivered to the subscribers
+}
 public function distributeContent(string callback, websub:SubscriptionDetails subscriptionDetails, json payload) {
     endpoint http:Client callbackEp {
         url:callback,
@@ -528,19 +550,25 @@ public function distributeContent(string callback, websub:SubscriptionDetails su
     }
 }
 
-@Description {value:"Struct to represent a topic registration"}
-@Field {value:"mode: Whether a pending subscription or unsubscription"}
-@Field {value:"topic: The topic for which the subscription or unsubscription is pending"}
-@Field {value:"callback: The callback specified for the pending subscription or unsubscription"}
+documentation {
+    Struct to represent a topic registration.
+
+    F{{mode}} Whether a pending subscription or unsubscription
+    F{{topic}} The topic for which the subscription or unsubscription is pending
+    F{{callback}} The callback specified for the pending subscription or unsubscription
+}
 type TopicRegistration {
     string topic,
     string secret,
 };
 
-@Description {value:"Object to represent a pending subscription/unsubscription request"}
-@Field {value:"mode: Whether a pending subscription or unsubscription"}
-@Field {value:"topic: The topic for which the subscription or unsubscription is pending"}
-@Field {value:"callback: The callback specified for the pending subscription or unsubscription"}
+documentation {
+    Object to represent a pending subscription/unsubscription request.
+
+    F{{mode}} Whether a pending subscription or unsubscription
+    F{{topic}} The topic for which the subscription or unsubscription is pending
+    F{{callback}} The callback specified for the pending subscription or unsubscription
+}
 type PendingSubscriptionChangeRequest object {
 
     public {
@@ -551,22 +579,27 @@ type PendingSubscriptionChangeRequest object {
 
     new (mode, topic, callback) {}
 
-    @Description {value:"Function to check if two pending subscription change requests are equal."}
-    @Param {value:"pendingRequest: The pending subscription change request to check against"}
+    documentation {
+        Function to check if two pending subscription change requests are equal.
+
+        P{{pendingRequest}} The pending subscription change request to check against
+    }
     function equals(PendingSubscriptionChangeRequest pendingRequest) returns (boolean) {
         return pendingRequest.mode == mode && pendingRequest.topic == topic && pendingRequest.callback == callback;
     }
-
 };
 
 public function generateKey(string topic, string callback) returns (string) {
     return topic + "_" + callback;
 }
 
-@Description {value:"Function to build the link header for a request"}
-@Param {value:"hub: The hub publishing the update"}
-@Param {value:"topic: The canonical URL of the topic for which the update occurred"}
-@Return {value:"The link header content"}
+documentation {
+    Function to build the link header for a request.
+
+    P{{hub}} The hub publishing the update
+    P{{topic}} The canonical URL of the topic for which the update occurred
+    R{{}} The link header content
+}
 public function buildWebSubLinkHeader(string hub, string topic) returns (string) {
     string linkHeader = "<" + hub + ">; rel=\"hub\", <" + topic + ">; rel=\"self\"";
     return linkHeader;

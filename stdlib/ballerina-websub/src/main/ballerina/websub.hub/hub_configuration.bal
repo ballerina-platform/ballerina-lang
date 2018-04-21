@@ -52,9 +52,12 @@ import ballerina/websub;
 http:ServiceSecureSocket? serviceSecureSocket = getServiceSecureSocketConfig();
 http:SecureSocket? secureSocket = getSecureSocketConfig();
 
-@Description {value:"Function to retrieve the URL for the Ballerina WebSub Hub, to which potential subscribers need to
-                    send subscription/unsubscription requests."}
-@Return {value:"The WebSub Hub's URL"}
+documentation {
+    Function to retrieve the URL for the Ballerina WebSub Hub, to which potential subscribers need to send
+    subscription/unsubscription requests.
+
+    R{{}} The WebSub Hub's URL
+}
 function getHubUrl() returns string {
     match (serviceSecureSocket) {
         http:ServiceSecureSocket => { return "https://" + hubHost + ":" + hubPort + BASE_PATH + HUB_PATH; }
@@ -62,14 +65,20 @@ function getHubUrl() returns string {
     }
 }
 
-@Description {value:"Function to retrieve if persistence is enabled for the Hub."}
-@Return {value:"True if persistence is enabled, false if not"}
+documentation {
+    Function to retrieve if persistence is enabled for the Hub.
+
+    R{{}} True if persistence is enabled, false if not
+}
 function isHubPersistenceEnabled() returns boolean {
     return hubPersistenceEnabled;
 }
 
-@Description {value:"Function to retrieve if topics need to be registered at the Hub prior to publishing/subscribing."}
-@Return {value:"True if persistence is enabled, false if not"}
+documentation {
+    Function to retrieve if topics need to be registered at the Hub prior to publishing/subscribing.
+
+    R{{}} True if persistence is enabled, false if not
+}
 function isHubTopicRegistrationRequired() returns boolean {
     return hubTopicRegistrationRequired;
 }
