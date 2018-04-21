@@ -95,17 +95,20 @@ public type Cache object {
         P{{value}} value to be cached
     }
     public function put(string key, any value) {
-        int cacheCapacity = self.capacity;
-        int cacheSize = lengthof self.entries;
+        // We need to synchronize this process otherwise concurrecy might cause issues.
+        lock {
+            int cacheCapacity = self.capacity;
+            int cacheSize = lengthof self.entries;
 
-        // If the current cache is full, evict cache.
-        if (cacheCapacity <= cacheSize) {
-            self.evict();
+            // If the current cache is full, evict cache.
+            if (cacheCapacity <= cacheSize) {
+                self.evict();
+            }
+            // Add the new cache entry.
+            int time = time:currentTime().time;
+            CacheEntry entry = {value:value, lastAccessedTime:time};
+            self.entries[key] = entry;
         }
-        // Add the new cache entry.
-        int time = time:currentTime().time;
-        CacheEntry entry = {value:value, lastAccessedTime:time};
-        self.entries[key] = entry;
     }
 
     documentation { Evicts the cache when cache is full. }
