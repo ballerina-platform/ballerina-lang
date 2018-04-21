@@ -1,105 +1,191 @@
-# Overview
-1. <a href="#WhatisBallerina">What is Ballerina</a>
-2. <a href="#LanguageServer">Language Server</a>
-3. <a href="#LanguageServerforBallerina">Language Server for Ballerina</a>
-4. <a href="#ExistingClients">Existing Clients</a>
+# Language Server User Guide
+Ballerina Language Server provides code intelligence for ballerina file editing. It supports editor features such as diagnostics, auto-completion, go-to-definition, code refactoring and more. A list of currently supported features  can be found below. 
 
-<a name="WhatisBallerina" />
+Currently the Ballerina Language Server has been integrated to Ballerina VSCode plugin and Ballerina Composer. All the examples are given below using VSCode if you are using a different editor the trigger keys can be different.
 
-## What is Ballerina
-Ballerina makes it easy to create resilient services that integrate and orchestrate transactions across distributed endpoints.
-Ballerina allows you to code with a statically-typed, interaction-centric programming language where microservices, APIs, and streams are first-class constructs. You can use your preferred IDE and CI/CD tools. Discover, consume, and share packages that integrate endpoints with Ballerina Central. Build binaries, containers, and Kubernetes artifacts and deploy as chaos-ready services on cloud and serverless infrastructure. Integrate distributed endpoints with simple syntax for resiliency, circuit breakers, transactions, and events
-
-Ballerina has been inspired by Java, Go, and other languages, but it has a concurrency model built around a sequence diagram metaphor
-* [Ballerinala Source](https://github.com/ballerina-lang/ballerina)
-* [Official Documentation](https://ballerinalang.org/docs/)
-
-<a name="LanguageServer" />
-
-## Language Server
-When we consider the language tools such as editors, it's common that the users expect various smart functionalities such as auto-completion, go to definition, code references, etc. When we consider editors, all those supporting a certain language, have to implement the similar set of functionalities individually. In order to avoid this particular redundancy, Language Server Protocol was introduced. Language tools which support the protocol implementation can use the same smartness provider implementation for a particular language. This allows having a similar set of functionalities and feature consistency without redundant implementations.
-* [Language Server Protocol](https://microsoft.github.io/language-server-protocol/)
-* [Protocol Specification](https://microsoft.github.io/language-server-protocol/specification)
-
-<a name="LanguageServerforBallerina" />
-
-## Language Server for Ballerina
-Ballerina Language Server follows the latest Language Server Protocol implementation. Any editor which supports the protocol implementation can use the Ballerina LS as the smartness provider for their editor. Following features are supported in the current Implementation
-* Auto-Completion
-
-    As a part of auto completion users are facilitated with the following capabilities
-   1. Template/Snippets suggestion for basic constructs such as functions, services and general statement constructs (object, while, etc)
-   2. Iterable Operations suggestion over the variables defined.
-   3. Annotations auto completion
-   4. Keywords Suggestion
-   5. Variables, Keywords and Types (Builtin and User Defined) Suggestion
-   6. Functions and Action Suggestion
-
-![](https://github.com/ballerina-lang/ballerina/blob/master/language-server/docs/images/autocompletion.gif)
-
-* Hover Provider
-
-    Hover Provider supports hover definition over the following language constructs
-   1. Object
-   2. Functions
-   3. Variables
-   4. Records
-   5. Actions
-   6. Endpoints
-
-![](https://github.com/ballerina-lang/ballerina/blob/master/language-server/docs/images/hoverProvider.gif)
-
-* Signature Help
-
-    Signature help will provide the user information about the function or action signature. User will be provided with the information such as parameters and parameter description.
-Parameter description are extracted from the documentation added for a certain function or action. Ballerina Documentation supports Markdown docs as well.
-Signature Help is supported over the following constructs.
-    1. Functions
-    2. Actions
-
-![](https://github.com/ballerina-lang/ballerina/blob/master/language-server/docs/images/signatureHelp.gif)
-
-* Goto Definition
-
-    Goto definition supports the following 
-    1. Object
-    2. Functions
-    3. Variables
-    4. Records
-    5. Actions
-    6. Endpoints
+- <a href="#CodeDiagnostics">Code Diagnostics</a>
+- <a href="#SuggestionsAndAutoCompletion">Suggestions and Auto Completion</a>
+    - <a href="#TriggeringKeyCombinations">Triggering Key Combinations</a>
+    - <a href="#TemplateSuggestions">Template Suggestions</a>
+    - <a href="#ContextawareSuggestionsAndCompletions">Context Aware Suggestions and Completions</a>
+    - <a href="#EndpointFieldsSuggestion">Endpoint Fields Suggestion</a>
+    - <a href="#ImportsSuggestions">Imports Suggestions</a>
+    - <a href="#IterableOperationsSuggestion">Iterable Operations Suggestion</a>
+    - <a href="#MatchSignatureCompletion">Match Signature Completion</a>
+    - <a href="#AnnotationsSuggestion">Annotations Suggestion</a>
+- <a href="#FindAllReferences">Find All References</a>
+- <a href="#GotoDefinition">Go to Definition</a>
+- <a href="#HoverSupport">Hover Support</a>
+- <a href="#SignatureHelp">Signature  Help</a>
+- <a href="#CodeAction">Code Action</a>
+    - <a href="#AddImports">Add Imports</a>
+    - <a href="#AddDocumentationAndDocumentAll">Add Documentation and Document All</a>
     
-All the definition references supported needs to be in packages on the disk except the builtin functions and actions which are not supported in the current implementation
+<a name="CodeDiagnostics" />
 
-![](https://github.com/ballerina-lang/ballerina/blob/master/language-server/docs/images/gotodef.gif)
+## Code Diagnostics
+Language Server Diagnostics feature will automatically highlight syntax & semantic errors in a bal file.
 
-* Find All References
+![](https://github.com/ballerina-lang/ballerina/blob/master/language-server/docs/images/semanticsAndSyntactics.gif)  
 
-    All the references of a selected symbol is prompted and the following types are supported with the current implementation.
+<a name="SuggestionsAndAutoCompletion" />
 
-    1. Object
-    2. Functions
-    3. Variables
-    4. Records
-    5. Actions
-    6. Endpoints
+## Suggestions and Auto-Completion
+Suggestion and Completion will be listed automatically when you edit or you can request suggestions explicitly for a given context.
 
-* Diagnostics
+<a name="TriggeringKeyCombinations" />
 
-    Semantic and Syntactic Diagnostics are prompted similarly done in the Ballerina Compiler
+#### Triggering Key Combinations
+- Alphabetic Characters will automatically trigger the completion
+- Language specific non alphabetical characters such as ":", ".", "->", "@" will also trigger the completions and suggestions automatically
+- Ctrl + Space can be used for forced completion by the user
+Following are types of suggestions available with the language server.
 
-![](https://github.com/ballerina-lang/ballerina/blob/master/language-server/docs/images/diagnostics.gif)
+<a name="TemplateSuggestions" />
 
-* Refactoring
+#### Template Suggestions
+You can use the template suggestions to add top level construct templates. Following construct templates are supported
+- Services
+- Functions
+- Objects
+- Records
+- Endpoints
 
-    Under the various refactoring options, following set of refactoring options are supported in the current implementation.
+![](https://github.com/ballerina-lang/ballerina/blob/master/language-server/docs/images/templates.gif)
 
-    1. Add imports
-    2. Add documentation for top level nodes (Services, Resources, functions)
+As well as the top level constructs, you can get the templates for following statements and definitions.
+- Resource Definition
+- Fork Join
+- Worker
+- Conditional Statements (Eg: If, While, etc.)
+- For Each Statement
+- Try Catch
+- Transaction
 
-<a name="ExistingClients" />
+![](https://github.com/ballerina-lang/ballerina/blob/master/language-server/docs/images/templates2.gif)
 
-## Existing Clients
-Currently, we have two active clients (editors) who have extensions implemented based on the language server implementation for Ballerina.
-* [VSCode Ballerina Extension](https://marketplace.visualstudio.com/search?term=ballerina&target=VSCode&category=All%20categories&sortBy=Relevance)
-* [Ballerina Composer](https://github.com/ballerina-lang/ballerina/tree/master/composer)
+<a name="ContextawareSuggestionsAndCompletions" />
+
+#### Context aware Suggestions and Completions
+Language server provides context aware suggestions and completions for a wide range of language attributes. As an example, if you have defined endpoint variable, actions defined against the endpoint will be suggested as shown below.
+
+![](https://github.com/ballerina-lang/ballerina/blob/master/language-server/docs/images/endpointActions.gif)
+
+Other than that, you can get the suggestions for following language attributes as well.
+- Visible Functions
+- Defined Variables
+- Fields and Functions of Objects and Records
+
+Following are some special cases of code completions and suggestions.
+
+<a name="EndpointFieldsSuggestion" />
+
+#### Endpoint Fields Suggestion
+You can get the Endpoint fields suggestions as follows.
+
+![](https://github.com/ballerina-lang/ballerina/blob/master/language-server/docs/images/endpointFields.gif)
+
+<a name="ImportsSuggestions" />
+
+#### Imports Suggestions
+For importing packages you can choose from the suggested list of package names. Currently, Package suggestion for the import statements are supported for the packages defined under the ballerina organization name.
+
+![](https://github.com/ballerina-lang/ballerina/blob/master/language-server/docs/images/importsSuggestions.gif)
+
+<a name="IterableOperationsSuggestion" />
+
+#### Iterable Operations Suggestion
+For the variables which are allowed to use iterable operations suggestions for iterable operations templates will be provided and you can choose a pre defined template among them.
+- Arrays
+- Maps
+- Json
+- Table
+- XML
+
+![](https://github.com/ballerina-lang/ballerina/blob/master/language-server/docs/images/iterableOperations.gif)
+
+<a name="MatchSignatureCompletion" />
+
+#### Match Signature Completion
+Against an expression you can use a match statement and Language Server suggests context aware snippets as shown below. You can trigger the suggestions with key combination  Ctrl + Space.
+
+![](https://github.com/ballerina-lang/ballerina/blob/master/language-server/docs/images/matchSuggestions.gif)
+
+<a name="AnnotationsSuggestion" />
+
+#### Annotations Suggestion
+For the Services and Resources you can add annotations through language server annotation suggestions. Annotations for particular definitions will be suggested and you can select the required annotations from the list.
+Within annotations you can trigger Ctrl + Space and annotation fields will be suggested.
+
+![](https://github.com/ballerina-lang/ballerina/blob/master/language-server/docs/images/annotationSuggestions.gif)
+
+<a name="FindAllReferences" />
+
+## Find All References
+Find all references will be triggered for IDE defined key combinations [VSCode: Shift + F12]
+You can find all the references for a given function as follows. You will see the references in the same package and different packages as well as in different files.
+
+![](https://github.com/ballerina-lang/ballerina/blob/master/language-server/docs/images/findAllReferences.gif)
+
+Other than Functions, following are supported for find all references
+- Records
+- Variables
+- Endpoints
+- Objects
+
+<a name="GotoDefinition" />
+
+## Goto Definition
+You can jump to the definition of an item by triggering the IDE defined key combinations [VSCode: F12 and Ctrl + Click]
+Trigger the action for a item defined and you will jump to the definition of the particular Item. Bellow capture shows got to definition trigger for a function.
+
+![](https://github.com/ballerina-lang/ballerina/blob/master/language-server/docs/images/GotoDef.gif)
+
+Other than functions, following are supported for got to definition
+- Records
+- Variables
+- Endpoints
+- Objects
+
+<a name="HoverSupport" />
+
+## Hover Support
+In order to get an overview of a certain item you can hover over the particular item and Language Server will show an overview of the item based on the documentation for the particular Item.
+- Functions
+- Records
+- Variables
+- Endpoints
+- Objects
+
+![](https://github.com/ballerina-lang/ballerina/blob/master/language-server/docs/images/hover.gif)
+
+<a name="SignatureHelp" />
+
+## Signature Help
+You can get an overview of a function signature with the signature help feature. Signature help will be triggered when you type Open Bracket “(” after the function name.
+
+![](https://github.com/ballerina-lang/ballerina/blob/master/language-server/docs/images/SignatureHelp.gif)
+
+<a name="CodeAction" />
+
+## Code Action
+
+<a name="AddImports" />
+
+#### Add Imports
+When you need to add the import statement for a package which is not imported and where there is a usage, you can use the code action to add the particular import. These Identified imports will only be packages under ballerina organization name.
+
+![](https://github.com/ballerina-lang/ballerina/blob/master/language-server/docs/images/addImport.gif)
+
+<a name="AddDocumentationAndDocumentAll" />
+
+#### Add Documentation and Document All
+When you to add the documentation for the top level items, Language Server will prompt a code action and you can select the action and the documentation will be added to the particular top level item.
+
+![](https://github.com/ballerina-lang/ballerina/blob/master/language-server/docs/images/DocumentAll.gif)
+
+If you wish to document all the top level nodes then you can select the Document All option and all the functions, services and the resources in the particular file will be documented.
+
+Following top level node types are supported for documentation.
+- Function
+- Service
