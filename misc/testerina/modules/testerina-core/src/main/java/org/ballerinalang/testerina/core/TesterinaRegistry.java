@@ -33,6 +33,7 @@ import java.util.Map;
  */
 public class TesterinaRegistry {
 
+    private String orgName;
     private List<String> groups = new ArrayList<>();
     private boolean shouldIncludeGroups;
     private Map<String, TestSuite> testSuites = new HashMap<>();
@@ -116,5 +117,14 @@ public class TesterinaRegistry {
 
     public List<String> getInitializedPackages() {
         return initializedPackages;
+    }
+
+
+    public String getOrgName() {
+        return orgName;
+    }
+
+    public void setOrgName(String orgName) {
+        this.orgName = orgName;
     }
  }

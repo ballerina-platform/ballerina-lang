@@ -34,6 +34,7 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -80,7 +81,6 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
      * this property is used as a work-around to initialize test suites only once for a package as Compiler
      * Annotation currently emits package import events too to the process method.
      */
-    private boolean packageInit;
 
     @Override
     public void init(DiagnosticLog diagnosticLog) {
@@ -91,15 +91,6 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
 
     @Override
     public void process(PackageNode packageNode) {
-        if (!enabled) {
-            return;
-        }
-        if (!packageInit) {
-            String packageName = ((BLangPackage) packageNode).packageID == null ? "." : ((BLangPackage) packageNode)
-                    .packageID.getName().getValue();
-            suite = registry.getTestSuites().computeIfAbsent(packageName, func -> new TestSuite(packageName));
-            packageInit = true;
-        }
     }
 
     @Override
@@ -107,9 +98,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         if (!enabled) {
             return;
         }
-        // annotation processor currently triggers this function for the functions of imported packages too. In order
-        // to avoid processing those, we have to have below check.
-        if (!suite.getSuiteName().equals(functionNode.getPosition().getSource().getPackageName())) {
+        suite = registry.getTestSuites().get(getPackageName((BLangPackage) ((BLangFunction) functionNode).parent));
+        if (suite == null) {
             return;
         }
         // traverse through the annotations of this function
@@ -240,7 +230,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         if (!enabled) {
             return;
         }
-        packageInit = false;
+        //packageInit = false;
         // TODO the below line is required since this method is currently getting explicitly called from BTestRunner
         suite = TesterinaRegistry.getInstance().getTestSuites().get(programFile.getEntryPkgName());
         if (suite == null) {
@@ -475,7 +465,6 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
             for (int node : dependencies) {
                 indegrees[node]++;
             }
-
         }
 
         // Create a queue and enqueue all vertices with indegree 0
@@ -537,5 +526,15 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
             }
         }
         return false;
+    }
+
+    private String getPackageName(PackageNode packageNode) {
+        BLangPackage bLangPackage = ((BLangPackage) packageNode);
+        if (bLangPackage.packageID.orgName.getValue().equals("$anon")) {
+            return ".";
+        }
+        String packageName = bLangPackage.packageID.orgName.getValue() + "."
+                             + bLangPackage.packageID.getName().getValue();
+        return packageName;
     }
 }

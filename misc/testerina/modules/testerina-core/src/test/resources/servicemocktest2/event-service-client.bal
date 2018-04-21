@@ -9,8 +9,7 @@ public function getEvents () returns (json) {
     endpoint http:Client httpEndpoint {
         url:eventServiceEP
     };
-    http:Request req = new;
-    var response = httpEndpoint -> get("/", req);
+    var response = httpEndpoint -> get("/");
 
     match response {
                    http:Response resp => {

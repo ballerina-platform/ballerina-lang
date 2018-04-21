@@ -54,6 +54,7 @@ public class BTestRunner {
     private static PrintStream errStream = System.err;
     private static PrintStream outStream = System.out;
     private TesterinaReport tReport = new TesterinaReport();
+    private TesterinaRegistry registry = TesterinaRegistry.getInstance();
 
     /**
      * Executes a given set of ballerina program files.
@@ -137,6 +138,11 @@ public class BTestRunner {
     private void compileAndBuildSuites(String sourceRoot, Path[] sourceFilePaths)  {
 
         Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
+
+            String packageName = registry.getOrgName() == null ? "." : registry.getOrgName() + "." + sourcePackage;
+
+            TesterinaRegistry.getInstance().getTestSuites().computeIfAbsent(packageName, func -> new TestSuite
+                (packageName));
             // compile
             CompileResult compileResult = BCompileUtil.compile(sourceRoot, sourcePackage.toString(),
                 CompilerPhase.CODE_GEN);
