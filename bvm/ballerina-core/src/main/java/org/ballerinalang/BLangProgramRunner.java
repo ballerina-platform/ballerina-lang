@@ -73,7 +73,8 @@ public class BLangProgramRunner {
 
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
         try {
-            BLangFunctions.invokeEntrypointCallable(programFile, mainPkgInfo, mainFuncInfo, extractMainArgs(mainFuncInfo, args));
+            BLangFunctions.invokeEntrypointCallable(programFile, mainPkgInfo, mainFuncInfo,
+                    extractMainArgs(mainFuncInfo, args));
         } finally {
             if (debugger.isDebugEnabled()) {
                 debugger.notifyExit();
