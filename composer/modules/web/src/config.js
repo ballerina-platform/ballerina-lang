@@ -30,6 +30,7 @@ import { PLUGIN_ID as HELP_PLUGIN_ID } from './plugins/help/constants';
 import { WELCOME_TAB_PLUGIN_ID } from './plugins/welcome-tab/constants';
 import ImportStructPlugin from './plugins/import-struct/plugin';
 import ToolsPlugin from './plugins/tools/plugin';
+import TextEditorPlugin from './plugins/text-file-editor/plugin';
 
 export default {
     app: {
@@ -44,6 +45,7 @@ export default {
             ImportSwaggerPlugin,
             ImportStructPlugin,
             ExportDiagramPlugin,
+            TextEditorPlugin,
         ],
     },
     // provide plugin specific configs - if any.
