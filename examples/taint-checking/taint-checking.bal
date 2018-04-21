@@ -35,7 +35,7 @@ function main (string... args) {
     //is appended with a user-provided argument.
     table dataTable = check customerDatabase ->
         select("SELECT firstname FROM student WHERE registration_id = " +
-               args[0], null, null);
+               args[0], null);
 
     //This line results in a compiler error as a user-provided
     //argument is passed to a sensitive parameter.
@@ -80,20 +80,20 @@ function main (string... args) {
 }
 
 function sanitizeAndReturnTainted (string input) returns string {
-    Regex reg = {pattern:"[^a-zA-Z]"};
-    return check input.replaceAllWithRegex(reg, "");
+    string regEx = "[^a-zA-Z]";
+    return input.replace(regEx, "");
 }
 
 //The "@untainted" annotation denotes that the return value of
 //the function should be considered as trusted (untainted)
 //even though the return value is derived from tainted data.
 function sanitizeAndReturnUntainted (string input) returns @untainted string {
-    Regex reg = {pattern:"[^a-zA-Z]"};
-    return check input.replaceAllWithRegex(reg, "");
+    string regEx = "[^a-zA-Z]";
+    return input.replace(regEx, "");
 }
 
 function isInteger (string input) returns boolean {
-    Regex reg = {pattern:"\\d+"};
-    boolean isInteger = check input.matchesWithRegex(reg);
+    string regEx = "\\d+";
+    boolean isInteger = check input.matches(regEx);
     return isInteger;
 }
