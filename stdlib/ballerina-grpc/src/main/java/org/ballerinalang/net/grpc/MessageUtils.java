@@ -54,7 +54,9 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
+import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.MessageHeaders.METADATA_KEY;
 
 /**
@@ -120,7 +122,7 @@ public class MessageUtils {
     public static StreamObserver<Message> getResponseObserver(BRefType refType) {
         Object observerObject = null;
         if (refType instanceof BStruct) {
-            observerObject = ((BStruct) refType).getNativeData(MessageConstants.RESPONSE_OBSERVER);
+            observerObject = ((BStruct) refType).getNativeData(GrpcConstants.RESPONSE_OBSERVER);
         }
         if (observerObject instanceof StreamObserver) {
             return ((StreamObserver<Message>) observerObject);
@@ -129,18 +131,18 @@ public class MessageUtils {
     }
     
     public static BStruct getConnectorError(Context context, Throwable throwable) {
-        PackageInfo grpcPackageInfo = context.getProgramFile()
-                .getPackageInfo(PROTOCOL_STRUCT_PACKAGE_GRPC);
-        StructInfo errorStructInfo = grpcPackageInfo.getStructInfo(MessageConstants.CONNECTOR_ERROR);
+        ProgramFile progFile = context.getProgramFile();
+        PackageInfo errorPackageInfo = progFile.getPackageInfo(PACKAGE_BUILTIN);
+        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
         return getConnectorError(errorStructInfo.getType(), throwable);
     }
     
     /**
      * Returns error struct of input type
-     * Error type can be either ServerError or ClientError. This utility method is used inside Observer onError
+     * Error type is generic ballerina error type. This utility method is used inside Observer onError
      * method to construct error struct from message.
      *
-     * @param errorType this is either ServerError or ClientError.
+     * @param errorType this is ballerina generic error type.
      * @param error     this is StatusRuntimeException send by opposite party.
      * @return error struct.
      */
@@ -148,10 +150,9 @@ public class MessageUtils {
         BStruct errorStruct = new BStruct(errorType);
         if (error instanceof StatusRuntimeException) {
             StatusRuntimeException statusException = (StatusRuntimeException) error;
-            int status = statusException.getStatus() != null ? statusException.getStatus().getCode().value() : -1;
-            String message = statusException.getMessage();
+            String status = statusException.getStatus() != null ? statusException.getStatus().toString() : "";
+            String message = status + statusException.getMessage();
             errorStruct.setStringField(0, message);
-            errorStruct.setIntField(0, status);
         } else {
             if (error.getMessage() == null) {
                 errorStruct.setStringField(0, UNKNOWN_ERROR);
@@ -197,7 +198,7 @@ public class MessageUtils {
         if (fieldType == null) {
             return ServiceProtoConstants.INVALID_WIRE_TYPE;
         }
-        Integer wireType = MessageConstants.WIRE_TYPE_MAP.get(fieldType.toProto());
+        Integer wireType = GrpcConstants.WIRE_TYPE_MAP.get(fieldType.toProto());
         if (wireType != null) {
             return wireType;
         } else {

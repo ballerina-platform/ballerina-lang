@@ -1,4 +1,3 @@
-package structdef;
 
 public type Person {
     string name;

@@ -57,7 +57,7 @@ public class HtmlDocTest {
         packages.add(new Link(new PackageName("x.y", ""), "", false));
         packages.add(new Link(new PackageName("x.y.z", ""), "", false));
 
-        BLangPackage bLangPackage = createPackage("package x.y;");
+        BLangPackage bLangPackage = createPackage("");
         Page page = Generator.generatePage(bLangPackage, packages, null, null);
 
         Assert.assertEquals(page.links.size() , 3);
@@ -68,14 +68,15 @@ public class HtmlDocTest {
 
     @Test(description = "Empty package should give an empty page")
     public void testEmptyPackage() throws Exception {
-        BLangPackage bLangPackage = createPackage("package x.y;");
+        BLangPackage bLangPackage = createPackage("");
         Page page = generatePage(bLangPackage);
         Assert.assertTrue(page.constructs.isEmpty());
     }
 
     @Test(description = "Functions in a package should be shown in the constructs")
     public void testFunctions() throws Exception {
-        BLangPackage bLangPackage = createPackage("package x.y; public function hello(string name) returns (string){}");
+        BLangPackage bLangPackage = createPackage("public function hello(string name) returns (string)" +
+                "{return \"a\";}");
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
         Assert.assertEquals(page.constructs.get(0).name, "hello");
@@ -89,14 +90,28 @@ public class HtmlDocTest {
 
     @Test(description = "Connectors in a package should be shown in the constructs")
     public void testConnectors() throws Exception {
-        BLangPackage bLangPackage = createPackage("package x.y; " + "\n@Description {value:\"GitHub client" + " " +
-                "connector\"}\n" + "public type TestConnector object {\n" + "    public {\n" + "        " + "string " +
-                "url;" + "\n" + "  " + "      string path;\n" + "    }\n" + "\n" + "    @Description {value: " +
-                "\"Test Connector action " + "testAction.\"}\n" + "    @Return {value:\"whether successful or " +
-                "not\"}\n" + "    public function " + "testAction() returns boolean;\n" + "\n" + "    @Description "
-                + "{value: \"Test Connector action testSend" + ".\"}\n" + "    @Param {value: \"ep: endpoint " +
-                "url\"}\n" + "    @Return {value:\"whether successful or" + " not\"}\n" + "    public function " +
-                "testSend(string " + "ep) returns boolean;\n" + "};");
+        String source = "@Description {value:\"GitHub client\n" +
+                        " connector\"}\n" +
+                        "public type TestConnector object {\n" +
+                        "    public {\n" +
+                        "        \n" +
+                        "string url;\n" +
+                        "        string path;\n" +
+                        "    }\n" +
+                        "\n" +
+                        "    @Description {value: \n" +
+                        "\"Test Connector action testAction.\"}\n" +
+                        "    @Return {value:\"whether successful or not\"}\n" +
+                        "    public function testAction() returns boolean;\n" +
+                        "\n" +
+                        "    @Description \n" +
+                        "{value: \"Test Connector action testSend.\"}\n" +
+                        "    @Param {value: \"ep: endpoint url\"}\n" +
+                        "    @Return {value:\"whether successful or not\"}\n" +
+                        "    public function testSend(string \n" +
+                        "ep) returns boolean;\n" +
+                        "};";
+        BLangPackage bLangPackage = createPackage(source);
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
         Assert.assertEquals(page.constructs.get(0).name, "TestConnector");
@@ -125,24 +140,39 @@ public class HtmlDocTest {
 
     @Test(description = "Connectors in a package should be shown in the constructs with new docerina syntax")
     public void testConnectorsWithNewSyntax() throws Exception {
-        BLangPackage bLangPackage = createPackage("documentation {Test Connector\n" + "E{{}}\n F{{url}} url for " +
-                "endpoint\n" +
-                "F{{path}} path for endpoint\n" + "}\n" + "public type TestConnector object {\n" + "    public {\n" +
-                "        string url;\n" + "        string path;\n" + "    }\n" + "\n" + "    documentation {Test " +
-                "Connector action testAction R{{}} whether successful or not}\n" + "    public function " +
-                "testAction() returns boolean;\n" + "\n" + "    documentation {Test Connector action testSend P{{ep}}" +
-                " endpoint url R{{}} whether successful or not}\n" + "    public function testSend(string ep) " +
-                "returns boolean;\n" + "};");
+        BLangPackage bLangPackage = createPackage("import ballerina/http;\n public type GitHubClientConfig {\n" + " "
+                + "   " + "    " + "http:ClientEndpointConfig clientEndpointConfiguration = {};\n" + "};\n" + "\n" +
+                "documentation { " + "GitHub client\n" + "    E{{}}\n" + "    F{{githubClientConfiguration}} - GitHub" +
+                " client " + "configurations (Access token, Client endpoint configurations)\n" + "    " +
+                "F{{githubConnector}} - " + "GitHub connector object\n" + "}\n" + "public type Client object {\n" + "" +
+                "    public {\n" + "        " + "GitHubClientConfig githubClientConfiguration = {};\n" + "        " +
+                "TestConnector githubConnector = " + "new;\n" + "    }\n" + "\n" + "    documentation { GitHub client" +
+                " endpoint initialization function\n" + "        P{{githubClientConfig}} - GitHub client " +
+                "configuration\n" + "    }\n" + "    public " + "function init (GitHubClientConfig " +
+                "githubClientConfig);\n" + "\n" + "    documentation { Return the " + "GitHub client\n" + "        " +
+                "R{{}} - GitHub client\n" + "    }\n" + "    public function getClient ()" + " returns TestConnector;" +
+                "\n" + "\n" + "};\n" + "documentation {Test Connector\n F{{url}} url for " + "endpoint\n" +
+                "F{{path}} path for endpoint\n" + "}\n" + "public type TestConnector object {\n" + "  " + "  public " +
+                "{\n" + "        string url;\n" + "        string path;\n" + "    }\n" + "\n" + "    " +
+                "documentation {Test " + "Connector action testAction R{{}} whether successful or not}\n" + "    " +
+                "public function " + "testAction() returns boolean;\n" + "\n" + "    documentation {Test Connector "
+                + "action testSend P{{ep}}" + " endpoint url R{{}} whether successful or not}\n" + "    public " +
+                "function" + " testSend(string ep) " + "returns boolean;\n" + "};");
         Page page = generatePage(bLangPackage);
-        Assert.assertEquals(page.constructs.size(), 1);
-        Assert.assertEquals(page.constructs.get(0).name, "TestConnector");
-        Assert.assertEquals(page.constructs.get(0).description, "<p>Test Connector</p>\n");
-        Assert.assertEquals(page.constructs.get(0).icon, "fw-connector");
-        Assert.assertTrue(page.constructs.get(0) instanceof ConnectorDoc, "Invalid documentable type");
-        ConnectorDoc connectorDoc = (ConnectorDoc) page.constructs.get(0);
+        Assert.assertEquals(page.constructs.size(), 2);
+        Assert.assertEquals(page.constructs.get(0).name, "GitHubClientConfig");
+        Assert.assertEquals(page.constructs.get(0).icon, "fw-struct");
+        Assert.assertTrue(page.constructs.get(0) instanceof StructDoc, "Invalid documentable type");
+
+        Assert.assertEquals(page.constructs.get(1).name, "Client");
+        Assert.assertEquals(page.constructs.get(1).icon, "fw-connector");
+        Assert.assertEquals(page.constructs.get(1).description, "<p>GitHub client</p>\n");
+        Assert.assertTrue(page.constructs.get(1) instanceof ConnectorDoc, "Invalid documentable type");
+
+        ConnectorDoc connectorDoc = (ConnectorDoc) page.constructs.get(1);
         Assert.assertEquals(connectorDoc.fields.size(), 2);
         Assert.assertEquals(connectorDoc.fields.get(0).toString(), "string url");
-        Assert.assertEquals(connectorDoc.children.size(), 2);
+        Assert.assertEquals(connectorDoc.children.size(), 4);
         Assert.assertTrue(connectorDoc.children.get(0) instanceof FunctionDoc, "Invalid documentable type");
         FunctionDoc functionDoc1 = (FunctionDoc) connectorDoc.children.get(0);
         Assert.assertEquals(functionDoc1.name, "testAction", "Invalid function name testAction");
@@ -158,18 +188,42 @@ public class HtmlDocTest {
         Assert.assertEquals(functionDoc2.parameters.get(0).description, "<p>endpoint url</p>\n");
         Assert.assertEquals(functionDoc2.returnParams.get(0).toString(), "boolean", "Invalid return type");
         Assert.assertEquals(functionDoc2.returnParams.get(0).description, "<p>whether successful or not</p>\n");
+
+        FunctionDoc functionDoc3 = (FunctionDoc) connectorDoc.children.get(2);
+        Assert.assertEquals(functionDoc3.name, "init", "Invalid function name init");
+        Assert.assertEquals(functionDoc3.icon, "fw-function", "init function is not detected as a function");
+
+        FunctionDoc functionDoc4 = (FunctionDoc) connectorDoc.children.get(3);
+        Assert.assertEquals(functionDoc4.name, "getClient", "Invalid function name getClient");
+        Assert.assertEquals(functionDoc4.icon, "fw-function", "getClient function is not detected as a function");
     }
 
     @Test(description = "Objects in a package should be shown in the constructs")
     public void testObjects() throws Exception {
-        BLangPackage bLangPackage = createPackage("package x.y; " + "@Description {value:\"Object Test\"}\n" +
-                "public type Test object {\n public {\n" + "        " + "string url;" + "\nstring path;\n" + "    }\n" +
-                " private { string abc; }\n " + "\n" + "    @Description {value: " + "\"Test Object function" + " " +
-                "test1.\"}\n" + "    @Return {value:\"whether successful or " + "not\"}\n" + "    public " +
-                "function " + "test1() returns boolean;\n" + "\n" + "    @Description " + "{value: \"Test Object " +
-                "function test2" + ".\"}\n" + "    @Param {value: \"ep: endpoint url\"}\n" + "    @Return " +
-                "{value:\"whether successful " + "or" + " not\"}\n" + "    public function test2(string " + "ep) " +
-                "returns boolean;\n" + "};\n type Test2 object {};");
+
+        String source = " @Description {value:\"Object Test\"}\n" +
+                        "public type Test object {\n" +
+                        "    public {\n" +
+                        "        string url;\n" +
+                        "   \n" +
+                        "     string path;\n" +
+                        "    }\n" +
+                        "\n" +
+                        "    @Description {value: \"Test Object function\n" +
+                        " test1.\"}\n" +
+                        "    @Return {value:\"whether successful or not\"}\n" +
+                        "    public \n" +
+                        "function test1() returns boolean;\n" +
+                        "\n" +
+                        "    @Description {value: \"Test Object \n" +
+                        "function test2.\"}\n" +
+                        "    @Param {value: \"ep: endpoint url\"}\n" +
+                        "    @Return \n" +
+                        "{value:\"whether successful or not\"}\n" +
+                        "    public function test2(string ep) \n" +
+                        "returns boolean;\n" +
+                        "};";
+        BLangPackage bLangPackage = createPackage(source);
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
         Assert.assertEquals(page.constructs.get(0).name, "Test");
@@ -198,7 +252,7 @@ public class HtmlDocTest {
 
     @Test(description = "Objects in a package should be shown in the constructs with new docerina syntax")
     public void testObjectsWithNewSyntax() throws Exception {
-        BLangPackage bLangPackage = createPackage("package x.y;\n" + "documentation {Object Test\n" + "F{{url}} " +
+        BLangPackage bLangPackage = createPackage("documentation {Object Test\n" + "F{{url}} " +
                 "endpoint url\n" + "F{{path}} a valid path\n" + "}\n" + "public type Test object {\n" + "    public " +
                 "{\n" + "        string url;\n" + "        string path;\n" + "    }\n" + "    private {\n" + "       " +
                 " string idx;\n" + "    }\n" + "    documentation {test1 function\n" + "    P{{x}} an integer\n" + " " +
@@ -235,7 +289,7 @@ public class HtmlDocTest {
 
     @Test(description = "Enums in a package should be shown in the constructs", enabled = false)
     public void testEnums() throws Exception {
-        BLangPackage bLangPackage = createPackage("package x.y; " +
+        BLangPackage bLangPackage = createPackage(" " +
                                                   "public enum Direction {IN,OUT}" +
                                                   "public enum Money {USD,LKR}");
         Page page = generatePage(bLangPackage);
@@ -251,7 +305,7 @@ public class HtmlDocTest {
     
     @Test(description = "Annotation in a package should be shown in the constructs")
     public void testAnnotations() throws Exception {
-        BLangPackage bLangPackage = createPackage("package x.y; " +
+        BLangPackage bLangPackage = createPackage(" " +
                                                   "public annotation ParameterInfo;" +
                                                   "public annotation ReturnInfo;");
         Page page = generatePage(bLangPackage);
@@ -262,8 +316,7 @@ public class HtmlDocTest {
     
     @Test(description = "Annotation in a package should be shown in the constructs")
     public void testGlobalVariables() throws Exception {
-        BLangPackage bLangPackage = createPackage("package x.y; " +
-                                                  "public int total = 98;" +
+        BLangPackage bLangPackage = createPackage("public int total = 98;" +
                                                   "public string content = \"Name\";");
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 2);
@@ -273,8 +326,8 @@ public class HtmlDocTest {
 
     @Test(description = "Structs in a package should be shown in the constructs")
     public void testStructs() throws Exception {
-        BLangPackage bLangPackage = createPackage("package x.y; public type Message {string message;\n" + "    error?" +
-                " cause;};");
+        BLangPackage bLangPackage = createPackage("public type Message {string message;\n" + "    error?" +
+                                                  " cause;};");
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
         Assert.assertEquals(page.constructs.get(0).name, "Message");
@@ -283,9 +336,9 @@ public class HtmlDocTest {
     @Test(description = "One function with a struct bindings in a package should be grouped together shown in the " +
             "constructs", enabled = false)
     public void testFunctionsWithStructBindings() throws Exception {
-        BLangPackage bLangPackage = createPackage("package x.y; " +
-                "public function <Message m>hello(){} " +
-                "public struct Message { string message; int id;}");
+        BLangPackage bLangPackage = createPackage(" " +
+                                                  "public function <Message m>hello(){} " +
+                                                  "public struct Message { string message; int id;}");
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
         Assert.assertEquals(page.constructs.get(0).name, "Message");
@@ -295,9 +348,9 @@ public class HtmlDocTest {
     @Test(description = "One function without a struct bindings in a package should not be grouped together with the" +
             "structs shown in the constructs", enabled = false)
     public void testFunctionsWithoutStructBindings() throws Exception {
-        BLangPackage bLangPackage = createPackage("package x.y; " +
-                "public function hello(){} " +
-                "public struct Message { string message; int id;}");
+        BLangPackage bLangPackage = createPackage(" " +
+                                                  "public function hello(){} " +
+                                                  "public struct Message { string message; int id;}");
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 2);
         Assert.assertEquals(page.constructs.get(0).name, "Message");
@@ -307,10 +360,10 @@ public class HtmlDocTest {
     @Test(description = "Functions with struct bindings in a package should be grouped together and functions" +
             "without struct bindings should be isolated as shown in the constructs", enabled = false)
     public void testFunctionsWithWithoutStructBindings() throws Exception {
-        BLangPackage bLangPackage = createPackage("package x.y; " +
-                "public function <Message m>hello(){} " +
-                "public struct Message { string message; int id;} " +
-                "public function sayBye(){}");
+        BLangPackage bLangPackage = createPackage(" " +
+                                                  "public function <Message m>hello(){} " +
+                                                  "public struct Message { string message; int id;} " +
+                                                  "public function sayBye(){}");
 
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 2);
@@ -321,11 +374,11 @@ public class HtmlDocTest {
 
     @Test(description = "Function properties should be available via construct")
     public void testFunctionsPropertiesExtracted() throws Exception {
-        BLangPackage bLangPackage = createPackage("package x.y; " +
+        BLangPackage bLangPackage = createPackage("" +
                 "@Description { value:\"This function would say hello\"}" +
                 "@Param { value:\"message: The message sent\" }" +
                 "@Return { value:\"int representation of the message\" }" +
-                "public function sayHello(string message) returns (int){}");
+                "public function sayHello(string message) returns (int){return 1;}");
 
         FunctionDoc functionDoc = Generator.createDocForNode(bLangPackage.getFunctions().get(0));
         Assert.assertEquals(functionDoc.name, "sayHello", "Function name should be extracted");
@@ -344,9 +397,9 @@ public class HtmlDocTest {
 
     @Test(description = "Function properties should be available via construct for new docerina syntax")
     public void testFunctionsPropertiesExtractedWithNewSyntax() throws Exception {
-        BLangPackage bLangPackage = createPackage("package x.y;\n" + "documentation {This function would say hello\n"
+        BLangPackage bLangPackage = createPackage("documentation {This function would say hello\n"
                 + "P{{message}} The message sent\n" + "P{{idx}} an index\n" + "R{{}} int representation of the " +
-                "message\n" + "}\n" + "public function sayHello(string message, int idx) returns (int){}");
+                "message\n" + "}\n" + "public function sayHello(string message, int idx) returns (int){return 1;}");
 
         FunctionDoc functionDoc = Generator.createDocForNode(bLangPackage.getFunctions().get(0));
         Assert.assertEquals(functionDoc.name, "sayHello", "Function name should be extracted");
@@ -369,19 +422,20 @@ public class HtmlDocTest {
 
     @Test(description = "Connector properties should be available via construct", enabled = false)
     public void testConnectorPropertiesExtracted() throws Exception {
-        BLangPackage bLangPackage = createPackage("package x.y; " +
-                "@Description { value:\"Http client connector for outbound HTTP requests\"}\n" +
-                "@Param { value:\"serviceUri: Url of the service\" }\n" +
-                "@Param { value:\"n: connector options\" }" +
-                "connector HttpClient (string serviceUri, int n) {" +
-                "@Description { value:\"The POST action implementation of the HTTP ConnectorDoc\"}\n" +
-                "@Param { value:\"path: Resource path \" }\n" +
-                "@Param { value:\"req: An HTTP Request struct\" }\n" +
-                "@Return { value:\"The response message\" }\n" +
-                "@Return { value:\"Error occured during HTTP client invocation\" }\n" +
-                "action post(string path, string req) (string, int) { return \"value within filter\"; }}");
+        String source = " " +
+                        "@Description { value:\"Http client connector for outbound HTTP requests\"}\n" +
+                        "@Param { value:\"serviceUri: Url of the service\" }\n" +
+                        "@Param { value:\"n: connector options\" }" +
+                        "connector HttpClient (string serviceUri, int n) {" +
+                        "@Description { value:\"The POST action implementation of the HTTP ConnectorDoc\"}\n" +
+                        "@Param { value:\"path: Resource path \" }\n" +
+                        "@Param { value:\"req: An HTTP Request struct\" }\n" +
+                        "@Return { value:\"The response message\" }\n" +
+                        "@Return { value:\"Error occured during HTTP client invocation\" }\n" +
+                        "action post(string path, string req) (string, int) { return \"value within filter\"; }}";
+        BLangPackage bLangPackage = createPackage(source);
 
-        ConnectorDoc connectorDoc = Generator.createDocForNode(bLangPackage.getObjects().get(0));
+        ConnectorDoc connectorDoc = Generator.createDocForNode(bLangPackage.getObjects().get(0), true);
         Assert.assertEquals(connectorDoc.name, "HttpClient", "Connector name should be extracted");
         Assert.assertEquals(connectorDoc.description, "Http client connector for outbound HTTP requests",
                 "Description of the connector should be extracted");
@@ -406,11 +460,11 @@ public class HtmlDocTest {
 
     @Test(description = "Struct properties should be available via construct", enabled = false)
     public void testStructPropertiesExtracted() throws Exception {
-        BLangPackage bLangPackage = createPackage("package x.y; " +
-                "@Description { value:\"Message sent by the client\"}" +
-                "@Field {value:\"count: Number of retries\"}\n" +
-                "@Field {value:\"interval: Retry interval in millisecond\"}" +
-                "struct Message {int interval;int count;}");
+        BLangPackage bLangPackage = createPackage(" " +
+                                                  "@Description { value:\"Message sent by the client\"}" +
+                                                  "@Field {value:\"count: Number of retries\"}\n" +
+                                                  "@Field {value:\"interval: Retry interval in millisecond\"}" +
+                                                  "struct Message {int interval;int count;}");
 
         StructDoc structDoc = Generator.createDocForNode(bLangPackage.getRecords().get(0));
         Assert.assertEquals(structDoc.name, "Message", "Struct name should be extracted");
@@ -426,11 +480,12 @@ public class HtmlDocTest {
 
     @Test(description = "Enum properties should be available via construct", enabled = false)
     public void testEnumPropertiesExtracted() throws Exception {
-        BLangPackage bLangPackage = createPackage("package x.y; " +
-                "@Description { value:\"The direction of the parameter\"}\n" +
-                "@Field { value:\"IN: IN parameters are used to send values to stored procedures\"}\n" +
-                "@Field { value:\"OUT: OUT parameters are used to get values from stored procedures\"}\n" +
-                "public enum Direction { IN,OUT}");
+        String source = " " +
+                        "@Description { value:\"The direction of the parameter\"}\n" +
+                        "@Field { value:\"IN: IN parameters are used to send values to stored procedures\"}\n" +
+                        "@Field { value:\"OUT: OUT parameters are used to get values from stored procedures\"}\n" +
+                        "public enum Direction { IN,OUT}";
+        BLangPackage bLangPackage = createPackage(source);
 
         EnumDoc enumDoc = Generator.createDocForNode(bLangPackage.getTypeDefinitions().get(0));
         Assert.assertEquals(enumDoc.name, "Direction", "Enum name should be extracted");
@@ -445,10 +500,10 @@ public class HtmlDocTest {
 
     @Test(description = "Global variables should be available via construct")
     public void testGlobalVariablePropertiesExtracted() throws Exception {
-        BLangPackage bLangPackage = createPackage("package x.y; " +
-                "@Description { value:\"The Read Append access mode\"}\n" +
-                "@final\n" +
-                "public string RA = \"RA\";");
+        BLangPackage bLangPackage = createPackage(" " +
+                                                  "@Description { value:\"The Read Append access mode\"}\n" +
+                                                  "@final\n" +
+                                                  "public string RA = \"RA\";");
 
         GlobalVariableDoc globalVariableDoc = Generator.createDocForNode(bLangPackage.getGlobalVariables().get(0));
         Assert.assertEquals(globalVariableDoc.name, "RA", "Global variable name should be extracted");
@@ -459,7 +514,7 @@ public class HtmlDocTest {
 
     @Test(description = "Global variables should be available via construct with new docerina syntax")
     public void testGlobalVariablePropertiesExtractedWithNewSyntax() throws Exception {
-        BLangPackage bLangPackage = createPackage("package x.y;\n" + "documentation {The Read Append access mode}\n"
+        BLangPackage bLangPackage = createPackage("documentation {The Read Append access mode}\n"
                 + "@final\n" + "public string RA = \"RA\";");
 
         GlobalVariableDoc globalVariableDoc = Generator.createDocForNode(bLangPackage.getGlobalVariables().get(0));
@@ -471,17 +526,18 @@ public class HtmlDocTest {
 
     @Test(description = "Annotation properties should be available via construct", enabled = false)
     public void testAnnotationPropertiesExtracted() throws Exception {
-        BLangPackage bLangPackage = createPackage("package x.y; " +
-                "@Description {value: \"AnnotationDoc to upgrade connection from HTTP to WS in the " +
-                                "same base path\"}\n" +
-                "@Field {value:\"upgradePath:Upgrade path for the WebSocket service from " +
-                                "HTTP to WS\"}\n" +
-                "@Field {value:\"serviceName:Name of the WebSocket service where the HTTP service should " +
-                "               upgrade to\"}\n" +
-                "public annotation webSocket attach service<> {\n" +
-                "    string upgradePath;\n" +
-                "    string serviceName;\n" +
-                "}");
+        String source = " " +
+                        "@Description {value: \"AnnotationDoc to upgrade connection from HTTP to WS in the " +
+                        "same base path\"}\n" +
+                        "@Field {value:\"upgradePath:Upgrade path for the WebSocket service from " +
+                        "HTTP to WS\"}\n" +
+                        "@Field {value:\"serviceName:Name of the WebSocket service where the HTTP service should " +
+                        "               upgrade to\"}\n" +
+                        "public annotation webSocket attach service<> {\n" +
+                        "    string upgradePath;\n" +
+                        "    string serviceName;\n" +
+                        "}";
+        BLangPackage bLangPackage = createPackage(source);
 
         AnnotationDoc annotationDoc = Generator.createDocForNode(bLangPackage.getAnnotations().get(0));
         Assert.assertEquals(annotationDoc.name, "webSocket", "Annotation name should be extracted");
@@ -499,7 +555,7 @@ public class HtmlDocTest {
     
     @Test(description = "Private constructs should not appear at all.", enabled = false)
     public void testPrivateConstructsInPackage() {
-        BLangPackage bLangPackage = createPackage("package x.y; " +
+        BLangPackage bLangPackage = createPackage(" " +
                                                   "function hello(){}" +
                                                   "enum Direction { IN,OUT}" +
                                                   "enum Money { USD,LKR}" +
@@ -530,7 +586,7 @@ public class HtmlDocTest {
     
     @Test(description = "Tests whether default values are collected.", enabled = false)
     public void testStructDefaultValues() {
-        BLangPackage bLangPackage = createPackage("package x.y; " +
+        BLangPackage bLangPackage = createPackage(" " +
                                                   "public struct Person {" +
                                                   "  string id;" +
                                                   "  string address = \"20,Palm Grove\";" +
@@ -548,8 +604,7 @@ public class HtmlDocTest {
     
     @Test(description = "Tests whether anonymous structs are documented.", enabled = false)
     public void testAnonymousStructs() {
-        BLangPackage bLangPackage = createPackage("package x.y; " +
-                                                  "@Description { value:\"Represents a person\"}" +
+        BLangPackage bLangPackage = createPackage("@Description { value:\"Represents a person\"}" +
                                                   "@Field {value:\"id: The identification number\"}\n" +
                                                   "@Field {value:\"address: The address of the person.\"}" +
                                                   "public struct Person {" +
@@ -594,7 +649,7 @@ public class HtmlDocTest {
      */
     private Page generatePage(BLangPackage balPackage) {
         List<Link> packages = new ArrayList<>();
-        packages.add(new Link(new PackageName((balPackage.symbol).pkgID.name.value, ""), "", false));
+        packages.add(new Link(new PackageName(balPackage.packageID.name.value, ""), "", false));
         return Generator.generatePage(balPackage, packages, null, null);
     }
 }

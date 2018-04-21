@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
 
 // TODO: Document these. Should we make FORWARD a private constant?
 @final public HttpOperation HTTP_FORWARD = "FORWARD";
@@ -31,23 +30,23 @@ public type HttpOperation "FORWARD" | "GET" | "POST" | "DELETE" | "OPTIONS" | "P
 
 // makes the actual endpoints call according to the http operation passed in.
 public function invokeEndpoint (string path, Request outRequest,
-                                HttpOperation requestAction, HttpClient httpClient) returns Response|HttpConnectorError {
+                                HttpOperation requestAction, CallerActions httpClient) returns Response|HttpConnectorError {
     if (HTTP_GET == requestAction) {
-        return httpClient.get(path, outRequest);
+        return httpClient.get(path, request = outRequest);
     } else if (HTTP_POST == requestAction) {
-        return httpClient.post(path, outRequest);
+        return httpClient.post(path, request = outRequest);
     } else if (HTTP_OPTIONS == requestAction) {
-        return httpClient.options(path, outRequest);
+        return httpClient.options(path, request = outRequest);
     } else if (HTTP_PUT == requestAction) {
-        return httpClient.put(path, outRequest);
+        return httpClient.put(path, request = outRequest);
     } else if (HTTP_DELETE == requestAction) {
-        return httpClient.delete(path, outRequest);
+        return httpClient.delete(path, request = outRequest);
     } else if (HTTP_PATCH == requestAction) {
-        return httpClient.patch(path, outRequest);
+        return httpClient.patch(path, request = outRequest);
     } else if (HTTP_FORWARD == requestAction) {
         return httpClient.forward(path, outRequest);
     } else if (HTTP_HEAD == requestAction) {
-        return httpClient.head(path, outRequest);
+        return httpClient.head(path, request = outRequest);
     } else {
         return getError();
     }

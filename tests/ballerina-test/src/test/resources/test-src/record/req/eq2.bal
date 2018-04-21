@@ -1,4 +1,3 @@
-package req;
 
 public type userPFoo {
     int age;

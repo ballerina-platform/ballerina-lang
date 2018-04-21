@@ -21,15 +21,19 @@ import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.net.grpc.config.ServiceConfiguration;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.proto.definition.File;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 
+import java.io.PrintStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.ANN_MESSAGE_LISTENER;
 
 /**
@@ -42,11 +46,15 @@ import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.ANN_MESSAGE
 )
 public class ServiceProtoBuilder extends AbstractCompilerPlugin {
 
+    private boolean canProcess;
     private DiagnosticLog dlog;
+    private Map<String, File> serviceFileMap = new HashMap<>();
+    private static final PrintStream error = System.err;
 
     @Override
     public void init(DiagnosticLog diagnosticLog) {
         this.dlog = diagnosticLog;
+        this.canProcess = false;
     }
 
     @Override
@@ -59,11 +67,33 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
 
         try {
             File fileDefinition = ServiceProtoUtils.generateProtoDefinition(serviceNode);
-            ServiceConfiguration serviceConfig = ServiceProtoUtils.getServiceConfiguration(serviceNode);
-            ServiceProtoUtils.writeServiceFiles(fileDefinition, serviceNode.getName().getValue(), serviceConfig
-                    .isGenerateClientConnector());
+            ServiceProtoUtils.writeServiceFiles(Paths.get("."), serviceNode.getName().getValue(), fileDefinition);
+            serviceFileMap.put(serviceNode.getName().getValue(), fileDefinition);
         } catch (GrpcServerException e) {
-            dlog.logDiagnostic(Diagnostic.Kind.WARNING, serviceNode.getPosition(), e.getMessage());
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(), e.getMessage());
+        }
+    }
+
+    @Override
+    public void codeGenerated(Path binaryPath) {
+        if (canProcess) {
+            if (binaryPath == null) {
+                error.print("Error while generating service proto file. Binary file path is null");
+                return;
+            }
+            Path filePath = binaryPath.toAbsolutePath();
+            Path parentDirPath = filePath.getParent();
+            if (parentDirPath == null) {
+                parentDirPath = filePath;
+            }
+            Path targetDirPath = Paths.get(parentDirPath.toString(), "grpc");
+            for (Map.Entry<String, File> entry : serviceFileMap.entrySet()) {
+                try {
+                    ServiceProtoUtils.writeServiceFiles(targetDirPath, entry.getKey(), entry.getValue());
+                } catch (GrpcServerException e) {
+                    error.print("Error while generating service proto file. " + e.getMessage());
+                }
+            }
         }
     }
 }

@@ -19,7 +19,7 @@
     <parent>
         <artifactId>swagger-ballerina</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.970.0-beta2-SNAPSHOT</version>
+        <version>0.970.0-beta7-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -103,6 +103,7 @@
                                     <include>org.ballerinalang:ballerina-to-swagger</include>
                                     <include>org.ballerinalang:composer-ballerina-parser-service</include>
                                     <include>org.ballerinalang:language-server-core</include>
+                                    <include>org.ballerinalang:language-server-compiler</include>
                                 </includes>
                             </artifactSet>
                             <filters>

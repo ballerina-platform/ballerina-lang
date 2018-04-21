@@ -60,13 +60,12 @@ function startProjectionQuery() returns (Employee[]) {
     teacherStream4.publish(t2);
     teacherStream4.publish(t3);
 
-    runtime:sleepCurrentWorker(1000);
+    runtime:sleep(1000);
 
     return globalEmployeeArray;
 }
 
 function printEmployeeNumber(Employee e) {
-    io:println("printEmployeeName function invoked for Employee event for Employee employee name:" + e.name);
     addToGlobalEmployeeArray(e);
 }
 

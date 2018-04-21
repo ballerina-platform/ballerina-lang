@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.auth;
 
 import ballerina/cache;
 import ballerina/internal;
@@ -86,41 +85,41 @@ public type JWTAuthProvider object {
     }
 
     function setAuthContext(internal:JwtPayload jwtPayload, string jwtToken) {
-        runtime:AuthenticationContext authContext = runtime:getInvocationContext().authenticationContext;
-        authContext.userId = jwtPayload.sub;
+        runtime:UserPrincipal userPrincipal = runtime:getInvocationContext().userPrincipal;
+        userPrincipal.userId = jwtPayload.sub;
         // By default set sub as username.
-        authContext.username = jwtPayload.sub;
+        userPrincipal.username = jwtPayload.sub;
         if (jwtPayload.customClaims.hasKey(SCOPES)) {
             match jwtPayload.customClaims[SCOPES] {
                 string scopeString => {
-                    authContext.scopes = scopeString.split(" ");
+                    userPrincipal.scopes = scopeString.split(" ");
                     _ = jwtPayload.customClaims.remove(SCOPES);
                 }
                 any => {}
             }
         }
 
-        if (jwtPayload.customClaims.hasKey(GROUPS)) {
-            match jwtPayload.customClaims[GROUPS] {
-                string[] userGroups => {
-                    authContext.groups = userGroups;
-                    _ = jwtPayload.customClaims.remove(GROUPS);
-                }
-                any => {}
-            }
-        }
+        //if (jwtPayload.customClaims.hasKey(GROUPS)) {
+        //    match jwtPayload.customClaims[GROUPS] {
+        //        string[] userGroups => {
+        //            authContext.groups = userGroups;
+        //            _ = jwtPayload.customClaims.remove(GROUPS);
+        //        }
+        //        any => {}
+        //    }
+        //}
 
         if (jwtPayload.customClaims.hasKey(USERNAME)) {
             match jwtPayload.customClaims[USERNAME] {
                 string name => {
-                    authContext.username = name;
+                    userPrincipal.username = name;
                     _ = jwtPayload.customClaims.remove(USERNAME);
                 }
                 any => {}
             }
         }
-
-        authContext.authType = AUTH_TYPE_JWT;
+        runtime:AuthContext authContext = runtime:getInvocationContext().authContext;
+        authContext.scheme = AUTH_TYPE_JWT;
         authContext.authToken = jwtToken;
     }
 

@@ -152,10 +152,6 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangPackageDeclaration pkgDclNode) {
-        throw new AssertionError();
-    }
-
     public void visit(BLangImportPackage importPkgNode) {
         throw new AssertionError();
     }

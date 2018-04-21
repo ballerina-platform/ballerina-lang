@@ -1,4 +1,3 @@
-package ballerina.lang.datatables;
 
 import ballerina/doc;
 

@@ -30,7 +30,6 @@ import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.repo.RemoteRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -66,20 +65,26 @@ public class PushUtils {
     public static void pushPackages(String packageName, String installToRepo) {
         String accessToken = getAccessTokenOfCLI();
         Manifest manifest = readManifestConfigurations();
-        if (manifest.getName() == null && manifest.getVersion() == null) {
-            throw new BLangCompilerException("An org-name and package version is required when pushing. " +
-                                                     "This is not specified in Ballerina.toml inside the project");
+        if (manifest.getName().isEmpty()) {
+            throw new BLangCompilerException("An org-name is required when pushing. This is not specified in " +
+                                                     "Ballerina.toml inside the project");
         }
+
+        if (manifest.getVersion().isEmpty()) {
+            throw new BLangCompilerException("A package version is required when pushing. This is not specified " +
+                                                     "in Ballerina.toml inside the project");
+        }
+
         String orgName = manifest.getName();
         String version = manifest.getVersion();
 
         PackageID packageID = new PackageID(new Name(orgName), new Name(packageName), new Name(version));
 
-        Path prjDirPath = Paths.get(".").toAbsolutePath().normalize().resolve(ProjectDirConstants
-                                                                                      .DOT_BALLERINA_DIR_NAME);
+        Path prjDirPath = Paths.get(".").toAbsolutePath().normalize();
 
         // Get package path from project directory path
-        Path pkgPathFromPrjtDir = Paths.get(prjDirPath.toString(), "repo", Names.ANON_ORG.getValue(),
+        Path pkgPathFromPrjtDir = Paths.get(prjDirPath.toString(), ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
+                                            ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName,
                                             packageName, version, packageName + ".zip");
         if (Files.notExists(pkgPathFromPrjtDir)) {
             throw new BLangCompilerException("package does not exist");
@@ -93,7 +98,7 @@ public class PushUtils {
             }
 
             // Read the Package.md file content from the artifact
-            String mdFileContent = getPackageMDFileContent(pkgPathFromPrjtDir.toString());
+            String mdFileContent = getPackageMDFileContent(pkgPathFromPrjtDir.toString(), packageName);
             if (mdFileContent == null) {
                 throw new BLangCompilerException("Cannot find Package.md file in the artifact");
             }
@@ -216,7 +221,7 @@ public class PushUtils {
      * @param archivedFilePath balo file path of the package
      * @return content of Package.md as a string
      */
-    private static String getPackageMDFileContent(String archivedFilePath) {
+    private static String getPackageMDFileContent(String archivedFilePath, String packageName) {
         ZipFile zipFile = null;
         try {
             zipFile = new ZipFile(archivedFilePath);
@@ -224,7 +229,7 @@ public class PushUtils {
 
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
-                if (entry.getName().equalsIgnoreCase("Package.md")) {
+                if (entry.getName().equalsIgnoreCase(packageName + "/" + "Package.md")) {
                     InputStream stream = zipFile.getInputStream(entry);
                     Scanner scanner = new Scanner(stream, "UTF-8").useDelimiter("\\A");
                     return scanner.hasNext() ? scanner.next() : "";

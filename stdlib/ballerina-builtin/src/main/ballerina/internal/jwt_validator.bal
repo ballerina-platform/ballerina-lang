@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.internal;
 
 import ballerina/log;
 import ballerina/time;
@@ -91,16 +90,16 @@ function parseJWT (string[] encodedJWTComponents) returns ((JwtHeader, JwtPayloa
 }
 
 function getDecodedJWTComponents (string[] encodedJWTComponents) returns ((json, json)|error) {
-    string jwtHeader = check util:base64DecodeString(urlDecode(encodedJWTComponents[0]));
-    string jwtPayload = check util:base64DecodeString(urlDecode(encodedJWTComponents[1]));
+    string jwtHeader = check urlDecode(encodedJWTComponents[0]).base64Decode();
+    string jwtPayload = check urlDecode(encodedJWTComponents[1]).base64Decode();
     json jwtHeaderJson = {};
     json jwtPayloadJson = {};
 
-    match util:parseJson(jwtHeader) {
+    match parseJson(jwtHeader) {
         json result => jwtHeaderJson = result;
         error err => return err;
     }
-    match util:parseJson(jwtPayload) {
+    match parseJson(jwtPayload) {
         json result => jwtPayloadJson = result;
         error err => return err;
     }

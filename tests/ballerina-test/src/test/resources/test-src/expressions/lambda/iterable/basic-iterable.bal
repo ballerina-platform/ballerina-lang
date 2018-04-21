@@ -64,8 +64,8 @@ function testBasicArray1 (string[] values) returns string {
 }
 
 function mapString (string x) returns (string, string) {
-    string up = x.toUpperCase();
-    string lower = x.toLowerCase();
+    string up = x.toUpper();
+    string lower = x.toLower();
     return (up, lower);
 }
 
@@ -90,7 +90,7 @@ function testBasicMap1 () returns (int, string[]) {
     map<string> m = {a:"A", b:"B", c:"C", d:"D", e:"E"};
     int count = m.count();
     string[] values = m.map((string value) => (string) {
-                                return value.toLowerCase();
+                                return value.toLower();
                             })
                       .filter((string v) => (boolean) {
                                   if (v == "a" || v == "e") {

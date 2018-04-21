@@ -1,7 +1,7 @@
 package org.wso2.ballerinalang.compiler.packaging;
 
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.repository.PackageSourceEntry;
+import org.ballerinalang.repository.CompilerInput;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 
@@ -36,8 +36,8 @@ public class RepoHierarchy {
             Patten patten = repo.calculate(pkg);
             if (patten != Patten.NULL) {
                 Converter converter = repo.getConverterInstance();
-                List<PackageSourceEntry> paths = patten.convertToSources(converter, pkg)
-                                                       .collect(Collectors.toList());
+                List<CompilerInput> paths = patten.convertToSources(converter, pkg)
+                                                  .collect(Collectors.toList());
                 log2(repo, patten, paths);
                 if (!paths.isEmpty()) {
                     return new Resolution(getChildHierarchyForRepo(i), paths);
@@ -56,7 +56,7 @@ public class RepoHierarchy {
         }
     }
 
-    private void log2(Repo repo, Patten patten, List<PackageSourceEntry> paths) {
+    private void log2(Repo repo, Patten patten, List<CompilerInput> paths) {
         if (verbose) {
             out.println("\t looking in " + repo + " for patten\n\t\t" +
                                 patten + " and found \n\t\t\t" +

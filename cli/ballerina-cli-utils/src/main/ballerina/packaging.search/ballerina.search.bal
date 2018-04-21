@@ -1,15 +1,20 @@
-package packaging.search;
 import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
 import ballerina/time;
 
+documentation {
+    Function to search packages from ballerina central.
+
+    P{{url}} - The endpoint url to be invoked.
+    P{{querySearched}} - The text searched for.
+}
 function search (string url, string querySearched) {
     endpoint http:Client httpEndpoint {
         url:url,
         secureSocket:{
             trustStore:{
-                filePath:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
                 password:"ballerina"
             },
             verifyHostname:false,
@@ -17,8 +22,15 @@ function search (string url, string querySearched) {
         }
     };
     http:Request req = new;
-    var result = httpEndpoint -> get(untaint querySearched, req);
-    http:Response httpResponse = check result;
+    var result = httpEndpoint -> get(untaint querySearched, request=req);
+    http:Response httpResponse = new;
+    match result {
+        http:Response response => httpResponse = response;
+        http:HttpConnectorError e => {
+            io:println("Connection to the remote host failed : " + e.message);
+            return;
+        }
+    }
     json jsonResponse = null;
     string statusCode = <string> httpResponse.statusCode;
     if (statusCode.hasPrefix("5")) {
@@ -50,7 +62,7 @@ function search (string url, string querySearched) {
                 string summary = jsonElement.summary.toString();
                 printInCLI(summary, 40);
                 
-                string authors;
+                string authors = "";
                 json authorsArr = jsonElement.authors;
                 foreach authorIndex in [0..lengthof authorsArr - 1] {
                     if (authorIndex == lengthof authorsArr - 1) {
@@ -75,10 +87,16 @@ function search (string url, string querySearched) {
     }
 }
 
+documentation {
+    Function to print package information.
+
+    P{{element}} - The text to be printed.
+    P{{charactersAllowed}} - The maximum number of characters to be printed.
+}
 function printInCLI(string element, int charactersAllowed) {
     int lengthOfElement = element.length();
     if (lengthOfElement > charactersAllowed || lengthOfElement == charactersAllowed) {
-        string trimmedElement = element.subString(0, charactersAllowed - 3) + "...";
+        string trimmedElement = element.substring(0, charactersAllowed - 3) + "...";
         io:print(trimmedElement + "| ");
     } else {
         io:print(element);
@@ -91,6 +109,12 @@ function printInCLI(string element, int charactersAllowed) {
     }
 }
 
+documentation {
+    Function to get the date the package was created in UTC.
+
+    P{{jsonObj}} - The time object as a json.
+    R{{}} - `string` The date and time the package was created.
+}
 function getDateCreated(json jsonObj) returns string {
     string jsonTime = jsonObj.time.toString();
     int timeInMillis = check <int> jsonTime;
@@ -99,6 +123,9 @@ function getDateCreated(json jsonObj) returns string {
     return customTimeString;
 }
 
+documentation {
+    Main function which invokes the method to search for packages.
+}
 function main (string... args) {
     search(args[0], args[1]);
 }
