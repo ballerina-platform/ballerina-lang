@@ -801,6 +801,12 @@
     "before expression": "",
     "after expression": ""
   },
+  "TypeDefinition": {
+    "before type":"",
+    "after type":" ",
+    "before name":"",
+    "after name":" "
+  },
   "TypeofExpression": {
     "before typeof": "",
     "after typeof": "",

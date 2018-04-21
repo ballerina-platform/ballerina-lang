@@ -207,9 +207,11 @@ class TreeBuilder {
                 if (node.ws) {
                     for (let i = 0; i < node.ws.length; i++) {
                         if (node.ws[i].text === ')' && node.ws[i + 1].text !== 'returns') {
-                            for (let j = 0; j < node.returnTypeNode.ws.length; j++) {
+                            let returnTypeWsLength = node.returnTypeNode.ws.length;
+                            for (let j = 0; j < returnTypeWsLength; j++) {
                                 if (node.returnTypeNode.ws[j].text === 'returns') {
                                     node.ws.splice((i + 1), 0, node.returnTypeNode.ws[j]);
+                                    node.returnTypeNode.ws.splice(j, 1);
                                     break;
                                 }
                             }
