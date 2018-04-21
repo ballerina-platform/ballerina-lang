@@ -5,7 +5,7 @@ import ballerina/mime;
 
 int count;
 
-endpoint http:Client clientEndpoint { targets:[{url: "https://postman-echo.com" }] };
+endpoint http:Client clientEndpoint { url: "https://postman-echo.com" };
 
 function main(string... args) {
   // Asynchronously call the function named 'sum'.
@@ -18,7 +18,7 @@ function main(string... args) {
 
   // Call the 'countInfinity' function, which runs forever in asynchronous mode.
   future f2 = start countInfinity();
-  runtime:sleepCurrentWorker(1000);
+  runtime:sleep(1000);
   // Check whether the function call is done.
   io:println(f2.isDone());
   // Check whether someone cancelled the asynchronous execution.
@@ -32,10 +32,7 @@ function main(string... args) {
   io:println(f2.isCancelled());
   
   // async action call
-  http:Request req = new;
-  
-
-  future<http:Response|http:HttpConnectorError> f3 = start clientEndpoint -> get("/get?test=123", req);
+  future<http:Response|http:HttpConnectorError> f3 = start clientEndpoint -> get("/get?test=123");
   io:println(sum(25, 75));
   io:println(f3.isDone());
   var response = await f3;

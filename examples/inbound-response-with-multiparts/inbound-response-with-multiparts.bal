@@ -4,7 +4,7 @@ import ballerina/io;
 
 //Creating an endpoint for the client.
 endpoint http:Client clientEP {
-    targets:[{url:"http://localhost:9092"}]
+    url:"http://localhost:9092"
 };
 
 // Creating a listener for the service.
@@ -21,10 +21,9 @@ service<http:Service> test bind multipartEP {
     }
     // This resource accepts multipart responses.
      receiveMultiparts (endpoint conn, http:Request request) {
-        http:Request outRequest = new;
         http:Response inResponse = new;
         // Extract the bodyparts from the response.
-        var returnResult = clientEP -> get("/multiparts/encode_out_response", outRequest);
+        var returnResult = clientEP -> get("/multiparts/encode_out_response");
         http:Response res = new;
         match returnResult {
             // Setting the error response in-case of an error
@@ -57,7 +56,7 @@ service<http:Service> test bind multipartEP {
 
 //Get the child parts that is nested within a parent.
 function handleNestedParts (mime:Entity parentPart) {
-    string contentTypeOfParent = parentPart.contentType.toString();
+    string contentTypeOfParent = parentPart.getContentType();
     if (contentTypeOfParent.hasPrefix("multipart/")) {
         match parentPart.getBodyParts() {
             mime:EntityError err => {
@@ -78,7 +77,7 @@ function handleNestedParts (mime:Entity parentPart) {
 
 @Description {value:"The content logic that handles the body parts vary based on your requirement."}
 function handleContent (mime:Entity bodyPart) {
-    string baseType = bodyPart.contentType.getBaseType();
+    string baseType = check mime:getMediaType(bodyPart.getContentType())!getBaseType();
     if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
         //Extract xml data from body part and print.
         var payload = bodyPart.getXml();
