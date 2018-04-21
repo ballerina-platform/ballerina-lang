@@ -14,33 +14,41 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 import ballerina/system;
 import ballerina/task;
 import ballerina/time;
 
 @Description {value:"Cache cleanup task starting delay in ms."}
 @final int CACHE_CLEANUP_START_DELAY = 0;
+
 @Description {value:"Cache cleanup task invoking interval in ms."}
 @final int CACHE_CLEANUP_INTERVAL = 5000;
 
 @Description {value:"Map which stores all of the caches."}
-map cacheMap;
+map<Cache> cacheMap;
 
 @Description {value:"Cleanup task"}
 task:Timer timer = createCacheCleanupTask();
+
+@Description {value:"Represents a cache entry"}
+@Field {value:"value: cache value"}
+@Field {value:"lastAccessedTime: last accessed time in ms of this value which is used to remove LRU cached values"}
+type CacheEntry {
+    any value;
+    int lastAccessedTime;
+};
 
 @Description {value:"Represents a cache."}
 public type Cache object {
 
     private {
         int capacity;
-        map entries;
+        map<CacheEntry> entries;
         int expiryTimeMillis;
         float evictionFactor;
     }
 
-    new(expiryTimeMillis = 900000, capacity = 100, evictionFactor = 0.25) {
+    new (expiryTimeMillis = 900000, capacity = 100, evictionFactor = 0.25) {
         // Cache expiry time must be a positive value.
         if (expiryTimeMillis <= 0) {
             error e = {message:"Expiry time must be greater than 0."};
@@ -76,18 +84,18 @@ public type Cache object {
         int cacheCapacity = self.capacity;
         int cacheSize = lengthof self.entries;
 
-        // if the current cache is full,
+        // If the current cache is full, evict cache.
         if (cacheCapacity <= cacheSize) {
-            self.evictCache();
+            self.evict();
         }
-        // Add the new entry.
+        // Add the new cache entry.
         int time = time:currentTime().time;
         CacheEntry entry = {value:value, lastAccessedTime:time};
         self.entries[key] = entry;
     }
 
     @Description {value:"Evicts the cache when cache is full."}
-    function evictCache() {
+    function evict() {
         int maxCapacity = self.capacity;
         float evictionFactor = self.evictionFactor;
         int numberOfKeysToEvict = <int>(maxCapacity * evictionFactor);
@@ -95,6 +103,7 @@ public type Cache object {
         string[] cacheKeys = self.getLRUCacheKeys(numberOfKeysToEvict);
         // Iterate through the map and remove entries.
         foreach c in cacheKeys {
+            // These cache values are ignred. So it is not needed to check the return value for the remove function.
             _ = self.entries.remove(c);
         }
     }
@@ -109,31 +118,26 @@ public type Cache object {
             return ();
         }
         // Get the requested cache entry from the map.
-        any value = self.entries[key];
-        var entry = <CacheEntry>value;
+        CacheEntry entry = self.entries[key];
+
         // Check whether the cache entry is already expired. Since the cache cleaning task runs in predefined intervals,
         // sometimes the cache entry might not have been removed at this point even though it is expired. So this check
         // gurentees that the expired cache entries will not be returened.
-        match (entry) {
-            CacheEntry ce => {
-                // Get the current system time.
-                int currentSystemTime = time:currentTime().time;
-                if (currentSystemTime >= ce.lastAccessedTime + expiryTimeMillis) {
-                    // If it is expired, remove the cache and return nil.
-                    self.remove(key);
-                    return ();
-                }
-                // Modify the last accessed time and return the cache if it is not expired.
-                ce.lastAccessedTime = time:currentTime().time;
-                return ce.value;
-            }
-            error => return ();
+        int currentSystemTime = time:currentTime().time;
+        if (currentSystemTime >= entry.lastAccessedTime + expiryTimeMillis) {
+            // If it is expired, remove the cache and return nil.
+            self.remove(key);
+            return ();
         }
+        // Modify the last accessed time and return the cache if it is not expired.
+        entry.lastAccessedTime = time:currentTime().time;
+        return entry.value;
     }
 
     @Description {value:"Removes a cached value from a cache."}
     @Param {value:"key: key of the cache entry which needs to be removed"}
     public function remove(string key) {
+        // Cache might already be removed by the cache clearing task. So no need to check the return value.
         _ = self.entries.remove(key);
     }
 
@@ -148,77 +152,53 @@ public type Cache object {
         // Create new arrays to hold keys to be removed and hold the corresponding timestamps.
         string[] cacheKeysToBeRemoved = [];
         int[] timestamps = [];
-        map entries = self.entries;
-        string[] keys = entries.keys();
+        string[] keys = self.entries.keys();
         // Iterate through each key.
         foreach key in keys {
-            var entry = <CacheEntry>entries[key];
-            match (entry) {
-                CacheEntry ce => checkAndAdd(numberOfKeysToEvict, cacheKeysToBeRemoved, timestamps, key,
-                    ce.lastAccessedTime);
-                error => next;
-            }
+            CacheEntry entry = self.entries[key];
             // Check and add the key to the cacheKeysToBeRemoved if it matches the conditions.
+            checkAndAdd(numberOfKeysToEvict, cacheKeysToBeRemoved, timestamps, key, entry.lastAccessedTime);
         }
         // Return the array.
         return cacheKeysToBeRemoved;
     }
 };
 
-@Description {value:"Represents a cache entry"}
-@Field {value:"value: cache value"}
-@Field {value:"lastAccessedTime: last accessed time in ms of this value which is used to remove LRU cached values"}
-type CacheEntry {
-    any value;
-    int lastAccessedTime;
-};
-
 @Description {value:"Removes expired cache entries from all caches."}
 @Return {value:"error: Any error which occured during cache expiration"}
 function runCacheExpiry() returns error? {
     // Iterate through all caches.
-    foreach currentCacheKey, currentCacheValue in cacheMap {
-        var value = <Cache>currentCacheValue;
-        match (value) {
-            Cache currentCache => {
-                // Get the entries in the current cache.
-                map currentCacheEntries = currentCache.entries;
-                // Ge the keys in the current cache.
-                string[] currentCacheEntriesKeys = currentCacheEntries.keys();
-                // Get the expiry time of the current cache
-                int currentCacheExpiryTime = currentCache.expiryTimeMillis;
+    foreach currentCacheKey, currentCache in cacheMap {
+        // Ge the keys in the current cache.
+        string[] currentCacheEntriesKeys = currentCache.entries.keys();
 
-                // Create a new array to store keys of cache entries which needs to be removed.
-                string[] cachesToBeRemoved = [];
-                int cachesToBeRemovedIndex = 0;
-                // Iterate through all keys.
-                foreach key in currentCacheEntriesKeys {
-                    // Get the corresponding entry from the cache.
-                    var entry = <CacheEntry>currentCacheEntries[key];
-                    match (entry) {
-                        CacheEntry ce => {
-                            // Get the current system time.
-                            int currentSystemTime = time:currentTime().time;
-                            // Check whether the cache entry needs to be removed.
-                            if (currentSystemTime >= ce.lastAccessedTime + currentCacheExpiryTime) {
-                                cachesToBeRemoved[cachesToBeRemovedIndex] = key;
-                                cachesToBeRemovedIndex = cachesToBeRemovedIndex + 1;
-                            }
-                        }
-                        error => next;
-                    }
-                }
+        // Get the expiry time of the current cache
+        int currentCacheExpiryTime = currentCache.expiryTimeMillis;
 
-                // Iterate through the key list which needs to be removed.
-                foreach currentKeyIndex in [0..cachesToBeRemovedIndex) {
-                    string key = cachesToBeRemoved[currentKeyIndex];
-                    // Remove the cache entry.
-                    _ = currentCacheEntries.remove(key);
-                }
+        // Create a new array to store keys of cache entries which needs to be removed.
+        string[] cachesToBeRemoved = [];
+
+        int cachesToBeRemovedIndex = 0;
+        // Iterate through all keys.
+        foreach key in currentCacheEntriesKeys {
+            // Get the corresponding entry from the cache.
+            CacheEntry entry = currentCache.entries[key];
+
+            // Get the current system time.
+            int currentSystemTime = time:currentTime().time;
+
+            // Check whether the cache entry needs to be removed.
+            if (currentSystemTime >= entry.lastAccessedTime + currentCacheExpiryTime) {
+                cachesToBeRemoved[cachesToBeRemovedIndex] = key;
+                cachesToBeRemovedIndex = cachesToBeRemovedIndex + 1;
             }
-            error => {
-                next;
-            }
+        }
+
+        // Iterate through the key list which needs to be removed.
+        foreach currentKeyIndex in [0..cachesToBeRemovedIndex) {
+            string key = cachesToBeRemoved[currentKeyIndex];
+            // Remove the cache entry.
+            _ = currentCache.entries.remove(key);
         }
     }
     return ();
