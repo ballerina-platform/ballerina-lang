@@ -8,7 +8,7 @@ int counter = 0;
     packageName : "ballerina.io" ,
     functionName : "println"
 }
-public function mockPrint (any s) {
+public function mockPrint (any... s) {
     string j = <string>s;
     outputs[counter] = j;
     counter++;
