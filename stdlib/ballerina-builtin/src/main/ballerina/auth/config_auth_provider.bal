@@ -43,21 +43,21 @@ public type ConfigAuthProvider object {
     @Description {value:"Reads the password hash for a user"}
     @Param {value:"string: username"}
     @Return {value:"string: password hash read from userstore, or nil if not found"}
-    function readPassword (string username) returns string {
+    public function readPassword (string username) returns string {
         // first read the user id from user->id mapping
         // read the hashed password from the userstore file, using the user id
         return getConfigAuthValue(CONFIG_USER_SECTION + "." + username, "password");
     }
 
 
-    function getConfigAuthValue (string instanceId, string property) returns string {
+    public function getConfigAuthValue (string instanceId, string property) returns string {
         return config:getAsString(instanceId + "." + property, default = "");
     }
 
     @Description {value:"Construct an array of groups from the comma separed group string passed"}
     @Param {value:"groupString: comma separated string of groups"}
     @Return {value:"string[]: array of groups, nil if the groups string is empty/nil"}
-    function getArray(string groupString) returns (string[]) {
+    public function getArray(string groupString) returns (string[]) {
         string[] groupsArr = [];
         if (lengthof groupString == 0) {
             return groupsArr;

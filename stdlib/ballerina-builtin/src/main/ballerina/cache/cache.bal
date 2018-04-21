@@ -40,7 +40,7 @@ public type Cache object {
         float evictionFactor;
     }
 
-    new(expiryTimeMillis = 900000, capacity = 100, evictionFactor = 0.25) {
+    public new(expiryTimeMillis = 900000, capacity = 100, evictionFactor = 0.25) {
         // Cache expiry time must be a positive value.
         if (expiryTimeMillis <= 0) {
             error e = {message:"Expiry time must be greater than 0."};

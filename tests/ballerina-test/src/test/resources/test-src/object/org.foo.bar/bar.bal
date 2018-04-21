@@ -22,7 +22,7 @@ public type userBar object {
         int ssn;
     }
 
-    new (name) {}
+    public new (name) {}
 
     public function getName() returns (string);
 
