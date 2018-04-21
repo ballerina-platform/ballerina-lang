@@ -1,7 +1,7 @@
 # Language Server User Guide
 Ballerina Language Server provides code intelligence for ballerina file editing. It supports editor features such as diagnostics, auto-completion, go-to-definition, code refactoring and more. A list of currently supported features  can be found below. 
 
-Currently the Ballerina Language Server has been integrated to Ballerina VSCode plugin and Ballerina Composer. All the examples are given below using VSCode if you are using a different editor the trigger keys can be different.
+Currently the Ballerina Language Server has been integrated to Ballerina [VSCode plugin](https://marketplace.visualstudio.com/items?itemName=WSO2.Ballerina) and Ballerina Composer. All the examples are given below using VSCode if you are using a different editor the trigger keys can be different.
 
 - <a href="#CodeDiagnostics">Code Diagnostics</a>
 - <a href="#SuggestionsAndAutoCompletion">Suggestions and Auto Completion</a>
@@ -38,8 +38,8 @@ Suggestion and Completion will be listed automatically when you edit or you can 
 
 #### Triggering Key Combinations
 - Alphabetic Characters will automatically trigger the completion
-- Language specific non alphabetical characters such as ":", ".", "->", "@" will also trigger the completions and suggestions automatically
-- Ctrl + Space can be used for forced completion by the user
+- Language specific non alphabetical characters such as _**":", ".", "->", "@"**_ will also trigger the completions and suggestions automatically
+- **Ctrl + Space** can be used for forced completion by the user
 Following are types of suggestions available with the language server.
 
 <a name="TemplateSuggestions" />
@@ -108,7 +108,7 @@ For the variables which are allowed to use iterable operations suggestions for i
 <a name="MatchSignatureCompletion" />
 
 #### Match Signature Completion
-Against an expression you can use a match statement and Language Server suggests context aware snippets as shown below. You can trigger the suggestions with key combination  Ctrl + Space.
+Against an expression you can use a match statement and Language Server suggests context aware snippets as shown below. You can trigger the suggestions with key combination  **Ctrl + Space**.
 
 ![](../docs/images/matchSuggestions.gif)
 
@@ -116,14 +116,16 @@ Against an expression you can use a match statement and Language Server suggests
 
 #### Annotations Suggestion
 For the Services and Resources you can add annotations through language server annotation suggestions. Annotations for particular definitions will be suggested and you can select the required annotations from the list.
-Within annotations you can trigger Ctrl + Space and annotation fields will be suggested.
+Within annotations you can trigger **Ctrl + Space** and annotation fields will be suggested.
 
 ![](../docs/images/annotationSuggestions.gif)
 
 <a name="FindAllReferences" />
 
 ## Find All References
-Find all references will be triggered for IDE defined key combinations [VSCode: Shift + F12]
+Find all references will be triggered for IDE defined key combinations.
+
+Eg: For VSCode **Shift + F12**
 You can find all the references for a given function as follows. You will see the references in the same package and different packages as well as in different files.
 
 ![](../docs/images/findAllReferences.gif)
@@ -137,7 +139,9 @@ Other than Functions, following are supported for find all references
 <a name="GotoDefinition" />
 
 ## Goto Definition
-You can jump to the definition of an item by triggering the IDE defined key combinations [VSCode: F12 and Ctrl + Click]
+You can jump to the definition of an item by triggering the IDE defined key combinations.
+
+Eg: For VSCode **F12** and **Ctrl + Click**
 Trigger the action for a item defined and you will jump to the definition of the particular Item. Bellow capture shows got to definition trigger for a function.
 
 ![](../docs/images/GotoDef.gif)
@@ -195,3 +199,6 @@ Following top level node types are supported for documentation.
 
 ## Known Issues
 Below you can find a list of known issues and possible workarounds to get over the particular issues.
+
+- [Match Statement Completion Issue](https://github.com/ballerina-platform/ballerina-lang/issues/7737)
+    - As a workaround in order to get the suggestions you need to hit _**Ctrl + Space**_ after the **match** Keyword
