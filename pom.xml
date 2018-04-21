@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.970.0-beta9</version>
+    <version>0.970.0-beta10-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -54,7 +54,7 @@
         <url>https://github.com/ballerinalang/ballerina.git</url>
         <developerConnection>scm:git:https://github.com/ballerinalang/ballerina.git</developerConnection>
         <connection>scm:git:https://github.com/ballerinalang/ballerina.git</connection>
-        <tag>v0.970.0-beta9</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <repositories>
@@ -1519,7 +1519,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.970.0-beta9</ballerina.version>
+        <ballerina.version>0.970.0-beta10-SNAPSHOT</ballerina.version>
         <npm.executable>npm</npm.executable>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
