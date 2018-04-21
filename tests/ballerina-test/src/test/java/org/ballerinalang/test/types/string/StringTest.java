@@ -378,7 +378,7 @@ public class StringTest {
     @Test
     public void testSubString() {
         BValue[] args = {new BString("testValues"), new BInteger(0), new BInteger(9)};
-        BValue[] returns = BRunUtil.invoke(result, "subString", args);
+        BValue[] returns = BRunUtil.invoke(result, "substring", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "testValue");
     }
@@ -387,13 +387,13 @@ public class StringTest {
             expectedExceptionsMessageRegExp = ".*error:.*NullReferenceException.*")
     public void testSubStringFromNull() {
         BValue[] args = {new BString(null), new BInteger(0), new BInteger(9)};
-        BRunUtil.invoke(result, "subString", args);
+        BRunUtil.invoke(result, "substring", args);
     }
 
     @Test
     public void testToLowerCase() {
         BValue[] args = {new BString("COMPANY")};
-        BValue[] returns = BRunUtil.invoke(result, "toLowerCase", args);
+        BValue[] returns = BRunUtil.invoke(result, "toLower", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "company");
     }
@@ -402,13 +402,13 @@ public class StringTest {
             expectedExceptionsMessageRegExp = ".*error:.*NullReferenceException.*")
     public void testNullToLowerCase() {
         BValue[] args = {new BString(null)};
-        BRunUtil.invoke(result, "toLowerCase", args);
+        BRunUtil.invoke(result, "toLower", args);
     }
 
     @Test
     public void testToUpperCase() {
         BValue[] args = {new BString("company")};
-        BValue[] returns = BRunUtil.invoke(result, "toUpperCase", args);
+        BValue[] returns = BRunUtil.invoke(result, "toUpper", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "COMPANY");
     }
@@ -417,7 +417,7 @@ public class StringTest {
             expectedExceptionsMessageRegExp = ".*error:.*NullReferenceException.*")
     public void testNullToUpperCase() {
         BValue[] args = {new BString(null)};
-        BRunUtil.invoke(result, "toUpperCase", args);
+        BRunUtil.invoke(result, "toUpper", args);
     }
 
     @Test
