@@ -26,7 +26,7 @@ function main(string... args) {
     error? connErr = ep->send(mes);
     io:println(connErr.message but { () => "" });
     //this will hold forever since this is chat application
-    runtime:sleepCurrentWorker(6000);
+    runtime:sleep(6000);
     _ = ep->complete();
 }
 

@@ -18,7 +18,7 @@ function main (string... args) {
     io:println("Name: " + name);
 
     // Send the current worker to sleep mode for 6 seconds. No execution takes place during this period.
-    runtime:sleepCurrentWorker(6000);
+    runtime:sleep(6000);
     // Since the cache expiry time is 4 seconds, the cache cleanup task runs at the 5th
     // second and cleans the cache while this thread is sleeping. Now, this value
     // is null.

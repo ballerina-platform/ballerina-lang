@@ -19,7 +19,7 @@ service<grpc:Service> Chat bind ep {
         consMap[<string>connID] = caller;
     }
 
-    onMessage(endpoint caller, ChatMsg chatMsg) {
+    onMessage(endpoint caller, ChatMessage chatMsg) {
         endpoint grpc:Listener con;
         string msg = string `{{chatMsg.name}}: {{chatMsg.message}}`;
         io:println(msg);
@@ -58,7 +58,7 @@ service<grpc:Service> Chat bind ep {
     }
 }
 
-type ChatMsg {
+type ChatMessage {
     string name;
     string message;
 };

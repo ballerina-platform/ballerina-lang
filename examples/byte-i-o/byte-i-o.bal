@@ -1,7 +1,7 @@
 import ballerina/io;
 
 @Description {value:"This function returns a ByteChannel from a given file location according to the specified file permission (i.e., whether the file should be opened for read or write)."}
-function getFileChannel (string filePath, string permission) returns (io:ByteChannel) {
+function getFileChannel (string filePath, io:Mode permission) returns (io:ByteChannel) {
     // Here is how the ByteChannel is retrieved from the file.
     io:ByteChannel channel = io:openFile(filePath, permission);
     return channel;
@@ -16,7 +16,7 @@ function readBytes (io:ByteChannel channel, int numberOfBytes) returns (blob, in
         (blob, int) content => {
             return content;
             }
-        io:IOError readError => {
+        error readError => {
             throw readError;
             }
        }
@@ -31,7 +31,7 @@ function writeBytes (io:ByteChannel channel, blob content, int startOffset = 0) 
         int numberOfBytesWritten => {
             return numberOfBytesWritten;
           }
-       io:IOError err => {
+       error err => {
           throw err;
            }
     }
@@ -66,8 +66,8 @@ function main (string... args) {
     // Read the specified number of bytes from the given channel and write.
     string srcFilePath = "./files/ballerina.jpg";
     string dstFilePath = "./files/ballerinaCopy.jpg";
-    io:ByteChannel sourceChannel = getFileChannel(srcFilePath, "r");
-    io:ByteChannel destinationChannel = getFileChannel(dstFilePath, "w");
+    io:ByteChannel sourceChannel = getFileChannel(srcFilePath, io:READ);
+    io:ByteChannel destinationChannel = getFileChannel(dstFilePath, io:WRITE);
     try {
         io:println("Start to copy files from " + srcFilePath + " to " + dstFilePath);
         copy(sourceChannel, destinationChannel);
