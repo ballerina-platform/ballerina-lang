@@ -9,6 +9,10 @@
         "url": "https://github.com/ballerina-lang/ballerina"
     },
     "icon": "images/ballerina.png",
+    "galleryBanner": {
+        "color": "#e7eaeb",
+        "theme": "light"
+    },
     "engines": {
         "vscode": "^1.0.0"
     },
