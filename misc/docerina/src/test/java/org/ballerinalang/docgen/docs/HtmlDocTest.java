@@ -150,14 +150,17 @@ public class HtmlDocTest {
                 " endpoint initialization function\n" + "        P{{githubClientConfig}} - GitHub client " +
                 "configuration\n" + "    }\n" + "    public " + "function init (GitHubClientConfig " +
                 "githubClientConfig);\n" + "\n" + "    documentation { Return the " + "GitHub client\n" + "        " +
-                "R{{}} - GitHub client\n" + "    }\n" + "    public function getClient ()" + " returns TestConnector;" +
+                "R{{}} - GitHub client\n" + "    }\n" + "   " +
+                "public function getCallerActions ()" + " returns TestConnector;" +
                 "\n" + "\n" + "};\n" + "documentation {Test Connector\n F{{url}} url for " + "endpoint\n" +
                 "F{{path}} path for endpoint\n" + "}\n" + "public type TestConnector object {\n" + "  " + "  public " +
                 "{\n" + "        string url;\n" + "        string path;\n" + "    }\n" + "\n" + "    " +
                 "documentation {Test " + "Connector action testAction R{{}} whether successful or not}\n" + "    " +
                 "public function " + "testAction() returns boolean;\n" + "\n" + "    documentation {Test Connector "
                 + "action testSend P{{ep}}" + " endpoint url R{{}} whether successful or not}\n" + "    public " +
-                "function" + " testSend(string ep) " + "returns boolean;\n" + "};");
+                "function" + " testSend(string ep) " + "returns boolean;\n" + "};\n" +
+                "public function TestConnector::testAction() returns boolean {return true;}\n" +
+                "public function TestConnector::testSend(string ep) returns boolean {return true;}");
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 2);
         Assert.assertEquals(page.constructs.get(0).name, "GitHubClientConfig");
@@ -194,7 +197,7 @@ public class HtmlDocTest {
         Assert.assertEquals(functionDoc3.icon, "fw-function", "init function is not detected as a function");
 
         FunctionDoc functionDoc4 = (FunctionDoc) connectorDoc.children.get(3);
-        Assert.assertEquals(functionDoc4.name, "getClient", "Invalid function name getClient");
+        Assert.assertEquals(functionDoc4.name, "getCallerActions", "Invalid function name getClient");
         Assert.assertEquals(functionDoc4.icon, "fw-function", "getClient function is not detected as a function");
     }
 
@@ -634,7 +637,7 @@ public class HtmlDocTest {
      */
     private BLangPackage createPackage(String source) {
         LSCompiler lsCompiler = new LSCompiler(WorkspaceDocumentManagerImpl.getInstance());
-        BallerinaFile ballerinaFile = lsCompiler.compileContent(source, CompilerPhase.DEFINE);
+        BallerinaFile ballerinaFile = lsCompiler.compileContent(source, CompilerPhase.TYPE_CHECK);
         if (!ballerinaFile.getDiagnostics().isEmpty()) {
             ballerinaFile.getDiagnostics().stream().forEach(System.err::println);
             throw new IllegalStateException("Compilation errors detected.");
