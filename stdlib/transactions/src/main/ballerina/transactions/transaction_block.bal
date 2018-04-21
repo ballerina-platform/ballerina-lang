@@ -40,11 +40,12 @@ function beginTransaction (string? transactionId, int transactionBlockId, string
             } else {
                 //TODO: set the proper protocol
                 string protocolName = PROTOCOL_DURABLE;
-                RemoteProtocol[] protocols = [{name:protocolName, url:getParticipantProtocolAt(protocolName, transactionBlockId)}];
+                RemoteProtocol[] protocols = [{
+                    name:protocolName, url:getParticipantProtocolAt(protocolName, transactionBlockId)
+                }];
                 return registerParticipantWithRemoteInitiator(txnId, transactionBlockId, registerAtUrl, protocols);
             }
         }
-
         () => {
             return createTransactionContext(coordinationType, transactionBlockId);
         }

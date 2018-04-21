@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 public type TransactionContext {
     @readonly string contextVersion = "1.0";
     @readonly string transactionId;
