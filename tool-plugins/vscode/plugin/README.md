@@ -1,3 +1,5 @@
+![banner](https://github.com/ballerina-platform/ballerina-lang/blob/master/tool-plugins/vscode/plugin/images/ballerina-banner.png?raw=true)
+
 # Ballerina plugin for Visual Studio Code
 
 [Ballerina](http://ballerina.io) makes it easy to build resilient services that integration and orchestrate across distributed endpoints. This plugin adds language support for Ballerina to Visual Studio Code.
