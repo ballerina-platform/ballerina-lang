@@ -149,7 +149,7 @@
                                         <!--Construct of Package-->
                                         <ul class="constructs-ul">
                                             {{#each constructs}}
-                                                {{#unless isGlobalVariable}}
+                                                {{#unless isGlobalVariable}} {{#unless isType}} {{#unless isAnnotation}}
                                                     <li>
                                                         <a href="#{{name}}">
                                                             <div class="construct-icon">
@@ -173,7 +173,27 @@
                                                                 </a>
                                                             </li>
                                                         </ul>
-                                                    {{/each}} {{/unless}} {{/each}}
+                                                    {{/each}} {{/unless}} {{/unless}} {{/unless}} {{/each}}
+                                            <li>
+                                                <a href="#TypeDefinitions">
+                                                    <div class="construct-icon">
+                                                        <span class="fw-constant"> </span>
+                                                    </div>
+                                                    <div class="construct-name">
+                                                        Type Definitions
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="#Annotations">
+                                                    <div class="construct-icon">
+                                                        <span class="fw-annotation"> </span>
+                                                    </div>
+                                                    <div class="construct-name">
+                                                        Annotations
+                                                    </div>
+                                                </a>
+                                            </li>
                                             <li>
                                                 <a href="#GlobalVariables">
                                                     <div class="construct-icon">
@@ -287,22 +307,6 @@
                                             </table>
                                             <p/><p/>
                                             <table>
-                                                <caption>Annotations Summary</caption>
-                                                <tr>
-                                                    <th class="cSummary-table-type">Annotation</th>
-                                                    <th class="cSummary-table-desc">Description</th>
-                                                </tr>
-                                                {{#each constructs}}
-                                                    {{#if isAnnotation}}
-                                                        <tr>
-                                                            <td class="cSummary-table-type"><a href="#{{name}}">{{name}}</a></td>
-                                                            <td class="cSummary-table-desc">{{{description}}}</td>
-                                                        </tr>
-                                                    {{/if}}
-                                                {{/each}}
-                                            </table>
-                                            <p/><p/>
-                                            <table>
                                                 <caption>Functions Summary</caption>
                                                 <tr>
                                                     <th class="cSummary-table-type">Return Type</th>
@@ -324,9 +328,9 @@
                                         <div class="construct-wrapper">
                                             <!--Primitive Types-->
                                             {{#if isPrimitiveType}}
-                                                <h3 id="{{name}}" class="cPrimitive">
+                                                <h2 id="{{name}}" class="cPrimitive">
                                                     <span class="{{icon}} sm-icon"></span> {{name}}
-                                                </h3>
+                                                </h2>
                                                 {{#if description}}
                                                     <div class="cPrimitiveDescription">
                                                         <span class="fw-right gray xs-icon"></span>{{{description}}}
@@ -336,10 +340,10 @@
                                                     <ul>
                                                         {{#each children}}
                                                             <li class="cFunctionList">
-                                                                <h3 id="{{../name}}-{{name}}">
+                                                                <h2 id="{{../name}}-{{name}}">
                                                                     <span class={{icon}}></span>
                                                                     <span class="thin-text light-gray">&lt;{{../name}}&gt;</span> {{name}}({{join parameters ", "}}) {{#if returnParams}}returns ({{join returnParams ", "}}) {{/if}}
-                                                                </h3>
+                                                                </h2>
                                                                 {{#if description}}
                                                                     <p>
                                                                         <span class="fw-right gray xs-icon"></span>{{{description}}}
@@ -387,9 +391,9 @@
                                             {{/if}} {{/if}}
                                             <!-- Function -->
                                             {{#if isFunction}}
-                                                <h3 id="{{name}}">
+                                                <h2 id="{{name}}">
                                                     <span class="{{icon}} sm-icon"> </span> public function {{name}}({{join parameters ", "}}) {{#if returnParams}}returns ({{join returnParams ", "}}) {{/if}}
-                                                </h3>
+                                                </h2>
                                                 {{#if description}}
                                                     <p>
                                                         <span class="fw-right gray xs-icon"></span>{{{description}}}
@@ -432,9 +436,9 @@
                                             {{/if}} {{/if}}
                                             <!-- Struct-binded functions grouped together -->
                                             {{#if isStruct}}
-                                                <h3 id="{{name}}">
+                                                <h2 id="{{name}}">
                                                     <span class="{{icon}} sm-icon"></span> public object {{name}}
-                                                </h3>
+                                                </h2>
                                                 {{#if description}}
                                                     <p>
                                                         <span class="fw-right gray xs-icon"></span>{{{description}}}
@@ -463,10 +467,10 @@
                                                     <ul>
                                                         {{#each children}}
                                                             <li>
-                                                                <h3 id="{{../name}}-{{name}}">
+                                                                <h2 id="{{../name}}-{{name}}">
                                                                     <span class={{icon}}></span>
                                                                     <span class="thin-text light-gray">&lt;{{../name}}&gt;</span> {{name}}({{join parameters ", "}}) {{#if returnParams}}returns ({{join returnParams ", "}}) {{/if}}
-                                                                </h3>
+                                                                </h2>
                                                                 {{#if description}}
                                                                     <p>
                                                                         <span class="fw-right gray xs-icon"></span>{{{description}}}
@@ -514,9 +518,9 @@
                                             {{/if}} {{/if}}
                                             <!-- Connectors and its actions -->
                                             {{#if isConnector}}
-                                                <h3 id="{{name}}">
+                                                <h2 id="{{name}}">
                                                     <span class="{{icon}} sm-icon"></span>Endpoint {{name}}
-                                                </h3>
+                                                </h2>
                                                 {{#if description}}
                                                     <p>
                                                         <span class="fw-right gray xs-icon"></span>{{{description}}}
@@ -543,12 +547,12 @@
                                                     <ul>
                                                         {{#each children}}
                                                             <li>
-                                                                <h3 id="{{../name}}-{{name}}">
+                                                                <h2 id="{{../name}}-{{name}}">
                                                                     <span class={{icon}}></span>
                                                                     <span class="thin-text light-gray">
                                                    <{{../name}}>
                                                    </span> {{name}}({{join parameters ", "}}) {{#if returnParams}}returns ({{join returnParams ", "}}) {{/if}}
-                                                                </h3>
+                                                                </h2>
                                                                 {{#if description}}
                                                                     <p>
                                                                         <span class="fw-right gray xs-icon"></span>{{{description}}}
@@ -625,12 +629,12 @@
                                                     <ul>
                                                         {{#each children}}
                                                             <li>
-                                                                <h3 id="{{../name}}-{{name}}">
+                                                                <h2 id="{{../name}}-{{name}}">
                                                                     <span class={{icon}}></span>
                                                                     <span class="thin-text light-gray">
                                                    <{{../name}}>
                                                    </span> {{name}}({{join parameters ", "}}) {{#if returnParams}}returns ({{join returnParams ", "}}) {{/if}}
-                                                                </h3>
+                                                                </h2>
                                                                 {{#if description}}
                                                                     <p>
                                                                         <span class="fw-right gray xs-icon"></span>{{{description}}}
@@ -676,59 +680,53 @@
                                                     </ul>
                                                 </div>
                                             {{/if}} {{/if}}
-                                            <!-- Enums-->
-                                            {{#if isEnum}}
-                                                <h2 id="{{name}}">
-                                                    <span class="{{icon}} sm-icon"></span> public enum {{name}}
-                                                </h2>
-                                                {{#if description}}
-                                                    <p>
-                                                        <span class="fw-right gray xs-icon"></span>{{{description}}}
-                                                    </p>
-                                                {{/if}} {{#if enumerators}}
-                                                <p>
-                                                    <label class="table-header-text">Enumerators:</label>
-                                                </p>
-                                                <table>
-                                                    <tr>
-                                                        <th class="cAPI-table-name">Name</th>
-                                                        <th class="cAPI-table-desc">Description</th>
-                                                    </tr>
-                                                    {{#each enumerators}}
-                                                        <tr>
-                                                            <td class="cAPI-table-name">{{name}}</td>
-                                                            <td class="cAPI-table-desc">{{{description}}}</td>
-                                                        </tr>
-                                                    {{/each}}
-                                                </table>
-                                            {{/if}} {{/if}}
-                                            <!-- Annotations-->
-                                            {{#if isAnnotation}}
-                                                <h2 id="{{name}}">
-                                                    <span class="{{icon}} sm-icon"></span> public annotation {{name}}
-                                                </h2>
-                                                {{#if description}}
-                                                    <p>
-                                                        <span class="fw-right gray xs-icon"></span>{{{description}}}
-                                                    </p>
-                                                {{/if}}
-                                                <p>
-                                                </p>
-                                                <table>
-                                                    <tr>
-                                                        <th class="cAPI-table-name">Attachment Points</th>
-                                                        <th class="cAPI-table-type">Data Type</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="cAPI-table-name">{{attachments}}</td>
-                                                        <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
-                                                    </tr>
-                                                </table>
-                                            {{/if}}
                                         {{/each}}
+
+                                        <!-- Type Definitions-->
+                                        <h2 id="TypeDefinitions">
+                                            <span class="fw-constant sm-icon"></span> Type Definitions
+                                        </h2>
+                                        <table>
+                                            <tr>
+                                                <th class="cAPI-table-name">Type</th>
+                                                <th class="cAPI-table-type">Values</th>
+                                                <th class="cAPI-table-desc">Description</th>
+                                            </tr>
+                                            {{#each constructs}}
+                                                {{#if isType}}
+                                                    <tr>
+                                                        <td class="cAPI-table-name">{{name}}</td>
+                                                        <td class="cAPI-table-type">{{valueSet}}</td>
+                                                        <td class="cAPI-table-desc">{{{description}}}</td>
+                                                    </tr>
+                                                {{/if}}  {{/each}}
+                                        </table>
+
+                                        <!-- Annotations -->
+                                        <h2 id="Annotations">
+                                            <span class="fw-annotation sm-icon"></span> Annotations
+                                        </h2>
+                                        <table>
+                                            <tr>
+                                                <th class="cAPI-table-name">Name</th>
+                                                <th class="cAPI-table-type">Attachement Points</th>
+                                                <th class="cAPI-table-type">Data Type</th>
+                                                <th class="cAPI-table-desc">Description</th>
+                                            </tr>
+                                            {{#each constructs}}
+                                                {{#if isAnnotation}}
+                                                    <tr>
+                                                        <td class="cAPI-table-name">{{name}}</td>
+                                                        <td class="cAPI-table-type">{{attachments}}</td>
+                                                        <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
+                                                        <td class="cAPI-table-desc">{{{description}}}</td>
+                                                    </tr>
+                                                {{/if}}  {{/each}}
+                                        </table>
+
                                         <!-- Global Variables-->
                                         <h2 id="GlobalVariables">
-                                            <span class="{{icon}} sm-icon"></span> Global Variables
+                                            <span class="fw-globe sm-icon"></span> Global Variables
                                         </h2>
                                         <table>
                                             <tr>
