@@ -53,6 +53,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -239,6 +240,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         analyzeFunctions(pkgNode.functions, pkgEnv);
 
+        pkgNode.objects.forEach(this::validateConstructorAndCheckDefaultable);
+
         analyzeDef(pkgNode.initFunction, pkgEnv);
         analyzeDef(pkgNode.startFunction, pkgEnv);
         analyzeDef(pkgNode.stopFunction, pkgEnv);
@@ -364,8 +367,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         objectNode.docAttachments.forEach(doc -> analyzeDef(doc, objectEnv));
 
         analyzeDef(objectNode.initFunction, objectEnv);
-
-        validateConstructorAndCheckDefaultable(objectNode);
 
         //Visit temporary init statements in the init function
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(objectNode.initFunction,
@@ -912,6 +913,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (objectNode.initFunction.symbol.params.size() > 0) {
             defaultableStatus = false;
         }
+
+        for (BAttachedFunction func : ((BStructSymbol) objectNode.symbol).attachedFuncs) {
+            if ((func.symbol.flags & Flags.INTERFACE) == Flags.INTERFACE) {
+                defaultableStatus = false;
+                break;
+            }
+        }
+
         if (defaultableStatus) {
             objectNode.symbol.type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED,
                     TypeFlag.DEFAULTABLE));
