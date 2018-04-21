@@ -23,7 +23,6 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -127,20 +126,30 @@ public class BNullValueTest {
     }
 
 
-    @Test(description = "Test null in worker", enabled = false)
-    public void testNullInWorker() {
-        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testNullInWorker", new BValue[]{});
+    @Test(description = "Test null json in worker")
+    public void testJSONNullInWorker() {
+        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testNullInWorker1", new BValue[]{});
         Assert.assertEquals(vals[0], null);
     }
 
-    @Test(description = "Test null in fork-join",
-            expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error:.*message: cannot find key 'foo'.*")
-    public void testNullInForkJoin() {
-        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testNullInForkJoin", new BValue[]{});
+    @Test(description = "Test null string in worker")
+    public void testStringNullInWorker() {
+        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testNullInWorker2", new BValue[]{});
         Assert.assertEquals(vals[0], null);
-        Assert.assertTrue(vals[1] instanceof BJSON);
-        Assert.assertEquals(((BJSON) vals[1]).stringValue(), "{}");
+    }
+
+    @Test(description = "Test null in fork-join1")
+    public void testNullInForkJoin1() {
+        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testNullInForkJoin1", new BValue[]{});
+        Assert.assertEquals(vals[0], null);
+        Assert.assertEquals(vals[1], null);
+    }
+
+    @Test(description = "Test null in fork-join2")
+    public void testNullInForkJoin2() {
+        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testNullInForkJoin2", new BValue[]{});
+        Assert.assertEquals(vals[0], null);
+        Assert.assertEquals(vals[1], null);
     }
 
     @Test(description = "Test array of null values")

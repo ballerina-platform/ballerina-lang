@@ -16,9 +16,10 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.file;
+package org.ballerinalang.nativeimpl.internal;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
@@ -27,33 +28,51 @@ import org.ballerinalang.nativeimpl.file.utils.Constants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * Validates whether the given input is a directory.
+ * Used to check existence of file.
  *
  * @since 0.970.0-alpha1
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "file",
-        functionName = "isDirectory",
+        orgName = "ballerina", packageName = "internal",
+        functionName = "createFile",
         args = {
-                @Argument(name = "path", type = TypeKind.STRUCT, structType = "Path",
-                structPackage = "ballerina.file")
+                @Argument(name = "path", type = TypeKind.STRUCT, structType = "Path", structPackage = "ballerina.file")
         },
         returnType = {
-                @ReturnType(type = TypeKind.BOOLEAN)
+                @ReturnType(type = TypeKind.BOOLEAN),
+                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.file")
         },
         isPublic = true
 )
-public class IsDirectory extends BlockingNativeCallableUnit {
+public class CreateFile extends BlockingNativeCallableUnit {
+
+    private static final Logger log = LoggerFactory.getLogger(CreateFile.class);
 
     @Override
     public void execute(Context context) {
         BStruct pathStruct = (BStruct) context.getRefArgument(0);
-        Path path = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
-        context.setReturnValues(new BBoolean(Files.isDirectory(path)));
+        Path filePath = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
+        Path newFile;
+        try {
+            newFile = Files.createFile(filePath);
+            context.setReturnValues(new BBoolean(Files.exists(newFile)));
+        } catch (IOException | UnsupportedOperationException | SecurityException e) {
+            String msg;
+            if (e instanceof SecurityException) {
+                msg = "Permission denied. Failed to create the file: " + filePath.toString();
+            } else {
+                msg = "Failed to create the file: " + filePath.toString();   
+            }
+            log.error(msg, e);
+            context.setReturnValues(BLangVMErrors.createError(context, msg));
+        }
     }
 }

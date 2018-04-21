@@ -164,7 +164,7 @@ public class HeaderUtil {
      * @param map         Represent a parameter map
      * @return Header value along with it's parameters as a string
      */
-    static String appendHeaderParams(StringBuilder headerValue, BMap map) {
+    public static String appendHeaderParams(StringBuilder headerValue, BMap map) {
         int index = 0;
         if (map != null && !map.isEmpty()) {
             Set<String> keys = map.keySet();

@@ -92,8 +92,7 @@ public class RegexTest {
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BStruct);
         Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Unclosed character class near index 0\n" +
-                "[\n" +
-                "^");
+                "[\n^");
     }
 
     @Test(description = "Test for executing regex functions on non-initialized pattern")
@@ -103,8 +102,7 @@ public class RegexTest {
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BStruct);
         Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Unclosed character class near index 0\n" +
-                "[\n" +
-                "^");
+                "[\n^");
     }
 
     @Test(description = "Test for executing multiple regex functions on same pattern")

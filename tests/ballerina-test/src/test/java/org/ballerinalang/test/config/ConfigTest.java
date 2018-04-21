@@ -120,7 +120,7 @@ public class ConfigTest {
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString || returnVals[0] == null);
-//        Assert.assertNull(returnVals[0].stringValue());
+        Assert.assertEquals(returnVals[0].stringValue(), "");
     }
 
     @Test(description = "test instance method with runtime and custom config file properties")
@@ -222,7 +222,7 @@ public class ConfigTest {
         Assert.assertTrue(((BBoolean) returnVals[0]).booleanValue());
     }
 
-    @Test(description = "Test for configuring a service", enabled = false)
+    @Test(description = "Test for configuring a service")
     public void testConfiguringAService() throws IOException {
         registry.initRegistry(null, Paths.get(resourceRoot, "datafiles", "config", "service-config.conf").toString(),
                               null);

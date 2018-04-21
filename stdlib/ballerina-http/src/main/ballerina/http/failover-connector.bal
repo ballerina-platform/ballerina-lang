@@ -42,7 +42,7 @@ public type FailoverConnectorError {
 
 // Represents inferred failover configurations passed to Failover connector.
 public type FailoverInferredConfig {
-    HttpClient[] failoverClientsArray,
+    CallerActions[] failoverClientsArray,
     boolean[] failoverCodesIndex,
     int failoverInterval,
 };
@@ -320,8 +320,8 @@ function performFailoverAction (string path, Request request, HttpOperation requ
 
     //TODO: workaround to initialize a type inside a function. Change this once fix is aailable.
     FailoverConnectorError failoverConnectorError = {statusCode:500};
-    HttpClient[] failoverClients = failoverInferredConfig.failoverClientsArray;
-    HttpClient failoverClient = failoverClients[currentIndex];
+    CallerActions[] failoverClients = failoverInferredConfig.failoverClientsArray;
+    CallerActions failoverClient = failoverClients[currentIndex];
     Response inResponse = new;
     Request failoverRequest = request;
     failoverConnectorError.httpConnectorError = [];

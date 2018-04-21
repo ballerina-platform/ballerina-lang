@@ -1,5 +1,5 @@
 
-import ballerina/file;
+import ballerina/internal;
 import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
@@ -32,7 +32,7 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
     req.addHeader("Accept-Encoding", "identity");
 
     http:Response httpResponse = new;
-    var result = httpEndpoint -> get("", req);
+    var result = httpEndpoint -> get("", request=req);
 
     match result {
         http:Response response => httpResponse = response;
@@ -77,7 +77,7 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
                     int sizeOfArray = lengthof pathArray;
                     if (sizeOfArray > 3) {
                         pkgVersion = pathArray[sizeOfArray - 2];
-                        string pkgName = fullPkgPath.subString(fullPkgPath.lastIndexOf("/") + 1, fullPkgPath.length());
+                        string pkgName = fullPkgPath.substring(fullPkgPath.lastIndexOf("/") + 1, fullPkgPath.length());
                         fullPkgPath = fullPkgPath + ":" + pkgVersion;
 
                         // Create the version directory
@@ -87,8 +87,8 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
                         string destArchivePath = destDirPath  + fileSeparator + archiveFileName;
 
                         if (!createDirectories(destDirPath)) {
-                            file:Path pkgArchivePath = new(destArchivePath);
-                            if (file:exists(pkgArchivePath)){  
+                            internal:Path pkgArchivePath = new(destArchivePath);
+                            if (internal:pathExists(pkgArchivePath)){
                                 return;                              
                             }        
                         }
@@ -195,8 +195,8 @@ function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string full
             totalCount = totalCount + readCount;
             float percentage = totalCount / pkgSize;
             noOfBytesRead = totalCount + "/" + pkgSize;
-            string bar = equals.subString(0, <int>(percentage * 10));
-            string spaces = tabspaces.subString(0, 10 - <int>(percentage * 10));
+            string bar = equals.substring(0, <int>(percentage * 10));
+            string spaces = tabspaces.substring(0, 10 - <int>(percentage * 10));
             io:print("\r" + rightPad(msg, 100) + "[" + bar + ">" + spaces + "] " + <int>totalCount + "/" + pkgSize);
         }
     } catch (error err) {
@@ -233,8 +233,8 @@ documentation {
 }
 function truncateString (string text) returns (string) {
     int indexOfVersion = text.lastIndexOf(":");
-    string withoutVersion = text.subString(0, indexOfVersion);
-    string versionOfPkg = text.subString(indexOfVersion, text.length());
+    string withoutVersion = text.substring(0, indexOfVersion);
+    string versionOfPkg = text.substring(indexOfVersion, text.length());
     int minLength = 57;
     int lengthWithoutVersion = withoutVersion.length();
     if (lengthWithoutVersion > minLength) {
@@ -244,8 +244,8 @@ function truncateString (string text) returns (string) {
         int leftFromMiddle = middleOfWithoutVersion - half;
         int rightFromMiddle = middleOfWithoutVersion + half;
 
-        string truncatedLeftStr = withoutVersion.subString(0, leftFromMiddle);
-        string truncatedRightStr = withoutVersion.subString(rightFromMiddle, lengthWithoutVersion);
+        string truncatedLeftStr = withoutVersion.substring(0, leftFromMiddle);
+        string truncatedRightStr = withoutVersion.substring(rightFromMiddle, lengthWithoutVersion);
 
         string truncatedStr = truncatedLeftStr + "…" + truncatedRightStr;
         return truncatedStr + versionOfPkg;
@@ -260,9 +260,9 @@ documentation {
     R{{}} - `boolean` If the directories were created or not.
 }
 function createDirectories(string directoryPath) returns (boolean) {
-    file:Path dirPath = new(directoryPath);
-    if (!file:exists(dirPath)){
-        boolean directoryCreationStatus = check (file:createDirectory(dirPath));
+    internal:Path dirPath = new(directoryPath);
+    if (!internal:pathExists(dirPath)){
+        boolean directoryCreationStatus = check (internal:createDirectory(dirPath));
         return directoryCreationStatus;
     } else {
         return false;
@@ -275,6 +275,7 @@ documentation {
     P{{url}} - The endpoint url to be invoked.
     R{{}} - `Response` The response got after invoking the endpoint.
 }
+
 function callFileServer(string url) returns http:Response? {
     endpoint http:Client httpEndpoint {
         url:url,
@@ -288,7 +289,7 @@ function callFileServer(string url) returns http:Response? {
         }
     };
     http:Request req = new;
-    var result = httpEndpoint -> get("", req);
+    var result = httpEndpoint -> get("", request=req);
     match result {
         http:Response response => return response;
         http:HttpConnectorError e => {
