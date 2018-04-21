@@ -3,18 +3,20 @@ import ballerina/io;
 import ballerina/grpc;
 
 // Server endpoint configuration
-endpoint grpc:Listener ep {
+endpoint grpc:Service ep {
     host:"localhost",
     port:9090
 };
 
-@grpc:serviceConfig
-service HelloWorld bind ep {
-    hello(endpoint caller, string name) {
+@grpc:serviceConfig {generateClientConnector:false}
+service<grpc:Listener> HelloWorld bind ep {
+    hello (endpoint client, string name) {
         io:println("Received message from : " + name);
         string message = "Hello " + name; // response message
-        error? err = caller->send(message);
-        io:println(err.message but { () => "Server send response : " + message });
-        _ = caller->complete();
+        grpc:ConnectorError err = client -> send(message);
+        if (err != ()) {
+            io:println("Error at helloWorld : " + err.message);
+        }
+        _ = client -> complete();
     }
 }

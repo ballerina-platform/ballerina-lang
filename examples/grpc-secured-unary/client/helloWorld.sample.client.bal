@@ -1,7 +1,7 @@
 // This is server implementation for secured connection (HTTPS) scenario
 import ballerina/io;
 
-function main(string... args) {
+function main (string... args) {
     endpoint HelloWorldBlockingClient helloWorldBlockingEp {
         host:"localhost",
         port:9090,
@@ -11,7 +11,7 @@ function main(string... args) {
         }
     };
 
-    var unionResp = helloWorldBlockingEp->hello("WSO2");
+    (string, grpc:Headers)|error unionResp = helloWorldBlockingEp -> hello("WSO2");
     match unionResp {
         (string, grpc:Headers) payload => {
             string result;

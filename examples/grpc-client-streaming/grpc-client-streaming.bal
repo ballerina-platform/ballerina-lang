@@ -3,31 +3,34 @@ import ballerina/io;
 import ballerina/grpc;
 
 // Server endpoint configuration
-endpoint grpc:Listener ep {
+endpoint grpc:Service ep {
     host:"localhost",
     port:9090
 };
 
-@grpc:serviceConfig {name:"lotsOfGreetings",
-    clientStreaming:true}
-service<grpc:Service> HelloWorld bind ep {
-    onOpen(endpoint caller) {
+@grpc:serviceConfig {rpcEndpoint:"lotsOfGreetings",
+    clientStreaming:true,
+    generateClientConnector:false}
+service<grpc:Listener> HelloWorld bind ep {
+    onOpen (endpoint client) {
         io:println("connected sucessfully.");
     }
 
-    onMessage(endpoint caller, string name) {
+    onMessage (endpoint client, string name) {
         io:println("greet received: " + name);
     }
 
-    onError(endpoint caller, error err) {
+    onError (endpoint client, grpc:ServerError err) {
         if (err != ()) {
             io:println("Something unexpected happens at server : " + err.message);
         }
     }
 
-    onComplete(endpoint caller) {
+    onComplete (endpoint client) {
         io:println("Server Response");
-        error? err = caller->send("Ack");
-        io:println(err.message but { () => "Server send response : Ack" });
+        grpc:ConnectorError err = client -> send("Ack");
+        if (err != ()) {
+            io:println("Error at onComplete send message : " + err.message);
+        }
     }
 }

@@ -2,7 +2,7 @@
 import ballerina/io;
 import ballerina/grpc;
 
-function main(string... args) {
+function main (string... args) {
     // Client endpoint configuration
     endpoint HelloWorldBlockingClient helloWorldBlockingEp {
         host:"localhost",
@@ -14,7 +14,7 @@ function main(string... args) {
     headers.setEntry("x-id", "0987654321");
 
     // Executing unary blocking call
-    var unionResp = helloWorldBlockingEp->hello("WSO2", headers);
+    (string, grpc:Headers)|error unionResp = helloWorldBlockingEp -> hello("WSO2", headers);
     match unionResp {
         (string, grpc:Headers) payload => {
             string result;
@@ -22,12 +22,11 @@ function main(string... args) {
             (result, resHeaders) = payload;
             io:println("Client Got Response : ");
             io:println(payload);
-            string headerValue = resHeaders.get("x-id") but { () => "none" };
+            string headerValue = resHeaders.get("x-id") but {() => "none"};
             io:println("Headers: " + headerValue);
         }
         error err => {
             io:println("Error from Connector: " + err.message);
         }
     }
-
 }
