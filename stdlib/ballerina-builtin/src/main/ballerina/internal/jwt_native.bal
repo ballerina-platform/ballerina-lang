@@ -14,28 +14,33 @@
 // specific language governing permissions and limitations
 // under the License.
 
+documentation {
+    VerifySignature the signature of a given jwt.
 
-@Description {value:"VerifySignature the signature of a given jwt."}
-@Param {value:"data: Original data which has signed."}
-@Param {value:"signature: Signature string."}
-@Param {value:"algorithm: Signature algorithm."}
-@Param {value:"keyAlias: Public key alias."}
-@Return {value:"Verified status. true or false."}
-native function verifySignature (string data, string signature, string algorithm, TrustStore trustStore) returns
-                                                                                                       (boolean);
+    P{{data}} Original data which has signed.
+    P{{signature}} Signature string.
+    P{{algorithm}} Signature algorithm.
+    P{{keyAlias}} Public key alias.
+    R{{}} Verified status. true or false.
+}
+native function verifySignature(string data, string signature, string algorithm, TrustStore trustStore)
+    returns (boolean);
 type TrustStore {
     string certificateAlias,
     string trustStoreFilePath,
     string trustStorePassword,
 };
 
-@Description {value:"Sign the given input jwt data."}
-@Param {value:"data: Original that need to sign."}
-@Param {value:"algorithm: Signature string."}
-@Param {value:"keyAlias: Private key alias. If this is null use default private key."}
-@Param {value:"keyPassword: Private key password."}
-@Return {value:"Signature. Signed string."}
-native function sign (string data, string algorithm, KeyStore keyStore) returns (string);
+documentation {
+    Sign the given input jwt data.
+
+    P{{data}} Original that need to sign.
+    P{{algorithm}} Signature string.
+    P{{keyAlias}} Private key alias. If this is null use default private key.
+    P{{keyPassword}} Private key password.
+    R{{}} Signature. Signed string.
+}
+native function sign(string data, string algorithm, KeyStore keyStore) returns (string);
 
 type KeyStore {
     string keyAlias,
@@ -44,7 +49,10 @@ type KeyStore {
     string keyStorePassword,
 };
 
-@Description {value:"Parse JSON string to generate JSON object."}
-@Param {value:"s: JSON string"}
-@Return {value:"JSON object."}
-public native function parseJson (string s) returns (json|error);
+documentation {
+    Parse JSON string to generate JSON object.
+
+    P{{s}} JSON string
+    R{{}} JSON object.
+}
+public native function parseJson(string s) returns (json|error);
