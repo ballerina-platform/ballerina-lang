@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.file;
+package org.ballerinalang.nativeimpl.internal;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
@@ -43,7 +43,7 @@ import static org.ballerinalang.nativeimpl.Utils.getTimeZoneStructInfo;
  * @since 0.970.0-alpha4
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "file",
+        orgName = "ballerina", packageName = "internal",
         functionName = "getModifiedTime",
         isPublic = true
 )

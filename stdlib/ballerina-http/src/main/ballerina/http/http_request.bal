@@ -296,9 +296,9 @@ public function Request::getFormParams () returns (map<string> | PayloadError) {
                         while (entryIndex < lengthof entries) {
                             int index = entries[entryIndex].indexOf("=");
                             if (index != -1) {
-                                string name = entries[entryIndex].subString(0, index).trim();
+                                string name = entries[entryIndex].substring(0, index).trim();
                                 int size = entries[entryIndex].length();
-                                string value = entries[entryIndex].subString(index + 1, size).trim();
+                                string value = entries[entryIndex].substring(index + 1, size).trim();
                                 if (value != "") {
                                     parameters[name] = value;
                                 }

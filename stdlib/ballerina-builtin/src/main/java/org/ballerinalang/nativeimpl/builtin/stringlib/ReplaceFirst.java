@@ -35,7 +35,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         orgName = "ballerina", packageName = "builtin",
         functionName = "string.replaceFirst",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
-                @Argument(name = "replacePattern", type = TypeKind.STRING),
+                @Argument(name = "regex", type = TypeKind.STRING),
                 @Argument(name = "replaceWith", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
@@ -44,11 +44,11 @@ public class ReplaceFirst extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        String mainString = context.getStringArgument(0);
-        String replacePattern = context.getStringArgument(1);
+        String s = context.getStringArgument(0);
+        String regex = context.getStringArgument(1);
         String replaceWith = context.getStringArgument(2);
 
-        String replacedString = mainString.replaceFirst(replacePattern, replaceWith);
+        String replacedString = s.replaceFirst(regex, replaceWith);
         context.setReturnValues(new BString(replacedString));
     }
 }

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.file;
+package org.ballerinalang.nativeimpl.internal;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -37,15 +37,15 @@ import java.nio.file.Path;
  * @since 0.970.0-alpha1
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "file",
-        functionName = "exists",
+        orgName = "ballerina", packageName = "internal",
+        functionName = "pathExists",
         args = {
                 @Argument(name = "path", type = TypeKind.STRUCT, structType = "Path",
                         structPackage = "ballerina.file")},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-public class Exists extends BlockingNativeCallableUnit {
+public class PathExists extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {

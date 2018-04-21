@@ -21,8 +21,7 @@ package org.ballerinalang.nativeimpl.builtin.stringlib;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -32,33 +31,32 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 /**
- * Native function ballerina.model.strings:replaceAllWithRegex.
+ * Native function ballerina.model.strings:findAll.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "builtin",
-        functionName = "string.replaceAllWithRegex",
-        args = {@Argument(name = "mainString", type = TypeKind.STRING),
-                @Argument(name = "reg", type = TypeKind.STRUCT, structType = "Regex",
-                        structPackage = "ballerina.builtin"),
-                @Argument(name = "replaceWith", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING), @ReturnType(type = TypeKind.STRUCT)},
+        functionName = "string.findAll",
+        args = {@Argument(name = "s", type = TypeKind.STRING),
+                @Argument(name = "reg", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING),
+                @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
-public class ReplaceAllWithRegex extends AbstractRegexFunction {
+public class FindAll extends AbstractRegexFunction {
 
     @Override
     public void execute(Context context) {
-
-        String mainString = context.getStringArgument(0);
-        String replaceWith = context.getStringArgument(1);
-
-        BStruct regexStruct = (BStruct) context.getRefArgument(0);
+        String s = context.getStringArgument(0);
+        String regex =  context.getStringArgument(1);
         try {
-            Pattern pattern = validatePattern(regexStruct);
-
-            Matcher matcher = pattern.matcher(mainString);
-            String replacedString = matcher.replaceAll(replaceWith);
-            context.setReturnValues(new BString(replacedString));
+            Pattern pattern = validatePattern(regex);
+            BStringArray stringArray = new BStringArray();
+            Matcher matcher = pattern.matcher(s);
+            int i = 0;
+            while (matcher.find()) {
+                stringArray.add(i++, matcher.group());
+            }
+            context.setReturnValues(stringArray);
         } catch (PatternSyntaxException e) {
             context.setReturnValues(BLangVMErrors.createError(context, 0, e.getMessage()));
         }
