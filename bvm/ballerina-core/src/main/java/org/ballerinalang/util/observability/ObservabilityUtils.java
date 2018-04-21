@@ -93,7 +93,7 @@ public class ObservabilityUtils {
     public static ObserverContext startServerObservation(String connectorName, String serviceName,
                                                          String resourceName, WorkerExecutionContext parentContext) {
         if (!enabled) {
-            return new ObserverContext();
+            return null;
         }
         Objects.requireNonNull(connectorName);
         ObserverContext ctx = new ObserverContext();
@@ -120,7 +120,7 @@ public class ObservabilityUtils {
     public static ObserverContext startClientObservation(String connectorName, String actionName,
                                                          WorkerExecutionContext parentCtx) {
         if (!enabled) {
-            return new ObserverContext();
+            return null;
         }
         Objects.requireNonNull(connectorName);
         ObserverContext ctx = new ObserverContext();
@@ -178,7 +178,7 @@ public class ObservabilityUtils {
      * @param observerContext The {@link ObserverContext} instance.
      */
     public static void stopObservation(ObserverContext observerContext) {
-        if (!enabled) {
+        if (!enabled || observerContext == null) {
             return;
         }
         Objects.requireNonNull(observerContext);
@@ -189,13 +189,14 @@ public class ObservabilityUtils {
         }
     }
 
+    /**
+     * @param context The {@link Context} instance.
+     * @return the parent {@link ObserverContext} or a new {@link ObserverContext} depending on whether observability
+     * is enabled or not.
+     */
     public static ObserverContext getParentContext(Context context) {
-        ObserverContext observerContext = populateAndGetParentObserverContext(
-                context.getParentWorkerExecutionContext());
-        if (observerContext == null) {
-            observerContext = new ObserverContext();
-        }
-        return observerContext;
+        return enabled ? populateAndGetParentObserverContext(context.getParentWorkerExecutionContext())
+                : new ObserverContext();
     }
 
     public static Map<String, String> getContextProperties(ObserverContext observerContext) {
@@ -208,7 +209,7 @@ public class ObservabilityUtils {
 
     public static void setObserverContextToWorkerExecutionContext(WorkerExecutionContext workerExecutionContext,
                                                                   ObserverContext observerContext) {
-        if (!enabled && observerContext == null) {
+        if (!enabled || observerContext == null) {
             return;
         }
         if (workerExecutionContext.localProps == null) {
@@ -230,7 +231,7 @@ public class ObservabilityUtils {
             }
             parent = parent.parent;
         }
-        ObserverContext observerContext = (ctx != null) ? (ObserverContext) ctx : emptyContext;
+        ObserverContext observerContext = (ctx != null) ? (ObserverContext) ctx : new ObserverContext();
         ancestors.forEach(w -> {
             if (w.localProps == null) {
                 w.localProps = new HashMap<>();

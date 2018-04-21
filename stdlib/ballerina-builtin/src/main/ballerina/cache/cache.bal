@@ -14,11 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.cache;
 
+import ballerina/system;
 import ballerina/task;
 import ballerina/time;
-import ballerina/util;
 
 @Description {value:"Cache cleanup task starting delay in ms."}
 @final int CACHE_CLEANUP_START_DELAY = 0;
@@ -57,7 +56,7 @@ public type Cache object {
             error e = {message:"Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive)."};
             throw e;
         }
-        cacheMap[util:uuid()] = self;
+        cacheMap[system:uuid()] = self;
     }
 
     public function hasKey(string key) returns (boolean) {

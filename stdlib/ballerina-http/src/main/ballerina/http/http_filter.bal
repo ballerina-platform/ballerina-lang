@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
 
 @Description {value:"Representation of a HTTP Request Filter. This filter will be applied before the request is
 dispatched to the relevant resource. Any Filter implementation should be struct-wise similar to the Filter struct."}

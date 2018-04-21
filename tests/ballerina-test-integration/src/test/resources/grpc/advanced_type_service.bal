@@ -16,50 +16,43 @@
 import ballerina/io;
 import ballerina/grpc;
 
-endpoint grpc:Service ep {
+endpoint grpc:Listener ep {
     host:"localhost",
     port:9090
 };
 
-@grpc:serviceConfig {generateClientConnector:false}
-service<grpc:Listener> HelloWorld bind ep {
+@grpc:serviceConfig
+service HelloWorld bind ep {
 
-    testInputNestedStruct (endpoint client, Person req) {
+    testInputNestedStruct(endpoint caller, Person req) {
         io:println("name: " + req.name);
         io:println(req.address);
         string message = "Submitted name: " + req.name;
-        grpc:ConnectorError err = client -> send(message);
-        io:println("Server send response : " + message );
-        if (err != ()) {
-            io:println("Error at helloWorld : " + err.message);
-        }
-        _ = client -> complete();
+        error? err = caller->send(message);
+        io:println(err.message but { () => ("Server send response : " + message) });
+        _ = caller->complete();
     }
 
-    testOutputNestedStruct (endpoint client, string name) {
+    testOutputNestedStruct(endpoint caller, string name) {
         io:println("requested name: " + name);
-        Person person = {name: "Sam", address: {postalCode:10300, state:"CA", country:"USA"}};
+        Person person = {name:"Sam", address:{postalCode:10300, state:"CA", country:"USA"}};
         io:println(person);
-        grpc:ConnectorError err = client -> send(person);
-        if (err != ()) {
-            io:println("Error at helloWorld : " + err.message);
-        }
-        _ = client -> complete();
+        error? err = caller->send(person);
+        io:println(err.message but { () => "" });
+        _ = caller->complete();
     }
 
-    testInputStructOutputStruct (endpoint client, StockRequest req) {
+    testInputStructOutputStruct(endpoint caller, StockRequest req) {
         io:println("Getting stock details for symbol: " + req.name);
-        StockQuote res = {symbol: "WSO2", name: "WSO2.com", last: 149.52, low: 150.70, high:
+        StockQuote res = {symbol:"WSO2", name:"WSO2.com", last:149.52, low:150.70, high:
         149.18};
         io:println(res);
-        grpc:ConnectorError err = client -> send(res);
-        if (err != ()) {
-            io:println("Error at helloWorld : " + err.message);
-        }
-        _ = client -> complete();
+        error? err = caller->send(res);
+        io:println(err.message but { () => "" });
+        _ = caller->complete();
     }
 
-    testInputStructNoOutput (endpoint client, StockQuote req) {
+    testInputStructNoOutput(endpoint caller, StockQuote req) {
         io:println("Symbol: " + req.symbol);
         io:println("Name: " + req.name);
         io:println("Last: " + req.last);
@@ -67,28 +60,24 @@ service<grpc:Listener> HelloWorld bind ep {
         io:println("High: " + req.high);
     }
 
-    testNoInputOutputStruct(endpoint client) {
-        StockQuote res = {symbol: "WSO2", name: "WSO2 Inc.", last: 14, low: 15, high: 16};
-        StockQuote res1 = {symbol: "Google", name: "Google Inc.", last: 100, low: 101, high: 102};
-        StockQuotes quotes = {stock:[res,res1]};
+    testNoInputOutputStruct(endpoint caller) {
+        StockQuote res = {symbol:"WSO2", name:"WSO2 Inc.", last:14, low:15, high:16};
+        StockQuote res1 = {symbol:"Google", name:"Google Inc.", last:100, low:101, high:102};
+        StockQuotes quotes = {stock:[res, res1]};
         io:println(quotes);
 
-        grpc:ConnectorError err = client -> send(quotes);
-        if (err != ()) {
-            io:println("Error at helloWorld : " + err.message);
-        }
-        _ = client -> complete();
+        error? err = caller->send(quotes);
+        io:println(err.message but { () => "" });
+        _ = caller->complete();
     }
 
-    testNoInputOutputArray(endpoint client) {
+    testNoInputOutputArray(endpoint caller) {
         string[] names = ["WSO2", "Google"];
         io:println(names);
-        StockNames stockNames = {names: names};
-        grpc:ConnectorError err = client -> send(stockNames);
-        if (err != ()) {
-            io:println("Error at helloWorld : " + err.message);
-        }
-        _ = client -> complete();
+        StockNames stockNames = {names:names};
+        error? err = caller->send(stockNames);
+        io:println(err.message but { () => "" });
+        _ = caller->complete();
     }
 }
 

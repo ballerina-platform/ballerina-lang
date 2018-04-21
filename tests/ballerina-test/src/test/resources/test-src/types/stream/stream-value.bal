@@ -1,6 +1,8 @@
 import ballerina/log;
 import ballerina/time;
 
+stream<Employee> globalEmployeeStream;
+
 type Employee {
     int id,
     string name,
@@ -10,19 +12,10 @@ type Job {
     string description,
 };
 
-function testInvalidStreamDeclaration () {
-    stream t1;
-}
-
 function testInvalidObjectPublishingToStream () {
     stream<Employee> s1;
     Job j1 = { description:"Dummy Description 1" };
     s1.publish(j1);
-}
-
-function testSubscriptionFunctionWithNonObjectParameter () {
-    stream<Employee> s1;
-    s1.subscribe(printInteger);
 }
 
 function testSubscriptionFunctionWithIncorrectObjectParameter () {
@@ -30,11 +23,22 @@ function testSubscriptionFunctionWithIncorrectObjectParameter () {
     s1.subscribe(printJobDescription);
 }
 
+int arrayIndex = 0;
 Employee globalEmployee;
-Employee[] globalEmployeeArray = [];
-int employeeIndex = 0;
 
-function testStreamPublishingAndSubscription () returns (Employee, Employee, Employee) {
+function testGlobalStream () returns (Employee, Employee, Employee) {
+    Employee origEmployee = globalEmployee;
+    globalEmployeeStream.subscribe(assignGlobalEmployee);
+    Employee publishedEmployee = { id:5678, name:"Maryam" };
+    globalEmployeeStream.publish(publishedEmployee);
+    int startTime = time:currentTime().time;
+    while (globalEmployee.id == 0 && time:currentTime().time - startTime < 1000) {
+        //allow for value update
+    }
+    return (origEmployee, publishedEmployee, globalEmployee);
+}
+
+function testStreamPublishingAndSubscriptionForObject () returns (Employee, Employee, Employee) {
     Employee origEmployee = globalEmployee;
     stream<Employee> s1;
     s1.subscribe(assignGlobalEmployee);
@@ -44,11 +48,14 @@ function testStreamPublishingAndSubscription () returns (Employee, Employee, Emp
     while (globalEmployee.id == 0 && time:currentTime().time - startTime < 1000) {
         //allow for value update
     }
-    Employee newEmployee = globalEmployee;
-    return (origEmployee, publishedEmployee, newEmployee);
+    return (origEmployee, publishedEmployee, globalEmployee);
 }
 
-function testStreamPublishingAndSubscriptionForMultipleEvents () returns (Employee[], Employee[]) {
+
+Employee[] globalEmployeeArray = [];
+
+function testStreamPublishingAndSubscriptionForMultipleObjectEvents () returns (Employee[], Employee[]) {
+    arrayIndex = 0;
     stream<Employee> s1;
     s1.subscribe(addToGlobalEmployeeArray);
     Employee e1 = { id:1234, name:"Maryam" };
@@ -59,14 +66,111 @@ function testStreamPublishingAndSubscriptionForMultipleEvents () returns (Employ
     s1.publish(e2);
     s1.publish(e3);
     int startTime = time:currentTime().time;
-    while (lengthof globalEmployeeArray < 3 && time:currentTime().time - startTime < 3000) {
+    while (lengthof globalEmployeeArray < 3 && time:currentTime().time - startTime < 5000) {
         //allow for value update
     }
     return (publishedEmployees, globalEmployeeArray);
 }
 
-function printInteger (int i) {
-    log:printInfo(<string>i);
+int[] globalIntegerArray = [];
+
+function testStreamPublishingAndSubscriptionForIntegerStream () returns (int[], int[]) {
+    arrayIndex = 0;
+    stream<int> intStream;
+    intStream.subscribe(addToGlobalIntegerArray);
+    int[] publishedIntegerEvents = [11, 24857, 0, -1, 999];
+    foreach intEvent in publishedIntegerEvents {
+        intStream.publish(intEvent);
+    }
+    int startTime = time:currentTime().time;
+    while (lengthof globalIntegerArray < lengthof publishedIntegerEvents && time:currentTime().time - startTime < 5000) {
+        //allow for value update
+    }
+    return (publishedIntegerEvents, globalIntegerArray);
+}
+
+boolean[] globalBooleanArray = [];
+
+function testStreamPublishingAndSubscriptionForBooleanStream () returns (boolean[], boolean[]) {
+    arrayIndex = 0;
+    stream<boolean> booleanStream;
+    booleanStream.subscribe(addToGlobalBooleanArray);
+    boolean[] publishedBooleanEvents = [true, false, false, true, false];
+    foreach booleanEvent in publishedBooleanEvents {
+        booleanStream.publish(booleanEvent);
+    }
+    int startTime = time:currentTime().time;
+    while (lengthof globalBooleanArray < lengthof publishedBooleanEvents && time:currentTime().time - startTime < 5000) {
+        //allow for value update
+    }
+    return (publishedBooleanEvents, globalBooleanArray);
+}
+
+any[] globalAnyArray = [];
+
+function testStreamPublishingAndSubscriptionForUnionTypeStream () returns (any[], any[]) {
+    globalAnyArray = [];
+    arrayIndex = 0;
+    stream<int[]|string|boolean> unionStream;
+    unionStream.subscribe(addToGlobalAnyArrayForUnionType);
+    int[] intarray = [1, 2, 3];
+    any[] publishedEvents = [intarray, "Maryam", false];
+    foreach event in publishedEvents {
+        unionStream.publish(event);
+    }
+    int startTime = time:currentTime().time;
+    while (lengthof globalAnyArray < lengthof publishedEvents && time:currentTime().time - startTime < 5000) {
+        //allow for value update
+    }
+    return (publishedEvents, globalAnyArray);
+}
+
+function testStreamPublishingAndSubscriptionForTupleTypeStream () returns (any[], any[]) {
+    globalAnyArray = [];
+    arrayIndex = 0;
+    stream<(string, int)> tupleStream;
+    tupleStream.subscribe(addToGlobalAnyArrayForTupleType);
+    any[] publishedEvents = [("Maryam", 1234), ("Ziyad", 9876)];
+    foreach event in publishedEvents {
+        tupleStream.publish(event);
+    }
+    int startTime = time:currentTime().time;
+    while (lengthof globalAnyArray < lengthof publishedEvents && time:currentTime().time - startTime < 5000) {
+        //allow for value update
+    }
+    return (publishedEvents, globalAnyArray);
+}
+
+function testStreamPublishingAndSubscriptionForAnyTypeStream () returns (any[], any[]) {
+    globalAnyArray = [];
+    arrayIndex = 0;
+    stream<any> anyStream;
+    anyStream.subscribe(addToGlobalAnyArrayForAnyType);
+    any[] publishedEvents = [("Maryam", 1234), "Ziyad", false, 0.5];
+    foreach event in publishedEvents {
+        anyStream.publish(event);
+    }
+    int startTime = time:currentTime().time;
+    while (lengthof globalAnyArray < lengthof publishedEvents && time:currentTime().time - startTime < 5000) {
+        //allow for value update
+    }
+    return (publishedEvents, globalAnyArray);
+}
+
+function testStreamPublishingAndSubscriptionForUnconstrainedStream () returns (any[], any[]) {
+    globalAnyArray = [];
+    arrayIndex = 0;
+    stream unconstrainedStream;
+    unconstrainedStream.subscribe(addToGlobalAnyArrayForAnyType);
+    any[] publishedEvents = [("Maryam", 1234), "Ziyad", false, 0.5];
+    foreach event in publishedEvents {
+        unconstrainedStream.publish(event);
+    }
+    int startTime = time:currentTime().time;
+    while (lengthof globalAnyArray < lengthof publishedEvents && time:currentTime().time - startTime < 5000) {
+        //allow for value update
+    }
+    return (publishedEvents, globalAnyArray);
 }
 
 function printJobDescription (Job j) {
@@ -78,6 +182,31 @@ function assignGlobalEmployee (Employee e) {
 }
 
 function addToGlobalEmployeeArray (Employee e) {
-    globalEmployeeArray[employeeIndex] = e;
-    employeeIndex = employeeIndex + 1;
+    globalEmployeeArray[arrayIndex] = e;
+    arrayIndex = arrayIndex + 1;
+}
+
+function addToGlobalBooleanArray (boolean b) {
+    globalBooleanArray[arrayIndex] = b;
+    arrayIndex = arrayIndex + 1;
+}
+
+function addToGlobalIntegerArray (int i) {
+    globalIntegerArray[arrayIndex] = i;
+    arrayIndex = arrayIndex + 1;
+}
+
+function addToGlobalAnyArrayForUnionType (int[]|string|boolean val) {
+    globalAnyArray[arrayIndex] = val;
+    arrayIndex = arrayIndex + 1;
+}
+
+function addToGlobalAnyArrayForTupleType ((string, int) val) {
+    globalAnyArray[arrayIndex] = val;
+    arrayIndex = arrayIndex + 1;
+}
+
+function addToGlobalAnyArrayForAnyType (any val) {
+    globalAnyArray[arrayIndex] = val;
+    arrayIndex = arrayIndex + 1;
 }

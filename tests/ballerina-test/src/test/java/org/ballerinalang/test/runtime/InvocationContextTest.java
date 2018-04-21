@@ -67,13 +67,6 @@ public class InvocationContextTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(description = "Test case for processing user groups in authentication context")
-    public void testUserGroups() throws Exception {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testUserGroups");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
-
     @Test(description = "Test case for processing allowedScopes in authentication context")
     public void testAllowedScopes() throws Exception {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAllowedScopes");

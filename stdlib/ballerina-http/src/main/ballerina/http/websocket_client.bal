@@ -1,4 +1,3 @@
-package ballerina.http;
 
 public type WebSocketClient object {
     public {
@@ -56,4 +55,5 @@ public type WebSocketClientEndpointConfig {
     string[] subProtocols,
     map<string> customHeaders,
     int idleTimeoutInSeconds = -1,
+    boolean readyOnConnect = true;
 };

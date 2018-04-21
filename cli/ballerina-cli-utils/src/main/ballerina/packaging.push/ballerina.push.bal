@@ -1,4 +1,3 @@
-package packaging.push;
 
 import ballerina/io;
 import ballerina/mime;
@@ -26,7 +25,7 @@ function pushPackage (string accessToken, string mdFileContent, string summary, 
         url:url,
         secureSocket:{
             trustStore:{
-                filePath:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
                 password:"ballerina"
             },
             verifyHostname:false,
@@ -45,19 +44,25 @@ function pushPackage (string accessToken, string mdFileContent, string summary, 
 
     // Artifact
     mime:Entity filePart = new;
-    mime:MediaType contentTypeOfFilePart = mime:getMediaType(mime:APPLICATION_OCTET_STREAM);
-    filePart.contentType = contentTypeOfFilePart;
-    filePart.contentDisposition = getContentDispositionForFormData("artifact");
+    filePart.setContentDisposition(getContentDispositionForFormData("artifact"));
     filePart.setFileAsEntityBody(untaint dirPath);
+    filePart.setContentType(mime:APPLICATION_OCTET_STREAM);
 
     mime:Entity[] bodyParts = [filePart, mdFileContentBodyPart, summaryBodyPart, homePageURLBodyPart, repositoryURLBodyPart,
                                            apiDocURLBodyPart, authorsBodyPart, keywordsBodyPart, licenseBodyPart];
     http:Request req = new;
     req.addHeader("Authorization", "Bearer " + accessToken);
-    req.setBodyParts(bodyParts, mime:MULTIPART_FORM_DATA);
-    
-    var result = httpEndpoint -> post("", req);
-    http:Response httpResponse = check result;
+    req.setBodyParts(bodyParts, contentType = mime:MULTIPART_FORM_DATA);
+
+    var result = httpEndpoint -> post("", request=req);
+    http:Response httpResponse = new;
+    match result {
+        http:Response response => httpResponse = response;
+        http:HttpConnectorError e => {
+            io:println("Connection to the remote host failed : " + e.message);
+            return;
+        }
+    }
     string statusCode = <string> httpResponse.statusCode;
     if (statusCode.hasPrefix("5")) {
         io:println("remote registry failed for url :" + url);
@@ -99,9 +104,8 @@ documentation {
 }
 function addStringBodyParts (string key, string value) returns (mime:Entity) {
     mime:Entity stringBodyPart = new;
-    mime:MediaType contentTypeOfStringPart = mime:getMediaType(mime:TEXT_PLAIN);
-    stringBodyPart.contentType = contentTypeOfStringPart;
-    stringBodyPart.contentDisposition = getContentDispositionForFormData(key);
+    stringBodyPart.setContentDisposition(getContentDispositionForFormData(key));
     stringBodyPart.setText(value);
+    stringBodyPart.setContentType(mime:TEXT_PLAIN);
     return stringBodyPart;
 }

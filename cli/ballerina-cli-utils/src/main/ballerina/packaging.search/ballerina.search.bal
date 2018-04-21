@@ -1,4 +1,3 @@
-package packaging.search;
 import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
@@ -15,7 +14,7 @@ function search (string url, string querySearched) {
         url:url,
         secureSocket:{
             trustStore:{
-                filePath:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
                 password:"ballerina"
             },
             verifyHostname:false,
@@ -23,8 +22,15 @@ function search (string url, string querySearched) {
         }
     };
     http:Request req = new;
-    var result = httpEndpoint -> get(untaint querySearched, req);
-    http:Response httpResponse = check result;
+    var result = httpEndpoint -> get(untaint querySearched, request=req);
+    http:Response httpResponse = new;
+    match result {
+        http:Response response => httpResponse = response;
+        http:HttpConnectorError e => {
+            io:println("Connection to the remote host failed : " + e.message);
+            return;
+        }
+    }
     json jsonResponse = null;
     string statusCode = <string> httpResponse.statusCode;
     if (statusCode.hasPrefix("5")) {
@@ -90,7 +96,7 @@ documentation {
 function printInCLI(string element, int charactersAllowed) {
     int lengthOfElement = element.length();
     if (lengthOfElement > charactersAllowed || lengthOfElement == charactersAllowed) {
-        string trimmedElement = element.subString(0, charactersAllowed - 3) + "...";
+        string trimmedElement = element.substring(0, charactersAllowed - 3) + "...";
         io:print(trimmedElement + "| ");
     } else {
         io:print(element);

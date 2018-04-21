@@ -49,9 +49,12 @@ public class ToString extends BlockingNativeCallableUnit {
         String jsonStr = null;
         try {
             // Accessing Parameters.
-            BJSON json = (BJSON) ctx.getRefArgument(0);
-
-            jsonStr = json.stringValue();
+            BJSON json = (BJSON) ctx.getNullableRefArgument(0);
+            if (json == null) {
+                jsonStr = "null";
+            } else {
+                jsonStr = json.stringValue();
+            }
             if (log.isDebugEnabled()) {
                 log.debug("Output JSON: " + jsonStr);
             }

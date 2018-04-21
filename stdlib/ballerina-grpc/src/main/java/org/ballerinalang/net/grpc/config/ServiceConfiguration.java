@@ -27,15 +27,11 @@ public class ServiceConfiguration {
     private String rpcEndpoint;
     private boolean clientStreaming;
     private boolean serverStreaming;
-    private boolean generateClientConnector;
-    private boolean isListener;
 
-    public ServiceConfiguration(String rpcEndpoint, boolean clientStreaming, boolean serverStreaming, boolean
-            generateClientConnector) {
+    public ServiceConfiguration(String rpcEndpoint, boolean clientStreaming, boolean serverStreaming) {
         this.rpcEndpoint = rpcEndpoint;
         this.clientStreaming = clientStreaming;
         this.serverStreaming = serverStreaming;
-        this.generateClientConnector = generateClientConnector;
 
     }
     
@@ -61,21 +57,5 @@ public class ServiceConfiguration {
     
     public void setServerStreaming(boolean serverStreaming) {
         this.serverStreaming = serverStreaming;
-    }
-    
-    public boolean isGenerateClientConnector() {
-        return generateClientConnector;
-    }
-    
-    public void setGenerateClientConnector(boolean generateClientConnector) {
-        this.generateClientConnector = generateClientConnector;
-    }
-    
-    public boolean isListener() {
-        return isListener;
-    }
-    
-    public void setListener(boolean listener) {
-        isListener = listener;
     }
 }
