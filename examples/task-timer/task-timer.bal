@@ -20,7 +20,7 @@ function main(string... args) {
     timer = new task:Timer(onTriggerFunction, onErrorFunction, 1000, delay = 500);
     _ = timer.start();
 
-    runtime:sleepCurrentWorker(30000); // Temporary workaround to stop the process from exiting.
+    runtime:sleep(30000); // Temporary workaround to stop the process from exiting.
 }
 
 function cleanup() returns (error|()) {

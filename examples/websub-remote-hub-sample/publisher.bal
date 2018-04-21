@@ -18,7 +18,7 @@ function main (string... args) {
     }
 
     //Make the publisher wait until the subscriber subscribes at the hub.
-    runtime:sleepCurrentWorker(10000);
+    runtime:sleep(10000);
 
     log:printInfo("Publishing update to remote Hub");
     //Publish updates to the remote hub.
