@@ -79,7 +79,7 @@ public class WebSocketClientTestCase {
         handshakeFuture.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection) {
-                webSocketConnection.getSession().getAsyncRemote().sendText(textSent);
+                webSocketConnection.pushText(textSent);
             }
 
             @Override
@@ -104,7 +104,7 @@ public class WebSocketClientTestCase {
         handshakeFuture.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection) {
-                webSocketConnection.getSession().getAsyncRemote().sendBinary(bufferSent);
+                webSocketConnection.pushBinary(bufferSent);
             }
 
             @Override
@@ -129,7 +129,7 @@ public class WebSocketClientTestCase {
         pingHandshakeFuture.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection) {
-                webSocketConnection.getSession().getAsyncRemote().sendText(PING);
+                webSocketConnection.pushText(PING);
             }
 
             @Override
@@ -149,14 +149,9 @@ public class WebSocketClientTestCase {
         pongHandshakeFuture.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection) {
-                try {
-                    byte[] bytes = {1, 2, 3, 4, 5};
-                    ByteBuffer buffer = ByteBuffer.wrap(bytes);
-                    webSocketConnection.getSession().getAsyncRemote().sendPing(buffer);
-                } catch (IOException e) {
-                    log.error(e.getMessage());
-                    Assert.assertTrue(false, e.getMessage());
-                }
+                byte[] bytes = {1, 2, 3, 4, 5};
+                ByteBuffer buffer = ByteBuffer.wrap(bytes);
+                webSocketConnection.ping(buffer);
             }
 
             @Override
@@ -178,7 +173,7 @@ public class WebSocketClientTestCase {
         handshakeFuture1.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection) {
-                webSocketConnection.getSession().getAsyncRemote().sendText(textsSent[0]);
+                webSocketConnection.pushText(textsSent[0]);
             }
 
             @Override
@@ -198,7 +193,7 @@ public class WebSocketClientTestCase {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection) {
                 for (int i = 0; i < textsSent.length; i++) {
-                    webSocketConnection.getSession().getAsyncRemote().sendText(textsSent[i]);
+                    webSocketConnection.pushText(textsSent[i]);
                 }
             }
 
@@ -300,7 +295,7 @@ public class WebSocketClientTestCase {
         handshakeFuture.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection) {
-                webSocketConnection.getSession().getAsyncRemote().sendText(closeText);
+                webSocketConnection.pushText(closeText);
             }
 
             @Override
@@ -326,7 +321,7 @@ public class WebSocketClientTestCase {
         handshakeFuture.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection) {
-                webSocketConnection.getSession().getAsyncRemote().sendText(closeText);
+                webSocketConnection.pushText(closeText);
             }
 
             @Override
@@ -356,7 +351,7 @@ public class WebSocketClientTestCase {
         handshakeFuture.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection) {
-                webSocketConnection.getSession().getAsyncRemote().sendText(textSent);
+                webSocketConnection.pushText(textSent);
                 wsConnection.set(webSocketConnection);
             }
 

@@ -34,12 +34,9 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.transport.http.netty.util.client.websocket.WebSocketTestConstants;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
-import javax.websocket.CloseReason;
-import javax.websocket.Session;
 
 /**
  * WebSocket test class for WebSocket Connector Listener.
@@ -49,7 +46,7 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
     private static final Logger log = LoggerFactory.getLogger(WebSocketTestServerConnectorListener.class);
 
     private static final String PING = "ping";
-    private List<Session> sessionList = new LinkedList<>();
+    private List<WebSocketConnection> connectionList = new LinkedList<>();
     private boolean isIdleTimeout = false;
 
     public WebSocketTestServerConnectorListener() {
@@ -61,13 +58,9 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
         future.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection) {
-                sessionList.forEach(
-                        currentSession -> {
-                            currentSession.getAsyncRemote().
-                                    sendText(WebSocketTestConstants.PAYLOAD_NEW_CLIENT_CONNECTED);
-                        }
-                );
-                sessionList.add(webSocketConnection.getSession());
+                connectionList.forEach(
+                        currentConn -> currentConn.pushText(WebSocketTestConstants.PAYLOAD_NEW_CLIENT_CONNECTED));
+                connectionList.add(webSocketConnection);
                 webSocketConnection.startReadingFrames();
             }
 
@@ -81,53 +74,40 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
 
     @Override
     public void onMessage(WebSocketTextMessage textMessage) {
-        Session session = textMessage.getWebSocketConnection().getSession();
+        WebSocketConnection webSocketConnection = textMessage.getWebSocketConnection();
         String receivedTextToClient = textMessage.getText();
         log.debug("text: " + receivedTextToClient);
-        try {
-            if (PING.equals(receivedTextToClient)) {
-                session.getAsyncRemote().sendPing(ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5}));
-                return;
-            }
-            session.getAsyncRemote().sendText(receivedTextToClient);
-        } catch (IOException e) {
-            handleError(e);
+        if (PING.equals(receivedTextToClient)) {
+            webSocketConnection.ping(ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5}));
+            return;
         }
+        webSocketConnection.pushText(receivedTextToClient);
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage binaryMessage) {
-        Session session = binaryMessage.getWebSocketConnection().getSession();
+        WebSocketConnection webSocketConnection = binaryMessage.getWebSocketConnection();
         ByteBuffer receivedByteBufferToClient = binaryMessage.getByteBuffer();
         log.debug("ByteBuffer: " + receivedByteBufferToClient);
-        session.getAsyncRemote().sendBinary(receivedByteBufferToClient);
+        webSocketConnection.pushBinary(receivedByteBufferToClient);
     }
 
     @Override
     public void onMessage(WebSocketControlMessage controlMessage) {
-        if (controlMessage.getControlSignal() == WebSocketControlSignal.PONG) {
-            boolean isPongReceived = true;
-            return;
-        }
-
         if (controlMessage.getControlSignal() == WebSocketControlSignal.PING) {
-            Session session = controlMessage.getWebSocketConnection().getSession();
-            try {
-                session.getAsyncRemote().sendPong(controlMessage.getPayload());
-            } catch (IOException e) {
-                Assert.assertTrue(false, "Could not send the message.");
-            }
+            WebSocketConnection webSocketConnection = controlMessage.getWebSocketConnection();
+            webSocketConnection.pong(controlMessage.getPayload()).addListener(future -> {
+                if (!future.isSuccess()) {
+                    Assert.assertTrue(false, "Could not send the message. "
+                            + future.cause().getMessage());
+                }
+            });
         }
     }
 
     @Override
     public void onMessage(WebSocketCloseMessage closeMessage) {
-        sessionList.forEach(
-                currentSession -> {
-                    currentSession.getAsyncRemote().
-                            sendText(WebSocketTestConstants.PAYLOAD_CLIENT_LEFT);
-                }
-        );
+        connectionList.forEach(currentConn -> currentConn.pushText(WebSocketTestConstants.PAYLOAD_CLIENT_LEFT));
     }
 
     @Override
@@ -138,12 +118,12 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
         this.isIdleTimeout = true;
-        try {
-            Session session = controlMessage.getWebSocketConnection().getSession();
-            session.close(new CloseReason(() -> 1001, "Connection timeout"));
-        } catch (IOException e) {
-            log.error("Error occurred while closing the connection: " + e.getMessage());
-        }
+        WebSocketConnection webSocketConnection = controlMessage.getWebSocketConnection();
+        webSocketConnection.close(1001, "Connection timeout").addListener(future -> {
+           if (!future.isSuccess()) {
+               log.error("Error occurred while closing the connection: " + future.cause().getMessage());
+           }
+        });
     }
 
     private void handleError(Throwable throwable) {

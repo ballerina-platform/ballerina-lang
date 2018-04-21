@@ -29,7 +29,6 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -70,9 +69,13 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
     public void onMessage(WebSocketTextMessage textMessage) {
         if (PING.equals(textMessage.getText())) {
             try {
-                textMessage.getWebSocketConnection()
-                        .getSession().getAsyncRemote().sendPing(ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5}));
-            } catch (IOException e) {
+                textMessage.getWebSocketConnection().ping(ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5}))
+                    .addListener(future -> {
+                        if (!future.isSuccess()) {
+                            errorsQueue.add(future.cause());
+                        }
+                    }).sync();
+            } catch (InterruptedException e) {
                 errorsQueue.add(e);
             }
         }
