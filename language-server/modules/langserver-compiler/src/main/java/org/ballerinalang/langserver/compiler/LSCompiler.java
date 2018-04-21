@@ -46,6 +46,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -339,26 +340,24 @@ public class LSCompiler {
      * @return {@link String} project root | null
      */
     public static String findProjectRoot(String parentDir) {
-        Path path = Paths.get(parentDir);
-        if (!RepoUtils.hasProjectRepo(path)) {
-            return null;
-        }
-        path = path.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME);
-        if (java.nio.file.Files.exists(path)) {
+        return findProjectRoot(parentDir, RepoUtils.createAndGetHomeReposPath());
+    }
+
+    public static String findProjectRoot(String parentDir, Path homePath) {
+        Path path = Paths.get(parentDir, ProjectDirConstants.DOT_BALLERINA_DIR_NAME);
+        if (!path.equals(homePath) && java.nio.file.Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
             return parentDir;
         }
-
         List<String> pathParts = Arrays.asList(parentDir.split(Pattern.quote(File.separator)));
         if (pathParts.size() > 0) {
             List<String> dirPathParts = pathParts.subList(0, pathParts.size() - 1);
             if (dirPathParts.size() > 0) {
                 String rootFolder = String.join(File.separator, dirPathParts);
-                return findProjectRoot(rootFolder);
+                return findProjectRoot(rootFolder, homePath);
             } else {
                 return null;
             }
         }
-
         return null;
     }
 
