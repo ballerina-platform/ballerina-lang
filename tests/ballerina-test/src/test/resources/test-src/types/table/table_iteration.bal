@@ -1,4 +1,4 @@
-import ballerina/sql;
+import ballerina/jdbc;
 
 type Person {
     int id;
@@ -39,14 +39,13 @@ float salValue = -1;
 string nameValue = "";
 
 function testForEachInTableWithStmt() returns (int, int, float, string) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    var temp = testDB->select("SELECT * from Person where id = 1", Person);
-    table<Person> dt = check temp;
+    table<Person> dt = check testDB->select("SELECT * from Person where id = 1", Person);
 
     int id;
     int age;
@@ -59,19 +58,18 @@ function testForEachInTableWithStmt() returns (int, int, float, string) {
         salary = x.salary;
         name = x.name;
     }
-    _ = testDB->close();
+    testDB.stop();
     return (id, age, salary, name);
 }
 
 function testForEachInTable() returns (int, int, float, string) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    var temp = testDB->select("SELECT * from Person where id = 1", Person);
-    table<Person> dt = check temp;
+    table<Person> dt = check testDB->select("SELECT * from Person where id = 1", Person);
 
     dt.foreach((Person p) => {
             idValue = p.id;
@@ -84,231 +82,218 @@ function testForEachInTable() returns (int, int, float, string) {
     int age = ageValue;
     float salary = salValue;
     string name = nameValue;
-    _ = testDB->close();
+    testDB.stop();
     return (id, age, salary, name);
 }
 
 function testCountInTable() returns (int) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    var temp = testDB->select("SELECT * from Person where id < 10", Person);
-    table<Person> dt = check temp;
+    table<Person> dt = check testDB->select("SELECT * from Person where id < 10", Person);
     int count = dt.count();
-    _ = testDB->close();
+    testDB.stop();
     return count;
 }
 
 function testFilterTable() returns (int, int, int) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    var temp = testDB->select("SELECT * from Person", Person);
-    table<Person> dt = check temp;
+    table<Person> dt = check testDB->select("SELECT * from Person", Person);
     Person[] personBelow35 = dt.filter(isBellow35);
     int count = lengthof personBelow35;
     int id1 = personBelow35[0].id;
     int id2 = personBelow35[1].id;
-    _ = testDB->close();
+    testDB.stop();
     return (count, id1, id2);
 }
 
 function testFilterWithAnnonymousFuncOnTable() returns (int, int, int) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    var temp = testDB->select("SELECT * from Person", Person);
-    table<Person> dt = check temp;
+    table<Person> dt = check testDB->select("SELECT * from Person", Person);
     Person[] personBelow35 = dt.filter((Person p) => (boolean) {
             return p.age < 35;
         });
     int count = lengthof personBelow35;
     int id1 = personBelow35[0].id;
     int id2 = personBelow35[1].id;
-    _ = testDB->close();
+    testDB.stop();
     return (count, id1, id2);
 }
 
 function testFilterTableWithCount() returns (int) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    var temp = testDB->select("SELECT * from Person", Person);
-    table<Person> dt = check temp;
+    table<Person> dt = check testDB->select("SELECT * from Person", Person);
     int count = dt.filter(isBellow35).count();
-    _ = testDB->close();
+    testDB.stop();
     return count;
 }
 
 function testMapTable() returns (string[]) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    var temp = testDB->select("SELECT * from Person order by id", Person);
-    table<Person> dt = check temp;
+    table<Person> dt = check testDB->select("SELECT * from Person order by id", Person);
     string[] names = dt.map(getName);
-    _ = testDB->close();
+    testDB.stop();
     return names;
 }
 
 function testMapWithFilterTable() returns (string[]) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    var temp = testDB->select("SELECT * from Person order by id", Person);
-    table<Person> dt = check temp;
+    table<Person> dt = check testDB->select("SELECT * from Person order by id", Person);
     string[] names = dt.map(getName).filter(isGeraterThan4String);
-    _ = testDB->close();
+    testDB.stop();
     return names;
 }
 
 function testFilterWithMapTable() returns (string[]) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    var temp = testDB->select("SELECT * from Person order by id", Person);
-    table<Person> dt = check temp;
+    table<Person> dt = check testDB->select("SELECT * from Person order by id", Person);
     string[] names = dt.filter(isGeraterThan4).map(getName);
-    _ = testDB->close();
+    testDB.stop();
     return names;
 }
 
 function testFilterWithMapAndCountTable() returns (int) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    var temp = testDB->select("SELECT * from Person order by id", Person);
-    table<Person> dt = check temp;
+    table<Person> dt = check testDB->select("SELECT * from Person order by id", Person);
     int count = dt.filter(isGeraterThan4).map(getName).count();
-    _ = testDB->close();
+    testDB.stop();
     return count;
 }
 
 function testAverageWithTable() returns (float) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    var temp = testDB->select("SELECT * from Person order by id", Person);
-    table<Person> dt = check temp;
+    table<Person> dt = check testDB->select("SELECT * from Person order by id", Person);
     float avgSal = dt.map(getSalary).average();
-    _ = testDB->close();
+    testDB.stop();
     return avgSal;
 }
 
 function testMinWithTable() returns (float) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    var temp = testDB->select("SELECT * from Person order by id", Person);
-    table<Person> dt = check temp;
+    table<Person> dt = check testDB->select("SELECT * from Person order by id", Person);
     float avgSal = dt.map(getSalary).min();
-    _ = testDB->close();
+    testDB.stop();
     return avgSal;
 }
 
 function testMaxWithTable() returns (float) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    var temp = testDB->select("SELECT * from Person order by id", Person);
-    table<Person> dt = check temp;
+    table<Person> dt = check testDB->select("SELECT * from Person order by id", Person);
     float avgSal = dt.map(getSalary).max();
-    _ = testDB->close();
+    testDB.stop();
     return avgSal;
 }
 
 function testSumWithTable() returns (float) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    var temp = testDB->select("SELECT * from Person order by id", Person);
-    table<Person> dt = check temp;
+    table<Person> dt = check testDB->select("SELECT * from Person order by id", Person);
     float avgSal = dt.map(getSalary).sum();
-    _ = testDB->close();
+    testDB.stop();
     return avgSal;
 }
 
 function testCloseConnectionPool() returns (int) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    var temp = testDB->select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", ResultCount);
-    table<Person> dt = check temp;
+    table<Person> dt = check testDB->select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", ResultCount);
     int count;
     while (dt.hasNext()) {
         var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB->close();
+    testDB.stop();
     return count;
 }
 
-function testSelect() returns (table) {
+function testSelect() returns (json) {
 
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalary);
-    return salaryTable;
+    return check <json>salaryTable;
 }
 
-function testSelectCompatibleLambdaInput() returns (table) {
+function testSelectCompatibleLambdaInput() returns (json) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleInput);
-    return salaryTable;
+    return check <json>salaryTable;
 }
 
-function testSelectCompatibleLambdaOutput() returns (table) {
+function testSelectCompatibleLambdaOutput() returns (json) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleOutput);
-    return salaryTable;
+    return check <json>salaryTable;
 }
 
-function testSelectCompatibleLambdaInputOutput() returns (table) {
+function testSelectCompatibleLambdaInputOutput() returns (json) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleInputOutput);
-    return salaryTable;
+    return check <json>salaryTable;
 }
 
 function getEmployeeSalary(Employee e) returns (EmployeeSalary) {

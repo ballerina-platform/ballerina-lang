@@ -17,16 +17,11 @@
  */
 package org.wso2.ballerinalang.programfile;
 
-import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 
-import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ServiceLoader;
 
 /**
  * Dump Ballerina program file model (BALX) to a file.
@@ -34,18 +29,6 @@ import java.util.ServiceLoader;
  * @since 0.963.0
  */
 public class ProgramFileWriter {
-
-    public static void writeProgram(ProgramFile programFile, Path execFilePath) throws IOException {
-        BufferedOutputStream bos = new BufferedOutputStream(Files.newOutputStream(execFilePath));
-        writeProgram(programFile, bos);
-
-        // TODO Fix this properly. Load and invoke compiler plugins
-        // TODO This will get properly fixed with the new packerina
-        ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
-        processorServiceLoader.forEach(plugin -> {
-            plugin.codeGenerated(execFilePath);
-        });
-    }
 
     public static void writeProgram(ProgramFile programFile, OutputStream programOutStream) throws IOException {
         DataOutputStream dataOutStream = null;
@@ -55,21 +38,15 @@ public class ProgramFileWriter {
             dataOutStream.writeInt(programFile.getMagicValue());
             dataOutStream.writeShort(programFile.getVersion());
 
+            // Write CP entries of the program
             PackageInfoWriter.writeCP(dataOutStream, programFile.getConstPoolEntries());
             writeEntryPoint(dataOutStream, programFile);
 
             // Emit package info entries;
-            PackageInfo[] packageInfoEntries = programFile.getPackageInfoEntries();
-            dataOutStream.writeShort(packageInfoEntries.length);
-            for (PackageInfo packageInfo : packageInfoEntries) {
-                PackageInfoWriter.writeCP(dataOutStream, packageInfo.getConstPoolEntries());
-                dataOutStream.writeInt(packageInfo.nameCPIndex);
-                dataOutStream.writeInt(packageInfo.versionCPIndex);
-                PackageInfoWriter.writePackageInfo(dataOutStream, packageInfo);
-            }
+            writePackageInfoEntries(programFile, dataOutStream);
 
+            // Write attributes of the of the program
             PackageInfoWriter.writeAttributeInfoEntries(dataOutStream, programFile.getAttributeInfoEntries());
-
             dataOutStream.flush();
             dataOutStream.close();
         } finally {
@@ -86,5 +63,13 @@ public class ProgramFileWriter {
         flags = programFile.isMainEPAvailable() ? flags | ProgramFile.EP_MAIN_FLAG : flags;
         flags = programFile.isServiceEPAvailable() ? flags | ProgramFile.EP_SERVICE_FLAG : flags;
         dataOutStream.writeByte(flags);
+    }
+
+    private static void writePackageInfoEntries(ProgramFile programFile,
+                                                DataOutputStream dataOutStream) throws IOException {
+        dataOutStream.writeShort(programFile.packageFileMap.size());
+        for (CompiledBinaryFile.PackageFile packageFile : programFile.packageFileMap.values()) {
+            dataOutStream.write(packageFile.pkgBinaryContent);
+        }
     }
 }

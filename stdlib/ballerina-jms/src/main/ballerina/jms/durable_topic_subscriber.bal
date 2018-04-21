@@ -1,11 +1,10 @@
-package ballerina.jms;
 
 import ballerina/log;
 
 public type DurableTopicSubscriber object {
 
     public {
-        DurableTopicSubscriberConnector connector;
+        DurableTopicSubscriberActions consumerActions;
         DurableTopicSubscriberEndpointConfiguration config;
     }
 
@@ -20,26 +19,26 @@ public type DurableTopicSubscriber object {
         }
     }
 
-    public function register (typedesc serviceType) {
-        self.registerListener(serviceType, connector);
+    public function register(typedesc serviceType) {
+        self.registerListener(serviceType, consumerActions);
     }
 
-    native function registerListener(typedesc serviceType, DurableTopicSubscriberConnector connector);
+    native function registerListener(typedesc serviceType, DurableTopicSubscriberActions consumerActions);
 
-    native function createSubscriber (Session session, string messageSelector);
+    native function createSubscriber(Session session, string messageSelector);
 
-    public function start () {
+    public function start() {
     }
 
-    public function getClient () returns (DurableTopicSubscriberConnector) {
-        return connector;
+    public function getCallerActions() returns DurableTopicSubscriberActions {
+        return consumerActions;
     }
 
-    public function stop () {
-        self.closeSubscriber(connector);
+    public function stop() {
+        self.closeSubscriber(consumerActions);
     }
 
-    native function closeSubscriber(DurableTopicSubscriberConnector connector);
+    native function closeSubscriber(DurableTopicSubscriberActions consumerActions);
 };
 
 public type DurableTopicSubscriberEndpointConfiguration {
@@ -50,8 +49,8 @@ public type DurableTopicSubscriberEndpointConfiguration {
 
 };
 
-public type DurableTopicSubscriberConnector object {
-    public native function acknowledge (Message message) returns (Error | ());
+public type DurableTopicSubscriberActions object {
+    public native function acknowledge(Message message) returns error?;
 
-    public native function receive (int timeoutInMilliSeconds = 0) returns (Message | Error | ());
+    public native function receive(int timeoutInMilliSeconds = 0) returns Message|error|();
 };

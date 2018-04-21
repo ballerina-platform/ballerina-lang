@@ -72,12 +72,11 @@ public class LauncherUtils {
 
     public static void runProgram(Path sourceRootPath, Path sourcePath, boolean runServices,
                                   Map<String, String> runtimeParams, String configFilePath, String[] args,
-                                  boolean offline, boolean observeFlag, Map<String, String> metricsParams,
-                                  Map<String, String> tracingParams) {
+                                  boolean offline, boolean observeFlag) {
         ProgramFile programFile;
         String srcPathStr = sourcePath.toString();
         Path fullPath = sourceRootPath.resolve(sourcePath);
-        loadConfigurations(sourceRootPath, runtimeParams, configFilePath, observeFlag, metricsParams, tracingParams);
+        loadConfigurations(sourceRootPath, runtimeParams, configFilePath, observeFlag);
 
         if (srcPathStr.endsWith(BLangConstants.BLANG_EXEC_FILE_SUFFIX)) {
             programFile = BLangProgramLoader.read(sourcePath);
@@ -298,12 +297,9 @@ public class LauncherUtils {
      * @param runtimeParams  run time parameters
      * @param configFilePath config file path
      * @param observeFlag    to indicate whether observability is enabled
-     * @param metricsParams  configuration parameters for metrics
-     * @param tracingParams  configuration parameters for tracing
      */
     private static void loadConfigurations(Path sourceRootPath, Map<String, String> runtimeParams,
-                                           String configFilePath, boolean observeFlag,
-                                           Map<String, String> metricsParams, Map<String, String> tracingParams) {
+                                           String configFilePath, boolean observeFlag) {
         Path ballerinaConfPath = sourceRootPath.resolve("ballerina.conf");
         try {
             ConfigRegistry.getInstance().initRegistry(runtimeParams, configFilePath, ballerinaConfPath);
@@ -314,12 +310,6 @@ public class LauncherUtils {
                         .addConfiguration(ObservabilityConstants.CONFIG_METRICS_ENABLED, Boolean.TRUE);
                 ConfigRegistry.getInstance()
                         .addConfiguration(ObservabilityConstants.CONFIG_TRACING_ENABLED, Boolean.TRUE);
-                metricsParams.forEach(
-                        (key, value) -> ConfigRegistry.getInstance()
-                                .addConfiguration(ObservabilityConstants.CONFIG_TABLE_METRICS + "." + key, value));
-                tracingParams.forEach(
-                        (key, value) -> ConfigRegistry.getInstance()
-                                .addConfiguration(ObservabilityConstants.CONFIG_TABLE_TRACING + "." + key, value));
             }
 
         } catch (IOException e) {

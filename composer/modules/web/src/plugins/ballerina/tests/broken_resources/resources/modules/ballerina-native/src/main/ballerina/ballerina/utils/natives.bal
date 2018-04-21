@@ -1,4 +1,3 @@
-package ballerina.utils;
 
 import ballerina/doc;
 

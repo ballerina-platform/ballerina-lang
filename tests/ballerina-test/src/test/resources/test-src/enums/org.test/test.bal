@@ -1,4 +1,3 @@
-package org.test;
 
 public type kind "PLUS" | "MINUS" | "AND" | "OR" | "NOT" | "GREATER_THAN";
 

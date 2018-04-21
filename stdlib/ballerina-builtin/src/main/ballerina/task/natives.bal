@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.task;
 
 @Description {value:"Schedules a timer task"}
 public type Timer object {

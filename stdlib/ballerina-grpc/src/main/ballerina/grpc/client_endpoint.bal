@@ -13,29 +13,18 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-package ballerina.grpc;
 
 documentation {
     Represents the gRPC client endpoint
-
-    F{{config}} - gRPC client endpoint configuration.
 }
 public type Client object {
-    public {
-        ClientEndpointConfig config;
-    }
 
     documentation {
         Gets called when the endpoint is being initialize during package init time
 
         P{{config}} - The ClientEndpointConfig of the endpoint.
     }
-    public function init (ClientEndpointConfig config) {
-        self.config = config;
-        self.initEndpoint();
-    }
-
-    public native function initEndpoint();
+    public native function init(ClientEndpointConfig config);
 
     documentation {
         Gets called every time a service attaches itself to this endpoint - also happens at package
@@ -43,12 +32,12 @@ public type Client object {
 
         P{{serviceType}} - The type of the service to be registered.
     }
-    public native function register (typedesc serviceType);
+    public native function register(typedesc serviceType);
 
     documentation {
         Starts the registered service
     }
-    public native function start ();
+    public native function start();
 
     documentation {
         Stops the registered service
@@ -58,53 +47,39 @@ public type Client object {
     documentation {
         Returns the client connection that servicestub code uses
     }
-    public native function getClient() returns (ClientConnection);
+    public native function getCallerActions() returns (GrpcClient);
 };
 
 documentation {
     Represents the gRPC client endpoint configuration
 
-    F{{host}} - The server hostname.
-    F{{port}} - The server port.
-    F{{ssl}} - The SSL configurations for the client endpoint.
+    F{{url}} - The server url.
+    F{{secureSocket}} - The SSL configurations for the client endpoint.
 }
-
 public type ClientEndpointConfig {
-    string host;
-    int port;
-    SSL ssl;
+    string url,
+    SecureSocket? secureSocket,
 };
 
 documentation {
-    SSL struct represents SSL/TLS options to be used for client invocation
+    SecureSocket struct represents SSL/TLS options to be used for gRPC client invocation
 
-    F{{trustStoreFile}} - File path to trust store file.
-    F{{trustStorePassword}} - Trust store password.
-    F{{keyStoreFile}} - File path to key store file.
-    F{{keyStorePassword}} - Key store password.
-    F{{sslEnabledProtocols}} - SSL/TLS protocols to be enabled. eg: TLSv1,TLSv1.1,TLSv1.2.
-    F{{ciphers}} - List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-    TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA.
-    F{{sslProtocol}} - SSL Protocol to be used. eg: TLS1.2
-    F{{validateCertEnabled}} - The status of validateCertEnabled
-    F{{cacheSize}} - Maximum size of the cache
-    F{{cacheValidityPeriod}} - Time duration of cache validity period
-    F{{hostNameVerificationEnabled}} - Enable/disable host name verification
+    F{{trustStore}} - TrustStore related options.
+    F{{keyStore}} - KeyStore related options.
+    F{{protocol}} - SSL/TLS protocol related options.
+    F{{certValidation}} - Certificate validation against CRL or OCSP related options.
+    F{{ciphers}} - List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA.
+    F{{verifyHostname}} - Enable/disable host name verification.
+    F{{shareSession}} - Enable/disable new ssl session creation.
+    F{{ocspStapling}} - Enable/disable ocsp stapling.
 }
-
-public type SSL {
-    string trustStoreFile;
-    string trustStorePassword;
-    string keyStoreFile;
-    string keyStorePassword;
-    string sslEnabledProtocols;
-    string sslVerifyClient;
-    string ciphers;
-    string certPassword;
-    string tlsStoreType;
-    string sslProtocol;
-    boolean validateCertEnabled;
-    int cacheSize;
-    int cacheValidityPeriod;
-    boolean hostNameVerificationEnabled;
+public type SecureSocket {
+    TrustStore? trustStore,
+    KeyStore? keyStore,
+    Protocols? protocol,
+    ValidateCert? certValidation,
+    string[] ciphers,
+    boolean verifyHostname = true,
+    boolean shareSession = true,
+    boolean ocspStapling,
 };

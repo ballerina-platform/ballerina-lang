@@ -1,15 +1,14 @@
-package ballerina.jms;
 
 import ballerina/log;
 
 public type TopicPublisher object {
     public {
-        TopicPublisherConnector connector;
+        TopicPublisherActions producerActions;
         TopicPublisherEndpointConfiguration config;
     }
 
     new () {
-        self.connector = new ();
+        self.producerActions = new;
     }
 
     public function init(TopicPublisherEndpointConfiguration config) {
@@ -22,17 +21,17 @@ public type TopicPublisher object {
 
     public native function initTopicPublisher(Session session);
 
-    public function register (typedesc serviceType) {
+    public function register(typedesc serviceType) {
     }
 
-    public function start () {
+    public function start() {
     }
 
-    public function getClient () returns (TopicPublisherConnector) {
-        return self.connector;
+    public function getCallerActions() returns TopicPublisherActions {
+        return self.producerActions;
     }
 
-    public function stop () {
+    public function stop() {
     }
 };
 
@@ -41,8 +40,6 @@ public type TopicPublisherEndpointConfiguration {
     string topicPattern;
 };
 
-public type TopicPublisherConnector object {
-    public native function send (Message m) returns (Error | ());
+public type TopicPublisherActions object {
+    public native function send (Message m) returns error?;
 };
-
-

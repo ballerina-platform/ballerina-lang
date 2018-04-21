@@ -7,12 +7,11 @@ endpoint http:Listener serviceEnpoint {
 };
 
 endpoint http:Client bankInfoService {
-    targets:[{url: "http://localhost:9090/bankinfo/product"}]
-
+    url: "http://localhost:9090/bankinfo/product"
 };
 
 endpoint http:Client branchLocatorService {
-    targets:[{url: "http://localhost:9090/branchlocator/product"}]
+    url: "http://localhost:9090/branchlocator/product"
 };
 
 @http:ServiceConfig {
@@ -23,7 +22,7 @@ service<http:Service> ATMLocator bind serviceEnpoint {
     @http:ResourceConfig {
         methods:["POST"]
     }
-    locator (endpoint outboundEP, http:Request req) {
+    locator (endpoint caller, http:Request req) {
 
         http:Request backendServiceReq = new;
         var jsonLocatorReq = req.getJsonPayload();
@@ -42,7 +41,7 @@ service<http:Service> ATMLocator bind serviceEnpoint {
         }
 
         http:Response locatorResponse = new;
-        var locatorRes = branchLocatorService -> post("", backendServiceReq);
+        var locatorRes = branchLocatorService -> post("", request = backendServiceReq);
         match locatorRes {
             http:Response locRes => {
                 locatorResponse = locRes;
@@ -68,7 +67,7 @@ service<http:Service> ATMLocator bind serviceEnpoint {
         }
 
         http:Response infomationResponse = new;
-        var infoRes = bankInfoService -> post("", backendServiceReq);
+        var infoRes = bankInfoService -> post("", request = backendServiceReq);
         match infoRes {
             http:Response res => {
                 infomationResponse = res;
@@ -77,7 +76,7 @@ service<http:Service> ATMLocator bind serviceEnpoint {
                 io:println("Error occurred while writing info response");
             }
         }
-        _ = outboundEP -> respond(infomationResponse);
+        _ = caller -> respond(infomationResponse);
     }
 }
 
@@ -90,7 +89,7 @@ service<http:Service> Bankinfo bind serviceEnpoint {
     @http:ResourceConfig {
         methods:["POST"]
     }
-    product (endpoint outboundEP, http:Request req) {
+    product (endpoint caller, http:Request req) {
         http:Response res = new;
         var jsonRequest = req.getJsonPayload();
         match jsonRequest {
@@ -111,7 +110,7 @@ service<http:Service> Bankinfo bind serviceEnpoint {
             }
         }
 
-        _ = outboundEP -> respond(res);
+        _ = caller -> respond(res);
     }
 }
 
@@ -124,7 +123,7 @@ service<http:Service> Banklocator bind serviceEnpoint {
     @http:ResourceConfig {
         methods:["POST"]
     }
-    product (endpoint outboundEP, http:Request req) {
+    product (endpoint caller, http:Request req) {
         http:Response res = new;
         var jsonRequest = req.getJsonPayload();
         match jsonRequest {
@@ -144,7 +143,7 @@ service<http:Service> Banklocator bind serviceEnpoint {
             }
         }
 
-        _ = outboundEP -> respond(res);
+        _ = caller -> respond(res);
     }
 }
 

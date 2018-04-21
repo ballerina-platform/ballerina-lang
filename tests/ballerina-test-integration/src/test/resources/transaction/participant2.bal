@@ -16,8 +16,9 @@
 
 import ballerina/http;
 import ballerina/io;
-import ballerina/util;
 import ballerina/sql;
+import ballerina/jdbc;
+import ballerina/system;
 
 endpoint http:Listener participant2EP {
     port:8890
@@ -29,8 +30,8 @@ endpoint http:Listener participant2EP {
 //        options: {url:"jdbc:hsqldb:hsql://localhost:9001/TEST_SQL_CONNECTOR"}
 //};
 
-endpoint sql:Client testDB {
-    url: "hsqldb:hsql://localhost:9001/TEST_SQL_CONNECTOR",
+endpoint jdbc:Client testDB {
+    url: "jdbc:hsqldb:hsql://localhost:9001/TEST_SQL_CONNECTOR",
     username: "SA",
     poolOptions: {maximumPoolSize:10}
 };
@@ -94,7 +95,7 @@ service<http:Service> participant2 bind participant2EP {
     }
     checkCustomerExists(endpoint ep, http:Request req, string uuid) {
         http:Response res = new;  res.statusCode = 200;
-        sql:Parameter para1 = (sql:TYPE_VARCHAR, uuid);
+        sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:uuid};
         var x = testDB -> select("SELECT registrationID FROM Customers WHERE registrationID = ?", Registration, para1);
         match x {
             table dt => {
@@ -125,7 +126,7 @@ function saveToDatabase(http:Listener conn, http:Request req, boolean shouldAbor
     transaction with oncommit=onCommit, onabort=onAbort {
         transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort {
         }
-        string uuid = util:uuid();
+        string uuid = system:uuid();
 
         var result = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                                  values ('John', 'Doe', '" + uuid +"', 5000.75, 'USA')");
@@ -182,7 +183,7 @@ type State object {
     function toString() returns string {
         return io:sprintf("abortedFunctionCalled=%b,committedFunctionCalled=%s," +
                             "localParticipantCommittedFunctionCalled=%s,localParticipantAbortedFunctionCalled=%s",
-                            [abortedFunctionCalled, committedFunctionCalled,
-                                localParticipantCommittedFunctionCalled, localParticipantAbortedFunctionCalled]);
+                            abortedFunctionCalled, committedFunctionCalled,
+                                localParticipantCommittedFunctionCalled, localParticipantAbortedFunctionCalled);
     }
 };

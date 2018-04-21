@@ -4,13 +4,12 @@ import ballerina/runtime;
 int i = 0;
 
 function testForkJoin() returns (int, int) {
-    endpoint http:SimpleClient c {
+    endpoint http:Client c {
         url:"http://example.com"
     };
     fork {
         worker w1 {
-            http:Request req = new;
-            var clientResponse = c->get("", req);
+            var clientResponse = c->get("");
             int code;
             match clientResponse {
                http:Response res => {
@@ -21,7 +20,7 @@ function testForkJoin() returns (int, int) {
             code -> fork;
         }
         worker w2 {
-            runtime:sleepCurrentWorker(5000);
+            runtime:sleep(5000);
             i = 100;
         }
     } join (all) (map results) {

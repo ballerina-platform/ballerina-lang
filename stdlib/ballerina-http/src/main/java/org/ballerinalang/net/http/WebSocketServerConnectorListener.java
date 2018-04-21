@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
@@ -116,10 +117,15 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
             WebSocketDispatcher.setPathParams(bValues, paramDetails, pathParams, 2);
 
             // TODO: Need to revisit this code of observation.
-            ObserverContext ctx = ObservabilityUtils.startServerObservation(SERVER_CONNECTOR_WEBSOCKET,
-                                                                            onUpgradeResource.getServiceName(),
-                                                                            onUpgradeResource.getName(), null);
-//            ctx.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
+            ObserverContext ctx = null;
+            if (ObservabilityUtils.isObservabilityEnabled()) {
+                ctx = ObservabilityUtils.startServerObservation(SERVER_CONNECTOR_WEBSOCKET,
+                        onUpgradeResource.getServiceName(),
+                        onUpgradeResource.getName(), null);
+                // if (ctx != null) {
+                //     ctx.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
+                // }
+            }
 
             Executor.submit(onUpgradeResource, new CallableUnitCallback() {
                 @Override
@@ -127,17 +133,17 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                     if (!webSocketInitMessage.isCancelled() && !webSocketInitMessage.isHandshakeStarted()) {
                         WebSocketUtil.handleHandshake(wsService, connectionManager, null, webSocketInitMessage, null,
                                                       null);
+                        // TODO: Change this to readNextFrame
                     } else {
                         Resource onOpenResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_OPEN);
+                        WebSocketOpenConnectionInfo connectionInfo =
+                                connectionManager.getConnectionInfo(webSocketInitMessage.getSessionID());
+                        WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
                         if (onOpenResource != null) {
-                            List<ParamDetail> paramDetails =
-                                    onOpenResource.getParamDetails();
-                            BValue[] bValues = new BValue[paramDetails.size()];
-                            bValues[0] = connectionManager
-                                    .getConnectionInfo(webSocketInitMessage.getSessionID()).getWebSocketEndpoint();
-                            //TODO handle BallerinaConnectorException
-                            Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(), null, null,
-                                            bValues);
+                            BStruct webSocketEndpoint = connectionInfo.getWebSocketEndpoint();
+                            WebSocketUtil.executeOnOpenResource(onOpenResource, webSocketEndpoint, webSocketConnection);
+                        } else {
+                            connectionInfo.getWebSocketConnection().readNextFrame();
                         }
                     }
                 }

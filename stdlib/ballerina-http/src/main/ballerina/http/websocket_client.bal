@@ -1,4 +1,3 @@
-package ballerina.http;
 
 public type WebSocketClient object {
     public {
@@ -31,7 +30,7 @@ public type WebSocketClient object {
 
     @Description {value:"Returns the connector that client code uses"}
     @Return {value:"The connector that client code uses"}
-    public function getClient () returns (WebSocketConnector)  {
+    public function getCallerActions () returns (WebSocketConnector)  {
         return self.conn;
     }
 
@@ -40,7 +39,7 @@ public type WebSocketClient object {
 
     @Description {value:"Stops the registered service"}
     public function stop () {
-        WebSocketConnector webSocketConnector = self.getClient();
+        WebSocketConnector webSocketConnector = self.getCallerActions();
         WebSocketConnectorError|() ignoredValue = webSocketConnector.close(1001, "The connection has been stopped");
     }
 };
@@ -56,4 +55,5 @@ public type WebSocketClientEndpointConfig {
     string[] subProtocols,
     map<string> customHeaders,
     int idleTimeoutInSeconds = -1,
+    boolean readyOnConnect = true;
 };

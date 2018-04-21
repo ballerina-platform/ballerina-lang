@@ -27,7 +27,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -48,10 +47,10 @@ public class LoadToTableTest {
         recordsInputOutputProgramFile = BCompileUtil.compile("test-src/io/record_io.bal");
     }
 
-    @Test(description = "Test successful data load")
+    //@Test(description = "Test successful data load")
     public void loadRecordFromFile() throws URISyntaxException {
         String resourceToRead = "datafiles/io/records/sample5.csv";
-        BValue[] args = { new BString(getAbsoluteFilePath(resourceToRead))};
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead))};
         final BValue[] result = BRunUtil.invoke(recordsInputOutputProgramFile, "loadToTable", args);
         final BFloat totalSalary = (BFloat) result[0];
         Assert.assertEquals(totalSalary.floatValue(), 60001.00d);

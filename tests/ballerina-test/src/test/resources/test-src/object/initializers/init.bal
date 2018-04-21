@@ -1,4 +1,3 @@
-package initializers;
 
 public type employee object {
     public {

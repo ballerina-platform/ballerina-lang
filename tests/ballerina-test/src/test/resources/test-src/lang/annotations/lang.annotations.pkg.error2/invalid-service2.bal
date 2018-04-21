@@ -1,4 +1,3 @@
-package lang.annotations.pkg.error2;
 
 import lang.annotations.pkg.first;
 

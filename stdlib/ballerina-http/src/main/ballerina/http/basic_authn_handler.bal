@@ -14,12 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
 
 import ballerina/auth;
 import ballerina/log;
 import ballerina/runtime;
-import ballerina/util;
 
 @Description {value:"Authentication cache name"}
 @final string AUTH_CACHE = "basic_auth_cache";
@@ -64,17 +62,17 @@ public function HttpBasicAuthnHandler::handle (Request req) returns (boolean) {
             boolean isAuthenticated = self.authProvider.authenticate(username, password);
             if (isAuthenticated) {
                 // set username
-                runtime:getInvocationContext().authenticationContext.username = username;
+                runtime:getInvocationContext().userPrincipal.username = username;
                 // read scopes and set to the invocation context
                 string[] scopes = self.authProvider.getScopes(username);
                 if (lengthof scopes > 0) {
-                    runtime:getInvocationContext().authenticationContext.scopes = scopes;
+                    runtime:getInvocationContext().userPrincipal.scopes = scopes;
                 }
             }
             return isAuthenticated;
         }
         error err => {
-            log:printErrorCause("Error in decoding basic authentication header", err);
+            log:printError("Error in decoding basic authentication header", err = err);
             return false;
         }
     }
@@ -106,7 +104,7 @@ function extractBasicAuthCredentials (string authHeader) returns (string, string
     // extract user credentials from basic auth header
     string decodedBasicAuthHeader;
     try {
-        decodedBasicAuthHeader = check util:base64DecodeString(authHeader.subString(5, authHeader.length()).trim());
+        decodedBasicAuthHeader = check authHeader.substring(5, authHeader.length()).trim().base64Decode();
     } catch (error err) {
         return err;
     }

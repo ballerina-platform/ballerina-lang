@@ -27,6 +27,7 @@ public class WebSocketConstants {
     public static final String WEBSOCKET_CLIENT_ENDPOINT_NAME = "ballerina.http:WebSocketClient";
     public static final String WEBSOCKET_CONNECTOR = "WebSocketConnector";
     public static final String WEBSOCKET_ENDPOINT = "WebSocketListener";
+    public static final String WEBSOCKET_CLIENT_ENDPOINT = "WebSocketClient";
     public static final String WEBSOCKET_CONNECTOR_ERROR = "WebSocketConnectorError";
     public static final String WEBSOCKET_SERVICE = "WebSocketService";
     public static final String WEBSOCKET_CLIENT_SERVICE = "WebSocketClientService";
@@ -48,7 +49,7 @@ public class WebSocketConstants {
 
     public static final String WEBSOCKET_MESSAGE = "WEBSOCKET_MESSAGE";
 
-    public static final String NATIVE_DATA_WEBSOCKET_SESSION = "NATIVE_DATA_WEBSOCKET_SESSION";
+    public static final String NATIVE_DATA_WEBSOCKET_CONNECTION = "NATIVE_DATA_WEBSOCKET_CONNECTION";
     public static final String NATIVE_DATA_UPGRADE_HEADERS = "NATIVE_DATA_UPGRADE_HEADERS";
 
     public static final String NATIVE_DATA_QUERY_PARAMS = "NATIVE_DATA_QUERY_PARAMS";
@@ -58,6 +59,7 @@ public class WebSocketConstants {
     public static final String CLIENT_SUBPROTOCOLS_CONFIG = "subProtocols";
     public static final String CLIENT_CUSTOMHEADERS_CONFIG = "customHeaders";
     public static final String CLIENT_IDLETIMOUT_CONFIG = "idleTimeoutInSeconds";
+    public static final String CLIENT_READY_ON_CONNECT = "readyOnConnect";
     public static final String CLIENT_CONNECTOR_CONFIGS = "clientEndpointConfigs";
     public static final String WEBSOCKET_UPGRADE_SERVICE_CONFIG = "upgradeService";
     public static final String WEBSOCKET_CONNECTION_MANAGER = "WEBSOCKET_CONNECTION_MANAGER";

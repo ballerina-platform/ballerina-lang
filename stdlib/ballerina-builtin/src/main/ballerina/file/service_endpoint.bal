@@ -14,44 +14,41 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.file;
 
-/////////////////////////
-/// Listener Endpoint ///
-/////////////////////////
+///////////////////////////////////
+/// Direcotry Listener Endpoint ///
+///////////////////////////////////
+documentation {
+    Represents directory listener endpoint where used to listen to a directory in the local file system.
+
+    F{{config}} - ListenerEndpointConfiguration configurations.
+}
 public type Listener object {
     private {
         ListenerEndpointConfiguration config;
     }
 
-    @Description {value:"Gets called when the endpoint is being initialized during the package initialization."}
-    @Param {value:"config: The ServiceEndpointConfiguration of the endpoint"}
-    @Return {value:"Error occured during initialization"}
     public function init(ListenerEndpointConfiguration config) {
         self.config = config;
         check self.initEndpoint();
     }
 
-    @Description {value:"Gets called when the endpoint is being initialized during the package initialization time"}
-    @Return {value:"Error occured during initialization"}
     native function initEndpoint() returns error?;
 
-    @Description {value:"Gets called every time a service attaches itself to this endpoint. Also happens at package initialization."}
-    @Param {value:"ep: The endpoint to which the service should be registered to"}
-    @Param {value:"serviceType: The type of the service to be registered"}
     public native function register(typedesc serviceType);
 
-    @Description {value:"Starts the registered service"}
     public native function start();
 
-    @Description {value:"Stops the registered service"}
     public native function stop();
 };
 
-@Description {value:"Configuration for local file system service endpoint"}
-@Field {value:"path: Listener directory path"}
-@Field {value:"recursive: Recursively monitor all sub folders in the given folder path"}
+documentation {
+    Configuration for direcotry listener endpoint.
+
+    F{{path}} - Directory path which need to listern.
+    F{{recursive}} - Recursively monitor all sub folders or not in the given direcotry path.
+}
 public type ListenerEndpointConfiguration {
-    @readonly string path,
-    @readonly boolean recursive,
+    string path,
+    boolean recursive,
 };
