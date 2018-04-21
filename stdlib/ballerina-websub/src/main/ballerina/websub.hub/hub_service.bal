@@ -41,18 +41,18 @@ service<http:Service> hubService bind hubServiceEP {
         methods:["GET"],
         path:HUB_PATH
     }
-    status (endpoint client, http:Request request) {
+    status(endpoint client, http:Request request) {
         http:Response response = new;
         response.statusCode = http:ACCEPTED_202;
         response.setStringPayload("Ballerina Hub Service - Up and Running!");
-        _ = client -> respond(response);
+        _ = client->respond(response);
     }
 
     @http:ResourceConfig {
         methods:["POST"],
         path:HUB_PATH
     }
-    hub (endpoint client, http:Request request) {
+    hub(endpoint client, http:Request request) {
         http:Response response = new;
         string mode;
         string topic;
@@ -64,17 +64,17 @@ service<http:Service> hubService bind hubServiceEP {
         }
 
         if (params.hasKey(websub:HUB_MODE)) {
-            mode = <string> params[websub:HUB_MODE];
+            mode = <string>params[websub:HUB_MODE];
         }
 
         if (params.hasKey(websub:HUB_TOPIC)) {
-            string topicFromParams = <string> params[websub:HUB_TOPIC];
+            string topicFromParams = <string>params[websub:HUB_TOPIC];
             topic = http:decode(topicFromParams, "UTF-8") but { error => topicFromParams };
         }
 
         if (mode == websub:MODE_SUBSCRIBE || mode == websub:MODE_UNSUBSCRIBE) {
             boolean validSubscriptionRequest = false;
-            string callbackFromParams = <string> params[websub:HUB_CALLBACK];
+            string callbackFromParams = <string>params[websub:HUB_CALLBACK];
             string callback = http:decode(callbackFromParams, "UTF-8") but { error => callbackFromParams };
             match (validateSubscriptionChangeRequest(mode, topic, callback)) {
                 string errorMessage => {
@@ -86,7 +86,7 @@ service<http:Service> hubService bind hubServiceEP {
                     response.statusCode = http:ACCEPTED_202;
                 }
             }
-            _ = client -> respond(response);
+            _ = client->respond(response);
             if (validSubscriptionRequest) {
                 verifyIntent(callback, topic, params);
             }
@@ -96,13 +96,13 @@ service<http:Service> hubService bind hubServiceEP {
                 response.statusCode = http:BAD_REQUEST_400;
                 response.setStringPayload("Remote topic registration not allowed/not required at the Hub");
                 log:printWarn("Remote topic registration denied at Hub");
-                _ = client -> respond(response);
+                _ = client->respond(response);
                 done;
             }
 
             string secret = "";
             if (params.hasKey(websub:PUBLISHER_SECRET)) {
-                secret = <string> params[websub:PUBLISHER_SECRET];
+                secret = <string>params[websub:PUBLISHER_SECRET];
             }
             string errorMessage = websub:registerTopicAtHub(topic, secret);
             if (errorMessage != "") {
@@ -113,19 +113,19 @@ service<http:Service> hubService bind hubServiceEP {
                 response.statusCode = http:ACCEPTED_202;
                 log:printInfo("Topic registration successful at Hub, for topic[" + topic + "]");
             }
-            _ = client -> respond(response);
+            _ = client->respond(response);
         } else if (mode == websub:MODE_UNREGISTER) {
             if (!hubRemotePublishingEnabled || !hubTopicRegistrationRequired) {
                 response.statusCode = http:BAD_REQUEST_400;
                 response.setStringPayload("Remote unregistration not allowed/not required at the Hub");
                 log:printWarn("Remote topic unregistration denied at Hub");
-                _ = client -> respond(response);
+                _ = client->respond(response);
                 done;
             }
 
             string secret = "";
             if (params.hasKey(websub:PUBLISHER_SECRET)) {
-                secret = <string> params[websub:PUBLISHER_SECRET];
+                secret = <string>params[websub:PUBLISHER_SECRET];
             }
             string errorMessage = websub:unregisterTopicAtHub(topic, secret);
             if (errorMessage != "") {
@@ -136,12 +136,12 @@ service<http:Service> hubService bind hubServiceEP {
                 response.statusCode = http:ACCEPTED_202;
                 log:printInfo("Topic unregistration successful at Hub, for topic[" + topic + "]");
             }
-            _ = client -> respond(response);
+            _ = client->respond(response);
         } else {
             if (mode != websub:MODE_PUBLISH) {
                 params = request.getQueryParams();
-                mode = <string> params[websub:HUB_MODE];
-                string topicFromParams = <string> params[websub:HUB_TOPIC];
+                mode = <string>params[websub:HUB_MODE];
+                string topicFromParams = <string>params[websub:HUB_TOPIC];
                 topic = http:decode(topicFromParams, "UTF-8") but { error => topicFromParams };
             }
 
@@ -154,7 +154,7 @@ service<http:Service> hubService bind hubServiceEP {
                             http:HttpConnectorError err => {
                                 log:printError("Error fetching updates for topic URL [" + topic + "]: " + err.message);
                                 response.statusCode = http:BAD_REQUEST_400;
-                                _ = client -> respond(response);
+                                _ = client->respond(response);
                                 done;
                             }
                         }
@@ -163,7 +163,7 @@ service<http:Service> hubService bind hubServiceEP {
                     match (reqJsonPayload) {
                         json payload => {
                             response.statusCode = http:ACCEPTED_202;
-                            _ = client -> respond(response);
+                            _ = client->respond(response);
                             if (hubTopicRegistrationRequired) {
                                 string secret = websub:retrievePublisherSecret(topic);
                                 if (secret != "") {
@@ -171,16 +171,16 @@ service<http:Service> hubService bind hubServiceEP {
                                         string publisherSignature = request.getHeader(websub:PUBLISHER_SIGNATURE);
                                         string strPayload = payload.toString();
                                         var signatureValidation = websub:validateSignature(publisherSignature,
-                                                                                                    strPayload, secret);
+                                            strPayload, secret);
                                         match (signatureValidation) {
                                             websub:WebSubError err => {
                                                 log:printWarn("Signature validation failed for publish request for "
-                                                              + "topic[" + topic + "]: " + err.message);
+                                                        + "topic[" + topic + "]: " + err.message);
                                                 done;
                                             }
                                             () => {
                                                 log:printInfo("Signature validation successful for publish request "
-                                                      + "for Topic [" + topic + "]");
+                                                        + "for Topic [" + topic + "]");
                                             }
                                         }
                                     }
@@ -196,15 +196,15 @@ service<http:Service> hubService bind hubServiceEP {
                         }
                         http:PayloadError payloadError => {
                             log:printError("Error retreiving payload for WebSub publish request: "
-                                           + payloadError.message);
+                                    + payloadError.message);
                         }
                     }
                 }
                 response.statusCode = http:BAD_REQUEST_400;
-                _ = client -> respond(response);
+                _ = client->respond(response);
             } else {
                 response.statusCode = http:BAD_REQUEST_400;
-                _ = client -> respond(response);
+                _ = client->respond(response);
             }
         }
     }
@@ -217,9 +217,9 @@ service<http:Service> hubService bind hubServiceEP {
 @Param {value:"callback: Callback specified in the subscription change request parameters"}
 @Return {value:"Whether the subscription/unsubscription request is valid"}
 @Return {value:"If invalid, the error with the subscription/unsubscription request"}
-function validateSubscriptionChangeRequest(string mode, string topic, string callback) returns (boolean | string) {
+function validateSubscriptionChangeRequest(string mode, string topic, string callback) returns (boolean|string) {
     if (topic != "" && callback != "") {
-        PendingSubscriptionChangeRequest pendingRequest = new (mode, topic, callback);
+        PendingSubscriptionChangeRequest pendingRequest = new(mode, topic, callback);
         pendingRequests[generateKey(topic, callback)] = pendingRequest;
         if (!callback.hasPrefix("http://") && !callback.hasPrefix("https://")) {
             return "Malformed URL specified as callback";
@@ -232,20 +232,21 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
     return "Topic/Callback cannot be null for subscription/unsubscription request";
 }
 
-@Description {value:"Function to initiate intent verification for a valid subscription/unsubscription request received."}
+@Description {value:"Function to initiate intent verification for a valid subscription/unsubscription request received."
+}
 @Param {value:"callback: The callback URL of the new subscription/unsubscription request"}
 @Param {value:"params: Parameters specified in the new subscription/unsubscription request"}
 function verifyIntent(string callback, string topic, map params) {
     endpoint http:Client callbackEp {
         url:callback,
-        secureSocket: secureSocket
+        secureSocket:secureSocket
     };
 
-    string mode = <string> params[websub:HUB_MODE];
+    string mode = <string>params[websub:HUB_MODE];
     int leaseSeconds;
 
     if (params.hasKey(websub:HUB_LEASE_SECONDS)) {
-        match (<int> params[websub:HUB_LEASE_SECONDS]) {
+        match (<int>params[websub:HUB_LEASE_SECONDS]) {
             int extrLeaseSeconds => { leaseSeconds = extrLeaseSeconds; }
             error => { leaseSeconds = 0; }
         }
@@ -255,18 +256,18 @@ function verifyIntent(string callback, string topic, map params) {
     int createdAt = time:currentTime().time;
 
     if (!(leaseSeconds > 0)) {
-          leaseSeconds = hubLeaseSeconds;
+        leaseSeconds = hubLeaseSeconds;
     }
     string challenge = system:uuid();
 
     http:Request request = new;
 
     string queryParams = websub:HUB_MODE + "=" + mode
-                         + "&" + websub:HUB_TOPIC + "=" + topic
-                         + "&" + websub:HUB_CHALLENGE + "=" + challenge
-                         + "&" + websub:HUB_LEASE_SECONDS + "=" + leaseSeconds;
+        + "&" + websub:HUB_TOPIC + "=" + topic
+        + "&" + websub:HUB_CHALLENGE + "=" + challenge
+        + "&" + websub:HUB_LEASE_SECONDS + "=" + leaseSeconds;
 
-    var subscriberResponse = callbackEp -> get(untaint ("?" + queryParams), request = request);
+    var subscriberResponse = callbackEp->get(untaint ("?" + queryParams), request = request);
 
     match (subscriberResponse) {
         http:Response response => {
@@ -275,13 +276,13 @@ function verifyIntent(string callback, string topic, map params) {
                 string payload => {
                     if (payload != challenge) {
                         log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: ["
-                                                     + callback + "]: Challenge not echoed correctly.");
+                                + callback + "]: Challenge not echoed correctly.");
                     } else {
                         websub:SubscriptionDetails subscriptionDetails = {topic:topic, callback:callback,
-                                              leaseSeconds:leaseSeconds, createdAt:createdAt};
+                            leaseSeconds:leaseSeconds, createdAt:createdAt};
                         if (mode == websub:MODE_SUBSCRIBE) {
                             if (params.hasKey(websub:HUB_SECRET)) {
-                                string secret = <string> params[websub:HUB_SECRET];
+                                string secret = <string>params[websub:HUB_SECRET];
                                 subscriptionDetails.secret = secret;
                             }
                             websub:addSubscription(subscriptionDetails);
@@ -293,24 +294,24 @@ function verifyIntent(string callback, string topic, map params) {
                             changeSubscriptionInDatabase(mode, subscriptionDetails);
                         }
                         log:printInfo("Intent verification successful for mode: [" + mode + "], for callback URL: ["
-                                                             + callback + "]");
+                                + callback + "]");
                     }
                 }
                 http:PayloadError payloadError => {
                     log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: [" + callback
-                                  + "]: Error retrieving response payload: " + payloadError.message);
+                            + "]: Error retrieving response payload: " + payloadError.message);
                 }
             }
         }
         http:HttpConnectorError httpConnectorError => {
             log:printInfo("Error sending intent verification request for callback URL: [" + callback
-                     + "]: " + httpConnectorError.message);
+                    + "]: " + httpConnectorError.message);
         }
     }
-    PendingSubscriptionChangeRequest  pendingSubscriptionChangeRequest = new (mode, topic, callback);
+    PendingSubscriptionChangeRequest pendingSubscriptionChangeRequest = new(mode, topic, callback);
     string key = generateKey(topic, callback);
     if (pendingRequests.hasKey(key)) {
-        PendingSubscriptionChangeRequest retrievedRequest = <PendingSubscriptionChangeRequest> pendingRequests[key];
+        PendingSubscriptionChangeRequest retrievedRequest = <PendingSubscriptionChangeRequest>pendingRequests[key];
         if (pendingSubscriptionChangeRequest.equals(retrievedRequest)) {
             _ = pendingRequests.remove(key);
         }
@@ -323,23 +324,23 @@ function verifyIntent(string callback, string topic, map params) {
 @Param {value:"secret: The secret if specified when registering, empty string if not"}
 function changeTopicRegistrationInDatabase(string mode, string topic, string secret) {
     endpoint jdbc:Client subscriptionDbEp {
-        url: hubDatabaseUrl,
-        username: hubDatabaseUsername,
-        password: hubDatabasePassword,
-        poolOptions: {maximumPoolSize:5}
+        url:hubDatabaseUrl,
+        username:hubDatabaseUsername,
+        password:hubDatabasePassword,
+        poolOptions:{maximumPoolSize:5}
     };
 
     sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:topic};
     sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:secret};
     if (mode == websub:MODE_REGISTER) {
-        var updateStatus = subscriptionDbEp -> update("INSERT INTO topics (topic,secret) VALUES (?,?)", para1, para2);
+        var updateStatus = subscriptionDbEp->update("INSERT INTO topics (topic,secret) VALUES (?,?)", para1, para2);
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for registration");
             error err => log:printError("Error occurred updating registration data: " + err.message);
         }
     } else {
-        var updateStatus = subscriptionDbEp -> update("DELETE FROM topics WHERE topic=? AND secret=?",
-                                                para1, para2);
+        var updateStatus = subscriptionDbEp->update("DELETE FROM topics WHERE topic=? AND secret=?",
+            para1, para2);
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for unregistration");
             error err => log:printError("Error occurred updating unregistration data: " + err.message);
@@ -353,10 +354,10 @@ function changeTopicRegistrationInDatabase(string mode, string topic, string sec
 @Param {value:"subscriptionDetails: The details of the subscription changing"}
 function changeSubscriptionInDatabase(string mode, websub:SubscriptionDetails subscriptionDetails) {
     endpoint jdbc:Client subscriptionDbEp {
-        url: hubDatabaseUrl,
-        username: hubDatabaseUsername,
-        password: hubDatabasePassword,
-        poolOptions: {maximumPoolSize:5}
+        url:hubDatabaseUrl,
+        username:hubDatabaseUsername,
+        password:hubDatabasePassword,
+        poolOptions:{maximumPoolSize:5}
     };
 
     sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:subscriptionDetails.topic};
@@ -365,18 +366,18 @@ function changeSubscriptionInDatabase(string mode, websub:SubscriptionDetails su
         sql:Parameter para3 = {sqlType:sql:TYPE_VARCHAR, value:subscriptionDetails.secret};
         sql:Parameter para4 = {sqlType:sql:TYPE_BIGINT, value:subscriptionDetails.leaseSeconds};
         sql:Parameter para5 = {sqlType:sql:TYPE_BIGINT, value:subscriptionDetails.createdAt};
-        var updateStatus = subscriptionDbEp -> update("INSERT INTO subscriptions"
-                                             + " (topic,callback,secret,lease_seconds,created_at) VALUES (?,?,?,?,?) ON"
-                                             + " DUPLICATE KEY UPDATE secret=?, lease_seconds=?,created_at=?",
-                                        untaint para1, untaint para2, untaint para3, untaint para4, untaint para5);
+        var updateStatus = subscriptionDbEp->update("INSERT INTO subscriptions"
+                + " (topic,callback,secret,lease_seconds,created_at) VALUES (?,?,?,?,?) ON"
+                + " DUPLICATE KEY UPDATE secret=?, lease_seconds=?,created_at=?",
+            untaint para1, untaint para2, untaint para3, untaint para4, untaint para5);
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for subscription");
             error err => log:printError("Error occurred updating subscription data: " + err.message);
         }
     } else {
-        var updateStatus = subscriptionDbEp -> update(
-                                               "DELETE FROM subscriptions WHERE topic=? AND callback=?", untaint para1,
-                                               untaint para2);
+        var updateStatus = subscriptionDbEp->update("DELETE FROM subscriptions WHERE topic=? AND callback=?",
+            untaint para1, untaint para2);
+
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for unsubscription");
             error err => log:printError("Error occurred updating unsubscription data: " + err.message);
@@ -399,13 +400,13 @@ function setupOnStartup() {
 @Description {value:"Function to load topic registrations from the database"}
 function addTopicRegistrationsOnStartup() {
     endpoint jdbc:Client subscriptionDbEp {
-        url: hubDatabaseUrl,
-        username: hubDatabaseUsername,
-        password: hubDatabasePassword,
-        poolOptions: {maximumPoolSize:5}
+        url:hubDatabaseUrl,
+        username:hubDatabaseUsername,
+        password:hubDatabasePassword,
+        poolOptions:{maximumPoolSize:5}
     };
     table dt;
-    var dbResult = subscriptionDbEp -> select("SELECT topic, secret FROM topics", TopicRegistration);
+    var dbResult = subscriptionDbEp->select("SELECT topic, secret FROM topics", TopicRegistration);
     match (dbResult) {
         table t => { dt = t; }
         error sqlErr => {
@@ -413,10 +414,10 @@ function addTopicRegistrationsOnStartup() {
         }
     }
     while (dt.hasNext()) {
-        match (<TopicRegistration> dt.getNext()) {
+        match (<TopicRegistration>dt.getNext()) {
             TopicRegistration registrationDetails => {
                 string errorMessage = websub:registerTopicAtHub(registrationDetails.topic, registrationDetails.secret,
-                                                           loadingOnStartUp = true);
+                    loadingOnStartUp = true);
                 if (errorMessage != "") {
                     log:printError("Error registering topic details retrieved from the database: " + errorMessage);
                 }
@@ -432,18 +433,18 @@ function addTopicRegistrationsOnStartup() {
 @Description {value:"Function to add subscriptions to the broker on startup, if persistence is enabled"}
 function addSubscriptionsOnStartup() {
     endpoint jdbc:Client subscriptionDbEp {
-        url: hubDatabaseUrl,
-        username: hubDatabaseUsername,
-        password: hubDatabasePassword,
-        poolOptions: {maximumPoolSize:5}
+        url:hubDatabaseUrl,
+        username:hubDatabaseUsername,
+        password:hubDatabasePassword,
+        poolOptions:{maximumPoolSize:5}
     };
 
     int time = time:currentTime().time;
     sql:Parameter para1 = {sqlType:sql:TYPE_BIGINT, value:time};
-    _ = subscriptionDbEp -> update("DELETE FROM subscriptions WHERE ? - lease_seconds > created_at", para1);
+    _ = subscriptionDbEp->update("DELETE FROM subscriptions WHERE ? - lease_seconds > created_at", para1);
     table dt;
-    var dbResult = subscriptionDbEp -> select("SELECT topic, callback, secret, lease_seconds, created_at"
-                                                + " FROM subscriptions", websub:SubscriptionDetails);
+    var dbResult = subscriptionDbEp->select("SELECT topic, callback, secret, lease_seconds, created_at"
+            + " FROM subscriptions", websub:SubscriptionDetails);
     match (dbResult) {
         table t => { dt = t; }
         error sqlErr => {
@@ -451,7 +452,7 @@ function addSubscriptionsOnStartup() {
         }
     }
     while (dt.hasNext()) {
-        match (<websub:SubscriptionDetails> dt.getNext()) {
+        match (<websub:SubscriptionDetails>dt.getNext()) {
             websub:SubscriptionDetails subscriptionDetails => {
                 websub:addSubscription(subscriptionDetails);
             }
@@ -465,15 +466,15 @@ function addSubscriptionsOnStartup() {
 
 @Description {value:"Function to fetch updates for a particular topic."}
 @Param {value:"topic: The topic URL to be fetched to retrieve updates"}
-function fetchTopicUpdate(string topic) returns (http:Response | http:HttpConnectorError) {
+function fetchTopicUpdate(string topic) returns http:Response|http:HttpConnectorError {
     endpoint http:Client topicEp {
         url:topic,
-        secureSocket: secureSocket
+        secureSocket:secureSocket
     };
 
     http:Request request = new;
 
-    var fetchResponse = topicEp -> get("", request = request);
+    var fetchResponse = topicEp->get("", request = request);
     return fetchResponse;
 }
 
@@ -484,7 +485,7 @@ function fetchTopicUpdate(string topic) returns (http:Response | http:HttpConnec
 public function distributeContent(string callback, websub:SubscriptionDetails subscriptionDetails, json payload) {
     endpoint http:Client callbackEp {
         url:callback,
-        secureSocket: secureSocket
+        secureSocket:secureSocket
     };
 
     http:Request request = new;
@@ -519,7 +520,7 @@ public function distributeContent(string callback, websub:SubscriptionDetails su
         request.setHeader(websub:X_HUB_TOPIC, subscriptionDetails.topic);
         request.setHeader("Link", buildWebSubLinkHeader(hubPublicUrl, subscriptionDetails.topic));
         request.setJsonPayload(payload);
-        var contentDistributionRequest = callbackEp -> post("", request = request);
+        var contentDistributionRequest = callbackEp->post("", request = request);
         match (contentDistributionRequest) {
             http:Response response => { return; }
             http:HttpConnectorError err => { log:printError("Error delievering content to: " + callback); }
@@ -565,8 +566,8 @@ public function generateKey(string topic, string callback) returns (string) {
 @Description {value:"Function to build the link header for a request"}
 @Param {value:"hub: The hub publishing the update"}
 @Param {value:"topic: The canonical URL of the topic for which the update occurred"}
-@Return{value:"The link header content"}
-public function buildWebSubLinkHeader (string hub, string topic) returns (string) {
+@Return {value:"The link header content"}
+public function buildWebSubLinkHeader(string hub, string topic) returns (string) {
     string linkHeader = "<" + hub + ">; rel=\"hub\", <" + topic + ">; rel=\"self\"";
     return linkHeader;
 }
