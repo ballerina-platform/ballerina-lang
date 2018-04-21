@@ -16,58 +16,65 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.file;
+package org.ballerinalang.nativeimpl.internal;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.file.utils.Constants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.nio.file.Path;
 
 /**
- * Creates the file at the path specified in the File struct.
+ * Creates a new directory.
  *
  * @since 0.970.0-alpha1
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "file",
-        functionName = "Path.toAbsolutePath",
+        orgName = "ballerina", packageName = "internal",
+        functionName = "createDirectory",
         args = {
                 @Argument(name = "path", type = TypeKind.STRUCT, structType = "Path", structPackage = "ballerina.file")
         },
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "Path", structPackage = "ballerina.file")
+                @ReturnType(type = TypeKind.BOOLEAN),
+                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.file")
         },
         isPublic = true
 )
-public class ToAbsolutePath extends BlockingNativeCallableUnit {
+public class CreateDirectory extends BlockingNativeCallableUnit {
 
+    private static final Logger log = LoggerFactory.getLogger(CreateDirectory.class);
     /**
-     * Returns the absolute path of the file.
-     *
-     * @param path the path to the file location.
-     * @return the absolute path reference.
+     * Index which holds the reference to the path.
      */
-    private Path getAbsolutePath(Path path) {
-        return path.toAbsolutePath();
-    }
+    private static final int INDEX = 0;
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void execute(Context context) {
-        BStruct pathStruct = (BStruct) context.getRefArgument(0);
+        BStruct pathStruct = (BStruct) context.getRefArgument(INDEX);
         Path path = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
-        BStruct absolutePath = BLangConnectorSPIUtil.createBStruct(context, Constants.FILE_PACKAGE, Constants
-                .PATH_STRUCT);
-        absolutePath.addNativeData(Constants.PATH_DEFINITION_NAME, getAbsolutePath(path));
-        context.setReturnValues(absolutePath);
+        File dir = path.toFile();
+        try {
+            if (dir.mkdirs()) {
+                context.setReturnValues(new BBoolean(true));
+            } else {
+                context.setReturnValues(BLangVMErrors.createError(context,
+                        "Permission denied to create the requested directory structure: " + path));
+            }
+        } catch (SecurityException e) {
+            log.error("Could not create directory structure: " + path, e);
+            context.setReturnValues(BLangVMErrors.createError(context,
+                    "Could not create the requested directory structure: " + path));
+        }
     }
 }
