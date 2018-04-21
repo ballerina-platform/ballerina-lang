@@ -40,7 +40,7 @@ import java.io.IOException;
  *
  * @since 0.94
  */
-public class    XMLLiteralTest {
+public class XMLLiteralTest {
 
     CompileResult result;
     CompileResult literalWithNamespacesResult;
@@ -408,5 +408,18 @@ public class    XMLLiteralTest {
             expectedExceptionsMessageRegExp = ".*invalid xml qualified name: unsupported characters in 'foo&gt;bar'.*")
     public void testIvalidAttributeName() {
         BRunUtil.invoke(result, "testIvalidAttributeName");
+    }
+
+    @Test
+    public void testPackageLevelXML() {
+        CompileResult result = BCompileUtil.compile("test-src/types/xml/package_level_xml_literals.bal");
+        BValue[] returns = BRunUtil.invoke(result, "testPackageLevelXML");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(),
+                "<p:person xmlns:p=\"foo\" xmlns:q=\"bar\" xmlns:ns1=\"http://ballerina.com/b\">hello</p:person>");
+
+        Assert.assertTrue(returns[1] instanceof BXML);
+        Assert.assertEquals(returns[1].stringValue(),
+                "<ns1:student xmlns:ns1=\"http://ballerina.com/b\">hello</ns1:student>");
     }
 }

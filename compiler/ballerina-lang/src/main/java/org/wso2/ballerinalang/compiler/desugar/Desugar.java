@@ -1355,8 +1355,13 @@ public class Desugar extends BLangNodeVisitor {
                 continue;
             }
 
-            // Create local namepace declaration for all in-line namespace declarations
-            BLangLocalXMLNS xmlns = new BLangLocalXMLNS();
+            // Create namepace declaration for all in-line namespace declarations
+            BLangXMLNS xmlns;
+            if ((xmlElementLiteral.scope.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE) {
+                xmlns = new BLangPackageXMLNS();
+            } else {
+                xmlns = new BLangLocalXMLNS();
+            }
             xmlns.namespaceURI = attribute.value.concatExpr;
             xmlns.prefix = ((BLangXMLQName) attribute.name).localname;
             xmlns.symbol = (BXMLNSSymbol) attribute.symbol;

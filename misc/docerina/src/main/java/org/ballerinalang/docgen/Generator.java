@@ -64,6 +64,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -148,7 +149,7 @@ public class Generator {
         List<ConnectorDoc> connectors = visitedObjects.stream().map(obj -> {
             BLangIdentifier epName = obj.getName();
             Optional<BLangFunction> getClientOptional = obj.getFunctions().stream().filter(bLangFunction ->
-                    bLangFunction.getName().getValue().equals("getClient")).findFirst();
+                    bLangFunction.getName().getValue().equals(Names.EP_SPI_GET_CALLER_ACTIONS.value)).findFirst();
 
             if (getClientOptional.isPresent()) {
                 BLangType returnTypeNode = getClientOptional.get().returnTypeNode;
@@ -325,7 +326,8 @@ public class Generator {
             if (tsymbol instanceof BStructSymbol) {
                 pkg = ((BStructSymbol) tsymbol).pkgID.getName().getValue();
             }
-            return pkg + ".html#" + type.typeName.getValue();
+            return pkg != null && !pkg.isEmpty() ? pkg + ".html#" + type.typeName.getValue() : "#" + type.typeName
+                    .getValue();
         } else if (typeNode instanceof BLangValueType) {
             if (((BLangValueType) typeNode).type != null && ((BLangValueType) typeNode).type.tsymbol != null) {
                 return BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_HREF + ".html#" + typeNode.type.tsymbol.getName()
@@ -348,7 +350,8 @@ public class Generator {
         String globalVarName = bLangVariable.getName().getValue();
         String dataType = getTypeName(bLangVariable.getTypeNode());
         String desc = description(bLangVariable);
-        return new GlobalVariableDoc(globalVarName, desc, new ArrayList<>(), dataType);
+        String href = extractLink(bLangVariable.getTypeNode());
+        return new GlobalVariableDoc(globalVarName, desc, new ArrayList<>(), dataType, href);
     }
 
     /**
