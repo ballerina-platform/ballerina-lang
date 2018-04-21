@@ -284,7 +284,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 for (BLangPackage bLangPackage : bLangPackages) {
                     referenceContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                          bLangPackage.symbol.getName().getValue());
-//                LSPackageCache.getInstance().addPackage(bLangPackage.packageID, bLangPackage);
+//                LSPackageCache.getInstance().put(bLangPackage.packageID, bLangPackage);
                     referenceContext.put(NodeContextKeys.REFERENCE_NODES_KEY, contents);
                     contents = ReferenceUtil.getReferences(referenceContext, bLangPackage);
                 }
@@ -441,7 +441,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     LSContextManager lsContextManager = LSContextManager.getInstance();
                     String sourceRoot = LSCompiler.getSourceRoot(Paths.get(params.getTextDocument().getUri()));
                     CompilerContext context = lsContextManager.getCompilerContext(bLangPackage.packageID, sourceRoot);
-                    LSPackageCache.getInstance(context).addPackage(bLangPackage.packageID, bLangPackage);
+                    LSPackageCache.getInstance(context).put(bLangPackage.packageID, bLangPackage);
 
                     contents = ReferenceUtil.getReferences(renameContext, bLangPackage);
                 }

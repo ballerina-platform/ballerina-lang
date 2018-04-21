@@ -32,11 +32,17 @@ let LSService;
 let parserService;
 
 function getClassPath() {
+    const customClassPath = workspace.getConfiguration('ballerina').get('classpath');
     const sdkPath = workspace.getConfiguration('ballerina').get('sdk');
     const jarPath = path.join(__dirname, 'server-build', 'plugin-vscode-server.jar');
 	// in windows class path seperated by ';'
 	const sep = process.platform === 'win32' ? ';' : ':';
-    return path.join(sdkPath, composerlibPath) + sep + path.join(sdkPath, libPath) + sep + jarPath;
+    let classpath = path.join(sdkPath, composerlibPath) + sep + path.join(sdkPath, libPath) + sep + jarPath;
+
+    if (customClassPath) {
+        classpath =  path.join(customClassPath, '/*') + sep + classpath;
+    }
+    return classpath;
 }
 
 function startServices() {
