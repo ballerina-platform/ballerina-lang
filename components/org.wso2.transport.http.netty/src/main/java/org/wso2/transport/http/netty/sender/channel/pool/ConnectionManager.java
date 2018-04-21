@@ -82,7 +82,7 @@ public class ConnectionManager {
             EventLoopGroup group;
             ChannelHandlerContext ctx = sourceHandler.getInboundChannelContext();
             group = ctx.channel().eventLoop();
-            Class cl = ctx.channel().getClass();
+            Class eventLoopClass = ctx.channel().getClass();
 
             if (poolManagementPolicy == PoolManagementPolicy.LOCK_DEFAULT_POOLING) {
                 // This is faster than the above one (about 2k difference)
@@ -90,7 +90,7 @@ public class ConnectionManager {
                 trgHlrConnPool = srcHlrConnPool.get(httpRoute.toString());
                 if (trgHlrConnPool == null) {
                     PoolableTargetChannelFactory poolableTargetChannelFactory =
-                            new PoolableTargetChannelFactory(group, cl, httpRoute, senderConfig,
+                            new PoolableTargetChannelFactory(group, eventLoopClass, httpRoute, senderConfig,
                                     bootstrapConfig, this);
                     trgHlrConnPool = createPoolForRoute(poolableTargetChannelFactory);
                     srcHlrConnPool.put(httpRoute.toString(), trgHlrConnPool);
@@ -103,7 +103,7 @@ public class ConnectionManager {
                         if (!this.connGlobalPool.containsKey(httpRoute.toString())) {
                             PoolableTargetChannelFactory poolableTargetChannelFactory =
                                     new PoolableTargetChannelFactory(group,
-                                            cl, httpRoute, senderConfig, bootstrapConfig, this);
+                                            eventLoopClass, httpRoute, senderConfig, bootstrapConfig, this);
                             trgHlrConnPool = createPoolForRoute(poolableTargetChannelFactory);
                             this.connGlobalPool.put(httpRoute.toString(), trgHlrConnPool);
                         }

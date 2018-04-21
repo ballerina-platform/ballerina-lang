@@ -23,6 +23,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.EventLoop;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.DecoderResult;
@@ -287,5 +288,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private boolean isDiffered(HTTPCarbonMessage sourceReqCmsg) {
         //Http resource stored in the HTTPCarbonMessage means execution waits till payload.
         return sourceReqCmsg.getProperty(Constants.HTTP_RESOURCE) != null;
+    }
+
+    public EventLoop getEventLoop() {
+        return this.ctx.channel().eventLoop();
     }
 }

@@ -94,7 +94,7 @@ public class TargetChannel {
         this.connectionAvailabilityFuture = connectionAvailabilityFuture;
     }
 
-    public ConnectionAvailabilityFuture getConnectionAvailabilityFuture() {
+    public ConnectionAvailabilityFuture getConnenctionReadyFuture() {
         return connectionAvailabilityFuture;
     }
 

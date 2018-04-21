@@ -24,6 +24,8 @@ import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http2.Http2CodecUtil;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
@@ -171,50 +173,55 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
             outboundMsgHolder.setHttp2ClientChannel(freshHttp2ClientChannel);
             httpResponseFuture = outboundMsgHolder.getResponseFuture();
 
-            targetChannel.getConnectionAvailabilityFuture().setListener(new ConnectionAvailabilityListener() {
+            targetChannel.getConnenctionReadyFuture().setListener(new ConnectionAvailabilityListener() {
                 @Override
                 public void onSuccess(String protocol, ChannelFuture channelFuture) {
                     if (log.isDebugEnabled()) {
                         log.debug("Created the connection to address: {}",
                                 route.toString() + " " + "Original Channel ID is : " + channelFuture.channel().id());
                     }
+                    channelFuture.channel().deregister().addListener(future -> {
+                        if (srcHandler != null) {
+                            srcHandler.getEventLoop().register(channelFuture.channel()).addListener(future1 -> {
+                                if (protocol.equalsIgnoreCase(Constants.HTTP2_CLEARTEXT_PROTOCOL) ||
+                                        protocol.equalsIgnoreCase(Constants.HTTP2_TLS_PROTOCOL)) {
 
-                    if (protocol.equalsIgnoreCase(Constants.HTTP2_CLEARTEXT_PROTOCOL) ||
-                        protocol.equalsIgnoreCase(Constants.HTTP2_TLS_PROTOCOL)) {
+                                    freshHttp2ClientChannel.setSocketIdleTimeout(socketIdleTimeout);
+                                    connectionManager.getHttp2ConnectionManager().
+                                            addHttp2ClientChannel(route, freshHttp2ClientChannel);
+                                    freshHttp2ClientChannel.addDataEventListener(
+                                            Constants.IDLE_STATE_HANDLER,
+                                            new TimeoutHandler(socketIdleTimeout, freshHttp2ClientChannel));
 
-                        freshHttp2ClientChannel.setSocketIdleTimeout(socketIdleTimeout);
-                        connectionManager.getHttp2ConnectionManager().
-                                addHttp2ClientChannel(route, freshHttp2ClientChannel);
-                        freshHttp2ClientChannel.addDataEventListener(
-                                Constants.IDLE_STATE_HANDLER,
-                                new TimeoutHandler(socketIdleTimeout, freshHttp2ClientChannel));
-
-                        if (followRedirect) {
-                            setChannelAttributes(channelFuture.channel(), httpOutboundRequest, httpResponseFuture,
-                                                 targetChannel);
+                                    if (followRedirect) {
+                                        setChannelAttributes(channelFuture.channel(), httpOutboundRequest,
+                                                httpResponseFuture, targetChannel);
+                                    }
+                                    freshHttp2ClientChannel.getChannel().eventLoop().
+                                            execute(() -> freshHttp2ClientChannel.getChannel().write(outboundMsgHolder));
+                                    httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
+                                } else {
+                                    // Response for the upgrade request will arrive in stream 1, so use 1 as the stream id.
+                                    freshHttp2ClientChannel
+                                            .putInFlightMessage(Http2CodecUtil.HTTP_UPGRADE_STREAM_ID, outboundMsgHolder);
+                                    httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
+                                    targetChannel.setChannel(channelFuture.channel());
+                                    targetChannel.configTargetHandler(httpOutboundRequest, httpResponseFuture);
+                                    targetChannel.setEndPointTimeout(socketIdleTimeout, followRedirect);
+                                    targetChannel.setCorrelationIdForLogging();
+                                    targetChannel.setHttpVersion(httpVersion);
+                                    targetChannel.setChunkConfig(chunkConfig);
+                                    if (followRedirect) {
+                                        setChannelAttributes(channelFuture.channel(), httpOutboundRequest, httpResponseFuture,
+                                                targetChannel);
+                                    }
+                                    handleOutboundConnectionHeader(keepAliveConfig, httpOutboundRequest);
+                                    targetChannel.setForwardedExtension(forwardedExtensionConfig, httpOutboundRequest);
+                                    targetChannel.writeContent(httpOutboundRequest);
+                                }
+                            });
                         }
-                        freshHttp2ClientChannel.getChannel().eventLoop().
-                                execute(() -> freshHttp2ClientChannel.getChannel().write(outboundMsgHolder));
-                        httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
-                    } else {
-                        // Response for the upgrade request will arrive in stream 1, so use 1 as the stream id.
-                        freshHttp2ClientChannel
-                                .putInFlightMessage(Http2CodecUtil.HTTP_UPGRADE_STREAM_ID, outboundMsgHolder);
-                        httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
-                        targetChannel.setChannel(channelFuture.channel());
-                        targetChannel.configTargetHandler(httpOutboundRequest, httpResponseFuture);
-                        targetChannel.setEndPointTimeout(socketIdleTimeout, followRedirect);
-                        targetChannel.setCorrelationIdForLogging();
-                        targetChannel.setHttpVersion(httpVersion);
-                        targetChannel.setChunkConfig(chunkConfig);
-                        if (followRedirect) {
-                            setChannelAttributes(channelFuture.channel(), httpOutboundRequest, httpResponseFuture,
-                                                 targetChannel);
-                        }
-                        handleOutboundConnectionHeader(keepAliveConfig, httpOutboundRequest);
-                        targetChannel.setForwardedExtension(forwardedExtensionConfig, httpOutboundRequest);
-                        targetChannel.writeContent(httpOutboundRequest);
-                    }
+                    });
                 }
 
                 @Override
