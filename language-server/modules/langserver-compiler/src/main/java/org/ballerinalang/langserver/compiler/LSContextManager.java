@@ -171,7 +171,7 @@ public class LSContextManager {
         LSPackageCache instance = LSPackageCache.getInstance(context);
         //Remove current package from cache
         if (packageID != null) {
-            instance.removePackage(packageID);
+            instance.invalidate(packageID);
         }
         //Set the package local cache into current context
         PackageCache.setInstance(instance.getPackageCache(), context);
