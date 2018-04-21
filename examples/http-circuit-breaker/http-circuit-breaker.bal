@@ -61,7 +61,7 @@ service<http:Service> helloWorld bind backendEP {
     }
     sayHello (endpoint caller, http:Request req) {
         if (counter % 5 == 0) {
-            runtime:sleepCurrentWorker(5000);
+            runtime:sleep(5000);
             counter = counter + 1;
             http:Response res = new;
             res.setStringPayload("Hello World!!!");

@@ -27,7 +27,7 @@ service<http:Service> chunkingSample bind chunkingEP {
         //Create a new outbound request and set the payload.
         http:Request newReq = new;
         newReq.setJsonPayload({"hello":"world!"});
-        var result = clientEndpoint -> post("/echo/", newReq);
+        var result = clientEndpoint -> post("/echo/", request=newReq);
         match result {
             http:Response clientResponse => {
                 //Forward the inbound response.

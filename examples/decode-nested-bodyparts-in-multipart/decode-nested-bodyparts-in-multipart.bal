@@ -35,7 +35,7 @@ service<http:Service> test bind multipartEP {
 
 //This function retrieves the child parts of the specified parent part.
 function handleNestedParts (mime:Entity parentPart) {
-    string contentTypeOfParent = parentPart.contentType.toString();
+    string contentTypeOfParent = parentPart.getContentType();
     if (contentTypeOfParent.hasPrefix("multipart/")) {
         match parentPart.getBodyParts() {
             mime:EntityError err => {
@@ -56,7 +56,7 @@ function handleNestedParts (mime:Entity parentPart) {
 
 @Description {value:"The logic depending on the format in which you want to retrieve body part content."}
 function handleContent (mime:Entity bodyPart) {
-    string baseType = bodyPart.contentType.getBaseType();
+    string baseType = check mime:getMediaType(bodyPart.getContentType())!getBaseType();
     if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
         //Extract xml data from the body part and print the content.
         var payload = bodyPart.getXml();

@@ -9,8 +9,7 @@ int counter = 0;
     functionName : "println"
 }
 public function mockPrint (any... s) {
-    string j = <string>s;
-    outputs[counter] = j;
+    outputs[counter] = s[0];
     counter++;
 }
 

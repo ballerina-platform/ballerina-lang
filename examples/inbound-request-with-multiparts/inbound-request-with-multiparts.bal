@@ -43,7 +43,7 @@ service<http:Service> test bind multipartEP {
 
 @Description {value:"The content logic that handles the body parts vary based on your requirement."}
 function handleContent (mime:Entity bodyPart) {
-    string baseType = bodyPart.contentType.getBaseType();
+    string baseType = check mime:getMediaType(bodyPart.getContentType())!getBaseType();
     if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
         //Extract the xml data from the body part and print it.
         var payload = bodyPart.getXml();

@@ -4,7 +4,7 @@ endpoint http:Listener helloWorldEP {
     port:9095,
     secureSocket: {
         keyStore: {
-            filePath: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
             password: "ballerina"
         }
     }
