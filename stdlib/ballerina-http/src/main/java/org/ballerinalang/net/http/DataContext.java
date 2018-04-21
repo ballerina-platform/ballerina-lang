@@ -18,10 +18,15 @@
 
 package org.ballerinalang.net.http;
 
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.runtime.message.MessageDataSource;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import static org.ballerinalang.net.http.HttpConstants.HTTP_CONNECTOR_ERROR;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
@@ -32,13 +37,32 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 public class DataContext {
     public Context context;
     public CallableUnitCallback callback;
+    private HTTPCarbonMessage correlatedMessage;
 
-    public DataContext(Context context, CallableUnitCallback callback) {
+    public DataContext(Context context, CallableUnitCallback callback, HTTPCarbonMessage correlatedMessage) {
         this.context = context;
         this.callback = callback;
+        this.correlatedMessage = correlatedMessage;
     }
 
     public void notifyReply(BStruct response, BStruct httpConnectorError) {
+        //Make the request associate with this response consumable again so that it can be reused.
+        if (correlatedMessage != null) {
+            BStruct requestStruct = ((BStruct) context.getNullableRefArgument(1));
+            if (requestStruct != null) {
+                BStruct entityStruct = MimeUtil.extractEntity(requestStruct);
+                if (entityStruct != null) {
+                    MessageDataSource messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+                    if (messageDataSource == null && EntityBodyHandler.getByteChannel(entityStruct) == null) {
+                        correlatedMessage.addHttpContent(new DefaultLastHttpContent());
+                    } else {
+                        correlatedMessage.waitAndReleaseAllEntities();
+                    }
+                } else {
+                    correlatedMessage.addHttpContent(new DefaultLastHttpContent());
+                }
+            }
+        }
         if (response != null) {
             context.setReturnValues(response);
         } else if (httpConnectorError != null) {
@@ -58,5 +82,9 @@ public class DataContext {
             context.setReturnValues(httpConnectorError);
         }
         callback.notifySuccess();
+    }
+
+    public HTTPCarbonMessage getOutboundRequest() {
+        return correlatedMessage;
     }
 }

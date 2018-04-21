@@ -200,7 +200,7 @@ public class HttpUtil {
                 populateEntityBody(context, httpMessageStruct, entity, isRequest);
             }
             if (entity == null) {
-                entity = createNewEntity(context, httpMessageStruct);
+                entity = EntityBodyHandler.createNewEntity(context, httpMessageStruct);
             }
             return new BValue[]{entity};
         } catch (Throwable throwable) {
@@ -701,24 +701,8 @@ public class HttpUtil {
     public static void checkEntityAvailability(Context context, BStruct struct) {
         BStruct entity = (BStruct) struct.getNativeData(MESSAGE_ENTITY);
         if (entity == null) {
-            HttpUtil.createNewEntity(context, struct);
+            EntityBodyHandler.createNewEntity(context, struct);
         }
-    }
-
-    /**
-     * Set new entity to in/out request/response struct.
-     *
-     * @param context ballerina context.
-     * @param struct  request/response struct.
-     */
-    public static BStruct createNewEntity(Context context, BStruct struct) {
-        BStruct entity = ConnectorUtils.createAndGetStruct(context
-                , org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME
-                , org.ballerinalang.mime.util.Constants.ENTITY);
-        entity.addNativeData(ENTITY_HEADERS, new DefaultHttpHeaders());
-        struct.addNativeData(MESSAGE_ENTITY, entity);
-        struct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
-        return entity;
     }
 
     private static void setCompressionHeaders(Context context, HTTPCarbonMessage requestMsg, HTTPCarbonMessage
