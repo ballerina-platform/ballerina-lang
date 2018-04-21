@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.testerina.util;
 
+import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
@@ -49,9 +50,15 @@ public class Utils {
         initDebugger(programFile, debugger);
 
         // Invoke package init function
-        BLangFunctions.invokePackageInitFunction(servicesPackage.getInitFunctionInfo());
-
+        if (initPackage(programFile.getEntryPkgName())) {
+            BLangFunctions.invokePackageInitFunction(servicesPackage.getInitFunctionInfo());
+            TesterinaRegistry.getInstance().addInitedPackage(programFile.getEntryPkgName());
+        }
         BLangFunctions.invokeVMUtilFunction(servicesPackage.getStartFunctionInfo());
+    }
+
+    public static boolean initPackage(String entryPkgName) {
+        return !TesterinaRegistry.getInstance().getInitedPackages().contains(entryPkgName);
     }
 
     /**

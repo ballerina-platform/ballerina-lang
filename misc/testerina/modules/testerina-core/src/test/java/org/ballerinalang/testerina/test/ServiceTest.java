@@ -65,6 +65,7 @@ public class ServiceTest {
     private void cleanup() {
         TesterinaRegistry.getInstance().setProgramFiles(new ArrayList<>());
         TesterinaRegistry.getInstance().setTestSuites(new HashMap<>());
+        TesterinaRegistry.getInstance().getInitedPackages().clear();
     }
 
     // TODO : Added as a temporary solution to cleanup .ballerina directory
