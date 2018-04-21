@@ -167,10 +167,10 @@ IndexBasedAccessExpr
    ;
 
 Invocation
-   : <actionInvocation?>      <async?async> <expression.source>  ->   <name.value> ( <argumentExpressions-joined-by,>* )
-   | <expression.source>  .   <async?async> <name.value> ( <argumentExpressions-joined-by,>* )
-   | <packageAlias.value> :   <async?async> <name.value> ( <argumentExpressions-joined-by,>* )
-   |                          <async?async> <name.value> ( <argumentExpressions-joined-by,>* )
+   : <actionInvocation?>      <async?start> <expression.source>  ->   <name.value> ( <argumentExpressions-joined-by,>* )
+   | <expression.source>  .   <async?start>                           <name.value> ( <argumentExpressions-joined-by,>* )
+   | <packageAlias.value> :   <async?start>                           <name.value> ( <argumentExpressions-joined-by,>* )
+   |                          <async?start>                           <name.value> ( <argumentExpressions-joined-by,>* )
    ;
 
 Lambda

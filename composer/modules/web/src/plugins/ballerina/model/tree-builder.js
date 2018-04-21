@@ -155,6 +155,20 @@ class TreeBuilder {
             node.endpoint = true;
         }
 
+        if (node.kind === 'Variable' && node.initialExpression && node.initialExpression.async) {
+            if (node.ws) {
+                let wsLength = node.ws.length;
+                for (let i = 0; i < wsLength; i++) {
+                    if (node.ws[i].text === 'start') {
+                        if (node.initialExpression.ws) {
+                            node.initialExpression.ws.splice(0, 0, node.ws[i]);
+                            node.ws.splice(i, 1);
+                        }
+                    }
+                }
+            }
+        }
+
         if (node.kind === 'Service') {
             if (!node.serviceTypeStruct) {
                 node.isServiceTypeUnavailable = true;

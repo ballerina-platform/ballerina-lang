@@ -594,24 +594,24 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'Invocation':
             if (node.actionInvocation && node.expression
                          && node.name.valueWithBar && node.argumentExpressions) {
-                return (node.async ? w() + 'async' + a(' ') : '')
+                return (node.async ? w() + 'start' + a(' ') : '')
                  + getSourceOf(node.expression, pretty, l, replaceLambda) + w() + '->' + w()
                  + node.name.valueWithBar + w() + '('
                  + join(node.argumentExpressions, pretty, replaceLambda, l, w, '', ',') + w() + ')';
             } else if (node.expression && node.name.valueWithBar
                          && node.argumentExpressions) {
                 return getSourceOf(node.expression, pretty, l, replaceLambda) + w()
-                 + '.' + (node.async ? w() + 'async' + a(' ') : '') + w()
+                 + '.' + (node.async ? w() + 'start' + a(' ') : '') + w()
                  + node.name.valueWithBar + w() + '('
                  + join(node.argumentExpressions, pretty, replaceLambda, l, w, '', ',') + w() + ')';
             } else if (node.packageAlias.valueWithBar && node.name.valueWithBar
                          && node.argumentExpressions) {
                 return w() + node.packageAlias.valueWithBar + w() + ':'
-                 + (node.async ? w() + 'async' + a(' ') : '') + w() + node.name.valueWithBar + w()
+                 + (node.async ? w() + 'start' + a(' ') : '') + w() + node.name.valueWithBar + w()
                  + '('
                  + join(node.argumentExpressions, pretty, replaceLambda, l, w, '', ',') + w() + ')';
             } else {
-                return (node.async ? w() + 'async' + a(' ') : '') + w()
+                return (node.async ? w() + 'start' + a(' ') : '') + w()
                  + node.name.valueWithBar + w() + '('
                  + join(node.argumentExpressions, pretty, replaceLambda, l, w, '', ',') + w() + ')';
             }
