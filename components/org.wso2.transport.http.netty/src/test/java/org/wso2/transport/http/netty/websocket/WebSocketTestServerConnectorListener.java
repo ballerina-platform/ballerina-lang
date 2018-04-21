@@ -37,6 +37,8 @@ import org.wso2.transport.http.netty.util.client.websocket.WebSocketTestConstant
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * WebSocket test class for WebSocket Connector Listener.
@@ -55,6 +57,7 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {
         HandshakeFuture future = initMessage.handshake(null, true, 3000);
+        CountDownLatch countDownLatch = new CountDownLatch(1);
         future.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection) {
@@ -62,14 +65,21 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
                         currentConn -> currentConn.pushText(WebSocketTestConstants.PAYLOAD_NEW_CLIENT_CONNECTED));
                 connectionList.add(webSocketConnection);
                 webSocketConnection.startReadingFrames();
+                countDownLatch.countDown();
             }
 
             @Override
-            public void onError(Throwable t) {
-                log.error(t.getMessage());
-                Assert.assertTrue(false, "Error: " + t.getMessage());
+            public void onError(Throwable throwable) {
+                log.error(throwable.getMessage());
+                Assert.assertTrue(false, "Error: " + throwable.getMessage());
+                countDownLatch.countDown();
             }
         });
+        try {
+            countDownLatch.await(10, TimeUnit.SECONDS);
+        } catch (InterruptedException err) {
+            log.error(err.getMessage(), err);
+        }
     }
 
     @Override
