@@ -58,19 +58,19 @@ function main(string... args) {
 
     // Start simulating the events with the temperature readings.
     tempStream.publish(t1);
-    runtime:sleepCurrentWorker(200);
+    runtime:sleep(200);
 
     tempStream.publish(t2);
-    runtime:sleepCurrentWorker(200);
+    runtime:sleep(200);
 
     tempStream.publish(t3);
-    runtime:sleepCurrentWorker(200);
+    runtime:sleep(200);
 
     tempStream.publish(t4);
-    runtime:sleepCurrentWorker(200);
+    runtime:sleep(200);
 
     tempStream.publish(t5);
-    runtime:sleepCurrentWorker(200);
+    runtime:sleep(200);
 
     tempStream.publish(t6);
 
@@ -79,7 +79,7 @@ function main(string... args) {
     // Wait until the results are collected.
     int count = 0;
     while(true) {
-        runtime:sleepCurrentWorker(500);
+        runtime:sleep(500);
         count++;
         if((lengthof tempDiffInfoArray) > 1 || count == 10) {
             break;

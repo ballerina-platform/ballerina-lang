@@ -47,7 +47,7 @@ function main (string... args) {
         task:Appointment appointment7 = new task:Appointment(onTriggerFunction, onErrorFunction, "0,30 * * ? * SAT,SUN");
         appointment7.schedule();
 
-        runtime:sleepCurrentWorker(600000); // Temporary workaround to stop the process from exiting.
+        runtime:sleep(600000); // Temporary workaround to stop the process from exiting.
     }
 }
 
@@ -102,5 +102,5 @@ function cleanup() returns (error?) {
 }
 
 function cleanupError (error e) {
-    log:printErrorCause("[ERROR] cleanup failed", e);
+    log:printError("[ERROR] cleanup failed", err=e);
 }

@@ -1,39 +1,25 @@
 import ballerina/io;
 
 @Description{value:"This function returns a `DelimitedRecordChannel` from a given file location.The encoding is a character representation (i.e., UTF-8 ASCCI) of the content in the file. The `rs` annotation defines a record seperator (e.g., a new line) and the `fs` annotation is a field seperator (e.g., a comma)."}
-function getFileRecordChannel (string filePath, string permission, string encoding,
-                               string rs, string fs) returns (io:DelimitedRecordChannel) {
+function getFileRecordChannel (string filePath, io:Mode permission, string encoding,
+                               string rs, string fs) returns (io:DelimitedTextRecordChannel) {
     io:ByteChannel channel = io:openFile(filePath, permission);
     // Create a `character channel` from the `byte channel` to read content as text.
-    var channelResp = io:createCharacterChannel(channel, encoding);
-    match channelResp {
-        io:CharacterChannel characterChannel => {
-            // Convert the `character channel` to a `record channel`
-            //to read the content as records.
-            var recordChannelResp = io:createDelimitedRecordChannel(characterChannel, rs, fs);
-            match recordChannelResp {
-                io:DelimitedRecordChannel delimitedRecordChannel => {
-                    return delimitedRecordChannel;
-                }
-                io:IOError err => {
-                    throw err.cause but {() => err};
-                }
-            }
-        }
-        io:IOError err => {
-            throw err.cause but {() => err};
-        }
-    }
+    io:CharacterChannel characterChannel = new(channel, encoding);
+    // Convert the `character channel` to a `record channel`
+    //to read the content as records.
+    io:DelimitedTextRecordChannel delimitedRecordChannel = new(characterChannel, rs=rs, fs=fs);
+    return delimitedRecordChannel;
 }
 
 @Description{value:"This function reads the next record from the channel."}
-function readNext(io:DelimitedRecordChannel channel)returns (string []){
-    var recordResp = channel.nextTextRecord();
+function readNext(io:DelimitedTextRecordChannel channel)returns (string []){
+    var recordResp = channel.getNext();
     match recordResp {
         string[] records => {
             return records;
         }
-        io:IOError err => {
+        error err => {
             throw err.cause but {() => err};
         }
 
@@ -41,19 +27,20 @@ function readNext(io:DelimitedRecordChannel channel)returns (string []){
 }
 
 @Description{value:"This function writes the next record to the channel."}
-function write(io:DelimitedRecordChannel channel,string [] records){
-    io:IOError err = channel.writeTextRecord(records);
-    if(err != null){
-       throw err.cause but {() => err};
+function write(io:DelimitedTextRecordChannel channel,string [] records){
+    error? err = channel.write(records);
+    match err{
+        error e => throw e.cause but {() => e};
+        () => {}
     }
 }
 
 @Description{value:"This function processes the `.CSV` file and writes content back as text with the `|` delimiter."}
-function process (io:DelimitedRecordChannel srcRecordChannel,
-                  io:DelimitedRecordChannel dstRecordChannel) {
+function process (io:DelimitedTextRecordChannel srcRecordChannel,
+                  io:DelimitedTextRecordChannel dstRecordChannel) {
     try {
         //Read all the records from the provided file until there are no more records.
-        while (srcRecordChannel.hasNextTextRecord()) {
+        while (srcRecordChannel.hasNext()) {
             string[] records;
             // Read the records.
             records = readNext(srcRecordChannel);
@@ -70,12 +57,12 @@ function main (string... args) {
     string dstFileName = "./files/sampleResponse.txt";
     // The record separator of the `.CSV` file is a
     // new line, and the field separator is a comma (,).
-    io:DelimitedRecordChannel srcRecordChannel =
-    getFileRecordChannel(srcFileName, "r", "UTF-8", "\\r?\\n", ",");
+    io:DelimitedTextRecordChannel srcRecordChannel =
+    getFileRecordChannel(srcFileName, io:READ, "UTF-8", "\\r?\\n", ",");
     //The record separator of the text file
     //is a new line, and the field separator is a pipe (|).
-    io:DelimitedRecordChannel dstRecordChannel =
-    getFileRecordChannel(dstFileName, "w", "UTF-8", "\n", "|");
+    io:DelimitedTextRecordChannel dstRecordChannel =
+    getFileRecordChannel(dstFileName, io:WRITE, "UTF-8", "\n", "|");
     try {
         io:println("Start processing the CSV file from " + srcFileName + " to the text file in "
                    + dstFileName);
@@ -86,7 +73,7 @@ function main (string... args) {
         io:println("An error occurred while processing the records. " + err.message);
     }finally {
        //Close the text record channel.
-       io:IOError? closeError = srcRecordChannel.closeDelimitedRecordChannel();
-       closeError = dstRecordChannel.closeDelimitedRecordChannel();
+       error? closeError = srcRecordChannel.close();
+       closeError = dstRecordChannel.close();
     }
 }

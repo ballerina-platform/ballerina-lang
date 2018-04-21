@@ -26,7 +26,7 @@ service<jms:Consumer> jmsListener bind consumer {
         // over using the HTTP client endpoint.
         http:Request req = new;
         req.setStringPayload(textContent);
-        http:Response response = check clientEP->post("/backend/jms", req);
+        http:Response response = check clientEP->post("/backend/jms", request=req);
 
         string responseMessage = check response.getStringPayload();
         log:printInfo("Response from backend service: " + responseMessage);

@@ -10,6 +10,6 @@ function main (string... args) {
     websub:WebSubHub webSubHub = websub:startUpBallerinaHub();
 
     //Wait for the subscriber to subscribe at this hub and for the publisher to publish the notifications.
-    runtime:sleepCurrentWorker(60000);
+    runtime:sleep(60000);
 
 }

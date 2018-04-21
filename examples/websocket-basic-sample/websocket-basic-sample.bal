@@ -34,12 +34,12 @@ service<http:WebSocketService> SimpleSecureServer bind ep {
 
         if (text == "ping") {
             io:println("Pinging...");
-            conn -> ping(pingData) but { error e => log:printErrorCause("Error sending ping", e) };
+            conn -> ping(pingData) but { error e => log:printError("Error sending ping", err=e) };
         } else if (text == "closeMe") {
             conn -> close(1001, "You asked me to close the connection")
-            but { error e => log:printErrorCause("Error occurred when closing the connection", e) };
+            but { error e => log:printError("Error occurred when closing the connection", err=e) };
         } else {
-            conn -> pushText("You said: " + text) but { error e => log:printErrorCause("Error occurred when sending text", e) };
+            conn -> pushText("You said: " + text) but { error e => log:printError("Error occurred when sending text", err=e) };
         }
     }
 
@@ -47,13 +47,13 @@ service<http:WebSocketService> SimpleSecureServer bind ep {
     onBinary(endpoint conn, blob b) {
         io:println("\nNew binary message received");
         io:println("UTF-8 decoded binary message: " + b.toString("UTF-8"));
-        conn -> pushBinary(b) but { error e => log:printErrorCause("Error occurred when sending binary", e) };
+        conn -> pushBinary(b) but { error e => log:printError("Error occurred when sending binary", err=e) };
     }
 
     //This resource is triggered when a ping message is received from the client. If this resource is not implemented,
     //a pong message is automatically sent to the connected endpoint when a ping is received.
     onPing(endpoint conn, blob data) {
-        conn -> pong(data) but { error e => log:printErrorCause("Error occurred when closing the connection", e) };
+        conn -> pong(data) but { error e => log:printError("Error occurred when closing the connection", err=e) };
     }
 
     //This resource is triggered when a pong message is received
@@ -67,7 +67,7 @@ service<http:WebSocketService> SimpleSecureServer bind ep {
         // This resource will be triggered after 180 seconds if there is no activity in a given channel.
         io:println("\nReached idle timeout");
         io:println("Closing connection " + conn.id);
-        conn -> close(1001, "Connection timeout") but { error e => log:printErrorCause("Error occured when closing the connection", e) };
+        conn -> close(1001, "Connection timeout") but { error e => log:printError("Error occured when closing the connection", err=e) };
     }
 
     //This resource is triggered when a client connection is closed from the client side.

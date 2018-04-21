@@ -58,15 +58,15 @@ function main(string... args) {
 
     // Publish/simulate the sample event that represents the regulator 'switch on' event.
     regulatorStateChangeStream.publish(regulatorState1);
-    runtime:sleepCurrentWorker(200);
+    runtime:sleep(200);
 
     // Simulate the sample event that represents the door/room closed event.
     roomKeyStream.publish(roomKeyAction);
-    runtime:sleepCurrentWorker(500);
+    runtime:sleep(500);
 
     int count = 0;
     while(true) {
-        runtime:sleepCurrentWorker(500);
+        runtime:sleep(500);
         count++;
         if((lengthof roomActions) > 0 || count == 10) {
             break;

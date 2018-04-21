@@ -4,10 +4,10 @@ function main (string... args) {
 
     string statement = "Lion in Town. Catch the Lion ";
 
-    string s1 = statement.toUpperCase();
+    string s1 = statement.toUpper();
     io:println("ToUpper: " + s1);
 
-    string s2 = statement.toLowerCase();
+    string s2 = statement.toLower();
     io:println("ToLower: " + s2);
 
     //Compares two strings, ignoring the case. Returns true if the strings are equal and false otherwise.
@@ -16,7 +16,7 @@ function main (string... args) {
 
     //Returns a new string that is a substring of the specified string. You should give the original string 
     //and the starting and ending indexes of the substring.
-    string s3 = statement.subString(0, 4);
+    string s3 = statement.substring(0, 4);
     io:println("SubString: " + s3);
 
     boolean contains = statement.contains("Lion");
@@ -81,6 +81,6 @@ function main (string... args) {
     io:println("Blob: " + s10);
 
     //Formats a string according to given format arguments.
-    string s11 = io:sprintf("%s %f", [array[0], value]);
+    string s11 = io:sprintf("%s %f", array[0], value);
     io:println("Sprintf: " + s11);
 }

@@ -17,7 +17,7 @@ function main (string... args) {
     }
 
     //Make the publisher wait until the subscriber subscribes at the hub.
-    runtime:sleepCurrentWorker(20000);
+    runtime:sleep(20000);
 
     log:printInfo("Publishing update to internal Hub");
     //Publish directly to the internal Ballerina Hub.
@@ -29,5 +29,5 @@ function main (string... args) {
     }
 
     //Make sure the service is running until the subscriber receives the update notification.
-    runtime:sleepCurrentWorker(50000);
+    runtime:sleep(50000);
 }
