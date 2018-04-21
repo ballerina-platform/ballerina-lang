@@ -95,6 +95,7 @@
 
     <properties>
         <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
+        <maven.checkstyleplugin.excludes>**/generated-sources/**</maven.checkstyleplugin.excludes>
     </properties>
     
 </project>
