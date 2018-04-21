@@ -3,22 +3,24 @@ import ballerina/io;
 import ballerina/grpc;
 
 // Server endpoint configuration
-endpoint grpc:Listener ep {
+endpoint grpc:Service ep {
     host:"localhost",
     port:9090
 };
 
-@grpc:serviceConfig
-service HelloWorld bind ep {
-    //@grpc:resourceConfig {input:string, output:string}
-    hello (endpoint caller, string name, grpc:Headers headers) {
+@grpc:serviceConfig {generateClientConnector:false}
+service<grpc:Listener> HelloWorld bind ep {
+    hello (endpoint client, string name, grpc:Headers headers) {
         io:println("name: " + name);
         string message = "Hello " + name;
         // Working with custom headers.
         io:println(headers.get("x-id"));
         headers.setEntry("x-id", "1234567890");
-        error? err = caller->send(message, headers);
-        io:println(err.message but {() => "Server send response : " + message});
-        _ = caller->complete();
+        grpc:ConnectorError err = client -> send(message, headers);
+        io:println("Server send response : " + message);
+        if (err != ()) {
+            io:println("Error at helloWorld : " + err.message);
+        }
+        _ = client -> complete();
     }
 }

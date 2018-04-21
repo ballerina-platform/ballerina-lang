@@ -6,17 +6,22 @@ import ballerina/io;
 public type HelloWorldStub object {
     public {
         grpc:Client clientEndpoint;
-        grpc:Stub stub;
+        grpc:ServiceStub serviceStub;
     }
 
-    function initStub(grpc:Client clientEndpoint) {
-        grpc:Stub navStub = new;
+    function initStub (grpc:Client clientEndpoint) {
+        grpc:ServiceStub navStub = new;
         navStub.initStub(clientEndpoint, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
-        self.stub = navStub;
+        self.serviceStub = navStub;
     }
 
-    function lotsOfReplies(string req, typedesc listener, grpc:Headers... headers) returns (error?) {
-        return self.stub.nonBlockingExecute("HelloWorld/lotsOfReplies", req, listener, ...headers);
+    function lotsOfReplies (string req, typedesc listener, grpc:Headers... headers) returns (error?) {
+        var err1 = self.serviceStub.nonBlockingExecute("HelloWorld/lotsOfReplies", req, listener, ...headers);
+        if (err1 != ()) {
+            error e = {message:err1.message};
+            return e;
+        }
+        return ();
     }
 };
 
@@ -27,7 +32,7 @@ public type HelloWorldClient object {
         HelloWorldStub stub;
     }
 
-    public function init(grpc:ClientEndpointConfig config) {
+    public function init (grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
         grpc:Client client = new;
         client.init(config);
@@ -38,7 +43,7 @@ public type HelloWorldClient object {
         self.stub = stub;
     }
 
-    public function getCallerActions() returns (HelloWorldStub) {
+    public function getCallerActions () returns (HelloWorldStub) {
         return self.stub;
     }
 };
