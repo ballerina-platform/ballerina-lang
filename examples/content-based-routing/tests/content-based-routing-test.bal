@@ -1,5 +1,6 @@
 import ballerina/test;
 import ballerina/io;
+import ballerina/http;
 
 boolean serviceStarted;
 
@@ -14,7 +15,7 @@ function startService(){
 }
 function testFunc() {
     // Invoking the main function
-    endpoint http:Client httpEndpoint { targets:[{ url:"http://localhost:9090" }] };
+    endpoint http:Client httpEndpoint { url:"http://localhost:9090" };
     // Chck whether the server is started
     test:assertTrue(serviceStarted, msg = "Unable to start the service");
     json payload = {"name" : "sanFrancisco"};
@@ -39,7 +40,7 @@ function testFunc() {
     http:Request req = new;
     req.setJsonPayload(payload);
     // Send a GET request to the specified endpoint
-    var response = httpEndpoint -> post("/cbr/route", req);
+    var response = httpEndpoint -> post("/cbr/route", request=req);
     match response {
         http:Response resp => {
             var jsonRes = check resp.getJsonPayload();
@@ -49,9 +50,9 @@ function testFunc() {
     }
 
     http:Request req2 = new;
-    req.setJsonPayload(payload2);
+    req2.setJsonPayload(payload2);
     // Send a GET request to the specified endpoint
-    var respnc = httpEndpoint -> post("/cbr/route", req2);
+    var respnc = httpEndpoint -> post("/cbr/route", request=req2);
     match respnc {
         http:Response resp => {
             var jsonRes = check resp.getJsonPayload();

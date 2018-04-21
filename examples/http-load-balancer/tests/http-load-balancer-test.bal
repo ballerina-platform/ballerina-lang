@@ -1,5 +1,6 @@
 import ballerina/test;
 import ballerina/io;
+import ballerina/http;
 
 boolean serviceStarted;
 
@@ -13,13 +14,12 @@ function startService(){
 }
 function testFunc() {
     // Invoking the main function
-    endpoint http:Client httpEndpoint { targets:[{ url:"http://localhost:9090" }] };
+    endpoint http:Client httpEndpoint { url:"http://localhost:9090" };
     // Chck whether the server is started
     test:assertTrue(serviceStarted, msg = "Unable to start the service");
 
-    http:Request req = new;
     // Send a GET request to the specified endpoint
-    var response = httpEndpoint -> get("/lb", req);
+    var response = httpEndpoint -> get("/lb");
     match response {
         http:Response resp => {
             var res = check resp.getStringPayload();
@@ -28,9 +28,8 @@ function testFunc() {
         http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 
-    http:Request req2 = new;
     // Send a GET request to the specified endpoint
-    var response2 = httpEndpoint -> get("/lb", req2);
+    var response2 = httpEndpoint -> get("/lb");
     match response2 {
         http:Response resp => {
             var res = check resp.getStringPayload();
@@ -40,9 +39,8 @@ function testFunc() {
     }
 
     // Invoke the service for the third time
-    http:Request req3 = new;
     // Send a GET request to the specified endpoint
-    var response3 = httpEndpoint -> get("/lb", req3);
+    var response3 = httpEndpoint -> get("/lb");
     match response3 {
         http:Response resp => {
             var res = check resp.getStringPayload();
@@ -52,9 +50,8 @@ function testFunc() {
     }
 
     // Invoke the service for the third time
-    http:Request req4 = new;
     // Send a GET request to the specified endpoint
-    var response4 = httpEndpoint -> get("/lb", req4);
+    var response4 = httpEndpoint -> get("/lb");
     match response4 {
         http:Response resp => {
             var res = check resp.getStringPayload();

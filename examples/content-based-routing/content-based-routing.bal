@@ -8,7 +8,7 @@ endpoint http:Listener cbrEP {
 
 @Description {value:"Define the attributes associated with the client endpoint here."}
 endpoint http:Client locationEP {
-    targets:[{url: "http://www.mocky.io"}]
+    url: "http://www.mocky.io"
 };
 
 
@@ -33,9 +33,9 @@ service<http:Service> contentBasedRouting bind cbrEP {
                 if (nameString == "sanFrancisco") {
                     //Here, 'post' represents the POST action of the HTTP client connector.
                     //This routes the payload to the relevant service when the server accepts the enclosed entity.
-                    clientResponse = locationEP -> post("/v2/594e018c1100002811d6d39a", new);
+                    clientResponse = locationEP -> post("/v2/594e018c1100002811d6d39a");
                 } else {
-                    clientResponse = locationEP -> post("/v2/594e026c1100004011d6d39c", new);
+                    clientResponse = locationEP -> post("/v2/594e026c1100004011d6d39c");
                 }
                 //Use the native function 'respond' to send the client response back to the caller.
                 match clientResponse {

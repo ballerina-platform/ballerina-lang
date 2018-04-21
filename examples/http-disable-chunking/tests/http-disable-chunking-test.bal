@@ -1,5 +1,6 @@
 import ballerina/test;
 import ballerina/io;
+import ballerina/http;
 
 boolean serviceStarted;
 
@@ -13,15 +14,14 @@ function startService(){
 }
 function testFunc() {
     // Invoking the main function.
-    endpoint http:Client httpEndpoint { targets:[{ url:"http://localhost:9092" }] };
+    endpoint http:Client httpEndpoint { url:"http://localhost:9092" };
     // Checking whether the server is started.
     test:assertTrue(serviceStarted, msg = "Unable to start the service");
 
     json response1 = {"Outbound request content":"Lenght-18"};
 
-    http:Request req = new;
     // Sending a GET request to the specified endpoint.
-    var response = httpEndpoint -> get("/chunkingSample", req);
+    var response = httpEndpoint -> get("/chunkingSample");
     match response {
         http:Response resp => {
             var res = check resp.getJsonPayload();
