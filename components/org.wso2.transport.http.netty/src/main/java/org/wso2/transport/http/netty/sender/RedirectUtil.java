@@ -65,8 +65,8 @@ public class RedirectUtil {
         httpCarbonRequest.setProperty(Constants.PROTOCOL, locationUrl.getProtocol());
         httpCarbonRequest.setProperty(Constants.HTTP_HOST, locationUrl.getHost());
         httpCarbonRequest.setProperty(Constants.HTTP_METHOD, redirectionMethod);
-        httpCarbonRequest.setProperty(Constants.REQUEST_URL, locationUrl.toString());
-        httpCarbonRequest.setProperty(Constants.TO, locationUrl.toString());
+        httpCarbonRequest.setProperty(Constants.REQUEST_URL, locationUrl.getFile());
+        httpCarbonRequest.setProperty(Constants.TO, locationUrl.getFile());
 
         StringBuilder host = new StringBuilder(locationUrl.getHost());
         if (locationUrl.getPort() != -1 && locationUrl.getPort() != Constants.DEFAULT_HTTP_PORT
