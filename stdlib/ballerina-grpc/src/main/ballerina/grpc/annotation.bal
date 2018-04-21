@@ -49,3 +49,9 @@ documentation {
     gRPC service resource configuration annotation.
 }
 public annotation<resource> resourceConfig ResourceConfig;
+
+public type ServiceDescriptorData {
+    string descriptor;
+};
+
+public annotation <service> ServiceDescriptor ServiceDescriptorData;
