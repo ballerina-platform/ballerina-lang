@@ -9,8 +9,8 @@ endpoint http:Client clientEndpoint {
 function main (string... args) {
 
     http:Request req = new;
-    // Send a GET request to the specified endpoint. 
-    var response = clientEndpoint -> get("/get?test=123", req);
+    // Send a GET request to the specified endpoint.
+    var response = clientEndpoint -> get("/get?test=123");
     match response {
         http:Response resp => {
             io:println("GET request:");
@@ -28,7 +28,7 @@ function main (string... args) {
     }
     // Set a string payload to the message to be sent to the endpoint.
     req.setStringPayload("POST: Hello World");
-    response = clientEndpoint -> post("/post", req);
+    response = clientEndpoint -> post("/post", request=req);
     match response {
         http:Response resp => {
             io:println("\nPOST request:");
@@ -49,7 +49,7 @@ function main (string... args) {
     // Set a JSON payload to the message to be sent to the endpoint.
     json jsonMsg = {method:"PUT", payload:"Hello World"};
     req.setJsonPayload(jsonMsg);
-    response = clientEndpoint -> put("/put", req);
+    response = clientEndpoint -> put("/put", request=req);
     match response {
         http:Response resp => {
             io:println("\nPUT request:");
@@ -72,7 +72,7 @@ function main (string... args) {
     json j = {};
     // Remove the json payload.
     req.setJsonPayload(j);
-    response = clientEndpoint -> patch("/patch", req);
+    response = clientEndpoint -> patch("/patch", request=req);
     match response {
         http:Response resp => {
             io:println("\nPATCH request:");
@@ -90,7 +90,7 @@ function main (string... args) {
     }
 
     req.setStringPayload("DELETE: Hello World");
-    response = clientEndpoint -> delete("/delete", req);
+    response = clientEndpoint -> delete("/delete", request=req);
     match response {
         http:Response resp => {
             io:println("\nDELETE request:");
@@ -114,7 +114,7 @@ function main (string... args) {
 
     req = new;
     req.addHeader("Sample-Name", "http-client-connector");
-    response = clientEndpoint -> get("/get", req);
+    response = clientEndpoint -> get("/get", request=req);
     match response {
         http:Response resp => {
             string contentType = resp.getHeader("Content-Type");

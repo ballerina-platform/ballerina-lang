@@ -26,7 +26,7 @@ service<http:Service> loadBalancerDemoService bind serviceEP {
         http:Request outRequest = new;
         json requestPayload = {"name":"Ballerina"};
         outRequest.setJsonPayload(requestPayload);
-        var response = lbEP -> post("/", outRequest);
+        var response = lbEP -> post("/", request=outRequest);
         match response {
             http:Response resp => _ = caller -> respond(resp);
             http:HttpConnectorError httpConnectorError => {

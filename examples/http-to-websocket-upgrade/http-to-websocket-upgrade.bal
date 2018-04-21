@@ -1,6 +1,7 @@
 import ballerina/io;
 import ballerina/http;
 import ballerina/mime;
+import ballerina/log;
 
 endpoint http:Listener servicEp {
     port:9090
@@ -30,7 +31,7 @@ service<http:Service> httpService bind servicEp {
             }
         }
 
-        conn -> respond(resp) but { error e => log:printErrorCause("Error sending message", e) };
+        conn -> respond(resp) but { error e => log:printError("Error sending message", err=e) };
     }
 
 
@@ -62,7 +63,7 @@ service<http:WebSocketService> wsService {
 
     onText(endpoint ep, string text) {
         io:println(text);
-        ep -> pushText(text) but { error e => log:printErrorCause("Error sending message", e) };
+        ep -> pushText(text) but { error e => log:printError("Error sending message", err=e) };
     }
 
     onIdleTimeout(endpoint ep) {

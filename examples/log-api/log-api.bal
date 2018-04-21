@@ -10,7 +10,7 @@ function main(string... args) {
 
     log:printDebug("debug log");
     log:printError("error log");
-    log:printErrorCause("error log with cause", err);
+    log:printError("error log with cause", err=err);
     log:printInfo("info log");
     log:printTrace("trace log");
     log:printWarn("warn log");

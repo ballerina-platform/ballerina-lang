@@ -39,7 +39,7 @@ service<http:Service> failoverDemoService bind serviceEP {
     doFailover(endpoint caller, http:Request request) {
         http:Response response = new;
         http:HttpConnectorError err = {};
-        var backendRes = ClientEP -> get("/", request);
+        var backendRes = ClientEP -> get("/", request=request);
         match backendRes {
             http:Response res => {
                 _ = caller -> respond(res);}
@@ -62,7 +62,7 @@ service<http:Service> echo bind backendEP {
     }
     echoResource(endpoint caller, http:Request req) {
         http:Response outResponse = new;
-        runtime:sleepCurrentWorker(30000);
+        runtime:sleep(30000);
         outResponse.setStringPayload("echo Resource is invoked");
         _ = caller -> respond(outResponse);
     }

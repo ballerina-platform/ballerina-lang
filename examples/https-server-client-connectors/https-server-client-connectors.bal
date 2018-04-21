@@ -6,7 +6,7 @@ endpoint http:Listener helloWorldEP {
     port:9095,
     secureSocket: {
         keyStore: {
-            filePath: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
             password: "ballerina"
         }
     }
@@ -35,7 +35,7 @@ endpoint http:Client clientEP {
     url:"https://localhost:9095",
     secureSocket:{
         trustStore:{
-            filePath:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
             password:"ballerina"
         }
     }
@@ -43,8 +43,7 @@ endpoint http:Client clientEP {
 @Description {value:"The Ballerina client connector can be used to connect to the created HTTPS server. You have to run the service before running this main function. As this is a 1-way SSL connection, the client needs to provide values for ‘trustStoreFile’ and ‘trustStorePassword’."}
 function main (string... args) {
     //Creates an outbound request.
-    http:Request req = new;
-    var resp = clientEP -> get("/hello/", req);
+    var resp = clientEP -> get("/hello/");
     match resp {
         http:HttpConnectorError err => io:println(err.message);
         http:Response response => {

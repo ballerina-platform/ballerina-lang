@@ -33,7 +33,7 @@ function main(string... args) {
             // If the message is not received within 1 second, this block is executed.
             log:printInfo("Message not received");
         }
-        jms:Error err => {
+        error err => {
             // If an error occurs, this block is executed.
             log:printInfo("Error receiving message. " + err.message);
         }

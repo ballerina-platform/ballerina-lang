@@ -28,12 +28,12 @@ service<http:Service> helloWorld bind helloWorldEP{
                 io:println(payload);
                 res.statusCode =200;
                 res.setStringPayload("Hello World!\n");
-                _ = outboundEP -> respond(res);
+                _ = caller -> respond(res);
             }
             error payloadError =>  {
                 res.statusCode = 500;
                 res.setStringPayload(payloadError.message);
-                _ = outboundEP -> respond(res);
+                _ = caller -> respond(res);
             }
         }
     }
