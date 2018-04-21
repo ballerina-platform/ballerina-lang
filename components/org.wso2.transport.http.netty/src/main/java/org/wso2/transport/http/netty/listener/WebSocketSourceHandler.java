@@ -19,11 +19,13 @@
 
 package org.wso2.transport.http.netty.listener;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -38,6 +40,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketFrameType;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnection;
 import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
@@ -67,6 +70,7 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
     private final String interfaceId;
     private String subProtocol = null;
     private HandlerExecutor handlerExecutor;
+    private WebSocketFrameType frameType = WebSocketFrameType.TEXT;
 
     /**
      * @param connectorFuture {@link ServerConnectorFuture} to notify messages to application.
@@ -156,26 +160,46 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
             throw new UnknownWebSocketFrameTypeException("Expecting WebSocketFrame. Unknown type.");
         }
         if (msg instanceof TextWebSocketFrame) {
-            notifyTextMessage((TextWebSocketFrame) msg);
+            TextWebSocketFrame textFrame = (TextWebSocketFrame) msg;
+            if (!textFrame.isFinalFragment()) {
+                frameType = WebSocketFrameType.TEXT;
+            }
+            notifyTextMessage(textFrame, textFrame.text(), textFrame.isFinalFragment());
         } else if (msg instanceof BinaryWebSocketFrame) {
-            notifyBinaryMessage((BinaryWebSocketFrame) msg);
+            BinaryWebSocketFrame binaryFrame = (BinaryWebSocketFrame) msg;
+            if (!binaryFrame.isFinalFragment()) {
+                frameType = WebSocketFrameType.BINARY;
+            }
+            notifyBinaryMessage(binaryFrame, binaryFrame.content(), binaryFrame.isFinalFragment());
         } else if (msg instanceof CloseWebSocketFrame) {
             notifyCloseMessage((CloseWebSocketFrame) msg);
         } else if (msg instanceof PingWebSocketFrame) {
             notifyPingMessage((PingWebSocketFrame) msg);
         } else if (msg instanceof PongWebSocketFrame) {
             notifyPongMessage((PongWebSocketFrame) msg);
+        } else if (msg instanceof ContinuationWebSocketFrame) {
+            ContinuationWebSocketFrame frame = (ContinuationWebSocketFrame) msg;
+            switch (frameType) {
+                case TEXT:
+                    notifyTextMessage(frame, frame.text(), frame.isFinalFragment());
+                    break;
+                case BINARY:
+                    notifyBinaryMessage(frame, frame.content(), frame.isFinalFragment());
+                    break;
+            }
         }
     }
 
-    private void notifyTextMessage(TextWebSocketFrame textWebSocketFrame) throws ServerConnectorException {
-        WebSocketMessageImpl webSocketTextMessage = WebSocketUtil.getWebSocketMessage(textWebSocketFrame);
+    private void notifyTextMessage(WebSocketFrame frame, String text, boolean finalFragment)
+            throws ServerConnectorException {
+        WebSocketMessageImpl webSocketTextMessage = WebSocketUtil.getWebSocketMessage(frame, text, finalFragment);
         setupCommonProperties(webSocketTextMessage);
         connectorFuture.notifyWSListener((WebSocketTextMessage) webSocketTextMessage);
     }
 
-    private void notifyBinaryMessage(BinaryWebSocketFrame binaryWebSocketFrame) throws ServerConnectorException {
-        WebSocketMessageImpl webSocketBinaryMessage = WebSocketUtil.getWebSocketMessage(binaryWebSocketFrame);
+    private void notifyBinaryMessage(WebSocketFrame frame, ByteBuf content, boolean finalFragment)
+            throws ServerConnectorException {
+        WebSocketMessageImpl webSocketBinaryMessage = WebSocketUtil.getWebSocketMessage(frame, content, finalFragment);
         setupCommonProperties(webSocketBinaryMessage);
         connectorFuture.notifyWSListener((WebSocketBinaryMessage) webSocketBinaryMessage);
     }

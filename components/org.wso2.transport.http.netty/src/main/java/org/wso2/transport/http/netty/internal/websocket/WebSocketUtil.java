@@ -21,8 +21,6 @@ package org.wso2.transport.http.netty.internal.websocket;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
@@ -59,20 +57,17 @@ public class WebSocketUtil {
         return webSocketControlMessage;
     }
 
-    public static WebSocketMessageImpl getWebSocketMessage(TextWebSocketFrame textWebSocketFrame) {
-        String text = textWebSocketFrame.text();
-        boolean isFinalFragment = textWebSocketFrame.isFinalFragment();
+    public static WebSocketMessageImpl getWebSocketMessage(WebSocketFrame frame, String text, boolean isFinalFragment) {
         WebSocketMessageImpl webSocketTextMessage = new WebSocketTextMessageImpl(text, isFinalFragment);
-        textWebSocketFrame.release();
+        frame.release();
         return webSocketTextMessage;
     }
 
-    public static WebSocketMessageImpl getWebSocketMessage(BinaryWebSocketFrame binaryWebSocketFrame) {
-        ByteBuf content = binaryWebSocketFrame.content();
+    public static WebSocketMessageImpl getWebSocketMessage(WebSocketFrame webSocketFrame, ByteBuf content,
+                                                           boolean finalFragment) {
         ByteBuffer clonedContent = getClonedByteBuf(content);
-        boolean finalFragment = binaryWebSocketFrame.isFinalFragment();
         WebSocketMessageImpl webSocketBinaryMessage = new WebSocketBinaryMessageImpl(clonedContent, finalFragment);
-        binaryWebSocketFrame.release();
+        webSocketFrame.release();
         return webSocketBinaryMessage;
     }
 
