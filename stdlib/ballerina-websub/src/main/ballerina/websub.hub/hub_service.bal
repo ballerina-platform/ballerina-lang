@@ -173,7 +173,7 @@ service<http:Service> hubService bind hubServiceEP {
                                         var signatureValidation = websub:validateSignature(publisherSignature,
                                             strPayload, secret);
                                         match (signatureValidation) {
-                                            websub:WebSubError err => {
+                                            error err => {
                                                 log:printWarn("Signature validation failed for publish request for "
                                                         + "topic[" + topic + "]: " + err.message);
                                                 done;
@@ -553,9 +553,8 @@ public function distributeContent(string callback, websub:SubscriptionDetails su
 documentation {
     Struct to represent a topic registration.
 
-    F{{mode}} Whether a pending subscription or unsubscription
-    F{{topic}} The topic for which the subscription or unsubscription is pending
-    F{{callback}} The callback specified for the pending subscription or unsubscription
+    F{{topic}} The topic for which notification would happen
+    F{{secret}} The secret if specified by the topic's publisher
 }
 type TopicRegistration {
     string topic,

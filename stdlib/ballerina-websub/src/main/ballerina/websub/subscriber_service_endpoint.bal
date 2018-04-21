@@ -171,7 +171,7 @@ function Listener::sendSubscriptionRequest() {
                     subscriptionDetails["topic"] = retTopic;
                     self.setTopic(retTopic);
                 }
-                WebSubError websubError => {
+                error websubError => {
                     log:printError("Error sending out subscription request on start up: " + websubError.message);
                     return;
                 }
@@ -210,10 +210,10 @@ public type SubscriberServiceEndpointConfiguration {
 documentation {
     The function called to discover hub and topic URLs defined by a resource URL.
     P{{resourceUrl}} The resource URL advertising hub and topic URLs.
-    R{{}} `(string, string)` (hub, topic) URLs if successful, `WebSubError` if not.
+    R{{}} `(string, string)` (hub, topic) URLs if successful, `error` if not.
 }
 function retrieveHubAndTopicUrl(string resourceUrl, http:SecureSocket? secureSocket)
-    returns @tainted (string, string)|WebSubError {
+    returns @tainted (string, string)|error {
 
     endpoint http:Client resourceEP {
         url:resourceUrl,
@@ -223,7 +223,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:SecureSocket? secureSoc
 
     http:Request request = new;
     var discoveryResponse = resourceEP->get("", request = request);
-    WebSubError websubError = {};
+    error websubError = {};
     match (discoveryResponse) {
         http:Response response => {
             int responseStatusCode = response.statusCode;
@@ -300,7 +300,7 @@ public function interceptWebSubRequest(http:Request request, http:FilterContext 
     if (request.method == "POST") {
         var processedNotification = processWebSubNotification(request, context.serviceType);
         match (processedNotification) {
-            WebSubError webSubError => {
+            error webSubError => {
                 http:FilterResult filterResult =
                 {canProceed:false, statusCode:404, message:"validation failed for notification"};
                 return filterResult;
@@ -362,7 +362,7 @@ function invokeClientConnectorForSubscription(string hub, http:SecureSocket? sec
             log:printInfo("Subscription Request successful at Hub[" + subscriptionChangeResponse.hub +
                     "], for Topic[" + subscriptionChangeResponse.topic + "], with Callback [" + callback + "]");
         }
-        WebSubError webSubError => {
+        error webSubError => {
             log:printError("Subscription Request failed at Hub[" + hub + "], for Topic[" + topic + "]: " +
                     webSubError.message);
         }
