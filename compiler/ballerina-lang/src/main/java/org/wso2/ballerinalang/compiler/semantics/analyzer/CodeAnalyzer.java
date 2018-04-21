@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.ForkJoinNode;
@@ -617,7 +618,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangObject objectNode) {
+        objectNode.fields.stream()
+                .filter(field -> (objectNode.flagSet.contains(Flag.PUBLIC) && field.flagSet.contains(Flag.PUBLIC)))
+                .forEach(this::analyseObjectField);
         objectNode.functions.forEach(e -> this.analyzeNode(e, this.env));
+    }
+
+    private void analyseObjectField(BLangVariable varNode) {
+        if (varNode.type == null || varNode.type.tsymbol == null) {
+            return;
+        }
+        BSymbol symbol = varNode.type.tsymbol;
+        if (Symbols.isPrivate(symbol)) {
+            dlog.error(varNode.pos, DiagnosticCode.ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL, symbol.name);
+        }
     }
 
     public void visit(BLangRecord record) {
@@ -837,7 +851,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         recordLiteral.keyValuePairs.forEach(kv -> {
             analyzeExpr(kv.valueExpr);
         });
-        checkAccess(recordLiteral);
     }
 
     public void visit(BLangTableLiteral tableLiteral) {
@@ -1115,15 +1128,31 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         checkAccess(node);
     }
 
+    /**
+     * This method checks for private symbols being accessed or used outside of package and|or private symbols being
+     * used in public fields of objects/records and will fail those occurrences.
+     *
+     * @param node expression node to analyse
+     */
     private <E extends BLangExpression> void checkAccess(E node) {
-        if (node.type == null || node.type.tsymbol == null) {
+        if (node.type != null) {
+            checkAccessSymbol(node.type.tsymbol, node.pos);
+        }
+
+        //check for object new invocation
+        if (node instanceof BLangInvocation) {
+            BLangInvocation bLangInvocation = (BLangInvocation) node;
+            checkAccessSymbol(bLangInvocation.symbol, bLangInvocation.pos);
+        }
+    }
+
+    private void checkAccessSymbol(BSymbol symbol, DiagnosticPos position) {
+        if (symbol == null) {
             return;
         }
 
-        BSymbol symbol = node.type.tsymbol;
-
-        if (!(env.enclPkg.symbol.pkgID == symbol.pkgID || (Symbols.isPublic(symbol)))) {
-            dlog.error(node.pos, DiagnosticCode.ATTEMPT_REFER_NON_PUBLIC_SYMBOL, symbol.name);
+        if (env.enclPkg.symbol.pkgID != symbol.pkgID && Symbols.isPrivate(symbol)) {
+            dlog.error(position, DiagnosticCode.ATTEMPT_REFER_NON_PUBLIC_SYMBOL, symbol.name);
         }
     }
 
