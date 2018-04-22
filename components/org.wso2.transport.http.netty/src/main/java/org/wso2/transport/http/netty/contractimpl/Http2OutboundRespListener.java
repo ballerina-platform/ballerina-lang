@@ -231,7 +231,13 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
             }
             String method = (String) inboundRequestMsg.getProperty(Constants.HTTP_METHOD);
             String uri = (String) inboundRequestMsg.getProperty(Constants.TO);
-            String protocol = (String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION);
+            HttpMessage request = inboundRequestMsg.getNettyHttpRequest();
+            String protocol;
+            if (request != null) {
+                protocol = request.protocolVersion().toString();
+            } else {
+                protocol = (String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION);
+            }
 
             // Populate response parameters
             int statusCode = Util.getHttpResponseStatus(outboundResponseMsg).code();
