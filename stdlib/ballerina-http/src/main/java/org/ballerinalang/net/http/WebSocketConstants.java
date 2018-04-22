@@ -37,6 +37,7 @@ public class WebSocketConstants {
     public static final String ANNOTATION_ATTR_PATH = "path";
     public static final String ANNOTATION_ATTR_SUB_PROTOCOLS = "subProtocols";
     public static final String ANNOTATION_ATTR_IDLE_TIMEOUT = "idleTimeoutInSeconds";
+    public static final String ANNOTATION_ATTR_MAX_FRAME_SIZE = "maxFrameSize";
     public static final String ANN_CONFIG_ATTR_WSS_PORT = "wssPort";
 
     public static final String RESOURCE_NAME_ON_OPEN = "onOpen";
@@ -50,7 +51,6 @@ public class WebSocketConstants {
     public static final String WEBSOCKET_MESSAGE = "WEBSOCKET_MESSAGE";
 
     public static final String NATIVE_DATA_WEBSOCKET_CONNECTION = "NATIVE_DATA_WEBSOCKET_CONNECTION";
-    public static final String NATIVE_DATA_UPGRADE_HEADERS = "NATIVE_DATA_UPGRADE_HEADERS";
 
     public static final String NATIVE_DATA_QUERY_PARAMS = "NATIVE_DATA_QUERY_PARAMS";
 
