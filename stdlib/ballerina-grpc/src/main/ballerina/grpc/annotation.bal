@@ -24,7 +24,7 @@ documentation {
     F{{serverStreaming}} - gRPC server streaming service flag. This applies only for client streaming and
                            bidirectional streaming. Flag sets to true, if the service is bidirectional streaming.
 }
-public type ServiceConfig {
+public type GrpcServiceConfig {
     string name;
     boolean clientStreaming;
     boolean serverStreaming;
@@ -33,7 +33,7 @@ public type ServiceConfig {
 documentation {
     gRPC service configuration annotation.
 }
-public annotation<service> ServiceConfig ServiceConfig;
+public annotation<service> ServiceConfig GrpcServiceConfig;
 
 documentation {
     gRPC service resource configuration.
@@ -41,14 +41,14 @@ documentation {
     F{{streaming}} - gRPC server streaming flag. This flag sets to true when service resource is considered as server
                      streaming.
 }
-public type ResourceConfig {
+public type GrpcResourceConfig {
     boolean streaming;
 };
 
 documentation {
     gRPC service resource configuration annotation.
 }
-public annotation<resource> ResourceConfig ResourceConfig;
+public annotation<resource> ResourceConfig GrpcResourceConfig;
 
 documentation {
     gRPC service descriptor data.

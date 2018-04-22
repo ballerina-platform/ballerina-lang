@@ -551,7 +551,7 @@ public class ServiceProtoUtils {
                 throw new BallerinaException("Couldn't find the service descriptor.");
             }
             String descriptorData = descriptorStruct.getStringField("descriptor");
-            byte[] descriptor = descriptorData.getBytes(ServiceProtoConstants.UTF_8_CHARSET);
+            byte[] descriptor = hexStringToByteArray(descriptorData);
             DescriptorProtos.FileDescriptorProto proto = DescriptorProtos.FileDescriptorProto.parseFrom(descriptor);
             return Descriptors.FileDescriptor.buildFrom(proto,
                     StandardDescriptorBuilder.getFileDescriptors(proto.getDependencyList().toArray()));
@@ -559,6 +559,16 @@ public class ServiceProtoUtils {
             throw new BallerinaException("Error while reading the service proto descriptor. check the service " +
                     "implementation. ", e);
         }
+    }
+
+    private static byte[] hexStringToByteArray(String s) {
+        int len = s.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+                    + Character.digit(s.charAt(i + 1), 16));
+        }
+        return data;
     }
     
     /**

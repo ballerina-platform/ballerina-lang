@@ -46,7 +46,6 @@ public class ServiceProtoConstants {
     public static final String NEW_LINE_CHARACTER = System.getProperty("line.separator");
 
     public static final String ANN_SERVICE_CONFIG = "ServiceConfig";
-    public static final String ANN_MESSAGE_LISTENER = "messageListener";
 
     public static final String SERVICE_CONFIG_RPC_ENDPOINT = "name";
     public static final String SERVICE_CONFIG_CLIENT_STREAMING = "clientStreaming";

@@ -56,7 +56,7 @@ import java.util.Map;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_TYPE;
-import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.ANN_MESSAGE_LISTENER;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.bytesToHex;
 
 /**
  * This class validates annotations attached to Ballerina service and resource nodes.
@@ -93,16 +93,13 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
 
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
-        for (AnnotationAttachmentNode annotationNode : annotations) {
-            if (ANN_MESSAGE_LISTENER.equals(annotationNode.getAnnotationName().getValue())) {
-                return;
-            }
-        }
 
         try {
-            File fileDefinition = ServiceProtoUtils.generateProtoDefinition(serviceNode);
-            addDescriptorAnnotation(serviceNode, fileDefinition);
-            serviceFileMap.put(serviceNode.getName().getValue(), fileDefinition);
+            if (ServiceDefinitionValidator.validate(serviceNode, dlog)) {
+                File fileDefinition = ServiceProtoUtils.generateProtoDefinition(serviceNode);
+                addDescriptorAnnotation(serviceNode, fileDefinition);
+                serviceFileMap.put(serviceNode.getName().getValue(), fileDefinition);
+            }
         } catch (GrpcServerException e) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(), e.getMessage());
         }
@@ -177,7 +174,7 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
         LiteralNode literalNode1 = TreeBuilder.createLiteralExpression();
         if (literalNode1 instanceof BLangLiteral && fileDefinition != null) {
             valueLiteral = (BLangLiteral) literalNode1;
-            valueLiteral.value = fileDefinition.getFileDescriptorProto().toByteString().toStringUtf8();
+            valueLiteral.value = bytesToHex(fileDefinition.getFileDescriptorProto().toByteArray());
             valueLiteral.typeTag = TypeTags.STRING;
             valueLiteral.type = symTable.stringType;
         }
