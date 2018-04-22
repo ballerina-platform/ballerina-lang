@@ -27,7 +27,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketUtil;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 import java.nio.ByteBuffer;
@@ -59,9 +58,10 @@ public class PushBinary implements NativeCallableUnit {
             boolean finalFrame = context.getBooleanArgument(0);
             ChannelFuture webSocketChannelFuture =
                     webSocketConnection.pushBinary(ByteBuffer.wrap(binaryData), finalFrame);
-            WebSocketUtil.getWebSocketError(context, callback, webSocketChannelFuture, "Failed to send binary message");
-        } catch (Throwable e) {
-            throw new BallerinaException("Cannot send the message. Error occurred.");
+            WebSocketUtil.handleWebSocketCallback(context, callback, webSocketChannelFuture);
+        } catch (Throwable throwable) {
+            context.setReturnValues(WebSocketUtil.createWebSocketConnectorError(context, throwable.getMessage()));
+            callback.notifySuccess();
         }
     }
 
