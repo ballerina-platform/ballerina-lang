@@ -33,7 +33,7 @@ public type TransferEncoding "CHUNKING";
 documentation {
     TrustStore record represents trust store related options to be used for HTTP client/service invocation.
 
-    F{{filePath}} File path to trust store file
+    F{{path}} File path to trust store file
     F{{password}} Trust store password
 }
 public type TrustStore {
@@ -44,7 +44,7 @@ public type TrustStore {
 documentation {
     KeyStore record represents key store related options to be used for HTTP client/service invocation.
 
-    F{{filePath}} File path to key store file
+    F{{path}} File path to key store file
     F{{password}} Key store password
 }
 public type KeyStore {
