@@ -27,13 +27,20 @@ public type CSVChannel object {
         DelimitedTextRecordChannel? dc;
     }
 
-    public new(CharacterChannel channel, Seperator fs = ",", boolean hasHeader = true) {
+    new(CharacterChannel channel, Seperator fs = ",", int nHeaders = 0) {
         if (fs == TAB){
             dc = new DelimitedTextRecordChannel(channel, fmt = "TDF");
         } else if (fs == COLON){
             dc = new DelimitedTextRecordChannel(channel, fs = FS_COLON, rs = CSV_RECORD_SEPERATOR);
         } else {
             dc = new DelimitedTextRecordChannel(channel, fmt = "CSV");
+        }
+        skipHeaders(nHeaders);
+    }
+
+    function skipHeaders(int nHeaders){
+        for(int n=0;n<nHeaders;n++){
+            getNext();
         }
     }
 
