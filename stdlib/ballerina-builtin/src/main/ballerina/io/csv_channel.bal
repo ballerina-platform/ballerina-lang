@@ -53,8 +53,8 @@ public type CSVChannel object {
     @Description {value:"Function to write text records"}
     @Param {value:"records: Fields which are included in the record"}
     @Return {value:"Returns if there's any error while performaing I/O operation"}
-    public function write(string[] record) returns error? {
-        return dc.write(record);
+    public function write(string[] records) returns error? {
+        return dc.write(records);
     }
 
     @Description {value:"Function to close the text record channel"}

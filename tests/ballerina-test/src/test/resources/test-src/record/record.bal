@@ -1,9 +1,9 @@
-type Department {
+type Department record {
     string dptName;
     Person[] employees;
 };
 
-type Person {
+type Person record {
     string name = "default first name";
     string lname;
     map adrs;
@@ -12,7 +12,7 @@ type Person {
     Person? parent;
 };
 
-type Family {
+type Family record {
     string spouse;
     int noOfChildren;
     string[] children;
@@ -89,7 +89,7 @@ function testNestedStructInit () returns (Person) {
     return p1;
 }
 
-type NegativeValTest {
+type NegativeValTest record {
     int negativeInt = -9;
     int negativeSpaceInt = -8;
     float negativeFloat = -88.234;
