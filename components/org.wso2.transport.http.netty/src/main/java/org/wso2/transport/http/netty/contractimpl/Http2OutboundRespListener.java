@@ -215,14 +215,10 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
 
             HttpHeaders headers = inboundRequestMsg.getHeaders();
             if (headers.contains(Constants.HTTP_X_FORWARDED_FOR)) {
-                // can contain multiple IPs for proxy chains. the first ip is the client.
-                String proxyChain = headers.get(Constants.HTTP_X_FORWARDED_FOR);
-                int firstComma = proxyChain.indexOf(',');
-                if (firstComma != -1) {
-                    remoteAddress = proxyChain.substring(0, proxyChain.indexOf(','));
-                } else {
-                    remoteAddress = proxyChain;
-                }
+                String forwardedHops = headers.get(Constants.HTTP_X_FORWARDED_FOR);
+                // If multiple IPs available, the first ip is the client
+                int firstCommaIndex = forwardedHops.indexOf(',');
+                remoteAddress = firstCommaIndex != -1 ? forwardedHops.substring(0, firstCommaIndex) : forwardedHops;
             }
 
             // Populate request parameters
@@ -260,6 +256,5 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
     private boolean isValidStreamId(int streamId) {
         return conn.stream(streamId) != null;
     }
-
 }
 
