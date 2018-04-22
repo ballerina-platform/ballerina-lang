@@ -199,7 +199,7 @@ public function Client::init(ClientEndpointConfig config) {
     string url = config.url;
     if (url.hasSuffix("/")) {
         int lastIndex = url.length() - 1;
-        url = url.subString(0, lastIndex);
+        url = url.substring(0, lastIndex);
     }
     self.config = config;
     var cbConfig = config.circuitBreaker;
@@ -207,7 +207,7 @@ public function Client::init(ClientEndpointConfig config) {
         CircuitBreakerConfig cb => {
             if (url.hasSuffix("/")) {
                 int lastIndex = url.length() - 1;
-                url = url.subString(0, lastIndex);
+                url = url.substring(0, lastIndex);
             }
             httpClientRequired = false;
         }

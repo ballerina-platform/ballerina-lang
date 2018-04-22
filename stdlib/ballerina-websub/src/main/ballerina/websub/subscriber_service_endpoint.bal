@@ -218,7 +218,7 @@ function retrieveHubAndTopicUrl (string resourceUrl, http:SecureSocket? secureSo
         //followRedirects:{enabled:true} //TODO: enable when re-direction is fixed
     };
     http:Request request = new;
-    var discoveryResponse = resourceEP -> get("", request);
+    var discoveryResponse = resourceEP -> get("", request = request);
     WebSubError websubError = {};
     match (discoveryResponse) {
         http:Response response => {

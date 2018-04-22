@@ -53,7 +53,7 @@ function pushPackage (string accessToken, string mdFileContent, string summary, 
     req.addHeader("Authorization", "Bearer " + accessToken);
     req.setBodyParts(bodyParts, contentType = mime:MULTIPART_FORM_DATA);
     
-    var result = httpEndpoint -> post("", req);
+    var result = httpEndpoint -> post("", request=req);
     http:Response httpResponse = new;
     match result {
         http:Response response => httpResponse = response;

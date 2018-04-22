@@ -21,20 +21,32 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.services.ErrorHandlerUtils;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 /**
  * Empty callback impl for web socket.
  */
-public class WebSocketEmptyCallableUnitCallback implements CallableUnitCallback {
+public class WebSocketResourceCallableUnitCallback implements CallableUnitCallback {
+
+    private final WebSocketConnection webSocketConnection;
+
+    public WebSocketResourceCallableUnitCallback(WebSocketConnection webSocketConnection) {
+        this.webSocketConnection = webSocketConnection;
+    }
+
     @Override
     public void notifySuccess() {
-        //nothing
+        if (webSocketConnection != null) {
+            webSocketConnection.readNextFrame();
+        }
     }
 
     @Override
     public void notifyFailure(BStruct error) {
         ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
-
+        if (webSocketConnection != null) {
+            webSocketConnection.readNextFrame();
+        }
     }
 
 }
