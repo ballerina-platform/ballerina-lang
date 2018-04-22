@@ -77,7 +77,7 @@ public class BuildCommand implements BLauncherCmd {
         Path sourceRootPath = Paths.get(System.getProperty(USER_DIR));
         if (argList == null || argList.size() == 0) {
             // ballerina build
-            BuilderUtils.compileAndWrite(sourceRootPath, offline);
+            BuilderUtils.compileAndWrite(sourceRootPath, offline, testEnabled);
         } else {
             // ballerina build pkgName [-o outputFileName]
             String targetFileName;
@@ -88,7 +88,8 @@ public class BuildCommand implements BLauncherCmd {
                 targetFileName = pkgName;
             }
 
-            BuilderUtils.compileAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg, offline);
+            BuilderUtils.compileAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg, offline,
+                                         testEnabled);
         }
 
         Runtime.getRuntime().exit(0);
