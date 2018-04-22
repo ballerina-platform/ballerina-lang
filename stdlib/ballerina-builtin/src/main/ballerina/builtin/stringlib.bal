@@ -151,7 +151,7 @@ public native function<string s> replace(string regex, string replaceWith) retur
 documentation {
     Splits the string with the given regular expression to produce a string array.
 
-    P{{s}} The original string argument
+    T{{s}} The original string argument
     P{{regex}} The regex to split the string
     R{{}} The split string array
 }
