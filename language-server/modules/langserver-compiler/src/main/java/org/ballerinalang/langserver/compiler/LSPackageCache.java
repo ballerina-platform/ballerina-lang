@@ -69,7 +69,7 @@ public class LSPackageCache {
             return bLangPackage;
         } else {
             bLangPackage = LSPackageLoader.getPackageById(compilerContext, pkgId);
-            addPackage(bLangPackage.packageID, bLangPackage);
+            this.put(bLangPackage.packageID, bLangPackage);
             return bLangPackage;
         }
     }
@@ -79,7 +79,7 @@ public class LSPackageCache {
      *
      * @param packageID ballerina package id to be removed.
      */
-    public void removePackage(PackageID packageID) {
+    public void invalidate(PackageID packageID) {
         packageCache.remove(packageID);
     }
     
@@ -92,7 +92,7 @@ public class LSPackageCache {
      *
      * @param bLangPackage ballerina package to be added.
      */
-    public void addPackage(PackageID packageID, BLangPackage bLangPackage) {
+    public void put(PackageID packageID, BLangPackage bLangPackage) {
         if (bLangPackage != null) {
             bLangPackage.packageID = packageID;
             packageCache.put(packageID, bLangPackage);

@@ -141,7 +141,7 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
     }
 
-    @Test(groups = "TransactionTest", enabled = false)
+    @Test(groups = "TransactionTest", enabled = false) //Issue #7706
     public void testNestedThreeLevelTransactonFailed() {
         BValue[] returns = BRunUtil.invoke(result, "testNestedThreeLevelTransactonFailed");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), -1);
@@ -154,12 +154,6 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
         Assert.assertEquals(returns[2].stringValue(), "start txL1 txL2 txL3 txL3_Else txL3_Failed");
-    }
-
-    @Test(groups = "TransactionTest", enabled = false)
-    public void testTransactionWithWorkers() {
-        BValue[] returns = BRunUtil.invoke(result, "testTransactionWithWorkers");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
     }
 
     @Test(dependsOnGroups = "TransactionTest")
@@ -264,7 +258,7 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
     }
 
-    @Test(groups = "TransactionTest", enabled = false)
+    @Test(groups = "TransactionTest", enabled = false) //Issue #7706
     public void testNestedThreeLevelTransactonFailedMirrorTable() {
         BValue[] returns = BRunUtil.invoke(resultMirror, "testNestedThreeLevelTransactonFailed");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), -1);
@@ -277,12 +271,6 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
         Assert.assertEquals(returns[2].stringValue(), "start txL1 txL2 txL3 txL3_Else txL3_Failed");
-    }
-
-    @Test(groups = "TransactionTest", enabled = false)
-    public void testTransactionWithWorkersMirrorTable() {
-        BValue[] returns = BRunUtil.invoke(resultMirror, "testTransactionWithWorkers");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
     }
 
     @AfterSuite

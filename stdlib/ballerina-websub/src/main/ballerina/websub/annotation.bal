@@ -52,4 +52,4 @@ public type SubscriberServiceConfiguration {
 documentation {
     WebSubSubscriber Configuration for the service.
 }
-public annotation <service> SubscriberServiceConfig SubscriberServiceConfiguration;
+public annotation<service> SubscriberServiceConfig SubscriberServiceConfiguration;

@@ -74,8 +74,7 @@ public class BallerinaDocGenerator {
 
     private static final String BSOURCE_FILE_EXT = ".bal";
     private static final String PACKAGE_CONTENT_FILE = "Package.md";
-    private static final Path BAL_BUILTIN = Paths.get("ballerina/builtin");
-    private static final Path BAL_BUILTIN_CORE = Paths.get("ballerina/builtin/core");
+    private static final Path BAL_BUILTIN = Paths.get("ballerina", "builtin");
     private static final String HTML = ".html";
 
     /**
@@ -257,7 +256,8 @@ public class BallerinaDocGenerator {
     protected static Map<String, PackageDoc> generatePackageDocsFromBallerina(
         String sourceRoot, Path packagePath, String packageFilter, boolean isNative) throws IOException {
         Path packageMd;
-        Optional<Path> o = Files.find(Paths.get(sourceRoot).resolve(packagePath), 1, (path, attr) -> {
+        Path absolutePkgPath = Paths.get(sourceRoot).resolve(packagePath);
+        Optional<Path> o = Files.find(absolutePkgPath, 1, (path, attr) -> {
             Path fileName = path.getFileName();
             if (fileName != null) {
                 return fileName.toString().equals(PACKAGE_CONTENT_FILE);
@@ -277,14 +277,14 @@ public class BallerinaDocGenerator {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(CompilerOptionName.PROJECT_DIR, sourceRoot);
-        options.put(CompilerOptionName.COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
+        options.put(CompilerOptionName.COMPILER_PHASE, CompilerPhase.TYPE_CHECK.toString());
         options.put(CompilerOptionName.PRESERVE_WHITESPACE, "false");
         context.put(SourceDirectory.class, new FileSystemProjectDirectory(Paths.get(sourceRoot)));
 
         Compiler compiler = Compiler.getInstance(context);
 
         // TODO: Remove this and the related constants once these are properly handled in the core
-        if (BAL_BUILTIN.equals(packagePath) || BAL_BUILTIN_CORE.equals(packagePath)) {
+        if (absolutePkgPath.endsWith(BAL_BUILTIN.toString())) {
             bLangPackage = loadBuiltInPackage(context);
         } else {
             // compile the given package
