@@ -20,6 +20,7 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
+import org.ballerinalang.testerina.util.Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -45,17 +46,20 @@ public class TesterinaSamplesTest {
         testerinaRoot = System.getProperty("user.dir") + "/../../samples";
         // TODO : Done as a workaround to create the .ballerina directory
         Path filePath = Paths.get(testerinaRoot + "/.ballerina");
-        Files.deleteIfExists(filePath);
+        Utils.cleanUpDir(filePath);
         Files.createDirectory(filePath);
     }
 
     // /samples/functionTest
     @Test
     public void functionTestSampleTest() {
+        TesterinaRegistry.getInstance().setOrgName("$anon");
         cleanup();
         BTestRunner runner = new BTestRunner();
         runner.runTest(testerinaRoot, new Path[] { Paths.get("functionTest") }, new ArrayList<>());
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary("functionTest", "passed"), 6);
+        // Reset the org name
+        TesterinaRegistry.getInstance().setOrgName(null);
     }
 
     // /samples/features/assertions.bal
@@ -79,11 +83,12 @@ public class TesterinaSamplesTest {
     // TODO : Added as a temporary solution to cleanup .ballerina directory
     @AfterClass
     public void cleanDirectory() throws IOException {
-        Files.deleteIfExists(Paths.get(testerinaRoot + "/.ballerina"));
+        Utils.cleanUpDir(Paths.get(testerinaRoot,  ".ballerina"));
     }
 
     private void cleanup() {
         TesterinaRegistry.getInstance().setProgramFiles(new ArrayList<>());
         TesterinaRegistry.getInstance().setTestSuites(new HashMap<>());
+        TesterinaRegistry.getInstance().getInitializedPackages().clear();
     }
 }

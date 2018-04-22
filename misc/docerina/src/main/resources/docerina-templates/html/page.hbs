@@ -322,6 +322,68 @@
                                                 {{/each}}
                                             </table>
                                             <p/><p/>
+                                            <!-- Type Definitions-->
+                                            <h2 id="TypeDefinitions">
+                                                <span class="fw-constant sm-icon"></span> Type Definitions
+                                            </h2>
+                                            <table>
+                                                <tr>
+                                                    <th class="cAPI-table-name">Type</th>
+                                                    <th class="cAPI-table-type">Values</th>
+                                                    <th class="cAPI-table-desc">Description</th>
+                                                </tr>
+                                                {{#each constructs}}
+                                                    {{#if isType}}
+                                                        <tr>
+                                                            <td class="cAPI-table-name">{{name}}</td>
+                                                            <td class="cAPI-table-type">{{valueSet}}</td>
+                                                            <td class="cAPI-table-desc">{{{description}}}</td>
+                                                        </tr>
+                                                    {{/if}}  {{/each}}
+                                            </table>
+                                            <p/><p/>
+                                            <!-- Annotations -->
+                                            <h2 id="Annotations">
+                                                <span class="fw-annotation sm-icon"></span> Annotations
+                                            </h2>
+                                            <table>
+                                                <tr>
+                                                    <th class="cAPI-table-name">Name</th>
+                                                    <th class="cAPI-table-type">Attachement Points</th>
+                                                    <th class="cAPI-table-type">Data Type</th>
+                                                    <th class="cAPI-table-desc">Description</th>
+                                                </tr>
+                                                {{#each constructs}}
+                                                    {{#if isAnnotation}}
+                                                        <tr>
+                                                            <td class="cAPI-table-name">{{name}}</td>
+                                                            <td class="cAPI-table-type">{{attachments}}</td>
+                                                            <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
+                                                            <td class="cAPI-table-desc">{{{description}}}</td>
+                                                        </tr>
+                                                    {{/if}}  {{/each}}
+                                            </table>
+                                            <p/><p/>
+                                            <!-- Global Variables-->
+                                            <h2 id="GlobalVariables">
+                                                <span class="fw-globe sm-icon"></span> Global Variables
+                                            </h2>
+                                            <table>
+                                                <tr>
+                                                    <th class="cAPI-table-name">Name</th>
+                                                    <th class="cAPI-table-type">Data Type</th>
+                                                    <th class="cAPI-table-desc">Description</th>
+                                                </tr>
+                                                {{#each constructs}}
+                                                    {{#if isGlobalVariable}}
+                                                        <tr>
+                                                            <td class="cAPI-table-name">{{name}}</td>
+                                                            <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
+                                                            <td class="cAPI-table-desc">{{{description}}}</td>
+                                                        </tr>
+                                                    {{/if}}  {{/each}}
+                                            </table>
+                                            <p/><p/>
                                         </div>
 
                                         {{#each constructs}}
@@ -681,68 +743,6 @@
                                                 </div>
                                             {{/if}} {{/if}}
                                         {{/each}}
-
-                                        <!-- Type Definitions-->
-                                        <h2 id="TypeDefinitions">
-                                            <span class="fw-constant sm-icon"></span> Type Definitions
-                                        </h2>
-                                        <table>
-                                            <tr>
-                                                <th class="cAPI-table-name">Type</th>
-                                                <th class="cAPI-table-type">Values</th>
-                                                <th class="cAPI-table-desc">Description</th>
-                                            </tr>
-                                            {{#each constructs}}
-                                                {{#if isType}}
-                                                    <tr>
-                                                        <td class="cAPI-table-name">{{name}}</td>
-                                                        <td class="cAPI-table-type">{{valueSet}}</td>
-                                                        <td class="cAPI-table-desc">{{{description}}}</td>
-                                                    </tr>
-                                                {{/if}}  {{/each}}
-                                        </table>
-
-                                        <!-- Annotations -->
-                                        <h2 id="Annotations">
-                                            <span class="fw-annotation sm-icon"></span> Annotations
-                                        </h2>
-                                        <table>
-                                            <tr>
-                                                <th class="cAPI-table-name">Name</th>
-                                                <th class="cAPI-table-type">Attachement Points</th>
-                                                <th class="cAPI-table-type">Data Type</th>
-                                                <th class="cAPI-table-desc">Description</th>
-                                            </tr>
-                                            {{#each constructs}}
-                                                {{#if isAnnotation}}
-                                                    <tr>
-                                                        <td class="cAPI-table-name">{{name}}</td>
-                                                        <td class="cAPI-table-type">{{attachments}}</td>
-                                                        <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
-                                                        <td class="cAPI-table-desc">{{{description}}}</td>
-                                                    </tr>
-                                                {{/if}}  {{/each}}
-                                        </table>
-
-                                        <!-- Global Variables-->
-                                        <h2 id="GlobalVariables">
-                                            <span class="fw-globe sm-icon"></span> Global Variables
-                                        </h2>
-                                        <table>
-                                            <tr>
-                                                <th class="cAPI-table-name">Name</th>
-                                                <th class="cAPI-table-type">Data Type</th>
-                                                <th class="cAPI-table-desc">Description</th>
-                                            </tr>
-                                            {{#each constructs}}
-                                                {{#if isGlobalVariable}}
-                                                    <tr>
-                                                        <td class="cAPI-table-name">{{name}}</td>
-                                                        <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
-                                                        <td class="cAPI-table-desc">{{{description}}}</td>
-                                                    </tr>
-                                                {{/if}}  {{/each}}
-                                        </table>
                                     </div>
                                     </div>
                                 </div>

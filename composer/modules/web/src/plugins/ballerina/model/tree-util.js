@@ -771,7 +771,7 @@ class TreeUtil extends AbstractTreeUtil {
         const defaultName = 'ep';
         let defaultIndex = 0;
         const names = this.getCurrentEndpoints(parent)
-                        .map((endpoint) => { return endpoint.getName().getValue(); })
+                        .map((endpoint) => { return endpoint.name.getValue(); })
                         .sort();
         names.every((endpoint, i) => {
             if (names[i] !== defaultName + (i + 1)) {
@@ -781,7 +781,7 @@ class TreeUtil extends AbstractTreeUtil {
                 return true;
             }
         });
-        node.getName()
+        node.name
         .setValue(`${defaultName + (defaultIndex === 0 ? names.length + 1 : defaultIndex)}`, true);
     }
 

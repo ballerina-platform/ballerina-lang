@@ -17,7 +17,8 @@
 documentation {
     Represents the properties which are used to configure DB connection pool.
 
-    F{{connectionInitSql}} - SQL statement that will be executed after every new connection creation before adding it to the pool.
+    F{{connectionInitSql}} - SQL statement that will be executed after every new connection creation before adding it
+                             to the pool.
     F{{dataSourceClassName}} - Name of the DataSource class provided by the JDBC driver.
     F{{autoCommit}} - Auto-commit behavior of connections returned from the pool.
     F{{isXA}} - Whether Connections are used for a distributed transaction.
@@ -136,7 +137,8 @@ documentation {
     F{{sqlType}} - The data type of the corresponding SQL parameter.
     F{{value}} - Value of paramter pass into the SQL query.
     F{{direction}} - Direction of the SQL Parameter OUT, or INOUT - Default value is IN.
-    F{{recordType}} - In case of OUT direction, if the sqlType is REFCURSOR, this represents the record type to map a result row.
+    F{{recordType}} - In case of OUT direction, if the sqlType is REFCURSOR, this represents the record type to map a
+                      result row.
 }
 
 public type Parameter {
@@ -147,4 +149,3 @@ public type Parameter {
 };
 
 public type Param string|int|boolean|float|Parameter;
-
