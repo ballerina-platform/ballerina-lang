@@ -33,7 +33,7 @@ public type ServiceConfig {
 documentation {
     gRPC service configuration annotation.
 }
-public annotation<service> serviceConfig ServiceConfig;
+public annotation<service> ServiceConfig ServiceConfig;
 
 documentation {
     gRPC service resource configuration
@@ -48,10 +48,18 @@ public type ResourceConfig {
 documentation {
     gRPC service resource configuration annotation.
 }
-public annotation<resource> resourceConfig ResourceConfig;
+public annotation<resource> ResourceConfig ResourceConfig;
 
+documentation {
+    gRPC service descriptor data.
+
+    F{{descriptor}} - gRPC server descriptor. Service descriptor sets at compile time.
+}
 public type ServiceDescriptorData {
     string descriptor;
 };
 
+documentation {
+    gRPC service internal annotation which is to attach service descriptor generated at compile time.
+}
 public annotation <service> ServiceDescriptor ServiceDescriptorData;

@@ -32,8 +32,6 @@ public class ServiceProtoConstants {
     public static final String PROTOCOL_SYNTAX = "proto3";
     // Proto file extension
     public static final String PROTO_FILE_EXTENSION = ".proto";
-    // Descriptor file extension
-    public static final String DESC_FILE_EXTENSION = ".desc";
     // Message Message index
     public static final int CONNECTION_INDEX = 0;
 
@@ -47,13 +45,12 @@ public class ServiceProtoConstants {
     // New line character constant.
     public static final String NEW_LINE_CHARACTER = System.getProperty("line.separator");
 
-    public static final String ANN_SERVICE_CONFIG = "serviceConfig";
+    public static final String ANN_SERVICE_CONFIG = "ServiceConfig";
     public static final String ANN_MESSAGE_LISTENER = "messageListener";
 
     public static final String SERVICE_CONFIG_RPC_ENDPOINT = "name";
     public static final String SERVICE_CONFIG_CLIENT_STREAMING = "clientStreaming";
     public static final String SERVICE_CONFIG_SERVER_STREAMING = "serverStreaming";
-    public static final String SERVICE_CONFIG_GENERATE_CLIENT = "generateClientConnector";
 
 
     // proto wrapper message constants
