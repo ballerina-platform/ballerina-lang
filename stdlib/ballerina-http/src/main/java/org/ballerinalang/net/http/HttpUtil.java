@@ -19,7 +19,6 @@
 package org.ballerinalang.net.http;
 
 import io.netty.buffer.Unpooled;
-import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
@@ -159,21 +158,23 @@ public class HttpUtil {
     /**
      * Set the given entity to request or response message.
      *
-     * @param context                Ballerina context
-     * @param isRequest              boolean representing whether the message is a request or a response
+     * @param context   Ballerina context
+     * @param isRequest boolean representing whether the message is a request or a response
      */
     public static void setEntity(Context context, boolean isRequest) {
         BStruct httpMessageStruct = (BStruct) context.getRefArgument(HTTP_MESSAGE_INDEX);
 
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-        httpCarbonMessage.waitAndReleaseAllEntities();
         BStruct entity = (BStruct) context.getRefArgument(ENTITY_INDEX);
         String contentType = MimeUtil.getContentTypeWithParameters(entity);
-        if (contentType == null) {
-            contentType = OCTET_STREAM;
+        if (EntityBodyHandler.checkEntityBodyAvailability(entity)) {
+            httpCarbonMessage.waitAndReleaseAllEntities();
+            if (contentType == null) {
+                contentType = OCTET_STREAM;
+            }
+            HeaderUtil.setHeaderToEntity(entity, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
         }
-        HeaderUtil.setHeaderToEntity(entity, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
         httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
         httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, EntityBodyHandler
                 .checkEntityBodyAvailability(entity));

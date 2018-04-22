@@ -109,14 +109,18 @@ public class MimeUtil {
             return HeaderUtil.getHeaderValue(entity, HttpHeaderNames.CONTENT_TYPE.toString());
         }
         BStruct mediaType = (BStruct) entity.getRefField(MEDIA_TYPE_INDEX);
-        String contentType = mediaType.getStringField(PRIMARY_TYPE_INDEX) + "/" +
-                mediaType.getStringField(SUBTYPE_INDEX);
-        if (mediaType.getRefField(PARAMETER_MAP_INDEX) != null) {
-            BMap map = mediaType.getRefField(PARAMETER_MAP_INDEX) != null ?
-                    (BMap) mediaType.getRefField(PARAMETER_MAP_INDEX) : null;
-            if (map != null && !map.isEmpty()) {
-                contentType = contentType + SEMICOLON;
-                return HeaderUtil.appendHeaderParams(new StringBuilder(contentType), map);
+        String primaryType = mediaType.getStringField(PRIMARY_TYPE_INDEX);
+        String subType = mediaType.getStringField(SUBTYPE_INDEX);
+        String contentType = null;
+        if ((primaryType != null && !primaryType.isEmpty()) && (subType != null && !subType.isEmpty())) {
+            contentType = primaryType + "/" + subType;
+            if (mediaType.getRefField(PARAMETER_MAP_INDEX) != null) {
+                BMap map = mediaType.getRefField(PARAMETER_MAP_INDEX) != null ?
+                        (BMap) mediaType.getRefField(PARAMETER_MAP_INDEX) : null;
+                if (map != null && !map.isEmpty()) {
+                    contentType = contentType + SEMICOLON;
+                    return HeaderUtil.appendHeaderParams(new StringBuilder(contentType), map);
+                }
             }
         }
         return contentType;
