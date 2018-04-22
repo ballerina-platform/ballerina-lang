@@ -96,9 +96,7 @@ function main(string... args) {
     sql:Parameter pAge = (sql:TYPE_INTEGER, 10);
     sql:Parameter pCount = (sql:TYPE_INTEGER, (), sql:DIRECTION_OUT);
     sql:Parameter pId = (sql:TYPE_INTEGER, 1, sql:DIRECTION_INOUT);
-    //sql:CallParam pCount = {sqlType:sql:TYPE_INTEGER, direction:sql:DIRECTION_OUT};
-    //sql:CallParam pId = {sqlType:sql:TYPE_INTEGER, value:1, direction:sql:DIRECTION_INOUT};
-    //params = [pAge, pCount, pId];
+
     var results = testDB->call("{CALL GETCOUNT(?,?,?)}", (), pAge, pCount, pId);
 
     //Obtain the values of OUT/INOUT parameters
