@@ -22,11 +22,9 @@ import ballerina/time;
 
 documentation {
     Represents a JWT Authenticator
-
-    F{{jwtAuthProviderConfig}} JWTAuthProviderConfig object
-    F{{authCache}} Authentication cache object
 }
 public type JWTAuthProvider object {
+
     public {
         JWTAuthProviderConfig jwtAuthProviderConfig;
     }
