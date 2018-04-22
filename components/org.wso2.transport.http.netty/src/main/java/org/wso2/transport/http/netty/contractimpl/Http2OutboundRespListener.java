@@ -208,6 +208,11 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
                 return;
             }
 
+            if (originalStreamId != streamId) { // Skip access logs for server push messages
+                log.debug("Access logging skipped for server push response");
+                return;
+            }
+
             HttpHeaders headers = inboundRequestMsg.getHeaders();
             if (headers.contains(Constants.HTTP_X_FORWARDED_FOR)) {
                 // can contain multiple IPs for proxy chains. the first ip is the client.
