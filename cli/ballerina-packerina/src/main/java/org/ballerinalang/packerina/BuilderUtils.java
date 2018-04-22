@@ -24,7 +24,11 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.nio.file.Path;
 
-import static org.ballerinalang.compiler.CompilerOptionName.*;
+import static org.ballerinalang.compiler.CompilerOptionName.BUILD_COMPILED_PACKAGE;
+import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
+import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 
 /**
  * This class provides util methods for building Ballerina programs and packages.
