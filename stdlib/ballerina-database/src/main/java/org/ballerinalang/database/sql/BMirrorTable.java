@@ -82,7 +82,7 @@ public class BMirrorTable extends BTable {
             String sqlStmt = TableUtils.generateInsertDataStatment(tableName, data);
             PreparedStatement stmt = conn.prepareStatement(sqlStmt);
             TableUtils.prepareAndExecuteStatement(stmt, data);
-            resetIterator();
+            reset(isInTransaction);
         } catch (SQLException e) {
             throw new BallerinaException("execute add failed: " + e.getMessage(), e);
         } finally {
@@ -115,13 +115,21 @@ public class BMirrorTable extends BTable {
                 connection.commit();
             }
             context.setReturnValues(new BInteger(deletedCount));
-            resetIterator();
+            reset(isInTransaction);
         } catch (SQLException e) {
             context.setReturnValues(TableUtils.createTableOperationError(context, e));
             SQLDatasourceUtils.handleErrorOnTransaction(context);
         } finally {
             SQLDatasourceUtils.cleanupConnection(null, null, connection, isInTransaction);
         }
+    }
+
+    public void reset(boolean isInTransaction) {
+        if (iterator != null) {
+            iterator.reset(isInTransaction);
+            iterator = null;
+        }
+        resetIterationHelperAttributes();
     }
 
     private void removeData(BStruct data, Connection conn) throws SQLException {
@@ -159,7 +167,6 @@ public class BMirrorTable extends BTable {
             List<ColumnDefinition> columnDefs = SQLDatasourceUtils.getColumnDefinitions(rs);
             this.iterator = new SQLDataIterator(utcCalendar, constraintType, timeStructInfo,
                     timeZoneStructInfo, rm, rs, columnDefs);
-            resetIterationHelperAttributes();
         } catch (SQLException e) {
             SQLDatasourceUtils.cleanupConnection(rs, preparedStmt, conn, false);
             throw new BallerinaException("error in populating iterator for table : " + e.getMessage());
