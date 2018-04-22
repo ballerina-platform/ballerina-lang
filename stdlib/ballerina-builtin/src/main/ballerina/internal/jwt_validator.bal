@@ -16,7 +16,6 @@
 
 import ballerina/log;
 import ballerina/time;
-import ballerina/util;
 
 documentation {
     Represents JWT validator configurations.
