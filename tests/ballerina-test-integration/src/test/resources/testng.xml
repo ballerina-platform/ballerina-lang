@@ -31,24 +31,21 @@
             </run>
         </groups>
 
-        <!--<packages>-->
-            <!--<package name="org.ballerinalang.test.service.http.sample"/>-->
-            <!--<package name="org.ballerinalang.test.service.http2"/>-->
-            <!--<package name="org.ballerinalang.test.transaction"/>-->
-            <!--<package name="org.ballerinalang.test.filter"/>-->
-            <!--<package name="org.ballerinalang.test.auth"/>-->
-            <!--<package name="org.ballerinalang.test.securelistener"/>-->
-        <!--</packages>-->
-        <classes>
-        <class name="org.ballerinalang.test.service.http.sample.TestReusabilityOfRequest"/>
-        </classes>
+        <packages>
+            <package name="org.ballerinalang.test.service.http.sample"/>
+            <package name="org.ballerinalang.test.service.http2"/>
+            <package name="org.ballerinalang.test.transaction"/>
+            <package name="org.ballerinalang.test.filter"/>
+            <package name="org.ballerinalang.test.auth"/>
+            <package name="org.ballerinalang.test.securelistener"/>
+        </packages>
     </test>
 
-    <!--<test name="ballerina-jms-tests" preserve-order="true" parallel="false">-->
-        <!--<packages>-->
-            <!--<package name="org.ballerinalang.test.jms"/>-->
-        <!--</packages>-->
-    <!--</test>-->
+    <test name="ballerina-jms-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.test.jms"/>
+        </packages>
+    </test>
 
     <!--<test name="ballerina-websub-tests" preserve-order="true" parallel="false">-->
         <!--<packages>-->
@@ -56,37 +53,37 @@
         <!--</packages>-->
     <!--</test>-->
 
-    <!--<test name="ballerina-web-socket-sample-tests" preserve-order="true" parallel="false">-->
-        <!--<classes>-->
-            <!--<class name="org.ballerinalang.test.service.websocket.sample.WebSocketSimpleProxyTestCase"/>-->
-            <!--<class name="org.ballerinalang.test.service.websocket.sample.WebSocketQueryAndPathParamSupportTestCase"/>-->
-            <!--<class name="org.ballerinalang.test.service.websocket.sample.PingPongSupportTestCase"/>-->
-        <!--</classes>-->
-    <!--</test>-->
+    <test name="ballerina-web-socket-sample-tests" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.service.websocket.sample.WebSocketSimpleProxyTestCase"/>
+            <class name="org.ballerinalang.test.service.websocket.sample.WebSocketQueryAndPathParamSupportTestCase"/>
+            <class name="org.ballerinalang.test.service.websocket.sample.PingPongSupportTestCase"/>
+        </classes>
+    </test>
 
-    <!--<test name="ballerina-grpc-sample-tests" preserve-order="true" parallel="false">-->
-        <!--<classes>-->
-            <!--<class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingBasicTestCase"/>-->
-            <!--<class name="org.ballerinalang.test.service.grpc.sample.ServerStreamingTestCase"/>-->
-            <!--<class name="org.ballerinalang.test.service.grpc.sample.ClientStreamingTestCase"/>-->
-            <!--<class name="org.ballerinalang.test.service.grpc.sample.UnarySecuredBlockingBasicTestCase"/>-->
-            <!--<class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingHeaderTestCase"/>-->
-            <!--<class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingNestedStructTestCase"/>-->
-            <!--<class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingEmptyValueTestCase"/>-->
-            <!--<class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingArrayValueTestCase"/>-->
-        <!--</classes>-->
-    <!--</test>-->
+    <test name="ballerina-grpc-sample-tests" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingBasicTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.ServerStreamingTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.ClientStreamingTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnarySecuredBlockingBasicTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingHeaderTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingNestedStructTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingEmptyValueTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingArrayValueTestCase"/>
+        </classes>
+    </test>
 
-    <!--<test name="ballerina-observability-tests" preserve-order="true" parallel="false">-->
-        <!--<classes>-->
-            <!--<class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>-->
-        <!--</classes>-->
-    <!--</test>-->
+    <test name="ballerina-observability-tests" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
+        </classes>
+    </test>
 
-    <!--<test name="ballerina-streaming-tests" preserve-order="true" parallel="false">-->
-        <!--<classes>-->
-            <!--<class name="org.ballerinalang.test.streaming.StreamsWithinServicesTestCase"/>-->
-        <!--</classes>-->
-    <!--</test>-->
+    <test name="ballerina-streaming-tests" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.streaming.StreamsWithinServicesTestCase"/>
+        </classes>
+    </test>
 
 </suite>
