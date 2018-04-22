@@ -152,8 +152,8 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
                             ", content=" + response.content().toString(CharsetUtil.UTF_8) + ')');
         }
 
-        // If the continuation of frames are not following the protocol, netty handles it internally.
-        // Because of that those situations are not handles here.
+        // If the continuation of frames are not following the protocol, netty handles them internally.
+        // Hence those situations are not handled here.
         WebSocketFrame frame = (WebSocketFrame) msg;
         if (frame instanceof TextWebSocketFrame) {
             TextWebSocketFrame textFrame = (TextWebSocketFrame) msg;
