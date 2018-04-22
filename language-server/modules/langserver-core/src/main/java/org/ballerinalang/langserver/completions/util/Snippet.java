@@ -23,7 +23,7 @@ package org.ballerinalang.langserver.completions.util;
 public enum Snippet {
     ABORT("abort;"),
     ANNOTATION_DEFINITION("annotation<${1:attachmentPoint}> ${2:name};"),
-    BIND("bind ${1:__connector} with ${2:__endpoint}"),
+    BIND("bind "),
     BREAK("break;"),
     ENDPOINT("endpoint ${1:http:Listener} ${2:listener} {\n\t${3}\n};"),
     FOREACH("foreach ${1:varRefList} in ${2:listReference} {\n\t${3}\n}"),

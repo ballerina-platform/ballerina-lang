@@ -29,3 +29,14 @@ public type AuthProvider object {
     @Return {value:"string[]: array of groups for the user denoted by the username"}
     public function getScopes (string username) returns string[];
 };
+
+//Dummy implementation, please fix
+public function AuthProvider::authenticate (string username, string password) returns boolean {
+    return true;
+}
+
+//Dummy implementation, please fix
+public function AuthProvider::getScopes (string username) returns string[] {
+    string[] val;
+    return val;
+}

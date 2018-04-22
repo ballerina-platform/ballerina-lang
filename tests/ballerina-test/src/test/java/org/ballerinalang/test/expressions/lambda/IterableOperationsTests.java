@@ -198,7 +198,7 @@ public class IterableOperationsTests {
         Assert.assertEquals(returns[0].stringValue(), "[\"aA\", \"eE\"]");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testJSON() {
         BValue[] returns = BRunUtil.invoke(basic, "jsonTest");
         Assert.assertNotNull(returns);

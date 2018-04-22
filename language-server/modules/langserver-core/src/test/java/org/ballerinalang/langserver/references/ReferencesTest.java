@@ -37,7 +37,6 @@ import java.nio.file.Paths;
 /**
  * Test suit for testing find all references.
  */
-@Test(groups = "broken")
 public class ReferencesTest {
     private static final String TESTS_SAMPLES = "src" + File.separator + "test" + File.separator + "resources"
             + File.separator + "references";
