@@ -35,6 +35,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -139,8 +140,8 @@ public class BTestRunner {
 
         Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
 
-            String packageName = registry.getOrgName() == null ? "." : registry.getOrgName().equals("$anon") ?
-                sourcePackage.toString() : registry.getOrgName() + "." + sourcePackage.toString();
+            String packageName = registry.getOrgName() == null ? "." : registry.getOrgName().equals(Names.ANON_ORG
+                .toString()) ? sourcePackage.toString() : registry.getOrgName() + "." + sourcePackage.toString();
 
             TesterinaRegistry.getInstance().getTestSuites().computeIfAbsent(packageName, func -> new TestSuite
                 (packageName));

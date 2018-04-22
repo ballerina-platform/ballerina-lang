@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -535,7 +536,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
             return ".";
         }
         // This is project but org name is not given
-        if (bLangPackage.packageID.orgName.getValue().equals("$anon")) {
+        if (bLangPackage.packageID.orgName.getValue().equals(Names.ANON_ORG.toString())) {
             return bLangPackage.packageID.getName().getValue();
         }
         // Org name is available for the project
