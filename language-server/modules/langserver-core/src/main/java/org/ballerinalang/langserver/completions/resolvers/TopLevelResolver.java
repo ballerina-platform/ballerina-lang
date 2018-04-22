@@ -19,8 +19,8 @@ package org.ballerinalang.langserver.completions.resolvers;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
-import org.ballerinalang.langserver.completions.resolvers.parsercontext
-        .ParserRuleGlobalVariableDefinitionContextResolver;
+import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleGlobalVariableDefinitionContextResolver;
+import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleServiceEndpointAttachmentContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleTypeNameContextResolver;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
@@ -61,12 +61,11 @@ public class TopLevelResolver extends AbstractItemResolver {
             if (errorContextResolver == null || errorContextResolver == this) {
                 addTopLevelItems(completionItems);
             }
-            if (errorContextResolver instanceof PackageNameContextResolver) {
+            if (errorContextResolver instanceof PackageNameContextResolver
+                    || errorContextResolver instanceof ParserRuleServiceEndpointAttachmentContextResolver) {
                 completionItems.addAll(errorContextResolver.resolveItems(completionContext));
-            } else if (errorContextResolver instanceof ParserRuleGlobalVariableDefinitionContextResolver) {
-                addTopLevelItems(completionItems);
-                completionItems.addAll(errorContextResolver.resolveItems(completionContext));
-            } else if (errorContextResolver instanceof ParserRuleTypeNameContextResolver) {
+            } else if (errorContextResolver instanceof ParserRuleGlobalVariableDefinitionContextResolver
+                    || errorContextResolver instanceof ParserRuleTypeNameContextResolver) {
                 addTopLevelItems(completionItems);
                 completionItems.addAll(errorContextResolver.resolveItems(completionContext));
             }

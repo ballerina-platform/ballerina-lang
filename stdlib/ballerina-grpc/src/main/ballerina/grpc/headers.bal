@@ -17,14 +17,15 @@
 public type Headers object {
 
     documentation {
-        Check whether the requested header exists
+        Check whether the requested header exists.
 
         P{{headerName}} - The header name.
     }
     public native function exists(string headerName) returns (boolean);
 
     documentation {
-        Returns the header value with the specified header name. If there are more than one header value for the specified header name, the first value is returned.
+        Returns the header value with the specified header name. If there are more than one header value for the
+        specified header name, the first value is returned.
 
         P{{headerName}} - The header name.
     }

@@ -215,7 +215,8 @@ public class TreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangRecord bLangRecord) {
-        if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
+        if (!bLangRecord.getName().getValue().contains("$")
+                && !ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(bLangRecord.getPosition(), bLangRecord, this, this.documentServiceContext)) {
             BSymbol structSymbol = bLangRecord.symbol;
             SymbolEnv recordEnv = SymbolEnv.createPkgLevelSymbolEnv(bLangRecord, structSymbol.scope, symbolEnv);

@@ -66,13 +66,6 @@ public class StatementTemplateFilter extends AbstractSymbolFilter {
         forEachItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         completionItems.add(forEachItem);
 
-        // Populate Bind Statement template
-        CompletionItem bindItem = new CompletionItem();
-        bindItem.setLabel(ItemResolverConstants.BIND);
-        bindItem.setInsertText(Snippet.BIND.toString());
-        bindItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
-        completionItems.add(bindItem);
-
         // Populate Fork Statement template
         // TODO: Should make this a snippet type and move to specific sorters
         CompletionItem forkItem = new CompletionItem();
