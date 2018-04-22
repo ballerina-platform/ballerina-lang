@@ -222,8 +222,9 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
             overriddenTokenIndex = true;
             this.context.put(DocumentServiceKeys.TOKEN_INDEX_KEY, tokenBefore.getTokenIndex());
             return true;
-        } else if (parser.getContext() instanceof BallerinaParser.SimpleVariableReferenceContext
-                && this.isServiceEndpointBindContext(parser)) {
+        } else if ((parser.getContext() instanceof BallerinaParser.SimpleVariableReferenceContext
+                && this.isServiceEndpointBindContext(parser))
+                || isEndpointTypeContext(parser)) {
             overriddenTokenIndex = true;
             return true;
         }
@@ -258,6 +259,25 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
             iterations--;
         }
 
+        return false;
+    }
+    
+    private boolean isEndpointTypeContext(Parser parser) {
+        if (parser.getContext() instanceof BallerinaParser.NameReferenceContext
+                && parser.getContext().getParent() instanceof BallerinaParser.EndpointTypeContext) {
+            // Move this properly to the set context Exception
+            InputMismatchException inputMismatchException = new InputMismatchException(parser);
+            ParserRuleContext context = parser.getContext();
+            context.exception = inputMismatchException;
+            context.getParent().exception = inputMismatchException;
+            context.getParent().getParent().exception = inputMismatchException;
+            this.context.put(DocumentServiceKeys.TOKEN_INDEX_KEY, context.getParent().start.getTokenIndex());
+            this.context.put(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY, context.getParent());
+            this.overriddenContext = true;
+            
+            return true;
+        }
+        
         return false;
     }
 }

@@ -75,7 +75,8 @@ public abstract class AbstractItemResolver {
                 completionItem = this.populateVariableDefCompletionItem(symbolInfo);
             } else if (bSymbol instanceof BTypeSymbol
                     && !bSymbol.getName().getValue().equals(UtilSymbolKeys.NOT_FOUND_TYPE)
-                    && !(bSymbol instanceof BAnnotationSymbol)) {
+                    && !(bSymbol instanceof BAnnotationSymbol)
+                    && !(bSymbol.getName().getValue().equals("runtime"))) {
                 completionItem = this.populateBTypeCompletionItem(symbolInfo);
             }
 
