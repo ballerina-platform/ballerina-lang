@@ -6,10 +6,12 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketFrameType;
 import org.wso2.transport.http.netty.internal.websocket.DefaultWebSocketSession;
 
 import java.nio.ByteBuffer;
@@ -22,6 +24,7 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
 
     private final ChannelHandlerContext ctx;
     private final DefaultWebSocketSession session;
+    private WebSocketFrameType continuationFrameType = null;
 
     public DefaultWebSocketConnection(ChannelHandlerContext ctx, DefaultWebSocketSession session) {
         this.ctx = ctx;
@@ -60,6 +63,18 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
 
     @Override
     public ChannelFuture pushText(String text, boolean finalFrame) {
+        if (continuationFrameType == WebSocketFrameType.BINARY) {
+            throw new IllegalStateException("Cannot interrupt WebSocket binary frame continuation");
+        }
+        if (continuationFrameType != null) {
+            if (finalFrame) {
+                continuationFrameType = null;
+            }
+            return ctx.writeAndFlush(new ContinuationWebSocketFrame(finalFrame, 0, text));
+        }
+        if (!finalFrame) {
+            continuationFrameType = WebSocketFrameType.TEXT;
+        }
         return ctx.writeAndFlush(new TextWebSocketFrame(finalFrame, 0, text));
     }
 
@@ -70,6 +85,18 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
 
     @Override
     public ChannelFuture pushBinary(ByteBuffer data, boolean finalFrame) {
+        if (continuationFrameType == WebSocketFrameType.TEXT) {
+            throw new IllegalStateException("Cannot interrupt WebSocket text frame continuation");
+        }
+        if (continuationFrameType != null) {
+            if (finalFrame) {
+                continuationFrameType = null;
+            }
+            return ctx.writeAndFlush(new ContinuationWebSocketFrame(finalFrame, 0, getNettyBuf(data)));
+        }
+        if (!finalFrame) {
+            continuationFrameType = WebSocketFrameType.BINARY;
+        }
         return ctx.writeAndFlush(new BinaryWebSocketFrame(finalFrame, 0, getNettyBuf(data)));
     }
 
