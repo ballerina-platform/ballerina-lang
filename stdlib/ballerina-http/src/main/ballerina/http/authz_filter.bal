@@ -49,7 +49,7 @@ public type AuthzFilter object {
         match scopes {
             string[] scopeNames => {
                 if (authzHandler.canHandle(request)) {
-                    authorized = authzHandler.handle(runtime:getInvocationContext().authenticationContext.username,
+                    authorized = authzHandler.handle(runtime:getInvocationContext().userPrincipal.username,
                         context.serviceName, context.resourceName, request.method, scopeNames);
                 } else {
                     authorized = false;

@@ -19,6 +19,8 @@ package org.ballerinalang.net.grpc.proto;
 
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
+import org.ballerinalang.connector.api.Annotation;
+import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
@@ -539,13 +541,20 @@ public class ServiceProtoUtils {
     public static com.google.protobuf.Descriptors.FileDescriptor getDescriptor(org.ballerinalang.connector.api
                                                                                        .Service service) {
         try {
-            Path path = Paths.get(service.getName() + ServiceProtoConstants.DESC_FILE_EXTENSION);
-            byte[] descriptor = Files.readAllBytes(path);
+            List<Annotation> annotationList = service.getAnnotationList("ballerina.grpc", "ServiceDescriptor");
+            if (annotationList == null || annotationList.size() != 1) {
+                throw new BallerinaException("Couldn't find the service descriptor.");
+            }
+            Annotation descriptorAnn = annotationList.get(0);
+            Struct descriptorStruct = descriptorAnn.getValue();
+            if (descriptorStruct == null) {
+                throw new BallerinaException("Couldn't find the service descriptor.");
+            }
+            String descriptorData = descriptorStruct.getStringField("descriptor");
+            byte[] descriptor = descriptorData.getBytes(ServiceProtoConstants.UTF_8_CHARSET);
             DescriptorProtos.FileDescriptorProto proto = DescriptorProtos.FileDescriptorProto.parseFrom(descriptor);
-            Descriptors.FileDescriptor fileDescriptor = Descriptors.FileDescriptor.buildFrom(proto,
+            return Descriptors.FileDescriptor.buildFrom(proto,
                     StandardDescriptorBuilder.getFileDescriptors(proto.getDependencyList().toArray()));
-            Files.delete(path);
-            return fileDescriptor;
         } catch (IOException | Descriptors.DescriptorValidationException e) {
             throw new BallerinaException("Error while reading the service proto descriptor. check the service " +
                     "implementation. ", e);

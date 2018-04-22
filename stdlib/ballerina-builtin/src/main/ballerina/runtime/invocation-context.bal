@@ -18,19 +18,23 @@ package ballerina.runtime;
 
 @Description { value:"Represents the InvocationContext"}
 public type InvocationContext {
-    string invocationId;
-    AuthenticationContext authenticationContext;
+    string id;
+    UserPrincipal userPrincipal;
+    AuthContext authContext;
 };
 
-@Description { value:"Represents the AuthenticationContext, populated with authenticated user information"}
-public type AuthenticationContext {
+@Description { value:"Represents the AuthenticationContext, populated with authenticated information"}
+public type AuthContext {
+    string scheme;
+    string authToken;
+};
+
+@Description { value:"Represents the UserPrincipal, populated with authenticated user information"}
+public type UserPrincipal {
     string userId;
     string username;
-    string[] groups;
     map claims;
     string[] scopes;
-    string authType;
-    string authToken;
 };
 
 @Description {value:"Creates a InvocationContext instance"}

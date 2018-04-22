@@ -27,6 +27,20 @@ import java.io.IOException;
 
 public class SwaggerConverterUtilsTest {
     //Sample Ballerina Service definitions to be used for tests.
+    private static String echoServiceBal = "import ballerina/http;\n" +
+            "\n" +
+            "endpoint http:Listener listener {\n" +
+            "    port:9090\n" +
+            "};\n" +
+            "\n" +
+            "service<http:Service> hello bind listener {\n" +
+            "    hi (endpoint caller, http:Request request) {\n" +
+            "        http:Response res;\n" +
+            "        res.setStringPayload(\"Hello World!\\n\");\n" +
+            "        _ = caller->respond(res);\n" +
+            "    }\n" +
+            "}";
+
     private static String serviceWithMultipleHTTPMethodsInResourceLevel = "import ballerina/http;\n" +
             "\n" +
             "\n" +
@@ -282,4 +296,17 @@ public class SwaggerConverterUtilsTest {
         }
     }
 
+    @Test(description = "Test OAS and Swagger definition generation from ballerina echo service")
+    public void testWithEchoService() {
+        try {
+            String openAPIDefinition = SwaggerConverterUtils.generateOAS3Definitions(
+                    echoServiceBal, null);
+            String swaggerDefinition = SwaggerConverterUtils.generateSwaggerDefinitions(
+                    echoServiceBal, null);
+            Assert.assertNotNull(swaggerDefinition);
+            Assert.assertNotNull(openAPIDefinition);
+        } catch (IOException e) {
+            Assert.fail("Error while converting ballerina echo service to swagger definition");
+        }
+    }
 }

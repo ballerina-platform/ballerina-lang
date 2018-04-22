@@ -652,6 +652,7 @@ public class BLangPackageBuilder {
         }
 
         if (value.startsWith(IDENTIFIER_LITERAL_PREFIX) && value.endsWith(IDENTIFIER_LITERAL_SUFFIX)) {
+            value = StringEscapeUtils.unescapeJava(value);
             node.setValue(value.substring(2, value.length() - 1));
             node.setLiteral(true);
         } else {

@@ -118,8 +118,7 @@ public class LSCompiler {
                 documentManager.openFile(filePath, content);
             }
 
-            BallerinaFile ballerinaFile = LSCompiler.compile(documentManager, filePath, CompilerPhase.DEFINE,
-                                                             preserveWhitespace);
+            BallerinaFile ballerinaFile = LSCompiler.compile(filePath, phase, documentManager, preserveWhitespace);
 
             documentManager.closeFile(filePath);
             return ballerinaFile;
@@ -146,7 +145,7 @@ public class LSCompiler {
             } else {
                 documentManager.openFile(filePath, content);
             }
-            return LSCompiler.compile(documentManager, filePath, phase, preserveWhitespace);
+            return LSCompiler.compile(filePath, phase, documentManager, preserveWhitespace);
         } finally {
             lock.ifPresent(Lock::unlock);
         }
@@ -209,7 +208,7 @@ public class LSCompiler {
         return context;
     }
 
-    private static BallerinaFile compile(WorkspaceDocumentManager documentManager, Path path, CompilerPhase phase,
+    private static BallerinaFile compile(Path path, CompilerPhase phase, WorkspaceDocumentManager documentManager,
                                          boolean preserveWhiteSpace) {
         String sourceRoot = getSourceRoot(path);
         String pkgName = getPackageNameForGivenFile(sourceRoot, path.toString());
