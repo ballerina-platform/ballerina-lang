@@ -39,7 +39,7 @@ public native function decompressFromBlob(blob content, Path destDir) returns er
 documentation {
     Decompresses a compressed file.
 
-    P{{content}} Path of the compressed file
+    P{{dirPath}} Path of the compressed file
     P{{destDir}} Path of the directory to decompress the file
     R{{}} An error if an error occurs during the decompression process
 }
