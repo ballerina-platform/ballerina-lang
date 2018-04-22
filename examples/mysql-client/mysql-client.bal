@@ -56,5 +56,5 @@ function main(string... args) {
     }
 
     //Finally, close the connection pool.
-    _ = testDB->close();
+    testDB.stop();
 }

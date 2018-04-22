@@ -64,7 +64,7 @@ function main(string... args) {
         io:println("Retrying transaction");
     }
     //Close the connection pool.
-    var closed = testDBEP->close();
+    testDBEP.stop();
 }
 
 function onCommitFunction(string transactionId) {

@@ -88,8 +88,8 @@ function main(string... args) {
     }
 
     //Close the connection pool.
-    var closedCon1 = testDBEP1->close();
-    var closedCon2 = testDBEP2->close();
+    testDBEP1.stop();
+    testDBEP2.stop();
 }
 
 function onCommitFunction(string transactionId) {

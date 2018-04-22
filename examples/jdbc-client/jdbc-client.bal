@@ -1,7 +1,8 @@
 import ballerina/sql;
 import ballerina/io;
+import ballerina/jdbc;
 
-endpoint sql:Client testDB {
+endpoint jdbc:Client testDB {
     url:"mysql://localhost:3306/testdb",
     username:"root",
     password:"root",
@@ -93,9 +94,9 @@ function main(string... args) {
     //A stored procedure can be invoked using the `call` action. The direction is
     //used to specify `IN`/`OUT`/`INOUT` parameters.
     sql:Parameter pAge = (sql:TYPE_INTEGER, 10);
-    sql:CallParam pCount = {sqlType:sql:TYPE_INTEGER, direction:sql:DIRECTION_OUT};
-    sql:CallParam pId = {sqlType:sql:TYPE_INTEGER, value:1, direction:sql:DIRECTION_INOUT};
-    //params = [pAge, pCount, pId];
+    sql:Parameter pCount = (sql:TYPE_INTEGER, (), sql:DIRECTION_OUT);
+    sql:Parameter pId = (sql:TYPE_INTEGER, 1, sql:DIRECTION_INOUT);
+
     var results = testDB->call("{CALL GETCOUNT(?,?,?)}", (), pAge, pCount, pId);
 
     //Obtain the values of OUT/INOUT parameters
@@ -126,5 +127,5 @@ function main(string... args) {
     }
 
     //Finally, close the connection pool.
-    _ = testDB->close();
+    testDB.stop();
 }
