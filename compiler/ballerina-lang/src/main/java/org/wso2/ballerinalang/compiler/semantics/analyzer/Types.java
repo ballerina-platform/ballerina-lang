@@ -18,7 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.elements.TypeFlag;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -59,7 +59,6 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
-import org.wso2.ballerinalang.util.TypeFlags;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -1194,17 +1193,23 @@ public class Types {
 
         boolean result;
 
-        if ((type.flags & TypeFlags.DEFAULTABLE_CHECKED) == TypeFlags.DEFAULTABLE_CHECKED) {
-            result = (type.flags & TypeFlags.DEFAULTABLE) == TypeFlags.DEFAULTABLE;
+        if (type.tsymbol == null) {
+            result = checkDefaultable(pos, type);
+            typeStack.pop();
+            return result;
+        }
+
+        if ((type.tsymbol.flags & Flags.DEFAULTABLE_CHECKED) == Flags.DEFAULTABLE_CHECKED) {
+            result = (type.tsymbol.flags & Flags.DEFAULTABLE) == Flags.DEFAULTABLE;
             typeStack.pop();
             return result;
         }
         if (checkDefaultable(pos, type)) {
-            type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED, TypeFlag.DEFAULTABLE));
+            type.tsymbol.flags |= Flags.asMask(EnumSet.of(Flag.DEFAULTABLE_CHECKED, Flag.DEFAULTABLE));
             typeStack.pop();
             return true;
         }
-        type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED));
+        type.tsymbol.flags |= Flags.asMask(EnumSet.of(Flag.DEFAULTABLE_CHECKED));
         typeStack.pop();
         return false;
     }
