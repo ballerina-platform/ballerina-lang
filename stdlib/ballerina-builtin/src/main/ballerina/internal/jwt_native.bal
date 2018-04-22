@@ -20,7 +20,7 @@ documentation {
     P{{data}} Original data which has signed.
     P{{signature}} Signature string.
     P{{algorithm}} Signature algorithm.
-    P{{keyAlias}} Public key alias.
+    P{{trustStore}} Truststore.
     R{{}} Verified status. true or false.
 }
 native function verifySignature(string data, string signature, string algorithm, TrustStore trustStore)
@@ -36,8 +36,7 @@ documentation {
 
     P{{data}} Original that need to sign.
     P{{algorithm}} Signature string.
-    P{{keyAlias}} Private key alias. If this is null use default private key.
-    P{{keyPassword}} Private key password.
+    P{{keyStore}} Keystore.
     R{{}} Signature. Signed string.
 }
 native function sign(string data, string algorithm, KeyStore keyStore) returns (string);

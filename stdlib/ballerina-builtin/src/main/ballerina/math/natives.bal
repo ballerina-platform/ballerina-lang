@@ -135,8 +135,8 @@ public native function ceil (float val) returns (float);
 documentation {
     Returns the first floating-point argument with the sign of the second floating-point argument.
 
-    P{{magnitude}} The parameter providing the magnitude of the result
-    P{{sign}} The parameter providing the sign of the result
+    P{{a}} The parameter providing the magnitude of the result
+    P{{b}} The parameter providing the sign of the result
     R{{}} he result
 }
 public native function copySign (float a, float b) returns (float);
@@ -296,7 +296,7 @@ documentation {
     multiply to a member of the float value set.
 
     P{{a}} Number to be scaled by a power of two
-    P{{scaleFactor}} Power of 2 used to scale a
+    P{{b}} Power of 2 used to scale a
     R{{}} he result
 }
 public native function scalb (float a, int b) returns (float);
