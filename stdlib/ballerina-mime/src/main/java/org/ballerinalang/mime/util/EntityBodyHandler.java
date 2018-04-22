@@ -99,12 +99,15 @@ public class EntityBodyHandler {
      */
     public static void setDiscreteMediaTypeBodyContent(BStruct entityStruct, InputStream inputStream,
                                                        int numberOfBytesRead) {
-        if (numberOfBytesRead < Constants.BYTE_LIMIT) {
-            entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(new EntityBodyChannel(inputStream)));
-        } else {
-            String temporaryFilePath = MimeUtil.writeToTemporaryFile(inputStream, BALLERINA_TEMP_FILE);
-            entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, getByteChannelForTempFile(temporaryFilePath));
+        if(numberOfBytesRead > 0) {
+            if (numberOfBytesRead < Constants.BYTE_LIMIT) {
+                entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(new EntityBodyChannel(inputStream)));
+            } else {
+                String temporaryFilePath = MimeUtil.writeToTemporaryFile(inputStream, BALLERINA_TEMP_FILE);
+                entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, getByteChannelForTempFile(temporaryFilePath));
+            }
         }
+
     }
 
     /**
