@@ -85,7 +85,7 @@ public native function<xml x> setChildren(xml children);
 documentation {
     Make a deep copy of an XML.
 
-    P{{x}} An XML object
+    T{{x}} An XML object
     R{{}} A Copy of the XML
 }
 public native function<xml x> copy() returns (xml);

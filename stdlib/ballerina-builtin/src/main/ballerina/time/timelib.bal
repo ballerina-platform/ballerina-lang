@@ -45,7 +45,6 @@ public type Time object {
     documentation {
         Returns ISO 8601 string representation of the given time.
 
-        P{{time}} The time object for which needs to get the string representation
         R{{}} The ISO 8601 formatted string of the given time.
     }
     public native function toString() returns (string);
@@ -53,7 +52,6 @@ public type Time object {
     documentation {
         Returns formatted string representation of the given time.
 
-        P{{time}} The time object for which needs to get the string representation
         P{{format}} The format which is used to format the time represented by this object
         R{{}} The formatted string of the given time.
     }
@@ -62,21 +60,20 @@ public type Time object {
     documentation {
         Returns the year representation of the given time.
 
-        P{{time}} The time object which needs to get the year representation
         R{{}} The year representation.
     }
     public native function year() returns (int);
 
     documentation {
         Returns the month representation of the given time.
-        P{{time}} The time object which needs to get the month representation
+
         R{{}} The month-of-year, from 1 (January) to 12 (December).
     }
     public native function month() returns (int);
 
     documentation {
         Returns the date representation of the given time.
-        P{{time}} The time object which needs to get the date representation
+
         R{{}} The day-of-month, from 1 to 31.
     }
     public native function day() returns (int);
@@ -84,7 +81,6 @@ public type Time object {
     documentation {
         Returns the weekday representation of the given time.
 
-        P{{time}} The time object which needs to get the weekday representation
         R{{}} The weekday representation from SUNDAY to SATURDAY.
     }
     public native function weekday() returns (string);
@@ -92,7 +88,6 @@ public type Time object {
     documentation {
         Returns the hour representation of the given time.
 
-        P{{time}} The time object which needs to get the hour representation
         R{{}} The hour-of-day, from 0 to 23.
     }
     public native function hour() returns (int);
@@ -100,7 +95,6 @@ public type Time object {
     documentation {
         Returns the minute representation of the given time.
 
-        P{{time}} The time object which needs to get the minute representation
         R{{}} The minute-of-hour to represent, from 0 to 59.
     }
     public native function minute() returns (int);
@@ -108,7 +102,6 @@ public type Time object {
     documentation {
         Returns the second representation of the given time.
 
-        P{{time}} The time object which needs to get the second representation
         R{{}} The second-of-minute, from 0 to 59.
     }
     public native function second() returns (int);
@@ -116,7 +109,6 @@ public type Time object {
     documentation {
         Returns the millisecond representation of the given time.
 
-        P{{time}} The time object which needs to get the millisecond representation
         R{{}} The milli-of-second, from 0 to 999.
     }
     public native function milliSecond() returns (int);
@@ -124,7 +116,6 @@ public type Time object {
     documentation {
         Returns the date representation of the given time.
 
-        P{{time}} The time object which needs to get the date representation
         R{{}} The year representation.
         R{{}} The month-of-year, from 1 (January) to 12 (December).
         R{{}} The day-of-month, from 1 to 31.
@@ -134,7 +125,6 @@ public type Time object {
     documentation {
         Returns the time representation of the given time.
 
-        P{{time}} The time object which needs to get the time representation
         R{{}} The hour-of-day, from 0 to 23.
         R{{}} The minute-of-hour to represent, from 0 to 59.
         R{{}} The second-of-minute, from 0 to 59.
@@ -145,7 +135,6 @@ public type Time object {
     documentation {
         Add specified durations to the given time value.
 
-        P{{time}} The time object which needs to add the given duration
         P{{years}} The year representation
         P{{months}} The month-of-year to represent, from 1 (January) to 12 (December)
         P{{days}} The day-of-month to represent, from 1 to 31
