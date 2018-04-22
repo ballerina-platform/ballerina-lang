@@ -370,6 +370,30 @@ public class ObjectTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 89);
     }
 
+    @Test(description = "Test object recursive reference with nillable")
+    public void testRecursiveObjectRefWithNillable() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_recurs_with_nill.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRecursiveObjectWithNill");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 90);
+    }
+
+    @Test(description = "Test object field with expr as defaultable")
+    public void testFieldWithExpr() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_field_with_expr.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFieldWithExpr");
+
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BString.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 88);
+        Assert.assertEquals(returns[1].stringValue(), "sanjiva");
+    }
+
 //    @Test(description = "Test object with default initialize global variable") //TODO fix
 //    public void testObjectWithDefaultInitializeGlobalVar1() {
 //        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_declaration_test1.bal");

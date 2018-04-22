@@ -1164,11 +1164,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         initFunction.flagSet.add(Flag.ATTACHED);
 
-        //Add object level variables to the init function
-        BLangFunction finalInitFunction = initFunction;
-        object.fields.stream().filter(f -> f.expr != null).forEachOrdered(v -> finalInitFunction.initFunctionStmts
-                .put(v.symbol, (BLangStatement) createObjectAssignmentStmt(v, receiver)));
-
         object.initFunction = initFunction;
 
         defineNode(object.initFunction, conEnv);
