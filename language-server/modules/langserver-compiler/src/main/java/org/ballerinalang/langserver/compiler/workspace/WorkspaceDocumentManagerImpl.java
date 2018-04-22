@@ -20,6 +20,9 @@ package org.ballerinalang.langserver.compiler.workspace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
@@ -79,7 +82,7 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
 
     @Override
     public String getFileContent(Path filePath) {
-        return isFileOpen(filePath) ? documentList.get(filePath).getContent() : null;
+        return isFileOpen(filePath) ? documentList.get(filePath).getContent() : readFromFileSystem(filePath);
     }
 
     @Override
@@ -95,5 +98,17 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
         Lock lock = document.getLock();
         lock.lock();
         return Optional.of(lock);
+    }
+
+    private String readFromFileSystem(Path filePath) {
+        if (!Files.exists(filePath)) {
+            return null;
+        }
+        try {
+            byte[] encoded = Files.readAllBytes(filePath);
+            return new String(encoded, Charset.defaultCharset());
+        } catch (IOException e) {
+            throw new RuntimeException("Error in reading file '" + filePath + "': " + e.getMessage(), e);
+        }
     }
 }

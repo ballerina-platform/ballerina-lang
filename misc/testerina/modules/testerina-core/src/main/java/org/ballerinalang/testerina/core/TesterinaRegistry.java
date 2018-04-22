@@ -33,9 +33,13 @@ import java.util.Map;
  */
 public class TesterinaRegistry {
 
+    private String orgName = null;
     private List<String> groups = new ArrayList<>();
     private boolean shouldIncludeGroups;
     private Map<String, TestSuite> testSuites = new HashMap<>();
+
+    // This is use to keep track of packages that are already inited.
+    private List<String> initializedPackages = new ArrayList<>();
     /**
      * This is required to stop the annotation processor from processing annotations upon the compilation of the
      * service skeleton. This flag will make sure that @{@link TestAnnotationProcessor}'s methods will skip the
@@ -105,5 +109,22 @@ public class TesterinaRegistry {
 
     public void addSkeletonProgramFile(ProgramFile programFile) {
         skeletonProgramFiles.add(programFile);
+    }
+
+    public void addInitializedPackage(String packageName) {
+        initializedPackages.add(packageName);
+    }
+
+    public List<String> getInitializedPackages() {
+        return initializedPackages;
+    }
+
+
+    public String getOrgName() {
+        return orgName;
+    }
+
+    public void setOrgName(String orgName) {
+        this.orgName = orgName;
     }
  }
