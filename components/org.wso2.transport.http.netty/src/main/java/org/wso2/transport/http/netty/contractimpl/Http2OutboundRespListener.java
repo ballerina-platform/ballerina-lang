@@ -22,6 +22,8 @@ package org.wso2.transport.http.netty.contractimpl;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http2.Http2Connection;
@@ -29,6 +31,9 @@ import io.netty.handler.codec.http2.Http2ConnectionEncoder;
 import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.HttpConversionUtil;
+import io.netty.util.internal.logging.InternalLogLevel;
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
@@ -36,9 +41,11 @@ import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
+import org.wso2.transport.http.netty.listener.HttpServerChannelInitializer;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
+import java.util.Calendar;
 import java.util.Locale;
 
 /**
@@ -48,6 +55,7 @@ import java.util.Locale;
 public class Http2OutboundRespListener implements HttpConnectorListener {
 
     private static final Logger log = LoggerFactory.getLogger(Http2OutboundRespListener.class);
+    private static final InternalLogger accessLogger = InternalLoggerFactory.getInstance(Constants.ACCESS_LOG);
 
     private HTTPCarbonMessage inboundRequestMsg;
     private ChannelHandlerContext ctx;
@@ -56,17 +64,26 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
     private Http2Connection conn;
     private String serverName;
     private HttpResponseFuture outboundRespStatusFuture;
+    private HttpServerChannelInitializer serverChannelInitializer;
+    private Calendar inboundRequestArrivalTime;
+    private String remoteAddress = "-";
 
-    public Http2OutboundRespListener(HTTPCarbonMessage inboundRequestMsg, ChannelHandlerContext ctx,
+    public Http2OutboundRespListener(HttpServerChannelInitializer serverChannelInitializer,
+                                     HTTPCarbonMessage inboundRequestMsg, ChannelHandlerContext ctx,
                                      Http2Connection conn, Http2ConnectionEncoder encoder, int streamId,
-                                     String serverName) {
+                                     String serverName, String remoteAddress) {
+        this.serverChannelInitializer = serverChannelInitializer;
         this.inboundRequestMsg = inboundRequestMsg;
         this.ctx = ctx;
         this.conn = conn;
         this.encoder = encoder;
         this.originalStreamId = streamId;
         this.serverName = serverName;
+        if (remoteAddress != null) {
+            this.remoteAddress = remoteAddress;
+        }
         this.outboundRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
+        inboundRequestArrivalTime = Calendar.getInstance();
     }
 
     @Override
@@ -135,6 +152,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
 
         private boolean isHeaderWritten = false;
         private int streamId;
+        private Long contentLength = 0L;
 
         public ResponseWriter(int streamId) {
             this.streamId = streamId;
@@ -147,6 +165,9 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
             }
             if (Util.isLastHttpContent(httpContent)) {
                 writeData(httpContent, true);
+                if (serverChannelInitializer.isHttpAccessLogEnabled()) {
+                    logAccessInfo(outboundResponseMsg);
+                }
             } else {
                 writeData(httpContent, false);
             }
@@ -169,6 +190,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
         }
 
         private void writeData(HttpContent httpContent, boolean endStream) throws Http2Exception {
+            contentLength += httpContent.content().readableBytes();
             ChannelFuture channelFuture = encoder.writeData(
                     ctx, streamId, httpContent.content().retain(), 0, endStream, ctx.newPromise());
             encoder.flowController().writePendingBytes();
@@ -179,6 +201,45 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
                 Util.addResponseWriteFailureListener(outboundRespStatusFuture, channelFuture);
             }
         }
+
+        private void logAccessInfo(HTTPCarbonMessage outboundResponseMsg) {
+
+            if (!accessLogger.isEnabled(InternalLogLevel.INFO)) {
+                return;
+            }
+
+            HttpHeaders headers = inboundRequestMsg.getHeaders();
+            if (headers.contains(Constants.HTTP_X_FORWARDED_FOR)) {
+                // can contain multiple IPs for proxy chains. the first ip is the client.
+                String proxyChain = headers.get(Constants.HTTP_X_FORWARDED_FOR);
+                int firstComma = proxyChain.indexOf(',');
+                if (firstComma != -1) {
+                    remoteAddress = proxyChain.substring(0, proxyChain.indexOf(','));
+                } else {
+                    remoteAddress = proxyChain;
+                }
+            }
+
+            // Populate request parameters
+            String userAgent = "-";
+            if (headers.contains(HttpHeaderNames.USER_AGENT)) {
+                userAgent = headers.get(HttpHeaderNames.USER_AGENT);
+            }
+            String referrer = "-";
+            if (headers.contains(HttpHeaderNames.REFERER)) {
+                referrer = headers.get(HttpHeaderNames.REFERER);
+            }
+            String method = (String) inboundRequestMsg.getProperty(Constants.HTTP_METHOD);
+            String uri = (String) inboundRequestMsg.getProperty(Constants.TO);
+            String protocol = (String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION);
+
+            // Populate response parameters
+            int statusCode = Util.getHttpResponseStatus(outboundResponseMsg).code();
+
+            accessLogger.log(InternalLogLevel.INFO, String.format(
+                    Constants.ACCESS_LOG_FORMAT, remoteAddress, inboundRequestArrivalTime, method, uri, protocol,
+                    statusCode, contentLength, referrer, userAgent));
+        }
     }
 
     private synchronized int getNextStreamId() {
@@ -188,5 +249,6 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
     private boolean isValidStreamId(int streamId) {
         return conn.stream(streamId) != null;
     }
+
 }
 

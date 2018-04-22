@@ -50,6 +50,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.Map;
 
 import static org.wso2.transport.http.netty.common.Util.safelyRemoveHandlers;
@@ -72,12 +73,16 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
     private ServerConnectorFuture serverConnectorFuture;
     private Http2Connection conn;
     private String serverName;
+    private HttpServerChannelInitializer serverChannelInitializer;
+    private String remoteAddress;
 
-    Http2SourceHandler(Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
+    Http2SourceHandler(HttpServerChannelInitializer serverChannelInitializer,
+                       Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
                        Http2Settings initialSettings,
                        String interfaceId, Http2Connection conn, ServerConnectorFuture serverConnectorFuture,
                        String serverName) {
         super(decoder, encoder, initialSettings);
+        this.serverChannelInitializer = serverChannelInitializer;
         http2FrameListener = new Http2FrameListener();
         this.interfaceId = interfaceId;
         this.serverConnectorFuture = serverConnectorFuture;
@@ -90,8 +95,16 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
         super.handlerAdded(ctx);
         // Remove unwanted handlers after upgrade
         safelyRemoveHandlers(ctx.pipeline(), Constants.HTTP2_TO_HTTP_FALLBACK_HANDLER, Constants.HTTP_COMPRESSOR,
-                                  Constants.HTTP_TRACE_LOG_HANDLER);
+                                  Constants.HTTP_TRACE_LOG_HANDLER, Constants.HTTP_ACCESS_LOG_HANDLER);
         this.ctx = ctx;
+        // Populate remote address
+        SocketAddress address = ctx.channel().remoteAddress();
+        if (address instanceof InetSocketAddress) {
+            remoteAddress = ((InetSocketAddress) address).getAddress().toString();
+            if (remoteAddress.startsWith("/")) {
+                remoteAddress = remoteAddress.substring(1);
+            }
+        }
     }
 
     @Override
@@ -152,8 +165,9 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
         if (serverConnectorFuture != null) {
             try {
                 ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();
-                outboundRespFuture.setHttpConnectorListener(
-                        new Http2OutboundRespListener(httpRequestMsg, ctx, conn, encoder(), streamId, serverName));
+                outboundRespFuture.setHttpConnectorListener(new Http2OutboundRespListener(
+                        serverChannelInitializer, httpRequestMsg, ctx, conn, encoder(), streamId, serverName,
+                        remoteAddress));
                 serverConnectorFuture.notifyHttpListener(httpRequestMsg);
             } catch (Exception e) {
                 log.error("Error while notifying listeners", e);
