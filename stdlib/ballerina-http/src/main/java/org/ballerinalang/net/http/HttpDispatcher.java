@@ -242,32 +242,36 @@ public class HttpDispatcher {
     private static BValue populateAndGetEntityBody(HttpResource httpResource, BStruct inRequest,
                                                    BStruct inRequestEntity, BType entityBodyType) throws IOException {
         HttpUtil.populateEntityBody(null, inRequest, inRequestEntity, true);
-        switch (entityBodyType.getTag()) {
-            case TypeTags.STRING_TAG:
-                StringDataSource stringDataSource = EntityBodyHandler.constructStringDataSource(inRequestEntity);
-                EntityBodyHandler.addMessageDataSource(inRequestEntity, stringDataSource);
-                return stringDataSource != null ? new BString(stringDataSource.getMessageAsString()) : null;
-            case TypeTags.JSON_TAG:
-                BJSON bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
-                EntityBodyHandler.addMessageDataSource(inRequestEntity, bjson);
-                return bjson;
-            case TypeTags.XML_TAG:
-                BXML bxml = EntityBodyHandler.constructXmlDataSource(inRequestEntity);
-                EntityBodyHandler.addMessageDataSource(inRequestEntity, bxml);
-                return bxml;
-            case TypeTags.BLOB_TAG:
-                BlobDataSource blobDataSource = EntityBodyHandler.constructBlobDataSource(inRequestEntity);
-                EntityBodyHandler.addMessageDataSource(inRequestEntity, blobDataSource);
-                return new BBlob(blobDataSource != null ? blobDataSource.getValue() : new byte[0]);
-            case TypeTags.STRUCT_TAG:
-                bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
-                EntityBodyHandler.addMessageDataSource(inRequestEntity, bjson);
-                try {
-                    return JSONUtils.convertJSONToStruct(bjson, (BStructType) entityBodyType);
-                } catch (NullPointerException ex) {
-                    throw new BallerinaConnectorException("cannot convert payload to struct type: " +
-                            entityBodyType.getName());
-                }
+        try {
+            switch (entityBodyType.getTag()) {
+                case TypeTags.STRING_TAG:
+                    StringDataSource stringDataSource = EntityBodyHandler.constructStringDataSource(inRequestEntity);
+                    EntityBodyHandler.addMessageDataSource(inRequestEntity, stringDataSource);
+                    return stringDataSource != null ? new BString(stringDataSource.getMessageAsString()) : null;
+                case TypeTags.JSON_TAG:
+                    BJSON bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
+                    EntityBodyHandler.addMessageDataSource(inRequestEntity, bjson);
+                    return bjson;
+                case TypeTags.XML_TAG:
+                    BXML bxml = EntityBodyHandler.constructXmlDataSource(inRequestEntity);
+                    EntityBodyHandler.addMessageDataSource(inRequestEntity, bxml);
+                    return bxml;
+                case TypeTags.BLOB_TAG:
+                    BlobDataSource blobDataSource = EntityBodyHandler.constructBlobDataSource(inRequestEntity);
+                    EntityBodyHandler.addMessageDataSource(inRequestEntity, blobDataSource);
+                    return new BBlob(blobDataSource != null ? blobDataSource.getValue() : new byte[0]);
+                case TypeTags.STRUCT_TAG:
+                    bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
+                    EntityBodyHandler.addMessageDataSource(inRequestEntity, bjson);
+                    try {
+                        return JSONUtils.convertJSONToStruct(bjson, (BStructType) entityBodyType);
+                    } catch (NullPointerException ex) {
+                        throw new BallerinaConnectorException("cannot convert payload to struct type: " +
+                                entityBodyType.getName());
+                    }
+            }
+        } catch (Exception ex) {
+            throw new BallerinaConnectorException("Error in reading payload : " + ex.getMessage());
         }
         return null;
     }

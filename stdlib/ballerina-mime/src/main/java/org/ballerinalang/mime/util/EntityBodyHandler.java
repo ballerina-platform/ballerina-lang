@@ -228,7 +228,7 @@ public class EntityBodyHandler {
         try {
             Channel byteChannel = getByteChannel(entityStruct);
             if (byteChannel == null) {
-                throw new BallerinaIOException("Payload is null");
+                throw new BallerinaIOException("String payload is null");
             }
             String textContent = StringUtils.getStringFromInputStream(byteChannel.getInputStream());
             byteChannel.close();

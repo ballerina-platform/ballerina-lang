@@ -18,11 +18,10 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.mime.util.EntityBodyHandler;
-import org.ballerinalang.mime.util.HeaderUtil;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.io.IOConstants;
@@ -60,7 +59,7 @@ public class SetByteChannel extends BlockingNativeCallableUnit {
         if (dataSource != null) { //Clear message data source when the user set a byte channel to entity
             entityStruct.addNativeData(MESSAGE_DATA_SOURCE, null);
         }
-        HeaderUtil.setHeaderToEntity(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
+        MimeUtil.setMediaTypeToEntity(context, entityStruct, contentType);
         context.setReturnValues();
     }
 }
