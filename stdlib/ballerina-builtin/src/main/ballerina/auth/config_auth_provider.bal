@@ -27,7 +27,7 @@ public type ConfigAuthProvider object {
     documentation {
         Attempts to authenticate with username and password
 
-        P{{username}} user name
+        P{{user}} user name
         P{{password}} password
         R{{}} true if authentication is a success, else false
     }
