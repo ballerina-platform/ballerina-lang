@@ -209,7 +209,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = "ConnectorTest", enabled = false)
+    @Test(groups = "ConnectorTest", enabled = false) //Issue #7700
     public void testInsertTableDataWithParameters3() {
         BValue[] returns = BRunUtil.invoke(result, "testInsertTableDataWithParameters3");
         BInteger retValue = (BInteger) returns[0];
@@ -489,7 +489,7 @@ public class SQLActionsTest {
     }
 
 
-    @Test(groups = "ConnectorTest", enabled = false)
+    @Test(groups = "ConnectorTest")
     public void testStructOutParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testStructOutParameters");
         BString retValue = (BString) returns[0];

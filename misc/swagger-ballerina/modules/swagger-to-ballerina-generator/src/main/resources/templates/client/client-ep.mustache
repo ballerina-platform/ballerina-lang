@@ -20,7 +20,7 @@ public type {{cut info.title " "}}ClientEp object {
 
     public function init({{cut info.title " "}}ClientConfig config) {
         endpoint http:Client httpEp {
-            targets:[{url: config.serviceUrl}]
+            url: config.serviceUrl
         };
 
         self.client = httpEp;

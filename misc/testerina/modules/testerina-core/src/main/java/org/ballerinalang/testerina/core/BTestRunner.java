@@ -35,6 +35,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -54,6 +55,7 @@ public class BTestRunner {
     private static PrintStream errStream = System.err;
     private static PrintStream outStream = System.out;
     private TesterinaReport tReport = new TesterinaReport();
+    private TesterinaRegistry registry = TesterinaRegistry.getInstance();
 
     /**
      * Executes a given set of ballerina program files.
@@ -137,6 +139,12 @@ public class BTestRunner {
     private void compileAndBuildSuites(String sourceRoot, Path[] sourceFilePaths)  {
 
         Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
+
+            String packageName = registry.getOrgName() == null ? "." : registry.getOrgName().equals(Names.ANON_ORG
+                .toString()) ? sourcePackage.toString() : registry.getOrgName() + "." + sourcePackage.toString();
+
+            TesterinaRegistry.getInstance().getTestSuites().computeIfAbsent(packageName, func -> new TestSuite
+                (packageName));
             // compile
             CompileResult compileResult = BCompileUtil.compile(sourceRoot, sourcePackage.toString(),
                 CompilerPhase.CODE_GEN);
@@ -188,7 +196,7 @@ public class BTestRunner {
             shouldSkip.set(false);
             TestAnnotationProcessor.injectMocks(suite);
             tReport.addPackageReport(packageName);
-            if (suite.getInitFunction() != null) {
+            if (suite.getInitFunction() != null && Utils.isPackageInitialized(packageName)) {
                 suite.getInitFunction().invoke();
             }
 
