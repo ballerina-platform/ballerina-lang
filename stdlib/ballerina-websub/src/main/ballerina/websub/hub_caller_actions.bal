@@ -63,7 +63,7 @@ public type CallerActions object {
         P{{secret}} The secret the publisher will use to generate a signature when publishing updates
         R{{}} `error` if an error occurred registering the topic
     }
-    public function registerTopic(string topic, string secret = "") returns error?;
+    public function registerTopic(string topic, string? secret = ()) returns error?;
 
     documentation {
         Function to unregister a topic in a Ballerina WebSub Hub
@@ -72,7 +72,7 @@ public type CallerActions object {
         P{{secret}} The secret the publisher used when registering the topic
         R{{}} `error` if an error occurred unregistering the topic
     }
-    public function unregisterTopic(string topic, string secret = "") returns error?;
+    public function unregisterTopic(string topic, string? secret = ()) returns error?;
 
     documentation {
         Function to publish an update to a remote Ballerina WebSub Hub
@@ -81,19 +81,21 @@ public type CallerActions object {
         P{{payload}} The update payload
         P{{secret}} The secret used when registering the topic
         P{{signatureMethod}} The signature method to use to generate a secret
+        P{{headers}} The headers, if any, that need to be set
         R{{}} `error` if an error occurred with the update
     }
-    public function publishUpdate(string topic, json payload, string secret = "", string signatureMethod = "sha256",
-                                  json... headers) returns error?;
+    public function publishUpdate(string topic, json payload, string? secret = (), string signatureMethod = "sha256",
+                                  map<string>? headers = ()) returns error?;
 
     documentation {
         Function to notify a remote WebSub Hub that an update is available to fetch, for hubs that require publishing to
          happen as such
 
         P{{topic}} The topic for which the update occurred
+        P{{headers}} The headers, if any, that need to be set
         R{{}} `error` if an error occurred with the notification
     }
-    public function notifyUpdate(string topic, json... notificationHeaders) returns error?;
+    public function notifyUpdate(string topic, map<string>? headers = ()) returns error?;
 };
 
 public function CallerActions::subscribe(SubscriptionChangeRequest subscriptionRequest)
@@ -114,9 +116,9 @@ public function CallerActions::unsubscribe(SubscriptionChangeRequest unsubscript
     return processHubResponse(self.hubUrl, MODE_UNSUBSCRIBE, unsubscriptionRequest, response, httpClientEndpoint);
 }
 
-public function CallerActions::registerTopic(string topic, string secret = "") returns error? {
+public function CallerActions::registerTopic(string topic, string? secret = ()) returns error? {
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
-    http:Request request = buildTopicRegistrationChangeRequest(MODE_REGISTER, topic, secret);
+    http:Request request = buildTopicRegistrationChangeRequest(MODE_REGISTER, topic, secret = secret);
     var registrationResponse = httpClientEndpoint->post("", request = request);
     match (registrationResponse) {
         http:Response response => {
@@ -135,9 +137,9 @@ public function CallerActions::registerTopic(string topic, string secret = "") r
     }
 }
 
-public function CallerActions::unregisterTopic(string topic, string secret = "") returns error? {
+public function CallerActions::unregisterTopic(string topic, string? secret = ()) returns error? {
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
-    http:Request request = buildTopicRegistrationChangeRequest(MODE_UNREGISTER, topic, secret);
+    http:Request request = buildTopicRegistrationChangeRequest(MODE_UNREGISTER, topic, secret = secret);
     var unregistrationResponse = httpClientEndpoint->post("", request = request);
     match (unregistrationResponse) {
         http:Response response => {
@@ -156,32 +158,38 @@ public function CallerActions::unregisterTopic(string topic, string secret = "")
     }
 }
 
-public function CallerActions::publishUpdate(string topic, json payload, string secret = "",
-                                             string signatureMethod = "sha256", json... headers) returns error? {
+public function CallerActions::publishUpdate(string topic, json payload, string? secret = (),
+                                         string signatureMethod = "sha256", map<string>? headers = ()) returns error? {
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = new;
     string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;
     request.setJsonPayload(payload);
 
-    if (secret != "") {
-        string stringPayload = payload.toString();
-        string publisherSignature = signatureMethod + "=";
-        string generatedSignature = "";
-        if (SHA1.equalsIgnoreCase(signatureMethod)) {
-            generatedSignature = crypto:hmac(stringPayload, secret, crypto:SHA1);
-        } else if (SHA256.equalsIgnoreCase(signatureMethod)) {
-            generatedSignature = crypto:hmac(stringPayload, secret, crypto:SHA256);
-        } else if (MD5.equalsIgnoreCase(signatureMethod)) {
-            generatedSignature = crypto:hmac(stringPayload, secret, crypto:MD5);
+    match (secret) {
+        string specifiedSecret => {
+            string stringPayload = payload.toString();
+            string publisherSignature = signatureMethod + "=";
+            string generatedSignature = "";
+            if (SHA1.equalsIgnoreCase(signatureMethod)) {
+                generatedSignature = crypto:hmac(stringPayload, specifiedSecret, crypto:SHA1);
+            } else if (SHA256.equalsIgnoreCase(signatureMethod)) {
+                generatedSignature = crypto:hmac(stringPayload, specifiedSecret, crypto:SHA256);
+            } else if (MD5.equalsIgnoreCase(signatureMethod)) {
+                generatedSignature = crypto:hmac(stringPayload, specifiedSecret, crypto:MD5);
+            }
+            publisherSignature = publisherSignature + generatedSignature;
+            request.setHeader(PUBLISHER_SIGNATURE, publisherSignature);
         }
-        publisherSignature = publisherSignature + generatedSignature;
-        request.setHeader(PUBLISHER_SIGNATURE, publisherSignature);
+        () => {}
     }
 
-    foreach headerJson in headers {
-        string strHeaderKey = headerJson.headerKey.toString();
-        string strHeaderValue = headerJson.headerValue.toString();
-        request.setHeader(strHeaderKey, strHeaderValue);
+    match (headers) {
+        map<string> headerMap => {
+            foreach key in headerMap.keys() {
+                request.setHeader(key, headerMap[key]);
+            }
+        }
+        () => {}
     }
 
     var response = httpClientEndpoint->post(untaint ("?" + queryParams), request = request);
@@ -194,15 +202,18 @@ public function CallerActions::publishUpdate(string topic, json payload, string 
     }
 }
 
-public function CallerActions::notifyUpdate(string topic, json... notificationHeaders) returns error? {
+public function CallerActions::notifyUpdate(string topic, map<string>? headers = ()) returns error? {
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = new;
     string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;
 
-    foreach headerJson in notificationHeaders {
-        string strHeaderKey = headerJson.headerKey.toString();
-        string strHeaderValue = headerJson.headerValue.toString();
-        request.setHeader(strHeaderKey, strHeaderValue);
+    match (headers) {
+        map<string> headerMap => {
+            foreach key in headerMap.keys() {
+                request.setHeader(key, headerMap[key]);
+            }
+        }
+        () => {}
     }
 
     var response = httpClientEndpoint->post(untaint ("?" + queryParams), request = request);
@@ -224,11 +235,12 @@ documentation {
     R{{}} `http:Request` The Request to send to the hub to register/unregister
 }
 function buildTopicRegistrationChangeRequest(@sensitive string mode, @sensitive string topic,
-                                             @sensitive string secret) returns (http:Request) {
+                                             @sensitive string? secret = ()) returns (http:Request) {
     http:Request request = new;
     string body = HUB_MODE + "=" + mode + "&" + HUB_TOPIC + "=" + topic;
-    if (secret != "") {
-        body = body + "&" + PUBLISHER_SECRET + "=" + secret;
+    match (secret) {
+        string specifiedSecret => { body = body + "&" + PUBLISHER_SECRET + "=" + specifiedSecret; }
+        () => {}
     }
     request.setStringPayload(body);
     request.setHeader(CONTENT_TYPE, mime:APPLICATION_FORM_URLENCODED);

@@ -76,43 +76,41 @@ public type IntentVerificationRequest object {
     documentation {
         Function to build intent verification response for subscription requests sent
 
-        P{{topic}} The topic for which subscription should be accepted, if not specified will use the annotated
-                        topic
+        P{{topic}} The topic for which subscription should be accepted, if not specified the annotated topic will be
+                    used
         R{{}} `http:Response` The response to the hub verifying/denying intent to subscribe
     }
-    public function buildSubscriptionVerificationResponse(string topic = "") returns http:Response;
+    public function buildSubscriptionVerificationResponse(string? topic = ()) returns http:Response;
 
     documentation {
         Function to build intent verification response for unsubscription requests sent
 
-        P{{topic}} The topic for which unsubscription should be accepted, if not specified will use the annotated
-                        topic
+        P{{topic}} The topic for which unsubscription should be accepted, if not specified the annotated topic will be
+                    used
         R{{}} `http:Response` The response to the hub verifying/denying intent to unsubscribe
     }
-    public function buildUnsubscriptionVerificationResponse(string topic = "") returns http:Response;
+    public function buildUnsubscriptionVerificationResponse(string? topic = ()) returns http:Response;
 
 };
 
-public function IntentVerificationRequest::buildSubscriptionVerificationResponse(string topic = "")
+public function IntentVerificationRequest::buildSubscriptionVerificationResponse(string? topic = ())
     returns http:Response {
 
     SubscriberServiceConfiguration subscriberServiceConfiguration = {};
-    if (topic == "") {
-        subscriberServiceConfiguration = retrieveAnnotations();
-    } else {
-        subscriberServiceConfiguration = {topic:topic};
+    match (topic) {
+        string specifiedTopic => { subscriberServiceConfiguration = {topic:specifiedTopic}; }
+        () => { subscriberServiceConfiguration = retrieveAnnotations(); }
     }
     return buildIntentVerificationResponse(self, MODE_SUBSCRIBE, subscriberServiceConfiguration);
 }
 
-public function IntentVerificationRequest::buildUnsubscriptionVerificationResponse(string topic = "")
+public function IntentVerificationRequest::buildUnsubscriptionVerificationResponse(string? topic = ())
     returns http:Response {
 
     SubscriberServiceConfiguration subscriberServiceConfiguration = {};
-    if (topic == "") {
-        subscriberServiceConfiguration = retrieveAnnotations();
-    } else {
-        subscriberServiceConfiguration = {topic:topic};
+    match (topic) {
+        string specifiedTopic => { subscriberServiceConfiguration = {topic:specifiedTopic}; }
+        () => { subscriberServiceConfiguration = retrieveAnnotations(); }
     }
     return buildIntentVerificationResponse(self, MODE_UNSUBSCRIBE, subscriberServiceConfiguration);
 }
