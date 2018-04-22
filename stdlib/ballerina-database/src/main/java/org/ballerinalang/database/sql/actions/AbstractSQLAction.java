@@ -122,7 +122,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 CachedRowSet cachedRowSet = new CachedRowSetImpl();
                 cachedRowSet.populate(rs);
                 rs = cachedRowSet;
-                rm.gracefullyReleaseResources(context.isInTransaction());
+                rm.gracefullyReleaseResources(isInTransaction);
             } else {
                 rm.addResultSet(rs);
             }

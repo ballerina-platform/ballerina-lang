@@ -191,9 +191,8 @@ function testXATransactionRetry() returns (int, int) {
     } catch (error e) {
     }
     //check whether update action is performed
-    var temp = testDB1->select("Select COUNT(*) as countval from CustomersTrx where customerId = 4", ResultCount);
-    table dt = check temp;
-
+    table dt = check testDB1->select("Select COUNT(*) as countval from CustomersTrx where customerId = 4",
+        ResultCount);
     int count1;
     int count2;
 

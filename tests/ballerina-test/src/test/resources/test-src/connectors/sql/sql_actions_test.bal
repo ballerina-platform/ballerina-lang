@@ -1085,8 +1085,7 @@ function testLoadToMemorySelectAfterTableClose() returns (Employee[], Employee[]
             employeeArray3[i] = e;
             i++;
         }
-    }
-    catch (error err) {
+    } catch (error err) {
         e = err;
     }
     testDB.stop();

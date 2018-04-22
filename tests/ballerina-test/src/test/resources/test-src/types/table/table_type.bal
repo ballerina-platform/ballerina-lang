@@ -410,9 +410,8 @@ function testGetComplexTypes() returns (string, string, string) {
         poolOptions:{maximumPoolSize:1}
     };
 
-    var dtRet = testDB->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1",
+    table dt = check testDB->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1",
         ResultObject);
-    table dt = check dtRet;
 
     string blobValue;
     string clob;
