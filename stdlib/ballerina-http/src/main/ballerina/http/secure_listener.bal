@@ -152,8 +152,8 @@ function createAuthFiltersForSecureListener (SecureEndpointConfiguration config)
     auth:AuthProvider authProvider = <auth:AuthProvider> configAuthProvider;
     HttpAuthzHandler authzHandler = new(authProvider, authzCache);
     AuthzFilter authzFilter = new(authzHandler);
-    authFilters[0] = check <Filter> authnFilter;
-    authFilters[1] = check <Filter> authzFilter;
+    authFilters[0] = <Filter> authnFilter;
+    authFilters[1] = <Filter> authzFilter;
     return authFilters;
 }
 
