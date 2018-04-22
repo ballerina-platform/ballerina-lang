@@ -177,21 +177,25 @@ public abstract class WebSocketUtil {
         webSocketEndpoint.setBooleanField(1, webSocketConnection.getSession().isOpen() ? 1 : 0);
     }
 
-    public static void getWebSocketError(Context context, CallableUnitCallback callback,
-                                         ChannelFuture webSocketChannelFuture, String message)
+    public static void handleWebSocketCallback(Context context, CallableUnitCallback callback,
+                                               ChannelFuture webSocketChannelFuture)
             throws InterruptedException {
-        webSocketChannelFuture.addListener((ChannelFutureListener) future1 -> {
-            Throwable cause = future1.cause();
-            if (!future1.isSuccess() && cause != null) {
-                context.setReturnValues(BLangConnectorSPIUtil
-                                                .createBStruct(context, HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                                                               WebSocketConstants.WEBSOCKET_CONNECTOR_ERROR, message,
-                                                               new BValue[]{}));
+        webSocketChannelFuture.addListener((ChannelFutureListener) future -> {
+            Throwable cause = future.cause();
+            if (!future.isSuccess() && cause != null) {
+                context.setReturnValues(createWebSocketConnectorError(context, future.cause().getMessage()));
             } else {
                 context.setReturnValues();
             }
             callback.notifySuccess();
         });
+    }
+
+    public static BStruct createWebSocketConnectorError(Context context, String errorMsg) {
+        return BLangConnectorSPIUtil
+                .createBStruct(context, HttpConstants.PROTOCOL_PACKAGE_HTTP,
+                               WebSocketConstants.WEBSOCKET_CONNECTOR_ERROR, errorMsg,
+                               new BValue[]{});
     }
 
     /**
