@@ -87,11 +87,7 @@ class EndpointNodeDecorator extends React.Component {
     render() {
         // create lifeline for endpoint
         const packageAlias = /* this.props.model.variable.typeNode.packageAlias.value */ '';
-        const connectorClasses = {
-            lineClass: 'connector-life-line',
-            polygonClass: 'connector-life-line-polygon',
-            textClass: 'connector-icon',
-        };
+
 
         // Editor options for the expression editor
         this.editorOptions = {
@@ -107,7 +103,7 @@ class EndpointNodeDecorator extends React.Component {
                     model={this.props.model}
                     title={this.props.title}
                     bBox={this.props.bBox}
-                    classes={connectorClasses}
+                    className='connector'
                     icon={ImageUtil.getCodePoint('endpoint')}
                     editorOptions={this.editorOptions}
                     onDelete={this.onDelete}
