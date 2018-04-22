@@ -17,7 +17,7 @@
 documentation {
     Publish a struct to the stream.
 
-    P{{s}} The stream to which publishing is to be done
+    T{{s}} The stream to which publishing is to be done
     P{{data}} The struct with data, to be published
 }
 public native function<stream s> publish(any data);
@@ -25,7 +25,7 @@ public native function<stream s> publish(any data);
 documentation {
     Subscribe to structs from a stream.
 
-    P{{s}} The stream to which subscription is to be done
+    T{{s}} The stream to which subscription is to be done
     P{{func}} The function pointer for subscription
 }
 public native function<stream s> subscribe(function (any) func);

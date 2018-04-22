@@ -17,14 +17,14 @@
 documentation {
     Releases the database connection.
 
-    P{{dt}} The table object
+    T{{dt}} The table object
 }
 public native function<table dt> close();
 
 documentation {
     Checks for a new row in the given table. If a new row is found, moves the cursor to it.
 
-    P{{dt}} The table object
+    T{{dt}} The table object
     R{{}} True if there is a new row; false otherwise
 }
 public native function<table dt> hasNext() returns (boolean);
@@ -32,7 +32,7 @@ public native function<table dt> hasNext() returns (boolean);
 documentation {
     Retrives the current row and return a record with the data in the columns.
 
-    P{{dt}} The table object
+    T{{dt}} The table object
     R{{}} The resulting row as a record
 }
 public native function<table dt> getNext() returns (any);
@@ -40,7 +40,7 @@ public native function<table dt> getNext() returns (any);
 documentation {
     Add record to the table.
 
-    P{{dt}} The table object
+    T{{dt}} The table object
     P{{data}} A struct with data
 }
 public native function<table dt> add(any data) returns (TableOperationError|());
@@ -48,7 +48,7 @@ public native function<table dt> add(any data) returns (TableOperationError|());
 documentation {
     Remove data from the table.
 
-    P{{dt}} The table object
+    T{{dt}} The table object
     P{{func}} The function pointer for delete crieteria
 }
 public native function<table dt> remove(function (any) returns (boolean) func) returns (int|TableOperationError);

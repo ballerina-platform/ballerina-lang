@@ -17,7 +17,7 @@
 documentation {
     Converts blob to a string.
 
-    P{{b}} The blob value to be converted
+    T{{b}} The blob value to be converted
     P{{encoding}} Encoding to used in blob conversion to string
     R{{}} String representation of the given blob
 }
@@ -26,7 +26,7 @@ public native function<blob b> toString(string encoding) returns string;
 documentation {
     Encode a given blob with Base64 encoding scheme.
 
-    P{{b}} Content that needs to be encoded
+    T{{b}} Content that needs to be encoded
     R{{}} Return an encoded blob
 }
 public native function<blob b> base64Encode() returns blob;
@@ -34,7 +34,7 @@ public native function<blob b> base64Encode() returns blob;
 documentation {
     Decode a given blob with Base64 encoding scheme.
 
-    P{{b}} Content that needs to be decoded
+    T{{b}} Content that needs to be decoded
     R{{}} Return a decoded blob
 }
 public native function<blob b> base64Decode() returns blob;
