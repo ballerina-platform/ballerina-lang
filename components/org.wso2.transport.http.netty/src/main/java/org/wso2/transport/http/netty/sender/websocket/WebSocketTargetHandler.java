@@ -75,7 +75,7 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
     private DefaultWebSocketConnection webSocketConnection;
     private ChannelPromise handshakeFuture;
     private ChannelHandlerContext ctx;
-    private WebSocketFrameType frameType = WebSocketFrameType.TEXT;
+    private WebSocketFrameType continuationFrameType;
 
     public WebSocketTargetHandler(WebSocketClientHandshaker handshaker, boolean isSecure, String requestedUri,
                                   WebSocketConnectorListener webSocketConnectorListener) {
@@ -151,17 +151,20 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
                     "Unexpected FullHttpResponse (getStatus=" + response.status() +
                             ", content=" + response.content().toString(CharsetUtil.UTF_8) + ')');
         }
+
+        // If the continuation of frames are not following the protocol, netty handles it internally.
+        // Because of that those situations are not handles here.
         WebSocketFrame frame = (WebSocketFrame) msg;
         if (frame instanceof TextWebSocketFrame) {
             TextWebSocketFrame textFrame = (TextWebSocketFrame) msg;
             if (!textFrame.isFinalFragment()) {
-                frameType = WebSocketFrameType.TEXT;
+                continuationFrameType = WebSocketFrameType.TEXT;
             }
             notifyTextMessage(textFrame, textFrame.text(), textFrame.isFinalFragment(), ctx);
         } else if (frame instanceof BinaryWebSocketFrame) {
             BinaryWebSocketFrame binaryFrame = (BinaryWebSocketFrame) msg;
             if (!binaryFrame.isFinalFragment()) {
-                frameType = WebSocketFrameType.BINARY;
+                continuationFrameType = WebSocketFrameType.BINARY;
             }
             notifyBinaryMessage(binaryFrame, binaryFrame.content(), binaryFrame.isFinalFragment(), ctx);
         } else if (frame instanceof PongWebSocketFrame) {
@@ -176,7 +179,7 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
             ch.close();
         } else if (frame instanceof ContinuationWebSocketFrame) {
             ContinuationWebSocketFrame conframe = (ContinuationWebSocketFrame) msg;
-            switch (frameType) {
+            switch (continuationFrameType) {
                 case TEXT:
                     notifyTextMessage(conframe, conframe.text(), conframe.isFinalFragment(), ctx);
                     break;

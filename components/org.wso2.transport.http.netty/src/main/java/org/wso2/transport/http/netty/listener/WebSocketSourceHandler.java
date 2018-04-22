@@ -70,7 +70,7 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
     private final String interfaceId;
     private String subProtocol = null;
     private HandlerExecutor handlerExecutor;
-    private WebSocketFrameType frameType = WebSocketFrameType.TEXT;
+    private WebSocketFrameType continuationFrameType;
 
     /**
      * @param connectorFuture {@link ServerConnectorFuture} to notify messages to application.
@@ -159,16 +159,19 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
             logger.error("Expecting WebSocketFrame. Unknown type.");
             throw new UnknownWebSocketFrameTypeException("Expecting WebSocketFrame. Unknown type.");
         }
+
+        // If the continuation of frames are not following the protocol, netty handles it internally.
+        // Because of that those situations are not handles here.
         if (msg instanceof TextWebSocketFrame) {
             TextWebSocketFrame textFrame = (TextWebSocketFrame) msg;
             if (!textFrame.isFinalFragment()) {
-                frameType = WebSocketFrameType.TEXT;
+                continuationFrameType = WebSocketFrameType.TEXT;
             }
             notifyTextMessage(textFrame, textFrame.text(), textFrame.isFinalFragment());
         } else if (msg instanceof BinaryWebSocketFrame) {
             BinaryWebSocketFrame binaryFrame = (BinaryWebSocketFrame) msg;
             if (!binaryFrame.isFinalFragment()) {
-                frameType = WebSocketFrameType.BINARY;
+                continuationFrameType = WebSocketFrameType.BINARY;
             }
             notifyBinaryMessage(binaryFrame, binaryFrame.content(), binaryFrame.isFinalFragment());
         } else if (msg instanceof CloseWebSocketFrame) {
@@ -179,7 +182,7 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
             notifyPongMessage((PongWebSocketFrame) msg);
         } else if (msg instanceof ContinuationWebSocketFrame) {
             ContinuationWebSocketFrame frame = (ContinuationWebSocketFrame) msg;
-            switch (frameType) {
+            switch (continuationFrameType) {
                 case TEXT:
                     notifyTextMessage(frame, frame.text(), frame.isFinalFragment());
                     break;

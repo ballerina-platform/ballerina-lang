@@ -24,7 +24,7 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
 
     private final ChannelHandlerContext ctx;
     private final DefaultWebSocketSession session;
-    private WebSocketFrameType frameType = null;
+    private WebSocketFrameType continuationFrameType = null;
 
     public DefaultWebSocketConnection(ChannelHandlerContext ctx, DefaultWebSocketSession session) {
         this.ctx = ctx;
@@ -63,17 +63,17 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
 
     @Override
     public ChannelFuture pushText(String text, boolean finalFrame) {
-        if (frameType == WebSocketFrameType.BINARY) {
-            throw new IllegalArgumentException("Cannot interrupt WebSocket binary frame continuation");
+        if (continuationFrameType == WebSocketFrameType.BINARY) {
+            throw new IllegalStateException("Cannot interrupt WebSocket binary frame continuation");
         }
-        if (frameType != null) {
+        if (continuationFrameType != null) {
             if (finalFrame) {
-                frameType = null;
+                continuationFrameType = null;
             }
             return ctx.writeAndFlush(new ContinuationWebSocketFrame(finalFrame, 0, text));
         }
         if (!finalFrame) {
-            frameType = WebSocketFrameType.TEXT;
+            continuationFrameType = WebSocketFrameType.TEXT;
         }
         return ctx.writeAndFlush(new TextWebSocketFrame(finalFrame, 0, text));
     }
@@ -85,17 +85,17 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
 
     @Override
     public ChannelFuture pushBinary(ByteBuffer data, boolean finalFrame) {
-        if (frameType == WebSocketFrameType.TEXT) {
-            throw new IllegalArgumentException("Cannot interrupt WebSocket text frame continuation");
+        if (continuationFrameType == WebSocketFrameType.TEXT) {
+            throw new IllegalStateException("Cannot interrupt WebSocket text frame continuation");
         }
-        if (frameType != null) {
+        if (continuationFrameType != null) {
             if (finalFrame) {
-                frameType = null;
+                continuationFrameType = null;
             }
             return ctx.writeAndFlush(new ContinuationWebSocketFrame(finalFrame, 0, getNettyBuf(data)));
         }
         if (!finalFrame) {
-            frameType = WebSocketFrameType.BINARY;
+            continuationFrameType = WebSocketFrameType.BINARY;
         }
         return ctx.writeAndFlush(new BinaryWebSocketFrame(finalFrame, 0, getNettyBuf(data)));
     }
