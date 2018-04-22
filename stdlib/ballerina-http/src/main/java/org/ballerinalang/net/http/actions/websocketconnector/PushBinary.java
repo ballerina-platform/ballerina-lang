@@ -42,7 +42,8 @@ import java.nio.ByteBuffer;
                              structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "wsConnector", type = TypeKind.STRUCT),
-                @Argument(name = "data", type = TypeKind.BLOB)
+                @Argument(name = "data", type = TypeKind.BLOB),
+                @Argument(name = "final", type = TypeKind.BOOLEAN)
         }
 )
 public class PushBinary implements NativeCallableUnit {
@@ -55,9 +56,9 @@ public class PushBinary implements NativeCallableUnit {
                     (WebSocketConnection) wsConnection
                             .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION);
             byte[] binaryData = context.getBlobArgument(0);
+            boolean finalFrame = context.getBooleanArgument(0);
             ChannelFuture webSocketChannelFuture =
-                    (ChannelFuture) webSocketConnection.getSession().getAsyncRemote()
-                            .sendBinary(ByteBuffer.wrap(binaryData));
+                    webSocketConnection.pushBinary(ByteBuffer.wrap(binaryData), finalFrame);
             WebSocketUtil.getWebSocketError(context, callback, webSocketChannelFuture, "Failed to send binary message");
         } catch (Throwable e) {
             throw new BallerinaException("Cannot send the message. Error occurred.");
