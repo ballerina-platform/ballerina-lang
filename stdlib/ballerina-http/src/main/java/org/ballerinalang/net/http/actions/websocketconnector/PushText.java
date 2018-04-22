@@ -27,7 +27,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketUtil;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 /**
@@ -40,7 +39,8 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
                              structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "wsConnector", type = TypeKind.STRUCT),
-                @Argument(name = "text", type = TypeKind.STRING)
+                @Argument(name = "text", type = TypeKind.STRING),
+                @Argument(name = "final", type = TypeKind.BOOLEAN)
         }
 )
 public class PushText implements NativeCallableUnit {
@@ -52,10 +52,12 @@ public class PushText implements NativeCallableUnit {
             WebSocketConnection webSocketConnection = (WebSocketConnection) wsConnection
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION);
             String text = context.getStringArgument(0);
-            ChannelFuture future = (ChannelFuture) webSocketConnection.getSession().getAsyncRemote().sendText(text);
-                    WebSocketUtil.getWebSocketError(context, callback, future, "Failed to send text message");
-        } catch (Throwable e) {
-            throw new BallerinaException("Cannot send the message. Error occurred.");
+            boolean finalFrame = context.getBooleanArgument(0);
+            ChannelFuture future = webSocketConnection.pushText(text, finalFrame);
+            WebSocketUtil.handleWebSocketCallback(context, callback, future);
+        } catch (Throwable throwable) {
+            context.setReturnValues(WebSocketUtil.createWebSocketConnectorError(context, throwable.getMessage()));
+            callback.notifySuccess();
         }
     }
 

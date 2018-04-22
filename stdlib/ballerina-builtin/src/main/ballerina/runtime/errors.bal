@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 public type NullReferenceException {
     string message;
     error? cause;

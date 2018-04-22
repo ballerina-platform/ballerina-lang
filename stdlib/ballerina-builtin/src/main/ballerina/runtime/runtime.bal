@@ -15,12 +15,18 @@
 // under the License.
 
 
-@Description {value:"Halts the current worker for a predefined amount of time."}
-@Param {value:"millis: Amount of time to sleep in milliseconds"}
+documentation {
+    Halts the current worker for a predefined amount of time.
+
+    P{{millis}} Amount of time to sleep in milliseconds
+}
 public native function sleep(int millis);
 
 // Todo - Remove
-@Description {value:"Returns the value associated with the specified property name."}
-@Param {value:"name: Name of the property"}
-@Return {value:"Value of the property if the property exists, an empty string otherwise"}
+documentation {
+    Returns the value associated with the specified property name.
+
+    P{{name}} Name of the property
+    R{{}} Value of the property if the property exists, an empty string otherwise
+}
 public native function getProperty(@sensitive string name) returns (string);

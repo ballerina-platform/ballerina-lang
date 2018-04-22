@@ -14,84 +14,133 @@
 // specific language governing permissions and limitations
 // under the License.
 
+documentation {
+    Check whether the XML sequence contains only a single element.
 
-@Description { value:"Check whether the XML sequence contains only a single element."}
-@Param { value:"x: An XML object" }
-@Return { value:"Boolean flag indicating whether the XML sequence contains only a single element" }
-public native function <xml x> isSingleton() returns (boolean);
+    P{{x}} An XML object
+    R{{}} Boolean flag indicating whether the XML sequence contains only a single element
+}
+public native function<xml x> isSingleton() returns (boolean);
 
-@Description { value:"Check whether the XML sequence is empty."}
-@Param { value:"x: An XML object" }
-@Return { value:"Boolean flag indicating whether the XML sequence is empty" }
-public native function <xml x> isEmpty() returns (boolean);
+documentation {
+    Check whether the XML sequence is empty.
 
-@Description { value:"Get all the items that are of element type in an XML sequence."}
-@Param { value:"x: An XML object" }
-@Return { value:"All the elements-type items in the given XML sequence" }
-public native function <xml x> elements() returns (xml);
+    P{{x}} An XML object
+    R{{}} Boolean flag indicating whether the XML sequence is empty
+}
+public native function<xml x> isEmpty() returns (boolean);
 
-@Description { value:"Get all the items that are of element type, and matches the given qualified name, in an XML sequence."}
-@Param { value:"x: An XML object" }
-@Param { value:"qname: Qualified name of the element" }
-@Return { value:"All the elements-type items in the given XML sequence, that matches the qualified name" }
-public native function <xml x> select(string qname) returns (xml);
+documentation {
+    Get all the items that are of element type in an XML sequence.
 
-@Description { value:"Get the type of a XML as a string. If the XML is singleton, type can be one of 'element', 'text', 'comment' or 'pi'. Returns an empty string if the XML is not a singleton."}
-@Param { value:"x: An XML object" }
-@Return { value:"Type of the XML as a string" }
-public native function <xml x> getItemType() returns (string);
+    P{{x}} An XML object
+    R{{}} All the elements-type items in the given XML sequence
+}
+public native function<xml x> elements() returns (xml);
 
-@Description { value:"Get the fully qualified name of the element as a string. Returns an empty string if the XML is not a singleton."}
-@Param { value:"x: An XML object" }
-@Return { value:"Qualified name of the XML as a string" }
-public native function <xml x> getElementName() returns (string);
+documentation {
+    Get all the items that are of element type, and matches the given qualified name, in an XML sequence.
 
-@Description { value:"Get the text value of a XML. If the XML is a sequence, concatenation of the text values of the members of the sequence is returned. If the XML is an element, then the text value of the sequence of children is returned.  If the XML is a text item, then the text is returned. Otherwise, an empty string is returned."}
-@Param { value:"x: An XML object" }
-@Return { value:"Text value of the xml" }
-public native function <xml x> getTextValue() returns (string);
+    P{{x}} An XML object
+    P{{qname}} Qualified name of the element
+    R{{}} All the elements-type items in the given XML sequence, that matches the qualified name
+}
+public native function<xml x> select(string qname) returns (xml);
 
-@Description { value:"Set the children of an XML if its a singleton. An Error otherwise. Any existing children will be removed."}
-@Param { value:"x: An XML object" }
-public native function <xml x> setChildren(xml children);
+documentation {
+    Get the type of a XML as a string. If the XML is singleton, type can be one of 'element', 'text', 'comment' or 'pi'.
+    Returns an empty string if the XML is not a singleton.
 
-@Description { value:"Make a deep copy of an XML."}
-@Param { value:"x: An XML object" }
-@Return { value:"A Copy of the XML" }
-public native function <xml x> copy() returns (xml);
+    P{{x}} An XML object
+    R{{}} Type of the XML as a string
+}
+public native function<xml x> getItemType() returns (string);
 
-@Description { value:"Strips any text items from an XML sequence that are all whitespace."}
-@Param { value:"x: An XML object" }
-@Return { value:"Striped sequence" }
-public native function <xml x> strip() returns (xml);
+documentation {
+    Get the fully qualified name of the element as a string. Returns an empty string if the XML is not a singleton.
 
-@Description { value:"Slice and return a subsequence of the an XML sequence."}
-@Param { value:"x: An XML object" }
-@Param { value:"startIndex: Start index, inclusive" }
-@Param { value:"endIndex: End index, exclusive" }
-@Return { value:"Sliced sequence" }
-public native function <xml x> slice(int startIndex, int endIndex) returns (xml);
+    P{{x}} An XML object
+    R{{}} Qualified name of the XML as a string
+}
+public native function<xml x> getElementName() returns (string);
 
-@Description { value:"Sets the attributes to the provided attributes map."}
-@Param { value:"x: An XML object" }
-@Param { value:"attributes: Attributes map" }
-public native function <xml x> setAttributes(map attributes);
+documentation {
+    Get the text value of a XML. If the XML is a sequence, concatenation of the text values of the members of the
+    sequence is returned. If the XML is an element, then the text value of the sequence of children is returned. If
+    the XML is a text item, then the text is returned. Otherwise, an empty string is returned.
 
-@Description { value:"Converts a XML object to a JSON representation"}
-@Param { value:"x: A XML object" }
-@Param { value:"options: xmlOptions struct for XML to JSON conversion properties" }
-@Return { value:"JSON representation of the given XML" }
-public native function <xml x> toJSON ({ string attributePrefix = "@";
-                                           boolean preserveNamespaces = true;
-                                       } options) returns (json);
+    P{{x}} An XML object
+    R{{}} Text value of the xml
+}
+public native function<xml x> getTextValue() returns (string);
 
-@Description { value:"Searches in children recursively for elements matching the qualified name and returns a sequence containing them all. Does not search within a matched result." }
-@Param { value:"x: An XML object" }
-@Param { value:"qname: Qualified name of the element" }
-@Return { value:"All the descendants that matches the given qualified name, as a sequence" }
-public native function <xml x> selectDescendants(string qname) returns (xml);
+documentation {
+    Set the children of an XML if its a singleton. An Error otherwise. Any existing children will be removed.
 
-@Description { value:"Remove an attribute from an XML." }
-@Param { value:"x: An XML object" }
-@Param { value:"qname: Qualified name of the attribute" }
-public native function <xml x> removeAttribute(string qname);
+    P{{x}} An XML object
+}
+public native function<xml x> setChildren(xml children);
+
+documentation {
+    Make a deep copy of an XML.
+
+    P{{x}} An XML object
+    R{{}} A Copy of the XML
+}
+public native function<xml x> copy() returns (xml);
+
+documentation {
+    Strips any text items from an XML sequence that are all whitespace.
+
+    P{{x}} An XML object
+    R{{}} Striped sequence
+}
+public native function<xml x> strip() returns (xml);
+
+documentation {
+    Slice and return a subsequence of the an XML sequence.
+
+    P{{x}} An XML object
+    P{{startIndex}} Start index, inclusive
+    P{{endIndex}} End index, exclusive
+    R{{}} Sliced sequence
+}
+public native function<xml x> slice(int startIndex, int endIndex) returns (xml);
+
+documentation {
+    Sets the attributes to the provided attributes map.
+
+    P{{x}} An XML object
+    P{{attributes}} Attributes map
+}
+public native function<xml x> setAttributes(map attributes);
+
+documentation {
+    Converts a XML object to a JSON representation.
+
+    P{{x}} A XML object
+    P{{options}} xmlOptions struct for XML to JSON conversion properties
+    R{{}} JSON representation of the given XML
+}
+public native function<xml x> toJSON({
+                                         string attributePrefix = "@";
+                                         boolean preserveNamespaces = true;
+                                     } options) returns (json);
+
+documentation {
+    Searches in children recursively for elements matching the qualified name and returns a sequence containing them
+    all. Does not search within a matched result.
+
+    P{{x}} An XML object
+    P{{qname}} Qualified name of the element
+    R{{}} All the descendants that matches the given qualified name, as a sequence
+}
+public native function<xml x> selectDescendants(string qname) returns (xml);
+
+documentation {
+    Remove an attribute from an XML.
+
+    P{{x}} An XML object
+    P{{qname}} Qualified name of the attribute
+}
+public native function<xml x> removeAttribute(string qname);

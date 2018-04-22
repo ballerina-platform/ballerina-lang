@@ -167,7 +167,7 @@ documentation {
 
     F{{contentType}} Describes the data contained in the body of the entity
     F{{contentId}} Helps one body of an entity to make a reference to another
-    F{{size}} Represent the size of the entity
+    F{{contentLength}} Represent the size of the entity
     F{{contentDisposition}} Represent values related to Content-Disposition header
 }
 public type Entity object {
@@ -282,8 +282,9 @@ public type Entity object {
     public function setBody((string|xml|json|blob|io:ByteChannel|Entity[]) entityBody);
 
     documentation {
-        Set the entity body with a given file handler
-        P{{fileHandler}} Represent a file
+        Set the entity body with a given file handler.
+
+        P{{filePath}} Represent a file
     }
     public function setFileAsEntityBody(@sensitive string filePath, string contentType = "application/octec-stream");
 
@@ -374,16 +375,13 @@ public type Entity object {
     documentation {
         Given an entity, get the body parts as a byte channel.
 
-        P{{entity}} Represent a MIME entity
         R{{}} Return body parts as a byte channel
-        R{{}} EntityError will get thrown in case of errors
     }
     public native function getBodyPartsAsChannel() returns @tainted io:ByteChannel;
 
     documentation {
         Set body parts to entity.
 
-        P{{entity}} Represent a MIME entity
         P{{bodyParts}} Represent the body parts that needs to be set to the entity
     }
     public native function setBodyParts(Entity[] bodyParts, string contentType = "multipart/form-data");
@@ -637,7 +635,7 @@ public native function getMediaType(string contentType) returns MediaType|error;
 documentation {
     Given the Content-Disposition as a string, get the ContentDisposition struct object with it.
 
-    P{{contentType}} Content-Type in string
-    R{{}} Return MediaType struct
+    P{{contentDisposition}} content disposition string
+    R{{}} Return ContentDisposition object
 }
 public native function getContentDispositionObject(string contentDisposition) returns ContentDisposition;
