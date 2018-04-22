@@ -1,0 +1,3 @@
+//The stream type represents a stream of events, which allows publishing events to the stream and subscribing to receive
+// events published to the stream.
+//Streams can be declared constrained by a type or as unconstrained streams which accept events of any type.
