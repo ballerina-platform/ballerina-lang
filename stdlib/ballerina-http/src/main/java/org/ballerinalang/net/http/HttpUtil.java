@@ -706,6 +706,17 @@ public class HttpUtil {
     }
 
     /**
+     * Check the existence of the message entity data source.
+     *
+     * @param struct  request/response struct.
+     * @return true if the message entity data source is available else false.
+     */
+    public static boolean isEntityDataSourceAvailble(BStruct struct) {
+        return (struct.getNativeData(MESSAGE_ENTITY) != null &&
+                EntityBodyHandler.getMessageDataSource((BStruct) struct.getNativeData(MESSAGE_ENTITY)) != null);
+    }
+
+    /**
      * Set new entity to in/out request/response struct.
      *
      * @param context ballerina context.
