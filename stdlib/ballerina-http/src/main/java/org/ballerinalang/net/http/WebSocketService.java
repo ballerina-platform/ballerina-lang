@@ -52,7 +52,8 @@ public class WebSocketService implements Service {
 
         Annotation configAnnotation =
                 WebSocketUtil.getServiceConfigAnnotation(service, HttpConstants.PROTOCOL_PACKAGE_HTTP);
-        Struct configAnnotationStruct;
+
+        Struct configAnnotationStruct = null;
         if (configAnnotation != null && (configAnnotationStruct = configAnnotation.getValue()) != null) {
             negotiableSubProtocols = findNegotiableSubProtocols(configAnnotationStruct);
             idleTimeoutInSeconds = findIdleTimeoutInSeconds(configAnnotationStruct);
@@ -62,7 +63,7 @@ public class WebSocketService implements Service {
             idleTimeoutInSeconds = 0;
             maxFrameSize = DEFAULT_MAX_FRAME_SIZE;
         }
-        basePath = findFullWebSocketUpgradePath(this);
+        basePath = findFullWebSocketUpgradePath(configAnnotationStruct);
         upgradeResource = null;
     }
 
@@ -171,24 +172,18 @@ public class WebSocketService implements Service {
     /**
      * Find the Full path for WebSocket upgrade.
      *
-     * @param service {@link WebSocketService} which the full path should be found.
      * @return the full path of the WebSocket upgrade.
      */
-    private String findFullWebSocketUpgradePath(WebSocketService service) {
-        // Find Base path for WebSocket
-        Annotation configAnnotation = WebSocketUtil.getServiceConfigAnnotation(service,
-                                                                               HttpConstants.PROTOCOL_PACKAGE_HTTP);
+    private String findFullWebSocketUpgradePath(Struct annStruct) {
         String basePath = null;
-        if (configAnnotation != null) {
-            Struct annStruct = configAnnotation.getValue();
+        if (annStruct != null) {
             String basePathVal = annStruct.getStringField(WebSocketConstants.ANNOTATION_ATTR_PATH);
             if (basePathVal != null && !basePathVal.trim().isEmpty()) {
                 basePath = WebSocketUtil.refactorUri(basePathVal);
             }
         }
-
         if (basePath == null) {
-            basePath = "/".concat(service.getName());
+            basePath = "/".concat(getName());
         }
         return basePath;
     }
