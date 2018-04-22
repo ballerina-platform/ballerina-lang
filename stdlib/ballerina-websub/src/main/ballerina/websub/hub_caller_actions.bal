@@ -21,7 +21,7 @@ import ballerina/crypto;
 
 documentation {
     The HTTP based Caller actions for outbound WebSub Subscription, Unsubscription, Registration, Unregistration and
-    Notification requests to a Hub.
+    Notification requests to a Hub
 }
 public type CallerActions object {
 
@@ -36,62 +36,62 @@ public type CallerActions object {
     new (hubUrl, httpClientEndpoint) {}
 
     documentation {
-        Function to send a subscription request to a WebSub Hub.
+        Function to send a subscription request to a WebSub Hub
 
         P{{subscriptionRequest}} The SubscriptionChangeRequest containing subscription details
         R{{}} `SubscriptionChangeResponse` indicating subscription details, if the request was successful else
-              `error` if an error occurred with the subscription request.
+                `error` if an error occurred with the subscription request
     }
     public function subscribe(SubscriptionChangeRequest subscriptionRequest)
         returns @tainted (SubscriptionChangeResponse|error);
 
     documentation {
-        Function to send an unsubscription request to a WebSub Hub.
+        Function to send an unsubscription request to a WebSub Hub
 
         P{{unsubscriptionRequest}} The SubscriptionChangeRequest containing unsubscription details
         R{{}} `SubscriptionChangeResponse` indicating unsubscription details, if the request was successful else
-                `error` if an error occurred with the unsubscription request.
+                `error` if an error occurred with the unsubscription request
     }
     public function unsubscribe(SubscriptionChangeRequest unsubscriptionRequest)
         returns @tainted (SubscriptionChangeResponse|error);
 
     documentation {
         Function to register a topic in a Ballerina WebSub Hub against which subscribers can subscribe and the publisher
-         will publish updates, with a secret which will be used in signature generation if specified.
+         will publish updates, with a secret which will be used in signature generation if specified
 
-        P{{topic}} The topic to register.
-        P{{secret}} The secret the publisher will use to generate a signature when publishing updates.
-        R{{}} `error` if an error occurred registering the topic.
+        P{{topic}} The topic to register
+        P{{secret}} The secret the publisher will use to generate a signature when publishing updates
+        R{{}} `error` if an error occurred registering the topic
     }
     public function registerTopic(string topic, string secret = "") returns error?;
 
     documentation {
-        Function to unregister a topic in a Ballerina WebSub Hub.
+        Function to unregister a topic in a Ballerina WebSub Hub
 
-        P{{topic}} The topic to unregister.
-        P{{secret}} The secret the publisher used when registering the topic.
-        R{{}} `error` if an error occurred unregistering the topic.
+        P{{topic}} The topic to unregister
+        P{{secret}} The secret the publisher used when registering the topic
+        R{{}} `error` if an error occurred unregistering the topic
     }
     public function unregisterTopic(string topic, string secret = "") returns error?;
 
     documentation {
-        Function to publish an update to a remote Ballerina WebSub Hub.
+        Function to publish an update to a remote Ballerina WebSub Hub
 
-        P{{topic}} The topic for which the update occurred.
-        P{{payload}} The update payload.
-        P{{secret}} The secret used when registering the topic.
-        P{{signatureMethod}} The signature method to use to generate a secret.
-        R{{}} `error` if an error occurred with the update.
+        P{{topic}} The topic for which the update occurred
+        P{{payload}} The update payload
+        P{{secret}} The secret used when registering the topic
+        P{{signatureMethod}} The signature method to use to generate a secret
+        R{{}} `error` if an error occurred with the update
     }
     public function publishUpdate(string topic, json payload, string secret = "", string signatureMethod = "sha256",
                                   json... headers) returns error?;
 
     documentation {
         Function to notify a remote WebSub Hub that an update is available to fetch, for hubs that require publishing to
-         happen as such.
+         happen as such
 
-        P{{topic}} The topic for which the update occurred.
-        R{{}} `error` if an error occurred with the notification.
+        P{{topic}} The topic for which the update occurred
+        R{{}} `error` if an error occurred with the notification
     }
     public function notifyUpdate(string topic, json... notificationHeaders) returns error?;
 };
@@ -216,12 +216,12 @@ public function CallerActions::notifyUpdate(string topic, json... notificationHe
 }
 
 documentation {
-    Function to build the topic registration change request to rgister/unregister a topic at the hub.
+    Function to build the topic registration change request to rgister/unregister a topic at the hub
 
-    P{{mode}} Whether the request is for registration or unregistration.
-    P{{topic}} The topic to register/unregister.
-    P{{secret}} The secret associated with this topic that will be used to validate updates.
-    R{{}} `http:Request` The Request to send to the hub to register/unregister.
+    P{{mode}} Whether the request is for registration or unregistration
+    P{{topic}} The topic to register/unregister
+    P{{secret}} The secret associated with this topic that will be used to validate updates
+    R{{}} `http:Request` The Request to send to the hub to register/unregister
 }
 function buildTopicRegistrationChangeRequest(@sensitive string mode, @sensitive string topic,
                                              @sensitive string secret) returns (http:Request) {
@@ -236,12 +236,12 @@ function buildTopicRegistrationChangeRequest(@sensitive string mode, @sensitive 
 }
 
 documentation {
-    Function to build the subscription request to subscribe at the hub.
+    Function to build the subscription request to subscribe at the hub
 
-    P{{mode}} Whether the request is for subscription or unsubscription.
+    P{{mode}} Whether the request is for subscription or unsubscription
     P{{subscriptionChangeRequest}} The SubscriptionChangeRequest specifying the topic to subscribe to and the
-                                    parameters to use.
-    R{{}} `http:Request` The Request to send to the hub to subscribe/unsubscribe.
+                                    parameters to use
+    R{{}} `http:Request` The Request to send to the hub to subscribe/unsubscribe
 }
 function buildSubscriptionChangeRequest(@sensitive string mode,
                                         SubscriptionChangeRequest subscriptionChangeRequest) returns (http:Request) {
@@ -259,15 +259,15 @@ function buildSubscriptionChangeRequest(@sensitive string mode,
 }
 
 documentation {
-    Function to process the response from the hub on subscription/unsubscription and extract required information.
+    Function to process the response from the hub on subscription/unsubscription and extract required information
 
-    P{{hub}} The hub to which the subscription/unsubscription request was sent.
-    P{{mode}} Whether the request was sent for subscription or unsubscription.
-    P{{subscriptionChangeRequest}} The subscription change request sent.
-    P{{response}} The http:Response or http:HttpConnectorError received onn request to the hub.
-    P{{httpClientEndpoint}} The underlying HTTP Client Endpoint.
+    P{{hub}} The hub to which the subscription/unsubscription request was sent
+    P{{mode}} Whether the request was sent for subscription or unsubscription
+    P{{subscriptionChangeRequest}} The subscription change request sent
+    P{{response}} The http:Response or http:HttpConnectorError received on request to the hub
+    P{{httpClientEndpoint}} The underlying HTTP Client Endpoint
     R{{}} `SubscriptionChangeResponse` indicating subscription/unsubscription details, if the request was successful
-            else `error` if an error occurred.
+            else `error` if an error occurred
 }
 function processHubResponse(@sensitive string hub, @sensitive string mode,
                             SubscriptionChangeRequest subscriptionChangeRequest,
@@ -309,14 +309,14 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
 
 documentation {
     Function to invoke the WebSubSubscriberConnector's actions for subscription/unsubscription on redirection from
-    original hub.
+    original hub
 
-    P{{hub}} The hub to which the subscription/unsubscription request is to be sent.
-    P{{mode}} Whether the request is for subscription or unsubscription.
-    P{{subscriptionChangeRequest}} The request containing subscription/unsubscription details.
-    P{{auth}} The auth config to use at the hub, if specified.
+    P{{hub}} The hub to which the subscription/unsubscription request is to be sent
+    P{{mode}} Whether the request is for subscription or unsubscription
+    P{{subscriptionChangeRequest}} The request containing subscription/unsubscription details
+    P{{auth}} The auth config to use at the hub, if specified
     R{{}} `SubscriptionChangeResponse` indicating subscription/unsubscription details, if the request was successful
-            else `error` if an error occurred.
+            else `error` if an error occurred
 }
 function invokeClientConnectorOnRedirection(@sensitive string hub, @sensitive string mode,
                                             SubscriptionChangeRequest subscriptionChangeRequest,
