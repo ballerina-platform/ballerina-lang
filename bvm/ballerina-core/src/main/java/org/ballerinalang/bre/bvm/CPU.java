@@ -3329,13 +3329,6 @@ public class CPU {
             }
         }
 
-        // Check for private attached function in RHS type
-        for (BStructType.AttachedFunction rhsFunc : rhsFuncs) {
-            if (!Flags.isFlagOn(rhsFunc.flags, Flags.PUBLIC)) {
-                return false;
-            }
-        }
-
         return true;
     }
 
