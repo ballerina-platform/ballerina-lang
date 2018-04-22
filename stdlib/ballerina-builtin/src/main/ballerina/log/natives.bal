@@ -15,23 +15,33 @@
 // under the License.
 
 
-@Description {value: "Logs the specified value at DEBUG level."}
-P{{msg}} The message to be logged
+documentation {
+    Logs the specified value at DEBUG level.
+    P{{msg}} The message to be logged
+}
 public native function printDebug(string msg);
 
-@Description {value: "Logs the specified message at ERROR level."}
-P{{msg}} The message to be logged
-P{{err}} The error struct to be logged
+documentation {
+    Logs the specified message at ERROR level.
+    P{{msg}} The message to be logged
+    P{{err}} The error struct to be logged
+}
 public native function printError(string msg, error? err = ());
 
-@Description {value: "Logs the specified message at INFO level."}
-P{{msg}} The message to be logged.
+documentation {
+    Logs the specified message at INFO level.
+    P{{msg}} The message to be logged.
+}
 public native function printInfo(string msg);
 
-@Description {value: "Logs the specified message at TRACE level."}
-P{{msg}} The message to be logged
+documentation {
+    Logs the specified message at TRACE level.
+    P{{msg}} The message to be logged
+}
 public native function printTrace(string msg);
 
-@Description {value: "Logs the specified message at WARN level."}
-P{{msg}} The message to be logged
+documentation {
+    Logs the specified message at WARN level.
+    P{{msg}} The message to be logged
+}
 public native function printWarn(string msg);
