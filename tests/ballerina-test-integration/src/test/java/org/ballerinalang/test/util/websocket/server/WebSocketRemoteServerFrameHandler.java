@@ -29,7 +29,6 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketFrameType;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
