@@ -28,8 +28,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
-
-import javax.websocket.Session;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -50,9 +49,10 @@ public class PushText implements NativeCallableUnit {
     public void execute(Context context, CallableUnitCallback callback) {
         try {
             BStruct wsConnection = (BStruct) context.getRefArgument(0);
-            Session session = (Session) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION);
+            WebSocketConnection webSocketConnection = (WebSocketConnection) wsConnection
+                    .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION);
             String text = context.getStringArgument(0);
-            ChannelFuture future = (ChannelFuture) session.getAsyncRemote().sendText(text);
+            ChannelFuture future = (ChannelFuture) webSocketConnection.getSession().getAsyncRemote().sendText(text);
                     WebSocketUtil.getWebSocketError(context, callback, future, "Failed to send text message");
         } catch (Throwable e) {
             throw new BallerinaException("Cannot send the message. Error occurred.");

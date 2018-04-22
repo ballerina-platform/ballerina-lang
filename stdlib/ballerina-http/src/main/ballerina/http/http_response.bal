@@ -1,4 +1,3 @@
-package ballerina.http;
 
 import ballerina/file;
 import ballerina/io;
@@ -89,7 +88,7 @@ public type Response object {
 
     @Description {value:"Get the content-type value from the response"}
     @Return {value:"Returns the content-type header value as a string."}
-    public function getContentType () returns (string?);
+    public function getContentType () returns (string);
 
     @Description {value:"Gets the response payload in JSON format"}
     @Param {value:"response: The response message"}
@@ -132,39 +131,44 @@ public type Response object {
     @Description {value:"Sets a JSON as the outbound response payload"}
     @Param {value:"response: The response message"}
     @Param {value:"payload: The JSON payload object"}
-    public function setJsonPayload (json payload);
+    @Param {value:"contentType: Represent the content-type to be used with the payload"}
+    public function setJsonPayload(json payload, string contentType = "application/json");
 
     @Description {value:"Sets an XML as the outbound response payload"}
     @Param {value:"response: The response message"}
     @Param {value:"payload: The XML payload object"}
-    public function setXmlPayload (xml payload);
+    @Param {value:"contentType: Represent the content-type to be used with the payload"}
+    public function setXmlPayload(xml payload, string contentType = "application/xml");
 
     @Description { value:"Sets a string as the outbound response payload"}
     @Param { value:"response: The response message" }
     @Param { value:"payload: The payload to be set to the response as a string" }
-    public function setStringPayload (string payload);
+    @Param {value:"contentType: Represent the content-type to be used with the payload"}
+    public function setStringPayload(string payload, string contentType = "text/plain");
 
     @Description {value:"Sets a blob as the outbound response payload"}
     @Param {value:"response: The response message"}
     @Param {value:"payload: The blob representation of the message payload"}
-    public function setBinaryPayload (blob payload);
+    @Param {value:"contentType: Represent the content-type to be used with the payload"}
+    public function setBinaryPayload(blob payload, string contentType = "application/octec-stream");
 
     @Description {value:"Set multiparts as the response payload"}
     @Param {value:"response: The response message"}
     @Param {value:"bodyParts: Represent body parts that needs to be set to the response"}
     @Param {value:"contentType: Content type of the top level message"}
-    public function setBodyParts (mime:Entity[] bodyParts, string contentType);
+    public function setBodyParts(mime:Entity[] bodyParts, string contentType = "multipart/form-data");
 
     @Description {value:"Sets the entity body of the outbound response with the given file content"}
     @Param {value:"response: The response message"}
     @Param {value:"filePath: Path to the file that needs to be set to the payload"}
     @Param {value:"contentType: Content-Type of the file"}
-    public function setFileAsPayload (string filePath, string contentType);
+    public function setFileAsPayload (string filePath, string contentType = "application/octec-stream");
 
     @Description {value:"Sets a byte channel as the outbound response payload"}
     @Param {value:"response: The response message"}
     @Param {value:"payload: The byte channel representation of the message payload"}
-    public function setByteChannel (io:ByteChannel payload);
+    @Param {value:"contentType: Represent the content-type to be used with the payload"}
+    public function setByteChannel(io:ByteChannel payload, string contentType = "application/octec-stream");
 
     @Description {value:"Set the response payload"}
     @Param {value:"payload: Payload can be of type string, xml, json, blob, byte channel or set of body parts"}
@@ -220,11 +224,9 @@ public function Response::setContentType (string contentType) {
     entity.setHeader(mime:CONTENT_TYPE, contentType);
 }
 
-public function Response::getContentType () returns (string?) {
-    if (self.hasHeader(mime:CONTENT_TYPE)) {
-        return self.getHeader(mime:CONTENT_TYPE);
-    }
-    return ();
+public function Response::getContentType () returns (string) {
+    mime:Entity entity = self.getEntityWithoutBody();
+    return entity.getContentType();
 }
 
 public function Response::getJsonPayload () returns (json | PayloadError) {
@@ -296,7 +298,7 @@ public function Response::getBodyParts () returns mime:Entity[] | mime:EntityErr
 }
 
 public function Response::setETag(json|xml|string|blob payload) {
-    string etag = crypto:getCRC32(payload);
+    string etag = crypto:crc32(payload);
     self.setHeader(ETAG, etag);
 }
 
@@ -306,80 +308,56 @@ public function Response::setLastModified() {
     self.setHeader(LAST_MODIFIED, lastModified);
 }
 
-public function Response::setJsonPayload (json payload) {
+public function Response::setJsonPayload (json payload, string contentType="application/json") {
     mime:Entity entity = self.getEntityWithoutBody();
-    entity.setJson(payload);
-    entity.contentType = getMediaTypeFromResponse(self, mime:APPLICATION_JSON);
+    entity.setJson(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-public function Response::setXmlPayload (xml payload) {
+public function Response::setXmlPayload (xml payload, string contentType="application/xml") {
     mime:Entity entity = self.getEntityWithoutBody();
-    entity.setXml(payload);
-    entity.contentType = getMediaTypeFromResponse(self, mime:APPLICATION_XML);
+    entity.setXml(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-public function Response::setStringPayload (string payload) {
+public function Response::setStringPayload (string payload, string contentType="text/plain") {
     mime:Entity entity = self.getEntityWithoutBody();
-    entity.setText(payload);
-    entity.contentType = getMediaTypeFromResponse(self, mime:TEXT_PLAIN);
+    entity.setText(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-public function Response::setBinaryPayload (blob payload) {
+public function Response::setBinaryPayload (blob payload, string contentType="application/octec-stream") {
     mime:Entity entity = self.getEntityWithoutBody();
-    entity.setBlob(payload);
-    entity.contentType = getMediaTypeFromResponse(self, mime:APPLICATION_OCTET_STREAM);
+    entity.setBlob(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-public function Response::setBodyParts (mime:Entity[] bodyParts, @sensitive string contentType) {
+public function Response::setBodyParts (mime:Entity[] bodyParts, string contentType="multipart/form-data") {
     mime:Entity entity = self.getEntityWithoutBody();
-    mime:MediaType mediaType = getMediaTypeFromResponse(self, mime:MULTIPART_MIXED);
-    if (contentType != null && contentType != "") {
-        mediaType = mime:getMediaType(contentType);
-    }
-    entity.contentType = mediaType;
-    entity.setBodyParts(bodyParts);
+    entity.setBodyParts(bodyParts, contentType = contentType);
     self.setEntity(entity);
 }
 
-public function Response::setFileAsPayload (string filePath, @sensitive string contentType) {
-    mime:MediaType mediaType = mime:getMediaType(contentType);
+public function Response::setFileAsPayload (string filePath, @sensitive string contentType = "application/octec-stream") {
     mime:Entity entity = self.getEntityWithoutBody();
-    entity.contentType = mediaType;
-    entity.setFileAsEntityBody(filePath);
+    entity.setFileAsEntityBody(filePath, contentType = contentType);
     self.setEntity(entity);
 }
 
-public function Response::setByteChannel (io:ByteChannel payload) {
+public function Response::setByteChannel (io:ByteChannel payload, string contentType="application/octec-stream") {
     mime:Entity entity = self.getEntityWithoutBody();
-    entity.setByteChannel(payload);
+    entity.setByteChannel(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
 public function Response::setPayload ((string | xml | json | blob | io:ByteChannel | mime:Entity[]) payload) {
-    mime:Entity entity = self.getEntityWithoutBody();
-    entity.setBody(payload);
-    self.setEntity(entity);
-}
-
-@Description {value:"Construct MediaType struct from the content-type header value"}
-@Param {value:"response: The outbound response message"}
-@Param {value:"defaultContentType: Default content-type to be used in case the content-type header doesn't contain any value"}
-@Return {value:"Return 'MediaType' struct"}
-function getMediaTypeFromResponse (Response response, @sensitive string defaultContentType) returns (mime:MediaType) {
-    mime:MediaType mediaType = mime:getMediaType(defaultContentType);
-
-    if (response.hasHeader(mime:CONTENT_TYPE)) {
-        string contentTypeValue = response.getHeader(mime:CONTENT_TYPE);
-        if (contentTypeValue != "") { // TODO: may need to trim this before doing an empty string check
-            return mime:getMediaType(contentTypeValue);
-        } else {
-            return mediaType;
-        }
-    } else {
-        return mediaType;
+    match payload {
+        string textContent => self.setStringPayload(textContent);
+        xml xmlContent => self.setXmlPayload(xmlContent);
+        json jsonContent => self.setJsonPayload(jsonContent);
+        blob blobContent => self.setBinaryPayload(blobContent);
+        io:ByteChannel byteChannelContent => self.setByteChannel(byteChannelContent);
+        mime:Entity[] bodyParts => self.setBodyParts(bodyParts);
     }
 }
+

@@ -140,7 +140,7 @@ public class TransactionStmtFlowTest {
         Assert.assertEquals(returns[0].stringValue(), "start inOuterTrx inInnerTrx abort endOuterTrx  end");
     }
 
-    @Test(enabled = false)
+    @Test(enabled = false) // Issue #7706
     public void testNestedTransaction3() {
         BValue[] args = {new BInteger(-1)};
         BValue[] returns = BRunUtil.invoke(programFile, "testNestedTransaction", args);
@@ -160,7 +160,7 @@ public class TransactionStmtFlowTest {
                 "start inOuterTrx inInnerTrx trxErr endInnerTrx endOuterTrx  end");
     }
 
-    @Test(enabled = false)
+    @Test(enabled = false) //Issue #7706
     public void testNestedTransactionWithFailed1() {
         BValue[] args = {new BInteger(-1)};
         BValue[] returns = BRunUtil.invoke(programFile, "testNestedTransactionWithFailed", args);

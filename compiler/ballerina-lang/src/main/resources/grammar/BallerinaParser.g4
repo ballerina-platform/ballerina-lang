@@ -9,14 +9,9 @@ options {
 
 // starting point for parsing a bal file
 compilationUnit
-    :   packageDeclaration?
-        (importDeclaration | namespaceDeclaration)*
+    :   (importDeclaration | namespaceDeclaration)*
         (documentationAttachment? deprecatedAttachment? annotationAttachment* definition)*
         EOF
-    ;
-
-packageDeclaration
-    :   PACKAGE packageName SEMICOLON
     ;
 
 packageName
@@ -245,7 +240,7 @@ builtInReferenceTypeName
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
     |   TYPE_JSON (LT nameReference GT)?
     |   TYPE_TABLE (LT nameReference GT)?
-    |   TYPE_STREAM (LT nameReference GT)?
+    |   TYPE_STREAM (LT typeName GT)?
     |   functionTypeName
     ;
 

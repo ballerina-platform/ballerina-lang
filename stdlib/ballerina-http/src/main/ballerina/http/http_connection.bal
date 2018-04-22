@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
 
 documentation {
     Represents HTTP connection which can be used to comminicate either with client or with other service.
@@ -119,7 +118,7 @@ public function Connection::redirect(Response response, RedirectCode code, strin
     foreach location in locations {
         locationsStr = locationsStr + location + ",";
     }
-    locationsStr = locationsStr.subString(0, (lengthof locationsStr) - 1);
+    locationsStr = locationsStr.substring(0, (lengthof locationsStr) - 1);
 
     response.setHeader(LOCATION, locationsStr);
     return self.respond(response);

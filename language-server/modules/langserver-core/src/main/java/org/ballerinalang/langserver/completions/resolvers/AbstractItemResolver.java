@@ -188,37 +188,24 @@ public abstract class AbstractItemResolver {
         StringBuilder signature = new StringBuilder(functionName + "(");
         StringBuilder insertText = new StringBuilder(functionName + "(");
         List<BVarSymbol> parameterDefs = bInvokableSymbol.getParameters();
+        List<BVarSymbol> defaultParameterDefs = bInvokableSymbol.getDefaultableParameters();
 
         for (int itr = 0; itr < parameterDefs.size(); itr++) {
-            BType paramType = parameterDefs.get(itr).getType();
-            String typeName;
-            if (paramType instanceof BInvokableType) {
-                // Check for the case when we can give a function as a parameter
-                typeName = parameterDefs.get(itr).type.toString();
-            } else if (paramType instanceof BUnionType) {
-                typeName = paramType.toString();
-            } else {
-                BTypeSymbol tSymbol;
-                tSymbol = (paramType instanceof BArrayType) ?
-                        ((BArrayType) paramType).eType.tsymbol : paramType.tsymbol;
-                List<Name> nameComps = tSymbol.pkgID.nameComps;
-                if (tSymbol.pkgID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())
-                        || tSymbol.pkgID.getName().getValue().equals(Names.DOT.getValue())) {
-                    typeName = tSymbol.getName().getValue();
-                } else {
-                    typeName = nameComps.get(nameComps.size() - 1).getValue() + UtilSymbolKeys.PKG_DELIMITER_KEYWORD
-                            + tSymbol.getName().getValue();
-                }
+            signature.append(this.getParameterSignature(parameterDefs.get(itr), false));
+            insertText.append(this.getParameterInsertText(parameterDefs.get(itr), false, itr + 1));
+            
+            if (!(itr == parameterDefs.size() - 1 && defaultParameterDefs.isEmpty())) {
+                signature.append(", ");
+                insertText.append(", ");
             }
+        }
 
-            signature.append(typeName).append(" ")
-                    .append(parameterDefs.get(itr).getName());
-            insertText.append("${")
-                    .append((itr + 1))
-                    .append(":")
-                    .append(parameterDefs.get(itr).getName())
-                    .append("}");
-            if (itr < parameterDefs.size() - 1) {
+        for (int itr = 0; itr < defaultParameterDefs.size(); itr++) {
+            signature.append(this.getParameterSignature(parameterDefs.get(itr), true));
+            insertText.append(this.getParameterInsertText(parameterDefs.get(itr), true,
+                    defaultParameterDefs.size() + itr + 1));
+
+            if (itr < defaultParameterDefs.size() - 1) {
                 signature.append(", ");
                 insertText.append(", ");
             }
@@ -235,7 +222,59 @@ public abstract class AbstractItemResolver {
         }
         return new FunctionSignature(insertText.toString(), signature.toString());
     }
-
+    
+    private String getTypeName(BVarSymbol bVarSymbol) {
+        BType paramType = bVarSymbol.getType();
+        String typeName;
+        if (paramType instanceof BInvokableType) {
+            // Check for the case when we can give a function as a parameter
+            typeName = bVarSymbol.type.toString();
+        } else if (paramType instanceof BUnionType) {
+            typeName = paramType.toString();
+        } else {
+            BTypeSymbol tSymbol;
+            tSymbol = (paramType instanceof BArrayType) ?
+                    ((BArrayType) paramType).eType.tsymbol : paramType.tsymbol;
+            List<Name> nameComps = tSymbol.pkgID.nameComps;
+            if (tSymbol.pkgID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())
+                    || tSymbol.pkgID.getName().getValue().equals(Names.DOT.getValue())) {
+                typeName = tSymbol.getName().getValue();
+            } else {
+                typeName = nameComps.get(nameComps.size() - 1).getValue() + UtilSymbolKeys.PKG_DELIMITER_KEYWORD
+                        + tSymbol.getName().getValue();
+            }
+        }
+        
+        return typeName;
+    }
+    
+    private String getParameterSignature(BVarSymbol bVarSymbol, boolean isDefault) {
+        if (!isDefault) {
+            return this.getTypeName(bVarSymbol) + " " + bVarSymbol.getName();
+        } else {
+            String defaultStringVal;
+            if (bVarSymbol.defaultValue == null) {
+                defaultStringVal = "()";
+            } else {
+                defaultStringVal = bVarSymbol.defaultValue.toString();
+            }
+            return this.getTypeName(bVarSymbol) + " " + bVarSymbol.getName() + " = " + defaultStringVal;
+        }
+    }
+    
+    private String getParameterInsertText(BVarSymbol bVarSymbol, boolean isDefault, int iteration) {
+        if (!isDefault) {
+            return "${" + iteration + ":" + bVarSymbol.getName() + "}";
+        } else {
+            String defaultStringVal;
+            if (bVarSymbol.defaultValue == null) {
+                defaultStringVal = "()";
+            } else {
+                defaultStringVal = bVarSymbol.defaultValue.toString();
+            }
+            return bVarSymbol.getName() + " = " + "${" + iteration + ":" + defaultStringVal + "}";
+        }
+    }
     /**
      * Check whether the token stream corresponds to a action invocation or a function invocation.
      * @param documentServiceContext - Completion operation context

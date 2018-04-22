@@ -32,12 +32,12 @@ function testSuccessScenario () returns (http:Response | http:HttpConnectorError
     http:Failover foClient = check <http:Failover>backendClientEP.getCallerActions();
     MockClient mockClient1 = new;
     MockClient mockClient2 = new;
-    http:HttpClient[] httpClients = [<http:HttpClient> mockClient1, <http:HttpClient> mockClient2];
+    http:CallerActions[] httpClients = [<http:CallerActions> mockClient1, <http:CallerActions> mockClient2];
     foClient.failoverInferredConfig.failoverClientsArray = httpClients;
 
     while (counter < 2) {
        http:Request request = new;
-       match foClient.get("/hello", request) {
+       match foClient.get("/hello", request = request) {
             http:Response res => {
                 clientResponse = res;
             }
@@ -62,12 +62,12 @@ function testFailureScenario () returns (http:Response | http:HttpConnectorError
     http:Failover foClient = check <http:Failover>backendClientEP.getCallerActions();
     MockClient mockClient1 = new;
     MockClient mockClient2 = new;
-    http:HttpClient[] httpClients = [<http:HttpClient> mockClient1, <http:HttpClient> mockClient2];
+    http:CallerActions[] httpClients = [<http:CallerActions> mockClient1, <http:CallerActions> mockClient2];
     foClient.failoverInferredConfig.failoverClientsArray = httpClients;
 
     while (counter < 1) {
        http:Request request = new;
-       match foClient.get("/hello", request) {
+       match foClient.get("/hello", request = request) {
             http:Response res => {
             }
             http:HttpConnectorError httpConnectorError => {

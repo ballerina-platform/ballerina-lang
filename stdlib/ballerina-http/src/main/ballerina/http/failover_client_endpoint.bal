@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
 
 documentation {
     FailoverClient endpoint provides failover support over multiple HTTP clients.
@@ -50,7 +49,7 @@ public type FailoverClient object {
     documentation {
         Returns the backing HTTP client used by the endpoint.
     }
-    public function getCallerActions() returns HttpClient {
+    public function getCallerActions() returns CallerActions {
         return httpEP.httpClient;
     }
 
@@ -145,11 +144,11 @@ function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfigur
 }
 
 
-function createFailOverClient(FailoverClientEndpointConfiguration failoverClientConfig) returns HttpClient {
+function createFailOverClient(FailoverClientEndpointConfiguration failoverClientConfig) returns CallerActions {
     ClientEndpointConfig config = createClientEPConfigFromFailoverEPConfig(
                                       failoverClientConfig,
                                       failoverClientConfig.targets[0]);
-    HttpClient[] clients = createFailoverHttpClientArray(failoverClientConfig);
+    CallerActions[] clients = createFailoverHttpClientArray(failoverClientConfig);
     boolean[] failoverCodes = populateErrorCodeIndex(failoverClientConfig.failoverCodes);
     FailoverInferredConfig failoverInferredConfig = {
         failoverClientsArray:clients,
@@ -159,8 +158,8 @@ function createFailOverClient(FailoverClientEndpointConfiguration failoverClient
     return new Failover(config.url, config, failoverInferredConfig);
 }
 
-function createFailoverHttpClientArray (FailoverClientEndpointConfiguration failoverClientConfig) returns HttpClient[] {
-    HttpClient[] httpClients = [];
+function createFailoverHttpClientArray (FailoverClientEndpointConfiguration failoverClientConfig) returns CallerActions[] {
+    CallerActions[] httpClients = [];
     int i = 0;
     boolean httpClientRequired = false;
     string uri = failoverClientConfig.targets[0].url;
@@ -169,7 +168,7 @@ function createFailoverHttpClientArray (FailoverClientEndpointConfiguration fail
         CircuitBreakerConfig cb => {
             if (uri.hasSuffix("/")) {
                 int lastIndex = uri.length() - 1;
-                uri = uri.subString(0, lastIndex);
+                uri = uri.substring(0, lastIndex);
             }
             httpClientRequired = false;
         }
@@ -183,7 +182,7 @@ function createFailoverHttpClientArray (FailoverClientEndpointConfiguration fail
         uri = target.url;
         if (uri.hasSuffix("/")) {
             int lastIndex = uri.length() - 1;
-            uri = uri.subString(0, lastIndex);
+            uri = uri.substring(0, lastIndex);
         }
         if (!httpClientRequired) {
             httpClients[i] = createCircuitBreakerClient(uri, epConfig);

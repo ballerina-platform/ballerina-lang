@@ -1,4 +1,3 @@
-package p.q;
 
 public struct Person {
     string fname;

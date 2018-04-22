@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.builtin;
 
 @Description {value:"Representation of readonly annotation"}
 public annotation<type> readonly;

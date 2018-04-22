@@ -13,7 +13,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-package ballerina.websub;
 
 import ballerina/http;
 import ballerina/log;
@@ -46,7 +45,7 @@ import ballerina/crypto;
 @final public string SHA256 = "SHA256";
 @final public string MD5 = "MD5";
 
-public type TopicIdentifier "TOPIC_ID_HEADER" | "TOPIC_ID_PAYLOAD_KEY" | "TOPIC_ID_HEADER_AND_PAYLOAD";
+public type TopicIdentifier "TOPIC_ID_HEADER"|"TOPIC_ID_PAYLOAD_KEY"|"TOPIC_ID_HEADER_AND_PAYLOAD";
 @final public TopicIdentifier TOPIC_ID_HEADER = "TOPIC_ID_HEADER";
 @final public TopicIdentifier TOPIC_ID_PAYLOAD_KEY = "TOPIC_ID_PAYLOAD_KEY";
 @final public TopicIdentifier TOPIC_ID_HEADER_AND_PAYLOAD = "TOPIC_ID_HEADER_AND_PAYLOAD";
@@ -92,7 +91,7 @@ public type IntentVerificationRequest object {
                         topic.
         R{{}} `http:Response` The response to the hub verifying/denying intent to subscribe.
     }
-    public function buildSubscriptionVerificationResponse (string topic = "") returns (http:Response | ());
+    public function buildSubscriptionVerificationResponse(string topic = "") returns http:Response;
 
     documentation {
         Function to build intent verification response for unsubscription requests sent.
@@ -101,28 +100,30 @@ public type IntentVerificationRequest object {
                         topic.
         R{{}} `http:Response` The response to the hub verifying/denying intent to unsubscribe.
     }
-    public function buildUnsubscriptionVerificationResponse (string topic = "") returns (http:Response | ());
+    public function buildUnsubscriptionVerificationResponse(string topic = "") returns http:Response;
 
 };
 
-public function IntentVerificationRequest::buildSubscriptionVerificationResponse (string topic = "") returns
-(http:Response | ()) {
+public function IntentVerificationRequest::buildSubscriptionVerificationResponse(string topic = "")
+    returns http:Response {
+
     SubscriberServiceConfiguration subscriberServiceConfiguration = {};
     if (topic == "") {
         subscriberServiceConfiguration = retrieveAnnotations();
     } else {
-        subscriberServiceConfiguration = { topic:topic };
+        subscriberServiceConfiguration = {topic:topic};
     }
     return buildIntentVerificationResponse(self, MODE_SUBSCRIBE, subscriberServiceConfiguration);
 }
 
-public function IntentVerificationRequest::buildUnsubscriptionVerificationResponse (string topic = "") returns
-(http:Response | ()) {
+public function IntentVerificationRequest::buildUnsubscriptionVerificationResponse(string topic = "")
+    returns http:Response {
+
     SubscriberServiceConfiguration subscriberServiceConfiguration = {};
     if (topic == "") {
         subscriberServiceConfiguration = retrieveAnnotations();
     } else {
-        subscriberServiceConfiguration = { topic:topic };
+        subscriberServiceConfiguration = {topic:topic};
     }
     return buildIntentVerificationResponse(self, MODE_UNSUBSCRIBE, subscriberServiceConfiguration);
 }
@@ -136,36 +137,38 @@ documentation {
     R{{}} `http:Response` The response to the hub verifying/denying intent to subscripe/unsubscribe
 }
 function buildIntentVerificationResponse(IntentVerificationRequest intentVerificationRequest, string mode,
-                        SubscriberServiceConfiguration webSubSubscriberAnnotations) returns (http:Response | ()) {
+                                         SubscriberServiceConfiguration webSubSubscriberAnnotations)
+    returns http:Response {
+
     http:Response response = new;
     string topic = webSubSubscriberAnnotations.topic;
     if (topic == "") {
-        log:printError("Unable to verify intent since the topic is not specified");
-        return;
-    }
-
-    string reqMode = intentVerificationRequest.mode;
-    string challenge = intentVerificationRequest.challenge;
-    string reqTopic = intentVerificationRequest.topic;
-
-    match (http:decode(reqTopic, "UTF-8")) {
-        string decodedTopic => reqTopic = decodedTopic;
-        error => {}
-    }
-
-    string reqLeaseSeconds = <string> intentVerificationRequest.leaseSeconds;
-
-    if (reqMode == mode && reqTopic == topic) {
-        response.statusCode = http:ACCEPTED_202;
-        response.setStringPayload(challenge);
-        log:printInfo("Intent Verification agreed - Mode [" + mode + "], Topic [" + topic +"], Lease Seconds ["
-                      + reqLeaseSeconds + "]");
-    } else {
         response.statusCode = http:NOT_FOUND_404;
-        log:printWarn("Intent Verification denied - Mode [" + mode + "], Topic [" + topic +"]");
+        log:printError("Intent Verification denied - Mode [" + mode + "], Topic [" + topic +
+                "], since topic unavailable as an annotation or unspecified as a parameter");
+    } else {
+        string reqMode = intentVerificationRequest.mode;
+        string challenge = intentVerificationRequest.challenge;
+        string reqTopic = intentVerificationRequest.topic;
+
+        match (http:decode(reqTopic, "UTF-8")) {
+            string decodedTopic => reqTopic = decodedTopic;
+            error => {}
+        }
+
+        string reqLeaseSeconds = <string>intentVerificationRequest.leaseSeconds;
+
+        if (reqMode == mode && reqTopic == topic) {
+            response.statusCode = http:ACCEPTED_202;
+            response.setStringPayload(challenge);
+            log:printInfo("Intent Verification agreed - Mode [" + mode + "], Topic [" + topic + "], Lease Seconds ["
+                    + reqLeaseSeconds + "]");
+        } else {
+            response.statusCode = http:NOT_FOUND_404;
+            log:printWarn("Intent Verification denied - Mode [" + mode + "], Topic [" + topic + "]");
+        }
     }
     return response;
-
 }
 
 documentation {
@@ -175,7 +178,7 @@ documentation {
     P{{serviceType}} The type of the service for which the request was rceived.
     R{{}} `WebSubError`, if an error occurred in extraction or signature validation failed.
 }
-public function processWebSubNotification(http:Request request, typedesc serviceType) returns (WebSubError | ()) {
+public function processWebSubNotification(http:Request request, typedesc serviceType) returns WebSubError? {
     string secret = retrieveSecret(serviceType);
     string xHubSignature;
 
@@ -183,8 +186,8 @@ public function processWebSubNotification(http:Request request, typedesc service
         xHubSignature = request.getHeader(X_HUB_SIGNATURE);
     } else {
         if (secret != "") {
-            WebSubError webSubError = { message:X_HUB_SIGNATURE + " header not present for subscription added" +
-                                      " specifying " + HUB_SECRET };
+            WebSubError webSubError = {message:X_HUB_SIGNATURE + " header not present for subscription added" +
+                " specifying " + HUB_SECRET};
             return webSubError;
         } else {
             return;
@@ -196,7 +199,7 @@ public function processWebSubNotification(http:Request request, typedesc service
     match (reqJsonPayload) {
         json jsonPayload => { payload = jsonPayload; }
         mime:EntityError entityError => {
-            WebSubError webSubError = { message:"Error extracting notification payload", cause: entityError };
+            WebSubError webSubError = {message:"Error extracting notification payload", cause:entityError};
             return webSubError;
         }
     }
@@ -218,26 +221,26 @@ documentation {
     P{{secret}} The secret used when subscribing.
     R{{}} `WebSubError` if an error occurs validating the signature or the signature is invalid.
 }
-public function validateSignature (string xHubSignature, string stringPayload, string secret) returns
-(WebSubError | ()) {
+public function validateSignature(string xHubSignature, string stringPayload, string secret) returns WebSubError? {
+
     string[] splitSignature = xHubSignature.split("=");
     string method = splitSignature[0];
     string signature = xHubSignature.replace(method + "=", "");
     string generatedSignature;
 
     if (SHA1.equalsIgnoreCase(method)) {
-        generatedSignature = crypto:getHmac(stringPayload, secret, crypto:SHA1);
+        generatedSignature = crypto:hmac(stringPayload, secret, crypto:SHA1);
     } else if (SHA256.equalsIgnoreCase(method)) {
-        generatedSignature = crypto:getHmac(stringPayload, secret, crypto:SHA256);
+        generatedSignature = crypto:hmac(stringPayload, secret, crypto:SHA256);
     } else if (MD5.equalsIgnoreCase(method)) {
-        generatedSignature = crypto:getHmac(stringPayload, secret, crypto:MD5);
+        generatedSignature = crypto:hmac(stringPayload, secret, crypto:MD5);
     } else {
-        WebSubError webSubError = { message:"Unsupported signature method: " + method };
+        WebSubError webSubError = {message:"Unsupported signature method: " + method};
         return webSubError;
     }
 
     if (!signature.equalsIgnoreCase(generatedSignature)) {
-        WebSubError webSubError = { message:"Signature validation failed: Invalid Signature!" };
+        WebSubError webSubError = {message:"Signature validation failed: Invalid Signature!"};
         return webSubError;
     }
     return;
@@ -249,7 +252,7 @@ documentation {
     F{{payload}} The payload of the notification received.
     F{{request}} The HTTP POST request received as the notification.
 }
-public type NotificationRequest {
+public type Notification {
     json payload,
     http:Request request,
 };
@@ -291,7 +294,7 @@ documentation {
 
     R{{}} `WebSubHub` The WebSubHub struct representing the started up hub.
 }
-public function startUpBallerinaHub () returns (WebSubHub) {
+public function startUpBallerinaHub() returns WebSubHub {
     string hubUrl = startUpHubService();
     WebSubHub ballerinaWebSubHub = new WebSubHub(hubUrl);
     return ballerinaWebSubHub;
@@ -313,7 +316,7 @@ public type WebSubHub object {
         
         R{{}} `boolean` indicating whether the internal Ballerina Hub was stopped.
     }
-    public function stop () returns (boolean);
+    public function stop() returns (boolean);
 
     documentation {
         Publishes an update against the topic in the initialized Ballerina Hub.
@@ -322,7 +325,7 @@ public type WebSubHub object {
         P{{payload}} The update payload
         R{{}} `WebSubError` if the hub is not initialized or does not represent the internal hub.
     }
-    public function publishUpdate (string topic, json payload) returns (WebSubError | ());
+    public function publishUpdate(string topic, json payload) returns WebSubError?;
 
     documentation {
         Registers a topic in the Ballerina Hub.
@@ -330,7 +333,7 @@ public type WebSubHub object {
         P{{topic}} The topic to register.
         R{{}} `WebSubError` if an error occurred with registration.
     }
-    public function registerTopic (string topic) returns (WebSubError | ());
+    public function registerTopic(string topic) returns WebSubError?;
 
     documentation {
         Unregisters a topic in the Ballerina Hub.
@@ -338,42 +341,42 @@ public type WebSubHub object {
         P{{topic}} The topic to unregister.
         R{{}} `WebSubError` if an error occurred with unregistration.
     }
-    public function unregisterTopic (string topic) returns (WebSubError | ());
+    public function unregisterTopic(string topic) returns WebSubError?;
 
 };
 
-public function WebSubHub::stop () returns (boolean) {
+public function WebSubHub::stop() returns (boolean) {
     //TODO: fix to stop
     return stopHubService(self.hubUrl);
 }
 
-public function WebSubHub::publishUpdate (string topic, json payload) returns (WebSubError | ()) {
+public function WebSubHub::publishUpdate(string topic, json payload) returns WebSubError? {
     if (self.hubUrl == "") {
-        WebSubError webSubError = { message:"Internal Ballerina Hub not initialized or incorrectly referenced" };
+        WebSubError webSubError = {message:"Internal Ballerina Hub not initialized or incorrectly referenced"};
         return webSubError;
     } else {
         string errorMessage = validateAndPublishToInternalHub(self.hubUrl, topic, payload);
         if (errorMessage != "") {
-            WebSubError webSubError = { message:errorMessage };
+            WebSubError webSubError = {message:errorMessage};
             return webSubError;
         }
     }
     return;
 }
 
-public function WebSubHub::registerTopic (string topic) returns (WebSubError | ()) {
+public function WebSubHub::registerTopic(string topic) returns WebSubError? {
     string errorMessage = registerTopicAtHub(topic, "");
     if (errorMessage != "") {
-        WebSubError webSubError = { message:errorMessage };
+        WebSubError webSubError = {message:errorMessage};
         return webSubError;
     }
     return;
 }
 
-public function WebSubHub::unregisterTopic (string topic) returns (WebSubError | ()) {
+public function WebSubHub::unregisterTopic(string topic) returns WebSubError? {
     string errorMessage = unregisterTopicAtHub(topic, "");
     if (errorMessage != "") {
-        WebSubError webSubError = { message:errorMessage };
+        WebSubError webSubError = {message:errorMessage};
         return webSubError;
     }
     return;
@@ -390,7 +393,7 @@ documentation {
     P{{topic}} The topic to which subscribers need to subscribe to, to receive updates for the resource/topic.
     R{{}} `http:Response` Response with the link header added.
 }
-public function addWebSubLinkHeaders (http:Response response, string[] hubs, string topic) returns (http:Response) {
+public function addWebSubLinkHeaders(http:Response response, string[] hubs, string topic) returns http:Response {
     string hubLinkHeader = "";
     foreach hub in hubs {
         hubLinkHeader = hubLinkHeader + "<" + hub + ">; rel=\"hub\", ";

@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.net.grpc.builder.components;
 
-import static org.ballerinalang.net.grpc.MessageConstants.COMMA;
-import static org.ballerinalang.net.grpc.MessageConstants.INPUT_TYPE_NAME;
-import static org.ballerinalang.net.grpc.MessageConstants.SPACE;
+import static org.ballerinalang.net.grpc.GrpcConstants.COMMA;
+import static org.ballerinalang.net.grpc.GrpcConstants.INPUT_TYPE_NAME;
+import static org.ballerinalang.net.grpc.GrpcConstants.SPACE;
 
 /**
  * Bean class of non blocking function object.

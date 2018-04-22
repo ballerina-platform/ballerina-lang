@@ -181,6 +181,13 @@ public class MimeUtil {
      */
     public static void setContentDisposition(BStruct contentDisposition, BStruct bodyPart,
                                              String contentDispositionHeaderWithParams) {
+        populateContentDispositionObject(contentDisposition, contentDispositionHeaderWithParams);
+        bodyPart.setRefField(CONTENT_DISPOSITION_INDEX, contentDisposition);
+
+    }
+
+    public static void populateContentDispositionObject(BStruct contentDisposition,
+                                                        String contentDispositionHeaderWithParams) {
         String dispositionValue;
         if (isNotNullAndEmpty(contentDispositionHeaderWithParams)) {
             if (contentDispositionHeaderWithParams.contains(SEMICOLON)) {
@@ -210,7 +217,6 @@ public class MimeUtil {
                 paramMap.remove(CONTENT_DISPOSITION_NAME);
             }
             contentDisposition.setRefField(CONTENT_DISPOSITION_PARA_MAP_INDEX, paramMap);
-            bodyPart.setRefField(CONTENT_DISPOSITION_INDEX, contentDisposition);
         }
     }
 
@@ -235,27 +241,35 @@ public class MimeUtil {
                     dispositionBuilder.append(disposition);
                 }
                 if (!dispositionBuilder.toString().isEmpty()) {
-                    String name = contentDispositionStruct.getStringField(CONTENT_DISPOSITION_NAME_INDEX);
-                    String fileName = contentDispositionStruct.getStringField(CONTENT_DISPOSITION_FILENAME_INDEX);
-                    if (isNotNullAndEmpty(name)) {
-                        appendSemiColon(dispositionBuilder).append(CONTENT_DISPOSITION_NAME).append(ASSIGNMENT).append(
-                                includeQuotes(name)).append(SEMICOLON);
-                    }
-                    if (isNotNullAndEmpty(fileName)) {
-                        appendSemiColon(dispositionBuilder).append(CONTENT_DISPOSITION_FILE_NAME).append(ASSIGNMENT)
-                                .append(includeQuotes(fileName)).append(SEMICOLON);
-                    }
-                    if (contentDispositionStruct.getRefField(CONTENT_DISPOSITION_PARA_MAP_INDEX) != null) {
-                        BMap map = (BMap) contentDispositionStruct.getRefField(CONTENT_DISPOSITION_PARA_MAP_INDEX);
-                        HeaderUtil.appendHeaderParams(appendSemiColon(dispositionBuilder), map);
-                    }
-                }
-                if (dispositionBuilder.toString().endsWith(SEMICOLON)) {
-                    dispositionBuilder.setLength(dispositionBuilder.length() - 1);
+                    dispositionBuilder = convertDispositionObjectToString(dispositionBuilder, contentDispositionStruct);
                 }
             }
         }
         return dispositionBuilder.toString();
+    }
+
+    public static StringBuilder convertDispositionObjectToString(StringBuilder dispositionBuilder,
+                                                                 BStruct contentDispositionStruct) {
+
+        String name = contentDispositionStruct.getStringField(CONTENT_DISPOSITION_NAME_INDEX);
+        String fileName = contentDispositionStruct.getStringField(CONTENT_DISPOSITION_FILENAME_INDEX);
+        if (isNotNullAndEmpty(name)) {
+            appendSemiColon(dispositionBuilder).append(CONTENT_DISPOSITION_NAME).append(ASSIGNMENT).append(
+                    includeQuotes(name)).append(SEMICOLON);
+        }
+        if (isNotNullAndEmpty(fileName)) {
+            appendSemiColon(dispositionBuilder).append(CONTENT_DISPOSITION_FILE_NAME).append(ASSIGNMENT)
+                    .append(includeQuotes(fileName)).append(SEMICOLON);
+        }
+        if (contentDispositionStruct.getRefField(CONTENT_DISPOSITION_PARA_MAP_INDEX) != null) {
+            BMap map = (BMap) contentDispositionStruct.getRefField(CONTENT_DISPOSITION_PARA_MAP_INDEX);
+            HeaderUtil.appendHeaderParams(appendSemiColon(dispositionBuilder), map);
+        }
+
+        if (dispositionBuilder.toString().endsWith(SEMICOLON)) {
+            dispositionBuilder.setLength(dispositionBuilder.length() - 1);
+        }
+        return dispositionBuilder;
     }
 
     private static StringBuilder appendSemiColon(StringBuilder disposition) {
@@ -363,7 +377,7 @@ public class MimeUtil {
      * @param textValue Represent a text value
      * @return a String surrounded by quotes
      */
-    private static String includeQuotes(String textValue) {
+    public static String includeQuotes(String textValue) {
         if (!textValue.startsWith(DOUBLE_QUOTE)) {
             textValue = DOUBLE_QUOTE + textValue;
         }

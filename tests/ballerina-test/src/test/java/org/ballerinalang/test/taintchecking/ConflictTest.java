@@ -48,6 +48,27 @@ public class ConflictTest {
                 "@untainted to returns", 3, 12);
     }
 
+    @Test
+    public void testRecursionWithinAttachedExternalFunctions() {
+        CompileResult result = BCompileUtil
+                .compile("test-src/taintchecking/conflicts/recursion-within-attached-external-function.bal");
+        Assert.assertTrue(result.getDiagnostics().length == 0);
+    }
+
+    @Test
+    public void testRecursionWithinAttachedExternalFunctionsNegative() {
+        CompileResult result = BCompileUtil
+                .compile("test-src/taintchecking/conflicts/recursion-within-attached-external-function-negative.bal");
+        Assert.assertTrue(result.getDiagnostics().length == 2);
+
+        BAssertUtil.validateError(result, 0,
+                "taint checking for 'testFunction' could not complete due to recursion with 'TestObject.testFunction'" +
+                        ", add @tainted or @untainted to returns", 7, 12);
+        BAssertUtil.validateError(result, 1,
+                "taint checking for 'main' could not complete due to recursion with 'TestObject.testFunction', add " +
+                        "@tainted or @untainted to returns", 16, 26);
+    }
+
     // Test cyclic function invocations.
 
     @Test

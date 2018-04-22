@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.auth;
 
 @Description {value:"Represents the auth provider. Any type of implementation, such as ldap, jdbc, file based,
 etc. should be object-wise similar"}
@@ -30,3 +29,14 @@ public type AuthProvider object {
     @Return {value:"string[]: array of groups for the user denoted by the username"}
     public function getScopes (string username) returns string[];
 };
+
+//Dummy implementation, please fix
+public function AuthProvider::authenticate (string username, string password) returns boolean {
+    return true;
+}
+
+//Dummy implementation, please fix
+public function AuthProvider::getScopes (string username) returns string[] {
+    string[] val;
+    return val;
+}

@@ -31,7 +31,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.handler.ssl.SslContext;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.net.grpc.config.EndpointConfiguration;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.interceptor.ServerHeaderInterceptor;
 import org.ballerinalang.net.grpc.listener.BidirectionalStreamingListener;
@@ -40,6 +39,7 @@ import org.ballerinalang.net.grpc.listener.ServerStreamingListener;
 import org.ballerinalang.net.grpc.listener.UnaryMethodListener;
 import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
 import org.ballerinalang.net.grpc.proto.ServiceProtoUtils;
+import org.wso2.transport.http.netty.config.ListenerConfiguration;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -59,10 +59,10 @@ public class GrpcServicesBuilder {
      * Initializes and returns gRPC server builder instance for endpoint configuration.
      *
      * @param serviceEndpointConfig service endpoint configuration.
-     * @param sslContext SSL context, needed for setup secured connection.
+     * @param sslContext            SSL context, needed for setup secured connection.
      * @return gRPC server builder.
      */
-    public static io.grpc.ServerBuilder initService(EndpointConfiguration serviceEndpointConfig, SslContext
+    public static io.grpc.ServerBuilder initService(ListenerConfiguration serviceEndpointConfig, SslContext
             sslContext) {
         io.grpc.ServerBuilder serverBuilder;
         if (sslContext != null) {
@@ -85,8 +85,8 @@ public class GrpcServicesBuilder {
      * Register new service to the gRPC Server Builder.
      *
      * @param serverBuilder gRPC server Builder initiated when initializing service endpoint.
-     * @param service   Service to register.
-     * @throws GrpcServerException  Exception while registering the service.
+     * @param service       Service to register.
+     * @throws GrpcServerException Exception while registering the service.
      */
     public static void registerService(io.grpc.ServerBuilder serverBuilder, Service service) throws
             GrpcServerException {

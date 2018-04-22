@@ -43,8 +43,7 @@ service<http:Service> InitiatorService bind initiatorEP {
 
 
         transaction with oncommit=onCommit, onabort=onAbort {
-            http:Request newReq = new;
-            _ = participant1EP -> get("/noOp", newReq);
+            _ = participant1EP -> get("/noOp");
 
             transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant
             }
@@ -61,8 +60,7 @@ service<http:Service> InitiatorService bind initiatorEP {
 
 
         transaction with oncommit=onCommit, onabort=onAbort {
-            http:Request newReq = new;
-            _ = participant1EP -> get("/testRemoteParticipantAbort", newReq);
+            _ = participant1EP -> get("/testRemoteParticipantAbort");
 
             transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant
             }
@@ -76,8 +74,7 @@ service<http:Service> InitiatorService bind initiatorEP {
 
 
         transaction with oncommit=onCommit, onabort=onAbort {
-            http:Request newReq = new;
-            _ = participant1EP -> get("/noOp", newReq);
+            _ = participant1EP -> get("/noOp");
 
             transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant
                 state.abortedByLocalParticipant = true;
@@ -93,8 +90,7 @@ service<http:Service> InitiatorService bind initiatorEP {
 
 
         transaction with oncommit=onCommit, onabort=onAbort {
-            http:Request newReq = new;
-            _ = participant1EP -> get("/noOp", newReq);
+            _ = participant1EP -> get("/noOp");
 
             transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant
             }
@@ -111,8 +107,7 @@ service<http:Service> InitiatorService bind initiatorEP {
 
         http:Response res = new;  res.statusCode = 500;
         transaction with oncommit=onCommit, onabort=onAbort {
-            http:Request newReq = new;
-            var result = participant1EP -> get("/nonInfectable", newReq);
+            var result = participant1EP -> get("/nonInfectable");
             match result {
                 http:Response participant1Res => {
                     transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant
@@ -137,8 +132,7 @@ service<http:Service> InitiatorService bind initiatorEP {
     testTransactionInfectableTrue (endpoint ep, http:Request req) {
 
         transaction with oncommit=onCommit, onabort=onAbort {
-            http:Request newReq = new;
-            _ = participant1EP -> get("/infectable", newReq);
+            _ = participant1EP -> get("/infectable");
 
             transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant
             }
@@ -154,8 +148,7 @@ service<http:Service> InitiatorService bind initiatorEP {
     member (endpoint conn, http:Request req) {
 
         transaction {
-            http:Request newReq = new;
-            var getResult = participant1EP -> get("/", newReq);
+            var getResult = participant1EP -> get("/");
             match getResult {
                 http:HttpConnectorError err => {
                     io:print("Initiator could not send get request to participant. Error:");
@@ -181,8 +174,7 @@ service<http:Service> InitiatorService bind initiatorEP {
     testSaveToDatabaseSuccessfulInParticipant(endpoint ep, http:Request req) {
         http:Response res = new;  res.statusCode = 500;
         transaction with oncommit=onCommit, onabort=onAbort {
-            http:Request newReq = new;
-            var result = participant1EP -> get("/testSaveToDatabaseSuccessfulInParticipant", newReq);
+            var result = participant1EP -> get("/testSaveToDatabaseSuccessfulInParticipant");
             match result {
                 http:Response participant1Res => {
                     transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant
@@ -204,8 +196,7 @@ service<http:Service> InitiatorService bind initiatorEP {
     testSaveToDatabaseFailedInParticipant(endpoint ep, http:Request req) {
         http:Response res = new;  res.statusCode = 500;
         transaction with oncommit=onCommit, onabort=onAbort {
-            http:Request newReq = new;
-            var result = participant1EP -> get("/testSaveToDatabaseFailedInParticipant", newReq);
+            var result = participant1EP -> get("/testSaveToDatabaseFailedInParticipant");
             match result {
                 http:Response participant1Res => {
                     transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant

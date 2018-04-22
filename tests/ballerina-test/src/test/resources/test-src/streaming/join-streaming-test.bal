@@ -72,12 +72,11 @@ function startJoinQuery() returns (StockWithPrice[]) {
     stockStream.publish(s2);
     stockStream.publish(s3);
 
-    runtime:sleepCurrentWorker(3000);
+    runtime:sleep(3000);
     return globalEventsArray;
 }
 
 function printCompanyStockPrice(StockWithPrice s) {
-    io:println("printCompanyStock function invoked for company:" + s.symbol + " and price:" + s.price);
     addToGlobalEventsArray(s);
 }
 

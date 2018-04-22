@@ -13,7 +13,7 @@ service<http:Service> Ecommerce bind testEP {
         methods:["GET"],
         path:"/products/{productId}/{regId}"
     }
-     productsInfo1 (endpoint client, http:Request req, string productId, string regId) {
+     productsInfo1 (endpoint caller, http:Request req, string productId, string regId) {
         string orderId = req.getHeader("X-ORDER-ID");
         io:println("Order ID " + orderId);
         io:println("Product ID " + productId);
@@ -23,14 +23,14 @@ service<http:Service> Ecommerce bind testEP {
 
         http:Response res = new;
         res.setJsonPayload(responseJson);
-        _ = client -> respond(res);
+        _ = caller -> respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/products2/{productId}/{regId}/item"
     }
-     productsInfo2 (endpoint client, http:Request req, string productId, string regId) {
+     productsInfo2 (endpoint caller, http:Request req, string productId, string regId) {
         json responseJson;
         io:println("Product ID " + productId);
         io:println("Reg ID " + regId);
@@ -39,14 +39,14 @@ service<http:Service> Ecommerce bind testEP {
 
         http:Response res = new;
         res.setJsonPayload(responseJson);
-        _ = client -> respond(res);
+        _ = caller -> respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/products3/{productId}/{regId}/*"
     }
-     productsInfo3 (endpoint client, http:Request req, string productId, string regId) {
+     productsInfo3 (endpoint caller, http:Request req, string productId, string regId) {
         json responseJson;
         io:println("Product ID " + productId);
         io:println("Reg ID " + regId);
@@ -55,14 +55,14 @@ service<http:Service> Ecommerce bind testEP {
 
         http:Response res = new;
         res.setJsonPayload(responseJson);
-        _ = client -> respond(res);
+        _ = caller -> respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/products/{productId}"
     }
-     productsInfo4 (endpoint client, http:Request req, string productId) {
+     productsInfo4 (endpoint caller, http:Request req, string productId) {
         json responseJson;
         string rID = req.getQueryParams().regID;
         io:println("Product ID " + productId);
@@ -72,14 +72,14 @@ service<http:Service> Ecommerce bind testEP {
 
         http:Response res = new;
         res.setJsonPayload(responseJson);
-        _ = client -> respond(res);
+        _ = caller -> respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/products"
     }
-     productsInfo6 (endpoint client, http:Request req) {
+     productsInfo6 (endpoint caller, http:Request req) {
         json responseJson;
         map<string> params = req.getQueryParams();
         string prdID = params.prodID;
@@ -91,14 +91,14 @@ service<http:Service> Ecommerce bind testEP {
 
         http:Response res = new;
         res.setJsonPayload(responseJson);
-        _ = client -> respond(res);
+        _ = caller -> respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/products5/{productId}/reg"
     }
-     productsInfo5 (endpoint client, http:Request req, string productId) {
+     productsInfo5 (endpoint caller, http:Request req, string productId) {
         json responseJson;
         string rID = req.getQueryParams().regID;
         io:println("Product ID " + productId);
@@ -108,17 +108,17 @@ service<http:Service> Ecommerce bind testEP {
 
         http:Response res = new;
         res.setJsonPayload(responseJson);
-        _ = client -> respond(res);
+        _ = caller -> respond(res);
     }
 
     @http:ResourceConfig {
         path:""
     }
-     echo1 (endpoint client, http:Request req) {
+     echo1 (endpoint caller, http:Request req) {
         http:Response res = new;
         json responseJson = {"echo11":"echo11"};
         res.setJsonPayload(responseJson);
-        _ = client -> respond(res);
+        _ = caller -> respond(res);
     }
 }
 
@@ -131,29 +131,29 @@ service<http:Service> echo111 bind testEP {
         methods:["POST", "UPDATE"],
         path : "/test"
     }
-     productsInfo99 (endpoint client, http:Request req) {
+     productsInfo99 (endpoint caller, http:Request req) {
         http:Response res = new;
-        _ = client -> respond(res);
+        _ = caller -> respond(res);
     }
 
     @http:ResourceConfig {
         methods:["OPTIONS"],
         path : "/hi"
     }
-     productsOptions (endpoint client, http:Request req) {
+     productsOptions (endpoint caller, http:Request req) {
         http:Response res = new;
         json responseJson = {"echo":"wso2"};
         res.setJsonPayload(responseJson);
-        _ = client -> respond(res);
+        _ = caller -> respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET", "PUT"],
         path : "/test"
     }
-     productsInfo98 (endpoint client, http:Request req) {
+     productsInfo98 (endpoint caller, http:Request req) {
         http:Response res = new;
-        _ = client -> respond(res);
+        _ = caller -> respond(res);
 
     }
 
@@ -161,33 +161,33 @@ service<http:Service> echo111 bind testEP {
         methods:["GET"],
         path : "/getme"
     }
-     productsGet (endpoint client, http:Request req) {
+     productsGet (endpoint caller, http:Request req) {
         http:Response res = new;
         json responseJson = {"echo":"get"};
         res.setJsonPayload(responseJson);
-        _ = client -> respond(res);
+        _ = caller -> respond(res);
     }
 
     @http:ResourceConfig {
         methods:["POST"],
         path : "/post"
     }
-     productsPOST (endpoint client, http:Request req) {
+     productsPOST (endpoint caller, http:Request req) {
         http:Response res = new;
         json responseJson = {"echo":"post"};
         res.setJsonPayload(responseJson);
-        _ = client -> respond(res);
+        _ = caller -> respond(res);
     }
 
     @http:ResourceConfig {
         methods:["PUT"],
         path : "/put"
     }
-     productsPUT (endpoint client, http:Request req) {
+     productsPUT (endpoint caller, http:Request req) {
         http:Response res = new;
         json responseJson = {"echo":"put"};
         res.setJsonPayload(responseJson);
-        _ = client -> respond(res);
+        _ = caller -> respond(res);
     }
 }
 
@@ -206,11 +206,11 @@ service<http:Service> serviceHello bind testEP {
         methods:["GET"],
         path:"/test/"
     }
-     productsInfo (endpoint client, http:Request req) {
+     productsInfo (endpoint caller, http:Request req) {
         http:Response res = new;
         json responseJson = {"echo":"sanitized"};
         res.setJsonPayload(responseJson);
-        _ = client -> respond(res);
+        _ = caller -> respond(res);
     }
 }
 
@@ -223,11 +223,11 @@ service<http:Service> echo113 bind testEP {
         methods:["GET"],
         path:"/ech[o/{foo}"
     }
-     productsInfo (endpoint client, http:Request req, string foo) {
+     productsInfo (endpoint caller, http:Request req, string foo) {
         http:Response res = new;
         json responseJson = {"echo113": foo};
         res.setJsonPayload(responseJson);
-        _ = client -> respond(res);
+        _ = caller -> respond(res);
     }
 }
 
@@ -240,10 +240,10 @@ service<http:Service> echo114 bind testEP {
         methods:["GET"],
         path:"/ech%5Bo14/{foo}"
     }
-     productsInfo (endpoint client, http:Request req, string foo) {
+     productsInfo (endpoint caller, http:Request req, string foo) {
         http:Response res = new;
         json responseJson = {"echo114": foo};
         res.setJsonPayload(responseJson);
-        _ = client -> respond(res);
+        _ = caller -> respond(res);
     }
 }

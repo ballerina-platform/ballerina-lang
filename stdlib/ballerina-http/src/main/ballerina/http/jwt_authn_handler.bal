@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
 
 import ballerina/log;
 import ballerina/auth;
@@ -68,7 +67,7 @@ public function HttpJwtAuthnHandler::handle (Request req) returns (boolean) {
             return authenticated;
         }
         error err => {
-            log:printErrorCause("Error while validating JWT token ", err);
+            log:printError("Error while validating JWT token ", err = err);
             return false;
         }
     }

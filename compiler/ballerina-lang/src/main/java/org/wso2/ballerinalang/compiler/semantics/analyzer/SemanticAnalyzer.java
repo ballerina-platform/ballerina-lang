@@ -53,6 +53,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -234,13 +235,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
-        // Visit all the imported packages
-        pkgNode.imports.forEach(importNode -> analyzeDef(importNode, pkgEnv));
-
         pkgNode.topLevelNodes.stream().filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.FUNCTION)
                 .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
 
         analyzeFunctions(pkgNode.functions, pkgEnv);
+
+        pkgNode.objects.forEach(this::validateConstructorAndCheckDefaultable);
 
         analyzeDef(pkgNode.initFunction, pkgEnv);
         analyzeDef(pkgNode.startFunction, pkgEnv);
@@ -368,8 +368,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         analyzeDef(objectNode.initFunction, objectEnv);
 
-        validateConstructorAndCheckDefaultable(objectNode);
-
         //Visit temporary init statements in the init function
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(objectNode.initFunction,
                 objectNode.initFunction.symbol.scope, objectEnv);
@@ -409,6 +407,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangDocumentation docNode) {
         Set<BLangIdentifier> visitedAttributes = new HashSet<>();
         for (BLangDocumentationAttribute attribute : docNode.attributes) {
+            attribute.type = symTable.errType;
             if (attribute.docTag == DocTag.ENDPOINT) {
                 if (!this.env.enclObject.getFunctions().stream().anyMatch(bLangFunction ->
                         Names.EP_SPI_GET_CALLER_ACTIONS.value.equals(bLangFunction.getName().toString()))) {
@@ -915,6 +914,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (objectNode.initFunction.symbol.params.size() > 0) {
             defaultableStatus = false;
         }
+
+        for (BAttachedFunction func : ((BStructSymbol) objectNode.symbol).attachedFuncs) {
+            if ((func.symbol.flags & Flags.INTERFACE) == Flags.INTERFACE) {
+                defaultableStatus = false;
+                break;
+            }
+        }
+
         if (defaultableStatus) {
             objectNode.symbol.type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED,
                     TypeFlag.DEFAULTABLE));

@@ -1,4 +1,3 @@
-package bal.test.intercept.simpleAuth;
 
 import ballerina/lang.messages;
 import ballerina/lang.system;

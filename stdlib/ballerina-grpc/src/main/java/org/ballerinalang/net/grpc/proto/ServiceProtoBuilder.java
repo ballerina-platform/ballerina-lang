@@ -53,9 +53,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
-import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_ENDPOINT_TYPE;
+import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_TYPE;
 import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.ANN_MESSAGE_LISTENER;
 
 /**
@@ -102,7 +102,6 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
         try {
             File fileDefinition = ServiceProtoUtils.generateProtoDefinition(serviceNode);
             addDescriptorAnnotation(serviceNode, fileDefinition);
-            ServiceProtoUtils.writeServiceFiles(Paths.get("."), serviceNode.getName().getValue(), fileDefinition);
             serviceFileMap.put(serviceNode.getName().getValue(), fileDefinition);
         } catch (GrpcServerException e) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(), e.getMessage());

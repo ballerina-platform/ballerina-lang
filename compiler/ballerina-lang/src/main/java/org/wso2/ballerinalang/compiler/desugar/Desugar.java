@@ -26,7 +26,6 @@ import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
-import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -198,7 +197,6 @@ public class Desugar extends BLangNodeVisitor {
     private static final String CREATE_FOREVER = "startForever";
 
     private SymbolTable symTable;
-    private final PackageCache packageCache;
     private SymbolResolver symResolver;
     private IterableCodeDesugar iterableCodeDesugar;
     private AnnotationDesugar annotationDesugar;
@@ -243,7 +241,6 @@ public class Desugar extends BLangNodeVisitor {
         this.types = Types.getInstance(context);
         this.names = Names.getInstance(context);
         this.siddhiQueryBuilder = SiddhiQueryBuilder.getInstance(context);
-        this.packageCache = PackageCache.getInstance(context);
         this.names = Names.getInstance(context);
     }
 
@@ -295,7 +292,6 @@ public class Desugar extends BLangNodeVisitor {
             pkgNode.topLevelNodes.add(struct.initFunction);
         });
 
-        pkgNode.imports = rewrite(pkgNode.imports, env);
         pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList, env);
         pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
         endpointDesugar.rewriteAnonymousEndpointsInPkg(pkgNode, env);
@@ -361,13 +357,19 @@ public class Desugar extends BLangNodeVisitor {
         Collections.reverse(funcNode.endpoints); // To preserve endpoint code gen order.
         funcNode.endpoints = rewrite(funcNode.endpoints, fucEnv);
 
+        // Duplicate the invokable symbol and the invokable type.
+        funcNode.originalFuncSymbol = funcNode.symbol;
+        BInvokableSymbol dupFuncSymbol = duplicateInvokableSymbol(funcNode.symbol);
+        funcNode.symbol = dupFuncSymbol;
+        BInvokableType dupFuncType = (BInvokableType) dupFuncSymbol.type;
+
         //write closure vars
         funcNode.closureVarSymbols.stream()
                 .filter(symbol -> !isFunctionArgument(symbol, funcNode.symbol.params))
                 .forEach(symbol -> {
                     symbol.closure = true;
-                    funcNode.symbol.params.add(0, symbol);
-                    ((BInvokableType) funcNode.symbol.type).paramTypes.add(0, symbol.type);
+                    dupFuncSymbol.params.add(0, symbol);
+                    dupFuncType.paramTypes.add(0, symbol.type);
                 });
 
         funcNode.body = rewrite(funcNode.body, fucEnv);
@@ -376,11 +378,8 @@ public class Desugar extends BLangNodeVisitor {
         // If the function has a receiver, we rewrite it's parameter list to have
         // the struct variable as the first parameter
         if (funcNode.receiver != null) {
-            BInvokableSymbol funcSymbol = funcNode.symbol;
-            List<BVarSymbol> params = funcSymbol.params;
-            params.add(0, funcNode.receiver.symbol);
-            BInvokableType funcType = (BInvokableType) funcSymbol.type;
-            funcType.paramTypes.add(0, funcNode.receiver.type);
+            dupFuncSymbol.params.add(0, funcNode.receiver.symbol);
+            dupFuncType.paramTypes.add(0, funcNode.receiver.type);
         }
 
         result = funcNode;
@@ -1356,8 +1355,13 @@ public class Desugar extends BLangNodeVisitor {
                 continue;
             }
 
-            // Create local namepace declaration for all in-line namespace declarations
-            BLangLocalXMLNS xmlns = new BLangLocalXMLNS();
+            // Create namepace declaration for all in-line namespace declarations
+            BLangXMLNS xmlns;
+            if ((xmlElementLiteral.scope.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE) {
+                xmlns = new BLangPackageXMLNS();
+            } else {
+                xmlns = new BLangLocalXMLNS();
+            }
             xmlns.namespaceURI = attribute.value.concatExpr;
             xmlns.prefix = ((BLangXMLQName) attribute.name).localname;
             xmlns.symbol = (BXMLNSSymbol) attribute.symbol;
@@ -2002,14 +2006,25 @@ public class Desugar extends BLangNodeVisitor {
         iExpr.restArgs.add(arrayLiteral);
     }
 
-    private void reorderNamedArgs(BLangInvocation iExpr, BInvokableSymbol invocableSymbol) {
+    private void reorderNamedArgs(BLangInvocation iExpr, BInvokableSymbol invokableSymbol) {
         Map<String, BLangExpression> namedArgs = new HashMap<>();
         iExpr.namedArgs.forEach(expr -> namedArgs.put(((NamedArgNode) expr).getName().value, expr));
 
         // Re-order the named arguments
         List<BLangExpression> args = new ArrayList<>();
-        for (BVarSymbol param : invocableSymbol.defaultableParams) {
-            args.add(namedArgs.get(param.field ? param.originalName.value : param.name.value));
+        for (BVarSymbol param : invokableSymbol.defaultableParams) {
+            String paramName = param.field ? param.originalName.value : param.name.value;
+
+            // If some named parameter is not passed when invoking the function, get the 
+            // default value for that parameter from the parameter symbol.
+            BLangExpression expr;
+            if (namedArgs.containsKey(paramName)) {
+                expr = namedArgs.get(paramName);
+            } else {
+                expr = getDefaultValueLiteral(param.defaultValue);
+                expr = addConversionExprIfRequired(expr, param.type);
+            }
+            args.add(expr);
         }
         iExpr.namedArgs = args;
     }
@@ -2432,7 +2447,7 @@ public class Desugar extends BLangNodeVisitor {
             return false;
         }
 
-        if (accessExpr.safeNavigate || isNullable(accessExpr.expr.type)) {
+        if (accessExpr.safeNavigate || safeNavigateType(accessExpr.expr.type)) {
             return true;
         }
 
@@ -2446,7 +2461,14 @@ public class Desugar extends BLangNodeVisitor {
         return false;
     }
 
-    private boolean isNullable(BType type) {
+    private boolean safeNavigateType(BType type) {
+        // Do not add safe navigation checks for JSON. Because null is a valid value for json,
+        // we handle it at runtime. This is also required to make function on json such as
+        // j.toString(), j.keys() to work.
+        if (type.tag == TypeTags.JSON) {
+            return false;
+        }
+
         if (type.isNullable()) {
             return true;
         }
@@ -2664,6 +2686,25 @@ public class Desugar extends BLangNodeVisitor {
         return errorLiftedType;
     }
 
+    private BInvokableSymbol duplicateInvokableSymbol(BInvokableSymbol invokableSymbol) {
+        BInvokableSymbol dupFuncSymbol = Symbols.createFunctionSymbol(invokableSymbol.flags, invokableSymbol.name,
+                invokableSymbol.pkgID, invokableSymbol.type, invokableSymbol.owner, invokableSymbol.bodyExist);
+        dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
+        dupFuncSymbol.retType = invokableSymbol.retType;
+        dupFuncSymbol.defaultableParams = invokableSymbol.defaultableParams;
+        dupFuncSymbol.restParam = invokableSymbol.restParam;
+        dupFuncSymbol.params = new ArrayList<>(invokableSymbol.params);
+        dupFuncSymbol.taintTable = invokableSymbol.taintTable;
+        dupFuncSymbol.tainted = invokableSymbol.tainted;
+        dupFuncSymbol.closure = invokableSymbol.closure;
+        dupFuncSymbol.scope = invokableSymbol.scope;
+
+        BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;
+        dupFuncSymbol.type = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes),
+                prevFuncType.retType, prevFuncType.tsymbol);
+        return dupFuncSymbol;
+    }
+
     private boolean safeNavigateLHS(BLangExpression expr) {
         if (expr.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR && expr.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR) {
             return false;
@@ -2815,4 +2856,60 @@ public class Desugar extends BLangNodeVisitor {
                 throw new IllegalStateException();
         }
     }
+
+    private BLangExpression getDefaultValueLiteral(Object value) {
+        if (value == null) {
+            return getNullLiteral();
+        } else if (value instanceof Long) {
+            return getIntLiteral((Long) value);
+        } else if (value instanceof Double) {
+            return getFloatLiteral((Double) value);
+        } else if (value instanceof String) {
+            return getStringLiteral((String) value);
+        } else if (value instanceof Boolean) {
+            return getBooleanLiteral((Boolean) value);
+        } else {
+            throw new IllegalStateException("Unsupported default value type");
+        }
+    }
+
+    private BLangLiteral getStringLiteral(String value) {
+        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        literal.value = value;
+        literal.typeTag = TypeTags.STRING;
+        literal.type = symTable.stringType;
+        return literal;
+    }
+
+    private BLangLiteral getIntLiteral(long value) {
+        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        literal.value = value;
+        literal.typeTag = TypeTags.INT;
+        literal.type = symTable.intType;
+        return literal;
+    }
+
+    private BLangLiteral getFloatLiteral(double value) {
+        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        literal.value = value;
+        literal.typeTag = TypeTags.FLOAT;
+        literal.type = symTable.floatType;
+        return literal;
+    }
+
+    private BLangLiteral getBooleanLiteral(boolean value) {
+        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        literal.value = value;
+        literal.typeTag = TypeTags.BOOLEAN;
+        literal.type = symTable.booleanType;
+        return literal;
+    }
+
+    private BLangLiteral getNullLiteral() {
+        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        literal.typeTag = TypeTags.NIL;
+        literal.type = symTable.nilType;
+        return literal;
+    }
+
 }

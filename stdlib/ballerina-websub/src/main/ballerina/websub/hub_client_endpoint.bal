@@ -13,7 +13,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-package ballerina.websub;
 
 import ballerina/http;
 
@@ -22,7 +21,7 @@ import ballerina/http;
 //////////////////////////////////////////
 
 documentation {
-    Object representing the WebSub Hub Client Endpoint
+    Object representing the WebSub Hub Client Endpoint.
 }
 public type Client object {
 
@@ -39,9 +38,11 @@ public type Client object {
 
         P{{config}} The configuration for the endpoint.
     }
-    public function init (HubClientEndpointConfiguration config) {
-        endpoint http:Client httpClientEndpoint {url:config.url, secureSocket:config.secureSocket,
-                                                    auth:config.auth};
+    public function init(HubClientEndpointConfiguration config) {
+        endpoint http:Client httpClientEndpoint {
+            url:config.url, secureSocket:config.secureSocket, auth:config.auth
+        };
+
         self.httpClientEndpoint = httpClientEndpoint;
         self.config = config;
     }
@@ -51,14 +52,14 @@ public type Client object {
 
         P{{serviceType}} The service attached.
     }
-    public function register (typedesc serviceType) {
+    public function register(typedesc serviceType) {
         httpClientEndpoint.register(serviceType);
     }
 
     documentation {
         Starts the registered service.
     }
-    public function start () {
+    public function start() {
         httpClientEndpoint.start();
     }
 
@@ -67,7 +68,7 @@ public type Client object {
 
         R{{}} `CallerActions` The caller actions available for clients.
     }
-    public function getCallerActions () returns (CallerActions) {
+    public function getCallerActions() returns (CallerActions) {
         //TODO: create a single object - move to init
         CallerActions webSubHubClientConn = new CallerActions(config.url, httpClientEndpoint);
         return webSubHubClientConn;
@@ -76,10 +77,9 @@ public type Client object {
     documentation {
         Stops the registered service.
     }
-    public function stop () {
+    public function stop() {
         httpClientEndpoint.stop();
     }
-
 };
 
 documentation {

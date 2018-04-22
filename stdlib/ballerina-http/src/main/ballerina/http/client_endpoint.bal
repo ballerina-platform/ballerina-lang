@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
 
 import ballerina/io;
 ////////////////////////////////
@@ -28,7 +27,7 @@ public type Client object {
     public {
         string epName;
         ClientEndpointConfig config;
-        HttpClient httpClient;
+        CallerActions httpClient;
     }
 
     @Description {value:"Gets called when the endpoint is being initialized during the package initialization."}
@@ -45,7 +44,7 @@ public type Client object {
 
     @Description { value:"Returns the connector that client code uses"}
     @Return { value:"The connector that client code uses" }
-    public function getCallerActions() returns HttpClient {
+    public function getCallerActions() returns CallerActions {
         return self.httpClient;
     }
 
@@ -101,9 +100,9 @@ public type ClientEndpointConfig {
     AuthConfig? auth,
 };
 
-public native function createHttpClient(string uri, ClientEndpointConfig config) returns HttpClient;
+public native function createHttpClient(string uri, ClientEndpointConfig config) returns CallerActions;
 
-public native function createSimpleHttpClient(string uri, ClientEndpointConfig config) returns HttpClient;
+public native function createSimpleHttpClient(string uri, ClientEndpointConfig config) returns CallerActions;
 
 @Description { value:"RetryConfig struct represents retry related options for HTTP client invocation" }
 @Field {value:"count: Number of retry attempts before giving up"}
@@ -200,7 +199,7 @@ public function Client::init(ClientEndpointConfig config) {
     string url = config.url;
     if (url.hasSuffix("/")) {
         int lastIndex = url.length() - 1;
-        url = url.subString(0, lastIndex);
+        url = url.substring(0, lastIndex);
     }
     self.config = config;
     var cbConfig = config.circuitBreaker;
@@ -208,7 +207,7 @@ public function Client::init(ClientEndpointConfig config) {
         CircuitBreakerConfig cb => {
             if (url.hasSuffix("/")) {
                 int lastIndex = url.length() - 1;
-                url = url.subString(0, lastIndex);
+                url = url.substring(0, lastIndex);
             }
             httpClientRequired = false;
         }
@@ -235,13 +234,13 @@ public function Client::init(ClientEndpointConfig config) {
     }
 }
 
-function createCircuitBreakerClient (string uri, ClientEndpointConfig configuration) returns HttpClient {
+function createCircuitBreakerClient (string uri, ClientEndpointConfig configuration) returns CallerActions {
     var cbConfig = configuration.circuitBreaker;
     match cbConfig {
         CircuitBreakerConfig cb => {
             validateCircuitBreakerConfiguration(cb);
             boolean [] statusCodes = populateErrorCodeIndex(cb.statusCodes);
-            HttpClient cbHttpClient = new;
+            CallerActions cbHttpClient = new;
             var retryConfigVal = configuration.retryConfig;
             match retryConfigVal {
                 RetryConfig retryConfig => {
@@ -286,7 +285,7 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfig configurat
     }
 }
 
-function createRetryClient (string url, ClientEndpointConfig configuration) returns HttpClient {
+function createRetryClient (string url, ClientEndpointConfig configuration) returns CallerActions {
     var retryConfigVal = configuration.retryConfig;
     match retryConfigVal {
         RetryConfig retryConfig => {

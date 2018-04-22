@@ -1,4 +1,3 @@
-package expressions.invocations.pkg.a;
 
 publicint a1 = 9;
 

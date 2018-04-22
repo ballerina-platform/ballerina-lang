@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.builtin;
 
 @Description {value:"Publish a struct to the stream"}
 @Param {value:"s: The stream to which publishing is to be done"}

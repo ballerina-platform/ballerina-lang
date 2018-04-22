@@ -206,10 +206,13 @@ class WorkspacePlugin extends Plugin {
         const supportedExts = editor.getSupportedExtensions();
         let extension;
         if (supportedExts.length === 1) {
-            extension = supportedExts[0];
+            extension = 'bal';
         } else {
-            // provide user a choice on which type of file to create
-            // TODO
+            // Right now, when the createNewFile is cmd is invoked through shortcut
+            // or top menu, we create a bal file
+            // creating custom file types are only supported through right click menu of explorer
+            // TODO: provide user a choice on which type of file to create
+            extension = 'bal';
         }
         const content = editor.getDefaultContent('temp.' + extension);
         const newFile = new File({ extension, content });

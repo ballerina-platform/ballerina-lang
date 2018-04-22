@@ -69,10 +69,10 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.net.grpc.MessageConstants.ANN_ATTR_RESOURCE_SERVER_STREAM;
-import static org.ballerinalang.net.grpc.MessageConstants.ANN_RESOURCE_CONFIG;
-import static org.ballerinalang.net.grpc.MessageConstants.ON_COMPLETE_RESOURCE;
-import static org.ballerinalang.net.grpc.MessageConstants.ON_MESSAGE_RESOURCE;
+import static org.ballerinalang.net.grpc.GrpcConstants.ANN_ATTR_RESOURCE_SERVER_STREAM;
+import static org.ballerinalang.net.grpc.GrpcConstants.ANN_RESOURCE_CONFIG;
+import static org.ballerinalang.net.grpc.GrpcConstants.ON_COMPLETE_RESOURCE;
+import static org.ballerinalang.net.grpc.GrpcConstants.ON_MESSAGE_RESOURCE;
 
 /**
  * Utility class providing proto file based of the Ballerina service.
@@ -579,12 +579,6 @@ public class ServiceProtoUtils {
                     .PROTO_FILE_EXTENSION);
             Files.write(protoFilePath, protoFileDefinition.getFileDefinition().getBytes(ServiceProtoConstants
                     .UTF_8_CHARSET));
-            
-            // write the proto descriptor byte array to the file in protobuf contract directory
-            byte[] fileDescriptor = protoFileDefinition.getFileDescriptorProto().toByteArray();
-            Path descFilePath = Paths.get(targetDirPath.toString(), filename + ServiceProtoConstants
-                    .DESC_FILE_EXTENSION);
-            Files.write(descFilePath, fileDescriptor);
         } catch (IOException e) {
             throw new GrpcServerException("Error while writing file descriptor to file.", e);
         }

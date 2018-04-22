@@ -46,6 +46,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -231,10 +232,10 @@ public class LSCompiler {
 
         // In order to capture the syntactic errors, need to go through the default error strategy
         context.put(DefaultErrorStrategy.class, null);
-        return LSCompiler.compile(pkgName, path, phase, context);
+        return LSCompiler.compile(packageID, pkgName, path, context);
     }
 
-    private static BallerinaFile compile(String packageName, Path path, CompilerPhase phase, CompilerContext context) {
+    private static BallerinaFile compile(PackageID packageID, String packageName, Path path, CompilerContext context) {
         CompilerOptions options = CompilerOptions.getInstance(context);
         String sourceRoot = options.get(PROJECT_DIR);
         BLangPackage bLangPackage = null;
@@ -246,6 +247,7 @@ public class LSCompiler {
             BLangDiagnosticLog.getInstance(context).errorCount = 0;
             Compiler compiler = Compiler.getInstance(context);
             bLangPackage = compiler.compile(packageName);
+            LSPackageCache.getInstance(context).invalidate(packageID);
         } catch (RuntimeException e) {
             // Ignore.
         }
@@ -308,10 +310,12 @@ public class LSCompiler {
                         if ((file.isDirectory() && !file.getName().startsWith(".")) ||
                                 (!file.isDirectory() && file.getName().endsWith(".bal"))) {
                             PackageID packageID = new PackageID(fileName);
-                            Compiler compiler = getCompiler(context, fileName, packageID, packageRepository,
-                                                            sourceDocument, preserveWhitespace, customErrorStrategy,
-                                                            docManager);
+                            CompilerContext compilerContext =
+                                    LSCompiler.prepareCompilerContext(packageID, packageRepository, sourceDocument,
+                                                                      preserveWhitespace, docManager);
+                            Compiler compiler = getCompiler(context, fileName, compilerContext, customErrorStrategy);
                             packages.add(compiler.compile(file.getName()));
+                            LSPackageCache.getInstance(compilerContext).invalidate(packageID);
                         }
                     }
                 }
@@ -324,9 +328,12 @@ public class LSCompiler {
             } else {
                 packageID = new PackageID(Names.ANON_ORG, new Name(pkgName), Names.DEFAULT_VERSION);
             }
-            Compiler compiler = getCompiler(context, fileName, packageID, packageRepository, sourceDocument,
-                                            preserveWhitespace, customErrorStrategy, docManager);
+            CompilerContext compilerContext =
+                    LSCompiler.prepareCompilerContext(packageID, packageRepository, sourceDocument,
+                                                      preserveWhitespace, docManager);
+            Compiler compiler = getCompiler(context, fileName, compilerContext, customErrorStrategy);
             packages.add(compiler.compile(pkgName));
+            LSPackageCache.getInstance(compilerContext).invalidate(packageID);
         }
         return packages;
     }
@@ -339,26 +346,24 @@ public class LSCompiler {
      * @return {@link String} project root | null
      */
     public static String findProjectRoot(String parentDir) {
-        Path path = Paths.get(parentDir);
-        if (!RepoUtils.hasProjectRepo(path)) {
-            return null;
-        }
-        path = path.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME);
-        if (java.nio.file.Files.exists(path)) {
+        return findProjectRoot(parentDir, RepoUtils.createAndGetHomeReposPath());
+    }
+
+    public static String findProjectRoot(String parentDir, Path homePath) {
+        Path path = Paths.get(parentDir, ProjectDirConstants.DOT_BALLERINA_DIR_NAME);
+        if (!path.equals(homePath) && java.nio.file.Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
             return parentDir;
         }
-
         List<String> pathParts = Arrays.asList(parentDir.split(Pattern.quote(File.separator)));
         if (pathParts.size() > 0) {
             List<String> dirPathParts = pathParts.subList(0, pathParts.size() - 1);
             if (dirPathParts.size() > 0) {
                 String rootFolder = String.join(File.separator, dirPathParts);
-                return findProjectRoot(rootFolder);
+                return findProjectRoot(rootFolder, homePath);
             } else {
                 return null;
             }
         }
-
         return null;
     }
 
@@ -367,20 +372,11 @@ public class LSCompiler {
      *
      * @param context             Language server context
      * @param fileName            File name which is currently open
-     * @param packageID         Package ID
-     * @param packageRepository   package repository
-     * @param sourceRoot          LSDocument for root path of the source
-     * @param preserveWhitespace  enable/disable preserve white space in compiler
      * @param customErrorStrategy custom error strategy class
      * @return {@link Compiler} ballerina compiler
      */
-    private static Compiler getCompiler(LSContext context, String fileName, PackageID packageID,
-                                        PackageRepository packageRepository, LSDocument sourceRoot,
-                                        boolean preserveWhitespace, Class customErrorStrategy,
-                                        WorkspaceDocumentManager documentManager) {
-        CompilerContext compilerContext =
-                LSCompiler.prepareCompilerContext(packageID, packageRepository, sourceRoot,
-                                                  preserveWhitespace, documentManager);
+    private static Compiler getCompiler(LSContext context, String fileName, CompilerContext compilerContext,
+                                        Class customErrorStrategy) {
         context.put(DocumentServiceKeys.FILE_NAME_KEY, fileName);
         context.put(DocumentServiceKeys.COMPILER_CONTEXT_KEY, compilerContext);
         context.put(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY, new LSServiceOperationContext());
