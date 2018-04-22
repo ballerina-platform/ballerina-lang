@@ -19,13 +19,13 @@
 public type Format "default"|"csv"|"tdf";
 
 @Description {value : "Delimiters which will be used to seperate between records"}
-public type Seperator ","|"\t"|":";
+public type Seperator ","|"\\t"|":";
 
 @Description {value:"Describes default format to open CSV"}
 @final public Seperator COMMA = ",";
 
 @Description {value:"Describes RFC4180 format to open CSV"}
-@final public Seperator TAB = "\t";
+@final public Seperator TAB = "\\t";
 
 @Description {value:"Describes TDF format to open CSV"}
 @final public Seperator COLON = ":";

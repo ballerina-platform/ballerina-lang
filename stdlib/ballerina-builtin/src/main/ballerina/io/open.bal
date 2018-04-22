@@ -66,7 +66,7 @@ public native function openSecureSocket(@sensitive string host,
 public function openCsvFile(@sensitive string path,
                             @sensitive Mode mode = "r",
                             @sensitive Seperator fieldSeperator = ",",
-                            @sensitive string charset = "UTF-8") returns @tainted CSVChannel|error {
+                            @sensitive string charset = "UTF-8") returns @tainted CSVChannel {
     ByteChannel channel = openFile(path, mode);
     CharacterChannel charChannel = new(channel, charset);
     return new CSVChannel(charChannel, fs = fieldSeperator);

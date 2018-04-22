@@ -39,8 +39,10 @@ public type CSVChannel object {
     }
 
     function skipHeaders(int nHeaders){
-        for(int n=0;n<nHeaders;n++){
-            getNext();
+        int count = 0;
+        while(count < nHeaders){
+            var result = getNext();
+            count = count + 1;
         }
     }
 
