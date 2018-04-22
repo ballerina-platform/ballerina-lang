@@ -23,31 +23,30 @@ const path = require('path');
 const fs = require('fs');
 const { getLSService } = require('./serverStarter');
 const { activate:activateRenderer, errored:rendererErrored } = require('./renderer');
+const msgs = require('./messages');
 
 let oldConfig;
 
 const debugConfigResolver = {
 	resolveDebugConfiguration(folder, config) {
-		if (!config['ballerina.sdk']) {
-			// If ballerina.sdk is not defined in in debug config get it from workspace configs
+		if (!config['ballerina.home']) {
+			// If ballerina.home is not defined in in debug config get it from workspace configs
 			const workspaceConfig = workspace.getConfiguration('ballerina');
-			if (workspaceConfig.sdk) {
-				config['ballerina.sdk'] = workspaceConfig.sdk;
+			if (workspaceConfig.home) {
+				config['ballerina.home'] = workspaceConfig.home;
 			}
 		}
 
-		if (config['ballerina.sdk']) {
-			if (fs.readdirSync(config['ballerina.sdk']).indexOf('bin') < 0) {
-				const msg = "Couldn't find a bin directory inside the configured SDK path. Please set the Ballerina SDK path correctly."
-				window.showWarningMessage(msg, action).then((selection) => {
+		if (config['ballerina.home']) {
+			if (fs.readdirSync(config['ballerina.home']).indexOf('bin') < 0) {
+				window.showWarningMessage(msgs.NO_BIN_IN_HOME, action).then((selection) => {
 					if (action === selection) {
 						commands.executeCommand('workbench.action.openGlobalSettings');
 					}
 				});
 			}
 		} else {
-			const msg = "To start the debug server please set Ballerina SDK path."
-			window.showWarningMessage(msg, action).then((selection) => {
+			window.showWarningMessage(msgs.DEBUG_HOME_NOT_SET, action).then((selection) => {
 				if (action === selection) {
 					commands.executeCommand('workbench.action.openGlobalSettings');
 				}
@@ -59,29 +58,29 @@ const debugConfigResolver = {
 	}
 }
 
-function showSDKNotSetWarning() {
-	const sdkSetWarning = 'Ballerina SDK path is not configured';
+function showHomeNotSetWarning() {
+	const homeSetWarning = msgs.HOME_NOT_SET;
 	const action = 'Open Settings';
 
-	window.showWarningMessage(sdkSetWarning, action).then((selection) => {
+	window.showWarningMessage(homeSetWarning, action).then((selection) => {
 		if (action === selection) {
 			commands.executeCommand('workbench.action.openGlobalSettings');
 		}
 	});
 }
 
-function checkSDK(sdkPath) {
+function checkHome(homePath) {
 	try {
-		if (fs.readdirSync(path.join(sdkPath, 'resources')).indexOf('composer') > -1) {
+		if (fs.readdirSync(path.join(homePath, 'resources')).indexOf('composer') > -1) {
 			return true;
 		}
 	} catch(e) {
-		// could not read the sdk path. Let the warning show
+		// could not read the home path. Let the warning show
 	}
 
-	const sdkSetWarning = 'The configured Ballerina SDK path seems incorrect. Please set the SDK path (path to ballerina-tools distribution) correctly.';
+	const homeSetWarning = msgs.HOME_INCORRECT;
 	const action = 'Open Settings';	
-	window.showWarningMessage(sdkSetWarning, action).then((selection) => {
+	window.showWarningMessage(homeSetWarning, action).then((selection) => {
 		if (action === selection) {
 			commands.executeCommand('workbench.action.openGlobalSettings');
 		}
@@ -100,14 +99,14 @@ exports.activate = function(context) {
 	// in windows class path seperated by ';'
 	//const sep = process.platform === 'win32' ? ';' : ':';
 
-	if (!config.sdk) {
-		// sdk path is not set. The plugin can't activate. Show warning and exit.
-		showSDKNotSetWarning();
+	if (!config.home) {
+		// home path is not set. The plugin can't activate. Show warning and exit.
 		rendererErrored(context);
+		showHomeNotSetWarning();
 		return;
 	}
 
-	if(!checkSDK(config.sdk)){
+	if(!checkHome(config.home)) {
 		rendererErrored(context);
 		return;
 	}
@@ -132,8 +131,8 @@ exports.activate = function(context) {
 
 workspace.onDidChangeConfiguration(params => {
 	const newConfig = workspace.getConfiguration('ballerina');
-	if (newConfig.sdk != oldConfig.sdk) {
-		const msg = 'Ballerina SDK path configuration changed. Please restart vscode for changes to take effect.';
+	if (newConfig.home != oldConfig.home) {
+		const msg = msgs.HOME_CHANGED;
 		const action = 'Restart Now';
 		window.showWarningMessage(msg, action).then((selection) => {
 			if (action === selection) {
@@ -143,7 +142,7 @@ workspace.onDidChangeConfiguration(params => {
 	}
 
 	if (newConfig.showLSErrors != oldConfig.showLSErrors) {
-		const msg = 'Configuration for displaying output from language server changed. Please restart vscode for changes to take effect.';
+		const msg = msgs.SHOW_LSERRORS_CHANGED;
 		const action = 'Restart Now';
 		window.showWarningMessage(msg, action).then((selection) => {
 			if (action === selection) {

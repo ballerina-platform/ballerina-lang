@@ -17,8 +17,8 @@ module.exports = `
     <body>
     <div class="ballerina-editor design-view-container" id="diagram">
         <br/>
-        <span class="warning fw fw-warning"></span> Ballerina sdk path is not configured</p>
-        <p>Please configure Ballerina SDK path for diagram rendering to work.</p>
+        <span class="warning fw fw-warning"></span> "ballerina.home" is not configured</p>
+        <p>Please configure "ballerina.home" for diagram rendering to work.</p>
         <a href="command:workbench.action.openGlobalSettings">Open Settings</a>
     </div>
     </body>

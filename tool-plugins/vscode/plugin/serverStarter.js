@@ -33,7 +33,7 @@ let parserService;
 
 function getClassPath() {
     const customClassPath = workspace.getConfiguration('ballerina').get('classpath');
-    const sdkPath = workspace.getConfiguration('ballerina').get('sdk');
+    const sdkPath = workspace.getConfiguration('ballerina').get('home');
     const jarPath = path.join(__dirname, 'server-build', 'plugin-vscode-server.jar');
 	// in windows class path seperated by ';'
 	const sep = process.platform === 'win32' ? ';' : ':';
