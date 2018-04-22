@@ -114,9 +114,5 @@ function main(string... args) {
     io:println("Table drop status:" + ret);
 
     //Finally close the DB connection.
-    var onConnectionClose = testDB->close();
-    match onConnectionClose {
-        error e => io:println("Error in DB Connection close");
-        any|() => io:println("DB Connection closed successfully.");
-    }
+    testDB.stop();
 }

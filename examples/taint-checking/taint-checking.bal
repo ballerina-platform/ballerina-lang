@@ -75,7 +75,7 @@ function main (string... args) {
         //the return value is safe and can be considered as trusted.
         userDefinedSecureOperation(sanitizedData2);
     }
-    var closeStatus = customerDatabase -> close();
+    customerDatabase.stop();
     return;
 }
 
