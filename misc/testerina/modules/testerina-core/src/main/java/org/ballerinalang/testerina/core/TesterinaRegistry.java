@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public class TesterinaRegistry {
 
-    private String orgName;
+    private String orgName = null;
     private List<String> groups = new ArrayList<>();
     private boolean shouldIncludeGroups;
     private Map<String, TestSuite> testSuites = new HashMap<>();

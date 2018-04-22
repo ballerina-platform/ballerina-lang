@@ -530,9 +530,15 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
 
     private String getPackageName(PackageNode packageNode) {
         BLangPackage bLangPackage = ((BLangPackage) packageNode);
-        if (bLangPackage.packageID.orgName.getValue().equals("$anon")) {
+        // If the org name is not set it is a single .bal file execution
+        if (registry.getOrgName() == null) {
             return ".";
         }
+        // This is project but org name is not given
+        if (bLangPackage.packageID.orgName.getValue().equals("$anon")) {
+            return bLangPackage.packageID.getName().getValue();
+        }
+        // Org name is available for the project
         String packageName = bLangPackage.packageID.orgName.getValue() + "."
                              + bLangPackage.packageID.getName().getValue();
         return packageName;

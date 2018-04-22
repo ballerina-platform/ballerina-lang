@@ -53,10 +53,13 @@ public class TesterinaSamplesTest {
     // /samples/functionTest
     @Test
     public void functionTestSampleTest() {
+        TesterinaRegistry.getInstance().setOrgName("$anon");
         cleanup();
         BTestRunner runner = new BTestRunner();
         runner.runTest(testerinaRoot, new Path[] { Paths.get("functionTest") }, new ArrayList<>());
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary("functionTest", "passed"), 6);
+        // Reset the org name
+        TesterinaRegistry.getInstance().setOrgName(null);
     }
 
     // /samples/features/assertions.bal

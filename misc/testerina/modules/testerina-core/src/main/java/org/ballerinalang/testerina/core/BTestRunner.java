@@ -139,7 +139,8 @@ public class BTestRunner {
 
         Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
 
-            String packageName = registry.getOrgName() == null ? "." : registry.getOrgName() + "." + sourcePackage;
+            String packageName = registry.getOrgName() == null ? "." : registry.getOrgName().equals("$anon") ?
+                sourcePackage.toString() : registry.getOrgName() + "." + sourcePackage.toString();
 
             TesterinaRegistry.getInstance().getTestSuites().computeIfAbsent(packageName, func -> new TestSuite
                 (packageName));
