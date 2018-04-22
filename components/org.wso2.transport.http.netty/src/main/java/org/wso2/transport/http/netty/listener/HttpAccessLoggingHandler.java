@@ -38,8 +38,6 @@ import java.util.Calendar;
  */
 public class HttpAccessLoggingHandler extends LoggingHandler {
     private static final LogLevel LOG_LEVEL = LogLevel.INFO;
-    private static final String DEFAULT_LOG_FORMAT =
-            "%1$s - - [%2$td/%2$tb/%2$tY:%2$tT %2$tz] \"%3$s %4$s %5$s\" %6$d %7$d \"%8$s\" \"%9$s\"";
     private static final String EVENT_WRITE = "WRITE";
     private String inetAddress;
     private String method;
@@ -131,7 +129,7 @@ public class HttpAccessLoggingHandler extends LoggingHandler {
     @Override
     protected String format(ChannelHandlerContext ctx, String eventName, Object arg) {
         if (EVENT_WRITE.equals(eventName)) {
-            return String.format(DEFAULT_LOG_FORMAT, inetAddress, calendar, method, uri, protocol, status,
+            return String.format(Constants.ACCESS_LOG_FORMAT, inetAddress, calendar, method, uri, protocol, status,
                                  contentLength, referrer, userAgent);
         }
         return "";

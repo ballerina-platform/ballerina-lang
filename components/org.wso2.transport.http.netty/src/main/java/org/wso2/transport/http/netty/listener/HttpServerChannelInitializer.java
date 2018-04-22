@@ -267,7 +267,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         return httpTraceLogEnabled;
     }
 
-    boolean isHttpAccessLogEnabled() {
+    public boolean isHttpAccessLogEnabled() {
         return httpAccessLogEnabled;
     }
 
