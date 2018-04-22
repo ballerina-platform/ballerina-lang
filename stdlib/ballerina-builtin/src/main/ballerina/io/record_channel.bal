@@ -46,7 +46,7 @@ public type DelimitedTextRecordChannel object {
     @Description {value:"Function to write text records"}
     @Param {value:"records: Fields which are included in the record"}
     @Return {value:"Returns if there's any error while performaing I/O operation"}
-    public native function write(string[] record) returns error?;
+    public native function write(string[] records) returns error?;
 
     @Description {value:"Function to close the text record channel"}
     @Return {value:"Returns if there's any error while performaing I/O operation"}
