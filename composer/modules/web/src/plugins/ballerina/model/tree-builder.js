@@ -238,6 +238,14 @@ class TreeBuilder {
             if (node.receiver && !node.receiver.ws) {
                 node.noVisibleReceiver = true;
             }
+
+            if (node.restParameters && node.parameters && node.parameters.length > 0) {
+                node.hasRestParams = true;
+            }
+
+            if (node.restParameters && node.restParameters.typeNode) {
+                node.restParameters.typeNode.isRestParam = true;
+            }
         }
 
         if (node.kind === 'Object') {
