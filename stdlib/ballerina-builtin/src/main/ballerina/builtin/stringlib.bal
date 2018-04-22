@@ -53,7 +53,7 @@ public native function<string s> lastIndexOf(string substring) returns int;
 documentation {
     Replaces the first instance of the replacePattern with the replaceWith string and returns the result.
 
-    P{{s}} The original string argument
+    T{{s}} The original string argument
     P{{regex}} The pattern to search for
     P{{replaceWith}} The replacement string
     R{{}} The derived string
