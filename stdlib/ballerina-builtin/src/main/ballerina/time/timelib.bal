@@ -166,7 +166,6 @@ public type Time object {
     documentation {
         Change the timezone of the given time.
 
-        P{{time}} The time object which needs to change the timezone information
         P{{zoneId}} The new timezone id
         R{{}} Time object containing time and zone information after the conversion.
     }
