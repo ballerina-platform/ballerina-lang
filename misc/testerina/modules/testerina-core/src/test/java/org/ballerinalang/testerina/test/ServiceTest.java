@@ -55,16 +55,19 @@ public class ServiceTest {
 
     @Test
     public void testBefore() {
+        TesterinaRegistry.getInstance().setOrgName("$anon");
         cleanup();
         BTestRunner bTestRunner = new BTestRunner();
         bTestRunner.runTest("src/test/resources", new Path[]{Paths.get("servicemocktest"), Paths.get
                 ("servicemocktest2")}, new ArrayList<>());
         Assert.assertEquals(bTestRunner.getTesterinaReport().getTestSummary("servicemocktest", "passed"), 1);
+        TesterinaRegistry.getInstance().setOrgName(null);
     }
 
     private void cleanup() {
         TesterinaRegistry.getInstance().setProgramFiles(new ArrayList<>());
         TesterinaRegistry.getInstance().setTestSuites(new HashMap<>());
+        TesterinaRegistry.getInstance().getInitializedPackages().clear();
     }
 
     // TODO : Added as a temporary solution to cleanup .ballerina directory
