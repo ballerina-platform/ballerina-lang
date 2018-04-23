@@ -14,15 +14,23 @@
 // specific language governing permissions and limitations
 // under the License.
 
+documentation {
+    Checks if the given future is done.
 
-@Description {value:"Checks if the given future is done"}
-@Return {value:"true if the future is done; false otherwise"}
+    R{{}} true if the future is done; false otherwise
+}
 public native function<future f> isDone() returns boolean;
 
-@Description {value:"Checks if the given future is cancelled"}
-@Return {value:"true if the future is cancelled; false otherwise"}
+documentation {
+    Checks if the given future is cancelled.
+
+    R{{}} true if the future is cancelled; false otherwise
+}
 public native function<future f> isCancelled() returns boolean;
 
-@Description {value:"Cancels the given future"}
-@Return {value:"true if the future was cancelled; false otherwise"}
+documentation {
+    Cancels the given future.
+
+    R{{}} true if the future was cancelled; false otherwise
+}
 public native function<future f> cancel() returns boolean;

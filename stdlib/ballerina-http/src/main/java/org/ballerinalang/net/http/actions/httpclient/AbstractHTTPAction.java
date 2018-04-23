@@ -242,13 +242,14 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         }
     }
 
-    protected void executeNonBlockingAction(DataContext dataContext, HTTPCarbonMessage outboundRequestMsg)
+    protected void executeNonBlockingAction(DataContext dataContext)
             throws ClientConnectorException {
-        executeNonBlockingAction(dataContext, outboundRequestMsg, false);
+        executeNonBlockingAction(dataContext, false);
     }
 
-    protected void executeNonBlockingAction(DataContext dataContext, HTTPCarbonMessage outboundRequestMsg,
+    protected void executeNonBlockingAction(DataContext dataContext,
                                             boolean async) throws ClientConnectorException {
+        HTTPCarbonMessage outboundRequestMsg = dataContext.getOutboundRequest();
         Object sourceHandler = outboundRequestMsg.getProperty(HttpConstants.SRC_HANDLER);
         if (sourceHandler == null) {
             outboundRequestMsg.setProperty(HttpConstants.SRC_HANDLER,
@@ -398,11 +399,13 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
             if (messageDataSource != null) {
                 messageDataSource.serializeData(messageOutputStream);
                 HttpUtil.closeMessageOutputStream(messageOutputStream);
-            } else { //When the entity body is a byte channel
-                try {
-                    EntityBodyHandler.writeByteChannelToOutputStream(entityStruct, messageOutputStream);
-                } finally {
-                    HttpUtil.closeMessageOutputStream(messageOutputStream);
+            } else { //When the entity body is a byte channel and when it is not null
+                if (EntityBodyHandler.getByteChannel(entityStruct) != null) {
+                    try {
+                        EntityBodyHandler.writeByteChannelToOutputStream(entityStruct, messageOutputStream);
+                    } finally {
+                        HttpUtil.closeMessageOutputStream(messageOutputStream);
+                    }
                 }
             }
         }

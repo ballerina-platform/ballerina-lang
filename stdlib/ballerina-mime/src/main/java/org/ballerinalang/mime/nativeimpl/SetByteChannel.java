@@ -21,6 +21,7 @@ package org.ballerinalang.mime.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.io.IOConstants;
@@ -42,7 +43,8 @@ import static org.ballerinalang.mime.util.Constants.SECOND_PARAMETER_INDEX;
 @BallerinaFunction(orgName = "ballerina", packageName = "mime",
         functionName = "setByteChannel",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
-        args = {@Argument(name = "byteChannel", type = TypeKind.STRUCT)},
+        args = {@Argument(name = "byteChannel", type = TypeKind.STRUCT), @Argument(name = "contentType",
+                type = TypeKind.STRING)},
         isPublic = true
 )
 public class SetByteChannel extends BlockingNativeCallableUnit {
@@ -50,12 +52,14 @@ public class SetByteChannel extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
         BStruct byteChannel = (BStruct) context.getRefArgument(SECOND_PARAMETER_INDEX);
+        String contentType = context.getStringArgument(FIRST_PARAMETER_INDEX);
         entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel.getNativeData
                 (IOConstants.BYTE_CHANNEL_NAME));
         MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
         if (dataSource != null) { //Clear message data source when the user set a byte channel to entity
             entityStruct.addNativeData(MESSAGE_DATA_SOURCE, null);
         }
+        MimeUtil.setMediaTypeToEntity(context, entityStruct, contentType);
         context.setReturnValues();
     }
 }

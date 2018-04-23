@@ -37,16 +37,16 @@ function replaceFirst(string s, string source, string target) returns (string) {
     return s.replaceFirst(source, target);
 }
 
-function subString(string s, int beginIndex, int endIndex) returns (string) {
-    return s.subString(beginIndex, endIndex);
+function substring(string s, int beginIndex, int endIndex) returns (string) {
+    return s.substring(beginIndex, endIndex);
 }
 
-function toLowerCase(string s) returns (string) {
-    return s.toLowerCase();
+function toLower(string s) returns (string) {
+    return s.toLower();
 }
 
-function toUpperCase(string s) returns (string) {
-    return s.toUpperCase();
+function toUpper(string s) returns (string) {
+    return s.toUpper();
 }
 
 function trim(string s) returns (string) {

@@ -90,6 +90,20 @@ class Node extends EventChannel {
         visitor.endVisit(this);
     }
 
+
+    /**
+     *  Utility function to easily visit nodes.
+     *
+     * @param {any} func
+     * @memberof Node
+     */
+    acceptFunc(func) {
+        this.accept({
+            beginVisit: func,
+            endVisit: () => {},
+        });
+    }
+
     sync(visitor, newTree) {
         visitor.beginVisit(this, newTree);
         // eslint-disable-next-line guard-for-in

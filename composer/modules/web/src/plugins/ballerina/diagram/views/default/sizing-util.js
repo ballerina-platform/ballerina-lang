@@ -1094,6 +1094,7 @@ class SizingUtil {
         this.adjustToLambdaSize(node, viewState);
         this.sizeActionInvocationStatement(node);
         this.sizeClientResponderStatement(node);
+        this.sizeAwaitResponseStatement(node);
     }
 
     /**
@@ -1627,6 +1628,25 @@ class SizingUtil {
             viewState.bBox.h = this.config.actionInvocationStatement.height;
             viewState.components['statement-box'].h = this.config.actionInvocationStatement.height;
             viewState.alias = 'InvocationNode';
+            // Check if action invocation is async call.
+            if (TreeUtil.statementIsASync(node)) {
+                viewState.async = true;
+            }
+        }
+    }
+
+    /**
+     * Size statements containing await response invocation statements
+     * @param {node} node node to size
+     */
+    sizeAwaitResponseStatement(node) {
+        // This function gets called by statements containing action invocation expressions
+        if (TreeUtil.statementIsAwaitResponse(node) && TreeUtil.findCompatibleStart(node)) {
+            const viewState = node.viewState;
+            viewState.bBox.h = this.config.statement.height;
+            viewState.components['statement-box'].h = this.config.actionInvocationStatement.height;
+            viewState.alias = 'AwaitResponseNode';
+            viewState.expression = (TreeUtil.isAssignment(node)) ? node.variable.variableName.value : '';
         }
     }
 
@@ -1853,6 +1873,16 @@ class SizingUtil {
      *
      */
     sizeValueTypeNode(node) {
+        // Not implemented.
+    }
+
+    /**
+     * Calculate dimention of AwaitExprNode nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeAwaitExprNode(node) {
         // Not implemented.
     }
 

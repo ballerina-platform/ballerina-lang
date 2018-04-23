@@ -162,7 +162,7 @@ function createLoadBalanceHttpClientArray (LoadBalanceClientEndpointConfiguratio
         CircuitBreakerConfig cb => {
             if (uri.hasSuffix("/")) {
                 int lastIndex = uri.length() - 1;
-                uri = uri.subString(0, lastIndex);
+                uri = uri.substring(0, lastIndex);
             }
             httpClientRequired = false;
         }
@@ -176,7 +176,7 @@ function createLoadBalanceHttpClientArray (LoadBalanceClientEndpointConfiguratio
         uri = target.url;
         if (uri.hasSuffix("/")) {
             int lastIndex = uri.length() - 1;
-            uri = uri.subString(0, lastIndex);
+            uri = uri.substring(0, lastIndex);
         }
         if (!httpClientRequired) {
             httpClients[i] = createCircuitBreakerClient(uri, epConfig);

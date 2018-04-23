@@ -21,6 +21,7 @@ package org.ballerinalang.mime.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
@@ -38,7 +39,8 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 @BallerinaFunction(orgName = "ballerina", packageName = "mime",
         functionName = "setBlob",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
-        args = {@Argument(name = "blobContent", type = TypeKind.BLOB)},
+        args = {@Argument(name = "blobContent", type = TypeKind.BLOB), @Argument(name = "contentType",
+                type = TypeKind.STRING)},
         isPublic = true
 )
 public class SetBlob extends BlockingNativeCallableUnit {
@@ -46,7 +48,9 @@ public class SetBlob extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
         byte[] payload = context.getBlobArgument(FIRST_PARAMETER_INDEX);
+        String contentType = context.getStringArgument(FIRST_PARAMETER_INDEX);
         EntityBodyHandler.addMessageDataSource(entityStruct, new BlobDataSource(payload));
+        MimeUtil.setMediaTypeToEntity(context, entityStruct, contentType);
         context.setReturnValues();
     }
 }

@@ -38,6 +38,52 @@ function testIterateMirrorTable() returns (Employee[], Employee[]) {
     return (employeeArray1, employeeArray2);
 }
 
+function testIterateMirrorTableAfterClose() returns (Employee[], Employee[], error) {
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
+    };
+
+    table dt = check testDB->getProxyTable("employeeItr", Employee);
+
+    Employee[] employeeArray1;
+    Employee[] employeeArray2;
+    Employee[] employeeArray3;
+
+    int i = 0;
+    while (dt.hasNext()) {
+        var rs = check <Employee>dt.getNext();
+        Employee e = {id:rs.id, name:rs.name, address:rs.address};
+        employeeArray1[i] = e;
+        i++;
+    }
+
+    i = 0;
+    while (dt.hasNext()) {
+        var rs = check <Employee>dt.getNext();
+        Employee e = {id:rs.id, name:rs.name, address:rs.address};
+        employeeArray2[i] = e;
+        i++;
+    }
+
+    dt.close();
+    i = 0;
+    error e;
+    try {
+        while (dt.hasNext()) {
+            var rs = check <Employee>dt.getNext();
+            Employee e = {id:rs.id, name:rs.name, address:rs.address};
+            employeeArray3[i] = e;
+            i++;
+        }
+    } catch (error err) {
+        e = err;
+    }
+    testDB.stop();
+    return (employeeArray1, employeeArray2, e);
+}
+
 function testAddToMirrorTable() returns (Employee[]) {
     endpoint jdbc:Client testDB {
         url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",

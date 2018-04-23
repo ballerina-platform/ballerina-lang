@@ -1,5 +1,4 @@
 import ballerina/io;
-import ballerina/util;
 import ballerina/internal;
 
 function remove () returns (json) {

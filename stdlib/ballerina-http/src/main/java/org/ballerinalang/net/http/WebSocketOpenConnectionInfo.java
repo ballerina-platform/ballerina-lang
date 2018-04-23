@@ -19,6 +19,7 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.model.values.BStruct;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 /**
  * This class represent already opened WebSocket connection. Which include all necessary details needed after for
@@ -28,6 +29,7 @@ public class WebSocketOpenConnectionInfo {
 
     private final WebSocketService webSocketService;
     private final BStruct webSocketEndpoint;
+    private boolean readingStarted = false;
 
     public WebSocketOpenConnectionInfo(WebSocketService webSocketService, BStruct webSocketEndpoint) {
         this.webSocketService = webSocketService;
@@ -40,5 +42,19 @@ public class WebSocketOpenConnectionInfo {
 
     public BStruct getWebSocketEndpoint() {
         return webSocketEndpoint;
+    }
+
+    public WebSocketConnection getWebSocketConnection() {
+        BStruct webSocketConnector = (BStruct) webSocketEndpoint.getRefField(1);
+        return (WebSocketConnection) webSocketConnector
+                .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION);
+    }
+
+    public void setReadingStarted(boolean readingStarted) {
+        this.readingStarted = readingStarted;
+    }
+
+    public boolean isReadingStarted() {
+        return readingStarted;
     }
 }

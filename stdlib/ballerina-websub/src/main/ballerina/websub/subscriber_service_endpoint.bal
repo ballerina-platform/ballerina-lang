@@ -64,7 +64,7 @@ public type Listener object {
 
         R{{}} `http:Connection` The connector that client code uses
     }
-    public function getCallerActions() returns (http:Connection);
+    public function getCallerActions() returns http:Connection;
 
     documentation {
         Stops the registered service.
@@ -90,22 +90,24 @@ public type Listener object {
 
         P{{topic}} The topic the subscription happened for.
     }
-    native function setTopic (string topic);
+    native function setTopic(string topic);
 
     documentation {
         Retrieves the parameters specified for subscription as annotations and the callback URL to which notification
         should happen.
     }
-    native function retrieveSubscriptionParameters () returns (map);
+    native function retrieveSubscriptionParameters() returns map;
 
 };
 
 public function Listener::init(SubscriberServiceEndpointConfiguration config) {
     self.config = config;
     SignatureValidationFilter sigValFilter;
-    http:Filter[] filters = [<http:Filter> sigValFilter];
-    http:ServiceEndpointConfiguration serviceConfig = { host:config.host, port:config.port,
-                                                          secureSocket:config.secureSocket, filters:filters };
+    http:Filter[] filters = [<http:Filter>sigValFilter];
+    http:ServiceEndpointConfiguration serviceConfig = {
+        host:config.host, port:config.port, secureSocket:config.secureSocket, filters:filters
+    };
+
     self.serviceEndpoint.init(serviceConfig);
     self.initWebSubSubscriberServiceEndpoint();
 }
@@ -121,11 +123,11 @@ public function Listener::start() {
     self.sendSubscriptionRequest();
 }
 
-public function Listener::getCallerActions() returns (http:Connection) {
+public function Listener::getCallerActions() returns http:Connection {
     return self.serviceEndpoint.getCallerActions();
 }
 
-public function Listener::stop () {
+public function Listener::stop() {
     self.serviceEndpoint.stop();
 }
 
@@ -135,15 +137,15 @@ function Listener::sendSubscriptionRequest() {
         return;
     }
 
-    string strSubscribeOnStartUp = <string> subscriptionDetails["subscribeOnStartUp"];
-    boolean subscribeOnStartUp = <boolean> strSubscribeOnStartUp;
+    string strSubscribeOnStartUp = <string>subscriptionDetails["subscribeOnStartUp"];
+    boolean subscribeOnStartUp = <boolean>strSubscribeOnStartUp;
 
     if (subscribeOnStartUp) {
-        string resourceUrl = <string> subscriptionDetails["resourceUrl"];
-        string hub = <string> subscriptionDetails["hub"];
-        string topic = <string> subscriptionDetails["topic"];
+        string resourceUrl = <string>subscriptionDetails["resourceUrl"];
+        string hub = <string>subscriptionDetails["hub"];
+        string topic = <string>subscriptionDetails["topic"];
         http:SecureSocket? secureSocket;
-        match (<http:SecureSocket> subscriptionDetails["secureSocket"]) {
+        match (<http:SecureSocket>subscriptionDetails["secureSocket"]) {
             http:SecureSocket httpSecureSocket => { secureSocket = httpSecureSocket; }
             error => { secureSocket = (); }
         }
@@ -176,7 +178,7 @@ function Listener::sendSubscriptionRequest() {
             }
         }
         http:AuthConfig? auth;
-        match (<http:AuthConfig> subscriptionDetails["auth"]) {
+        match (<http:AuthConfig>subscriptionDetails["auth"]) {
             http:AuthConfig httpAuthConfig => { auth = httpAuthConfig; }
             error => { auth = (); }
         }
@@ -210,15 +212,17 @@ documentation {
     P{{resourceUrl}} The resource URL advertising hub and topic URLs.
     R{{}} `(string, string)` (hub, topic) URLs if successful, `WebSubError` if not.
 }
-function retrieveHubAndTopicUrl (string resourceUrl, http:SecureSocket? secureSocket) returns @tainted
-((string, string) | WebSubError) {
+function retrieveHubAndTopicUrl(string resourceUrl, http:SecureSocket? secureSocket)
+    returns @tainted (string, string)|WebSubError {
+
     endpoint http:Client resourceEP {
         url:resourceUrl,
-        secureSocket: secureSocket
+        secureSocket:secureSocket
         //followRedirects:{enabled:true} //TODO: enable when re-direction is fixed
     };
+
     http:Request request = new;
-    var discoveryResponse = resourceEP -> get("", request);
+    var discoveryResponse = resourceEP->get("", request = request);
     WebSubError websubError = {};
     match (discoveryResponse) {
         http:Response response => {
@@ -251,7 +255,7 @@ function retrieveHubAndTopicUrl (string resourceUrl, http:SecureSocket? secureSo
                             hub = url;
                         } else if (linkConstituents[1].contains("rel=\"self\"")) {
                             if (topic != "") {
-                                websubError = { message:"Link Header contains >1 self URLs" };
+                                websubError = {message:"Link Header contains >1 self URLs"};
                             } else {
                                 topic = url;
                             }
@@ -261,17 +265,16 @@ function retrieveHubAndTopicUrl (string resourceUrl, http:SecureSocket? secureSo
                 if (hub != "" && topic != "") {
                     return (hub, topic);
                 } else {
-                    websubError = { message:"Hub and/or Topic URL(s) not identified in link header of resource "
-                                                 + "URL[" + resourceUrl + "]" };
+                    websubError = {message:"Hub and/or Topic URL(s) not identified in link header of resource "
+                        + "URL[" + resourceUrl + "]"};
                 }
             } else {
-                websubError = { message:"Link header unavailable for resource URL[" + resourceUrl + "]" };
+                websubError = {message:"Link header unavailable for resource URL[" + resourceUrl + "]"};
             }
         }
         http:HttpConnectorError connErr => {
-            websubError = { message:"Error occurred with WebSub discovery for Resource URL [" + resourceUrl + "]: "
-                                    + connErr.message,
-                            cause:connErr };
+            websubError = {message:"Error occurred with WebSub discovery for Resource URL [" + resourceUrl + "]: "
+                + connErr.message, cause:connErr};
         }
     }
     return websubError;
@@ -281,7 +284,7 @@ documentation {
     Signature validation filter for WebSub services.
 }
 public type SignatureValidationFilter object {
-    public function filterRequest (http:Request request, http:FilterContext context) returns http:FilterResult {
+    public function filterRequest(http:Request request, http:FilterContext context) returns http:FilterResult {
         return interceptWebSubRequest(request, context);
     }
 };
@@ -293,18 +296,18 @@ documentation {
     P{{context}} The filter context.
     R{{}} `http:FilterResult` The result of the filter indicating whether or not proceeding can be allowed.
 }
-public function interceptWebSubRequest (http:Request request, http:FilterContext context) returns (http:FilterResult) {
+public function interceptWebSubRequest(http:Request request, http:FilterContext context) returns http:FilterResult {
     if (request.method == "POST") {
         var processedNotification = processWebSubNotification(request, context.serviceType);
         match (processedNotification) {
             WebSubError webSubError => {
                 http:FilterResult filterResult =
-                                {canProceed:false, statusCode:404, message:"validation failed for notification"};
+                {canProceed:false, statusCode:404, message:"validation failed for notification"};
                 return filterResult;
             }
             () => {
                 http:FilterResult filterResult =
-                            {canProceed:true, statusCode:200, message:"validation successful for notification"};
+                {canProceed:true, statusCode:200, message:"validation successful for notification"};
                 return filterResult;
             }
         }
@@ -320,16 +323,16 @@ documentation {
     P{{hub}} The hub to which the subscription request is to be sent.
     P{{subscriptionDetails}} Map containing subscription details.
 }
-function invokeClientConnectorForSubscription (string hub, http:SecureSocket? secureSocket, http:AuthConfig? auth,
-map subscriptionDetails) {
+function invokeClientConnectorForSubscription(string hub, http:SecureSocket? secureSocket, http:AuthConfig? auth,
+                                              map subscriptionDetails) {
     endpoint Client websubHubClientEP {
         url:hub,
         secureSocket:secureSocket,
         auth:auth
     };
 
-    string topic = <string> subscriptionDetails["topic"];
-    string callback = <string> subscriptionDetails["callback"];
+    string topic = <string>subscriptionDetails["topic"];
+    string callback = <string>subscriptionDetails["callback"];
 
     if (hub == "" || topic == "" || callback == "") {
         log:printError("Subscription Request not sent since hub, topic and/or callback not specified");
@@ -338,8 +341,8 @@ map subscriptionDetails) {
 
     int leaseSeconds;
 
-    string strLeaseSeconds = <string> subscriptionDetails["leaseSeconds"];
-    match (<int> strLeaseSeconds) {
+    string strLeaseSeconds = <string>subscriptionDetails["leaseSeconds"];
+    match (<int>strLeaseSeconds) {
         int convIntLeaseSeconds => { leaseSeconds = convIntLeaseSeconds; }
         error convError => {
             log:printError("Error retreiving specified lease seconds value: " + convError.message);
@@ -347,20 +350,21 @@ map subscriptionDetails) {
         }
     }
 
-    string secret = <string> subscriptionDetails["secret"];
+    string secret = <string>subscriptionDetails["secret"];
 
-    SubscriptionChangeRequest subscriptionChangeRequest = {topic:topic, callback:callback, leaseSeconds:leaseSeconds,
-                                                              secret:secret};
+    SubscriptionChangeRequest subscriptionChangeRequest = {
+        topic:topic, callback:callback, leaseSeconds:leaseSeconds, secret:secret
+    };
 
-    var subscriptionResponse = websubHubClientEP -> subscribe(subscriptionChangeRequest);
+    var subscriptionResponse = websubHubClientEP->subscribe(subscriptionChangeRequest);
     match (subscriptionResponse) {
-        SubscriptionChangeResponse subscriptionChangeResponse => { log:printInfo(
-                   "Subscription Request successful at Hub[" + subscriptionChangeResponse.hub +"], for Topic["
-                                                             + subscriptionChangeResponse.topic + "], with Callback ["
-                                                             + callback + "]");
+        SubscriptionChangeResponse subscriptionChangeResponse => {
+            log:printInfo("Subscription Request successful at Hub[" + subscriptionChangeResponse.hub +
+                    "], for Topic[" + subscriptionChangeResponse.topic + "], with Callback [" + callback + "]");
         }
-        WebSubError webSubError => { log:printError("Subscription Request failed at Hub[" + hub +"], for Topic[" + topic
-                                                    + "]: " + webSubError.message);
+        WebSubError webSubError => {
+            log:printError("Subscription Request failed at Hub[" + hub + "], for Topic[" + topic + "]: " +
+                    webSubError.message);
         }
     }
 }

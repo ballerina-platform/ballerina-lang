@@ -21,19 +21,21 @@ package org.ballerinalang.model.values;
 import io.ballerina.messaging.broker.core.BrokerException;
 import io.ballerina.messaging.broker.core.Consumer;
 import io.ballerina.messaging.broker.core.Message;
-import org.ballerinalang.bre.Context;
+import io.netty.buffer.UnpooledByteBufAllocator;
+import io.netty.buffer.UnpooledHeapByteBuf;
 import org.ballerinalang.broker.BrokerUtils;
+import org.ballerinalang.model.types.BAnyType;
+import org.ballerinalang.model.types.BIndexedType;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
-import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 /**
@@ -45,7 +47,7 @@ public class BStream implements BRefType<Object> {
 
     private static final String TOPIC_NAME_PREFIX = "TOPIC_NAME_";
 
-    private BStructType constraintType;
+    private BType constraintType;
 
     private String streamId = "";
 
@@ -58,9 +60,14 @@ public class BStream implements BRefType<Object> {
         if (((BStreamType) type).getConstrainedType() == null) {
             throw new BallerinaException("a stream cannot be declared without a constraint");
         }
-        this.constraintType = (BStructType) ((BStreamType) type).getConstrainedType();
-        this.topicName = TOPIC_NAME_PREFIX + ((BStreamType) type).getConstrainedType().getName().toUpperCase() + "_"
-                + name;
+        this.constraintType = ((BStreamType) type).getConstrainedType();
+        if (constraintType.getName() != null) {
+            this.topicName = TOPIC_NAME_PREFIX + constraintType.getName().toUpperCase() + "_" + name;
+        } else if (constraintType instanceof BIndexedType) {
+            this.topicName = TOPIC_NAME_PREFIX + ((BIndexedType) constraintType).getElementType() + "_" + name;
+        } else {
+            this.topicName = TOPIC_NAME_PREFIX + name; //TODO: check for improvement
+        }
         this.streamId = name;
     }
 
@@ -88,7 +95,7 @@ public class BStream implements BRefType<Object> {
         return null;
     }
 
-    public BStructType getConstraintType() {
+    public BType getConstraintType() {
         return constraintType;
     }
 
@@ -97,33 +104,39 @@ public class BStream implements BRefType<Object> {
      *
      * @param data the data to publish to the stream
      */
-    public void publish(BStruct data) {
-        if (data.getType() != this.constraintType) {
-            throw new BallerinaException("incompatible types: object of type:" + data.getType().getName()
+    public void publish(BValue data) {
+        //TODO: refactor and move checks to compile time
+        BType dataType = data.getType();
+        if (!dataType.equals(this.constraintType) && !(constraintType instanceof BUnionType
+                                        && ((BUnionType) constraintType).getMemberTypes().contains(dataType))
+                                        && !(constraintType instanceof BAnyType)) {
+            throw new BallerinaException("incompatible types: value of type:" + dataType.getName()
                     + " cannot be added to a stream of type:" + this.constraintType.getName());
         }
-        BrokerUtils.publish(topicName, JSONUtils.convertStructToJSON(data).stringValue().getBytes());
+        BrokerUtils.publish(topicName, new BallerinaStreamByteBuf(data));
     }
 
     /**
      * Method to register a subscription to the underlying topic representing the stream in the broker.
      *
-     * @param context         the context object representing runtime state
      * @param functionPointer represents the function pointer reference for the function to be invoked on receiving
      *                        messages
      */
-    public void subscribe(Context context, BFunctionPointer functionPointer) {
+    public void subscribe(BFunctionPointer functionPointer) {
         BType[] parameters = functionPointer.funcRefCPEntry.getFunctionInfo().getParamTypes();
-        if (!(parameters[0] instanceof BStructType)
-                || ((BStructType) parameters[0]).structInfo.getType() != constraintType) {
+        if (parameters[0].getTag() != constraintType.getTag() || (constraintType instanceof BStructType
+                                          && ((BStructType) parameters[0]).structInfo.getType() != constraintType)) {
             throw new BallerinaException("incompatible function: subscription function needs to be a function accepting"
-                    + " an object of type:" + this.constraintType.getName());
+                                                 + ":" + this.constraintType.getName());
         }
         String queueName = String.valueOf(System.currentTimeMillis()) + UUID.randomUUID().toString();
         BrokerUtils.addSubscription(topicName, new StreamSubscriber(queueName, functionPointer));
     }
 
     public void subscribe(InputHandler inputHandler) {
+        if (constraintType.getTag() != TypeTags.STRUCT_TAG) {
+            throw new BallerinaException("Streaming Support is only available with streams accepting objects");
+        }
         String queueName = String.valueOf(UUID.randomUUID());
         BrokerUtils.addSubscription(topicName, new InternalStreamSubscriber(topicName, queueName, inputHandler));
     }
@@ -139,11 +152,9 @@ public class BStream implements BRefType<Object> {
 
         @Override
         protected void send(Message message) throws BrokerException {
-            byte[] bytes = BrokerUtils.retrieveBytes(message);
-            BJSON json = new BJSON(new String(bytes, StandardCharsets.UTF_8));
-            BStruct data = JSONUtils.convertJSONToStruct(json, constraintType);
-            BValue[] args = {data};
-            BLangFunctions.invokeCallable(functionPointer.value().getFunctionInfo(), args);
+            BValue data =
+                    ((BallerinaStreamByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).streamEvent;
+            BLangFunctions.invokeCallable(functionPointer.value().getFunctionInfo(), new BValue[] { data });
         }
 
         @Override
@@ -181,10 +192,9 @@ public class BStream implements BRefType<Object> {
 
         @Override
         protected void send(Message message) throws BrokerException {
-            byte[] bytes = BrokerUtils.retrieveBytes(message);
-            BJSON json = new BJSON(new String(bytes, StandardCharsets.UTF_8));
-            BStruct data = JSONUtils.convertJSONToStruct(json, constraintType);
-            Object[] event = createEvent(data);
+            BValue data =
+                    ((BallerinaStreamByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).streamEvent;
+            Object[] event = createEvent((BStruct) data);
             try {
                 inputHandler.send(event);
             } catch (InterruptedException e) {
@@ -241,6 +251,19 @@ public class BStream implements BRefType<Object> {
         @Override
         public boolean isReady() {
             return true;
+        }
+    }
+
+    /**
+     * Implementation of {@link io.netty.buffer.ByteBuf} for Ballerina Streams, to hold a {@link BValue}
+     */
+    private class BallerinaStreamByteBuf extends UnpooledHeapByteBuf {
+
+        private final BValue streamEvent;
+
+        BallerinaStreamByteBuf(BValue streamEvent) {
+            super(UnpooledByteBufAllocator.DEFAULT, 0, 0);
+            this.streamEvent = streamEvent;
         }
     }
 }

@@ -19,7 +19,6 @@
 package org.ballerinalang.net.http;
 
 import io.netty.buffer.Unpooled;
-import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
@@ -37,7 +36,6 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
@@ -88,6 +86,9 @@ import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
+import static org.ballerinalang.mime.util.EntityBodyHandler.checkEntityBodyAvailability;
+import static org.ballerinalang.mime.util.EntityBodyHandler.createNewEntity;
+import static org.ballerinalang.mime.util.EntityBodyHandler.setDiscreteMediaTypeBodyContent;
 import static org.ballerinalang.net.http.HttpConstants.ALWAYS;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_CHUNKING;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
@@ -160,24 +161,25 @@ public class HttpUtil {
     /**
      * Set the given entity to request or response message.
      *
-     * @param context                Ballerina context
-     * @param isRequest              boolean representing whether the message is a request or a response
+     * @param context   Ballerina context
+     * @param isRequest boolean representing whether the message is a request or a response
      */
     public static void setEntity(Context context, boolean isRequest) {
         BStruct httpMessageStruct = (BStruct) context.getRefArgument(HTTP_MESSAGE_INDEX);
 
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-        httpCarbonMessage.waitAndReleaseAllEntities();
         BStruct entity = (BStruct) context.getRefArgument(ENTITY_INDEX);
         String contentType = MimeUtil.getContentTypeWithParameters(entity);
-        if (contentType == null) {
-            contentType = OCTET_STREAM;
+        if (checkEntityBodyAvailability(entity)) {
+            httpCarbonMessage.waitAndReleaseAllEntities();
+            if (contentType == null) {
+                contentType = OCTET_STREAM;
+            }
+            HeaderUtil.setHeaderToEntity(entity, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
         }
-        HeaderUtil.setHeaderToEntity(entity, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
         httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
-        httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, EntityBodyHandler
-                .checkEntityBodyAvailability(entity));
+        httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, checkEntityBodyAvailability(entity));
     }
 
     /**
@@ -238,7 +240,7 @@ public class HttpUtil {
             } catch (NumberFormatException e) {
                 throw new BallerinaException("Invalid content length");
             }
-            EntityBodyHandler.setDiscreteMediaTypeBodyContent(entity, httpMessageDataStreamer.getInputStream(),
+            setDiscreteMediaTypeBodyContent(entity, httpMessageDataStreamer.getInputStream(),
                     contentLength);
         }
         httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
@@ -702,24 +704,8 @@ public class HttpUtil {
     public static void checkEntityAvailability(Context context, BStruct struct) {
         BStruct entity = (BStruct) struct.getNativeData(MESSAGE_ENTITY);
         if (entity == null) {
-            HttpUtil.createNewEntity(context, struct);
+            createNewEntity(context, struct);
         }
-    }
-
-    /**
-     * Set new entity to in/out request/response struct.
-     *
-     * @param context ballerina context.
-     * @param struct  request/response struct.
-     */
-    public static BStruct createNewEntity(Context context, BStruct struct) {
-        BStruct entity = ConnectorUtils.createAndGetStruct(context
-                , org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME
-                , org.ballerinalang.mime.util.Constants.ENTITY);
-        entity.addNativeData(ENTITY_HEADERS, new DefaultHttpHeaders());
-        struct.addNativeData(MESSAGE_ENTITY, entity);
-        struct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
-        return entity;
     }
 
     private static void setCompressionHeaders(Context context, HTTPCarbonMessage requestMsg, HTTPCarbonMessage
