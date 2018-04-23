@@ -1,22 +1,23 @@
 import ballerina/io;
 import ballerina/http;
 import ballerina/mime;
+import ballerina/log;
 
 //Create a new service endpoint to accept new connections that are secured via mutual SSL.
 endpoint http:Listener helloWorldEP {
     port:9095,
-    secureSocket: {
-        keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
-            password: "ballerina"
+    secureSocket:{
+        keyStore:{
+            path:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password:"ballerina"
         },
-        trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password: "ballerina"
+        trustStore:{
+            path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password:"ballerina"
         },
-        protocol: {
-            name: "TLS",
-            versions: ["TLSv1.2","TLSv1.1"]
+        protocol:{
+            name:"TLS",
+            versions:["TLSv1.2", "TLSv1.1"]
         },
         ciphers:["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"],
         //Enable mutual SSL.
@@ -25,8 +26,8 @@ endpoint http:Listener helloWorldEP {
 };
 
 @http:ServiceConfig {
-     endpoints:[helloWorldEP],
-     basePath:"/hello"
+    endpoints:[helloWorldEP],
+    basePath:"/hello"
 }
 
 //Bind the service to the endpoint that you declared above.
@@ -36,46 +37,46 @@ service<http:Service> helloWorld bind helloWorldEP {
         path:"/"
     }
 
-    sayHello (endpoint conn, http:Request req) {
+    sayHello(endpoint caller, http:Request req) {
         http:Response res = new;
         //Set the response payload.
         res.setStringPayload("Successful");
         //Send response to client.
-        _ = conn -> respond(res);
+        caller->respond(res) but { error e => log:printError("Error in responding ", err = e) };
     }
 }
 
 //Create a new client endpoint to connect to the service endpoint you created above via mutual SSL.
 endpoint http:Client clientEP {
-    url: "https://localhost:9095",
-    secureSocket: {
-        keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
-            password: "ballerina"
+    url:"https://localhost:9095",
+    secureSocket:{
+        keyStore:{
+            path:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password:"ballerina"
         },
-        trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password: "ballerina"
+        trustStore:{
+            path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password:"ballerina"
         },
-        protocol: {
-            name: "TLS"
+        protocol:{
+            name:"TLS"
         },
         ciphers:["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"]
     }
 };
-@Description {value:"The Ballerina client connector can be used to connect to the created HTTPS server. You have to run
-the service before running this main function. As this is a mutual ssl connection, the client needs to provide the
-keyStoreFile, keyStorePassword, trustStoreFile, and trustStorePassword."}
-function main (string... args) {
+@Description {value:"The Ballerina client connector can be used to connect to the created HTTPS server.
+As this is a mutual ssl connection, the client needs to provide the keyStoreFile, keyStorePassword, trustStoreFile, and
+trustStorePassword."}
+function main(string... args) {
     //Create a request.
-    var resp = clientEP -> get("/hello/");
+    var resp = clientEP->get("/hello/");
     match resp {
-        http:HttpConnectorError err => io:println(err.message);
         http:Response response => {
             match (response.getStringPayload()) {
-                http:PayloadError payloadError => io:println(payloadError.message);
-                string res => io:println(res);
+                string res => log:printInfo(res);
+                http:PayloadError payloadError => log:printError(payloadError.message);
             }
         }
+        http:HttpConnectorError err => log:printError(err.message);
     }
 }
