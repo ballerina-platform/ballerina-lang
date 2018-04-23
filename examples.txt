@@ -137,10 +137,10 @@ Testerina Assertions
 Testerina Before and After Test
 Testerina Before Each Test
 Testerina Before and After Suite
-Testerina Data Provider
+Testerina Data Driven Tests
 Testerina Depends On
 Testerina Function Mocks
-Testerina Groups
+Testerina Group Tests
 Filter Streams on Conditions
 Streams within Services
 Join Multiple Streams
