@@ -60,9 +60,9 @@ function testFunc() {
 
     string o1 = "length of array: 4";
 
-    //test:assertEquals(jt1, outputs[0]);
+    // test:assertEquals(jt1, outputs[0]);
     test:assertEquals(jt2, outputs[1]);
-    //test:assertEquals(jt3, outputs[2]);
+    // test:assertEquals(jt3, outputs[2]);
     test:assertEquals(jt4, outputs[3]);
     test:assertEquals(o1, outputs[4]);
     test:assertEquals(jt5, outputs[5]);
