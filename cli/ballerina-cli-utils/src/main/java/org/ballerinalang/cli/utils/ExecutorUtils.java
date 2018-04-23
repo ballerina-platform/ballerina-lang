@@ -39,7 +39,7 @@ import java.util.Map;
 public class ExecutorUtils {
 
     /**
-     * Run balx with functions that lives within jars.
+     * Run balx that lives within jars.
      *
      * @param balxResource URI of the balx resource
      * @param type         if a function or service is to be invoked
