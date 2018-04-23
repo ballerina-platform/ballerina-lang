@@ -1,17 +1,17 @@
 # This sample requires starting up the Hub Service via hub.bal prior to running the Publisher main program. The
 # Subscriber Service needs to be started up only once publisher registers the topic at the hub.
 
-$ ballerina run hub.bal -e b7a.websub.hub.remotepublish=true
+# If the port is not specified, the hub service will be started up on the default port
+$ ballerina run hub.bal -e b7a.websub.hub.port=9191 -e b7a.websub.hub.remotepublish=true
 2018-04-12 18:48:00,530 INFO  [] - Starting up the Ballerina Hub Service
-ballerina: started HTTPS/WSS endpoint localhost:9292
-ballerina: Default Ballerina WebSub Hub started up at https://localhost:9292/websub/hub
+ballerina: started HTTPS/WSS endpoint localhost:9191
+ballerina: Default Ballerina WebSub Hub started up at https://localhost:9191/websub/hub
 
-$ ballerina run pub.bal
+$ ballerina run publisher.bal
 2018-04-12 18:48:05,263 INFO  [] - Topic registration successful!
 
 $ ballerina run subscriber.bal
 ballerina: initiating service(s) in 'subscriber.bal'
-2018-03-23 05:32:30,451 INFO  [ballerina.websub] - Initializing WebSub signature validation filter
 ballerina: started HTTP/WS server connector localhost:8181
 
 Output from  the hub:
@@ -27,7 +27,7 @@ Output from  the publisher:
 
 Output from the subscriber:
 
-2018-04-12 18:48:06,632 INFO  [ballerina.websub] - Subscription Request successful at Hub[https://localhost:9292/websub/hub], for Topic[http://www.websubpubtopic.com], with Callback [http://0.0.0.0:8181/websub]
+2018-04-12 18:48:06,632 INFO  [ballerina.websub] - Subscription Request successful at Hub[https://localhost:9191/websub/hub], for Topic[http://www.websubpubtopic.com], with Callback [http://0.0.0.0:8181/websub]
 2018-04-12 18:48:06,738 INFO  [ballerina.websub] - Intent Verification agreed - Mode [subscribe], Topic [http://www.websubpubtopic.com], Lease Seconds [86400000]
 2018-04-12 18:48:06,738 INFO  [] - Intent verified for subscription request
 2018-04-12 18:48:15,556 INFO  [] - WebSub Notification Received: {"action":"publish","mode":"remote-hub"}
