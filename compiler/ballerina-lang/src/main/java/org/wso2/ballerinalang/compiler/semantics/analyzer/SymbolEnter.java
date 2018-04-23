@@ -1102,10 +1102,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         Scope enclScope = env.scope;
         BVarSymbol varSymbol;
 
-        if (varType == null) {
-            int i = 5;
-        }
-
         if (varType.tag == TypeTags.INVOKABLE) {
             varSymbol = new BInvokableSymbol(SymTag.VARIABLE, Flags.asMask(flagSet), varName,
                     env.enclPkg.symbol.pkgID, varType, enclScope.owner);
