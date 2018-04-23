@@ -22,6 +22,7 @@ import org.ballerinalang.logging.BLogManager;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.logging.LogManager;
 
 /**
@@ -32,13 +33,19 @@ import java.util.logging.LogManager;
  */
 public class LogConfigReader {
 
+    private static final PrintStream stderr = System.err;
+
     public LogConfigReader() {
         BLogManager logManager = (BLogManager) LogManager.getLogManager();
         InputStream configStream = this.getClass().getClassLoader().getResourceAsStream("logging.properties");
-        try {
-            logManager.readConfiguration(configStream);
-        } catch (IOException e) {
-            throw new RuntimeException("logging not initialized");
+        if (configStream != null) {
+            try {
+                logManager.readConfiguration(configStream);
+            } catch (IOException e) {
+                stderr.println("ballerina: failed to initialize logging");
+            }
+        } else {
+            stderr.println("ballerina: failed to initialize logging");
         }
     }
 }
