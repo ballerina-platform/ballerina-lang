@@ -11,7 +11,7 @@ endpoint websub:Client websubHubClientEP {
 function main (string... args) {
 
     //Register a topic at the hub.
-    var registrationResponse = websubHubClientEP -> registerTopic("http://www.websubpubtopic.com");
+    var registrationResponse = websubHubClientEP->registerTopic("http://www.websubpubtopic.com");
     match (registrationResponse) {
         error webSubError => log:printError("Error occurred registering topic: " + webSubError.message);
         () => log:printInfo("Topic registration successful!");
@@ -22,8 +22,8 @@ function main (string... args) {
 
     log:printInfo("Publishing update to remote Hub");
     //Publish updates to the remote hub.
-    var publishResponse = websubHubClientEP -> publishUpdate("http://www.websubpubtopic.com",
-                                                                            {"action":"publish","mode":"remote-hub"});
+    var publishResponse = websubHubClientEP->publishUpdate("http://www.websubpubtopic.com",
+                                                                        { "action": "publish", "mode": "remote-hub" });
     match (publishResponse) {
         error webSubError => log:printError("Error notifying hub: " + webSubError.message);
         () => log:printInfo("Update notification successful!");

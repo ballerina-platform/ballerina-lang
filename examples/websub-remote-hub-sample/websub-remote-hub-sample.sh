@@ -30,4 +30,4 @@ Output from the subscriber:
 2018-04-12 18:48:06,632 INFO  [ballerina.websub] - Subscription Request successful at Hub[https://localhost:9191/websub/hub], for Topic[http://www.websubpubtopic.com], with Callback [http://0.0.0.0:8181/websub]
 2018-04-12 18:48:06,738 INFO  [ballerina.websub] - Intent Verification agreed - Mode [subscribe], Topic [http://www.websubpubtopic.com], Lease Seconds [86400000]
 2018-04-12 18:48:06,738 INFO  [] - Intent verified for subscription request
-2018-04-12 18:48:15,556 INFO  [] - WebSub Notification Received: {"action":"publish","mode":"remote-hub"}
+2018-04-12 18:48:15,556 INFO  [] - WebSub Notification Received: { "action": "publish", "mode": "remote-hub" }
