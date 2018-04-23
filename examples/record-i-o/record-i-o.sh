@@ -3,3 +3,5 @@
 $ ballerina run record-i-o.bal
 Start processing the CSV file from ./files/sample.csv to the text file in ./files/sampleResponse.txt
 Processing completed. The processed file is located in ./files/sampleResponse.txt
+Source channel closed successfully.
+Destination channel closed successfully.
