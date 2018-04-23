@@ -624,3 +624,9 @@ function getPerson() returns (Foo, Person) | () | error {
     Employee p = new("foo","20");
     return (f,p);
 }
+
+function testObjectEqViewFromThirdPackage() returns (string) {
+    eq:BarObj barObj = new();
+    eq2:FooObj fooObj = check <eq2:FooObj> barObj;
+    return fooObj.name;
+}
