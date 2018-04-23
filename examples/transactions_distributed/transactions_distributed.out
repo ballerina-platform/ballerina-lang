@@ -1,0 +1,41 @@
+#At the command line, navigate to the directory that contains the 
+#`.bal` file and run the `ballerina run` command to start the `initiator` service.  
+$ ballerina run iniator.bal
+ballerina: initiating service(s) in 'initiator'
+ballerina: started HTTP/WS server connector localhost:8080
+ballerina: started HTTP/WS server connector 10.100.1.182:53871
+
+#Next, run this command to start the `participant` service. 
+$ ballerina run participant.bal
+ballerina: initiating service(s) in 'participant'
+ballerina: started HTTP/WS server connector 10.100.1.182:54774
+ballerina: started HTTP/WS server connector localhost:8889
+
+#Run this curl command to invoke the services. 
+$ curl -v localhost:8080
+
+Output from initiator:
+
+2018-04-23 23:42:53,992 INFO  [] - Initiating transaction...
+2018-04-23 23:42:54,009 INFO  [ballerina.transactions] - Created transaction: 29d99da9-9998-4b0b-b5e4-6ea031f4a245
+2018-04-23 23:42:54,011 INFO  [] - Started transaction: 29d99da9-9998-4b0b-b5e4-6ea031f4a245:1
+2018-04-23 23:42:54,591 INFO  [ballerina.transactions] - Registered remote participant: 962f02e7-908f-4f5d-b72a-4897119f824a:1 for transaction: 29d99da9-9998-4b0b-b5e4-6ea031f4a245
+2018-04-23 23:42:54,645 INFO  [] - Got response from bizservice
+2018-04-23 23:42:54,647 INFO  [ballerina.transactions] - Running 2-phase commit for transaction: 29d99da9-9998-4b0b-b5e4-6ea031f4a245:1
+2018-04-23 23:42:54,652 INFO  [ballerina.transactions] - Preparing remote participant: 962f02e7-908f-4f5d-b72a-4897119f824a:1
+2018-04-23 23:42:54,670 INFO  [ballerina.transactions] - Remote participant: 962f02e7-908f-4f5d-b72a-4897119f824a:1 prepared
+2018-04-23 23:42:54,671 INFO  [ballerina.transactions] - Notify(commit) remote participant: http://192.168.1.4:60142/balcoordinator/participant/2pc/1
+2018-04-23 23:42:54,678 INFO  [ballerina.transactions] - Remote participant: 962f02e7-908f-4f5d-b72a-4897119f824a:1 committed
+2018-04-23 23:42:54,679 INFO  [] - Transaction: 29d99da9-9998-4b0b-b5e4-6ea031f4a245:1 committed
+2018-04-23 23:42:54,682 INFO  [] - Sent response back to client
+
+Output from participant:
+
+2018-04-23 23:42:54,316 INFO  [] - Received update stockquote request
+2018-04-23 23:42:54,336 INFO  [ballerina.transactions] - Registering for transaction: 29d99da9-9998-4b0b-b5e4-6ea031f4a245:1 with coordinator: http://192.168.1.4:60137/balcoordinator/initiator/1/register
+2018-04-23 23:42:54,607 INFO  [ballerina.transactions] - Registered with coordinator for transaction: 29d99da9-9998-4b0b-b5e4-6ea031f4a245
+2018-04-23 23:42:54,609 INFO  [] - Update stock quote request received. symbol:GOOG, price:244.95873638912178
+2018-04-23 23:42:54,643 INFO  [] - Sent response back to initiator
+2018-04-23 23:42:54,662 INFO  [ballerina.transactions] - Prepare received for transaction: 29d99da9-9998-4b0b-b5e4-6ea031f4a245:1
+2018-04-23 23:42:54,663 INFO  [ballerina.transactions] - Prepared transaction: 29d99da9-9998-4b0b-b5e4-6ea031f4a245
+2018-04-23 23:42:54,675 INFO  [ballerina.transactions] - Notify(commit) received for transaction: 29d99da9-9998-4b0b-b5e4-6ea031f4a245:1
