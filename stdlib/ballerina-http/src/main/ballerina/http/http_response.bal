@@ -23,15 +23,18 @@ public type Response object {
         int requestTime;
     }
 
-    @Description {value:"Get the entity from the response with the body"}
-    @Param {value:"res: The response message"}
-    @Return {value:"Entity of the response"}
-    @Return {value:"EntityError will might get thrown during entity construction in case of errors"}
-    public native function getEntity () returns (mime:Entity | mime:EntityError);
+    documentation {
+        Get the `mime:Entity` from the response.
 
-    @Description {value:"Get the entity from the response without the body"}
-    @Param {value:"req: The response message"}
-    @Return {value:"Entity of the response"}
+        R{{}} Return a `mime:Entity` or an `error` object in case of errors
+    }
+    public native function getEntity () returns (mime:Entity | error);
+
+    documentation {
+        Get the `mime:Entity` without populating its body from the response.
+
+        R{{}} Return a `mime:Entity`
+    }
     public native function getEntityWithoutBody () returns (mime:Entity);
 
     @Description {value:"Set the entity to response"}
@@ -90,41 +93,61 @@ public type Response object {
     @Return {value:"Returns the content-type header value as a string."}
     public function getContentType () returns (string);
 
-    @Description {value:"Get the json payload from the response"}
-    @Param {value:"response: The response message"}
-    @Return {value:"The JSON reresentation of the message payload or 'PayloadError' in case of errors"}
-    public function getJsonPayload () returns (json | PayloadError);
+    documentation {
+        Extract json payload from the response. If the payload is not json compatible an error will be returned.
 
-    @Description {value:"Get the xml payload from the response"}
-    @Param {value:"response: The response message"}
-    @Return {value:"The XML representation of the message payload or 'PayloadError' in case of errors"}
-    public function getXmlPayload () returns (xml | PayloadError);
+        R{{}} Return `json` payload extracted from the response. An `error` object will be returned in case of
+        errors.
+    }
+    public function getJsonPayload () returns (json | error);
 
-    @Description {value:"Get the text payload from the response"}
-    @Param {value:"response: The response message"}
-    @Return {value:"The string representation of the message payload or 'PayloadError' in case of errors"}
-    public function getTextPayload () returns (string | PayloadError);
+    documentation {
+        Extract xml payload from the response. If the payload is not xml compatible an error will be returned.
 
-    @Description {value:"Get the response payload as a string. Content-type will not be checked during payload construction which
-        makes this different from getTextPayload() method."}
-    @Return {value:"The string representation of the message payload or 'PayloadError' in case of errors"}
-    public function getPayloadAsString () returns (string | PayloadError);
+        R{{}} Return `xml` payload extracted from the the response. An `error` object will be returned in case of
+        errors.
+    }
+    public function getXmlPayload () returns (xml | error);
 
-    @Description {value:"Gets the response payload in blob format"}
-    @Param {value:"response: The response message"}
-    @Return {value:"The blob representation of the message payload or 'PayloadError' in case of errors"}
-    public function getBinaryPayload () returns (blob | PayloadError);
+    documentation {
+        Extract text payload from the response. If the payload is not text compatible an error will be returned.
 
-    @Description {value:"Gets the response payload as a byte channel except for multiparts. In case of multiparts,
-    please use 'getBodyParts()' instead."}
-    @Param {value:"response: The response message"}
-    @Return {value:"A byte channel as the message payload or 'PayloadError' in case of errors"}
-    public function getByteChannel () returns (io:ByteChannel | PayloadError);
+        R{{}} Return `string` request extracted from the the response. An `error` object will be returned in case of
+        errors.
+    }
+    public function getTextPayload () returns (string | error);
 
-    @Description {value:"Get multiparts from response"}
-    @Param {value:"response: The response message"}
-    @Return {value:"Returns the body parts as an array of entities"}
-    public function getBodyParts () returns (mime:Entity[] | mime:EntityError);
+    documentation {
+        Get the response payload as a string. Content-type will not be checked during payload construction which
+        makes this different from getTextPayload() method.
+
+        R{{}} The string representation of the message payload or an error object in case of errors
+    }
+    public function getPayloadAsString () returns (string | error);
+
+    documentation {
+        Get the binary payload from the response. If the payload is considerably large consider using getByteChannel()
+        method instead.
+
+        R{{}} Return `blob` data extracted from the the response. An `error` object will be returned in case of
+        errors.
+    }
+    public function getBinaryPayload () returns (blob | error);
+
+    documentation {
+        Get a byte channel from the response. In case of multiparts, please use 'getBodyParts()' method instead.
+
+        R{{}} Return an `io:ByteChannel`. An `error` object will be returned in case of errors
+    }
+    public function getByteChannel () returns (io:ByteChannel | error);
+
+    documentation {
+        Get multiparts from the response. If the payload is not a set of body parts an error will be returned.
+
+        R{{}} Return an array of body parts(`Entity[]`) extracted from the response. An `error` object will be
+        returned in case of errors
+    }
+    public function getBodyParts () returns (mime:Entity[] | error);
 
     @Description {value:"Sets the ETag header for the given payload. The ETag is generated using a CRC32 hash function."}
     @Param {value:"The payload for which the ETag should be set."}
@@ -234,83 +257,83 @@ public function Response::getContentType () returns (string) {
     return entity.getContentType();
 }
 
-public function Response::getJsonPayload () returns (json | PayloadError) {
+public function Response::getJsonPayload () returns (json | error) {
     match self.getEntity() {
-        mime:EntityError err => return <PayloadError>err;
+        error err => return err;
         mime:Entity mimeEntity => {
             match mimeEntity.getJson() {
-                mime:EntityError payloadErr => return <PayloadError>payloadErr;
+                error payloadErr => return payloadErr;
                 json jsonPayload => return jsonPayload;
             }
         }
     }
 }
 
-public function Response::getXmlPayload () returns (xml | PayloadError) {
+public function Response::getXmlPayload () returns (xml | error) {
     match self.getEntity() {
-        mime:EntityError err => return <PayloadError>err;
+        error err => return err;
         mime:Entity mimeEntity => {
             match mimeEntity.getXml() {
-                mime:EntityError payloadErr => return <PayloadError>payloadErr;
+                error payloadErr => return payloadErr;
                 xml xmlPayload => return xmlPayload;
             }
         }
     }
 }
 
-public function Response::getTextPayload () returns (string | PayloadError) {
+public function Response::getTextPayload () returns (string | error) {
     match self.getEntity() {
-        mime:EntityError err => return <PayloadError>err;
+        error err => return err;
         mime:Entity mimeEntity => {
             match mimeEntity.getText() {
-                mime:EntityError payloadErr => return <PayloadError>payloadErr;
+                error payloadErr => return payloadErr;
                 string textPayload => return textPayload;
             }
         }
     }
 }
 
-public function Response::getPayloadAsString () returns (string | PayloadError) {
+public function Response::getPayloadAsString () returns (string | error) {
     match self.getEntity() {
-        mime:EntityError err => return <PayloadError>err;
+        error err => return err;
         mime:Entity mimeEntity => {
             match mimeEntity.getBodyAsString() {
-                mime:EntityError payloadErr => return <PayloadError>payloadErr;
+                error payloadErr => return payloadErr;
                 string stringPayload => return stringPayload;
             }
         }
     }
 }
 
-public function Response::getBinaryPayload () returns (blob | PayloadError) {
+public function Response::getBinaryPayload () returns (blob | error) {
     match self.getEntity() {
-        mime:EntityError err => return <PayloadError>err;
+        error err => return err;
         mime:Entity mimeEntity => {
             match mimeEntity.getBlob() {
-                mime:EntityError payloadErr => return <PayloadError>payloadErr;
+                error payloadErr => return payloadErr;
                 blob binaryPayload => return binaryPayload;
             }
         }
     }
 }
 
-public function Response::getByteChannel () returns (io:ByteChannel | PayloadError) {
+public function Response::getByteChannel () returns (io:ByteChannel | error) {
     match self.getEntity() {
-        mime:EntityError err => return <PayloadError>err;
+        error err => return err;
         mime:Entity mimeEntity => {
             match mimeEntity.getByteChannel() {
-                mime:EntityError payloadErr => return <PayloadError>payloadErr;
+                error payloadErr => return payloadErr;
                 io:ByteChannel byteChannel => return byteChannel;
             }
         }
     }
 }
 
-public function Response::getBodyParts () returns mime:Entity[] | mime:EntityError {
+public function Response::getBodyParts () returns mime:Entity[] | error {
     var mimeEntity = self.getEntity();
     match mimeEntity {
         mime:Entity entity => return entity.getBodyParts();
-        mime:EntityError err => return err;
+        error err => return err;
     }
 }
 
