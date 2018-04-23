@@ -144,6 +144,8 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                             WebSocketUtil.executeOnOpenResource(onOpenResource, webSocketEndpoint, webSocketConnection);
                         } else {
                             connectionInfo.getWebSocketConnection().readNextFrame();
+                            BStruct webSocketConnector = (BStruct) connectionInfo.getWebSocketEndpoint().getRefField(1);
+                            webSocketConnector.setBooleanField(0, 1);
                         }
                     }
                 }
