@@ -64,6 +64,7 @@ Content Based Routing
 Header Based Routing
 Produces/Consumes
 HTTP Client Connector
+HTTP Caching Client
 HTTP Trace Logs
 HTTP 100 Continue
 HTTPS Server Connector
