@@ -2,7 +2,7 @@ import ballerina/io;
 import ballerina/runtime;
 import ballerina/time;
 
-// Shared variable amonb multiple workers.
+// Shared variable among multiple workers.
 string sharedString;
 
 function main (string... args) {
