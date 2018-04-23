@@ -5,7 +5,7 @@ import ballerina/http;
 boolean serviceStarted;
 
 function startService(){
-    serviceStarted = test:startServices("http-circuit-breaker");
+    serviceStarted = test:startServices("http_circuit_breaker");
 }
 
 @test:Config {
@@ -23,7 +23,7 @@ function testFunc() {
     var response = httpEndpoint -> get("/cb");
     match response {
         http:Response resp => {
-            var res = check resp.getStringPayload();
+            var res = check resp.getTextPayload();
             test:assertEquals(res, response1);
         }
         http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
@@ -33,7 +33,7 @@ function testFunc() {
     var response2 = httpEndpoint -> get("/cb");
     match response2 {
         http:Response resp => {
-            var res = check resp.getStringPayload();
+            var res = check resp.getTextPayload();
             test:assertEquals(res, response1);
         }
         http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
@@ -43,7 +43,7 @@ function testFunc() {
     var response3 = httpEndpoint -> get("/cb");
     match response3 {
         http:Response resp => {
-            var res = check resp.getStringPayload();
+            var res = check resp.getTextPayload();
             test:assertEquals(res, "Internal error occurred while processing the request.");
         }
         http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
@@ -53,7 +53,7 @@ function testFunc() {
     var response4 = httpEndpoint -> get("/cb");
     match response4 {
         http:Response resp => {
-            var res = check resp.getStringPayload();
+            var res = check resp.getTextPayload();
         }
         http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
     }
@@ -62,7 +62,7 @@ function testFunc() {
     var response5 = httpEndpoint -> get("/cb");
     match response5 {
         http:Response resp => {
-            var res = check resp.getStringPayload();
+            var res = check resp.getTextPayload();
         }
         http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
     }
@@ -73,12 +73,12 @@ function testFunc() {
     var response6 = httpEndpoint -> get("/cb");
     match response6 {
         http:Response resp => {
-            var res = check resp.getStringPayload();
+            var res = check resp.getTextPayload();
         }
         http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 }
 
 function stopService(){
-    test:stopServices("http-circuit-breaker");
+    test:stopServices("http_circuit_breaker");
 }
