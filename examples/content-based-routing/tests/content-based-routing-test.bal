@@ -1,6 +1,6 @@
-import ballerina/test;
-import ballerina/io;
 import ballerina/http;
+import ballerina/io;
+import ballerina/test;
 
 boolean serviceStarted;
 
@@ -10,31 +10,30 @@ function startService(){
 
 @test:Config {
     before:"startService",
-    after:"stopService",
-    enable:false
+    after:"stopService"
 }
 function testFunc() {
     // Invoking the main function
     endpoint http:Client httpEndpoint { url:"http://localhost:9090" };
     // Chck whether the server is started
     test:assertTrue(serviceStarted, msg = "Unable to start the service");
-    json payload = {"name" : "sanFrancisco"};
-    json payload2 = {"name" : "sanFrancisco"};
+    json payload = {name: "sanFrancisco"};
+    json payload2 = {name: "london"};
 
     json response1 = {
-        "name": "San Francisco Test Station,USA",
-        "longitude": -122.43,
-        "latitude": 37.76,
-        "altitude": 150,
-        "rank": 1
+        name: "San Francisco Test Station,USA",
+        longitude: -122.43,
+        latitude: 37.76,
+        altitude: 150,
+        rank: 1
     };
 
     json response2 = {
-        "name": "London Test Station,England",
-        "longitude": -156.49,
-        "latitude": 57.76,
-        "altitude": 430,
-        "rank": 5
+        name: "London Test Station,England",
+        longitude: -156.49,
+        latitude: 57.76,
+        altitude: 430,
+        rank: 5
     };
 
     http:Request req = new;
