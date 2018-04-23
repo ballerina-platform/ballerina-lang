@@ -39,6 +39,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntermediateCollectionType;
@@ -384,7 +386,7 @@ public class CommonUtil {
      * @return {@link String}          Label string
      */
     private static String getAnnotationLabel(PackageID packageID, BLangAnnotation annotation) {
-        String pkgComponent = UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY;
+        String pkgComponent = "";
         if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())) {
 
             pkgComponent += packageID.getNameComps().get(packageID.getNameComps().size() - 1).getValue()
@@ -565,6 +567,24 @@ public class CommonUtil {
         }
 
         return actionFunctionList;
+    }
+
+    /**
+     * Check whether a given symbol is an endpoint object or not.
+     * @param bSymbol           BSymbol to evaluate
+     * @return {@link Boolean}  Symbol evaluation status
+     */
+    public static boolean isEndpointObject(BSymbol bSymbol) {
+        if (SymbolKind.OBJECT.equals(bSymbol.kind) && bSymbol instanceof BStructSymbol) {
+            List<BStructSymbol.BAttachedFunction> attachedFunctions = ((BStructSymbol) bSymbol).attachedFuncs;
+            for (BStructSymbol.BAttachedFunction attachedFunction : attachedFunctions) {
+                if (attachedFunction.funcName.getValue().equals(UtilSymbolKeys.EP_OBJECT_IDENTIFIER)) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
     }
 
     private static void populateIterableOperations(SymbolInfo variable, List<SymbolInfo> symbolInfoList) {

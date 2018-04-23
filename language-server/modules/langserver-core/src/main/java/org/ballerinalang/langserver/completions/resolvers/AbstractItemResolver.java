@@ -75,7 +75,8 @@ public abstract class AbstractItemResolver {
                 completionItem = this.populateVariableDefCompletionItem(symbolInfo);
             } else if (bSymbol instanceof BTypeSymbol
                     && !bSymbol.getName().getValue().equals(UtilSymbolKeys.NOT_FOUND_TYPE)
-                    && !(bSymbol instanceof BAnnotationSymbol)) {
+                    && !(bSymbol instanceof BAnnotationSymbol)
+                    && !(bSymbol.getName().getValue().equals("runtime"))) {
                 completionItem = this.populateBTypeCompletionItem(symbolInfo);
             }
 
@@ -201,8 +202,8 @@ public abstract class AbstractItemResolver {
         }
 
         for (int itr = 0; itr < defaultParameterDefs.size(); itr++) {
-            signature.append(this.getParameterSignature(parameterDefs.get(itr), true));
-            insertText.append(this.getParameterInsertText(parameterDefs.get(itr), true,
+            signature.append(this.getParameterSignature(defaultParameterDefs.get(itr), true));
+            insertText.append(this.getParameterInsertText(defaultParameterDefs.get(itr), true,
                     defaultParameterDefs.size() + itr + 1));
 
             if (itr < defaultParameterDefs.size() - 1) {

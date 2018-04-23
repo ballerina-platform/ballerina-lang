@@ -16,10 +16,6 @@
 
 documentation {
     The algorithms which can be used in crypto functions.
-
-    F{{MD5}} MD5 algorithm
-    F{{SHA1}} SHA1 algorithm
-    F{{SHA256}} SHA256 algorithm
 }
 public type Algorithm "SHA1"|"SHA256"|"MD5";
 

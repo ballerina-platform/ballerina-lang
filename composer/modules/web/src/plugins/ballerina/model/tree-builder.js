@@ -155,6 +155,20 @@ class TreeBuilder {
             node.endpoint = true;
         }
 
+        if (node.kind === 'Variable' && node.initialExpression && node.initialExpression.async) {
+            if (node.ws) {
+                let wsLength = node.ws.length;
+                for (let i = 0; i < wsLength; i++) {
+                    if (node.ws[i].text === 'start') {
+                        if (node.initialExpression.ws) {
+                            node.initialExpression.ws.splice(0, 0, node.ws[i]);
+                            node.ws.splice(i, 1);
+                        }
+                    }
+                }
+            }
+        }
+
         if (node.kind === 'Service') {
             if (!node.serviceTypeStruct) {
                 node.isServiceTypeUnavailable = true;
@@ -207,9 +221,11 @@ class TreeBuilder {
                 if (node.ws) {
                     for (let i = 0; i < node.ws.length; i++) {
                         if (node.ws[i].text === ')' && node.ws[i + 1].text !== 'returns') {
-                            for (let j = 0; j < node.returnTypeNode.ws.length; j++) {
+                            let returnTypeWsLength = node.returnTypeNode.ws.length;
+                            for (let j = 0; j < returnTypeWsLength; j++) {
                                 if (node.returnTypeNode.ws[j].text === 'returns') {
                                     node.ws.splice((i + 1), 0, node.returnTypeNode.ws[j]);
+                                    node.returnTypeNode.ws.splice(j, 1);
                                     break;
                                 }
                             }
@@ -221,6 +237,14 @@ class TreeBuilder {
 
             if (node.receiver && !node.receiver.ws) {
                 node.noVisibleReceiver = true;
+            }
+
+            if (node.restParameters && node.parameters && node.parameters.length > 0) {
+                node.hasRestParams = true;
+            }
+
+            if (node.restParameters && node.restParameters.typeNode) {
+                node.restParameters.typeNode.isRestParam = true;
             }
         }
 

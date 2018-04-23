@@ -1047,7 +1047,7 @@ public class BLangPackageBuilder {
 
         BLangNameReference nameReference = nameReferenceStack.pop();
         invocationNode.name = (BLangIdentifier) nameReference.name;
-        invocationNode.addWS(nameReference.ws);
+        invocationNode.addWS(this.invocationWsStack.pop());
         invocationNode.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
         addExpressionNode(invocationNode);
     }

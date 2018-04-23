@@ -47,6 +47,12 @@ type ResultDates {
     string DATETIME_TYPE,
 };
 
+type Employee {
+    int id,
+    string name,
+    string address,
+};
+
 function testInsertTableData() returns (int) {
     endpoint jdbc:Client testDB {
         url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
@@ -1001,6 +1007,89 @@ function testComplexTypeRetrieval() returns (string, string, string, string) {
 
     testDB.stop();
     return (s1, s2, s3, s4);
+}
+
+function testSelectLoadToMemory() returns (Employee[], Employee[], Employee[]) {
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
+    };
+
+    table dt = check testDB->select("SELECT * from employeeItr", Employee, loadToMemory = true);
+
+    Employee[] employeeArray1;
+    Employee[] employeeArray2;
+    Employee[] employeeArray3;
+    int i = 0;
+    while (dt.hasNext()) {
+        var rs = check <Employee>dt.getNext();
+        Employee e = {id:rs.id, name:rs.name, address:rs.address};
+        employeeArray1[i] = e;
+        i++;
+    }
+
+    i = 0;
+    while (dt.hasNext()) {
+        var rs = check <Employee>dt.getNext();
+        Employee e = {id:rs.id, name:rs.name, address:rs.address};
+        employeeArray2[i] = e;
+        i++;
+    }
+
+    i = 0;
+    while (dt.hasNext()) {
+        var rs = check <Employee>dt.getNext();
+        Employee e = {id:rs.id, name:rs.name, address:rs.address};
+        employeeArray3[i] = e;
+        i++;
+    }
+
+    testDB.stop();
+    return (employeeArray1, employeeArray2, employeeArray3);
+}
+
+function testLoadToMemorySelectAfterTableClose() returns (Employee[], Employee[], error) {
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
+    };
+
+    table dt = check testDB->select("SELECT * from employeeItr", Employee, loadToMemory = true);
+
+    Employee[] employeeArray1;
+    Employee[] employeeArray2;
+    Employee[] employeeArray3;
+    int i = 0;
+    while (dt.hasNext()) {
+        var rs = check <Employee>dt.getNext();
+        Employee e = {id:rs.id, name:rs.name, address:rs.address};
+        employeeArray1[i] = e;
+        i++;
+    }
+    i = 0;
+    while (dt.hasNext()) {
+        var rs = check <Employee>dt.getNext();
+        Employee e = {id:rs.id, name:rs.name, address:rs.address};
+        employeeArray2[i] = e;
+        i++;
+    }
+    dt.close();
+    i = 0;
+    error e;
+    try {
+        while (dt.hasNext()) {
+            var rs = check <Employee>dt.getNext();
+            Employee e = {id:rs.id, name:rs.name, address:rs.address};
+            employeeArray3[i] = e;
+            i++;
+        }
+    } catch (error err) {
+        e = err;
+    }
+    testDB.stop();
+    return (employeeArray1, employeeArray2, e);
 }
 
 function testCloseConnectionPool() returns (int) {

@@ -58,12 +58,13 @@ public class Select extends AbstractSQLAction {
 
             String query = context.getStringArgument(0);
             BStructType structType = getStructType(context, 1);
+            boolean loadSQLTableToMemory = context.getBooleanArgument(0);
 
             BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(2);
             SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CALLER_ACTIONS);
 
             checkAndObserveSQLAction(context, datasource, query);
-            executeQuery(context, datasource, query, parameters, structType);
+            executeQuery(context, datasource, query, parameters, structType, loadSQLTableToMemory);
         } catch (Throwable e) {
             context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e));
             SQLDatasourceUtils.handleErrorOnTransaction(context);

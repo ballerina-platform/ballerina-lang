@@ -31,7 +31,6 @@ import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
@@ -51,14 +50,6 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
  * Utility class for websockets.
  */
 public abstract class WebSocketUtil {
-    public static BMap getQueryParams(Context context) {
-        BStruct wsConnection = (BStruct) context.getRefArgument(0);
-        Object queryParams = wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_QUERY_PARAMS);
-        if (queryParams != null && queryParams instanceof BMap) {
-            return (BMap) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_QUERY_PARAMS);
-        }
-        return new BMap<>();
-    }
 
     public static ProgramFile getProgramFile(Resource resource) {
         return resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
@@ -74,7 +65,7 @@ public abstract class WebSocketUtil {
 
         if (annotationList.size() > 1) {
             throw new BallerinaException(
-                    "multiple service configuration annotations found in service: " + service.getName());
+                    "Multiple service configuration annotations found in service: " + service.getName());
         }
 
         return annotationList.isEmpty() ? null : annotationList.get(0);

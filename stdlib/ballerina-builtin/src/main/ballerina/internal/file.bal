@@ -77,7 +77,7 @@ documentation {
     P{{path}} Reference to the file path location
     R{{}} List of file paths in the directory or an I/O error
 }
-native function list(@sensitive Path path) returns Path[]|IOError;
+public native function list(@sensitive Path path) returns Path[]|IOError;
 
 documentation {
     Returns if the provided path is a directory.
@@ -93,7 +93,7 @@ documentation {
     P{{path}} Reference to the file path location
     R{{}} error if the directory/file could not be deleted
 }
-native function delete(@sensitive Path path) returns boolean|IOError;
+public native function delete(@sensitive Path path) returns boolean|IOError;
 
 documentation {
     Creates a directory in the specified location.
