@@ -1,6 +1,9 @@
-#Run the service
-$ ballerina run grpc-client-streaming.bal
-ballerina: initiating service(s) in 'grpc-client-streaming.bal'
+# To run the service, put the code in  `grpc-bidirectional-streaming.bal`
+# and use "ballerina run" command.
+$ ballerina run grpc-bidirectional-streaming.bal
 
-#Run client connector
-ballerina run client
+# To run the client and send request, build 'client' package using ballerina tool distribution using following command
+$ ballerina build client
+
+# Then run client.blax using following command to run the client
+$ ballerina run client.balx
