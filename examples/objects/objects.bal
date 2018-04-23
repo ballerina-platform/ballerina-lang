@@ -1,6 +1,6 @@
 import ballerina/io;
 
-// Defines a object called 'Person'. It contains public and private fields along with their types. <br/>Optionally, for fields, the default value can be defined. If not, the default value for that type will get set.
+// Defines a object called 'Person'. It contains public and private fields along with their types. <br/>Optionally, for fields, the default value can be defined. If not, the default value for that type will<br/> automatically get set.
 type Person object {
     public {
         int age,

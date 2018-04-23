@@ -16,11 +16,11 @@ type Person object {
         return firstName + " " + lastName;
     }
 
-    // Interface function defined within the object.
+    // Function declaration defined within the object.
     function checkAndModifyAge(int condition, int age);
 };
 
-// Implementation for the interface function.
+// Implementation for the declared function.
 function Person::checkAndModifyAge(int condition, int age) {
     if (self.age < condition) {
         self.age = age;

@@ -1,3 +1,3 @@
-// In Ballerina, objects are assignable if they are structurally equivalent, there are some rules that needs to
+// In Ballerina, objects are assignable if they are structurally equivalent, there are rules that needs to
 // be satisfied in order for objects to be structurally equivalent, the basic one is right hand side object type should
 // have at least same fields (in same order) and functions as left hand side object type.
