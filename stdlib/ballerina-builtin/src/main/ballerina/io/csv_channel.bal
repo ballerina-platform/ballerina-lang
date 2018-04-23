@@ -74,8 +74,16 @@ public type CSVChannel object {
 
         R{{}} True if there's a record
     }
-    public function hasNext() returns boolean? {
-        return dc.hasNext();
+    public function hasNext() returns boolean {
+        match dc{
+            DelimitedTextRecordChannel delimitedChannel=>{
+                return delimitedChannel.hasNext();
+            }
+            () =>{
+                error e = {message: "Channel not initialized"};
+                throw e;
+            }
+        }
     }
 
     documentation{
