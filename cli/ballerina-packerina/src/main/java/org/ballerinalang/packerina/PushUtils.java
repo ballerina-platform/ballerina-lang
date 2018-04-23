@@ -41,7 +41,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
@@ -167,7 +166,8 @@ public class PushUtils {
     private static void pause() {
         try {
             Thread.sleep(3000);
-        } catch (InterruptedException ignore) {
+        } catch (InterruptedException ex) {
+            throw new BLangCompilerException("Error occurred when getting the access token");
         }
     }
 
@@ -180,7 +180,7 @@ public class PushUtils {
     private static long getLastModifiedTimeOfFile(Path path) {
         try {
             return Files.getLastModifiedTime(path).toMillis();
-        } catch (IOException ignore) {
+        } catch (IOException ex) {
             throw new BLangCompilerException("Error occurred when reading file for token " +
                                                      SETTINGS_TOML_FILE_PATH.toString());
         }
