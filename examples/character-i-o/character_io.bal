@@ -1,9 +1,7 @@
 import ballerina/io;
 
 
-@Description {
-    value: "This function returns a CharacterChannel from a given file location, according to the permissions and encoding that you specify."
-}
+// This function returns a CharacterChannel from a given file location, according to the permissions and encoding that you specify.
 function getFileCharacterChannel(string filePath, io:Mode permission, string encoding) returns
                                                                                            io:CharacterChannel {
 
@@ -14,7 +12,7 @@ function getFileCharacterChannel(string filePath, io:Mode permission, string enc
     return charChannel;
 }
 
-@Description {value:"This function reads characters from 'channel', which is an instance of CharacterChannel."}
+// This function reads characters from 'channel', which is an instance of CharacterChannel.
 function readCharacters(io:CharacterChannel channel, int numberOfChars) returns string {
 
     //This is how the characters are read.
@@ -28,7 +26,7 @@ function readCharacters(io:CharacterChannel channel, int numberOfChars) returns 
     }
 }
 
-@Description {value:"This function wrties characters to 'channel'"}
+// This function wrties characters to 'channel'
 function writeCharacters(io:CharacterChannel channel, string content, int startOffset) {
     //This is how the characters are written.
     match channel.write(content, startOffset) {
@@ -41,7 +39,7 @@ function writeCharacters(io:CharacterChannel channel, string content, int startO
     }
 }
 
-@Description {value:"This function reads content from a file, appends the additional string, and writes the content."}
+// This function reads content from a file, appends the additional string, and writes the content.
 function process(io:CharacterChannel sourceChannel, io:CharacterChannel destinationChannel) {
     try {
         // Here is the string that is appended in-between.

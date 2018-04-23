@@ -1,15 +1,13 @@
 import ballerina/io;
 
-@Description {
-    value: "This function returns a ByteChannel from a given file location according to the specified file permission (i.e., whether the file should be opened for read or write)."
-}
+// This function returns a ByteChannel from a given file location according to the specified file permission (i.e., whether the file should be opened for read or write).
 function getFileChannel(string filePath, io:Mode permission) returns io:ByteChannel {
     // Here is how the ByteChannel is retrieved from the file.
     io:ByteChannel channel = io:openFile(filePath, permission);
     return channel;
 }
 
-@Description {value:"This function reads a specified number of bytes from the given channel."}
+// This function reads a specified number of bytes from the given channel.
 function readBytes(io:ByteChannel channel, int numberOfBytes) returns (blob, int) {
 
     // Here is how the bytes are read from the channel.
@@ -24,7 +22,7 @@ function readBytes(io:ByteChannel channel, int numberOfBytes) returns (blob, int
     }
 }
 
-@Description {value:"This function writes a byte content with the given offset to a channel."}
+// This function writes a byte content with the given offset to a channel.
 function writeBytes(io:ByteChannel channel, blob content, int startOffset = 0) returns int {
 
     // Here is how the bytes are written to the channel.
@@ -39,7 +37,7 @@ function writeBytes(io:ByteChannel channel, blob content, int startOffset = 0) r
     }
 }
 
-@Description {value:"This function copies content from the source channel to a destination channel."}
+// This function copies content from the source channel to a destination channel.
 function copy(io:ByteChannel src, io:ByteChannel dst) {
     // Specifies the number of bytes that should be read from a single read operation.
     int bytesChunk = 10000;
