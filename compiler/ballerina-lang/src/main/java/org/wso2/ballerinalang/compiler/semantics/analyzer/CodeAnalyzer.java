@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.ForkJoinNode;
@@ -28,6 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -128,6 +128,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -271,6 +274,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
             boolean invokableReturns = invNode.returnTypeNode.type != symTable.nilType;
             if (invNode.workers.isEmpty()) {
+                if (isPublicInvokableNode(invNode)) {
+                    analyzeNode(invNode.returnTypeNode, invokableEnv);
+                }
                 /* the body can be null in the case of Object type function declarations */
                 if (invNode.body != null) {
                     analyzeNode(invNode.body, invokableEnv);
@@ -295,6 +301,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         } finally {
             this.finalizeCurrentWorkerActionSystem();
         }
+    }
+
+    private boolean isPublicInvokableNode(BLangInvokableNode invNode) {
+        return Symbols.isPublic(invNode.symbol) && (SymbolKind.PACKAGE.equals(invNode.symbol.owner.getKind()) ||
+                Symbols.isPublic(invNode.symbol.owner));
     }
 
     @Override
@@ -618,19 +629,21 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangObject objectNode) {
-        objectNode.fields.stream()
-                .filter(field -> (objectNode.flagSet.contains(Flag.PUBLIC) && field.flagSet.contains(Flag.PUBLIC)))
-                .forEach(this::analyseObjectField);
+        if (objectNode.isFieldAnalyseRequired && Symbols.isPublic(objectNode.symbol)) {
+            objectNode.fields.stream()
+                    .filter(field -> (Symbols.isPublic(field.symbol)))
+                    .forEach(field -> analyzeNode(field, this.env));
+        }
         objectNode.functions.forEach(e -> this.analyzeNode(e, this.env));
     }
 
-    private void analyseObjectField(BLangVariable varNode) {
-        if (varNode.type == null || varNode.type.tsymbol == null) {
+    private void analyseType(BType type, DiagnosticPos pos) {
+        if (type == null || type.tsymbol == null) {
             return;
         }
-        BSymbol symbol = varNode.type.tsymbol;
+        BSymbol symbol = type.tsymbol;
         if (Symbols.isPrivate(symbol)) {
-            dlog.error(varNode.pos, DiagnosticCode.ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL, symbol.name);
+            dlog.error(pos, DiagnosticCode.ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL, symbol.name);
         }
     }
 
@@ -644,6 +657,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangVariable varNode) {
         analyzeExpr(varNode.expr);
+
+        if (!Symbols.isPublic(varNode.symbol)) {
+            return;
+        }
+
+        int ownerSymTag = this.env.scope.owner.tag;
+        if (((ownerSymTag & SymTag.INVOKABLE) != SymTag.INVOKABLE) || (varNode.type != null &&
+                varNode.parent != null && NodeKind.FUNCTION.equals(varNode.parent.getKind()))) {
+            analyseType(varNode.type, varNode.pos);
+        }
     }
 
     public void visit(BLangIdentifier identifierNode) {
@@ -1029,7 +1052,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangUserDefinedType userDefinedType) {
-        /* ignore */
+        analyseType(userDefinedType.type, userDefinedType.pos);
+    }
+
+    public void visit(BLangTupleTypeNode tupleTypeNode) {
+        tupleTypeNode.memberTypeNodes.forEach(memberType -> analyzeNode(memberType, env));
+    }
+
+    public void visit(BLangUnionTypeNode unionTypeNode) {
+        unionTypeNode.memberTypeNodes.forEach(memberType -> analyzeNode(memberType, env));
+    }
+
+    public void visit(BLangFunctionTypeNode functionTypeNode) {
+        analyseType(functionTypeNode.type, functionTypeNode.pos);
     }
 
     @Override
