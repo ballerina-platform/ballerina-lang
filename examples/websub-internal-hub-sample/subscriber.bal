@@ -21,6 +21,8 @@ endpoint websub:Listener websubEP {
 service websubSubscriber bind websubEP {
 
     //Resource accepting intent verification requests.
+    //If this resource is not specified, intent verification would happen automatically - intent would be verified if
+    // the topic specified in the intent verification request matches that specified in the annotation.
     onIntentVerification (endpoint caller, websub:IntentVerificationRequest request) {
         //Build the response for the subscription intent verification request that was received.
         http:Response response = request.buildSubscriptionVerificationResponse();
