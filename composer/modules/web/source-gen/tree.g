@@ -110,6 +110,10 @@ Deprecated
    : deprecated { <documentationText> }
    ;
 
+ElvisExpr
+   : <leftExpression.source> ?: <rightExpression.source>
+   ;
+
 Endpoint
    :  <annotationAttachments>* endpoint <endPointType.source> <name.value> <configurationExpression.source> ;
    ;
@@ -217,6 +221,10 @@ Object
    | <noPrivateFieldsAvailable?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> object { public { <publicFields-suffixed-by-;>* }                                            <initFunction.source> <functions>* };
    | <noPublicFieldAvailable?>   <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> object {                                          private { <privateFields-suffixed-by-;>* } <initFunction.source> <functions>* };
    |                             <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> object { public { <publicFields-suffixed-by-;>* } private { <privateFields-suffixed-by-;>* } <initFunction.source> <functions>* };
+   ;
+
+PostIncrement
+   : <variable.source> <operator> ;
    ;
 
 Record
@@ -332,6 +340,7 @@ TypeofExpression
    ;
 
 TypeInitExpr
+   : <noExpressionAvailable?> new <hasParantheses?> (                           )
    : <noExpressionAvailable?> new
    | <noTypeAttached?>        new                   ( <expressions-joined-by,>* )
    |                          new <typeName.source> ( <expressions-joined-by,>* )
@@ -348,8 +357,10 @@ UnionTypeNode
 
 UserDefinedType
    : <anonStruct.source>
-   | <packageAlias.value> : <typeName.value>
-   | <typeName.value>
+   | <nullableOperatorAvailable?> <packageAlias.value> : <typeName.value> ?
+   | <nullableOperatorAvailable?>                        <typeName.value> ?
+   |                              <packageAlias.value> : <typeName.value>
+   |                                                     <typeName.value>
    |
    ;
 
