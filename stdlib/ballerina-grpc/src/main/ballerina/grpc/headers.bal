@@ -29,7 +29,7 @@ public type Headers object {
 
         P{{headerName}} - The header name.
     }
-    public native function get(string headerName) returns (string|());
+    public native function get(string headerName) returns string?;
 
     documentation {
         Gets transport headers from the request.
