@@ -10,6 +10,8 @@ While
 IF Else
 Ternary
 Functions
+Functions With Defaultable Parameters
+Functions With Rest Parameters
 Errors
 Var
 Any Type
