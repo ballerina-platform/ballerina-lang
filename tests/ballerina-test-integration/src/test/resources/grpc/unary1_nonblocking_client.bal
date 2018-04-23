@@ -87,8 +87,8 @@ public type HelloWorldBlockingStub object {
         self.stub = navStub;
     }
 
-    function hello(string req, grpc:Headers... headers) returns ((string, grpc:Headers)|error) {
-        var unionResp = self.stub.blockingExecute("HelloWorld/hello", req, ...headers);
+    function hello(string req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
+        var unionResp = self.stub.blockingExecute("HelloWorld/hello", req, headers);
         match unionResp {
             error payloadError => {
                 return payloadError;
@@ -102,8 +102,8 @@ public type HelloWorldBlockingStub object {
         }
     }
 
-    function testInt(int req, grpc:Headers... headers) returns ((int, grpc:Headers)|error) {
-        var unionResp = self.stub.blockingExecute("HelloWorld/testInt", req, ...headers);
+    function testInt(int req, grpc:Headers? headers = ()) returns ((int, grpc:Headers)|error) {
+        var unionResp = self.stub.blockingExecute("HelloWorld/testInt", req, headers);
         match unionResp {
             error payloadError => {
                 return payloadError;
@@ -117,8 +117,8 @@ public type HelloWorldBlockingStub object {
         }
     }
 
-    function testFloat(float req, grpc:Headers... headers) returns ((float, grpc:Headers)|error) {
-        var unionResp = self.stub.blockingExecute("HelloWorld/testFloat", req, ...headers);
+    function testFloat(float req, grpc:Headers? headers = ()) returns ((float, grpc:Headers)|error) {
+        var unionResp = self.stub.blockingExecute("HelloWorld/testFloat", req, headers);
         match unionResp {
             error payloadError => {
                 return payloadError;
@@ -132,8 +132,8 @@ public type HelloWorldBlockingStub object {
         }
     }
 
-    function testBoolean(boolean req, grpc:Headers... headers) returns ((boolean, grpc:Headers)|error) {
-        var unionResp = self.stub.blockingExecute("HelloWorld/testBoolean", req, ...headers);
+    function testBoolean(boolean req, grpc:Headers? headers = ()) returns ((boolean, grpc:Headers)|error) {
+        var unionResp = self.stub.blockingExecute("HelloWorld/testBoolean", req, headers);
         match unionResp {
             error payloadError => {
                 return payloadError;
@@ -147,8 +147,8 @@ public type HelloWorldBlockingStub object {
         }
     }
 
-    function testStruct(Request req, grpc:Headers... headers) returns ((Response, grpc:Headers)|error) {
-        var unionResp = self.stub.blockingExecute("HelloWorld/testStruct", req, ...headers);
+    function testStruct(Request req, grpc:Headers? headers = ()) returns ((Response, grpc:Headers)|error) {
+        var unionResp = self.stub.blockingExecute("HelloWorld/testStruct", req, headers);
         match unionResp {
             error payloadError => {
                 return payloadError;
@@ -176,24 +176,24 @@ public type HelloWorldStub object {
         self.stub = navStub;
     }
 
-    function hello(string req, typedesc listener, grpc:Headers... headers) returns (error?) {
-        return self.stub.nonBlockingExecute("HelloWorld/hello", req, listener, ...headers);
+    function hello(string req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
+        return self.stub.nonBlockingExecute("HelloWorld/hello", req, listener, headers);
     }
 
-    function testInt(int req, typedesc listener, grpc:Headers... headers) returns (error?) {
-        return self.stub.nonBlockingExecute("HelloWorld/testInt", req, listener, ...headers);
+    function testInt(int req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
+        return self.stub.nonBlockingExecute("HelloWorld/testInt", req, listener, headers);
     }
 
-    function testFloat(float req, typedesc listener, grpc:Headers... headers) returns (error?) {
-        return self.stub.nonBlockingExecute("HelloWorld/testFloat", req, listener, ...headers);
+    function testFloat(float req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
+        return self.stub.nonBlockingExecute("HelloWorld/testFloat", req, listener, headers);
     }
 
-    function testBoolean(boolean req, typedesc listener, grpc:Headers... headers) returns (error?) {
-        return self.stub.nonBlockingExecute("HelloWorld/testBoolean", req, listener, ...headers);
+    function testBoolean(boolean req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
+        return self.stub.nonBlockingExecute("HelloWorld/testBoolean", req, listener, headers);
     }
 
-    function testStruct(Request req, typedesc listener, grpc:Headers... headers) returns (error?) {
-        return self.stub.nonBlockingExecute("HelloWorld/testStruct", req, listener, ...headers);
+    function testStruct(Request req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
+        return self.stub.nonBlockingExecute("HelloWorld/testStruct", req, listener, headers);
     }
 };
 

@@ -80,8 +80,8 @@ public type HelloWorldBlockingStub object {
         self.stub = navStub;
     }
 
-    function hello(string req, grpc:Headers... headers) returns ((string, grpc:Headers)|error) {
-        var unionResp = self.stub.blockingExecute("HelloWorld/hello", req, ...headers);
+    function hello(string req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
+        var unionResp = self.stub.blockingExecute("HelloWorld/hello", req, headers);
         match unionResp {
             error payloadError => {
                 return payloadError;
@@ -109,8 +109,8 @@ public type HelloWorldStub object {
         self.stub = navStub;
     }
 
-    function hello(string req, typedesc listener, grpc:Headers... headers) returns (error|()) {
-        return self.stub.nonBlockingExecute("HelloWorld/hello", req, listener, ...headers);
+    function hello(string req, typedesc listener, grpc:Headers? headers = ()) returns (error|()) {
+        return self.stub.nonBlockingExecute("HelloWorld/hello", req, listener, headers);
     }
 };
 

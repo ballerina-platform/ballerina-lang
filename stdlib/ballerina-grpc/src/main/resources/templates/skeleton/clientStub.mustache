@@ -14,9 +14,9 @@ public type {{connectorId}}{{stubTypeName}}{{stubType}}Stub object {
         self.stub = navStub;
     }
     {{/stubs}}{{#blockingFunctions}}
-    function {{operationId}} ({{inputDataType}}{{&space}}{{inputAttributeName}}{{inputComma}}{{&space}}grpc:Headers... headers) returns (({{outputDataType}}{{outputComma}} grpc:Headers)|error) {
+    function {{operationId}} ({{inputDataType}}{{&space}}{{inputAttributeName}}{{inputComma}}{{&space}}grpc:Headers? headers = ()) returns (({{outputDataType}}{{outputComma}} grpc:Headers)|error) {
         {{&initEmptyStub}}
-        var unionResp = self.stub.blockingExecute("{{methodId}}", req, ...headers);
+        var unionResp = self.stub.blockingExecute("{{methodId}}", req, headers);
         match unionResp {
             error payloadError => {
                 return payloadError;
@@ -30,12 +30,12 @@ public type {{connectorId}}{{stubTypeName}}{{stubType}}Stub object {
         }
     }
     {{/blockingFunctions}}{{#nonBlockingFunctions}}
-    function {{operationId}} ({{inputDataType}}{{&space}}{{inputAttributeName}}{{inputComma}}{{&space}}typedesc listener, grpc:Headers... headers) returns (error?) {
-        return self.stub.nonBlockingExecute("{{methodId}}", req, listener, ...headers);
+    function {{operationId}} ({{inputDataType}}{{&space}}{{inputAttributeName}}{{inputComma}}{{&space}}typedesc listener, grpc:Headers? headers = ()) returns (error?) {
+        return self.stub.nonBlockingExecute("{{methodId}}", req, listener, headers);
     }
     {{/nonBlockingFunctions}}{{#streamingFunctions}}
-    function {{operationId}} (typedesc listener, grpc:Headers... headers) returns (grpc:Client| error)  {
-        var res = self.stub.streamingExecute("{{methodId}}", listener, ...headers);
+    function {{operationId}} (typedesc listener, grpc:Headers? headers = ()) returns (grpc:Client| error)  {
+        var res = self.stub.streamingExecute("{{methodId}}", listener, headers);
         match res {
             error err => {
                 return err;

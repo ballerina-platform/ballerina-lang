@@ -122,7 +122,7 @@ public class BlockingExecute extends AbstractExecute {
         }
         
         // Update request headers when request headers exists in the context.
-        BRefValueArray headerValues = (BRefValueArray) context.getRefArgument(MESSAGE_HEADER_REF_INDEX);
+        BValue headerValues = context.getRefArgument(MESSAGE_HEADER_REF_INDEX);
         MessageHeaders headers = getMessageHeaders(headerValues);
         
         if (connectionStub instanceof GrpcBlockingStub) {

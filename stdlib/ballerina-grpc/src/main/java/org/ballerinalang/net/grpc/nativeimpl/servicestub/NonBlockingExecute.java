@@ -26,7 +26,6 @@ import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.connector.impl.ValueImpl;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
@@ -123,7 +122,7 @@ public class NonBlockingExecute extends AbstractExecute {
 
 
         // Update request headers when request headers exists in the context.
-        BRefValueArray headerValues = (BRefValueArray) context.getRefArgument(MESSAGE_HEADER_REF_INDEX);
+        BValue headerValues = context.getRefArgument(MESSAGE_HEADER_REF_INDEX);
         MessageHeaders headers = getMessageHeaders(headerValues);
 
         if (connectionStub instanceof GrpcNonBlockingStub) {
