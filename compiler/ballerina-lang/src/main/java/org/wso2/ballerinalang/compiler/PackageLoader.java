@@ -140,7 +140,7 @@ public class PackageLoader {
         RepoHierarchyBuilder.RepoNode[] systemArr = loadSystemRepos();
         Converter<Path> converter = sourceDirectory.getConverter();
 
-        Repo remote = new RemoteRepo(URI.create("https://api.central.ballerina.io/packages/"));
+        Repo remote = new RemoteRepo(URI.create(RepoUtils.getRemoteRepoURL()));
         Repo homeCacheRepo = new CacheRepo(balHomeDir, ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME);
         Repo homeRepo = shouldReadBalo ? new BinaryRepo(balHomeDir) : new ZipRepo(balHomeDir);
         Repo projectCacheRepo = new CacheRepo(projectHiddenDir, ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME);
