@@ -518,44 +518,6 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess() returns (int, in
     return (returnVal, count, a);
 }
 
-function testTransactionWithWorkers() returns (int) {
-    endpoint jdbc:Client  testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username:"SA",
-        poolOptions:{maximumPoolSize:2}
-    };
-
-    transaction {
-        invokeWorkers(testDB);
-    }
-
-    //check whether update action is performed
-    int count;
-    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 834", ResultCount);
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
-    testDB.stop();
-    return count;
-}
-
-function invokeWorkers(jdbc:Client  testDBClient) {
-    endpoint jdbc:Client  testDB = testDBClient;
-
-    worker w1 {
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                            values ('Anne', 'Clerk', 834, 5000.75, 'USA')");
-    }
-
-    worker w2 {
-        runtime:sleep(5000);
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                            values ('James', 'Clerk', 834, 5000.75, 'USA')");
-    }
-
-}
-
 function testCloseConnectionPool() returns (int) {
     endpoint jdbc:Client  testDB {
         url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",

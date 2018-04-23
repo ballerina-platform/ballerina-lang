@@ -25,17 +25,22 @@ import java.util.ArrayList;
 public class GlobalVariableDoc extends Documentable {
     public final boolean isGlobalVariable;
     public final String dataType;
+    public final String href;
 
     /**
      * Construct.
-     * @param name global variable name.
+     *
+     * @param name        global variable name.
      * @param description description.
-     * @param children children if any.
-     * @param dataType data type of the global variable.
+     * @param children    children if any.
+     * @param dataType    data type of the global variable.
+     * @param href        link to data type.
      */
-    public GlobalVariableDoc(String name, String description, ArrayList<Documentable> children, String dataType) {
+    public GlobalVariableDoc(String name, String description, ArrayList<Documentable> children, String dataType,
+                             String href) {
         super(name, "fw-globe", description, children);
         this.dataType = dataType;
+        this.href = href;
         isGlobalVariable = true;
     }
 }

@@ -11,11 +11,13 @@ public type WebSocketConnector object {
 
     @Description {value:"Push text to the connection"}
     @Param {value:"text: Text to be sent"}
-    public native function pushText(string text) returns WebSocketConnectorError|();
+    @Param {value:"final: True if this is a final frame of a long message"}
+    public native function pushText(string text, boolean final = true) returns WebSocketConnectorError|();
 
     @Description {value:"Push binary data to the connection"}
     @Param {value:"data: Binary data to be sent"}
-    public native function pushBinary(blob data) returns WebSocketConnectorError|();
+    @Param {value:"final: True if this is a final frame of a long message"}
+    public native function pushBinary(blob data, boolean final = true) returns WebSocketConnectorError|();
 
     @Description {value:"Ping the connection"}
     @Param {value:"data: Binary data to be sent"}

@@ -22,9 +22,8 @@ function testService () {
 
     test:assertTrue(isServiceSkeletonStarted, msg = "Service skeleton failed to start");
 
-    http:Request req = new;
     // Send a GET request to the specified endpoint
-    var response = httpEndpoint -> get("/pets", req);
+    var response = httpEndpoint -> get("/pets");
     match response {
                http:Response resp => {
                     var strRes = resp.getStringPayload();

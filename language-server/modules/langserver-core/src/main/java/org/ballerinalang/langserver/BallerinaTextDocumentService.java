@@ -76,6 +76,7 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -103,6 +104,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
     private final WorkspaceDocumentManager documentManager;
     private Map<String, List<Diagnostic>> lastDiagnosticMap;
     private LSGlobalContext lsGlobalContext;
+    // In case of there are any specific error scenarios, then the fallback BLang package will be used
+    // to get completions
+    private BLangPackage fallbackBLangPackage = null;
 
     private final Debouncer diagPushDebouncer;
 
@@ -132,17 +136,16 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 completionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                       bLangPackage.symbol.getName().getValue());
                 completionContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
-                // Visit the package to resolve the symbols
-                TreeVisitor treeVisitor = new TreeVisitor(completionContext);
-                bLangPackage.accept(treeVisitor);
+                this.resolveSymbols(completionContext, bLangPackage);
                 BLangNode symbolEnvNode = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
-                if (symbolEnvNode == null) {
+                if (symbolEnvNode instanceof BLangPackage) {
                     completions = CompletionItemResolver.getResolverByClass(TopLevelResolver.class)
                             .resolveItems(completionContext);
                 } else {
                     completions = CompletionItemResolver.getResolverByClass(symbolEnvNode.getClass())
                             .resolveItems(completionContext);
                 }
+                this.fallbackBLangPackage = bLangPackage;
             } catch (Exception | AssertionError e) {
                 completions = new ArrayList<>();
             } finally {
@@ -284,7 +287,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 for (BLangPackage bLangPackage : bLangPackages) {
                     referenceContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                          bLangPackage.symbol.getName().getValue());
-//                LSPackageCache.getInstance().addPackage(bLangPackage.packageID, bLangPackage);
+//                LSPackageCache.getInstance().put(bLangPackage.packageID, bLangPackage);
                     referenceContext.put(NodeContextKeys.REFERENCE_NODES_KEY, contents);
                     contents = ReferenceUtil.getReferences(referenceContext, bLangPackage);
                 }
@@ -441,7 +444,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     LSContextManager lsContextManager = LSContextManager.getInstance();
                     String sourceRoot = LSCompiler.getSourceRoot(Paths.get(params.getTextDocument().getUri()));
                     CompilerContext context = lsContextManager.getCompilerContext(bLangPackage.packageID, sourceRoot);
-                    LSPackageCache.getInstance(context).addPackage(bLangPackage.packageID, bLangPackage);
+                    LSPackageCache.getInstance(context).put(bLangPackage.packageID, bLangPackage);
 
                     contents = ReferenceUtil.getReferences(renameContext, bLangPackage);
                 }
@@ -584,5 +587,28 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public void didSave(DidSaveTextDocumentParams params) {
+    }
+    
+    // Private Methods
+
+    /**
+     * Resolve the visible symbols from the given BLang Package and the current context.
+     * @param completionContext     Completion Service Context
+     * @param bLangPackage          BLang Package
+     */
+    private void resolveSymbols(LSServiceOperationContext completionContext, BLangPackage bLangPackage) {
+        // Visit the package to resolve the symbols
+        TreeVisitor treeVisitor = new TreeVisitor(completionContext);
+        if (completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY)
+                instanceof BallerinaParser.MatchStatementContext) {
+            this.fallbackBLangPackage.accept(treeVisitor);
+        } else {
+            bLangPackage.accept(treeVisitor);
+        }
+        
+        if (completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY) == null) {
+            treeVisitor.populateSymbols(treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv()),
+                    treeVisitor.getSymbolEnv());
+        }
     }
 }
