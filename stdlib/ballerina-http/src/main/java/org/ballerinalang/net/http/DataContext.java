@@ -47,17 +47,21 @@ public class DataContext {
 
     public void notifyReply(BStruct response, BStruct httpConnectorError) {
         //Make the request associate with this response consumable again so that it can be reused.
-        BStruct requestStruct = ((BStruct) context.getNullableRefArgument(1));
-        BStruct entityStruct = MimeUtil.extractEntity(requestStruct);
-        if (entityStruct != null) {
-            MessageDataSource messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
-            if (messageDataSource == null && EntityBodyHandler.getByteChannel(entityStruct) == null) {
-                correlatedMessage.addHttpContent(new DefaultLastHttpContent());
-            } else {
-                correlatedMessage.waitAndReleaseAllEntities();
+        if (correlatedMessage != null) {
+            BStruct requestStruct = ((BStruct) context.getNullableRefArgument(1));
+            if (requestStruct != null) {
+                BStruct entityStruct = MimeUtil.extractEntity(requestStruct);
+                if (entityStruct != null) {
+                    MessageDataSource messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+                    if (messageDataSource == null && EntityBodyHandler.getByteChannel(entityStruct) == null) {
+                        correlatedMessage.addHttpContent(new DefaultLastHttpContent());
+                    } else {
+                        correlatedMessage.waitAndReleaseAllEntities();
+                    }
+                } else {
+                    correlatedMessage.addHttpContent(new DefaultLastHttpContent());
+                }
             }
-        } else {
-            correlatedMessage.addHttpContent(new DefaultLastHttpContent());
         }
         if (response != null) {
             context.setReturnValues(response);
@@ -65,7 +69,7 @@ public class DataContext {
             context.setReturnValues(httpConnectorError);
         } else {
             BStruct err = BLangConnectorSPIUtil.createBStruct(context, PROTOCOL_PACKAGE_HTTP, HTTP_CONNECTOR_ERROR,
-                    "HttpClient failed");
+                                                              "HttpClient failed");
             context.setReturnValues(err);
         }
         callback.notifySuccess();

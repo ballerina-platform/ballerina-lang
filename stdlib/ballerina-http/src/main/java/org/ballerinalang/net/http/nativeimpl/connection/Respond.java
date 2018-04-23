@@ -61,11 +61,10 @@ public class Respond extends ConnectionAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        DataContext dataContext = new DataContext(context, callback, null);
         BStruct connectionStruct = (BStruct) context.getRefArgument(0);
         HTTPCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionStruct, null);
         HttpUtil.checkFunctionValidity(connectionStruct, inboundRequestMsg);
-
+        DataContext dataContext = new DataContext(context, callback, inboundRequestMsg);
         BStruct outboundResponseStruct = (BStruct) context.getRefArgument(1);
         HTTPCarbonMessage outboundResponseMsg = HttpUtil
                 .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
