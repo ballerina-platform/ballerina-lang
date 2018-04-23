@@ -285,6 +285,15 @@ public class SymbolResolver extends BLangNodeVisitor {
         return symTable.notFoundSymbol;
     }
 
+    public BSymbol createReferenceEqualityOperator(OperatorKind opKind, BType lhsType,
+                                                   BType rhsType) {
+        int opcode = (opKind == OperatorKind.EQUAL) ? InstructionCodes.REQ : InstructionCodes.RNE;
+        List<BType> paramTypes = Lists.of(lhsType, rhsType);
+        BType retType = symTable.booleanType;
+        BInvokableType opType = new BInvokableType(paramTypes, retType, null);
+        return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
+    }
+
     public BSymbol resolveUnaryOperator(DiagnosticPos pos,
                                         OperatorKind opKind,
                                         BType type) {

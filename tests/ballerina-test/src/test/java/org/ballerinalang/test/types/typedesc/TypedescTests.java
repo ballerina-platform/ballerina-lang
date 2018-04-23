@@ -45,7 +45,6 @@ public class TypedescTests {
         Assert.assertEquals(compile.getErrorCount(), 2);
         BAssertUtil.validateError(compile, 0, "variable assignment is required", 2, 5);
         BAssertUtil.validateError(compile, 1, "variable 'a' is not initialized", 3, 5);
-        //BAssertUtil.validateError(compile, 2, "operator '==' not defined for 'typedesc' and 'typedesc'", 7, 8);
     }
 
 

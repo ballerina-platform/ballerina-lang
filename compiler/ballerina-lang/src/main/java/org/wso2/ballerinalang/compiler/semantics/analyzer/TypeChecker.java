@@ -116,7 +116,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
-import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -644,19 +643,11 @@ public class TypeChecker extends BLangNodeVisitor {
         if (types.isIntersectionExist(lhsType, rhsType)) {
             if ((!types.isValueType(lhsType) && !types.isValueType(rhsType)) ||
                     (types.isValueType(lhsType) && types.isValueType(rhsType))) {
-                int opcode = (opKind == OperatorKind.EQUAL) ? InstructionCodes.REQ : InstructionCodes.RNE;
-                List<BType> paramTypes = Lists.of(lhsType, rhsType);
-                BType retType = symTable.booleanType;
-                BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-                return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
+                return symResolver.createReferenceEqualityOperator(opKind, lhsType, rhsType);
             } else {
                 types.setImplicitCastExpr(binaryExpr.rhsExpr, rhsType, symTable.anyType);
                 types.setImplicitCastExpr(binaryExpr.lhsExpr, lhsType, symTable.anyType);
-                int opcode = (opKind == OperatorKind.EQUAL) ? InstructionCodes.REQ : InstructionCodes.RNE;
-                List<BType> paramTypes = Lists.of(symTable.anyType, symTable.anyType);
-                BType retType = symTable.booleanType;
-                BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-                return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
+                return symResolver.createReferenceEqualityOperator(opKind, symTable.anyType, symTable.anyType);
             }
         } else {
             return symTable.notFoundSymbol;

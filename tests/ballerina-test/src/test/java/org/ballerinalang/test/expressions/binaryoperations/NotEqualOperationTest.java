@@ -132,7 +132,5 @@ public class NotEqualOperationTest {
     public void testNotEqualStmtNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
         BAssertUtil.validateError(resultNegative, 0, "operator '==' not defined for 'int' and 'string'", 4, 12);
-        //BAssertUtil.validateError(resultNegative, 1, "operator '==' not defined for 'json' and 'json'", 13, 12);
-        //BAssertUtil.validateError(resultNegative, 2, "operator '!=' not defined for 'json' and 'json'", 22, 12);
     }
 }
