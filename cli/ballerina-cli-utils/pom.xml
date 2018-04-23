@@ -167,9 +167,9 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <delete file="${ballerina.source.directory}/packaging.pull/ballerina.pull.balx" />
-                                <delete file="${ballerina.source.directory}/packaging.push/ballerina.push.balx" />
-                                <delete file="${ballerina.source.directory}/packaging.search/ballerina.search.balx" />
+                                <delete file="${ballerina.source.directory}/packaging.pull/packaging_pull.balx" />
+                                <delete file="${ballerina.source.directory}/packaging.push/packaging_push.balx" />
+                                <delete file="${ballerina.source.directory}/packaging.search/packaging_search.balx" />
                             </tasks>
                         </configuration>
                     </execution>
