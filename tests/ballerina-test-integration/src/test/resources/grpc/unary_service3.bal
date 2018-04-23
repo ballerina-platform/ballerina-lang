@@ -15,7 +15,7 @@ service HelloWorld bind ep {
         string message = "Hello " + name;
         io:println(headers.get("x-id"));
         headers.setEntry("x-id", "1234567890");
-        error? err = caller->send(message, headers);
+        error? err = caller->send(message, headers = headers);
         string msg = "Server send response : " + message;
         io:println(err.message but { () => ("Server send response : " + message) });
         _ = caller->complete();

@@ -74,7 +74,7 @@ public type HelloWorldStub object {
     }
 
     function lotsOfReplies(string req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
-        return self.stub.nonBlockingExecute("HelloWorld/lotsOfReplies", req, listener, headers);
+        return self.stub.nonBlockingExecute("HelloWorld/lotsOfReplies", req, listener, headers = headers);
     }
 };
 

@@ -65,7 +65,7 @@ public type ChatStub object {
     }
 
     function chat(typedesc listener, grpc:Headers? headers = ()) returns (grpc:Client|error) {
-        var res = stub.stub.streamingExecute("Chat/chat", listener, ...header);
+        var res = stub.stub.streamingExecute("Chat/chat", listener, headers = headers);
         match res {
             error err1 => {
                 return err1;

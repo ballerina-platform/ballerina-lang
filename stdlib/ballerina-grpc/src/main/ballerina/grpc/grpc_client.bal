@@ -31,12 +31,12 @@ public type GrpcClient object {
 
         P{{res}} - The inbound request message.
     }
-    public native function send(any res, Headers? headers = ()) returns error?;
+    public native function send(any res) returns error?;
 
     documentation {
         Informs the server, caller finished sending messages.
     }
-    public native function complete(Headers? headers = ()) returns error?;
+    public native function complete() returns error?;
 
     documentation {
         Sends error response to the server.
@@ -44,5 +44,5 @@ public type GrpcClient object {
         P{{statusCode}} - Error status code.
         P{{message}} - Error message.
     }
-    public native function sendError(int statusCode, string message, Headers? headers = ()) returns error?;
+    public native function sendError(int statusCode, string message) returns error?;
 };

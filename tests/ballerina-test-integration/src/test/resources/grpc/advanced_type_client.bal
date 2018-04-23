@@ -150,7 +150,7 @@ public type HelloWorldBlockingStub object {
     }
 
     function testInputNestedStruct(Person req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
-        var unionResp = self.stub.blockingExecute("HelloWorld/testInputNestedStruct", req, headers);
+        var unionResp = self.stub.blockingExecute("HelloWorld/testInputNestedStruct", req, headers = headers);
         match unionResp {
             error payloadError => {
                 return payloadError;
@@ -165,7 +165,7 @@ public type HelloWorldBlockingStub object {
     }
 
     function testOutputNestedStruct(string req, grpc:Headers? headers = ()) returns ((Person, grpc:Headers)|error) {
-        var unionResp = self.stub.blockingExecute("HelloWorld/testOutputNestedStruct", req, headers);
+        var unionResp = self.stub.blockingExecute("HelloWorld/testOutputNestedStruct", req, headers = headers);
         match unionResp {
             error payloadError => {
                 return payloadError;
@@ -181,7 +181,7 @@ public type HelloWorldBlockingStub object {
 
     function testInputStructOutputStruct(StockRequest req, grpc:Headers? headers = ()) returns ((StockQuote, grpc:Headers)|
             error) {
-        var unionResp = self.stub.blockingExecute("HelloWorld/testInputStructOutputStruct", req, headers);
+        var unionResp = self.stub.blockingExecute("HelloWorld/testInputStructOutputStruct", req, headers = headers);
         match unionResp {
             error payloadError => {
                 return payloadError;
@@ -196,7 +196,7 @@ public type HelloWorldBlockingStub object {
     }
 
     function testInputStructNoOutput(StockQuote req, grpc:Headers? headers = ()) returns ((grpc:Headers)|error) {
-        var unionResp = self.stub.blockingExecute("HelloWorld/testInputStructNoOutput", req, headers);
+        var unionResp = self.stub.blockingExecute("HelloWorld/testInputStructNoOutput", req, headers = headers);
         match unionResp {
             error payloadError => {
                 return payloadError;
@@ -212,7 +212,7 @@ public type HelloWorldBlockingStub object {
 
     function testNoInputOutputStruct(grpc:Headers? headers = ()) returns ((StockQuotes, grpc:Headers)|error) {
         Empty req = {};
-        var unionResp = self.stub.blockingExecute("HelloWorld/testNoInputOutputStruct", req, headers);
+        var unionResp = self.stub.blockingExecute("HelloWorld/testNoInputOutputStruct", req, headers = headers);
         match unionResp {
             error payloadError => {
                 return payloadError;
@@ -228,7 +228,7 @@ public type HelloWorldBlockingStub object {
 
     function testNoInputOutputArray(grpc:Headers? headers = ()) returns ((StockNames, grpc:Headers)|error) {
         Empty req = {};
-        var unionResp = self.stub.blockingExecute("HelloWorld/testNoInputOutputArray", req, headers);
+        var unionResp = self.stub.blockingExecute("HelloWorld/testNoInputOutputArray", req, headers = headers);
         match unionResp {
             error payloadError => {
                 return payloadError;
@@ -258,27 +258,27 @@ public type HelloWorldStub object {
     }
 
     function testInputNestedStruct(Person req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
-        return self.stub.nonBlockingExecute("HelloWorld/testInputNestedStruct", req, listener, headers);
+        return self.stub.nonBlockingExecute("HelloWorld/testInputNestedStruct", req, listener, headers = headers);
     }
 
     function testOutputNestedStruct(string req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
-        return self.stub.nonBlockingExecute("HelloWorld/testOutputNestedStruct", req, listener, headers);
+        return self.stub.nonBlockingExecute("HelloWorld/testOutputNestedStruct", req, listener, headers = headers);
     }
 
     function testInputStructOutputStruct(StockRequest req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
-        return self.stub.nonBlockingExecute("HelloWorld/testInputStructOutputStruct", req, listener, headers);
+        return self.stub.nonBlockingExecute("HelloWorld/testInputStructOutputStruct", req, listener, headers = headers);
     }
 
-    function testInputStructNoOutput(StockQuote req, typedesc listener, Headers? headers = ()s) returns (error?) {
-        return self.stub.nonBlockingExecute("HelloWorld/testInputStructNoOutput", req, listener, headers);
+    function testInputStructNoOutput(StockQuote req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
+        return self.stub.nonBlockingExecute("HelloWorld/testInputStructNoOutput", req, listener, headers = headers);
     }
 
     function testNoInputOutputStruct(Empty req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
-        return self.stub.nonBlockingExecute("HelloWorld/testNoInputOutputStruct", req, listener, headers);
+        return self.stub.nonBlockingExecute("HelloWorld/testNoInputOutputStruct", req, listener, headers = headers);
     }
 
     function testNoInputOutputArray(Empty req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
-        return self.stub.nonBlockingExecute("HelloWorld/testNoInputOutputArray", req, listener, headers);
+        return self.stub.nonBlockingExecute("HelloWorld/testNoInputOutputArray", req, listener, headers = headers);
     }
 
 };

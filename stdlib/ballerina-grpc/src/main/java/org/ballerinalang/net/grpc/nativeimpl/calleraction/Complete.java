@@ -54,7 +54,8 @@ import static org.ballerinalang.net.grpc.MessageUtils.getContextHeader;
         receiver = @Receiver(type = TypeKind.STRUCT, structType = CALLER_ACTION,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         args = {
-                @Argument(name = "headers", type = TypeKind.ARRAY)
+                @Argument(name = "headers", type = TypeKind.STRUCT, structType = "Headers",
+                        structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC)
         },
         returnType = {
                 @ReturnType(type = TypeKind.STRUCT, structType = STRUCT_GENERIC_ERROR, structPackage = PACKAGE_BUILTIN)
@@ -68,7 +69,7 @@ public class Complete extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BStruct endpointClient = (BStruct) context.getRefArgument(CLIENT_RESPONDER_REF_INDEX);
-        BValue headerValue = context.getRefArgument(MESSAGE_HEADER_REF_INDEX);
+        BValue headerValue = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
         StreamObserver responseObserver = MessageUtils.getResponseObserver(endpointClient);
         Descriptors.Descriptor outputType = (Descriptors.Descriptor) endpointClient.getNativeData(GrpcConstants
                 .RESPONSE_MESSAGE_DEFINITION);
