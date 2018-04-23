@@ -10,7 +10,7 @@ service<http:WebSocketClientService> echo bind wsClientEp {
     onText(endpoint conn, string text) {
     }
 
-    onBinary(endpoint conn, blob text, boolean more) {
+    onBinary(endpoint conn, blob text, boolean final) {
 
     }
 
