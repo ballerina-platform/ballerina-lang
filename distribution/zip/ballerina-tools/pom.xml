@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.970.0-beta12-SNAPSHOT</version>
+        <version>0.970.0-beta13-SNAPSHOT</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
 
@@ -103,16 +103,19 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>
-                                composer-server-distribution,
-                                ballerina-composer-web,
-                                testerina-core,
-                                ballerina-builtin,
-                                connectors,
                                 ballerina,
+                                ballerina-builtin,
+                                ballerina-composer-web,
+                                ballerina-database,
+                                ballerina-grpc,
                                 ballerina-http,
-                                ballerina-transactions,
+                                ballerina-jms,
                                 ballerina-mime,
-                                ballerina-grpc
+                                ballerina-transactions,
+                                ballerina-websub,
+                                composer-server-distribution,
+                                connectors,
+                                testerina-core,
                             </includeArtifactIds>
                             <outputDirectory>${project.build.directory}/extracted-distributions
                             </outputDirectory>
@@ -143,16 +146,28 @@
                                     <directory>${project.build.directory}/extracted-distributions/ballerina-builtin-jar/META-INF/ballerina</directory>
                                 </resource>
                                 <resource>
-                                    <directory>${project.build.directory}/extracted-distributions/ballerina-mime-jar/META-INF/ballerina</directory>
+                                    <directory>${project.build.directory}/extracted-distributions/ballerina-database-jar/META-INF/ballerina</directory>
+                                </resource>
+                                <resource>
+                                    <directory>${project.build.directory}/extracted-distributions/ballerina-grpc-jar/META-INF/ballerina</directory>
                                 </resource>
                                 <resource>
                                     <directory>${project.build.directory}/extracted-distributions/ballerina-http-jar/META-INF/ballerina</directory>
                                 </resource>
                                 <resource>
-                                    <directory>${project.build.directory}/extracted-distributions/testerina-core-jar/META-INF/ballerina</directory>
+                                    <directory>${project.build.directory}/extracted-distributions/ballerina-jms-jar/META-INF/ballerina</directory>
                                 </resource>
                                 <resource>
-                                    <directory>${project.build.directory}/extracted-distributions/ballerina-grpc-jar/META-INF/ballerina</directory>
+                                    <directory>${project.build.directory}/extracted-distributions/ballerina-mime-jar/META-INF/ballerina</directory>
+                                </resource>
+                                <resource>
+                                    <directory>${project.build.directory}/extracted-distributions/ballerina-websub-jar/META-INF/ballerina</directory>
+                                </resource>
+                                <resource>
+                                    <directory>${project.build.directory}/extracted-distributions/ballerina-transactions-jar/META-INF/ballerina</directory>
+                                </resource>
+                                <resource>
+                                    <directory>${project.build.directory}/extracted-distributions/testerina-core-jar/META-INF/ballerina</directory>
                                 </resource>
                             </resources>
                         </configuration>
