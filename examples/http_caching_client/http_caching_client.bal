@@ -33,7 +33,7 @@ service<http:Service> cachingProxy bind {port: 9090} {
                 // For failed requests, a `500` response is sent back to the caller.
                 http:Response res = new;
                 res.statusCode = 500;
-                res.setStringPayload(err.message);
+                res.setPayload(err.message);
                 caller->respond(res) but {error e => log:printError("Failed to respond to the caller", err = e)};
             }
         }
@@ -69,7 +69,7 @@ service<http:Service> helloWorld bind {port: 8080} {
         // The `setLastModified()` function sets the current time as the `last-modified` header.
         res.setLastModified();
 
-        res.setJsonPayload(payload);
+        res.setPayload(payload);
         // When sending the response, if the `cacheControl` field of the response is set, and the user has not already
         // set a `cache-control` header, a `cache-control` header will be set using the directives set in the
         // `cacheControl` object.
