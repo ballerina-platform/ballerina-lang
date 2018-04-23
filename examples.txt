@@ -36,6 +36,7 @@ XML Attributes
 XML Functions
 JSON To XML Conversion
 XML To JSON Conversion
+Streams
 Foreach
 Iterable Operations
 Worker
@@ -134,7 +135,7 @@ Testerina Data Provider
 Testerina Depends On
 Testerina Function Mocks
 Testerina Groups
-Streams
+Streams Filtering
 Streams within services
 Streams Join
 Streams Sequences
