@@ -393,33 +393,7 @@ public class ObjectTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 88);
         Assert.assertEquals(returns[1].stringValue(), "sanjiva");
     }
-
-//    @Test(description = "Test object with default initialize global variable") //TODO fix
-//    public void testObjectWithDefaultInitializeGlobalVar1() {
-//        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_declaration_test1.bal");
-//        BValue[] returns = BRunUtil.invoke(compileResult, "testGetDefaultValuesInObjectGlobalVar");
-//
-//        Assert.assertEquals(returns.length, 2);
-//        Assert.assertSame(returns[0].getClass(), BInteger.class);
-//        Assert.assertSame(returns[1].getClass(), BString.class);
-//
-//        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
-//        Assert.assertEquals(returns[1].stringValue(), "");
-//    }
-
-//    @Test(description = "Test object with default initialize global variable") //TODO fix
-//    public void abc() {
-//        CompileResult compileResult = BCompileUtil.compile("test-src/object/abc1.bal");
-//        BValue[] returns = BRunUtil.invoke(compileResult, "test");
-//
-//        Assert.assertEquals(returns.length, 2);
-//        Assert.assertSame(returns[0].getClass(), BInteger.class);
-//        Assert.assertSame(returns[1].getClass(), BString.class);
-//
-//        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
-//        Assert.assertEquals(returns[1].stringValue(), "sample value");
-//    }
-
+    
     @Test (description = "Negative test to test multiple attach functions for same function interface and " +
             "attached function without function interface")
     public void testObjectNegativeTestForAttachFunctions() {
