@@ -7,15 +7,13 @@ endpoint http:Listener echoEP {
 @http:ServiceConfig {basePath:"/listener"}
 service<http:Service> echo bind echoEP {
 
-string serviceLevelStringVar = "Hello World";
-
     @http:ResourceConfig {
         methods:["GET"],
         path:"/message"
     }
     echo (endpoint conn, http:Request req) {
         http:Response res = new;
-        res.setStringPayload(serviceLevelStringVar);
+        res.setStringPayload("Hello World");
         _ = conn -> respond(res);
         echoEP.stop();
     }

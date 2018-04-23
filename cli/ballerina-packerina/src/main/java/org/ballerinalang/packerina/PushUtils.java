@@ -41,6 +41,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
@@ -139,7 +140,7 @@ public class PushUtils {
 
         if (accessToken.isEmpty()) {
             long modifiedTimeOfFileAtStart = getLastModifiedTimeOfFile(SETTINGS_TOML_FILE_PATH);
-            executor.execute("packaging.token.validator/ballerina.token.validator.balx", "service");
+            executor.execute("packaging.token.updater/ballerina.token.updater.balx", "service");
 
             boolean waitForToken = true;
             while (waitForToken) {
