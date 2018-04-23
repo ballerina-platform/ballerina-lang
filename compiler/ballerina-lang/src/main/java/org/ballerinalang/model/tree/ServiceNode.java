@@ -20,9 +20,8 @@ package org.ballerinalang.model.tree;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.ballerinalang.model.tree.statements.XMLNSDeclStatementNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 
 import java.util.List;
 
@@ -61,8 +60,8 @@ public interface ServiceNode extends AnnotatableNode, DocumentableNode, TopLevel
 
     void addAnonymousEndpointBind(RecordLiteralNode recordLiteralNode);
 
-    List<BLangXMLNSStatement> getNamespaceDeclarations();
+    List<? extends XMLNSDeclStatementNode> getNamespaceDeclarations();
     
-    void addNamespaceDeclaration(BLangXMLNSStatement xmlns);
+    void addNamespaceDeclaration(XMLNSDeclStatementNode xmlns);
 
 }

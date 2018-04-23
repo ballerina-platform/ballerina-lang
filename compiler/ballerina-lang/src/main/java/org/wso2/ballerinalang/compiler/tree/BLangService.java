@@ -30,6 +30,7 @@ import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.ballerinalang.model.tree.statements.XMLNSDeclStatementNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
@@ -200,8 +201,8 @@ public class BLangService extends BLangNode implements ServiceNode {
     }
 
     @Override
-    public void addNamespaceDeclaration(BLangXMLNSStatement xmlns) {
-        this.nsDeclarations.add(xmlns);
+    public void addNamespaceDeclaration(XMLNSDeclStatementNode xmlns) {
+        this.nsDeclarations.add((BLangXMLNSStatement) xmlns);
     }
 
     @Override
