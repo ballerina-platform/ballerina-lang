@@ -42,7 +42,7 @@ function printRequestCount(RequestCount reqCount) {
     log:printInfo("ALERT!! : Received more than 6 requests from the host within 5 seconds: " + reqCount.host);
 }
 
-endpoint http:Listener storeServiceEndpoint {
+endpoint http:Listener ep {
     port:9090
 };
 
@@ -51,7 +51,7 @@ endpoint http:Listener storeServiceEndpoint {
 }
 //The host header is extracted from the requests that come to the service using the ` /requests` context. Using this
 //information, the `clientRequest` object is created and published to the `requestStream`.
-service StoreService bind storeServiceEndpoint {
+service requestService bind ep {
 
     future ftr = start initRealtimeRequestCounter();
 
