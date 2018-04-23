@@ -47,7 +47,7 @@ public class DataContext {
 
     public void notifyReply(BStruct response, BStruct httpConnectorError) {
         //Make the request associate with this response consumable again so that it can be reused.
-        if (correlatedMessage != null) {
+        if (correlatedMessage != null) { //Null check is needed because of http2 scenarios
             BStruct requestStruct = ((BStruct) context.getNullableRefArgument(1));
             if (requestStruct != null) {
                 BStruct entityStruct = MimeUtil.extractEntity(requestStruct);
