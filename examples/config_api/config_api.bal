@@ -37,7 +37,7 @@ service helloWorld bind helloWorldEP {
     }
     sayHello(endpoint caller, http:Request req) {
         http:Response res = new;
-        res.setStringPayload("Hello World!");
+        res.setPayload("Hello World!");
         caller->respond(res) but {error e => log:printError("Failed to respond to the caller", err = e)};
     }
 }
