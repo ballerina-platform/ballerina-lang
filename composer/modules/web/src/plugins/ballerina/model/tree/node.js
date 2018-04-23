@@ -90,6 +90,20 @@ class Node extends EventChannel {
         visitor.endVisit(this);
     }
 
+
+    /**
+     *  Utility function to easily visit nodes.
+     *
+     * @param {any} func
+     * @memberof Node
+     */
+    acceptFunc(func) {
+        this.accept({
+            beginVisit: func,
+            endVisit: () => {},
+        });
+    }
+
     sync(visitor, newTree) {
         visitor.beginVisit(this, newTree);
         // eslint-disable-next-line guard-for-in
@@ -164,7 +178,11 @@ class Node extends EventChannel {
      * @param {boolean?} pretty ignore WS and put default WS.
      * @return {string} source.
      */
-    getSource(pretty) {
+    getSource(pretty, stripComments = false) {
+        const regex = /\/\/.*\n*/g;
+        if (stripComments) {
+            return getSourceOf(this, pretty).replace(regex, '').trim();
+        }
         return getSourceOf(this, pretty);
     }
 

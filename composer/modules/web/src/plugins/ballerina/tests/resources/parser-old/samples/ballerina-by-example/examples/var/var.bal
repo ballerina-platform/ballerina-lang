@@ -4,7 +4,7 @@ function divideBy10 (int d) (int, int) {
     return d / 10, d % 10;
 }
 
-function main (string[] args) {
+function main (string... args) {
     //Here the variable type is inferred type from the initial value. This is same as "int k = 5";
     var k = 5;
     system:println(10 + k);

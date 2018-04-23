@@ -1,5 +1,5 @@
 import ballerina/io;
-function main(string[] args) {
+function main(string... args) {
     simpleWorkers();
     io:println("worker run finished");
 }

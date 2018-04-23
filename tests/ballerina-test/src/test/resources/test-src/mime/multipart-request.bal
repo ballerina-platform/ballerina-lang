@@ -18,7 +18,7 @@ service<http:Service> test bind mockEP {
         methods:["POST"],
         path:"/textbodypart"
     }
-    multipart1 (endpoint client, http:Request request) {
+    multipart1 (endpoint caller, http:Request request) {
         http:Response response = new;
         match request.getBodyParts() {
             mime:EntityError err => {
@@ -37,14 +37,14 @@ service<http:Service> test bind mockEP {
                 }
             }
         }
-        _ = client -> respond(response);
+        _ = caller -> respond(response);
     }
 
     @http:ResourceConfig {
         methods:["POST"],
         path:"/jsonbodypart"
     }
-    multipart2 (endpoint client, http:Request request) {
+    multipart2 (endpoint caller, http:Request request) {
         http:Response response = new;
         match request.getBodyParts() {
             mime:EntityError err => {
@@ -59,14 +59,14 @@ service<http:Service> test bind mockEP {
                 }
             }
         }
-        _ = client -> respond(response);
+        _ = caller -> respond(response);
     }
 
     @http:ResourceConfig {
         methods:["POST"],
         path:"/xmlbodypart"
     }
-    multipart3 (endpoint client, http:Request request) {
+    multipart3 (endpoint caller, http:Request request) {
         http:Response response = new;
         match request.getBodyParts() {
             mime:EntityError err => {
@@ -81,14 +81,14 @@ service<http:Service> test bind mockEP {
                }
             }
          }
-         _ = client -> respond(response);
+         _ = caller -> respond(response);
     }
 
     @http:ResourceConfig {
         methods:["POST"],
         path:"/binarybodypart"
     }
-    multipart4 (endpoint client, http:Request request) {
+    multipart4 (endpoint caller, http:Request request) {
         http:Response response = new;
         match request.getBodyParts() {
             mime:EntityError err => {
@@ -103,14 +103,14 @@ service<http:Service> test bind mockEP {
                 }
             }
         }
-        _ = client -> respond(response);
+        _ = caller -> respond(response);
     }
 
     @http:ResourceConfig {
         methods:["POST"],
         path:"/multipleparts"
     }
-    multipart5 (endpoint client, http:Request request) {
+    multipart5 (endpoint caller, http:Request request) {
         http:Response response = new;
         match request.getBodyParts() {
             mime:EntityError err => {
@@ -127,14 +127,14 @@ service<http:Service> test bind mockEP {
                 response.setStringPayload(content);
             }
         }
-        _ = client -> respond(response);
+        _ = caller -> respond(response);
     }
 
     @http:ResourceConfig {
         methods:["POST"],
         path:"/emptyparts"
     }
-    multipart6 (endpoint client, http:Request request) {
+    multipart6 (endpoint caller, http:Request request) {
         http:Response response = new;
         match (request.getBodyParts()) {
             mime:EntityError err => {
@@ -144,14 +144,14 @@ service<http:Service> test bind mockEP {
                 response.setStringPayload("Body parts detected!");
             }
         }
-        _ = client -> respond(response);
+        _ = caller -> respond(response);
     }
 
     @http:ResourceConfig {
         methods:["POST"],
         path:"/nestedparts"
     }
-    multipart7 (endpoint client, http:Request request) {
+    multipart7 (endpoint caller, http:Request request) {
         http:Response response = new;
         match request.getBodyParts() {
             mime:EntityError err => {
@@ -168,13 +168,13 @@ service<http:Service> test bind mockEP {
                 response.setStringPayload(payload);
             }
         }
-        _ = client -> respond(response);
+        _ = caller -> respond(response);
     }
 }
 
 function handleNestedParts (mime:Entity parentPart) returns (string) {
     string content = "";
-    string contentTypeOfParent = parentPart.contentType.toString();
+    string contentTypeOfParent = parentPart.getContentType();
     if (contentTypeOfParent.hasPrefix("multipart/")) {
         match parentPart.getBodyParts() {
             mime:EntityError err => {
@@ -194,7 +194,8 @@ function handleNestedParts (mime:Entity parentPart) returns (string) {
 }
 
 function handleContent (mime:Entity bodyPart) returns (string) {
-    string baseType = bodyPart.contentType.getBaseType();
+    mime:MediaType mediaType = check mime:getMediaType(bodyPart.getContentType());
+    string baseType = mediaType.getBaseType();
     if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
         var payload = bodyPart.getXml();
         match payload {

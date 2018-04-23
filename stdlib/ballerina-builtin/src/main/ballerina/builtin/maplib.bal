@@ -14,29 +14,42 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.builtin;
+documentation {
+    Removes the specified element from the map.
 
-@Description { value:"Removes the specified element from the map"}
-@Param { value:"m: The map object" }
-@Param { value:"key: The key to be removed" }
-@Return { value:"A boolean to indicate whether the key is removed or not from map " }
-public native function <map m>  remove (string key) returns (boolean);
+    T{{m}} The map object
+    P{{key}} The key to be removed
+    R{{}} A boolean to indicate whether the key is removed or not from map
+}
+public native function<map m> remove(string key) returns (boolean);
 
-@Description { value:"Returns an array of keys contained in the specified map"}
-@Param { value:"m: The map object" }
-@Return { value:"A string array of keys contained in the specified map " }
-public native function <map m> keys () returns (string[]);
+documentation {
+    Returns an array of keys contained in the specified map.
 
-@Description { value:"Check whether specific key exists from the given map"}
-@Param { value:"m: The map object" }
-@Param { value:"key: The key to be find existence" }
-public native function <map m>  hasKey (string key) returns (boolean);
+    T{{m}} The map object
+    R{{}} A string array of keys contained in the specified map
+}
+public native function<map m> keys() returns (string[]);
 
-@Description { value:"Clear the items from given map"}
-@Param { value:"m: The map object" }
-public native function <map m>  clear ();
+documentation {
+    Check whether specific key exists from the given map.
 
-@Description { value:"Returns an array of values contained in the specified map"}
-@Param { value:"m: The map object" }
-@Return { value:"An any array of values contained in the specified map " }
-public native function <map m> values () returns (any[]);
+    T{{m}} The map object
+    P{{key}} The key to be find existence
+}
+public native function<map m> hasKey(string key) returns (boolean);
+
+documentation {
+    Clear the items from given map.
+
+    T{{m}} The map object
+}
+public native function<map m> clear();
+
+documentation {
+    Returns an array of values contained in the specified map.
+
+    T{{m}} The map object
+    R{{}} An any array of values contained in the specified map
+}
+public native function<map m> values() returns (any[]);

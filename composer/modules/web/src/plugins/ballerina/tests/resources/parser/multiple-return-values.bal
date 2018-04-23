@@ -6,7 +6,7 @@ function divideBy10 (int d) (int, int) {
     return -d / 10, d % 10;
 }
 
-function main (string[] args) {
+function main (string... args) {
     int q;
     int r;
     //Multiple variable assignment

@@ -19,10 +19,10 @@ package org.ballerinalang.langserver.completions.resolvers;
 
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -74,7 +75,8 @@ public abstract class AbstractItemResolver {
                 completionItem = this.populateVariableDefCompletionItem(symbolInfo);
             } else if (bSymbol instanceof BTypeSymbol
                     && !bSymbol.getName().getValue().equals(UtilSymbolKeys.NOT_FOUND_TYPE)
-                    && !(bSymbol instanceof BAnnotationSymbol)) {
+                    && !(bSymbol instanceof BAnnotationSymbol)
+                    && !(bSymbol.getName().getValue().equals("runtime"))) {
                 completionItem = this.populateBTypeCompletionItem(symbolInfo);
             }
 
@@ -144,7 +146,7 @@ public abstract class AbstractItemResolver {
      * @param symbolInfo - symbol information
      * @return completion item
      */
-    private CompletionItem populateBTypeCompletionItem(SymbolInfo symbolInfo) {
+    public CompletionItem populateBTypeCompletionItem(SymbolInfo symbolInfo) {
         CompletionItem completionItem = new CompletionItem();
         completionItem.setLabel(symbolInfo.getSymbolName());
         String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
@@ -187,35 +189,24 @@ public abstract class AbstractItemResolver {
         StringBuilder signature = new StringBuilder(functionName + "(");
         StringBuilder insertText = new StringBuilder(functionName + "(");
         List<BVarSymbol> parameterDefs = bInvokableSymbol.getParameters();
+        List<BVarSymbol> defaultParameterDefs = bInvokableSymbol.getDefaultableParameters();
 
         for (int itr = 0; itr < parameterDefs.size(); itr++) {
-            BType paramType = parameterDefs.get(itr).getType();
-            String typeName;
-            if (paramType instanceof BInvokableType) {
-                // Check for the case when we can give a function as a parameter
-                typeName = parameterDefs.get(itr).type.toString();
-            } else {
-                BTypeSymbol tSymbol;
-                tSymbol = (paramType instanceof BArrayType) ?
-                        ((BArrayType) paramType).eType.tsymbol : paramType.tsymbol;
-                List<Name> nameComps = tSymbol.pkgID.nameComps;
-                if (tSymbol.pkgID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())
-                        || tSymbol.pkgID.getName().getValue().equals(Names.DOT.getValue())) {
-                    typeName = tSymbol.getName().getValue();
-                } else {
-                    typeName = nameComps.get(nameComps.size() - 1).getValue() + UtilSymbolKeys.PKG_DELIMITER_KEYWORD
-                            + tSymbol.getName().getValue();
-                }
+            signature.append(this.getParameterSignature(parameterDefs.get(itr), false));
+            insertText.append(this.getParameterInsertText(parameterDefs.get(itr), false, itr + 1));
+            
+            if (!(itr == parameterDefs.size() - 1 && defaultParameterDefs.isEmpty())) {
+                signature.append(", ");
+                insertText.append(", ");
             }
+        }
 
-            signature.append(typeName).append(" ")
-                    .append(parameterDefs.get(itr).getName());
-            insertText.append("${")
-                    .append((itr + 1))
-                    .append(":")
-                    .append(parameterDefs.get(itr).getName())
-                    .append("}");
-            if (itr < parameterDefs.size() - 1) {
+        for (int itr = 0; itr < defaultParameterDefs.size(); itr++) {
+            signature.append(this.getParameterSignature(parameterDefs.get(itr), true));
+            insertText.append(this.getParameterInsertText(parameterDefs.get(itr), true,
+                    defaultParameterDefs.size() + itr + 1));
+
+            if (itr < defaultParameterDefs.size() - 1) {
                 signature.append(", ");
                 insertText.append(", ");
             }
@@ -232,14 +223,66 @@ public abstract class AbstractItemResolver {
         }
         return new FunctionSignature(insertText.toString(), signature.toString());
     }
-
+    
+    private String getTypeName(BVarSymbol bVarSymbol) {
+        BType paramType = bVarSymbol.getType();
+        String typeName;
+        if (paramType instanceof BInvokableType) {
+            // Check for the case when we can give a function as a parameter
+            typeName = bVarSymbol.type.toString();
+        } else if (paramType instanceof BUnionType) {
+            typeName = paramType.toString();
+        } else {
+            BTypeSymbol tSymbol;
+            tSymbol = (paramType instanceof BArrayType) ?
+                    ((BArrayType) paramType).eType.tsymbol : paramType.tsymbol;
+            List<Name> nameComps = tSymbol.pkgID.nameComps;
+            if (tSymbol.pkgID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())
+                    || tSymbol.pkgID.getName().getValue().equals(Names.DOT.getValue())) {
+                typeName = tSymbol.getName().getValue();
+            } else {
+                typeName = nameComps.get(nameComps.size() - 1).getValue() + UtilSymbolKeys.PKG_DELIMITER_KEYWORD
+                        + tSymbol.getName().getValue();
+            }
+        }
+        
+        return typeName;
+    }
+    
+    private String getParameterSignature(BVarSymbol bVarSymbol, boolean isDefault) {
+        if (!isDefault) {
+            return this.getTypeName(bVarSymbol) + " " + bVarSymbol.getName();
+        } else {
+            String defaultStringVal;
+            if (bVarSymbol.defaultValue == null) {
+                defaultStringVal = "()";
+            } else {
+                defaultStringVal = bVarSymbol.defaultValue.toString();
+            }
+            return this.getTypeName(bVarSymbol) + " " + bVarSymbol.getName() + " = " + defaultStringVal;
+        }
+    }
+    
+    private String getParameterInsertText(BVarSymbol bVarSymbol, boolean isDefault, int iteration) {
+        if (!isDefault) {
+            return "${" + iteration + ":" + bVarSymbol.getName() + "}";
+        } else {
+            String defaultStringVal;
+            if (bVarSymbol.defaultValue == null) {
+                defaultStringVal = "()";
+            } else {
+                defaultStringVal = bVarSymbol.defaultValue.toString();
+            }
+            return bVarSymbol.getName() + " = " + "${" + iteration + ":" + defaultStringVal + "}";
+        }
+    }
     /**
      * Check whether the token stream corresponds to a action invocation or a function invocation.
      * @param documentServiceContext - Completion operation context
      * @return {@link Boolean}
      */
     protected boolean isInvocationOrFieldAccess(LSServiceOperationContext documentServiceContext) {
-        ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(new String[]{";", "}", "{", "(", ")"}));
+        ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(new String[]{";", "}", "{", "(", ")", "="}));
         TokenStream tokenStream = documentServiceContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         if (tokenStream == null) {
             return false;

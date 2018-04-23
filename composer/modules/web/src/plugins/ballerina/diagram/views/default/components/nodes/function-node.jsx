@@ -124,7 +124,7 @@ class FunctionNode extends React.Component {
                             <LifeLine
                                 title='default'
                                 bBox={this.props.model.viewState.components.defaultWorkerLine}
-                                classes={classes}
+                                className='worker'
                                 icon={ImageUtil.getCodePoint('worker')}
                                 model={this.props.model}
                             />

@@ -39,12 +39,12 @@ import java.nio.file.Paths;
  * Tests the CSV channel with the specified values.
  */
 public class CsvChannelTest {
-    private CompileResult recordsInputOutputProgramFile;
+    private CompileResult csvInputOutputProgramFile;
     private String currentDirectoryPath = "/tmp";
 
     @BeforeClass
     public void setup() {
-        recordsInputOutputProgramFile = BCompileUtil.compileAndSetup("test-src/io/record_io.bal");
+        csvInputOutputProgramFile = BCompileUtil.compileAndSetup("test-src/io/csv_io.bal");
         currentDirectoryPath = System.getProperty("user.dir") + "/target";
     }
 
@@ -59,60 +59,46 @@ public class CsvChannelTest {
     }
 
     @Test(description = "Test 'readDefaultCSVRecords'")
-    public void readDefaultCsvTest() throws URISyntaxException {
+    public void readCsvTest() throws URISyntaxException {
         String resourceToRead = "datafiles/io/records/sample.csv";
         BStringArray records;
         BBoolean hasNextRecord;
         int expectedRecordLength = 3;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead))};
-        BRunUtil.invokeStateful(recordsInputOutputProgramFile, "initDefaultCsvForReading", args);
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8"),
+                new BString(",")};
+        BRunUtil.invokeStateful(csvInputOutputProgramFile, "initCSVChannel", args);
 
-        BValue[] returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "nextRecord");
+        BValue[] returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
         records = (BStringArray) returns[0];
         Assert.assertEquals(records.size(), expectedRecordLength);
-        returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "hasNextRecord");
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertTrue(hasNextRecord.booleanValue(), "Expecting more records");
 
-        returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "nextRecord");
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
         records = (BStringArray) returns[0];
         Assert.assertEquals(records.size(), expectedRecordLength);
-        returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "hasNextRecord");
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertTrue(hasNextRecord.booleanValue(), "Expecting more records");
 
-        returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "nextRecord");
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
         records = (BStringArray) returns[0];
 
         Assert.assertEquals(records.size(), expectedRecordLength);
 
-        returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "nextRecord");
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
         records = (BStringArray) returns[0];
         Assert.assertEquals(records.size(), 0);
-        returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "hasNextRecord");
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertFalse(hasNextRecord.booleanValue(), "Not expecting anymore records");
 
-        BRunUtil.invokeStateful(recordsInputOutputProgramFile, "close");
+        BRunUtil.invokeStateful(csvInputOutputProgramFile, "close");
     }
 
-    @Test(description = "Test 'writeDefaultCSVRecords'")
-    public void testWriteDefaultCsv() {
-        String[] content = {"Name", "Email", "Telephone"};
-        BStringArray record = new BStringArray(content);
-        String sourceToWrite = currentDirectoryPath + "/recordsDefault.csv";
-
-        //Will initialize the channel
-        BValue[] args = {new BString(sourceToWrite)};
-        BRunUtil.invokeStateful(recordsInputOutputProgramFile, "initDefaultCsvForWriting", args);
-
-        args = new BValue[]{record};
-        BRunUtil.invokeStateful(recordsInputOutputProgramFile, "writeRecord", args);
-
-        BRunUtil.invokeStateful(recordsInputOutputProgramFile, "close");
-    }
 
     @Test(description = "Test 'readRfcCSVRecords'")
     public void readRfcTest() throws URISyntaxException {
@@ -122,52 +108,37 @@ public class CsvChannelTest {
         int expectedRecordLength = 3;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead))};
-        BRunUtil.invokeStateful(recordsInputOutputProgramFile, "initRfcForReading", args);
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8"),
+                new BString(",")};
+        BRunUtil.invokeStateful(csvInputOutputProgramFile, "initCSVChannel", args);
 
-        BValue[] returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "nextRecord");
+        BValue[] returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
         records = (BStringArray) returns[0];
         Assert.assertEquals(records.size(), expectedRecordLength);
-        returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "hasNextRecord");
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertTrue(hasNextRecord.booleanValue(), "Expecting more records");
 
-        returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "nextRecord");
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
         records = (BStringArray) returns[0];
         Assert.assertEquals(records.size(), expectedRecordLength);
-        returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "hasNextRecord");
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertTrue(hasNextRecord.booleanValue(), "Expecting more records");
 
-        returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "nextRecord");
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
         records = (BStringArray) returns[0];
 
         Assert.assertEquals(records.size(), expectedRecordLength);
 
-        returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "nextRecord");
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
         records = (BStringArray) returns[0];
         Assert.assertEquals(records.size(), 0);
-        returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "hasNextRecord");
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertFalse(hasNextRecord.booleanValue(), "Not expecting anymore records");
 
-        BRunUtil.invokeStateful(recordsInputOutputProgramFile, "close");
-    }
-
-    @Test(description = "Test 'writeRfcCSVRecords'")
-    public void testWriteRfc() {
-        String[] content = {"Name", "Email", "Telephone"};
-        BStringArray record = new BStringArray(content);
-        String sourceToWrite = currentDirectoryPath + "/recordsRfc.csv";
-
-        //Will initialize the channel
-        BValue[] args = {new BString(sourceToWrite)};
-        BRunUtil.invokeStateful(recordsInputOutputProgramFile, "initRfcForWriting", args);
-
-        args = new BValue[]{record};
-        BRunUtil.invokeStateful(recordsInputOutputProgramFile, "writeRecord", args);
-
-        BRunUtil.invokeStateful(recordsInputOutputProgramFile, "close");
+        BRunUtil.invokeStateful(csvInputOutputProgramFile, "close");
     }
 
     @Test(description = "Test 'readTdfCSVRecords'")
@@ -178,36 +149,54 @@ public class CsvChannelTest {
         int expectedRecordLength = 3;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead))};
-        BRunUtil.invokeStateful(recordsInputOutputProgramFile, "initTdfForReading", args);
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8"),
+                new BString("\t")};
+        BRunUtil.invokeStateful(csvInputOutputProgramFile, "initCSVChannel", args);
 
-        BValue[] returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "nextRecord");
+        BValue[] returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
         records = (BStringArray) returns[0];
         Assert.assertEquals(records.size(), expectedRecordLength);
-        returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "hasNextRecord");
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertTrue(hasNextRecord.booleanValue(), "Expecting more records");
 
-        returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "nextRecord");
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
         records = (BStringArray) returns[0];
         Assert.assertEquals(records.size(), expectedRecordLength);
-        returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "hasNextRecord");
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertTrue(hasNextRecord.booleanValue(), "Expecting more records");
 
-        returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "nextRecord");
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
         records = (BStringArray) returns[0];
 
         Assert.assertEquals(records.size(), expectedRecordLength);
 
-        returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "nextRecord");
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
         records = (BStringArray) returns[0];
         Assert.assertEquals(records.size(), 0);
-        returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "hasNextRecord");
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertFalse(hasNextRecord.booleanValue(), "Not expecting anymore records");
 
-        BRunUtil.invokeStateful(recordsInputOutputProgramFile, "close");
+        BRunUtil.invokeStateful(csvInputOutputProgramFile, "close");
+    }
+
+    @Test(description = "Test 'writeDefaultCSVRecords'")
+    public void testWriteDefaultCsv() {
+        String[] content = {"Name", "Email", "Telephone"};
+        BStringArray record = new BStringArray(content);
+        String sourceToWrite = currentDirectoryPath + "/recordsDefault.csv";
+
+        //Will initialize the channel
+        BValue[] args = {new BString(sourceToWrite), new BString("w"), new BString("UTF-8"),
+                new BString(",")};
+        BRunUtil.invokeStateful(csvInputOutputProgramFile, "initCSVChannel", args);
+
+        args = new BValue[]{record};
+        BRunUtil.invokeStateful(csvInputOutputProgramFile, "writeRecord", args);
+
+        BRunUtil.invokeStateful(csvInputOutputProgramFile, "close");
     }
 
     @Test(description = "Test 'writeTdfCSVRecords'")
@@ -217,14 +206,14 @@ public class CsvChannelTest {
         String sourceToWrite = currentDirectoryPath + "/recordsTdf.csv";
 
         //Will initialize the channel
-        BValue[] args = {new BString(sourceToWrite)};
-        BRunUtil.invokeStateful(recordsInputOutputProgramFile, "initTdfForWriting", args);
+        BValue[] args = {new BString(sourceToWrite), new BString("w"), new BString("UTF-8"),
+                new BString("\t")};
+        BRunUtil.invokeStateful(csvInputOutputProgramFile, "initCSVChannel", args);
 
         args = new BValue[]{record};
-        BRunUtil.invokeStateful(recordsInputOutputProgramFile, "writeRecord", args);
+        BRunUtil.invokeStateful(csvInputOutputProgramFile, "writeRecord", args);
 
-        BRunUtil.invokeStateful(recordsInputOutputProgramFile, "close");
+        BRunUtil.invokeStateful(csvInputOutputProgramFile, "close");
     }
-
 
 }

@@ -14,14 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
 
-import ballerina/caching;
+import ballerina/cache;
 
 type HttpCache object {
 
     private {
-        caching:Cache cache;
+        cache:Cache cache;
         CachingPolicy policy = CACHE_CONTROL_AND_VALIDATORS;
         boolean isShared;
     }
@@ -133,7 +132,7 @@ type HttpCache object {
 
 function createHttpCache (string name, CacheConfig cacheConfig) returns HttpCache {
     HttpCache httpCache = new;
-    caching:Cache backingCache = new(expiryTimeMillis = cacheConfig.expiryTimeMillis, capacity = cacheConfig.capacity,
+    cache:Cache backingCache = new(expiryTimeMillis = cacheConfig.expiryTimeMillis, capacity = cacheConfig.capacity,
                                      evictionFactor = cacheConfig.evictionFactor);
     httpCache.cache = backingCache;
     httpCache.policy = cacheConfig.policy;
@@ -151,7 +150,7 @@ function isCacheableStatusCode (int statusCode) returns boolean {
            statusCode == NOT_IMPLEMENTED_501;
 }
 
-function addEntry (caching:Cache cache, string key, Response inboundResponse) {
+function addEntry (cache:Cache cache, string key, Response inboundResponse) {
     try {
         var existingResponses = cache.get(key);
         match <Response[]>existingResponses {
@@ -165,8 +164,8 @@ function addEntry (caching:Cache cache, string key, Response inboundResponse) {
 }
 
 function weakValidatorEquals (string etag1, string etag2) returns boolean {
-    string validatorPortion1 = etag1.hasPrefix(WEAK_VALIDATOR_TAG) ? etag1.subString(2, lengthof etag1) : etag1;
-    string validatorPortion2 = etag2.hasPrefix(WEAK_VALIDATOR_TAG) ? etag2.subString(2, lengthof etag2) : etag2;
+    string validatorPortion1 = etag1.hasPrefix(WEAK_VALIDATOR_TAG) ? etag1.substring(2, lengthof etag1) : etag1;
+    string validatorPortion2 = etag2.hasPrefix(WEAK_VALIDATOR_TAG) ? etag2.substring(2, lengthof etag2) : etag2;
 
     return validatorPortion1 == validatorPortion2;
 }

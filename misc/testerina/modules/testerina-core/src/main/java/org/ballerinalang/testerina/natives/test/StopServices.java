@@ -25,6 +25,7 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
+import org.ballerinalang.testerina.util.Utils;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -52,13 +53,12 @@ public class StopServices extends BlockingNativeCallableUnit {
 
         for (ProgramFile programFile : TesterinaRegistry.getInstance().getProgramFiles()) {
             PackageInfo servicesPackage = programFile.getEntryPackage();
-            if (servicesPackage == null || !servicesPackage.getPkgPath().equals(packageName)) {
+            if (servicesPackage == null ||
+                !servicesPackage.getPkgPath().equals(Utils.getFullPackageName(packageName))) {
                 continue;
             }
-
             BLangFunctions.invokeVMUtilFunction(servicesPackage.getStopFunctionInfo());
             break;
         }
     }
-
 }

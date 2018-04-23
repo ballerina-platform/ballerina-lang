@@ -23,13 +23,14 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.LSContext;
-import org.ballerinalang.langserver.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -41,6 +42,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
     private LSContext context;
 
     private boolean overriddenTokenIndex = false;
+    private boolean overriddenContext = false;
 
     public CompletionCustomErrorStrategy(LSContext context) {
         super(context);
@@ -84,11 +86,13 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
                         .get(CompletionKeys.META_CONTEXT_IS_ENDPOINT_KEY);
         if (isCursorBetweenGivenTokenAndLastNonHiddenToken(currentToken, parser)
                 || (!isWithinEndpointContext && this.isWithinEndpointContext(parser))) {
-            this.context.put(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY, currentContext);
             this.context.put(DocumentServiceKeys.TOKEN_STREAM_KEY, parser.getTokenStream());
             this.context.put(DocumentServiceKeys.VOCABULARY_KEY, parser.getVocabulary());
             if (!overriddenTokenIndex) {
                 this.context.put(DocumentServiceKeys.TOKEN_INDEX_KEY, parser.getCurrentToken().getTokenIndex());
+            }
+            if (!overriddenContext) {
+                this.context.put(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY, currentContext);
             }
         }
     }
@@ -115,14 +119,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
             }
         }
         if (lastNonHiddenToken != null) {
-            Token tokenBefore = CommonUtil.getPreviousDefaultToken(parser.getTokenStream(),
-                    lastNonHiddenToken.getTokenIndex());
-            if (tokenBefore != null && ((UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY.equals(tokenBefore.getText())
-                    && parser.getContext() instanceof BallerinaParser.ServiceBodyContext)
-                    || (UtilSymbolKeys.IMPORT_KEYWORD_KEY.equals(tokenBefore.getText())
-                    && parser.getContext() instanceof BallerinaParser.ImportDeclarationContext))) {
-                overriddenTokenIndex = true;
-                this.context.put(DocumentServiceKeys.TOKEN_INDEX_KEY, tokenBefore.getTokenIndex());
+            if (this.overrideTokenIndex(parser, lastNonHiddenToken)) {
                 return true;
             }
 
@@ -211,5 +208,76 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
         this.context.get(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY)
                 .put(CompletionKeys.META_CONTEXT_IS_ENDPOINT_KEY, isWithinEndpoint);
         return isWithinEndpoint;
+    }
+    
+    private boolean overrideTokenIndex(Parser parser, Token lastNonHiddenToken) {
+        Token tokenBefore = CommonUtil.getPreviousDefaultToken(parser.getTokenStream(),
+                lastNonHiddenToken.getTokenIndex());
+        if (tokenBefore != null && ((UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY.equals(tokenBefore.getText())
+                && parser.getContext() instanceof BallerinaParser.ServiceBodyContext)
+                || (UtilSymbolKeys.IMPORT_KEYWORD_KEY.equals(tokenBefore.getText())
+                && parser.getContext() instanceof BallerinaParser.ImportDeclarationContext)
+                || (UtilSymbolKeys.MATCH_KEYWORD_KEY.equals(tokenBefore.getText())
+                && parser.getContext() instanceof BallerinaParser.MatchStatementContext))) {
+            overriddenTokenIndex = true;
+            this.context.put(DocumentServiceKeys.TOKEN_INDEX_KEY, tokenBefore.getTokenIndex());
+            return true;
+        } else if ((parser.getContext() instanceof BallerinaParser.SimpleVariableReferenceContext
+                && this.isServiceEndpointBindContext(parser))
+                || isEndpointTypeContext(parser)) {
+            overriddenTokenIndex = true;
+            return true;
+        }
+        
+        return false;
+    }
+
+    private boolean isServiceEndpointBindContext(Parser parser) {
+        // this iteration number is added in order to avoid unnecessary traverses. This specific logic need to revisit
+        // after proper grammar fixes (BNF)
+        int iterations = 6;
+        ParserRuleContext currentContext = parser.getContext();
+        ParserRuleContext contextParent = currentContext.getParent();
+        List<ParserRuleContext> contextList = new ArrayList<>();
+
+        while (contextParent != null && iterations > 0) {
+            if (contextParent instanceof BallerinaParser.ServiceEndpointAttachmentsContext) {
+                // Move this properly to the set context Exception
+                InputMismatchException inputMismatchException = new InputMismatchException(parser);
+                contextParent.exception = inputMismatchException;
+                this.context.put(DocumentServiceKeys.TOKEN_INDEX_KEY, contextParent.start.getTokenIndex());
+                this.context.put(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY, contextParent);
+                this.overriddenContext = true;
+
+                contextList.forEach(parserRuleContext -> parserRuleContext.exception = inputMismatchException);
+
+                return true;
+            }
+
+            contextList.add(contextParent);
+            contextParent = contextParent.getParent();
+            iterations--;
+        }
+
+        return false;
+    }
+    
+    private boolean isEndpointTypeContext(Parser parser) {
+        if (parser.getContext() instanceof BallerinaParser.NameReferenceContext
+                && parser.getContext().getParent() instanceof BallerinaParser.EndpointTypeContext) {
+            // Move this properly to the set context Exception
+            InputMismatchException inputMismatchException = new InputMismatchException(parser);
+            ParserRuleContext context = parser.getContext();
+            context.exception = inputMismatchException;
+            context.getParent().exception = inputMismatchException;
+            context.getParent().getParent().exception = inputMismatchException;
+            this.context.put(DocumentServiceKeys.TOKEN_INDEX_KEY, context.getParent().start.getTokenIndex());
+            this.context.put(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY, context.getParent());
+            this.overriddenContext = true;
+            
+            return true;
+        }
+        
+        return false;
     }
 }

@@ -1,15 +1,14 @@
-package ballerina.jms;
 
 import ballerina/log;
 
 public type QueueSender object {
     public {
-        QueueSenderConnector connector;
+        QueueSenderActions producerActions;
         QueueSenderEndpointConfiguration config;
     }
 
     new () {
-        self.connector = new ();
+        self.producerActions = new;
     }
 
     public function init(QueueSenderEndpointConfiguration config) {
@@ -22,17 +21,17 @@ public type QueueSender object {
 
     public native function initQueueSender(Session session);
 
-    public function register (typedesc serviceType) {
+    public function register(typedesc serviceType) {
     }
 
-    public function start () {
+    public function start() {
     }
 
-    public function getClient () returns (QueueSenderConnector) {
-        return self.connector;
+    public function getCallerActions() returns QueueSenderActions {
+        return self.producerActions;
     }
 
-    public function stop () {
+    public function stop() {
     }
 };
 
@@ -41,8 +40,6 @@ public type QueueSenderEndpointConfiguration {
     string queueName;
 };
 
-public type QueueSenderConnector object {
-    public native function send (Message m) returns (Error | ());
+public type QueueSenderActions object {
+    public native function send(Message m) returns error?;
 };
-
-

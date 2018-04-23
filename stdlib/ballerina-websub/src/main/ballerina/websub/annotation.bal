@@ -13,22 +13,28 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-package ballerina.websub;
+
+import ballerina/http;
 
 ///////////////////////////
 /// Service Annotations ///
 ///////////////////////////
-@Description {value:"Configuration for a WebSubSubscriber service"}
-@Field {value:"endpoints: Array of endpoints the service would be attached to"}
-@Field {value:"path: Path of the WebSubSubscriber service"}
-@Field {value:"subscribeOnStartUp: Whether a subscription request is expected to be sent on start up"}
-@Field {value:"resourceUrl: The resource URL for which discovery will be initiated to identify hub and topic if not
-specified."}
-@Field {value:"hub: The hub at which the subscription should be registered."}
-@Field {value:"topic: The topic to which this WebSub subscriber (callback) should be registered."}
-@Field {value:"leaseSeconds: The period for which the subscription is expected to be active."}
-@Field {value:"secret: The secret to be used for authenticated content distribution."}
-@Field {value:"callback: The callback to use when registering, if unspecified host:port/path will be used."}
+documentation {
+    Configuration for a WebSubSubscriber service.
+
+    F{{endpoints}} Array of endpoints the service would be attached to.
+    F{{path}}  Path of the WebSubSubscriber service.
+    F{{subscribeOnStartUp}} Whether a subscription request is expected to be sent on start up.
+    F{{resourceUrl}}  The resource URL for which discovery will be initiated to identify hub and topic if not
+                        specified.
+    F{{hub}} The hub at which the subscription should be registered.
+    F{{topic}} The topic to which this WebSub subscriber (callback) should be registered.
+    F{{leaseSeconds}} The period for which the subscription is expected to be active.
+    F{{secret}} The secret to be used for authenticated content distribution.
+    F{{callback}} The callback to use when registering, if unspecified host:port/path will be used.
+    F{{auth}} The auth configuration to use when subscribing at the hub.
+    F{{secureSocket}} The secure socket configuration to use when subscribing at the hub.
+}
 public type SubscriberServiceConfiguration {
     Listener[] endpoints,
     string path,
@@ -39,7 +45,11 @@ public type SubscriberServiceConfiguration {
     int leaseSeconds,
     string secret,
     string callback,
+    http:AuthConfig? auth,
+    http:SecureSocket? secureSocket,
 };
 
-@Description {value:"WebebSubSubscriber Configuration for service"}
-public annotation <service> SubscriberServiceConfig SubscriberServiceConfiguration;
+documentation {
+    WebSubSubscriber Configuration for the service.
+}
+public annotation<service> SubscriberServiceConfig SubscriberServiceConfiguration;

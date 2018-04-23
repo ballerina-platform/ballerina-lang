@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
 
 @Description {value:"Mock service endpoint which does not open a listening port."}
 public type NonListener object{
@@ -27,7 +26,7 @@ public type NonListener object{
     public native function initEndpoint () returns (error);
     public native function register (typedesc serviceType);
     public native function start ();
-    public native function getClient() returns Connection;
+    public native function getCallerActions() returns Connection;
     public native function stop ();
 };
 

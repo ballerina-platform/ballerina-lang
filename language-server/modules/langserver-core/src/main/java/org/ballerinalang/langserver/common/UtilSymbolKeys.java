@@ -27,6 +27,10 @@ public class UtilSymbolKeys {
 
     public static final String CLOSE_BRACE_KEY = "}";
 
+    public static final String OPEN_BRACKET_KEY = "(";
+
+    public static final String CLOSE_BRACKET_KEY = ")";
+
     public static final String NOT_FOUND_TYPE = "><";
 
     public static final String PKG_DELIMITER_KEYWORD = ":";
@@ -70,4 +74,6 @@ public class UtilSymbolKeys {
     public static final String NEW_KEYWORD_KEY = "new";
     
     public static final String IMPORT_KEYWORD_KEY = "import";
+    
+    public static final String EP_OBJECT_IDENTIFIER = "getCallerActions";
 }

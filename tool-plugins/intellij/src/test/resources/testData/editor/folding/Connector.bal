@@ -36,7 +36,7 @@ function constructOAuthHeader (string consumerKey, string consumerSecret, string
     //comment
 }</fold>
 
-function main (string[] args) <fold text='{...}'>{
+function main (string... args) <fold text='{...}'>{
     //comment
     Twitter twitterConnector = create Twitter(args[0], args[1], args[2], args[3]);
     message tweetResponse = Twitter.tweet (twitterConnector, args[4]);

@@ -16,19 +16,20 @@
 
 package org.ballerinalang.net.http.actions.websocketconnector;
 
+import io.netty.channel.ChannelFuture;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketConstants;
+import org.ballerinalang.net.http.WebSocketUtil;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 import java.nio.ByteBuffer;
-import javax.websocket.Session;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -43,21 +44,25 @@ import javax.websocket.Session;
                 @Argument(name = "data", type = TypeKind.BLOB)
         }
 )
-//Todo: Fix this: It is blocking because of the limitations in the transport where sendPong does not return a Future
-public class Pong extends BlockingNativeCallableUnit {
+public class Pong implements NativeCallableUnit {
 
     @Override
-    public void execute(Context context) {
+    public void execute(Context context, CallableUnitCallback callback) {
         try {
             BStruct wsConnection = (BStruct) context.getRefArgument(0);
-            Session session = (Session) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION);
+            WebSocketConnection webSocketConnection = (WebSocketConnection) wsConnection
+                    .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION);
             byte[] binaryData = context.getBlobArgument(0);
-            session.getAsyncRemote().sendPong(ByteBuffer.wrap(binaryData));
-            context.setReturnValues();
-        } catch (Throwable e) {
-            context.setReturnValues(BLangConnectorSPIUtil.createBStruct(context, HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                                                                        WebSocketConstants.WEBSOCKET_CONNECTOR_ERROR,
-                                                                        "Could not send pong: " + e.getMessage()));
+            ChannelFuture future = webSocketConnection.pong(ByteBuffer.wrap(binaryData));
+            WebSocketUtil.handleWebSocketCallback(context, callback, future);
+        } catch (Throwable throwable) {
+            context.setReturnValues(WebSocketUtil.createWebSocketConnectorError(context, throwable.getMessage()));
+            callback.notifySuccess();
         }
+    }
+
+    @Override
+    public boolean isBlocking() {
+        return false;
     }
 }

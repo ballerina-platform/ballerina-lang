@@ -148,18 +148,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void exitPackageDeclaration(BallerinaParser.PackageDeclarationContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.setPackageDeclaration(getCurrentPos(ctx), getWS(ctx), this.pkgNameComps, this.pkgVersion);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitPackageName(BallerinaParser.PackageNameContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -440,6 +428,34 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (!(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext)) {
             this.pkgBuilder.addAnonObjectType(getCurrentPos(ctx), getWS(ctx));
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override
+    public void exitPublicObjectFields(BallerinaParser.PublicObjectFieldsContext ctx) {
+        if (ctx.exception != null) {
+           return;
+        }
+
+        this.pkgBuilder.addObjectFieldsBlock(getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override
+    public void exitPrivateObjectFields(BallerinaParser.PrivateObjectFieldsContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addObjectFieldsBlock(getWS(ctx));
     }
 
     /**
@@ -1141,7 +1157,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.createMatchNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.createMatchNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -1679,12 +1695,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void exitFailStatement(BallerinaParser.FailStatementContext ctx) {
+    public void exitRetryStatement(BallerinaParser.RetryStatementContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
-        this.pkgBuilder.addFailStatement(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.addRetryStatement(getCurrentPos(ctx), getWS(ctx));
     }
 
     /**
@@ -2284,6 +2300,44 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void enterLimitClause(BallerinaParser.LimitClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startLimitClauseNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitLimitClause(BallerinaParser.LimitClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endLimitClauseNode(getCurrentPos(ctx), getWS(ctx), ctx.DecimalIntegerLiteral().getText());
+    }
+
+    @Override
+    public void enterOrderByVariable(BallerinaParser.OrderByVariableContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startOrderByVariableNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override public void exitOrderByVariable(BallerinaParser.OrderByVariableContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        boolean isAscending = ctx.orderByType() != null && ctx.orderByType().ASCENDING() != null;
+        boolean isDescending = ctx.orderByType() != null && ctx.orderByType().DESCENDING() != null;
+
+        this.pkgBuilder.endOrderByVariableNode(getCurrentPos(ctx), getWS(ctx), isAscending, isDescending);
+    }
+
+    @Override
     public void enterGroupByClause(BallerinaParser.GroupByClauseContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -2672,8 +2726,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isSelectClauseAvailable = ctx.selectClause() != null;
         boolean isOrderByClauseAvailable = ctx.orderByClause() != null;
         boolean isJoinClauseAvailable = ctx.joinStreamingInput() != null;
+        boolean isLimitClauseAvailable = ctx.limitClause() != null;
         this.pkgBuilder.endTableQueryNode(isJoinClauseAvailable, isSelectClauseAvailable, isOrderByClauseAvailable,
-                getCurrentPos(ctx), getWS(ctx));
+                isLimitClauseAvailable, getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

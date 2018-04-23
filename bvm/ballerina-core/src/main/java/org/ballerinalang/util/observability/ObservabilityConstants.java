@@ -36,24 +36,28 @@ public class ObservabilityConstants {
 
     public static final String TAG_KEY_HTTP_METHOD = "http.method";
     public static final String TAG_KEY_HTTP_URL = "http.url";
+    public static final String TAG_KEY_HTTP_STATUS_CODE = "http.status_code";
     public static final String TAG_KEY_PROTOCOL = "protocol";
 
-    public static final String TAG_KEY_HTTP_HOST = "http.host";
-    public static final String TAG_KEY_HTTP_PORT = "http.port";
+    public static final String TAG_KEY_PEER_ADDRESS = "peer.address";
+    public static final String TAG_KEY_PEER_HOSTNAME = "peer.hostname";
+    public static final String TAG_KEY_PEER_PORT = "peer.port";
 
-    public static final String PROPERTY_HTTP_HOST = "Host";
-    public static final String PROPERTY_HTTP_PORT = "PORT";
+    public static final String PROPERTY_HTTP_HOST = "host";
+    public static final String PROPERTY_HTTP_PORT = "port";
 
+    public static final String TAG_KEY_DB_INSTANCE = "db.instance";
     public static final String TAG_KEY_DB_STATEMENT = "db.statement";
     public static final String TAG_KEY_DB_TYPE = "db.type";
 
     public static final String TAG_DB_TYPE_SQL = "sql";
 
     public static final String PROPERTY_TRACE_PROPERTIES = "trace_properties";
+    public static final String PROPERTY_ERROR = "error";
     public static final String PROPERTY_BSTRUCT_ERROR = "bstruct_error";
 
     // TOML Configs
-    public static final String CONFIG_TABLE_OBSERVABILITY = "observability";
+    public static final String CONFIG_TABLE_OBSERVABILITY = "b7a.observability";
     public static final String CONFIG_TABLE_METRICS = CONFIG_TABLE_OBSERVABILITY + ".metrics";
     public static final String CONFIG_TABLE_TRACING = CONFIG_TABLE_OBSERVABILITY + ".tracing";
 

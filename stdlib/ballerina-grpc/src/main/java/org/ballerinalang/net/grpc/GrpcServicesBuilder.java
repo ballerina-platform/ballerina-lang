@@ -31,7 +31,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.handler.ssl.SslContext;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.net.grpc.config.EndpointConfiguration;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.interceptor.ServerHeaderInterceptor;
 import org.ballerinalang.net.grpc.listener.BidirectionalStreamingListener;
@@ -40,11 +39,13 @@ import org.ballerinalang.net.grpc.listener.ServerStreamingListener;
 import org.ballerinalang.net.grpc.listener.UnaryMethodListener;
 import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
 import org.ballerinalang.net.grpc.proto.ServiceProtoUtils;
+import org.wso2.transport.http.netty.config.ListenerConfiguration;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.ballerinalang.net.grpc.MessageUtils.setNestedMessages;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.FILE_SEPARATOR;
 
 /**
@@ -53,15 +54,15 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.FILE_SEPA
  * @since 1.0.0
  */
 public class GrpcServicesBuilder {
-
+    
     /**
      * Initializes and returns gRPC server builder instance for endpoint configuration.
      *
      * @param serviceEndpointConfig service endpoint configuration.
-     * @param sslContext SSL context, needed for setup secured connection.
+     * @param sslContext            SSL context, needed for setup secured connection.
      * @return gRPC server builder.
      */
-    public static io.grpc.ServerBuilder initService(EndpointConfiguration serviceEndpointConfig, SslContext
+    public static io.grpc.ServerBuilder initService(ListenerConfiguration serviceEndpointConfig, SslContext
             sslContext) {
         io.grpc.ServerBuilder serverBuilder;
         if (sslContext != null) {
@@ -79,13 +80,13 @@ public class GrpcServicesBuilder {
         }
         return serverBuilder;
     }
-
+    
     /**
      * Register new service to the gRPC Server Builder.
      *
      * @param serverBuilder gRPC server Builder initiated when initializing service endpoint.
-     * @param service   Service to register.
-     * @throws GrpcServerException  Exception while registering the service.
+     * @param service       Service to register.
+     * @throws GrpcServerException Exception while registering the service.
      */
     public static void registerService(io.grpc.ServerBuilder serverBuilder, Service service) throws
             GrpcServerException {
@@ -103,7 +104,7 @@ public class GrpcServicesBuilder {
             throw new GrpcServerException("Error while reading the service descriptor. Service file definition not " +
                     "found");
         }
-
+        
         Descriptors.ServiceDescriptor serviceDescriptor = fileDescriptor.findServiceByName(service.getName());
         return getServiceDefinition(service, serviceDescriptor);
     }
@@ -126,32 +127,31 @@ public class GrpcServicesBuilder {
                     .getInputType();
             Descriptors.Descriptor responseDescriptor = serviceDescriptor.findMethodByName(methodDescriptor.getName())
                     .getOutputType();
-            MessageRegistry.getInstance().addMessageDescriptor(requestDescriptor.getName(), requestDescriptor);
-            for (Descriptors.Descriptor nestedType : requestDescriptor.getNestedTypes()) {
-                MessageRegistry.getInstance().addMessageDescriptor(nestedType.getName(), nestedType);
-            }
-            MessageRegistry.getInstance().addMessageDescriptor(responseDescriptor.getName(), responseDescriptor);
-            for (Descriptors.Descriptor nestedType : responseDescriptor.getNestedTypes()) {
-                MessageRegistry.getInstance().addMessageDescriptor(nestedType.getName(), nestedType);
-            }
-
+            MessageRegistry messageRegistry = MessageRegistry.getInstance();
+            // update request message descriptors.
+            messageRegistry.addMessageDescriptor(requestDescriptor.getName(), requestDescriptor);
+            setNestedMessages(requestDescriptor, messageRegistry);
+            // update response message descriptors.
+            messageRegistry.addMessageDescriptor(responseDescriptor.getName(), responseDescriptor);
+            setNestedMessages(responseDescriptor, messageRegistry);
+            
             MethodDescriptor.Marshaller<Message> reqMarshaller = ProtoUtils.marshaller(Message.newBuilder
                     (requestDescriptor.getName()).build());
             MethodDescriptor.Marshaller<Message> resMarshaller = ProtoUtils.marshaller(Message.newBuilder
                     (responseDescriptor.getName()).build());
-
+            
             MethodDescriptor.MethodType methodType;
             ServerCallHandler<Message, Message> serverCallHandler;
             Map<String, Resource> resourceMap = new HashMap<>();
             Resource mappedResource = null;
-
+            
             for (Resource resource : service.getResources()) {
                 if (methodDescriptor.getName().equals(resource.getName())) {
                     mappedResource = resource;
                 }
                 resourceMap.put(resource.getName(), resource);
             }
-
+            
             if (methodDescriptor.toProto().getServerStreaming() && methodDescriptor.toProto().getClientStreaming()) {
                 methodType = MethodDescriptor.MethodType.BIDI_STREAMING;
                 serverCallHandler = ServerCalls.asyncBidiStreamingCall(new BidirectionalStreamingListener
@@ -169,7 +169,7 @@ public class GrpcServicesBuilder {
                 serverCallHandler = ServerCalls.asyncUnaryCall(new UnaryMethodListener(methodDescriptor,
                         mappedResource));
             }
-
+            
             MethodDescriptor.Builder<Message, Message> methodBuilder = MethodDescriptor.newBuilder();
             MethodDescriptor<Message, Message> grpcMethodDescriptor = methodBuilder.setType(methodType)
                     .setFullMethodName(methodName)
@@ -188,7 +188,7 @@ public class GrpcServicesBuilder {
      */
     public static Server start(io.grpc.ServerBuilder serverBuilder) throws
             GrpcServerException {
-
+        
         if (serverBuilder == null) {
             throw new GrpcServerException("Error while starting gRPC server, client responder builder is null");
         }

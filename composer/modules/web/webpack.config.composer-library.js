@@ -35,8 +35,8 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const isProductionBuild = process.env.NODE_ENV === 'production';
 
 const extractThemes = new ExtractTextPlugin({ filename: './[name].css', allChunks: true });
-const extractCSSBundle = new ExtractTextPlugin({ filename: './bundle-[name].css', allChunks: true });
-const extractLessBundle = new ExtractTextPlugin({ filename: './[name]-less.css', allChunks: true});
+const extractCSSBundle = new ExtractTextPlugin({ filename: './bundle.css', allChunks: true });
+const extractLessBundle = new ExtractTextPlugin({ filename: './less.css', allChunks: true});
 let exportConfig = {};
 
 // Keeps unicode codepoints of font-ballerina for each icon name
@@ -45,10 +45,10 @@ const codepoints = {}
 const config = [{
     target: 'web',
     entry: {
-        library:  './library.js',
+        library:  './library/index.js',
     },
     output: {
-        path: path.resolve(__dirname, 'dist-library'),
+        path: path.resolve(__dirname, 'library', 'dist'),
         filename: 'ballerina-diagram-[name].js',
         library: 'ballerinaDiagram',
         libraryTarget: 'umd'
@@ -130,7 +130,7 @@ const config = [{
     },
     plugins: [
         new ProgressBarPlugin(),
-        new CleanWebpackPlugin(['dist'], {watch: true, exclude:['themes']}),
+        new CleanWebpackPlugin(['library/dist']),
         new webpack.optimize.CommonsChunkPlugin({
             name: 'tree',
             chunks: ['bundle', 'tree', 'testable'],
@@ -170,8 +170,8 @@ const config = [{
                 codepoints[obj.name] = obj.unicode;
             },
             dest: {
-                fontsDir: path.resolve(__dirname, './font/dist/font-ballerina/fonts'),
-                stylesDir: path.resolve(__dirname, './font/dist/font-ballerina/css'),
+                fontsDir: path.join(__dirname, 'library/dist/font-ballerina/fonts'),
+                stylesDir: path.join(__dirname, 'library/dist/font-ballerina/css'),
                 outputFilename: 'font-ballerina.css',
             },
             hash: new Date().getTime(),
@@ -179,7 +179,7 @@ const config = [{
             apply: function(compiler) {
                 compiler.plugin('compile', function(compilation, callback) {
                     fs.writeFile(
-                        path.resolve(__dirname, './font/dist/font-ballerina/codepoints.json'),
+                        path.join(__dirname, 'library/dist/font-ballerina/codepoints.json'),
                         JSON.stringify(codepoints),
                         'utf8',
                         callback
@@ -187,20 +187,6 @@ const config = [{
                 });
             }
         },
-        new WriteFilePlugin(),
-        new CopyWebpackPlugin([
-            {
-                from: 'public',
-            },
-            {
-                from: 'node_modules/monaco-editor/min/vs',
-                to: 'vs',
-            },
-        ]),
-        new HtmlWebpackPlugin({
-            template: 'src/index.ejs',
-            inject: false,
-        })
         /*
         new CircularDependencyPlugin({
             exclude: /a\.css|node_modules/,
@@ -222,7 +208,7 @@ const config = [{
     devtool: 'source-map',
     resolve: {
         extensions: ['.js', '.json', '.jsx'],
-        modules: ['src', 'public/lib', 'font/dist', 'node_modules', path.resolve(__dirname)],
+        modules: ['src', 'public/lib', 'library/dist', 'node_modules', path.resolve(__dirname)],
         alias: {
             // ///////////////////////
             // third party modules //
@@ -241,13 +227,11 @@ const config = [{
 
 }, {
     entry: {
-        default: './scss/themes/default.scss',
-        light: './scss/themes/light.scss',
-        dark: './scss/themes/dark.scss',
+        theme: './scss/themes/default.scss',
     },
     output: {
         filename: '[name].css',
-        path: path.resolve(__dirname, 'dist-library/themes/'),
+        path: path.resolve(__dirname, 'library/dist'),
     },
     module: {
         rules: [
@@ -288,15 +272,15 @@ if (process.env.NODE_ENV === 'production') {
 
     // Add UglifyJsPlugin only when we build for production.
     // uglyfying slows down webpack build so we avoid in when in development
-// config[0].plugins.push(new UglifyJsPlugin({
-//     sourceMap: !isProductionBuild,
-//     parallel: true,
-//     uglifyOptions: {
-//         mangle: {
-//             keep_fnames: true,
-//         },
-//     }
-// }));
+    config[0].plugins.push(new UglifyJsPlugin({
+        sourceMap: false,
+        parallel: true,
+        uglifyOptions: {
+            mangle: {
+                keep_fnames: true,
+            },
+        }
+    }));
 } else {
     config[0].plugins.push(new webpack.DefinePlugin({
         PRODUCTION: JSON.stringify(false),

@@ -22,19 +22,26 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.ballerinalang.net.http.WebSocketConstants;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
 
 import java.util.List;
+
+import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ANNOTATION_CONFIGURATION;
+import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_CLIENT_SERVICE;
+import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_SERVICE;
 
 /**
  * Compiler plugin for validating WebSocket service.
  *
  * @since 0.965.0
  */
-@SupportEndpointTypes(
-        value = {@SupportEndpointTypes.EndpointType(orgName = "ballerina", packageName = "http",
-                                                    name = "WebSocketListener")}
+@SupportEndpointTypes(value = {@SupportEndpointTypes.EndpointType(orgName = "ballerina", packageName = "http",
+                                                                  name = WebSocketConstants.WEBSOCKET_ENDPOINT),
+        @SupportEndpointTypes.EndpointType(orgName = "ballerina", packageName = "http",
+                                           name = WebSocketConstants.WEBSOCKET_CLIENT_ENDPOINT)}
 )
 public class WebSocketServiceCompilerPlugin extends AbstractCompilerPlugin {
 
@@ -50,15 +57,34 @@ public class WebSocketServiceCompilerPlugin extends AbstractCompilerPlugin {
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
         final UserDefinedTypeNode serviceType = serviceNode.getServiceTypeStruct();
         if (serviceType != null) {
-            if (WebSocketConstants.WEBSOCKET_SERVICE.equals(serviceType.getTypeName().getValue())) {
-                List<BLangResource> resources = (List<BLangResource>) serviceNode.getResources();
-                resources.forEach(
-                        res -> WebSocketResourceValidator.validate(WebSocketConstants.WEBSOCKET_SERVICE, res, dlog));
-            } else if (WebSocketConstants.WEBSOCKET_CLIENT_SERVICE.equals(serviceType.getTypeName().getValue())) {
+            if (WEBSOCKET_SERVICE.equals(serviceType.getTypeName().getValue())) {
+                if (annotations.size() > 1) {
+                    int count = 0;
+                    for (AnnotationAttachmentNode annotation : annotations) {
+                        if (annotation.getAnnotationName().getValue().equals(
+                                WEBSOCKET_ANNOTATION_CONFIGURATION)) {
+                            count++;
+                        }
+                    }
+                    if (count > 1) {
+                        dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
+                                           "There cannot be more than one " + WEBSOCKET_SERVICE + " annotations");
+                    }
+                }
                 List<BLangResource> resources = (List<BLangResource>) serviceNode.getResources();
                 resources.forEach(res -> WebSocketResourceValidator
-                        .validate(WebSocketConstants.WEBSOCKET_CLIENT_SERVICE, res, dlog));
+                        .validate(((BLangService) serviceNode).symbol.getName().value, res, dlog, false));
+            } else if (WEBSOCKET_CLIENT_SERVICE.equals(serviceType.getTypeName().getValue())) {
+                if (serviceNode.getBoundEndpoints().size() > 0) {
+                    dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
+                                       WEBSOCKET_CLIENT_SERVICE + " cannot be bound to an endpoint");
+                }
+                List<BLangResource> resources = (List<BLangResource>) serviceNode.getResources();
+                resources.forEach(res -> WebSocketResourceValidator
+                        .validate(((BLangService) serviceNode).symbol.getName().value, res, dlog, true));
             }
         }
     }
 }
+
+

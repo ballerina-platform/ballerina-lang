@@ -18,8 +18,8 @@
 package org.ballerinalang.langserver.hover;
 
 import org.ballerinalang.langserver.LSAnnotationCache;
-import org.ballerinalang.langserver.LSContextManager;
 import org.ballerinalang.langserver.common.util.CommonUtil;
+import org.ballerinalang.langserver.compiler.LSContextManager;
 import org.eclipse.lsp4j.Position;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -37,7 +37,6 @@ import java.nio.file.Paths;
 /**
  * Test hover feature in language server.
  */
-@Test(groups = "broken")
 public class HoverProviderTest {
     private static final String TESTS_SAMPLES = "src" + File.separator + "test" + File.separator + "resources"
             + File.separator + "hover";

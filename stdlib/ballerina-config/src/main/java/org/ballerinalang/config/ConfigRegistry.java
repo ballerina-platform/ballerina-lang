@@ -30,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -197,8 +198,13 @@ public class ConfigRegistry {
      */
     public boolean getAsBoolean(String key) {
         if (contains(key)) {
+            Object value;
             try {
-                return (Boolean) configEntries.get(key);
+                value = configEntries.get(key);
+                if (value instanceof String) {
+                    return Boolean.parseBoolean((String) value);
+                }
+                return (Boolean) value;
             } catch (ClassCastException e) {
                 throw new IllegalArgumentException(key + " does not map to a valid boolean");
             }
@@ -226,8 +232,13 @@ public class ConfigRegistry {
      */
     public long getAsInt(String key) {
         if (contains(key)) {
+            Object value;
             try {
-                return (Long) configEntries.get(key);
+                value = configEntries.get(key);
+                if (value instanceof String) {
+                    return Long.parseLong((String) value);
+                }
+                return (Long) value;
             } catch (ClassCastException e) {
                 throw new IllegalArgumentException(key + " does not map to a valid int");
             }
@@ -255,8 +266,15 @@ public class ConfigRegistry {
      */
     public double getAsFloat(String key) {
         if (contains(key)) {
+            Object value;
             try {
-                return (Double) configEntries.get(key);
+                value = configEntries.get(key);
+                if (value instanceof String) {
+                    return Double.parseDouble((String) value);
+                } else if (value instanceof Long) {
+                    return (Long) value;
+                }
+                return (Double) value;
             } catch (ClassCastException e) {
                 throw new IllegalArgumentException(key + " does not map to a valid float");
             }
@@ -315,12 +333,8 @@ public class ConfigRegistry {
      */
     public String getAsString(String key) {
         if (contains(key)) {
-            try {
-                String value = String.valueOf(configEntries.get(key));
-                return resolveStringValue(value);
-            } catch (ClassCastException e) {
-                throw new IllegalArgumentException(key + " does not map to a valid string");
-            }
+            String value = String.valueOf(configEntries.get(key));
+            return resolveStringValue(value);
         }
 
         return null;
@@ -390,6 +404,15 @@ public class ConfigRegistry {
         });
 
         return table;
+    }
+
+    /**
+     * Returns an iterator for the key set of the config registry.
+     *
+     * @return An iterator for the key set
+     */
+    public Iterator<String> keySetIterator() {
+        return configEntries.keySet().iterator();
     }
 
     /**

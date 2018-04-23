@@ -13,13 +13,11 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-package ballerina.websub;
 
 public type Service object {
 
-    public function getEndpoint () returns (Listener) {
+    public function getEndpoint() returns Listener {
         Listener ep = new;
         return ep;
     }
-
 };

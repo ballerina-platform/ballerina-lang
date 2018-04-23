@@ -1,4 +1,3 @@
-package pkg.main;
 
 import pkg.variable;
 

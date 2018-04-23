@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
 
 import ballerina/log;
 import ballerina/auth;
@@ -59,7 +58,9 @@ public function AuthnHandlerChain::handleWithSpecificAuthnHandlers (string[] aut
                     return authnHandler.handle(req);
                 }
             }
-            () => {}
+            () => {
+                // nothing to do
+            }
         }
     }
     return false;

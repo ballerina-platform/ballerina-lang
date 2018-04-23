@@ -29,13 +29,10 @@ import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.observability.ObservabilityUtils;
-import org.ballerinalang.util.observability.ObserverContext;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Locale;
-import java.util.Map;
 
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_DEFLATE;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
@@ -46,7 +43,7 @@ import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "execute",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.CALLER_ACTIONS,
                 structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "client", type = TypeKind.STRUCT),
@@ -71,7 +68,7 @@ public class Execute extends AbstractHTTPAction {
             executeNonBlockingAction(dataContext, createOutboundRequestMsg(context));
         } catch (ClientConnectorException clientConnectorException) {
             BallerinaException exception = new BallerinaException("Failed to invoke 'execute' action in " +
-                    HttpConstants.HTTP_CLIENT + ". " + clientConnectorException.getMessage(), context);
+                    HttpConstants.CALLER_ACTIONS + ". " + clientConnectorException.getMessage(), context);
             dataContext.notifyReply(null, HttpUtil.getHttpConnectorError(context, exception));
         }
     }
@@ -96,11 +93,6 @@ public class Execute extends AbstractHTTPAction {
             outboundRequestMsg.setHeader(HttpHeaderNames.ACCEPT_ENCODING.toString(),
                     ENCODING_DEFLATE + ", " + ENCODING_GZIP);
         }
-
-        ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context);
-        Map<String, String> traceContext = ObservabilityUtils.getTraceProperties();
-        HttpUtil.injectHeaders(outboundRequestMsg, traceContext);
-        observerContext.addTags(HttpUtil.extractTags(outboundRequestMsg));
 
         return outboundRequestMsg;
     }

@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.970.0-beta1-SNAPSHOT</version>
+        <version>0.970.0-beta12-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -67,11 +67,11 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-h2</artifactId>
+            <artifactId>ballerina-transactions</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-mysql</artifactId>
+            <artifactId>ballerina-database</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -124,7 +124,8 @@
                         <testEnvironmentVariable>EnvironmentVariable</testEnvironmentVariable>
                     </environmentVariables>
                     <systemPropertyVariables>
-                        <java.util.logging.config.file>${project.build.testOutputDirectory}/logging.properties</java.util.logging.config.file>
+                        <java.util.logging.config.file>${project.build.testOutputDirectory}/logging.properties
+                        </java.util.logging.config.file>
                         <java.util.logging.manager>org.ballerinalang.logging.BLogManager</java.util.logging.manager>
                     </systemPropertyVariables>
                     <suiteXmlFiles>
@@ -151,7 +152,8 @@
                             <excludes>
                                 <exclude>org/wso2/ballerinalang/compiler/parser/antlr4/**</exclude>
                             </excludes>
-                            <propertyName>jacoco.agent.argLine</propertyName> (2)
+                            <propertyName>jacoco.agent.argLine</propertyName>
+                            (2)
                             <destFile>${project.build.directory}/coverage-reports/jacoco.exec</destFile>
                         </configuration>
                     </execution>

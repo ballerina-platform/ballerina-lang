@@ -14,9 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.task;
 
-@Description {value:"Schedules a timer task"}
+documentation {
+    Schedules a timer task.
+}
 public type Timer object {
 
     private {
@@ -44,7 +45,9 @@ public type Timer object {
     public native function stop();
 };
 
-@Description {value:"Schedules an appointment"}
+documentation {
+    Schedules an appointment.
+}
 public type Appointment object {
     private {
         // The function which gets called when the appointment is up

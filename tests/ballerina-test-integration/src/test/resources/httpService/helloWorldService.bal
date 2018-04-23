@@ -13,10 +13,10 @@ service<http:Service> helloWorld bind helloWorldEp {
         methods:["GET"],
         path:"/"
     }
-    sayHello (endpoint client, http:Request req) {
+    sayHello (endpoint caller, http:Request req) {
         http:Response resp = new;
         resp.setStringPayload("Hello, World!");
-        _ = client -> respond(resp);
+        _ = caller -> respond(resp);
     }
 }
 

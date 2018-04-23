@@ -71,13 +71,12 @@ function startOutputRateLimitQuery() returns (Employee[]) {
     teacherStream2.publish(t5);
     teacherStream2.publish(t6);
 
-    runtime:sleepCurrentWorker(1000);
+    runtime:sleep(1000);
 
     return globalEmployeeArray;
 }
 
 function printEmployeeNumber(Employee e) {
-    io:println("printEmployeeName function invoked for Employee event for Employee employee name:" + e.name);
     addToGlobalEmployeeArray(e);
 }
 

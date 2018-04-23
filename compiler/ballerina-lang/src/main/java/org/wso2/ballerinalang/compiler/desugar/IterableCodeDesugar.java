@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -83,6 +84,7 @@ public class IterableCodeDesugar {
     private static final String VAR_RESULT = "result";
     private static final String VAR_COUNT = "count";
     private static final String VAR_COLLECTION = "collection";
+    private static final String TABLE_CONFIG = "TableConfig";
 
     private static final CompilerContext.Key<IterableCodeDesugar> ITERABLE_DESUGAR_KEY =
             new CompilerContext.Key<>();
@@ -415,7 +417,8 @@ public class IterableCodeDesugar {
             case TypeTags.TABLE:
                 BLangVariable retVars = ctx.getFirstOperation().retVar;
                 BType tableType = new BTableType(TypeTags.TABLE, retVars.type, symTable.tableType.tsymbol);
-                defStmt.var.expr = ASTBuilderUtil.createEmptyRecordLiteral(pos, tableType);
+                BType tableConfigType = symTable.rootScope.lookup(new Name(TABLE_CONFIG)).symbol.type;
+                defStmt.var.expr = ASTBuilderUtil.createEmptyTableLiteral(pos, tableType, tableConfigType);
                 break;
             case TypeTags.INT:
                 if (kind == IterableKind.MAX) {
@@ -586,12 +589,12 @@ public class IterableCodeDesugar {
         final DiagnosticPos pos = blockStmt.pos;
 
         List<BLangVariable> variables = new ArrayList<>(1);
-        variables.add(ctx.resultVar);
         variables.add(ctx.iteratorResultVariables.get(0));
         BInvokableSymbol addSymbol = (BInvokableSymbol) symTable.rootScope.lookup(names.fromString(TABLE_ADD_FUNCTION))
                 .symbol;
         BLangInvocation addFunctionInvocation = ASTBuilderUtil.createInvocationExpr(pos, addSymbol, variables,
                 symResolver);
+        addFunctionInvocation.exprSymbol = ctx.resultVar.symbol;
         BLangExpressionStmt expressionStmt = ASTBuilderUtil.createExpressionStmt(pos, blockStmt);
         expressionStmt.expr = addFunctionInvocation;
     }

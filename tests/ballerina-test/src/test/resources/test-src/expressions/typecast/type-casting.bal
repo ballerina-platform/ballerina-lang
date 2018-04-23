@@ -503,7 +503,7 @@ function testSameTypeCast() returns (int) {
     return b;
 }
 
-function testErrorOnCasting() returns (string | error, int | error, float | error, boolean | error) {
+function testJSONValueCasting() returns (string | error, int | error, float | error, boolean | error) {
 
     // json to string
     json j1 = "hello";

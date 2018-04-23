@@ -17,16 +17,19 @@
  */
 package org.wso2.ballerinalang.programfile;
 
-
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.programfile.Instruction.Operand;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.CodeAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.DefaultValueAttributeInfo;
+import org.wso2.ballerinalang.programfile.attributes.DocumentationAttributeInfo;
+import org.wso2.ballerinalang.programfile.attributes.DocumentationAttributeInfo.ParameterDocumentInfo;
 import org.wso2.ballerinalang.programfile.attributes.ErrorTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LineNumberTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LocalVariableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.ParamDefaultValueAttributeInfo;
+import org.wso2.ballerinalang.programfile.attributes.ParameterAttributeInfo;
+import org.wso2.ballerinalang.programfile.attributes.TaintTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.ActionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPoolEntry;
@@ -46,6 +49,7 @@ import org.wso2.ballerinalang.util.Flags;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Serialize Ballerina {@code PackageInfo} structure to a byte stream.
@@ -58,7 +62,7 @@ public class PackageInfoWriter {
     private static final int NULL_VALUE_FIELD_SIZE_TAG = -1;
 
     public static void writeCP(DataOutputStream dataOutStream,
-                                ConstantPoolEntry[] constPool) throws IOException {
+                               ConstantPoolEntry[] constPool) throws IOException {
         dataOutStream.writeInt(constPool.length);
         for (ConstantPoolEntry cpEntry : constPool) {
             // Emitting the kind of the constant pool entry.
@@ -131,8 +135,29 @@ public class PackageInfoWriter {
         }
     }
 
-    public static void writePackageInfo(DataOutputStream dataOutStream,
-                                        PackageInfo packageInfo) throws IOException {
+    public static byte[] getPackageBinary(PackageInfo packageInfo) throws IOException {
+        try (ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream()) {
+            DataOutputStream dataOutStream = new DataOutputStream(byteArrayOS);
+            writePackageInfo(packageInfo, dataOutStream);
+            return byteArrayOS.toByteArray();
+        }
+    }
+
+    public static void writePackageInfo(PackageInfo packageInfo, DataOutputStream dataOutStream) throws IOException {
+        // Package level CP entries
+        writeCP(dataOutStream, packageInfo.getConstPoolEntries());
+
+        // Write package name and version number
+        dataOutStream.writeInt(packageInfo.nameCPIndex);
+        dataOutStream.writeInt(packageInfo.versionCPIndex);
+
+        // Write import package entries
+        dataOutStream.writeShort(packageInfo.importPkgInfoSet.size());
+        for (ImportPackageInfo importPkgInfo : packageInfo.importPkgInfoSet) {
+            dataOutStream.writeInt(importPkgInfo.nameCPIndex);
+            dataOutStream.writeInt(importPkgInfo.versionCPIndex);
+        }
+
         // Emit struct info entries
         StructInfo[] structTypeInfoEntries = packageInfo.getStructInfoEntries();
         dataOutStream.writeShort(structTypeInfoEntries.length);
@@ -154,12 +179,10 @@ public class PackageInfoWriter {
             writeServiceInfo(dataOutStream, serviceInfo);
         }
 
+        dataOutStream.writeShort(serviceInfoEntries.length);
         for (ServiceInfo serviceInfo : serviceInfoEntries) {
             writeResourceInfo(dataOutStream, serviceInfo);
         }
-
-        // Emit constant info entries
-        writeGlobalVarInfoEntries(dataOutStream, packageInfo.getConstantInfoEntries());
 
         // Emit global variable info entries
         writeGlobalVarInfoEntries(dataOutStream, packageInfo.getPackageInfoEntries());
@@ -170,16 +193,10 @@ public class PackageInfoWriter {
             writeCallableUnitInfo(dataOutStream, functionInfo);
         }
 
-        // Emit transformer info entries
-        dataOutStream.writeShort(packageInfo.transformerInfoMap.size());
-        for (TransformerInfo transformerInfo : packageInfo.transformerInfoMap.values()) {
-            writeCallableUnitInfo(dataOutStream, transformerInfo);
-        }
-
         // Emit Package level attributes
         writeAttributeInfoEntries(dataOutStream, packageInfo.getAttributeInfoEntries());
 
-        // Emit instructions 
+        // Emit instructions
         Instruction[] instructions = packageInfo.instructionList.toArray(new Instruction[0]);
         byte[] code = writeInstructions(instructions);
         dataOutStream.writeInt(code.length);
@@ -226,19 +243,26 @@ public class PackageInfoWriter {
             dataOutStream.writeInt(callableUnitInfo.attachedToTypeCPIndex);
         }
 
+        ByteArrayOutputStream workerDataBAOS = new ByteArrayOutputStream();
+        DataOutputStream workerDataDOS = new DataOutputStream(workerDataBAOS);
+
         WorkerDataChannelInfo[] workerDataChannelInfoEntries = callableUnitInfo.getWorkerDataChannelInfo();
-        dataOutStream.writeShort(workerDataChannelInfoEntries.length);
+        workerDataDOS.writeShort(workerDataChannelInfoEntries.length);
         for (WorkerDataChannelInfo dataChannelInfo : workerDataChannelInfoEntries) {
-            writeWorkerDataChannelInfo(dataOutStream, dataChannelInfo);
+            writeWorkerDataChannelInfo(workerDataDOS, dataChannelInfo);
         }
 
         WorkerInfo defaultWorker = callableUnitInfo.defaultWorkerInfo;
         WorkerInfo[] workerInfoEntries = callableUnitInfo.getWorkerInfoEntries();
-        dataOutStream.writeShort(workerInfoEntries.length + 1);
-        writeWorkerInfo(dataOutStream, defaultWorker);
+        workerDataDOS.writeShort(workerInfoEntries.length + 1);
+        writeWorkerInfo(workerDataDOS, defaultWorker);
         for (WorkerInfo workerInfo : workerInfoEntries) {
-            writeWorkerInfo(dataOutStream, workerInfo);
+            writeWorkerInfo(workerDataDOS, workerInfo);
         }
+
+        byte[] workerData = workerDataBAOS.toByteArray();
+        dataOutStream.writeInt(workerData.length);
+        dataOutStream.write(workerData);
 
         writeAttributeInfoEntries(dataOutStream, callableUnitInfo.getAttributeInfoEntries());
     }
@@ -321,19 +345,26 @@ public class PackageInfoWriter {
             dataOutStream.writeInt(paramNameCPIndex);
         }
 
-        WorkerDataChannelInfo[] workerDataChannelInfos = resourceInfo.getWorkerDataChannelInfo();
-        dataOutStream.writeShort(workerDataChannelInfos.length);
-        for (WorkerDataChannelInfo dataChannelInfo : workerDataChannelInfos) {
-            writeWorkerDataChannelInfo(dataOutStream, dataChannelInfo);
+        ByteArrayOutputStream workerDataBAOS = new ByteArrayOutputStream();
+        DataOutputStream workerDataDOS = new DataOutputStream(workerDataBAOS);
+
+        WorkerDataChannelInfo[] workerDataChannelInfoEntries = resourceInfo.getWorkerDataChannelInfo();
+        workerDataDOS.writeShort(workerDataChannelInfoEntries.length);
+        for (WorkerDataChannelInfo dataChannelInfo : workerDataChannelInfoEntries) {
+            writeWorkerDataChannelInfo(workerDataDOS, dataChannelInfo);
         }
 
         WorkerInfo defaultWorker = resourceInfo.defaultWorkerInfo;
         WorkerInfo[] workerInfoEntries = resourceInfo.getWorkerInfoEntries();
-        dataOutStream.writeShort(workerInfoEntries.length + 1);
-        writeWorkerInfo(dataOutStream, defaultWorker);
+        workerDataDOS.writeShort(workerInfoEntries.length + 1);
+        writeWorkerInfo(workerDataDOS, defaultWorker);
         for (WorkerInfo workerInfo : workerInfoEntries) {
-            writeWorkerInfo(dataOutStream, workerInfo);
+            writeWorkerInfo(workerDataDOS, workerInfo);
         }
+
+        byte[] workerData = workerDataBAOS.toByteArray();
+        dataOutStream.writeInt(workerData.length);
+        dataOutStream.write(workerData);
 
         writeAttributeInfoEntries(dataOutStream, resourceInfo.getAttributeInfoEntries());
     }
@@ -387,47 +418,51 @@ public class PackageInfoWriter {
         AttributeInfo.Kind attributeKind = attributeInfo.getKind();
         dataOutStream.writeInt(attributeInfo.getAttributeNameIndex());
 
+        // This to get the length of the attributes in bytes.
+        ByteArrayOutputStream attrDataBAOS = new ByteArrayOutputStream();
+        DataOutputStream attrDataOutStream = new DataOutputStream(attrDataBAOS);
+
         switch (attributeKind) {
             case CODE_ATTRIBUTE:
                 CodeAttributeInfo codeAttributeInfo = (CodeAttributeInfo) attributeInfo;
-                dataOutStream.writeInt(codeAttributeInfo.codeAddrs);
+                attrDataOutStream.writeInt(codeAttributeInfo.codeAddrs);
 
-                dataOutStream.writeShort(codeAttributeInfo.maxLongLocalVars);
-                dataOutStream.writeShort(codeAttributeInfo.maxDoubleLocalVars);
-                dataOutStream.writeShort(codeAttributeInfo.maxStringLocalVars);
-                dataOutStream.writeShort(codeAttributeInfo.maxIntLocalVars);
-                dataOutStream.writeShort(codeAttributeInfo.maxByteLocalVars);
-                dataOutStream.writeShort(codeAttributeInfo.maxRefLocalVars);
+                attrDataOutStream.writeShort(codeAttributeInfo.maxLongLocalVars);
+                attrDataOutStream.writeShort(codeAttributeInfo.maxDoubleLocalVars);
+                attrDataOutStream.writeShort(codeAttributeInfo.maxStringLocalVars);
+                attrDataOutStream.writeShort(codeAttributeInfo.maxIntLocalVars);
+                attrDataOutStream.writeShort(codeAttributeInfo.maxByteLocalVars);
+                attrDataOutStream.writeShort(codeAttributeInfo.maxRefLocalVars);
 
-                dataOutStream.writeShort(codeAttributeInfo.maxLongRegs);
-                dataOutStream.writeShort(codeAttributeInfo.maxDoubleRegs);
-                dataOutStream.writeShort(codeAttributeInfo.maxStringRegs);
-                dataOutStream.writeShort(codeAttributeInfo.maxIntRegs);
-                dataOutStream.writeShort(codeAttributeInfo.maxByteRegs);
-                dataOutStream.writeShort(codeAttributeInfo.maxRefRegs);
+                attrDataOutStream.writeShort(codeAttributeInfo.maxLongRegs);
+                attrDataOutStream.writeShort(codeAttributeInfo.maxDoubleRegs);
+                attrDataOutStream.writeShort(codeAttributeInfo.maxStringRegs);
+                attrDataOutStream.writeShort(codeAttributeInfo.maxIntRegs);
+                attrDataOutStream.writeShort(codeAttributeInfo.maxByteRegs);
+                attrDataOutStream.writeShort(codeAttributeInfo.maxRefRegs);
                 break;
 
             case VARIABLE_TYPE_COUNT_ATTRIBUTE:
                 VarTypeCountAttributeInfo varCountAttributeInfo = (VarTypeCountAttributeInfo) attributeInfo;
-                dataOutStream.writeShort(varCountAttributeInfo.getMaxLongVars());
-                dataOutStream.writeShort(varCountAttributeInfo.getMaxDoubleVars());
-                dataOutStream.writeShort(varCountAttributeInfo.getMaxStringVars());
-                dataOutStream.writeShort(varCountAttributeInfo.getMaxIntVars());
-                dataOutStream.writeShort(varCountAttributeInfo.getMaxByteVars());
-                dataOutStream.writeShort(varCountAttributeInfo.getMaxRefVars());
+                attrDataOutStream.writeShort(varCountAttributeInfo.getMaxLongVars());
+                attrDataOutStream.writeShort(varCountAttributeInfo.getMaxDoubleVars());
+                attrDataOutStream.writeShort(varCountAttributeInfo.getMaxStringVars());
+                attrDataOutStream.writeShort(varCountAttributeInfo.getMaxIntVars());
+                attrDataOutStream.writeShort(varCountAttributeInfo.getMaxByteVars());
+                attrDataOutStream.writeShort(varCountAttributeInfo.getMaxRefVars());
                 break;
 
             case ERROR_TABLE:
                 ErrorTableAttributeInfo errTable = (ErrorTableAttributeInfo) attributeInfo;
                 ErrorTableEntry[] errorTableEntries =
                         errTable.getErrorTableEntriesList().toArray(new ErrorTableEntry[0]);
-                dataOutStream.writeShort(errorTableEntries.length);
+                attrDataOutStream.writeShort(errorTableEntries.length);
                 for (ErrorTableEntry errorTableEntry : errorTableEntries) {
-                    dataOutStream.writeInt(errorTableEntry.ipFrom);
-                    dataOutStream.writeInt(errorTableEntry.ipTo);
-                    dataOutStream.writeInt(errorTableEntry.ipTarget);
-                    dataOutStream.writeInt(errorTableEntry.priority);
-                    dataOutStream.writeInt(errorTableEntry.errorStructCPIndex);
+                    attrDataOutStream.writeInt(errorTableEntry.ipFrom);
+                    attrDataOutStream.writeInt(errorTableEntry.ipTo);
+                    attrDataOutStream.writeInt(errorTableEntry.ipTarget);
+                    attrDataOutStream.writeInt(errorTableEntry.priority);
+                    attrDataOutStream.writeInt(errorTableEntry.errorStructCPIndex);
                 }
                 break;
 
@@ -435,34 +470,65 @@ public class PackageInfoWriter {
                 LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) attributeInfo;
                 LocalVariableInfo[] localVarInfoArray = localVarAttrInfo.localVars.toArray(
                         new LocalVariableInfo[0]);
-                dataOutStream.writeShort(localVarInfoArray.length);
+                attrDataOutStream.writeShort(localVarInfoArray.length);
                 for (LocalVariableInfo localVariableInfo : localVarInfoArray) {
-                    writeLocalVariableInfo(dataOutStream, localVariableInfo);
+                    writeLocalVariableInfo(attrDataOutStream, localVariableInfo);
                 }
                 break;
             case LINE_NUMBER_TABLE_ATTRIBUTE:
                 LineNumberTableAttributeInfo lnNoTblAttrInfo = (LineNumberTableAttributeInfo) attributeInfo;
                 LineNumberInfo[] lineNumberInfoEntries = lnNoTblAttrInfo.getLineNumberInfoEntries();
-                dataOutStream.writeShort(lineNumberInfoEntries.length);
+                attrDataOutStream.writeShort(lineNumberInfoEntries.length);
                 for (LineNumberInfo lineNumberInfo : lineNumberInfoEntries) {
-                    writeLineNumberInfo(dataOutStream, lineNumberInfo);
+                    writeLineNumberInfo(attrDataOutStream, lineNumberInfo);
                 }
                 break;
             case DEFAULT_VALUE_ATTRIBUTE:
                 DefaultValueAttributeInfo defaultValAttrInfo = (DefaultValueAttributeInfo) attributeInfo;
-                writeDefaultValue(dataOutStream, defaultValAttrInfo.getDefaultValue());
+                writeDefaultValue(attrDataOutStream, defaultValAttrInfo.getDefaultValue());
                 break;
             case PARAMETER_DEFAULTS_ATTRIBUTE:
                 ParamDefaultValueAttributeInfo paramDefaultValAttrInfo = (ParamDefaultValueAttributeInfo) attributeInfo;
                 DefaultValue[] defaultValues = paramDefaultValAttrInfo.getDefaultValueInfo();
-                dataOutStream.writeShort(defaultValues.length);
+                attrDataOutStream.writeShort(defaultValues.length);
                 for (DefaultValue defaultValue : defaultValues) {
-                    writeDefaultValue(dataOutStream, defaultValue);
+                    writeDefaultValue(attrDataOutStream, defaultValue);
+                }
+                break;
+            case PARAMETERS_ATTRIBUTE:
+                ParameterAttributeInfo parameterAttributeInfo = (ParameterAttributeInfo) attributeInfo;
+                attrDataOutStream.writeInt(parameterAttributeInfo.requiredParamsCount);
+                attrDataOutStream.writeInt(parameterAttributeInfo.defaultableParamsCount);
+                attrDataOutStream.writeInt(parameterAttributeInfo.restParamCount);
+                break;
+            case TAINT_TABLE:
+                TaintTableAttributeInfo taintTableAttributeInfo = (TaintTableAttributeInfo) attributeInfo;
+                attrDataOutStream.writeShort(taintTableAttributeInfo.rowCount);
+                attrDataOutStream.writeShort(taintTableAttributeInfo.columnCount);
+                for (Integer paramIndex : taintTableAttributeInfo.taintTable.keySet()) {
+                    attrDataOutStream.writeShort(paramIndex);
+                    List<Boolean> taintRecord = taintTableAttributeInfo.taintTable.get(paramIndex);
+                    for (Boolean taintStatus : taintRecord) {
+                        attrDataOutStream.writeBoolean(taintStatus);
+                    }
+                }
+                break;
+            case DOCUMENT_ATTACHMENT_ATTRIBUTE:
+                DocumentationAttributeInfo docAttrInfo = (DocumentationAttributeInfo) attributeInfo;
+                attrDataOutStream.writeInt(docAttrInfo.descriptionCPIndex);
+                attrDataOutStream.writeShort(docAttrInfo.paramDocInfoList.size());
+                for (ParameterDocumentInfo paramDocInfo : docAttrInfo.paramDocInfoList) {
+                    attrDataOutStream.writeInt(paramDocInfo.nameCPIndex);
+                    attrDataOutStream.writeInt(paramDocInfo.typeSigCPIndex);
+                    attrDataOutStream.writeInt(paramDocInfo.paramKindCPIndex);
+                    attrDataOutStream.writeInt(paramDocInfo.descriptionCPIndex);
                 }
                 break;
         }
 
-        // TODO Support other types of attributes
+        byte[] attrDataBytes = attrDataBAOS.toByteArray();
+        dataOutStream.writeInt(attrDataBytes.length);
+        dataOutStream.write(attrDataBytes);
     }
 
     private static byte[] writeInstructions(Instruction[] instructions) throws IOException {
@@ -525,10 +591,15 @@ public class PackageInfoWriter {
             throws IOException {
         dataOutStream.writeInt(defaultValueInfo.typeDescCPIndex);
         String typeDesc = defaultValueInfo.desc;
-        if (TypeDescriptor.SIG_BOOLEAN.equals(typeDesc)) {
-            dataOutStream.writeBoolean(defaultValueInfo.booleanValue);
-        } else {
-            dataOutStream.writeInt(defaultValueInfo.valueCPIndex);
+        switch (typeDesc) {
+            case TypeDescriptor.SIG_BOOLEAN:
+                dataOutStream.writeBoolean(defaultValueInfo.booleanValue);
+                break;
+            case TypeDescriptor.SIG_NULL:
+                // write nothing
+                break;
+            default:
+                dataOutStream.writeInt(defaultValueInfo.valueCPIndex);
         }
     }
 }

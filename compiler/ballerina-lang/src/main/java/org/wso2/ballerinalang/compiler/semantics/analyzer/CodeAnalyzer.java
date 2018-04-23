@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
@@ -45,7 +46,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -72,6 +72,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAct
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
@@ -102,7 +103,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
@@ -112,6 +112,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -134,6 +135,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
+import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -153,6 +155,8 @@ import java.util.Stack;
  */
 public class CodeAnalyzer extends BLangNodeVisitor {
 
+    private static final String MAIN_FUNC_NAME = "main";
+
     private static final CompilerContext.Key<CodeAnalyzer> CODE_ANALYZER_KEY =
             new CompilerContext.Key<>();
 
@@ -162,7 +166,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean lastStatement;
     private int forkJoinCount;
     private int workerCount;
-    private SymbolEnter symbolEnter;
     private SymbolTable symTable;
     private Types types;
     private BLangDiagnosticLog dlog;
@@ -185,7 +188,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public CodeAnalyzer(CompilerContext context) {
         context.put(CODE_ANALYZER_KEY, this);
-        this.symbolEnter = SymbolEnter.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
         this.types = Types.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
@@ -217,7 +219,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         parent = pkgNode;
         SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
-        pkgNode.imports.forEach(impPkgNode -> analyzeNode(impPkgNode, pkgEnv));
         pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, pkgEnv));
         pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
         parent = null;
@@ -243,10 +244,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         //TODO
     }
 
+    private void validateMainFunction(BLangFunction funcNode) {
+        if (MAIN_FUNC_NAME.equals(funcNode.name.value) && Symbols.isPublic(funcNode.symbol)) {
+            this.dlog.error(funcNode.pos, DiagnosticCode.MAIN_CANNOT_BE_PUBLIC);
+        }
+    }
+    
     @Override
     public void visit(BLangFunction funcNode) {
         this.returnWithintransactionCheckStack.push(true);
         this.doneWithintransactionCheckStack.push(true);
+        this.validateMainFunction(funcNode);
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         this.visitInvocable(funcNode, funcEnv);
         this.returnWithintransactionCheckStack.pop();
@@ -255,31 +263,37 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void visitInvocable(BLangInvokableNode invNode, SymbolEnv invokableEnv) {
         this.resetFunction();
-        this.initNewWorkerActionSystem();
-        if (Symbols.isNative(invNode.symbol)) {
-            return;
+        try {
+            this.initNewWorkerActionSystem();
+            if (Symbols.isNative(invNode.symbol)) {
+                return;
+            }
+            boolean invokableReturns = invNode.returnTypeNode.type != symTable.nilType;
+            if (invNode.workers.isEmpty()) {
+                /* the body can be null in the case of Object type function declarations */
+                if (invNode.body != null) {
+                    analyzeNode(invNode.body, invokableEnv);
+                    /* the function returns, but none of the statements surely returns */
+                    if (invokableReturns && !this.statementReturns) {
+                        this.dlog.error(invNode.pos, DiagnosticCode.INVOKABLE_MUST_RETURN,
+                                invNode.getKind().toString().toLowerCase());
+                    }
+                }
+            } else {
+                boolean workerReturns = false;
+                for (BLangWorker worker : invNode.workers) {
+                    analyzeNode(worker, invokableEnv);
+                    workerReturns = workerReturns || this.statementReturns;
+                    this.resetStatementReturns();
+                }
+                if (invokableReturns && !workerReturns) {
+                    this.dlog.error(invNode.pos, DiagnosticCode.ATLEAST_ONE_WORKER_MUST_RETURN,
+                            invNode.getKind().toString().toLowerCase());
+                }
+            }
+        } finally {
+            this.finalizeCurrentWorkerActionSystem();
         }
-        boolean invokableReturns = invNode.returnTypeNode.type != symTable.nilType;
-        if (invNode.workers.isEmpty()) {
-            analyzeNode(invNode.body, invokableEnv);
-            /* the function returns, but none of the statements surely returns */
-            if (invokableReturns && !this.statementReturns) {
-                this.dlog.error(invNode.pos, DiagnosticCode.INVOKABLE_MUST_RETURN,
-                        invNode.getKind().toString().toLowerCase());
-            }
-        } else {
-            boolean workerReturns = false;
-            for (BLangWorker worker : invNode.workers) {
-                analyzeNode(worker, invokableEnv);
-                workerReturns = workerReturns || this.statementReturns;
-                this.resetStatementReturns();
-            }
-            if (invokableReturns && !workerReturns) {
-                this.dlog.error(invNode.pos, DiagnosticCode.ATLEAST_ONE_WORKER_MUST_RETURN,
-                        invNode.getKind().toString().toLowerCase());
-            }
-        }
-        this.finalizeCurrentWorkerActionSystem();
     }
 
     @Override
@@ -376,9 +390,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangFail failNode) {
+    public void visit(BLangRetry retryNode) {
         if (this.transactionCount == 0) {
-            this.dlog.error(failNode.pos, DiagnosticCode.FAIL_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
+            this.dlog.error(retryNode.pos, DiagnosticCode.FAIL_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
             return;
         }
         this.lastStatement = true;
@@ -562,10 +576,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.lastStatement = true;
     }
 
-    public void visit(BLangPackageDeclaration pkgDclNode) {
-        /* ignore */
-    }
-
     public void visit(BLangImportPackage importPkgNode) {
         BPackageSymbol pkgSymbol = importPkgNode.symbol;
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgSymbol);
@@ -599,6 +609,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangAction actionNode) {
+        /* not used, covered with functions */
     }
 
     public void visit(BLangStruct structNode) {
@@ -606,7 +617,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangObject objectNode) {
-        /* ignore */
+        objectNode.functions.forEach(e -> this.analyzeNode(e, this.env));
     }
 
     public void visit(BLangRecord record) {
@@ -796,6 +807,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangWorkerSend workerSendNode) {
+        this.checkStatementExecutionValidity(workerSendNode);
         if (!this.inWorker()) {
             return;
         }
@@ -805,6 +817,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
+        this.checkStatementExecutionValidity(workerReceiveNode);
         if (!this.inWorker()) {
             return;
         }
@@ -1023,7 +1036,64 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchExpression bLangMatchExpression) {
-        // TODO
+        analyzeExpr(bLangMatchExpression.expr);
+        List<BType> exprTypes;
+
+        if (bLangMatchExpression.expr.type.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) bLangMatchExpression.expr.type;
+            exprTypes = new ArrayList<>(unionType.memberTypes);
+        } else {
+            exprTypes = Lists.of(bLangMatchExpression.expr.type);
+        }
+
+        List<BType> unmatchedExprTypes = new ArrayList<>();
+        for (BType exprType : exprTypes) {
+            boolean assignable = false;
+            for (BLangMatchExprPatternClause pattern : bLangMatchExpression.patternClauses) {
+                BType patternType = pattern.variable.type;
+                if (exprType.tag == TypeTags.ERROR || patternType.tag == TypeTags.ERROR) {
+                    return;
+                }
+
+                assignable = this.types.isAssignable(exprType, patternType);
+                if (assignable) {
+                    pattern.matchedTypesDirect.add(exprType);
+                    break;
+                } else if (exprType.tag == TypeTags.ANY) {
+                    pattern.matchedTypesIndirect.add(exprType);
+                } else if (exprType.tag == TypeTags.JSON && this.types.isAssignable(patternType, exprType)) {
+                    pattern.matchedTypesIndirect.add(exprType);
+                } else if (exprType.tag == TypeTags.STRUCT && this.types.isAssignable(patternType, exprType)) {
+                    pattern.matchedTypesIndirect.add(exprType);
+                } else {
+                    // TODO Support other assignable types
+                }
+            }
+
+            // check if the exprType can be added to implicit default pattern 
+            if (!assignable && !this.types.isAssignable(exprType, bLangMatchExpression.type)) {
+                unmatchedExprTypes.add(exprType);
+            }
+        }
+
+        if (!unmatchedExprTypes.isEmpty()) {
+            dlog.error(bLangMatchExpression.pos, DiagnosticCode.MATCH_STMT_CANNOT_GUARANTEE_A_MATCHING_PATTERN,
+                    unmatchedExprTypes);
+        }
+
+        boolean matchedPatternsAvailable = false;
+        for (int i = bLangMatchExpression.patternClauses.size() - 1; i >= 0; i--) {
+            BLangMatchExprPatternClause pattern = bLangMatchExpression.patternClauses.get(i);
+            if (pattern.matchedTypesDirect.isEmpty() && pattern.matchedTypesIndirect.isEmpty()) {
+                if (matchedPatternsAvailable) {
+                    dlog.error(pattern.pos, DiagnosticCode.MATCH_STMT_UNMATCHED_PATTERN);
+                } else {
+                    dlog.error(pattern.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
+                }
+            } else {
+                matchedPatternsAvailable = true;
+            }
+        }
     }
 
     @Override

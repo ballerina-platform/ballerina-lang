@@ -237,6 +237,18 @@
     "before }": "",
     "after }": ""
   },
+  "DocumentationAttribute": {
+    "before paramType":"",
+    "after paramType": "",
+    "before {{":"",
+    "after {{":"",
+    "before documentationField":"",
+    "after documentationField":"",
+    "before }}":"",
+    "after }}": " ",
+    "before documentationText":"",
+    "after documentationText":""
+  },
   "Deprecated": {
     "before deprecated": "",
     "after deprecated": " ",
@@ -418,8 +430,8 @@
     "after ]": ""
   },
   "Invocation": {
-    "before async": "",
-    "after async": " ",
+    "before start": "",
+    "after start": " ",
     "before expression": "",
     "after expression": "",
     "before .": "",
@@ -516,8 +528,18 @@
     "after {":"",
     "before public": " ",
     "after public":"",
+    "before public {": "",
+    "after public {": "",
+    "before public }":"",
+    "after public }":"",
     "before private": " ",
-    "after private": ""
+    "after private": "",
+    "before private {":"",
+    "after private {":"",
+    "before private }":"",
+    "after private }":"",
+    "before }":"",
+    "after }": ""
   },
   "RecordLiteralExpr": {
     "before {": "",
@@ -560,6 +582,12 @@
     "after workers": "",
     "before }": "",
     "after }": ""
+  },
+  "RestArgsExpr": {
+    "before ...": "",
+    "after ...": "",
+    "before expression": "",
+    "after expression": ""
   },
   "Retry": {
     "before retry": "",
@@ -778,6 +806,12 @@
     "after >": " ",
     "before expression": "",
     "after expression": ""
+  },
+  "TypeDefinition": {
+    "before type":"",
+    "after type":" ",
+    "before name":"",
+    "after name":" "
   },
   "TypeofExpression": {
     "before typeof": "",

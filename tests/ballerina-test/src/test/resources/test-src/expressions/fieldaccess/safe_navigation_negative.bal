@@ -35,12 +35,6 @@ function testFieldAcessWithoutErrorLifting () returns any {
     return x;
 }
 
-function testFunctionInvocReturnType () {
-    json j;
-    string s = j.toString();
-    string[] keys = j.getKeys();
-}
-
 function testErrorLiftingOnRHS() {
     Person|error p;
     p!info1!address1!city = "Colombo";
@@ -69,3 +63,13 @@ function testUpdatingNullableStructField () returns any {
     p.info2.address2.city = "Kandy";
     return p;
 }
+
+type Student {
+    json info;
+};
+
+function testFunctionCallOnJSONInRecord() {
+    Student? st = {};
+    string s = st.info.toString();
+}
+

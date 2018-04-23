@@ -9,14 +9,9 @@ options {
 
 // starting point for parsing a bal file
 compilationUnit
-    :   packageDeclaration?
-        (importDeclaration | namespaceDeclaration)*
+    :   (importDeclaration | namespaceDeclaration)*
         (documentationAttachment? deprecatedAttachment? annotationAttachment* definition)*
         EOF
-    ;
-
-packageDeclaration
-    :   PACKAGE packageName SEMICOLON
     ;
 
 packageName
@@ -245,7 +240,7 @@ builtInReferenceTypeName
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
     |   TYPE_JSON (LT nameReference GT)?
     |   TYPE_TABLE (LT nameReference GT)?
-    |   TYPE_STREAM (LT nameReference GT)?
+    |   TYPE_STREAM (LT typeName GT)?
     |   functionTypeName
     ;
 
@@ -288,7 +283,7 @@ statement
     |   expressionStmt
     |   transactionStatement
     |   abortStatement
-    |   failStatement
+    |   retryStatement
     |   lockStatement
     |   namespaceDeclarationStatement
     |   foreverStatement
@@ -549,8 +544,8 @@ abortStatement
     :   ABORT SEMICOLON
     ;
 
-failStatement
-    :   FAIL SEMICOLON
+retryStatement
+    :   RETRY SEMICOLON
     ;
 
 retriesStatement
@@ -788,13 +783,7 @@ tableQuery
     :   FROM streamingInput joinStreamingInput?
         selectClause?
         orderByClause?
-    ;
-
-aggregationQuery
-    :   FROM streamingInput
-        selectClause?
-        orderByClause?
-
+        limitClause?
     ;
 
 foreverStatement
@@ -822,7 +811,15 @@ withinClause
     ;
 
 orderByClause
-    :   ORDER BY variableReferenceList
+    :   ORDER BY orderByVariable (COMMA orderByVariable)*
+    ;
+
+orderByVariable
+    :   variableReference orderByType?
+    ;
+
+limitClause
+    :   LIMIT DecimalIntegerLiteral
     ;
 
 selectClause
@@ -848,7 +845,7 @@ havingClause
     ;
 
 streamingAction
-    :   EQUAL_GT LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS callableUnitBody
+    :   EQUAL_GT LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 setClause
@@ -888,16 +885,12 @@ whereClause
     :   WHERE expression
     ;
 
-functionClause
-    :   FUNCTION functionInvocation
-    ;
-
 windowClause
     :   WINDOW functionInvocation
     ;
 
-outputEventType
-    : ALL EVENTS | EXPIRED EVENTS | CURRENT EVENTS
+orderByType
+    :   ASCENDING | DESCENDING
     ;
 
 joinType

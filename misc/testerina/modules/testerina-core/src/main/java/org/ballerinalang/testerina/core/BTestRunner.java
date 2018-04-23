@@ -30,6 +30,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.testerina.core.entity.TestSuite;
 import org.ballerinalang.testerina.core.entity.TesterinaReport;
 import org.ballerinalang.testerina.core.entity.TesterinaResult;
+import org.ballerinalang.testerina.util.Utils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.diagnostic.Diagnostic;
@@ -53,6 +54,7 @@ public class BTestRunner {
     private static PrintStream errStream = System.err;
     private static PrintStream outStream = System.out;
     private TesterinaReport tReport = new TesterinaReport();
+    private TesterinaRegistry registry = TesterinaRegistry.getInstance();
 
     /**
      * Executes a given set of ballerina program files.
@@ -77,8 +79,8 @@ public class BTestRunner {
         outStream.println("---------------------------------------------------------------------------");
         outStream.println("    T E S T S");
         outStream.println("---------------------------------------------------------------------------");
-        TesterinaRegistry.getInstance().setGroups(groups);
-        TesterinaRegistry.getInstance().setShouldIncludeGroups(shouldIncludeGroups);
+        registry.setGroups(groups);
+        registry.setShouldIncludeGroups(shouldIncludeGroups);
 
         // Compile and build the test suites
         compileAndBuildSuites(sourceRoot, sourceFilePaths);
@@ -113,7 +115,7 @@ public class BTestRunner {
      */
     public List<String> getGroupList() {
 
-        Map<String, TestSuite> testSuites = TesterinaRegistry.getInstance().getTestSuites();
+        Map<String, TestSuite> testSuites = registry.getTestSuites();
         if (testSuites.isEmpty()) {
             throw new BallerinaException("No test functions found in the provided ballerina files.");
         }
@@ -136,6 +138,11 @@ public class BTestRunner {
     private void compileAndBuildSuites(String sourceRoot, Path[] sourceFilePaths)  {
 
         Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
+
+            String packageName = Utils.getFullPackageName(sourcePackage.toString());
+
+            registry.getTestSuites().computeIfAbsent(packageName, func -> new TestSuite
+                (packageName));
             // compile
             CompileResult compileResult = BCompileUtil.compile(sourceRoot, sourcePackage.toString(),
                 CompilerPhase.CODE_GEN);
@@ -150,9 +157,8 @@ public class BTestRunner {
             // set the debugger
             ProgramFile programFile = compileResult.getProgFile();
             Debugger debugger = new Debugger(programFile);
-            programFile.setDebugger(debugger);
-
-            TesterinaRegistry.getInstance().addProgramFile(programFile);
+            Utils.initDebugger(programFile, debugger);
+            registry.addProgramFile(programFile);
 
             // process the compiled files
             ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
@@ -167,14 +173,14 @@ public class BTestRunner {
                 }
             });
         });
-        TesterinaRegistry.getInstance().setTestSuitesCompiled(true);
+        registry.setTestSuitesCompiled(true);
     }
 
     /**
      * Run all tests.
      */
     private void execute() {
-        Map<String, TestSuite> testSuites = TesterinaRegistry.getInstance().getTestSuites();
+        Map<String, TestSuite> testSuites = registry.getTestSuites();
         if (testSuites.isEmpty()) {
             throw new BallerinaException("No test functions found in the provided ballerina files.");
         }
@@ -188,7 +194,7 @@ public class BTestRunner {
             shouldSkip.set(false);
             TestAnnotationProcessor.injectMocks(suite);
             tReport.addPackageReport(packageName);
-            if (suite.getInitFunction() != null) {
+            if (suite.getInitFunction() != null && Utils.isPackageInitialized(packageName)) {
                 suite.getInitFunction().invoke();
             }
 
@@ -390,5 +396,4 @@ public class BTestRunner {
     }
 
 }
-
 

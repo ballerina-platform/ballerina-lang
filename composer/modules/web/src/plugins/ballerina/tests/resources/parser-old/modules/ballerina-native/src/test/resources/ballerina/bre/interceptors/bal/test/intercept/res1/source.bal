@@ -1,11 +1,10 @@
-package bal.test.intercept.res1;
 
 import ballerina/lang.system;
 import ballerina/lang.messages;
 
 int i = 0;
 
-function main (string[] args) {
+function main (string... args) {
     system:println("Hello, World!");
 }
 

@@ -18,7 +18,10 @@ package org.ballerinalang.test.statements.block;
 
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -42,9 +45,28 @@ public class BlockStmtTest {
         Assert.assertEquals(result.getErrorCount(), 0);
     }
 
+
+    @Test
+    public void testVariableShadowingBasic() {
+        BValue[] returns = BRunUtil.invoke(result, "test1");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+    }
+
+    @Test
+    public void testVariableShadowingInCurrentScope1() {
+        BValue[] returns = BRunUtil.invoke(result, "test2");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+    }
+
+    @Test
+    public void testVariableShadowingInCurrentScope2() {
+        BValue[] returns = BRunUtil.invoke(result, "test3");
+        Assert.assertEquals(returns[0].stringValue(), "K17");
+    }
+
     @Test(description = "Test block statement with errors")
     public void testBlockStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 10);
+        Assert.assertEquals(resultNegative.getErrorCount(), 12);
         //testUnreachableStmtInIfFunction1
         BAssertUtil.validateError(resultNegative, 0, "unreachable code", 9, 5);
         //testUnreachableStmtInIfFunction2
@@ -64,6 +86,8 @@ public class BlockStmtTest {
         BAssertUtil.validateError(resultNegative, 8, "break cannot be used outside of a loop", 92, 9);
         //testUnreachableThrow
         BAssertUtil.validateError(resultNegative, 9, "unreachable code", 107, 9);
+        BAssertUtil.validateError(resultNegative, 10, "redeclared symbol 'value'", 113, 5);
+        BAssertUtil.validateError(resultNegative, 11, "unreachable code", 117, 9);
 
     }
 }

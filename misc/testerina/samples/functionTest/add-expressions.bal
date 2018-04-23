@@ -1,9 +1,8 @@
-package functionTest;
 
 import ballerina/io;
 
 
-function main (string[] args) {
+function main (string... args) {
     int c = intAdd(5, 3);
     io:println("addintion is : " + c);
 }

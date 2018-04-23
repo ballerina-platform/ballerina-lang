@@ -19,12 +19,14 @@
 
 package org.wso2.ballerinalang.compiler.desugar;
 
+import org.ballerinalang.model.tree.clauses.OrderByVariableNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -51,6 +53,7 @@ public abstract class SqlQueryBuilder extends BLangNodeVisitor {
     StringBuilder selectExpr;
     StringBuilder groupByClause;
     StringBuilder havingClause;
+    StringBuilder orderByVariableClause;
 
     Stack<String> exprStack = new Stack<>();
 
@@ -60,18 +63,27 @@ public abstract class SqlQueryBuilder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOrderBy orderBy) {
-        List<? extends ExpressionNode> varRefs = orderBy.getVariables();
-        Iterator<? extends ExpressionNode> iterator = varRefs.iterator();
-        BLangExpression expr = (BLangExpression) iterator.next();
+        List<? extends OrderByVariableNode> orderByVariableNodes = orderBy.getVariables();
+        Iterator<? extends OrderByVariableNode> iterator = orderByVariableNodes.iterator();
+        BLangOrderByVariable orderByVariable = (BLangOrderByVariable) iterator.next();
         orderByClause = new StringBuilder("order by ");
-        expr.accept(this);
-        orderByClause.append(exprStack.pop());
+        orderByVariable.accept(this);
+        orderByClause.append(orderByVariableClause);
         while (iterator.hasNext()) {
             orderByClause.append(",").append(" ");
-            expr = (BLangExpression) iterator.next();
-            expr.accept(this);
-            orderByClause.append(exprStack.pop());
+            orderByVariable = (BLangOrderByVariable) iterator.next();
+            orderByVariable.accept(this);
+            orderByClause.append(orderByVariableClause);
         }
+    }
+
+    @Override
+    public void visit(BLangOrderByVariable orderByVariable) {
+        orderByVariableClause = new StringBuilder();
+        BLangExpression expr = (BLangExpression) orderByVariable.getVariableReference();
+        expr.accept(this);
+        orderByVariableClause.append(exprStack.pop());
+        orderByVariableClause.append(" ").append(orderByVariable.getOrderByType());
     }
 
     @Override
@@ -204,7 +216,14 @@ public abstract class SqlQueryBuilder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
-        StringBuilder sqlStringBuilder = new StringBuilder(invocationExpr.getName().getValue()).append("(");
+        StringBuilder sqlStringBuilder = new StringBuilder();
+        if (invocationExpr.pkgAlias != null) {
+            String pkgAlias = invocationExpr.pkgAlias.value;
+            if (pkgAlias != null && !pkgAlias.isEmpty()) {
+                sqlStringBuilder.append(pkgAlias).append(":");
+            }
+        }
+        sqlStringBuilder.append(invocationExpr.getName().getValue()).append("(");
         List<String> argList = new ArrayList<>();
         for (BLangExpression arg : invocationExpr.argExprs) {
             arg.accept(this);

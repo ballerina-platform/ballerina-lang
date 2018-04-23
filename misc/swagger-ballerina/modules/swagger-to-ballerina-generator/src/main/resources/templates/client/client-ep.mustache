@@ -20,14 +20,14 @@ public type {{cut info.title " "}}ClientEp object {
 
     public function init({{cut info.title " "}}ClientConfig config) {
         endpoint http:Client httpEp {
-            targets:[{url: config.serviceUrl}]
+            url: config.serviceUrl
         };
 
         self.client = httpEp;
         self.config = config;
     }
 
-    public function getClient() returns ({{cut info.title " "}}Client) {
+    public function getCallerActions() returns ({{cut info.title " "}}Client) {
         return new {{cut info.title " "}}Client(self);
     }
 };
@@ -41,13 +41,13 @@ public type {{cut info.title " "}}Client object {
     }
 
     new (clientEp) {}
-{{#paths}}{{#value}}{{#get}}
+{{#paths}}{{#value}}{{#operations}}{{#value}}
     public function {{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
         endpoint http:Client ep = self.clientEp.client;
         http:Request request = new;
 
         //Create the required request as needed
-        var res = ep -> get("{{@key}}", request);
+        var res = ep -> {{key}}("{{../../key}}", request);
 
         match res {
             http:HttpConnectorError httpError => {
@@ -57,101 +57,5 @@ public type {{cut info.title " "}}Client object {
             http:Response resp => return resp;
         }
     }
-    {{/get}}{{#post}}
-    public function {{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
-        endpoint http:Client ep = self.clientEp.client;
-        http:Request request = new;
-
-        //Create the required request as needed
-        var res = ep -> post("{{@key}}", request);
-
-        match res {
-            http:HttpConnectorError httpError => {
-                error err = {message: httpError.message};
-                return err;
-            }
-            http:Response resp => return resp;
-        }
-    }
-    {{/post}}{{#put}}
-    public function {{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
-        endpoint http:Client ep = self.clientEp.client;
-        http:Request request = new;
-
-        //Create the required request as needed
-        var res = ep -> put("{{@key}}", request);
-
-        match res {
-            http:HttpConnectorError httpError => {
-                error err = {message: httpError.message};
-                return err;
-            }
-            http:Response resp => return resp;
-        }
-    }
-    {{/put}}{{#delete}}
-    public function {{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
-        endpoint http:Client ep = self.clientEp.client;
-        http:Request request = new;
-
-        //Create the required request as needed
-        var res = ep -> delete("{{@key}}", request);
-
-        match res {
-            http:HttpConnectorError httpError => {
-                error err = {message: httpError.message};
-                return err;
-            }
-            http:Response resp => return resp;
-        }
-    }
-    {{/delete}}{{#options}}
-    public function {{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
-        endpoint http:Client ep = self.clientEp.client;
-        http:Request request = new;
-
-        //Create the required request as needed
-        var res = ep -> options("{{@key}}", request);
-
-        match res {
-            http:HttpConnectorError httpError => {
-                error err = {message: httpError.message};
-                return err;
-            }
-            http:Response resp => return resp;
-        }
-    }
-    {{/options}}{{#head}}
-    public function {{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
-        endpoint http:Client ep = self.clientEp.client;
-        http:Request request = new;
-
-        //Create the required request as needed
-        var res = ep -> head("{{@key}}", request);
-
-        match res {
-            http:HttpConnectorError httpError => {
-                error err = {message: httpError.message};
-                return err;
-            }
-            http:Response resp => return resp;
-        }
-    }
-    {{/head}}{{#patch}}
-    public function {{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
-        endpoint http:Client ep = self.clientEp.client;
-        http:Request request = new;
-
-        //Create the required request as needed
-        var res = ep -> patch("{{@key}}", request);
-
-        match res {
-            http:HttpConnectorError httpError => {
-                error err = {message: httpError.message};
-                return err;
-            }
-            http:Response resp => return resp;
-        }
-    }
-{{/patch}}{{/value}}{{/paths}}
+{{/value}}{{/operations}}{{/value}}{{/paths}}
 };

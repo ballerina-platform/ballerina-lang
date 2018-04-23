@@ -92,6 +92,10 @@ public class TableIterator implements DataIterator {
         }
     }
 
+    public void reset(boolean isInTransaction) {
+        close(false);
+    }
+
     @Override
     public String getString(int columnIndex) {
         try {

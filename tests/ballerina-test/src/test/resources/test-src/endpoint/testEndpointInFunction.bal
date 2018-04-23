@@ -1,6 +1,6 @@
 string exFlow = "";
 
-function main (string[] args) {
+function main (string... args) {
     endpoint DummyEndpoint ep { conf1 : "test1"};
     exFlow = exFlow + "<main>";
     ep -> invoke1("t", 1);
@@ -32,7 +32,7 @@ type DummyEndpoint object {
         exFlow = exFlow + "register:DummyEndpoint;";
     }
 
-    public function getClient () returns (DummyClient) {
+    public function getCallerActions () returns (DummyClient) {
         exFlow = exFlow + "getClient:DummyEndpoint;";
         return new;
     }

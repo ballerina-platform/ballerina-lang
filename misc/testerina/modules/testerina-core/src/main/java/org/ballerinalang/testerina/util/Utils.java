@@ -17,16 +17,29 @@
  */
 package org.ballerinalang.testerina.util;
 
+import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
+import org.wso2.ballerinalang.compiler.util.Names;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Comparator;
 
 /**
  * Utility methods.
  */
 public class Utils {
+
+    private static PrintStream errStream = System.err;
+    private static TesterinaRegistry registry = TesterinaRegistry.getInstance();
+
 
     public static void startService(ProgramFile programFile) {
         if (!programFile.isServiceEPAvailable()) {
@@ -39,16 +52,52 @@ public class Utils {
         initDebugger(programFile, debugger);
 
         // Invoke package init function
-        BLangFunctions.invokePackageInitFunction(servicesPackage.getInitFunctionInfo());
-
+        if (isPackageInitialized(programFile.getEntryPkgName())) {
+            BLangFunctions.invokePackageInitFunction(servicesPackage.getInitFunctionInfo());
+            registry.addInitializedPackage(programFile.getEntryPkgName());
+        }
         BLangFunctions.invokeVMUtilFunction(servicesPackage.getStartFunctionInfo());
     }
 
-    private static void initDebugger(ProgramFile programFile, Debugger debugger) {
+    public static boolean isPackageInitialized(String entryPkgName) {
+        return !registry.getInitializedPackages().contains(entryPkgName);
+    }
+
+    /**
+     * Cleans up any remaining testerina metadata.
+     * @param path The path of the Directory/File to be deleted
+     */
+    public static void cleanUpDir(Path path) {
+        try {
+            if (Files.exists(path)) {
+                Files.walk(path).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+            }
+        } catch (IOException e) {
+            errStream.println("Error occurred while deleting the dir : " + path.toString() + " with error : "
+                              + e.getMessage());
+        }
+    }
+
+    /**
+     * Initialize the debugger.
+     * @param programFile ballerina executable programFile
+     * @param debugger Debugger instance
+     */
+    public static void initDebugger(ProgramFile programFile, Debugger debugger) {
         programFile.setDebugger(debugger);
         if (debugger.isDebugEnabled()) {
             debugger.init();
             debugger.waitTillDebuggeeResponds();
         }
+    }
+
+    /**
+     * Returns the full package name with org name for a given package.
+     * @param packageName package name
+     * @return full package name with organization name if org name exists
+     */
+    public static String getFullPackageName(String packageName) {
+        return registry.getOrgName() == null ? "." : registry.getOrgName().equals(Names.ANON_ORG
+            .toString()) ? packageName : registry.getOrgName() + "." + packageName;
     }
 }

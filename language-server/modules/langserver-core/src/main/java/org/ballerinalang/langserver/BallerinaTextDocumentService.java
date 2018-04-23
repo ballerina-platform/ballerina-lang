@@ -18,20 +18,25 @@ package org.ballerinalang.langserver;
 import com.google.gson.JsonObject;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.command.CommandUtil;
-import org.ballerinalang.langserver.common.LSCustomErrorStrategy;
-import org.ballerinalang.langserver.common.LSDocument;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
-import org.ballerinalang.langserver.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.LSParserUtils;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSContextManager;
+import org.ballerinalang.langserver.compiler.LSPackageCache;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
+import org.ballerinalang.langserver.compiler.common.LSDocument;
+import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
+import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.CompletionCustomErrorStrategy;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.langserver.completions.resolvers.TopLevelResolver;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.ballerinalang.langserver.definition.util.DefinitionUtil;
-import org.ballerinalang.langserver.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.langserver.references.util.ReferenceUtil;
 import org.ballerinalang.langserver.rename.RenameUtil;
@@ -39,7 +44,6 @@ import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.ballerinalang.langserver.util.Debouncer;
-import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.CodeLensParams;
@@ -72,6 +76,7 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -87,6 +92,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.locks.Lock;
 
 /**
  * Text document service implementation for ballerina.
@@ -98,6 +104,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
     private final WorkspaceDocumentManager documentManager;
     private Map<String, List<Diagnostic>> lastDiagnosticMap;
     private LSGlobalContext lsGlobalContext;
+    // In case of there are any specific error scenarios, then the fallback BLang package will be used
+    // to get completions
+    private BLangPackage fallbackBLangPackage = null;
 
     private final Debouncer diagPushDebouncer;
 
@@ -113,30 +122,34 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<Either<List<CompletionItem>, CompletionList>>
     completion(TextDocumentPositionParams position) {
         return CompletableFuture.supplyAsync(() -> {
+            String fileUri = position.getTextDocument().getUri();
             List<CompletionItem> completions;
             LSServiceOperationContext completionContext = new LSServiceOperationContext();
-            completionContext.put(DocumentServiceKeys.POSITION_KEY, position);
-            completionContext.put(DocumentServiceKeys.FILE_URI_KEY, position.getTextDocument().getUri());
+            Path completionPath = CommonUtil.getPath(new LSDocument(fileUri));
+            Optional<Lock> lock = documentManager.lockFile(completionPath);
             try {
-                BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(completionContext,
-                        documentManager, false, CompletionCustomErrorStrategy.class, false)
-                        .get(0);
+                completionContext.put(DocumentServiceKeys.POSITION_KEY, position);
+                completionContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
+                BLangPackage bLangPackage = LSCompiler.getBLangPackage(completionContext, documentManager, false,
+                                                                       CompletionCustomErrorStrategy.class,
+                                                                       false).get(0);
                 completionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                        bLangPackage.symbol.getName().getValue());
+                                      bLangPackage.symbol.getName().getValue());
                 completionContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
-                // Visit the package to resolve the symbols
-                TreeVisitor treeVisitor = new TreeVisitor(completionContext);
-                bLangPackage.accept(treeVisitor);
+                this.resolveSymbols(completionContext, bLangPackage);
                 BLangNode symbolEnvNode = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
-                if (symbolEnvNode == null) {
+                if (symbolEnvNode instanceof BLangPackage) {
                     completions = CompletionItemResolver.getResolverByClass(TopLevelResolver.class)
                             .resolveItems(completionContext);
                 } else {
                     completions = CompletionItemResolver.getResolverByClass(symbolEnvNode.getClass())
                             .resolveItems(completionContext);
                 }
+                this.fallbackBLangPackage = bLangPackage;
             } catch (Exception | AssertionError e) {
                 completions = new ArrayList<>();
+            } finally {
+                lock.ifPresent(Lock::unlock);
             }
             return Either.forLeft(completions);
         });
@@ -150,23 +163,25 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<Hover> hover(TextDocumentPositionParams position) {
         return CompletableFuture.supplyAsync(() -> {
+            String fileUri = position.getTextDocument().getUri();
             LSServiceOperationContext hoverContext = new LSServiceOperationContext();
-            hoverContext.put(DocumentServiceKeys.FILE_URI_KEY, position.getTextDocument().getUri());
-            hoverContext.put(DocumentServiceKeys.POSITION_KEY, position);
+            Path hoverFilePath = CommonUtil.getPath(new LSDocument(fileUri));
+            Optional<Lock> lock = documentManager.lockFile(hoverFilePath);
             Hover hover;
+            hoverContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
+            hoverContext.put(DocumentServiceKeys.POSITION_KEY, position);
             try {
                 BLangPackage currentBLangPackage =
-                        TextDocumentServiceUtil.getBLangPackage(hoverContext, documentManager, false,
-                                LSCustomErrorStrategy.class, false).get(0);
+                        LSCompiler.getBLangPackage(hoverContext, documentManager, false,
+                                                   LSCustomErrorStrategy.class, false).get(0);
                 hoverContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                        currentBLangPackage.symbol.getName().getValue());
+                                 currentBLangPackage.symbol.getName().getValue());
 
                 LSContextManager lsContextManager = LSContextManager.getInstance();
-                Path path = Paths.get(position.getTextDocument().getUri());
-                String sourceRoot = TextDocumentServiceUtil.getSourceRoot(path);
+                Path path = Paths.get(fileUri);
+                String sourceRoot = LSCompiler.getSourceRoot(path);
                 CompilerContext compilerContext = lsContextManager.getCompilerContext(currentBLangPackage.packageID,
                                                                                       sourceRoot);
-                //LSPackageCache.getInstance().addPackage(currentBLangPackage.packageID,currentBLangPackage);
                 LSPackageCache lsPackageCache = LSPackageCache.getInstance(compilerContext);
                 hover = HoverUtil.getHoverContent(hoverContext, currentBLangPackage, lsPackageCache);
             } catch (Exception | AssertionError e) {
@@ -174,6 +189,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 List<Either<String, MarkedString>> contents = new ArrayList<>();
                 contents.add(Either.forLeft(""));
                 hover.setContents(contents);
+            } finally {
+                lock.ifPresent(Lock::unlock);
             }
             return hover;
         });
@@ -182,50 +199,60 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<SignatureHelp> signatureHelp(TextDocumentPositionParams position) {
         return CompletableFuture.supplyAsync(() -> {
-            String uri = position.getTextDocument().getUri();
-            String fileContent = this.documentManager.getFileContent(Paths.get(URI.create(uri)));
-            LSServiceOperationContext signatureContext = new LSServiceOperationContext();
-            SignatureHelpUtil.captureCallableItemInfo(position.getPosition(), fileContent, signatureContext);
-            signatureContext.put(DocumentServiceKeys.POSITION_KEY, position);
-            signatureContext.put(DocumentServiceKeys.FILE_URI_KEY, uri);
-            SignatureHelp signatureHelp;
-            BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(signatureContext, documentManager,
-                    false, LSCustomErrorStrategy.class, false).get(0);
-            signatureContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                    bLangPackage.symbol.getName().getValue());
-            SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(signatureContext);
-            bLangPackage.accept(signatureTreeVisitor);
-            signatureHelp = SignatureHelpUtil.getFunctionSignatureHelp(signatureContext);
-            return signatureHelp;
+            Path sigFilePath = CommonUtil.getPath(new LSDocument(position.getTextDocument().getUri()));
+            Optional<Lock> lock = documentManager.lockFile(sigFilePath);
+            try {
+                String uri = position.getTextDocument().getUri();
+                String fileContent = this.documentManager.getFileContent(Paths.get(URI.create(uri)));
+                LSServiceOperationContext signatureContext = new LSServiceOperationContext();
+                SignatureHelpUtil.captureCallableItemInfo(position.getPosition(), fileContent, signatureContext);
+                signatureContext.put(DocumentServiceKeys.POSITION_KEY, position);
+                signatureContext.put(DocumentServiceKeys.FILE_URI_KEY, uri);
+                SignatureHelp signatureHelp;
+                BLangPackage bLangPackage = LSCompiler.getBLangPackage(signatureContext, documentManager,
+                                                                       false, LSCustomErrorStrategy.class, false).get(
+                        0);
+                signatureContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
+                                     bLangPackage.symbol.getName().getValue());
+                SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(signatureContext);
+                bLangPackage.accept(signatureTreeVisitor);
+                signatureHelp = SignatureHelpUtil.getFunctionSignatureHelp(signatureContext);
+                return signatureHelp;
+            } finally {
+                lock.ifPresent(Lock::unlock);
+            }
         });
     }
 
     @Override
     public CompletableFuture<List<? extends Location>> definition(TextDocumentPositionParams position) {
         return CompletableFuture.supplyAsync(() -> {
-            LSServiceOperationContext definitionContext = new LSServiceOperationContext();
-            definitionContext.put(DocumentServiceKeys.FILE_URI_KEY, position.getTextDocument().getUri());
-            definitionContext.put(DocumentServiceKeys.POSITION_KEY, position);
-
-            BLangPackage currentBLangPackage =
-                    TextDocumentServiceUtil.getBLangPackage(definitionContext, documentManager, false,
-                            LSCustomErrorStrategy.class, false).get(0);
-            definitionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                    currentBLangPackage.symbol.getName().getValue());
-//            LSPackageCache.getInstance().addPackage(currentBLangPackage.packageID, currentBLangPackage);
+            String fileUri = position.getTextDocument().getUri();
+            Path defFilePath = CommonUtil.getPath(new LSDocument(fileUri));
+            Optional<Lock> lock = documentManager.lockFile(defFilePath);
             List<Location> contents;
             try {
+                LSServiceOperationContext definitionContext = new LSServiceOperationContext();
+                definitionContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
+                definitionContext.put(DocumentServiceKeys.POSITION_KEY, position);
+                BLangPackage currentBLangPackage =
+                        LSCompiler.getBLangPackage(definitionContext, documentManager, false,
+                                                   LSCustomErrorStrategy.class, false).get(0);
+                definitionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
+                                      currentBLangPackage.symbol.getName().getValue());
                 PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(definitionContext);
                 currentBLangPackage.accept(positionTreeVisitor);
                 LSContextManager lsContextManager = LSContextManager.getInstance();
-                Path path = Paths.get(position.getTextDocument().getUri());
-                String sourceRoot = TextDocumentServiceUtil.getSourceRoot(path);
+                Path path = Paths.get(fileUri);
+                String sourceRoot = LSCompiler.getSourceRoot(path);
                 CompilerContext compilerContext = lsContextManager.getCompilerContext(currentBLangPackage.packageID,
                                                                                       sourceRoot);
                 LSPackageCache lsPackageCache = LSPackageCache.getInstance(compilerContext);
                 contents = DefinitionUtil.getDefinitionPosition(definitionContext, lsPackageCache);
             } catch (Throwable e) {
                 contents = new ArrayList<>();
+            } finally {
+                lock.ifPresent(Lock::unlock);
             }
             return contents;
         });
@@ -234,35 +261,41 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            LSServiceOperationContext referenceContext = new LSServiceOperationContext();
-            referenceContext.put(DocumentServiceKeys.FILE_URI_KEY, params.getTextDocument().getUri());
-            referenceContext.put(DocumentServiceKeys.POSITION_KEY, params);
-            List<Location> contents = new ArrayList<>();
+            String fileUri = params.getTextDocument().getUri();
+            Path refFilePath = CommonUtil.getPath(new LSDocument(fileUri));
+            Optional<Lock> lock = documentManager.lockFile(refFilePath);
+            try {
+                LSServiceOperationContext referenceContext = new LSServiceOperationContext();
+                referenceContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
+                referenceContext.put(DocumentServiceKeys.POSITION_KEY, params);
+                List<Location> contents = new ArrayList<>();
 
-            List<BLangPackage> bLangPackages = TextDocumentServiceUtil
-                    .getBLangPackage(referenceContext, documentManager, false,
-                            LSCustomErrorStrategy.class, true);
-            // Get the current package.
-            BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages,
-                    params.getTextDocument().getUri());
+                List<BLangPackage> bLangPackages = LSCompiler
+                        .getBLangPackage(referenceContext, documentManager, false,
+                                         LSCustomErrorStrategy.class, true);
+                // Get the current package.
+                BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages, fileUri);
 
-            referenceContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                    currentBLangPackage.symbol.getName().getValue());
-
-            // Calculate position for the current package.
-            PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(referenceContext);
-            currentBLangPackage.accept(positionTreeVisitor);
-
-            // Run reference visitor for all the packages in project folder.
-            for (BLangPackage bLangPackage : bLangPackages) {
                 referenceContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                        bLangPackage.symbol.getName().getValue());
-//                LSPackageCache.getInstance().addPackage(bLangPackage.packageID, bLangPackage);
-                referenceContext.put(NodeContextKeys.REFERENCE_NODES_KEY, contents);
-                contents = ReferenceUtil.getReferences(referenceContext, bLangPackage);
-            }
+                                     currentBLangPackage.symbol.getName().getValue());
 
-            return contents;
+                // Calculate position for the current package.
+                PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(referenceContext);
+                currentBLangPackage.accept(positionTreeVisitor);
+
+                // Run reference visitor for all the packages in project folder.
+                for (BLangPackage bLangPackage : bLangPackages) {
+                    referenceContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
+                                         bLangPackage.symbol.getName().getValue());
+//                LSPackageCache.getInstance().put(bLangPackage.packageID, bLangPackage);
+                    referenceContext.put(NodeContextKeys.REFERENCE_NODES_KEY, contents);
+                    contents = ReferenceUtil.getReferences(referenceContext, bLangPackage);
+                }
+
+                return contents;
+            } finally {
+                lock.ifPresent(Lock::unlock);
+            }
         });
     }
 
@@ -274,27 +307,32 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<List<? extends SymbolInformation>> documentSymbol(DocumentSymbolParams params) {
-        String uri = params.getTextDocument().getUri();
-        List<SymbolInformation> symbols = new ArrayList<>();
+        String fileUri = params.getTextDocument().getUri();
+        Path docSymbolFilePath = CommonUtil.getPath(new LSDocument(fileUri));
+        Optional<Lock> lock = documentManager.lockFile(docSymbolFilePath);
+        try {
+            List<SymbolInformation> symbols = new ArrayList<>();
 
-        LSServiceOperationContext symbolsContext = new LSServiceOperationContext();
-        symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, uri);
-        symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
+            LSServiceOperationContext symbolsContext = new LSServiceOperationContext();
+            symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
+            symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
+            BLangPackage bLangPackage = LSCompiler.getBLangPackage(symbolsContext, documentManager,
+                                                                   false, LSCustomErrorStrategy.class, false).get(0);
+            symbolsContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
+                               bLangPackage.symbol.getName().getValue());
+            Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
+                    .filter(cUnit -> (fileUri.endsWith(cUnit.getName())))
+                    .findFirst();
 
-        BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(symbolsContext, documentManager,
-                false, LSCustomErrorStrategy.class, false).get(0);
-        symbolsContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                bLangPackage.symbol.getName().getValue());
-        Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
-                .filter(cUnit -> (uri.endsWith(cUnit.getName())))
-                .findFirst();
+            documentCUnit.ifPresent(cUnit -> {
+                SymbolFindingVisitor visitor = new SymbolFindingVisitor(symbolsContext);
+                cUnit.accept(visitor);
+            });
 
-        documentCUnit.ifPresent(cUnit -> {
-            SymbolFindingVisitor visitor = new SymbolFindingVisitor(symbolsContext);
-            cUnit.accept(visitor);
-        });
-
-        return CompletableFuture.supplyAsync(() -> symbols);
+            return CompletableFuture.supplyAsync(() -> symbols);
+        } finally {
+            lock.ifPresent(Lock::unlock);
+        }
     }
 
     @Override
@@ -305,16 +343,17 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     .topLevelNodeTypeInLine(params.getTextDocument(), params.getRange().getStart(), documentManager);
             if (topLevelNodeType != null) {
                 commands.add(CommandUtil.getDocGenerationCommand(topLevelNodeType,
-                        params.getTextDocument().getUri(), params.getRange().getStart().getLine()));
+                                                                 params.getTextDocument().getUri(),
+                                                                 params.getRange().getStart().getLine()));
                 commands.add(CommandUtil.getAllDocGenerationCommand(params.getTextDocument().getUri()));
             } else if (!params.getContext().getDiagnostics().isEmpty()) {
                 LSContextManager lsContextManager = LSContextManager.getInstance();
-                String sourceRoot = TextDocumentServiceUtil.getSourceRoot(Paths.get(params.getTextDocument().getUri()));
+                String sourceRoot = LSCompiler.getSourceRoot(Paths.get(params.getTextDocument().getUri()));
                 CompilerContext compilerContext = lsContextManager.getCompilerContext(sourceRoot);
                 LSPackageCache lsPackageCache = LSPackageCache.getInstance(compilerContext);
                 params.getContext().getDiagnostics().forEach(diagnostic -> {
                     commands.addAll(CommandUtil
-                            .getCommandsByDiagnostic(diagnostic, params, lsPackageCache));
+                                            .getCommandsByDiagnostic(diagnostic, params, lsPackageCache));
                 });
             }
             return commands;
@@ -370,90 +409,105 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<WorkspaceEdit> rename(RenameParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            WorkspaceEdit workspaceEdit = new WorkspaceEdit();
-            LSServiceOperationContext renameContext = new LSServiceOperationContext();
-            renameContext.put(DocumentServiceKeys.FILE_URI_KEY, params.getTextDocument().getUri());
-            renameContext.put(DocumentServiceKeys.POSITION_KEY,
-                    new TextDocumentPositionParams(params.getTextDocument(), params.getPosition()));
-            List<Location> contents = new ArrayList<>();
+            Path renameFilePath = CommonUtil.getPath(new LSDocument(params.getTextDocument().getUri()));
+            Optional<Lock> lock = documentManager.lockFile(renameFilePath);
+            try {
+                WorkspaceEdit workspaceEdit = new WorkspaceEdit();
+                LSServiceOperationContext renameContext = new LSServiceOperationContext();
+                renameContext.put(DocumentServiceKeys.FILE_URI_KEY, params.getTextDocument().getUri());
+                renameContext.put(DocumentServiceKeys.POSITION_KEY,
+                                  new TextDocumentPositionParams(params.getTextDocument(), params.getPosition()));
+                List<Location> contents = new ArrayList<>();
 
-            List<BLangPackage> bLangPackages =
-                    TextDocumentServiceUtil.getBLangPackage(renameContext, documentManager, false,
-                            LSCustomErrorStrategy.class, true);
-            // Get the current package.
-            BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages,
-                    params.getTextDocument().getUri());
+                List<BLangPackage> bLangPackages =
+                        LSCompiler.getBLangPackage(renameContext, documentManager, false,
+                                                   LSCustomErrorStrategy.class, true);
+                // Get the current package.
+                BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages,
+                                                                                          params.getTextDocument()
+                                                                                                  .getUri());
 
-            renameContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                    currentBLangPackage.symbol.getName().getValue());
-            renameContext.put(NodeContextKeys.REFERENCE_NODES_KEY, contents);
-
-            // Run the position calculator for the current package.
-            PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(renameContext);
-            currentBLangPackage.accept(positionTreeVisitor);
-            String replaceableSymbolName = renameContext.get(NodeContextKeys.NAME_OF_NODE_KEY);
-
-            // Run reference visitor and rename util for project folder.
-            for (BLangPackage bLangPackage : bLangPackages) {
                 renameContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                        bLangPackage.symbol.getName().getValue());
+                                  currentBLangPackage.symbol.getName().getValue());
+                renameContext.put(NodeContextKeys.REFERENCE_NODES_KEY, contents);
 
-                LSContextManager lsContextManager = LSContextManager.getInstance();
-                String sourceRoot = TextDocumentServiceUtil.getSourceRoot(Paths.get(params.getTextDocument().getUri()));
-                CompilerContext context = lsContextManager.getCompilerContext(bLangPackage.packageID, sourceRoot);
-                LSPackageCache.getInstance(context).addPackage(bLangPackage.packageID, bLangPackage);
+                // Run the position calculator for the current package.
+                PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(renameContext);
+                currentBLangPackage.accept(positionTreeVisitor);
+                String replaceableSymbolName = renameContext.get(NodeContextKeys.NAME_OF_NODE_KEY);
 
-                contents = ReferenceUtil.getReferences(renameContext, bLangPackage);
+                // Run reference visitor and rename util for project folder.
+                for (BLangPackage bLangPackage : bLangPackages) {
+                    renameContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
+                                      bLangPackage.symbol.getName().getValue());
+
+                    LSContextManager lsContextManager = LSContextManager.getInstance();
+                    String sourceRoot = LSCompiler.getSourceRoot(Paths.get(params.getTextDocument().getUri()));
+                    CompilerContext context = lsContextManager.getCompilerContext(bLangPackage.packageID, sourceRoot);
+                    LSPackageCache.getInstance(context).put(bLangPackage.packageID, bLangPackage);
+
+                    contents = ReferenceUtil.getReferences(renameContext, bLangPackage);
+                }
+
+                workspaceEdit.setDocumentChanges(RenameUtil
+                                                         .getRenameTextEdits(contents, documentManager,
+                                                                             params.getNewName(),
+                                                                             replaceableSymbolName));
+                return workspaceEdit;
+            } finally {
+                lock.ifPresent(Lock::unlock);
             }
-
-            workspaceEdit.setDocumentChanges(RenameUtil
-                    .getRenameTextEdits(contents, documentManager, params.getNewName(), replaceableSymbolName));
-            return workspaceEdit;
         });
     }
 
     @Override
     public void didOpen(DidOpenTextDocumentParams params) {
-        LSDocument document = new LSDocument(params.getTextDocument().getUri());
-        Path openedPath = CommonUtil.getPath(document);
+        Path openedPath = CommonUtil.getPath(new LSDocument(params.getTextDocument().getUri()));
         if (openedPath == null) {
             return;
         }
-
         String content = params.getTextDocument().getText();
-        this.documentManager.openFile(openedPath, content);
-
-        compileAndSendDiagnostics(content, document, openedPath);
+        Optional<Lock> lock = documentManager.lockFile(openedPath);
+        try {
+            if (documentManager.isFileOpen(openedPath)) {
+                documentManager.openFile(openedPath, content);
+            }
+        } finally {
+            lock.ifPresent(Lock::unlock);
+        }
+        compileAndSendDiagnostics(content, openedPath);
     }
 
     @Override
     public void didChange(DidChangeTextDocumentParams params) {
-        LSDocument document = new LSDocument(params.getTextDocument().getUri());
-        Path changedPath = CommonUtil.getPath(document);
+        Path changedPath = CommonUtil.getPath(new LSDocument(params.getTextDocument().getUri()));
         if (changedPath == null) {
             return;
         }
-
         String content = params.getContentChanges().get(0).getText();
-        this.documentManager.updateFile(changedPath, content);
-
-        this.diagPushDebouncer.call(new Runnable() {
-            @Override
-            public void run() {
-                compileAndSendDiagnostics(content, document, changedPath);
+        Optional<Lock> lock = documentManager.lockFile(changedPath);
+        try {
+            if (documentManager.isFileOpen(changedPath)) {
+                documentManager.updateFile(changedPath, content);
+            } else {
+                documentManager.openFile(changedPath, content);
             }
-        });
+        } finally {
+            lock.ifPresent(Lock::unlock);
+        }
+        this.diagPushDebouncer.call(() -> compileAndSendDiagnostics(content, changedPath));
     }
 
-    private void compileAndSendDiagnostics(String content, LSDocument document, Path path) {
+    private void compileAndSendDiagnostics(String content, Path path) {
         BallerinaFile balFile;
         List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
-        String tempFileId = LSParserUtils.getUnsavedFileIdOrNull(path.toString());
-        if (tempFileId == null) {
-            balFile = LSParserUtils.compile(content, path, CompilerPhase.TAINT_ANALYZE, false);
-        } else {
-            balFile = LSParserUtils.compile(content, tempFileId, CompilerPhase.TAINT_ANALYZE, false);
+        String tempFileId = LSCompiler.getUnsavedFileIdOrNull(path.toString());
+        Path compilationPath = path;
+        if (tempFileId != null) {
+            compilationPath = LSCompiler.createAndGetTempFile(tempFileId);
         }
+        balFile = LSCompiler.compileContent(content, compilationPath, CompilerPhase.TAINT_ANALYZE, documentManager,
+                                            false);
         if (balFile.getDiagnostics() != null) {
             balDiagnostics = balFile.getDiagnostics();
         }
@@ -533,5 +587,28 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public void didSave(DidSaveTextDocumentParams params) {
+    }
+    
+    // Private Methods
+
+    /**
+     * Resolve the visible symbols from the given BLang Package and the current context.
+     * @param completionContext     Completion Service Context
+     * @param bLangPackage          BLang Package
+     */
+    private void resolveSymbols(LSServiceOperationContext completionContext, BLangPackage bLangPackage) {
+        // Visit the package to resolve the symbols
+        TreeVisitor treeVisitor = new TreeVisitor(completionContext);
+        if (completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY)
+                instanceof BallerinaParser.MatchStatementContext) {
+            this.fallbackBLangPackage.accept(treeVisitor);
+        } else {
+            bLangPackage.accept(treeVisitor);
+        }
+        
+        if (completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY) == null) {
+            treeVisitor.populateSymbols(treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv()),
+                    treeVisitor.getSymbolEnv());
+        }
     }
 }

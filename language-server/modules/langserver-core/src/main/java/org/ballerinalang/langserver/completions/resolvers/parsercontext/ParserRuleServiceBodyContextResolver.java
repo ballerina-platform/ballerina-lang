@@ -17,14 +17,19 @@
 */
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
-import org.ballerinalang.langserver.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.resolvers.AnnotationAttachmentResolver;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.sorters.DefaultItemSorter;
+import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Completion Item Resolver for Parser Rule Context of Service Body.
@@ -33,11 +38,25 @@ public class ParserRuleServiceBodyContextResolver extends AbstractItemResolver {
 
     @Override
     public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+        ArrayList<CompletionItem> completionItems = new ArrayList<>();
         if (this.isAnnotationContext(completionContext)) {
             completionContext.put(CompletionKeys.ATTACHMENT_POINT_NODE_TYPE_KEY, "resource");
-            return CompletionItemResolver.getResolverByClass(AnnotationAttachmentResolver.class)
-                    .resolveItems(completionContext);
+            completionItems.addAll(CompletionItemResolver.getResolverByClass(AnnotationAttachmentResolver.class)
+                    .resolveItems(completionContext));
+        } else {
+            fillBindKeyword(completionItems);
         }
-        return new ArrayList<>();
+        ItemSorters.getSorterByClass(DefaultItemSorter.class).sortItems(completionContext, completionItems);
+
+        return completionItems;
+    }
+    
+    private void fillBindKeyword(List<CompletionItem> completionItems) {
+        // Populate Bind Statement template
+        CompletionItem bindItem = new CompletionItem();
+        bindItem.setLabel(ItemResolverConstants.BIND);
+        bindItem.setInsertText(Snippet.BIND.toString());
+        bindItem.setDetail(ItemResolverConstants.KEYWORD_TYPE);
+        completionItems.add(bindItem);
     }
 }
