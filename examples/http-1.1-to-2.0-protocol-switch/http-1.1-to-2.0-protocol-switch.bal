@@ -22,17 +22,23 @@ service<http:Service> http11Service bind http11ServiceEP {
     httpResource (endpoint caller, http:Request clientRequest) {
         // Forward the clientRequest to http2 service.
         var clientResponse = http2serviceClientEP -> forward("/http2service", clientRequest);
+        http:Response response = new;
         match clientResponse {
-            http:Response res => {
-                _ = caller -> respond(res);
+            http:Response resultantResponse => {
+                response = resultantResponse;
             }
             http:HttpConnectorError err => {
                 // Handle if there is an error returned from the forward function invocation.
-                http:Response res = new;
-                res.statusCode = 500;
-                res.setStringPayload(err.message);
-                _ = caller -> respond(res);
+                response.statusCode = 500;
+                response.setStringPayload(err.message);
             }
+        }
+        var result = caller -> respond(response);
+        match result {
+            http:HttpConnectorError err => {
+                io:println("Error occurred while sending the response back to client, error: " + err.message);
+            }
+            () => {}
         }
     }
 }
@@ -58,6 +64,13 @@ service<http:Service> http2service bind http2serviceEP {
     response.setJsonPayload(msg);
 
     // Send the response.
-    _ = caller -> respond(response);
+    var result = caller -> respond(response);
+    match result {
+        http:HttpConnectorError err => {
+            io:println("Error occurred while sending the response back to client, error: " + err.message);
+        }
+        () => {}
+    }
   }
 }
+
