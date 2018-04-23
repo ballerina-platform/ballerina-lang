@@ -55,9 +55,9 @@ public class Get extends AbstractHTTPAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        DataContext dataContext = new DataContext(context, callback);
+        DataContext dataContext = new DataContext(context, callback, createOutboundRequestMsg(context));
         try {
-            executeNonBlockingAction(dataContext, createOutboundRequestMsg(context));
+            executeNonBlockingAction(dataContext);
         } catch (ClientConnectorException clientConnectorException) {
             // This is should be a JavaError. Need to handle this properly.
             BallerinaException exception = new BallerinaException("Failed to invoke 'get' action in " +

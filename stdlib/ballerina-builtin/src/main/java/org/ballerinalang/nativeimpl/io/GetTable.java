@@ -41,48 +41,40 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * Native function ballerina.io#loadToTable.
  *
- * @since 0.966.0
+ * @since 0.970.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "getTable",
-        receiver = @Receiver(type = TypeKind.STRUCT,
-                structType = "CSVChannel",
-                structPackage = "ballerina.io"),
-        args = {@Argument(name = "path", type = TypeKind.STRING),
-                @Argument(name = "recordSeparator", type = TypeKind.STRING),
-                @Argument(name = "fieldSeparator", type = TypeKind.STRING),
-                @Argument(name = "encoding", type = TypeKind.STRING),
-                @Argument(name = "headerLineIncluded", type = TypeKind.BOOLEAN)},
-        returnType = {@ReturnType(type = TypeKind.TABLE),
-                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "CSVChannel", structPackage = "ballerina.io"),
+        args = {@Argument(name = "structType", type = TypeKind.TYPEDESC)},
+        returnType = {
+                @ReturnType(type = TypeKind.TABLE),
+                @ReturnType(type = TypeKind.STRUCT, structType = "error", structPackage = "ballerina.builtin")},
         isPublic = true
 )
-public class LoadToTable implements NativeCallableUnit {
+public class GetTable implements NativeCallableUnit {
 
-    private static final Logger log = LoggerFactory.getLogger(LoadToTable.class);
+    private static final Logger log = LoggerFactory.getLogger(GetTable.class);
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        final String filePath = context.getStringArgument(0);
-        final String recordSeparator = context.getStringArgument(1);
-        final String fieldSeparator = context.getStringArgument(2);
-        final String encoding = context.getStringArgument(3);
+        BStruct csvChannel = (BStruct) context.getRefArgument(0);
         try {
-            DelimitedRecordChannel recordChannel = IOUtils.createDelimitedRecordChannel(filePath, encoding,
-                    recordSeparator, fieldSeparator);
+            final BStruct delimitedStruct = (BStruct) csvChannel.getRefField(0);
+            DelimitedRecordChannel delimitedChannel = (DelimitedRecordChannel) delimitedStruct
+                    .getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
             EventContext eventContext = new EventContext(context, callback);
-            DelimitedRecordReadAllEvent event = new DelimitedRecordReadAllEvent(recordChannel, eventContext);
+            DelimitedRecordReadAllEvent event = new DelimitedRecordReadAllEvent(delimitedChannel, eventContext);
             CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
-            future.thenApply(LoadToTable::response);
-        } catch (IOException e) {
+            future.thenApply(GetTable::response);
+        } catch (Exception e) {
             String msg = "Failed to process the delimited file: " + e.getMessage();
             log.error(msg, e);
             context.setReturnValues(IOUtils.createError(context, msg));
@@ -119,13 +111,9 @@ public class LoadToTable implements NativeCallableUnit {
     }
 
     private static BTable getbTable(Context context, List records) throws BallerinaIOException {
-        BTypeDescValue type = (BTypeDescValue) context.getRefArgument(0);
+        BTypeDescValue type = (BTypeDescValue) context.getRefArgument(1);
         BTable table = new BTable(new BTableType(type.value()), null);
         BStructType structType = (BStructType) type.value();
-        boolean skipHeaderLine = context.getBooleanArgument(0);
-        if (skipHeaderLine && !records.isEmpty()) {
-            records.remove(0);
-        }
         for (Object obj : records) {
             String[] fields = (String[]) obj;
             final BStruct struct = getStruct(fields, structType);

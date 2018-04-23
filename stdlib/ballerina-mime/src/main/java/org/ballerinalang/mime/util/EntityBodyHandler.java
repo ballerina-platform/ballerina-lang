@@ -18,7 +18,9 @@
 
 package org.ballerinalang.mime.util;
 
+import io.netty.handler.codec.http.DefaultHttpHeaders;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
@@ -54,8 +56,11 @@ import java.util.Set;
 import static org.ballerinalang.mime.util.Constants.BALLERINA_TEMP_FILE;
 import static org.ballerinalang.mime.util.Constants.BODY_PARTS;
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
+import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.Constants.FIRST_BODY_PART_INDEX;
+import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_DATA_SOURCE;
+import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 
 /**
@@ -64,6 +69,23 @@ import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
  * @since 0.963.0
  */
 public class EntityBodyHandler {
+
+    /**
+     * Set new entity to in/out request/response struct.
+     *
+     * @param context           ballerina context.
+     * @param httpMessageStruct request/response struct.
+     */
+    public static BStruct createNewEntity(Context context, BStruct httpMessageStruct) {
+        BStruct entity = ConnectorUtils.createAndGetStruct(context
+                , org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME
+                , org.ballerinalang.mime.util.Constants.ENTITY);
+        entity.addNativeData(ENTITY_HEADERS, new DefaultHttpHeaders());
+        entity.addNativeData(ENTITY_BYTE_CHANNEL, null);
+        httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
+        httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
+        return entity;
+    }
 
     /**
      * Handle discrete media type content. This method populates ballerina entity with a byte channel from a given
@@ -77,12 +99,15 @@ public class EntityBodyHandler {
      */
     public static void setDiscreteMediaTypeBodyContent(BStruct entityStruct, InputStream inputStream,
                                                        int numberOfBytesRead) {
-        if (numberOfBytesRead < Constants.BYTE_LIMIT) {
-            entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(new EntityBodyChannel(inputStream)));
-        } else {
-            String temporaryFilePath = MimeUtil.writeToTemporaryFile(inputStream, BALLERINA_TEMP_FILE);
-            entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, getByteChannelForTempFile(temporaryFilePath));
+        if (numberOfBytesRead > 0) {
+            if (numberOfBytesRead < Constants.BYTE_LIMIT) {
+                entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(new EntityBodyChannel(inputStream)));
+            } else {
+                String temporaryFilePath = MimeUtil.writeToTemporaryFile(inputStream, BALLERINA_TEMP_FILE);
+                entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, getByteChannelForTempFile(temporaryFilePath));
+            }
         }
+
     }
 
     /**
@@ -203,7 +228,7 @@ public class EntityBodyHandler {
         try {
             Channel byteChannel = getByteChannel(entityStruct);
             if (byteChannel == null) {
-                throw new BallerinaIOException("Payload is null");
+                throw new BallerinaIOException("String payload is null");
             }
             String textContent = StringUtils.getStringFromInputStream(byteChannel.getInputStream());
             byteChannel.close();
@@ -265,6 +290,8 @@ public class EntityBodyHandler {
         if (byteChannel != null) {
             MimeUtil.writeInputToOutputStream(byteChannel.getInputStream(), messageOutputStream);
             byteChannel.close();
+            //Set the byte channel to null, once it is consumed
+            entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
         }
     }
 
