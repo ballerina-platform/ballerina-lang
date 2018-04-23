@@ -4,40 +4,39 @@ import ballerina/io;
 int counter;
 
 function main (string... args) {
-    foreach i in [1..10] {
-        counterUp();
-    }
+    process();
     io:println("final counter value - ", counter);
 }
-function counterUp() {
+function process() {
     worker w1 {
-        lock {
-            // Lock the shared variable and increment the counter.
-            foreach i in [1..1000] {
+        // Lock the shared variable and increment the counter.
+        foreach i in [1..1000] {
+            lock {
+                // Lock the shared variable and increment the counter.
                 counter = counter + 1;
             }
         }
     }
     worker w2 {
-        lock {
-            // Lock the shared variable and increment the counter.
-            foreach i in [1..1000] {
+        foreach i in [1..1000] {
+            lock {
+                // Lock the shared variable and increment the counter.
                 counter = counter + 1;
             }
         }
     }
     worker w3 {
-        lock {
-            // Lock the shared variable and increment the counter.
-            foreach i in [1..1000] {
+        foreach i in [1..1000] {
+            lock {
+                // Lock the shared variable and increment the counter.
                 counter = counter + 1;
             }
         }
     }
     worker w4 {
-        lock {
-            // Lock the shared variable and increment the counter.
-            foreach i in [1..1000] {
+        foreach i in [1..1000] {
+            lock {
+                // Lock the shared variable and increment the counter.
                 counter = counter + 1;
             }
         }
