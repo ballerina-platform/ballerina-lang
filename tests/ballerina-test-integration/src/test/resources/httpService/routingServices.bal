@@ -38,7 +38,7 @@ service<http:Service> contentBasedRouting bind serviceEP{
             match result {
                 http:HttpConnectorError err => {
                     clientResponse.statusCode = 500;
-                    clientResponse.setStringPayload("Error sending request");
+                    clientResponse.setTextPayload("Error sending request");
                     _ = conn -> respond(clientResponse);
                 }
                 http:Response returnResponse => _ = conn -> respond(returnResponse);
@@ -48,7 +48,7 @@ service<http:Service> contentBasedRouting bind serviceEP{
             match result {
                 http:HttpConnectorError err => {
                     clientResponse.statusCode = 500;
-                    clientResponse.setStringPayload("Error sending request");
+                    clientResponse.setTextPayload("Error sending request");
                     _ = conn -> respond(clientResponse);
                 }
                 http:Response returnResponse => _ = conn -> respond(returnResponse);
@@ -75,7 +75,7 @@ service<http:Service> headerBasedRouting bind serviceEP{
             match result {
                 http:HttpConnectorError err => {
                     clientResponse.statusCode = 500;
-                    clientResponse.setStringPayload("Error sending request");
+                    clientResponse.setTextPayload("Error sending request");
                     _ = conn -> respond(clientResponse);
                 }
                 http:Response returnResponse => _ = conn -> respond(returnResponse);
@@ -85,7 +85,7 @@ service<http:Service> headerBasedRouting bind serviceEP{
             match result {
                 http:HttpConnectorError err => {
                     clientResponse.statusCode = 500;
-                    clientResponse.setStringPayload("Error sending request");
+                    clientResponse.setTextPayload("Error sending request");
                     _ = conn -> respond(clientResponse);
                 }
                 http:Response returnResponse => _ = conn -> respond(returnResponse);

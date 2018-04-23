@@ -10,7 +10,7 @@ function testGetJsonPayload (http:Response res) returns json | http:PayloadError
 }
 
 function testGetStringPayload (http:Response res) returns string | http:PayloadError {
-    return res.getStringPayload();
+    return res.getTextPayload();
 }
 
 function testGetBinaryPayload (http:Response res) returns blob | http:PayloadError {

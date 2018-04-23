@@ -21,7 +21,6 @@ endpoint grpc:Listener ep {
     port:9090
 };
 
-@grpc:serviceConfig
 service HelloWorld bind ep {
 
     testIntArrayInput(endpoint caller, TestInt req) {

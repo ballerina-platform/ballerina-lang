@@ -53,13 +53,13 @@ public class Submit extends Execute {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        DataContext dataContext = new DataContext(context, callback);
+        DataContext dataContext = new DataContext(context, callback, createOutboundRequestMsg(context));
         try {
             // Execute the operation
-            executeNonBlockingAction(dataContext, createOutboundRequestMsg(context), true);
+            executeNonBlockingAction(dataContext, true);
         } catch (ClientConnectorException clientConnectorException) {
             throw new BallerinaException("Failed to invoke 'executeAsync' action in " + HttpConstants.CALLER_ACTIONS
-                                         + ". " + clientConnectorException.getMessage(), context);
+                    + ". " + clientConnectorException.getMessage(), context);
         }
     }
 }

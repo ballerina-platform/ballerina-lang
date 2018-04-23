@@ -125,8 +125,13 @@ public class CompletionTestUtil {
         TreeVisitor treeVisitor = new TreeVisitor(completionContext);
         bLangPackage.accept(treeVisitor);
 
+        if (completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY) == null) {
+            treeVisitor.populateSymbols(treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv()),
+                    treeVisitor.getSymbolEnv());
+        }
+
         BLangNode symbolEnvNode = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
-        if (symbolEnvNode == null) {
+        if (symbolEnvNode instanceof BLangPackage) {
             completions = CompletionItemResolver.getResolverByClass(TopLevelResolver.class)
                     .resolveItems(completionContext);
         } else {

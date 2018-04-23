@@ -28,7 +28,7 @@ service echoService bind listener {
         http:Response outResponse = new;
         http:Request request = new;
         http:Response | () response = callNextResource();
-        outResponse.setStringPayload("Hello, World!");
+        outResponse.setTextPayload("Hello, World!");
         match response {
             http:Response res => _ = caller -> respond(res);
             () => _ = caller -> respond(new http:Response());
@@ -37,14 +37,14 @@ service echoService bind listener {
 
     resourceTwo (endpoint caller, http:Request clientRequest) {
         http:Response res = new;
-        res.setStringPayload("Hello, World 2!");
+        res.setTextPayload("Hello, World 2!");
         _ = caller -> respond(res);
     }
 
     getFinishedSpansCount(endpoint caller, http:Request clientRequest) {
         http:Response res = new;
         string returnString = testing:getFinishedSpansCount();
-        res.setStringPayload(returnString);
+        res.setTextPayload(returnString);
         _ = caller -> respond(res);
     }
 }

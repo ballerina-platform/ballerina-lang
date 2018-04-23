@@ -47,13 +47,13 @@
             "type": "object",
             "title": "Ballerina configuration",
             "properties": {
-                "ballerina.sdk": {
+                "ballerina.home": {
                     "type": [
                         "string",
                         "null"
                     ],
                     "default": null,
-                    "description": "Specifies the path to the ballerina sdk"
+                    "description": "Specifies the path to the ballerina home directory"
                 },
                 "ballerina.showLSErrors": {
                     "type": [

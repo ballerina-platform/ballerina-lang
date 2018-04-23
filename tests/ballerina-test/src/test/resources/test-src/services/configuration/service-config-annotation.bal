@@ -14,7 +14,7 @@ service<http:Service> helloWorldServiceConfig bind helloEP{
     }
     sayHello (endpoint conn, http:Request req) {
         http:Response res = new;
-        res.setStringPayload("Hello World!!!");
+        res.setTextPayload("Hello World!!!");
         _ = conn -> respond(res);
     }
 }
