@@ -14,12 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 import ballerina/io;
 import ballerina/log;
 import ballerina/time;
 
 type TwoPhaseCommitTransaction object {
+
     private {
         string transactionId;
         int transactionBlockId;
@@ -32,11 +32,14 @@ type TwoPhaseCommitTransaction object {
         boolean possibleMixedOutcome;
     }
 
-    new(transactionId, transactionBlockId, coordinationType = "2pc") {}
+    new(transactionId, transactionBlockId, coordinationType = "2pc") {
+
+    }
 
     // This function will be called by the initiator
     function twoPhaseCommit() returns string|error {
-        log:printInfo(io:sprintf("Running 2-phase commit for transaction: %s:%d", self.transactionId, self.transactionBlockId));
+        log:printInfo(io:sprintf("Running 2-phase commit for transaction: %s:%d", self.transactionId,
+                self.transactionBlockId));
         string|error ret = "";
 
         // Prepare local resource managers
@@ -62,7 +65,8 @@ type TwoPhaseCommitTransaction object {
                         ret = {message:OUTCOME_HAZARD};
                     }
                     NotifyResult => {
-                        boolean localCommitSuccessful = commitResourceManagers(self.transactionId, self.transactionBlockId);
+                        boolean localCommitSuccessful =
+                            commitResourceManagers(self.transactionId, self.transactionBlockId);
                         if (!localCommitSuccessful) {
                             ret = {message:OUTCOME_HAZARD}; // "Local commit failed"
                         } else {
@@ -80,7 +84,8 @@ type TwoPhaseCommitTransaction object {
                         ret = {message:OUTCOME_HAZARD};
                     }
                     NotifyResult => {
-                        boolean localAbortSuccessful = abortResourceManagers(self.transactionId, self.transactionBlockId);
+                        boolean localAbortSuccessful =
+                            abortResourceManagers(self.transactionId, self.transactionBlockId);
                         if (!localAbortSuccessful) {
                             ret = {message:OUTCOME_HAZARD};
                         } else {
@@ -134,7 +139,8 @@ type TwoPhaseCommitTransaction object {
                 self.state = TXN_STATE_ABORTED;
                 log:printInfo("Marked participated transaction for abort. Transaction:" + participatedTxnId);
             } else {
-                string msg = "Aborting local resource managers failed for participated transaction:" + participatedTxnId;
+                string msg = "Aborting local resource managers failed for participated transaction:" +
+                    participatedTxnId;
                 log:printError(msg);
                 error err = {message:msg};
                 return err;
@@ -146,19 +152,19 @@ type TwoPhaseCommitTransaction object {
     // The result of this function is whether we can commit or abort
     function prepareParticipants(string protocol) returns PrepareDecision {
         PrepareDecision prepareDecision = PREPARE_DECISION_COMMIT;
-        future<((PrepareResult | () | error), Participant) >[] results;
+        future<((PrepareResult|error)?, Participant)>[] results;
         foreach _, participant in self.participants {
             string participantId = participant.participantId;
-            future<((PrepareResult | () | error), Participant)> f = start participant.prepare(protocol);
+            future<((PrepareResult|error)?, Participant)> f = start participant.prepare(protocol);
             results[lengthof results] = f;
         }
         foreach f in results {
-            ((PrepareResult | () | error), Participant) r = await f;
+            ((PrepareResult|error)?, Participant) r = await f;
             var (result, participant) = r;
             string participantId = participant.participantId;
             match result {
                 PrepareResult prepRes => {
-                    if(prepRes == PREPARE_RESULT_PREPARED) {
+                    if (prepRes == PREPARE_RESULT_PREPARED) {
                         // All set for a PREPARE_DECISION_COMMIT so we can proceed without doing anything
                     } else if (prepRes == PREPARE_RESULT_COMMITTED) {
                         // If one or more participants returns "committed" and the overall prepare fails, we have to
@@ -197,18 +203,18 @@ type TwoPhaseCommitTransaction object {
         return prepareDecision;
     }
 
-    function notifyParticipants(string action, string? protocolName) returns NotifyResult | error {
+    function notifyParticipants(string action, string? protocolName) returns NotifyResult|error {
         NotifyResult|error notifyResult = (action == COMMAND_COMMIT) ? NOTIFY_RESULT_COMMITTED : NOTIFY_RESULT_ABORTED;
-        future<NotifyResult|()|error>[] results;
+        future<(NotifyResult|error)?>[] results;
         foreach _, participant in self.participants {
-            future<NotifyResult|()|error> f = start participant.notify(action, protocolName);
+            future<(NotifyResult|error)?> f = start participant.notify(action, protocolName);
             results[lengthof results] = f;
 
         }
         foreach f in results {
-            NotifyResult|()|error result = await f;
+            (NotifyResult|error)? result = await f;
             match result {
-                NotifyResult|() => {}
+                NotifyResult? => {}
                 error err => notifyResult = err;
             }
         }
