@@ -584,6 +584,10 @@ public class ServiceProtoUtils {
             throw new GrpcServerException("Target file directory path is null");
         }
         try {
+            // create parent directory. if doesn't exist.
+            if (!Files.exists(targetDirPath)) {
+                Files.createDirectories(targetDirPath);
+            }
             // write the proto string to the file in protobuf contract directory
             Path protoFilePath = Paths.get(targetDirPath.toString(), filename + ServiceProtoConstants
                     .PROTO_FILE_EXTENSION);

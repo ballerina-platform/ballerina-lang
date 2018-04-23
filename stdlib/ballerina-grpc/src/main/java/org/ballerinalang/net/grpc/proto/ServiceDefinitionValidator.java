@@ -51,6 +51,13 @@ public class ServiceDefinitionValidator {
 
     private static final String ENDPOINT_TYPE = PROTOCOL_STRUCT_PACKAGE_GRPC + ":" + SERVICE_ENDPOINT_TYPE;
 
+    /**
+     * Validate gRPC service instance.
+     *
+     * @param serviceNode gRPC service node.
+     * @param dlog Diagnostic Logs
+     * @return true, if service definition is valid. false otherwise.
+     */
     public static boolean validate (ServiceNode serviceNode, DiagnosticLog dlog) {
         return validateAnnotation(serviceNode, dlog) && validateResource(serviceNode, dlog);
     }
@@ -62,8 +69,10 @@ public class ServiceDefinitionValidator {
         int count = 0;
         for (AnnotationAttachmentNode annotation : annotations) {
             if (annotation.getAnnotationName().getValue().equals(ANN_SERVICE_CONFIG)) {
-                annVals = ((BLangRecordLiteral) annotation.getExpression()).keyValuePairs;
-                count++;
+                if (annotation.getExpression() != null) {
+                    annVals = ((BLangRecordLiteral) annotation.getExpression()).keyValuePairs;
+                    count++;
+                }
             }
         }
         if (count > 1) {

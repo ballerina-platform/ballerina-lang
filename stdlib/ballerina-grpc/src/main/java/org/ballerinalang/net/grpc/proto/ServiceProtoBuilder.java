@@ -49,7 +49,6 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -69,9 +68,7 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.bytesT
 )
 public class ServiceProtoBuilder extends AbstractCompilerPlugin {
 
-    private boolean canProcess;
     private DiagnosticLog dlog;
-    private Map<String, File> serviceFileMap = new HashMap<>();
     private static final PrintStream error = System.err;
 
     private SymbolResolver symResolver = null;
@@ -88,7 +85,6 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
     @Override
     public void init(DiagnosticLog diagnosticLog) {
         this.dlog = diagnosticLog;
-        this.canProcess = false;
     }
 
     @Override
@@ -98,7 +94,7 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
             if (ServiceDefinitionValidator.validate(serviceNode, dlog)) {
                 File fileDefinition = ServiceProtoUtils.generateProtoDefinition(serviceNode);
                 addDescriptorAnnotation(serviceNode, fileDefinition);
-                serviceFileMap.put(serviceNode.getName().getValue(), fileDefinition);
+                FileDefinitionHolder.getInstance().addDefinition(serviceNode.getName().getValue(), fileDefinition);
             }
         } catch (GrpcServerException e) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(), e.getMessage());
@@ -107,23 +103,29 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
 
     @Override
     public void codeGenerated(Path binaryPath) {
-        if (canProcess) {
-            if (binaryPath == null) {
-                error.print("Error while generating service proto file. Binary file path is null");
-                return;
-            }
-            Path filePath = binaryPath.toAbsolutePath();
-            Path parentDirPath = filePath.getParent();
-            if (parentDirPath == null) {
-                parentDirPath = filePath;
-            }
-            Path targetDirPath = Paths.get(parentDirPath.toString(), "grpc");
-            for (Map.Entry<String, File> entry : serviceFileMap.entrySet()) {
-                try {
-                    ServiceProtoUtils.writeServiceFiles(targetDirPath, entry.getKey(), entry.getValue());
-                } catch (GrpcServerException e) {
-                    error.print("Error while generating service proto file. " + e.getMessage());
-                }
+
+        Map<String, File> definitionMap = FileDefinitionHolder.getInstance().getDefinitionMap();
+        if (definitionMap.size() == 0) {
+            return;
+        }
+
+        if (binaryPath == null) {
+            error.print("Error while generating service proto file. Binary file path is null");
+            return;
+        }
+        Path filePath = binaryPath.toAbsolutePath();
+        Path parentDirPath = filePath.getParent();
+        if (parentDirPath == null) {
+            parentDirPath = filePath;
+        }
+        Path targetDirPath = Paths.get(parentDirPath.toString(), "grpc");
+        for (Map.Entry<String, File> entry : definitionMap.entrySet()) {
+            try {
+                ServiceProtoUtils.writeServiceFiles(targetDirPath, entry.getKey(), entry.getValue());
+            } catch (GrpcServerException e) {
+                error.print(e.getMessage());
+            } finally {
+                FileDefinitionHolder.getInstance().removeDefinition(entry.getKey());
             }
         }
     }

@@ -48,8 +48,6 @@ import java.util.List;
  */
 public interface CompilerPlugin {
 
-
-    // TODO : Fix this properly.
     default void setCompilerContext(CompilerContext context) {
     }
 
