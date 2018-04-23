@@ -1,6 +1,6 @@
 import ballerina/http;
 import ballerina/mime;
-import ballerina/log;
+import ballerina/io;
 
 type ProductMaterial {
     string name;
@@ -40,8 +40,8 @@ function initRealtimeProductionAlert() {
         group by r.name
         having ((totalRawMaterial - totalConsumption) * 100.0 / totalRawMaterial) > 5
         => (MaterialUsage[] materialUsages) {
-            //The 'materialUsages' is the output that matches the defined streaming rules. It is published to `materialUsageStream` stream.
-            //The selected clause should match the structure of the `MaterialUsage` type.
+        //The 'materialUsages' is the output that matches the defined streaming rules. It is published to `materialUsageStream` stream.
+        //The selected clause should match the structure of the `MaterialUsage` type.
             materialUsageStream.publish(materialUsages);
         }
     }
@@ -52,26 +52,26 @@ function printMaterialUsageAlert(MaterialUsage materialUsage) {
     float materialUsageDifference = (materialUsage.totalRawMaterial - materialUsage.totalConsumption) * 100.0 /
         (materialUsage.totalRawMaterial);
 
-    log:printInfo("ALERT!! : Material usage is higher than the expected limit for material: " +
-            materialUsage.name + " , usage difference (%): " + materialUsageDifference);
+    io:println("ALERT!! : Material usage is higher than the expected limit for material : " +
+            materialUsage.name + " , usage difference (%) : " + materialUsageDifference);
 }
 
 endpoint http:Listener productMaterialListener {
-    port:9090
+    port: 9090
 };
 
 //The service, which receives events related to the production outcome and the raw material input.
 @http:ServiceConfig {
-    basePath:"/"
+    basePath: "/"
 }
 service productMaterialService bind productMaterialListener {
 
     //Initialize the function that contains streaming queries.
-    future ftr= start initRealtimeProductionAlert();
+    future ftr = start initRealtimeProductionAlert();
 
     @http:ResourceConfig {
-        methods:["POST"],
-        path:"/rawmaterial"
+        methods: ["POST"],
+        path: "/rawmaterial"
     }
     rawmaterialrequests(endpoint outboundEP, http:Request req) {
         var jsonMsg = req.getJsonPayload();
@@ -81,22 +81,22 @@ service productMaterialService bind productMaterialListener {
                 rawMaterialStream.publish(productMaterial);
 
                 http:Response res = new;
-                res.setJsonPayload({"message" : "Raw material request successfully received"});
-                _ = outboundEP -> respond(res);
+                res.setJsonPayload({"message": "Raw material request successfully received"});
+                _ = outboundEP->respond(res);
 
             }
             http:PayloadError err => {
                 http:Response res = new;
                 res.statusCode = 500;
                 res.setStringPayload(err.message);
-                _ = outboundEP -> respond(res);
+                _ = outboundEP->respond(res);
             }
         }
     }
 
     @http:ResourceConfig {
-        methods:["POST"],
-        path:"/productionmaterial"
+        methods: ["POST"],
+        path: "/productionmaterial"
     }
     productionmaterialrequests(endpoint outboundEP, http:Request req) {
         var jsonMsg = req.getJsonPayload();
@@ -106,15 +106,15 @@ service productMaterialService bind productMaterialListener {
                 productionInputStream.publish(productMaterial);
 
                 http:Response res = new;
-                res.setJsonPayload({"message" : "Production input request successfully received"});
-                _ = outboundEP -> respond(res);
+                res.setJsonPayload({"message": "Production input request successfully received"});
+                _ = outboundEP->respond(res);
 
             }
             http:PayloadError err => {
                 http:Response res = new;
                 res.statusCode = 500;
                 res.setStringPayload(err.message);
-                _ = outboundEP -> respond(res);
+                _ = outboundEP->respond(res);
             }
         }
 
