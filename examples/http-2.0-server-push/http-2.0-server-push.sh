@@ -10,3 +10,15 @@ Received a promise for /resource3
 Response : {"response":{"name":"main resource"}}
 Promised resource : {"push":{"name":"resource1"}}
 Promised resource : {"push":{"name":"resource3"}}
+
+
+ballerina: started HTTP/WS endpoint 0.0.0.0:7090
+INFO  [] - Request received
+INFO  [] - Received a promise for /resource1
+INFO  [] - Received a promise for /resource2
+INFO  [] - Push promise for resource2 rejected
+INFO  [] - Received a promise for /resource3
+INFO  [] - Response : {"response":{"name":"main resource"}}
+INFO  [] - Promised resource : {"push":{"name":"resource1"}}
+INFO  [] - Promised resource : {"push":{"name":"resource3"}}
+ballerina: stopped HTTP/WS endpoint 0.0.0.0:7090

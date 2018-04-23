@@ -1,12 +1,12 @@
-import ballerina/io;
 import ballerina/http;
+import ballerina/log;
 
 endpoint http:Listener http11ServiceEP {
     port:9090
 };
 
 endpoint http:Client http2serviceClientEP {
-    url: "http://localhost:7090",
+    url:"http://localhost:7090",
     // HTTP version is set to 2.0.
     httpVersion:"2.0"
 };
@@ -19,9 +19,9 @@ service<http:Service> http11Service bind http11ServiceEP {
     @http:ResourceConfig {
         path:"/"
     }
-    httpResource (endpoint caller, http:Request clientRequest) {
+    httpResource(endpoint caller, http:Request clientRequest) {
         // Forward the clientRequest to http2 service.
-        var clientResponse = http2serviceClientEP -> forward("/http2service", clientRequest);
+        var clientResponse = http2serviceClientEP->forward("/http2service", clientRequest);
         http:Response response = new;
         match clientResponse {
             http:Response resultantResponse => {
@@ -33,13 +33,8 @@ service<http:Service> http11Service bind http11ServiceEP {
                 response.setStringPayload(err.message);
             }
         }
-        var result = caller -> respond(response);
-        match result {
-            http:HttpConnectorError err => {
-                io:println("Error occurred while sending the response back to client, error: " + err.message);
-            }
-            () => {}
-        }
+        caller->respond(response) but { error e => log:printError("Error occurred while sending the response", err = e)
+        };
     }
 }
 
@@ -54,23 +49,18 @@ endpoint http:Listener http2serviceEP {
 }
 service<http:Service> http2service bind http2serviceEP {
 
-  @http:ResourceConfig {
-     path:"/"
-  }
-  http2Resource (endpoint caller, http:Request req) {
-    // Construct response message.
-    http:Response response = new;
-    json msg = {"response":{"message":"response from http2 service"}};
-    response.setJsonPayload(msg);
-
-    // Send the response.
-    var result = caller -> respond(response);
-    match result {
-        http:HttpConnectorError err => {
-            io:println("Error occurred while sending the response back to client, error: " + err.message);
-        }
-        () => {}
+    @http:ResourceConfig {
+        path:"/"
     }
-  }
+    http2Resource(endpoint caller, http:Request req) {
+        // Construct response message.
+        http:Response response = new;
+        json msg = {"response":{"message":"response from http2 service"}};
+        response.setJsonPayload(msg);
+
+        // Send the response.
+        caller->respond(response) but { error e => log:printError("Error occurred while sending the response", err = e)
+        };
+    }
 }
 
