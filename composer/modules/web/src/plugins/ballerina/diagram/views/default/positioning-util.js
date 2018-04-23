@@ -111,7 +111,7 @@ class PositioningUtil {
             if (start) {
                 const endNode = _.get(start, 'viewState.components.invocation.end');
                 if (endNode) {
-                    viewState.components.response.start = endNode.x;
+                    viewState.components.response.start = endNode;
                 }
             }
         }
