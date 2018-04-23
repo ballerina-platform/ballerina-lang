@@ -16,26 +16,27 @@ $ curl -v localhost:8080
 
 Output from initiator:
 
-2018-04-23 23:42:53,992 INFO  [] - Initiating transaction...
-2018-04-23 23:42:54,009 INFO  [ballerina.transactions] - Created transaction: 29d99da9-9998-4b0b-b5e4-6ea031f4a245
-2018-04-23 23:42:54,011 INFO  [] - Started transaction: 29d99da9-9998-4b0b-b5e4-6ea031f4a245:1
-2018-04-23 23:42:54,591 INFO  [ballerina.transactions] - Registered remote participant: 962f02e7-908f-4f5d-b72a-4897119f824a:1 for transaction: 29d99da9-9998-4b0b-b5e4-6ea031f4a245
-2018-04-23 23:42:54,645 INFO  [] - Got response from bizservice
-2018-04-23 23:42:54,647 INFO  [ballerina.transactions] - Running 2-phase commit for transaction: 29d99da9-9998-4b0b-b5e4-6ea031f4a245:1
-2018-04-23 23:42:54,652 INFO  [ballerina.transactions] - Preparing remote participant: 962f02e7-908f-4f5d-b72a-4897119f824a:1
-2018-04-23 23:42:54,670 INFO  [ballerina.transactions] - Remote participant: 962f02e7-908f-4f5d-b72a-4897119f824a:1 prepared
-2018-04-23 23:42:54,671 INFO  [ballerina.transactions] - Notify(commit) remote participant: http://192.168.1.4:60142/balcoordinator/participant/2pc/1
-2018-04-23 23:42:54,678 INFO  [ballerina.transactions] - Remote participant: 962f02e7-908f-4f5d-b72a-4897119f824a:1 committed
-2018-04-23 23:42:54,679 INFO  [] - Transaction: 29d99da9-9998-4b0b-b5e4-6ea031f4a245:1 committed
-2018-04-23 23:42:54,682 INFO  [] - Sent response back to client
+2018-04-24 00:07:09,112 INFO  [] - Initiating transaction...
+2018-04-24 00:07:09,130 INFO  [ballerina.transactions] - Created transaction: 45936431-ae9e-43e0-bc54-4ab7769734da
+2018-04-24 00:07:09,131 INFO  [] - Started transaction: 45936431-ae9e-43e0-bc54-4ab7769734da:1
+2018-04-24 00:07:09,724 INFO  [ballerina.transactions] - Registered remote participant: facb8e2e-dc82-4fd0-bd0f-c7e80369e423:1 for transaction: 45936431-ae9e-43e0-bc54-4ab7769734da
+2018-04-24 00:07:09,779 INFO  [] - Got response from bizservice
+2018-04-24 00:07:09,781 INFO  [ballerina.transactions] - Running 2-phase commit for transaction: 45936431-ae9e-43e0-bc54-4ab7769734da:1
+2018-04-24 00:07:09,785 INFO  [ballerina.transactions] - Preparing remote participant: facb8e2e-dc82-4fd0-bd0f-c7e80369e423:1
+2018-04-24 00:07:09,801 INFO  [ballerina.transactions] - Remote participant: facb8e2e-dc82-4fd0-bd0f-c7e80369e423:1 prepared
+2018-04-24 00:07:09,804 INFO  [ballerina.transactions] - Notify(commit) remote participant: http://192.168.1.4:60366/balcoordinator/participant/2pc/1
+2018-04-24 00:07:09,814 INFO  [ballerina.transactions] - Remote participant: facb8e2e-dc82-4fd0-bd0f-c7e80369e423:1 committed
+2018-04-24 00:07:09,815 INFO  [] - Initiated transaction: 45936431-ae9e-43e0-bc54-4ab7769734da:1 committed
+2018-04-24 00:07:09,818 INFO  [] - Sent response back to client
 
 Output from participant:
 
-2018-04-23 23:42:54,316 INFO  [] - Received update stockquote request
-2018-04-23 23:42:54,336 INFO  [ballerina.transactions] - Registering for transaction: 29d99da9-9998-4b0b-b5e4-6ea031f4a245:1 with coordinator: http://192.168.1.4:60137/balcoordinator/initiator/1/register
-2018-04-23 23:42:54,607 INFO  [ballerina.transactions] - Registered with coordinator for transaction: 29d99da9-9998-4b0b-b5e4-6ea031f4a245
-2018-04-23 23:42:54,609 INFO  [] - Update stock quote request received. symbol:GOOG, price:244.95873638912178
-2018-04-23 23:42:54,643 INFO  [] - Sent response back to initiator
-2018-04-23 23:42:54,662 INFO  [ballerina.transactions] - Prepare received for transaction: 29d99da9-9998-4b0b-b5e4-6ea031f4a245:1
-2018-04-23 23:42:54,663 INFO  [ballerina.transactions] - Prepared transaction: 29d99da9-9998-4b0b-b5e4-6ea031f4a245
-2018-04-23 23:42:54,675 INFO  [ballerina.transactions] - Notify(commit) received for transaction: 29d99da9-9998-4b0b-b5e4-6ea031f4a245:1
+2018-04-24 00:07:09,433 INFO  [] - Received update stockquote request
+2018-04-24 00:07:09,458 INFO  [ballerina.transactions] - Registering for transaction: 45936431-ae9e-43e0-bc54-4ab7769734da:1 with coordinator: http://192.168.1.4:60365/balcoordinator/initiator/1/register
+2018-04-24 00:07:09,743 INFO  [ballerina.transactions] - Registered with coordinator for transaction: 45936431-ae9e-43e0-bc54-4ab7769734da
+2018-04-24 00:07:09,746 INFO  [] - Update stock quote request received. symbol:GOOG, price:206.76007974989048
+2018-04-24 00:07:09,777 INFO  [] - Sent response back to initiator
+2018-04-24 00:07:09,794 INFO  [ballerina.transactions] - Prepare received for transaction: 45936431-ae9e-43e0-bc54-4ab7769734da:1
+2018-04-24 00:07:09,795 INFO  [ballerina.transactions] - Prepared transaction: 45936431-ae9e-43e0-bc54-4ab7769734da
+2018-04-24 00:07:09,809 INFO  [ballerina.transactions] - Notify(commit) received for transaction: 45936431-ae9e-43e0-bc54-4ab7769734da:1
+2018-04-24 00:07:09,810 INFO  [] - Participated transaction: 45936431-ae9e-43e0-bc54-4ab7769734da:1 committed
