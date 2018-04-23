@@ -23,3 +23,9 @@ documentation {
     Representation of final annotation.
 }
 public annotation<type> final;
+
+public annotation<type, parameter> sensitive;
+
+public annotation<type, parameter> tainted;
+
+public annotation<type, parameter> untainted;
