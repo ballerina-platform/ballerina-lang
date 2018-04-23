@@ -124,6 +124,7 @@ JMS Queue Message Receiver With Client Acknowledgment
 JMS Topic Message Publisher
 JMS Topic Message Subscriber
 JMS Durable Topic Message Subscriber
+Protobuff Tool
 Taint Checking
 WebSub Internal Hub Sample
 WebSub Remote Hub Sample
