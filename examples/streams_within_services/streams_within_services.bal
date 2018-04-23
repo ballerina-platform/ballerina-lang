@@ -1,6 +1,6 @@
 import ballerina/http;
 import ballerina/mime;
-import ballerina/io;
+import ballerina/log;
 
 type ClientRequest {
     string host;
@@ -13,7 +13,7 @@ type RequestCount {
 
 stream<ClientRequest> requestStream;
 
-function initRealtimeRequestCounter () {
+function initRealtimeRequestCounter() {
 
     stream<RequestCount> requestCountStream;
 
@@ -29,17 +29,17 @@ function initRealtimeRequestCounter () {
         from requestStream
         window timeBatch(5000)
         select host, count(host) as count group by host having count > 6
-        => (RequestCount [] counts) {
-                //The 'counts' is the output of the streaming rules and is published to the `requestCountStream`.
-                //The `select` clause should match the structure of the 'RequestCount' struct.
-                requestCountStream.publish(counts);
+        => (RequestCount[] counts) {
+            //The 'counts' is the output of the streaming rules and is published to the `requestCountStream`.
+            //The `select` clause should match the structure of the 'RequestCount' struct.
+            requestCountStream.publish(counts);
         }
     }
 }
 
 // Define the `printRequestCount` function.
-function printRequestCount (RequestCount reqCount) {
-    io:println("ALERT!! : Received more than 6 requests from the host within 5 seconds: " + reqCount.host);
+function printRequestCount(RequestCount reqCount) {
+    log:printInfo("ALERT!! : Received more than 6 requests from the host within 5 seconds: " + reqCount.host);
 }
 
 endpoint http:Listener storeServiceEndpoint {
@@ -49,8 +49,8 @@ endpoint http:Listener storeServiceEndpoint {
 @http:ServiceConfig {
     basePath:"/"
 }
-// The host header is extracted from the requests that come to the service using the `/requests` context. Using this
-// information, the `clientRequest` object is created and published to the `requestStream`.
+//The host header is extracted from the requests that come to the service using the ` /requests` context. Using this
+//information, the `clientRequest` object is created and published to the `requestStream`.
 service StoreService bind storeServiceEndpoint {
 
     future ftr = start initRealtimeRequestCounter();

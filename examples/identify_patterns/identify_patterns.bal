@@ -1,4 +1,4 @@
-import ballerina/io;
+import ballerina/log;
 import ballerina/runtime;
 
 int index;
@@ -65,10 +65,10 @@ function main(string... args) {
     runtime:sleep(500);
 
     int count = 0;
-    while(true) {
+    while (true) {
         runtime:sleep(500);
         count++;
-        if((lengthof roomActions) > 0 || count == 10) {
+        if ((lengthof roomActions) > 0 || count == 10) {
             break;
         }
     }
@@ -76,7 +76,7 @@ function main(string... args) {
 }
 
 function alertRoomAction(RoomKeyAction action) {
-    io:println("alertRoomAction function invoked for Room:" + action.roomNo + " and the action :" +
+    log:printInfo("alertRoomAction function invoked for Room:" + action.roomNo + " and the action :" +
             action.userAction);
     addToGlobalRoomActions(action);
 }

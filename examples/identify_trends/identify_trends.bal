@@ -1,5 +1,5 @@
 import ballerina/runtime;
-import ballerina/io;
+import ballerina/log;
 
 // Create an object type that represents the device temperature reading.
 type DeviceTempInfo {
@@ -30,9 +30,9 @@ int index;
 function deployPeakTempDetectionRules() {
     forever {
         from every tempStream as e1, tempStream where e1.temp <= temp [1..] as e2,
-        tempStream where e2[e2.length-1].temp > temp as e3
-        select e1.temp as initialTemp, e2[e2.length-1].temp as peakTemp
-        => (TempDiffInfo[] tempDiffInfos) {
+    tempStream where e2[e2.length - 1].temp > temp as e3
+    select e1.temp as initialTemp, e2[e2.length - 1].temp as peakTemp
+    => (TempDiffInfo[] tempDiffInfos) {
             // if the sequence is matched the data is pushed/published to the output stream.
             tempDiffInfoStream.publish(tempDiffInfos);
         }
@@ -78,10 +78,10 @@ function main(string... args) {
 
     // Wait until the results are collected.
     int count = 0;
-    while(true) {
+    while (true) {
         runtime:sleep(500);
         count++;
-        if((lengthof tempDiffInfoArray) > 1 || count == 10) {
+        if ((lengthof tempDiffInfoArray) > 1 || count == 10) {
             break;
         }
     }
@@ -89,8 +89,8 @@ function main(string... args) {
 
 // The function that prints the peak temperature readings.
 function printInitalAndPeakTemp(TempDiffInfo tempDiff) {
-    io:println("printInitalAndPeakTemp function is invoked. InitialTemp:" + tempDiff.initialTemp + " and Peak temp :" +
-            + tempDiff.peakTemp);
+    log:printInfo("printInitalAndPeakTemp function is invoked. InitialTemp:" + tempDiff.initialTemp +
+            " and Peak temp :" + tempDiff.peakTemp);
     addToGlobalTempDiffArray(tempDiff);
 }
 

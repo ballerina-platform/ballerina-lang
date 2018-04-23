@@ -1,4 +1,4 @@
-import ballerina/io;
+import ballerina/log;
 import ballerina/runtime;
 
 // Create an object type named `StatusCount`.
@@ -16,26 +16,25 @@ type Teacher {
     string school;
 };
 
-function testAggregationQuery (stream<StatusCount> filteredStatusCountStream,
-                                                    stream<Teacher> teacherStream) {
+function testAggregationQuery(stream<StatusCount> filteredStatusCountStream, stream<Teacher> teacherStream) {
 
     // Create a forever statement block with the respective streaming query.
     // Write a query to filter out the teachers who are older than 18 years, wait until three teacher
     // object are collected by the stream, group the 3 teachers based on their marital status, and calculate the
     // unique marital status count of the teachers.
     // Once the query is executed, publish the result to the `filteredStatusCountStream` stream.
-    forever{
+    forever {
         from teacherStream where age > 18 window lengthBatch(3)
         select status, count(status) as totalCount
         group by status
         having totalCount > 1
         => (StatusCount[] status) {
-                filteredStatusCountStream.publish(status);
+            filteredStatusCountStream.publish(status);
         }
     }
 }
 
-function main (string... args) {
+function main(string... args) {
 
     //Create a stream that is constrained by the StatusCount struct type.
     stream<StatusCount> filteredStatusCountStream;
@@ -64,7 +63,7 @@ function main (string... args) {
 }
 
 //Print the output events.
-function printStatusCount (StatusCount s) {
-    io:println("Event received; status: " + s.status +" and total occurrences: "+s.totalCount);
+function printStatusCount(StatusCount s) {
+    log:printInfo("Event received; status: " + s.status + " and total occurrences: " + s.totalCount);
 }
 

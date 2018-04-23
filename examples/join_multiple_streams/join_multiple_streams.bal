@@ -1,6 +1,6 @@
 import ballerina/http;
 import ballerina/mime;
-import ballerina/io;
+import ballerina/log;
 
 type ProductMaterial {
     string name;
@@ -52,7 +52,7 @@ function printMaterialUsageAlert(MaterialUsage materialUsage) {
     float materialUsageDifference = (materialUsage.totalRawMaterial - materialUsage.totalConsumption) * 100.0 /
         (materialUsage.totalRawMaterial);
 
-    io:println("ALERT!! : Material usage is higher than the expected limit for material: " +
+    log:printInfo("ALERT!! : Material usage is higher than the expected limit for material: " +
             materialUsage.name + " , usage difference (%): " + materialUsageDifference);
 }
 
