@@ -44,8 +44,8 @@ export function isInCorrectPath(pkgName, filePath) {
 }
 
 /**
- * Gets correct path for the given package in given program directory
- * @param {string} programDir Path of the program directory
+ * Gets correct path for the given package in given project directory
+ * @param {string} programDir Path of the project directory
  * @param {string} pkgName Name of the package
  *
  * @returns {string} Correct folder path for given package
@@ -62,9 +62,9 @@ export function getCorrectPathForPackage(programDir, pkgName) {
 }
 
 /**
- * Gets correct package name for the given file in given program directory
+ * Gets correct package name for the given file in given project directory
  *
- * @param {string} programDir Path of the program directory
+ * @param {string} programDir Path of the project directory
  * @param {string} filePath Folder path of the file which need package name for
  *
  * @returns {string} correct folder path for given package
