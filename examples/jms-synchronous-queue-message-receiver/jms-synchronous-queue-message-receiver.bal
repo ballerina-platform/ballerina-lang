@@ -5,32 +5,31 @@ import ballerina/log;
 jms:Connection jmsConnection = new({
         initialContextFactory:"wso2mbInitialContextFactory",
         providerUrl:"amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'"
-    });
+});
 
 // Initialize a JMS session on top of the created connection.
 jms:Session jmsSession = new(jmsConnection, {
-        acknowledgementMode:"CLIENT_ACKNOWLEDGE"
-    });
+        acknowledgementMode:"AUTO_ACKNOWLEDGE"
+});
 
-// Initialize a Queue sender on top of the the created session.
+// Initialize a queue receiver on top of the the created sessions.
 endpoint jms:QueueReceiver queueReceiver {
     session:jmsSession,
     queueName:"MyQueue"
 };
 
 function main(string... args) {
-    // Wait for the message to be received by the JMS provider. If the message is not received within 1
-    // second, it times out.
-    var result = queueReceiver->receive(timeoutInMilliSeconds = 1000);
+    // Wait for the message to be received by the JMS provider. If the message is not received within 5
+    // seconds, it times out.
+    var result = queueReceiver->receive(timeoutInMilliSeconds = 5000);
 
     match result {
         jms:Message msg => {
-            // If the message is received, this block is executed and acknowledges the message.
+        // If the message is received, this block is executed.
             log:printInfo("Message received " + check msg.getTextMessageContent());
-            check queueReceiver->acknowledge(msg);
         }
         () => {
-            // If the message is not received within 1 second, this block is executed.
+            // If the message is not received within 5 seconds, this block is executed.
             log:printInfo("Message not received");
         }
         error err => {

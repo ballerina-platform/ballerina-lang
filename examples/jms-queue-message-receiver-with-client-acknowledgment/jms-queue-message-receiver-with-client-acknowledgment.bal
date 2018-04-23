@@ -27,6 +27,6 @@ service<jms:Consumer> jmsListener bind consumer {
         string messageText = check message.getTextMessageContent();
         log:printInfo("Message : " + messageText);
         // Acknowledge the received message using the queue receiver endpoint's acknowledge function.
-        var _ = consumer -> acknowledge (message);
+        check consumer -> acknowledge (message);
   }
 }

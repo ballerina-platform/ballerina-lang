@@ -13,5 +13,5 @@ function main (string... args) {
     // Create a Text message.
     mb:Message m = check queueSender.createTextMessage("Test Text");
     // Send the Ballerina message to the Ballerina Message Broker.
-    var _ = queueSender->send(m);
+    check queueSender->send(m);
 }
