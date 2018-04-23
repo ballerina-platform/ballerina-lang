@@ -104,7 +104,7 @@ public type RequestLimits {
 @Field {value:"filters: Filters to be applied to the request before dispatched to the actual resource"}
 public type ServiceEndpointConfiguration {
     string host,
-    int port = 9090,
+    int port,
     KeepAlive keepAlive = KEEPALIVE_AUTO,
     TransferEncoding transferEncoding = TRANSFERENCODE_CHUNKING,
     ServiceSecureSocket? secureSocket,
