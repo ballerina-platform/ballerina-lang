@@ -55,7 +55,7 @@ type HttpCache object {
             // will be read by the client and the response will be after the first cache hit.
             match inboundResponse.getBinaryPayload() {
                 blob => {}
-                mime:EntityError => {}
+                error => {}
             }
             log:printDebug("Adding new cache entry for: " + key);
             addEntry(cache, key, inboundResponse);

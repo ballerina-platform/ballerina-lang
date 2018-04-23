@@ -143,7 +143,7 @@ public type Request object {
     public function getByteChannel () returns (io:ByteChannel | error);
 
     @Description {value:"Gets the form parameters from the HTTP request as a map"}
-    @Return {value:"The map of form params or 'PayloadError' in case of errors"}
+    @Return {value:"The map of form params or an `error` object in case of errors"}
 
     documentation {
         Get form params from the request as a map.

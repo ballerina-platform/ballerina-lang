@@ -26,7 +26,7 @@ service<http:Service> contentBasedRouting bind serviceEP{
         var jsonMsg = req.getJsonPayload();
         string nameString;
         match jsonMsg {
-            http:PayloadError payloadError => io:println("Error getting payload");
+            error payloadError => io:println("Error getting payload");
             json payload =>  {
                 nameString = extractFieldValue(payload.name);
             }

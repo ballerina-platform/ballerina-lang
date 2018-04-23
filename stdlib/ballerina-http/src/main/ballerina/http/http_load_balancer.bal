@@ -307,7 +307,7 @@ function performLoadBalanceAction (LoadBalancer lb, string path, Request outRequ
         match outRequest.getBinaryPayload() {
             // TODO: remove these dummy assignments once empty blocks are supported
             blob => {int x = 0;}
-            mime:EntityError => {int x = 0;}
+            error => {int x = 0;}
         }
     }
 
