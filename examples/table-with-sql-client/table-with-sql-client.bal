@@ -1,5 +1,6 @@
-import ballerina/sql;
+import ballerina/log;
 import ballerina/mysql;
+import ballerina/sql;
 import ballerina/io;
 
 @Description {value:
@@ -23,7 +24,7 @@ function main(string... args) {
         port:3306,
         name:"testdb",
         username:"root",
-        password:"root",
+        password:"123",
         poolOptions:{maximumPoolSize:5}
     };
 
@@ -32,38 +33,50 @@ function main(string... args) {
     int ret;
 
     //Create a table named EMPLOYEE and populate it with sample data.
-    var returnValue = testDB->update("CREATE TABLE EMPLOYEE (id INT,name
+    var createTableRetVal = testDB->update("CREATE TABLE EMPLOYEE (id INT,name
         VARCHAR(25),salary DOUBLE,status BOOLEAN,birthdate DATE,birthtime TIME,
         updated TIMESTAMP)");
 
-    match returnValue {
-        int val => count = val;
-        error e => io:println("Error in executing CREATE TABLE EMPLOYEE");
+    match createTableRetVal {
+        int count => log:printInfo("Create table status: " + count);
+        error e => {
+            handleError("Error in executing CREATE TABLE EMPLOYEE", e, testDB);
+            return;
+        }
     }
 
-    returnValue = testDB->update("INSERT INTO EMPLOYEE VALUES(1, 'John', 1050.50, false,
+    var insertTableRetVal = testDB->update("INSERT INTO EMPLOYEE VALUES(1, 'John', 1050.50, false,
         '1990-12-31', '11:30:45', '2007-05-23 09:15:28')");
 
-    match returnValue {
-        int val => count = val;
-        error e => io:println("Error in executing INSERT INTO EMPLOYEE");
+    match insertTableRetVal {
+        int count => log:printInfo("Updated row count: " + count);
+        error e => {
+           handleError("Error in executing INSERT INTO EMPLOYEE", e, testDB);
+           return;
+        }
     }
 
-    returnValue = testDB->update("INSERT INTO EMPLOYEE VALUES(2, 'Anne', 4060.50, true,
+    var insertTableRetVal2 = testDB->update("INSERT INTO EMPLOYEE VALUES(2, 'Anne', 4060.50, true,
         '1999-12-31', '13:40:24', '2017-05-23 09:15:28')");
 
-    match returnValue {
-        int val => count = val;
-        error e => io:println("Error in executing INSERT INTO EMPLOYEE");
+    match insertTableRetVal2 {
+        int val => log:printInfo("Updated row count: " + val);
+        error e => {
+            handleError("Error in executing INSERT INTO EMPLOYEE", e, testDB);
+            return;
+        }
     }
 
-    //Query the table using the SQL connector 'select' action. Either the 'select' 
+    //Query the table using the SQL connector 'select' action. Either the 'select'
     //or 'call' action returns a table.
-    var returnVal = testDB->select("SELECT * from EMPLOYEE", Employee);
+    var selectRetVal = testDB->select("SELECT * from EMPLOYEE", Employee);
 
-    match returnVal {
+    match selectRetVal {
         table val => dt = val;
-        error e => io:println("Error in executing SELECT * from EMPLOYEE");
+        error e => {
+            handleError("Error in executing SELECT * from EMPLOYEE", e, testDB);
+            return;
+        }
     }
 
     //Iterate through the result until hasNext() becomes false and retrieve
@@ -72,47 +85,72 @@ function main(string... args) {
         var returnedNextRec = <Employee>dt.getNext();
         match returnedNextRec {
             Employee rs => {
-                io:println("Employee:" + rs.id + "|" + rs.name + "|" + rs.salary +
+                log:printInfo("Employee:" + rs.id + "|" + rs.name + "|" + rs.salary +
                         "|" + rs.status + "|" + rs.birthdate + "|"
                         + rs.birthtime + "|" + rs.updated);
             }
-            error e => io:println("Error in retrieving next record");
+            error e => {
+                handleError("Error in retrieving next record", e, testDB);
+                return;
+            }
         }
     }
 
-    //Conversion from type 'table' to either JSON or XML results in data streaming. When a service client makes a request, 
+    //Conversion from type 'table' to either JSON or XML results in data streaming. When a service client makes a request,
     //the result is streamed to the service client rather than building the full result in the server
     //and returning it. This allows unlimited payload sizes in the result and
     //the response is instantaneous to the client. <br>
     //Convert a table to JSON.
-    var returnVal2 = testDB->select("SELECT id,name FROM EMPLOYEE", ());
-    match returnVal2 {
+    var selectRetVal2 = testDB->select("SELECT id,name FROM EMPLOYEE", ());
+    match selectRetVal2 {
         table val => dt = val;
-        error e => io:println("Error in executing SELECT id,name FROM EMPLOYEE");
+        error e => {
+            handleError("Error in executing SELECT id,name FROM EMPLOYEE", e, testDB);
+            return;
+        }
     }
 
-    json jsonRes = check <json>dt;
-    io:println(jsonRes);
+    var jsonConversionReturnVal = <json>dt;
+
+    match jsonConversionReturnVal {
+        json jsonRes => log:printInfo(io:sprintf("%s", jsonRes));
+        error e => log:printError("Error in table to json conversion");
+    }
 
     //Convert a table to XML.
-    var returnVal3 = testDB->select("SELECT id,name FROM EMPLOYEE", ());
+    var selectRetVal3 = testDB->select("SELECT id,name FROM EMPLOYEE", ());
 
-    match returnVal3 {
+    match selectRetVal3 {
         table val => dt = val;
-        error e => io:println("Error in executing SELECT id,name FROM EMPLOYEE");
+        error e => {
+            handleError("Error in executing SELECT id,name FROM EMPLOYEE", e, testDB);
+            return;
+        }
     }
 
-    xml xmlRes = check <xml>dt;
-    io:println(xmlRes);
+    var xmlConversionReturnVal = <xml>dt;
+
+    match xmlConversionReturnVal {
+        xml xmlRes => log:printInfo(io:sprintf("%s", xmlRes));
+        error e => log:printError("Error in table to xml conversion");
+    }
 
     //Drop the EMPLOYEE table.
-    var returnVal4 = testDB->update("DROP TABLE EMPLOYEE");
-    match returnVal4 {
-        int val => ret = val;
-        error e => io:println("Error in executing DROP TABLE EMPLOYEE");
+    var dropTableRetVal = testDB->update("DROP TABLE EMPLOYEE");
+    match dropTableRetVal {
+        int status => log:printInfo("Table drop status:" + status);
+        error e => {
+            handleError("Error in executing DROP TABLE EMPLOYEE", e, testDB);
+            return;
+        }
     }
-    io:println("Table drop status:" + ret);
 
     //Finally close the DB connection.
+    testDB.stop();
+}
+
+function handleError(string message, error e, mysql:Client db) {
+    endpoint mysql:Client testDB = db;
+    log:printError(message, err = e);
     testDB.stop();
 }
