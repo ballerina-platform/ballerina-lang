@@ -5,7 +5,7 @@ import ballerina/http;
 boolean serviceStarted;
 
 function startService(){
-    serviceStarted = test:startServices("http_failover");
+    serviceStarted = test:startServices("http_retry");
 }
 
 @test:Config {
@@ -13,22 +13,21 @@ function startService(){
     after:"stopService"
 }
 function testFunc() {
-    // Invoking the main function.
-    endpoint http:Client httpEndpoint { url:"http://localhost:9090"};
-    // Checking whether the server is started.
+    endpoint http:Client httpEndpoint { url:"http://localhost:9090" };
+    // Chck whether the server is started
     test:assertTrue(serviceStarted, msg = "Unable to start the service");
 
-    // Sending a GET request to the specified endpoint.
-    var response = httpEndpoint -> get("/fo");
+    // Send a GET request to the specified endpoint
+    var response = httpEndpoint -> get("/retry");
     match response {
         http:Response resp => {
             var res = check resp.getTextPayload();
-            test:assertEquals(res, "Mock Resource is Invoked.");
+            test:assertEquals(res, "Hello World!!!");
         }
         http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 }
 
 function stopService(){
-    test:stopServices("http_failover");
+    test:stopServices("http_retry");
 }
