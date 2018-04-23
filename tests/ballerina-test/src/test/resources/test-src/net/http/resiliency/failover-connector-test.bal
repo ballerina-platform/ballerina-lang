@@ -124,7 +124,7 @@ public type MockClient object {
             http:HttpConnectorError httpConnectorError => {
                 string message = httpConnectorError.message;
                 response.statusCode = httpConnectorError.statusCode;
-                response.setStringPayload(message);
+                response.setTextPayload(message);
             }
         }
         return response;

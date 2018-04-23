@@ -123,7 +123,7 @@ public function CallerActions::registerTopic(string topic, string? secret = ()) 
     match (registrationResponse) {
         http:Response response => {
             if (response.statusCode != http:ACCEPTED_202) {
-                string payload = response.getStringPayload() but { http:PayloadError => "" };
+                string payload = response.getTextPayload() but { http:PayloadError => "" };
                 error webSubError = {message:"Error occured during topic registration: " + payload};
                 return webSubError;
             }
@@ -144,7 +144,7 @@ public function CallerActions::unregisterTopic(string topic, string? secret = ()
     match (unregistrationResponse) {
         http:Response response => {
             if (response.statusCode != http:ACCEPTED_202) {
-                string payload = response.getStringPayload() but { http:PayloadError => "" };
+                string payload = response.getTextPayload() but { http:PayloadError => "" };
                 error webSubError = {message:"Error occured during topic unregistration: " + payload};
                 return webSubError;
             }
@@ -242,7 +242,7 @@ function buildTopicRegistrationChangeRequest(@sensitive string mode, @sensitive 
         string specifiedSecret => { body = body + "&" + PUBLISHER_SECRET + "=" + specifiedSecret; }
         () => {}
     }
-    request.setStringPayload(body);
+    request.setTextPayload(body);
     request.setHeader(CONTENT_TYPE, mime:APPLICATION_FORM_URLENCODED);
     return request;
 }
@@ -265,7 +265,7 @@ function buildSubscriptionChangeRequest(@sensitive string mode,
         body = body + "&" + HUB_SECRET + "=" + subscriptionChangeRequest.secret + "&" + HUB_LEASE_SECONDS + "="
             + subscriptionChangeRequest.leaseSeconds;
     }
-    request.setStringPayload(body);
+    request.setTextPayload(body);
     request.setHeader(CONTENT_TYPE, mime:APPLICATION_FORM_URLENCODED);
     return request;
 }
@@ -301,7 +301,7 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
                 return invokeClientConnectorOnRedirection(redirected_hub, mode, subscriptionChangeRequest,
                     httpClientEndpoint.config.auth);
             } else if (responseStatusCode != http:ACCEPTED_202) {
-                var responsePayload = httpResponse.getStringPayload();
+                var responsePayload = httpResponse.getTextPayload();
                 string errorMessage = "Error in request: Mode[" + mode + "] at Hub[" + hub + "]";
                 match (responsePayload) {
                     string responseErrorPayload => { errorMessage = errorMessage + " - " + responseErrorPayload; }

@@ -147,7 +147,7 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
 
         if (reqMode == mode && reqTopic == topic) {
             response.statusCode = http:ACCEPTED_202;
-            response.setStringPayload(challenge);
+            response.setTextPayload(challenge);
             log:printInfo("Intent Verification agreed - Mode [" + mode + "], Topic [" + topic + "], Lease Seconds ["
                     + reqLeaseSeconds + "]");
         } else {
