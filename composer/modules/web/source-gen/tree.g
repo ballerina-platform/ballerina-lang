@@ -80,6 +80,10 @@ Comment
    : <comment>
    ;
 
+CompoundAssignment
+   : <variable.source> += <expression.source> ;
+   ;
+
 Connector
    : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> connector <name.value> ( <parameters-joined-by,>* ) { <variableDefs>* <actions>* }
    | <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> connector <name.value> ( <parameters-joined-by,>* ) { <actions>* }

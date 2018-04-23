@@ -229,6 +229,10 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + getSourceOf(node.expression, pretty, l, replaceLambda);
         case 'Comment':
             return dent() + w() + node.comment;
+        case 'CompoundAssignment':
+            return dent() + getSourceOf(node.variable, pretty, l, replaceLambda)
+                 + w() + '+=' + a(' ')
+                 + getSourceOf(node.expression, pretty, l, replaceLambda) + w() + ';';
         case 'Connector':
             if (node.annotationAttachments && node.documentationAttachments
                          && node.deprecatedAttachments && node.name.valueWithBar
