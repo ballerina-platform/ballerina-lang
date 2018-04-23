@@ -1,0 +1,63 @@
+{
+  "position": {
+    "line": 3,
+    "character": 14
+  },
+  "source": "toplevel/source/endpointTypeCompletion2.bal",
+  "items": [
+    {
+      "label":"SecureListener",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"SecureListener"
+    },
+    {
+      "label":"Listener",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"Listener"
+    },
+    {
+      "label":"WebSocketListener",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"WebSocketListener"
+    },
+    {
+      "label":"APIListener",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"APIListener"
+    },
+    {
+      "label":"FailoverClient",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"FailoverClient"
+    },
+    {
+      "label":"Client",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"Client"
+    },
+    {
+      "label":"LoadBalanceClient",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"LoadBalanceClient"
+    },
+    {
+      "label":"WebSocketClient",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"WebSocketClient"
+    },
+    {
+      "label":"NonListener",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"NonListener"
+    }
+  ]
+}
