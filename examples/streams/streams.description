@@ -1,4 +1,3 @@
-// Ballerina provides first class support for streams. This is powered by the Siddhi Complex Event Processing (CEP)
-// engine. You can build streaming queries using the user friendly syntax. The queries include projection, filtering,
-// windows, stream joins, and patterns.
-
+//The stream type represents a stream of events, which allows publishing events to the stream and subscribing to receive
+// events published to the stream.
+//Streams can be declared constrained by a type or as unconstrained streams which accept events of any type.

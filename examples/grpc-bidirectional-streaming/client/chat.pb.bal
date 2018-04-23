@@ -55,6 +55,7 @@ type ChatMsg {
     string message;
 };
 
+//Meta data of the service definition
 @final string DESCRIPTOR_KEY = "Chat.proto";
 map descriptorMap =
 {

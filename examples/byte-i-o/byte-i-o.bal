@@ -78,7 +78,21 @@ function main(string... args) {
         io:println("error occurred while performing copy " + err.message);
     } finally {
         // Close the created connections.
-        _ = sourceChannel.close();
-        _ = destinationChannel.close();
+        match sourceChannel.close() {
+            error sourceCloseError => {
+                io:println("Error occured while closing the channel: " + sourceCloseError.message);
+            }
+            () => {
+                io:println("Source channel closed successfully.");
+            }
+        }
+        match destinationChannel.close() {
+            error destinationCloseError => {
+                io:println("Error occured while closing the channel: " + destinationCloseError.message);
+            }
+            () => {
+                io:println("Destination channel closed successfully.");
+            }
+        }
     }
 }

@@ -10,6 +10,8 @@ While
 IF Else
 Ternary
 Functions
+Functions With Defaultable Parameters
+Functions With Rest Parameters
 Errors
 Var
 Any Type
@@ -36,6 +38,7 @@ XML Attributes
 XML Functions
 JSON To XML Conversion
 XML To JSON Conversion
+Streams
 Foreach
 Iterable Operations
 Worker
@@ -55,7 +58,6 @@ Transform JSON
 Strings
 Blob Type
 Date Time
-File API
 Throw
 Try/Catch/Finally
 Base Path and Path
@@ -77,6 +79,7 @@ HTTP Failover
 HTTP Load Balancer
 HTTP Forwarded Extension
 HTTP 2.0 Server Push
+HTTP 1.1 To 2.0 Protocol Switch
 Log API
 Function Pointers
 Lambda
@@ -124,6 +127,7 @@ JMS Queue Message Receiver With Client Acknowledgment
 JMS Topic Message Publisher
 JMS Topic Message Subscriber
 JMS Durable Topic Message Subscriber
+Protobuff Tool
 Taint Checking
 WebSub Internal Hub Sample
 WebSub Remote Hub Sample
@@ -135,7 +139,7 @@ Testerina Data Provider
 Testerina Depends On
 Testerina Function Mocks
 Testerina Groups
-Streams
+Streams Filtering
 Streams within services
 Streams Join
 Streams Sequences

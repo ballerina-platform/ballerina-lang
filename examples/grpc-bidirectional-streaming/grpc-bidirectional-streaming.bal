@@ -8,17 +8,19 @@ endpoint grpc:Listener ep {
     port:9090
 };
 
-@grpc:serviceConfig {name:"chat",
+@grpc:ServiceConfig {name:"chat",
     clientStreaming:true,
     serverStreaming:true}
 service<grpc:Service> Chat bind ep {
     map<grpc:Listener> consMap;
 
+    //This resource is triggered when a new service is initializing
     onOpen(endpoint caller) {
         var connID = caller.id;
         consMap[<string>connID] = caller;
     }
 
+    //This resource is triggered when client need to send request to service
     onMessage(endpoint caller, ChatMessage chatMsg) {
         endpoint grpc:Listener con;
         string msg = string `{{chatMsg.name}}: {{chatMsg.message}}`;
@@ -34,12 +36,14 @@ service<grpc:Service> Chat bind ep {
         }
     }
 
+    //This resource is triggered when some error has been happen at server end
     onError(endpoint caller, error err) {
         if (err != ()) {
             io:println("Something unexpected happens at server : " + err.message);
         }
     }
 
+    //This resource is triggered when client notify service that it has finish send requests
     onComplete(endpoint caller) {
         endpoint grpc:Listener con;
         var connID = caller.id;
