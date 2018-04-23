@@ -45,14 +45,14 @@ service<http:Service> participant2 bind participant2EP {
 
     getState(endpoint ep, http:Request req) {
         http:Response res = new;
-        res.setStringPayload(state.toString());
+        res.setTextPayload(state.toString());
         state.reset();
         _ = ep -> respond(res);
     }
 
     task1 (endpoint conn, http:Request req) {
         http:Response res = new;
-        res.setStringPayload("Resource is invoked");
+        res.setTextPayload("Resource is invoked");
         var forwardRes = conn -> respond(res);  
         match forwardRes {
             http:HttpConnectorError err => {
@@ -71,7 +71,7 @@ service<http:Service> participant2 bind participant2EP {
                 result = "equal id";
             }
         }
-        res.setStringPayload(result);
+        res.setTextPayload(result);
         var forwardRes = conn -> respond(res);  
         match forwardRes {
             http:HttpConnectorError err => {
@@ -105,7 +105,7 @@ service<http:Service> participant2 bind participant2EP {
                    io:println(reg);
                    payload = reg.REGISTRATIONID;
                }
-               res.setStringPayload(payload);
+               res.setTextPayload(payload);
             }
             error err1 => {
                res.statusCode = 500;
@@ -134,7 +134,7 @@ function saveToDatabase(http:Listener conn, http:Request req, boolean shouldAbor
             int insertCount => io:println(insertCount);
             error => io:println("");
         }
-        res.setStringPayload(uuid);
+        res.setTextPayload(uuid);
         var forwardRes = ep -> respond(res);
         match forwardRes {
             http:HttpConnectorError err => {

@@ -12,7 +12,7 @@ service<http:Service> autoCompress bind mockEP {
     }
     test1 (endpoint conn, http:Request req) {
         http:Response res = new;
-        res.setStringPayload("Hello World!!!");
+        res.setTextPayload("Hello World!!!");
         _ = conn -> respond(res);
     }
 }
@@ -25,7 +25,7 @@ service<http:Service> alwaysCompress bind mockEP {
         }
     test2 (endpoint conn, http:Request req) {
         http:Response res = new;
-        res.setStringPayload("Hello World!!!");
+        res.setTextPayload("Hello World!!!");
         _ = conn -> respond(res);
     }
 }
@@ -38,7 +38,7 @@ service<http:Service> neverCompress bind mockEP {
     }
     test3 (endpoint conn, http:Request req) {
         http:Response res = new;
-        res.setStringPayload("Hello World!!!");
+        res.setTextPayload("Hello World!!!");
         _ = conn -> respond(res);
     }
 }

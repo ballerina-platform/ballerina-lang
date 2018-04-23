@@ -89,17 +89,22 @@ public type Request object {
     @Return {value:"Returns the content-type header value as a string."}
     public function getContentType () returns (string);
 
-    @Description {value:"Gets the request payload in JSON format"}
+    @Description {value:"Get the json payload from the request"}
     @Return {value:"The JSON reresentation of the message payload or 'PayloadError' in case of errors"}
     public function getJsonPayload () returns (json | PayloadError);
 
-    @Description {value:"Gets the request payload in XML format"}
+    @Description {value:"Get the xml payload from the request"}
     @Return {value:"The XML representation of the message payload or 'PayloadError' in case of errors"}
     public function getXmlPayload () returns (xml | PayloadError);
 
-    @Description {value:"Gets the request payload as a string"}
+    @Description {value:"Get the text payload from the request"}
     @Return {value:"The string representation of the message payload or 'PayloadError' in case of errors"}
-    public function getStringPayload () returns (string | PayloadError);
+    public function getTextPayload () returns (string | PayloadError);
+
+    @Description {value:"Get the request payload as a string. Content-type will not be checked during payload construction which
+        makes this different from getTextPayload() method."}
+    @Return {value:"The string representation of the message payload or 'PayloadError' in case of errors"}
+    public function getPayloadAsString () returns (string | PayloadError);
 
     @Description {value:"Gets the request payload in blob format"}
     @Return {value:"The blob representation of the message payload or 'PayloadError' in case of errors"}
@@ -128,10 +133,10 @@ public type Request object {
     @Param {value:"contentType: Represent the content-type to be used with the payload"}
     public function setXmlPayload(xml payload, string contentType = "application/xml");
 
-    @Description {value:"Sets a string as the request payload"}
+    @Description {value:"Sets a text as the request payload"}
     @Param {value:"payload: The payload to be set to the request as a string"}
     @Param {value:"contentType: Represent the content-type to be used with the payload"}
-    public function setStringPayload(string payload, string contentType = "text/plain");
+    public function setTextPayload(string payload, string contentType = "text/plain");
 
     @Description {value:"Sets a blob as the request payload"}
     @Param {value:"payload: The blob representation of the message payload"}
@@ -242,13 +247,25 @@ public function Request::getXmlPayload () returns (xml | PayloadError) {
     }
 }
 
-public function Request::getStringPayload () returns (string | PayloadError) {
+public function Request::getTextPayload () returns (string | PayloadError) {
     match self.getEntity() {
         mime:EntityError err => return <PayloadError>err;
         mime:Entity mimeEntity => {
             match mimeEntity.getText() {
                 mime:EntityError payloadErr => return <PayloadError>payloadErr;
                 string textPayload => return textPayload;
+            }
+        }
+    }
+}
+
+public function Request::getPayloadAsString () returns (string | PayloadError) {
+    match self.getEntity() {
+        mime:EntityError err => return <PayloadError>err;
+        mime:Entity mimeEntity => {
+            match mimeEntity.getBodyAsString() {
+                mime:EntityError payloadErr => return <PayloadError>payloadErr;
+                string stringPayload => return stringPayload;
             }
         }
     }
@@ -333,7 +350,7 @@ public function Request::setXmlPayload (xml payload, string contentType="applica
     self.setEntity(entity);
 }
 
-public function Request::setStringPayload (string payload, string contentType="text/plain") {
+public function Request::setTextPayload (string payload, string contentType="text/plain") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setText(payload, contentType = contentType);
     self.setEntity(entity);
@@ -365,7 +382,7 @@ public function Request::setByteChannel (io:ByteChannel payload, string contentT
 
 public function Request::setPayload ((string | xml | json | blob | io:ByteChannel | mime:Entity[]) payload) {
     match payload {
-        string textContent => self.setStringPayload(textContent);
+        string textContent => self.setTextPayload(textContent);
         xml xmlContent => self.setXmlPayload(xmlContent);
         json jsonContent => self.setJsonPayload(jsonContent);
         blob blobContent => self.setBinaryPayload(blobContent);

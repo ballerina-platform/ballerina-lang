@@ -351,7 +351,7 @@ public type Entity object {
 
     documentation {
         Given an entity, get the entity body as a string. Content-type will not be checked during entity body construction which
-        makes this differs from getText() method.
+        makes this different from getText() method.
 
         R{{}} Return payload as a string
         R{{}} EntityError will get thrown in case of errors during data-source extraction from entity

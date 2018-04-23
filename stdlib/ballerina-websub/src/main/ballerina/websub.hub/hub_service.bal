@@ -44,7 +44,7 @@ service<http:Service> hubService bind hubServiceEP {
     status(endpoint client, http:Request request) {
         http:Response response = new;
         response.statusCode = http:ACCEPTED_202;
-        response.setStringPayload("Ballerina Hub Service - Up and Running!");
+        response.setTextPayload("Ballerina Hub Service - Up and Running!");
         _ = client->respond(response);
     }
 
@@ -79,7 +79,7 @@ service<http:Service> hubService bind hubServiceEP {
             match (validateSubscriptionChangeRequest(mode, topic, callback)) {
                 string errorMessage => {
                     response.statusCode = http:BAD_REQUEST_400;
-                    response.setStringPayload(errorMessage);
+                    response.setTextPayload(errorMessage);
                 }
                 boolean => {
                     validSubscriptionRequest = true;
@@ -94,7 +94,7 @@ service<http:Service> hubService bind hubServiceEP {
         } else if (mode == websub:MODE_REGISTER) {
             if (!hubRemotePublishingEnabled || !hubTopicRegistrationRequired) {
                 response.statusCode = http:BAD_REQUEST_400;
-                response.setStringPayload("Remote topic registration not allowed/not required at the Hub");
+                response.setTextPayload("Remote topic registration not allowed/not required at the Hub");
                 log:printWarn("Remote topic registration denied at Hub");
                 _ = client->respond(response);
                 done;
@@ -107,7 +107,7 @@ service<http:Service> hubService bind hubServiceEP {
             string errorMessage = websub:registerTopicAtHub(topic, secret);
             if (errorMessage != "") {
                 response.statusCode = http:BAD_REQUEST_400;
-                response.setStringPayload(errorMessage);
+                response.setTextPayload(errorMessage);
                 log:printWarn("Topic registration unsuccessful at Hub for Topic[" + topic + "]: " + errorMessage);
             } else {
                 response.statusCode = http:ACCEPTED_202;
@@ -117,7 +117,7 @@ service<http:Service> hubService bind hubServiceEP {
         } else if (mode == websub:MODE_UNREGISTER) {
             if (!hubRemotePublishingEnabled || !hubTopicRegistrationRequired) {
                 response.statusCode = http:BAD_REQUEST_400;
-                response.setStringPayload("Remote unregistration not allowed/not required at the Hub");
+                response.setTextPayload("Remote unregistration not allowed/not required at the Hub");
                 log:printWarn("Remote topic unregistration denied at Hub");
                 _ = client->respond(response);
                 done;
@@ -130,7 +130,7 @@ service<http:Service> hubService bind hubServiceEP {
             string errorMessage = websub:unregisterTopicAtHub(topic, secret);
             if (errorMessage != "") {
                 response.statusCode = http:BAD_REQUEST_400;
-                response.setStringPayload(errorMessage);
+                response.setTextPayload(errorMessage);
                 log:printWarn("Topic unregistration unsuccessful at Hub for Topic[" + topic + "]: " + errorMessage);
             } else {
                 response.statusCode = http:ACCEPTED_202;
@@ -275,7 +275,7 @@ function verifyIntent(string callback, string topic, map params) {
 
     match (subscriberResponse) {
         http:Response response => {
-            var respStringPayload = response.getStringPayload();
+            var respStringPayload = response.getTextPayload();
             match (respStringPayload) {
                 string payload => {
                     if (payload != challenge) {
