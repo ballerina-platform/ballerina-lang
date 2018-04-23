@@ -10,7 +10,7 @@ endpoint http:Listener http2ServiceEP {
 @http:ServiceConfig {
     basePath:"/http2Service"
 }
-service<http:Service> http2Service bind http2ServiceEP {
+service http2Service bind http2ServiceEP {
 
     @http:ResourceConfig {
         path:"/"
@@ -35,7 +35,7 @@ service<http:Service> http2Service bind http2ServiceEP {
         // Construct requested resource.
         http:Response response = new;
         json msg = {"response":{"name":"main resource"}};
-        response.setJsonPayload(msg);
+        response.setPayload(msg);
 
         // Send the requested resource.
         caller->respond(response) but {
@@ -44,7 +44,7 @@ service<http:Service> http2Service bind http2ServiceEP {
         // Construct promised resource1.
         http:Response push1 = new;
         msg = {"push":{"name":"resource1"}};
-        push1.setJsonPayload(msg);
+        push1.setPayload(msg);
 
         // Push promised resource1.
         caller->pushPromisedResponse(promise1, push1) but {
@@ -53,7 +53,7 @@ service<http:Service> http2Service bind http2ServiceEP {
         // Construct promised resource2.
         http:Response push2 = new;
         msg = {"push":{"name":"resource2"}};
-        push2.setJsonPayload(msg);
+        push2.setPayload(msg);
 
         // Push promised resource2.
         caller->pushPromisedResponse(promise2, push2) but {
@@ -62,7 +62,7 @@ service<http:Service> http2Service bind http2ServiceEP {
         // Construct promised resource3.
         http:Response push3 = new;
         msg = {"push":{"name":"resource3"}};
-        push3.setJsonPayload(msg);
+        push3.setPayload(msg);
 
         // Push promised resource3.
         caller->pushPromisedResponse(promise3, push3) but {
