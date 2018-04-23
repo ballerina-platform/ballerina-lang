@@ -41,6 +41,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Scanner;
@@ -54,6 +55,10 @@ import java.util.zip.ZipFile;
  * @since 0.95.2
  */
 public class PushUtils {
+
+    private static final Path BALLERINA_HOME_PATH = RepoUtils.createAndGetHomeReposPath();
+    private static final Path SETTINGS_TOML_FILE_PATH = BALLERINA_HOME_PATH.resolve(
+            ProjectDirConstants.SETTINGS_FILE_NAME);
     private static PrintStream outStream = System.err;
 
     /**
@@ -134,9 +139,10 @@ public class PushUtils {
      * @param pkgPathFromPrjtDir package path from the project directory
      */
     private static void installToHomeRepo(PackageID packageID, Path pkgPathFromPrjtDir) {
-        Path balHomeDir = RepoUtils.createAndGetHomeReposPath();
-        Path targetDirectoryPath = Paths.get(balHomeDir.toString(), "repo", packageID.orgName.getValue(),
-                                             packageID.name.getValue(), packageID.version.getValue(),
+        Path targetDirectoryPath = Paths.get(BALLERINA_HOME_PATH.toString(), "repo",
+                                             packageID.orgName.getValue(),
+                                             packageID.name.getValue(),
+                                             packageID.version.getValue(),
                                              packageID.name.getValue() + ".zip");
         if (Files.exists(targetDirectoryPath)) {
             throw new BLangCompilerException("Ballerina package exists in the home repository");
@@ -193,8 +199,7 @@ public class PushUtils {
      * @return settings object
      */
     private static Settings readSettings() {
-        String tomlFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.SETTINGS_FILE_NAME)
-                                       .toString();
+        String tomlFilePath = SETTINGS_TOML_FILE_PATH.toString();
         try {
             return SettingsProcessor.parseTomlContentFromFile(tomlFilePath);
         } catch (IOException e) {
@@ -257,11 +262,15 @@ public class PushUtils {
         if (mdFileContent.isEmpty()) {
             throw new BLangCompilerException("Package.md in the artifact is empty");
         }
-        int newLineIndex = mdFileContent.indexOf("\n");
-        if (newLineIndex == -1) {
-            throw new BLangCompilerException("Error occurred when reading Package.md");
+
+        List<String> result = Arrays.asList(mdFileContent.split("\n")).stream()
+                                    .filter(line -> !line.isEmpty() && !line.startsWith("#"))
+                                    .collect(Collectors.toList());
+
+        if (result == null || result.size() == 0) {
+            throw new BLangCompilerException("Error occured when reading Package.md");
         }
-        String firstLine = mdFileContent.substring(0, newLineIndex);
+        String firstLine = result.get(0);
         if (firstLine.length() > 50) {
             throw new BLangCompilerException("Summary of the package exceeds 50 characters");
         }
