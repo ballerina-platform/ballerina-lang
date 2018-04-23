@@ -70,5 +70,5 @@ function printTemperature(float temperature) {
 
 //Function used to subscribe to a stream accepting events of any type.
 function printEvent(any event) {
-    io:println("Event received: " + <string>event);
+    io:println("Event received: ", event);
 }

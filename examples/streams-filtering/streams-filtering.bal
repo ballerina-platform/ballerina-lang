@@ -29,7 +29,7 @@ function testAggregationQuery (stream<StatusCount> filteredStatusCountStream,
         select status, count(status) as totalCount
         group by status
         having totalCount > 1
-        => (StatusCount [] status) {
+        => (StatusCount[] status) {
                 filteredStatusCountStream.publish(status);
         }
     }

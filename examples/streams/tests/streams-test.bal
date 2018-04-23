@@ -10,6 +10,10 @@ int counter = 0;
 }
 public function mockPrint (any... s) {
     outputs[counter] = s[0];
+    if (counter > 5) {
+        counter++;
+        outputs[counter] = s[1];
+    }
     counter++;
 }
 
@@ -23,7 +27,11 @@ function testFunc() {
     test:assertEquals("Temperature event received: 28.0", outputs[3]);
     test:assertEquals("Temperature event received: 30.1", outputs[4]);
     test:assertEquals("Temperature event received: 29.5", outputs[5]);
-    test:assertEquals("Event received: Hello Ballerina!", outputs[6]);
-    test:assertEquals("Event received: 1.0", outputs[7]);
-    test:assertEquals("Event received: {id:1, name:\"Jane\"}", outputs[8]);
+    test:assertEquals("Event received: ", outputs[6]);
+    test:assertEquals("Hello Ballerina!", outputs[7]);
+    test:assertEquals("Event received: ", outputs[8]);
+    test:assertEquals(1.0, outputs[9]);
+    test:assertEquals("Event received: ", outputs[10]);
+    Employee e = {id:1, name:"Jane"};
+    test:assertEquals(e, outputs[11]);
 }
