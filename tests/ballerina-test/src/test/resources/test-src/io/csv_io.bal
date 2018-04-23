@@ -47,8 +47,7 @@ function hasNextRecord() returns boolean? {
     return csvChannel.hasNext();
 }
 
-function getTable(string filePath, io:Mode permission, string encoding, io:Seperator fieldSeperator) returns float|error {
-
+function getTable(string filePath, io:Mode permission, string encoding, io:Separator fieldSeperator) returns float|error {
     io:ByteChannel byteChannel = io:openFile(filePath, permission);
     io:CharacterChannel charChannel = new io:CharacterChannel(byteChannel, encoding);
     io:CSVChannel csv = new io:CSVChannel(charChannel, fs = fieldSeperator);
