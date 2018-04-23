@@ -51,7 +51,7 @@ service<http:Service> echo bind echoEP {
     setString (endpoint conn, http:Request req) {
         http:Response res = new;
         string payloadData;
-        var payload = req.getStringPayload();
+        var payload = req.getTextPayload();
         match payload {
             http:PayloadError err => {
                 done;
@@ -71,7 +71,7 @@ service<http:Service> echo bind echoEP {
     }
     getString (endpoint conn, http:Request req) {
         http:Response res = new;
-        res.setStringPayload(serviceLevelStr);
+        res.setTextPayload(serviceLevelStr);
         _ = conn -> respond(res);
     }
 
@@ -93,7 +93,7 @@ service<http:Service> echo bind echoEP {
     }
     getServiceLevelString (endpoint conn, http:Request req) {
         http:Response res = new;
-        res.setStringPayload(serviceLevelStringVar);
+        res.setTextPayload(serviceLevelStringVar);
         _ = conn -> respond(res);
     }
 
@@ -103,7 +103,7 @@ service<http:Service> echo bind echoEP {
     }
     connstValueAsAttributeValue (endpoint conn, http:Request req) {
         http:Response res = new;
-        res.setStringPayload("constant path test");
+        res.setTextPayload("constant path test");
         _ = conn -> respond(res);
     }
 
@@ -135,7 +135,7 @@ service<http:Service> echo bind echoEP {
                 res.setJsonPayload(responseJson);
             }
             http:PayloadError err => {
-                res.setStringPayload(err.message);
+                res.setTextPayload(err.message);
             }
         }
         _ = conn -> respond(res);

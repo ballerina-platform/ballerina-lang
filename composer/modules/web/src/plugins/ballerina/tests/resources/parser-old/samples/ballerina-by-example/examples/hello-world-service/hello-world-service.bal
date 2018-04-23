@@ -9,7 +9,7 @@ service<http> helloWorld {
         // Creates an empty message.
         message response = {};
         // A util method that can be used to set string payload.
-        messages:setStringPayload(response, "Hello, World!");
+        messages:setTextPayload(response, "Hello, World!");
         // Reply keyword sends the response back to the client.
         response:send(response);
     }

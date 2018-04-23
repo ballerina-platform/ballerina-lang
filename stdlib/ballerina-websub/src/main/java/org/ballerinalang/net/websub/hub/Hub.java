@@ -252,7 +252,7 @@ public class Hub {
      *
      * @return the program file returned when compiling the package at Hub start up
      */
-    ProgramFile getHubProgramFile() {
+    public ProgramFile getHubProgramFile() {
         return hubProgramFile;
     }
 

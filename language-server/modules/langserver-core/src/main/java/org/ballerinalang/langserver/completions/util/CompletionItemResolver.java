@@ -143,6 +143,8 @@ public enum CompletionItemResolver {
             new ParserRuleServiceEndpointAttachmentContextResolver()),
     PARSER_RULE_EP_TYPE_CONTEXT(BallerinaParser.EndpointTypeContext.class,
             new ParserRuleEndpointTypeContext()),
+    PARSER_RULE_GLOBAL_EP_DECLARATION_CONTEXT(BallerinaParser.GlobalEndpointDefinitionContext.class,
+            new ParserRuleEndpointTypeContext()),
     PARSER_RULE_EP_DECLARATION_CONTEXT(BallerinaParser.EndpointDeclarationContext.class,
             new ParserRuleEndpointTypeContext()),
     PARSER_RULE_MATCH_STATEMENT_CONTEXT(BallerinaParser.MatchStatementContext.class,

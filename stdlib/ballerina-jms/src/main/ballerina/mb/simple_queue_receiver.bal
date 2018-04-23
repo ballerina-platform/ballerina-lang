@@ -31,7 +31,7 @@ public type SimpleQueueReceiver object {
     public function init(SimpleQueueListenerEndpointConfiguration config) {
         self.config = config;
         self.receiver.init({
-                initialContextFactory:"wso2mbInitialContextFactory",
+                initialContextFactory:"bmbInitialContextFactory",
                 providerUrl:generateBrokerURL(config),
                 connectionFactoryName:config.connectionFactoryName,
                 acknowledgementMode:config.acknowledgementMode,

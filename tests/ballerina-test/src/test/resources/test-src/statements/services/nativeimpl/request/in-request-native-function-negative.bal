@@ -33,7 +33,7 @@ function testGetRequestURL (http:Request req) returns (string) {
 }
 
 function testGetStringPayload (http:Request req) returns (string | http:PayloadError) {
-    return req.getStringPayload();
+    return req.getTextPayload();
 }
 
 function testGetBinaryPayload (http:Request req) returns (blob | http:PayloadError) {

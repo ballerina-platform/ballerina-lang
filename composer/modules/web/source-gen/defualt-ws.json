@@ -180,6 +180,16 @@
     "after comment": "",
     "dent": true
   },
+  "CompoundAssignment": {
+    "before variable": "",
+    "after variable": " ",
+    "before +=": "",
+    "after +=": " ",
+    "before expression": "",
+    "after expression": "",
+    "before ;": "",
+    "after ;": ""
+  },
   "Connector": {
     "before annotationAttachments": "",
     "after annotationAttachments": "",
@@ -258,6 +268,14 @@
     "after documentationText": "",
     "before }": "",
     "after }": ""
+  },
+  "ElvisExpr": {
+    "before leftExpression": "",
+    "after leftExpression": "",
+    "before ?:": "",
+    "after ?:": "",
+    "before rightExpression": "",
+    "after rightExpression": ""
   },
   "Endpoint": {
     "before annotationAttachments": "",
@@ -540,6 +558,14 @@
     "after private }":"",
     "before }":"",
     "after }": ""
+  },
+  "PostIncrement": {
+    "before variable": "",
+    "after variable": "",
+    "before operator": "",
+    "after operator": "",
+    "before ;": "",
+    "after ;": ""
   },
   "RecordLiteralExpr": {
     "before {": "",

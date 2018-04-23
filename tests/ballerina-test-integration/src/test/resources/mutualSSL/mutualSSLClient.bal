@@ -27,7 +27,7 @@ function main (string... args) {
     match resp {
         http:HttpConnectorError err => io:println(err.message);
         http:Response response => {
-             match (response.getStringPayload()) {
+             match (response.getTextPayload()) {
                 http:PayloadError payloadError => io:println(payloadError.message);
                 string res => io:println(res);
              }

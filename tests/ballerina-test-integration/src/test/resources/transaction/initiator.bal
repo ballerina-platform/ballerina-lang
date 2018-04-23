@@ -34,7 +34,7 @@ service<http:Service> InitiatorService bind initiatorEP {
 
     getState(endpoint ep, http:Request req) {
         http:Response res = new;
-        res.setStringPayload(state.toString());
+        res.setTextPayload(state.toString());
         state.reset();
         _ = ep -> respond(res);
     }

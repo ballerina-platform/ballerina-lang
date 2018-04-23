@@ -19,6 +19,8 @@ package org.ballerinalang.net.grpc.proto;
 
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
+import org.ballerinalang.connector.api.Annotation;
+import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
@@ -531,7 +533,7 @@ public class ServiceProtoUtils {
 
     /**
      * Returns file descriptor for the service.
-     * Reads file descriptor from the .desc file generated at compile time.
+     * Reads file descriptor from internal annotation attached to the service at compile time.
      *
      * @param service gRPC service.
      * @return File Descriptor of the service.
@@ -539,17 +541,34 @@ public class ServiceProtoUtils {
     public static com.google.protobuf.Descriptors.FileDescriptor getDescriptor(org.ballerinalang.connector.api
                                                                                        .Service service) {
         try {
-            Path path = Paths.get(service.getName() + ServiceProtoConstants.DESC_FILE_EXTENSION);
-            byte[] descriptor = Files.readAllBytes(path);
+            List<Annotation> annotationList = service.getAnnotationList("ballerina.grpc", "ServiceDescriptor");
+            if (annotationList == null || annotationList.size() != 1) {
+                throw new BallerinaException("Couldn't find the service descriptor.");
+            }
+            Annotation descriptorAnn = annotationList.get(0);
+            Struct descriptorStruct = descriptorAnn.getValue();
+            if (descriptorStruct == null) {
+                throw new BallerinaException("Couldn't find the service descriptor.");
+            }
+            String descriptorData = descriptorStruct.getStringField("descriptor");
+            byte[] descriptor = hexStringToByteArray(descriptorData);
             DescriptorProtos.FileDescriptorProto proto = DescriptorProtos.FileDescriptorProto.parseFrom(descriptor);
-            Descriptors.FileDescriptor fileDescriptor = Descriptors.FileDescriptor.buildFrom(proto,
+            return Descriptors.FileDescriptor.buildFrom(proto,
                     StandardDescriptorBuilder.getFileDescriptors(proto.getDependencyList().toArray()));
-            Files.delete(path);
-            return fileDescriptor;
         } catch (IOException | Descriptors.DescriptorValidationException e) {
             throw new BallerinaException("Error while reading the service proto descriptor. check the service " +
                     "implementation. ", e);
         }
+    }
+
+    private static byte[] hexStringToByteArray(String s) {
+        int len = s.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+                    + Character.digit(s.charAt(i + 1), 16));
+        }
+        return data;
     }
     
     /**
@@ -565,17 +584,15 @@ public class ServiceProtoUtils {
             throw new GrpcServerException("Target file directory path is null");
         }
         try {
+            // create parent directory. if doesn't exist.
+            if (!Files.exists(targetDirPath)) {
+                Files.createDirectories(targetDirPath);
+            }
             // write the proto string to the file in protobuf contract directory
             Path protoFilePath = Paths.get(targetDirPath.toString(), filename + ServiceProtoConstants
                     .PROTO_FILE_EXTENSION);
             Files.write(protoFilePath, protoFileDefinition.getFileDefinition().getBytes(ServiceProtoConstants
                     .UTF_8_CHARSET));
-            
-            // write the proto descriptor byte array to the file in protobuf contract directory
-            byte[] fileDescriptor = protoFileDefinition.getFileDescriptorProto().toByteArray();
-            Path descFilePath = Paths.get(targetDirPath.toString(), filename + ServiceProtoConstants
-                    .DESC_FILE_EXTENSION);
-            Files.write(descFilePath, fileDescriptor);
         } catch (IOException e) {
             throw new GrpcServerException("Error while writing file descriptor to file.", e);
         }

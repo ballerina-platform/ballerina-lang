@@ -263,8 +263,9 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
     }
     
     private boolean isEndpointTypeContext(Parser parser) {
-        if (parser.getContext() instanceof BallerinaParser.NameReferenceContext
-                && parser.getContext().getParent() instanceof BallerinaParser.EndpointTypeContext) {
+        if ((parser.getContext() instanceof BallerinaParser.NameReferenceContext
+                && parser.getContext().getParent() instanceof BallerinaParser.EndpointTypeContext)
+                || parser.getContext() instanceof BallerinaParser.EndpointDeclarationContext) {
             // Move this properly to the set context Exception
             InputMismatchException inputMismatchException = new InputMismatchException(parser);
             ParserRuleContext context = parser.getContext();
@@ -274,7 +275,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
             this.context.put(DocumentServiceKeys.TOKEN_INDEX_KEY, context.getParent().start.getTokenIndex());
             this.context.put(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY, context.getParent());
             this.overriddenContext = true;
-            
+
             return true;
         }
         

@@ -16,11 +16,11 @@ service<http:Service> echo bind echoEP{
     }
     echo (endpoint caller, http:Request req) {
         http:Response resp = new;
-        var result = req.getStringPayload();
+        var result = req.getTextPayload();
         match result {
             http:PayloadError payloadError => io:println(payloadError.message);
             string payload => {
-                resp.setStringPayload(payload);
+                resp.setTextPayload(payload);
                 _ = caller -> respond(resp);
             }
         }

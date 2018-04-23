@@ -33,6 +33,7 @@ import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.TransformerNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -46,6 +47,9 @@ import java.util.List;
  * @since 0.962.0
  */
 public interface CompilerPlugin {
+
+    default void setCompilerContext(CompilerContext context) {
+    }
 
     /**
      * Initializes the compiler plugin.

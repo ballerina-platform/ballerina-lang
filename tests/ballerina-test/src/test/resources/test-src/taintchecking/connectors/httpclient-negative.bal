@@ -15,7 +15,7 @@ function main (string... args) {
     var response = clientEndpoint -> get("/get?test=" + param, request = req);
     match response {
         http:Response resp => {
-            var msg = resp.getStringPayload();
+            var msg = resp.getTextPayload();
             match msg {
                 string stringPayload => {
                     secureFunction (stringPayload, stringPayload);
