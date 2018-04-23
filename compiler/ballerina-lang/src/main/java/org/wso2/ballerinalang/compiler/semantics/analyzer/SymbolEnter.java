@@ -999,6 +999,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void defineServiceMembers(List<BLangService> services, SymbolEnv pkgEnv) {
         services.forEach(service -> {
             SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(service, service.symbol.scope, pkgEnv);
+            service.nsDeclarations.forEach(xmlns -> defineNode(xmlns, serviceEnv));
             service.vars.forEach(varDef -> defineNode(varDef.var, serviceEnv));
             defineServiceInitFunction(service, serviceEnv);
             service.resources.stream()

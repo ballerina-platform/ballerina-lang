@@ -3062,9 +3062,10 @@ public class CodeGenerator extends BLangNodeVisitor {
             return createStringLiteral(null, null, env);
         }
 
-        // If the namespace is defined within a callable unit, get the URI index in the local var registry.
-        // Otherwise get the URI index in the global var registry.
-        if ((namespaceSymbol.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+        // If the namespace is defined within a callable unit or service, get the URI index in the 
+        // local var registry. Otherwise get the URI index in the global var registry.
+        if ((namespaceSymbol.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE ||
+                (namespaceSymbol.owner.tag & SymTag.SERVICE) == SymTag.SERVICE) {
             return (RegIndex) namespaceSymbol.nsURIIndex;
         }
 

@@ -279,11 +279,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // Namespace node already having the symbol means we are inside an init-function,
         // and the symbol has already been declared by the original statement.
-        if (xmlnsNode.symbol != null) {
-            return;
+        if (xmlnsNode.symbol == null) {
+            symbolEnter.defineNode(xmlnsNode, env);
         }
 
-        symbolEnter.defineNode(xmlnsNode, env);
         typeChecker.checkExpr(xmlnsNode.namespaceURI, env, symTable.stringType);
     }
 
@@ -835,6 +834,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             this.analyzeDef(a, serviceEnv);
         });
         serviceNode.docAttachments.forEach(doc -> analyzeDef(doc, serviceEnv));
+        serviceNode.nsDeclarations.forEach(xmlns -> this.analyzeDef(xmlns, serviceEnv));
         serviceNode.vars.forEach(v -> this.analyzeDef(v, serviceEnv));
         serviceNode.endpoints.forEach(e -> {
             symbolEnter.defineNode(e, serviceEnv);
