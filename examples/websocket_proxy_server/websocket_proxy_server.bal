@@ -4,14 +4,10 @@ import ballerina/log;
 @final string ASSOCIATED_CONNECTION = "ASSOCIATED_CONNECTION";
 @final string REMOTE_BACKEND = "wss://echo.websocket.org";
 
-endpoint http:WebSocketListener serviceEndpoint {
-    port:9090
-};
-
 @http:WebSocketServiceConfig {
     path: "/proxy/ws"
 }
-service<http:WebSocketService> SimpleProxyService bind serviceEndpoint {
+service<http:WebSocketService> SimpleProxyService bind {port:9090} {
 
     //This resource triggered when a new client is connected.
     //Since messages from server side are not read by service until `onOpen` resource exeucution finishes,
