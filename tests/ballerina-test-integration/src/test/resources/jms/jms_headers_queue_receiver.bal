@@ -27,7 +27,18 @@ service<jms:Consumer> jmsListener bind consumer {
     // OnMessage resource get invoked when a message is received.
     onMessage(endpoint consumer, jms:Message message) {
         string messageText = check message.getTextMessageContent();
-        io:println("Message : " + messageText);
+        string correlationId = check message.getCorrelationID();
+        io:print("correlationId:" + correlationId);
+        int intVal = check message.getIntProperty("intProp");
+        io:print("|intVal:" + intVal);
+        float floatVal = check message.getFloatProperty("floatProp");
+        io:print("|floatVal:" + floatVal);
+
+        match (check message.getStringProperty("stringProp")) {
+            string s => io:print("|stringVal:" + s);
+            () => io:print("error");
+        }
+        io:println("|message:" + messageText);
     }
 }
 
