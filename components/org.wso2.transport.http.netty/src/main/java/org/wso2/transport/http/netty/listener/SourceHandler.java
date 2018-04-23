@@ -33,6 +33,7 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpServerUpgradeHandler;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.ssl.SslCloseCompletionEvent;
 import io.netty.handler.timeout.IdleStateEvent;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
@@ -268,6 +269,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             log.warn("Idle timeout has reached hence closing the connection {}", ctx.channel().id().asShortText());
         } else if (evt instanceof HttpServerUpgradeHandler.UpgradeEvent) {
             log.debug("Server upgrade event received");
+        } else if (evt instanceof SslCloseCompletionEvent) {
+            log.debug("SSL close completion event received");
         } else {
             log.warn("Unexpected user event {} triggered", evt.toString());
         }
