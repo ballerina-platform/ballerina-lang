@@ -3095,7 +3095,7 @@ public class CPU {
         BFiniteType fType = (BFiniteType) lhsType;
         if (bRefTypeValue == null) {
             // we should not reach here
-            return true;
+            return false;
         } else {
             Iterator<BValue> valueSpaceItr = fType.valueSpace.iterator();
             while (valueSpaceItr.hasNext()) {
