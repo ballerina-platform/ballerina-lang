@@ -22,6 +22,7 @@ package org.ballerinalang.mime.util;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.util.internal.PlatformDependent;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.model.values.BMap;
@@ -46,6 +47,7 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParameterList;
 import javax.activation.MimeTypeParseException;
 
+import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.mime.util.Constants.ASSIGNMENT;
 import static org.ballerinalang.mime.util.Constants.BODY_PARTS;
 import static org.ballerinalang.mime.util.Constants.BUILTIN_PACKAGE;
@@ -57,7 +59,6 @@ import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME_IND
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_PARA_MAP_INDEX;
 import static org.ballerinalang.mime.util.Constants.DISPOSITION_INDEX;
 import static org.ballerinalang.mime.util.Constants.DOUBLE_QUOTE;
-import static org.ballerinalang.mime.util.Constants.ENTITY_ERROR;
 import static org.ballerinalang.mime.util.Constants.FORM_DATA_PARAM;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE_INDEX;
@@ -66,7 +67,6 @@ import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_FORM_DATA;
 import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_INDEX;
 import static org.ballerinalang.mime.util.Constants.PRIMARY_TYPE_INDEX;
-import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.Constants.READABLE_BUFFER_SIZE;
 import static org.ballerinalang.mime.util.Constants.SEMICOLON;
 import static org.ballerinalang.mime.util.Constants.SIZE_INDEX;
@@ -444,8 +444,10 @@ public class MimeUtil {
      * @return Ballerina struct with entity error
      */
     public static BStruct createEntityError(Context context, String msg) {
-        PackageInfo filePkg = context.getProgramFile().getPackageInfo(PROTOCOL_PACKAGE_MIME);
-        StructInfo entityErrInfo = filePkg.getStructInfo(ENTITY_ERROR);
+        PackageInfo filePkg = context.getProgramFile().getPackageInfo(PACKAGE_BUILTIN);
+        StructInfo entityErrInfo = filePkg.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
+        BStruct genericError = new BStruct(entityErrInfo.getType());
+        genericError.setStringField(0, msg);
         return BLangVMStructs.createBStruct(entityErrInfo, msg);
     }
 
