@@ -97,7 +97,14 @@ public class Utils {
      * @return full package name with organization name if org name exists
      */
     public static String getFullPackageName(String packageName) {
-        return registry.getOrgName() == null ? "." : registry.getOrgName().equals(Names.ANON_ORG
-            .toString()) ? packageName : registry.getOrgName() + "." + packageName;
+        String orgName = registry.getOrgName();
+        // If the orgName is null there is no package, .bal execution
+        if (orgName == null) {
+            return ".";
+        }
+        if (orgName.isEmpty() || orgName.equals(Names.ANON_ORG.toString())) {
+            return packageName;
+        }
+       return orgName + "." + packageName;
     }
 }
