@@ -22,9 +22,8 @@ endpoint grpc:Listener ep {
         ciphers:["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"],
         sslVerifyClient:"require"
     }
-
 };
-@grpc:serviceConfig
+
 service<grpc:Service> HelloWorld bind ep {
     hello(endpoint caller, string name) {
         io:println("name: " + name);

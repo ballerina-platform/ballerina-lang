@@ -9,7 +9,7 @@ endpoint grpc:Listener ep {
 };
 
 service HelloWorld bind ep {
-    //@grpc:resourceConfig {input:string, output:string}
+
     hello(endpoint caller, string name, grpc:Headers headers) {
         io:println("name: " + name);
         string message = "Hello " + name;
