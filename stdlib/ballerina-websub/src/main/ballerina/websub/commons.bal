@@ -54,7 +54,7 @@ public type TopicIdentifier "TOPIC_ID_HEADER"|"TOPIC_ID_PAYLOAD_KEY"|"TOPIC_ID_H
 //////////////////// WebSub Subscriber Commons ////////////////////
 ///////////////////////////////////////////////////////////////////
 documentation {
-    Object representing and intent verification request received
+    Object representing and intent verification request received.
 
     F{{mode}} The mode specified whether intent is being verified for subscription or unsubscription
     F{{topic}} The for which intent is being verified for subscription or unsubscription
@@ -74,7 +74,7 @@ public type IntentVerificationRequest object {
     }
 
     documentation {
-        Function to build intent verification response for subscription requests sent
+        Function to build intent verification response for subscription requests sent.
 
         P{{topic}} The topic for which subscription should be accepted, if not specified the annotated topic will be
                     used
@@ -83,7 +83,7 @@ public type IntentVerificationRequest object {
     public function buildSubscriptionVerificationResponse(string? topic = ()) returns http:Response;
 
     documentation {
-        Function to build intent verification response for unsubscription requests sent
+        Function to build intent verification response for unsubscription requests sent.
 
         P{{topic}} The topic for which unsubscription should be accepted, if not specified the annotated topic will be
                     used
@@ -116,7 +116,7 @@ public function IntentVerificationRequest::buildUnsubscriptionVerificationRespon
 }
 
 documentation {
-    Function to build intent verification response for subscription/unsubscription requests sent
+    Function to build intent verification response for subscription/unsubscription requests sent.
 
     P{{intentVerificationRequest}} The intent verification request from the hub
     P{{mode}} The mode (subscription/unsubscription) for which a request was sent
@@ -159,7 +159,7 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
 }
 
 documentation {
-    Function to validate signature for requests received at the callback
+    Function to validate signature for requests received at the callback.
 
     P{{request}} The request received
     P{{serviceType}} The type of the service for which the request was rceived
@@ -201,7 +201,7 @@ public function processWebSubNotification(http:Request request, typedesc service
 }
 
 documentation {
-    Function to validate the signature header included in the notification
+    Function to validate the signature header included in the notification.
 
     P{{xHubSignature}} The X-Hub-Signature header included in the notification request from the hub
     P{{stringPayload}} The string representation of the notification payload received
@@ -234,7 +234,7 @@ public function validateSignature(string xHubSignature, string stringPayload, st
 }
 
 documentation {
-    Record representing the WebSubSubscriber notification received
+    Record representing the WebSubSubscriber notification received.
 
     F{{payload}} The payload of the notification received
     F{{request}} The HTTP POST request received as the notification
@@ -245,7 +245,7 @@ public type Notification {
 };
 
 documentation {
-    Record to represent a WebSub subscription request
+    Record to represent a WebSub subscription request.
 
     F{{topic}} The topic for which the subscription/unsubscription request is sent
     F{{callback}} The callback which should be registered/unregistered for the subscription/unsubscription request is
@@ -261,7 +261,7 @@ public type SubscriptionChangeRequest {
 };
 
 documentation {
-    Record to represent subscription/unsubscription details on success
+    Record to represent subscription/unsubscription details on success.
 
     F{{hub}} The hub at which the subscription/unsubscription was successful
     F{{topic}} The topic for which the subscription/unsubscription was successful
@@ -277,7 +277,7 @@ public type SubscriptionChangeResponse {
 //////////////////// WebSub Hub Commons /////////////////////
 /////////////////////////////////////////////////////////////
 documentation {
-    Starts up the Ballerina Hub
+    Starts up the Ballerina Hub.
 
     R{{}} `WebSubHub` The WebSubHub struct representing the started up hub
 }
@@ -288,7 +288,7 @@ public function startUpBallerinaHub() returns WebSubHub {
 }
 
 documentation {
-    Object to represent a WebSub Hub
+    Object to represent a WebSub Hub.
 }
 public type WebSubHub object {
 
@@ -299,14 +299,14 @@ public type WebSubHub object {
     new (hubUrl) {}
 
     documentation {
-        Stops the started up Ballerina Hub
+        Stops the started up Ballerina Hub.
         
         R{{}} `boolean` indicating whether the internal Ballerina Hub was stopped
     }
     public function stop() returns (boolean);
 
     documentation {
-        Publishes an update against the topic in the initialized Ballerina Hub
+        Publishes an update against the topic in the initialized Ballerina Hub.
         
         P{{topic}} The topic for which the update should happen
         P{{payload}} The update payload
@@ -315,7 +315,7 @@ public type WebSubHub object {
     public function publishUpdate(string topic, json payload) returns error?;
 
     documentation {
-        Registers a topic in the Ballerina Hub
+        Registers a topic in the Ballerina Hub.
 
         P{{topic}} The topic to register
         R{{}} `error` if an error occurred with registration
@@ -323,7 +323,7 @@ public type WebSubHub object {
     public function registerTopic(string topic) returns error?;
 
     documentation {
-        Unregisters a topic in the Ballerina Hub
+        Unregisters a topic in the Ballerina Hub.
 
         P{{topic}} The topic to unregister
         R{{}} `error` if an error occurred with unregistration
@@ -373,7 +373,7 @@ public function WebSubHub::unregisterTopic(string topic) returns error? {
 //////////////////// WebSub Publisher Commons /////////////////////
 ///////////////////////////////////////////////////////////////////
 documentation {
-    Function to add link headers to a response to allow WebSub discovery
+    Function to add link headers to a response to allow WebSub discovery.
 
     P{{response}} The response being sent
     P{{hubs}} The hubs the publisher advertises as the hubs that it publishes updates to
@@ -390,7 +390,7 @@ public function addWebSubLinkHeaders(http:Response response, string[] hubs, stri
 }
 
 documentation {
-    Struct to represent Subscription Details retrieved from the database
+    Struct to represent Subscription Details retrieved from the database.
 
     F{{topic}} The topic for which the subscription is added
     F{{callback}} The callback specified for the particular subscription

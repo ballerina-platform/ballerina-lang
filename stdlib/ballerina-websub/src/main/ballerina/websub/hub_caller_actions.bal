@@ -21,7 +21,7 @@ import ballerina/crypto;
 
 documentation {
     The HTTP based Caller actions for outbound WebSub Subscription, Unsubscription, Registration, Unregistration and
-    Notification requests to a Hub
+    Notification requests to a Hub.
 }
 public type CallerActions object {
 
@@ -36,7 +36,7 @@ public type CallerActions object {
     new (hubUrl, httpClientEndpoint) {}
 
     documentation {
-        Function to send a subscription request to a WebSub Hub
+        Function to send a subscription request to a WebSub Hub.
 
         P{{subscriptionRequest}} The SubscriptionChangeRequest containing subscription details
         R{{}} `SubscriptionChangeResponse` indicating subscription details, if the request was successful else
@@ -46,7 +46,7 @@ public type CallerActions object {
         returns @tainted (SubscriptionChangeResponse|error);
 
     documentation {
-        Function to send an unsubscription request to a WebSub Hub
+        Function to send an unsubscription request to a WebSub Hub.
 
         P{{unsubscriptionRequest}} The SubscriptionChangeRequest containing unsubscription details
         R{{}} `SubscriptionChangeResponse` indicating unsubscription details, if the request was successful else
@@ -57,7 +57,7 @@ public type CallerActions object {
 
     documentation {
         Function to register a topic in a Ballerina WebSub Hub against which subscribers can subscribe and the publisher
-         will publish updates, with a secret which will be used in signature generation if specified
+         will publish updates, with a secret which will be used in signature generation if specified.
 
         P{{topic}} The topic to register
         P{{secret}} The secret the publisher will use to generate a signature when publishing updates
@@ -66,7 +66,7 @@ public type CallerActions object {
     public function registerTopic(string topic, string? secret = ()) returns error?;
 
     documentation {
-        Function to unregister a topic in a Ballerina WebSub Hub
+        Function to unregister a topic in a Ballerina WebSub Hub.
 
         P{{topic}} The topic to unregister
         P{{secret}} The secret the publisher used when registering the topic
@@ -75,7 +75,7 @@ public type CallerActions object {
     public function unregisterTopic(string topic, string? secret = ()) returns error?;
 
     documentation {
-        Function to publish an update to a remote Ballerina WebSub Hub
+        Function to publish an update to a remote Ballerina WebSub Hub.
 
         P{{topic}} The topic for which the update occurred
         P{{payload}} The update payload
@@ -89,7 +89,7 @@ public type CallerActions object {
 
     documentation {
         Function to notify a remote WebSub Hub that an update is available to fetch, for hubs that require publishing to
-         happen as such
+         happen as such.
 
         P{{topic}} The topic for which the update occurred
         P{{headers}} The headers, if any, that need to be set
@@ -227,7 +227,7 @@ public function CallerActions::notifyUpdate(string topic, map<string>? headers =
 }
 
 documentation {
-    Function to build the topic registration change request to rgister/unregister a topic at the hub
+    Function to build the topic registration change request to rgister/unregister a topic at the hub.
 
     P{{mode}} Whether the request is for registration or unregistration
     P{{topic}} The topic to register/unregister
@@ -248,7 +248,7 @@ function buildTopicRegistrationChangeRequest(@sensitive string mode, @sensitive 
 }
 
 documentation {
-    Function to build the subscription request to subscribe at the hub
+    Function to build the subscription request to subscribe at the hub.
 
     P{{mode}} Whether the request is for subscription or unsubscription
     P{{subscriptionChangeRequest}} The SubscriptionChangeRequest specifying the topic to subscribe to and the
@@ -271,7 +271,7 @@ function buildSubscriptionChangeRequest(@sensitive string mode,
 }
 
 documentation {
-    Function to process the response from the hub on subscription/unsubscription and extract required information
+    Function to process the response from the hub on subscription/unsubscription and extract required information.
 
     P{{hub}} The hub to which the subscription/unsubscription request was sent
     P{{mode}} Whether the request was sent for subscription or unsubscription
@@ -320,8 +320,8 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
 }
 
 documentation {
-    Function to invoke the WebSubSubscriberConnector's actions for subscription/unsubscription on redirection from
-    original hub
+    Function to invoke the WebSubSubscriberConnector's actions for subscription/unsubscription on redirection from the
+    original hub.
 
     P{{hub}} The hub to which the subscription/unsubscription request is to be sent
     P{{mode}} Whether the request is for subscription or unsubscription

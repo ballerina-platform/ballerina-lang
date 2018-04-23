@@ -20,7 +20,7 @@ import ballerina/http;
 /// WebSub Subscriber Service Endpoint ///
 //////////////////////////////////////////
 documentation {
-    Object representing the WebSubSubscriber Service Endpoint
+    Object representing the WebSubSubscriber Service Endpoint.
 
     F{{config}} The configuration for the endpoint
     F{{serviceEndpoint}} The underlying HTTP service endpoint
@@ -41,33 +41,33 @@ public type Listener object {
     }
 
     documentation {
-         Gets called when the endpoint is being initialized during package init
+         Gets called when the endpoint is being initialized during package init.
          
          P{{config}} The Subscriber Service Endpoint Configuration of the endpoint
     }
     public function init(SubscriberServiceEndpointConfiguration config);
 
     documentation {
-        Gets called whenever a service attaches itself to this endpoint and during package init
+        Gets called whenever a service attaches itself to this endpoint and during package init.
 
         P{{serviceType}} The service attached
     }
     public function register(typedesc serviceType);
 
     documentation {
-        Starts the registered service
+        Starts the registered service.
     }
     public function start();
 
     documentation {
-        Returns the connector that client code uses
+        Returns the connector that client code uses.
 
         R{{}} `http:Connection` The connector that client code uses
     }
     public function getCallerActions() returns http:Connection;
 
     documentation {
-        Stops the registered service
+        Stops the registered service.
     }
     public function stop();
 
@@ -76,17 +76,17 @@ public type Listener object {
     public native function registerWebSubSubscriberServiceEndpoint(typedesc serviceType);
 
     documentation {
-        Sends a subscription request to the specified hub if specified to subscribe on startup
+        Sends a subscription request to the specified hub if specified to subscribe on startup.
     }
     function sendSubscriptionRequest();
 
     documentation {
-        Native function to start the registered WebSub Subscriber service
+        Native function to start the registered WebSub Subscriber service.
     }
     native function startWebSubSubscriberServiceEndpoint();
 
     documentation {
-        Sets the topic to which this service is subscribing, for auto intent verification
+        Sets the topic to which this service is subscribing, for auto intent verification.
 
         P{{topic}} The topic the subscription happened for
     }
@@ -94,7 +94,7 @@ public type Listener object {
 
     documentation {
         Retrieves the parameters specified for subscription as annotations and the callback URL to which notification
-        should happen
+        should happen.
     }
     native function retrieveSubscriptionParameters() returns map;
 
@@ -187,7 +187,7 @@ function Listener::sendSubscriptionRequest() {
 }
 
 documentation {
-    Object representing the configuration for the WebSubSubscriber Service Endpoint
+    Object representing the configuration for the WebSubSubscriber Service Endpoint.
 
     F{{host}} The configuration for the endpoint
     F{{port}} The underlying HTTP service endpoint
@@ -208,7 +208,8 @@ public type SubscriberServiceEndpointConfiguration {
 };
 
 documentation {
-    The function called to discover hub and topic URLs defined by a resource URL
+    The function called to discover hub and topic URLs defined by a resource URL.
+
     P{{resourceUrl}} The resource URL advertising hub and topic URLs
     R{{}} `(string, string)` (hub, topic) URLs if successful, `error` if not
 }
@@ -281,7 +282,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:SecureSocket? secureSoc
 }
 
 documentation {
-    Signature validation filter for WebSub services
+    Signature validation filter for WebSub services.
 }
 public type SignatureValidationFilter object {
     public function filterRequest(http:Request request, http:FilterContext context) returns http:FilterResult {
@@ -290,7 +291,7 @@ public type SignatureValidationFilter object {
 };
 
 documentation {
-    The function called to validate signature for content received by WebSub services
+    The function called to validate signature for content received by WebSub services.
 
     P{{request}} The request being intercepted
     P{{context}} The filter context
@@ -318,7 +319,7 @@ public function interceptWebSubRequest(http:Request request, http:FilterContext 
 }
 
 documentation {
-    Function to invoke the WebSubSubscriberConnector's actions for subscription
+    Function to invoke the WebSubSubscriberConnector's actions for subscription.
 
     P{{hub}} The hub to which the subscription request is to be sent
     P{{subscriptionDetails}} Map containing subscription details

@@ -20,7 +20,7 @@ import ballerina/http;
 /// Service Annotations ///
 ///////////////////////////
 documentation {
-    Configuration for a WebSubSubscriber service
+    Configuration for a WebSubSubscriber service.
 
     F{{endpoints}} Array of endpoints the service would be attached to
     F{{path}}  Path of the WebSubSubscriber service
@@ -50,6 +50,6 @@ public type SubscriberServiceConfiguration {
 };
 
 documentation {
-    WebSubSubscriber Configuration for the service
+    WebSubSubscriber Configuration for the service.
 }
 public annotation<service> SubscriberServiceConfig SubscriberServiceConfiguration;

@@ -54,7 +54,7 @@ http:SecureSocket? secureSocket = getSecureSocketConfig();
 
 documentation {
     Function to retrieve the URL for the Ballerina WebSub Hub, to which potential subscribers need to send
-    subscription/unsubscription requests
+    subscription/unsubscription requests.
 
     R{{}} The WebSub Hub's URL
 }
@@ -66,7 +66,7 @@ function getHubUrl() returns string {
 }
 
 documentation {
-    Function to retrieve if persistence is enabled for the Hub
+    Function to retrieve if persistence is enabled for the Hub.
 
     R{{}} True if persistence is enabled, false if not
 }
@@ -75,7 +75,7 @@ function isHubPersistenceEnabled() returns boolean {
 }
 
 documentation {
-    Function to retrieve if topics need to be registered at the Hub prior to publishing/subscribing
+    Function to retrieve if topics need to be registered at the Hub prior to publishing/subscribing.
 
     R{{}} True if persistence is enabled, false if not
 }

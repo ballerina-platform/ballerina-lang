@@ -21,7 +21,7 @@ import ballerina/http;
 //////////////////////////////////////////
 
 documentation {
-    Object representing the WebSub Hub Client Endpoint
+    Object representing the WebSub Hub Client Endpoint.
 }
 public type Client object {
 
@@ -34,7 +34,7 @@ public type Client object {
     }
 
     documentation {
-        Gets called when the endpoint is being initialized during package init
+        Gets called when the endpoint is being initialized during package init.
 
         P{{config}} The configuration for the endpoint
     }
@@ -48,7 +48,7 @@ public type Client object {
     }
 
     documentation {
-        Gets called whenever a service attaches itself to this endpoint and during package init
+        Gets called whenever a service attaches itself to this endpoint and during package init.
 
         P{{serviceType}} The service attached
     }
@@ -57,14 +57,14 @@ public type Client object {
     }
 
     documentation {
-        Starts the registered service
+        Starts the registered service.
     }
     public function start() {
         httpClientEndpoint.start();
     }
 
     documentation {
-        Returns the connector that client code uses
+        Returns the connector that client code uses.
 
         R{{}} `CallerActions` The caller actions available for clients
     }
@@ -75,7 +75,7 @@ public type Client object {
     }
 
     documentation {
-        Stops the registered service
+        Stops the registered service.
     }
     public function stop() {
         httpClientEndpoint.stop();
@@ -83,7 +83,7 @@ public type Client object {
 };
 
 documentation {
-    Object representing the WebSub Hub Client Endpoint configuration
+    Object representing the WebSub Hub Client Endpoint configuration.
 
     F{{url}} The URL of the target Hub
     F{{secureSocket}} SSL/TLS related options
