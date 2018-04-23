@@ -548,4 +548,11 @@ public class ObjectTest {
                 "no implementation for the interface 'Person.test'", 3, 16);
     }
 
+    @Test (description = "Negative test to test initializing object with struct literal")
+    public void testInitializingObjectWithStructLiteral() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_init_with_struct_literal.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BAssertUtil.validateError(result, 0, "invalid usage of record literal with type 'Person'", 3, 16);
+    }
+
 }
