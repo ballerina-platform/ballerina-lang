@@ -66,10 +66,11 @@ Content Based Routing
 Header Based Routing
 Produces/Consumes
 HTTP Client Connector
+HTTP Caching Client
 HTTP Trace Logs
 HTTP 100 Continue
-HTTPS Server Connector
-HTTPS Server/Client Connectors
+HTTPS Listener
+Basic HTTPS Listener/Client
 HTTP Disable Chunking
 HTTP to WebSocket Upgrade
 HTTP CORS
