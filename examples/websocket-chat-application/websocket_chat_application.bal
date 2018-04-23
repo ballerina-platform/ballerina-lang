@@ -31,7 +31,7 @@ service<http:Service> chatAppUpgrader bind chatEp {
 
 }
 
-//The map to stores connection ids of users who joined the chat
+//The map to stores connection ids of users who joined the chat.
 map<http:WebSocketListener> consMap;
 
 service<http:WebSocketService> chatApp {
@@ -64,7 +64,7 @@ function broadcast(map<http:WebSocketListener> consMap, string text) {
     endpoint http:WebSocketListener ep;
     foreach id, con in consMap {
         ep = con;
-        ep->pushText(text) but { error e => log:printError("Error sending message ", err = e) };
+        ep->pushText(text) but { error e => log:printError("Error sending message", err = e) };
     }
 }
 

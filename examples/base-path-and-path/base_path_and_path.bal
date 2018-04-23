@@ -12,8 +12,8 @@ endpoint http:Listener echoEP {
 //It binds the service endpoint to the service.
 @http:ServiceConfig {basePath:"/foo"}
 service<http:Service> echo bind echoEP {
-    //The POST annotation restricts the resource to accept POST requests only. Similarly, there are different annotations for each HTTP verb
-    //The Path attribute associates a subpath to the resource
+    //The POST annotation restricts the resource to accept POST requests only. Similarly, there are different annotations for each HTTP verb.
+    //The Path attribute associates a subpath to the resource.
     @http:ResourceConfig {
         methods:["POST"],
         path:"/bar"
@@ -32,6 +32,6 @@ service<http:Service> echo bind echoEP {
             }
         }
         // Reply to the client with the response.
-        caller->respond(res) but { error e => log:printError("Error in responding ", err = e) };
+        caller->respond(res) but { error e => log:printError("Error in responding", err = e) };
     }
 }

@@ -21,7 +21,7 @@ service<http:Service> httpService bind servicEp {
         var payload = req.getStringPayload();
         match payload {
             http:PayloadError payloadError => {
-                log:printError("Error sending message ", err = payloadError);
+                log:printError("Error sending message", err = payloadError);
                 resp.setStringPayload(payloadError.message);
                 resp.statusCode = 500;
             }
@@ -31,7 +31,7 @@ service<http:Service> httpService bind servicEp {
             }
         }
 
-        caller->respond(resp) but { error e => log:printError("Error in responding ", err = e) };
+        caller->respond(resp) but { error e => log:printError("Error in responding", err = e) };
     }
 
 
@@ -46,11 +46,11 @@ service<http:Service> httpService bind servicEp {
 }
 
 
-//Note: When a WebSocket upgrade path is defined in HTTP resource configuration
+//Note: When a WebSocket upgrade path is defined in HTTP resource configuration.
 //- Without service configuration for WebSocketService default values are taken for sub protocols, idle timeout etc...
-//- If  WebSocketServiceConfig is defined without the path, sub protocols, idle timeout etc... can be configured
-//- If path is defined in the WebSocketServiceConfig it shall be ignored
-//- This service can also be bound to a different endpoint in which case the path configuration will become useful
+//- If  WebSocketServiceConfig is defined without the path, sub protocols, idle timeout etc... can be configured.
+//- If path is defined in the WebSocketServiceConfig it shall be ignored.
+//- This service can also be bound to a different endpoint in which case the path configuration will become useful.
 @http:WebSocketServiceConfig {
     subProtocols:["xml, json"],
     idleTimeoutInSeconds:20
@@ -63,7 +63,7 @@ service<http:WebSocketService> wsService {
 
     onText(endpoint caller, string text) {
         io:println(text);
-        caller->pushText(text) but { error e => log:printError("Error sending message ", err = e) };
+        caller->pushText(text) but { error e => log:printError("Error sending message", err = e) };
     }
 
     onIdleTimeout(endpoint caller) {
