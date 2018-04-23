@@ -52,7 +52,8 @@ public class RepoUtils {
      */
     public static boolean hasProjectRepo(Path path) {
         path = path.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME);
-        return !path.equals(createAndGetHomeReposPath()) && Files.exists(path, LinkOption.NOFOLLOW_LINKS);
+        return !path.equals(createAndGetHomeReposPath()) && Files.exists(path, LinkOption.NOFOLLOW_LINKS) &&
+                Files.isDirectory(path);
     }
 
     /**
