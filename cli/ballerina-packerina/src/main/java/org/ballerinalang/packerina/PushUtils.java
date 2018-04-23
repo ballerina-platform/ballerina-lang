@@ -121,7 +121,7 @@ public class PushUtils {
             String resourcePath = resolvePkgPathInRemoteRepo(packageID);
             String msg = orgName + "/" + packageName + ":" + version + " [project repo -> central]";
             EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
-            executor.execute("packaging.push/ballerina.push.balx", accessToken, mdFileContent, description,
+            executor.execute("packaging.push/packaging_push.balx", accessToken, mdFileContent, description,
                              homepageURL, repositoryURL, apiDocURL, authors, keywords, license, resourcePath,
                              pkgPathFromPrjtDir.toString(), msg);
 
