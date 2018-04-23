@@ -78,6 +78,7 @@ HTTP Circuit Breaker
 HTTP Data Binding
 HTTP Failover
 HTTP Load Balancer
+HTTP Retry
 HTTP Forwarded Extension
 HTTP 2.0 Server Push
 HTTP 1.1 To 2.0 Protocol Switch

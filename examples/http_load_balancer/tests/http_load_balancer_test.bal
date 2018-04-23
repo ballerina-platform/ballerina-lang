@@ -5,7 +5,7 @@ import ballerina/http;
 boolean serviceStarted;
 
 function startService(){
-    serviceStarted = test:startServices("http-load-balancer");
+    serviceStarted = test:startServices("http_load_balancer");
 }
 
 @test:Config {
@@ -22,7 +22,7 @@ function testFunc() {
     var response = httpEndpoint -> get("/lb");
     match response {
         http:Response resp => {
-            var res = check resp.getStringPayload();
+            var res = check resp.getTextPayload();
             test:assertEquals(res, "Mock1 Resource is invoked.");
         }
         http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
@@ -32,7 +32,7 @@ function testFunc() {
     var response2 = httpEndpoint -> get("/lb");
     match response2 {
         http:Response resp => {
-            var res = check resp.getStringPayload();
+            var res = check resp.getTextPayload();
             test:assertEquals(res, "Mock2 Resource is Invoked.");
         }
         http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
@@ -43,7 +43,7 @@ function testFunc() {
     var response3 = httpEndpoint -> get("/lb");
     match response3 {
         http:Response resp => {
-            var res = check resp.getStringPayload();
+            var res = check resp.getTextPayload();
             test:assertEquals(res, "Mock3 Resource is Invoked.");
         }
         http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
@@ -54,7 +54,7 @@ function testFunc() {
     var response4 = httpEndpoint -> get("/lb");
     match response4 {
         http:Response resp => {
-            var res = check resp.getStringPayload();
+            var res = check resp.getTextPayload();
             test:assertEquals(res, "Mock1 Resource is invoked.");
         }
         http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
@@ -62,5 +62,5 @@ function testFunc() {
 }
 
 function stopService(){
-    test:stopServices("http-load-balancer");
+    test:stopServices("http_load_balancer");
 }
