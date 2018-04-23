@@ -33,12 +33,12 @@ import java.net.URL;
 @JavaSPIService("org.ballerinalang.spi.EmbeddedExecutor")
 public class BVMEmbeddedExecutor implements EmbeddedExecutor {
     @Override
-    public void execute(String balxPath, String... args) {
+    public void execute(String balxPath, String type, String... args) {
         URL resource = BVMEmbeddedExecutor.class.getClassLoader()
                                                 .getResource("META-INF/ballerina/" + balxPath);
         try {
             URI balxResource = resource.toURI();
-            ExecutorUtils.execute(balxResource, args);
+            ExecutorUtils.execute(balxResource, type, args);
         } catch (URISyntaxException e) {
             throw new BLangCompilerException("Missing internal modules when building package");
         }

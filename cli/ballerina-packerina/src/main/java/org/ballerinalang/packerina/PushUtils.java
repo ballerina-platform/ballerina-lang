@@ -61,6 +61,7 @@ public class PushUtils {
     private static final Path SETTINGS_TOML_FILE_PATH = BALLERINA_HOME_PATH.resolve(
             ProjectDirConstants.SETTINGS_FILE_NAME);
     private static PrintStream outStream = System.err;
+    private static EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
 
     /**
      * Push/Uploads packages to the central repository.
@@ -69,7 +70,6 @@ public class PushUtils {
      * @param installToRepo if it should be pushed to central or home
      */
     public static void pushPackages(String packageName, String installToRepo) {
-        String accessToken = getAccessTokenOfCLI();
         Manifest manifest = readManifestConfigurations();
         if (manifest.getName().isEmpty()) {
             throw new BLangCompilerException("An org-name is required when pushing. This is not specified in " +
@@ -97,11 +97,8 @@ public class PushUtils {
         }
 
         if (installToRepo == null) {
-            if (accessToken == null) {
-                // TODO: get bal home location dynamically
-                throw new BLangCompilerException("Access token is missing in ~/ballerina_home/Settings.toml file.\n" +
-                                                         "Please visit https://central.ballerina.io/cli-token");
-            }
+            // Get access token
+            String accessToken = checkAccessToken();
 
             // Read the Package.md file content from the artifact
             String mdFileContent = getPackageMDFileContent(pkgPathFromPrjtDir.toString(), packageName);
@@ -121,7 +118,7 @@ public class PushUtils {
             String resourcePath = resolvePkgPathInRemoteRepo(packageID);
             String msg = orgName + "/" + packageName + ":" + version + " [project repo -> central]";
             EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
-            executor.execute("packaging_push/packaging_push.balx", accessToken, mdFileContent, description,
+            executor.execute("packaging_push/packaging_push.balx", "function",accessToken, mdFileContent, description,
                              homepageURL, repositoryURL, apiDocURL, authors, keywords, license, resourcePath,
                              pkgPathFromPrjtDir.toString(), msg);
 
@@ -130,6 +127,62 @@ public class PushUtils {
                 throw new BLangCompilerException("Unknown repository provided to push the package");
             }
             installToHomeRepo(packageID, pkgPathFromPrjtDir);
+        }
+    }
+
+    /**
+     * Checks if the access token is available in Settings.toml or not.
+     *
+     * @return access token if its present
+     */
+    private static String checkAccessToken() {
+        String accessToken = getAccessTokenOfCLI();
+
+        if (accessToken.isEmpty()) {
+            long modifiedTimeOfFileAtStart = getLastModifiedTimeOfFile(SETTINGS_TOML_FILE_PATH);
+            executor.execute("packaging.token.validator/ballerina.token.validator.balx", "service");
+
+            boolean waitForToken = true;
+            while (waitForToken) {
+                pause();
+                long modifiedTimeOfFileAfter = getLastModifiedTimeOfFile(SETTINGS_TOML_FILE_PATH);
+                if (modifiedTimeOfFileAtStart != modifiedTimeOfFileAfter) {
+                    accessToken = getAccessTokenOfCLI();
+                    if (accessToken.isEmpty()) {
+                        throw new BLangCompilerException("Access token is missing in " +
+                                                                 SETTINGS_TOML_FILE_PATH.toString() + " Please " +
+                                                                 "visit https://central.ballerina.io");
+                    } else {
+                        waitForToken = false;
+                    }
+                }
+            }
+        }
+        return accessToken;
+    }
+
+    /**
+     * Pause for 3s to check if the access token is received.
+     */
+    private static void pause() {
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException ignore) {
+        }
+    }
+
+    /**
+     * Get last modified time of file.
+     *
+     * @param path file path
+     * @return last modified time in milliseconds
+     */
+    private static long getLastModifiedTimeOfFile(Path path) {
+        try {
+            return Files.getLastModifiedTime(path).toMillis();
+        } catch (IOException ignore) {
+            throw new BLangCompilerException("Error occurred when reading file for token " +
+                                                     SETTINGS_TOML_FILE_PATH.toString());
         }
     }
 
@@ -219,7 +272,7 @@ public class PushUtils {
         if (settings.getCentral() != null) {
             return settings.getCentral().getAccessToken();
         }
-        return null;
+        return "";
     }
 
     /**

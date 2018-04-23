@@ -39,16 +39,22 @@ import java.util.Map;
 public class ExecutorUtils {
 
     /**
-     * Run balx that lives within jars.
+     * Run balx with functions that lives within jars.
      *
      * @param balxResource URI of the balx resource
+     * @param type         if a function or service is to be invoked
      * @param args         arguments passed to the function
      */
-    public static void execute(URI balxResource, String... args) {
+    public static void execute(URI balxResource, String type, String... args) {
         initFileSystem(balxResource);
         Path baloFilePath = Paths.get(balxResource);
         ProgramFile programFile = readExecutableProgram(baloFilePath);
-        BLangProgramRunner.runMain(programFile, args);
+
+        if (type.equals("function")) {
+            BLangProgramRunner.runMain(programFile, args);
+        } else if (type.equals("service")) {
+            BLangProgramRunner.runService(programFile);
+        }
     }
 
     /**
