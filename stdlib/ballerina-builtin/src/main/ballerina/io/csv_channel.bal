@@ -45,7 +45,6 @@ public type CSVChannel object {
         P{{nHeaders}} - Number of headers which should be skipped prior to reading records
     }
     new(CharacterChannel channel, Separator fs = ",", int nHeaders = 0) {
-        println(fs);
         if (fs == TAB){
             dc = new DelimitedTextRecordChannel(channel, fmt = "TDF");
         } else if (fs == COLON){
