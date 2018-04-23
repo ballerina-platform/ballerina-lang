@@ -28,6 +28,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -42,6 +44,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.ballerinalang.logging.util.Constants.BALLERINA_USER_LOG_LEVEL;
+import static org.ballerinalang.logging.util.Constants.DEFAULT_LOG_FILE_HANDLER_PATTERN;
 import static org.ballerinalang.logging.util.Constants.HTTP_ACCESS_LOG;
 import static org.ballerinalang.logging.util.Constants.HTTP_ACCESS_LOG_CONSOLE;
 import static org.ballerinalang.logging.util.Constants.HTTP_ACCESS_LOG_FILE;
@@ -85,6 +88,15 @@ public class BLogManager extends LogManager {
             String val = substituteVariables((String) v);
             properties.setProperty((String) k, val);
         });
+
+        String breLogFileName = properties.getProperty(DEFAULT_LOG_FILE_HANDLER_PATTERN);
+        String breLogPath;
+        if (Files.isWritable(Paths.get(System.getProperty("user.dir")))) {
+            breLogPath = Paths.get(System.getProperty("user.dir"), breLogFileName).toString();
+        } else {
+            breLogPath = Paths.get(System.getProperty("java.io.tmpdir"), breLogFileName).toString();
+        }
+        properties.setProperty(DEFAULT_LOG_FILE_HANDLER_PATTERN, breLogPath);
 
         super.readConfiguration(propertiesToInputStream(properties));
     }

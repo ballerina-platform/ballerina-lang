@@ -18,6 +18,8 @@
 
 package org.ballerinalang.logging.util;
 
+import org.ballerinalang.logging.handlers.DefaultLogFileHandler;
+
 /**
  * Constants used by the Ballerina logging module.
  *
@@ -39,4 +41,7 @@ public class Constants {
     public static final String HTTP_ACCESS_LOG_ENABLED = "http.accesslog.enabled";
     public static final String HTTP_ACCESS_LOG_CONSOLE = "b7a.http.accesslog.console";
     public static final String HTTP_ACCESS_LOG_FILE = "b7a.http.accesslog.path";
+
+    public static final String DEFAULT_LOG_FILE_HANDLER_PATTERN =
+            DefaultLogFileHandler.class.getCanonicalName() + ".pattern";
 }
