@@ -64,4 +64,3 @@ service<http:Service> http2service bind http2serviceEP {
             error e => log:printError("Error occurred while sending the response", err = e) };
     }
 }
-
