@@ -21,7 +21,7 @@ service<http:Service> httpService bind servicEp {
         var payload = req.getStringPayload();
         match payload {
             http:PayloadError payloadError => {
-                log:printError("Error sending message", err = payloadError);
+                log:printError("Error sending message ", err = payloadError);
                 resp.setStringPayload(payloadError.message);
                 resp.statusCode = 500;
             }
@@ -31,7 +31,7 @@ service<http:Service> httpService bind servicEp {
             }
         }
 
-        caller -> respond(resp) but { error e => log:printError("Error sending message", err = e) };
+        caller->respond(resp) but { error e => log:printError("Error in responding ", err = e) };
     }
 
 
@@ -63,7 +63,7 @@ service<http:WebSocketService> wsService {
 
     onText(endpoint caller, string text) {
         io:println(text);
-        caller -> pushText(text) but { error e => log:printError("Error sending message", err = e) };
+        caller->pushText(text) but { error e => log:printError("Error sending message ", err = e) };
     }
 
     onIdleTimeout(endpoint caller) {

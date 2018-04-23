@@ -22,11 +22,11 @@ service<http:Service> chatAppUpgrader bind chatEp {
     upgrader(endpoint caller, http:Request req, string name) {
         endpoint http:WebSocketListener wsEp;
         map<string> headers;
-        wsEp = caller -> acceptWebSocketUpgrade(headers);
+        wsEp = caller->acceptWebSocketUpgrade(headers);
         wsEp.attributes[NAME] = name;
         wsEp.attributes[AGE] = req.getQueryParams()["age"];
         string msg = "Hi " + name + "! You have succesfully connected to the chat";
-        wsEp -> pushText(msg) but { error e => log:printError("Error sending message", err = e) };
+        wsEp->pushText(msg) but { error e => log:printError("Error sending message ", err = e) };
     }
 
 }
@@ -39,7 +39,8 @@ service<http:WebSocketService> chatApp {
     //Store the attributes of the user, such as username and age, once the user connects to the chat client, and
     //broadcast that the user has joined the chat.
     onOpen(endpoint caller) {
-        string msg = string `{{getAttributeStr(caller, NAME)}} with age {{getAttributeStr(caller, AGE)}} connected to chat`;
+        string msg = string `{{getAttributeStr(caller, NAME)}} with age {{getAttributeStr(caller, AGE)}}
+         connected to chat`;
         broadcast(consMap, msg);
         consMap[caller.id] = caller;
     }
@@ -63,7 +64,7 @@ function broadcast(map<http:WebSocketListener> consMap, string text) {
     endpoint http:WebSocketListener ep;
     foreach id, con in consMap {
         ep = con;
-        ep -> pushText(text) but { error e => log:printError("Error sending message", err = e) };
+        ep->pushText(text) but { error e => log:printError("Error sending message ", err = e) };
     }
 }
 
