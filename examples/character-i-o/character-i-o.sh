@@ -4,3 +4,5 @@ Started to process the file.
  No of characters written : 12
  No of characters written : 12
 File processing complete.
+Source channel close successfully.
+Destination channel close successfully.
