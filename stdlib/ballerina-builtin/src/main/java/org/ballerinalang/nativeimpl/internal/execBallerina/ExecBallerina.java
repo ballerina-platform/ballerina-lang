@@ -29,60 +29,65 @@ import java.util.Properties;
         isPublic = true
 )
 public class ExecBallerina extends BlockingNativeCallableUnit {
-
     @Override
     public void execute(Context context) {
 
         Properties property = System.getProperties();
         String path = (String) property.get("ballerina.home");
 
-        String command = context.getStringArgument(0);
-        String packageName = context.getStringArgument(1);
-        String balCommand = path + "/bin/ballerina " + command + " " + packageName;
+        String command = context.getRefArgument(0).stringValue();
+        String packageName = context.getStringArgument(0);
 
-        Process process;
-        BufferedReader reader = null;
-        BufferedReader readerEr = null;
-        try {
-            StringBuilder output = new StringBuilder();
-            process = Runtime.getRuntime().exec(balCommand);
-            process.waitFor();
-            reader =
-                    new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8));
-            readerEr =
-                    new BufferedReader(new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8));
+        if (!packageName.contains(";") && !packageName.contains("|") && !packageName.contains("\"")) {
+            String balCommand = path + "/bin/ballerina " + command + " " + packageName;
 
-            String lineEr = "";
-            while ((lineEr = readerEr.readLine()) != null) {
-                output.append(lineEr).append("\n");
-            }
-
-            String line = "";
-            while ((line = reader.readLine()) != null) {
-                output.append(line).append("\n");
-            }
-
-            String adjusted = output.toString().replaceAll("(?m)^[ \t]*\r?\n", "");
-            context.setReturnValues(new BString(adjusted));
-        } catch (InterruptedException e) {
-            throw new BallerinaException(e.getMessage());
-        } catch (IOException e) {
-            throw new BallerinaException(e.getMessage());
-        } finally {
+            Process process;
+            BufferedReader reader = null;
+            BufferedReader readerEr = null;
             try {
-                if (reader != null) {
-                    reader.close();
+                StringBuilder output = new StringBuilder();
+                process = Runtime.getRuntime().exec(balCommand);
+                process.waitFor();
+                reader =
+                        new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8));
+                readerEr =
+                        new BufferedReader(new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8));
+
+                String lineEr = "";
+                while ((lineEr = readerEr.readLine()) != null) {
+                    output.append(lineEr).append("\n");
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            try {
-                if (readerEr != null) {
-                    readerEr.close();
+
+                String line = "";
+                while ((line = reader.readLine()) != null) {
+                    output.append(line).append("\n");
                 }
+
+                String adjusted = output.toString().replaceAll("(?m)^[ \t]*\r?\n", "");
+                context.setReturnValues(new BString(adjusted));
+            } catch (InterruptedException e) {
+                throw new BallerinaException(e.getMessage());
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new BallerinaException(e.getMessage());
+            } finally {
+                try {
+                    if (reader != null) {
+                        reader.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    if (readerEr != null) {
+                        readerEr.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
+        } else {
+            String message = "The arguments to the ballerina command: " + command + " contains invalid characters";
+            context.setReturnValues(new BString(message));
         }
     }
 }
