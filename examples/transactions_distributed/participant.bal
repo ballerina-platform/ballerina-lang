@@ -5,14 +5,10 @@ import ballerina/http;
 // This service is a participant in the distributed transaction. It will get infected when it receives a transaction
 // context from the participant. The transaction context, in the HTTP case, will be passed in as custom HTTP headers.
 
-endpoint http:Listener participantEP {
-    port:8889
-};
-
 @http:ServiceConfig {
     basePath:"/stockquote"
 }
-service ParticipantService bind participantEP {
+service<http:Service> ParticipantService bind {port: 8889} {
 
     @http:ResourceConfig {
         path:"/update"

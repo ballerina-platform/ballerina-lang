@@ -4,14 +4,11 @@ import ballerina/log;
 import ballerina/transactions;
 
 // This is the initiator of the distributed transaction.
-endpoint http:Listener initiatorEP {
-    port:8080
-};
 
 @http:ServiceConfig {
     basePath:"/"
 }
-service InitiatorService bind initiatorEP {
+service<http:Service> InitiatorService bind {port: 8080} {
 
     @http:ResourceConfig {
         methods:["GET"],
