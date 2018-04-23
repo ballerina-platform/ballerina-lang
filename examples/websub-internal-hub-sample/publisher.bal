@@ -12,7 +12,7 @@ function main (string... args) {
     //Register a topic at the hub.
     var registrationResponse = webSubHub.registerTopic("http://www.websubpubtopic.com");
     match (registrationResponse) {
-        websub:WebSubError webSubError => log:printError("Error occurred registering topic: " + webSubError.message);
+        error webSubError => log:printError("Error occurred registering topic: " + webSubError.message);
         () => log:printInfo("Topic registration successful!");
     }
 
@@ -24,7 +24,7 @@ function main (string... args) {
     var publishResponse = webSubHub.publishUpdate("http://www.websubpubtopic.com",
                                                                         {"action":"publish","mode":"internal-hub"});
     match (publishResponse) {
-        websub:WebSubError webSubError => log:printError("Error notifying hub: " + webSubError.message);
+        error webSubError => log:printError("Error notifying hub: " + webSubError.message);
         () => log:printInfo("Update notification successful!");
     }
 
