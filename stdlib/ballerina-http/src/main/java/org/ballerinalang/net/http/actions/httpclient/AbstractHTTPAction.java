@@ -63,6 +63,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Optional;
 
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
@@ -492,8 +493,9 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         }
 
         private void addHttpStatusCode(int statusCode) {
-            ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
-            observerContext.addTag(ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE, String.valueOf(statusCode));
+            Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
+            observerContext.ifPresent(ctx -> ctx.addTag(ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE,
+                    String.valueOf(statusCode)));
         }
     }
 
