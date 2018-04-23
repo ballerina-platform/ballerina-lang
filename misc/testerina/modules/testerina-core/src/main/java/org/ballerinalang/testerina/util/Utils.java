@@ -38,6 +38,7 @@ import java.util.Comparator;
 public class Utils {
 
     private static PrintStream errStream = System.err;
+    private static TesterinaRegistry registry = TesterinaRegistry.getInstance();
 
 
     public static void startService(ProgramFile programFile) {
@@ -53,13 +54,13 @@ public class Utils {
         // Invoke package init function
         if (isPackageInitialized(programFile.getEntryPkgName())) {
             BLangFunctions.invokePackageInitFunction(servicesPackage.getInitFunctionInfo());
-            TesterinaRegistry.getInstance().addInitializedPackage(programFile.getEntryPkgName());
+            registry.addInitializedPackage(programFile.getEntryPkgName());
         }
         BLangFunctions.invokeVMUtilFunction(servicesPackage.getStartFunctionInfo());
     }
 
     public static boolean isPackageInitialized(String entryPkgName) {
-        return !TesterinaRegistry.getInstance().getInitializedPackages().contains(entryPkgName);
+        return !registry.getInitializedPackages().contains(entryPkgName);
     }
 
     /**
@@ -90,8 +91,12 @@ public class Utils {
         }
     }
 
+    /**
+     * Returns the full package name with org name for a given package.
+     * @param packageName package name
+     * @return full package name with organization name if org name exists
+     */
     public static String getFullPackageName(String packageName) {
-        TesterinaRegistry registry = TesterinaRegistry.getInstance();
         return registry.getOrgName() == null ? "." : registry.getOrgName().equals(Names.ANON_ORG
             .toString()) ? packageName : registry.getOrgName() + "." + packageName;
     }
