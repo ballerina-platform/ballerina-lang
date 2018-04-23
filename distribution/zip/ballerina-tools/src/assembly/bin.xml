@@ -42,18 +42,11 @@
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
-        <!--<fileSet>-->
-            <!--<directory>-->
-                <!--${project.build.directory}/api-docs-->
-            <!--</directory>-->
-            <!--<outputDirectory>docs/api</outputDirectory>-->
-        <!--</fileSet>-->
-        <!-- TODO remove below and find a better solution later -->
         <fileSet>
             <directory>
-                ../../../composer/samples
+                ${project.build.directory}/api-docs
             </directory>
-            <outputDirectory>resources/composer/samples</outputDirectory>
+            <outputDirectory>docs/api</outputDirectory>
         </fileSet>
     </fileSets>
 
