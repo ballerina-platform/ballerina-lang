@@ -76,7 +76,7 @@
                         <configuration>
                             <skip>${skipBenchmarks}</skip>
                             <target>
-                                <mkdir dir="${project.basedir}/isolatedFolder/.ballerina"/>
+                                <mkdir dir="${project.basedir}/.ballerina"/>
                             </target>
                         </configuration>
                     </execution>
