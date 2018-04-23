@@ -1,0 +1,291 @@
+{
+  "position": {
+    "line": 6,
+    "character": 8
+  },
+  "source": "function/source/variableBoundItemSuggestions3.bal",
+  "items": [
+    {
+      "label":"statusCode",
+      "kind":"Unit",
+      "detail":"int",
+      "sortText":"110",
+      "insertText":"statusCode"
+    },
+    {
+      "label":"reasonPhrase",
+      "kind":"Unit",
+      "detail":"string",
+      "sortText":"110",
+      "insertText":"reasonPhrase"
+    },
+    {
+      "label":"server",
+      "kind":"Unit",
+      "detail":"string",
+      "sortText":"110",
+      "insertText":"server"
+    },
+    {
+      "label":"cacheControl",
+      "kind":"Unit",
+      "detail":"ballerina.http:ResponseCacheControl?",
+      "sortText":"110",
+      "insertText":"cacheControl"
+    },
+    {
+      "label":"receivedTime",
+      "kind":"Unit",
+      "detail":"int",
+      "sortText":"110",
+      "insertText":"receivedTime"
+    },
+    {
+      "label":"requestTime",
+      "kind":"Unit",
+      "detail":"int",
+      "sortText":"110",
+      "insertText":"requestTime"
+    },
+    {
+      "label":"new()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"new()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"getEntity()(ballerina.mime:Entity|ballerina.mime:EntityError)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"getEntity()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"getEntityWithoutBody()(ballerina.mime:Entity)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"getEntityWithoutBody()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"setEntity(mime:Entity entity)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"setEntity(${1:entity})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"hasHeader(string headerName)(boolean)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"hasHeader(${1:headerName})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"getHeader(string headerName)(string)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"getHeader(${1:headerName})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"addHeader(string headerName, string headerValue)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"addHeader(${1:headerName}, ${2:headerValue})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"getHeaders(string headerName)(string[])",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"getHeaders(${1:headerName})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"setHeader(string headerName, string headerValue)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"setHeader(${1:headerName}, ${2:headerValue})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"removeHeader(string key)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"removeHeader(${1:key})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"removeAllHeaders()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"removeAllHeaders()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"getHeaderNames()(string[])",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"getHeaderNames()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"setContentType(string contentType)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"setContentType(${1:contentType})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"getContentType()(string)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"getContentType()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"getJsonPayload()(json|ballerina.http:PayloadError)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"getJsonPayload()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"getXmlPayload()(xml|ballerina.http:PayloadError)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"getXmlPayload()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"getStringPayload()(string|ballerina.http:PayloadError)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"getStringPayload()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"getBinaryPayload()(blob|ballerina.http:PayloadError)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"getBinaryPayload()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"getByteChannel()(ballerina.io:ByteChannel|ballerina.http:PayloadError)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"getByteChannel()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"getBodyParts()(ballerina.mime:Entity[]|ballerina.mime:EntityError)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"getBodyParts()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"setETag(json|xml|string|blob payload)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"setETag(${1:payload})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"setLastModified()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"setLastModified()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"setJsonPayload(json payload, string contentType \u003d application/json)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"setJsonPayload(${1:payload}, contentType \u003d ${2:application/json})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"setXmlPayload(xml payload, string contentType \u003d application/xml)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"setXmlPayload(${1:payload}, contentType \u003d ${2:application/xml})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"setStringPayload(string payload, string contentType \u003d text/plain)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"setStringPayload(${1:payload}, contentType \u003d ${2:text/plain})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"setBinaryPayload(blob payload, string contentType \u003d application/octec-stream)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"setBinaryPayload(${1:payload}, contentType \u003d ${2:application/octec-stream})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"setBodyParts(mime:Entity bodyParts, string contentType \u003d multipart/form-data)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"setBodyParts(${1:bodyParts}, contentType \u003d ${2:multipart/form-data})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"setFileAsPayload(string filePath, string contentType \u003d application/octec-stream)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"setFileAsPayload(${1:filePath}, contentType \u003d ${2:application/octec-stream})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"setByteChannel(io:ByteChannel payload, string contentType \u003d application/octec-stream)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"setByteChannel(${1:payload}, contentType \u003d ${2:application/octec-stream})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"setPayload(string|xml|json|blob|ballerina.io:ByteChannel|ballerina.mime:Entity[] payload)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"setPayload(${1:payload})",
+      "insertTextFormat":"Snippet"
+    }
+  ]
+}

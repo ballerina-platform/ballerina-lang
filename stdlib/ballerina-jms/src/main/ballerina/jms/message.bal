@@ -1,5 +1,21 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
 
 public type Message object {
+
     documentation {Gets text content of the JMS message
         returns message content as string}
     public native function getTextMessageContent() returns @tainted string|error;
@@ -12,7 +28,7 @@ public type Message object {
     documentation {Gets a JMS transport string property from the message
         P{{key}} The string property name
         returns The string property value}
-    public native function getStringProperty(@sensitive string key) returns @tainted string|()|error;
+    public native function getStringProperty(@sensitive string key) returns @tainted (string|error)?;
 
     documentation {Sets a JMS transport integer property from the message
         P{{key}} The integer property name
@@ -103,5 +119,5 @@ public type Message object {
 
     documentation {Get JMS transport header CorrelationID from the message
         returns The header value}
-    public native function getCorrelationID() returns @tainted string|()|error;
+    public native function getCorrelationID() returns @tainted (string|error)?;
 };
