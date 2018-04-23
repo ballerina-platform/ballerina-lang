@@ -17,7 +17,7 @@ function main(string... args) {
     var res = chatEp->chat(ChatMessageListener);
     match res {
         grpc:error err => {
-            io:print("Unexpected error occured.");
+            io:print("Unexpected error occurred.");
         }
         grpc:Client con => {
             ep = con;

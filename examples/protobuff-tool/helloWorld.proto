@@ -1,8 +1,10 @@
 syntax = "proto3";
+
 service helloWorld {
-		rpc hello(HelloRequest) returns (HelloResponse);
-		rpc bye(ByeRequest) returns (ByeResponse);
+    rpc hello(HelloRequest) returns (HelloResponse);
+    rpc bye(ByeRequest) returns (ByeResponse);
 }
+
 message HelloRequest {
 	string name = 1;
 }
