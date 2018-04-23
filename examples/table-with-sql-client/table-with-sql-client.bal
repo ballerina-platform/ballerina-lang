@@ -24,7 +24,7 @@ function main(string... args) {
         port:3306,
         name:"testdb",
         username:"root",
-        password:"123",
+        password:"root",
         poolOptions:{maximumPoolSize:5},
         dbOptions:{useSSL:false}
     };
