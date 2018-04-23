@@ -8,8 +8,8 @@ endpoint grpc:Listener ep {
     port:9090
 };
 
-@grpc:serviceConfig
 service HelloWorld bind ep {
+
     hello(endpoint caller, string name) {
         io:println("Received message from : " + name);
         string message = "Hello " + name; // response message
