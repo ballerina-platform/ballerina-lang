@@ -149,7 +149,9 @@ public class JMSUtils {
     }
 
     private static void preProcessIfWso2MB(Map<String, String> configParams) {
-        if (Constants.MB_ICF_ALIAS.equalsIgnoreCase(configParams.get(Constants.ALIAS_INITIAL_CONTEXT_FACTORY))) {
+        String initialConnectionFactoryName = configParams.get(Constants.ALIAS_INITIAL_CONTEXT_FACTORY);
+        if (Constants.BMB_ICF_ALIAS.equalsIgnoreCase(initialConnectionFactoryName)
+                || Constants.MB_ICF_ALIAS.equalsIgnoreCase(initialConnectionFactoryName)) {
 
             configParams.put(Constants.ALIAS_INITIAL_CONTEXT_FACTORY, Constants.MB_ICF_NAME);
             String connectionFactoryName = configParams.get(Constants.ALIAS_CONNECTION_FACTORY_NAME);

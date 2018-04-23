@@ -55,7 +55,8 @@ public class TopLevelResolver extends AbstractItemResolver {
         }
 
         boolean isAnnotation = this.isAnnotationContext(completionContext);
-        if (isAnnotation) {
+        // Annotations should be evaluated only if the parser rule context is Compilation unit context
+        if (parserRuleContext instanceof BallerinaParser.CompilationUnitContext && isAnnotation) {
             completionItems.addAll(CompletionItemResolver
                     .getResolverByClass(AnnotationAttachmentResolver.class).resolveItems(completionContext));
         } else {

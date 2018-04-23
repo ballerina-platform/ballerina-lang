@@ -77,11 +77,11 @@ service<http:Service> hubService bind hubServiceEP {
             string callbackFromParams = <string>params[websub:HUB_CALLBACK];
             string callback = http:decode(callbackFromParams, "UTF-8") but { error => callbackFromParams };
             match (validateSubscriptionChangeRequest(mode, topic, callback)) {
-                string errorMessage => {
+                error err => {
                     response.statusCode = http:BAD_REQUEST_400;
-                    response.setTextPayload(errorMessage);
+                    response.setTextPayload(err.message);
                 }
-                boolean => {
+                () => {
                     validSubscriptionRequest = true;
                     response.statusCode = http:ACCEPTED_202;
                 }
@@ -173,7 +173,7 @@ service<http:Service> hubService bind hubServiceEP {
                                         var signatureValidation = websub:validateSignature(publisherSignature,
                                             strPayload, secret);
                                         match (signatureValidation) {
-                                            websub:WebSubError err => {
+                                            error err => {
                                                 log:printWarn("Signature validation failed for publish request for "
                                                         + "topic[" + topic + "]: " + err.message);
                                                 done;
@@ -216,28 +216,31 @@ documentation {
     P{{mode}} Mode specified in the subscription change request parameters
     P{{topic}} Topic specified in the subscription change request parameters
     P{{callback}} Callback specified in the subscription change request parameters
-    R{{}} Whether the subscription/unsubscription request is valid
-    R{{}} If invalid, the error with the subscription/unsubscription request
+    R{{}} `error` if validation failed for the subscription request
 }
-function validateSubscriptionChangeRequest(string mode, string topic, string callback) returns (boolean|string) {
+function validateSubscriptionChangeRequest(string mode, string topic, string callback) returns error? {
     if (topic != "" && callback != "") {
         PendingSubscriptionChangeRequest pendingRequest = new(mode, topic, callback);
         pendingRequests[generateKey(topic, callback)] = pendingRequest;
         if (!callback.hasPrefix("http://") && !callback.hasPrefix("https://")) {
-            return "Malformed URL specified as callback";
+            error err = {message:"Malformed URL specified as callback"};
+            return err;
         }
         if (hubTopicRegistrationRequired && !websub:isTopicRegistered(topic)) {
-            return "Subscription request denied for unregistered topic";
+            error err = {message:"Subscription request denied for unregistered topic"};
+            return err;
         }
-        return true;
+        return;
     }
-    return "Topic/Callback cannot be null for subscription/unsubscription request";
+    error err = {message:"Topic/Callback cannot be null for subscription/unsubscription request"};
+    return err;
 }
 
 documentation {
     Function to initiate intent verification for a valid subscription/unsubscription request received.
 
     P{{callback}} The callback URL of the new subscription/unsubscription request
+    P{{topic}} The topic specified in the new subscription/unsubscription request
     P{{params}} Parameters specified in the new subscription/unsubscription request
 }
 function verifyIntent(string callback, string topic, map params) {
@@ -484,6 +487,8 @@ documentation {
     Function to fetch updates for a particular topic.
 
     P{{topic}} The topic URL to be fetched to retrieve updates
+    R{{}} `http:Response` indicating the response received on fetching the topic URL if successful,
+          `http:HttpConnectorError` if an HTTP error occurred
 }
 function fetchTopicUpdate(string topic) returns http:Response|http:HttpConnectorError {
     endpoint http:Client topicEp {
@@ -553,9 +558,8 @@ public function distributeContent(string callback, websub:SubscriptionDetails su
 documentation {
     Struct to represent a topic registration.
 
-    F{{mode}} Whether a pending subscription or unsubscription
-    F{{topic}} The topic for which the subscription or unsubscription is pending
-    F{{callback}} The callback specified for the pending subscription or unsubscription
+    F{{topic}} The topic for which notification would happen
+    F{{secret}} The secret if specified by the topic's publisher
 }
 type TopicRegistration {
     string topic,
@@ -589,7 +593,7 @@ type PendingSubscriptionChangeRequest object {
     }
 };
 
-public function generateKey(string topic, string callback) returns (string) {
+function generateKey(string topic, string callback) returns (string) {
     return topic + "_" + callback;
 }
 
@@ -600,7 +604,7 @@ documentation {
     P{{topic}} The canonical URL of the topic for which the update occurred
     R{{}} The link header content
 }
-public function buildWebSubLinkHeader(string hub, string topic) returns (string) {
+function buildWebSubLinkHeader(string hub, string topic) returns (string) {
     string linkHeader = "<" + hub + ">; rel=\"hub\", <" + topic + ">; rel=\"self\"";
     return linkHeader;
 }

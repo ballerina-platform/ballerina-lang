@@ -12,7 +12,11 @@ import java.nio.file.Paths;
  * Home repository util methods.
  */
 public class RepoUtils {
-    public static final String USER_HOME = "user.home";
+    private static final String USER_HOME = "user.home";
+    private static final String PRODUCTION_URL = "https://api.central.ballerina.io/packages/";
+    private static final String STAGING_URL = "https://api.staging-central.ballerina.io/packages/";
+    private static final boolean BALLERINA_DEV_STAGE_CENTRAL = Boolean.parseBoolean(
+            System.getenv("BALLERINA_DEV_STAGE_CENTRAL"));
 
     /**
      * Create and get the home repository path.
@@ -49,5 +53,17 @@ public class RepoUtils {
     public static boolean hasProjectRepo(Path path) {
         path = path.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME);
         return !path.equals(createAndGetHomeReposPath()) && Files.exists(path, LinkOption.NOFOLLOW_LINKS);
+    }
+
+    /**
+     * Get the remote repo URL.
+     *
+     * @return URL of the remote repository
+     */
+    public static String getRemoteRepoURL() {
+        if (BALLERINA_DEV_STAGE_CENTRAL) {
+            return STAGING_URL;
+        }
+        return PRODUCTION_URL;
     }
 }

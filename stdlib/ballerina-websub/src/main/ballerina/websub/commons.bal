@@ -50,29 +50,18 @@ public type TopicIdentifier "TOPIC_ID_HEADER"|"TOPIC_ID_PAYLOAD_KEY"|"TOPIC_ID_H
 @final public TopicIdentifier TOPIC_ID_PAYLOAD_KEY = "TOPIC_ID_PAYLOAD_KEY";
 @final public TopicIdentifier TOPIC_ID_HEADER_AND_PAYLOAD = "TOPIC_ID_HEADER_AND_PAYLOAD";
 
-documentation {
-    Struct to represent WebSub related errors.
-
-    F{{message}} Error message indicating an issue.
-    F{{cause}} HttpConnectorError if occurred.
-}
-public type WebSubError {
-    string message,
-    error? cause,
-};
-
 ///////////////////////////////////////////////////////////////////
 //////////////////// WebSub Subscriber Commons ////////////////////
 ///////////////////////////////////////////////////////////////////
 documentation {
     Object representing and intent verification request received.
 
-    F{{mode}} The mode specified whether intent is being verified for subscription or unsubscription.
-    F{{topic}} The for which intent is being verified for subscription or unsubscription.
-    F{{challenge}} The challenge to be echoed to verify intent to subscribe/unsubscribe.
+    F{{mode}} The mode specified whether intent is being verified for subscription or unsubscription
+    F{{topic}} The for which intent is being verified for subscription or unsubscription
+    F{{challenge}} The challenge to be echoed to verify intent to subscribe/unsubscribe
     F{{leaseSeconds}} The lease seconds period for which a subscription will be active if intent verification
-    is being done for subscription.
-    F{{request}} The HTTP request received for intent verification.
+    is being done for subscription
+    F{{request}} The HTTP request received for intent verification
 }
 public type IntentVerificationRequest object {
 
@@ -87,43 +76,41 @@ public type IntentVerificationRequest object {
     documentation {
         Function to build intent verification response for subscription requests sent.
 
-        P{{topic}} The topic for which subscription should be accepted, if not specified will use the annotated
-                        topic.
-        R{{}} `http:Response` The response to the hub verifying/denying intent to subscribe.
+        P{{topic}} The topic for which subscription should be accepted, if not specified the annotated topic will be
+                    used
+        R{{}} `http:Response` The response to the hub verifying/denying intent to subscribe
     }
-    public function buildSubscriptionVerificationResponse(string topic = "") returns http:Response;
+    public function buildSubscriptionVerificationResponse(string? topic = ()) returns http:Response;
 
     documentation {
         Function to build intent verification response for unsubscription requests sent.
 
-        P{{topic}} The topic for which unsubscription should be accepted, if not specified will use the annotated
-                        topic.
-        R{{}} `http:Response` The response to the hub verifying/denying intent to unsubscribe.
+        P{{topic}} The topic for which unsubscription should be accepted, if not specified the annotated topic will be
+                    used
+        R{{}} `http:Response` The response to the hub verifying/denying intent to unsubscribe
     }
-    public function buildUnsubscriptionVerificationResponse(string topic = "") returns http:Response;
+    public function buildUnsubscriptionVerificationResponse(string? topic = ()) returns http:Response;
 
 };
 
-public function IntentVerificationRequest::buildSubscriptionVerificationResponse(string topic = "")
+public function IntentVerificationRequest::buildSubscriptionVerificationResponse(string? topic = ())
     returns http:Response {
 
     SubscriberServiceConfiguration subscriberServiceConfiguration = {};
-    if (topic == "") {
-        subscriberServiceConfiguration = retrieveAnnotations();
-    } else {
-        subscriberServiceConfiguration = {topic:topic};
+    match (topic) {
+        string specifiedTopic => { subscriberServiceConfiguration = {topic:specifiedTopic}; }
+        () => { subscriberServiceConfiguration = retrieveAnnotations(); }
     }
     return buildIntentVerificationResponse(self, MODE_SUBSCRIBE, subscriberServiceConfiguration);
 }
 
-public function IntentVerificationRequest::buildUnsubscriptionVerificationResponse(string topic = "")
+public function IntentVerificationRequest::buildUnsubscriptionVerificationResponse(string? topic = ())
     returns http:Response {
 
     SubscriberServiceConfiguration subscriberServiceConfiguration = {};
-    if (topic == "") {
-        subscriberServiceConfiguration = retrieveAnnotations();
-    } else {
-        subscriberServiceConfiguration = {topic:topic};
+    match (topic) {
+        string specifiedTopic => { subscriberServiceConfiguration = {topic:specifiedTopic}; }
+        () => { subscriberServiceConfiguration = retrieveAnnotations(); }
     }
     return buildIntentVerificationResponse(self, MODE_UNSUBSCRIBE, subscriberServiceConfiguration);
 }
@@ -131,9 +118,9 @@ public function IntentVerificationRequest::buildUnsubscriptionVerificationRespon
 documentation {
     Function to build intent verification response for subscription/unsubscription requests sent.
 
-    P{{intentVerificationRequest}} The intent verification request from the hub.
-    P{{mode}} The mode (subscription/unsubscription) for which a request was sent.
-    P{{webSubSubscriberAnnotations}} The SubscriberServiceConfiguration containing topic details.
+    P{{intentVerificationRequest}} The intent verification request from the hub
+    P{{mode}} The mode (subscription/unsubscription) for which a request was sent
+    P{{webSubSubscriberAnnotations}} The SubscriberServiceConfiguration containing topic details
     R{{}} `http:Response` The response to the hub verifying/denying intent to subscripe/unsubscribe
 }
 function buildIntentVerificationResponse(IntentVerificationRequest intentVerificationRequest, string mode,
@@ -174,11 +161,11 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
 documentation {
     Function to validate signature for requests received at the callback.
 
-    P{{request}} The request received.
-    P{{serviceType}} The type of the service for which the request was rceived.
-    R{{}} `WebSubError`, if an error occurred in extraction or signature validation failed.
+    P{{request}} The request received
+    P{{serviceType}} The type of the service for which the request was rceived
+    R{{}} `error`, if an error occurred in extraction or signature validation failed
 }
-public function processWebSubNotification(http:Request request, typedesc serviceType) returns WebSubError? {
+public function processWebSubNotification(http:Request request, typedesc serviceType) returns error? {
     string secret = retrieveSecret(serviceType);
     string xHubSignature;
 
@@ -186,7 +173,7 @@ public function processWebSubNotification(http:Request request, typedesc service
         xHubSignature = request.getHeader(X_HUB_SIGNATURE);
     } else {
         if (secret != "") {
-            WebSubError webSubError = {message:X_HUB_SIGNATURE + " header not present for subscription added" +
+            error webSubError = {message:X_HUB_SIGNATURE + " header not present for subscription added" +
                 " specifying " + HUB_SECRET};
             return webSubError;
         } else {
@@ -199,7 +186,7 @@ public function processWebSubNotification(http:Request request, typedesc service
     match (reqJsonPayload) {
         json jsonPayload => { payload = jsonPayload; }
         mime:EntityError entityError => {
-            WebSubError webSubError = {message:"Error extracting notification payload", cause:entityError};
+            error webSubError = {message:"Error extracting notification payload", cause:entityError};
             return webSubError;
         }
     }
@@ -216,12 +203,12 @@ public function processWebSubNotification(http:Request request, typedesc service
 documentation {
     Function to validate the signature header included in the notification.
 
-    P{{xHubSignature}} The X-Hub-Signature header included in the notification request from the hub.
-    P{{stringPayload}} The string representation of the notification payload received.
-    P{{secret}} The secret used when subscribing.
-    R{{}} `WebSubError` if an error occurs validating the signature or the signature is invalid.
+    P{{xHubSignature}} The X-Hub-Signature header included in the notification request from the hub
+    P{{stringPayload}} The string representation of the notification payload received
+    P{{secret}} The secret used when subscribing
+    R{{}} `error` if an error occurs validating the signature or the signature is invalid
 }
-public function validateSignature(string xHubSignature, string stringPayload, string secret) returns WebSubError? {
+public function validateSignature(string xHubSignature, string stringPayload, string secret) returns error? {
 
     string[] splitSignature = xHubSignature.split("=");
     string method = splitSignature[0];
@@ -235,12 +222,12 @@ public function validateSignature(string xHubSignature, string stringPayload, st
     } else if (MD5.equalsIgnoreCase(method)) {
         generatedSignature = crypto:hmac(stringPayload, secret, crypto:MD5);
     } else {
-        WebSubError webSubError = {message:"Unsupported signature method: " + method};
+        error webSubError = {message:"Unsupported signature method: " + method};
         return webSubError;
     }
 
     if (!signature.equalsIgnoreCase(generatedSignature)) {
-        WebSubError webSubError = {message:"Signature validation failed: Invalid Signature!"};
+        error webSubError = {message:"Signature validation failed: Invalid Signature!"};
         return webSubError;
     }
     return;
@@ -249,8 +236,8 @@ public function validateSignature(string xHubSignature, string stringPayload, st
 documentation {
     Record representing the WebSubSubscriber notification received.
 
-    F{{payload}} The payload of the notification received.
-    F{{request}} The HTTP POST request received as the notification.
+    F{{payload}} The payload of the notification received
+    F{{request}} The HTTP POST request received as the notification
 }
 public type Notification {
     json payload,
@@ -276,9 +263,9 @@ public type SubscriptionChangeRequest {
 documentation {
     Record to represent subscription/unsubscription details on success.
 
-    F{{hub}} The hub at which the subscription/unsubscription was successful.
-    F{{topic}} The topic for which the subscription/unsubscription was successful.
-    F{{response}} The response from the hub to the subscription/unsubscription requests.
+    F{{hub}} The hub at which the subscription/unsubscription was successful
+    F{{topic}} The topic for which the subscription/unsubscription was successful
+    F{{response}} The response from the hub to the subscription/unsubscription requests
 }
 public type SubscriptionChangeResponse {
     string hub,
@@ -292,7 +279,7 @@ public type SubscriptionChangeResponse {
 documentation {
     Starts up the Ballerina Hub.
 
-    R{{}} `WebSubHub` The WebSubHub struct representing the started up hub.
+    R{{}} `WebSubHub` The WebSubHub struct representing the started up hub
 }
 public function startUpBallerinaHub() returns WebSubHub {
     string hubUrl = startUpHubService();
@@ -314,7 +301,7 @@ public type WebSubHub object {
     documentation {
         Stops the started up Ballerina Hub.
         
-        R{{}} `boolean` indicating whether the internal Ballerina Hub was stopped.
+        R{{}} `boolean` indicating whether the internal Ballerina Hub was stopped
     }
     public function stop() returns (boolean);
 
@@ -323,25 +310,25 @@ public type WebSubHub object {
         
         P{{topic}} The topic for which the update should happen
         P{{payload}} The update payload
-        R{{}} `WebSubError` if the hub is not initialized or does not represent the internal hub.
+        R{{}} `error` if the hub is not initialized or does not represent the internal hub
     }
-    public function publishUpdate(string topic, json payload) returns WebSubError?;
+    public function publishUpdate(string topic, json payload) returns error?;
 
     documentation {
         Registers a topic in the Ballerina Hub.
 
-        P{{topic}} The topic to register.
-        R{{}} `WebSubError` if an error occurred with registration.
+        P{{topic}} The topic to register
+        R{{}} `error` if an error occurred with registration
     }
-    public function registerTopic(string topic) returns WebSubError?;
+    public function registerTopic(string topic) returns error?;
 
     documentation {
         Unregisters a topic in the Ballerina Hub.
 
-        P{{topic}} The topic to unregister.
-        R{{}} `WebSubError` if an error occurred with unregistration.
+        P{{topic}} The topic to unregister
+        R{{}} `error` if an error occurred with unregistration
     }
-    public function unregisterTopic(string topic) returns WebSubError?;
+    public function unregisterTopic(string topic) returns error?;
 
 };
 
@@ -350,33 +337,33 @@ public function WebSubHub::stop() returns (boolean) {
     return stopHubService(self.hubUrl);
 }
 
-public function WebSubHub::publishUpdate(string topic, json payload) returns WebSubError? {
+public function WebSubHub::publishUpdate(string topic, json payload) returns error? {
     if (self.hubUrl == "") {
-        WebSubError webSubError = {message:"Internal Ballerina Hub not initialized or incorrectly referenced"};
+        error webSubError = {message:"Internal Ballerina Hub not initialized or incorrectly referenced"};
         return webSubError;
     } else {
         string errorMessage = validateAndPublishToInternalHub(self.hubUrl, topic, payload);
         if (errorMessage != "") {
-            WebSubError webSubError = {message:errorMessage};
+            error webSubError = {message:errorMessage};
             return webSubError;
         }
     }
     return;
 }
 
-public function WebSubHub::registerTopic(string topic) returns WebSubError? {
+public function WebSubHub::registerTopic(string topic) returns error? {
     string errorMessage = registerTopicAtHub(topic, "");
     if (errorMessage != "") {
-        WebSubError webSubError = {message:errorMessage};
+        error webSubError = {message:errorMessage};
         return webSubError;
     }
     return;
 }
 
-public function WebSubHub::unregisterTopic(string topic) returns WebSubError? {
+public function WebSubHub::unregisterTopic(string topic) returns error? {
     string errorMessage = unregisterTopicAtHub(topic, "");
     if (errorMessage != "") {
-        WebSubError webSubError = {message:errorMessage};
+        error webSubError = {message:errorMessage};
         return webSubError;
     }
     return;
@@ -388,10 +375,10 @@ public function WebSubHub::unregisterTopic(string topic) returns WebSubError? {
 documentation {
     Function to add link headers to a response to allow WebSub discovery.
 
-    P{{response}} The response being sent.
-    P{{hubs}} The hubs the publisher advertises as the hubs that it publishes updates to.
-    P{{topic}} The topic to which subscribers need to subscribe to, to receive updates for the resource/topic.
-    R{{}} `http:Response` Response with the link header added.
+    P{{response}} The response being sent
+    P{{hubs}} The hubs the publisher advertises as the hubs that it publishes updates to
+    P{{topic}} The topic to which subscribers need to subscribe to, to receive updates for the resource/topic
+    R{{}} `http:Response` Response with the link header added
 }
 public function addWebSubLinkHeaders(http:Response response, string[] hubs, string topic) returns http:Response {
     string hubLinkHeader = "";
@@ -405,11 +392,11 @@ public function addWebSubLinkHeaders(http:Response response, string[] hubs, stri
 documentation {
     Struct to represent Subscription Details retrieved from the database.
 
-    F{{topic}} The topic for which the subscription is added.
-    F{{callback}} The callback specified for the particular subscription.
-    F{{secret}} The secret to be used for authenticated content distribution.
-    F{{leaseSeconds}} The lease second period specified for the particular subscription.
-    F{{createdAt}} The time at which the subscription was created.
+    F{{topic}} The topic for which the subscription is added
+    F{{callback}} The callback specified for the particular subscription
+    F{{secret}} The secret to be used for authenticated content distribution
+    F{{leaseSeconds}} The lease second period specified for the particular subscription
+    F{{createdAt}} The time at which the subscription was created
 }
 public type SubscriptionDetails {
     string topic,
