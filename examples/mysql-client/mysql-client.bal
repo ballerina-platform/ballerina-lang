@@ -1,60 +1,79 @@
-import ballerina/sql;
-import ballerina/mysql;
 import ballerina/io;
+import ballerina/log;
+import ballerina/mysql;
+import ballerina/sql;
 
 endpoint mysql:Client testDB {
-    host:"localhost",
-    port:3306,
-    name:"testdb",
-    username:"root",
-    password:"root",
-    poolOptions:{maximumPoolSize:5}
+    host: "localhost",
+    port: 3306,
+    name: "testdb",
+    username: "root",
+    password: "root",
+    poolOptions: {maximumPoolSize: 5}
 };
 
 function main(string... args) {
 
-    //Create a DB table using the `update` action. If the DDL
-    //statement execution is successful, the `update` action returns 0.
+    // Create a DB table using the `update` action. If the DDL
+    // statement execution is successful, the `update` action returns 0.
     var ret = testDB->update("CREATE TABLE STUDENT(ID INT AUTO_INCREMENT, AGE INT,
                                 NAME VARCHAR(255), PRIMARY KEY (ID))");
     match ret {
-        int status => io:println("Table creation status: " + status);
+        int status => log:printInfo("Table creation status: " + status);
         error err => {
-            io:println("STUDENT table creation failed: " + err.message);
+            handleError("STUDENT table creation failed", err, testDB);
             return;
         }
     }
 
-    //Insert data using the `update` action. If the DML statement execution
-    //is successful, the `update` action returns the updated row count.
-    sql:Parameter para1 = (sql:TYPE_INTEGER, 8);
-    sql:Parameter para2 = (sql:TYPE_VARCHAR, "Sam");
+    // Insert data using the `update` action. If the DML statement execution
+    // is successful, the `update` action returns the updated row count.
+    sql:Parameter para1 = {sqlType: sql:TYPE_INTEGER, value: 8};
+    sql:Parameter para2 = {sqlType: sql:TYPE_VARCHAR, value: "Sam"};
     ret = testDB->update("INSERT INTO STUDENT (AGE,NAME) VALUES (?,?)", para1, para2);
     match ret {
-        int rows => io:println("Inserted row count: " + rows);
+        int rows => log:printInfo("Inserted row count: " + rows);
         error err => {
-            io:println("Update action failed: " + err.message);
+            handleError("Update action failed", err, testDB);
             return;
         }
     }
 
-    //Select data using the `select` action. The `select` action returns a table.
-    //See the `sql-queries-on-tables` ballerina example for more details on how to access data.
+    // Select data using the `select` action. The `select` action returns a table.
+    // See the `sql-queries-on-tables` ballerina example for more details on how to access data.
     var dtReturned = testDB->select("SELECT * FROM STUDENT WHERE AGE = ?", (), para1);
-    table dt = check dtReturned;
-    var j = check <json>dt;
-    io:println(j);
+    table dt;
+    match dtReturned {
+        table val => dt = val;
+        error e => {
+            handleError("Select action failed", e, testDB);
+            return;
+        }
+    }
 
-    //Drop the STUDENT table.
+    var jsonConversionReturnVal = <json>dt;
+
+    match jsonConversionReturnVal {
+        json jsonRes => log:printInfo(io:sprintf("%s", jsonRes));
+        error e => log:printError("Error in table to json conversion");
+    }
+
+    // Drop the STUDENT table.
     ret = testDB->update("DROP TABLE STUDENT");
     match ret {
-        int status => io:println("Table drop status: " + status);
+        int status => log:printInfo("Table drop status: " + status);
         error err => {
-            io:println("Dropping STUDENT table failed: " + err.message);
+            handleError("Dropping STUDENT table failed", err, testDB);
             return;
         }
     }
 
-    //Finally, close the connection pool.
+    // Finally, close the connection pool.
+    testDB.stop();
+}
+
+function handleError(string message, error e, mysql:Client db) {
+    endpoint mysql:Client testDB = db;
+    log:printError(message, err = e);
     testDB.stop();
 }
