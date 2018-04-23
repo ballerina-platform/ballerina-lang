@@ -5,7 +5,7 @@ import ballerina/http;
 boolean serviceStarted;
 
 function startService(){
-    serviceStarted = test:startServices("join-multiple-streams");
+    serviceStarted = test:startServices("join_multiple_streams");
 }
 
 @test:Config {
@@ -47,5 +47,5 @@ function testFunc() {
 }
 
 function stopService(){
-    test:stopServices("join-multiple-streams");
+    test:stopServices("join_multiple_streams");
 }

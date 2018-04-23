@@ -45,10 +45,10 @@ function main(string... args) {
     // Deploy the streaming sequence rules.
     deployPeakTempDetectionRules();
 
-    //Subscribe to the `printInitialAndPeakTemp` function. The prints the peak temperature values.
+    // Subscribe to the `printInitialAndPeakTemp` function. The prints the peak temperature values.
     tempDiffInfoStream.subscribe(printInitalAndPeakTemp);
 
-    //Stimulating the data that is being sent to the `tempStream` stream.
+    // Simulating the data that is being sent to the `tempStream` stream.
     DeviceTempInfo t1 = {deviceID: 1, roomNo: 23, temp: 20.0};
     DeviceTempInfo t2 = {deviceID: 1, roomNo: 23, temp: 22.5};
     DeviceTempInfo t3 = {deviceID: 1, roomNo: 23, temp: 23.0};

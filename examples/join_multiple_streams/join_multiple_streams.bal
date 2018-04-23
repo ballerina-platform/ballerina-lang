@@ -13,11 +13,11 @@ type MaterialUsage {
     float totalConsumption;
 };
 
-//These are the input streams that use `ProductMaterial` as the constraint type.
+// These are the input streams that use `ProductMaterial` as the constraint type.
 stream<ProductMaterial> rawMaterialStream;
 stream<ProductMaterial> productionInputStream;
 
-//This is the output stream that contains the events/alerts that are generated based on streaming logic.
+// This is the output stream that contains the events/alerts that are generated based on streaming logic.
 stream<MaterialUsage> materialUsageStream;
 
 function initRealtimeProductionAlert() {
@@ -27,11 +27,11 @@ function initRealtimeProductionAlert() {
     materialUsageStream.subscribe(printMaterialUsageAlert);
 
 
-    //Gather events related to raw materials through the `rawMaterialStream` stream and production related events
-    //through the `productionInputStream. The raw materials usage and production outcome for the last
-    //10 seconds are calculated and an alert is triggered if the raw material usage is 5% higher than the
-    //production outcome. This forever block is executed once, when initializing the service. The processing happens
-    //asynchronously each time the requestStream or productionInputStream receives an event.
+    // Gather events related to raw materials through the `rawMaterialStream` stream and production related events
+    // through the `productionInputStream. The raw materials usage and production outcome for the last
+    // 10 seconds are calculated and an alert is triggered if the raw material usage is 5% higher than the
+    // production outcome. This forever block is executed once, when initializing the service. The processing happens
+    // asynchronously each time the requestStream or productionInputStream receives an event.
     forever {
         from productionInputStream window time(10000) as p
         join rawMaterialStream window time(10000) as r
@@ -40,8 +40,8 @@ function initRealtimeProductionAlert() {
         group by r.name
         having ((totalRawMaterial - totalConsumption) * 100.0 / totalRawMaterial) > 5
         => (MaterialUsage[] materialUsages) {
-        //The 'materialUsages' is the output that matches the defined streaming rules. It is published to `materialUsageStream` stream.
-        //The selected clause should match the structure of the `MaterialUsage` type.
+        // The 'materialUsages' is the output that matches the defined streaming rules. It is published to `materialUsageStream` stream.
+        // The selected clause should match the structure of the `MaterialUsage` type.
             materialUsageStream.publish(materialUsages);
         }
     }
@@ -60,13 +60,13 @@ endpoint http:Listener productMaterialListener {
     port: 9090
 };
 
-//The service, which receives events related to the production outcome and the raw material input.
+// The service, which receives events related to the production outcome and the raw material input.
 @http:ServiceConfig {
     basePath: "/"
 }
 service productMaterialService bind productMaterialListener {
 
-    //Initialize the function that contains streaming queries.
+    // Initialize the function that contains streaming queries.
     future ftr = start initRealtimeProductionAlert();
 
     @http:ResourceConfig {
