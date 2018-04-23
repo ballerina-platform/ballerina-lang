@@ -20,21 +20,15 @@ service<http:Service> http2Service bind ep {
     io:println("Request received");
 
     // Send a Push Promise.
-    http:PushPromise promise1 = new;
-    promise1.path = "/resource1";
-    promise1.method = "POST";
+    http:PushPromise promise1 = new(path = "/resource1", method = "GET");
     _ = caller -> promise(promise1);
 
     // Send another Push Promise.
-    http:PushPromise promise2 = new;
-    promise2.path = "/resource2";
-    promise2.method = "POST";
+    http:PushPromise promise2 = new(path = "/resource2", method = "GET");
     _ = caller -> promise(promise2);
 
     // Send one more Push Promise.
-    http:PushPromise promise3 = new;
-    promise3.path = "/resource3";
-    promise3.method = "POST";
+    http:PushPromise promise3 = new(path = "/resource3", method = "GET");
     _ = caller -> promise(promise3);
 
     // Construct requested resource.
@@ -82,12 +76,12 @@ function main (string... args) {
     // Submit a request.
     var submissionResult = clientEP -> submit("GET", "/http2Service/main", serviceReq);
     match submissionResult {
+        http:HttpFuture resultantFuture => {
+            httpFuture = resultantFuture;
+        }
         http:HttpConnectorError err => {
             io:println("Error occurred while submitting a request");
             return;
-        }
-        http:HttpFuture resultantFuture => {
-            httpFuture = resultantFuture;
         }
     }
 
@@ -104,7 +98,7 @@ function main (string... args) {
                 pushPromise = resultantPushPromise;
             }
             http:HttpConnectorError err => {
-                io:println("Error occurred while fetching push promise");
+                io:println("Error occurred while fetching a push promise");
                 return;
             }
         }
