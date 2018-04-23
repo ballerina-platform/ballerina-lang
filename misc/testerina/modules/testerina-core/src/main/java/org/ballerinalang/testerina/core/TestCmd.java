@@ -27,9 +27,12 @@ import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.testerina.util.Utils;
+import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.util.VMOptions;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -91,12 +94,16 @@ public class TestCmd implements BLauncherCmd {
             printCommandUsageInfo(parentCmdParser, "test");
             return;
         }
-
+        Path userDir = Paths.get(System.getProperty("user.dir"));
+        SourceDirectory srcDirectory = null;
         if (sourceFileList == null || sourceFileList.isEmpty()) {
-            Path userDir = Paths.get(System.getProperty("user.dir"));
-            SourceDirectory srcDirectory = new FileSystemProjectDirectory(userDir);
+            srcDirectory = new FileSystemProjectDirectory(userDir);
             sourceFileList = srcDirectory.getSourcePackageNames();
+        } else if (!sourceFileList.get(0).endsWith(".bal")) {
+            //TODO check how source root affects
+            srcDirectory = new FileSystemProjectDirectory(userDir);
         }
+
 
         if (groupList != null && disableGroupList != null) {
             throw LauncherUtils
@@ -122,6 +129,11 @@ public class TestCmd implements BLauncherCmd {
 
         Path[] paths = sourceFileList.stream().map(Paths::get).toArray(Path[]::new);
 
+        if (srcDirectory != null) {
+            Manifest manifest = readManifestConfigurations();
+            String orgName = manifest.getName();
+            TesterinaRegistry.getInstance().setOrgName(orgName);
+        }
         BTestRunner testRunner = new BTestRunner();
         if (listGroups) {
             testRunner.listGroups(sourceRootPath.toString(), paths);
@@ -251,5 +263,20 @@ public class TestCmd implements BLauncherCmd {
     public void setSelfCmdParser(JCommander selfCmdParser) {
         // ignore
 
+    }
+
+    /**
+     * Read the manifest.
+     *
+     * @return manifest configuration object
+     */
+    private static Manifest readManifestConfigurations() {
+        String tomlFilePath = Paths.get(".").toAbsolutePath().normalize().resolve
+            (ProjectDirConstants.MANIFEST_FILE_NAME).toString();
+        try {
+            return ManifestProcessor.parseTomlContentFromFile(tomlFilePath);
+        } catch (IOException e) {
+            return new Manifest();
+        }
     }
 }

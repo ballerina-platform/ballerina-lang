@@ -30,6 +30,8 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserErrorStrateg
  * Custom error strategy for language server.
  */
 public class LSCustomErrorStrategy extends BallerinaParserErrorStrategy {
+    private static final String ACTION_INVOCATION_SYMBOL = "->";
+    
     public LSCustomErrorStrategy(LSContext context) {
         super(context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY), null);
     }
@@ -64,7 +66,8 @@ public class LSCustomErrorStrategy extends BallerinaParserErrorStrategy {
         if (context instanceof BallerinaParser.CallableUnitBodyContext) {
             context.exception = null;
             return;
-        } else if (context instanceof BallerinaParser.SimpleVariableReferenceContext) {
+        } else if (context instanceof BallerinaParser.SimpleVariableReferenceContext
+                && parser.getCurrentToken().getText().equals(ACTION_INVOCATION_SYMBOL)) {
             context.exception = null;
         } else {
             context.exception = e;

@@ -81,7 +81,6 @@ public class TableOMDataSource extends AbstractPushOMDataSource {
             xmlStreamWriter.writeEndElement();
         }
         xmlStreamWriter.writeEndElement();
-        table.close(isInTransaction);
         xmlStreamWriter.flush();
     }
 

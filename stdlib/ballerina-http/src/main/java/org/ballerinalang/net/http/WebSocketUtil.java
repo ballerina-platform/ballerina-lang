@@ -31,7 +31,6 @@ import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
@@ -51,14 +50,6 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
  * Utility class for websockets.
  */
 public abstract class WebSocketUtil {
-    public static BMap getQueryParams(Context context) {
-        BStruct wsConnection = (BStruct) context.getRefArgument(0);
-        Object queryParams = wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_QUERY_PARAMS);
-        if (queryParams != null && queryParams instanceof BMap) {
-            return (BMap) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_QUERY_PARAMS);
-        }
-        return new BMap<>();
-    }
 
     public static ProgramFile getProgramFile(Resource resource) {
         return resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
@@ -74,7 +65,7 @@ public abstract class WebSocketUtil {
 
         if (annotationList.size() > 1) {
             throw new BallerinaException(
-                    "multiple service configuration annotations found in service: " + service.getName());
+                    "Multiple service configuration annotations found in service: " + service.getName());
         }
 
         return annotationList.isEmpty() ? null : annotationList.get(0);
@@ -85,7 +76,9 @@ public abstract class WebSocketUtil {
                                        CallableUnitCallback callback) {
         String[] subProtocols = wsService.getNegotiableSubProtocols();
         int idleTimeoutInSeconds = wsService.getIdleTimeoutInSeconds();
-        HandshakeFuture future = initMessage.handshake(subProtocols, true, idleTimeoutInSeconds * 1000, headers);
+        int maxFrameSize = wsService.getMaxFrameSize();
+        HandshakeFuture future = initMessage.handshake(subProtocols, true, idleTimeoutInSeconds * 1000, headers,
+                                                       maxFrameSize);
         future.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection) {
@@ -175,21 +168,25 @@ public abstract class WebSocketUtil {
         webSocketEndpoint.setBooleanField(1, webSocketConnection.getSession().isOpen() ? 1 : 0);
     }
 
-    public static void getWebSocketError(Context context, CallableUnitCallback callback,
-                                         ChannelFuture webSocketChannelFuture, String message)
+    public static void handleWebSocketCallback(Context context, CallableUnitCallback callback,
+                                               ChannelFuture webSocketChannelFuture)
             throws InterruptedException {
-        webSocketChannelFuture.addListener((ChannelFutureListener) future1 -> {
-            Throwable cause = future1.cause();
-            if (!future1.isSuccess() && cause != null) {
-                context.setReturnValues(BLangConnectorSPIUtil
-                                                .createBStruct(context, HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                                                               WebSocketConstants.WEBSOCKET_CONNECTOR_ERROR, message,
-                                                               new BValue[]{}));
+        webSocketChannelFuture.addListener((ChannelFutureListener) future -> {
+            Throwable cause = future.cause();
+            if (!future.isSuccess() && cause != null) {
+                context.setReturnValues(createWebSocketConnectorError(context, future.cause().getMessage()));
             } else {
                 context.setReturnValues();
             }
             callback.notifySuccess();
         });
+    }
+
+    public static BStruct createWebSocketConnectorError(Context context, String errorMsg) {
+        return BLangConnectorSPIUtil
+                .createBStruct(context, HttpConstants.PROTOCOL_PACKAGE_HTTP,
+                               WebSocketConstants.WEBSOCKET_CONNECTOR_ERROR, errorMsg,
+                               new BValue[]{});
     }
 
     /**

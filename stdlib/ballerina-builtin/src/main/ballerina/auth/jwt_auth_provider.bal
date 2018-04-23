@@ -14,17 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 import ballerina/cache;
 import ballerina/internal;
 import ballerina/log;
 import ballerina/runtime;
 import ballerina/time;
 
-@Description {value:"Represents a JWT Authenticator"}
-@Field {value:"jwtAuthProviderConfig: JWTAuthProviderConfig object"}
-@Field {value:"authCache: Authentication cache object"}
+documentation {
+    Represents a JWT Authenticator
+}
 public type JWTAuthProvider object {
+
     public {
         JWTAuthProviderConfig jwtAuthProviderConfig;
     }
@@ -35,10 +35,13 @@ public type JWTAuthProvider object {
     public new(jwtAuthProviderConfig) {
     }
 
-    @Description {value:"Authenticate with a jwt token"}
-    @Param {value:"jwtToken: Jwt token extracted from the authentication header"}
-    @Return {value:"boolean: true if authentication is a success, else false"}
-    @Return {value:"error: If error occured in authentication"}
+    documentation {
+        Authenticate with a jwt token
+
+        P{{jwtToken}} Jwt token extracted from the authentication header
+        R{{}} true if authentication is a success, else false
+        R{{}} If error occured in authentication
+    }
     public function authenticate(string jwtToken) returns boolean|error {
         if (self.authCache.hasKey(jwtToken)) {
             match self.authenticateFromCache(jwtToken) {
@@ -130,7 +133,9 @@ public type JWTAuthProvider object {
 @final string USERNAME = "name";
 @final string AUTH_TYPE_JWT = "jwt";
 
-@Description {value:"Represents JWT validator configurations"}
+documentation {
+    Represents JWT validator configurations
+}
 public type JWTAuthProviderConfig {
     string issuer,
     string audience,
