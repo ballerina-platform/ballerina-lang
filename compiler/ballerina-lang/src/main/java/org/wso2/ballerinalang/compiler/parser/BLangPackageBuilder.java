@@ -2108,25 +2108,22 @@ public class BLangPackageBuilder {
         transactionNode.setOnRetryBody(onretryBlock);
     }
 
-    public void endTransactionStmt(DiagnosticPos pos, Set<Whitespace> ws, boolean distributedTransactionEnabled) {
+    public void endTransactionStmt(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangTransaction transaction = (BLangTransaction) transactionNodeStack.pop();
         transaction.pos = pos;
         transaction.addWS(ws);
         addStmtToCurrentBlock(transaction);
 
-        if (distributedTransactionEnabled) {
-            // TODO This is a temporary workaround to flag coordinator service start
-            String value = compilerOptions.get(CompilerOptionName.TRANSACTION_EXISTS);
-            if (value != null) {
-                return;
-            }
-
-            compilerOptions.put(CompilerOptionName.TRANSACTION_EXISTS, "true");
-            List<String> nameComps = getPackageNameComps(Names.TRANSACTION_PACKAGE.value);
-            addImportPackageDeclaration(pos, null, Names.TRANSACTION_ORG.value,
-                    nameComps, Names.DEFAULT_VERSION.value,
-                    Names.DOT.value + nameComps.get(nameComps.size() - 1));
+        // TODO This is a temporary workaround to flag coordinator service start
+        String value = compilerOptions.get(CompilerOptionName.TRANSACTION_EXISTS);
+        if (value != null) {
+            return;
         }
+
+        compilerOptions.put(CompilerOptionName.TRANSACTION_EXISTS, "true");
+        List<String> nameComps = getPackageNameComps(Names.TRANSACTION_PACKAGE.value);
+        addImportPackageDeclaration(pos, null, Names.TRANSACTION_ORG.value, nameComps, Names.DEFAULT_VERSION.value,
+                Names.DOT.value + nameComps.get(nameComps.size() - 1));
     }
 
     public void addAbortStatement(DiagnosticPos pos, Set<Whitespace> ws) {

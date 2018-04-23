@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.bre.bvm;
 
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.Instruction;
@@ -74,11 +75,15 @@ public class WorkerExecutionContext {
 
     private DebugContext debugContext;
 
+    private static final String DISTRIBUTED_TRANSACTIONS = "b7a.distributed.transactions.enabled";
+
+    private static final String FALSE = "false";
+
     public WorkerExecutionContext(ProgramFile programFile) {
         this.programFile = programFile;
         this.globalProps = new HashMap<>();
         this.runInCaller = true;
-        setGlobalTransactionEnabled(programFile.isDistributedTransactionEnabled());
+        setGlobalTransactionsEnabled();
     }
     
     public WorkerExecutionContext(BStruct error) {
@@ -162,10 +167,6 @@ public class WorkerExecutionContext {
         return BLangVMUtils.getTransactionInfo(this);
     }
 
-    public void setGlobalTransactionEnabled(boolean isGlobalTransactionEnabled) {
-        BLangVMUtils.setGlobalTransactionEnabledStatus(this, isGlobalTransactionEnabled);
-    }
-
     public boolean getGlobalTransactionEnabled() {
         return BLangVMUtils.getGlobalTransactionenabled(this);
     }
@@ -196,5 +197,14 @@ public class WorkerExecutionContext {
     public boolean equals(Object rhs) {
         return this == rhs;
     }
-    
+
+    private void setGlobalTransactionsEnabled() {
+        String distributedTransactionsEnabledConfig = ConfigRegistry.getInstance()
+                .getAsString(DISTRIBUTED_TRANSACTIONS);
+        boolean distributedTransactionEnabled = true;
+        if (distributedTransactionsEnabledConfig != null && distributedTransactionsEnabledConfig.equals(FALSE)) {
+            distributedTransactionEnabled = false;
+        }
+        BLangVMUtils.setGlobalTransactionEnabledStatus(this, distributedTransactionEnabled);
+    }
 }
