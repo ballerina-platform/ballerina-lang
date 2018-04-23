@@ -406,7 +406,7 @@ function testSetBodyAndGetByteChannel((string|xml|json|blob|io:ByteChannel) enti
     return entity.getByteChannel();
 }
 
-function testSetByteChannelAndGetString(io:ByteChannel byteChannel) returns string|mime:EntityEroor{
+function testSetByteChannelAndGetString(io:ByteChannel byteChannel) returns string|mime:EntityError {
     mime:Entity entity = new;
     entity.setByteChannel(byteChannel);
     return entity.getBodyAsString();

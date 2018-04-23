@@ -51,7 +51,7 @@ service<http:Service> userOverridenValue bind mockEP {
     }
     test3 (endpoint conn, http:Request req) {
         http:Response res = new;
-        res.setStringPayload("Hello World!!!");
+        res.setTextPayload("Hello World!!!");
         res.setHeader("content-encoding", "deflate");
         _ = conn -> respond(res);
     }

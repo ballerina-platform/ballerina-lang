@@ -176,11 +176,19 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getStringPayload()(string|ballerina.http:PayloadError)",
+      "label":"getTextPayload()(string|ballerina.http:PayloadError)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"getStringPayload()",
+      "insertText":"getTextPayload()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"getPayloadAsString()(string|ballerina.http:PayloadError)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"getPayloadAsString()",
       "insertTextFormat":"Snippet"
     },
     {
@@ -240,11 +248,11 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"setStringPayload(string payload, string contentType \u003d text/plain)",
+      "label":"setTextPayload(string payload, string contentType \u003d text/plain)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"setStringPayload(${1:payload}, contentType \u003d ${2:text/plain})",
+      "insertText":"setTextPayload(${1:payload}, contentType \u003d ${2:text/plain})",
       "insertTextFormat":"Snippet"
     },
     {
