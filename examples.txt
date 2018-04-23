@@ -51,7 +51,7 @@ JDBC Client
 MYSQL Client
 Table with MYSQL Client
 SQL Queries On Tables
-Transactions
+Local Transactions
 Distributed Transactions
 Transformers
 Transform JSON
