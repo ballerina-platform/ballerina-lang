@@ -141,5 +141,58 @@ public class FiniteTypeTest {
         Assert.assertEquals((((BString) returns[0]).stringValue()), "ss");
     }
 
+    @Test()
+    public void testFiniteTypesWithDefaultValues() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypesWithDefaultValues");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals((((BString) returns[0]).stringValue()), "on");
+    }
+
+    @Test()
+    public void testFiniteTypesWithUnion() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypesWithUnion");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals((((BInteger) returns[0]).intValue()), 1);
+    }
+
+    @Test()
+    public void testFiniteTypesWithUnionCaseOne() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypesWithUnionCaseOne");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals((((BInteger) returns[0]).intValue()), 100);
+    }
+
+    @Test()
+    public void testFiniteTypesWithUnionCaseTwo() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypesWithUnionCaseTwo");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals((((BString) returns[0]).stringValue()), "on");
+    }
+
+    @Test()
+    public void testFiniteTypesWithUnionCaseThree() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypesWithUnionCaseThree");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals((((BInteger) returns[0]).intValue()), 1001);
+    }
+
+    @Test()
+    public void testFiniteTypesWithTuple() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypesWithTuple");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals((((BInteger) returns[0]).intValue()), 1001);
+    }
 }
 

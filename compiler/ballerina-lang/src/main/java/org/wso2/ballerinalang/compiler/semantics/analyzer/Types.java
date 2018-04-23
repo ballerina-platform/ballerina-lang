@@ -894,6 +894,11 @@ public class Types {
         public BSymbol visit(BFutureType t, BType s) {
             return null;
         }
+
+        @Override
+        public BSymbol visit(BFiniteType t, BType s) {
+            return symTable.notFoundSymbol;
+        }
     };
 
     private BTypeVisitor<BType, Boolean> sameTypeVisitor = new BTypeVisitor<BType, Boolean>() {
@@ -1034,6 +1039,11 @@ public class Types {
         @Override
         public Boolean visit(BErrorType t, BType s) {
             return true;
+        }
+
+        @Override
+        public Boolean visit(BFiniteType t, BType s) {
+            return s == t;
         }
     };
 
