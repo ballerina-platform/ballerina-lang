@@ -1,6 +1,6 @@
-# To run the program, put the code in `http-to-websocket-upgrade.bal`
-# and use the `ballerina run http-to-websocket-upgrade.bal` command.
-$ ballerina run http-to-websocket-upgrade.bal
+# To run the program, copy the code to a file named `http_to_websocket_upgrade.bal`
+# and use the `ballerina run http_to_websocket_upgrade.bal` command.
+$ ballerina run http_to_websocket_upgrade.bal
 
 # To check the sample, use the Chrome or Firefox javascript console and run the below commands. <br>
 # Change "xml" to another sub protocol to observe the behavior of the WebSocket server.
