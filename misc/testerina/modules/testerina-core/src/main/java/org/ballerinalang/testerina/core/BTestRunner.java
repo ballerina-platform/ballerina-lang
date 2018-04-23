@@ -35,7 +35,6 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -80,8 +79,8 @@ public class BTestRunner {
         outStream.println("---------------------------------------------------------------------------");
         outStream.println("    T E S T S");
         outStream.println("---------------------------------------------------------------------------");
-        TesterinaRegistry.getInstance().setGroups(groups);
-        TesterinaRegistry.getInstance().setShouldIncludeGroups(shouldIncludeGroups);
+        registry.setGroups(groups);
+        registry.setShouldIncludeGroups(shouldIncludeGroups);
 
         // Compile and build the test suites
         compileAndBuildSuites(sourceRoot, sourceFilePaths);
@@ -116,7 +115,7 @@ public class BTestRunner {
      */
     public List<String> getGroupList() {
 
-        Map<String, TestSuite> testSuites = TesterinaRegistry.getInstance().getTestSuites();
+        Map<String, TestSuite> testSuites = registry.getTestSuites();
         if (testSuites.isEmpty()) {
             throw new BallerinaException("No test functions found in the provided ballerina files.");
         }
@@ -140,10 +139,9 @@ public class BTestRunner {
 
         Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
 
-            String packageName = registry.getOrgName() == null ? "." : registry.getOrgName().equals(Names.ANON_ORG
-                .toString()) ? sourcePackage.toString() : registry.getOrgName() + "." + sourcePackage.toString();
+            String packageName = Utils.getFullPackageName(sourcePackage.toString());
 
-            TesterinaRegistry.getInstance().getTestSuites().computeIfAbsent(packageName, func -> new TestSuite
+            registry.getTestSuites().computeIfAbsent(packageName, func -> new TestSuite
                 (packageName));
             // compile
             CompileResult compileResult = BCompileUtil.compile(sourceRoot, sourcePackage.toString(),
@@ -160,7 +158,7 @@ public class BTestRunner {
             ProgramFile programFile = compileResult.getProgFile();
             Debugger debugger = new Debugger(programFile);
             Utils.initDebugger(programFile, debugger);
-            TesterinaRegistry.getInstance().addProgramFile(programFile);
+            registry.addProgramFile(programFile);
 
             // process the compiled files
             ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
@@ -175,14 +173,14 @@ public class BTestRunner {
                 }
             });
         });
-        TesterinaRegistry.getInstance().setTestSuitesCompiled(true);
+        registry.setTestSuitesCompiled(true);
     }
 
     /**
      * Run all tests.
      */
     private void execute() {
-        Map<String, TestSuite> testSuites = TesterinaRegistry.getInstance().getTestSuites();
+        Map<String, TestSuite> testSuites = registry.getTestSuites();
         if (testSuites.isEmpty()) {
             throw new BallerinaException("No test functions found in the provided ballerina files.");
         }
