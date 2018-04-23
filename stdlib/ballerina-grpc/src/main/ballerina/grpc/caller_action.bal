@@ -39,7 +39,5 @@ public type CallerAction object {
         P{{statusCode}} - Error status code.
         P{{message}} - Error message.
     }
-    //
     public native function sendError(int statusCode, string message, Headers... headers) returns error?;
-
 };

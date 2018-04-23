@@ -39,7 +39,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "head",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.CALLER_ACTIONS,
                 structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "client", type = TypeKind.CONNECTOR),
@@ -63,7 +63,7 @@ public class Head extends AbstractHTTPAction {
             executeNonBlockingAction(dataContext, createOutboundRequestMsg(context));
         } catch (ClientConnectorException clientConnectorException) {
             BallerinaException exception = new BallerinaException("Failed to invoke 'head' action in " +
-                    HttpConstants.HTTP_CLIENT + ". " + clientConnectorException.getMessage(), context);
+                    HttpConstants.CALLER_ACTIONS + ". " + clientConnectorException.getMessage(), context);
             dataContext.notifyReply(null, HttpUtil.getHttpConnectorError(context, exception));
         }
     }

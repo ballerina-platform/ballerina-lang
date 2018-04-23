@@ -17,8 +17,9 @@
  */
 
 import React from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Button, Grid, Menu, Divider, List, Card } from 'semantic-ui-react';
+import { Button, Grid, Menu, Divider, List, Card, Item } from 'semantic-ui-react';
 import { getPathSeperator } from 'api-client/api-client';
 import { COMMANDS as WORKSPACE_COMMANDS, VIEWS as WORKSPACE_VIEWS } from 'core/workspace/constants';
 import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
@@ -79,6 +80,54 @@ class WelcomeTab extends React.Component {
         );
     }
 
+    getColumnContents() {
+        const columns = [];
+        this.props.samples.forEach((sample) => {
+            columns[sample.column] = columns[sample.column] || [];
+            columns[sample.column].push(sample);
+        });
+
+        return columns;
+    }
+
+    openSampleDir(url) {
+        const pathSeperator = getPathSeperator();
+        const ballerinaHome = this.props.balHome;
+        const folderPath = `${ballerinaHome}${pathSeperator}samples${pathSeperator}${url}`;
+
+        this.props.commandManager.dispatch(WORKSPACE_COMMANDS.OPEN_FOLDER, {
+            folderPath,
+        });
+        this.props.commandManager.dispatch(LAYOUT_COMMANDS.SHOW_VIEW, { id: WORKSPACE_VIEWS.EXPLORER });
+        this.props.commandManager.dispatch(WORKSPACE_COMMANDS.OPEN_FILE, {
+            filePath: `${folderPath}${pathSeperator}${url}.bal`,
+            ext: 'bal',
+        });
+    }
+
+    renderColumnItem(column) {
+        return (
+            <ul>
+                <li className='title'>{column.title}</li>
+                <ul>
+                    {
+                        column.samples.map((sample) => {
+                            return (<li className='list-item'>
+                                <a
+                                    href='#'
+                                    onClick={
+                                        () => this.openSampleDir(sample.url)}
+                                >
+                                    {sample.name}
+                                </a>
+                            </li>);
+                        })
+                    }
+                </ul>
+            </ul>
+        );
+    }
+
     /**
      * Renders view for welcome view.
      *
@@ -86,7 +135,7 @@ class WelcomeTab extends React.Component {
      * @memberof WelcomeTab
      */
     render() {
-        const samplesView = this.renderSamples();
+        const samples = this.getColumnContents();
         return (
             <Grid className='welcome-page'>
                 <Grid.Row className='welcome-navbar' columns={2}>
@@ -95,9 +144,8 @@ class WelcomeTab extends React.Component {
                     </Grid.Column>
                     <Grid.Column>
                         <Menu className='top-nav-links' position='right'>
-                            <Menu.Item name='Getting started'/>
-                            <Menu.Item name='Ballerina by Example' href={this.props.userGuide} target='_blank' rel='noopener noreferrer'/>
-                            <Menu.Item name='API Reference'/>
+                            <Menu.Item name='Ballerina by Example' href={this.props.userGuide} target='_blank' rel='noopener noreferrer' />
+                            <Menu.Item name='API Reference' />
                         </Menu>
                     </Grid.Column>
                 </Grid.Row>
@@ -114,7 +162,7 @@ class WelcomeTab extends React.Component {
                                 <i className='fw fw-loader2 fw-spin fw-lg loader-center' />
                             }
                         </a>
-                        <Grid.Column className='button-wrapper'>        
+                        <Grid.Column className='button-wrapper'>
                             <Button
                                 id='btn-welcome-new'
                                 className='btn-primary'
@@ -168,26 +216,18 @@ class WelcomeTab extends React.Component {
                     </Grid.Column>
                     <Grid.Column mobile={9} tablet={11} computer={13} className='rightContainer'>
                         <Grid>
-                            <Grid.Row columns={2} className='sample-wrapper'>
-                                <Grid.Column mobile={1} tablet={1} computer={1} className='wrapper-label'>
-                                    <span>Samples</span> 
+                            <Grid.Row columns={4} className='sample-wrapper'>
+                                <Grid.Column mobile={16} tablet={16} computer={4} className=''>
+                                    {samples[0].map(column => this.renderColumnItem(column))}
                                 </Grid.Column>
-                                <Grid.Column mobile={13} tablet={14} computer={15} className='thumbnail-container'>
-                                    <Grid className='inner-samples' columns='equal'>
-                                        {samplesView}
-                                    </Grid>
+                                <Grid.Column mobile={16} tablet={16} computer={4} className=''>
+                                    {samples[1].map(column => this.renderColumnItem(column))}
                                 </Grid.Column>
-                            </Grid.Row>
-                        </Grid>
-                        <Grid>
-                            <Grid.Row columns={2} className='template-wrapper'>
-                                <Grid.Column mobile={1} tablet={1} computer={1} className='wrapper-label'>
-                                    <span>Template</span> 
+                                <Grid.Column mobile={16} tablet={16} computer={4} className=''>
+                                    {samples[2].map(column => this.renderColumnItem(column))}
                                 </Grid.Column>
-                                <Grid.Column mobile={14} tablet={14} computer={15} className='thumbnail-container'>
-                                    <Grid className='inner-samples' columns='equal'>
-                                        {samplesView}
-                                    </Grid>
+                                <Grid.Column mobile={16} tablet={16} computer={4} className=''>
+                                    {samples[3].map(column => this.renderColumnItem(column))}
                                 </Grid.Column>
                             </Grid.Row>
                         </Grid>

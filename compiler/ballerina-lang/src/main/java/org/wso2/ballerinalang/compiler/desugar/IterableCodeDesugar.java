@@ -589,12 +589,12 @@ public class IterableCodeDesugar {
         final DiagnosticPos pos = blockStmt.pos;
 
         List<BLangVariable> variables = new ArrayList<>(1);
-        variables.add(ctx.resultVar);
         variables.add(ctx.iteratorResultVariables.get(0));
         BInvokableSymbol addSymbol = (BInvokableSymbol) symTable.rootScope.lookup(names.fromString(TABLE_ADD_FUNCTION))
                 .symbol;
         BLangInvocation addFunctionInvocation = ASTBuilderUtil.createInvocationExpr(pos, addSymbol, variables,
                 symResolver);
+        addFunctionInvocation.exprSymbol = ctx.resultVar.symbol;
         BLangExpressionStmt expressionStmt = ASTBuilderUtil.createExpressionStmt(pos, blockStmt);
         expressionStmt.expr = addFunctionInvocation;
     }

@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.runtime.message.StringDataSource;
 
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
-import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
+import static org.ballerinalang.mime.util.Constants.SECOND_PARAMETER_INDEX;
 
 /**
  * Set the entity body with text data.
@@ -41,7 +41,8 @@ import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 @BallerinaFunction(orgName = "ballerina", packageName = "mime",
         functionName = "setText",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
-        args = {@Argument(name = "textContent", type = TypeKind.STRING)},
+        args = {@Argument(name = "textContent", type = TypeKind.STRING), @Argument(name = "contentType",
+                type = TypeKind.STRING)},
         isPublic = true
 )
 public class SetText extends BlockingNativeCallableUnit {
@@ -49,10 +50,9 @@ public class SetText extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
         String textContent = context.getStringArgument(FIRST_PARAMETER_INDEX);
+        String contentType = context.getStringArgument(SECOND_PARAMETER_INDEX);
         EntityBodyHandler.addMessageDataSource(entityStruct, new StringDataSource(textContent));
-        if (HeaderUtil.getHeaderValue(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString()) == null) {
-            HeaderUtil.setHeaderToEntity(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN);
-        }
+        HeaderUtil.setHeaderToEntity(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
         context.setReturnValues();
     }
 }

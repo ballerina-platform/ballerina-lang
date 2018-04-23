@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.net.grpc.config;
 
-import org.ballerinalang.net.grpc.ssl.SSLConfig;
+import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 
 /**
  * Endpoint configuration of gRPC Service.

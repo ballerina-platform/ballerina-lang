@@ -72,7 +72,6 @@ function startJoinQuery() returns (StockWithPrice[]) {
 }
 
 function printCompanyStockPrice(StockWithPrice s) {
-    io:println("printCompanyStock function invoked for company:" + s.symbol + " and price:" + s.price);
     addToGlobalEventsArray(s);
 }
 

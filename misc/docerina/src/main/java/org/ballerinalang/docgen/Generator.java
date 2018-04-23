@@ -64,8 +64,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
@@ -148,7 +150,7 @@ public class Generator {
         List<ConnectorDoc> connectors = visitedObjects.stream().map(obj -> {
             BLangIdentifier epName = obj.getName();
             Optional<BLangFunction> getClientOptional = obj.getFunctions().stream().filter(bLangFunction ->
-                    bLangFunction.getName().getValue().equals("getClient")).findFirst();
+                    bLangFunction.getName().getValue().equals(Names.EP_SPI_GET_CALLER_ACTIONS.value)).findFirst();
 
             if (getClientOptional.isPresent()) {
                 BLangType returnTypeNode = getClientOptional.get().returnTypeNode;
@@ -284,17 +286,10 @@ public class Generator {
      */
     public static EnumDoc createDocForNode(BLangTypeDefinition enumNode) {
         String enumName = enumNode.getName().getValue();
-        List<Variable> enumerators = new ArrayList<>();
+        String values = enumNode.getValueSet().stream().map(value -> value.toString()).sorted(Collections
+                .reverseOrder()).collect(Collectors.joining(" | "));
 
-        // Iterate through the enumerators
-        if (enumNode.getValueSet().size() > 0) {
-            for (BLangExpression enumerator : enumNode.getValueSet()) {
-//                String desc = fieldAnnotation((BLangNode) enumNode, (BLangNode) enumerator);
-//                Variable variable = new Variable(enumerator., "", desc);
-//                enumerators.add(variable);
-            }
-        }
-        return new EnumDoc(enumName, description((BLangNode) enumNode), new ArrayList<>(), enumerators);
+        return new EnumDoc(enumName, description(enumNode), new ArrayList<>(), values);
     }
 
     /**
@@ -325,7 +320,8 @@ public class Generator {
             if (tsymbol instanceof BStructSymbol) {
                 pkg = ((BStructSymbol) tsymbol).pkgID.getName().getValue();
             }
-            return pkg + ".html#" + type.typeName.getValue();
+            return pkg != null && !pkg.isEmpty() ? pkg + ".html#" + type.typeName.getValue() : "#" + type.typeName
+                    .getValue();
         } else if (typeNode instanceof BLangValueType) {
             if (((BLangValueType) typeNode).type != null && ((BLangValueType) typeNode).type.tsymbol != null) {
                 return BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_HREF + ".html#" + typeNode.type.tsymbol.getName()
@@ -348,7 +344,8 @@ public class Generator {
         String globalVarName = bLangVariable.getName().getValue();
         String dataType = getTypeName(bLangVariable.getTypeNode());
         String desc = description(bLangVariable);
-        return new GlobalVariableDoc(globalVarName, desc, new ArrayList<>(), dataType);
+        String href = extractLink(bLangVariable.getTypeNode());
+        return new GlobalVariableDoc(globalVarName, desc, new ArrayList<>(), dataType, href);
     }
 
     /**

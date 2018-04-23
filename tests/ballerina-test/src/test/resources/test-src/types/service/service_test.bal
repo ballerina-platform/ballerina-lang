@@ -6,9 +6,9 @@ function testServiceType () returns (typedesc) {
 }
 
 service<http:Service> HelloWorld {
-    hello (endpoint outboundEP, http:Request req) {
+    hello (endpoint caller, http:Request req) {
         http:Response res = new;
         res.setStringPayload("Hello, World!");
-        _ = outboundEP -> respond(res);
+        _ = caller -> respond(res);
     }
 }

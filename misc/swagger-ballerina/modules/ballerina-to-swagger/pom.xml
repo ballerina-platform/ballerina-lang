@@ -20,13 +20,13 @@
     <parent>
         <artifactId>swagger-ballerina</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.970.0-beta5-SNAPSHOT</version>
+        <version>0.970.0-beta12-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ballerina-to-swagger</artifactId>
-    <name>Ballerina - Ballerina To Swagger Converter</name>
+    <name>Ballerina - Swagger Tooling - Ballerina To Swagger</name>
     <dependencies>
     <dependency>
         <groupId>io.swagger</groupId>

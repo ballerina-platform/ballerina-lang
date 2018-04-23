@@ -16,21 +16,19 @@
 
 package org.ballerinalang.net.http.actions.websocketconnector;
 
+import io.netty.channel.ChannelFutureListener;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketConnectionManager;
 import org.ballerinalang.net.http.WebSocketConstants;
-
-import java.io.IOException;
-import javax.websocket.CloseReason;
-import javax.websocket.Session;
+import org.ballerinalang.net.http.WebSocketUtil;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -46,30 +44,43 @@ import javax.websocket.Session;
                 @Argument(name = "reason", type = TypeKind.STRING)
         }
 )
-//Todo: Fix this: It is blocking because of the limitations in the transport where close does not return a Future
-public class Close extends BlockingNativeCallableUnit {
+public class Close implements NativeCallableUnit {
 
     @Override
-    public void execute(Context context) {
-        BStruct webSocketConnector = (BStruct) context.getRefArgument(0);
-        int statusCode = (int) context.getIntArgument(0);
-        String reason = context.getStringArgument(0);
-        Session session = (Session) webSocketConnector.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION);
+    public void execute(Context context, CallableUnitCallback callback) {
         try {
-            session.close(new CloseReason(() -> statusCode, reason));
-            context.setReturnValues();
-        } catch (IOException e) {
-            context.setReturnValues(BLangConnectorSPIUtil.createBStruct(context, HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                                                                        WebSocketConstants.WEBSOCKET_CONNECTOR_ERROR,
-                                                                        "Could not close the connection: " +
-                                                                                e.getMessage()));
-        } finally {
-            WebSocketConnectionManager connectionManager =
-                    (WebSocketConnectionManager) webSocketConnector
-                            .getNativeData(WebSocketConstants.WEBSOCKET_CONNECTION_MANAGER);
-            if (connectionManager != null) {
-                connectionManager.removeConnectionInfo(session.getId());
-            }
+            BStruct webSocketConnector = (BStruct) context.getRefArgument(0);
+            int statusCode = (int) context.getIntArgument(0);
+            String reason = context.getStringArgument(0);
+            WebSocketConnection webSocketConnection = (WebSocketConnection) webSocketConnector
+                    .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION);
+
+            webSocketConnection.close(statusCode, reason).addListener((ChannelFutureListener) future -> {
+                Throwable cause = future.cause();
+                if (!future.isSuccess() && cause != null) {
+                    context.setReturnValues(
+                            WebSocketUtil.createWebSocketConnectorError(context, future.cause().getMessage()));
+                } else {
+                    context.setReturnValues();
+                }
+                callback.notifySuccess();
+
+                WebSocketConnectionManager connectionManager =
+                        (WebSocketConnectionManager) webSocketConnector
+                                .getNativeData(WebSocketConstants.WEBSOCKET_CONNECTION_MANAGER);
+                if (connectionManager != null) {
+                    connectionManager.removeConnectionInfo(webSocketConnection.getId());
+                }
+
+            });
+        } catch (Throwable throwable) {
+            context.setReturnValues(WebSocketUtil.createWebSocketConnectorError(context, throwable.getMessage()));
+            callback.notifySuccess();
         }
+    }
+
+    @Override
+    public boolean isBlocking() {
+        return false;
     }
 }

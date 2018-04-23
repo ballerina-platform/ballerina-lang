@@ -53,8 +53,12 @@ public class GetKeys extends BlockingNativeCallableUnit {
         BStringArray keys = null;
         try {
             // Accessing Parameters.
-            BJSON json = (BJSON) ctx.getRefArgument(0);
-            keys = JSONUtils.getKeys(json);
+            BJSON json = (BJSON) ctx.getNullableRefArgument(0);
+            if (json == null) {
+                keys = new BStringArray();
+            } else {
+                keys = JSONUtils.getKeys(json);
+            }
             if (log.isDebugEnabled()) {
                 log.debug("keys: " + keys);
             }

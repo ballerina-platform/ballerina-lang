@@ -16,14 +16,16 @@
 package org.ballerinalang.langserver;
 
 import org.ballerinalang.langserver.compiler.LSContextManager;
+import org.ballerinalang.langserver.compiler.LSPackageCache;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.model.AttachmentPoint;
 import org.ballerinalang.model.elements.PackageID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,7 +41,9 @@ import java.util.stream.Collectors;
  * @since 0.970.0
  */
 public class LSAnnotationCache {
-    
+
+    private static final Logger logger = LoggerFactory.getLogger(LSPackageCache.class);
+
     private final HashMap<PackageID, List<BLangAnnotation>> serviceAnnotations = new HashMap<>();
     private HashMap<PackageID, List<BLangAnnotation>> resourceAnnotations = new HashMap<>();
     private HashMap<PackageID, List<BLangAnnotation>> functionAnnotations = new HashMap<>();
@@ -72,8 +76,7 @@ public class LSAnnotationCache {
                 BLangPackage bLangPackage = LSPackageLoader.getPackageById(tempCompilerContext, packageID);
                 staticPackages.put(bLangPackage.packageID.bvmAlias(), bLangPackage);
             } catch (Exception e) {
-                PrintStream errPrintStream = System.err;
-                errPrintStream.println("Error while loading package :" + staticPkgName);
+                logger.warn("Error while loading package :" + staticPkgName);
             }
         }
 

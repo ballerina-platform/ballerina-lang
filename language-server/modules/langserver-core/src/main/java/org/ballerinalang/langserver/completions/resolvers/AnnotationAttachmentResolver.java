@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.util.Priority;
 import org.ballerinalang.model.AttachmentPoint;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CompletionItem;
@@ -48,12 +49,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import static org.ballerinalang.langserver.common.utils.CommonUtil.getDefaultValueForType;
+
 /**
  * Annotation Attachment Resolver to resolve the corresponding annotation attachments.
  */
 public class AnnotationAttachmentResolver extends AbstractItemResolver {
     
     private final List<AttachmentPoint> attachmentPointValues = Arrays.asList(AttachmentPoint.values());
+    
+    private static final String LINE_SEPARATOR = System.lineSeparator();
     
     @Override
     public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
@@ -278,13 +283,14 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
             if (bStructField.getType() instanceof BStructType) {
                 insertText.append(getStructInsertText(((BStructType) bStructField.getType()).fields));
             } else {
-                insertText.append("${1}");
+                insertText.append("${1:").append(getDefaultValueForType(bStructField.getType())).append("}");
             }
             CompletionItem fieldItem = new CompletionItem();
             fieldItem.setInsertText(insertText.toString());
             fieldItem.setInsertTextFormat(InsertTextFormat.Snippet);
             fieldItem.setLabel(bStructField.getName().getValue());
             fieldItem.setDetail(ItemResolverConstants.FIELD_TYPE);
+            fieldItem.setSortText(Priority.PRIORITY120.toString());
             completionItems.add(fieldItem);
         });
         
@@ -297,15 +303,17 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
      * @return {@link String}   Insert text
      */
     private String getStructInsertText(List<BStructType.BStructField> structFields) {
-        String insertText = "{";
-        List<String> fields = new ArrayList<>();
+        return  "{" + LINE_SEPARATOR + "\t${1}" + LINE_SEPARATOR + "}";
+        // Note: Code has been commented on purpose since the implementation can be reverted back
+
+//        List<String> fields = new ArrayList<>();
+//        
+//        structFields.forEach(bStructField -> {
+//            fields.add(System.lineSeparator() + "\t" + bStructField.getName().getValue() + ": "
+//                    + getDefaultValueForType(bStructField.getType()));
+//        });
         
-        structFields.forEach(bStructField -> {
-            fields.add(System.lineSeparator() + "\t" + bStructField.getName().getValue() + ": "
-                    + CommonUtil.getDefaultValueForType(bStructField.getType()));
-        });
-        
-        return insertText + String.join(",", fields) + System.lineSeparator() + "}";
+//        return insertText + String.join(",", fields) + System.lineSeparator() + "}";
     }
 
     /**
@@ -352,8 +360,29 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
         
         if (nodeStartLine < line && nodeEndLine > line && recordLiteral.type instanceof BStructType) {
             completionItems.addAll(getFieldCompletionItems(((BStructType) recordLiteral.type).fields));
+            completionItems.add(getFillAllOptionItem(((BStructType) recordLiteral.type).fields));
         }
         
         return completionItems;
+    }
+    
+    private CompletionItem getFillAllOptionItem(List<BStructType.BStructField> fields) {
+        List<String> fieldEntries = new ArrayList<>();
+        
+        fields.forEach(bStructField -> {
+            String defaultFieldEntry = bStructField.getName().getValue()
+                    + UtilSymbolKeys.PKG_DELIMITER_KEYWORD + getDefaultValueForType(bStructField.getType());
+            fieldEntries.add(defaultFieldEntry);
+        });
+        
+        String insertText = String.join(("," + LINE_SEPARATOR), fieldEntries);
+        String label = "Add All Attributes";
+        
+        CompletionItem completionItem = new CompletionItem();
+        completionItem.setLabel(label);
+        completionItem.setInsertText(insertText);
+        completionItem.setSortText(Priority.PRIORITY110.toString());
+        
+        return completionItem;
     }
 }

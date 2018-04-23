@@ -31,10 +31,6 @@ public class BInvokableType extends BType implements InvokableType {
 
     public List<BType> paramTypes;
     public BType retType;
-    private String typeDescriptor = TypeDescriptor.SIG_FUNCTION;
-
-    // This field is only applicable for functions and actions at the moment.
-    private BType receiverType;
 
     public BInvokableType(List<BType> paramTypes, BType retType, BTypeSymbol tsymbol) {
         super(TypeTags.INVOKABLE, tsymbol);
@@ -54,15 +50,7 @@ public class BInvokableType extends BType implements InvokableType {
 
     @Override
     public String getDesc() {
-        return typeDescriptor;
-    }
-
-    public BType getReceiverType() {
-        return receiverType;
-    }
-
-    public void setReceiverType(BType receiverType) {
-        this.receiverType = receiverType;
+        return TypeDescriptor.SIG_FUNCTION;
     }
 
     @Override
@@ -72,7 +60,7 @@ public class BInvokableType extends BType implements InvokableType {
 
     @Override
     public String toString() {
-        return getTypeName(typeDescriptor, paramTypes, retType);
+        return getTypeName(TypeDescriptor.SIG_FUNCTION, paramTypes, retType);
     }
 
     @Override
@@ -88,21 +76,18 @@ public class BInvokableType extends BType implements InvokableType {
         if (paramTypes != null ? !paramTypes.equals(that.paramTypes) : that.paramTypes != null) {
             return false;
         }
+
         if (retType != null ? !retType.equals(that.retType) : that.retType != null) {
             return false;
         }
-        if (typeDescriptor != null ? !typeDescriptor.equals(that.typeDescriptor) : that.typeDescriptor != null) {
-            return false;
-        }
-        return receiverType != null ? receiverType.equals(that.receiverType) : that.receiverType == null;
+
+        return true;
     }
 
     @Override
     public int hashCode() {
         int result = paramTypes != null ? paramTypes.hashCode() : 0;
         result = 31 * result + (retType != null ? retType.hashCode() : 0);
-        result = 31 * result + (typeDescriptor != null ? typeDescriptor.hashCode() : 0);
-        result = 31 * result + (receiverType != null ? receiverType.hashCode() : 0);
         return result;
     }
 

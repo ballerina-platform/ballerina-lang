@@ -31,11 +31,11 @@ $white:#fff;
 }
 
 .client-line-header, .client-life-line,
-.worker-life-line, .client-invocation-arrow,
+.life-line, .client-invocation-arrow,
 .action-arrow .statement-title-rect, .statement-title-rect, .action-arrow,
 .action-arrow-head, .action-dash-line, .flowchart-action-arrow,
-.default-worker-life-line, .worker-life-line, .action-invocation-statement-rect
-.flowchart-background-empty-rect, .connector-life-line {
+.default-worker-life-line, .action-invocation-statement-rect
+.flowchart-background-empty-rect {
   stroke-width: 0.75;
 }
 
@@ -45,7 +45,6 @@ $white:#fff;
 
 .client-line-header,
 .client-life-line,
-.worker-life-line,
 .client-invocation-arrow,
 .action-arrow .statement-title-rect {
   stroke: $primary-line-bgcolor;
@@ -83,17 +82,24 @@ $white:#fff;
       Worker lines 
 ---------------------------*/
 
-.flowchart-action-arrow,
-.default-worker-icon {
+.worker {
+  fill: $worker-color;
+  font-weight: 300;  
+}
+
+.worker.life-line{
+  stroke: $worker-color;
+}
+
+.flowchart-action-arrow {
   fill: $worker-color;
   font-weight: 300;
 }
 
 .flowchart-action-arrow,
-.default-worker-life-line,
-.worker-life-line,
 .flowchart-background-empty-rect {
   stroke: $worker-color;
+  stroke-width: 0.75;
 }
 
 .flowchart-action-arrow-head {
@@ -105,12 +111,12 @@ $white:#fff;
       Endpoint lines
 ---------------------------*/
 
-.connector-icon {
+.connector {
   fill: $connector-color;
-  font-weight: 300;
+  font-weight: 400;
 }
 
-.connector-life-line {
+.connector.life-line {
   stroke: $connector-color;
 }
 
