@@ -79,7 +79,7 @@ public class KeyStoreHolder {
             throw new BallerinaException("Failed to load private key: " + keyAlias, e);
         }
         if (pkEntry == null) {
-            return null;
+            throw new BallerinaException("Failed to load private key: " + keyAlias);
         }
         return pkEntry.getPrivateKey();
     }

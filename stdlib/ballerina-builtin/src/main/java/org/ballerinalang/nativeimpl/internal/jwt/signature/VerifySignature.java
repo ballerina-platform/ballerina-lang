@@ -30,6 +30,8 @@ import org.ballerinalang.nativeimpl.internal.jwt.crypto.TrustStoreHolder;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.security.interfaces.RSAPublicKey;
 
@@ -52,6 +54,7 @@ import java.security.interfaces.RSAPublicKey;
         isPublic = true
 )
 public class VerifySignature extends BlockingNativeCallableUnit {
+    private static final Logger log = LoggerFactory.getLogger(VerifySignature.class);
 
     @Override
     public void execute(Context context) {
@@ -68,7 +71,8 @@ public class VerifySignature extends BlockingNativeCallableUnit {
             Boolean validSignature = verifier.verify(data, signature, algorithm);
             context.setReturnValues(new BBoolean(validSignature));
         } catch (Exception e) {
+            log.error(e.getMessage(), e);
             context.setReturnValues(new BBoolean(false), BLangVMErrors.createError(context, 0, e.getMessage()));
-        }        
+        }
     }
 }

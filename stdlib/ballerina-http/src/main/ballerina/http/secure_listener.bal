@@ -94,6 +94,11 @@ public type AuthProvider {
     TrustStore? trustStore,
     string certificateAlias,
     int clockSkew,
+    KeyStore? keyStore,
+    string keyAlias,
+    string keyPassword,
+    int expTime,
+    string signingAlg,
 };
 
 public function SecureListener::init (SecureEndpointConfiguration config) {
@@ -168,8 +173,13 @@ function createAuthHandler (AuthProvider authProvider) returns HttpAuthnHandler 
     if (authProvider.scheme == AUTHN_SCHEME_BASIC) {
         auth:AuthProvider authProvider1;
         if (authProvider.authProvider == AUTH_PROVIDER_CONFIG) {
-            auth:ConfigAuthProvider configAuthProvider = new;
-            authProvider1 = check <auth:AuthProvider> configAuthProvider;
+            if(authProvider.issuer != ""){
+                auth:ConfigJwtAuthProvider configAuthProvider = new(getConfigJwtAuthProviderConfig(authProvider));
+                authProvider1 = <auth:AuthProvider> configAuthProvider;
+            } else {
+                auth:ConfigAuthProvider configAuthProvider = new;
+                authProvider1 = check <auth:AuthProvider>configAuthProvider;
+            }
         } else {
             // other auth providers are unsupported yet
             error e = {message:"Invalid auth provider: " + authProvider.authProvider };
@@ -222,4 +232,23 @@ public function SecureListener::getCallerActions () returns (Connection) {
 @Description {value:"Stops the registered service"}
 public function SecureListener::stop () {
     self.httpListener.stop();
+}
+
+function getConfigJwtAuthProviderConfig(AuthProvider authProvider) returns auth:ConfigJwtAuthProviderConfig {
+    //ConfigJwtAuthProviderConfig
+    string defaultIssuer = "ballerina";
+    string defaultAudience = "ballerina";
+    int defaultExpTime = 300; // in seconds
+    string defaultSignAlg = "RS256";
+
+    auth:ConfigJwtAuthProviderConfig configjwtAuth = {};
+    configjwtAuth.issuer = authProvider.issuer == "" ? defaultIssuer : authProvider.issuer;
+    configjwtAuth.expTime = authProvider.expTime == 0 ? defaultExpTime : authProvider.expTime;
+    configjwtAuth.signingAlg = authProvider.signingAlg == "" ? defaultSignAlg : authProvider.signingAlg;
+    configjwtAuth.audience = authProvider.audience == "" ? defaultAudience : authProvider.audience;
+    configjwtAuth.keyAlias = authProvider.keyAlias;
+    configjwtAuth.keyPassword = authProvider.keyPassword;
+    configjwtAuth.keyStoreFilePath = authProvider.keyStore.path but { () => "" };
+    configjwtAuth.keyStorePassword = authProvider.keyStore.password but { () => "" };
+    return configjwtAuth;
 }
