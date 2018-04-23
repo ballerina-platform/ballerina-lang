@@ -25,7 +25,8 @@ function main(string... args) {
         name:"testdb",
         username:"root",
         password:"123",
-        poolOptions:{maximumPoolSize:5}
+        poolOptions:{maximumPoolSize:5},
+        dbOptions:{useSSL:false}
     };
 
     int count;
