@@ -26,7 +26,7 @@ service<http:Service> chatAppUpgrader bind chatEp {
         wsEp.attributes[NAME] = name;
         wsEp.attributes[AGE] = req.getQueryParams()["age"];
         string msg = "Hi " + name + "! You have succesfully connected to the chat";
-        wsEp->pushText(msg) but { error e => log:printError("Error sending message ", err = e) };
+        wsEp->pushText(msg) but { error e => log:printError("Error sending message", err = e) };
     }
 
 }
