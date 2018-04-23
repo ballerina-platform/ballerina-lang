@@ -26,7 +26,7 @@ function testService () {
     };
 
     // Check whether the service is started
-   // test:assertTrue(isHelloServiceStarted, msg = "Hello service failed to start");
+    test:assertTrue(isHelloServiceStarted, msg = "Hello service failed to start");
 
     // Send a GET request to the specified endpoint
     io:println("GET request:");
