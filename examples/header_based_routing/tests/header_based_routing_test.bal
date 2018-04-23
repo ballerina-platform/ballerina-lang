@@ -4,7 +4,7 @@ import ballerina/test;
 boolean serviceStarted;
 
 function startService(){
-    serviceStarted = test:startServices("header-based-routing");
+    serviceStarted = test:startServices("header_based_routing");
 }
 
 @test:Config {
