@@ -270,7 +270,7 @@ public class PushUtils {
                                         .findFirst();
 
         if (!result.isPresent()) {
-            throw new BLangCompilerException("Error occured when reading Package.md");
+            throw new BLangCompilerException("Cannot find package summary");
         }
 
         String firstLine = result.get();
