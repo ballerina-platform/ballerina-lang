@@ -42,6 +42,8 @@ public class Constants {
     public static final String HTTP_ACCESS_LOG_CONSOLE = "b7a.http.accesslog.console";
     public static final String HTTP_ACCESS_LOG_FILE = "b7a.http.accesslog.path";
 
+    public static final String USER_DIR = System.getProperty("user.dir");
+    public static final String TEMP_DIR = System.getProperty("java.io.tmpdir");
     public static final String DEFAULT_LOG_FILE_HANDLER_PATTERN =
             DefaultLogFileHandler.class.getCanonicalName() + ".pattern";
 }
