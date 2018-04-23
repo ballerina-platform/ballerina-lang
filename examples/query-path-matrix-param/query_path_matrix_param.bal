@@ -1,30 +1,31 @@
 import ballerina/http;
+import ballerina/log;
 
-endpoint http:Listener sampleEP {
+endpoint http:Listener sampleEp {
     port:9090
 };
 
 @http:ServiceConfig
-service<http:Service> sample bind sampleEP {
+service<http:Service> sample bind sampleEp {
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/path/{foo}"
     }
-    @Description {value:"The `PathParam` and `QueryParam` parameters extract values from the request URI."}
-    params (endpoint client, http:Request req, string foo) {
+    //The `PathParam` and `QueryParam` parameters extract values from the request URI.
+    params(endpoint caller, http:Request req, string foo) {
         // Get `QueryParams`.
         var params = req.getQueryParams();
-        var bar = <string> params.bar;
+        var bar = <string>params.bar;
 
         // Get `MatrixParams`. 
         map pathMParams = req.getMatrixParams("/sample/path");
-        var a = <string> pathMParams.a;
-        var b = <string> pathMParams.b;
+        var a = <string>pathMParams.a;
+        var b = <string>pathMParams.b;
         string pathMatrixStr = string `a={{a}}, b={{b}}`;
         map fooMParams = req.getMatrixParams("/sample/path/" + foo);
-        var x = <string> fooMParams.x;
-        var y = <string> fooMParams.y;
+        var x = <string>fooMParams.x;
+        var y = <string>fooMParams.y;
         string fooMatrixStr = string `x={{x}}, y={{y}}`;
         json matrixJson = {"path":pathMatrixStr, "foo":fooMatrixStr};
 
@@ -34,6 +35,6 @@ service<http:Service> sample bind sampleEP {
         // A util method to set the JSON payload to the response message.
         res.setJsonPayload(responseJson);
         // Send a response to the client.
-        _ = client -> respond(res);
+        caller -> respond(res) but { error e => log:printError("Error when responding", err = e) };
     }
 }
