@@ -1,39 +1,37 @@
 import ballerina/io;
-import ballerina/runtime;
-import ballerina/time;
 
-// Shared variable among multiple workers.
-string sharedString;
+// Shared counter variable among multiple workers.
+int counter;
 
 function main (string... args) {
+    foreach i in [1..100] {
+        counterUp();
+    }
+    io:println("final counter value - ", counter);
+}
+function counterUp() {
     worker w1 {
         lock {
-            // Lock the shared variable for access.
-            io:println("worker 1 access - ", time:currentTime().milliSecond());
-            sharedString = "sample ";
-            runtime:sleep(100);
-            io:println("worker 1 release - ", time:currentTime().milliSecond());
+            // Lock the shared variable and increment the counter.
+            counter = counter + 1;
         }
     }
     worker w2 {
-        runtime:sleep(20);
         lock {
-            // Lock the shared variable for access.
-            io:println("worker 2 access - ", time:currentTime().milliSecond());
-            sharedString = sharedString + "value ";
-            runtime:sleep(100);
-            io:println("worker 2 release - ", time:currentTime().milliSecond());
+            // Lock the shared variable and increment the counter.
+            counter = counter + 1;
         }
     }
     worker w3 {
-        runtime:sleep(120);
         lock {
-            // Lock the shared variable for access.
-            io:println("worker 3 access ", time:currentTime().milliSecond());
-            sharedString = sharedString + "added";
-            runtime:sleep(100);
-            io:println("worker 3 release ", time:currentTime().milliSecond());
-            io:println("final result - ", sharedString);
+            // Lock the shared variable and increment the counter.
+            counter = counter + 1;
+        }
+    }
+    worker w4 {
+        lock {
+            // Lock the shared variable and increment the counter.
+            counter = counter + 1;
         }
     }
 }
