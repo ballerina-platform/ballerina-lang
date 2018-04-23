@@ -65,7 +65,6 @@ public class TableJSONDataSource implements JSONDataSource {
             this.objGen.transform(this.df).serialize(gen);
         }
         gen.writeEndArray();
-        this.df.close(this.isInTransaction);
     }
 
     /**

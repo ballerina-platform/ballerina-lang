@@ -430,8 +430,8 @@
     "after ]": ""
   },
   "Invocation": {
-    "before async": "",
-    "after async": " ",
+    "before start": "",
+    "after start": " ",
     "before expression": "",
     "after expression": "",
     "before .": "",
@@ -582,6 +582,12 @@
     "after workers": "",
     "before }": "",
     "after }": ""
+  },
+  "RestArgsExpr": {
+    "before ...": "",
+    "after ...": "",
+    "before expression": "",
+    "after expression": ""
   },
   "Retry": {
     "before retry": "",
@@ -800,6 +806,12 @@
     "after >": " ",
     "before expression": "",
     "after expression": ""
+  },
+  "TypeDefinition": {
+    "before type":"",
+    "after type":" ",
+    "before name":"",
+    "after name":" "
   },
   "TypeofExpression": {
     "before typeof": "",

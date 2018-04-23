@@ -138,7 +138,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 completionContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
                 this.resolveSymbols(completionContext, bLangPackage);
                 BLangNode symbolEnvNode = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
-                if (symbolEnvNode == null) {
+                if (symbolEnvNode instanceof BLangPackage) {
                     completions = CompletionItemResolver.getResolverByClass(TopLevelResolver.class)
                             .resolveItems(completionContext);
                 } else {
@@ -604,6 +604,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
             this.fallbackBLangPackage.accept(treeVisitor);
         } else {
             bLangPackage.accept(treeVisitor);
+        }
+        
+        if (completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY) == null) {
+            treeVisitor.populateSymbols(treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv()),
+                    treeVisitor.getSymbolEnv());
         }
     }
 }

@@ -105,6 +105,17 @@ class PositioningUtil {
             }
         }
 
+        if (TreeUtil.statementIsAwaitResponse(node)) {
+            viewState.components.response = { start: viewState.bBox.x + 50 };
+            const start = TreeUtil.findCompatibleStart(node);
+            if (start) {
+                const endNode = _.get(start, 'viewState.components.invocation.end');
+                if (endNode) {
+                    viewState.components.response.start = endNode.x;
+                }
+            }
+        }
+
         if (node.viewState.lambdas) {
             let y = node.viewState.bBox.y + node.viewState.components['statement-box'].h - 9;
             for (const lambda of node.viewState.lambdas) {

@@ -147,6 +147,7 @@ public class TreeVisitor extends LSNodeVisitor {
 
     public void visit(BLangPackage pkgNode) {
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
+        this.symbolEnv = pkgEnv;
 
         // Then visit each top-level element sorted using the compilation unit
         String fileName = documentServiceContext.get(DocumentServiceKeys.FILE_NAME_KEY);

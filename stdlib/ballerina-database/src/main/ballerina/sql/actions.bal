@@ -36,10 +36,11 @@ public type CallerActions object {
 
         P{{sqlQuery}} - SQL query to execute.
         P{{recordType}} - Type of the returned table.
+        P{{loadToMemory}} - Indicates whether to load the retrieved data to memory or not.
         R{{}} - `table` table returned by the sql query statement else `error` will be returned if there is any error.
     }
-    public native function select(@sensitive string sqlQuery, typedesc? recordType, Param... parameters)
-        returns @tainted table|error;
+    public native function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
+    Param... parameters) returns @tainted table|error;
 
     documentation {
         The update action implementation for SQL connector to update data and schema of the database.
@@ -72,7 +73,7 @@ public type CallerActions object {
                                                    Param... parameters) returns (int, string[])|error;
 
     documentation {
-        The getProxyTable action implementation for SQL connector which returns a reflection of a database
+        The getProxyTable action implementation for SQL connector which acts as a proxy for a database
         table that allows performing select/update operations over the actual database table.
 
         P{{tableName}} - The name of the table to be retrieved.
