@@ -19,7 +19,7 @@ service<http:Service> headerBasedRouting bind {port:9090} {
         methods:["GET"],
         path:"/route"
     }
-    hbrResource(endpoint conn, http:Request req) {
+    hbrResource(endpoint caller, http:Request req) {
         //Create new outbound request to handle client call.
         http:Request newRequest = new;
         // Checks whether 'x-type' header exists in the request.
@@ -28,7 +28,7 @@ service<http:Service> headerBasedRouting bind {port:9090} {
             errorResponse.statusCode = 500;
             json errMsg = {"error":"'x-type' header is not found"};
             errorResponse.setPayload(errMsg);
-            conn->respond(errorResponse)  but { error e => log:printError("Error sending response", err=e) };
+            caller->respond(errorResponse)  but { error e => log:printError("Error sending response", err=e) };
             done;
         }
         //`getHeader()` returns header value of a specified header name.
@@ -46,13 +46,13 @@ service<http:Service> headerBasedRouting bind {port:9090} {
         match response {
             http:Response clientResponse => {
                 //`respond()` sends back the inbound clientResponse to the caller if no any error is found.
-                conn->respond(clientResponse) but { error e => log:printError("Error sending response", err=e) };
+                caller->respond(clientResponse) but { error e => log:printError("Error sending response", err=e) };
             }
             http:HttpConnectorError err => {
                 http:Response errorResponse = new;
                 errorResponse.statusCode = 500;
                 errorResponse.setPayload(err.message);
-                conn->respond(errorResponse)  but { error e => log:printError("Error sending response", err=e) };
+                caller->respond(errorResponse)  but { error e => log:printError("Error sending response", err=e) };
             }
         }
     }
