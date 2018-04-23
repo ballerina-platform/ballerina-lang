@@ -1,8 +1,8 @@
 import ballerina/io;
 
-// This function takes a one required parameter and rest parameters of type string.
-// The rest parameter can take any number of values, and is equivalent to an array
-// of the same type.
+// This function takes a one required parameter and a rest parameter of type string.
+// A function can have only one rest parameter. But the rest parameter can take any 
+// number of values, and is equivalent to an array of the same type. 
 function printFruits(string separator, string title = "Fruits: ", string... concatStrings) {
     string finalStr;
     foreach index, str in concatStrings {
