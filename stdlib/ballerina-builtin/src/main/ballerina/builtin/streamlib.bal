@@ -15,7 +15,7 @@
 // under the License.
 
 documentation {
-    Publishes data to the stream
+    Publishes data to the stream.
 
     T{{s}} The stream to which publishing is to be done
     P{{data}} Data to be published to the stream
@@ -23,7 +23,7 @@ documentation {
 public native function<stream s> publish(any data);
 
 documentation {
-    Subscribes to data from the stream
+    Subscribes to data from the stream.
 
     T{{s}} The stream to which subscription is to be done
     P{{func}} The function pointer for the subscription, which will be invoked with data published to the stream
