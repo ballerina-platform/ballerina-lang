@@ -36,9 +36,9 @@ public class ExecBallerina extends BlockingNativeCallableUnit {
         String path = (String) property.get("ballerina.home");
 
         String command = context.getRefArgument(0).stringValue();
-        String packageName = context.getStringArgument(0);
+        String packagePath = context.getStringArgument(0);
 
-        String balCommand = path + "/bin/ballerina " + command + " " + packageName;
+        String balCommand = path + "/bin/ballerina " + command + " " + packagePath;
 
         Process process;
         BufferedReader reader = null;
