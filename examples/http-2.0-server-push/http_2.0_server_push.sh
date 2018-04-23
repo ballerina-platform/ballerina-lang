@@ -1,6 +1,6 @@
 #At the command line, navigate to the directory that contains the `.bal` file.
 #Run the `ballerina run` command to start the server and run the main function containing the ballerina client.
-$ ballerina run http-2.0-server-push.bal
+$ ballerina run http_2.0_server_push.bal
 ballerina: started HTTP/WS endpoint 0.0.0.0:7090
 INFO  [] - Request received
 INFO  [] - Received a promise for /resource1
