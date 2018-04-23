@@ -8,15 +8,14 @@ endpoint grpc:Listener ep {
     port:9090
 };
 
-@grpc:serviceConfig
 service HelloWorld bind ep {
     //@grpc:resourceConfig {input:string, output:string}
     hello(endpoint caller, string name, grpc:Headers headers) {
         io:println("name: " + name);
         string message = "Hello " + name;
         // Working with custom headers.
-        io:println(headers.get("x-id"));
-        headers.setEntry("x-id", "1234567890");
+        io:println(headers.get("Keep-Alive"));
+        headers.setEntry("Host", "ballerina.io");
         error? err = caller->send(message, headers);
         io:println(err.message but { () => "Server send response : " + message });
         _ = caller->complete();

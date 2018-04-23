@@ -95,6 +95,7 @@ public type HelloWorldClient object {
     }
 };
 
+//Service meta data
 @final string DESCRIPTOR_KEY = "HelloWorld.proto";
 map descriptorMap =
 {
