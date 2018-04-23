@@ -169,3 +169,9 @@ function testFiniteTypesWithUnionCaseThree() returns int {
    return 1002;
 }
 
+function testFiniteTypesWithTuple() returns State {
+   State onState = "on";
+   (State, int ) b = (onState, 20);
+   var (i, j) = b;
+   return i;
+}
