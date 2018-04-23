@@ -363,6 +363,8 @@ public class BLangPackageBuilder {
 
     private Stack<List<MatchExpressionPatternNode>> matchExprPatternNodeListStack = new Stack<>();
 
+    private Stack<Set<Whitespace>> operatorWs = new Stack<>();
+
     private BLangAnonymousModelHelper anonymousModelHelper;
     private CompilerOptions compilerOptions;
 
@@ -1990,8 +1992,13 @@ public class BLangPackageBuilder {
         assignmentNode.setVariable((BLangVariableReference) exprNodeStack.pop());
         assignmentNode.pos = pos;
         assignmentNode.addWS(ws);
+        assignmentNode.addWS(this.operatorWs.pop());
         assignmentNode.opKind = OperatorKind.valueFrom(operator);
         addStmtToCurrentBlock(assignmentNode);
+    }
+
+    public void addCompoundOperator(Set<Whitespace> ws) {
+        this.operatorWs.push(ws);
     }
 
     public void addPostIncrementStatement(DiagnosticPos pos, Set<Whitespace> ws, String operator) {
@@ -2298,8 +2305,13 @@ public class BLangPackageBuilder {
     public void addServiceBody(Set<Whitespace> ws) {
         ServiceNode serviceNode = serviceNodeStack.peek();
         serviceNode.addWS(ws);
-        blockNodeStack.pop().getStatements()
-                .forEach(varDef -> serviceNode.addVariable((VariableDefinitionNode) varDef));
+        blockNodeStack.pop().getStatements().forEach(stmt -> {
+            if (stmt.getKind() == NodeKind.XMLNS) {
+                serviceNode.addNamespaceDeclaration((BLangXMLNSStatement) stmt);
+            } else {
+                serviceNode.addVariable((VariableDefinitionNode) stmt);
+            }
+        });
     }
 
     public void addAnonymousEndpointBind() {

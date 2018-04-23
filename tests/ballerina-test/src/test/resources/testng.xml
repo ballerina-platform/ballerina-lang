@@ -81,7 +81,6 @@ under the License.
 			<class name="org.ballerinalang.test.types.map.BMapValueTest" />
 			<class name="org.ballerinalang.test.types.map.MapAccessExprTest" />
 			<class name="org.ballerinalang.test.types.map.MapInitializerExprTest" />
-		        <class name="org.ballerinalang.test.net.websocket.compilation.WebSocketCompilationTest" />
 		</classes>
     </test>
     <test name="ballerina-security-test-suite" preserve-order="true" parallel="false">

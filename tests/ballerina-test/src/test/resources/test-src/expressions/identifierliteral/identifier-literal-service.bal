@@ -34,7 +34,7 @@ service<http:Service> ^"sample Service" bind testEP{
     ^"sample resource2" (endpoint caller, http:Request req) {
         http:Response res = new;
         string ^"a a" = "hello";
-        res.setStringPayload(^"a a");
+        res.setTextPayload(^"a a");
         _ = caller -> respond(res);
     }
 }

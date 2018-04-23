@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.repo.RemoteRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.PrintStream;
 import java.net.URI;
@@ -102,7 +103,7 @@ public class PullCommand implements BLauncherCmd {
             version = "*";
         }
 
-        URI baseURI = URI.create("https://api.central.ballerina.io/packages/");
+        URI baseURI = URI.create(RepoUtils.getRemoteRepoURL());
         Repo remoteRepo = new RemoteRepo(baseURI);
 
         PackageID packageID = new PackageID(new Name(orgName), new Name(packageName), new Name(version));

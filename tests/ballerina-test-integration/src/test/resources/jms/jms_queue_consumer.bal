@@ -5,7 +5,7 @@ import ballerina/http;
 
 // Initialize a JMS connection with the provider.
 jms:Connection conn = new ({
-        initialContextFactory: "wso2mbInitialContextFactory",
+        initialContextFactory: "bmbInitialContextFactory",
         providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5772'"
     });
 

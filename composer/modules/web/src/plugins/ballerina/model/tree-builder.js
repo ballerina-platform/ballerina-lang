@@ -155,15 +155,26 @@ class TreeBuilder {
             node.endpoint = true;
         }
 
-        if (node.kind === 'Variable' && node.initialExpression && node.initialExpression.async) {
-            if (node.ws) {
-                let wsLength = node.ws.length;
-                for (let i = 0; i < wsLength; i++) {
-                    if (node.ws[i].text === 'start') {
-                        if (node.initialExpression.ws) {
-                            node.initialExpression.ws.splice(0, 0, node.ws[i]);
-                            node.ws.splice(i, 1);
+        if (node.kind === 'Variable') {
+            if (node.initialExpression && node.initialExpression.async) {
+                if (node.ws) {
+                    let wsLength = node.ws.length;
+                    for (let i = 0; i < wsLength; i++) {
+                        if (node.ws[i].text === 'start') {
+                            if (node.initialExpression.ws) {
+                                node.initialExpression.ws.splice(0, 0, node.ws[i]);
+                                node.ws.splice(i, 1);
+                            }
                         }
+                    }
+                }
+            }
+
+            if (node.typeNode && node.typeNode.nullable && node.typeNode.ws) {
+                for (let i = 0; i < node.typeNode.ws.length; i++) {
+                    if (node.typeNode.ws[i].text === '?') {
+                        node.typeNode.nullableOperatorAvailable = true;
+                        break;
                     }
                 }
             }
@@ -301,6 +312,15 @@ class TreeBuilder {
                 node.noExpressionAvailable = true;
             }
 
+            if (node.ws) {
+                for (let i = 0; i < node.ws.length; i++) {
+                    if (node.ws[i].text === "(") {
+                        node.hasParantheses = true;
+                        break;
+                    }
+                }
+            }
+
             if (!node.type) {
                 node.noTypeAttached = true;
             } else {
@@ -345,6 +365,10 @@ class TreeBuilder {
             if (node.restParameters) {
                 node.restParameters.rest = true;
             }
+        }
+
+        if (node.kind === 'PostIncrement') {
+            node.operator = node.operatorKind + node.operatorKind;
         }
     }
 

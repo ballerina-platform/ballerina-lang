@@ -9,10 +9,9 @@ endpoint grpc:Service ep {
     port:9090
 };
 
-@grpc:serviceConfig {rpcEndpoint:"chat",
+@grpc:ServiceConfig {name:"chat",
     clientStreaming:true,
-    serverStreaming:true,
-    generateClientConnector:false}
+    serverStreaming:true}
 service<grpc:Listener> Chat bind ep {
     map consMap;
     onOpen(endpoint client) {

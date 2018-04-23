@@ -34,7 +34,7 @@ function testSetJsonPayload (json value) returns (http:Request) {
 
 function testSetStringPayload (string value) returns (http:Request) {
     http:Request req = new;
-    req.setStringPayload(value);
+    req.setTextPayload(value);
     return req;
 }
 
@@ -60,7 +60,7 @@ function testSetEntityBody (string filePath, string contentType) returns (http:R
 function testSetPayloadAndGetText ((string | xml | json | blob | io:ByteChannel) payload) returns string | http:PayloadError {
     http:Request req = new;
     req.setPayload(payload);
-    return req.getStringPayload();
+    return req.getTextPayload();
 }
 
 function testGetHeader (http:Request req, string key) returns (string) {
@@ -81,7 +81,7 @@ function testGetMethod (http:Request req) returns (string) {
 }
 
 function testGetStringPayload (http:Request req) returns (string | http:PayloadError) {
-    return req.getStringPayload();
+    return req.getTextPayload();
 }
 
 function testGetBinaryPayload (http:Request req) returns (blob | http:PayloadError) {
@@ -117,7 +117,7 @@ service<http:Service> hello bind mockEP {
     echo1 (endpoint caller, http:Request req) {
         http:Response res = new;
         string method = req.method;
-        res.setStringPayload(method);
+        res.setTextPayload(method);
         _ = caller -> respond(res);
     }
 
@@ -127,7 +127,7 @@ service<http:Service> hello bind mockEP {
     echo2 (endpoint caller, http:Request req) {
         http:Response res = new;
         string url = req.rawPath;
-        res.setStringPayload(url);
+        res.setTextPayload(url);
         _ = caller -> respond(res);
     }
 
@@ -137,7 +137,7 @@ service<http:Service> hello bind mockEP {
     echo3 (endpoint caller, http:Request req) {
         http:Response res = new;
         string url = req.rawPath;
-        res.setStringPayload(url);
+        res.setTextPayload(url);
         _ = caller -> respond(res);
     }
 
@@ -170,7 +170,7 @@ service<http:Service> hello bind mockEP {
         var returnResult = req.getJsonPayload();
         match returnResult {
             http:PayloadError err => {
-                res.setStringPayload("Error occurred");
+                res.setTextPayload("Error occurred");
                 res.statusCode = 500;
             }
             json payload => {
@@ -185,12 +185,12 @@ service<http:Service> hello bind mockEP {
     }
     GetStringPayload (endpoint caller, http:Request req) {
         http:Response res = new;
-        match req.getStringPayload() {
+        match req.getTextPayload() {
             http:PayloadError err => {
-                res.setStringPayload("Error occurred");
+                res.setTextPayload("Error occurred");
                 res.statusCode =500;
             }
-             string payload =>  res.setStringPayload(payload);
+             string payload =>  res.setTextPayload(payload);
         }
         _ = caller -> respond(res);
     }
@@ -202,12 +202,12 @@ service<http:Service> hello bind mockEP {
         http:Response res = new;
         match req.getXmlPayload() {
             http:PayloadError err => {
-                res.setStringPayload("Error occurred");
+                res.setTextPayload("Error occurred");
                 res.statusCode =500;
             }
             xml xmlPayload => {
                 var name = xmlPayload.getTextValue();
-                res.setStringPayload(name);
+                res.setTextPayload(name);
             }
         }
         _ = caller -> respond(res);
@@ -220,12 +220,12 @@ service<http:Service> hello bind mockEP {
         http:Response res = new;
         match req.getBinaryPayload() {
             http:PayloadError err => {
-                res.setStringPayload("Error occurred");
+                res.setTextPayload("Error occurred");
                 res.statusCode =500;
             }
             blob blobPayload => {
                 string name = blobPayload.toString("UTF-8");
-                res.setStringPayload(name);
+                res.setTextPayload(name);
             }
         }
         _ = caller -> respond(res);
@@ -238,7 +238,7 @@ service<http:Service> hello bind mockEP {
         http:Response res = new;
         match req.getByteChannel() {
             http:PayloadError err => {
-                res.setStringPayload("Error occurred");
+                res.setTextPayload("Error occurred");
                 res.statusCode =500;
             }
             io:ByteChannel byteChannel => {
@@ -307,7 +307,7 @@ service<http:Service> hello bind mockEP {
         http:Response res = new;
         match returnResult {
             http:PayloadError err => {
-                res.setStringPayload("Error occurred");
+                res.setTextPayload("Error occurred");
                 res.statusCode = 500;
             }
             json payload => {
@@ -322,11 +322,11 @@ service<http:Service> hello bind mockEP {
     }
     SetStringPayload (endpoint caller, http:Request inReq, string value) {
         http:Request req = new;
-        req.setStringPayload(value);
+        req.setTextPayload(value);
         http:Response res = new;
-        match req.getStringPayload() {
+        match req.getTextPayload() {
             http:PayloadError err => {
-                res.setStringPayload("Error occurred");
+                res.setTextPayload("Error occurred");
                 res.statusCode =500;
             }
             string payload =>  res.setJsonPayload({lang:payload});
@@ -344,7 +344,7 @@ service<http:Service> hello bind mockEP {
         http:Response res = new;
         match req.getXmlPayload() {
             http:PayloadError err => {
-                res.setStringPayload("Error occurred");
+                res.setTextPayload("Error occurred");
                 res.statusCode =500;
             }
             xml xmlPayload => {
@@ -366,7 +366,7 @@ service<http:Service> hello bind mockEP {
         http:Response res = new;
         match req.getBinaryPayload() {
             http:PayloadError err => {
-                res.setStringPayload("Error occurred");
+                res.setTextPayload("Error occurred");
                 res.statusCode =500;
             }
             blob blobPayload => {

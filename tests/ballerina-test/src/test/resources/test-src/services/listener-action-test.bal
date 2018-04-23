@@ -15,7 +15,7 @@ service<http:Service> echo bind echoEP {
     }
     echo (endpoint conn, http:Request req) {
         http:Response res = new;
-        res.setStringPayload(serviceLevelStringVar);
+        res.setTextPayload(serviceLevelStringVar);
         _ = conn -> respond(res);
         serviceLevelStringVar = "done";
     }

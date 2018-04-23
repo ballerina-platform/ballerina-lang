@@ -40,8 +40,8 @@ public enum Snippet {
     RETURN("return;"),
     SERVICE("service<${1:http:Service}> ${2:serviceName} {\n\t${3:newResource} (endpoint ${4:caller}, " +
             "${5:http:Request request}) {\n\t}\n}"),
-    TRANSACTION("transaction with retries(${1}), oncommit(${2:foo}), onabort(${3:bar}) " +
-            "{\n\t${4}\n} onretry {\n\t${5}\n}"),
+    TRANSACTION("transaction with retries = ${1:1}, oncommit = ${2:onCommitFunction}, " +
+            "onabort = ${3:onAbortFunction} " + "{\n\t${4}\n} onretry {\n\t${5}\n}"),
     TRIGGER_WORKER("${1} -> ${2};"),
     TRY_CATCH("try {\n\t${1}\n} catch (${2:error} ${3:err}) {\n\t${4}\n}"),
     WHILE("while (${1:true}) {\n\t${2}\n}"),

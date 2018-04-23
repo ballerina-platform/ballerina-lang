@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.websub.hub.Hub;
+import org.ballerinalang.util.program.BLangFunctions;
 
 /**
  * Native function to stop the default Ballerina WebSub Hub, if started.
@@ -43,7 +44,8 @@ public class StopHubService extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         Hub hubInstance = Hub.getInstance();
         if (hubInstance.isStarted()) {
-            //TODO: Implement stopping - need to identify the server connector and stop, broker also should be stopped
+            BLangFunctions.invokeVMUtilFunction(
+                    hubInstance.getHubProgramFile().getEntryPackage().getStopFunctionInfo());
             context.setReturnValues(new BBoolean(true));
         } else {
             context.setReturnValues(new BBoolean(false));

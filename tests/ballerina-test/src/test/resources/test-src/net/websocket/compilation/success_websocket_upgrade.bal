@@ -26,14 +26,14 @@ service<http:Service> proxy bind ep {
 
     sayHello(endpoint conn, http:Request req) {
         http:Response res = new;
-        res.setStringPayload("Successful");
+        res.setTextPayload("Successful");
         _ = conn -> respond(res);
     }
 
 
     sayHi(endpoint conn, http:Request req) {
         http:Response res = new;
-        res.setStringPayload("Successful");
+        res.setTextPayload("Successful");
         _ = conn -> respond(res);
     }
 }

@@ -140,7 +140,7 @@
                             <li>
                                 <!--Package Name-->
                                 {{#if active}} {{#if caption.isPackageName}}
-                                    <a class="cPackageList">{{caption.prefix}}<span class="bold">{{caption.suffix}}</a> {{/if}} {{#if caption.isStaticCaption}}
+                                    <a class="cPackageList">{{caption.prefix}}<span class="bold">{{caption.suffix}}</span></a> {{/if}} {{#if caption.isStaticCaption}}
                                     <a>
                                         <span class="bold">{{caption.value}}</span>
                                     </a>
@@ -148,6 +148,76 @@
                                     <div class="constructs-wrapper">
                                         <!--Construct of Package-->
                                         <ul class="constructs-ul">
+                                            <li>
+                                                <a href="#PrimitivesSummary">
+                                                    <div class="construct-icon">
+                                                        <span class="fw-variable"> </span>
+                                                    </div>
+                                                    <div class="construct-name">
+                                                        Primitives
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="#TypeDefinitions">
+                                                    <div class="construct-icon">
+                                                        <span class="fw-constant"> </span>
+                                                    </div>
+                                                    <div class="construct-name">
+                                                        Type Definitions
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="#Annotations">
+                                                    <div class="construct-icon">
+                                                        <span class="fw-annotation"> </span>
+                                                    </div>
+                                                    <div class="construct-name">
+                                                        Annotations
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="#ObjectsSummary">
+                                                    <div class="construct-icon">
+                                                        <span class="fw-struct"> </span>
+                                                    </div>
+                                                    <div class="construct-name">
+                                                        Objects
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="#EndpointsSummary">
+                                                    <div class="construct-icon">
+                                                        <span class="fw-endpoint"> </span>
+                                                    </div>
+                                                    <div class="construct-name">
+                                                        Endpoints
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="#FunctionsSummary">
+                                                    <div class="construct-icon">
+                                                        <span class="fw-function"> </span>
+                                                    </div>
+                                                    <div class="construct-name">
+                                                        Functions
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="#GlobalVariables">
+                                                    <div class="construct-icon">
+                                                        <span class="fw-globe"> </span>
+                                                    </div>
+                                                    <div class="construct-name">
+                                                        Global Variables
+                                                    </div>
+                                                </a>
+                                            </li>
                                             {{#each constructs}}
                                                 {{#unless isGlobalVariable}} {{#unless isType}} {{#unless isAnnotation}}
                                                     <li>
@@ -174,36 +244,6 @@
                                                             </li>
                                                         </ul>
                                                     {{/each}} {{/unless}} {{/unless}} {{/unless}} {{/each}}
-                                            <li>
-                                                <a href="#TypeDefinitions">
-                                                    <div class="construct-icon">
-                                                        <span class="fw-constant"> </span>
-                                                    </div>
-                                                    <div class="construct-name">
-                                                        Type Definitions
-                                                    </div>
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a href="#Annotations">
-                                                    <div class="construct-icon">
-                                                        <span class="fw-annotation"> </span>
-                                                    </div>
-                                                    <div class="construct-name">
-                                                        Annotations
-                                                    </div>
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a href="#GlobalVariables">
-                                                    <div class="construct-icon">
-                                                        <span class="fw-globe"> </span>
-                                                    </div>
-                                                    <div class="construct-name">
-                                                        Global Variables
-                                                    </div>
-                                                </a>
-                                            </li>
                                         </ul>
                                     </div>
                                 {{else}} {{!--
@@ -258,8 +298,10 @@
 
                                         <div class="summary-wrapper">
                                             <!--Primitive Types-->
+                                            <h2 id="PrimitivesSummary">
+                                                <span class="fw-globe sm-icon"></span> Primitives Summary
+                                            </h2>
                                             <table>
-                                                <caption>Primitives Summary</caption>
                                                 <tr>
                                                     <th class="cSummary-table-type">Type</th>
                                                     <th class="cSummary-table-desc">Description</th>
@@ -267,61 +309,12 @@
                                                 {{#each constructs}}
                                                     {{#if isPrimitiveType}}
                                                         <tr>
-                                                            <td class="cSummary-table-type"><a href="#{{name}}">{{name}}</td>
-                                                            <td class="cSummary-table-desc">{{{description}}}</td>
-                                                        </tr>
-                                                    {{/if}}
-                                                {{/each}}
-                                            </table>
-                                            <p/><p/>
-                                            <table>
-                                                <caption>Objects Summary</caption>
-                                                <tr>
-                                                    <th class="cSummary-table-type">Object</th>
-                                                    <th class="cSummary-table-desc">Description</th>
-                                                </tr>
-                                                {{#each constructs}}
-                                                    {{#if isStruct}}
-                                                        <tr>
                                                             <td class="cSummary-table-type"><a href="#{{name}}">{{name}}</a></td>
                                                             <td class="cSummary-table-desc">{{{description}}}</td>
                                                         </tr>
                                                     {{/if}}
                                                 {{/each}}
                                             </table>
-                                            <p/><p/>
-                                            <table>
-                                                <caption>Endpoints Summary</caption>
-                                                <tr>
-                                                    <th class="cSummary-table-type">Endpoint</th>
-                                                    <th class="cSummary-table-desc">Description</th>
-                                                </tr>
-                                                {{#each constructs}}
-                                                    {{#if isConnector}}
-                                                        <tr>
-                                                            <td class="cSummary-table-type"><a href="#{{name}}">{{name}}</a></td>
-                                                            <td class="cSummary-table-desc">{{{description}}}</td>
-                                                        </tr>
-                                                    {{/if}}
-                                                {{/each}}
-                                            </table>
-                                            <p/><p/>
-                                            <table>
-                                                <caption>Functions Summary</caption>
-                                                <tr>
-                                                    <th class="cSummary-table-type">Return Type</th>
-                                                    <th class="cSummary-table-desc">Function and Description</th>
-                                                </tr>
-                                                {{#each constructs}}
-                                                    {{#if isFunction}}
-                                                        <tr>
-                                                            <td class="cSummary-table-type">{{#if returnParams}}{{join returnParams ", "}}{{/if}}</td>
-                                                            <td class="cSummary-table-desc"><a href="#{{name}}">{{name}}({{join parameters ", "}})</a></br>{{{description}}}</td>
-                                                        </tr>
-                                                    {{/if}}
-                                                {{/each}}
-                                            </table>
-                                            <p/><p/>
                                             <!-- Type Definitions-->
                                             <h2 id="TypeDefinitions">
                                                 <span class="fw-constant sm-icon"></span> Type Definitions
@@ -341,7 +334,6 @@
                                                         </tr>
                                                     {{/if}}  {{/each}}
                                             </table>
-                                            <p/><p/>
                                             <!-- Annotations -->
                                             <h2 id="Annotations">
                                                 <span class="fw-annotation sm-icon"></span> Annotations
@@ -363,7 +355,57 @@
                                                         </tr>
                                                     {{/if}}  {{/each}}
                                             </table>
-                                            <p/><p/>
+                                            <h2 id="ObjectsSummary">
+                                                <span class="fw-globe sm-icon"></span> Objects Summary
+                                            </h2>
+                                            <table>
+                                                <tr>
+                                                    <th class="cSummary-table-type">Object</th>
+                                                    <th class="cSummary-table-desc">Description</th>
+                                                </tr>
+                                                {{#each constructs}}
+                                                    {{#if isStruct}}
+                                                        <tr>
+                                                            <td class="cSummary-table-type"><a href="#{{name}}">{{name}}</a></td>
+                                                            <td class="cSummary-table-desc">{{{description}}}</td>
+                                                        </tr>
+                                                    {{/if}}
+                                                {{/each}}
+                                            </table>
+                                            <h2 id="EndpointsSummary">
+                                                <span class="fw-globe sm-icon"></span> Endpoints Summary
+                                            </h2>
+                                            <table>
+                                                <tr>
+                                                    <th class="cSummary-table-type">Endpoint</th>
+                                                    <th class="cSummary-table-desc">Description</th>
+                                                </tr>
+                                                {{#each constructs}}
+                                                    {{#if isConnector}}
+                                                        <tr>
+                                                            <td class="cSummary-table-type"><a href="#{{name}}">{{name}}</a></td>
+                                                            <td class="cSummary-table-desc">{{{description}}}</td>
+                                                        </tr>
+                                                    {{/if}}
+                                                {{/each}}
+                                            </table>
+                                            <h2 id="FunctionsSummary">
+                                                <span class="fw-globe sm-icon"></span> Functions Summary
+                                            </h2>
+                                            <table>
+                                                <tr>
+                                                    <th class="cSummary-table-type">Return Type</th>
+                                                    <th class="cSummary-table-desc">Function and Description</th>
+                                                </tr>
+                                                {{#each constructs}}
+                                                    {{#if isFunction}}
+                                                        <tr>
+                                                            <td class="cSummary-table-type">{{#if returnParams}}{{join returnParams ", "}}{{/if}}</td>
+                                                            <td class="cSummary-table-desc"><a href="#{{name}}">{{name}}({{join parameters ", "}})</a><br/>{{{description}}}</td>
+                                                        </tr>
+                                                    {{/if}}
+                                                {{/each}}
+                                            </table>
                                             <!-- Global Variables-->
                                             <h2 id="GlobalVariables">
                                                 <span class="fw-globe sm-icon"></span> Global Variables
@@ -383,367 +425,366 @@
                                                         </tr>
                                                     {{/if}}  {{/each}}
                                             </table>
-                                            <p/><p/>
                                         </div>
 
                                         {{#each constructs}}
-                                        <div class="construct-wrapper">
-                                            <!--Primitive Types-->
-                                            {{#if isPrimitiveType}}
-                                                <h2 id="{{name}}" class="cPrimitive">
-                                                    <span class="{{icon}} sm-icon"></span> {{name}}
-                                                </h2>
-                                                {{#if description}}
-                                                    <div class="cPrimitiveDescription">
-                                                        <span class="fw-right gray xs-icon"></span>{{{description}}}
+                                            <div class="construct-wrapper">
+                                                <!--Primitive Types-->
+                                                {{#if isPrimitiveType}}
+                                                    <h2 id="{{name}}" class="cPrimitive">
+                                                        <span class="{{icon}} sm-icon"></span> {{name}}
+                                                    </h2>
+                                                    {{#if description}}
+                                                        <div class="cPrimitiveDescription">
+                                                            <span class="fw-right gray xs-icon"></span>{{{description}}}
+                                                        </div>
+                                                    {{/if}} {{#if children}}
+                                                    <div class="function-wrapper">
+                                                        <ul>
+                                                            {{#each children}}
+                                                                <li class="cFunctionList">
+                                                                    <h2 id="{{../name}}-{{name}}">
+                                                                        <span class="{{icon}}"></span>
+                                                                        <span class="thin-text light-gray">&lt;{{../name}}&gt;</span> {{name}}({{join parameters ", "}}) {{#if returnParams}}returns ({{join returnParams ", "}}) {{/if}}
+                                                                    </h2>
+                                                                    {{#if description}}
+                                                                        <p>
+                                                                            <span class="fw-right gray xs-icon"></span>{{{description}}}
+                                                                        </p>
+                                                                    {{/if}} {{#if parameters}}
+                                                                    <table>
+                                                                        <tr>
+                                                                            <th class="cAPI-table-name">Parameter Name</th>
+                                                                            <th class="cAPI-table-type">Data Type</th>
+                                                                            <th class="cAPI-table-default">Default Value</th>
+                                                                            <th class="cAPI-table-desc">Description</th>
+                                                                        </tr>
+                                                                        {{#each parameters}}
+                                                                            <tr>
+                                                                                <td class="cAPI-table-name">{{name}}</td>
+                                                                                <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
+                                                                                <td class="cAPI-table-default"></td>
+                                                                                <td class="cAPI-table-desc">{{{description}}}</td>
+                                                                            </tr>
+                                                                        {{/each}}
+                                                                    </table>
+                                                                {{/if}} {{#if returnParams}}
+                                                                    <div class="cReturnTableHeader"></div>
+                                                                    <table>
+                                                                        <tr>
+                                                                            <th class="cAPI-table-name"></th>
+                                                                            <th class="cAPI-table-type">Return Type</th>
+                                                                            <th class="cAPI-table-default"></th>
+                                                                            <th class="cAPI-table-desc">Description</th>
+                                                                        </tr>
+                                                                        {{#each returnParams}}
+                                                                            <tr>
+                                                                                <td class="cAPI-table-name"></td>
+                                                                                <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
+                                                                                <td class="cAPI-table-default"></td>
+                                                                                <td class="cAPI-table-desc">{{{description}}}</td>
+                                                                            </tr>
+                                                                        {{/each}}
+                                                                    </table>
+                                                                {{/if}}
+                                                                </li>
+                                                            {{/each}}
+                                                        </ul>
                                                     </div>
+                                                {{/if}} {{/if}}
+                                                <!-- Function -->
+                                                {{#if isFunction}}
+                                                    <h2 id="{{name}}">
+                                                        <span class="{{icon}} sm-icon"> </span> public function {{name}}({{join parameters ", "}}) {{#if returnParams}}returns ({{join returnParams ", "}}) {{/if}}
+                                                    </h2>
+                                                    {{#if description}}
+                                                        <p>
+                                                            <span class="fw-right gray xs-icon"></span>{{{description}}}
+                                                        </p>
+                                                    {{/if}} {{#if parameters}}
+                                                    <table>
+                                                        <tr>
+                                                            <th class="cAPI-table-name">Parameter Name</th>
+                                                            <th class="cAPI-table-type">Data Type</th>
+                                                            <th class="cAPI-table-default">Default Value</th>
+                                                            <th class="cAPI-table-desc">Description</th>
+                                                        </tr>
+                                                        {{#each parameters}}
+                                                            <tr>
+                                                                <td class="cAPI-table-name">{{name}}</td>
+                                                                <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
+                                                                <td class="cAPI-table-default"></td>
+                                                                <td class="cAPI-table-desc">{{{description}}}</td>
+                                                            </tr>
+                                                        {{/each}}
+                                                    </table>
+                                                {{/if}} {{#if returnParams}}
+                                                    <div class="cReturnTableHeader"></div>
+                                                    <table>
+                                                        <tr>
+                                                            <th class="cAPI-table-name"></th>
+                                                            <th class="cAPI-table-type">Return Type</th>
+                                                            <th class="cAPI-table-default"></th>
+                                                            <th class="cAPI-table-desc">Description</th>
+                                                        </tr>
+                                                        {{#each returnParams}}
+                                                            <tr>
+                                                                <td class="cAPI-table-name"></td>
+                                                                <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
+                                                                <td class="cAPI-table-default"></td>
+                                                                <td class="cAPI-table-desc">{{{description}}}</td>
+                                                            </tr>
+                                                        {{/each}}
+                                                    </table>
+                                                {{/if}} {{/if}}
+                                                <!-- Struct-binded functions grouped together -->
+                                                {{#if isStruct}}
+                                                    <h2 id="{{name}}">
+                                                        <span class="{{icon}} sm-icon"></span> public object {{name}}
+                                                    </h2>
+                                                    {{#if description}}
+                                                        <p>
+                                                            <span class="fw-right gray xs-icon"></span>{{{description}}}
+                                                        </p>
+                                                    {{/if}} {{#if fields}}
+                                                    <table>
+                                                        <tr>
+                                                            <th class="cAPI-table-name">Field Name</th>
+                                                            <th class="cAPI-table-type">Data Type</th>
+                                                            <th class="cAPI-table-default">Default Value</th>
+                                                            <th class="cAPI-table-desc">Description</th>
+
+                                                        </tr>
+                                                        {{#each fields}}
+                                                            <tr>
+                                                                <td class="cAPI-table-name">{{name}}</td>
+                                                                <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
+                                                                <td class="cAPI-table-default">{{defaultValue}}</td>
+                                                                <td class="cAPI-table-desc">{{{description}}}</td>
+
+                                                            </tr>
+                                                        {{/each}}
+                                                    </table>
                                                 {{/if}} {{#if children}}
-                                                <div class="function-wrapper">
-                                                    <ul>
-                                                        {{#each children}}
-                                                            <li class="cFunctionList">
-                                                                <h2 id="{{../name}}-{{name}}">
-                                                                    <span class={{icon}}></span>
-                                                                    <span class="thin-text light-gray">&lt;{{../name}}&gt;</span> {{name}}({{join parameters ", "}}) {{#if returnParams}}returns ({{join returnParams ", "}}) {{/if}}
-                                                                </h2>
-                                                                {{#if description}}
-                                                                    <p>
-                                                                        <span class="fw-right gray xs-icon"></span>{{{description}}}
-                                                                    </p>
-                                                                {{/if}} {{#if parameters}}
-                                                                <table>
-                                                                    <tr>
-                                                                        <th class="cAPI-table-name">Parameter Name</th>
-                                                                        <th class="cAPI-table-type">Data Type</th>
-                                                                        <th class="cAPI-table-default">Default Value</th>
-                                                                        <th class="cAPI-table-desc">Description</th>
-                                                                    </tr>
-                                                                    {{#each parameters}}
+                                                    <div class="function-wrapper">
+                                                        <ul>
+                                                            {{#each children}}
+                                                                <li>
+                                                                    <h2 id="{{../name}}-{{name}}">
+                                                                        <span class="{{icon}}"></span>
+                                                                        <span class="thin-text light-gray">&lt;{{../name}}&gt;</span> {{name}}({{join parameters ", "}}) {{#if returnParams}}returns ({{join returnParams ", "}}) {{/if}}
+                                                                    </h2>
+                                                                    {{#if description}}
+                                                                        <p>
+                                                                            <span class="fw-right gray xs-icon"></span>{{{description}}}
+                                                                        </p>
+                                                                    {{/if}} {{#if parameters}}
+                                                                    <table>
                                                                         <tr>
-                                                                            <td class="cAPI-table-name">{{name}}</td>
-                                                                            <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
-                                                                            <td class="cAPI-table-default"></td>
-                                                                            <td class="cAPI-table-desc">{{{description}}}</td>
+                                                                            <th class="cAPI-table-name">Parameter Name</th>
+                                                                            <th class="cAPI-table-type">Data Type</th>
+                                                                            <th class="cAPI-table-default">Default Value</th>
+                                                                            <th class="cAPI-table-desc">Description</th>
                                                                         </tr>
-                                                                    {{/each}}
-                                                                </table>
-                                                            {{/if}} {{#if returnParams}}
-                                                                <div class="cReturnTableHeader"></div>
-                                                                <table>
-                                                                    <tr>
-                                                                        <th class="cAPI-table-name"></th>
-                                                                        <th class="cAPI-table-type">Return Type</th>
-                                                                        <th class="cAPI-table-default"></th>
-                                                                        <th class="cAPI-table-desc">Description</th>
-                                                                    </tr>
-                                                                    {{#each returnParams}}
+                                                                        {{#each parameters}}
+                                                                            <tr>
+                                                                                <td class="cAPI-table-name">{{name}}</td>
+                                                                                <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
+                                                                                <td class="cAPI-table-default"></td>
+                                                                                <td class="cAPI-table-desc">{{{description}}}</td>
+                                                                            </tr>
+                                                                        {{/each}}
+                                                                    </table>
+                                                                {{/if}} {{#if returnParams}}
+                                                                    <div class="cReturnTableHeader"></div>
+                                                                    <table>
                                                                         <tr>
-                                                                            <td class="cAPI-table-name"></td>
-                                                                            <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
-                                                                            <td class="cAPI-table-default"></td>
-                                                                            <td class="cAPI-table-desc">{{{description}}}</td>
+                                                                            <th class="cAPI-table-name"></th>
+                                                                            <th class="cAPI-table-type">Return Type</th>
+                                                                            <th class="cAPI-table-default"></th>
+                                                                            <th class="cAPI-table-desc">Description</th>
                                                                         </tr>
-                                                                    {{/each}}
-                                                                </table>
-                                                            {{/if}}
-                                                            </li>
+                                                                        {{#each returnParams}}
+                                                                            <tr>
+                                                                                <td class="cAPI-table-name"></td>
+                                                                                <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
+                                                                                <td class="cAPI-table-default"></td>
+                                                                                <td class="cAPI-table-desc">{{{description}}}</td>
+                                                                            </tr>
+                                                                        {{/each}}
+                                                                    </table>
+                                                                {{/if}}
+                                                                </li>
+                                                            {{/each}}
+                                                        </ul>
+                                                    </div>
+                                                {{/if}} {{/if}}
+                                                <!-- Connectors and its actions -->
+                                                {{#if isConnector}}
+                                                    <h2 id="{{name}}">
+                                                        <span class="{{icon}} sm-icon"></span>Endpoint {{name}}
+                                                    </h2>
+                                                    {{#if description}}
+                                                        <p>
+                                                            <span class="fw-right gray xs-icon"></span>{{{description}}}
+                                                        </p>
+                                                    {{/if}} {{#if fields}}
+                                                    <table>
+                                                        <tr>
+                                                            <th class="cAPI-table-name">Field Name</th>
+                                                            <th class="cAPI-table-type">Data Type</th>
+                                                            <th class="cAPI-table-default">Default Value</th>
+                                                            <th class="cAPI-table-desc">Description</th>
+                                                        </tr>
+                                                        {{#each fields}}
+                                                            <tr>
+                                                                <td class="cAPI-table-name">{{name}}</td>
+                                                                <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
+                                                                <td class="cAPI-table-default">{{defaultValue}}</td>
+                                                                <td class="cAPI-table-desc">{{{description}}}</td>
+                                                            </tr>
                                                         {{/each}}
-                                                    </ul>
-                                                </div>
-                                            {{/if}} {{/if}}
-                                            <!-- Function -->
-                                            {{#if isFunction}}
-                                                <h2 id="{{name}}">
-                                                    <span class="{{icon}} sm-icon"> </span> public function {{name}}({{join parameters ", "}}) {{#if returnParams}}returns ({{join returnParams ", "}}) {{/if}}
-                                                </h2>
-                                                {{#if description}}
-                                                    <p>
-                                                        <span class="fw-right gray xs-icon"></span>{{{description}}}
-                                                    </p>
-                                                {{/if}} {{#if parameters}}
-                                                <table>
-                                                    <tr>
-                                                        <th class="cAPI-table-name">Parameter Name</th>
-                                                        <th class="cAPI-table-type">Data Type</th>
-                                                        <th class="cAPI-table-default">Default Value</th>
-                                                        <th class="cAPI-table-desc">Description</th>
-                                                    </tr>
-                                                    {{#each parameters}}
-                                                        <tr>
-                                                            <td class="cAPI-table-name">{{name}}</td>
-                                                            <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
-                                                            <td class="cAPI-table-default"></td>
-                                                            <td class="cAPI-table-desc">{{{description}}}</td>
-                                                        </tr>
-                                                    {{/each}}
-                                                </table>
-                                            {{/if}} {{#if returnParams}}
-                                                <div class="cReturnTableHeader"></div>
-                                                <table>
-                                                    <tr>
-                                                        <th class="cAPI-table-name"></th>
-                                                        <th class="cAPI-table-type">Return Type</th>
-                                                        <th class="cAPI-table-default"></th>
-                                                        <th class="cAPI-table-desc">Description</th>
-                                                    </tr>
-                                                    {{#each returnParams}}
-                                                        <tr>
-                                                            <td class="cAPI-table-name"></td>
-                                                            <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
-                                                            <td class="cAPI-table-default"></td>
-                                                            <td class="cAPI-table-desc">{{{description}}}</td>
-                                                        </tr>
-                                                    {{/each}}
-                                                </table>
-                                            {{/if}} {{/if}}
-                                            <!-- Struct-binded functions grouped together -->
-                                            {{#if isStruct}}
-                                                <h2 id="{{name}}">
-                                                    <span class="{{icon}} sm-icon"></span> public object {{name}}
-                                                </h2>
-                                                {{#if description}}
-                                                    <p>
-                                                        <span class="fw-right gray xs-icon"></span>{{{description}}}
-                                                    </p>
-                                                {{/if}} {{#if fields}}
-                                                <table>
-                                                    <tr>
-                                                        <th class="cAPI-table-name">Field Name</th>
-                                                        <th class="cAPI-table-type">Data Type</th>
-                                                        <th class="cAPI-table-default">Default Value</th>
-                                                        <th class="cAPI-table-desc">Description</th>
-
-                                                    </tr>
-                                                    {{#each fields}}
-                                                        <tr>
-                                                            <td class="cAPI-table-name">{{name}}</td>
-                                                            <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
-                                                            <td class="cAPI-table-default">{{defaultValue}}</td>
-                                                            <td class="cAPI-table-desc">{{{description}}}</td>
-
-                                                        </tr>
-                                                    {{/each}}
-                                                </table>
-                                            {{/if}} {{#if children}}
-                                                <div class="function-wrapper">
-                                                    <ul>
-                                                        {{#each children}}
-                                                            <li>
-                                                                <h2 id="{{../name}}-{{name}}">
-                                                                    <span class={{icon}}></span>
-                                                                    <span class="thin-text light-gray">&lt;{{../name}}&gt;</span> {{name}}({{join parameters ", "}}) {{#if returnParams}}returns ({{join returnParams ", "}}) {{/if}}
-                                                                </h2>
-                                                                {{#if description}}
-                                                                    <p>
-                                                                        <span class="fw-right gray xs-icon"></span>{{{description}}}
-                                                                    </p>
-                                                                {{/if}} {{#if parameters}}
-                                                                <table>
-                                                                    <tr>
-                                                                        <th class="cAPI-table-name">Parameter Name</th>
-                                                                        <th class="cAPI-table-type">Data Type</th>
-                                                                        <th class="cAPI-table-default">Default Value</th>
-                                                                        <th class="cAPI-table-desc">Description</th>
-                                                                    </tr>
-                                                                    {{#each parameters}}
-                                                                        <tr>
-                                                                            <td class="cAPI-table-name">{{name}}</td>
-                                                                            <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
-                                                                            <td class="cAPI-table-default"></td>
-                                                                            <td class="cAPI-table-desc">{{{description}}}</td>
-                                                                        </tr>
-                                                                    {{/each}}
-                                                                </table>
-                                                            {{/if}} {{#if returnParams}}
-                                                                <div class="cReturnTableHeader"></div>
-                                                                <table>
-                                                                    <tr>
-                                                                        <th class="cAPI-table-name"></th>
-                                                                        <th class="cAPI-table-type">Return Type</th>
-                                                                        <th class="cAPI-table-default"></th>
-                                                                        <th class="cAPI-table-desc">Description</th>
-                                                                    </tr>
-                                                                    {{#each returnParams}}
-                                                                        <tr>
-                                                                            <td class="cAPI-table-name"></td>
-                                                                            <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
-                                                                            <td class="cAPI-table-default"></td>
-                                                                            <td class="cAPI-table-desc">{{{description}}}</td>
-                                                                        </tr>
-                                                                    {{/each}}
-                                                                </table>
-                                                            {{/if}}
-                                                            </li>
-                                                        {{/each}}
-                                                    </ul>
-                                                </div>
-                                            {{/if}} {{/if}}
-                                            <!-- Connectors and its actions -->
-                                            {{#if isConnector}}
-                                                <h2 id="{{name}}">
-                                                    <span class="{{icon}} sm-icon"></span>Endpoint {{name}}
-                                                </h2>
-                                                {{#if description}}
-                                                    <p>
-                                                        <span class="fw-right gray xs-icon"></span>{{{description}}}
-                                                    </p>
-                                                {{/if}} {{#if fields}}
-                                                <table>
-                                                    <tr>
-                                                        <th class="cAPI-table-name">Field Name</th>
-                                                        <th class="cAPI-table-type">Data Type</th>
-                                                        <th class="cAPI-table-default">Default Value</th>
-                                                        <th class="cAPI-table-desc">Description</th>
-                                                    </tr>
-                                                    {{#each fields}}
-                                                        <tr>
-                                                            <td class="cAPI-table-name">{{name}}</td>
-                                                            <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
-                                                            <td class="cAPI-table-default">{{defaultValue}}</td>
-                                                            <td class="cAPI-table-desc">{{{description}}}</td>
-                                                        </tr>
-                                                    {{/each}}
-                                                </table>
-                                            {{/if}} {{#if children}}
-                                                <div class="function-wrapper">
-                                                    <ul>
-                                                        {{#each children}}
-                                                            <li>
-                                                                <h2 id="{{../name}}-{{name}}">
-                                                                    <span class={{icon}}></span>
-                                                                    <span class="thin-text light-gray">
-                                                   <{{../name}}>
+                                                    </table>
+                                                {{/if}} {{#if children}}
+                                                    <div class="function-wrapper">
+                                                        <ul>
+                                                            {{#each children}}
+                                                                <li>
+                                                                    <h2 id="{{../name}}-{{name}}">
+                                                                        <span class="{{icon}}"></span>
+                                                                        <span class="thin-text light-gray">
+                                                   &lt;{{../name}}&gt;
                                                    </span> {{name}}({{join parameters ", "}}) {{#if returnParams}}returns ({{join returnParams ", "}}) {{/if}}
-                                                                </h2>
-                                                                {{#if description}}
-                                                                    <p>
-                                                                        <span class="fw-right gray xs-icon"></span>{{{description}}}
-                                                                    </p>
-                                                                {{/if}} {{#if parameters}}
-                                                                <table>
-                                                                    <tr>
-                                                                        <th class="cAPI-table-name">Parameter Name</th>
-                                                                        <th class="cAPI-table-type">Data Type</th>
-                                                                        <th class="cAPI-table-default">Default Value</th>
-                                                                        <th class="cAPI-table-desc">Description</th>
-                                                                    </tr>
-                                                                    {{#each parameters}}
+                                                                    </h2>
+                                                                    {{#if description}}
+                                                                        <p>
+                                                                            <span class="fw-right gray xs-icon"></span>{{{description}}}
+                                                                        </p>
+                                                                    {{/if}} {{#if parameters}}
+                                                                    <table>
                                                                         <tr>
-                                                                            <td class="cAPI-table-name">{{name}}</td>
-                                                                            <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
-                                                                            <td class="cAPI-table-default"></td>
-                                                                            <td class="cAPI-table-desc">{{{description}}}</td>
+                                                                            <th class="cAPI-table-name">Parameter Name</th>
+                                                                            <th class="cAPI-table-type">Data Type</th>
+                                                                            <th class="cAPI-table-default">Default Value</th>
+                                                                            <th class="cAPI-table-desc">Description</th>
                                                                         </tr>
-                                                                    {{/each}}
-                                                                </table>
-                                                            {{/if}} {{#if returnParams}}
-                                                                <div class="cReturnTableHeader"></div>
-                                                                <table>
-                                                                    <tr>
-                                                                        <th class="cAPI-table-name"></th>
-                                                                        <th class="cAPI-table-type">Return Type</th>
-                                                                        <th class="cAPI-table-default"></th>
-                                                                        <th class="cAPI-table-desc">Description</th>
-                                                                    </tr>
-                                                                    {{#each returnParams}}
+                                                                        {{#each parameters}}
+                                                                            <tr>
+                                                                                <td class="cAPI-table-name">{{name}}</td>
+                                                                                <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
+                                                                                <td class="cAPI-table-default"></td>
+                                                                                <td class="cAPI-table-desc">{{{description}}}</td>
+                                                                            </tr>
+                                                                        {{/each}}
+                                                                    </table>
+                                                                {{/if}} {{#if returnParams}}
+                                                                    <div class="cReturnTableHeader"></div>
+                                                                    <table>
                                                                         <tr>
-                                                                            <td class="cAPI-table-name"></td>
-                                                                            <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
-                                                                            <td class="cAPI-table-default"></td>
-                                                                            <td class="cAPI-table-desc">{{{description}}}</td>
+                                                                            <th class="cAPI-table-name"></th>
+                                                                            <th class="cAPI-table-type">Return Type</th>
+                                                                            <th class="cAPI-table-default"></th>
+                                                                            <th class="cAPI-table-desc">Description</th>
                                                                         </tr>
-                                                                    {{/each}}
-                                                                </table>
-                                                            {{/if}}
-                                                            </li>
-                                                        {{/each}}
-                                                    </ul>
-                                                </div>
-                                            {{/if}} {{/if}}
-                                            <!-- Objects and its functions -->
-                                            {{#if isObject}}
-                                                <h2 id="{{name}}">
-                                                    <span class="{{icon}} sm-icon"></span> public type {{name}} object
-                                                </h2>
-                                                {{#if description}}
-                                                    <p>
-                                                        <span class="fw-right gray xs-icon"></span>{{{description}}}
-                                                    </p>
-                                                {{/if}} {{#if fields}}
-                                                <table>
-                                                    <tr>
-                                                        <th class="cAPI-table-name">Field Name</th>
-                                                        <th class="cAPI-table-type">Data Type</th>
-                                                        <th class="cAPI-table-default">Default Value</th>
-                                                        <th class="cAPI-table-desc">Description</th>
-                                                    </tr>
-                                                    {{#each fields}}
+                                                                        {{#each returnParams}}
+                                                                            <tr>
+                                                                                <td class="cAPI-table-name"></td>
+                                                                                <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
+                                                                                <td class="cAPI-table-default"></td>
+                                                                                <td class="cAPI-table-desc">{{{description}}}</td>
+                                                                            </tr>
+                                                                        {{/each}}
+                                                                    </table>
+                                                                {{/if}}
+                                                                </li>
+                                                            {{/each}}
+                                                        </ul>
+                                                    </div>
+                                                {{/if}} {{/if}}
+                                                <!-- Objects and its functions -->
+                                                {{#if isObject}}
+                                                    <h2 id="{{name}}">
+                                                        <span class="{{icon}} sm-icon"></span> public type {{name}} object
+                                                    </h2>
+                                                    {{#if description}}
+                                                        <p>
+                                                            <span class="fw-right gray xs-icon"></span>{{{description}}}
+                                                        </p>
+                                                    {{/if}} {{#if fields}}
+                                                    <table>
                                                         <tr>
-                                                            <td class="cAPI-table-name">{{name}}</td>
-                                                            <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
-                                                            <td class="cAPI-table-default">{{defaultValue}}</td>
-                                                            <td class="cAPI-table-desc">{{{description}}}</td>
+                                                            <th class="cAPI-table-name">Field Name</th>
+                                                            <th class="cAPI-table-type">Data Type</th>
+                                                            <th class="cAPI-table-default">Default Value</th>
+                                                            <th class="cAPI-table-desc">Description</th>
                                                         </tr>
-                                                    {{/each}}
-                                                </table>
-                                            {{/if}} {{#if children}}
-                                                <div class="function-wrapper">
-                                                    <ul>
-                                                        {{#each children}}
-                                                            <li>
-                                                                <h2 id="{{../name}}-{{name}}">
-                                                                    <span class={{icon}}></span>
-                                                                    <span class="thin-text light-gray">
-                                                   <{{../name}}>
-                                                   </span> {{name}}({{join parameters ", "}}) {{#if returnParams}}returns ({{join returnParams ", "}}) {{/if}}
-                                                                </h2>
-                                                                {{#if description}}
-                                                                    <p>
-                                                                        <span class="fw-right gray xs-icon"></span>{{{description}}}
-                                                                    </p>
-                                                                {{/if}} {{#if parameters}}
-                                                                <table>
-                                                                    <tr>
-                                                                        <th class="cAPI-table-name">Parameter Name</th>
-                                                                        <th class="cAPI-table-type">Data Type</th>
-                                                                        <th class="cAPI-table-default">Default Value</th>
-                                                                        <th class="cAPI-table-desc">Description</th>
-                                                                    </tr>
-                                                                    {{#each parameters}}
-                                                                        <tr>
-                                                                            <td class="cAPI-table-name">{{name}}</td>
-                                                                            <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
-                                                                            <td class="cAPI-table-default"></td>
-                                                                            <td class="cAPI-table-desc">{{{description}}}</td>
-                                                                        </tr>
-                                                                    {{/each}}
-                                                                </table>
-                                                            {{/if}} {{#if returnParams}}
-                                                                <div class="cReturnTableHeader"></div>
-                                                                <table>
-                                                                    <tr>
-                                                                        <th class="cAPI-table-name"></th>
-                                                                        <th class="cAPI-table-type">Return Type</th>
-                                                                        <th class="cAPI-table-default"></th>
-                                                                        <th class="cAPI-table-desc">Description</th>
-                                                                    </tr>
-                                                                    {{#each returnParams}}
-                                                                        <tr>
-                                                                            <td class="cAPI-table-name"></td>
-                                                                            <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
-                                                                            <td class="cAPI-table-default"></td>
-                                                                            <td class="cAPI-table-desc">{{{description}}}</td>
-                                                                        </tr>
-                                                                    {{/each}}
-                                                                </table>
-                                                            {{/if}}
-                                                            </li>
+                                                        {{#each fields}}
+                                                            <tr>
+                                                                <td class="cAPI-table-name">{{name}}</td>
+                                                                <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
+                                                                <td class="cAPI-table-default">{{defaultValue}}</td>
+                                                                <td class="cAPI-table-desc">{{{description}}}</td>
+                                                            </tr>
                                                         {{/each}}
-                                                    </ul>
-                                                </div>
-                                            {{/if}} {{/if}}
+                                                    </table>
+                                                {{/if}} {{#if children}}
+                                                    <div class="function-wrapper">
+                                                        <ul>
+                                                            {{#each children}}
+                                                                <li>
+                                                                    <h2 id="{{../name}}-{{name}}">
+                                                                        <span class="{{icon}}"></span>
+                                                                        <span class="thin-text light-gray">
+                                                   &lt;{{../name}}&gt;
+                                                   </span> {{name}}({{join parameters ", "}}) {{#if returnParams}}returns ({{join returnParams ", "}}) {{/if}}
+                                                                    </h2>
+                                                                    {{#if description}}
+                                                                        <p>
+                                                                            <span class="fw-right gray xs-icon"></span>{{{description}}}
+                                                                        </p>
+                                                                    {{/if}} {{#if parameters}}
+                                                                    <table>
+                                                                        <tr>
+                                                                            <th class="cAPI-table-name">Parameter Name</th>
+                                                                            <th class="cAPI-table-type">Data Type</th>
+                                                                            <th class="cAPI-table-default">Default Value</th>
+                                                                            <th class="cAPI-table-desc">Description</th>
+                                                                        </tr>
+                                                                        {{#each parameters}}
+                                                                            <tr>
+                                                                                <td class="cAPI-table-name">{{name}}</td>
+                                                                                <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
+                                                                                <td class="cAPI-table-default"></td>
+                                                                                <td class="cAPI-table-desc">{{{description}}}</td>
+                                                                            </tr>
+                                                                        {{/each}}
+                                                                    </table>
+                                                                {{/if}} {{#if returnParams}}
+                                                                    <div class="cReturnTableHeader"></div>
+                                                                    <table>
+                                                                        <tr>
+                                                                            <th class="cAPI-table-name"></th>
+                                                                            <th class="cAPI-table-type">Return Type</th>
+                                                                            <th class="cAPI-table-default"></th>
+                                                                            <th class="cAPI-table-desc">Description</th>
+                                                                        </tr>
+                                                                        {{#each returnParams}}
+                                                                            <tr>
+                                                                                <td class="cAPI-table-name"></td>
+                                                                                <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
+                                                                                <td class="cAPI-table-default"></td>
+                                                                                <td class="cAPI-table-desc">{{{description}}}</td>
+                                                                            </tr>
+                                                                        {{/each}}
+                                                                    </table>
+                                                                {{/if}}
+                                                                </li>
+                                                            {{/each}}
+                                                        </ul>
+                                                    </div>
+                                                {{/if}} {{/if}}
+                                            </div>
                                         {{/each}}
-                                    </div>
                                     </div>
                                 </div>
                             </div>
@@ -752,8 +793,8 @@
                 </div>
             </div>
         </div>
-
     </div>
+</div>
 </div>
 <div id="iBallerinaFooter" class="row cBallerina-io-White-row">
 </div>

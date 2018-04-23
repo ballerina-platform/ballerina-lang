@@ -58,7 +58,7 @@ public class GetNextPromise extends AbstractHTTPAction {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
 
-        DataContext dataContext = new DataContext(context, callback);
+        DataContext dataContext = new DataContext(context, callback, null);
         BStruct handleStruct = ((BStruct) context.getRefArgument(1));
         ResponseHandle responseHandle = (ResponseHandle) handleStruct.getNativeData(HttpConstants.TRANSPORT_HANDLE);
         if (responseHandle == null) {
