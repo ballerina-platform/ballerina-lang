@@ -1,0 +1,193 @@
+{
+  "position": {
+    "line": 6,
+    "character": 31
+  },
+  "source": "function/source/variableBoundItemSuggestions4.bal",
+  "items": [
+    {
+      "label":"equalsIgnoreCase(string anotherString)(boolean)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"equalsIgnoreCase(${1:anotherString})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"toUpper()(string)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"toUpper()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"substring(int startIndex, int endIndex)(string)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"substring(${1:startIndex}, ${2:endIndex})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"lastIndexOf(string substring)(int)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"lastIndexOf(${1:substring})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"replaceFirst(string regex, string replaceWith)(string)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"replaceFirst(${1:regex}, ${2:replaceWith})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"length()(int)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"length()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"contains(string substring)(boolean)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"contains(${1:substring})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"indexOf(string substring)(int)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"indexOf(${1:substring})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"trim()(string)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"trim()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"hasSuffix(string suffix)(boolean)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"hasSuffix(${1:suffix})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"unescape()(string)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"unescape()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"toLower()(string)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"toLower()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"hasPrefix(string prefix)(boolean)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"hasPrefix(${1:prefix})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"replaceAll(string regex, string replaceWith)(string)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"replaceAll(${1:regex}, ${2:replaceWith})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"replace(string regex, string replaceWith)(string)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"replace(${1:regex}, ${2:replaceWith})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"split(string regex)(string[])",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"split(${1:regex})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"toBlob(string encoding)(blob)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"toBlob(${1:encoding})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"findAll(string regex)(string[]|error)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"findAll(${1:regex})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"matches(string regex)(boolean|error)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"matches(${1:regex})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"base64Encode(string charset \u003d utf-8)(string|error)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"base64Encode(charset \u003d ${2:utf-8})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"base64Decode(string charset \u003d utf-8)(string|error)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"base64Decode(charset \u003d ${2:utf-8})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"base16ToBase64Encode()(string)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"base16ToBase64Encode()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"base64ToBase16Encode()(string)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"base64ToBase16Encode()",
+      "insertTextFormat":"Snippet"
+    }
+  ]
+}
