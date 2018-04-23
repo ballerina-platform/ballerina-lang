@@ -36,7 +36,7 @@ endpoint grpc:Listener ep {
         sslVerifyClient:"require"
     }
 };
-@grpc:serviceConfig
+
 service HelloWorld bind ep {
     hello(endpoint caller, string name) {
         io:println("name: " + name);
