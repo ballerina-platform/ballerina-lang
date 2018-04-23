@@ -9,11 +9,16 @@ endpoint jms:SimpleQueueSender queueSender {
     queueName: "MyQueue"
 };
 
-
 function main (string... args) {
     // Create a Text message.
-    jms:Message m = check queueSender.createTextMessage("Test Text");
-    // Send the Ballerina message to the JMS provider.
-    check queueSender->send(m);
-    log:printInfo("Message successfully sent.");
+    match (queueSender.createTextMessage("Hello from Ballerina")) {
+        error e => {
+            log:printError("Error occurred while creating message", err = e);
+        }
+
+        jms:Message msg => {
+            // Send the Ballerina message to the JMS provider.
+            queueSender->send(msg) but { error e => log:printError("Error occurred while sending message", err = e) };
+        }
+    }
 }

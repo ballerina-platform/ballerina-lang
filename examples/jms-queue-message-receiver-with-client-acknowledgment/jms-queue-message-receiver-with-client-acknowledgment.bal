@@ -24,9 +24,15 @@ service<jms:Consumer> jmsListener bind consumer {
 
     // The `OnMessage` resource gets invoked when a message is received.
     onMessage(endpoint consumer, jms:Message message) {
-        string messageText = check message.getTextMessageContent();
-        log:printInfo("Message : " + messageText);
-        // Acknowledge the received message using the queue receiver endpoint's acknowledge function.
-        check consumer -> acknowledge (message);
+        // Retrieve the text message.
+        match (message.getTextMessageContent()) {
+            string messageText => {
+                log:printInfo("Message : " + messageText);
+                // Acknowledge the received message using the queue receiver endpoint's acknowledge function.
+                consumer->acknowledge(message)
+                    but { error e => log:printError("Error occurred while acknowledging message", err = e) };
+            }
+            error e => log:printError("Error occurred while reading message", err = e);
+        }
   }
 }

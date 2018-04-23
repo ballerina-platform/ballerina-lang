@@ -11,7 +11,9 @@ service<mb:Consumer> mbListener bind subscriber {
 
     // Receive the messages that comes to the service.
     onMessage(endpoint consumer, mb:Message message) {
-        string messageText = check message.getTextMessageContent();
-        log:printInfo("Message : " + messageText);
+        match (message.getTextMessageContent()) {
+            string messageText => log:printInfo("Message : " + messageText);
+            error e => log:printError("Error occurred while reading message", err=e);
+        }
     }
 }
