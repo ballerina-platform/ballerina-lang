@@ -40,3 +40,16 @@ public function employee::setSSN(string ssn) {
 public function employee::getEmployeeId() returns (int) {
     return self.employeeId;
 }
+
+public type FooObj object {
+    public {
+        int age;
+        string name;
+    }
+
+    public function getName() returns (string);
+};
+
+public function FooObj::getName() returns (string) {
+    return self.name;
+}
