@@ -12,7 +12,7 @@ service<http:Service> sample bind sampleEp {
         methods:["GET"],
         path:"/path/{foo}"
     }
-    //The `PathParam` and `QueryParam` parameters extract values from the request URI.
+    // The `PathParam` and `QueryParam` parameters extract values from the request URI.
     params(endpoint caller, http:Request req, string foo) {
         // Get `QueryParams`.
         var params = req.getQueryParams();

@@ -46,11 +46,11 @@ service<http:Service> httpService bind servicEp {
 }
 
 
-//Note: When a WebSocket upgrade path is defined in HTTP resource configuration.
-//- Without service configuration for WebSocketService default values are taken for sub protocols, idle timeout etc...
-//- If  WebSocketServiceConfig is defined without the path, sub protocols, idle timeout etc... can be configured.
-//- If path is defined in the WebSocketServiceConfig it shall be ignored.
-//- This service can also be bound to a different endpoint in which case the path configuration will become useful.
+// Note: When a WebSocket upgrade path is defined in HTTP resource configuration.
+// - Without service configuration for WebSocketService default values are taken for sub protocols, idle timeout etc...
+// - If  WebSocketServiceConfig is defined without the path, sub protocols, idle timeout etc... can be configured.
+// - If path is defined in the WebSocketServiceConfig it shall be ignored.
+// - This service can also be bound to a different endpoint in which case the path configuration becomes useful.
 @http:WebSocketServiceConfig {
     subProtocols:["xml, json"],
     idleTimeoutInSeconds:20
