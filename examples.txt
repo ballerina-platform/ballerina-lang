@@ -145,3 +145,7 @@ Streams within services
 Streams Join
 Streams Sequences
 Streams Patterns
+Objects
+Object Initializer
+Object Member Functions
+Object Assignability
