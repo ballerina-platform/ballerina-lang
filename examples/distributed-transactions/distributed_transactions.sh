@@ -12,4 +12,3 @@ Running 2-phase commit for transaction: fc5c5c4c-81e3-435f-b22f-801659613fd6:1
 Transaction: fc5c5c4c-81e3-435f-b22f-801659613fd6:1 committed
 2018-04-23 20:38:47,078 INFO  [] - CUSTOMER table drop status: 0
 2018-04-23 20:38:47,084 INFO  [] - SALARY table drop status: 0
-

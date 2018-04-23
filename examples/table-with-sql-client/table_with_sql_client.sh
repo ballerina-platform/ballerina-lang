@@ -6,4 +6,4 @@ $ ballerina run table-with-sql-connector.bal
 2018-04-23 18:09:30,821 INFO  [] - Employee:2|Anne|4060.5|true|1999-12-31+06:00|13:40:24.000+05:30|2017-05-23T09:15:28.000+05:30 
 2018-04-23 18:09:31,166 INFO  [] - [{"id":1,"name":"John"},{"id":2,"name":"Anne"}] 
 2018-04-23 18:09:31,201 INFO  [] - <results><result><id>1</id><name>John</name></result><result><id>2</id><name>Anne</name></result></results> 
-2018-04-23 18:09:31,205 INFO  [] - Table drop status:0 
+2018-04-23 18:09:31,205 INFO  [] - Table drop status:0
