@@ -33,6 +33,7 @@ service<http:Service> http11Service bind http11ServiceEP {
                 response.setStringPayload(err.message);
             }
         }
+        // Send the response back to the caller.
         caller->respond(response) but {
             error e => log:printError("Error occurred while sending the response", err = e) };
     }
@@ -58,9 +59,9 @@ service<http:Service> http2service bind http2serviceEP {
         json msg = {"response":{"message":"response from http2 service"}};
         response.setJsonPayload(msg);
 
-        // Send the response.
+        // Send the response to the caller (http11Service).
         caller->respond(response) but {
-            error e => log:printError("Error occurred while sending the response", err = e)};
+            error e => log:printError("Error occurred while sending the response", err = e) };
     }
 }
 

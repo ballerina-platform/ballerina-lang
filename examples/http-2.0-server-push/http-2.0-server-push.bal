@@ -137,8 +137,8 @@ function main(string... args) {
 
     var responsePayload = res.getJsonPayload();
     match responsePayload {
-        json resultantJsonPayload => {log:printInfo("Response : " + resultantJsonPayload.toString());}
-        http:PayloadError e => {log:printError("Expected response payload not received", err = e);}
+        json resultantJsonPayload => log:printInfo("Response : " + resultantJsonPayload.toString());
+        http:PayloadError e => log:printError("Expected response payload not received", err = e);
     }
 
     // Fetch required promised responses.
@@ -157,8 +157,8 @@ function main(string... args) {
 
         var promisedPayload = promisedResponse.getJsonPayload();
         match promisedPayload {
-            json promisedJsonPayload => {log:printInfo("Promised resource : " + promisedJsonPayload.toString());}
-            http:PayloadError e => {log:printError("Expected promised response payload not received", err = e);}
+            json promisedJsonPayload => log:printInfo("Promised resource : " + promisedJsonPayload.toString());
+            http:PayloadError e => log:printError("Expected promised response payload not received", err = e);
         }
     }
 }
