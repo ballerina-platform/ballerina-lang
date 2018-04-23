@@ -556,4 +556,29 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 1, "invalid usage of record literal with type 'Person'", 4, 16);
     }
 
+    @Test (description = "Negative test to test referring undefined field in constructor")
+    public void testReferUndefinedFieldBal() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_access_undefined_field.bal");
+        Assert.assertEquals(result.getErrorCount(), 3);
+        BAssertUtil.validateError(result, 0, "undefined field 'agea' in object 'Person'", 6, 10);
+        BAssertUtil.validateError(result, 1, "undefined symbol '><'", 6, 10);
+        BAssertUtil.validateError(result, 2, "undefined symbol 'abc'", 7, 9);
+    }
+
+    @Test (description = "Negative test to test nillable initialization")
+    public void testNillableInitialization() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_nillable_init.bal");
+        Assert.assertEquals(result.getErrorCount(), 10);
+        BAssertUtil.validateError(result, 0, "cannot infer type of the object from 'Person?'", 1, 14);
+        BAssertUtil.validateError(result, 1, "cannot infer type of the object from 'Person?'", 2, 14);
+        BAssertUtil.validateError(result, 2, "cannot infer type of the object from 'Person?'", 5, 18);
+        BAssertUtil.validateError(result, 3, "cannot infer type of the object from 'Person?'", 6, 18);
+        BAssertUtil.validateError(result, 4, "cannot infer type of the object from 'Person?'", 8, 10);
+        BAssertUtil.validateError(result, 5, "cannot infer type of the object from 'Person?'", 10, 10);
+        BAssertUtil.validateError(result, 6, "cannot infer type of the object from 'Person?'", 22, 22);
+        BAssertUtil.validateError(result, 7, "cannot infer type of the object from 'Person?'", 23, 22);
+        BAssertUtil.validateError(result, 8, "cannot infer type of the object from 'Person?'", 28, 14);
+        BAssertUtil.validateError(result, 9, "cannot infer type of the object from 'Person?'", 29, 14);
+    }
+
 }
