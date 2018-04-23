@@ -37,7 +37,7 @@ public type HttpSecureClient object {
         CallerActions httpClient;
     }
 
-    public new (serviceUri, config) {
+    public new(serviceUri, config) {
         self.httpClient = createSimpleHttpClient(serviceUri, config);
     }
 
@@ -218,14 +218,14 @@ public type HttpSecureClient object {
     @Param {value:"httpFuture: The Future which relates to previous async invocation"}
     @Return {value:"The HTTP response message"}
     @Return {value:"The Error occured during HTTP client invocation"}
-    public function getResponse (HttpFuture httpFuture) returns (Response|HttpConnectorError) {
+    public function getResponse(HttpFuture httpFuture) returns (Response|HttpConnectorError) {
         return httpClient.getResponse(httpFuture);
     }
 
     @Description {value:"Checks whether server push exists for a previously submitted request."}
     @Param {value:"httpFuture: The Future which relates to previous async invocation"}
     @Return {value:"Whether push promise exists"}
-    public function hasPromise (HttpFuture httpFuture) returns boolean {
+    public function hasPromise(HttpFuture httpFuture) returns boolean {
         return httpClient.hasPromise(httpFuture);
     }
 
@@ -233,7 +233,7 @@ public type HttpSecureClient object {
     @Param {value:"httpFuture: The Future which relates to previous async invocation"}
     @Return {value:"The HTTP Push Promise message"}
     @Return {value:"The Error occured during HTTP client invocation"}
-    public function getNextPromise (HttpFuture httpFuture) returns (PushPromise|HttpConnectorError) {
+    public function getNextPromise(HttpFuture httpFuture) returns (PushPromise|HttpConnectorError) {
         return httpClient.getNextPromise(httpFuture);
     }
 
@@ -241,13 +241,13 @@ public type HttpSecureClient object {
     @Param {value:"promise: The related Push Promise message"}
     @Return {value:"HTTP The Push Response message"}
     @Return {value:"The Error occured during HTTP client invocation"}
-    public function getPromisedResponse (PushPromise promise) returns (Response|HttpConnectorError) {
+    public function getPromisedResponse(PushPromise promise) returns (Response|HttpConnectorError) {
         return httpClient.getPromisedResponse(promise);
     }
 
     @Description {value:"Rejects a push promise."}
     @Param {value:"promise: The Push Promise need to be rejected"}
-    public function rejectPromise (PushPromise promise) {
+    public function rejectPromise(PushPromise promise) {
         return httpClient.rejectPromise(promise);
     }
 };
@@ -338,7 +338,8 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
 
     Request refreshTokenRequest = new;
     refreshTokenRequest.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + base64ClientIdSecret);
-    refreshTokenRequest.setStringPayload("grant_type=refresh_token&refresh_token=" + refreshToken, contentType = mime:APPLICATION_FORM_URLENCODED);
+    refreshTokenRequest.setStringPayload("grant_type=refresh_token&refresh_token=" + refreshToken,
+        contentType = mime:APPLICATION_FORM_URLENCODED);
     Response refreshTokenResponse = check refreshTokenClient.post(EMPTY_STRING, request = refreshTokenRequest);
 
     json generatedToken = check refreshTokenResponse.getJsonPayload();
