@@ -2,7 +2,7 @@
 $ broker.sh
 
 # At the command line, navigate to the directory that contains the
-# `jms-durable-topic-message-subscriber.bal` file and run the `ballerina run` command.
-$ ballerina run jms-durable-topic-message-subscriber.bal
+# `jms_durable_topic_message_subscriber.bal` file and run the `ballerina run` command.
+$ ballerina run jms_durable_topic_message_subscriber.bal
 
 #JMS subscriber run as a Ballerina service listening on the subscribed topic
