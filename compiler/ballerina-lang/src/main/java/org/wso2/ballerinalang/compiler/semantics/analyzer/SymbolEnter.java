@@ -433,9 +433,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
             typeDefinition.symbol.type = definedType;
         } else {
-            Set<BType> memberTypes = new HashSet<>();
-            memberTypes.add(definedType);
             if (!valueSpace.isEmpty()) {
+                Set<BType> memberTypes = new HashSet<>();
+                memberTypes.add(definedType);
                 memberTypes.add(finiteType);
                 typeDefinition.symbol.type = new BUnionType(null, memberTypes,
                         memberTypes.contains(symTable.nilType));

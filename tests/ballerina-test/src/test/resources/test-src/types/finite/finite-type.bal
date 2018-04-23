@@ -175,3 +175,23 @@ function testFiniteTypesWithTuple() returns State {
    var (i, j) = b;
    return i;
 }
+
+type TypeAliasOne Person;
+
+type TypeAliasTwo TypeAliasOne;
+
+type TypeAliasThree TypeAliasTwo;
+
+function testTypeAliasing() returns string {
+    TypeAliasThree p = {name:"Can tell my name"};
+    return p.name;
+}
+
+type MyType int|string;
+
+function testTypeAliasingCaseOne() returns (MyType,MyType) {
+     MyType a = 100;
+     MyType b = "hundred";
+     return (a,b);
+}
+
