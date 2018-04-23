@@ -1,4 +1,5 @@
-2018-04-23 18:09:30,799 INFO  [] - Create table status: 0 
+$ ballerina run table-with-sql-connector.bal
+2018-04-23 18:09:30,799 INFO  [] - Create table status: 0
 2018-04-23 18:09:30,805 INFO  [] - Updated row count: 1 
 2018-04-23 18:09:30,810 INFO  [] - Updated row count: 1 
 2018-04-23 18:09:30,820 INFO  [] - Employee:1|John|1050.5|false|1990-12-31+05:30|11:30:45.000+05:30|2007-05-23T09:15:28.000+05:30 
