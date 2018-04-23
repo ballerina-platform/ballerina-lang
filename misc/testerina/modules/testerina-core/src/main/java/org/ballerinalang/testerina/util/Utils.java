@@ -23,6 +23,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.File;
 import java.io.IOException;
@@ -87,5 +88,11 @@ public class Utils {
             debugger.init();
             debugger.waitTillDebuggeeResponds();
         }
+    }
+
+    public static String getFullPackageName(String packageName) {
+        TesterinaRegistry registry = TesterinaRegistry.getInstance();
+        return registry.getOrgName() == null ? "." : registry.getOrgName().equals(Names.ANON_ORG
+            .toString()) ? packageName : registry.getOrgName() + "." + packageName;
     }
 }
