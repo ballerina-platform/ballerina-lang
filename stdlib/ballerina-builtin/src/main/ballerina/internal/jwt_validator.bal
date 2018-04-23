@@ -14,12 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 import ballerina/log;
 import ballerina/time;
-import ballerina/util;
 
-@Description {value:"Represents JWT validator configurations"}
+documentation {
+    Represents JWT validator configurations.
+}
 public type JWTValidatorConfig {
     string issuer,
     string audience,
@@ -29,13 +29,16 @@ public type JWTValidatorConfig {
     string trustStorePassword,
 };
 
-@Description {value:"Validity given JWT token"}
-@Param {value:"jwtToken: JWT token that need to validate"}
-@Param {value:"config: JWTValidatorConfig object"}
-@Return {value:"boolean: If JWT token is valied true , else false"}
-@Return {value:"JwtPayload: If JWT token is valied return the JWT payload"}
-@Return {value:"error: If token validation fails"}
-public function validate (string jwtToken, JWTValidatorConfig config) returns JwtPayload|error {
+documentation {
+    Validity given JWT token.
+
+    P{{jwtToken}} JWT token that need to validate
+    P{{config}} JWTValidatorConfig object
+    R{{}} If JWT token is valied true , else false
+    R{{}} If JWT token is valied return the JWT payload
+    R{{}} If token validation fails
+}
+public function validate(string jwtToken, JWTValidatorConfig config) returns JwtPayload|error {
     string[] encodedJWTComponents;
     match getJWTComponents(jwtToken) {
         string[] encodedJWT => encodedJWTComponents = encodedJWT;
@@ -64,7 +67,7 @@ public function validate (string jwtToken, JWTValidatorConfig config) returns Jw
     }
 }
 
-function getJWTComponents (string jwtToken) returns (string[])|error {
+function getJWTComponents(string jwtToken) returns (string[])|error {
     string[] jwtComponents = jwtToken.split("\\.");
     if (lengthof jwtComponents != 3) {
         log:printDebug("Invalid JWT token :" + jwtToken);
@@ -74,7 +77,7 @@ function getJWTComponents (string jwtToken) returns (string[])|error {
     return jwtComponents;
 }
 
-function parseJWT (string[] encodedJWTComponents) returns ((JwtHeader, JwtPayload)|error) {
+function parseJWT(string[] encodedJWTComponents) returns ((JwtHeader, JwtPayload)|error) {
     json headerJson = {};
     json payloadJson = {};
     match getDecodedJWTComponents(encodedJWTComponents) {
@@ -89,7 +92,7 @@ function parseJWT (string[] encodedJWTComponents) returns ((JwtHeader, JwtPayloa
     return (jwtHeader, jwtPayload);
 }
 
-function getDecodedJWTComponents (string[] encodedJWTComponents) returns ((json, json)|error) {
+function getDecodedJWTComponents(string[] encodedJWTComponents) returns ((json, json)|error) {
     string jwtHeader = check urlDecode(encodedJWTComponents[0]).base64Decode();
     string jwtPayload = check urlDecode(encodedJWTComponents[1]).base64Decode();
     json jwtHeaderJson = {};
@@ -106,12 +109,12 @@ function getDecodedJWTComponents (string[] encodedJWTComponents) returns ((json,
     return (jwtHeaderJson, jwtPayloadJson);
 }
 
-function parseHeader (json jwtHeaderJson) returns (JwtHeader) {
+function parseHeader(json jwtHeaderJson) returns (JwtHeader) {
     JwtHeader jwtHeader = {};
     map customClaims;
-    
-    string [] keys = jwtHeaderJson.getKeys();
-    
+
+    string[] keys = jwtHeaderJson.getKeys();
+
     foreach key in keys {
         //TODO get alg from a constant
         if (key == "alg") {
@@ -134,10 +137,10 @@ function parseHeader (json jwtHeaderJson) returns (JwtHeader) {
     return jwtHeader;
 }
 
-function parsePayload (json jwtPayloadJson) returns (JwtPayload) {
+function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
     JwtPayload jwtPayload = {};
     map customClaims;
-    string [] keys = jwtPayloadJson.getKeys();
+    string[] keys = jwtPayloadJson.getKeys();
     foreach key in keys {
         if (key == ISS) {
             jwtPayload.iss = jwtPayloadJson[key].toString();
@@ -149,13 +152,13 @@ function parsePayload (json jwtPayloadJson) returns (JwtPayload) {
             jwtPayload.jti = jwtPayloadJson[key].toString();
         } else if (key == EXP) {
             var value = jwtPayloadJson[key].toString();
-            jwtPayload.exp = <int>value but {error => 0};
+            jwtPayload.exp = <int>value but { error => 0 };
         } else if (key == NBF) {
             var value = jwtPayloadJson[key].toString();
-            jwtPayload.nbf = <int>value but {error => 0};
+            jwtPayload.nbf = <int>value but { error => 0 };
         } else if (key == IAT) {
             var value = jwtPayloadJson[key].toString();
-            jwtPayload.iat = <int>value but {error => 0};
+            jwtPayload.iat = <int>value but { error => 0 };
         }
         else {
             if (lengthof jwtPayloadJson[key] > 0) {
@@ -169,9 +172,11 @@ function parsePayload (json jwtPayloadJson) returns (JwtPayload) {
     return jwtPayload;
 }
 
-function validateJWT (string[] encodedJWTComponents, JwtHeader jwtHeader, JwtPayload jwtPayload, JWTValidatorConfig config) returns (boolean|error) {
+function validateJWT(string[] encodedJWTComponents, JwtHeader jwtHeader, JwtPayload jwtPayload, JWTValidatorConfig
+config) returns (boolean|error) {
     if (!validateMandatoryFields(jwtPayload)) {
-        error err = {message:"Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty in the given JSON Web Token."};
+        error err = {message:
+        "Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty in the given JSON Web Token."};
         return err;
     }
     if (!validateSignature(encodedJWTComponents, jwtHeader, config)) {
@@ -199,14 +204,15 @@ function validateJWT (string[] encodedJWTComponents, JwtHeader jwtHeader, JwtPay
     return true;
 }
 
-function validateMandatoryFields (JwtPayload jwtPayload) returns (boolean) {
+function validateMandatoryFields(JwtPayload jwtPayload) returns (boolean) {
     if (jwtPayload.iss == "" || jwtPayload.sub == "" || jwtPayload.exp == 0 || lengthof jwtPayload.aud == 0) {
         return false;
     }
     return true;
 }
 
-function validateSignature (string[] encodedJWTComponents, JwtHeader jwtHeader, JWTValidatorConfig config) returns (boolean) {
+function validateSignature(string[] encodedJWTComponents, JwtHeader jwtHeader, JWTValidatorConfig config) returns (
+        boolean) {
     string assertion = encodedJWTComponents[0] + "." + encodedJWTComponents[1];
     string signPart = encodedJWTComponents[2];
     TrustStore trustStore = {};
@@ -216,11 +222,11 @@ function validateSignature (string[] encodedJWTComponents, JwtHeader jwtHeader, 
     return verifySignature(assertion, signPart, jwtHeader.alg, trustStore);
 }
 
-function validateIssuer (JwtPayload jwtPayload, JWTValidatorConfig config) returns (boolean) {
+function validateIssuer(JwtPayload jwtPayload, JWTValidatorConfig config) returns (boolean) {
     return jwtPayload.iss == config.issuer;
 }
 
-function validateAudience (JwtPayload jwtPayload, JWTValidatorConfig config) returns (boolean) {
+function validateAudience(JwtPayload jwtPayload, JWTValidatorConfig config) returns (boolean) {
     foreach audience in jwtPayload.aud {
         if (audience == config.audience) {
             return true;
@@ -229,20 +235,20 @@ function validateAudience (JwtPayload jwtPayload, JWTValidatorConfig config) ret
     return false;
 }
 
-function validateExpirationTime (JwtPayload jwtPayload, JWTValidatorConfig config) returns (boolean) {
+function validateExpirationTime(JwtPayload jwtPayload, JWTValidatorConfig config) returns (boolean) {
     //Convert current time which is in milliseconds to seconds.
     int expTime = jwtPayload.exp;
-    if(config.clockSkew > 0){
+    if (config.clockSkew > 0){
         expTime = expTime + config.clockSkew;
     }
-    return expTime > time:currentTime().time/1000;
+    return expTime > time:currentTime().time / 1000;
 }
 
-function validateNotBeforeTime (JwtPayload jwtPayload) returns (boolean) {
+function validateNotBeforeTime(JwtPayload jwtPayload) returns (boolean) {
     return time:currentTime().time > jwtPayload.nbf;
 }
 
-function convertToStringArray (json jsonData) returns (string[]) {
+function convertToStringArray(json jsonData) returns (string[]) {
     string[] outData = [];
     if (lengthof jsonData > 0) {
         int i = 0;
@@ -256,7 +262,7 @@ function convertToStringArray (json jsonData) returns (string[]) {
     return outData;
 }
 
-function urlDecode (string encodedString) returns (string) {
+function urlDecode(string encodedString) returns (string) {
     string decodedString = encodedString.replaceAll("-", "+");
     decodedString = decodedString.replaceAll("_", "/");
     return decodedString;

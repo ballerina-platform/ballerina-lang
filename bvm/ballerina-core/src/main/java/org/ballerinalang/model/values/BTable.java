@@ -47,6 +47,9 @@ public class BTable implements BRefType<Object>, BCollection {
     private BStringArray primaryKeys;
     private BStringArray indices;
     private boolean isInMemoryTable;
+    // This attribute is relevant only for tables created through SQL connector select action
+    private boolean loadSQLTableToMemory;
+    private boolean tableClosed;
 
     public BTable() {
         this.iterator = null;
@@ -58,7 +61,7 @@ public class BTable implements BRefType<Object>, BCollection {
         this.isInMemoryTable = false;
     }
 
-    public BTable(DataIterator dataIterator) {
+    public BTable(DataIterator dataIterator, boolean loadSQLTableToMemory) {
         this.iterator = dataIterator;
         this.nextPrefetched = false;
         this.hasNextVal = false;
@@ -66,6 +69,7 @@ public class BTable implements BRefType<Object>, BCollection {
         this.tableName = null;
         this.constraintType = null;
         this.isInMemoryTable = false;
+        this.loadSQLTableToMemory = loadSQLTableToMemory;
     }
 
     public BTable(String tableName, BStructType constraintType) {
@@ -159,6 +163,9 @@ public class BTable implements BRefType<Object>, BCollection {
 
 
     public boolean hasNext(boolean isInTransaction) {
+        if (tableClosed) {
+            throw new BallerinaException("Trying to perform hasNext operation over a closed table");
+        }
         if (isIteratorGenerationConditionMet()) {
             generateIterator();
         }
@@ -167,12 +174,15 @@ public class BTable implements BRefType<Object>, BCollection {
             nextPrefetched = true;
         }
         if (!hasNextVal) {
-            close(isInTransaction);
+           reset(isInTransaction);
         }
         return hasNextVal;
     }
 
     public void next() {
+        if (tableClosed) {
+            throw new BallerinaException("Trying to perform an operation over a closed table");
+        }
         if (isIteratorGenerationConditionMet()) {
             generateIterator();
         }
@@ -186,10 +196,25 @@ public class BTable implements BRefType<Object>, BCollection {
     public void close(boolean isInTransaction) {
         if (iterator != null) {
             iterator.close(isInTransaction);
-            if (iteratorResetRequired()) {
-                resetIterator();
+        }
+        tableClosed = true;
+    }
+
+    public void reset(boolean isInTransaction) {
+        if (loadSQLTableToMemory) {
+            iterator.reset(false);
+        } else if (isInMemoryTable) {
+            if (iterator != null) {
+                iterator.reset(false);
+                iterator = null;
+            }
+        } else {
+            // Table from SQL connector, loadSQLTableToMemory=false
+            if (iterator != null) {
+                iterator.reset(isInTransaction);
             }
         }
+        resetIterationHelperAttributes();
     }
 
     public BStruct getNext() {
@@ -219,7 +244,7 @@ public class BTable implements BRefType<Object>, BCollection {
                     + " cannot be added to a table with type:" + this.constraintType.getName());
         }
         tableProvider.insertData(tableName, data);
-        resetIterator();
+        reset(false);
     }
 
     public void addData(BStruct data) {
@@ -233,6 +258,9 @@ public class BTable implements BRefType<Object>, BCollection {
      * @param lambdaFunction The function that decides the condition of data removal
      */
     public void performRemoveOperation(Context context, BFunctionPointer lambdaFunction) {
+        if (!this.isInMemoryTable) {
+            throw new BallerinaException("data cannot be deleted from a table returned from a database");
+        }
         int deletedCount = 0;
         while (this.hasNext(false)) {
             BStruct data = this.getNext();
@@ -245,14 +273,11 @@ public class BTable implements BRefType<Object>, BCollection {
             }
         }
         context.setReturnValues(new BInteger(deletedCount));
+        reset(false);
     }
 
     private void removeData(BStruct data) {
-        if (!this.isInMemoryTable) {
-            throw new BallerinaException("data cannot be deleted from a table returned from a database");
-        }
         tableProvider.deleteData(tableName, data);
-        resetIterator();
     }
 
     public String getString(int columnIndex) {
@@ -333,14 +358,6 @@ public class BTable implements BRefType<Object>, BCollection {
             }
             addData((BStruct) data.get(i));
         }
-    }
-
-    protected void resetIterator() {
-        if (iterator != null) {
-            iterator.close(false);
-            this.iterator = null;
-        }
-        resetIterationHelperAttributes();
     }
 
     protected boolean iteratorResetRequired() {
