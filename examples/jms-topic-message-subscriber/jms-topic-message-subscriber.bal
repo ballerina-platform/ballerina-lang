@@ -24,7 +24,9 @@ service<jms:Consumer> jmsListener bind subscriber {
 
     // The `OnMessage` resource gets invoked when a message is received.
     onMessage(endpoint subscriber, jms:Message message) {
-        string messageText = check message.getTextMessageContent();
-        log:printInfo("Message : " + messageText);
+        match (message.getTextMessageContent()) {
+            string messageText => log:printInfo("Message : " + messageText);
+            error e => log:printError("Error occurred while reading message", err=e);
+        }
   }
 }

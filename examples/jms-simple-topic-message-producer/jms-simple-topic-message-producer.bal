@@ -11,8 +11,14 @@ endpoint jms:SimpleTopicPublisher topicPublisher {
 
 function main (string... args) {
     // Create a Text message.
-    jms:Message m = check topicPublisher.createTextMessage("Test Text");
-    // Send the Ballerina message to the JMS provider.
-    check topicPublisher->send(m);
-    log:printInfo("Message successfully sent.");
+    match (topicPublisher.createTextMessage("Hello from Ballerina")) {
+        error e => {
+            log:printError("Error occurred while creating message", err = e);
+        }
+
+        jms:Message msg => {
+            // Send the Ballerina message to the JMS provider.
+            topicPublisher->send(msg) but { error e => log:printError("Error occurred while sending message", err = e) };
+        }
+    }
 }

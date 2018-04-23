@@ -11,7 +11,14 @@ endpoint mb:SimpleTopicPublisher publisher {
 
 function main (string... args) {
     // Create a Text message.
-    mb:Message m = check publisher.createTextMessage("Test Text");
-    // Send the message to the Ballerina Message Broker.
-    check publisher->send(m);
+    match (publisher.createTextMessage("Hello from Ballerina")) {
+        error e => {
+            log:printError("Error occurred while creating message", err = e);
+        }
+
+        mb:Message msg => {
+            // Send the Ballerina message to the JMS provider.
+            publisher->send(msg) but { error e => log:printError("Error occurred while sending message", err = e) };
+        }
+    }
 }

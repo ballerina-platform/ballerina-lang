@@ -21,8 +21,15 @@ function main (string... args) {
     // Message is published within the transaction block.
     transaction {
         // Create a Text message.
-        jms:Message m = check jmsSession.createTextMessage("Test Text");
-        // Send the Ballerina message to the JMS provider.
-        _ = queueSender->send(m);
+        match (jmsSession.createTextMessage("Hello from Ballerina")) {
+            error e => {
+                log:printError("Error occurred while creating message", err = e);
+            }
+
+            jms:Message msg => {
+                // Send the Ballerina message to the JMS provider.
+                queueSender->send(msg) but { error e => log:printError("Error occurred while sending message", err = e) };
+            }
+        }
     }
 }

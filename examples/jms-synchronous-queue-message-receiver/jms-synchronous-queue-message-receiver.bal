@@ -25,8 +25,11 @@ function main(string... args) {
 
     match result {
         jms:Message msg => {
-        // If the message is received, this block is executed.
-            log:printInfo("Message received " + check msg.getTextMessageContent());
+            // If the message is received, this block is executed.
+            match (msg.getTextMessageContent()) {
+                string messageText => log:printInfo("Message : " + messageText);
+                error e => log:printError("Error occurred while reading message", err=e);
+            }
         }
         () => {
             // If the message is not received within 5 seconds, this block is executed.
