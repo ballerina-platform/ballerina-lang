@@ -13,7 +13,6 @@ function startService(){
     after:"stopService"
 }
 function testFunc() {
-    // Invoking the main function
     endpoint http:Client httpEndpoint { url:"http://localhost:9090" };
     // Chck whether the server is started
     test:assertTrue(serviceStarted, msg = "Unable to start the service");

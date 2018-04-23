@@ -69,8 +69,8 @@ HTTP Client Connector
 HTTP Caching Client
 HTTP Trace Logs
 HTTP 100 Continue
-HTTPS Server Connector
-HTTPS Server/Client Connectors
+HTTPS Listener
+Basic HTTPS Listener/Client
 HTTP Disable Chunking
 HTTP to WebSocket Upgrade
 HTTP CORS
@@ -78,6 +78,7 @@ HTTP Circuit Breaker
 HTTP Data Binding
 HTTP Failover
 HTTP Load Balancer
+HTTP Retry
 HTTP Forwarded Extension
 HTTP 2.0 Server Push
 HTTP 1.1 To 2.0 Protocol Switch
@@ -140,11 +141,11 @@ Testerina Data Provider
 Testerina Depends On
 Testerina Function Mocks
 Testerina Groups
-Streams Filtering
-Streams within services
-Streams Join
-Streams Sequences
-Streams Patterns
+Filter Streams on Conditions
+Streams within Services
+Join Multiple Streams
+Identify Patterns
+Identify Trends
 Objects
 Object Initializer
 Object Member Functions
