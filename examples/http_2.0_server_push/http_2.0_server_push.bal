@@ -17,8 +17,6 @@ service<http:Service> http2Service bind http2ServiceEP {
     }
     http2Resource(endpoint caller, http:Request req) {
 
-        log:printInfo("Request received");
-
         // Send a Push Promise.
         http:PushPromise promise1 = new(path = "/resource1", method = "GET");
         caller->promise(promise1) but {
@@ -125,12 +123,12 @@ function main(string... args) {
         hasPromise = clientEP->hasPromise(httpFuture);
     }
 
-    http:Response res = new;
+    http:Response response = new;
     // Get the requested resource.
     var result = clientEP->getResponse(httpFuture);
     match result {
         http:Response resultantResponse => {
-            res = resultantResponse;
+            response = resultantResponse;
         }
         http:HttpConnectorError resultantErr => {
             log:printError("Error occurred while fetching response", err = resultantErr);
@@ -138,7 +136,7 @@ function main(string... args) {
         }
     }
 
-    var responsePayload = res.getJsonPayload();
+    var responsePayload = response.getJsonPayload();
     match responsePayload {
         json resultantJsonPayload => log:printInfo("Response : " + resultantJsonPayload.toString());
         http:PayloadError e => log:printError("Expected response payload not received", err = e);
