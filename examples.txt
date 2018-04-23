@@ -140,11 +140,11 @@ Testerina Data Provider
 Testerina Depends On
 Testerina Function Mocks
 Testerina Groups
-Streams Filtering
-Streams within services
-Streams Join
-Streams Sequences
-Streams Patterns
+Filter Streams on Conditions
+Streams within Services
+Join Multiple Streams
+Identify Patterns
+Identify Trends
 Objects
 Object Initializer
 Object Member Functions
