@@ -402,6 +402,10 @@ class AbstractTreeUtil {
     isCheckExpr(node) {
         return node.kind === 'CheckExpr';
     }
+
+    isAwaitExpr(node) {
+        return node.kind === 'AwaitExpr';
+    }
 }
 
 export default AbstractTreeUtil;

@@ -50,22 +50,21 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
         orgName = "ballerina", packageName = "http",
         functionName = "respond",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
-                             structPackage = "ballerina.http"),
+                structPackage = "ballerina.http"),
         args = {@Argument(name = "res", type = TypeKind.STRUCT, structType = "Response",
                 structPackage = "ballerina.http")},
         returnType = @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
-                                 structPackage = "ballerina.http"),
+                structPackage = "ballerina.http"),
         isPublic = true
 )
 public class Respond extends ConnectionAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        DataContext dataContext = new DataContext(context, callback);
         BStruct connectionStruct = (BStruct) context.getRefArgument(0);
         HTTPCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionStruct, null);
         HttpUtil.checkFunctionValidity(connectionStruct, inboundRequestMsg);
-
+        DataContext dataContext = new DataContext(context, callback, inboundRequestMsg);
         BStruct outboundResponseStruct = (BStruct) context.getRefArgument(1);
         HTTPCarbonMessage outboundResponseMsg = HttpUtil
                 .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
@@ -79,9 +78,11 @@ public class Respond extends ConnectionAction {
             outboundResponseMsg.completeMessage();
         }
 
-        ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
-        observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE, String.valueOf(outboundResponseStruct.
-                getIntField(RESPONSE_STATUS_CODE_INDEX)));
+        if (ObservabilityUtils.isObservabilityEnabled()) {
+            ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
+            observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE, String.valueOf(outboundResponseStruct.
+                    getIntField(RESPONSE_STATUS_CODE_INDEX)));
+        }
         sendOutboundResponseRobust(dataContext, inboundRequestMsg, outboundResponseStruct, outboundResponseMsg);
     }
 

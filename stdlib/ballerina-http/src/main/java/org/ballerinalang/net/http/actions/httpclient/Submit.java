@@ -34,7 +34,7 @@ import org.wso2.transport.http.netty.contract.ClientConnectorException;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "submit",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.CALLER_ACTIONS,
                 structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "client", type = TypeKind.STRUCT),
@@ -53,13 +53,13 @@ public class Submit extends Execute {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        DataContext dataContext = new DataContext(context, callback);
+        DataContext dataContext = new DataContext(context, callback, createOutboundRequestMsg(context));
         try {
             // Execute the operation
-            executeNonBlockingAction(dataContext, createOutboundRequestMsg(context), true);
+            executeNonBlockingAction(dataContext, true);
         } catch (ClientConnectorException clientConnectorException) {
-            throw new BallerinaException("Failed to invoke 'executeAsync' action in " + HttpConstants.HTTP_CLIENT
-                                         + ". " + clientConnectorException.getMessage(), context);
+            throw new BallerinaException("Failed to invoke 'executeAsync' action in " + HttpConstants.CALLER_ACTIONS
+                    + ". " + clientConnectorException.getMessage(), context);
         }
     }
 }

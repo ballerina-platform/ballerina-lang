@@ -2,7 +2,7 @@ package org.wso2.ballerinalang.compiler.packaging;
 
 
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.repository.PackageSourceEntry;
+import org.ballerinalang.repository.CompilerInput;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.converters.StringConverter;
 
@@ -77,7 +77,7 @@ public class Patten {
     }
 
     @SuppressWarnings("unchecked")
-    public Stream<PackageSourceEntry> convertToSources(Converter converter, PackageID id) {
+    public Stream<CompilerInput> convertToSources(Converter converter, PackageID id) {
         return convert(converter).flatMap(t -> converter.finalize(t, id));
     }
 

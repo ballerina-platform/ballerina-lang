@@ -37,7 +37,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "patch",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.CALLER_ACTIONS,
                 structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "client", type = TypeKind.CONNECTOR),
@@ -55,13 +55,13 @@ public class Patch extends AbstractHTTPAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        DataContext dataContext = new DataContext(context, callback);
+        DataContext dataContext = new DataContext(context, callback, createOutboundRequestMsg(context));
         try {
             // Execute the operation
-            executeNonBlockingAction(dataContext, createOutboundRequestMsg(context));
+            executeNonBlockingAction(dataContext);
         } catch (ClientConnectorException clientConnectorException) {
             BallerinaException exception = new BallerinaException("Failed to invoke 'patch' action in " +
-                    HttpConstants.HTTP_CLIENT + ". " + clientConnectorException.getMessage(), context);
+                    HttpConstants.CALLER_ACTIONS + ". " + clientConnectorException.getMessage(), context);
             dataContext.notifyReply(null, HttpUtil.getHttpConnectorError(context, exception));
         }
     }

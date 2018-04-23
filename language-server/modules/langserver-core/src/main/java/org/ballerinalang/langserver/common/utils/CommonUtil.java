@@ -29,6 +29,7 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.slf4j.Logger;
@@ -38,13 +39,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntermediateCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
@@ -74,6 +76,8 @@ public class CommonUtil {
     private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
 
     private static final String OPEN_BRACKET_KEY_WORD = "(";
+    
+    private static final String LINE_SEPARATOR = System.lineSeparator();
 
     /**
      * Get the package URI to the given package name.
@@ -338,6 +342,7 @@ public class CommonUtil {
         CompletionItem annotationItem = new CompletionItem();
         annotationItem.setLabel(label);
         annotationItem.setInsertText(insertText);
+        annotationItem.setInsertTextFormat(InsertTextFormat.Snippet);
         annotationItem.setDetail(ItemResolverConstants.ANNOTATION_TYPE);
 
         return annotationItem;
@@ -352,23 +357,25 @@ public class CommonUtil {
      */
     private static String getAnnotationInsertText(PackageID packageID, BLangAnnotation annotation) {
         String pkgAlias = packageID.getNameComps().get(packageID.getNameComps().size() - 1).getValue();
-        String annotationStart = "";
+        StringBuilder annotationStart = new StringBuilder();
         if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())) {
-            annotationStart = pkgAlias + UtilSymbolKeys.PKG_DELIMITER_KEYWORD;
+            annotationStart.append(pkgAlias).append(UtilSymbolKeys.PKG_DELIMITER_KEYWORD);
         }
-        annotationStart += annotation.getName().getValue() + " " + UtilSymbolKeys.OPEN_BRACE_KEY;
-        List<String> fieldEntries = new ArrayList<>();
+        annotationStart.append(annotation.getName().getValue()).append(" ").append(UtilSymbolKeys.OPEN_BRACE_KEY);
 
-        if (annotation.typeNode.type instanceof BStructType) {
-            ((BStructType) annotation.typeNode.type).fields.forEach(bStructField -> {
-                String defaultFieldEntry = System.lineSeparator() + "\t" + bStructField.getName().getValue()
-                        + UtilSymbolKeys.PKG_DELIMITER_KEYWORD + getDefaultValueForType(bStructField.getType());
-                fieldEntries.add(defaultFieldEntry);
-            });
-        }
+        // Note: Code has been commented on purpose since the implementation can be revert back
+//        if (annotation.typeNode.type instanceof BStructType) {
+//            ((BStructType) annotation.typeNode.type).fields.forEach(bStructField -> {
+//                String defaultFieldEntry = System.lineSeparator() + "\t" + bStructField.getName().getValue()
+//                        + UtilSymbolKeys.PKG_DELIMITER_KEYWORD + getDefaultValueForType(bStructField.getType());
+//                fieldEntries.add(defaultFieldEntry);
+//            });
+//        }
 
-        return annotationStart + String.join(",", fieldEntries)
-                + System.lineSeparator() + UtilSymbolKeys.CLOSE_BRACE_KEY;
+        annotationStart.append(LINE_SEPARATOR).append("\t").append("${1}").append(LINE_SEPARATOR)
+                .append(UtilSymbolKeys.CLOSE_BRACE_KEY);
+        
+        return annotationStart.toString();
     }
 
     /**
@@ -379,7 +386,7 @@ public class CommonUtil {
      * @return {@link String}          Label string
      */
     private static String getAnnotationLabel(PackageID packageID, BLangAnnotation annotation) {
-        String pkgComponent = UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY;
+        String pkgComponent = "";
         if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())) {
 
             pkgComponent += packageID.getNameComps().get(packageID.getNameComps().size() - 1).getValue()
@@ -560,6 +567,24 @@ public class CommonUtil {
         }
 
         return actionFunctionList;
+    }
+
+    /**
+     * Check whether a given symbol is an endpoint object or not.
+     * @param bSymbol           BSymbol to evaluate
+     * @return {@link Boolean}  Symbol evaluation status
+     */
+    public static boolean isEndpointObject(BSymbol bSymbol) {
+        if (SymbolKind.OBJECT.equals(bSymbol.kind) && bSymbol instanceof BStructSymbol) {
+            List<BStructSymbol.BAttachedFunction> attachedFunctions = ((BStructSymbol) bSymbol).attachedFuncs;
+            for (BStructSymbol.BAttachedFunction attachedFunction : attachedFunctions) {
+                if (attachedFunction.funcName.getValue().equals(UtilSymbolKeys.EP_OBJECT_IDENTIFIER)) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
     }
 
     private static void populateIterableOperations(SymbolInfo variable, List<SymbolInfo> symbolInfoList) {

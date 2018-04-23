@@ -1,4 +1,3 @@
 [project]
 # Name of the package
-org-name = "versioning.test"
 version = "1.5.2"

@@ -20,7 +20,6 @@ package org.ballerinalang.test.mime;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
@@ -35,21 +34,13 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
-import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.nativeimpl.util.Base64ByteChannel;
 import org.ballerinalang.nativeimpl.util.Base64Wrapper;
-import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
-import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
-import org.ballerinalang.test.services.testutils.HTTPTestRequest;
-import org.ballerinalang.test.services.testutils.MessageUtils;
-import org.ballerinalang.test.services.testutils.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
@@ -59,10 +50,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
-import java.nio.channels.ByteChannel;
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILENAME_INDEX;
+import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME_INDEX;
+import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_STRUCT;
+import static org.ballerinalang.mime.util.Constants.DISPOSITION_INDEX;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_INDEX;
 import static org.ballerinalang.mime.util.Constants.PRIMARY_TYPE_INDEX;
@@ -78,15 +71,15 @@ import static org.ballerinalang.mime.util.Constants.SUFFIX_INDEX;
 public class MimeUtilityFunctionTest {
     private static final Logger log = LoggerFactory.getLogger(MimeUtilityFunctionTest.class);
 
-    private CompileResult compileResult, serviceResult;
+    private CompileResult compileResult;
     private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
     private final String mediaTypeStruct = MEDIA_TYPE;
+    private final String contentDispositionStruct = CONTENT_DISPOSITION_STRUCT;
 
     @BeforeClass
     public void setup() {
         String sourceFilePath = "test-src/mime/mime-test.bal";
         compileResult = BCompileUtil.compile(sourceFilePath);
-        serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
     }
 
     @Test(description = "Test 'getMediaType' function in ballerina.mime package")
@@ -128,6 +121,36 @@ public class MimeUtilityFunctionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testToStringOnMediaType", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "application/test+xml; charset=utf-8");
+    }
+
+    @Test(description = "Test 'getContentDispositionObject' function in ballerina.mime package")
+    public void testGetContentDispositionObject() {
+        String contentType = "form-data; name=\"filepart\"; filename=\"file-01.txt\"";
+        BValue[] args = {new BString(contentType)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetContentDispositionObject", args);
+        Assert.assertEquals(returns.length, 1);
+        BStruct contentDisposition = (BStruct) returns[0];
+        Assert.assertEquals(contentDisposition.getStringField(CONTENT_DISPOSITION_FILENAME_INDEX),
+                "file-01.txt");
+        Assert.assertEquals(contentDisposition.getStringField(CONTENT_DISPOSITION_NAME_INDEX),
+                "filepart");
+        Assert.assertEquals(contentDisposition.getStringField(DISPOSITION_INDEX),
+                "form-data");
+        BMap map = (BMap) contentDisposition.getRefField(PARAMETER_MAP_INDEX);
+        Assert.assertEquals(map.size(), 0);
+    }
+
+    @Test
+    public void testToStringOnContentDisposition() {
+        BStruct contentDisposition = BCompileUtil
+                .createAndGetStruct(compileResult.getProgFile(), protocolPackageMime, contentDispositionStruct);
+        contentDisposition.setStringField(CONTENT_DISPOSITION_FILENAME_INDEX, "file-01.txt");
+        contentDisposition.setStringField(DISPOSITION_INDEX, "form-data");
+        contentDisposition.setStringField(CONTENT_DISPOSITION_NAME_INDEX, "test");
+        BValue[] args = {contentDisposition};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testToStringOnContentDisposition", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "form-data;name=\"test\";filename=\"file-01.txt\"");
     }
 
     @Test
@@ -457,30 +480,6 @@ public class MimeUtilityFunctionTest {
         }
     }
 
-    @Test(description = "When the payload exceeds 2MB check whether the response received back matches  " +
-            "the original content length")
-    public void testLargePayload() {
-        String path = "/test/largepayload";
-        try {
-            ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/fileThatExceeds2MB.txt");
-            Channel channel = new MockByteChannel(byteChannel, 10);
-            CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
-            String responseValue = characterChannel.readAll();
-            characterChannel.close();
-            HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST",
-                    responseValue);
-            HTTPCarbonMessage response = Services.invokeNew(serviceResult, "mockEP", cMsg);
-            Assert.assertNotNull(response, "Response message not found");
-            InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
-            Assert.assertNotNull(inputStream, "Inputstream is null");
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            MimeUtil.writeInputToOutputStream(inputStream, outputStream);
-            Assert.assertEquals(outputStream.size(), 2323779);
-        } catch (IOException | URISyntaxException e) {
-            log.error("Error occurred in testLargePayload", e.getMessage());
-        }
-    }
-
     @Test(description = "Test whether the Content-Disposition header value can be built from ContentDisposition " +
             "object values.")
     public void testContentDispositionForFormData() {
@@ -622,5 +621,75 @@ public class MimeUtilityFunctionTest {
         } catch (IOException e) {
             log.error("Error occurred in testSetByteChannel", e.getMessage());
         }
+    }
+
+    @Test
+    public void testSetMediaTypeToEntity() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetMediaTypeToEntity");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "application/my-custom-type+json");
+    }
+
+    @Test
+    public void testSetMediaTypeAndGetValueAsHeader() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetMediaTypeAndGetValueAsHeader");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "application/my-custom-type+json");
+    }
+
+    @Test
+    public void testSetHeaderAndGetMediaType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetHeaderAndGetMediaType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "text/plain; charset=UTF-8");
+    }
+
+    @Test
+    public void testSetContentDispositionToEntity() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetContentDispositionToEntity");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "inline;name=\"test\";filename=\"test_file.xml\"");
+    }
+
+    @Test
+    public void testSetContentDispositionAndGetValueAsHeader() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetContentDispositionAndGetValueAsHeader");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "inline;name=\"test\";filename=\"test_file.xml\"");
+    }
+
+    @Test
+    public void testSetHeaderAndGetContentDisposition() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetHeaderAndGetContentDisposition");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "inline;name=\"test\";filename=\"test_file.xml\"");
+    }
+
+    @Test
+    public void testSetContentLengthToEntity() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetContentLengthToEntity");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "45555");
+    }
+
+    @Test
+    public void testSetContentLengthAndGetValueAsHeader() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetContentLengthAndGetValueAsHeader");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "45555");
+    }
+
+    @Test
+    public void testSetContentIdToEntity() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetContentIdToEntity");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "test-id");
+    }
+
+    @Test
+    public void testSetContentIdAndGetValueAsHeader() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetContentIdAndGetValueAsHeader");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "test-id");
     }
 }

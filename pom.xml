@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.970.0-beta6-SNAPSHOT</version>
+    <version>0.970.0-beta13-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -176,8 +176,25 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-http</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-transactions</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-builtin</artifactId>
                 <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-builtin</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -216,12 +233,7 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-mysql</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-h2</artifactId>
+                <artifactId>ballerina-database</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
@@ -1048,14 +1060,15 @@
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
+                <module>stdlib/transactions</module>
                 <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
                 <module>stdlib/ballerina-jms</module>
+                <module>stdlib/ballerina-database</module>
                 <module>stdlib/strip-bouncycastle</module>
 
-                <module>stdlib/database/ballerina-mysql</module>
-                <module>stdlib/database/ballerina-h2</module>
+                <module>stdlib/stdlib-compile</module>
 
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
@@ -1098,14 +1111,15 @@
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
+                <module>stdlib/transactions</module>
                 <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
                 <module>stdlib/ballerina-jms</module>
+                <module>stdlib/ballerina-database</module>
                 <module>stdlib/strip-bouncycastle</module>
 
-                <module>stdlib/database/ballerina-mysql</module>
-                <module>stdlib/database/ballerina-h2</module>
+                <module>stdlib/stdlib-compile</module>
 
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
@@ -1149,14 +1163,15 @@
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
+                <module>stdlib/transactions</module>
                 <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
                 <module>stdlib/ballerina-jms</module>
+                <module>stdlib/ballerina-database</module>
                 <module>stdlib/strip-bouncycastle</module>
 
-                <module>stdlib/database/ballerina-mysql</module>
-                <module>stdlib/database/ballerina-h2</module>
+                <module>stdlib/stdlib-compile</module>
 
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
@@ -1504,7 +1519,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.970.0-beta6-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.970.0-beta13-SNAPSHOT</ballerina.version>
         <npm.executable>npm</npm.executable>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
@@ -1528,7 +1543,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.139</transport.http.version>
+        <transport.http.version>6.0.152</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>

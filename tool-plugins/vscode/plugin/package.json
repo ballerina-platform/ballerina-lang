@@ -9,6 +9,10 @@
         "url": "https://github.com/ballerina-lang/ballerina"
     },
     "icon": "images/ballerina.png",
+    "galleryBanner": {
+        "color": "#e7eaeb",
+        "theme": "light"
+    },
     "engines": {
         "vscode": "^1.0.0"
     },
@@ -43,13 +47,13 @@
             "type": "object",
             "title": "Ballerina configuration",
             "properties": {
-                "ballerina.sdk": {
+                "ballerina.home": {
                     "type": [
                         "string",
                         "null"
                     ],
                     "default": null,
-                    "description": "Specifies the path to the ballerina sdk"
+                    "description": "Specifies the path to the ballerina home directory"
                 },
                 "ballerina.showLSErrors": {
                     "type": [

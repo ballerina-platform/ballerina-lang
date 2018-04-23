@@ -15,7 +15,7 @@ function openSocketConnection (string host, int port, io:SocketProperties prop) 
 }
 
 function closeSocket () {
-    error err = socket.closeSocket();
+    error? err = socket.close();
 }
 
 function write (blob content) returns (int | error) {

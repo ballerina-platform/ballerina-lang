@@ -26,21 +26,24 @@ import java.nio.channels.ByteChannel;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import javax.net.ssl.SSLSocket;
 
 /**
  * This will wrap {@link InputStream} and {@link OutputStream} into a {@link ByteChannel} implementation.
  */
 public class SocketByteChannel implements ByteChannel {
 
+    private SSLSocket sslSocket;
     private InputStream in;
     private OutputStream out;
     private ReadableByteChannel inChannel;
     private WritableByteChannel writeChannel;
 
-    public SocketByteChannel(InputStream in, OutputStream out) {
-        this.in = in;
+    public SocketByteChannel(SSLSocket sslSocket) throws IOException {
+        this.sslSocket = sslSocket;
+        this.in = sslSocket.getInputStream();
         this.inChannel = Channels.newChannel(in);
-        this.out = out;
+        this.out = sslSocket.getOutputStream();
         this.writeChannel = Channels.newChannel(out);
     }
 
@@ -65,5 +68,23 @@ public class SocketByteChannel implements ByteChannel {
         writeChannel.close();
         in.close();
         out.close();
+    }
+
+    /**
+     * Shutdown the connection for reading.
+     *
+     * @throws IOException If some other I/O error occurs.
+     */
+    public void shutdownInput() throws IOException {
+        sslSocket.shutdownInput();
+    }
+
+    /**
+     * Shutdown the connection for writing.
+     *
+     * @throws IOException If some other I/O error occurs.
+     */
+    public void shutdownOutput() throws IOException {
+        sslSocket.shutdownOutput();
     }
 }

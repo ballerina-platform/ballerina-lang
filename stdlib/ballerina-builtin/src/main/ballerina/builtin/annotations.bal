@@ -14,9 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
-@Description {value:"Representation of readonly annotation"}
+documentation {
+    Representation of readonly annotation.
+}
 public annotation<type> readonly;
 
-@Description {value:"Representation of final annotation"}
+documentation {
+    Representation of final annotation.
+}
 public annotation<type> final;
+
+public annotation<type, parameter> sensitive;
+
+public annotation<type, parameter> tainted;
+
+public annotation<type, parameter> untainted;

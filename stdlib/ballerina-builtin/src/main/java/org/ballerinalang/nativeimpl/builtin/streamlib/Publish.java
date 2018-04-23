@@ -21,7 +21,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStream;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -43,7 +43,7 @@ public class Publish extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BStream stream = (BStream) context.getRefArgument(0);
-        BStruct data = (BStruct) context.getRefArgument(1);
+        BValue data = context.getRefArgument(1);
         stream.publish(data);
     }
 }

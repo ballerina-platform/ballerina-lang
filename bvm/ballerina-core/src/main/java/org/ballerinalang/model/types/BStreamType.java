@@ -60,15 +60,20 @@ public class BStreamType extends BType {
 
     @Override
     public TypeSignature getSig() {
-        if (constraint == null) {
-            return new TypeSignature(TypeSignature.SIG_STREAM);
-        } else {
-            return new TypeSignature(TypeSignature.SIG_STREAM, constraint.getPackagePath(), constraint.getName());
-        }
+        return new TypeSignature(TypeSignature.SIG_STREAM, constraint.getSig());
     }
 
     @Override
     public int getTag() {
         return TypeTags.STREAM_TAG;
+    }
+
+    @Override
+    public String toString() {
+        if (constraint == BTypes.typeAny) {
+            return super.toString();
+        } else {
+            return "stream" + "<" + constraint.getName() + ">";
+        }
     }
 }

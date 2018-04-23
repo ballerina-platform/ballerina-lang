@@ -16,6 +16,7 @@
  * under the License.
  */
 import React from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Area from './area';
 import Button from './button';
@@ -72,25 +73,29 @@ class LifelineButton extends React.Component {
     onSuggestionsFetchRequested({value}) {
         const environment = this.context.editor.environment;
         const packages = environment.getFilteredPackages([]);
-        const suggestions = [];
+        const suggestionsMap = {};
         packages.forEach((pkg) => {
             const pkgname = pkg.getName();
             const endpoints = pkg.getEndpoints();
+
             endpoints.forEach((endpoint) => {
                 const conName = endpoint.getName();
                 // do the match
                 if (value === ''
                     || pkgname.toLowerCase().includes(value)
                     || conName.toLowerCase().includes(value)) {
-                    suggestions.push({
+                    const key = `${pkg.getName()}-${conName}`;
+                    suggestionsMap[key] = {
                         pkg,
                         endpoint,
                         packageName: pkg.getName(),
                         fullPackageName: pkg.getName(),
-                    });
+                    };
                 }
             });
         });
+
+        const suggestions = _.values(suggestionsMap);
 
         if (value !== '') {
             suggestions.push({addNewValue: true});
@@ -118,19 +123,21 @@ class LifelineButton extends React.Component {
     getAllSuggestions() {
         const environment = this.context.editor.environment;
         const packages = environment.getFilteredPackages([]);
-        const suggestions = [];
+        const suggestionsMap = {};
         packages.forEach((pkg) => {
             const pkgname = pkg.getName();
             const endpoints = pkg.getEndpoints();
             endpoints.forEach((endpoint) => {
-                suggestions.push({
+                const key = `${pkgname}-${endpoint.getName()}`;
+                suggestionsMap[key] = {
                     pkg,
                     endpoint,
                     packageName: pkgname,
                     fullPackageName: pkgname,
-                });
+                };
             });
         });
+        const suggestions = _.values(suggestionsMap);
         return suggestions;
     }
 

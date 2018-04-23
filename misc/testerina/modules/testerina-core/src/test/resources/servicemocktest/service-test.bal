@@ -1,4 +1,3 @@
-
 import ballerina/http;
 import ballerina/io;
 import ballerina/test;
@@ -23,11 +22,11 @@ service<http:Service> EventServiceMock bind eventEP {
         methods:["GET"],
         path:"/"
     }
-    getEvents (endpoint client, http:Request req) {
+    getEvents (endpoint caller, http:Request req) {
         http:Response res = new;
         json j = {"a":"b"};
         res.setJsonPayload(j);
-        _ = client -> respond(res);
+        _ = caller -> respond(res);
     }
 }
 
@@ -43,9 +42,8 @@ function verify() {
         url:url2
     };
 
-    http:Request req = new;
     // Send a GET request to the specified endpoint - this should return connection refused
-    var response = httpEndpoint -> get("/events", req);
+    var response = httpEndpoint -> get("/events");
     match response {
         http:Response resp =>  test:assertFail(msg = "Service stop has failed for: "+url2);
         http:HttpConnectorError err => {
@@ -64,9 +62,8 @@ function testService () {
     test:assertTrue(isPortalServiceStarted, msg = "Portal service failed to start");
     test:assertFalse(isNonExistingServiceStarted);
 
-    http:Request req = new;
     // Send a GET request to the specified endpoint
-    var response = httpEndpoint -> get("/events", req);
+    var response = httpEndpoint -> get("/events");
     match response {
                http:Response resp => {
                     var jsonRes = resp.getJsonPayload();

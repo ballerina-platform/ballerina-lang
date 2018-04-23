@@ -20,29 +20,30 @@ package org.wso2.ballerinalang.compiler;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
+import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.repository.CompiledPackage;
+import org.ballerinalang.repository.CompilerOutputEntry;
 import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
-import org.wso2.ballerinalang.compiler.packaging.Patten;
-import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
 import org.wso2.ballerinalang.programfile.ProgramFileWriter;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ServiceLoader;
-import java.util.stream.Stream;
 
-import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PACKAGE_FILE_SUFFIX;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_EXEC_FILE_SUFFIX;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_EXT;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PROG_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
-
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DOT_BALLERINA_DIR_NAME;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME;
 
 /**
  * Write a compiled executable program(.balx) or a compiled package(balo.) to a file.
@@ -77,31 +78,29 @@ public class BinaryFileWriter {
         return this.codeGenerator.generateBALX(entryPackageNode);
     }
 
-    public void writeExecutableBinary(BLangPackage packageNode) {
-        String fileName = getOutputFileName(packageNode, BLANG_EXEC_FILE_SUFFIX);
-        writeExecutableBinary(packageNode, fileName);
+    public void write(BLangPackage packageNode) {
+        writeLibraryPackage(packageNode);
+        writeExecutableBinary(packageNode);
+    }
 
-        // Generate balo
-        Path path = this.sourceDirectory.getPath();
-        if (RepoUtils.hasProjectRepo(path)) {
-            ProjectSourceRepo projectSourceRepo = new ProjectSourceRepo(path);
-            Patten packageIDPattern = projectSourceRepo.calculate(packageNode.packageID);
-            Stream<Path> pathStream = packageIDPattern.convert(projectSourceRepo.getConverterInstance());
-            pathStream = Stream.concat(pathStream, packageIDPattern.sibling(path("Package.md")).convert
-                    (projectSourceRepo.getConverterInstance()));
-            String prjPath = projectSourceRepo.getConverterInstance().toString();
-            ZipUtils.generateBalo(packageNode, prjPath, pathStream);
-        }
+    public void write(BLangPackage packageNode, String fileName) {
+        // TODO Reuse binary content in PackageFile when writing the program file..
+        writeLibraryPackage(packageNode);
+        writeExecutableBinary(packageNode, fileName);
+    }
+
+    public void writeExecutableBinary(BLangPackage packageNode) {
+        String fileName = getOutputFileName(packageNode, BLANG_COMPILED_PROG_EXT);
+        writeExecutableBinary(packageNode, fileName);
     }
 
     public void writeExecutableBinary(BLangPackage packageNode, String fileName) {
-        if (fileName == null || fileName.isEmpty()) {
-            throw new IllegalArgumentException("invalid target file name");
+        // Filter out package which doesn't have entry points
+        if (!packageNode.symbol.entryPointExists) {
+            return;
         }
 
-        if (!fileName.endsWith(BLANG_EXEC_FILE_SUFFIX)) {
-            fileName += BLANG_EXEC_FILE_SUFFIX;
-        }
+        String execFileName = cleanupExecFileName(fileName);
 
         // Generate code for the given executable
         ProgramFile programFile = this.codeGenerator.generateBALX(packageNode);
@@ -109,11 +108,11 @@ public class BinaryFileWriter {
         try {
             ProgramFileWriter.writeProgram(programFile, byteArrayOS);
         } catch (IOException e) {
-            throw new BLangCompilerException("error writing program file '" + fileName + "'", e);
+            throw new BLangCompilerException("error writing program file '" + execFileName + "'", e);
         }
 
         final Path execFilePath = this.sourceDirectory.saveCompiledProgram(new ByteArrayInputStream(byteArrayOS
-                .toByteArray()), fileName);
+                .toByteArray()), execFileName);
         ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
         processorServiceLoader.forEach(plugin -> {
             plugin.codeGenerated(execFilePath);
@@ -121,15 +120,40 @@ public class BinaryFileWriter {
     }
 
     public void writeLibraryPackage(BLangPackage packageNode) {
-        String fileName = getOutputFileName(packageNode, BLANG_COMPILED_PACKAGE_FILE_SUFFIX);
-        CompiledBinaryFile.PackageFile packageFile = this.codeGenerator.generateBALO(packageNode);
-        ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
-        try {
-            PackageFileWriter.writePackage(packageFile, byteArrayOS);
-        } catch (IOException e) {
-            throw new BLangCompilerException("error writing package file '" + fileName + "'", e);
+        String fileName = getOutputFileName(packageNode, BLANG_COMPILED_PKG_EXT);
+        writeLibraryPackage(packageNode, fileName);
+    }
+
+    public void writeLibraryPackage(BLangPackage packageNode, String compiledPackageFileName) {
+        // Filter out packages which loaded from BALOs
+        CompiledPackage compiledPackage = packageNode.symbol.compiledPackage;
+        if (compiledPackage.getKind() == CompiledPackage.Kind.FROM_BINARY) {
+            return;
         }
-        this.sourceDirectory.saveCompiledPackage(new ByteArrayInputStream(byteArrayOS.toByteArray()), fileName);
+
+        // Filter out unnamed packages
+        if (packageNode.packageID.isUnnamed) {
+            return;
+        }
+
+        if (compiledPackageFileName == null || compiledPackageFileName.isEmpty()) {
+            throw new IllegalArgumentException("invalid target file name");
+        }
+
+        if (!compiledPackageFileName.endsWith(BLANG_COMPILED_PKG_EXT)) {
+            compiledPackageFileName += BLANG_COMPILED_PKG_EXT;
+        }
+
+        Path destDirPath = getPackageDirPathInProjectRepo(packageNode.packageID);
+        try {
+            addPackageBinaryContent(packageNode.packageID,
+                    packageNode.symbol.packageFile, compiledPackage);
+            this.sourceDirectory.saveCompiledPackage(compiledPackage, destDirPath, compiledPackageFileName);
+        } catch (IOException e) {
+            String msg = "error writing the compiled package(balo) of '" +
+                    packageNode.packageID + "' to '" + destDirPath + "': " + e.getMessage();
+            throw new BLangCompilerException(msg, e);
+        }
     }
 
 
@@ -139,7 +163,8 @@ public class BinaryFileWriter {
         if (packageNode.packageID.isUnnamed) {
             String sourceFileName = packageNode.packageID.sourceFileName.value;
             if (sourceFileName.endsWith(BLANG_SOURCE_EXT)) {
-                sourceFileName = StringUtils.removeEnd(sourceFileName, BLANG_SOURCE_EXT).concat(BLANG_EXEC_FILE_SUFFIX);
+                sourceFileName = StringUtils.removeEnd(sourceFileName,
+                        BLANG_SOURCE_EXT).concat(BLANG_COMPILED_PROG_EXT);
             }
             return sourceFileName;
         }
@@ -147,4 +172,39 @@ public class BinaryFileWriter {
         return packageNode.packageID.name.value + suffix;
     }
 
+    private Path getPackageDirPathInProjectRepo(PackageID pkgId) {
+        Path relativePkgPath = Paths.get(DOT_BALLERINA_DIR_NAME, DOT_BALLERINA_REPO_DIR_NAME,
+                pkgId.getOrgName().getValue(), pkgId.getName().getValue(), pkgId.getPackageVersion().getValue());
+        return this.sourceDirectory.getPath().resolve(relativePkgPath);
+    }
+
+    private void addPackageBinaryContent(PackageID pkgId,
+                                         CompiledBinaryFile.PackageFile packageFile,
+                                         CompiledPackage compiledPackage) throws IOException {
+        byte[] pkgBinaryContent = PackageFileWriter.writePackage(packageFile);
+        ByteArrayBasedCompiledPackageEntry pkgBinaryEntry = new ByteArrayBasedCompiledPackageEntry(
+                pkgBinaryContent, getPackageBinaryName(pkgId), CompilerOutputEntry.Kind.OBJ);
+        compiledPackage.setPackageBinaryEntry(pkgBinaryEntry);
+    }
+
+    private String getPackageBinaryName(PackageID packageID) {
+        return packageID.getName().value + ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
+    }
+
+    private String cleanupExecFileName(String fileName) {
+        String updatedFileName = fileName;
+        if (updatedFileName == null || updatedFileName.isEmpty()) {
+            throw new IllegalArgumentException("invalid target file name");
+        }
+
+        if (updatedFileName.endsWith(BLANG_SOURCE_EXT)) {
+            updatedFileName = updatedFileName.substring(0,
+                    updatedFileName.length() - BLANG_SOURCE_EXT.length());
+        }
+
+        if (!updatedFileName.endsWith(BLANG_COMPILED_PROG_EXT)) {
+            updatedFileName += BLANG_COMPILED_PROG_EXT;
+        }
+        return updatedFileName;
+    }
 }

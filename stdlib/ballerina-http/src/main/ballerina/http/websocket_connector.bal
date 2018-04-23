@@ -5,14 +5,19 @@
 
 @Description {value:"Represents a WebSocket connector in ballerina. This include all connector oriented operations."}
 public type WebSocketConnector object {
+    private {
+        boolean isReady = false;
+    }
 
     @Description {value:"Push text to the connection"}
     @Param {value:"text: Text to be sent"}
-    public native function pushText(string text) returns WebSocketConnectorError|();
+    @Param {value:"final: True if this is a final frame of a long message"}
+    public native function pushText(string text, boolean final = true) returns WebSocketConnectorError|();
 
     @Description {value:"Push binary data to the connection"}
     @Param {value:"data: Binary data to be sent"}
-    public native function pushBinary(blob data) returns WebSocketConnectorError|();
+    @Param {value:"final: True if this is a final frame of a long message"}
+    public native function pushBinary(blob data, boolean final = true) returns WebSocketConnectorError|();
 
     @Description {value:"Ping the connection"}
     @Param {value:"data: Binary data to be sent"}
@@ -26,6 +31,9 @@ public type WebSocketConnector object {
     @Param {value:"statusCode: Status code for closing the connection"}
     @Param {value:"reason: Reason for closing the connection"}
     public native function close(int statusCode, string reason) returns WebSocketConnectorError|();
+
+    public native function ready() returns WebSocketConnectorError|();
+
 };
 
 @Description {value:"WebSocketConnectorError struct represents an error occured during WebSocket message transfers"}

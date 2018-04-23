@@ -15,8 +15,8 @@
 // under the License.
 
 
-import ballerina/internal;
 import ballerina/auth;
+import ballerina/reflect;
 
 @Description {value:"Representation of the Authentication filter"}
 @Field {value:"filterRequest: request filter method which attempts to authenticated the request"}
@@ -71,9 +71,9 @@ function getResourceAuthConfig (FilterContext context) returns (boolean, string[
     string[] authProviderIds = [];
     // get authn details from the resource level
     ListenerAuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, RESOURCE_ANN_NAME,
-                                    internal:getResourceAnnotations(context.serviceType, context.resourceName));
+                                    reflect:getResourceAnnotations(context.serviceType, context.resourceName));
     ListenerAuthConfig? serviceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, SERVICE_ANN_NAME,
-                                    internal:getServiceAnnotations(context.serviceType));
+                                    reflect:getServiceAnnotations(context.serviceType));
     // check if authentication is enabled
     resourceSecured = isResourceSecured(resourceLevelAuthAnn, serviceLevelAuthAnn);
     // if resource is not secured, no need to check further
@@ -131,11 +131,11 @@ and then from the service level, if its not there in the resource level"}
 @Param {value:"annotationName: annotation name"}
 @Param {value:"annData: array of annotationData instances"}
 @Return {value:"ListenerAuthConfig: ListenerAuthConfig instance if its defined, else nil"}
-function getAuthAnnotation (string annotationPackage, string annotationName, internal:annotationData[] annData) returns (ListenerAuthConfig?) {
+function getAuthAnnotation (string annotationPackage, string annotationName, reflect:annotationData[] annData) returns (ListenerAuthConfig?) {
     if (lengthof annData == 0) {
         return ();
     }
-    internal:annotationData|() authAnn;
+    reflect:annotationData|() authAnn;
     foreach ann in annData {
         if (ann.name == annotationName && ann.pkgName == annotationPackage) {
             authAnn = ann;
@@ -143,7 +143,7 @@ function getAuthAnnotation (string annotationPackage, string annotationName, int
         }
     }
     match authAnn {
-        internal:annotationData annData1 => {
+        reflect:annotationData annData1 => {
             if (annotationName == RESOURCE_ANN_NAME) {
                 HttpResourceConfig resourceConfig = check <HttpResourceConfig>annData1.value;
                 return resourceConfig.authConfig;

@@ -43,7 +43,7 @@ import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "execute",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.CALLER_ACTIONS,
                 structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "client", type = TypeKind.STRUCT),
@@ -62,13 +62,13 @@ public class Execute extends AbstractHTTPAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        DataContext dataContext = new DataContext(context, callback);
+        DataContext dataContext = new DataContext(context, callback, createOutboundRequestMsg(context));
         try {
             // Execute the operation
-            executeNonBlockingAction(dataContext, createOutboundRequestMsg(context));
+            executeNonBlockingAction(dataContext);
         } catch (ClientConnectorException clientConnectorException) {
             BallerinaException exception = new BallerinaException("Failed to invoke 'execute' action in " +
-                    HttpConstants.HTTP_CLIENT + ". " + clientConnectorException.getMessage(), context);
+                    HttpConstants.CALLER_ACTIONS + ". " + clientConnectorException.getMessage(), context);
             dataContext.notifyReply(null, HttpUtil.getHttpConnectorError(context, exception));
         }
     }
