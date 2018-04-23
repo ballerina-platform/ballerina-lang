@@ -9,7 +9,7 @@ function startService(){
     config:setConfig("b7a.users.tom.scopes", "scope2,scope3");
     config:setConfig("b7a.users.dick.password", "password2");
     config:setConfig("b7a.users.dick.scopes", "scope1");
-    serviceStarted = test:startServices("secured-hello-world-service-with-basic-auth");
+    serviceStarted = test:startServices("secured-service-with-basic-auth");
 }
 
 @test:Config {
@@ -68,5 +68,5 @@ function testAuthzFailure () {
 }
 
 function stopService(){
-    test:stopServices("secured-hello-world-service-with-basic-auth");
+    test:stopServices("secured-service-with-basic-auth");
 }
