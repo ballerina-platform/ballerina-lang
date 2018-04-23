@@ -1,8 +1,6 @@
 import ballerina/io;
 
-@Description {
-    value: "This function returns a `DelimitedRecordChannel` from a given file location.The encoding is a character representation (i.e., UTF-8 ASCCI) of the content in the file. The `rs` annotation defines a record seperator (e.g., a new line) and the `fs` annotation is a field seperator (e.g., a comma)."
-}
+// This function returns a `DelimitedRecordChannel` from a given file location.The encoding is a character representation (i.e., UTF-8 ASCCI) of the content in the file. The `rs` annotation defines a record seperator (e.g., a new line) and the `fs` annotation is a field seperator (e.g., a comma).
 function getFileRecordChannel(string filePath, io:Mode permission, string encoding,
                               string rs, string fs) returns (io:DelimitedTextRecordChannel) {
     io:ByteChannel channel = io:openFile(filePath, permission);
@@ -14,7 +12,7 @@ function getFileRecordChannel(string filePath, io:Mode permission, string encodi
     return delimitedRecordChannel;
 }
 
-@Description {value:"This function reads the next record from the channel."}
+// This function reads the next record from the channel.
 function readNext(io:DelimitedTextRecordChannel channel) returns (string[]) {
     match channel.getNext() {
         string[] records => {
@@ -27,7 +25,7 @@ function readNext(io:DelimitedTextRecordChannel channel) returns (string[]) {
     }
 }
 
-@Description {value:"This function writes the next record to the channel."}
+// This function writes the next record to the channel.
 function write(io:DelimitedTextRecordChannel channel, string[] records) {
     error? err = channel.write(records);
     match err {
@@ -36,7 +34,7 @@ function write(io:DelimitedTextRecordChannel channel, string[] records) {
     }
 }
 
-@Description {value:"This function processes the `.CSV` file and writes content back as text with the `|` delimiter."}
+// This function processes the `.CSV` file and writes content back as text with the `|` delimiter.
 function process(io:DelimitedTextRecordChannel srcRecordChannel, io:DelimitedTextRecordChannel dstRecordChannel) {
     try {
         //Read all the records from the provided file until there are no more records.
