@@ -138,7 +138,7 @@ Testerina Before and After Test
 Testerina Before Each Test
 Testerina Before and After Suite
 Testerina Data Driven Tests
-Testerina Depends On
+Testerina Guarantee Test Execution Order
 Testerina Function Mocks
 Testerina Group Tests
 Filter Streams on Conditions
