@@ -8,7 +8,7 @@ endpoint grpc:Listener ep {
     port:9090
 };
 
-@grpc:serviceConfig {name:"chat",
+@grpc:ServiceConfig {name:"chat",
     clientStreaming:true,
     serverStreaming:true}
 service<grpc:Service> Chat bind ep {
