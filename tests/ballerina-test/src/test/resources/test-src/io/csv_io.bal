@@ -14,8 +14,8 @@ function initCSVChannel(string filePath, io:Mode permission, string encoding, io
     csvChannel = new io:CSVChannel(charChannel, fs = fieldSeparator);
 }
 
-function initOpenCsv(string filePath, io:Mode permission, string encoding, io:Separator fs, int nHeaders=0) {
-    csvChannel = io:openCsvFile(filePath, mode=permission, fieldSeparator=fs,charset=encoding, skipHeaders = nHeaders);
+function initOpenCsv(string filePath, io:Mode permission, string encoding, io:Separator fs, int nHeaders = 0) {
+    csvChannel = io:openCsvFile(filePath, fieldSeparator=fs, skipHeaders = nHeaders);
 }
 
 function nextRecord() returns (string[]|error) {
@@ -28,7 +28,7 @@ function nextRecord() returns (string[]|error) {
             return err;
         }
         () => {
-            error e = {message: "Record channel not initialized properly"};
+            error e = {message:"Record channel not initialized properly"};
             return e;
         }
     }
@@ -47,7 +47,8 @@ function hasNextRecord() returns boolean? {
     return csvChannel.hasNext();
 }
 
-function getTable(string filePath, io:Mode permission, string encoding, io:Separator fieldSeperator) returns float|error {
+function getTable(string filePath, io:Mode permission, string encoding, io:Separator fieldSeperator) returns float|error
+{
     io:ByteChannel byteChannel = io:openFile(filePath, permission);
     io:CharacterChannel charChannel = new io:CharacterChannel(byteChannel, encoding);
     io:CSVChannel csv = new io:CSVChannel(charChannel, fs = fieldSeperator);
