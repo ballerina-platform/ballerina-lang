@@ -10,4 +10,4 @@ $ ws.onmessage = function(frame) {console.log(frame.data)};
 $ ws.onclose = function(frame) {console.log(frame)};
 
 # To send messages
-ws.send("hello world");
+$ ws.send("hello world");
