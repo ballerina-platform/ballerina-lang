@@ -1,0 +1,42 @@
+#At the command line, navigate to the directory that contains the 
+#`.bal` file and run the `ballerina run` command to start the `initiator` service.  
+$ ballerina run iniator.bal
+ballerina: initiating service(s) in 'initiator'
+ballerina: started HTTP/WS server connector localhost:8080
+ballerina: started HTTP/WS server connector 10.100.1.182:53871
+
+#Next, run this command to start the `participant` service. 
+$ ballerina run participant.bal
+ballerina: initiating service(s) in 'participant'
+ballerina: started HTTP/WS server connector 10.100.1.182:54774
+ballerina: started HTTP/WS server connector localhost:8889
+
+#Run this curl command to invoke the services. 
+$ curl -v localhost:8080
+
+Output from initiator:
+
+2018-04-24 00:07:09,112 INFO  [] - Initiating transaction...
+2018-04-24 00:07:09,130 INFO  [ballerina.transactions] - Created transaction: 45936431-ae9e-43e0-bc54-4ab7769734da
+2018-04-24 00:07:09,131 INFO  [] - Started transaction: 45936431-ae9e-43e0-bc54-4ab7769734da:1
+2018-04-24 00:07:09,724 INFO  [ballerina.transactions] - Registered remote participant: facb8e2e-dc82-4fd0-bd0f-c7e80369e423:1 for transaction: 45936431-ae9e-43e0-bc54-4ab7769734da
+2018-04-24 00:07:09,779 INFO  [] - Got response from bizservice
+2018-04-24 00:07:09,781 INFO  [ballerina.transactions] - Running 2-phase commit for transaction: 45936431-ae9e-43e0-bc54-4ab7769734da:1
+2018-04-24 00:07:09,785 INFO  [ballerina.transactions] - Preparing remote participant: facb8e2e-dc82-4fd0-bd0f-c7e80369e423:1
+2018-04-24 00:07:09,801 INFO  [ballerina.transactions] - Remote participant: facb8e2e-dc82-4fd0-bd0f-c7e80369e423:1 prepared
+2018-04-24 00:07:09,804 INFO  [ballerina.transactions] - Notify(commit) remote participant: http://192.168.1.4:60366/balcoordinator/participant/2pc/1
+2018-04-24 00:07:09,814 INFO  [ballerina.transactions] - Remote participant: facb8e2e-dc82-4fd0-bd0f-c7e80369e423:1 committed
+2018-04-24 00:07:09,815 INFO  [] - Initiated transaction: 45936431-ae9e-43e0-bc54-4ab7769734da:1 committed
+2018-04-24 00:07:09,818 INFO  [] - Sent response back to client
+
+Output from participant:
+
+2018-04-24 00:07:09,433 INFO  [] - Received update stockquote request
+2018-04-24 00:07:09,458 INFO  [ballerina.transactions] - Registering for transaction: 45936431-ae9e-43e0-bc54-4ab7769734da:1 with coordinator: http://192.168.1.4:60365/balcoordinator/initiator/1/register
+2018-04-24 00:07:09,743 INFO  [ballerina.transactions] - Registered with coordinator for transaction: 45936431-ae9e-43e0-bc54-4ab7769734da
+2018-04-24 00:07:09,746 INFO  [] - Update stock quote request received. symbol:GOOG, price:206.76007974989048
+2018-04-24 00:07:09,777 INFO  [] - Sent response back to initiator
+2018-04-24 00:07:09,794 INFO  [ballerina.transactions] - Prepare received for transaction: 45936431-ae9e-43e0-bc54-4ab7769734da:1
+2018-04-24 00:07:09,795 INFO  [ballerina.transactions] - Prepared transaction: 45936431-ae9e-43e0-bc54-4ab7769734da
+2018-04-24 00:07:09,809 INFO  [ballerina.transactions] - Notify(commit) received for transaction: 45936431-ae9e-43e0-bc54-4ab7769734da:1
+2018-04-24 00:07:09,810 INFO  [] - Participated transaction: 45936431-ae9e-43e0-bc54-4ab7769734da:1 committed
