@@ -4,7 +4,7 @@ import ballerina/log;
 
 // Initialize a JMS connection with the provider.
 jms:Connection conn = new ({
-    initialContextFactory: "wso2mbInitialContextFactory",
+    initialContextFactory: "bmbInitialContextFactory",
     providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'"
 });
 
@@ -27,7 +27,7 @@ service<jms:Consumer> jmsListener bind consumer {
     onMessage(endpoint consumer, jms:Message message) {
       // Create a queue sender.
         endpoint jms:SimpleQueueSender queueSender {
-            initialContextFactory: "wso2mbInitialContextFactory",
+            initialContextFactory: "bmbInitialContextFactory",
             providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'",
             queueName: "RequestQueue"
         };

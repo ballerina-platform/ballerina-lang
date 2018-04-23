@@ -3,7 +3,7 @@ import ballerina/log;
 
 // Create a simple topic listener.
 endpoint jms:SimpleTopicSubscriber subscriber {
-    initialContextFactory: "wso2mbInitialContextFactory",
+    initialContextFactory: "bmbInitialContextFactory",
     providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'",
     acknowledgementMode: "AUTO_ACKNOWLEDGE",
     topicPattern: "BallerinaTopic"
