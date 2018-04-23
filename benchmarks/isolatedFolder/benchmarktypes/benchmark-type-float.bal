@@ -1,4 +1,3 @@
-
 public function benchmarkFloatAddition() {
     float b = 9.9;
     float a = 10.1;

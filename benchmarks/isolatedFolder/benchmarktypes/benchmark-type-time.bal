@@ -1,4 +1,3 @@
-
 import ballerina/time;
 
 public function benchmarkCurrentTimeFunction() {

@@ -5,8 +5,19 @@ set -e
 export BAL_HOME=$1
 chmod +x ${BAL_HOME}/bin/ballerina
 export PATH=${BAL_HOME}/bin:$PATH
+export resultsFolderName=results
 
-ballerina run benchmark-initializer.bal $2 $3 $4
+echo "Running Performance benchmarks ..."
+
+if [ ! -d "$resultsFolderName" ]; then
+ mkdir ${resultsFolderName}
+fi
+
+if [  -f "$resultsFolderName/$4.txt" ]; then
+ rm ${resultsFolderName}/$4.txt
+fi
+
+echo "Function_Name,Total Time (ms),Average Latency (ns),Throughput (operations/second) " > ${resultsFolderName}/$4.txt
 
 cd isolatedFolder
 ballerina build benchmark
@@ -14,5 +25,5 @@ cd ..
 
 for word in $(<benchmarkFunctions.txt)
 do
-  ballerina run isolatedFolder/target/benchmark.balx $2 $3 $4 ${word}
+  ballerina run isolatedFolder/target/benchmark.balx $2 $3 ${word} >> ${resultsFolderName}/$4.txt
 done

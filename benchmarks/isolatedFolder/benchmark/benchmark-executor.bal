@@ -1,26 +1,23 @@
 import ballerina/io;
 import ballerina/time;
-import ballerina/file;
 
 function main(string... args) {
 
+    if (lengthof args < 3) {
+        io:println("ERROR: Please specify the number of warm-up iterations and benchmark iterations.");
+        return;
+    }
+
     var warmupIterations = check <int>args[0];
     var benchmarkIterations = check <int>args[1];
-    string resultFileName = untaintedReturn(<string>args[2]);
 
-    string functionName = args[3];
+    string functionName = args[2];
     addFunctions();
-
     function() func = getFunction(functionName);
-
-    executeBenchmark(func, functionName, warmupIterations, benchmarkIterations,
-        resultFileName);
+    executeBenchmark(func, functionName, warmupIterations, benchmarkIterations);
 }
 
-function executeBenchmark(function () f, string functionName, int warmupIterations,
-int benchmarkIterations, string resultsFileName) {
-
-    io:println("Executing function " + functionName + " " + (warmupIterations + benchmarkIterations) + " times.Please wait...");
+function executeBenchmark(function () f, string functionName, int warmupIterations, int benchmarkIterations) {
 
     int i = 0;
     while (i < warmupIterations) {
@@ -35,25 +32,16 @@ int benchmarkIterations, string resultsFileName) {
         f();
     }
     int endTime = time:nanoTime();
-
-    string resultsFileLocation = "results/" + resultsFileName + ".csv";
-    io:ByteChannel channel = io:openFile(resultsFileLocation, "a");
-    io:CharacterChannel charChannel = new io:CharacterChannel(channel, "UTF-8");
-    int resultWrite = check charChannel.write("\n" + functionName + ",", 0);
+    io:print(functionName + ",");
 
     float totalTime = (endTime - startTime);
     float totalTimeMilli = (totalTime / 1000000.0);
-    resultWrite = check charChannel.write(io:sprintf("%10.2f,", totalTimeMilli), 0);
+    io:print(io:sprintf("%10.2f,", totalTimeMilli), 0);
 
     float avgLatency = (<float>totalTime / <float>benchmarkIterations);
-    resultWrite = check charChannel.write(io:sprintf("%10.2f,", avgLatency), 0);
+    io:print(io:sprintf("%10.2f,", avgLatency), 0);
 
     float tps = (1000000000.0 / avgLatency);
-    resultWrite = check charChannel.write(io:sprintf("%10.2f", tps), 0);
-    var result = channel.close();
-}
-
-public function untaintedReturn(string input) returns @untainted string {
-    return input;
+    io:println(io:sprintf("%10.2f", tps), 0);
 }
 

@@ -1,4 +1,3 @@
-
 type Person  {
     string name;
     int age;

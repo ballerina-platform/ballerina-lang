@@ -1,4 +1,3 @@
-
 import ballerina/io;
 
 public function benchmarkSprintfWithFloat() {
