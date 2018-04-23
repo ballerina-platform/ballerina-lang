@@ -77,6 +77,7 @@ HTTP Failover
 HTTP Load Balancer
 HTTP Forwarded Extension
 HTTP 2.0 Server Push
+HTTP 1.1 To 2.0 Protocol Switch
 Log API
 Function Pointers
 Lambda

@@ -1,6 +1,6 @@
 # To run the program, put the code in `websocket-basic-application.bal`
-# and use `ballerina run websocket-basic-application.bal` command.
-$ ballerina run websocket-chat-application.bal
+# and use `ballerina run websocket_chat_application.bal` command.
+$ ballerina run websocket_chat_application.bal
 
 # To check the sample, use Chrome or Firefox JavaScript console and run the following commands <br>
 # Run the first 3 lines of the following code in two or more different consoles and see how the messages are received
