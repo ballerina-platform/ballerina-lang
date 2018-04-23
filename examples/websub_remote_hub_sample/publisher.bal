@@ -3,7 +3,7 @@ import ballerina/log;
 import ballerina/runtime;
 import ballerina/websub;
 
-// This is the remote WebSub Hub Endpoint to which registration, subscription and unsubscription requests are sent.
+// This is the remote WebSub Hub Endpoint to which registration and publish requests are sent.
 endpoint websub:Client websubHubClientEP {
     url: "https://localhost:9191/websub/hub"
 };
