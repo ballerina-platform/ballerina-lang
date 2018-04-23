@@ -27,7 +27,7 @@ service<http:Service> headerBasedRouting bind {port:9090} {
             http:Response errorResponse = new;
             errorResponse.statusCode = 500;
             json errMsg = {"error":"'x-type' header is not found"};
-            errorResponse.setJsonPayload(errMsg);
+            errorResponse.setPayload(errMsg);
             conn->respond(errorResponse)  but { error e => log:printError("Error sending response", err=e) };
             done;
         }
@@ -51,7 +51,7 @@ service<http:Service> headerBasedRouting bind {port:9090} {
             http:HttpConnectorError err => {
                 http:Response errorResponse = new;
                 errorResponse.statusCode = 500;
-                errorResponse.setStringPayload(err.message);
+                errorResponse.setPayload(err.message);
                 conn->respond(errorResponse)  but { error e => log:printError("Error sending response", err=e) };
             }
         }

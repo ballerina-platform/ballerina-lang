@@ -3,7 +3,7 @@ $ curl -v http://localhost:9090/hbr/route -H "x-type:location"
     "name": "Colombo,Sri Lanka",
     "longitude": -556.49,
     "latitude": 257.76,
-    "altitude": 230,
+    "altitude": 230
 }
 
 $ curl -v http://localhost:9090/hbr/route -H "x-type:weather"
