@@ -11,4 +11,3 @@ false
 HTTP Response: 
 {"args":{"test":"123"},"headers":{"host":"postman-echo.com","accept-encoding":"deflate, gzip","user-agent":"ballerina/0.9xx","x-forwarded-port":"443","x-forwarded-proto":"https"},"url":"https://postman-echo.com/get?test=123"}
 true
-17839763
