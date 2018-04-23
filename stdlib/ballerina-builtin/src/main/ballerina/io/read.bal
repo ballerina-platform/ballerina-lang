@@ -14,6 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-@Description { value:"Returns the input read from STDIN"}
-@Param { value:"a: any value to be printed" }
-public native function readln (any a) returns (string);
+documentation{
+    Returns the input read from STDIN
+
+    P{{a}} - Any value to be printed
+    R{{}} - Input read from STDIN
+}
+public native function readln(any a) returns (string);

@@ -14,60 +14,69 @@
 // specific language governing permissions and limitations
 // under the License.
 
+documentation{
+   Represents the set of permissions supported to open file
 
-@Description {value : "Permissions which will be used to open file"}
+   READ - open the file in read mode
+   WRITE - open the file in write mode
+   READ/WRITE - open the file either to read or write
+   APPEND - append to existing file instead of replacing
+}
 public type Mode "r"|"w"|"rw"|"a";
-
-@Description {value:"Describes access mode for reading"}
 @final public Mode READ = "r";
-
-@Description {value:"Describes access mode for writing"}
 @final public Mode WRITE = "w";
-
-@Description {value:"Describes acces mode for reading and writing"}
 @final public Mode RW = "rw";
-
-@Description {value:"Describes access mode for append"}
 @final public Mode APPEND = "a";
 
-@Description {value:"Opens a byte channel from a specified file location"}
-@Param {value:"path: path to the file location"}
-@Param {value:"accessMode: whether the file should be opened for read,write or append"}
-@Return {value:"Channel which will allow to source/sink"}
+documentation{
+    Retrieves a ByteChannel from a given file path
+
+    P{{path}} - Relative/absolute path string to locate the file
+    P{{accessMode}} - Permission to open the file
+    R{{}} - ByteChannel representation of the file resource
+}
 public native function openFile(@sensitive string path, @sensitive Mode accessMode) returns @tainted ByteChannel;
 
-@Description {value:"Opens a socket from a specified network location"}
-@Param {value:"host: Remote server domain/IP"}
-@Param {value:"port: Remote server port"}
-@Param {value:"options: Connection stream that bridge the client and the server"}
-@Return {value:"Socket which will allow to communicate with a remote server"}
-@Return {value:"Returns an IOError if unable to open the socket connection"}
+documentation{
+    Opens a socket from a specified network location
+
+    P{{host}} - Remote server domain/IP
+    P{{port}} - Remote server port
+    P{{options}} - Connection stream that bridge the client and the server
+    R{{}} - Socket which will allow to communicate with a remote server or error
+}
 public native function openSocket(@sensitive string host,
                                   @sensitive int port,
                                   SocketProperties options) returns @tainted Socket|error;
 
+documentation{
+    Opens a secure socket connection with a remote server
 
-@Description {value:"Open a secure socket connection with a remote server"}
-@Param {value:"host: Remote server domain/IP"}
-@Param {value:"port: Remote server port"}
-@Param {value:"options: Connection stream that bridge the client and the server"}
-@Return {value:"Socket which will allow to communicate with a remote server"}
-@Return {value:"Returns an IOError if unable to open the socket connection"}
+    P{{host}} - Remote server domain/IP
+    P{{port}} - Remote server port
+    P{{options}} - Mata data to initialize the connection(i.e security information)
+    R{{}} - Socket which will represent the network object or an error
+}
 public native function openSecureSocket(@sensitive string host,
                                         @sensitive int port,
                                         SocketProperties options) returns @tainted Socket|error;
 
-@Description {value:"Function to create CSV channel to read CSV input"}
-@Param {value:"path: Specfies the path to the CSV file"}
-@Param {value:"mode: Specfies the access mode"}
-@Param {value:"rf: Specifies the format of the CSV file"}
-@Return {value:"DelimitedRecordChannel converted from CSV Channel"}
-@Return {value:"Returns an IOError if DelimitedRecordChannel could not be created"}
+documentation{
+    Retrieves a CSV channel from a give file path
+
+    P{{path}} - File path which describes the location of the CSV
+    P{{mode}} - Permission which should be used to open CSV file
+    P{{fieldSeparator}} - CSV record seperator (i.e comma or tab)
+    P{{charset}} - Encoding characters in the file represents
+    P{{skipHeaders}} - Number of headers which should be skipped
+    R{{}} - CSVChannel which could be used to iterate through the CSV records
+}
 public function openCsvFile(@sensitive string path,
                             @sensitive Mode mode = "r",
-                            @sensitive Seperator fieldSeperator = ",",
-                            @sensitive string charset = "UTF-8") returns @tainted CSVChannel {
+                            @sensitive Separator fieldSeparator = ",",
+                            @sensitive string charset = "UTF-8",
+                            @sensitive int skipHeaders=0) returns @tainted CSVChannel {
     ByteChannel channel = openFile(path, mode);
     CharacterChannel charChannel = new(channel, charset);
-    return new CSVChannel(charChannel, fs = fieldSeperator);
+    return new CSVChannel(charChannel, fs = fieldSeparator,nHeaders = skipHeaders);
 }

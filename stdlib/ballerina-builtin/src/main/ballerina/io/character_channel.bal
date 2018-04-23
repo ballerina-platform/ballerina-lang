@@ -14,53 +14,83 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
-@Description {value:"Ballerina CharacterChannel represents a channel which will allow to read/write characters"}
+documentation{
+    Represents a channel which could be used to read/write characters through a given ByteChannel
+}
 public type CharacterChannel object {
     private {
         ByteChannel channel;
         string charset;
     }
 
+    documentation{
+        Constructs a CharacterChannel from a given ByteChannel and Charset
+
+        P{{channel}} - ByteChannel which would be used to read/write characters
+        P{{charset}} - Character-Set which would be used to encode/decode given bytes to characters
+    }
     public new(channel, charset) {
         init(channel, charset);
     }
 
-    @Description {value:"Initialize the character channel"}
-    @Param {value:"channel : byte channel which will be used for reading/writing"}
-    @Param {value:"charset : character which will be used to encode/decode bytes"}
+    documentation{
+        Initializes a character channel
+
+        P{{channel}} - ByteChannel which should be used to initalize the character channel.
+        P{{charset}} - Character-set (i.e UTF-8) which should be used to encode/decode
+    }
     native function init(ByteChannel channel, string charset);
 
-    @Description {value:"Function to read characters"}
-    @Param {value:"numberOfChars: Number of characters which should be read"}
-    @Return {value:"The character sequence which was read"}
-    @Return {value:"Returns if there's any error while performaing I/O operation"}
+    documentation{
+        Reads a given number of characters
+
+        P{{numberOfChars}} - Number of characters which should be read.
+        R{{}} - Content which is read or an error
+    }
     public native function read(@sensitive int numberOfChars) returns @tainted string|error;
 
-    @Description {value:"Function to write characters"}
-    @Param {value:"content: Text content which should be written"}
-    @Param {value:"startOffset: If the content needs to be written with an offset, the value of that offset"}
-    @Return {value:"Number of characters written"}
-    @Return {value:"Returns if there's any error while performaing I/O operation"}
+    documentation{
+        Writes a given sequence of characters (string)
+
+        P{{content}} - Content which should be written
+        P{{startOffset}} - Number of characters which should be offset when writing content
+    }
     public native function write(string content, int startOffset) returns int|error;
 
-    @Description {value:"Function to convert a character channel to a JSON"}
-    @Return {value:"Returns A JSON"}
-    @Return {value:"Returns if there's any error while performaing I/O operation"}
+    documentation{
+        Reads a json from the given channel
+
+        R{{}} - Read json string or an error
+    }
     public native function readJson() returns @tainted json|error;
 
-    @Description {value:"Function to convert a character channel to a XML"}
-    @Return {value:"Returns A XML"}
-    @Return {value:"Returns if there's any error while performaing I/O operation"}
+    documentation{
+        Reads a XML from the given channel
+
+        R{{}} - Read xml or an error
+    }
     public native function readXml() returns @tainted xml|error;
 
-    @Description {value:"Writes json through a given character channel"}
+    documentation{
+        Writes a given json to the given channel
+
+        P{{content}} - The json which should be written
+        R{{}} - If an error occurred while writing
+    }
     public native function writeJson(json content) returns error?;
 
-    @Description {value:"Writes xml through a given character channel"}
+    documentation{
+        Writes a given xml to the channel
+
+        P{{content}} - The XML which should be written
+        R{{}} - If an error occurred while writing
+    }
     public native function writeXml(xml content) returns error?;
 
-    @Description {value:"Function to close a character channel"}
-    @Return {value:"Returns if there's any error while performaing I/O operation"}
+    documentation{
+        Closes a given character channel.
+
+        R{{}} - If an error occurred while writing
+    }
     public native function close() returns error?;
 };

@@ -14,37 +14,53 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
-@Description {value:"Ballerina ByteChannel represents a channel which will allow I/O operations to be done"}
+documentation{
+    ByteChannel represents an input/output resource (i.e file, socket). which could be used to source/sink bytes.
+}
 public type ByteChannel object {
 
-    @Description {value:"Function to read bytes"}
-    @Param {value:"nBytes: Number of bytes which should be read"}
-    @Return {value:"The bytes which were read"}
-    @Return {value:"Number of bytes read"}
-    @Return {value:"Returns if there's any error while performaing I/O operation"}
+    documentation{
+        Source bytes from a given input/output resource
+
+        Number of bytes returned will be < 0 if the file reached its end
+
+        This operation will be asynchronous, where the total number of required bytes might not be returned at a given
+        time.
+
+        P{{nBytes}} - Positive integer. Represents the number of bytes which should be read
+        R{{}} - Content, the number of bytes read or an error
+    }
     public native function read(@sensitive int nBytes) returns @tainted (blob, int)|error;
 
-    @Description {value:"Function to write bytes"}
-    @Param {value:"content: Bytes which should be written"}
-    @Param {value:"offset: If the bytes need to be written with an offset, the value of that offset"}
-    @Return {value:"Number of bytes written"}
-    @Return {value:"Returns if there's any error while performaing I/O operation"}
+    documentation{
+        Sink bytes from a given input/output resource
+
+        This operation will be asynchronous, write might return without writing all the content
+
+        P{{content}} - Block of bytes which should be written
+        R{{offset}} - Offset which should be kept when writing bytes
+        R{{}} - Number of bytes written or an error
+    }
     public native function write(blob content, int offset) returns int|error;
 
-    @Description {value:"Function to close a byte channel"}
-    @Return {value:"Returns if there's any error while performaing I/O operation"}
+    documentation{
+        Closes a given byte channel
+
+        R{{}} - Will return () if there's no error
+    }
     public native function close() returns error?;
 
-    @Description {value:"Encode a given ByteChannel with Base64 encoding scheme."}
-    @Param {value:"valueToBeEncoded: Content that needs to be encoded"}
-    @Return {value:"Return an encoded ByteChannel"}
-    @Return {value:"error will get return, in case of errors"}
+    documentation{
+        Encodes a given ByteChannel with Base64 encoding scheme.
+
+        R{{}} -  Return an encoded ByteChannel or an error
+    }
     public native function base64Encode() returns ByteChannel|error;
 
-    @Description {value:"Decode a given ByteChannel with Base64 encoding scheme."}
-    @Param {value:"valueToBeDecoded: Content that needs to be decoded"}
-    @Return {value:"Return a decoded ByteChannel"}
-    @Return {value:"error will get return, in case of errors"}
+    documentation{
+        Decodes a given ByteChannel with Base64 encoding scheme.
+
+        R{{}} - Return a decoded ByteChannel or an error
+    }
     public native function base64Decode() returns ByteChannel|error;
 };

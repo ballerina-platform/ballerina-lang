@@ -14,8 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
-@Description {value:"Ballerina DelimitedRecordChannel represents a channel which will allow to read/write text records"}
+documentation{
+    Represents a channel which will allow to read/write records through a given CharacterChannel
+}
 public type DelimitedTextRecordChannel object {
     private {
         CharacterChannel channel;
@@ -23,32 +24,53 @@ public type DelimitedTextRecordChannel object {
         string fs;
     }
 
+    documentation{
+        Constructs a DelimitedTextRecordChannel from a given CharacterChannel
+
+        P{{channel}} - CharacterChannel which will point to the input/output resource
+        P{{rs}} - Record separator (this could be a regex)
+        P{{fs}} - Field separator (this could be a regex)
+    }
     public new(channel, fs = "", rs = "", string fmt = "default") {
         init(channel, fs, rs, fmt);
     }
 
-    @Description {value : "Initialize delimited record channel"}
-    @Param {value : "channel : character channel which will be used for reading/writing records"}
-    @Param {value : "fs : Feild separator which will separate between fields"}
-    @Param {value : "rs : Record separator which will separate between records"}
-    @Param {value : "fmt : Format which will be used to represent the type of record i.e csv"}
+    documentation{
+        Initializes delimited record channel
+
+        P{{channel}} - Character channel which will be used for reading/writing records
+        P{{fs}} - Field separator which will separate between fields
+        P{{rs}} - Record separator which will separate between records
+        P{{fmt}} - Format which will be used to represent the type of record i.e csv
+    }
     native function init(CharacterChannel channel, string fs, string rs, string fmt);
 
-    @Description {value:"Function to check whether next record is available or not"}
-    @Return {value:"True if the channel has more records; false otherwise"}
+    documentation{
+        Checks whether there's a record left to be read
+
+        R{{}} - True if there's a record left to be read
+    }
     public native function hasNext() returns boolean;
 
-    @Description {value:"Function to read text records"}
-    @Return {value:"Fields listed in the record"}
-    @Return {value:"Returns if there's any error while performaing I/O operation"}
+    documentation{
+        Get next record from the input/output resource
+
+        R{{}} - Set of fields included in the record or an error
+    }
     public native function getNext() returns @tainted string[]|error;
 
-    @Description {value:"Function to write text records"}
-    @Param {value:"records: Fields which are included in the record"}
-    @Return {value:"Returns if there's any error while performaing I/O operation"}
+    documentation{
+        Writes records to a given input/output resource
+
+        P{{record}} - list of fields which should be written
+        R{{}} - An error if the records could not be written properly
+    }
     public native function write(string[] record) returns error?;
 
-    @Description {value:"Function to close the text record channel"}
-    @Return {value:"Returns if there's any error while performaing I/O operation"}
+    documentation{
+        Closes a given record channel
+
+        R{{}} - An error if the record channel could not be closed properly
+    }
     public native function close() returns error?;
 };

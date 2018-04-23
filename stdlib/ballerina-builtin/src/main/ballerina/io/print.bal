@@ -14,17 +14,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
+documentation{
+    Prints 'any' value to the STDOUT
+}
+public native function print(any... a);
 
-@Description { value:"Prints a 'any' value to the STDOUT"}
-@Param { value:"a: any value to be printed" }
-public native function print (any... a);
+documentation{
+    Prints an any value to the STDOUT in a new line
+}
+public native function println(any... a);
 
-@Description { value:"Prints an any value to the STDOUT in a new line"}
-@Param { value:"a: any value to be printed" }
-public native function println (any... a);
+documentation{
+    Returns a formatted string using the specified format string and arguments
 
-@Description { value:"Returns a formatted string using the specified format string and arguments" }
-@Param { value:"format: Format specifier" }
-@Param { value:"args: Arguments to be formatted, should match number of args in format specifier" }
-@Return { value:"Formatted string" }
-public native function sprintf (string format, any... args) returns (string);
+    P{{format}} - Represent the format of the string which should be returned
+    R{{}} - Formatted string
+}
+public native function sprintf(string format, any... args) returns (string);

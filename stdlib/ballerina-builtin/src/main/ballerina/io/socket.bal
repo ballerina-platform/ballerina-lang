@@ -16,32 +16,58 @@
 
 
 documentation {
-    Represetns a TCP socket.
+    Represents a TCP socket.
+
+    F{{channel}} - ByteChannel which will represent the socket connection
+    F{{port}} - Remote server connection port
+    F{{localPort}} - Local port the socket connection should bound
+    F{{address}} - IP/Host of the remote server
+    F{{localAddress}} - Local interface the connection should bound
 }
 public type Socket object {
+
     public {
-        ByteChannel channel;
-        int port;
-        int localPort;
-        string address;
-        string localAddress;
+        @readonly ByteChannel channel;
+        @readonly int port;
+        @readonly int localPort;
+        @readonly string address;
+        @readonly string localAddress;
     }
 
-    @Description {value:"Close the socket connection with the remote server"}
-    @Return {value:"Returns an error if socket could not be closed"}
+    documentation{
+        Closes a socket connection
+
+        R{{}} - An error if the connection could not be closed properly
+    }
     public native function close() returns error?;
 
-    @Description {value:"Shutdown the connection for reading"}
-    @Return {value:"Returns an error if socket could not be shutdown for reading"}
+    documentation{
+        Shutdown the connection from reading. In this case content cannot be read from the server
+
+        R{{}} - An error if the connection could not be shutdown properly
+    }
     public native function shutdownInput() returns error?;
 
-    @Description {value:"Shutdown the connection for writing"}
-    @Return {value:"Returns an error if socket could not be shutdown for writing"}
+    documentation{
+        Shutdown the connection from writing. In this case content cannot be written to the server
+
+        R{{}} - An error if the connection could not be shutdown properly
+    }
     public native function shutdownOutput() returns error?;
 };
 
 documentation {
-    SocketProperties structs represents the properties which are used to configure TCP connection.
+    SocketProperties represents the properties which are used to configure TCP connection.
+
+    F{{localPort}} - Local port the socket client should bind
+    F{{keyStoreFile}} - Relative/absolute path to locate keystore file
+    F{{keyStorePassword}} - Keystore password
+    F{{trustStoreFile}} - Relative/absolute path to locate truststore file
+    F{{trustStorePassword}} - Truststore password
+    F{{certPassword}} - Password of the certificate
+    F{{sslEnabledProtocols}} - Protocols supported for SSL (i.e TLSv1.2,TLSv1.1,TLSv1)
+    F{{ciphers}} - Encrypt/decrypt algorithms (i.e RSA, SHA-256)
+    F{{sslProtocol}} - Supported SSL protocols (i.e SSL, TLS)
 }
 public type SocketProperties {
     int localPort;

@@ -8,14 +8,14 @@ type Employee {
     float salary;
 };
 
-function initCSVChannel(string filePath, io:Mode permission, string encoding, io:Seperator fieldSeperator) {
+function initCSVChannel(string filePath, io:Mode permission, string encoding, io:Separator fieldSeparator) {
     io:ByteChannel byteChannel = io:openFile(filePath, permission);
     io:CharacterChannel charChannel = new io:CharacterChannel(byteChannel, encoding);
-    csvChannel = new io:CSVChannel(charChannel, fs = fieldSeperator);
+    csvChannel = new io:CSVChannel(charChannel, fs = fieldSeparator);
 }
 
-function initOpenCsv(string filePath, io:Mode permission, string encoding, io:Seperator fs) {
-    csvChannel = io:openCsvFile(filePath, mode=permission, fieldSeperator=fs,charset=encoding);
+function initOpenCsv(string filePath, io:Mode permission, string encoding, io:Separator fs, int nHeaders=0) {
+    csvChannel = io:openCsvFile(filePath, mode=permission, fieldSeparator=fs,charset=encoding, skipHeaders = nHeaders);
 }
 
 function nextRecord() returns (string[]|error) {
