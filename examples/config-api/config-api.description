@@ -1,1 +1,1 @@
-//The 'ballerina.config' package provides an API for reading configurations from various sources such as files, environment variables, and CLI parameters.
+//The `ballerina/config` package provides an API for reading configurations from various sources such as files, environment variables and CLI parameters.

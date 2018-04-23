@@ -1,16 +1,44 @@
+# Sensitive data such as passwords can be encrypted and accessed securely in code. To encrypt a value, the
+# `ballerina encrypt` command can be used. It will prompt the user to enter the value and a secret. In this instance,
+# `ballerina` is the value and `12345` is the secret.
+$ ballerina encrypt
+Enter value:
+
+Enter secret:
+
+Re-enter secret to verify:
+
+Add the following to the runtime config:
+@encrypted:{jFMAXsuMSiOCaxuDLuQjVXzMzZxQrten0652/j93Amw=}
+
+Or add to the runtime command line:
+-e<param>=@encrypted:{jFMAXsuMSiOCaxuDLuQjVXzMzZxQrten0652/j93Amw=}
+
+# The secret will have to be provided if a configuration contains an encrypted value. The secret can be provided
+# through a `secret.txt` file or through the CLI. In this example, the CLI is used.
+$ ballerina run config-api.bal
+ballerina: enter secret for config value decryption:
+
+
 # To explicitly specify a config file, use the --config or the -c flag.
-# If this flag is not set, Ballerina looks for a `ballerina.conf` file in the directory from which
-# the user executes the program. The path to the config file can either be an absolute or a relative path.
-$ ballerina run config-api.bal --config path/to/conf/file/custom-config-file-name.conf
-john has RW access
-peter has R access
-Before changing sum.limit in code: 5
-After changing sum.limit: 10
+# If this flag is not set, Ballerina looks for a `ballerina.conf` file in the directory in which the source files
+# reside. The path to the config file can either be an absolute or a relative path.
+# To run this example, place the following configurations in a file and provide its path.
+# ```
+# [hello]
+# http.port=8085
+# keystore.password="@encrypted:{jFMAXsuMSiOCaxuDLuQjVXzMzZxQrten0652/j93Amw=}"
+# ```
+$ ballerina run --config path/to/conf/file/custom-config-file-name.conf config-api.bal
+ballerina: enter secret for config value decryption:
+
+ballerina: initiating service(s) in 'config-api.bal'
+ballerina: started HTTPS/WSS endpoint 0.0.0.0:8085
 
 # The same configs given through a config file can also be given through CLI parameters. <br>
-# E.g., john.access.rights
-$ ballerina run config-api.bal -e username.instances=john,peter -e john.access.rights=RW -e peter.access.rights=R -e sum.limit=5
-john has RW access
-peter has R access
-Before changing sum.limit in code: 5
-After changing sum.limit: 10
+# E.g., hello.http.port
+$ ballerina run config-api.bal -e hello.http.port=8085 -e hello.keystore.password=@encrypted:{jFMAXsuMSiOCaxuDLuQjVXzMzZxQrten0652/j93Amw=}
+ballerina: enter secret for config value decryption:
+
+ballerina: initiating service(s) in 'config-api.bal'
+ballerina: started HTTPS/WSS endpoint 0.0.0.0:8085

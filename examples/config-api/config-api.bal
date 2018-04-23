@@ -1,60 +1,44 @@
 import ballerina/config;
+import ballerina/http;
 import ballerina/io;
+import ballerina/mime;
 
-function main(string... args) {
-    // Using the Ballerina config API, you can look up values from config files, CLI parameters,
-    // environment variables, etc. The precedence order for config lookup is as follows: <br>
-    // * CLI parameters <br>
-    // * Environment variables <br>
-    // * Config files <br><br>
-    // If a particular config defined in the file is also defined as an environment variable, the environment 
-    // variable takes precedence. Similarly, if the same is set as a CLI parameter, it replaces the environment 
-    // variable value. <br>
-    // The configs are simply arbitrary key/value pairs with slight structure to it.
-    string[] users;
-    string usersString  = config:getAsString("username.instances");
-    if (usersString != ""){
-        users = usersString.split(",");
-    } else {
-        return;
+// Using the Ballerina config API, you can look up values from config files, CLI parameters and
+// environment variables. The precedence order for config resolution is as follows: <br>
+// * CLI parameters <br>
+// * Environment variables <br>
+// * Config files <br><br>
+// If a particular config defined in the file is also defined as an environment variable, the environment
+// variable takes precedence. Similarly, if the same is set as a CLI parameter, it replaces the environment
+// variable value. <br>
+// The configs are simply arbitrary key/value pairs with slight structure to it.
+endpoint http:Listener helloWorldEP {
+    // The config API is particularly useful for configuring services. In this example, the port and keystore password
+    // are read through the config API, instead of hard coding it in the source file. The configuration APIs accept
+    // a key and an optional default value. In case there isn't a mapping for the specified key, the default value
+    // is returned as the config value. The default values of these optional default configs are the respective
+    // default values of the types the functions return.
+    port:config:getAsInt("hello.http.port", default = 9095),
+    secureSocket:{
+        keyStore:{
+            path:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password:config:getAsString("hello.keystore.password")
+        }
     }
+};
 
-    string user1Rights = config:getAsString(users[0] + ".access.rights");
-    if (user1Rights == ""){
-        return;
-    }
-
-    var user2Rights = config:getAsString(users[1] + ".access.rights");
-    if (user2Rights == ""){
-        return;
-    }
-
-    io:println(users[0] + " has " + user1Rights + " access");
-    io:println(users[1] + " has " + user2Rights + " access");
-    // A sample config file looks as follows: <br>
-    // sum.limit=5 <br>
-    // username.instances="john,peter" <br>
-    // [john] <br>
-    // access.rights="RW" <br>
-    // [peter] <br>
-    // access.rights="R" <br><br>
-    // The same configs can be set using CLI parameters as follows: <br>
-    // -e sum.limit=5 -e username.instances=john,peter -e john.access.rights=RW -e peter.access.rights=R<br>
-
-    io:println("Before changing sum.limit in code: " + getLimit());
-
-    // You can set configs using the code as well.
-    config:setConfig("sum.limit", "10");
-
-    io:println("After changing sum.limit: " + getLimit());
+@http:ServiceConfig {
+    basePath:"/hello"
 }
+service helloWorld bind helloWorldEP {
 
-function getLimit() returns (string) {
-    string sumLimit = config:getAsString("sum.limit");
-    if (sumLimit != ""){
-        return sumLimit;
+    @http:ResourceConfig {
+        methods:["GET"],
+        path:"/"
     }
-
-    io:println("Returning default limit: 1000");
-    return "1000";
+    sayHello(endpoint caller, http:Request req) {
+        http:Response res = new;
+        res.setStringPayload("Hello World!");
+        _ = caller->respond(res);
+    }
 }
