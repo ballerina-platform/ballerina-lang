@@ -67,7 +67,7 @@ HTTP Client Connector
 HTTP Trace Logs
 HTTP 100 Continue
 HTTPS Listener
-HTTPS Server/Client Connectors
+Basic HTTPS Listener Client
 HTTP Disable Chunking
 HTTP to WebSocket Upgrade
 HTTP CORS

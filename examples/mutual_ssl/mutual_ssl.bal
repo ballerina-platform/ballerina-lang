@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerina/mime;
 import ballerina/log;
 
-//Create a new service endpoint to accept new connections that are secured via mutual SSL.
+// Create a new service endpoint to accept new connections that are secured via mutual SSL.
 endpoint http:Listener helloWorldEP {
     port:9095,
     secureSocket:{
@@ -19,7 +19,7 @@ endpoint http:Listener helloWorldEP {
             versions:["TLSv1.2", "TLSv1.1"]
         },
         ciphers:["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"],
-        //Enable mutual SSL.
+        // Enable mutual SSL.
         sslVerifyClient:"require"
     }
 };
@@ -29,7 +29,7 @@ endpoint http:Listener helloWorldEP {
     basePath:"/hello"
 }
 
-//Bind the service to the endpoint that you declared above.
+// Bind the service to the endpoint that you declared above.
 service<http:Service> helloWorld bind helloWorldEP {
     @http:ResourceConfig {
         methods:["GET"],
@@ -38,14 +38,14 @@ service<http:Service> helloWorld bind helloWorldEP {
 
     sayHello(endpoint caller, http:Request req) {
         http:Response res = new;
-        //Set the response payload.
-        res.setStringPayload("Successful");
-        //Send response to client.
+        // Set the response payload.
+        res.setPayload("Successful");
+        // Send response to client.
         caller->respond(res) but { error e => log:printError("Error in responding ", err = e) };
     }
 }
 
-//Create a new client endpoint to connect to the service endpoint you created above via mutual SSL.
+// Create a new client endpoint to connect to the service endpoint you created above via mutual SSL.
 endpoint http:Client clientEP {
     url:"https://localhost:9095",
     secureSocket:{
@@ -63,19 +63,19 @@ endpoint http:Client clientEP {
         ciphers:["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"]
     }
 };
-@Description {value:"The Ballerina client connector can be used to connect to the created HTTPS server.
-As this is a mutual ssl connection, the client needs to provide the keyStoreFile, keyStorePassword, trustStoreFile, and
-trustStorePassword."}
+// The Ballerina client can be used to connect to the created HTTPS listener.
+// As this is a mutual ssl connection, the client needs to provide the keyStoreFile, keyStorePassword, trustStoreFile,
+// and trustStorePassword.
 function main(string... args) {
-    //Create a request.
+    // Create a request.
     var resp = clientEP->get("/hello/");
     match resp {
         http:Response response => {
-            match (response.getStringPayload()) {
+            match (response.getTextPayload()) {
                 string res => log:printInfo(res);
-                http:PayloadError payloadError => log:printError(payloadError.message);
+                error err => log:printError(err.message);
             }
         }
-        http:HttpConnectorError err => log:printError(err.message);
+        error err => log:printError(err.message);
     }
 }
