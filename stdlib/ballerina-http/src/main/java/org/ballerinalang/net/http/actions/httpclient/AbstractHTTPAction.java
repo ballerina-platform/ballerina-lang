@@ -428,8 +428,8 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
 
         @Override
         public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
-            this.dataContext.notifyReply(createResponseStruct(
-                    this.dataContext.context, httpCarbonMessage), null);
+            this.outboundMsgDataStreamer.setIoException(new IOException("Response message already received"));
+            this.dataContext.notifyReply(createResponseStruct(this.dataContext.context, httpCarbonMessage), null);
         }
 
         @Override
