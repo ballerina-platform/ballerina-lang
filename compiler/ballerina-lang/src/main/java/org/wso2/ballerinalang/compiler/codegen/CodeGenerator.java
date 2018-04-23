@@ -42,12 +42,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
@@ -1855,20 +1853,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         TypeDefinitionInfo typeDefInfo = new TypeDefinitionInfo(currentPackageRefCPIndex,
                 typeDefNameCPIndex, typeDefSymbol.flags);
         currentPkgInfo.addTypeDefinitionInfo(typeDefSymbol.name.value, typeDefInfo);
-        typeDefInfo.finiteType = (BFiniteType) typeDefSymbol.type;
 
-        for (BType bType : typeDefInfo.finiteType.memberTypes) {
-            if (bType.tag == TypeTags.UNION) {
-                BUnionType unionType = (BUnionType) bType;
-                unionType.memberTypes.forEach(t -> {
-                    typeDefInfo.typeDescCPIndexes.add(getTypeCPIndex(t).value);
-                });
-            } else {
-                typeDefInfo.typeDescCPIndexes.add(getTypeCPIndex(bType).value);
-            }
-        }
-
-        Iterator<BLangExpression> valueSpaceIterator = typeDefInfo.finiteType.valueSpace.iterator();
+        Iterator<BLangExpression> valueSpaceIterator = typeDefinition.valueSpace.iterator();
         while (valueSpaceIterator.hasNext()) {
             BLangExpression literal = valueSpaceIterator.next();
             typeDefInfo.valueSpaceItemInfos.add(new ValueSpaceItemInfo(getDefaultValue((BLangLiteral) literal)));

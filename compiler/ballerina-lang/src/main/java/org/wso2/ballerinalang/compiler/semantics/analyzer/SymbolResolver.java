@@ -282,15 +282,6 @@ public class SymbolResolver extends BLangNodeVisitor {
             return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
         }
 
-        if (lhsType.tag == TypeTags.FINITE
-                && rhsType.tag == TypeTags.FINITE && lhsType == rhsType) {
-            opcode = (opKind == OperatorKind.EQUAL) ? InstructionCodes.TEQ : InstructionCodes.TNE;
-            List<BType> paramTypes = Lists.of(lhsType, rhsType);
-            BType retType = symTable.booleanType;
-            BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-            return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
-        }
-
         return symTable.notFoundSymbol;
     }
 

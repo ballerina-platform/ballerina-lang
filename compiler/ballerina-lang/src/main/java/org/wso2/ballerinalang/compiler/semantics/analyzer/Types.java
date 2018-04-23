@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -263,23 +264,8 @@ public class Types {
             return checkStructEquivalency(source, target);
         }
 
-        if (target.tag == TypeTags.FINITE) {
-            return isFiniteTypeAssignable(source, target);
-        }
-
         return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
                 isArrayTypesAssignable(source, target);
-    }
-
-    public boolean isFiniteTypeAssignable(BType source, BType target) {
-        BFiniteType finiteType = (BFiniteType) target;
-
-        boolean foundMemberType = finiteType.memberTypes
-                .stream()
-                .map(memberType -> isAssignable(source, memberType))
-                .anyMatch(foundType -> foundType);
-
-        return foundMemberType;
     }
 
     public boolean isArrayTypesAssignable(BType source, BType target) {
@@ -488,7 +474,7 @@ public class Types {
 
     public void setImplicitCastExpr(BLangExpression expr, BType actualType, BType expType) {
         BSymbol symbol = symResolver.resolveImplicitConversionOp(actualType, expType);
-        if (expType.tag == TypeTags.UNION && isValueType(actualType)) {
+        if ((expType.tag == TypeTags.UNION || expType.tag == TypeTags.FINITE) && isValueType(actualType)) {
             symbol = symResolver.resolveImplicitConversionOp(actualType, symTable.anyType);
         }
 
@@ -1257,4 +1243,64 @@ public class Types {
         }
         return true;
     }
+
+    public boolean isAssignableToFiniteType(BType type,
+                                            BLangLiteral literalExpr) {
+        if (type.tag == TypeTags.FINITE) {
+            BFiniteType expType = (BFiniteType) type;
+            boolean foundMember = expType.valueSpace
+                    .stream()
+                    .map(memberLiteral -> {
+                        if (((BLangLiteral) memberLiteral).value == null) {
+                            return literalExpr.value == null;
+                        } else {
+                            return ((BLangLiteral) memberLiteral).value.equals(literalExpr.value);
+                        }
+                    })
+                    .anyMatch(found -> found);
+            return foundMember;
+        }
+        return false;
+    }
+
+    public boolean isIntersectionExist(BType lhsType,
+                                       BType rhsType) {
+        Set<BType> lhsTypes = new HashSet<>();
+        Set<BType> rhsTypes = new HashSet<>();
+
+        lhsTypes.addAll(getMemberTypesRecursive(lhsType));
+        rhsTypes.addAll(getMemberTypesRecursive(rhsType));
+
+        if (lhsTypes.contains(symTable.anyType) ||
+                rhsTypes.contains(symTable.anyType)) {
+            return true;
+        }
+
+        boolean matchFound = lhsTypes
+                .stream()
+                .map(s -> rhsTypes
+                        .stream()
+                        .anyMatch(t -> isSameType(s, t)))
+                .anyMatch(found -> found);
+        return matchFound;
+    }
+
+    private Set<BType> getMemberTypesRecursive(BType bType) {
+        Set<BType> memberTypes = new HashSet<>();
+        if (bType.tag == TypeTags.FINITE) {
+            BFiniteType expType = (BFiniteType) bType;
+            expType.valueSpace.forEach(value -> {
+                memberTypes.add(value.type);
+            });
+        } else if (bType.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) bType;
+            unionType.getMemberTypes().forEach(member -> {
+                memberTypes.addAll(getMemberTypesRecursive(member));
+            });
+        } else {
+            memberTypes.add(bType);
+        }
+        return memberTypes;
+    }
+
 }

@@ -1813,7 +1813,11 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.intRegs[k] = sf.refRegs[i] == sf.refRegs[j] ? 1 : 0;
+                if (sf.refRegs[i] == null) {
+                    sf.intRegs[k] = sf.refRegs[j] == null ? 1 : 0;
+                } else {
+                    sf.intRegs[k] = sf.refRegs[i].equals(sf.refRegs[j]) ? 1 : 0;
+                }
                 break;
             case InstructionCodes.TEQ:
                 i = operands[0];
@@ -1853,7 +1857,11 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.intRegs[k] = sf.refRegs[i] != sf.refRegs[j] ? 1 : 0;
+                if (sf.refRegs[i] == null) {
+                    sf.intRegs[k] = (sf.refRegs[j] != null) ? 1 : 0;
+                } else {
+                    sf.intRegs[k] = (!sf.refRegs[i].equals(sf.refRegs[j])) ? 1 : 0;
+                }
                 break;
             case InstructionCodes.TNE:
                 i = operands[0];
@@ -3086,14 +3094,9 @@ public class CPU {
     private static boolean checkFiniteTypeAssignable(BValue bRefTypeValue, BType lhsType) {
         BFiniteType fType = (BFiniteType) lhsType;
         if (bRefTypeValue == null) {
-            if (fType.memberTypes.contains(BTypes.typeNull)) {
-                return true;
-            }
+            // we should not reach here
+            return true;
         } else {
-            BType valueType = bRefTypeValue.getType();
-            if (fType.memberTypes.contains(valueType)) {
-                return true;
-            }
             Iterator<BValue> valueSpaceItr = fType.valueSpace.iterator();
             while (valueSpaceItr.hasNext()) {
                 BValue valueSpaceItem = valueSpaceItr.next();
