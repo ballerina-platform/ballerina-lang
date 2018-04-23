@@ -15,8 +15,8 @@ public type HelloWorldStub object {
         self.stub = navStub;
     }
 
-    function lotsOfReplies(string req, typedesc listener, grpc:Headers... headers) returns (error?) {
-        return self.stub.nonBlockingExecute("HelloWorld/lotsOfReplies", req, listener, ...headers);
+    function lotsOfReplies(string req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
+        return self.stub.nonBlockingExecute("HelloWorld/lotsOfReplies", req, listener,  headers = headers);
     }
 };
 

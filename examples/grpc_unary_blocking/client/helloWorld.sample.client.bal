@@ -22,7 +22,8 @@ function main(string... args) {
             io:println("Client Got Response : ");
             io:println(payload);
             string? headerValue = resHeaders.get("Host");
-            io:println("Headers: " + headerValue);
+            io:print("Headers: ");
+            io:println(headerValue);
         }
         error err => {
             io:println("Error from Connector: " + err.message);

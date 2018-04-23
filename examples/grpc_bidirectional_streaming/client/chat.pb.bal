@@ -15,8 +15,8 @@ public type ChatStub object {
         self.stub = navStub;
     }
 
-    function chat(typedesc listener, grpc:Headers... headers) returns (grpc:Client|error) {
-        var res = self.stub.streamingExecute("Chat/chat", listener, ...headers);
+    function chat(typedesc listener, grpc:Headers? headers = ()) returns (grpc:Client|error) {
+        var res = self.stub.streamingExecute("Chat/chat", listener, headers = headers);
         match res {
             error err => {
                 return err;
