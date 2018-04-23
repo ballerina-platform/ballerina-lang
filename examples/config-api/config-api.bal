@@ -1,7 +1,6 @@
 import ballerina/config;
 import ballerina/http;
-import ballerina/io;
-import ballerina/mime;
+import ballerina/log;
 
 // Using the Ballerina config API, you can look up values from config files, CLI parameters and
 // environment variables. The precedence order for config resolution is as follows: <br>
@@ -39,6 +38,6 @@ service helloWorld bind helloWorldEP {
     sayHello(endpoint caller, http:Request req) {
         http:Response res = new;
         res.setStringPayload("Hello World!");
-        _ = caller->respond(res);
+        caller->respond(res) but {error e => log:printError("Failed to respond to the caller", err = e)};
     }
 }
