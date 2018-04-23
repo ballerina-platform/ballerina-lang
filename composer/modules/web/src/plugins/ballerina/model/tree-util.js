@@ -249,6 +249,52 @@ class TreeUtil extends AbstractTreeUtil {
     }
 
     /**
+     * Check whether the node is an async invocation expression
+     * @param {object} node - variable def node object
+     * @returns {boolean} - whether the node is an invocation node
+     */
+    statementIsASync(node) {
+        let found = false;
+        node.acceptFunc((element) => {
+            if (element.async) {
+                found = true;
+            }
+        });
+        return found;
+    }
+
+    statementIsAwaitResponse(node) {
+        let found = false;
+        node.acceptFunc((element) => {
+            if (element.kind === 'AwaitExpr') {
+                found = true;
+            }
+        });
+        return found;
+    }
+
+    findCompatibleStart(node) {
+        // get the future name.
+        const futureName = _.get(node, 'expression.variableName.value');
+        // traverse parent statements.
+        if (node.parent && this.isBlock(node.parent)) {
+            const compatible = node.parent.statements.find((element) => {
+                if (this.statementIsASync(element)) {
+                    if (this.isVariableDef(element) && this.statementIsInvocation(element)) {
+                        if (_.get(node, 'variable.name.value') === futureName) {
+                            return true;
+                        }
+                    }
+                    // ToDo add adtional cases.
+                }
+                return false;
+            });
+            return compatible;
+        }
+        return undefined;
+    }
+
+    /**
      * Get variable ref of Action Invocation
      * @param {object} node - variable def node object
      * @returns {object} - whether the node is an invocation node
@@ -771,7 +817,7 @@ class TreeUtil extends AbstractTreeUtil {
         const defaultName = 'ep';
         let defaultIndex = 0;
         const names = this.getCurrentEndpoints(parent)
-                        .map((endpoint) => { return endpoint.getName().getValue(); })
+                        .map((endpoint) => { return endpoint.name.getValue(); })
                         .sort();
         names.every((endpoint, i) => {
             if (names[i] !== defaultName + (i + 1)) {
@@ -781,7 +827,7 @@ class TreeUtil extends AbstractTreeUtil {
                 return true;
             }
         });
-        node.getName()
+        node.name
         .setValue(`${defaultName + (defaultIndex === 0 ? names.length + 1 : defaultIndex)}`, true);
     }
 

@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -50,12 +51,12 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.annotation.CheckForNull;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
@@ -349,20 +350,16 @@ public class LSCompiler {
         return findProjectRoot(parentDir, RepoUtils.createAndGetHomeReposPath());
     }
 
+    @CheckForNull
     public static String findProjectRoot(String parentDir, Path homePath) {
         Path path = Paths.get(parentDir, ProjectDirConstants.DOT_BALLERINA_DIR_NAME);
         if (!path.equals(homePath) && java.nio.file.Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
             return parentDir;
         }
-        List<String> pathParts = Arrays.asList(parentDir.split(Pattern.quote(File.separator)));
-        if (pathParts.size() > 0) {
-            List<String> dirPathParts = pathParts.subList(0, pathParts.size() - 1);
-            if (dirPathParts.size() > 0) {
-                String rootFolder = String.join(File.separator, dirPathParts);
-                return findProjectRoot(rootFolder, homePath);
-            } else {
-                return null;
-            }
+        Path parent = Paths.get(parentDir);
+        Path parentsParent = parent.getParent();
+        if (null != parentsParent) {
+            return findProjectRoot(parentsParent.toString(), homePath);
         }
         return null;
     }

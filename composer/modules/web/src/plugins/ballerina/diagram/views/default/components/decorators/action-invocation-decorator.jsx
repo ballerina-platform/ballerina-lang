@@ -249,11 +249,13 @@ class InvocationDecorator extends React.Component {
                         start={invocationComponent.start}
                         end={invocationComponent.end}
                     />
+                    { !viewState.async &&
                     <ArrowDecorator
                         start={backwardArrowStart}
                         end={backwardArrowEnd}
                         dashed
                     />
+                    }
                 </g>
                 {isBreakpoint && this.renderBreakpointIndicator()}
                 {this.props.children}

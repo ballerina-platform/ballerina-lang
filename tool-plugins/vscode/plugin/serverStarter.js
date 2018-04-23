@@ -33,7 +33,7 @@ let parserService;
 
 function getClassPath() {
     const customClassPath = workspace.getConfiguration('ballerina').get('classpath');
-    const sdkPath = workspace.getConfiguration('ballerina').get('sdk');
+    const sdkPath = workspace.getConfiguration('ballerina').get('home');
     const jarPath = path.join(__dirname, 'server-build', 'plugin-vscode-server.jar');
 	// in windows class path seperated by ';'
 	const sep = process.platform === 'win32' ? ';' : ':';
@@ -72,6 +72,7 @@ function startServices() {
             // Server is closed so that no more connections will be accepted
             server.close();
             onLSStarted({ reader: stream, writer: stream });
+            console.log('Ballerina Language Server connected on port: ', LSPort);
         });
         server.on('error', onLSError);
         server.listen(LSPort, () => {
@@ -81,9 +82,11 @@ function startServices() {
             const args = ['-cp', getClassPath()]
 
             if (process.env.LSDEBUG === "true") {
+                console.log('LSDEBUG is set to "true". Services will run on debug mode');
                 args.push('-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005,quiet=y')
             }
 
+            console.log('Starting parser service on: ', parserPort);
             serverProcess = spawn('java', [...args, main, LSPort, parserPort]);
 
             serverProcess.stdout.on('data', (data) => {

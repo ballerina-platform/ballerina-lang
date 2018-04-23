@@ -1,0 +1,15 @@
+{
+  "position": {
+    "line": 6,
+    "character": 35
+  },
+  "source": "service/source/bindKeywordSuggestion.bal",
+  "items": [
+    {
+      "label":"bind",
+      "detail":"Keyword",
+      "sortText":"210",
+      "insertText":"bind "
+    }
+  ]
+}

@@ -43,6 +43,7 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Calendar;
 import java.util.List;
+import javax.sql.rowset.CachedRowSet;
 
 /**
  * This iterator mainly wrap java.sql.ResultSet. This will provide table operations
@@ -77,11 +78,23 @@ public class SQLDataIterator extends TableIterator {
     @Override
     public void close(boolean isInTransaction) {
         try {
-            if (rs != null && !rs.isClosed()) {
+            if (rs != null && !(rs instanceof CachedRowSet) && !rs.isClosed()) {
                 rs.close();
             }
             resourceManager.gracefullyReleaseResources(isInTransaction);
             rs = null;
+        } catch (SQLException e) {
+            throw new BallerinaException(e.getMessage(), e);
+        }
+    }
+
+    public void reset(boolean isInTransaction) {
+        try {
+            if (rs instanceof CachedRowSet) {
+                rs.beforeFirst();
+            } else {
+                close(isInTransaction);
+            }
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
