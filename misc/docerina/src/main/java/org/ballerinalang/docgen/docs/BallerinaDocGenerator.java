@@ -308,7 +308,7 @@ public class BallerinaDocGenerator {
     }
 
     private static String packageNameToString(PackageID pkgId) {
-        return pkgId.toString().split(":")[0];
+        return pkgId.getName().getValue();
     }
 
     private static boolean isFilteredPackage(String packageName, String packageFilter) {
