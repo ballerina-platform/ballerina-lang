@@ -1038,6 +1038,20 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override
+    public void exitCompoundOperator(BallerinaParser.CompoundOperatorContext ctx) {
+        if (ctx.exception != null) {
+           return;
+        }
+
+        this.pkgBuilder.addCompoundOperator(getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
      */
     @Override
     public void exitPostIncrementStatement(BallerinaParser.PostIncrementStatementContext ctx) {
