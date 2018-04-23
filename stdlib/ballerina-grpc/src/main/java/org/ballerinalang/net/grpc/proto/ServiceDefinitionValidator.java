@@ -162,6 +162,10 @@ public class ServiceDefinitionValidator {
                 dlog.logDiagnostic(Diagnostic.Kind.NOTE, serviceNode.getPosition(), "Service : " + serviceNode
                         .getName().getValue() + " is considered as client message listener.");
                 return false;
+            } else if (onMessageExists || onErrorExists || onCompleteExists) {
+                dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
+                        "One or more resources(onMessage/onError/onComplete) is not implemented in " +
+                                "client message listener.");
             }
 
             for (BLangResource resourceNode : resources) {
