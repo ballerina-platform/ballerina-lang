@@ -16,26 +16,25 @@ type Teacher {
     string school;
 };
 
-function testAggregationQuery (stream<StatusCount> filteredStatusCountStream,
-                                                    stream<Teacher> teacherStream) {
+function testAggregationQuery(stream<StatusCount> filteredStatusCountStream, stream<Teacher> teacherStream) {
 
     // Create a forever statement block with the respective streaming query.
     // Write a query to filter out the teachers who are older than 18 years, wait until three teacher
     // object are collected by the stream, group the 3 teachers based on their marital status, and calculate the
     // unique marital status count of the teachers.
     // Once the query is executed, publish the result to the `filteredStatusCountStream` stream.
-    forever{
+    forever {
         from teacherStream where age > 18 window lengthBatch(3)
         select status, count(status) as totalCount
         group by status
         having totalCount > 1
         => (StatusCount[] status) {
-                filteredStatusCountStream.publish(status);
+            filteredStatusCountStream.publish(status);
         }
     }
 }
 
-function main (string... args) {
+function main(string... args) {
 
     //Create a stream that is constrained by the StatusCount struct type.
     stream<StatusCount> filteredStatusCountStream;
@@ -47,9 +46,9 @@ function main (string... args) {
     testAggregationQuery(filteredStatusCountStream, teacherStream);
 
     //Create sample events. These events are sent into the `teacherStream` input stream.
-    Teacher t1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};
-    Teacher t2 = {name:"Shareek", age:33, status:"single", batch:"LK1998", school:"Thomas College"};
-    Teacher t3 = {name:"Nimal", age:45, status:"married", batch:"LK1988", school:"Ananda College"};
+    Teacher t1 = {name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College"};
+    Teacher t2 = {name: "Shareek", age: 33, status: "single", batch: "LK1998", school: "Thomas College"};
+    Teacher t3 = {name: "Nimal", age: 45, status: "married", batch: "LK1988", school: "Ananda College"};
 
     //Subscribe the `filteredStatusCountStream` stream to the `printStatusCount` function. Each time the stream
     // receives an event, this function is called.
@@ -64,7 +63,7 @@ function main (string... args) {
 }
 
 //Print the output events.
-function printStatusCount (StatusCount s) {
-    io:println("Event received; status: " + s.status +" and total occurrences: "+s.totalCount);
+function printStatusCount(StatusCount s) {
+    io:println("Event received; status : " + s.status + " and total occurrences : " + s.totalCount);
 }
 

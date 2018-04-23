@@ -1,7 +1,7 @@
 # At the command line, navigate to the directory that contains the
-# `streams-within-services.bal` file and run the `ballerina run` command.
-$ ballerina run streams-within-services.bal
-ballerina: initiating service(s) in 'streams-within-services.bal'
+# `streams_within_services.bal` file and run the `ballerina run` command.
+$ ballerina run streams_within_services.bal
+ballerina: initiating service(s) in 'streams_within_services.bal'
 ballerina: started HTTP/WS endpoint 0.0.0.0:9090
 
 # If the number of requests from the same host is greater than six, a log would print like

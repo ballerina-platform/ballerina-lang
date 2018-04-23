@@ -13,7 +13,7 @@ type RequestCount {
 
 stream<ClientRequest> requestStream;
 
-function initRealtimeRequestCounter () {
+function initRealtimeRequestCounter() {
 
     stream<RequestCount> requestCountStream;
 
@@ -29,44 +29,44 @@ function initRealtimeRequestCounter () {
         from requestStream
         window timeBatch(5000)
         select host, count(host) as count group by host having count > 6
-        => (RequestCount [] counts) {
-                //The 'counts' is the output of the streaming rules and is published to the `requestCountStream`.
-                //The `select` clause should match the structure of the 'RequestCount' struct.
-                requestCountStream.publish(counts);
+        => (RequestCount[] counts) {
+        //The 'counts' is the output of the streaming rules and is published to the `requestCountStream`.
+        //The `select` clause should match the structure of the 'RequestCount' struct.
+            requestCountStream.publish(counts);
         }
     }
 }
 
 // Define the `printRequestCount` function.
-function printRequestCount (RequestCount reqCount) {
-    io:println("ALERT!! : Received more than 6 requests from the host within 5 seconds: " + reqCount.host);
+function printRequestCount(RequestCount reqCount) {
+    io:println("ALERT!! : Received more than 6 requests from the host within 5 seconds : " + reqCount.host);
 }
 
-endpoint http:Listener storeServiceEndpoint {
-    port:9090
+endpoint http:Listener ep {
+    port: 9090
 };
 
 @http:ServiceConfig {
-    basePath:"/"
+    basePath: "/"
 }
-// The host header is extracted from the requests that come to the service using the `/requests` context. Using this
-// information, the `clientRequest` object is created and published to the `requestStream`.
-service StoreService bind storeServiceEndpoint {
+//The host header is extracted from the requests that come to the service using the ` /requests` context. Using this
+//information, the `clientRequest` object is created and published to the `requestStream`.
+service requestService bind ep {
 
     future ftr = start initRealtimeRequestCounter();
 
     @http:ResourceConfig {
-        methods:["POST"],
-        path:"/requests"
+        methods: ["POST"],
+        path: "/requests"
     }
-    requests (endpoint conn, http:Request req) {
+    requests(endpoint conn, http:Request req) {
         string hostName = untaint req.getHeader("Host");
-        ClientRequest clientRequest = {host : hostName};
+        ClientRequest clientRequest = {host: hostName};
         requestStream.publish(clientRequest);
 
         http:Response res = new;
         res.setJsonPayload("{'message' : 'request successfully received'}");
-        _ = conn -> respond(res);
+        _ = conn->respond(res);
     }
 }
 

@@ -46,11 +46,11 @@ function main(string... args) {
     deployRegulatorActionDecisionRules();
 
     // Sample events that represents the different regulator states.
-    RegulatorState regulatorState1 = {deviceId:1, roomNo:2, tempSet:23.56, userAction:"on"};
-    RegulatorState regulatorState2 = {deviceId:1, roomNo:2, tempSet:23.56, userAction:"off"};
+    RegulatorState regulatorState1 = {deviceId: 1, roomNo: 2, tempSet: 23.56, userAction: "on"};
+    RegulatorState regulatorState2 = {deviceId: 1, roomNo: 2, tempSet: 23.56, userAction: "off"};
 
     // The sample event that represents the user action on the door of the room. 'removed' the owner has left the room.
-    RoomKeyAction roomKeyAction = {roomNo:2, userAction:"removed"};
+    RoomKeyAction roomKeyAction = {roomNo: 2, userAction: "removed"};
 
     // The `RegulatorActionStream` subscribes to the `alertRoomAction` function. Whenever the
     // 'RegulatorActionStream' stream receives a valid event, this function is called.
@@ -65,10 +65,10 @@ function main(string... args) {
     runtime:sleep(500);
 
     int count = 0;
-    while(true) {
+    while (true) {
         runtime:sleep(500);
         count++;
-        if((lengthof roomActions) > 0 || count == 10) {
+        if ((lengthof roomActions) > 0 || count == 10) {
             break;
         }
     }
@@ -76,7 +76,7 @@ function main(string... args) {
 }
 
 function alertRoomAction(RoomKeyAction action) {
-    io:println("alertRoomAction function invoked for Room:" + action.roomNo + " and the action :" +
+    io:println("alertRoomAction function invoked for Room : " + action.roomNo + " and the action : " +
             action.userAction);
     addToGlobalRoomActions(action);
 }
