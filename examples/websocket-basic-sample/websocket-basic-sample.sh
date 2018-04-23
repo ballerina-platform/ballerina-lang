@@ -2,7 +2,7 @@
 #`websocket-basic-sample.bal` file and run the `ballerina run` command.
 $ ballerina run websocket-basic-sample.bal
 
-# To check the sample, use a Chrome or Firefox JavaScript console and run the below commands: <br>
+# To check the sample, use a Chrome or Firefox JavaScript console and run the following commands: <br>
 # Change `xml` to another sub protocol to observe the behavior of the WebSocket server.
 $ var ws = new WebSocket("ws://localhost:9090/basic/ws", "xml", "my-protocol");
 

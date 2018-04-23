@@ -14,24 +14,24 @@ service<http:Service> httpService bind servicEp {
 
     @http:ResourceConfig {
         path:"/world",
-        methods:["POST", "GET", "PUT", "My"]
+        methods:["POST"]
     }
-    httpResource(endpoint conn, http:Request req) {
+    httpResource(endpoint caller, http:Request req) {
         http:Response resp = new;
         var payload = req.getStringPayload();
         match payload {
             http:PayloadError payloadError => {
-                io:println(payloadError.message);
+                log:printError("Error sending message", err = payloadError);
                 resp.setStringPayload(payloadError.message);
                 resp.statusCode = 500;
             }
             string val => {
                 io:println(payload);
-                resp.setStringPayload("I received");
+                resp.setStringPayload("I received\n");
             }
         }
 
-        conn -> respond(resp) but { error e => log:printError("Error sending message", err=e) };
+        caller -> respond(resp) but { error e => log:printError("Error sending message", err = e) };
     }
 
 
@@ -41,7 +41,7 @@ service<http:Service> httpService bind servicEp {
             upgradeService:wsService
         }
     }
-    upgrader(endpoint ep, http:Request req) {
+    upgrader(endpoint caller, http:Request req) {
     }
 }
 
@@ -57,16 +57,16 @@ service<http:Service> httpService bind servicEp {
 }
 service<http:WebSocketService> wsService {
 
-    onOpen(endpoint ep) {
-        io:println("New WebSocket connection: " + ep.id);
+    onOpen(endpoint caller) {
+        io:println("New WebSocket connection: " + caller.id);
     }
 
-    onText(endpoint ep, string text) {
+    onText(endpoint caller, string text) {
         io:println(text);
-        ep -> pushText(text) but { error e => log:printError("Error sending message", err=e) };
+        caller -> pushText(text) but { error e => log:printError("Error sending message", err = e) };
     }
 
-    onIdleTimeout(endpoint ep) {
-        io:println("Idle timeout: " + ep.id);
+    onIdleTimeout(endpoint caller) {
+        io:println("Idle timeout: " + caller.id);
     }
 }
