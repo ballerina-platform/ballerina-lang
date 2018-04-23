@@ -13,7 +13,7 @@ endpoint http:Listener http2ServiceEP {
 service<http:Service> http2Service bind http2ServiceEP {
 
     @http:ResourceConfig {
-        path:"/main"
+        path:"/"
     }
     http2Resource(endpoint caller, http:Request req) {
 
@@ -21,18 +21,18 @@ service<http:Service> http2Service bind http2ServiceEP {
 
         // Send a Push Promise.
         http:PushPromise promise1 = new(path = "/resource1", method = "GET");
-        caller->promise(promise1) but { error e => log:printError("Error occurred while sending the promise1", err = e)
-        };
+        caller->promise(promise1) but {
+            error e => log:printError("Error occurred while sending the promise1", err = e) };
 
         // Send another Push Promise.
         http:PushPromise promise2 = new(path = "/resource2", method = "GET");
-        caller->promise(promise2) but { error e => log:printError("Error occurred while sending the promise2", err = e)
-        };
+        caller->promise(promise2) but {
+            error e => log:printError("Error occurred while sending the promise2", err = e) };
 
         // Send one more Push Promise.
         http:PushPromise promise3 = new(path = "/resource3", method = "GET");
-        caller->promise(promise3) but { error e => log:printError("Error occurred while sending the promise3", err = e)
-        };
+        caller->promise(promise3) but {
+            error e => log:printError("Error occurred while sending the promise3", err = e) };
 
         // Construct requested resource.
         http:Response response = new;
@@ -40,8 +40,8 @@ service<http:Service> http2Service bind http2ServiceEP {
         response.setJsonPayload(msg);
 
         // Send the requested resource.
-        caller->respond(response) but { error e => log:printError("Error occurred while sending the response", err = e)
-        };
+        caller->respond(response) but {
+            error e => log:printError("Error occurred while sending the response", err = e) };
 
         // Construct promised resource1.
         http:Response push1 = new;
@@ -49,26 +49,23 @@ service<http:Service> http2Service bind http2ServiceEP {
         push1.setJsonPayload(msg);
 
         // Push promised resource1.
-        caller->pushPromisedResponse(promise1, push1) but { error e => log:printError(
-                                                                           "Error occurred while sending the promised response1"
-                                                                           , err = e) };
+        caller->pushPromisedResponse(promise1, push1) but {
+            error e => log:printError("Error occurred while sending the promised response1", err = e) };
         http:Response push2 = new;
         msg = {"push":{"name":"resource2"}};
         push2.setJsonPayload(msg);
 
         // Push promised resource2.
-        caller->pushPromisedResponse(promise2, push2) but { error e => log:printError(
-                                                                           "Error occurred while sending the promised response2"
-                                                                           , err = e) };
+        caller->pushPromisedResponse(promise2, push2) but {
+            error e => log:printError("Error occurred while sending the promised response2", err = e) };
 
         http:Response push3 = new;
         msg = {"push":{"name":"resource3"}};
         push3.setJsonPayload(msg);
 
         // Push promised resource3.
-        caller->pushPromisedResponse(promise3, push3) but { error e => log:printError(
-                                                                           "Error occurred while sending the promised response3"
-                                                                           , err = e) };
+        caller->pushPromisedResponse(promise3, push3) but {
+            error e => log:printError("Error occurred while sending the promised response3", err = e) };
     }
 }
 
@@ -83,7 +80,7 @@ function main(string... args) {
     http:Request serviceReq = new;
     http:HttpFuture httpFuture = new;
     // Submit a request.
-    var submissionResult = clientEP->submit("GET", "/http2Service/main", serviceReq);
+    var submissionResult = clientEP->submit("GET", "/http2Service", serviceReq);
     match submissionResult {
         http:HttpFuture resultantFuture => {
             httpFuture = resultantFuture;
@@ -141,7 +138,7 @@ function main(string... args) {
     var responsePayload = res.getJsonPayload();
     match responsePayload {
         json resultantJsonPayload => {log:printInfo("Response : " + resultantJsonPayload.toString());}
-        http:PayloadError err => {log:printInfo("Expected response not received");}
+        http:PayloadError e => {log:printError("Expected response payload not received", err = e);}
     }
 
     // Fetch required promised responses.
@@ -161,7 +158,7 @@ function main(string... args) {
         var promisedPayload = promisedResponse.getJsonPayload();
         match promisedPayload {
             json promisedJsonPayload => {log:printInfo("Promised resource : " + promisedJsonPayload.toString());}
-            http:PayloadError err => {log:printInfo("Promised response not received");}
+            http:PayloadError e => {log:printError("Expected promised response payload not received", err = e);}
         }
     }
 }
