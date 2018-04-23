@@ -1,2 +1,2 @@
 $ ballerina run locks.bal
-final counter value - 400
+final counter value - 40000
