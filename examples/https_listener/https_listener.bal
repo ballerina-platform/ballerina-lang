@@ -17,7 +17,7 @@ endpoint http:Listener helloWorldEP {
     endpoints:[helloWorldEP],
     basePath:"/hello"
 }
-service<http:Service> helloWorld bind helloWorldEP {
+service helloWorld bind helloWorldEP {
     @http:ResourceConfig {
         methods:["GET"],
         path:"/"

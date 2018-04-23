@@ -1,5 +1,4 @@
 import ballerina/http;
-import ballerina/mime;
 import ballerina/log;
 
 // Create a new service endpoint to accept new connections that are secured via mutual SSL.
@@ -30,7 +29,7 @@ endpoint http:Listener helloWorldEP {
 }
 
 // Bind the service to the endpoint that you declared above.
-service<http:Service> helloWorld bind helloWorldEP {
+service helloWorld bind helloWorldEP {
     @http:ResourceConfig {
         methods:["GET"],
         path:"/"
@@ -68,7 +67,7 @@ endpoint http:Client clientEP {
 // and trustStorePassword.
 function main(string... args) {
     // Create a request.
-    var resp = clientEP->get("/hello/");
+    var resp = clientEP->get("/hello");
     match resp {
         http:Response response => {
             match (response.getTextPayload()) {

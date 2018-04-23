@@ -1,5 +1,4 @@
 import ballerina/http;
-import ballerina/mime;
 import ballerina/log;
 
 endpoint http:Listener helloWorldEP {
@@ -17,7 +16,7 @@ endpoint http:Listener helloWorldEP {
     basePath:"/hello"
 }
 
-service<http:Service> helloWorld bind helloWorldEP {
+service helloWorld bind helloWorldEP {
     @http:ResourceConfig {
         methods:["GET"],
         path:"/"
