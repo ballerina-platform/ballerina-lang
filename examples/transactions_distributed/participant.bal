@@ -19,7 +19,7 @@ service<http:Service> ParticipantService bind {port: 8889} {
 
         // At the beginning of the transaction statement, since a transaction context has been received, this service
         // will register with the initiator as a participant.
-        transaction {
+        transaction with oncommit = printParticipantCommit, onabort = printParticipantAbort {
             var updateReq = untaint req.getJsonPayload();
             match updateReq{
                 json updateReqJson => {
@@ -45,4 +45,12 @@ service<http:Service> ParticipantService bind {port: 8889} {
             }
         }
     }
+}
+
+function printParticipantAbort(string transactionId) {
+    log:printInfo("Participated transaction: " + transactionId + " aborted");
+}
+
+function printParticipantCommit(string transactionId) {
+    log:printInfo("Participated transaction: " + transactionId + " committed");
 }

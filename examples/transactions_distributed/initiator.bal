@@ -46,11 +46,11 @@ service<http:Service> InitiatorService bind {port: 8080} {
 }
 
 function printAbort(string transactionId) {
-    log:printInfo("Transaction: " + transactionId + " aborted");
+    log:printInfo("Initiated transaction: " + transactionId + " aborted");
 }
 
 function printCommit(string transactionId) {
-    log:printInfo("Transaction: " + transactionId + " committed");
+    log:printInfo("Initiated transaction: " + transactionId + " committed");
 }
 
 function callBusinessService() returns boolean {
