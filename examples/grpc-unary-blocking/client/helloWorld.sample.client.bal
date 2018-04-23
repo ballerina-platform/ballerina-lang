@@ -21,7 +21,7 @@ function main(string... args) {
             (result, resHeaders) = payload;
             io:println("Client Got Response : ");
             io:println(payload);
-            string headerValue = resHeaders.get("Host") but { () => "none" };
+            string? headerValue = resHeaders.get("Host");
             io:println("Headers: " + headerValue);
         }
         error err => {
