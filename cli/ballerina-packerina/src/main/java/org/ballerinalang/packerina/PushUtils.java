@@ -44,6 +44,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -139,7 +140,8 @@ public class PushUtils {
      * @param pkgPathFromPrjtDir package path from the project directory
      */
     private static void installToHomeRepo(PackageID packageID, Path pkgPathFromPrjtDir) {
-        Path targetDirectoryPath = Paths.get(BALLERINA_HOME_PATH.toString(), "repo",
+        Path targetDirectoryPath = Paths.get(BALLERINA_HOME_PATH.toString(),
+                                             ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME,
                                              packageID.orgName.getValue(),
                                              packageID.name.getValue(),
                                              packageID.version.getValue(),
@@ -263,14 +265,15 @@ public class PushUtils {
             throw new BLangCompilerException("Package.md in the artifact is empty");
         }
 
-        List<String> result = Arrays.asList(mdFileContent.split("\n")).stream()
-                                    .filter(line -> !line.isEmpty() && !line.startsWith("#"))
-                                    .collect(Collectors.toList());
+        Optional<String> result = Arrays.asList(mdFileContent.split("\n")).stream()
+                                        .filter(line -> !line.isEmpty() && !line.startsWith("#"))
+                                        .findFirst();
 
-        if (result == null || result.size() == 0) {
+        if (!result.isPresent()) {
             throw new BLangCompilerException("Error occured when reading Package.md");
         }
-        String firstLine = result.get(0);
+
+        String firstLine = result.get();
         if (firstLine.length() > 50) {
             throw new BLangCompilerException("Summary of the package exceeds 50 characters");
         }
