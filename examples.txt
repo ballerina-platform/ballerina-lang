@@ -134,9 +134,9 @@ Taint Checking
 WebSub Internal Hub Sample
 WebSub Remote Hub Sample
 Testerina Assertions
-Testerina Before After
-Testerina Before After Suite
-Testerina Before Each
+Testerina Before and After Test
+Testerina Before Each Test
+Testerina Before and After Suite
 Testerina Data Provider
 Testerina Depends On
 Testerina Function Mocks
