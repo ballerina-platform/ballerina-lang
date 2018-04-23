@@ -118,7 +118,7 @@ public type MediaType object {
     public function getBaseType() returns (string);
 
     documentation {
-        Convert the media type to a string suitable for use as the value of a corresponding HTTP header.
+        Convert the media type to a string, suitable to be used as the value of a corresponding HTTP header.
         R{{}} Return the Content-Type with parameters as a string
     }
     public function toString() returns (string);
@@ -282,21 +282,29 @@ public type Entity object {
     public function setBody((string|xml|json|blob|io:ByteChannel|Entity[]) entityBody);
 
     documentation {
-        Set the entity body with a given file handler.
+        Set the entity body with a given file. This method will override any existing content-type headers
+        with the default content-type 'application/octec-stream'. You can override the default value by passing
+        the content-type as an optional parameter.
 
-        P{{filePath}} Represent a file
+        P{{filePath}} Represent the path to the file
+        P{{contentType}} Content-type to be used with the payload. This is an optional parameter.
+        'application/octec-stream' will be used as the default value
     }
     public function setFileAsEntityBody(@sensitive string filePath, string contentType = "application/octec-stream");
 
     documentation {
-        Set the entity body with the given json content.
+        Set the entity body with the given json content. This method will override any existing content-type headers
+        with the default content-type 'application/json'. You can override the default value by passing the content-type
+        as an optional parameter.
 
         P{{jsonContent}} Json content that needs to be set to entity
+        P{{contentType}} Content-type to be used with the payload. This is an optional parameter. 'application/json'
+        will be used as the default value
     }
     public native function setJson(json jsonContent, string contentType = "application/json");
 
     documentation {
-        Given an entity, get the entity body in json form.
+        Given an entity, get the entity body in json form. If the entity body is not json compatible an error will be returned.
 
         R{{}} Return json data
         R{{}} EntityError will get thrown in case of errors during data-source extraction from entity
@@ -304,13 +312,18 @@ public type Entity object {
     public native function getJson() returns @tainted json|EntityError;
 
     documentation {
-        Set the entity body with the given xml content
+        Set the entity body with the given xml content. This method will override any existing content-type headers
+        with the default content-type 'application/xml'. You can override the default value by passing the content-type
+        as an optional parameter.
+
         P{{xmlContent}} Xml content that needs to be set to entity
+        P{{contentType}} Content-type to be used with the payload. This is an optional parameter. 'application/xml'
+        will be used as the default value
     }
     public native function setXml(xml xmlContent, string contentType = "application/xml");
 
     documentation {
-        Given an entity, get the entity body in xml form.
+        Given an entity, get the entity body in xml form. If the entity body is not xml compatible an error will be returned.
 
         R{{}} Return xml data
         R{{}} EntityError will get thrown in case of errors during data-source extraction from entity
@@ -318,14 +331,18 @@ public type Entity object {
     public native function getXml() returns @tainted xml|EntityError;
 
     documentation {
-        Set the entity body with the given text content.
+        Set the entity body with the given text content. This method will override any existing content-type headers
+        with the default content-type 'text/plain'. You can override the default value by passing the content-type
+        as an optional parameter.
 
         P{{textContent}} Text content that needs to be set to entity
+        P{{contentType}} Content-type to be used with the payload. This is an optional parameter. 'text/plain'
+        will be used as the default value
     }
     public native function setText(string textContent, string contentType = "text/plain");
 
     documentation {
-        Given an entity, get the entity body in text form.
+        Given an entity, get the entity body in text form. If the entity body is not text compatible an error will be returned.
 
         R{{}} Return text data
         R{{}} EntityError will get thrown in case of errors during data-source extraction from entity
@@ -333,10 +350,22 @@ public type Entity object {
     public native function getText() returns @tainted string|EntityError;
 
     documentation {
-        Set the entity body with the given blob content.
+        Given an entity, get the entity body as a string. Content-type will not be checked during entity body construction which
+        makes this differs from getText() method.
+
+        R{{}} Return payload as a string
+        R{{}} EntityError will get thrown in case of errors during data-source extraction from entity
+    }
+    public native function getBodyAsString() returns @tainted string|EntityError;
+
+    documentation {
+        Set the entity body with the given blob content. This method will override any existing content-type headers
+        with the default content-type 'application/octec-stream'. You can override the default value by passing
+        the content-type as an optional parameter.
 
         P{{blobContent}} Blob content that needs to be set to entity
-        R{{}} Return a blob
+        P{{contentType}} Content-type to be used with the payload. This is an optional parameter.
+        'application/octec-stream' will be used as the default value
     }
     public native function setBlob(blob blobContent, string contentType = "application/octec-stream");
 
@@ -350,9 +379,13 @@ public type Entity object {
     public native function getBlob() returns @tainted blob|EntityError;
 
     documentation {
-        Set the entity body with the given byte channel content.
+        Set the entity body with the given byte channel content. This method will override any existing content-type headers
+        with the default content-type 'application/octec-stream'. You can override the default value by passing
+        the content-type as an optional parameter.
 
         P{{byteChannel}} Byte channel that needs to be set to entity
+        P{{contentType}} Content-type to be used with the payload. This is an optional parameter.
+        'application/octec-stream' will be used as the default value
     }
     public native function setByteChannel(io:ByteChannel byteChannel, string contentType = "application/octec-stream");
 
@@ -365,7 +398,7 @@ public type Entity object {
     public native function getByteChannel() returns @tainted io:ByteChannel|EntityError;
 
     documentation {
-        Given an entity, get its body parts.
+        Given an entity, get its body parts. If the entity body is not a set of body parts an error will be returned.
 
         R{{}} Return an array of entities which represent its body parts
         R{{}} EntityError will get thrown in case of errors during data-source extraction from entity
@@ -380,9 +413,13 @@ public type Entity object {
     public native function getBodyPartsAsChannel() returns @tainted io:ByteChannel;
 
     documentation {
-        Set body parts to entity.
+        Set body parts to entity. This method will override any existing content-type headers
+        with the default content-type 'multipart/form-data'. You can override the default value by passing
+        the content-type as an optional parameter.
 
         P{{bodyParts}} Represent the body parts that needs to be set to the entity
+        P{{contentType}} Content-type to be used with the payload. This is an optional parameter.
+        'multipart/form-data' will be used as the default value
     }
     public native function setBodyParts(Entity[] bodyParts, string contentType = "multipart/form-data");
 
