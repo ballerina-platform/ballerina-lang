@@ -58,8 +58,8 @@ function cleanupTransactions() returns error? {
             if (time:currentTime().time - twopcTxn.createdTime >= 120000) {
                 if (twopcTxn.state != TXN_STATE_ABORTED && twopcTxn.state != TXN_STATE_COMMITTED) {
                     if (twopcTxn.state != TXN_STATE_PREPARED) {
-                        boolean prepareSuccessful = prepareResourceManagers(twopcTxn.transactionId,
-                            twopcTxn.transactionBlockId);
+                        boolean prepareSuccessful =
+                            prepareResourceManagers(twopcTxn.transactionId, twopcTxn.transactionBlockId);
                         if (prepareSuccessful) {
                             twopcTxn.state = TXN_STATE_PREPARED;
                             log:printInfo("Auto-prepared participated  transaction: " + participatedTxnId);

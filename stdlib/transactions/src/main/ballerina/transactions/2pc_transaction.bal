@@ -32,7 +32,9 @@ type TwoPhaseCommitTransaction object {
         boolean possibleMixedOutcome;
     }
 
-    new (transactionId, transactionBlockId, coordinationType = "2pc") {}
+    new(transactionId, transactionBlockId, coordinationType = "2pc") {
+
+    }
 
     // This function will be called by the initiator
     function twoPhaseCommit() returns string|error {
@@ -63,8 +65,8 @@ type TwoPhaseCommitTransaction object {
                         ret = {message:OUTCOME_HAZARD};
                     }
                     NotifyResult => {
-                        boolean localCommitSuccessful = commitResourceManagers(self.transactionId, self.
-                            transactionBlockId);
+                        boolean localCommitSuccessful =
+                            commitResourceManagers(self.transactionId, self.transactionBlockId);
                         if (!localCommitSuccessful) {
                             ret = {message:OUTCOME_HAZARD}; // "Local commit failed"
                         } else {
@@ -82,8 +84,8 @@ type TwoPhaseCommitTransaction object {
                         ret = {message:OUTCOME_HAZARD};
                     }
                     NotifyResult => {
-                        boolean localAbortSuccessful = abortResourceManagers(self.transactionId,
-                            self.transactionBlockId);
+                        boolean localAbortSuccessful =
+                            abortResourceManagers(self.transactionId, self.transactionBlockId);
                         if (!localAbortSuccessful) {
                             ret = {message:OUTCOME_HAZARD};
                         } else {

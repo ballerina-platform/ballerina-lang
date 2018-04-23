@@ -53,7 +53,7 @@ type InitiatorClient object {
         InitiatorClientEP clientEP;
     }
 
-    new () {
+    new() {
 
     }
 

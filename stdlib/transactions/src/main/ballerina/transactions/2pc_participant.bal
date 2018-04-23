@@ -65,7 +65,7 @@ type RemoteParticipant object {
         RemoteProtocol[] participantProtocols;
     }
 
-    new (participantId, transactionId, participantProtocols) {}
+    new(participantId, transactionId, participantProtocols) {}
 
     function prepare(string protocol) returns ((PrepareResult|error)?, Participant) {
         foreach remoteProto in participantProtocols {
@@ -88,8 +88,8 @@ type RemoteParticipant object {
                 }
             }
             () => {
-                NotifyResult|error notifyResult =
-                (action == COMMAND_COMMIT) ? NOTIFY_RESULT_COMMITTED : NOTIFY_RESULT_ABORTED;
+                NotifyResult|error notifyResult = (action == COMMAND_COMMIT) ? NOTIFY_RESULT_COMMITTED
+                                                                             : NOTIFY_RESULT_ABORTED;
                 foreach remoteProtocol in participantProtocols {
                     var result = self.notifyMe(remoteProtocol.url, action);
                     match result {
@@ -174,7 +174,7 @@ type LocalParticipant object {
         LocalProtocol[] participantProtocols;
     }
 
-    new (participantId, participatedTxn, participantProtocols) {}
+    new(participantId, participatedTxn, participantProtocols) {}
 
     function prepare(string protocol) returns ((PrepareResult|error)?, Participant) {
         foreach localProto in participantProtocols {
@@ -223,8 +223,8 @@ type LocalParticipant object {
                 }
             }
             () => {
-                NotifyResult|error notifyResult =
-                (action == COMMAND_COMMIT) ? NOTIFY_RESULT_COMMITTED : NOTIFY_RESULT_ABORTED;
+                NotifyResult|error notifyResult = (action == COMMAND_COMMIT) ? NOTIFY_RESULT_COMMITTED
+                                                                             : NOTIFY_RESULT_ABORTED;
                 foreach localProto in participantProtocols {
                     var result = self.notifyMe(action, participatedTxn.transactionBlockId);
                     match result {

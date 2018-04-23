@@ -30,8 +30,8 @@ documentation {
     P{{registerAtUrl}} - The URL of the initiator
     P{{coordinationType}} - Coordination type of this transaction
 }
-function beginTransaction (string? transactionId, int transactionBlockId, string registerAtUrl,
-                           string coordinationType) returns TransactionContext|error {
+function beginTransaction(string? transactionId, int transactionBlockId, string registerAtUrl,
+                          string coordinationType) returns TransactionContext|error {
     match transactionId {
         string txnId => {
             if (initiatedTransactions.hasKey(txnId)) { // if participant & initiator are in the same process
@@ -58,7 +58,7 @@ documentation {
     P{{transactionId}} - Globally unique transaction ID.
     P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
 }
-function abortTransaction (string transactionId, int transactionBlockId) returns error? {
+function abortTransaction(string transactionId, int transactionBlockId) returns error? {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     if (participatedTransactions.hasKey(participatedTxnId)) {
         TwoPhaseCommitTransaction txn = participatedTransactions[participatedTxnId];
@@ -81,9 +81,9 @@ documentation {
     P{{transactionId}} - Globally unique transaction ID.
     P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
 }
-function endTransaction (string transactionId, int transactionBlockId) returns string|error {
+function endTransaction(string transactionId, int transactionBlockId) returns string|error {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
-    if(!initiatedTransactions.hasKey(transactionId) && !participatedTransactions.hasKey(participatedTxnId)) {
+    if (!initiatedTransactions.hasKey(transactionId) && !participatedTransactions.hasKey(participatedTxnId)) {
         error err = {message:"Transaction: " + participatedTxnId + " not found"};
         throw err;
     }
@@ -110,7 +110,7 @@ documentation {
     P{{transactionId}} - Globally unique transaction ID.
     P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
 }
-function isInitiator (string transactionId, int transactionBlockId) returns boolean {
+function isInitiator(string transactionId, int transactionBlockId) returns boolean {
     if (initiatedTransactions.hasKey(transactionId)) {
         string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
         if (!participatedTransactions.hasKey(participatedTxnId)) {
@@ -126,7 +126,7 @@ documentation {
     P{{transactionId}} - Globally unique transaction ID.
     P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
 }
-native function prepareResourceManagers (string transactionId, int transactionBlockId) returns boolean;
+native function prepareResourceManagers(string transactionId, int transactionBlockId) returns boolean;
 
 documentation {
     Commit local resource managers.
@@ -134,7 +134,7 @@ documentation {
     P{{transactionId}} - Globally unique transaction ID.
     P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
 }
-native function commitResourceManagers (string transactionId, int transactionBlockId) returns boolean;
+native function commitResourceManagers(string transactionId, int transactionBlockId) returns boolean;
 
 documentation {
     Abort local resource managers.
@@ -142,11 +142,11 @@ documentation {
     P{{transactionId}} - Globally unique transaction ID.
     P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
 }
-native function abortResourceManagers (string transactionId, int transactionBlockId) returns boolean;
+native function abortResourceManagers(string transactionId, int transactionBlockId) returns boolean;
 
 documentation {
     Get the current transaction id. This function is useful for user code to save state against a transaction ID,
     so that when the `oncommit` or `onabort` functions registered for a transaction can retrieve that state using the
     transaction  that is passed in to those functions.
 }
-public native function getCurrentTransactionId () returns string;
+public native function getCurrentTransactionId() returns string;
