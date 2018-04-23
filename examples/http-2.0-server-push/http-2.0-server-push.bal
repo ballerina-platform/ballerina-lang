@@ -51,6 +51,8 @@ service<http:Service> http2Service bind http2ServiceEP {
         // Push promised resource1.
         caller->pushPromisedResponse(promise1, push1) but {
             error e => log:printError("Error occurred while sending the promised response1", err = e) };
+
+        // Construct promised resource2.
         http:Response push2 = new;
         msg = {"push":{"name":"resource2"}};
         push2.setJsonPayload(msg);
@@ -59,6 +61,7 @@ service<http:Service> http2Service bind http2ServiceEP {
         caller->pushPromisedResponse(promise2, push2) but {
             error e => log:printError("Error occurred while sending the promised response2", err = e) };
 
+        // Construct promised resource3.
         http:Response push3 = new;
         msg = {"push":{"name":"resource3"}};
         push3.setJsonPayload(msg);

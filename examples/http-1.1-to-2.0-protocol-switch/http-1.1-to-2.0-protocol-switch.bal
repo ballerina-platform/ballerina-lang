@@ -19,7 +19,7 @@ service<http:Service> http11Service bind http11ServiceEP {
     @http:ResourceConfig {
         path:"/"
     }
-    httpResource(endpoint caller, http:Request clientRequest) {
+    http11Resource(endpoint caller, http:Request clientRequest) {
         // Forward the clientRequest to http2 service.
         var clientResponse = http2serviceClientEP->forward("/http2service", clientRequest);
         http:Response response = new;
@@ -53,13 +53,13 @@ service<http:Service> http2service bind http2serviceEP {
     @http:ResourceConfig {
         path:"/"
     }
-    http2Resource(endpoint caller, http:Request req) {
-        // Construct response message.
+    http2Resource(endpoint caller, http:Request clientRequest) {
+        // Construct the response message.
         http:Response response = new;
         json msg = {"response":{"message":"response from http2 service"}};
         response.setJsonPayload(msg);
 
-        // Send the response to the caller (http11Service).
+        // Send the response back to the caller (http11Service).
         caller->respond(response) but {
             error e => log:printError("Error occurred while sending the response", err = e) };
     }
