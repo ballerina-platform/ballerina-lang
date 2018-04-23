@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 import ballerina/log;
 import ballerina/http;
 
@@ -26,7 +25,7 @@ import ballerina/http;
 string[] coordinationTypes = [TWO_PHASE_COMMIT];
 
 map<string[]> coordinationTypeToProtocolsMap = getCoordinationTypeToProtocolsMap();
-function getCoordinationTypeToProtocolsMap () returns map<string[]> {
+function getCoordinationTypeToProtocolsMap() returns map<string[]> {
     string[] twoPhaseCommitProtocols = [PROTOCOL_COMPLETION, PROTOCOL_VOLATILE, PROTOCOL_DURABLE];
     map<string[]> m;
     m[TWO_PHASE_COMMIT] = twoPhaseCommitProtocols;
@@ -37,7 +36,8 @@ function getCoordinationTypeToProtocolsMap () returns map<string[]> {
     basePath:initiatorCoordinatorBasePath
 }
 //documentation {
-//    Service on the initiator which is independent from the coordination type and handles registration of remote participants.
+//    Service on the initiator which is independent from the coordination type and handles registration of remote
+//    participants.
 //}
 service InitiatorService bind coordinatorListener {
 
@@ -55,8 +55,8 @@ service InitiatorService bind coordinatorListener {
         Cannot-Register |
         Micro-Transaction-Unknown )? )
 
-        If the registering participant specified a protocol name not matching the coordination type of the micro-transaction,
-        the following fault is returned:
+        If the registering participant specified a protocol name not matching the coordination type of the
+        micro-transaction, the following fault is returned:
 
         Invalid-Protocol
 
@@ -71,11 +71,12 @@ service InitiatorService bind coordinatorListener {
          processing for participants of the Volatile protocol (see section 3.1.3).
 
          Cannot-Register
-        If the registering participant specified an unknown micro-transaction identifier, the following fault is returned:
+        If the registering participant specified an unknown micro-transaction identifier, the following fault is
+        returned:
 
         Micro-Transaction-Unknown
     }
-    register (endpoint conn, http:Request req, int transactionBlockId, RegistrationRequest regReq) {
+    register(endpoint conn, http:Request req, int transactionBlockId, RegistrationRequest regReq) {
         string participantId = regReq.participantId;
         string txnId = regReq.transactionId;
 
@@ -86,9 +87,9 @@ service InitiatorService bind coordinatorListener {
             if (isRegisteredParticipant(participantId, txn.participants)) { // Already-Registered
                 respondToBadRequest(conn, "Already-Registered. TID:" + txnId + ",participant ID:" + participantId);
             } else if (!protocolCompatible(txn.coordinationType,
-                                           toProtocolArray(regReq.participantProtocols))) { // Invalid-Protocol
+                toProtocolArray(regReq.participantProtocols))) { // Invalid-Protocol
                 respondToBadRequest(conn, "Invalid-Protocol in remote participant. TID:" + txnId + ",participant ID:" +
-                                            participantId);
+                        participantId);
             } else {
                 RemoteProtocol[] participantProtocols = regReq.participantProtocols;
                 RemoteParticipant participant = new(participantId, txn.transactionId, participantProtocols);
@@ -96,9 +97,10 @@ service InitiatorService bind coordinatorListener {
                 RemoteProtocol[] coordinatorProtocols = [];
                 int i = 0;
                 foreach participantProtocol in participantProtocols {
-                    RemoteProtocol coordinatorProtocol = {name:participantProtocol.name,
-                                                       url:getCoordinatorProtocolAt(participantProtocol.name,
-                                                                                    transactionBlockId)};
+                    RemoteProtocol coordinatorProtocol = {
+                        name:participantProtocol.name,
+                        url:getCoordinatorProtocolAt(participantProtocol.name, transactionBlockId)
+                    };
                     coordinatorProtocols[i] = coordinatorProtocol;
                     i = i + 1;
                 }
@@ -107,12 +109,12 @@ service InitiatorService bind coordinatorListener {
                 json resPayload = check <json>regRes;
                 http:Response res = new; res.statusCode = http:OK_200;
                 res.setJsonPayload(resPayload);
-                var resResult = conn -> respond(res);
+                var resResult = conn->respond(res);
                 match resResult {
                     error err => log:printError("Sending response for register request for transaction " + txnId +
-                                                     " failed", err = err);
+                            " failed", err = err);
                     () => log:printInfo("Registered remote participant: " + participantId + " for transaction: " +
-                                          txnId);
+                            txnId);
                 }
             }
         }

@@ -1,40 +1,39 @@
-import ballerina/compression;
-import ballerina/file;
+import ballerina/internal;
 
 function decompressFile(string src, string destDir) returns error? {
-    file:Path srcPath = new(src);
-    file:Path dstPath = new(destDir);
-    var result = compression:decompress(srcPath, dstPath);
+    internal:Path srcPath = new(src);
+    internal:Path dstPath = new(destDir);
+    var result = internal:decompress(srcPath, dstPath);
     match result {
-        compression:CompressionError err => return err;
+        internal:CompressionError err => return err;
         ()=> return;
     }
 }
 
 function compressFile(string src, string destDir) returns error? {
-    file:Path srcPath = new(src);
-    file:Path dstPath = new(destDir);
-    var result =compression:compress(srcPath, dstPath);
+    internal:Path srcPath = new(src);
+    internal:Path dstPath = new(destDir);
+    var result =internal:compress(srcPath, dstPath);
     match result {
-        compression:CompressionError err => return err;
+        internal:CompressionError err => return err;
         ()=> return;
     }
 }
 
 function decompressBlob(blob content, string destDir) returns error? {
-    file:Path dstPath = new(destDir);
-    var result = compression:decompressFromBlob(content, dstPath);
+    internal:Path dstPath = new(destDir);
+    var result = internal:decompressFromBlob(content, dstPath);
     match result {
-        compression:CompressionError err => return err;
+        internal:CompressionError err => return err;
         ()=> return;
     }
 }
 
 function compressDirToBlob(string src) returns blob|error {
-    file:Path srcPath = new(src);
-    var result = compression:compressToBlob(srcPath);
+    internal:Path srcPath = new(src);
+    var result = internal:compressToBlob(srcPath);
     match result {
-        compression:CompressionError err => return err;
+        internal:CompressionError err => return err;
         blob b => return b;
     }
 }
