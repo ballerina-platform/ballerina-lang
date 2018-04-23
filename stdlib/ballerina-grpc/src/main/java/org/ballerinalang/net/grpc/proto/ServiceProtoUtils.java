@@ -533,7 +533,7 @@ public class ServiceProtoUtils {
 
     /**
      * Returns file descriptor for the service.
-     * Reads file descriptor from internal annotation attach to the service at compile time.
+     * Reads file descriptor from internal annotation attached to the service at compile time.
      *
      * @param service gRPC service.
      * @return File Descriptor of the service.
