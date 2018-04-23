@@ -14,7 +14,7 @@ endpoint http:Client http2serviceClientEP {
 @http:ServiceConfig {
     basePath:"/http11Service"
 }
-service<http:Service> http11Service bind http11ServiceEP {
+service http11Service bind http11ServiceEP {
 
     @http:ResourceConfig {
         path:"/"
@@ -30,7 +30,7 @@ service<http:Service> http11Service bind http11ServiceEP {
             http:HttpConnectorError err => {
                 // Handle if there is an error returned from the forward function invocation.
                 response.statusCode = 500;
-                response.setStringPayload(err.message);
+                response.setPayload(err.message);
             }
         }
         // Send the response back to the caller.
@@ -48,7 +48,7 @@ endpoint http:Listener http2serviceEP {
 @http:ServiceConfig {
     basePath:"/http2service"
 }
-service<http:Service> http2service bind http2serviceEP {
+service http2service bind http2serviceEP {
 
     @http:ResourceConfig {
         path:"/"
@@ -57,7 +57,7 @@ service<http:Service> http2service bind http2serviceEP {
         // Construct the response message.
         http:Response response = new;
         json msg = {"response":{"message":"response from http2 service"}};
-        response.setJsonPayload(msg);
+        response.setPayload(msg);
 
         // Send the response back to the caller (http11Service).
         caller->respond(response) but {

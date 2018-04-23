@@ -10,14 +10,12 @@ endpoint http:Listener http2ServiceEP {
 @http:ServiceConfig {
     basePath:"/http2Service"
 }
-service<http:Service> http2Service bind http2ServiceEP {
+service http2Service bind http2ServiceEP {
 
     @http:ResourceConfig {
         path:"/"
     }
     http2Resource(endpoint caller, http:Request req) {
-
-        log:printInfo("Request received");
 
         // Send a Push Promise.
         http:PushPromise promise1 = new(path = "/resource1", method = "GET");
@@ -37,7 +35,7 @@ service<http:Service> http2Service bind http2ServiceEP {
         // Construct requested resource.
         http:Response response = new;
         json msg = {"response":{"name":"main resource"}};
-        response.setJsonPayload(msg);
+        response.setPayload(msg);
 
         // Send the requested resource.
         caller->respond(response) but {
@@ -46,7 +44,7 @@ service<http:Service> http2Service bind http2ServiceEP {
         // Construct promised resource1.
         http:Response push1 = new;
         msg = {"push":{"name":"resource1"}};
-        push1.setJsonPayload(msg);
+        push1.setPayload(msg);
 
         // Push promised resource1.
         caller->pushPromisedResponse(promise1, push1) but {
@@ -55,7 +53,7 @@ service<http:Service> http2Service bind http2ServiceEP {
         // Construct promised resource2.
         http:Response push2 = new;
         msg = {"push":{"name":"resource2"}};
-        push2.setJsonPayload(msg);
+        push2.setPayload(msg);
 
         // Push promised resource2.
         caller->pushPromisedResponse(promise2, push2) but {
@@ -64,7 +62,7 @@ service<http:Service> http2Service bind http2ServiceEP {
         // Construct promised resource3.
         http:Response push3 = new;
         msg = {"push":{"name":"resource3"}};
-        push3.setJsonPayload(msg);
+        push3.setPayload(msg);
 
         // Push promised resource3.
         caller->pushPromisedResponse(promise3, push3) but {
@@ -125,12 +123,12 @@ function main(string... args) {
         hasPromise = clientEP->hasPromise(httpFuture);
     }
 
-    http:Response res = new;
+    http:Response response = new;
     // Get the requested resource.
     var result = clientEP->getResponse(httpFuture);
     match result {
         http:Response resultantResponse => {
-            res = resultantResponse;
+            response = resultantResponse;
         }
         http:HttpConnectorError resultantErr => {
             log:printError("Error occurred while fetching response", err = resultantErr);
@@ -138,7 +136,7 @@ function main(string... args) {
         }
     }
 
-    var responsePayload = res.getJsonPayload();
+    var responsePayload = response.getJsonPayload();
     match responsePayload {
         json resultantJsonPayload => log:printInfo("Response : " + resultantJsonPayload.toString());
         http:PayloadError e => log:printError("Expected response payload not received", err = e);
