@@ -19,6 +19,7 @@ package org.ballerinalang.packerina;
 
 import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 /**
  * This class provides util methods when searching for Ballerina packages in the central.
@@ -26,8 +27,6 @@ import org.ballerinalang.util.EmbeddedExecutorProvider;
  * @since 0.95.2
  */
 public class SearchUtils {
-
-    private static final String BALLERINA_STAGING_URL = "https://api.central.ballerina.io/packages/";
 
     /**
      * Search for packages in central.
@@ -37,6 +36,6 @@ public class SearchUtils {
     public static void searchInCentral(String argument) {
         String query = "?q=" + argument;
         EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
-        executor.execute("packaging.search/ballerina.search.balx", BALLERINA_STAGING_URL, query);
+        executor.execute("packaging.search/ballerina.search.balx", RepoUtils.getRemoteRepoURL(), query);
     }
 }
