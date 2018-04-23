@@ -36,7 +36,6 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
@@ -86,6 +85,9 @@ import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
+import static org.ballerinalang.mime.util.EntityBodyHandler.checkEntityBodyAvailability;
+import static org.ballerinalang.mime.util.EntityBodyHandler.createNewEntity;
+import static org.ballerinalang.mime.util.EntityBodyHandler.setDiscreteMediaTypeBodyContent;
 import static org.ballerinalang.net.http.HttpConstants.ALWAYS;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_CHUNKING;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
@@ -168,7 +170,7 @@ public class HttpUtil {
                 .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
         BStruct entity = (BStruct) context.getRefArgument(ENTITY_INDEX);
         String contentType = MimeUtil.getContentTypeWithParameters(entity);
-        if (EntityBodyHandler.checkEntityBodyAvailability(entity)) {
+        if (checkEntityBodyAvailability(entity)) {
             httpCarbonMessage.waitAndReleaseAllEntities();
             if (contentType == null) {
                 contentType = OCTET_STREAM;
@@ -176,8 +178,7 @@ public class HttpUtil {
             HeaderUtil.setHeaderToEntity(entity, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
         }
         httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
-        httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, EntityBodyHandler
-                .checkEntityBodyAvailability(entity));
+        httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, checkEntityBodyAvailability(entity));
     }
 
     /**
@@ -201,7 +202,7 @@ public class HttpUtil {
                 populateEntityBody(context, httpMessageStruct, entity, isRequest);
             }
             if (entity == null) {
-                entity = EntityBodyHandler.createNewEntity(context, httpMessageStruct);
+                entity = createNewEntity(context, httpMessageStruct);
             }
             return new BValue[]{entity};
         } catch (Throwable throwable) {
@@ -238,7 +239,7 @@ public class HttpUtil {
             } catch (NumberFormatException e) {
                 throw new BallerinaException("Invalid content length");
             }
-            EntityBodyHandler.setDiscreteMediaTypeBodyContent(entity, httpMessageDataStreamer.getInputStream(),
+            setDiscreteMediaTypeBodyContent(entity, httpMessageDataStreamer.getInputStream(),
                     contentLength);
         }
         httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
@@ -702,7 +703,7 @@ public class HttpUtil {
     public static void checkEntityAvailability(Context context, BStruct struct) {
         BStruct entity = (BStruct) struct.getNativeData(MESSAGE_ENTITY);
         if (entity == null) {
-            EntityBodyHandler.createNewEntity(context, struct);
+            createNewEntity(context, struct);
         }
     }
 

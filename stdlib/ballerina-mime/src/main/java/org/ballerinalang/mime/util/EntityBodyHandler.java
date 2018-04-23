@@ -73,17 +73,17 @@ public class EntityBodyHandler {
     /**
      * Set new entity to in/out request/response struct.
      *
-     * @param context ballerina context.
-     * @param struct  request/response struct.
+     * @param context           ballerina context.
+     * @param httpMessageStruct request/response struct.
      */
-    public static BStruct createNewEntity(Context context, BStruct struct) {
+    public static BStruct createNewEntity(Context context, BStruct httpMessageStruct) {
         BStruct entity = ConnectorUtils.createAndGetStruct(context
                 , org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME
                 , org.ballerinalang.mime.util.Constants.ENTITY);
         entity.addNativeData(ENTITY_HEADERS, new DefaultHttpHeaders());
         entity.addNativeData(ENTITY_BYTE_CHANNEL, null);
-        struct.addNativeData(MESSAGE_ENTITY, entity);
-        struct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
+        httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
+        httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
         return entity;
     }
 
