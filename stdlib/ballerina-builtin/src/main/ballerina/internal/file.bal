@@ -93,7 +93,7 @@ documentation {
     P{{path}} Reference to the file path location
     R{{}} error if the directory/file could not be deleted
 }
-native function delete(@sensitive Path path) returns boolean|IOError;
+public native function delete(@sensitive Path path) returns boolean|IOError;
 
 documentation {
     Creates a directory in the specified location.

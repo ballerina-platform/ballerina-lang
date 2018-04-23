@@ -1,4 +1,3 @@
-package benchmarktypes;
 
 public function benchmarkFloatAddition() {
     float b = 9.9;

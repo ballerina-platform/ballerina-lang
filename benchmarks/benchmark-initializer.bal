@@ -1,5 +1,6 @@
 import ballerina/io;
 import ballerina/file;
+import ballerina/internal;
 
 function main(string... args) {
 
@@ -19,17 +20,17 @@ function prepare(int warmupIterations, int benchmarkIterations, string resultsFi
 
     // create results folder
     string resultsFolderName = "results";
-    file:Path dirPath = new(resultsFolderName);
-    if (!file:exists(dirPath)){
-        var dir = file:createDirectory(dirPath);
+    internal:Path dirPath = new(resultsFolderName);
+    if (!internal:pathExists(dirPath)){
+        var dir = internal:createDirectory(dirPath);
     }
 
     // write ReadMe
     string fileReadMeLocation = resultsFolderName + "/" + resultsFileName + ".txt";
-    file:Path reameMePath = new(fileReadMeLocation);
+    internal:Path reameMePath = new(fileReadMeLocation);
 
-    if (file:exists(reameMePath)){
-        var result = file:delete(reameMePath);
+    if (internal:pathExists(reameMePath)){
+        var result = internal:delete(reameMePath);
     }
     io:ByteChannel channelR = io:openFile(fileReadMeLocation, "w");
     io:CharacterChannel charChannelR = new io:CharacterChannel(channelR, "UTF-8");
@@ -38,9 +39,9 @@ function prepare(int warmupIterations, int benchmarkIterations, string resultsFi
 
     // write results file
     string resultsFileLocation = resultsFolderName + "/" + resultsFileName + ".csv";
-    file:Path resultsFile = new(resultsFileLocation);
-    if (file:exists(resultsFile)) {
-        var result = file:delete(resultsFile);
+    internal:Path resultsFile = new(resultsFileLocation);
+    if (internal:pathExists(resultsFile)) {
+        var result = internal:delete(resultsFile);
     }
     io:ByteChannel channel = io:openFile(resultsFileLocation, "w");
     io:CharacterChannel charChannel = new io:CharacterChannel(channel, "UTF-8");

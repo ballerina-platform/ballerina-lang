@@ -1,4 +1,3 @@
-package benchmarksprintf;
 
 import ballerina/io;
 

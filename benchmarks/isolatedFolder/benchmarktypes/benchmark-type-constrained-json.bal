@@ -1,4 +1,3 @@
-package benchmarktypes;
 
 type Person  {
     string name;

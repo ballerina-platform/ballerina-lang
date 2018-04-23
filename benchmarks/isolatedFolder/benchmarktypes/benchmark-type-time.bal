@@ -1,4 +1,3 @@
-package benchmarktypes;
 
 import ballerina/time;
 

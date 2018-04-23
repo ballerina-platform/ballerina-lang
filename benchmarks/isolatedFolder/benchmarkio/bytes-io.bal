@@ -1,4 +1,3 @@
-package benchmarkio;
 
 import ballerina/io;
 
