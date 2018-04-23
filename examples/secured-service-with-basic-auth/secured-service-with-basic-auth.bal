@@ -41,7 +41,7 @@ service<http:Service> echo bind ep {
     // The authentication and authorization settings can be overridden at resource level.
     // The hello resource would inherit the authentication:{enabled:true} flag from the
     // service level, and override scope defined in service level (xxx) with scope2.
-    hello (endpoint client, http:Request req) {
+    hello (endpoint caller, http:Request req) {
         http:Response res = new;
         res.setStringPayload("Hello, World!!!");
         _ = client -> respond(res);
