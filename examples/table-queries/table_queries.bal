@@ -32,7 +32,7 @@ function main(string... args) {
     table dt;
     int ret;
 
-    //Create a table named EMPLOYEE and populate it with sample data.
+    // Create a table named EMPLOYEE and populate it with sample data.
     var returnValue = testDB->update("CREATE TABLE EMPLOYEE (id INT,name
         VARCHAR(25),salary DOUBLE,status BOOLEAN,birthdate DATE,birthtime TIME,
         updated TIMESTAMP)");
@@ -58,8 +58,8 @@ function main(string... args) {
         error e => io:println("Error in executing INSERT INTO EMPLOYEE");
     }
 
-    //Query the table using the SQL connector 'select' action. Either the 'select' 
-    //or 'call' action returns a table.
+    // Query the table using the SQL connector 'select' action. Either the 'select'
+    // or 'call' action returns a table.
     var returnVal = testDB->select("SELECT * from EMPLOYEE", Employee);
 
     match returnVal {
@@ -67,8 +67,8 @@ function main(string... args) {
         error e => io:println("Error in executing SELECT * from EMPLOYEE");
     }
 
-    //Iterate through the result until hasNext() becomes false and retrieve
-    //the data record corresponding to each row.
+    // Iterate through the result until hasNext() becomes false and retrieve
+    // the data record corresponding to each row.
     while (dt.hasNext()) {
         var returnedNextRec = <Employee>dt.getNext();
         match returnedNextRec {
@@ -81,11 +81,11 @@ function main(string... args) {
         }
     }
 
-    //Conversion from type 'table' to either JSON or XML results in data streaming. When a service client makes a request, 
-    //the result is streamed to the service client rather than building the full result in the server
-    //and returning it. This allows unlimited payload sizes in the result and
-    //the response is instantaneous to the client. <br>
-    //Convert a table to JSON.
+    // Conversion from type 'table' to either JSON or XML results in data streaming. When a service client makes a request,
+    // the result is streamed to the service client rather than building the full result in the server
+    // and returning it. This allows unlimited payload sizes in the result and
+    // the response is instantaneous to the client. <br>
+    // Convert a table to JSON.
     var returnVal2 = testDB->select("SELECT id,name FROM EMPLOYEE", ());
     match returnVal2 {
         table val => dt = val;
@@ -95,7 +95,7 @@ function main(string... args) {
     json jsonRes = check <json>dt;
     io:println(jsonRes);
 
-    //Convert a table to XML.
+    // Convert a table to XML.
     var returnVal3 = testDB->select("SELECT id,name FROM EMPLOYEE", ());
 
     match returnVal3 {
@@ -106,7 +106,7 @@ function main(string... args) {
     xml xmlRes = check <xml>dt;
     io:println(xmlRes);
 
-    //Drop the EMPLOYEE table.
+    // Drop the EMPLOYEE table.
     var returnVal4 = testDB->update("DROP TABLE EMPLOYEE");
     match returnVal4 {
         int val => ret = val;
@@ -114,6 +114,6 @@ function main(string... args) {
     }
     io:println("Table drop status:" + ret);
 
-    //Finally close the DB connection.
+    // Finally close the DB connection.
     testDB.stop();
 }
