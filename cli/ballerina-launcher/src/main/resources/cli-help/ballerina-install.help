@@ -1,0 +1,50 @@
+NAME
+    Ballerina install - Install package to home repository 
+
+SYNOPSIS
+    ballerina install <package-name>
+
+DESCRIPTION
+     Installs the given package from project repository to home 
+     repository. 
+     Project repository resides within the project home. 
+     Home repository reside within the home folders ‘.ballerina’ 
+     folder by default. 
+
+OPTIONS
+     Ballerina install command takes no options   
+
+DEFAULT BEHAVIOUR
+     Install package from project repository to home repository 
+
+EXAMPLES
+     Install math package 
+     $ ballerina install math 
+     This will place the current version of the package (assume 0.0.1)
+     on a Mac or Linux machine in 
+     ~/.ballerina/repo/user_name/math/0.0.1/math.zip 
+     On a Windows machine the package will be placed to 
+     \User\user_name\.ballerina\repo\user_name\math\0.0.1\math.zip
+ballerina help pull
+NAME
+    Ballerina pull - Download package from Ballerina Central 
+
+SYNOPSIS
+    ballerina pull <package-name>
+
+DESCRIPTION
+     Downloads the given package form Ballerina Central 
+     (https://central.ballerina.io/) repository and installs to home
+     repository. 
+     By default, package will be placed within the .ballerina home
+     repository of the user. 
+
+OPTIONS
+     Ballerina pull command takes no options  
+
+EXAMPLES
+     Download Gmail connector by WSO2 from Ballerina Central 
+     $ ballerina pull wso2/gmail
+
+     Download Bar package by Foo organization from Ballerina Central
+     $ ballerina pull foo/bar

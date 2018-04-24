@@ -1,0 +1,90 @@
+NAME
+    Ballerina help - Display help information about ballerina
+
+SYNOPSIS
+    ballerina test [-lg|--list-groups] [--groups <test_group, ...>] 
+        [--disable-groups <test_group, ...>] [--sourceroot <path>]
+        [-e] [--debug <port>] [-c <config_file>]
+        [--config <config_file>] [-B] [<balfile>|<packagename>]
+
+
+DESCRIPTION
+    Ballerina test commands allows you to compile and run Ballerina 
+    test sources and prints a summary of test results. You can 
+    execute tests in a single test file, a test package or in an 
+    entire ballerina project.
+    
+    ballerina test without any parameters execute tests in the entire
+    project.
+    
+    ballerina test <packagename> will execute tests within the 
+    specified package.
+    
+    ballerina test <balfile> will execute the given Ballerina test 
+    file. Note that imports from other packages will not work for 
+    file executions. File path can be a relative or absolute.
+
+
+OPTIONS
+
+     -lg
+     --list-groups
+    Lists the test groups available in the test files. Groups are 
+    tags that are added to test functions. The groups are used to
+    control the execution of test functions by specifying a  
+    group or a set of groups that needs to be executed in a test 
+    run. A test function can be grouped with groups parameter 
+    within @test:config annotation.
+
+     --groups <test_group, ...>              
+         Specify test groups to be executed. Groups are tags that are 
+         added to test functions. The groups are used to control the 
+         execution of test functions by specifying a group or a set of 
+         groups that needs to be executed in a test run. A test 
+         function can be grouped with groups parameter within 
+         @test:config annotation.
+
+     --disable-groups <test_group, ...>      
+         Specify test groups to be excluded. Groups are tags that are 
+         added to test functions. The groups are used to control the 
+         execution of test functions by specifying a group or a set of 
+         groups that needs to be executed in a test run. A test 
+         function can be grouped with groups parameter within 
+         @test:config annotation.
+
+     --sourceroot <path>         
+         Location of the remote project root with source files. All 
+         executions will be relative to the path provided for 
+         sourceroot. 
+
+     -e                    
+         Ballerina environment parameters
+         TODO: What are these? 
+
+     --debug <port>               
+         Remote debug Ballerina tests over the port given.   
+
+     -c <config_file>
+     --config <config_file>
+         Path to the test configuration file.
+
+     -B 
+         Ballerina VM options
+
+EXAMPLES
+     Run all tests in the current project
+     $ ballerina test
+
+     Run all tests in hello_service_test.bal  
+     $ ballerina test hello_service_test.bal 
+
+     Run tests in math package  
+     $ ballerina test math
+
+     List all test groups in all Ballerina source files in 
+     tests 
+     $ ballerina test -lg tests 
+
+     Run only the set of tests belonging to group_x in all Ballerina 
+     source files in tests 
+     $ ballerina test --groups group_x  tests

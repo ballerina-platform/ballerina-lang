@@ -1,0 +1,109 @@
+NAME
+    Ballerina help run - Run Ballerina program source files, 
+    binaries or packages
+
+SYNOPSIS
+     ballerina run [-s|--service] [-e] [--offline] [--observe] 
+         [--sourceroot] [-c|--config] [-B] 
+         <balfile | packagename | balxfile> [args...]  
+
+DESCRIPTION
+     Run command executes the provided program or package. 
+
+     If a Ballerina source file (.bal file) or a source package is 
+     given, run command compiles and runs it. 
+     When the source is given, the compilation is done internally, 
+     and it does not generate a binary file. 
+ 
+     You may use ballerina build command to compile a source and 
+     provide the generated binary file (.balx file) to run command. 
+
+     The difference of running a source file as opposed to a compiled
+     binary file is that, running binary file is much faster. This is 
+     because the source file run requires compilation phase and 
+     running does not require that. 
+
+     By default, ballerina run executes the main function. 
+     If the main function is not there, it executes services. 
+     When both a main function and a service are present, you can use 
+     [-s|--service] option to run service over main function. 
+     You must have either a main function or a service in order to run 
+     a program or a package
+
+
+OPTIONS
+     -s
+     --service
+         Runs services instead of main function (if available) in the 
+         given program or package. The default behaviour is to run 
+         the main function if there is one, else if there is only a
+         service defined, the service will be started. In case both a 
+         main function and a service is available in the program or
+         package, this option allows you to start the service.  
+         TODO: Verify default behavior text above 
+
+     -e <key1=value1, key2=value2, …>
+         Sets Ballerina environment parameters as key, value pairs.
+         TODO: What environment params available? 
+
+     --offline
+         In a package build, the dependencies are always checked from 
+         the remote repository (Ballerina Central) to check for latest 
+         Artifacts. If --offline is given, this remote check is not 
+         done, rather the local artifacts will be used. 
+
+     --observe
+         Enables observability for the Ballerina program and lets
+         users observe it through Jaeger (tracing) and Prometheus
+         (metrics) by default. If --observe is given,  it will display
+         a log mentioning push/pull endpoints that will be used for
+         Jaeger and Prometheus. Moreover, default configurations of
+         Jaeger and Prometheus can be overridden using environment
+         parameters or by defining them in ballerina.conf.
+         TODO: Where is the default config? What does that include? 
+
+     --sourceroot <path>
+         Provides the path to be taken as the root of the source. 
+         Source will be looked up relative to the given source root 
+         path
+
+     -c <config-file>
+     --config <config-file>
+         Provides path to the Ballerina configuration file. 
+         TODO: What is the config file used for? 
+         TODO: Where is the default config file located?   
+         TODO: What is the format/syntax for the config file? 
+
+     -B <option1, option2, …>
+         Provides a list of Ballerina VM options to be used by runtime 
+         when executing a Ballerina program or package. This accepts a 
+         comma separated list of options
+         TODO: Verify if it is a comma separated list you have to 
+             Provide
+         TODO: What is the list of options available? Need to list 
+             them all here. 
+         TODO: Are some of them just one word options and some 
+             key:value pairs? Or are they all key value pairs? 
+
+     args... 
+         The list of command line arguments for the Ballerina program 
+         being run. The semantics of these arguments are defined by 
+         the program design. 
+
+DEFAULT BEHAVIOUR
+     Runs the main function in the program or the package given.
+     If no main function defined, then it will look for a service. 
+     If none of them are present, the run command will fail.   
+
+EXAMPLES
+     Run hello source program  
+     $ ballerina run hello.bal
+
+     Run hello binary program  
+     $ ballerina run hello.balx
+
+     Run hello package  
+     $ ballerina run hello
+
+     Run math package with three program args: add, 10 and 5
+     $ ballerina run math add 10 5

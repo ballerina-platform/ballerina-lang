@@ -1,0 +1,74 @@
+NAME
+    Ballerina doc - Generate API documentation
+
+SYNOPSIS
+    ballerina doc [-t|--template] [--sourceroot <path>] 
+        [-o <path>|--output <path>] [-n|--native]
+        [-e <package, ...>|--exclude <package, ...>]
+        [-c <path>|--config <path>] [-v|--verbose] [-e] 
+        [<balfile>|<packagename]
+
+
+DESCRIPTION
+     Ballerina doc command generates API documentation for given 
+     program or package. 
+
+     By default if no source or package name given, it will generate 
+     API documentation for all the packages in the current project
+     folder. 
+
+     The default output location of API docs is a folder named 
+     api-docs. 
+
+
+OPTIONS
+     -t <path>
+     --template <path>
+         Path to a custom templates directory. Templates will be used 
+         to format the generated API documentation.
+  
+     --sourceroot <path>     
+         Path to the directory containing source files and packages
+
+     -o <path>
+     --output <path>
+         Path to the output directory. Generated API documents will be 
+         placed inside this directory. 
+    
+     -n
+     --native
+         Reads the source as native ballerina code. 
+         TODO: Can this be used to generate API docs from balx foles? 
+
+     -e <package, ...>
+     --exclude <package, ...>
+         Comma separated list of package names to be excluded from 
+         generated documentation. 
+
+     -c <path>
+     --config <path>
+         Path to document generation configuration file. 
+         TODO: What is the format of this file? 
+         TODO: What should be included in there? 
+
+     -v
+     --verbose
+         Prints debug level logs while generating documentation
+     -e
+         Ballerina environment parameters
+         TODO: What should be used when generating docs? 
+
+
+EXAMPLES
+     Generate API documentation for current project 
+     $ ballerina doc
+
+     Generate API documentation for hello_service.bal 
+     $ ballerina doc hello_service.bal 
+
+     Generate API documentation for hello_service.bal and write 
+     output to docs folder
+     $ ballerina doc -o docs hello_service.bal 
+
+     Generate API documentation for math package  
+     $ ballerina doc math

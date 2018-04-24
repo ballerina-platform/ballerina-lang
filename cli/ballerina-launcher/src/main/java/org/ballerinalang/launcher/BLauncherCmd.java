@@ -20,6 +20,9 @@ package org.ballerinalang.launcher;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterDescription;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -42,32 +45,16 @@ public interface BLauncherCmd {
 
     void setSelfCmdParser(JCommander selfCmdParser);
 
+    @Deprecated
     static String getCommandUsageInfo(JCommander cmdParser, String commandName) {
-        StringBuilder out = new StringBuilder();
-        JCommander jCommander = cmdParser.getCommands().get(commandName);
-        BLauncherCmd bLauncherCmd = (BLauncherCmd) jCommander.getObjects().get(0);
-
-        bLauncherCmd.printLongDesc(out);
-        out.append("\n");
-        out.append("Usage:\n");
-        bLauncherCmd.printUsage(out);
-        out.append("\n");
-
-        if (jCommander.getCommands().values().size() != 0) {
-            out.append("Available Commands:\n");
-            printCommandList(jCommander, out);
-            out.append("\n");
-        }
-
-        printFlags(jCommander.getParameters(), out);
-        return out.toString();
+        return getCommandUsageInfo(commandName);
     }
 
     static void printCommandList(JCommander cmdParser, StringBuilder out) {
         int longestNameLen = 0;
         for (JCommander commander : cmdParser.getCommands().values()) {
             BLauncherCmd cmd = (BLauncherCmd) commander.getObjects().get(0);
-            if (cmd.getName().equals("default-cmd") || cmd.getName().equals("help")) {
+            if (cmd.getName().equals(BallerinaCliCommands.DEFAULT) || cmd.getName().equals(BallerinaCliCommands.HELP)) {
                 continue;
             }
 
@@ -79,7 +66,7 @@ public interface BLauncherCmd {
 
         for (JCommander commander : cmdParser.getCommands().values()) {
             BLauncherCmd cmd = (BLauncherCmd) commander.getObjects().get(0);
-            if (cmd.getName().equals("default-cmd") || cmd.getName().equals("help")) {
+            if (cmd.getName().equals(BallerinaCliCommands.DEFAULT) || cmd.getName().equals(BallerinaCliCommands.HELP)) {
                 continue;
             }
 
@@ -123,6 +110,19 @@ public interface BLauncherCmd {
             char[] charArray = new char[noOfSpaces + 4];
             Arrays.fill(charArray, ' ');
             out.append("  ").append(names).append(new String(charArray)).append(desc).append("\n");
+        }
+    }
+
+    public static String getCommandUsageInfo(String commandName) {
+        if (commandName == null) {
+            throw LauncherUtils.createUsageException("invalid command");
+        }
+
+        String fileName = "cli-help/ballerina-" + commandName + ".help";
+        try {
+            return BCompileUtil.readFileAsString(fileName);
+        } catch (IOException e) {
+            throw LauncherUtils.createUsageException("usage info not available for command: " + commandName);
         }
     }
 }

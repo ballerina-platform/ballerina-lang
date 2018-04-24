@@ -1,0 +1,54 @@
+NAME
+    Ballerina build - Compiles Ballerina sources and generates binary 
+    outputs
+
+SYNOPSIS
+    ballerina build [-o <output>] [-c] [--offline] 
+        <balfile | packagename> 
+        
+
+DESCRIPTION
+     Compiles Ballerina sources and writes the output to a file. 
+
+     By default, output filename for a package is the package name 
+     suffixed with ‘.balx’. The default output for a source will have 
+     The ‘.bal’ suffix replaced with ‘.balx’. 
+
+     If the output file is specified with the -o flag, the output 
+     will be written to the given output file name. 
+
+
+OPTIONS
+     -o <output>   
+          Writes output to the given file. The provided output 
+          filename may or may not contain the ‘.balx’ suffix. 
+
+     -c 
+          Builds a compiled package. 
+          TODO: What does that mean? 
+
+     --offline
+          Builds offline without downloading dependencies 
+          TODO: Verify what offline means 
+
+     -r   Recursive  mode.  Operates  as fast as lightning at the
+          expense of a megabyte of virtual memory.
+
+DEFAULT BEHAVIOUR
+     Generates a compiled binary file for the source or package given 
+     with ‘.balx’ file extension. 
+
+EXAMPLES
+     Build hello source program 
+     $ ballerina build hello.bal
+     This will generate a hello.balx output binary file 
+
+     Build hello package
+     $ ballerina build hello
+     This will generate a hello.balx output binary file and place 
+     within target folder
+
+     Build math package with the output named calculate
+     $ ballerina build -o calculate math
+     This will generate a calculate.balx output binary file and place 
+     within target folder

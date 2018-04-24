@@ -1,0 +1,44 @@
+NAME
+    Ballerina init - Initializes a Ballerina project
+
+SYNOPSIS
+    ballerina init [-i|--interactive]
+
+DESCRIPTION
+     Ballerina init creates an initial project structure for you to 
+     get started with a Ballerina project. 
+
+The created set of artifacts includes a Ballerina.toml and a sample ballerina source file.You can use Ballerina.toml to manage the organization setting and version for the project.
+     
+TODO: What else can manifest be used for? 
+
+     The generated set of artifacts also include a service skeleton 
+     and a test skeleton that you can use to kick start the project
+     with. 
+
+     You may create a new folder, cd to that folder and then run init 
+     command to generate artifacts into that folder to initiate a 
+     project with a clean start. 
+
+OPTIONS
+     -i
+     --interactive
+          Creates a new Ballerina project in interactive mode. 
+          You will be guided through a set of question on what 
+          configuration files to generate, sources files to generate, 
+          what version to use, what organization name to use and 
+          if it is a main program or a service. 
+
+EXAMPLES
+     Initialize a project 
+     $ ballerina init
+     If you want to get a clean start, you may optionally 
+     $ mkdir myproj
+     $ cd myproj
+     $ ballerina init
+     $ ls *
+     Ballerina.toml     hello_service.bal
+
+     tests:
+     Hello_service_test.bal
+     $

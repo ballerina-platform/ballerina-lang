@@ -1,0 +1,48 @@
+NAME
+    Ballerina help - Display help information about ballerina
+
+SYNOPSIS
+    ballerina help [COMMAND]
+
+DESCRIPTION
+     With no COMMAND given, the synopsis of the ballerina command 
+     and a list of Ballerina commands are printed on the standard
+     output.
+
+     If a command is given, the help page for the given command 
+     is printed. 
+
+     Note that ballerina ?, ballerina –h and ballerina --help are  
+     identical to ballerina help  Those formats are internally 
+     converted into ballerina help.
+
+     ballerina command synopsis: 
+         ballerina [COMMAND] [options]
+
+     COMMAND is one of the available commands listed below:
+         run        Run Ballerina program
+         build      Compile Ballerina program
+         install    Install packages to home repository
+         pull       Download package from Ballerina Central
+         push       Upload package to Ballerina Central
+         init       Initialize Ballerina project
+         search     Search for packages within Ballerina Central
+         list       List dependencies of packages
+         doc        Generate Ballerina API documentation
+         grpc       Generate connector/service using protobuf   
+                    definition
+         swagger    Generate client/service using swagger definition
+                    or export swagger file for a Ballerina service
+         test       Test Ballerina program
+         version    Print Ballerina version
+         encrypt    Encrypt sensitive data
+
+OPTIONS
+     Ballerina help takes no command line options 
+
+EXAMPLES
+     Look for help on how to use ballerina command 
+     $ ballerina help 
+
+     Learn how to run ballerina run command  
+     $ ballerina help run
