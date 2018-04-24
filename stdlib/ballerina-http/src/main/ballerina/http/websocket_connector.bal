@@ -41,7 +41,7 @@ public type WebSocketConnectorError object{
     public {
         // An error message explaining about the error
         string message;
-        //The error(s) that caused HttpConnectorError to get thrown
+        //The error(s) that caused HTTP connector error to get thrown
         error? cause;
     }
 };

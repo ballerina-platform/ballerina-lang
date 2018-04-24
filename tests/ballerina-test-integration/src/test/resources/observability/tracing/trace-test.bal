@@ -56,7 +56,7 @@ function callNextResource() returns (http:Response | ()) {
     http:Request request = new;
     var resp = httpEndpoint -> get("/resourceTwo", request = request);
     match resp {
-        http:HttpConnectorError err => return ();
+        error err => return ();
         http:Response response => return response;
     }
 }

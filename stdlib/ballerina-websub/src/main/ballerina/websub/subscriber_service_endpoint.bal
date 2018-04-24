@@ -273,7 +273,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:SecureSocket? secureSoc
                 websubError = {message:"Link header unavailable for resource URL[" + resourceUrl + "]"};
             }
         }
-        http:HttpConnectorError connErr => {
+        error connErr => {
             websubError = {message:"Error occurred with WebSub discovery for Resource URL [" + resourceUrl + "]: "
                 + connErr.message, cause:connErr};
         }

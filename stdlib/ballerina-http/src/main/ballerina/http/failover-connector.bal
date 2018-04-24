@@ -29,15 +29,15 @@ public type FailoverConfig {
 
 @Description {value:"Represents an error occurred in an function of the Failover connector."}
 @Field {value:"message: An error message explaining about the error."}
-@Field {value:"cause: The error that caused HttpConnectorError to get thrown."}
+@Field {value:"cause: The error that caused HttpConnectorErr to get thrown."}
 @Field {value:"stackTrace: Represents the invocation stack when FailoverConnectorError is thrown."}
 @Field {value:"statusCode: HTTP status code of the FailoverConnectorError."}
-@Field {value:"httpConnectorError: Array of HttpConnectorError error occurred at each endpoint."}
+@Field {value:"httpConnectorErr: Array of HttpConnectorErr error occurred at each endpoint."}
 public type FailoverConnectorError {
     string message,
     error? cause,
     int statusCode,
-    HttpConnectorError[] httpConnectorError,
+    error[] httpConnectorErr,
 };
 
 // Represents inferred failover configurations passed to Failover connector.
@@ -65,42 +65,42 @@ public type Failover object {
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the function invocation, if any"}
-    public function post(string path, Request? request = ()) returns (Response | HttpConnectorError);
+    public function post(string path, Request? request = ()) returns (Response | error);
 
     @Description {value:"The HEAD function implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the function invocation, if any"}
-    public function head(string path, Request? request = ()) returns (Response | HttpConnectorError);
+    public function head(string path, Request? request = ()) returns (Response | error);
 
     @Description {value:"The PATCH function implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the functioninvocation, if any"}
-    public function patch(string path, Request? request = ()) returns (Response | HttpConnectorError);
+    public function patch(string path, Request? request = ()) returns (Response | error);
 
     @Description {value:"The PUT function  implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the function invocation, if any"}
-    public function put(string path, Request? request = ()) returns (Response|HttpConnectorError);
+    public function put(string path, Request? request = ()) returns (Response|error);
 
     @Description {value:"The OPTIONS function implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the function invocation, if any"}
-    public function options(string path, Request? request = ()) returns (Response | HttpConnectorError);
+    public function options(string path, Request? request = ()) returns (Response | error);
 
     @Description {value:"The FORWARD function implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the function invocation, if any"}
-    public function forward(string path, Request request) returns (Response | HttpConnectorError);
+    public function forward(string path, Request request) returns (Response | error);
 
     @Description {value:"The EXECUTE function implementation of the Failover Connector. The Execute function can be used to invoke an HTTP call with the given HTTP verb."}
     @Param {value:"httpVerb: HTTP verb to be used for the request"}
@@ -108,21 +108,21 @@ public type Failover object {
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the function invocation, if any"}
-    public function execute(string httpVerb, string path, Request request) returns (Response | HttpConnectorError);
+    public function execute(string httpVerb, string path, Request request) returns (Response | error);
 
     @Description {value:"The DELETE function implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the function invocation, if any"}
-    public function delete(string path, Request? request = ()) returns (Response | HttpConnectorError);
+    public function delete(string path, Request? request = ()) returns (Response | error);
 
     @Description {value:"The GET function implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the function invocation, if any"}
-    public function get(string path, Request? request = ()) returns (Response | HttpConnectorError);
+    public function get(string path, Request? request = ()) returns (Response | error);
 
     @Description { value:"The submit implementation of the Failover Connector."}
     @Param { value:"httpVerb: The HTTP verb value" }
@@ -130,13 +130,13 @@ public type Failover object {
     @Param { value:"req: An HTTP outbound request message" }
     @Return { value:"The Future for further interactions" }
     @Return { value:"The Error occured during HTTP client invocation" }
-    public function submit(string httpVerb, string path, Request request) returns (HttpFuture | HttpConnectorError);
+    public function submit(string httpVerb, string path, Request request) returns (HttpFuture | error);
 
     @Description { value:"The getResponse implementation of the Failover Connector."}
     @Param { value:"httpFuture: The Future which relates to previous async invocation" }
     @Return { value:"The HTTP response message" }
     @Return { value:"The Error occured during HTTP client invocation" }
-    public function getResponse(HttpFuture httpFuture) returns (HttpConnectorError);
+    public function getResponse(HttpFuture httpFuture) returns (error);
 
     @Description { value:"The hasPromise implementation of the Failover Connector."}
     @Param { value:"httpFuture: The Future which relates to previous async invocation" }
@@ -147,13 +147,13 @@ public type Failover object {
     @Param { value:"httpFuture: The Future which relates to previous async invocation" }
     @Return { value:"The HTTP Push Promise message" }
     @Return { value:"The Error occured during HTTP client invocation" }
-    public function getNextPromise(HttpFuture httpFuture) returns (PushPromise | HttpConnectorError);
+    public function getNextPromise(HttpFuture httpFuture) returns (PushPromise | error);
 
     @Description { value:"The getPromisedResponse implementation of the Failover Connector."}
     @Param { value:"promise: The related Push Promise message" }
     @Return { value:"HTTP The Push Response message" }
     @Return { value:"The Error occured during HTTP client invocation" }
-    public function getPromisedResponse(PushPromise promise) returns (Response | HttpConnectorError);
+    public function getPromisedResponse(PushPromise promise) returns (Response | error);
 
     @Description { value:"The rejectPromise implementation of the Failover Connector."}
     @Param { value:"promise: The Push Promise need to be rejected" }
@@ -166,7 +166,7 @@ public type Failover object {
 @Param {value:"request: A Request struct"}
 @Return {value:"The Response struct"}
 @Return {value:"Error occurred during the function invocation, if any"}
-public function Failover::post(string path, Request? request = ()) returns (Response | HttpConnectorError) {
+public function Failover::post(string path, Request? request = ()) returns (Response | error) {
     Request req = request ?: new;
     return performFailoverAction(path, req, HTTP_POST, self.failoverInferredConfig);
 }
@@ -176,7 +176,7 @@ public function Failover::post(string path, Request? request = ()) returns (Resp
 @Param {value:"request: A Request struct"}
 @Return {value:"The Response struct"}
 @Return {value:"Error occurred during the function invocation, if any"}
-public function Failover::head(string path, Request? request = ()) returns (Response | HttpConnectorError) {
+public function Failover::head(string path, Request? request = ()) returns (Response | error) {
     Request req = request ?: new;
     return performFailoverAction(path, req, HTTP_HEAD, self.failoverInferredConfig);
 }
@@ -186,7 +186,7 @@ public function Failover::head(string path, Request? request = ()) returns (Resp
 @Param {value:"request: A Request struct"}
 @Return {value:"The Response struct"}
 @Return {value:"Error occurred during the functioninvocation, if any"}
-public function Failover::patch(string path, Request? request = ()) returns (Response | HttpConnectorError) {
+public function Failover::patch(string path, Request? request = ()) returns (Response | error) {
     Request req = request ?: new;
     return performFailoverAction(path, req, HTTP_PATCH, self.failoverInferredConfig);
 }
@@ -196,7 +196,7 @@ public function Failover::patch(string path, Request? request = ()) returns (Res
 @Param {value:"request: A Request struct"}
 @Return {value:"The Response struct"}
 @Return {value:"Error occurred during the function invocation, if any"}
-public function Failover::put(string path, Request? request = ()) returns (Response|HttpConnectorError) {
+public function Failover::put(string path, Request? request = ()) returns (Response|error) {
     Request req = request ?: new;
     return performFailoverAction(path, req, HTTP_PUT, self.failoverInferredConfig);
 }
@@ -206,7 +206,7 @@ public function Failover::put(string path, Request? request = ()) returns (Respo
 @Param {value:"request: A Request struct"}
 @Return {value:"The Response struct"}
 @Return {value:"Error occurred during the function invocation, if any"}
-public function Failover::options(string path, Request? request = ()) returns (Response | HttpConnectorError) {
+public function Failover::options(string path, Request? request = ()) returns (Response | error) {
     Request req = request ?: new;
     return performFailoverAction(path, req, HTTP_OPTIONS, self.failoverInferredConfig);
 }
@@ -216,7 +216,7 @@ public function Failover::options(string path, Request? request = ()) returns (R
 @Param {value:"request: A Request struct"}
 @Return {value:"The Response struct"}
 @Return {value:"Error occurred during the function invocation, if any"}
-public function Failover::forward(string path, Request request) returns (Response | HttpConnectorError) {
+public function Failover::forward(string path, Request request) returns (Response | error) {
     return performFailoverAction(path, request, HTTP_FORWARD, self.failoverInferredConfig);
 }
 
@@ -226,7 +226,7 @@ public function Failover::forward(string path, Request request) returns (Respons
 @Param {value:"request: A Request struct"}
 @Return {value:"The Response struct"}
 @Return {value:"Error occurred during the function invocation, if any"}
-public function Failover::execute(string httpVerb, string path, Request request) returns (Response | HttpConnectorError) {
+public function Failover::execute(string httpVerb, string path, Request request) returns (Response | error) {
     return performExecuteAction(path, request, httpVerb, self.failoverInferredConfig);
 }
 
@@ -235,7 +235,7 @@ public function Failover::execute(string httpVerb, string path, Request request)
 @Param {value:"request: A Request struct"}
 @Return {value:"The Response struct"}
 @Return {value:"Error occurred during the function invocation, if any"}
-public function Failover::delete(string path, Request? request = ()) returns (Response | HttpConnectorError) {
+public function Failover::delete(string path, Request? request = ()) returns (Response | error) {
     Request req = request ?: new;
     return performFailoverAction(path, req, HTTP_DELETE, self.failoverInferredConfig);
 }
@@ -245,7 +245,7 @@ public function Failover::delete(string path, Request? request = ()) returns (Re
 @Param {value:"request: A Request struct"}
 @Return {value:"The Response struct"}
 @Return {value:"Error occurred during the function invocation, if any"}
-public function Failover::get(string path, Request? request = ()) returns (Response | HttpConnectorError) {
+public function Failover::get(string path, Request? request = ()) returns (Response | error) {
     Request req = request ?: new;
     return performFailoverAction(path, req, HTTP_GET, self.failoverInferredConfig);
 }
@@ -256,18 +256,18 @@ public function Failover::get(string path, Request? request = ()) returns (Respo
 @Param { value:"req: An HTTP outbound request message" }
 @Return { value:"The Future for further interactions" }
 @Return { value:"The Error occured during HTTP client invocation" }
-public function Failover::submit(string httpVerb, string path, Request request) returns (HttpFuture | HttpConnectorError) {
-    HttpConnectorError httpConnectorError = {message:"Unsupported action for Failover client."};
-    return httpConnectorError;
+public function Failover::submit(string httpVerb, string path, Request request) returns (HttpFuture | error) {
+    error httpConnectorErr = {message:"Unsupported action for Failover client."};
+    return httpConnectorErr;
 }
 
 @Description { value:"The getResponse implementation of the Failover Connector."}
 @Param { value:"httpFuture: The Future which relates to previous async invocation" }
 @Return { value:"The HTTP response message" }
 @Return { value:"The Error occured during HTTP client invocation" }
-public function Failover::getResponse(HttpFuture httpFuture) returns (HttpConnectorError) {
-    HttpConnectorError httpConnectorError = {message:"Unsupported action for Failover client."};
-    return httpConnectorError;
+public function Failover::getResponse(HttpFuture httpFuture) returns (error) {
+    error httpConnectorErr = {message:"Unsupported action for Failover client."};
+    return httpConnectorErr;
 }
 
 @Description { value:"The hasPromise implementation of the Failover Connector."}
@@ -281,18 +281,18 @@ public function Failover::hasPromise(HttpFuture httpFuture) returns (boolean) {
 @Param { value:"httpFuture: The Future which relates to previous async invocation" }
 @Return { value:"The HTTP Push Promise message" }
 @Return { value:"The Error occured during HTTP client invocation" }
-public function Failover::getNextPromise(HttpFuture httpFuture) returns (PushPromise | HttpConnectorError) {
-    HttpConnectorError httpConnectorError = {message:"Unsupported action for Failover client."};
-    return httpConnectorError;
+public function Failover::getNextPromise(HttpFuture httpFuture) returns (PushPromise | error) {
+    error httpConnectorErr = {message:"Unsupported action for Failover client."};
+    return httpConnectorErr;
 }
 
 @Description { value:"The getPromisedResponse implementation of the Failover Connector."}
 @Param { value:"promise: The related Push Promise message" }
 @Return { value:"HTTP The Push Response message" }
 @Return { value:"The Error occured during HTTP client invocation" }
-public function Failover::getPromisedResponse(PushPromise promise) returns (Response | HttpConnectorError) {
-    HttpConnectorError httpConnectorError = {message:"Unsupported action for Failover client."};
-    return httpConnectorError;
+public function Failover::getPromisedResponse(PushPromise promise) returns (Response | error) {
+    error httpConnectorErr = {message:"Unsupported action for Failover client."};
+    return httpConnectorErr;
 }
 
 @Description { value:"The rejectPromise implementation of the Failover Connector."}
@@ -303,14 +303,14 @@ public function Failover::rejectPromise(PushPromise promise) {
 // Performs execute action of the Failover connector. extract the corresponding http integer value representation
 // of the http verb and invokes the perform action method.
 function performExecuteAction (string path, Request request, string httpVerb,
-                               FailoverInferredConfig failoverInferredConfig) returns (Response | HttpConnectorError) {
+                               FailoverInferredConfig failoverInferredConfig) returns (Response | error) {
     HttpOperation connectorAction = extractHttpOperation(httpVerb);
     return performFailoverAction(path, request, connectorAction, failoverInferredConfig);
 }
 
 // Handles all the actions exposed through the Failover connector.
 function performFailoverAction (string path, Request request, HttpOperation requestAction,
-                                FailoverInferredConfig failoverInferredConfig) returns (Response|HttpConnectorError) {
+                                FailoverInferredConfig failoverInferredConfig) returns (Response|error) {
     boolean[] failoverCodeIndex = failoverInferredConfig.failoverCodesIndex;
     int noOfEndpoints = lengthof (failoverInferredConfig.failoverClientsArray);
     int currentIndex = 0;
@@ -324,7 +324,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
     CallerActions failoverClient = failoverClients[currentIndex];
     Response inResponse = new;
     Request failoverRequest = request;
-    failoverConnectorError.httpConnectorError = [];
+    failoverConnectorError.httpConnectorErr = [];
 
     // When performing passthrough scenarios using Failover connector, message needs to be built before trying out the
     // failover endpoints to keep the request message to failover the messages.
@@ -361,17 +361,17 @@ function performFailoverAction (string path, Request request, HttpOperation requ
                     break;
                 }
             }
-            HttpConnectorError httpConnectorError => {
+            error httpConnectorErr => {
                 Request newOutRequest = new;
                 populateRequestFields(failoverRequest, newOutRequest);
                 newOutRequest.setEntity(requestEntity);
                 failoverRequest = newOutRequest;
                 if (noOfEndpoints > currentIndex) {
                     runtime:sleep(failoverInterval);
-                    failoverConnectorError.httpConnectorError[currentIndex - 1] = httpConnectorError;
+                    failoverConnectorError.httpConnectorErr[currentIndex - 1] = httpConnectorErr;
                     failoverClient = failoverClients[currentIndex];
                 } else {
-                    return populateGenericFailoverConnectorError(failoverConnectorError, httpConnectorError, currentIndex - 1);
+                    return populateGenericFailoverConnectorError(failoverConnectorError, httpConnectorErr, currentIndex - 1);
                 }
             }
 
@@ -381,13 +381,13 @@ function performFailoverAction (string path, Request request, HttpOperation requ
 }
 
 // Populates generic error specific to Failover connector by including all the errors returned from endpoints.
-function populateGenericFailoverConnectorError (FailoverConnectorError failoverConnectorError, HttpConnectorError httpConnectorError, int index)
-           returns (HttpConnectorError) {
-    httpConnectorError.statusCode = INTERNAL_SERVER_ERROR_500;
-    failoverConnectorError.httpConnectorError[index] = httpConnectorError;
-    string lastErrorMsg = httpConnectorError.message;
+function populateGenericFailoverConnectorError (FailoverConnectorError failoverConnectorError, error httpConnectorErr, int index)
+           returns (error) {
+    httpConnectorErr.statusCode = INTERNAL_SERVER_ERROR_500;
+    failoverConnectorError.httpConnectorErr[index] = httpConnectorErr;
+    string lastErrorMsg = httpConnectorErr.message;
     failoverConnectorError.message = "All the failover endpoints failed. Last error was " + lastErrorMsg;
-    HttpConnectorError connectorError = failoverConnectorError;
+    error connectorError = failoverConnectorError;
     return connectorError;                                                                                                                                                                                                                                                                                                
 }
 
@@ -395,20 +395,20 @@ function populateGenericFailoverConnectorError (FailoverConnectorError failoverC
 // will be generated with last response status code and generic failover response.
 function populateFailoverErrorHttpStatusCodes (Response inResponse, FailoverConnectorError failoverConnectorError, int index) {
     string failoverMessage = "Endpoint " + index + " returned response is: " + inResponse.statusCode + " " + inResponse.reasonPhrase;
-    HttpConnectorError httpConnectorError = {message:failoverMessage};
-    failoverConnectorError.httpConnectorError[index] = httpConnectorError;
+    error httpConnectorErr = {message:failoverMessage};
+    failoverConnectorError.httpConnectorErr[index] = httpConnectorErr;
 }
 
 // If leaf endpoint returns a response with status code configured to retry in the failover connector, generic
-// failover error and HttpConnectorError error will be generated.
+// failover error and HTTP connector error will be generated.
 function populateErrorsFromLastResponse (Response inResponse, FailoverConnectorError failoverConnectorError, int index)
-                                                                            returns (HttpConnectorError) {
+                                                                            returns (error) {
     string failoverMessage = "Last endpoint returned response: " + inResponse.statusCode + " " + inResponse.reasonPhrase;
-    HttpConnectorError lastHttpConnectorError = {message:failoverMessage, statusCode:inResponse.statusCode};
-    failoverConnectorError.httpConnectorError[index] = lastHttpConnectorError;
+    error lastHttpConnectorErr = {message:failoverMessage, statusCode:inResponse.statusCode};
+    failoverConnectorError.httpConnectorErr[index] = lastHttpConnectorErr;
     failoverConnectorError.statusCode = INTERNAL_SERVER_ERROR_500;
     failoverConnectorError.message = "All the failover endpoints failed. Last endpoint returned response is: "
                                         + inResponse.statusCode + " " + inResponse.reasonPhrase;
-    HttpConnectorError connectorError = failoverConnectorError;
+    error connectorError = failoverConnectorError;
     return connectorError;
 }

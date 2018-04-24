@@ -25,7 +25,7 @@ service<http:Service> headQuoteService bind serviceEndpoint {
             http:Response httpResponse => {
                 _ = caller -> respond(httpResponse);
             }
-            http:HttpConnectorError err => {
+            error err => {
                 http:Response errorResponse = new;
                 json errMsg = {"error":"error occurred while invoking the service"};
                 errorResponse.setJsonPayload(errMsg);
@@ -43,7 +43,7 @@ service<http:Service> headQuoteService bind serviceEndpoint {
             http:Response httpResponse => {
                 _ = caller -> respond(httpResponse);
             }
-            http:HttpConnectorError err => {
+            error err => {
                 http:Response errorResponse = new;
                 json errMsg = {"error":"error occurred while invoking the service"};
                 errorResponse.setJsonPayload(errMsg);
@@ -61,7 +61,7 @@ service<http:Service> headQuoteService bind serviceEndpoint {
             http:Response httpResponse => {
                 _ = caller -> respond(httpResponse);
             }
-            http:HttpConnectorError err => {
+            error err => {
                 http:Response errorResponse = new;
                 json errMsg = {"error":"error occurred while invoking the service"};
                 errorResponse.setJsonPayload(errMsg);
@@ -80,7 +80,7 @@ service<http:Service> headQuoteService bind serviceEndpoint {
             http:Response httpResponse => {
                 _ = caller -> respond(httpResponse);
             }
-            http:HttpConnectorError err => {
+            error err => {
                 http:Response errorResponse = new;
                 json errMsg = {"error":"error occurred while invoking the service"};
                 errorResponse.setJsonPayload(errMsg);
@@ -106,7 +106,7 @@ service<http:Service> testClientConHEAD bind serviceEndpoint {
             http:Response httpResponse => {
                 _ = caller -> respond(httpResponse);
             }
-            http:HttpConnectorError err => {
+            error err => {
                 http:Response errorResponse = new;
                 json errMsg = {"error":"error occurred while invoking the service"};
                 errorResponse.setJsonPayload(errMsg);

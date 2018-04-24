@@ -36,7 +36,7 @@ service<http:Service> contentBasedRouting bind serviceEP{
         if (nameString == nyseString) {
             var result = nyseEP -> post("/stocks", request = clientRequest);
             match result {
-                http:HttpConnectorError err => {
+                error err => {
                     clientResponse.statusCode = 500;
                     clientResponse.setTextPayload("Error sending request");
                     _ = conn -> respond(clientResponse);
@@ -46,7 +46,7 @@ service<http:Service> contentBasedRouting bind serviceEP{
         } else {
             var result = nasdaqEP -> post("/stocks", request = clientRequest);
             match result {
-                http:HttpConnectorError err => {
+                error err => {
                     clientResponse.statusCode = 500;
                     clientResponse.setTextPayload("Error sending request");
                     _ = conn -> respond(clientResponse);
@@ -73,7 +73,7 @@ service<http:Service> headerBasedRouting bind serviceEP{
         if (nameString == nyseString) {
             var result = nyseEP -> post("/stocks", request = clientRequest);
             match result {
-                http:HttpConnectorError err => {
+                error err => {
                     clientResponse.statusCode = 500;
                     clientResponse.setTextPayload("Error sending request");
                     _ = conn -> respond(clientResponse);
@@ -83,7 +83,7 @@ service<http:Service> headerBasedRouting bind serviceEP{
         } else {
             var result = nasdaqEP -> post("/stocks", request = clientRequest);
             match result {
-                http:HttpConnectorError err => {
+                error err => {
                     clientResponse.statusCode = 500;
                     clientResponse.setTextPayload("Error sending request");
                     _ = conn -> respond(clientResponse);

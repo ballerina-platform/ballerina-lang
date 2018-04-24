@@ -29,7 +29,7 @@ public type HttpOperation "FORWARD" | "GET" | "POST" | "DELETE" | "OPTIONS" | "P
 
 // makes the actual endpoints call according to the http operation passed in.
 public function invokeEndpoint (string path, Request outRequest,
-                                HttpOperation requestAction, CallerActions httpClient) returns Response|HttpConnectorError {
+                                HttpOperation requestAction, CallerActions httpClient) returns Response|error {
     if (HTTP_GET == requestAction) {
         return httpClient.get(path, request = outRequest);
     } else if (HTTP_POST == requestAction) {
@@ -84,11 +84,10 @@ function populateErrorCodeIndex (int[] errorCode) returns boolean[] {
     return result;
 }
 
-function getError() returns HttpConnectorError {
-    HttpConnectorError httpConnectorError = {};
-    httpConnectorError.statusCode = 400;
-    httpConnectorError.message = "Unsupported connector action received.";
-    return httpConnectorError;
+function getError() returns error {
+    error httpConnectorErr = {};
+    httpConnectorErr.message = "Unsupported connector action received.";
+    return httpConnectorErr;
 }
 
 function populateRequestFields (Request originalRequest, Request newRequest)  {

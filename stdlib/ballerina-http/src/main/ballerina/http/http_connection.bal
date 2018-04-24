@@ -25,14 +25,14 @@ public type Connection object {
     @Param {value:"res: The outbound response message"}
     @Return {value:"Error occured during HTTP server connector respond"}
     @Return {value:"Returns null if any error does not exist."}
-    public native function respond(Response res) returns HttpConnectorError|();
+    public native function respond(Response res) returns error|();
 
     @Description { value:"Pushes a promise to the caller."}
     @Param { value:"conn: The server connector connection" }
     @Param { value:"promise: Push promise message" }
     @Return { value:"Error occured during HTTP server connector promise function invocation" }
     @Return {value:"Returns null if any error does not exist."}
-    public native function promise(PushPromise promise) returns HttpConnectorError|();
+    public native function promise(PushPromise promise) returns error|();
 
     @Description { value:"Sends a promised push response to the caller."}
     @Param { value:"conn: The server connector connection" }
@@ -40,7 +40,7 @@ public type Connection object {
     @Param { value:"res: The outbound response message" }
     @Return { value:"Error occured during HTTP server connector pushPromisedResponse function invocation" }
     @Return {value:"Returns null if any error does not exist."}
-    public native function pushPromisedResponse(PushPromise promise, Response res) returns HttpConnectorError|();
+    public native function pushPromisedResponse(PushPromise promise, Response res) returns error|();
 
     @Description {value:"Sends a upgrade request with custom headers"}
     @Param {value:"headers: a map of custom headers for handshake."}
@@ -51,9 +51,9 @@ public type Connection object {
     @Param {value:"reason: Reason for closing the connection"}
     public native function cancelWebSocketUpgrade(int status, string reason);
 
-    public function continue() returns HttpConnectorError|();
+    public function continue() returns error|();
 
-    public function redirect(Response response, RedirectCode code, string[] locations) returns HttpConnectorError|();
+    public function redirect(Response response, RedirectCode code, string[] locations) returns error|();
 };
 
 /////////////////////////////////
@@ -81,9 +81,9 @@ public type RedirectCode 300 | 301 | 302 | 303 | 304 | 305 | 307 | 308;
 
 @Description { value:"Sends a 100-continue response to the client."}
 @Param { value:"conn: The server connector connection" }
-@Return { value:"Returns an HttpConnectorError if there was any issue in sending the response." }
+@Return { value:"Returns an error if there was any issue in sending the response." }
 @Return {value:"Returns null if any error does not exist."}
-public function Connection::continue() returns HttpConnectorError|() {
+public function Connection::continue() returns error|() {
     Response res = new;
     res.statusCode = CONTINUE_100;
     return self.respond(res);
@@ -94,9 +94,9 @@ public function Connection::continue() returns HttpConnectorError|() {
 @Param { value:"response: Response to be sent to client." }
 @Param { value:"redirectCode: Status code of the specific redirect." }
 @Param { value:"locations: Array of locations where the redirection can happen." }
-@Return { value:"Returns an HttpConnectorError if there was any issue in sending the response." }
+@Return { value:"Returns an error if there was any issue in sending the response." }
 @Return { value:"Returns null if any error does not exist." }
-public function Connection::redirect(Response response, RedirectCode code, string[] locations) returns HttpConnectorError|() {
+public function Connection::redirect(Response response, RedirectCode code, string[] locations) returns error|() {
     if (code == REDIRECT_MULTIPLE_CHOICES_300) {
         response.statusCode = MULTIPLE_CHOICES_300;
     } else if (code == REDIRECT_MOVED_PERMANENTLY_301) {
