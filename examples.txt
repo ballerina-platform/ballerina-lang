@@ -135,13 +135,13 @@ WebSub Internal Hub Sample
 WebSub Remote Hub Sample
 WebSub Hub Client Sample
 Testerina Assertions
-Testerina Before After
-Testerina Before After Suite
-Testerina Before Each
-Testerina Data Provider
-Testerina Depends On
+Testerina Before and After Test
+Testerina Before Each Test
+Testerina Before and After Suite
+Testerina Data Driven Tests
+Testerina Guarantee Test Execution Order
 Testerina Function Mocks
-Testerina Groups
+Testerina Group Tests
 Filter Streams on Conditions
 Streams within Services
 Join Multiple Streams
