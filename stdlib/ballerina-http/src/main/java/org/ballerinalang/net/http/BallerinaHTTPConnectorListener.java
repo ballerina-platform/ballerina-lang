@@ -117,7 +117,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
         CallableUnitCallback callback = new HttpCallableUnitCallback(httpCarbonMessage);
         //TODO handle BallerinaConnectorException
-        Executor.submit(balResource, callback, properties, observerContext.get(), parentCtx, signatureParams);
+        Executor.submit(balResource, callback, properties, observerContext.orElse(null), parentCtx, signatureParams);
     }
 
     protected BValue getRequestFilterContext(HttpResource httpResource) {
