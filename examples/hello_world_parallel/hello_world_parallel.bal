@@ -1,6 +1,7 @@
 import ballerina/io;
 
-// Workers don’t need to be explicitly started, they all start together when the function is invoked.
+// A function execution is defined using one or more workers. 
+// All of the workers are automatically started when the function is invoked.
 function main (string... args) {
     worker w1 {
         io:println("Hello, World! #m");
