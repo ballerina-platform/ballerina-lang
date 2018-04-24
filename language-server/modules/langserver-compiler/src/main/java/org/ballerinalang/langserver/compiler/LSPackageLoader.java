@@ -32,8 +32,8 @@ import java.util.List;
 public class LSPackageLoader {
 
     private static final String[] STATIC_PKG_NAMES = {"http", "swagger", "mime", "auth", "cache", "config", "sql",
-            "file", "internal", "io", "jwt", "log", "math", "system", "reflect", "runtime", "crypto", "task",
-            "time", "transactions", "user", "util", "builtin"};
+            "file", "internal", "io", "log", "math", "system", "reflect", "runtime", "crypto", "task",
+            "time", "transactions", "builtin"};
 
     /**
      * Get the Builtin Package.
