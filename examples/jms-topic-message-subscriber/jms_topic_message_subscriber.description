@@ -1,2 +1,2 @@
-// Ballerina natively supports Java Message Service (JMS). In this example, you create a JMS topic subscriber using a
+// Ballerina natively supports Java Message Service (JMS). In this example, a JMS topic subscriber is created using a
 // session object.
