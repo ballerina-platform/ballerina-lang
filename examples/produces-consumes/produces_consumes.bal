@@ -27,7 +27,7 @@ service<http:Service> infoService bind {port: 9092} {
             }
             error payloadError => {
                 res.statusCode = 500;
-                res.setStringPayload(payloadError.message);
+                res.setPayload(payloadError.message);
 
             }
         }

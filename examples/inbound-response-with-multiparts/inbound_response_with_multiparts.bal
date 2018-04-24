@@ -29,13 +29,13 @@ service<http:Service> test bind multipartEP {
             // Setting the error response in-case of an error
             http:HttpConnectorError connectionErr => {
                 res.statusCode = 500;
-                res.setStringPayload("Connection error");
+                res.setPayload("Connection error");
             }
             http:Response returnResponse => {
                 match returnResponse.getBodyParts() {
                     mime:EntityError err => {
                         res.statusCode = 500;
-                        res.setStringPayload(err.message);
+                        res.setPayload(err.message);
                     }
                     mime:Entity[] parentParts => {
                         int i = 0;
@@ -45,7 +45,7 @@ service<http:Service> test bind multipartEP {
                             handleNestedParts(parentPart);
                             i = i + 1;
                         }
-                        res.setStringPayload("Body Parts Received!");
+                        res.setPayload("Body Parts Received!");
                     }
                 }
             }
