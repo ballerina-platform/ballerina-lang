@@ -165,7 +165,7 @@ documentation {
     P{{serviceType}} The type of the service for which the request was rceived
     R{{}} `error`, if an error occurred in extraction or signature validation failed
 }
-public function processWebSubNotification(http:Request request, typedesc serviceType) returns error? {
+function processWebSubNotification(http:Request request, typedesc serviceType) returns error? {
     string secret = retrieveSecret(serviceType);
     string xHubSignature;
 
@@ -279,10 +279,12 @@ public type SubscriptionChangeResponse {
 documentation {
     Starts up the Ballerina Hub.
 
-    R{{}} `WebSubHub` The WebSubHub struct representing the started up hub
+    P{{port}} The port to start up the hub on
+    R{{}} `WebSubHub` The WebSubHub object representing the started up hub
 }
-public function startUpBallerinaHub() returns WebSubHub {
-    string hubUrl = startUpHubService();
+public function startUpBallerinaHub(int? port = ()) returns WebSubHub {
+    int websubHubPort = port but { () => hubPort };
+    string hubUrl = startUpHubService(websubHubPort);
     WebSubHub ballerinaWebSubHub = new WebSubHub(hubUrl);
     return ballerinaWebSubHub;
 }
@@ -333,7 +335,6 @@ public type WebSubHub object {
 };
 
 public function WebSubHub::stop() returns (boolean) {
-    //TODO: fix to stop
     return stopHubService(self.hubUrl);
 }
 
