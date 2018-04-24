@@ -4,7 +4,6 @@ import ballerina/log;
 import ballerina/transactions;
 
 // This is the initiator of the distributed transaction.
-
 @http:ServiceConfig {
     basePath:"/"
 }
@@ -33,10 +32,10 @@ service<http:Service> InitiatorService bind {port: 8080} {
                 abort;
             }
         }
+
         // As soon as the transaction block ends, the `2-phase commit coordination` protocol will run. All participants
         // are prepared and depending on the join outcome, either a `notify commit` or `notify abort` will
         // be sent to the participants.
-
         var result = conn->respond(res);
         match result {
             error e => log:printError("Could not send response back to client", err = e);
