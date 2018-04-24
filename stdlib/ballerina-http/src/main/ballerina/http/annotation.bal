@@ -154,8 +154,8 @@ documentation {
     Representation of AuthConfig.
 
     F{{authentication}} Authentication instance
-    F{{authProviders}} array of providers
-    F{{scopes}} array of scopes
+    F{{authProviders}} Array of authentication providers
+    F{{scopes}} Array of scopes
 }
 public type ListenerAuthConfig {
     Authentication? authentication,

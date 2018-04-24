@@ -16,7 +16,7 @@
 
 
 documentation {
-    Representation of an API Listener
+    Representation of an API Listener.
 
     E{{}}
     F{{config}} SecureEndpointConfiguration instance

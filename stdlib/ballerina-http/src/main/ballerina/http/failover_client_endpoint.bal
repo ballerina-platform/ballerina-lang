@@ -18,6 +18,7 @@
 documentation {
     An HTTP client endpoint which provides failover support over multiple HTTP clients.
 
+    E{{}}
     F{{epName}} Name of the endpoint
     F{{failoverClientConfig}} The configurations for the failover client endpoint
 }

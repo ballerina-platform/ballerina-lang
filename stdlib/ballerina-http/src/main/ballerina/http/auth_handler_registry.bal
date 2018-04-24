@@ -16,7 +16,7 @@
 // under the License.
 
 documentation {
-    Representation of the Http Auth Handler Registry
+    Representation of the Http Auth Handler Registry.
 
     F{{httpAuthHandlers}} map for auth handlers. key = auth provider id
 }
