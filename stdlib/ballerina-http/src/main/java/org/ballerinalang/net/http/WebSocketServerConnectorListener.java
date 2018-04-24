@@ -121,9 +121,6 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
             Optional<ObserverContext> observerContext = ObservabilityUtils.startServerObservation(
                     SERVER_CONNECTOR_WEBSOCKET, onUpgradeResource.getServiceName(), onUpgradeResource.getName(),
                     null);
-            //  observerContext.ifPresent(ctx -> {
-            //     ctx.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
-            //  });
 
             Executor.submit(onUpgradeResource, new CallableUnitCallback() {
                 @Override
