@@ -37,6 +37,8 @@ public type Stub object {
 
         P{{methodID}} - remote procedure call id.
         P{{payload}} - Any type of request payload.
+        P{{headers}} - Optional headers parameter. Passes header value if needed. Default sets to nil.
+        R{{}} - Returns response message and headers if executes successfully, error otherwise.
     }
     public native function blockingExecute(string methodID, any payload, Headers? headers = ())
         returns ((any, Headers)|error);
@@ -47,6 +49,8 @@ public type Stub object {
         P{{methodID}} - remote procedure call id.
         P{{payload}} - Any type of request payload.
         P{{listenerService}} - call back listener service.
+        P{{headers}} - Optional headers parameter. Passes header value if needed. Default sets to nil.
+        R{{}} - Returns an error if encounters an error while sending the request, returns nil otherwise.
     }
     public native function nonBlockingExecute(string methodID, any payload, typedesc listenerService, Headers?
     headers = ()) returns error?;
@@ -57,6 +61,8 @@ public type Stub object {
 
         P{{methodID}} - remote procedure call id.
         P{{listenerService}} - call back listener service.
+        P{{headers}} - Optional headers parameter. Passes header value if needed. Default sets to nil.
+        R{{}} - Returns client connection if executes successfully, error otherwise.
     }
     public native function streamingExecute(string methodID, typedesc listenerService, Headers? headers = ())
         returns Client|error;

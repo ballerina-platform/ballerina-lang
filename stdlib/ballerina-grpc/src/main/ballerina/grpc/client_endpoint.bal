@@ -49,7 +49,7 @@ public type Client object {
 
         R{{}} - Client connection.
     }
-    public native function getCallerActions() returns (GrpcClient);
+    public native function getCallerActions() returns GrpcClient;
 };
 
 documentation {

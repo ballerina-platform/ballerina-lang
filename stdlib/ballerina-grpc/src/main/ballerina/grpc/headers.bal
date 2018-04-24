@@ -22,7 +22,7 @@ public type Headers object {
         P{{headerName}} - The header name.
         R{{}} - Returns true if header exists, false otherwise.
     }
-    public native function exists(string headerName) returns (boolean);
+    public native function exists(string headerName) returns boolean;
 
     documentation {
         Returns the header value with the specified header name. If there are more than one header value for the
@@ -39,7 +39,7 @@ public type Headers object {
         P{{headerName}} - The header name.
         R{{}} - Returns header value array.
     }
-    public native function getAll(string headerName) returns (string[]);
+    public native function getAll(string headerName) returns string[];
 
     documentation {
         Sets the value of a transport header.

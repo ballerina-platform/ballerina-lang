@@ -55,7 +55,7 @@ public type Listener object {
 
         R{{}} - Client connection.
     }
-    public native function getCallerActions() returns (CallerAction);
+    public native function getCallerActions() returns CallerAction;
 };
 
 documentation {
