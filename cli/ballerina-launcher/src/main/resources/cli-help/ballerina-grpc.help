@@ -2,28 +2,17 @@ NAME
     Ballerina grpc - Generate Ballerina gRPC client stub
 
 SYNOPSIS
-    ballerina grpc [--proto_version] [--bal_out <path>]
-        --proto_path <proto-file-path>  
-        --exe_path <protoc-executor-path> 
+    ballerina grpc --input <proto-file-path> [--output <path>]
         
 DESCRIPTION
-     Generates ballerina gRPC client stub for gRPC service
-     for a given grpc protoc definition. 
+     Generates ballerina gRPC client stub for gRPC service for a given gRPC protoc definition.
 
 OPTIONS
-     -b   Do not write `busy' to stdout while processing.
+     --input <proto-file-path>
+         Input .proto file.
 
-     --proto_version
-         Provides the protocol version to e used 
-
-     --bal_out <path>
-         Generated the Ballerina source file to the given location
-
-     --proto_path <proto-file-path>
-         Path of the .proto file to be used. 
-
-     --exe_path <protoc-executor-path>
-         Full path of the .exe file.
+     --output <path>
+         Generated Ballerina source files location.
 
 EXAMPLES
-     $ ballerina grpc
+     $ ballerina grpc --input chat.proto
