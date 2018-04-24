@@ -22,7 +22,6 @@ import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
@@ -44,7 +43,6 @@ import java.util.Map;
 @Parameters(commandNames = "doc", commandDescription = "generate Ballerina API documentation")
 public class BallerinaDocCmd implements BLauncherCmd {
     private final PrintStream out = System.out;
-    private final PrintStream err = System.err;
 
     private JCommander parentCmdParser;
 
@@ -115,13 +113,8 @@ public class BallerinaDocCmd implements BLauncherCmd {
         }
 
         String[] sources = argList.toArray(new String[argList.size()]);
-        try {
-            BallerinaDocGenerator.generateApiDocs(sourceRootPath.toString(), outputDir, packageFilter, nativeSource,
-                    sources);
-        } catch (Throwable e) {
-            err.println(ExceptionUtils.getStackTrace(e));
-            System.exit(1);
-        }
+        BallerinaDocGenerator.generateApiDocs(sourceRootPath.toString(), outputDir, packageFilter, nativeSource,
+                sources);
     }
 
     @Override

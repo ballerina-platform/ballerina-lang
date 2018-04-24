@@ -10,9 +10,10 @@ function main(string... args){
 }
 function calculateExp1(int x, int y) returns (int) {
     int z = 0;
-    while(x >= y) {
-        y = y + 1;
-        if(y == 10){
+    int a = y;
+    while(x >= a) {
+        a = a + 1;
+        if(a == 10){
             z = 100;
             break;
         }
@@ -23,17 +24,18 @@ function calculateExp1(int x, int y) returns (int) {
 function calculateExp2(int a, int b, int c) returns (int, int) {
     int x;
     x = 10;
-    if ( a == b) {
-        a = 100;
-    } else if (a == b + 1){
-        a = 200;
-    } else  if (a == b + 2){
-        a = 300;
+    int e = a;
+    if (e == b) {
+        e = 100;
+    } else if (e == b + 1){
+        e = 200;
+    } else  if (e == b + 2){
+        e = 300;
     }  else {
-         a = 400;
+        e = 400;
     }
-    b = c;
-    return (a + x, b + 1);
+    int d = c;
+    return (e + x, d + 1);
 }
 function testCalculateExp2 (int x) returns (string) {
     var (v1, v2) = calculateExp2(x, 9, 15);

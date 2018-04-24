@@ -65,6 +65,7 @@ public class HttpConstants {
 
     public static final String HTTP_PACKAGE_PATH = "ballerina.http";
 
+    public static final String HTTP_REQUEST_METHOD = "method";
     public static final String HTTP_METHOD_GET = "GET";
     public static final String HTTP_METHOD_POST = "POST";
     public static final String HTTP_METHOD_PUT = "PUT";

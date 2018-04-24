@@ -16,53 +16,71 @@
 
 
 // Please maintain alphabetical order when adding new header names
-documentation { HTTP header key 'age'. Gives the current age of a cached HTTP response. }
+documentation { HTTP header key `age`. Gives the current age of a cached HTTP response. }
 @final public string AGE = "age";
 
-documentation { HTTP header key 'authorization' }
+documentation { HTTP header key `authorization` }
 @final public string AUTHORIZATION = "authorization";
 
-documentation { HTTP header key 'cache-control'. Specifies the cache control directives required for the function of HTTP caches. }
+documentation {
+    HTTP header key `cache-control`. Specifies the cache control directives required for the function of HTTP caches.
+}
 @final public string CACHE_CONTROL = "cache-control";
 
-documentation { HTTP header key 'content-length'. Specifies the size of the response body in bytes. }
+documentation { HTTP header key `content-length`. Specifies the size of the response body in bytes. }
 @final public string CONTENT_LENGTH = "content-length";
 
-documentation { HTTP header key 'date'. The timestamp at the time the response was generated/received. }
+documentation { HTTP header key `content-type`. Specifies the type of the message payload. }
+@final public string CONTENT_TYPE = "content-type";
+
+documentation { HTTP header key `date`. The timestamp at the time the response was generated/received. }
 @final public string DATE = "date";
 
-documentation { HTTP header key 'etag'. A finger print for a resource which is used by HTTP caches to identify whether a resource representation has changed. }
+documentation {
+    HTTP header key `etag`. A finger print for a resource which is used by HTTP caches to identify whether a
+    resource representation has changed.
+}
 @final public string ETAG = "etag";
 
-documentation { HTTP header key 'expect'. Specifies expectations to be fulfilled by the server. }
+documentation { HTTP header key `expect`. Specifies expectations to be fulfilled by the server. }
 @final public string EXPECT = "expect";
 
-documentation { HTTP header key 'expires'. Specifies the time at which the response becomes stale. }
+documentation { HTTP header key `expires`. Specifies the time at which the response becomes stale. }
 @final public string EXPIRES = "expires";
 
-documentation { HTTP header key 'if-match' }
+documentation { HTTP header key `if-match` }
 @final public string IF_MATCH = "if-match";
 
-documentation { HTTP header key 'if-modified-since'. Used when validating (with the origin server) whether a cached response is still valid. If the representation of the resource has modified since the timestamp in this field, a 304 response is returned. }
+documentation {
+    HTTP header key `if-modified-since`. Used when validating (with the origin server) whether a cached response
+    is still valid. If the representation of the resource has modified since the timestamp in this field, a
+    304 response is returned.
+}
 @final public string IF_MODIFIED_SINCE = "if-modified-since";
 
-documentation { HTTP header key 'if-none-match'. Used when validating (with the origin server) whether a cached response is still valid. If the ETag provided in this field matches the representation of the requested resource, a 304 response is returned. }
+documentation {
+    HTTP header key `if-none-match`. Used when validating (with the origin server) whether a cached response is
+    still valid. If the ETag provided in this field matches the representation of the requested resource, a
+    304 response is returned.
+}
 @final public string IF_NONE_MATCH = "if-none-match";
 
-documentation { HTTP header key 'if-range' }
+documentation { HTTP header key `if-range` }
 @final public string IF_RANGE = "if-range";
 
-documentation { HTTP header key 'if-unmodified-since' }
+documentation { HTTP header key `if-unmodified-since` }
 @final public string IF_UNMODIFIED_SINCE = "if-unmodified-since";
 
-documentation { HTTP header key 'last-modified'. The time at which the resource was last modified. }
+documentation { HTTP header key `last-modified`. The time at which the resource was last modified. }
 @final public string LAST_MODIFIED = "last-modified";
 
-documentation { HTTP header key 'location'. Indicates the URL to redirect a request to. }
+documentation { HTTP header key `location`. Indicates the URL to redirect a request to. }
 @final public string LOCATION = "location";
 
-documentation { HTTP header key 'pragma'. Used in dealing with HTTP 1.0 caches which do not understand the 'cache-control' header. }
+documentation {
+    HTTP header key `pragma`. Used in dealing with HTTP 1.0 caches which do not understand the `cache-control` header.
+}
 @final public string PRAGMA = "pragma";
 
-documentation { HTTP header key 'warning'. Specifies warnings generated when serving stale responses from HTTP caches. }
+documentation { HTTP header key `warning`. Specifies warnings generated when serving stale responses from HTTP caches. }
 @final public string WARNING = "warning";

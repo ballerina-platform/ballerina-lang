@@ -643,6 +643,9 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             } else {
                 return w() + node.value;
             }
+        case 'Lock':
+            return dent() + w() + 'lock' + w() + '{' + indent()
+                 + getSourceOf(node.body, pretty, l, replaceLambda) + outdent() + w() + '}';
         case 'Match':
             return dent() + w() + 'match' + a(' ')
                  + getSourceOf(node.expression, pretty, l, replaceLambda) + w(' ') + '{' + indent()
@@ -804,6 +807,9 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'StringTemplateLiteral':
             return w() + 'string\u0020`'
                  + join(node.expressions, pretty, replaceLambda, l, w, '') + w() + '`';
+        case 'Table':
+            return w() + 'table'
+                 + getSourceOf(node.configurationExpression, pretty, l, replaceLambda);
         case 'TernaryExpr':
             return getSourceOf(node.condition, pretty, l, replaceLambda) + w() + '?'
                  + getSourceOf(node.thenExpression, pretty, l, replaceLambda)
@@ -1031,6 +1037,8 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + 'type' + a(' ') + w() + node.name.valueWithBar + a(' ')
                  + join(node.valueSet, pretty, replaceLambda, l, w, '', '|') + w() + ';';
             }
+        case 'TypedescExpression':
+            return getSourceOf(node.typeNode, pretty, l, replaceLambda);
         case 'TypeofExpression':
             return w() + 'typeof' + b(' ')
                  + getSourceOf(node.typeNode, pretty, l, replaceLambda);

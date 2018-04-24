@@ -477,6 +477,14 @@
     "before value": "",
     "after value": ""
   },
+  "Lock": {
+    "before lock": "",
+    "after lock": "",
+    "before {": "",
+    "after {": "",
+    "before }": "",
+    "after }": ""
+  },
   "Match": {
     "before match": "",
     "after match": " ",
@@ -681,6 +689,10 @@
     "before `": "",
     "after `": ""
   },
+  "Table": {
+    "before table": "",
+    "after table": ""
+  },
   "TernaryExpr": {
     "before condition": "",
     "after condition": "",
@@ -838,6 +850,10 @@
     "after type":" ",
     "before name":"",
     "after name":" "
+  },
+  "TypedescExpression": {
+    "before typeNode": "",
+    "after typeNode": ""
   },
   "TypeofExpression": {
     "before typeof": "",

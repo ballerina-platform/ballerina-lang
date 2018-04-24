@@ -14,15 +14,21 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 // TODO: Document these. Should we make FORWARD a private constant?
 @final public HttpOperation HTTP_FORWARD = "FORWARD";
+documentation {Constant for the HTTP GET method}
 @final public HttpOperation HTTP_GET = "GET";
+documentation {Constant for the HTTP POST method}
 @final public HttpOperation HTTP_POST = "POST";
+documentation {Constant for the HTTP DELETE method}
 @final public HttpOperation HTTP_DELETE = "DELETE";
+documentation {Constant for the HTTP OPTIONS method}
 @final public HttpOperation HTTP_OPTIONS = "OPTIONS";
+documentation {Constant for the HTTP PUT method}
 @final public HttpOperation HTTP_PUT = "PUT";
+documentation {Constant for the HTTP PATCH method}
 @final public HttpOperation HTTP_PATCH = "PATCH";
+documentation {Constant for the HTTP HEAD method}
 @final public HttpOperation HTTP_HEAD = "HEAD";
 @final public HttpOperation HTTP_NONE = "NONE";
 
@@ -90,4 +96,13 @@ function getError() returns HttpConnectorError {
     httpConnectorError.statusCode = 400;
     httpConnectorError.message = "Unsupported connector action received.";
     return httpConnectorError;
+}
+
+function populateRequestFields (Request originalRequest, Request newRequest)  {
+    newRequest.rawPath = originalRequest.rawPath;
+    newRequest.method = originalRequest.method;
+    newRequest.httpVersion = originalRequest.httpVersion;
+    newRequest.cacheControl = originalRequest.cacheControl;
+    newRequest.userAgent = originalRequest.userAgent;
+    newRequest.extraPathInfo = originalRequest.extraPathInfo;
 }

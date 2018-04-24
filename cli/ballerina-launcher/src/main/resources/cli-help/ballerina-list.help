@@ -1,0 +1,19 @@
+NAME
+    Ballerina list - List dependencies for program source or package
+
+SYNOPSIS
+      ballerina list <balfile | packagename> 
+
+DESCRIPTION
+     Ballerina list command prints a complete tree of dependant 
+     packages for a given Ballerina source file or a package. 
+
+OPTIONS
+     Ballerina list command takes no options
+
+EXAMPLES
+     List dependencies for hello_service.bal 
+     $  ballerina list hello_service.bal
+
+     List dependencies for math package 
+     $ ballerina list math

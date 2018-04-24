@@ -25,7 +25,7 @@ const { workspace } = require('vscode');
 
 let serverProcess;
 const libPath = '/bre/lib/*'
-const composerlibPath = '/resources/composer/services/*';
+const composerlibPath = '/lib/resources/composer/services/*';
 const main = 'org.ballerinalang.vscode.server.Main';
 
 let LSService;
@@ -40,7 +40,7 @@ function getClassPath() {
     let classpath = path.join(sdkPath, composerlibPath) + sep + path.join(sdkPath, libPath) + sep + jarPath;
 
     if (customClassPath) {
-        classpath =  path.join(customClassPath, '/*') + sep + classpath;
+        classpath =  customClassPath + sep + classpath;
     }
     return classpath;
 }
