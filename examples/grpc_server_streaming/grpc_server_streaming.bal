@@ -4,13 +4,13 @@ import ballerina/grpc;
 
 // Server endpoint configuration
 endpoint grpc:Listener ep {
-    host:"localhost",
-    port:9090
+    host: "localhost",
+    port: 9090
 };
 
 service HelloWorld bind ep {
 
-    @grpc:ResourceConfig {streaming:true}
+    @grpc:ResourceConfig {streaming: true}
     lotsOfReplies(endpoint caller, string name) {
         io:println("Server received hello from " + name);
         string[] greets = ["Hi", "Hey", "GM"];

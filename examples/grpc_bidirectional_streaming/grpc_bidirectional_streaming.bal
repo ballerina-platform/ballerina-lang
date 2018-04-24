@@ -4,14 +4,14 @@ import ballerina/grpc;
 
 // Server endpoint configuration
 endpoint grpc:Listener ep {
-    host:"localhost",
-    port:9090
+    host: "localhost",
+    port: 9090
 };
 
 @grpc:ServiceConfig {
-    name:"chat",
-    clientStreaming:true,
-    serverStreaming:true
+    name: "chat",
+    clientStreaming: true,
+    serverStreaming: true
 }
 
 service<grpc:Service> Chat bind ep {
