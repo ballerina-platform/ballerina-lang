@@ -26,7 +26,7 @@ public type Response object {
     documentation {
         Get the `mime:Entity` from the response.
 
-        R{{}} Return a `mime:Entity` or an `error` object in case of errors
+        R{{}} Return a `mime:Entity` or an `error` record in case of errors
     }
     public native function getEntity () returns (mime:Entity | error);
 
@@ -96,7 +96,7 @@ public type Response object {
     documentation {
         Extract json payload from the response. If the payload is not json compatible an error will be returned.
 
-        R{{}} Return `json` payload extracted from the response. An `error` object will be returned in case of
+        R{{}} Return `json` payload extracted from the response. An `error` record will be returned in case of
         errors.
     }
     public function getJsonPayload () returns (json | error);
@@ -104,7 +104,7 @@ public type Response object {
     documentation {
         Extract xml payload from the response. If the payload is not xml compatible an error will be returned.
 
-        R{{}} Return `xml` payload extracted from the the response. An `error` object will be returned in case of
+        R{{}} Return `xml` payload extracted from the the response. An `error` record will be returned in case of
         errors.
     }
     public function getXmlPayload () returns (xml | error);
@@ -112,7 +112,7 @@ public type Response object {
     documentation {
         Extract text payload from the response. If the payload is not text compatible an error will be returned.
 
-        R{{}} Return `string` request extracted from the the response. An `error` object will be returned in case of
+        R{{}} Return `string` request extracted from the the response. An `error` record will be returned in case of
         errors.
     }
     public function getTextPayload () returns (string | error);
@@ -121,7 +121,7 @@ public type Response object {
         Get the response payload as a string. Content-type will not be checked during payload construction which
         makes this different from getTextPayload() method.
 
-        R{{}} The string representation of the message payload or an error object in case of errors
+        R{{}} The string representation of the message payload or an error record in case of errors
     }
     public function getPayloadAsString () returns (string | error);
 
@@ -129,7 +129,7 @@ public type Response object {
         Get the binary payload from the response. If the payload is considerably large consider using getByteChannel()
         method instead.
 
-        R{{}} Return `blob` data extracted from the the response. An `error` object will be returned in case of
+        R{{}} Return `blob` data extracted from the the response. An `error` record will be returned in case of
         errors.
     }
     public function getBinaryPayload () returns (blob | error);
@@ -137,14 +137,14 @@ public type Response object {
     documentation {
         Get a byte channel from the response. In case of multiparts, please use 'getBodyParts()' method instead.
 
-        R{{}} Return an `io:ByteChannel`. An `error` object will be returned in case of errors
+        R{{}} Return an `io:ByteChannel`. An `error` record will be returned in case of errors
     }
     public function getByteChannel () returns (io:ByteChannel | error);
 
     documentation {
         Get multiparts from the response. If the payload is not a set of body parts an error will be returned.
 
-        R{{}} Return an array of body parts(`Entity[]`) extracted from the response. An `error` object will be
+        R{{}} Return an array of body parts(`Entity[]`) extracted from the response. An `error` record will be
         returned in case of errors
     }
     public function getBodyParts () returns (mime:Entity[] | error);

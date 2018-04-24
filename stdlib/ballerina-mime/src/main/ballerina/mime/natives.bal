@@ -88,7 +88,7 @@ public type ContentDisposition object {
 
     documentation {
         Convert the ContentDisposition type to a string suitable for use as the value of a corresponding MIME header.
-        R{{}} Return a `ContentDisposition` object's content as a string
+        R{{}} Return a `string` represnetation of `ContentDisposition` object
     }
     public native function toString() returns (string);
 };
@@ -297,7 +297,7 @@ public type Entity object {
     documentation {
         Extract json body from the entity. If the entity body is not json compatible an error will be returned.
 
-        R{{}} Return `json` data extracted from the the entity body. An `error` object will be returned in case of
+        R{{}} Return `json` data extracted from the the entity body. An `error` record will be returned in case of
         errors.
     }
     public native function getJson() returns @tainted json|error;
@@ -316,7 +316,7 @@ public type Entity object {
     documentation {
         Extract xml body from the entity. If the entity body is not xml compatible an error will be returned.
 
-        R{{}} Return `xml` data extracted from the the entity body. An `error` object will be returned in case of
+        R{{}} Return `xml` data extracted from the the entity body. An `error` record will be returned in case of
         errors.
     }
     public native function getXml() returns @tainted xml|error;
@@ -335,7 +335,7 @@ public type Entity object {
     documentation {
         Extract text body from the entity. If the entity body is not text compatible an error will be returned.
 
-        R{{}} Return `string` data extracted from the the entity body. An `error` object will be returned in case of
+        R{{}} Return `string` data extracted from the the entity body. An `error` record will be returned in case of
         errors.
     }
     public native function getText() returns @tainted string|error;
@@ -344,7 +344,7 @@ public type Entity object {
         Given an entity, get the entity body as a string. Content-type will not be checked during entity body construction which
         makes this different from getText() method.
 
-        R{{}} Return entity body as a `string`. An `error` object will be returned in case of errors occurred during
+        R{{}} Return entity body as a `string`. An `error` record will be returned in case of errors occurred during
         construction of the string body.
     }
     public native function getBodyAsString() returns @tainted string|error;
@@ -364,7 +364,7 @@ public type Entity object {
         Given an entity, get the entity body as a blob. If the entity size is considerably large consider
         using getByteChannel() method instead.
 
-        R{{}} Return `blob` data extracted from the the entity body. An `error` object will be returned in case of
+        R{{}} Return `blob` data extracted from the the entity body. An `error` record will be returned in case of
         errors.
     }
     public native function getBlob() returns @tainted blob|error;
@@ -383,14 +383,14 @@ public type Entity object {
     documentation {
         Given an entity, get the entity body as a byte channel.
 
-        R{{}} Return an `io:ByteChannel`. An `error` object will be returned in case of errors
+        R{{}} Return an `io:ByteChannel`. An `error` record will be returned in case of errors
     }
     public native function getByteChannel() returns @tainted io:ByteChannel|error;
 
     documentation {
         Given an entity, get its body parts. If the entity body is not a set of body parts an error will be returned.
 
-        R{{}} Return an array of body parts(`Entity[]`) extracted from the entity body. An `error` object will be
+        R{{}} Return an array of body parts(`Entity[]`) extracted from the entity body. An `error` record will be
         returned in case of errors
     }
     public native function getBodyParts() returns Entity[]|error;
@@ -498,7 +498,7 @@ documentation {
     R{{}} If the given input is of type string, return value will be an encoded `string`
           If the given input is of type blob, return value will be an encoded `blob`
           If the given input is of type io:ByteChannel, return value will be an encoded `io:ByteChannel`
-          An `error` object will be returned, in case of errors
+          An `error` record will be returned, in case of errors
 }
 native function base64Encode((string|blob|io:ByteChannel) contentToBeEncoded, string charset = "utf-8")
     returns (string|blob|io:ByteChannel|error);
@@ -511,7 +511,7 @@ documentation {
     R{{}} If the given input is of type string, return value will be an decoded `string`
           If the given input is of type blob, return value will be an decoded `blob`
           If the given input is of type io:ByteChannel, return value will be an decoded `io:ByteChannel`
-          An `error` object will be returned, in case of errors
+          An `error` record will be returned, in case of errors
 }
 native function base64Decode((string|blob|io:ByteChannel) contentToBeDecoded, string charset = "utf-8")
     returns (string|blob|io:ByteChannel|error);
@@ -520,7 +520,7 @@ documentation {
     Encode a given blob with Base64 encoding scheme.
 
     P{{valueToBeEncoded}} Content that needs to be encoded
-    R{{}} Return an encoded blob. An `error` object will be returned, in case of errors
+    R{{}} Return an encoded blob. An `error` record will be returned, in case of errors
 }
 public function base64EncodeBlob(blob valueToBeEncoded) returns blob|error {
     error customErr = {message:"Error occurred while encoding blob"};
@@ -537,7 +537,7 @@ documentation {
 
     P{{valueToBeEncoded}} Content that needs to be encoded
     P{{charset}} Charset to be used
-    R{{}} Return an encoded `string`. An `error` object will be returned in case of errors
+    R{{}} Return an encoded `string`. An `error` record will be returned in case of errors
 }
 public function base64EncodeString(string valueToBeEncoded, string charset = "utf-8") returns string|error {
     error customErr = {message:"Error occurred while encoding string"};
@@ -553,7 +553,7 @@ documentation {
     Encode a given ByteChannel with Base64 encoding scheme.
 
     P{{valueToBeEncoded}} Content that needs to be encoded
-    Return an encoded `io:ByteChannel`. An `error` object will be returned in case of errors
+    Return an encoded `io:ByteChannel`. An `error` record will be returned in case of errors
 }
 public function base64EncodeByteChannel(io:ByteChannel valueToBeEncoded) returns io:ByteChannel|error {
     error customErr = {message:"Error occurred while encoding ByteChannel content"};
@@ -633,7 +633,7 @@ documentation {
 public native function getMediaType(string contentType) returns MediaType|error;
 
 documentation {
-    Given the Content-Disposition as a string, get the ContentDisposition struct object with it.
+    Given the Content-Disposition as a string, get the ContentDisposition object with it.
 
     P{{contentDisposition}} content disposition string
     R{{}} Return a `ContentDisposition` object

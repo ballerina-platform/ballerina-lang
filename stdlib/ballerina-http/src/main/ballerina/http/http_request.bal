@@ -35,7 +35,7 @@ public type Request object {
     documentation {
         Get the `mime:Entity` from the request.
 
-        R{{}} Return a `mime:Entity` or an `error` object in case of errors
+        R{{}} Return a `mime:Entity` or an `error` record in case of errors
     }
     public native function getEntity () returns (mime:Entity | error);
 
@@ -97,7 +97,7 @@ public type Request object {
     documentation {
         Extract json payload from the request. If the payload is not json compatible an error will be returned.
 
-        R{{}} Return `json` payload extracted from the request. An `error` object will be returned in case of
+        R{{}} Return `json` payload extracted from the request. An `error` record will be returned in case of
         errors.
     }
     public function getJsonPayload () returns (json | error);
@@ -105,7 +105,7 @@ public type Request object {
     documentation {
         Extract xml payload from the request. If the payload is not xml compatible an error will be returned.
 
-        R{{}} Return `xml` payload extracted from the the request. An `error` object will be returned in case of
+        R{{}} Return `xml` payload extracted from the the request. An `error` record will be returned in case of
         errors.
     }
     public function getXmlPayload () returns (xml | error);
@@ -113,7 +113,7 @@ public type Request object {
     documentation {
         Extract text payload from the request. If the payload is not text compatible an error will be returned.
 
-        R{{}} Return `string` request extracted from the the request. An `error` object will be returned in case of
+        R{{}} Return `string` request extracted from the the request. An `error` record will be returned in case of
         errors.
     }
     public function getTextPayload () returns (string | error);
@@ -122,7 +122,7 @@ public type Request object {
         Get the request payload as a string. Content-type will not be checked during payload construction which
         makes this different from getTextPayload() method.
 
-        R{{}} The string representation of the message payload or an error object in case of errors
+        R{{}} The string representation of the message payload or an error record in case of errors
     }
     public function getPayloadAsString () returns (string | error);
 
@@ -130,7 +130,7 @@ public type Request object {
         Get the binary payload from the request. If the payload is considerably large consider using getByteChannel()
         method instead.
 
-        R{{}} Return `blob` data extracted from the the response. An `error` object will be returned in case of
+        R{{}} Return `blob` data extracted from the the response. An `error` record will be returned in case of
         errors.
     }
     public function getBinaryPayload () returns (blob | error);
@@ -138,24 +138,24 @@ public type Request object {
     documentation {
         Get a byte channel from the request. In case of multiparts, please use 'getBodyParts()' method instead.
 
-        R{{}} Return an `io:ByteChannel`. An `error` object will be returned in case of errors
+        R{{}} Return an `io:ByteChannel`. An `error` record will be returned in case of errors
     }
     public function getByteChannel () returns (io:ByteChannel | error);
 
     @Description {value:"Gets the form parameters from the HTTP request as a map"}
-    @Return {value:"The map of form params or an `error` object in case of errors"}
+    @Return {value:"The map of form params or an `error` record in case of errors"}
 
     documentation {
         Get form params from the request as a map.
 
-        R{{}} Return a `map` with form params. An `error` object will be returned in case of errors
+        R{{}} Return a `map` with form params. An `error` record will be returned in case of errors
     }
     public function getFormParams () returns (map<string> | error);
 
     documentation {
         Get multiparts from the request. If the payload is not a set of body parts an error will be returned.
 
-        R{{}} Return an array of body parts(`Entity[]`) extracted from the request. An `error` object will be
+        R{{}} Return an array of body parts(`Entity[]`) extracted from the request. An `error` record will be
         returned in case of errors
     }
     public function getBodyParts () returns (mime:Entity[] | error);
