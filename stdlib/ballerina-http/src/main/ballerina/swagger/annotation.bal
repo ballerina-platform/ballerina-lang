@@ -77,9 +77,9 @@ public type DocumentationInformation {
 documentation {
     Model for swagger service tag definition.
 
-	F{{name}} Tag name
-	F{{description}} Tag decription
-	F{{externalDocs}} Optional documentation on the tag
+    F{{name}} Tag name
+    F{{description}} Tag decription
+    F{{externalDocs}} Optional documentation on the tag
 }
 public type Tag {
     string name,
@@ -90,8 +90,8 @@ public type Tag {
 documentation {
     Model for security requirement definition. This is most likely the oauth scopes.
 
-	F{{name}} Security scheme name
-	F{{requirements}} Array of security requirements
+    F{{name}} Security scheme name
+    F{{requirements}} Array of security requirements
 }
 public type SecurityRequirement {
     string name,
@@ -102,12 +102,12 @@ documentation {
     Model for keeping swagger parameter information.
 
 	F{{inInfo}} Where the parameter is located. Ex: query
-	F{{name}} Parameter name
-	F{{description}} Description of the parameter
-	F{{required}} Is this paramter MUST be present in the request
-	F{{discontinued}} Is this parameter deprecated
-	F{{allowEmptyValue}} Is empty values allowed for this parameter. Valid only for query parameters
-	F{{schema}} Parameter data type
+    F{{name}} Parameter name
+    F{{description}} Description of the parameter
+    F{{required}} Is this paramter MUST be present in the request
+    F{{discontinued}} Is this parameter deprecated
+    F{{allowEmptyValue}} Is empty values allowed for this parameter. Valid only for query parameters
+    F{{schema}} Parameter data type
 }
 public type ParameterInformation {
     string inInfo,
@@ -135,11 +135,11 @@ public type Schema {
 documentation {
     Model for additional swagger resource definition.
 
-	F{{tags}} Tags attched to this resource
-	F{{summary}} A short summary of what the operation does
-	F{{description}} A verbose explanation of the operation behavior
-	F{{externalDocs}} Additional documentation for this operation
-	F{{parameters}} A list of parameters that are applicable for this operation
+    F{{tags}} Tags attched to this resource
+    F{{summary}} A short summary of what the operation does
+    F{{description}} A verbose explanation of the operation behavior
+    F{{externalDocs}} Additional documentation for this operation
+    F{{parameters}} A list of parameters that are applicable for this operation
 }
 public type ResourceInformation {
     string[] tags,
@@ -197,12 +197,12 @@ public type Example {
 documentation {
     Model for additional swagger request body details.
 
-	F{{description}} Brief description of the request body
-	F{{required}} Determines if the request body is required in the request
-	F{{example}} Example of the request body media type
-	F{{examples}} Examples of the media type
-	F{{schema}} The schema defining the type used for the request body
-	F{{encoding}} Encoding and content type details
+    F{{description}} Brief description of the request body
+    F{{required}} Determines if the request body is required in the request
+    F{{example}} Example of the request body media type
+    F{{examples}} Examples of the media type
+    F{{schema}} The schema defining the type used for the request body
+    F{{encoding}} Encoding and content type details
 }
 public type requestBody {
     string description,
@@ -216,11 +216,11 @@ public type requestBody {
 documentation {
     Model for additional swagger content type definition.
 
-	F{{headers}} Additional information to be provided as headers
-	F{{contentType}} The Content-Type for encoding a specific property
-	F{{style}} Describes how a specific property value will be serialized depending on its type
-	F{{explode}} Should property values of array or object generate separate parameters for each value of the array
-	F{{allowReserved}} Determines whether the parameter value SHOULD allow reserved characters
+    F{{headers}} Additional information to be provided as headers
+    F{{contentType}} The Content-Type for encoding a specific property
+    F{{style}} Describes how a specific property value will be serialized depending on its type
+    F{{explode}} Should property values of array or object generate separate parameters for each value of the array
+    F{{allowReserved}} Determines whether the parameter value SHOULD allow reserved characters
 }
 public type Encoding {
     ParameterInformation[] headers,
@@ -233,7 +233,7 @@ public type Encoding {
 documentation {
     Configuration elements for client code generation.
 
-	F{{generate}} generates client code if set to true
+    F{{generate}} generates client code if set to true
 }
 public type ClientInformation {
     boolean generate = true,
