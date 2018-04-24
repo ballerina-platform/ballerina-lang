@@ -32,6 +32,6 @@ function testFunc() {
     test:assertEquals("Event received: ", outputs[8]);
     test:assertEquals(1.0, outputs[9]);
     test:assertEquals("Event received: ", outputs[10]);
-    Employee e = {id:1, name:"Jane"};
+    Employee e = { id: 1, name: "Jane" };
     test:assertEquals(e, outputs[11]);
 }
