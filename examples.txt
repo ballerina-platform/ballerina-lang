@@ -23,7 +23,7 @@ Maps
 Arrays
 Vector
 Table
-SQL queries on tables
+Table Queries
 Lengthof
 Identifier Literals
 JSON
@@ -49,8 +49,6 @@ Fork/Join Variable Access
 Async
 JDBC Client
 MYSQL Client
-Table with MYSQL Client
-Table Queries
 Local Transactions
 Transactions Distributed
 Transformers
