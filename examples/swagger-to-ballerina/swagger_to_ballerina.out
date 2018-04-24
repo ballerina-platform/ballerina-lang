@@ -1,0 +1,5 @@
+#Run following command in ballerina tools distribution for mock service generation
+$ ballerina swagger mock petstore.yaml -p pet_service
+
+#Run following command in ballerina tools distribution for client service generation
+$ ballerina swagger client petstore.yaml -p pet_client
