@@ -191,7 +191,7 @@ public class Main {
         @Parameter(names = {"--sourceroot"}, description = "path to the directory containing source files and packages")
         private String sourceRoot;
 
-        @Parameter(names = {"--help", "-h"}, hidden = true)
+        @Parameter(names = {"--help", "-h", "?"}, hidden = true)
         private boolean helpFlag;
 
         @Parameter(names = {"--offline"})
@@ -364,7 +364,7 @@ public class Main {
         @Parameter(names = "--java.debug", hidden = true)
         private String javaDebugPort;
 
-        @Parameter(names = {"--help", "-h"}, hidden = true)
+        @Parameter(names = {"--help", "-h", "?"}, hidden = true)
         private boolean helpFlag;
 
         private JCommander parentCmdParser;
@@ -426,7 +426,7 @@ public class Main {
         @Parameter(names = "--java.debug", hidden = true)
         private String javaDebugPort;
 
-        @Parameter(names = {"--help", "-h"}, hidden = true)
+        @Parameter(names = {"--help", "-h", "?"}, hidden = true)
         private boolean helpFlag;
 
         @Override
@@ -520,7 +520,7 @@ public class Main {
      */
     private static class DefaultCmd implements BLauncherCmd {
 
-        @Parameter(names = {"--help", "-h"}, description = "for more information")
+        @Parameter(names = { "--help", "-h", "?" }, hidden = true, description = "for more information")
         private boolean helpFlag;
 
         @Parameter(names = "--debug <port>", description = "start Ballerina in remote debugging mode")
@@ -529,8 +529,21 @@ public class Main {
         @Parameter(names = "--java.debug", hidden = true)
         private String javaDebugPort;
 
+        @Parameter(names = { "--version", "-v" }, hidden = true)
+        private boolean versionFlag;
+
         @Override
         public void execute() {
+            if (helpFlag) {
+                printUsageInfo(BallerinaCliCommands.HELP);
+                return;
+            }
+
+            if (versionFlag) {
+                printVersionInfo();
+                return;
+            }
+
             printUsageInfo(BallerinaCliCommands.DEFAULT);
         }
 
