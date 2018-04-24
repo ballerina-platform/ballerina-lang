@@ -1,6 +1,6 @@
 import ballerina/io;
 
-// Here is how you can defines a new record called 'Person'.
+// Here is how you can define a new record called 'Person'.
 type Person {
     string name;
     int age;
