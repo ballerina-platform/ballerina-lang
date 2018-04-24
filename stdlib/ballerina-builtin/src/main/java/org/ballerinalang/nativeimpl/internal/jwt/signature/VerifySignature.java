@@ -66,7 +66,7 @@ public class VerifySignature extends BlockingNativeCallableUnit {
         RSAPublicKey publicKey;
         try {
             publicKey = (RSAPublicKey) TrustStoreHolder.getInstance().getTrustedPublicKey(trustStore.getStringField
-                    (0), trustStore.getStringField(1), trustStorePassword);
+                    (0), PathResolver.getResolvedPath(trustStore.getStringField(1)), trustStorePassword);
             JWSVerifier verifier = new RSAVerifier(publicKey);
             Boolean validSignature = verifier.verify(data, signature, algorithm);
             context.setReturnValues(new BBoolean(validSignature));
