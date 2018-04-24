@@ -33,18 +33,6 @@
         </fileSet>
 
         <fileSet>
-            <directory>conf</directory>
-            <outputDirectory>bre/conf</outputDirectory>
-            <fileMode>644</fileMode>
-        </fileSet>
-
-        <fileSet>
-            <directory>logs</directory>
-            <outputDirectory>logs</outputDirectory>
-            <fileMode>644</fileMode>
-        </fileSet>
-
-        <fileSet>
             <directory>resources/security</directory>
             <outputDirectory>bre/security</outputDirectory>
             <fileMode>644</fileMode>
@@ -95,12 +83,6 @@
     </fileSets>
 
     <files>
-        <file>
-            <source>${project.build.directory}/extracted-distributions/ballerina-logging-jar/logging.properties</source>
-            <outputDirectory>bre/conf/</outputDirectory>
-            <filtered>true</filtered>
-            <fileMode>644</fileMode>
-        </file>
         <file>
             <source>bin/version.txt</source>
             <outputDirectory>bin/</outputDirectory>
