@@ -1,1 +1,1 @@
-Ballerina Platform version: ${project.version}
+Ballerina Tools version: ${project.version}
