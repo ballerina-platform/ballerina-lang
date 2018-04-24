@@ -15,22 +15,22 @@
 // under the License.
 
 documentation{
-    Represents record separator of the CSV file
+    Represents record separator of the CSV file.
 }
 @final string CSV_RECORD_SEPERATOR = "\n";
 
 documentation{
-    Represents colon separator which should be used to identify colon separated files
+    Represents colon separator which should be used to identify colon separated files.
 }
 @final string FS_COLON = ":";
 
 documentation{
-    Represents minimum number of headers which will be included in CSV
+    Represents minimum number of headers which will be included in CSV.
 }
 @final int MINIMUM_HEADER_COUNT = 0;
 
 documentation{
-    Represents a CSVChannel which could be used to read/write records from CSV file
+    Represents a CSVChannel which could be used to read/write records from CSV file.
 }
 public type CSVChannel object {
     private {
@@ -38,11 +38,11 @@ public type CSVChannel object {
     }
 
     documentation{
-        Constructs a CSV channel from a CharacterChannel to read/write CSV records
+        Constructs a CSV channel from a CharacterChannel to read/write CSV records.
 
-        P{{channel}} - ChracterChannel which will represent the content in the CSV
-        P{{fs}} - Field separator which will separate between the records in the CSV
-        P{{nHeaders}} - Number of headers which should be skipped prior to reading records
+        P{{channel}} ChracterChannel which will represent the content in the CSV
+        P{{fs}} Field separator which will separate between the records in the CSV
+        P{{nHeaders}} Number of headers which should be skipped prior to reading records
     }
     public new(CharacterChannel channel, Separator fs = ",", int nHeaders = 0) {
         if (fs == TAB){
@@ -56,9 +56,9 @@ public type CSVChannel object {
     }
 
     documentation{
-        Skips the given number of headers
+        Skips the given number of headers.
 
-        P{{nHeaders}} - Number of headers which should be skipped
+        P{{nHeaders}} Number of headers which should be skipped
     }
     function skipHeaders(int nHeaders) {
         int count = MINIMUM_HEADER_COUNT;
@@ -69,7 +69,7 @@ public type CSVChannel object {
     }
 
     documentation{
-        Indicates whether there's another record which could be read
+        Indicates whether there's another record which could be read.
 
         R{{}} True if there's a record
     }
@@ -86,37 +86,37 @@ public type CSVChannel object {
     }
 
     documentation{
-        Gets the next record from the CSV file
+        Gets the next record from the CSV file.
 
-        R{{}} - List of fields in the CSV or error
+        R{{}} List of fields in the CSV or error
     }
     public function getNext() returns @tainted string[]|error? {
         return dc.getNext();
     }
 
     documentation{
-        Writes record to a given CSV file
+        Writes record to a given CSV file.
 
-        R{{}} - Returns an error if the record could not be written properly
+        R{{}} Returns an error if the record could not be written properly
     }
     public function write(string[] record) returns error? {
         return dc.write(record);
     }
 
     documentation{
-        Closes a given CSVChannel
+        Closes a given CSVChannel.
 
-        R{{}} - Returns if an error is encountered
+        R{{}} Returns if an error is encountered
     }
     public function close() returns error? {
         return dc.close();
     }
 
     documentation{
-        Returns a table which coresponds to the CSV records
+        Returns a table which coresponds to the CSV records.
 
-        P{{structType}} - The object the CSV records should be deserialized
-        R{{}} - Table which represents CSV records or error
+        P{{structType}} The object the CSV records should be deserialized
+        R{{}} Table which represents CSV records or error
     }
     public native function getTable(typedesc structType) returns @tainted table|error;
 };

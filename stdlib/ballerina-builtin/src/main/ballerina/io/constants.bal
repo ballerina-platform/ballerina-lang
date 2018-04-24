@@ -15,14 +15,14 @@
 // under the License.
 
 documentation{
-    Format which will be used to represent the CSV
+    Format which will be used to represent the CSV.
 
     DEFAULT - Would default to the format specified by CSVChannel. Presidence will be given to field
     separator and record separator.
 
-    CSV - Field separator would be "," and the record separator would be new line
+    CSV - Field separator would be "," and the record separator would be new line.
 
-    TDF - Field separator will be tab and record separator will be new line
+    TDF - Field separator will be tab and record separator will be new line.
 }
 public type Format "default"|"csv"|"tdf";
 @final public Format DEFAULT = "default";
@@ -30,7 +30,7 @@ public type Format "default"|"csv"|"tdf";
 @final public Format TDF = "tdf";
 
 documentation{
-    Field separators which are supported by DelimitedTextRecordChannel
+    Field separators which are supported by DelimitedTextRecordChannel.
 }
 public type Separator ","|"\t"|":";
 @final public Separator COMMA = ",";

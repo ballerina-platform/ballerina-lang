@@ -15,7 +15,7 @@
 // under the License.
 
 documentation{
-   Represents the set of permissions supported to open file
+   Represents the set of permissions supported to open file.
 
    READ - open the file in read mode
    WRITE - open the file in write mode
@@ -29,47 +29,47 @@ public type Mode "r"|"w"|"rw"|"a";
 @final public Mode APPEND = "a";
 
 documentation{
-    Retrieves a ByteChannel from a given file path
+    Retrieves a ByteChannel from a given file path.
 
-    P{{path}} - Relative/absolute path string to locate the file
-    P{{accessMode}} - Permission to open the file
-    R{{}} - ByteChannel representation of the file resource
+    P{{path}} Relative/absolute path string to locate the file
+    P{{accessMode}} Permission to open the file
+    R{{}} ByteChannel representation of the file resource
 }
 public native function openFile(@sensitive string path, @sensitive Mode accessMode) returns @tainted ByteChannel;
 
 documentation{
-    Opens a socket from a specified network location
+    Opens a socket from a specified network location.
 
-    P{{host}} - Remote server domain/IP
-    P{{port}} - Remote server port
-    P{{options}} - Connection stream that bridge the client and the server
-    R{{}} - Socket which will allow to communicate with a remote server or error
+    P{{host}} Remote server domain/IP
+    P{{port}} Remote server port
+    P{{options}} Connection stream that bridge the client and the server
+    R{{}} Socket which will allow to communicate with a remote server or error
 }
 public native function openSocket(@sensitive string host,
                                   @sensitive int port,
                                   SocketProperties options) returns @tainted Socket|error;
 
 documentation{
-    Opens a secure socket connection with a remote server
+    Opens a secure socket connection with a remote server.
 
-    P{{host}} - Remote server domain/IP
-    P{{port}} - Remote server port
-    P{{options}} - Mata data to initialize the connection(i.e security information)
-    R{{}} - Socket which will represent the network object or an error
+    P{{host}} Remote server domain/IP
+    P{{port}} Remote server port
+    P{{options}} Mata data to initialize the connection(i.e security information)
+    R{{}} Socket which will represent the network object or an error
 }
 public native function openSecureSocket(@sensitive string host,
                                         @sensitive int port,
                                         SocketProperties options) returns @tainted Socket|error;
 
 documentation{
-    Retrieves a CSV channel from a give file path
+    Retrieves a CSV channel from a give file path.
 
-    P{{path}} - File path which describes the location of the CSV
-    P{{mode}} - Permission which should be used to open CSV file
-    P{{fieldSeparator}} - CSV record seperator (i.e comma or tab)
-    P{{charset}} - Encoding characters in the file represents
-    P{{skipHeaders}} - Number of headers which should be skipped
-    R{{}} - CSVChannel which could be used to iterate through the CSV records
+    P{{path}} File path which describes the location of the CSV
+    P{{mode}} Permission which should be used to open CSV file
+    P{{fieldSeparator}} CSV record seperator (i.e comma or tab)
+    P{{charset}} Encoding characters in the file represents
+    P{{skipHeaders}} Number of headers which should be skipped
+    R{{}} CSVChannel which could be used to iterate through the CSV records
 }
 public function openCsvFile(@sensitive string path,
                             @sensitive Mode mode = "r",

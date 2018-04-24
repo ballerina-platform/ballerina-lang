@@ -15,9 +15,9 @@
 // under the License.
 
 documentation{
-    Returns the input read from STDIN
+    Returns the input read from STDIN.
 
-    P{{a}} - Any value to be printed
-    R{{}} - Input read from STDIN
+    P{{a}} Any value to be printed
+    R{{}} Input read from STDIN
 }
 public native function readln(any a) returns (string);
