@@ -37,7 +37,7 @@ public type CallerActions object {
         P{{sqlQuery}} SQL query to execute
         P{{recordType}} Type of the returned table
         P{{loadToMemory}} Indicates whether to load the retrieved data to memory or not
-        R{{}} - A `table` returned by the sql query statement else `error` will be returned if there is any error
+        R{{}} A `table` returned by the sql query statement else `error` will be returned if there is any error
     }
     public native function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
     Param... parameters) returns @tainted table|error;
@@ -77,7 +77,7 @@ public type CallerActions object {
         table that allows performing select/update operations over the actual database table.
 
         P{{tableName}} The name of the table to be retrieved
-        P{{recordType}} he record type of the returned table
+        P{{recordType}} The record type of the returned table
 
     }
     public native function getProxyTable(@sensitive string tableName, typedesc recordType) returns @tainted table|error;
