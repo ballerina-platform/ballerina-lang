@@ -1034,6 +1034,8 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + 'type' + a(' ') + w() + node.name.valueWithBar + a(' ')
                  + join(node.valueSet, pretty, replaceLambda, l, w, '', '|') + w() + ';';
             }
+        case 'TypedescExpression':
+            return getSourceOf(node.typeNode, pretty, l, replaceLambda);
         case 'TypeofExpression':
             return w() + 'typeof' + b(' ')
                  + getSourceOf(node.typeNode, pretty, l, replaceLambda);

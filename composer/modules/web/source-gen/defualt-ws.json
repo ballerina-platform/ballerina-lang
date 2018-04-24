@@ -847,6 +847,10 @@
     "before name":"",
     "after name":" "
   },
+  "TypedescExpression": {
+    "before typeNode": "",
+    "after typeNode": ""
+  },
   "TypeofExpression": {
     "before typeof": "",
     "after typeof": "",

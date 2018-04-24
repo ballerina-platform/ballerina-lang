@@ -339,6 +339,10 @@ TypeDefinition
    | <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                     <valueSet-joined-by|>* ;
    ;
 
+TypedescExpression
+   : <typeNode.source>
+   ;
+
 TypeofExpression
    : typeof <typeNode.source>
    ;
