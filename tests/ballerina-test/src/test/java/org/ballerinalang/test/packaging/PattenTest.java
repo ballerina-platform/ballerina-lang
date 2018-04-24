@@ -22,7 +22,7 @@ public class PattenTest {
                                                  BiFunction<I, String, I> combine,
                                                  Function<I, Stream<I>> expand,
                                                  Function<I, Stream<I>> expandBal,
-                                                 Function<I, Stream<I>> expandBalWithTest ) {
+                                                 Function<I, Stream<I>> expandBalWithTest) {
         return new Converter<I>() {
             @Override
             public I combine(I i, String pathPart) {
