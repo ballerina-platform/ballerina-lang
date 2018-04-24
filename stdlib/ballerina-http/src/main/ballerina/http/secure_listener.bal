@@ -178,7 +178,7 @@ function createAuthHandler (AuthProvider authProvider) returns HttpAuthnHandler 
                 authProvider1 = <auth:AuthProvider> configAuthProvider;
             } else {
                 auth:ConfigAuthProvider configAuthProvider = new;
-                authProvider1 = check <auth:AuthProvider>configAuthProvider;
+                authProvider1 = <auth:AuthProvider>configAuthProvider;
             }
         } else {
             // other auth providers are unsupported yet
