@@ -4,11 +4,17 @@ This package includes functions to manage task timers and task appointments.
 
 ### Task timers
 
-Timers execute periodic tasks. The initial execution of a task happens after a specific time period from the task registration, which is denoted using `delay`. Use the `interval` to specify the frequency at which tasks execute. If the `delay` is not specified, the `interval` is taken as the `delay`. The `delay` and `interval` times are defined in milliseconds.
+Timers execute periodic tasks. The initial execution of a task happens after a specific time period from the task 
+registration, which is denoted using `delay`. Use the `interval` to specify the frequency at which tasks execute. 
+If the `delay` is not specified, the `interval` is taken as the `delay`. The `delay` and `interval` times are defined 
+in milliseconds.
 
-The tasks that need to be executed is defined in the `onTriggerFunction` function.  If an error is returned when executing the `onTriggerFunction` function, the `onErrorFunction` is executed.
+The tasks that need to be executed is defined in the `onTriggerFunction` function.  If an error is returned when 
+executing the `onTriggerFunction` function, the `onErrorFunction` is executed.
 
-The example given below defines the `doTask` function as the  `onTriggerFunction` function. It is executed a second after the task registers and runs every 0.5 seconds. If the function returns an error, the  `onError` function is executed. This function is responsible for handling errors that takes place while doing the specified task.
+The example given below defines the `doTask` function as the  `onTriggerFunction` function. It is executed a second 
+after the task registers and runs every 0.5 seconds. If the function returns an error, the  `onError` function is 
+executed. This function is responsible for handling errors that takes place while doing the specified task.
 
 ```ballerina
 
@@ -21,11 +27,14 @@ The example given below defines the `doTask` function as the  `onTriggerFunction
 
 ### Task appointments
 
-A task appointment is similar to a real-world appointment. The task appointment is configured to run at a given time pattern. A cron expression is used to define the time, and the frequency a task appointment needs to run. 
+A task appointment is similar to a real-world appointment. The task appointment is configured to run at a given time 
+pattern. A cron expression is used to define the time, and the frequency a task appointment needs to run. 
 
-The `onTriggerFunction` function of the task is called when the appointment is due.  If an error is returned when executing the `onTriggerFunction` function, the `onErrorFunction` is called.
+The `onTriggerFunction` function of the task is called when the appointment is due.  If an error is returned when 
+executing the `onTriggerFunction` function, the `onErrorFunction` is called.
 
-The example given below triggers the `onTrigger` function every 5 seconds. If an error is returned, the `cleanupError` function is called.
+The example given below triggers the `onTrigger` function every 5 seconds. If an error is returned, the `cleanupError` 
+function is called.
 
 ```ballerina
     (function() returns error?) onTriggerFunction = onTrigger;
@@ -38,7 +47,10 @@ The example given below triggers the `onTrigger` function every 5 seconds. If an
 
 ### Tasks timer
 
-In this sample, a task is registered with a delay of 1000 milliseconds and is made to run every 1000 milliseconds. The `onTrigger ` function is triggered when the clock goes off. The `onError` function is executed if an error is returned from the `onTrigger` function. Further, the count variable is incremented by the task and if the count is equal to 10, an error is returned. If the count is equal to 20, the task is stopped using the `stopTask()` function.
+In this sample, a task is registered with a delay of 1000 milliseconds and is made to run every 1000 milliseconds. 
+The `onTrigger ` function is triggered when the clock goes off. The `onError` function is executed if an error is 
+returned from the `onTrigger` function. Further, the count variable is incremented by the task and if the count is 
+equal to 10, an error is returned. If the count is equal to 20, the task is stopped using the `stopTask()` function.
 
 ```ballerina
 import ballerina/task;
@@ -100,7 +112,10 @@ function stopTask() returns error? {
 
 ### Tasks appointment
 
-In this sample, a task appointment is registered with a cron expression to run every 5 seconds. Therefore, the `onTrigger ` function is triggered every 5 seconds. The `onError` function is executed if an error is returned from the `onTrigger` function. Further, the count variable is incremented by the task and if the count is equal to 10, an error is returned. If the count is equal to 20, the task is stopped.
+In this sample, a task appointment is registered with a cron expression to run every 5 seconds. Therefore, the 
+`onTrigger ` function is triggered every 5 seconds. The `onError` function is executed if an error is returned from 
+the `onTrigger` function. Further, the count variable is incremented by the task and if the count is equal to 10, an 
+error is returned. If the count is equal to 20, the task is stopped.
 
 
 ```ballerina
@@ -158,4 +173,5 @@ function cancelAppointment() {
 }
 
 ```
-## Package content
+
+## Package contents
