@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTempl
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -54,13 +53,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     private List<String> pkgNameComps;
     private String pkgVersion;
-    private boolean distributedTransactionEnabled;
 
     BLangParserListener(CompilerContext context, CompilationUnitNode compUnit,
                         BDiagnosticSource diagnosticSource) {
         this.pkgBuilder = new BLangPackageBuilder(context, compUnit);
         this.diagnosticSrc = diagnosticSource;
-        this.distributedTransactionEnabled = CompilerUtils.isDistributedTransactionsEnabled();
     }
 
     @Override
@@ -1626,7 +1623,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.endTransactionStmt(getCurrentPos(ctx), getWS(ctx), this.distributedTransactionEnabled);
+        this.pkgBuilder.endTransactionStmt(getCurrentPos(ctx), getWS(ctx));
     }
 
     /**
