@@ -15,7 +15,7 @@
 // under the License.
 
 documentation {
-    PushPromise represents a HTTP/2 PUSH_PROMISE frame.
+    `PushPromise` represents a HTTP/2 PUSH_PROMISE frame.
 
     F{{path}} The resource path
     F{{method}} The HTTP method
@@ -27,7 +27,7 @@ public type PushPromise object {
     }
 
     documentation {
-        Constructs a PushPromise from a given path and a method.
+        Constructs a `PushPromise` from a given path and a method.
 
         P{{path}} The resource path
         P{{method}} The HTTP method
@@ -53,7 +53,7 @@ public type PushPromise object {
     public native function getHeader (string headerName) returns (string);
 
     documentation {
-        Gets transport headers from the Push Promise.
+        Gets transport headers from the `PushPromise`.
 
         P{{headerName}} The header name
         R{{}} The array of header values
@@ -61,7 +61,7 @@ public type PushPromise object {
     public native function getHeaders (string headerName) returns (string[]);
 
     documentation {
-        Adds the specified key/value pair as an HTTP header to the Push Promise.
+        Adds the specified key/value pair as an HTTP header to the `PushPromise`.
 
         P{{headerName}} The header name
         P{{headerValue}} The header value
@@ -69,7 +69,7 @@ public type PushPromise object {
     public native function addHeader (string headerName, string headerValue);
 
     documentation {
-        Sets the value of a transport header in Push Promise.
+        Sets the value of a transport header in `PushPromise`.
 
         P{{headerName}} The header name
         P{{headerValue}} The header value
@@ -77,19 +77,19 @@ public type PushPromise object {
     public native function setHeader (string headerName, string headerValue);
 
     documentation {
-        Removes a transport header from the Push Promise.
+        Removes a transport header from the `PushPromise`.
 
         P{{headerName}} The header name
     }
     public native function removeHeader (string headerName);
 
     documentation {
-        Removes all transport headers from the Push Promise.
+        Removes all transport headers from the `PushPromise`.
     }
     public native function removeAllHeaders ();
 
     documentation {
-        Gets all transport header names from the Push Promise.
+        Gets all transport header names from the `PushPromise`.
 
         R{{}} An array of all transport header names
     }
