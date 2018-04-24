@@ -27,7 +27,7 @@ service<http:Service> chatAppUpgrader bind {port: 9090} {
     }
 }
 
-// The map to stores connection ids of users who joined the chat.
+// Stores the connection IDs of users who join the chat.
 map<http:WebSocketListener> consMap;
 
 service<http:WebSocketService> chatApp {
