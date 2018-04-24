@@ -183,6 +183,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                     channelFuture.channel().deregister().addListener(future -> {
                         if (srcHandler != null) {
                             srcHandler.getEventLoop().register(channelFuture.channel()).addListener(future1 -> {
+
                                 if (protocol.equalsIgnoreCase(Constants.HTTP2_CLEARTEXT_PROTOCOL) ||
                                         protocol.equalsIgnoreCase(Constants.HTTP2_TLS_PROTOCOL)) {
 
