@@ -5,12 +5,12 @@ import ballerina/grpc;
 function main(string... args) {
     // Client endpoint configuration
     endpoint HelloWorldBlockingClient helloWorldBlockingEp {
-        url:"http://localhost:9090"
+        url: "http://localhost:9090"
     };
 
     //Working with custom headers
     grpc:Headers headers = new;
-    headers.setEntry("x-id", "0987654321");
+    headers.setEntry("Keep-Alive", "300");
 
     // Executing unary blocking call
     var unionResp = helloWorldBlockingEp->hello("WSO2", headers);
@@ -21,7 +21,7 @@ function main(string... args) {
             (result, resHeaders) = payload;
             io:println("Client Got Response : ");
             io:println(payload);
-            string headerValue = resHeaders.get("x-id") but { () => "none" };
+            string? headerValue = resHeaders.get("Host");
             io:println("Headers: " + headerValue);
         }
         error err => {

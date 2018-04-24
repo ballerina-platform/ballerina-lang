@@ -1,88 +1,78 @@
 import ballerina/math;
 import ballerina/http;
 import ballerina/log;
+import ballerina/transactions;
 
 // This is the initiator of the distributed transaction.
-endpoint http:ServiceEndpoint initiatorEP {
-    port:8080
-};
+
 @http:ServiceConfig {
-    basePath:"/"
+    basePath: "/"
 }
-service<http:Service> InitiatorService bind initiatorEP{
+service<http:Service> InitiatorService bind {port: 8080} {
 
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/"
+        methods: ["GET"],
+        path: "/"
     }
-    init (http:Connection conn, http:Request req) {
+    init(endpoint conn, http:Request req) {
         http:Response res = new;
         log:printInfo("Initiating transaction...");
 
         // When the transaction statement starts, a distributed transaction context is created.
-        transaction {
+        transaction with oncommit = printCommit, onabort = printAbort {
+        // Print the current transaction ID
+            log:printInfo("Started transaction: " + transactions:getCurrentTransactionId());
+
             // When a participant is called, the transaction context is propagated, and that participant
             // gets infected and joins the distributed transaction.
             boolean successful = callBusinessService();
             if (successful) {
-                res = {statusCode:200};
+                res.statusCode = http:OK_200;
             } else {
-                res = {statusCode:500};
+                res.statusCode = http:INTERNAL_SERVER_ERROR_500;
+                abort;
             }
         }
         // As soon as the transaction block ends, the `2-phase commit coordination` protocol will run. All participants
         // are prepared and depending on the join outcome, either a `notify commit` or `notify abort` will
         // be sent to the participants.
 
-        var err = conn.respond(res);
-        if (err != null) {
-            log:printErrorCause("Could not send response back to client", err);
-        } else {
-            log:printInfo("Sent response back to client");
+        var result = conn->respond(res);
+        match result {
+            error e => log:printError("Could not send response back to client", err = e);
+            () => log:printInfo("Sent response back to client");
         }
     }
 }
 
-function callBusinessService () returns (boolean) {
-    endpoint<BizClient> participantEP {
-        create BizClient();
-    }
+// The initiator function which will get called when the distributed transaction is aborted
+function printAbort(string transactionId) {
+    log:printInfo("Initiated transaction: " + transactionId + " aborted");
+}
+
+// The initiator function which will get called when the distributed transaction is committed
+function printCommit(string transactionId) {
+    log:printInfo("Initiated transaction: " + transactionId + " committed");
+}
+
+function callBusinessService() returns boolean {
+    endpoint http:Client participantEP {
+        url: "http://localhost:8889/stockquote/update"
+    };
 
     boolean successful;
 
     float price = math:randomInRange(200, 250) + math:random();
-    json bizReq = {symbol:"GOOG", price:price};
-    var _, e = participantEP.updateStock(bizReq, "127.0.0.1", 8889);
-    if (e != null) {
-        successful = false;
-    } else {
-        successful = true;
+    json bizReq = {symbol: "GOOG", price: price};
+    http:Request req = new;
+    req.setJsonPayload(bizReq);
+    var result = participantEP->post("", request = req);
+    log:printInfo("Got response from bizservice");
+    match result {
+        http:Response res => {
+            successful = (res.statusCode == http:OK_200) ? true : false;
+        }
+        error => successful = false;
     }
     return successful;
-}
-
-public connector BizClient () {
-
-    action updateStock (json bizReq, string host, int port) returns (json jsonRes, error err) {
-        endpoint<http:HttpClient> bizEP {
-            create http:HttpClient("http://" + host + ":" + port + "/stockquote/update", {});
-        }
-        http:Request req = new;
-        req.setJsonPayload(bizReq);
-        var res, e = bizEP.post("", req);
-        log:printInfo("Got response from bizservice");
-        if (e == null) {
-            if (res.statusCode != 200) {
-                err = {message:"Error occurred"};
-            } else {
-                jsonRes, payloadError = res.getJsonPayload();
-                if (payloadError != null) {
-                    err = (error)payloadError;
-                }
-            }
-        } else {
-            err = (error)e;
-        }
-        return;
-    }
 }

@@ -6,12 +6,12 @@ import ballerina/runtime;
 int app1Count;
 task:Appointment? appointment1;
 
-function main (string... args) {
+function main(string... args) {
     worker w1 {
         log:printInfo("------- Scheduling Appointments ----------------");
 
-        (function() returns error?) onTriggerFunction =  appointment1Cleanup;
-        (function(error )) onErrorFunction = cleanupError;
+        (function() returns error?) onTriggerFunction = appointment1Cleanup;
+        (function(error)) onErrorFunction = cleanupError;
 
         //job 1 runs every 20 seconds.
         appointment1 = new task:Appointment(onTriggerFunction, onErrorFunction, "0/20 * * * * ?");
@@ -19,7 +19,7 @@ function main (string... args) {
 
         //job 2 runs every other minute (at 15 seconds past the minute).
         onTriggerFunction = appointment2Cleanup;
-        task:Appointment appointment2 = new task:Appointment(onTriggerFunction, onErrorFunction,"15 0/2 * * * ?");
+        task:Appointment appointment2 = new task:Appointment(onTriggerFunction, onErrorFunction, "15 0/2 * * * ?");
         appointment2.schedule();
 
         //job 3 runs every other minute but only between 8am and 5pm.
@@ -39,19 +39,21 @@ function main (string... args) {
 
         //job 6 runs every 30 seconds but only on weekdays (i.e., Monday through Friday).
         onTriggerFunction = appointment6Cleanup;
-        task:Appointment appointment6 = new task:Appointment(onTriggerFunction, onErrorFunction, "0,30 * * ? * MON-FRI");
+        task:Appointment appointment6 = new task:Appointment(onTriggerFunction, onErrorFunction, "0,30 * * ? * MON-FRI")
+        ;
         appointment6.schedule();
 
         //job 7 runs every 30 seconds but only on weekends (i.e., Saturday and Sunday).
         onTriggerFunction = appointment7Cleanup;
-        task:Appointment appointment7 = new task:Appointment(onTriggerFunction, onErrorFunction, "0,30 * * ? * SAT,SUN");
+        task:Appointment appointment7 = new task:Appointment(onTriggerFunction, onErrorFunction, "0,30 * * ? * SAT,SUN")
+        ;
         appointment7.schedule();
 
         runtime:sleep(600000); // Temporary workaround to stop the process from exiting.
     }
 }
 
-function appointment1Cleanup () returns (error?) {
+function appointment1Cleanup() returns (error?) {
     log:printInfo("Appointment#1 cleanup running...");
     app1Count = app1Count + 1;
     if (app1Count == 5) {
@@ -62,32 +64,32 @@ function appointment1Cleanup () returns (error?) {
     return cleanup();
 }
 
-function appointment2Cleanup () returns (error?) {
+function appointment2Cleanup() returns (error?) {
     log:printInfo("Appointment#2 cleanup running...");
     return cleanup();
 }
 
-function appointment3Cleanup () returns (error?) {
+function appointment3Cleanup() returns (error?) {
     log:printInfo("Appointment#3 cleanup running...");
     return cleanup();
 }
 
-function appointment4Cleanup () returns (error?) {
+function appointment4Cleanup() returns (error?) {
     log:printInfo("Appointment#4 cleanup running...");
     return cleanup();
 }
 
-function appointment5Cleanup () returns (error?) {
+function appointment5Cleanup() returns (error?) {
     log:printInfo("Appointment#5 cleanup running...");
     return cleanup();
 }
 
-function appointment6Cleanup () returns (error?) {
+function appointment6Cleanup() returns (error?) {
     log:printInfo("Appointment#6 cleanup running...");
     return cleanup();
 }
 
-function appointment7Cleanup () returns (error?) {
+function appointment7Cleanup() returns (error?) {
     log:printInfo("Appointment#7 cleanup running...");
     return cleanup();
 }
@@ -95,12 +97,12 @@ function appointment7Cleanup () returns (error?) {
 function cleanup() returns (error?) {
     log:printInfo("Cleaning up");
     if (math:randomInRange(0, 10) == 5) {
-        error e = {message:"Cleanup error"};
+        error e = {message: "Cleanup error"};
         return e;
     }
     return ();
 }
 
-function cleanupError (error e) {
-    log:printError("[ERROR] cleanup failed", err=e);
+function cleanupError(error e) {
+    log:printError("[ERROR] cleanup failed", err = e);
 }
