@@ -45,8 +45,8 @@ public type Listener object {
 documentation {
     Represents configurations that required for directory listener.
 
-    F{{path}}  Directory path which need to listern
-    F{{recursive}} Recursively monitor all sub folders or not in the given direcotry path. Default is false
+    F{{path}}  Directory path which need to listen
+    F{{recursive}} Recursively monitor all sub folders or not in the given direcotry path
 }
 public type ListenerEndpointConfiguration {
     string path,
