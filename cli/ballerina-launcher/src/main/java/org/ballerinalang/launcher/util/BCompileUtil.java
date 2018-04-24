@@ -237,7 +237,7 @@ public class BCompileUtil {
      * @return Semantic errors
      */
     public static CompileResult compileWithTests(String sourceRoot, String packageName, CompilerPhase compilerPhase) {
-        //includeTests = "true";
+        includeTests = "true";
         return compile(sourceRoot, packageName, compilerPhase);
     }
 
