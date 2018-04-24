@@ -1,119 +1,149 @@
-import ballerina/sql;
-import ballerina/mysql;
 import ballerina/io;
 
-@Description {value:
-"This is a type called 'Employee'. The field names of this type should match the column names of the table and
-the field types should match the sql types."
-}
-type Employee {
+// This type represents a person.
+type Person {
     int id,
-    string name,
+    int age = -1,
     float salary,
-    boolean status,
-    string birthdate,
-    string birthtime,
-    string updated,
+    string name,
+    boolean married,
 };
 
+// This type represents an order.
+type Order {
+    int personId,
+    int orderId,
+    string items,
+    float amount,
+};
+
+// This type represents the summed up order details.
+type SummedOrder {
+    int personId,
+    float amount,
+};
+
+// This type represents order details (this is derived by joining the person details and the order details).
+type OrderDetails {
+    int orderId,
+    string personName,
+    string items,
+    float amount,
+};
+
+
+type PersonPublicProfile {
+    string knownName,
+    int age = -1,
+};
+
+// main function
 function main(string... args) {
 
-    endpoint mysql:Client testDB {
-        host: "localhost",
-        port: 3306,
-        name: "testdb",
-        username: "root",
-        password: "root",
-        poolOptions: {maximumPoolSize: 5},
-        dbOptions: {useSSL: false}
-    };
+    // The in-memory table which is constrained by the `Person` struct. 
+    table<Person> personTable = table{};
+    // The in-memory table which is constrained by the `Order` struct. 
+    table<Order> orderTable = table{};
 
-    int count;
-    table dt;
-    int ret;
+    // A few sample values which represent different persons. 
+    Person p1 = {id: 1, age: 25, salary: 1000.50, name: "jane", married: true};
+    Person p2 = {id: 2, age: 26, salary: 1050.50, name: "kane", married: false};
+    Person p3 = {id: 3, age: 27, salary: 1200.50, name: "jack", married: true};
+    Person p4 = {id: 4, age: 28, salary: 1100.50, name: "alex", married: false};
 
-    // Create a table named EMPLOYEE and populate it with sample data.
-    var returnValue = testDB->update("CREATE TABLE EMPLOYEE (id INT,name
-        VARCHAR(25),salary DOUBLE,status BOOLEAN,birthdate DATE,birthtime TIME,
-        updated TIMESTAMP)");
+    // A few sample values which represent orders made by the persons listed above. 
+    Order o1 = {personId: 1, orderId: 1234, items: "pen, book, eraser", amount: 34.75};
+    Order o2 = {personId: 1, orderId: 2314, items: "dhal, rice, carrot", amount: 14.75};
+    Order o3 = {personId: 2, orderId: 5643, items: "Macbook Pro", amount: 2334.75};
+    Order o4 = {personId: 3, orderId: 8765, items: "Tshirt", amount: 20.75};
 
-    match returnValue {
-        int val => count = val;
-        error e => io:println("Error in executing CREATE TABLE EMPLOYEE");
-    }
+    // Insert the `Person` struct objects and populate the table.
+    _ = personTable.add(p1);
+    _ = personTable.add(p2);
+    _ = personTable.add(p3);
+    _ = personTable.add(p4);
 
-    returnValue = testDB->update("INSERT INTO EMPLOYEE VALUES(1, 'John', 1050.50, false,
-        '1990-12-31', '11:30:45', '2007-05-23 09:15:28')");
+    io:print("The personTable: ");
+    json personJson = check <json>personTable;
+    io:println(personJson);
 
-    match returnValue {
-        int val => count = val;
-        error e => io:println("Error in executing INSERT INTO EMPLOYEE");
-    }
+    // Insert the `Order` struct objects and populate the table.
+    _ = orderTable.add(o1);
+    _ = orderTable.add(o2);
+    _ = orderTable.add(o3);
+    _ = orderTable.add(o4);
 
-    returnValue = testDB->update("INSERT INTO EMPLOYEE VALUES(2, 'Anne', 4060.50, true,
-        '1999-12-31', '13:40:24', '2017-05-23 09:15:28')");
+    io:print("\nThe orderTable: ");
+    json orderJson = check <json>orderTable;
+    io:println(orderJson);
 
-    match returnValue {
-        int val => count = val;
-        error e => io:println("Error in executing INSERT INTO EMPLOYEE");
-    }
+    // Querying a table will always return a new in-memory table.
 
-    // Query the table using the SQL connector 'select' action. Either the 'select'
-    // or 'call' action returns a table.
-    var returnVal = testDB->select("SELECT * from EMPLOYEE", Employee);
+    // 1. Query all records from a table and return it as another in-memory table.
+    table<Person> personTableCopy = from personTable
+    select *;
+    io:println("\ntable<Person> personTableCopy = from personTable select *;");
+    io:print("personTableCopy: ");
+    json personJsonCopy = check <json>personTableCopy;
+    io:println(personJson);
 
-    match returnVal {
-        table val => dt = val;
-        error e => io:println("Error in executing SELECT * from EMPLOYEE");
-    }
+    // 2. Query all records in ascending order of salary.
+    table<Person> orderedPersonTableCopy = from personTable
+    select * order by salary;
+    io:println("\ntable<Person> orderedPersonTableCopy = from personTable select * order by salary;");
+    io:print("orderedPersonTableCopy: ");
+    json orderJsonCopy = check <json>orderedPersonTableCopy;
+    io:println(orderJson);
 
-    // Iterate through the result until hasNext() becomes false and retrieve
-    // the data record corresponding to each row.
-    while (dt.hasNext()) {
-        var returnedNextRec = <Employee>dt.getNext();
-        match returnedNextRec {
-            Employee rs => {
-                io:println("Employee:" + rs.id + "|" + rs.name + "|" + rs.salary +
-                        "|" + rs.status + "|" + rs.birthdate + "|"
-                        + rs.birthtime + "|" + rs.updated);
-            }
-            error e => io:println("Error in retrieving next record");
-        }
-    }
+    // 3. Query all records from a table and return it as another in-memory table.
+    table<Person> personTableCopyWithFilter = from personTable where name == "jane"
+    select *;
+    io:println("\ntable<Person> personTableCopyWithFilter = from personTable where name == 'jane' select *;");
+    io:print("personTableCopyWithFilter: ");
+    json personTableWithFilterJson = check <json>personTableCopyWithFilter;
+    io:println(personTableWithFilterJson);
 
-    // Conversion from type 'table' to either JSON or XML results in data streaming. When a service client makes a request,
-    // the result is streamed to the service client rather than building the full result in the server
-    // and returning it. This allows unlimited payload sizes in the result and
-    // the response is instantaneous to the client. <br>
-    // Convert a table to JSON.
-    var returnVal2 = testDB->select("SELECT id,name FROM EMPLOYEE", ());
-    match returnVal2 {
-        table val => dt = val;
-        error e => io:println("Error in executing SELECT id,name FROM EMPLOYEE");
-    }
+    // 4. Query only new fields from a table and return it as a new in-memory table constrained by a different struct.
+    table<PersonPublicProfile> childTable = from personTable
+    select name as knownName, age;
+    io:println("\ntable<PersonPublicProfile > childTable = from personTable select name as knownName, age;");
+    io:print("childTable: ");
+    json childJson = check <json>childTable;
+    io:println(childJson);
 
-    json jsonRes = check <json>dt;
-    io:println(jsonRes);
+    // 5. Use the `group by` clause on a table and return a new table with the result.
+    table<SummedOrder> summedOrderTable = from orderTable
+    select personId, sum(amount) group by personId;
+    io:println("\ntable<SummedOrder> summedOrderTable = from orderTable select personId, sum(amount) group by
+    personId;");
+    io:print("summedOrderTable: ");
+    json summedOrderJson = check <json>summedOrderTable;
+    io:println(summedOrderJson);
 
-    // Convert a table to XML.
-    var returnVal3 = testDB->select("SELECT id,name FROM EMPLOYEE", ());
+    // 6. Join a table with another table and return the selected fields in a table constrained by a different struct.
+    table<OrderDetails> orderDetailsTable = from personTable as tempPersonTable
+    join orderTable as tempOrderTable on tempPersonTable.id == tempOrderTable.personId
+    select tempOrderTable.orderId as orderId, tempPersonTable.name as personName, tempOrderTable.items as
+    items, tempOrderTable.amount as amount;
+    io:println("\ntable<OrderDetails> orderDetailsTable = from personTable as tempPersonTable
+            join orderTable as tempOrderTable on tempPersonTable.id == tempOrderTable.personId
+            select tempOrderTable.orderId as orderId, tempPersonTable.name as personName, tempOrderTable.items as
+            items, tempOrderTable.amount as amount;");
+    io:print("orderDetailsTable: ");
+    json orderDetailsJson = check <json>orderDetailsTable;
+    io:println(orderDetailsJson);
 
-    match returnVal3 {
-        table val => dt = val;
-        error e => io:println("Error in executing SELECT id,name FROM EMPLOYEE");
-    }
-
-    xml xmlRes = check <xml>dt;
-    io:println(xmlRes);
-
-    // Drop the EMPLOYEE table.
-    var returnVal4 = testDB->update("DROP TABLE EMPLOYEE");
-    match returnVal4 {
-        int val => ret = val;
-        error e => io:println("Error in executing DROP TABLE EMPLOYEE");
-    }
-    io:println("Table drop status:" + ret);
-
-    // Finally close the DB connection.
-    testDB.stop();
+    // 7. Join a table with another table using the `where` clause and return the selected fields in a 
+    // table constrained by a different struct.
+    table<OrderDetails> orderDetailsWithFilter = from personTable where name != "jane" as tempPersonTable
+    join orderTable where personId != 3 as tempOrderTable on tempPersonTable.id == tempOrderTable.personId
+    select tempOrderTable.orderId as orderId, tempPersonTable.name as personName, tempOrderTable.items as items,
+    tempOrderTable.amount as amount;
+    io:println("\ntable<OrderDetails> orderDetailsWithFilter = from personTable where name != 'jane' as tempPersonTable
+        join orderTable where personId != 3 as tempOrderTable on tempPersonTable.id == tempOrderTable.personId
+        select tempOrderTable.orderId as orderId, tempPersonTable.name as personName, tempOrderTable.items as items,
+        tempOrderTable.amount as amount;");
+    io:print("orderDetailsWithFilter: ");
+    json orderDetailsWithFilterJson = check <json>orderDetailsWithFilter;
+    io:println(orderDetailsWithFilterJson);
 }

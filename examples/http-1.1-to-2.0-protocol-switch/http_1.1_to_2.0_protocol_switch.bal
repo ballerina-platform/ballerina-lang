@@ -1,10 +1,6 @@
 import ballerina/http;
 import ballerina/log;
 
-endpoint http:Listener http11ServiceEP {
-    port: 9090
-};
-
 endpoint http:Client http2serviceClientEP {
     url: "http://localhost:7090",
     // HTTP version is set to 2.0.
@@ -14,7 +10,7 @@ endpoint http:Client http2serviceClientEP {
 @http:ServiceConfig {
     basePath: "/http11Service"
 }
-service http11Service bind http11ServiceEP {
+service<http:Service> http11Service bind {port: 9090} {
 
     @http:ResourceConfig {
         path: "/"
@@ -22,6 +18,7 @@ service http11Service bind http11ServiceEP {
     http11Resource(endpoint caller, http:Request clientRequest) {
         // Forward the clientRequest to http2 service.
         var clientResponse = http2serviceClientEP->forward("/http2service", clientRequest);
+
         http:Response response = new;
         match clientResponse {
             http:Response resultantResponse => {
@@ -31,11 +28,13 @@ service http11Service bind http11ServiceEP {
                 // Handle if there is an error returned from the forward function invocation.
                 response.statusCode = 500;
                 response.setPayload(err.message);
+
             }
         }
         // Send the response back to the caller.
         caller->respond(response) but {
             error e => log:printError("Error occurred while sending the response", err = e) };
+
     }
 }
 

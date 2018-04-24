@@ -5,7 +5,6 @@ import ballerina/transactions;
 
 // This service is a participant in the distributed transaction. It will get infected when it receives a transaction
 // context from the participant. The transaction context, in the HTTP case, will be passed in as custom HTTP headers.
-
 @http:ServiceConfig {
     basePath:"/stockquote"
 }

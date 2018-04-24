@@ -1,13 +1,10 @@
 import ballerina/http;
-
-endpoint http:Listener helloServiceEP {
-    port: 9095
-};
+import ballerina/log;
 
 @http:ServiceConfig {
     basePath: "/hello"
 }
-service<http:Service> helloService bind helloServiceEP {
+service<http:Service> helloService bind {port: 9095} {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
@@ -15,6 +12,6 @@ service<http:Service> helloService bind helloServiceEP {
     hello(endpoint caller, http:Request request) {
         http:Response response = new;
         response.setPayload("Successful");
-        _ = caller->respond(response);
+        caller->respond(response) but { error e => log:printError("Error when responding", err = e) };
     }
 }

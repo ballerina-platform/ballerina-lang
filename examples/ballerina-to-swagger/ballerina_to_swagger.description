@@ -1,0 +1,4 @@
+// Ballerina to Swagger tool can be used to export Open Api Specification(OAS) v3 definition of a ballerina service.
+// This tool accepts following command line arguments,
+// -s | --service name of a specific service to export if provided file contain multiple services.
+// -o | --output destination path to write exported OAS definition
