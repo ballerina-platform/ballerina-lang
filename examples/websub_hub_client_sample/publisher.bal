@@ -4,7 +4,7 @@ import ballerina/log;
 import ballerina/runtime;
 import ballerina/websub;
 
-function main (string... args) {
+function main(string... args) {
 
     // Start up the internal Ballerina Hub.
     log:printInfo("Starting up the Ballerina Hub Service");
@@ -22,7 +22,7 @@ function main (string... args) {
 
     // Publish directly to the internal Ballerina Hub.
     var publishResponse = webSubHub.publishUpdate("http://www.websubpubtopic.com",
-                                                                        { "action": "publish", "mode": "internal-hub"});
+                                                                    { "action": "publish", "mode": "internal-hub" });
     match (publishResponse) {
         error webSubError => log:printError("Error notifying hub: " + webSubError.message);
         () => log:printInfo("Update notification successful!");
@@ -33,7 +33,7 @@ function main (string... args) {
 
     // Publish directly to the internal Ballerina Hub.
     publishResponse = webSubHub.publishUpdate("http://www.websubpubtopic.com",
-                                                                        { "action": "publish", "mode": "internal-hub"});
+                                                                    { "action": "publish", "mode": "internal-hub" });
     match (publishResponse) {
         error webSubError => log:printError("Error notifying hub: " + webSubError.message);
         () => log:printInfo("Update notification successful!");
