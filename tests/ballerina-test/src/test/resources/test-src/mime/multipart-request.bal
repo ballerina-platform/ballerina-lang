@@ -4,7 +4,7 @@ import ballerina/mime;
 
 function setErrorResponse(http:Response response,  mime:EntityError err) {
     response.statusCode = 500;
-    response.setStringPayload(err.message);
+    response.setTextPayload(err.message);
 }
 
 endpoint http:NonListener mockEP {
@@ -124,7 +124,7 @@ service<http:Service> test bind mockEP {
                     content = content + " -- " + handleContent(part);
                     i = i + 1;
                 }
-                response.setStringPayload(content);
+                response.setTextPayload(content);
             }
         }
         _ = caller -> respond(response);
@@ -138,10 +138,10 @@ service<http:Service> test bind mockEP {
         http:Response response = new;
         match (request.getBodyParts()) {
             mime:EntityError err => {
-                response.setStringPayload(err.message);
+                response.setTextPayload(err.message);
             }
             mime:Entity[] entity => {
-                response.setStringPayload("Body parts detected!");
+                response.setTextPayload("Body parts detected!");
             }
         }
         _ = caller -> respond(response);
@@ -165,7 +165,7 @@ service<http:Service> test bind mockEP {
                     payload = handleNestedParts(part);
                     i = i + 1;
                 }
-                response.setStringPayload(payload);
+                response.setTextPayload(payload);
             }
         }
         _ = caller -> respond(response);

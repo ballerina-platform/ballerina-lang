@@ -33,6 +33,8 @@ public class Flags {
     public static final int READONLY = 32;
     public static final int FUNCTION_FINAL = 64;
     public static final int INTERFACE = 128;
+    public static final int DEFAULTABLE_CHECKED = 256;
+    public static final int DEFAULTABLE = 512;
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
@@ -61,6 +63,12 @@ public class Flags {
                     break;
                 case INTERFACE:
                     mask |= INTERFACE;
+                    break;
+                case DEFAULTABLE_CHECKED:
+                    mask |= DEFAULTABLE_CHECKED;
+                    break;
+                case DEFAULTABLE:
+                    mask |= DEFAULTABLE;
                     break;
             }
         }

@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.970.0-beta13-SNAPSHOT</version>
+    <version>0.970.0-beta14-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -1101,7 +1101,12 @@
                 <module>tests/ballerina-test-compiler-plugins</module>
                 <module>tool-plugins/intellij</module>
                 <module>tool-plugins/vscode</module>
+
+                <module>benchmarks</module>
             </modules>
+            <properties>
+                <skipBenchmarks>true</skipBenchmarks>
+            </properties>
         </profile>
         <profile>
             <id>ballerina</id>
@@ -1519,7 +1524,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.970.0-beta13-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.970.0-beta14-SNAPSHOT</ballerina.version>
         <npm.executable>npm</npm.executable>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
@@ -1598,7 +1603,7 @@
         <jackson-core.version>2.8.6</jackson-core.version>
         <apache.mina.core>2.0.16</apache.mina.core>
         <mimepull.version>1.9.7</mimepull.version>
-        <broker.version>0.1.55</broker.version>
+        <broker.version>0.1.66</broker.version>
         <netty-tcnative-boringssl-static.version>2.0.7.Final</netty-tcnative-boringssl-static.version>
 
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>

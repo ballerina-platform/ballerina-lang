@@ -23,7 +23,7 @@ import { Button } from 'semantic-ui-react';
 import Dialog from 'core/view/Dialog';
 
 /**
- * Ask user's confirmation to open the program directory related to file
+ * Ask user's confirmation to open the project directory related to file
  * that he/she recently opened.
  *
  * @extends React.Component
@@ -61,7 +61,7 @@ class OpenProgramDirConfirmDialog extends React.Component {
         return (
             <Dialog
                 show={this.state.showDialog}
-                title='Open Program Directory'
+                title='Open Project Directory'
                 titleIcon='info circle'
                 size='small'
                 actions={
@@ -83,10 +83,10 @@ class OpenProgramDirConfirmDialog extends React.Component {
                 error={this.state.error}
             >
                 <h4>
-                    {`File "${file.name + '.' + file.extension}" resides within a program directory.`}
+                    {`File "${file.name + '.' + file.extension}" resides within a Project Directory.`}
                 </h4>
                 <p>
-                    {`Do you want to open the program directory at ${programDirPath}?`}
+                    {`Do you want to open the project directory at ${programDirPath}?`}
                 </p>
             </Dialog>
         );

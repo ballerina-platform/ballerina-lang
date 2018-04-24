@@ -34,20 +34,12 @@ import java.util.StringJoiner;
  */
 public class BFiniteType extends BType implements FiniteType {
 
-    public Set<BType> memberTypes;
     public Set<BLangExpression> valueSpace;
 
     public BFiniteType(BTypeSymbol tsymbol,
-                       Set<BType> memberTypes,
                        Set<BLangExpression> valueSpace) {
         super(TypeTags.FINITE, tsymbol);
-        this.memberTypes = memberTypes;
         this.valueSpace = valueSpace;
-    }
-
-    @Override
-    public Set<BType> getMemberTypes() {
-        return memberTypes;
     }
 
     @Override
@@ -69,7 +61,6 @@ public class BFiniteType extends BType implements FiniteType {
     @Override
     public String toString() {
         StringJoiner joiner = new StringJoiner("|");
-        this.memberTypes.forEach(memberType -> joiner.add(memberType.toString()));
         this.valueSpace.forEach(value -> joiner.add(value.toString()));
         return joiner.toString();
     }

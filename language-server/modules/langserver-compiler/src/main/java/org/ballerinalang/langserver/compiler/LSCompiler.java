@@ -233,10 +233,10 @@ public class LSCompiler {
 
         // In order to capture the syntactic errors, need to go through the default error strategy
         context.put(DefaultErrorStrategy.class, null);
-        return LSCompiler.compile(packageID, pkgName, path, context);
+        return LSCompiler.compile(pkgName, path, context);
     }
 
-    private static BallerinaFile compile(PackageID packageID, String packageName, Path path, CompilerContext context) {
+    private static BallerinaFile compile(String packageName, Path path, CompilerContext context) {
         CompilerOptions options = CompilerOptions.getInstance(context);
         String sourceRoot = options.get(PROJECT_DIR);
         BLangPackage bLangPackage = null;
@@ -248,7 +248,7 @@ public class LSCompiler {
             BLangDiagnosticLog.getInstance(context).errorCount = 0;
             Compiler compiler = Compiler.getInstance(context);
             bLangPackage = compiler.compile(packageName);
-            LSPackageCache.getInstance(context).invalidate(packageID);
+            LSPackageCache.getInstance(context).invalidate(bLangPackage.packageID);
         } catch (RuntimeException e) {
             // Ignore.
         }
@@ -315,8 +315,9 @@ public class LSCompiler {
                                     LSCompiler.prepareCompilerContext(packageID, packageRepository, sourceDocument,
                                                                       preserveWhitespace, docManager);
                             Compiler compiler = getCompiler(context, fileName, compilerContext, customErrorStrategy);
-                            packages.add(compiler.compile(file.getName()));
-                            LSPackageCache.getInstance(compilerContext).invalidate(packageID);
+                            BLangPackage bLangPackage = compiler.compile(file.getName());
+                            packages.add(bLangPackage);
+                            LSPackageCache.getInstance(compilerContext).invalidate(bLangPackage.packageID);
                         }
                     }
                 }
@@ -333,8 +334,9 @@ public class LSCompiler {
                     LSCompiler.prepareCompilerContext(packageID, packageRepository, sourceDocument,
                                                       preserveWhitespace, docManager);
             Compiler compiler = getCompiler(context, fileName, compilerContext, customErrorStrategy);
-            packages.add(compiler.compile(pkgName));
-            LSPackageCache.getInstance(compilerContext).invalidate(packageID);
+            BLangPackage bLangPackage = compiler.compile(pkgName);
+            packages.add(bLangPackage);
+            LSPackageCache.getInstance(compilerContext).invalidate(bLangPackage.packageID);
         }
         return packages;
     }

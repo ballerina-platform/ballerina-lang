@@ -41,9 +41,6 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
     public BVarSymbol receiverSymbol;
     public boolean bodyExist;
 
-//    public int requiredParamsCount;
-//    public int defaultableParamsCount;
-
     public BInvokableSymbol(int tag,
                             int flags,
                             Name name,

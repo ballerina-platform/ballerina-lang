@@ -426,7 +426,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         if (!(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext)) {
-            this.pkgBuilder.addAnonObjectType(getCurrentPos(ctx), getWS(ctx));
+            // check whether this anon object is defined as a global var or as as function return param
+            boolean isFieldAnalyseRequired =
+                    (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
+                            ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext);
+            this.pkgBuilder.addAnonObjectType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired);
         }
     }
 
@@ -1034,6 +1038,20 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         this.pkgBuilder.addCompoundAssignmentStatement(getCurrentPos(ctx), getWS(ctx),
                 ctx.compoundOperator().getText().substring(0, 1));
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override
+    public void exitCompoundOperator(BallerinaParser.CompoundOperatorContext ctx) {
+        if (ctx.exception != null) {
+           return;
+        }
+
+        this.pkgBuilder.addCompoundOperator(getWS(ctx));
     }
 
     /**

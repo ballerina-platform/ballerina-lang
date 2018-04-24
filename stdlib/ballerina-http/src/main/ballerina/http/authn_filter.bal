@@ -27,7 +27,7 @@ public type AuthnFilter object {
         AuthnHandlerChain authnHandlerChain;
     }
 
-    new (authnHandlerChain) {}
+    public new (authnHandlerChain) {}
     
     @Description {value:"filterRequest: Request filter function"}
     public function filterRequest (Request request, FilterContext context) returns FilterResult {

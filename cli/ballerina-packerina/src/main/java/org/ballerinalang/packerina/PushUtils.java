@@ -121,7 +121,7 @@ public class PushUtils {
             String resourcePath = resolvePkgPathInRemoteRepo(packageID);
             String msg = orgName + "/" + packageName + ":" + version + " [project repo -> central]";
             EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
-            executor.execute("packaging.push/ballerina.push.balx", accessToken, mdFileContent, description,
+            executor.execute("packaging_push/packaging_push.balx", accessToken, mdFileContent, description,
                              homepageURL, repositoryURL, apiDocURL, authors, keywords, license, resourcePath,
                              pkgPathFromPrjtDir.toString(), msg);
 
@@ -167,7 +167,7 @@ public class PushUtils {
      * @return full URI path of the package relative to the remote repo
      */
     private static String resolvePkgPathInRemoteRepo(PackageID packageID) {
-        Repo<URI> remoteRepo = new RemoteRepo(URI.create("https://api.central.ballerina.io/packages/"));
+        Repo<URI> remoteRepo = new RemoteRepo(URI.create(RepoUtils.getRemoteRepoURL()));
         Patten patten = remoteRepo.calculate(packageID);
         if (patten == Patten.NULL) {
             throw new BLangCompilerException("Couldn't find package " + packageID.toString());
