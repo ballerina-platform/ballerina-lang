@@ -56,7 +56,7 @@ public class PathConverter implements Converter<Path> {
     public Stream<Path> expandBalWithTest(Path path) {
         if (Files.isDirectory(path)) {
             try {
-                return Files.find(path, Integer.MAX_VALUE, PathConverter::isBalWithTest);
+                return Files.find(path, Integer.MAX_VALUE, PathConverter::isBalWithTest).sorted();
             } catch (IOException ignore) {
             }
         }
@@ -69,7 +69,7 @@ public class PathConverter implements Converter<Path> {
             try {
                 FilterSearch filterSearch = new FilterSearch(Paths.get(ProjectDirConstants.TEST_DIR_NAME));
                 Files.walkFileTree(path, filterSearch);
-                return filterSearch.getPathList().stream();
+                return filterSearch.getPathList().stream().sorted();
             } catch (IOException ignore) {
             }
         }
