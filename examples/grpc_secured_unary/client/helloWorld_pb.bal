@@ -1,8 +1,8 @@
-// This is an auto generated client stub which is used to connect to gRPC server.
+// This is server implementation for secured connection (HTTPS) scenario
 import ballerina/grpc;
 import ballerina/io;
 
-// Blocking client
+// This is an auto generated client stub which is used to communicate between gRPC client.
 public type HelloWorldBlockingStub object {
     public {
         grpc:Client clientEndpoint;
@@ -31,7 +31,6 @@ public type HelloWorldBlockingStub object {
     }
 };
 
-// Non-blocking client
 public type HelloWorldStub object {
     public {
         grpc:Client clientEndpoint;
@@ -45,11 +44,10 @@ public type HelloWorldStub object {
     }
 
     function hello(string req, typedesc listener, grpc:Headers? headers = ()) returns (error|()) {
-        return self.stub.nonBlockingExecute("HelloWorld/hello", req, listener, ...headers);
+        return self.stub.nonBlockingExecute("HelloWorld/hello", req, listener, headers = headers);
     }
 };
 
-// Blocking endpoint.
 public type HelloWorldBlockingClient object {
     public {
         grpc:Client client;
@@ -72,7 +70,6 @@ public type HelloWorldBlockingClient object {
     }
 };
 
-//Non-blocking endpoint
 public type HelloWorldClient object {
     public {
         grpc:Client client;
@@ -95,7 +92,6 @@ public type HelloWorldClient object {
     }
 };
 
-//Service meta data
 @final string DESCRIPTOR_KEY = "HelloWorld.proto";
 map descriptorMap =
 {
