@@ -38,7 +38,7 @@ import java.util.Properties;
 /**
  * Native function ballerina.internal:execBallerina.
  *
- * @since 0.970.0-alpha1
+ * @since 0.974.0-beta14
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "internal",
@@ -87,11 +87,11 @@ public class ExecBallerina extends BlockingNativeCallableUnit {
             context.setReturnValues(new BString(adjusted));
         } catch (InterruptedException e) {
             context.setReturnValues(BLangVMErrors.createError(context,
-                    "Error occurred while waiting for ballerina command to finish: " + path));
+                    "Error occurred while waiting for ballerina command to finish: " + e.getMessage()));
             throw new BallerinaException(e.getMessage());
         } catch (IOException e) {
             context.setReturnValues(BLangVMErrors.createError(context,
-                    "Error occurred executing command or reading out of the command: " + path));
+                    "Error occurred executing command or reading out of the command: " + e.getMessage()));
         } finally {
             try {
                 if (reader != null) {
@@ -99,7 +99,7 @@ public class ExecBallerina extends BlockingNativeCallableUnit {
                 }
             } catch (IOException e) {
                 context.setReturnValues(BLangVMErrors.createError(context,
-                        "Error occurred closing standard output: " + path));
+                        "Error occurred closing standard output: " + e.getMessage()));
             }
             try {
                 if (readerEr != null) {
@@ -107,7 +107,7 @@ public class ExecBallerina extends BlockingNativeCallableUnit {
                 }
             } catch (IOException e) {
                 context.setReturnValues(BLangVMErrors.createError(context,
-                        "Error occurred closing standard error output: " + path));
+                        "Error occurred closing standard error output: " + e.getMessage()));
             }
         }
 
