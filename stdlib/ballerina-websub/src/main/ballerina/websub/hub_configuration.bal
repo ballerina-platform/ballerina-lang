@@ -28,7 +28,7 @@ import ballerina/log;
 @final string DEFAULT_DB_USERNAME = "ballerina";
 @final string DEFAULT_DB_PASSWORD = "ballerina";
 
-@final int hubPort = config:getAsInt("b7a.websub.hub.port", default = DEFAULT_PORT);
+@readonly int hubPort = config:getAsInt("b7a.websub.hub.port", default = DEFAULT_PORT);
 @final int hubLeaseSeconds = config:getAsInt("b7a.websub.hub.leasetime", default = DEFAULT_LEASE_SECONDS_VALUE);
 @final string hubSignatureMethod = config:getAsString("b7a.websub.hub.signaturemethod",
     default = DEFAULT_SIGNATURE_METHOD);
@@ -54,6 +54,7 @@ documentation {
     P{{port}} The port to start up on
 }
 function startHubService(int port) {
+    hubPort = port;
     http:Listener hubServiceEP = new;
     hubServiceEP.init({
             port:port,
