@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.test.record;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -159,12 +160,11 @@ public class RecordTest {
                         "family:{spouse:\"Jane\", noOfChildren:0, children:[\"Alex\", \"Bob\"]}}");
     }
 
-//    @Test
-//    public void testStructLiteralAttachedFunc() {
-//        CompileResult result = BCompileUtil.compile("test-src/record/record_literal_with_attached_functions.bal");
-//        BValue[] returns = BRunUtil.invoke(result, "testCreateStruct");
-//        Assert.assertEquals(returns[0].stringValue(),
-//                "{name:\"default first name\", fname:\"\", lname:\"Doe\", adrs:{}, age:999, " +
-//                        "family:{spouse:\"Jane\", noOfChildren:0, children:[\"Alex\", \"Bob\"]}}");
-//    }
+    @Test (description = "Negative test to test attaching functions to record literal")
+    public void testStructLiteralAttachedFunc() {
+        CompileResult result = BCompileUtil.compile("test-src/record/record_literal_with_attached_functions.bal");
+        Assert.assertEquals(result.getErrorCount(), 2);
+        BAssertUtil.validateError(result, 0, "cannot attach function 'getName' to record type 'Person'", 7, 1);
+        BAssertUtil.validateError(result, 1, "undefined symbol 'self'", 8, 12);
+    }
 }
