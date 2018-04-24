@@ -154,19 +154,19 @@ function createAuthFiltersForSecureListener (SecureEndpointConfiguration config)
     AuthnFilter authnFilter = new(authnHandlerChain);
     cache:Cache authzCache = new(expiryTimeMillis = 300000);
     auth:ConfigAuthProvider configAuthProvider = new;
-    auth:AuthProvider authProvider = check <auth:AuthProvider> configAuthProvider;
+    auth:AuthProvider authProvider = <auth:AuthProvider> configAuthProvider;
     HttpAuthzHandler authzHandler = new(authProvider, authzCache);
     AuthzFilter authzFilter = new(authzHandler);
-    authFilters[0] = check <Filter> authnFilter;
-    authFilters[1] = check <Filter> authzFilter;
+    authFilters[0] = <Filter> authnFilter;
+    authFilters[1] = <Filter> authzFilter;
     return authFilters;
 }
 
 function createBasicAuthHandler () returns HttpAuthnHandler  {
     auth:ConfigAuthProvider configAuthProvider = new;
-    auth:AuthProvider authProvider1 = check <auth:AuthProvider> configAuthProvider;
+    auth:AuthProvider authProvider1 = <auth:AuthProvider> configAuthProvider;
     HttpBasicAuthnHandler basicAuthHandler = new(authProvider1);
-    return check <HttpAuthnHandler> basicAuthHandler;
+    return <HttpAuthnHandler> basicAuthHandler;
 }
 
 function createAuthHandler (AuthProvider authProvider) returns HttpAuthnHandler {
@@ -186,7 +186,7 @@ function createAuthHandler (AuthProvider authProvider) returns HttpAuthnHandler 
             throw e;
         }
         HttpBasicAuthnHandler basicAuthHandler = new(authProvider1);
-        return check <HttpAuthnHandler> basicAuthHandler;
+        return <HttpAuthnHandler> basicAuthHandler;
     } else if(authProvider.scheme == AUTH_SCHEME_JWT){
         auth:JWTAuthProviderConfig jwtConfig = {};
         jwtConfig.issuer = authProvider.issuer;
@@ -197,7 +197,7 @@ function createAuthHandler (AuthProvider authProvider) returns HttpAuthnHandler 
         jwtConfig.trustStorePassword = authProvider.trustStore.password but {() => ""};
         auth:JWTAuthProvider jwtAuthProvider = new (jwtConfig);
         HttpJwtAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);
-        return check <HttpAuthnHandler> jwtAuthnHandler;
+        return <HttpAuthnHandler> jwtAuthnHandler;
     } else {
         // TODO: create other HttpAuthnHandlers
         error e = {message:"Invalid auth scheme: " + authProvider.scheme };

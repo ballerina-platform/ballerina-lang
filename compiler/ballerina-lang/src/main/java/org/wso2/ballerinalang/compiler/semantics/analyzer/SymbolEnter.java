@@ -1017,6 +1017,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void defineServiceMembers(List<BLangService> services, SymbolEnv pkgEnv) {
         services.forEach(service -> {
             SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(service, service.symbol.scope, pkgEnv);
+            service.nsDeclarations.forEach(xmlns -> defineNode(xmlns, serviceEnv));
             service.vars.forEach(varDef -> defineNode(varDef.var, serviceEnv));
             defineServiceInitFunction(service, serviceEnv);
             service.resources.stream()
@@ -1181,11 +1182,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         object.functions.forEach(f -> f.setReceiver(createReceiver(object.pos, object.name)));
 
         initFunction.flagSet.add(Flag.ATTACHED);
-
-        //Add object level variables to the init function
-        BLangFunction finalInitFunction = initFunction;
-        object.fields.stream().filter(f -> f.expr != null).forEachOrdered(v -> finalInitFunction.initFunctionStmts
-                .put(v.symbol, (BLangStatement) createObjectAssignmentStmt(v, receiver)));
 
         object.initFunction = initFunction;
 

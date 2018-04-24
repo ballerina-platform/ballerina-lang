@@ -85,16 +85,11 @@ public class MessageUtils {
         return headerStruct;
     }
 
-    public static io.grpc.Context getContextHeader(BRefValueArray headerValues) {
+    public static io.grpc.Context getContextHeader(BValue headerValues) {
 
         // Set response headers.
-        if (headerValues.size() != 0) {
-            if (headerValues.size() > 1) {
-                LOG.warn("No of Header objects found in input params:" + headerValues.size() + " , gRPC service can " +
-                        "only execute the first header object");
-            }
-            BStruct headerValue = (BStruct) headerValues.getBValue(0);
-            MessageHeaders metadata = (MessageHeaders) headerValue.getNativeData(METADATA_KEY);
+        if (headerValues instanceof BStruct) {
+            MessageHeaders metadata = (MessageHeaders) ((BStruct) headerValues).getNativeData(METADATA_KEY);
             if (metadata != null) {
                 return io.grpc.Context.current().withValue(MessageHeaders.DATA_KEY, metadata);
             }
@@ -104,17 +99,12 @@ public class MessageUtils {
 
 
 
-    public static MessageHeaders getMessageHeaders(BRefValueArray headerValues) {
+    public static MessageHeaders getMessageHeaders(BValue headerValues) {
 
         // Set request headers.
         MessageHeaders metadata = null;
-        if (headerValues.size() != 0) {
-            if (headerValues.size() > 1) {
-                LOG.warn("No of Header objects found in input params:" + headerValues.size() + " , gRPC service can " +
-                        "only execute the first header object");
-            }
-            BStruct headerValue = (BStruct) headerValues.getBValue(0);
-            metadata = (MessageHeaders) headerValue.getNativeData(METADATA_KEY);
+        if (headerValues instanceof BStruct) {
+            metadata = (MessageHeaders) ((BStruct) headerValues).getNativeData(METADATA_KEY);
         }
         return metadata;
     }

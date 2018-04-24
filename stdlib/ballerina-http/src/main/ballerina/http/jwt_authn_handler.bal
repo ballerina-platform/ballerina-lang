@@ -26,7 +26,7 @@ public type HttpJwtAuthnHandler object {
         string name;
         auth:JWTAuthProvider jwtAuthenticator;
     }
-    new (jwtAuthenticator) {
+    public new (jwtAuthenticator) {
         name = "jwt";
     }
     public function canHandle (Request req) returns (boolean);

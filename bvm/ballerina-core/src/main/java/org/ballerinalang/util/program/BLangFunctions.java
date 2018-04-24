@@ -61,6 +61,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 
@@ -534,8 +535,9 @@ public class BLangFunctions {
 
     private static ObserverContext startCallableObservation(WorkerExecutionContext parentCtx,
                                                             CallableUnitInfo callableUnitInfo) {
-        return ObservabilityUtils.startClientObservation(callableUnitInfo.attachedToType.toString(),
-                callableUnitInfo.getName(), parentCtx);
+        Optional<ObserverContext> observerContext = ObservabilityUtils.startClientObservation(
+                callableUnitInfo.attachedToType.toString(), callableUnitInfo.getName(), parentCtx);
+        return observerContext.orElse(null);
     }
     
     /**

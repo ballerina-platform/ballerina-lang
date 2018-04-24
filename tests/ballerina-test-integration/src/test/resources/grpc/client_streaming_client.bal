@@ -81,8 +81,8 @@ public type HelloWorldStub object {
         self.stub = navStub;
     }
 
-    function lotsOfGreetings(typedesc listener, grpc:Headers... headers) returns (grpc:Client|error) {
-        var res = self.stub.streamingExecute("HelloWorld/lotsOfGreetings", listener, ...headers);
+    function lotsOfGreetings(typedesc listener, grpc:Headers? headers = ()) returns (grpc:Client|error) {
+        var res = self.stub.streamingExecute("HelloWorld/lotsOfGreetings", listener, headers = headers);
         match res {
             error err => {
                 return err;
