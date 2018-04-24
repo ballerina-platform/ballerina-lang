@@ -66,7 +66,6 @@ public class BCompileUtil {
 
     //TODO find a way to remove below line.
     private static Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
-    private static String includeTests = "false";
 
 //    Compile and setup methods
     /**
@@ -203,30 +202,10 @@ public class BCompileUtil {
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
-        options.put(TEST_ENABLED, includeTests);
 
-        CompileResult comResult = new CompileResult();
-
-        // catch errors
-        DiagnosticListener listener = comResult::addDiagnostic;
-        context.put(DiagnosticListener.class, listener);
-
-        // compile
-        Compiler compiler = Compiler.getInstance(context);
-        BLangPackage packageNode = compiler.compile(packageName);
-        comResult.setAST(packageNode);
-        if (comResult.getErrorCount() > 0 || CompilerPhase.CODE_GEN.compareTo(compilerPhase) > 0) {
-            return comResult;
-        }
-
-        CompiledBinaryFile.ProgramFile programFile = compiler.getExecutableProgram(packageNode);
-        if (programFile != null) {
-            ProgramFile pFile = LauncherUtils.getExecutableProgram(programFile);
-            comResult.setProgFile(pFile);
-        }
-
-        return comResult;
+        return compile(context, packageName, compilerPhase);
     }
+
 
     /**
      * Compile with tests and return the semantic errors.
@@ -237,8 +216,14 @@ public class BCompileUtil {
      * @return Semantic errors
      */
     public static CompileResult compileWithTests(String sourceRoot, String packageName, CompilerPhase compilerPhase) {
-        includeTests = "true";
-        return compile(sourceRoot, packageName, compilerPhase);
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(PROJECT_DIR, sourceRoot);
+        options.put(COMPILER_PHASE, compilerPhase.toString());
+        options.put(PRESERVE_WHITESPACE, "false");
+        options.put(TEST_ENABLED, "true");
+
+        return compile(context, packageName, compilerPhase);
     }
 
     public static CompileResult compile(String sourceRoot, String packageName, CompilerPhase compilerPhase,
@@ -265,6 +250,29 @@ public class BCompileUtil {
             comResult.setProgFile(LauncherUtils.getExecutableProgram(programFile));
         }
 
+        return comResult;
+    }
+
+    private static CompileResult compile(CompilerContext context, String packageName,
+                                         CompilerPhase compilerPhase) {
+        CompileResult comResult = new CompileResult();
+        // catch errors
+        DiagnosticListener listener = comResult::addDiagnostic;
+        context.put(DiagnosticListener.class, listener);
+
+        // compile
+        Compiler compiler = Compiler.getInstance(context);
+        BLangPackage packageNode = compiler.compile(packageName);
+        comResult.setAST(packageNode);
+        if (comResult.getErrorCount() > 0 || CompilerPhase.CODE_GEN.compareTo(compilerPhase) > 0) {
+            return comResult;
+        }
+
+        CompiledBinaryFile.ProgramFile programFile = compiler.getExecutableProgram(packageNode);
+        if (programFile != null) {
+            ProgramFile pFile = LauncherUtils.getExecutableProgram(programFile);
+            comResult.setProgFile(pFile);
+        }
         return comResult;
     }
 
