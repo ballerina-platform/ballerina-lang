@@ -18,7 +18,7 @@ Content-Disposition: attachment; filename=genome.jpeg;
 Content-Description: a complete map of the human genome
 ```
 ### Modify and retrieve the data in an `Entity`
-The package provides functions to set and get an entity body from different kinds of message types.  For example, XML, text, JSON, blob, and body parts. Headers can be modified through functions such as `addHeader()`, `setHeader()`, `removeHeader(), etc. 
+The package provides functions to set and get an entity body from different kinds of message types.  For example, XML, text, JSON, blob, and body parts. Headers can be modified through functions such as `addHeader()`, `setHeader()`, `removeHeader()`, etc. 
 ## Samples
 ### Handle multipart request
 The sample service given below handles a multipart request. It gets the message from each part of the body, converts the messages to a `string`, and sends a response.
@@ -29,12 +29,8 @@ import ballerina/io;
 import ballerina/log;
 import ballerina/mime;
 
-endpoint http:Listener mockEP {
-   port:9090
-};
-
 @http:ServiceConfig {basePath:"/test"}
-service<http:Service> test bind mockEP {
+service<http:Service> test bind {port:9090} {
 
    @http:ResourceConfig {
        methods:["POST"],
@@ -54,14 +50,13 @@ service<http:Service> test bind mockEP {
            // If the body parts were returned, iterate through each body part and handle the content.
            mime:Entity[] bodyParts => {
                string content = "";
-               int i = 0;
                foreach part in bodyParts {
-               content = content + " -- " + handleContent(part);
+                    content = content + " -- " + handleContent(part);
                }
                response.setPayload(content);
            }
        }
-       client -> respond(response) but { error e => log:printError("Error in responding ", err = e) };
+       client -> respond(response) but { error e => log:printError("Error in responding", err = e) };
    }
 
 }
@@ -75,14 +70,14 @@ function handleContent(mime:Entity bodyPart) returns (string) {
    if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
        var payload = bodyPart.getXml();
        match payload {
-           mime:EntityError err => return "Error in getting xml payload";
+           error err => return err.message;
            xml xmlContent => return xmlContent.getTextValue();
        }
    } else if (mime:APPLICATION_JSON == baseType) {
        // If the base type is ‘application/json’, get the JSON content from body part.
        var payload = bodyPart.getJson();
        match payload {
-           mime:EntityError err => return "Error in getting json payload";
+           error err => return err.message;
            json jsonContent => {
                return jsonContent.toString();
            }
@@ -96,46 +91,26 @@ The sample request that is sent to the above service and the response that is pr
 
 ```
 curl -v -F "request={\"param1\": \"value1\"};type=application/json" -F "language=ballerina;type=text/plain" -F "upload=@/home/path-to-file/encode.txt;type=application/octet-stream"  http://localhost:9090/test/multipleparts -H "Expect:"
-*   Trying 127.0.0.1...
-* Connected to localhost (127.0.0.1) port 9090 (#0)
-> POST /test/multipleparts HTTP/1.1
-> Host: localhost:9090
-> User-Agent: curl/7.47.0
-> Accept: */*
-> Content-Length: 521
-> Content-Type: multipart/form-data; boundary=------------------------bf3f6dafe84260f2
-> 
-< HTTP/1.1 200 OK
-< content-type: text/plain
-< content-length: 77
-< server: ballerina/0.970.0-beta1-SNAPSHOT
-< date: Wed, 18 Apr 2018 22:20:48 +0530
-< 
- -- {"param1":"value1"} -- ballerina -- VGhpcyBpcyBhIGJhbGxlcmluYSBzYW1wbGU=
 ```
 ### Create a multipart response
-The sample given below creates a multipart response. It includes ‘application/json’ and ‘text/xml’ type content.
+The sample given below creates a multipart request. It includes ‘application/json’ and ‘text/xml’ type content.
 
 ``` ballerina
-// Create a new body part.
+// Create a json body part.
 mime:Entity bodyPart1 = new;
-// Set the content type as ‘application/json’.
-bodyPart1.contentType = mime:getMediaType(mime:APPLICATION_JSON);
 // Finally, set the JSON content.
 bodyPart1.setJson({"bodyPart":"jsonPart"});
 
-// Create body part using an XML file.
+// Create another body part using an XML file.
 mime:Entity bodyPart2 = new;
-mime:MediaType textXml = mime:getMediaType(mime:TEXT_XML);
-bodyPart2.contentType = textXml;
-file:Path fileHandler = new("ballerina/mime/file.xml");
+file:Path fileHandler = new("ballerina/mime/file.xml", mime:APPLICATION_XML);
 bodyPart2.setFileAsEntityBody(fileHandler);
 
 //Create an array to hold all the body parts.
 mime:Entity[] bodyParts = [bodyPart1, bodyPart2];
 
 // Set the body parts to the outbound response.
-http:Response outResponse = new;
+http:Request outRequest = new;
 // Set the content type as ‘multipart/mixed’ and set the body parts.
-outResponse.setBodyParts(bodyParts, mime:MULTIPART_MIXED);
+outRequest.setBodyParts(bodyParts, mime:MULTIPART_MIXED);
 ```
