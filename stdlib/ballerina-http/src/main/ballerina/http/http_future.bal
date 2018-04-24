@@ -15,7 +15,7 @@
 // under the License.
 
 documentation {
-    Represents a future for aynchronous http invocation.
+    Represents a future for aynchronous HTTP invocation.
 }
 public type HttpFuture object {
     private {
