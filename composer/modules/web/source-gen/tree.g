@@ -191,6 +191,10 @@ Literal
    | <value>
    ;
 
+Lock
+   : lock { <body.source> }
+   ;
+
 Match
    : match <expression.source> { <patternClauses>* }
    ;
@@ -270,6 +274,10 @@ StringTemplateLiteral
    : string\u0020` <expressions>* `
    ;
 
+Table
+   : table <configurationExpression.source>
+   ;
+
 TernaryExpr
    : <condition.source> ? <thenExpression.source> : <elseExpression.source>
    ;
@@ -333,6 +341,10 @@ TypeConversionExpr
 TypeDefinition
    : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> <typeNode.source> | <valueSet-joined-by|>* ;
    | <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                     <valueSet-joined-by|>* ;
+   ;
+
+TypedescExpression
+   : <typeNode.source>
    ;
 
 TypeofExpression

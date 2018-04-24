@@ -78,6 +78,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.TimeZone;
 import javax.sql.rowset.CachedRowSet;
 
@@ -316,14 +317,13 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     }
 
     protected void checkAndObserveSQLAction(Context context, SQLDatasource datasource, String query) {
-        if (!ObservabilityUtils.isObservabilityEnabled()) {
-            return;
-        }
-        ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
-        observerContext.addTag(TAG_KEY_PEER_ADDRESS, datasource.getPeerAddress());
-        observerContext.addTag(TAG_KEY_DB_INSTANCE, datasource.getDatabaseName());
-        observerContext.addTag(TAG_KEY_DB_STATEMENT, query);
-        observerContext.addTag(TAG_KEY_DB_TYPE, TAG_DB_TYPE_SQL);
+        Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
+        observerContext.ifPresent(ctx -> {
+            ctx.addTag(TAG_KEY_PEER_ADDRESS, datasource.getPeerAddress());
+            ctx.addTag(TAG_KEY_DB_INSTANCE, datasource.getDatabaseName());
+            ctx.addTag(TAG_KEY_DB_STATEMENT, query);
+            ctx.addTag(TAG_KEY_DB_TYPE, TAG_DB_TYPE_SQL);
+        });
     }
 
     private BRefValueArray constructParameters(Context context, BRefValueArray parameters) {
