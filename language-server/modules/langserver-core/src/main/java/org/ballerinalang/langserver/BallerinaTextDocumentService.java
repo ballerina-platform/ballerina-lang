@@ -182,8 +182,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 String sourceRoot = LSCompiler.getSourceRoot(path);
                 CompilerContext compilerContext = lsContextManager.getCompilerContext(currentBLangPackage.packageID,
                                                                                       sourceRoot);
-                LSPackageCache lsPackageCache = LSPackageCache.getInstance(compilerContext);
-                hover = HoverUtil.getHoverContent(hoverContext, currentBLangPackage, lsPackageCache);
+                hover = HoverUtil.getHoverContent(hoverContext, currentBLangPackage);
             } catch (Exception | AssertionError e) {
                 hover = new Hover();
                 List<Either<String, MarkedString>> contents = new ArrayList<>();
@@ -247,8 +246,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 String sourceRoot = LSCompiler.getSourceRoot(path);
                 CompilerContext compilerContext = lsContextManager.getCompilerContext(currentBLangPackage.packageID,
                                                                                       sourceRoot);
-                LSPackageCache lsPackageCache = LSPackageCache.getInstance(compilerContext);
-                contents = DefinitionUtil.getDefinitionPosition(definitionContext, lsPackageCache);
+                contents = DefinitionUtil.getDefinitionPosition(definitionContext);
             } catch (Throwable e) {
                 contents = new ArrayList<>();
             } finally {

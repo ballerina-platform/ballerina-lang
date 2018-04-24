@@ -287,11 +287,11 @@ public function LoadBalancer::rejectPromise (PushPromise promise) {
 
 // Performs execute action of the Load Balance connector. extract the corresponding http integer value representation
 // of the http verb and invokes the perform action method.
-function performLoadBalanceExecuteAction (LoadBalancer lb, string path, Request outRequest,
+function performLoadBalanceExecuteAction (LoadBalancer lb, string path, Request request,
                                           string httpVerb) returns (Response | HttpConnectorError) {
     HttpOperation connectorAction = extractHttpOperation(httpVerb);
     if (connectorAction != HTTP_NONE) {
-        return performLoadBalanceAction(lb, path, outRequest, connectorAction);
+        return performLoadBalanceAction(lb, path, request, connectorAction);
     } else {
         HttpConnectorError httpConnectorError = {message:"Unsupported connector action received.", statusCode:501};
         return httpConnectorError;
@@ -299,33 +299,36 @@ function performLoadBalanceExecuteAction (LoadBalancer lb, string path, Request 
 }
 
 // Handles all the actions exposed through the Load Balance connector.
-function performLoadBalanceAction (LoadBalancer lb, string path, Request outRequest, HttpOperation requestAction)
+function performLoadBalanceAction (LoadBalancer lb, string path, Request request, HttpOperation requestAction)
                                     returns (Response | HttpConnectorError) {
-    // When performing passthrough scenarios using Load Balance connector, message needs to be built before trying out the
-    // load balance endpoints to keep the request message to load balance the messages in case of failure.
-    if (HTTP_FORWARD == requestAction) {
-        match outRequest.getBinaryPayload() {
-            // TODO: remove these dummy assignments once empty blocks are supported
-            blob => {int x = 0;}
-            mime:EntityError => {int x = 0;}
-        }
-    }
-
     int loadBalanceTermination = 0; // Tracks at which point failover within the load balancing should be terminated.
     //TODO: workaround to initialize a type inside a function. Change this once fix is aailable.
     LoadBalanceConnectorError loadBalanceConnectorError = {statusCode:500};
     loadBalanceConnectorError.httpConnectorError = [];
+    Request loadBlancerInRequest = request;
+    mime:Entity requestEntity = new;
+
+    if (lb.failover) {
+        // When performing passthrough scenarios using Load Balance connector, message needs to be built before trying out the
+        // load balance endpoints to keep the request message to load balance the messages in case of failure.
+        var binaryPayload = loadBlancerInRequest.getBinaryPayload();
+        requestEntity = check loadBlancerInRequest.getEntity();
+    }
 
     while (loadBalanceTermination < lengthof lb.loadBalanceClientsArray) {
         CallerActions loadBalanceClient = roundRobin(lb, lb.loadBalanceClientsArray);
 
-        match invokeEndpoint(path, outRequest, requestAction, loadBalanceClient) {
+        match invokeEndpoint(path, request, requestAction, loadBalanceClient) {
             Response inResponse => return inResponse;
 
             HttpConnectorError httpConnectorError => {
                 if (!lb.failover) {
                     return httpConnectorError;
                 } else {
+                    Request newOutRequest = new;
+                    populateRequestFields(loadBlancerInRequest, newOutRequest);
+                    newOutRequest.setEntity(requestEntity);
+                    loadBlancerInRequest = newOutRequest;
                     loadBalanceConnectorError.httpConnectorError[lb.nextIndex] = httpConnectorError;
                     loadBalanceTermination = loadBalanceTermination + 1;
                 }

@@ -33,7 +33,7 @@ import java.util.Map;
  * Tests for struct doc generation.
  */
 @Test(groups = "broken")
-public class BallerinaStructDocGenTest {
+public class BallerinaRecordDocGenTest {
 
     private String sourceRoot;
 

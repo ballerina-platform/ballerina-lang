@@ -59,9 +59,9 @@ export default {
             dialogContainer: 'dialog-container',
         },
         [HELP_PLUGIN_ID]: {
-            issue_tracker_url: 'https://github.com/ballerina-lang/ballerina/issues?q=is%3Aopen+is%3Aissue+label%3Acomponent%2FComposer',
-            example_url: 'https://ballerinalang.org/docs/by-example/',
-            api_reference_url: 'https://ballerinalang.org/docs/api/0.970.0/',
+            issue_tracker_url: 'https://github.com/ballerina-platform/ballerina-lang/issues?q=is%3Aopen+is%3Aissue+label%3Acomponent%2FComposer',
+            example_url: 'https://ballerina.io/learn/by-example/',
+            api_reference_url: 'https://ballerina.io/learn/api-docs/ballerina/',
         },
         [WELCOME_TAB_PLUGIN_ID]: {
             userGuide: 'https://ballerina.io/learn/by-example/',
