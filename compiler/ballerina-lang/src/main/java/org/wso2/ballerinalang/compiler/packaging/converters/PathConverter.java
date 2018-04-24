@@ -3,6 +3,7 @@ package org.wso2.ballerinalang.compiler.packaging.converters;
 import com.sun.nio.zipfs.ZipFileSystem;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -66,7 +67,7 @@ public class PathConverter implements Converter<Path> {
     public Stream<Path> expandBal(Path path) {
         if (Files.isDirectory(path)) {
             try {
-                FilterSearch filterSearch = new FilterSearch(Paths.get("test"));
+                FilterSearch filterSearch = new FilterSearch(Paths.get(ProjectDirConstants.TEST_DIR_NAME));
                 Files.walkFileTree(path, filterSearch);
                 return filterSearch.getPathList().stream();
             } catch (IOException ignore) {
