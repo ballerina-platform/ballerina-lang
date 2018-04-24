@@ -347,7 +347,9 @@ function performFailoverAction (string path, Request request, HttpOperation requ
                 if (failoverCodeIndex[httpStatusCode] == true) {
                     if (noOfEndpoints > currentIndex) {
                         Request newOutRequest = new;
+                        populateRequestFields(failoverRequest, newOutRequest);
                         newOutRequest.setEntity(requestEntity);
+                        failoverRequest = newOutRequest;
                         runtime:sleep(failoverInterval);
                         failoverClient = failoverClients[currentIndex];
                         populateFailoverErrorHttpStatusCodes(inResponse, failoverConnectorError, currentIndex - 1);
@@ -361,6 +363,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
             }
             HttpConnectorError httpConnectorError => {
                 Request newOutRequest = new;
+                populateRequestFields(failoverRequest, newOutRequest);
                 newOutRequest.setEntity(requestEntity);
                 failoverRequest = newOutRequest;
                 if (noOfEndpoints > currentIndex) {
