@@ -21,12 +21,12 @@ public type CallerAction object {
 
         P{{res}} - The outbound response message.
     }
-    public native function send(any res, Headers... headers) returns error?;
+    public native function send(any res, Headers? headers = ()) returns error?;
 
     documentation {
         Informs the caller, server finished sending messages.
     }
-    public native function complete(Headers... headers) returns error?;
+    public native function complete(Headers? headers = ()) returns error?;
 
     documentation {
         Checks whether the connection is closed by the caller.
@@ -39,5 +39,5 @@ public type CallerAction object {
         P{{statusCode}} - Error status code.
         P{{message}} - Error message.
     }
-    public native function sendError(int statusCode, string message, Headers... headers) returns error?;
+    public native function sendError(int statusCode, string message, Headers? headers = ()) returns error?;
 };
