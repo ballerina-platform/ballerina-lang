@@ -4,12 +4,12 @@ import ballerina/io;
 function main(string... args) {
 
     endpoint mysql:Client testDBEP {
-        host:"localhost",
-        port:3306,
-        name:"testdb",
-        username:"root",
-        password:"root",
-        poolOptions:{ maximumPoolSize:5 }
+        host: "localhost",
+        port: 3306,
+        name: "testdb",
+        username: "root",
+        password: "root",
+        poolOptions: { maximumPoolSize: 5 }
     };
 
     // Create the tables required for the transaction.
