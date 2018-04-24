@@ -28,24 +28,26 @@ public type Client object {
 
     documentation {
         Gets called every time a service attaches itself to this endpoint - also happens at package init time.
-        Not supported in client connector.
+        Not supported in client endpoint.
 
         P{{serviceType}} - The type of the service to be registered.
     }
     public native function register(typedesc serviceType);
 
     documentation {
-        Starts the registered service.
+        Starts the registered service. Not supported in client endpoint.
     }
     public native function start();
 
     documentation {
-        Stops the registered.
+        Stops the registered. Not supported in client endpoint.
     }
     public native function stop();
 
     documentation {
-        Returns the client connection that servicestub code uses.
+        Returns the client connection which is used to send message to server.
+
+        R{{}} - Client connection.
     }
     public native function getCallerActions() returns (GrpcClient);
 };

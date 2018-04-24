@@ -20,6 +20,7 @@ public type Headers object {
         Check whether the requested header exists.
 
         P{{headerName}} - The header name.
+        R{{}} - Returns true if header exists, false otherwise.
     }
     public native function exists(string headerName) returns (boolean);
 
@@ -28,13 +29,15 @@ public type Headers object {
         specified header name, the first value is returned.
 
         P{{headerName}} - The header name.
+        R{{}} - Returns first header value if exists, nil otherwise.
     }
     public native function get(string headerName) returns string?;
 
     documentation {
-        Gets transport headers from the request.
+        Gets all transport headers with the specified header name.
 
         P{{headerName}} - The header name.
+        R{{}} - Returns header value array.
     }
     public native function getAll(string headerName) returns (string[]);
 

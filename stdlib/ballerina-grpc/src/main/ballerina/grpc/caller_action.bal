@@ -20,16 +20,23 @@ public type CallerAction object {
         Sends outbound response to the caller.
 
         P{{res}} - The outbound response message.
+        P{{headers}} - Optional headers parameter. Passes header value if needed. Default sets to nil.
+        R{{}} - Returns an error if encounters an error while sending the response, returns nil otherwise.
     }
     public native function send(any res, Headers? headers = ()) returns error?;
 
     documentation {
         Informs the caller, server finished sending messages.
+
+        P{{headers}} - Optional headers parameter. Passes header value if needed. Default sets to nil.
+        R{{}} - Returns an error if encounters an error while sending the response, returns nil otherwise.
     }
     public native function complete(Headers? headers = ()) returns error?;
 
     documentation {
         Checks whether the connection is closed by the caller.
+
+        R{{}} - Returns true, if caller already closed the connection. false otherwise.
     }
     public native function isCancelled() returns boolean;
 
@@ -38,6 +45,8 @@ public type CallerAction object {
 
         P{{statusCode}} - Error status code.
         P{{message}} - Error message.
+        P{{headers}} - Optional headers parameter. Passes header value if needed. Default sets to nil.
+        R{{}} - Returns an error if encounters an error while sending the response, returns nil otherwise.
     }
     public native function sendError(int statusCode, string message, Headers? headers = ()) returns error?;
 };

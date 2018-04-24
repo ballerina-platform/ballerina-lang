@@ -35,7 +35,6 @@ public type Listener object {
 
     documentation {
         Gets called every time a service attaches itself to this endpoint - also happens at package init time.
-        Not supported in client connector.
 
         P{{serviceType}} - The type of the service to be registered.
     }
@@ -53,6 +52,8 @@ public type Listener object {
 
     documentation {
         Returns the client connection that servicestub code uses.
+
+        R{{}} - Client connection.
     }
     public native function getCallerActions() returns (CallerAction);
 };
