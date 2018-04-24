@@ -47,7 +47,7 @@ public type {{cut info.title " "}}Client object {
         http:Request request = new;
 
         //Create the required request as needed
-        var res = ep -> {{key}}("{{../../key}}", request);
+        var res = ep -> {{key}}("{{../../key}}", request = request);
 
         match res {
             http:HttpConnectorError httpError => {
