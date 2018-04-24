@@ -21,7 +21,7 @@ function main(string... args) {
     match ret {
         int status => io:println("Table creation status: " + status);
         error err => {
-            handleError("STUDENT table creation failed", err, testDB);
+            handleError("STUDENT table creation failed: ", err, testDB);
             return;
         }
     }
@@ -34,7 +34,7 @@ function main(string... args) {
     match ret {
         int rows => io:println("Inserted row count: " + rows);
         error err => {
-            handleError("Update action failed", err, testDB);
+            handleError("Update action failed: ", err, testDB);
             return;
         }
     }
@@ -46,7 +46,7 @@ function main(string... args) {
     match dtReturned {
         table val => dt = val;
         error e => {
-            handleError("Select action failed", e, testDB);
+            handleError("Select action failed: ", e, testDB);
             return;
         }
     }
@@ -63,7 +63,7 @@ function main(string... args) {
     match ret {
         int status => io:println("Table drop status: " + status);
         error err => {
-            handleError("Dropping STUDENT table failed", err, testDB);
+            handleError("Dropping STUDENT table failed: ", err, testDB);
             return;
         }
     }
@@ -73,6 +73,6 @@ function main(string... args) {
 }
 
 function handleError(string message, error e, mysql:Client db) {
-    io:println(message + ": " + e.message);
+    io:println(message + e.message);
     db.stop();
 }

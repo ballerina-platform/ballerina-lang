@@ -19,7 +19,7 @@ function main(string... args) {
     match ret {
         int status => io:println("Table creation status: " + status);
         error err => {
-            handleError("STUDENT table creation failed", err, testDB);
+            handleError("STUDENT table creation failed: ", err, testDB);
             return;
         }
     }
@@ -34,7 +34,7 @@ function main(string... args) {
     match ret {
         int status => io:println("Stored proc creation status: " + status);
         error err => {
-            handleError("GETCOUNT procedure creation failed", err, testDB);
+            handleError("GETCOUNT procedure creation failed: ", err, testDB);
             return;
         }
     }
@@ -47,7 +47,7 @@ function main(string... args) {
     match ret {
         int rows => io:println("Inserted row count: " + rows);
         error err => {
-            handleError("Update action failed", err, testDB);
+            handleError("Update action failed: ", err, testDB);
             return;
         }
     }
@@ -69,7 +69,7 @@ function main(string... args) {
             io:println("Generated key: " + ids[0]);
         }
         error err => {
-            handleError("Update action failed", err, testDB);
+            handleError("Update action failed: ", err, testDB);
             return;
         }
     }
@@ -82,7 +82,7 @@ function main(string... args) {
     match dtReturned {
         table val => dt = val;
         error e => {
-            handleError("Select action failed", e, testDB);
+            handleError("Select action failed: ", e, testDB);
             return;
         }
     }
@@ -101,11 +101,16 @@ function main(string... args) {
     sql:Parameter p3 = {sqlType: sql:TYPE_INTEGER, value: 20};
     sql:Parameter p4 = {sqlType: sql:TYPE_VARCHAR, value: "John"};
     sql:Parameter[] item2 = [p3, p4];
+
     var insertVal = testDB->batchUpdate("INSERT INTO STUDENT (AGE,NAME) VALUES (?, ?)", item1, item2);
-    int[] default = [];
-    int[] c = insertVal but { error => default };
-    io:println("Batch item 1 status: " + c[0]);
-    io:println("Batch item 2 status: " + c[1]);
+
+    match insertVal {
+        int[] c => {
+            io:println("Batch item 1 status: " + c[0]);
+            io:println("Batch item 2 status: " + c[1]);
+        }
+        error  e => handleError("Batch update action failed: ", e, testDB);
+    }
 
     // A stored procedure can be invoked using the `call` action. The direction is
     // used to specify `IN`/`OUT`/`INOUT` parameters.
@@ -127,7 +132,7 @@ function main(string... args) {
     match ret {
         int status => io:println("Table drop status: " + status);
         error err => {
-            handleError("Dropping STUDENT table failed", err, testDB);
+            handleError("Dropping STUDENT table failed: ", err, testDB);
             return;
         }
     }
@@ -137,7 +142,7 @@ function main(string... args) {
     match ret {
         int status => io:println("Procedure drop status: " + status);
         error err => {
-            handleError("Dropping GETCOUNT procedure failed", err, testDB);
+            handleError("Dropping GETCOUNT procedure failed: ", err, testDB);
             return;
         }
     }
@@ -147,6 +152,6 @@ function main(string... args) {
 }
 
 function handleError(string message, error e, jdbc:Client db) {
-    io:println(message + ": " + e.message);
+    io:println(message + e.message);
     db.stop();
 }

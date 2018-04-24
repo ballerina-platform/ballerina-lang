@@ -30,7 +30,7 @@ function main(string... args) {
     match ret {
         int retInt => io:println("CUSTOMER table create status in first DB: " + retInt);
         error err => {
-            handleError("CUSTOMER table Creation failed", err, testDBEP1, testDBEP2);
+            handleError("CUSTOMER table Creation failed: ", err, testDBEP1, testDBEP2);
             return;
         }
     }
@@ -39,7 +39,7 @@ function main(string... args) {
     match ret {
         int retInt => io:println("SALARY table create status in second DB: " + retInt);
         error err => {
-            handleError("SALARY table Creation failed", err, testDBEP1, testDBEP2);
+            handleError("SALARY table Creation failed: ", err, testDBEP1, testDBEP2);
             return;
         }
     }
@@ -76,7 +76,7 @@ function main(string... args) {
     match ret {
         int retInt => io:println("CUSTOMER table drop status: " + retInt);
         error err => {
-            handleError("CUSTOMER table dropping failed", err, testDBEP1, testDBEP2);
+            handleError("CUSTOMER table dropping failed: ", err, testDBEP1, testDBEP2);
             return;
         }
     }
@@ -84,7 +84,7 @@ function main(string... args) {
     match ret {
         int retInt => io:println("SALARY table drop status: " + retInt);
         error err => {
-            handleError("SALARY table dropping failed", err, testDBEP1, testDBEP2);
+            handleError("SALARY table dropping failed: ", err, testDBEP1, testDBEP2);
             return;
         }
     }
@@ -103,7 +103,7 @@ function onAbortFunction(string transactionId) {
 }
 
 function handleError(string message, error e, jdbc:Client db1, jdbc:Client db2) {
-    io:println(message + ": " + e.message);
+    io:println(message + e.message);
     db1.stop();
     db2.stop();
 }

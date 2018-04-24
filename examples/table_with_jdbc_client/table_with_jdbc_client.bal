@@ -38,7 +38,7 @@ function main(string... args) {
     match createTableRetVal {
         int count => io:println("Create table status: " + count);
         error e => {
-            handleError("Error in executing CREATE TABLE EMPLOYEE", e, testDB);
+            handleError("Error in executing CREATE TABLE EMPLOYEE: ", e, testDB);
             return;
         }
     }
@@ -49,7 +49,7 @@ function main(string... args) {
     match insertTableRetVal {
         int count => io:println("Updated row count: " + count);
         error e => {
-            handleError("Error in executing INSERT INTO EMPLOYEE", e, testDB);
+            handleError("Error in executing INSERT INTO EMPLOYEE: ", e, testDB);
             return;
         }
     }
@@ -60,7 +60,7 @@ function main(string... args) {
     match insertTableRetVal2 {
         int val => io:println("Updated row count: " + val);
         error e => {
-            handleError("Error in executing INSERT INTO EMPLOYEE", e, testDB);
+            handleError("Error in executing INSERT INTO EMPLOYEE: ", e, testDB);
             return;
         }
     }
@@ -72,7 +72,7 @@ function main(string... args) {
     match selectRetVal {
         table val => dt = val;
         error e => {
-            handleError("Error in executing SELECT * from EMPLOYEE", e, testDB);
+            handleError("Error in executing SELECT * from EMPLOYEE: ", e, testDB);
             return;
         }
     }
@@ -100,7 +100,7 @@ function main(string... args) {
     match selectRetVal2 {
         table val => dt = val;
         error e => {
-            handleError("Error in executing SELECT * from EMPLOYEE", e, testDB);
+            handleError("Error in executing SELECT * from EMPLOYEE: ", e, testDB);
             return;
         }
     }
@@ -115,7 +115,7 @@ function main(string... args) {
                         + rs.birthtime + "|" + rs.updated);
             }
             error e => {
-                handleError("Error in retrieving next record", e, testDB);
+                handleError("Error in retrieving next record: ", e, testDB);
                 return;
             }
         }
@@ -132,7 +132,7 @@ function main(string... args) {
                         + rs.birthtime + "|" + rs.updated);
             }
             error e => {
-                handleError("Error in retrieving next record", e, testDB);
+                handleError("Error in retrieving next record: ", e, testDB);
                 return;
             }
         }
@@ -148,7 +148,7 @@ function main(string... args) {
     match selectRetVal3 {
         table val => dt = val;
         error e => {
-            handleError("Error in executing SELECT id,name FROM EMPLOYEE", e, testDB);
+            handleError("Error in executing SELECT id,name FROM EMPLOYEE: ", e, testDB);
             return;
         }
     }
@@ -166,7 +166,7 @@ function main(string... args) {
     match selectRetVal4 {
         table val => dt = val;
         error e => {
-            handleError("Error in executing SELECT id,name FROM EMPLOYEE", e, testDB);
+            handleError("Error in executing SELECT id,name FROM EMPLOYEE: ", e, testDB);
             return;
         }
     }
@@ -183,7 +183,7 @@ function main(string... args) {
     match dropTableRetVal {
         int status => io:println("Table drop status:" + status);
         error e => {
-            handleError("Error in executing DROP TABLE EMPLOYEE", e, testDB);
+            handleError("Error in executing DROP TABLE EMPLOYEE: ", e, testDB);
             return;
         }
     }
@@ -193,6 +193,6 @@ function main(string... args) {
 }
 
 function handleError(string message, error e, jdbc:Client db) {
-    io:println(message + ": " + e.message);
+    io:println(message + e.message);
     db.stop();
 }
