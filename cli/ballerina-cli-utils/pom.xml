@@ -126,6 +126,18 @@
                             </arguments>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>ballerina.token.updater</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <arguments>
+                                <argument>${ballerina.source.directory}/packaging_token_updater</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
                 </executions>
                 <configuration>
                     <mainClass>org.ballerinalang.cli.utils.GenerateBalx</mainClass>
@@ -170,6 +182,7 @@
                                 <delete file="${ballerina.source.directory}/packaging_pull/packaging_pull.balx" />
                                 <delete file="${ballerina.source.directory}/packaging_push/packaging_push.balx" />
                                 <delete file="${ballerina.source.directory}/packaging_search/packaging_search.balx" />
+                                <delete file="${ballerina.source.directory}/packaging_token_updater/packaging_token_updater.balx" />
                             </tasks>
                         </configuration>
                     </execution>
