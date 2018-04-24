@@ -83,7 +83,7 @@ public class WorkerExecutionContext {
         this.programFile = programFile;
         this.globalProps = new HashMap<>();
         this.runInCaller = true;
-        setGlobalTransactionsEnabled();
+        configureDistributedTransactions();
     }
     
     public WorkerExecutionContext(BStruct error) {
@@ -198,7 +198,7 @@ public class WorkerExecutionContext {
         return this == rhs;
     }
 
-    private void setGlobalTransactionsEnabled() {
+    private void configureDistributedTransactions() {
         String distributedTransactionsEnabledConfig = ConfigRegistry.getInstance()
                 .getAsString(DISTRIBUTED_TRANSACTIONS);
         boolean distributedTransactionEnabled = true;
