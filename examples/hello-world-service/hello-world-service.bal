@@ -11,7 +11,7 @@ service<http:Service> hello bind helloWorldEP {
     sayHello (endpoint conn, http:Request req) {
         http:Response res = new;
         // A util method that can be used to set string payload.
-        res.setStringPayload("Hello, World!");
+        res.setPayload("Hello, World!");
         // Sends the response back to the client.
         _ = conn -> respond(res);
     }

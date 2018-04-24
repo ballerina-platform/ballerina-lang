@@ -50,7 +50,7 @@ service<http:Service> test bind multipartEP {
             http:HttpConnectorError err => {
                 http:Response resp1 = new;
                 io:println(err);
-                resp1.setStringPayload("Error occurred while sending multipart request!");
+                resp1.setPayload("Error occurred while sending multipart request!");
                 resp1.statusCode = 500;
                 _ = conn -> respond(resp1);
             }

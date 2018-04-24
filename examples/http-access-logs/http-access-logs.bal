@@ -14,7 +14,7 @@ service<http:Service> helloService bind helloServiceEP {
     }
     hello (endpoint caller, http:Request request) {
         http:Response response = new;
-        response.setStringPayload("Successful");
+        response.setPayload("Successful");
         _ = caller -> respond(response);
     }
 }

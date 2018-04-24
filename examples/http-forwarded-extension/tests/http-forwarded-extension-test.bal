@@ -22,7 +22,7 @@ function testFunc() {
     var response = httpEndpoint -> get("/proxy");
     match response {
         http:Response resp => {
-            var res = check resp.getStringPayload();
+            var res = check resp.getTextPayload();
             string matchWith = "forwarded header value : for=127.0.0.1; by=127.0.0.1; proto=http";
             test:assertEquals(res, matchWith);
         }

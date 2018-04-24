@@ -22,7 +22,7 @@ service<http:Service> test bind multipartEP {
         // Setting the error response in case of an error
             mime:EntityError err => {
                 io:println(err);
-                response.setStringPayload("Error in decoding multiparts!");
+                response.setPayload("Error in decoding multiparts!");
                 response.statusCode = 500;
             }
             // Iterate through the body parts.
@@ -34,7 +34,7 @@ service<http:Service> test bind multipartEP {
                     handleContent(part);
                     i = i + 1;
                 }
-                response.setStringPayload("Multiparts Received!");
+                response.setPayload("Multiparts Received!");
             }
         }
         _ = conn -> respond(response);

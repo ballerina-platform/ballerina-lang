@@ -14,16 +14,16 @@ service<http:Service> httpService bind {port: 9090} {
     }
     httpResource(endpoint caller, http:Request req) {
         http:Response resp = new;
-        var payload = req.getStringPayload();
+        var payload = req.getTextPayload();
         match payload {
             http:PayloadError payloadError => {
                 log:printError("Error sending message", err = payloadError);
-                resp.setStringPayload(payloadError.message);
+                resp.setPayload(payloadError.message);
                 resp.statusCode = 500;
             }
             string val => {
                 io:println(payload);
-                resp.setStringPayload("I received\n");
+                resp.setPayload("I received\n");
             }
         }
 

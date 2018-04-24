@@ -26,7 +26,7 @@ service<http:Service> sessionTest bind sessionTestEP {
         //Binds a string attribute to this session with a key(string).
         session.setAttribute(key, "Session sample");
         http:Response res = new;
-        res.setStringPayload(result);
+        res.setPayload(result);
         _ = caller -> respond(res);
     }
 
@@ -45,7 +45,7 @@ service<http:Service> sessionTest bind sessionTestEP {
             attributeValue = "Session unavailable";
         }
         http:Response res = new;
-        res.setStringPayload(attributeValue);
+        res.setPayload(attributeValue);
         _ = caller -> respond(res);
     }
 
@@ -61,9 +61,9 @@ service<http:Service> sessionTest bind sessionTestEP {
             string id = session.getId();
             //Invalidates this session.
             session.invalidate();
-            res.setStringPayload("Session: " + id + " invalidated");
+            res.setPayload("Session: " + id + " invalidated");
         } else {
-            res.setStringPayload("Session unavailable");
+            res.setPayload("Session unavailable");
         }
         _ = caller -> respond(res);
     }

@@ -43,7 +43,7 @@ service<http:Service> echo bind ep {
     // service level, and override scope defined in service level (xxx) with scope2.
     hello (endpoint caller, http:Request req) {
         http:Response res = new;
-        res.setStringPayload("Hello, World!!!");
+        res.setPayload("Hello, World!!!");
         _ = client -> respond(res);
     }
 }

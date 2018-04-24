@@ -24,7 +24,7 @@ function testFunc() {
     var response = httpEndpoint -> get("/hello");
     match response {
         http:Response resp => {
-            var res = check resp.getStringPayload();
+            var res = check resp.getTextPayload();
             test:assertEquals(res, response1);
         }
         http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");

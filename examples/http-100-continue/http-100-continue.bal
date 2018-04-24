@@ -23,16 +23,16 @@ service<http:Service> helloWorld bind helloWorldEP{
 
         // The client starts sending the payload once it receives the 100-continue response. Retrieve the payload that is sent by the client.
         http:Response res = new;
-        match request.getStringPayload() {
+        match request.getTextPayload() {
             string payload => {
                 io:println(payload);
                 res.statusCode =200;
-                res.setStringPayload("Hello World!\n");
+                res.setPayload("Hello World!\n");
                 _ = caller -> respond(res);
             }
             error payloadError =>  {
                 res.statusCode = 500;
-                res.setStringPayload(payloadError.message);
+                res.setPayload(payloadError.message);
                 _ = caller -> respond(res);
             }
         }

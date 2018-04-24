@@ -27,7 +27,7 @@ function main (string... args) {
         http:HttpConnectorError err =>{io:println(err.message);}
     }
     // Set a string payload to the message to be sent to the endpoint.
-    req.setStringPayload("POST: Hello World");
+    req.setPayload("POST: Hello World");
     response = clientEndpoint -> post("/post", request=req);
     match response {
         http:Response resp => {
@@ -89,7 +89,7 @@ function main (string... args) {
         http:HttpConnectorError err =>{io:println(err.message);}
     }
 
-    req.setStringPayload("DELETE: Hello World");
+    req.setPayload("DELETE: Hello World");
     response = clientEndpoint -> delete("/delete", request=req);
     match response {
         http:Response resp => {
@@ -108,7 +108,7 @@ function main (string... args) {
 
     }
 
-    req.setStringPayload("CUSTOM: Hello World");
+    req.setPayload("CUSTOM: Hello World");
     // The `execute()` action can be used if one needs to use custom HTTP verbs.
     response = clientEndpoint -> execute("COPY", "/get", req);
 

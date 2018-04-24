@@ -36,7 +36,7 @@ service<http:Service> ParticipantService bind {port: 8889} {
                 }
                 http:PayloadError payloadError => {
                     res.statusCode = http:INTERNAL_SERVER_ERROR_500;
-                    res.setStringPayload(payloadError.message);
+                    res.setPayload(payloadError.message);
                     log:printError("Payload error occurred!", err = payloadError);
                 }
             }

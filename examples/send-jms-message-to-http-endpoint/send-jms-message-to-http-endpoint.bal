@@ -25,10 +25,10 @@ service<jms:Consumer> jmsListener bind consumer {
         // Forward the received text content of the JMS message to the backend Service
         // over using the HTTP client endpoint.
         http:Request req = new;
-        req.setStringPayload(textContent);
+        req.setPayload(textContent);
         http:Response response = check clientEP->post("/backend/jms", request=req);
 
-        string responseMessage = check response.getStringPayload();
+        string responseMessage = check response.getTextPayload();
         log:printInfo("Response from backend service: " + responseMessage);
     }
 }
@@ -43,11 +43,11 @@ service<http:Service> backend bind {port:9090} {
     jmsPayloadReceiver(endpoint conn, http:Request req) {
         http:Response res = new;
 
-        string stringPayload = check req.getStringPayload();
+        string stringPayload = check req.getTextPayload();
         log:printInfo("Message received from backend service. Payload: " + stringPayload);
 
         // A util method that can be used to set string payload.
-        res.setStringPayload("Message Received.");
+        res.setPayload("Message Received.");
         // Sends the response back to the client.
         _ = conn -> respond(res);
     }
