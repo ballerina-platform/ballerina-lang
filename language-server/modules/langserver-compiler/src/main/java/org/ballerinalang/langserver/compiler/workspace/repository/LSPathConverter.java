@@ -50,7 +50,11 @@ class LSPathConverter extends PathConverter {
             return Stream.of(new FileSystemSourceInput(path));
         }
     }
-    
+
+    /**
+     * Reset the LS context instance.
+     * @param lsContext     New LSContext instance
+     */
     public void resetLSContext(LSContext lsContext) {
         this.lsContext = lsContext;
     }
