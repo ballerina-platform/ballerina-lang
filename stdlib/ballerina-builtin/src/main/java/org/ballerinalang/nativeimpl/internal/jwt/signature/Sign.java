@@ -66,7 +66,7 @@ public class Sign extends BlockingNativeCallableUnit {
         PrivateKey privateKey;
         try {
             privateKey = KeyStoreHolder.getInstance().getPrivateKey(keyStore.getStringField(0), keyPassword,
-                    keyStore.getStringField(2), keyStorePassword);
+                    PathResolver.getResolvedPath(keyStore.getStringField(2)), keyStorePassword);
             JWSSigner signer = new RSASigner(privateKey);
             signature = signer.sign(data, algorithm);
             context.setReturnValues(new BString(signature));
