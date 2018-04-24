@@ -1200,38 +1200,49 @@ function testMutltipleRowsWithForEach() returns (int, int) {
     return (rs1.INT_TYPE, rs2.INT_TYPE);
 }
 
-function testTableAddInvalid() {
+function testTableAddInvalid() returns string {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: {maximumPoolSize: 1}
     };
 
     table dt = check testDB->select("SELECT int_type from DataTableRep", ResultPrimitiveInt);
 
+    string s;
     try {
-        ResultPrimitiveInt row = {INT_TYPE:443};
-        _ = dt.add(row);
+        ResultPrimitiveInt row = {INT_TYPE: 443};
+        var ret = dt.add(row);
+        match (ret) {
+            error e => s = e.message;
+            () => s = "nil";
+        }
     } finally {
         testDB.stop();
     }
+    return s;
 }
 
-function testTableRemoveInvalid() {
+function testTableRemoveInvalid() returns string {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: {maximumPoolSize: 1}
     };
 
     table dt = check testDB->select("SELECT int_type from DataTableRep", ResultPrimitiveInt);
-
+    string s;
     try {
-        ResultPrimitiveInt row = {INT_TYPE:443};
-        _ = dt.remove(isDelete);
+        ResultPrimitiveInt row = {INT_TYPE: 443};
+        var ret = dt.remove(isDelete);
+        match (ret) {
+            int count => s = <string>count;
+            error e => s = e.message;
+        }
     } finally {
         testDB.stop();
     }
+    return s;
 }
 
 function isDelete(ResultPrimitiveInt p) returns (boolean) {

@@ -44,7 +44,7 @@ import java.sql.SQLException;
  * @since 0.970.0
  */
 public class TableUtils {
-    private static final String TABLE_OPERATION_ERROR = "TableOperationError";
+    private static final String TABLE_OPERATION_ERROR = "error";
     private static final String TABLE_PACKAGE_PATH = "ballerina.builtin";
     private static final String EXCEPTION_OCCURRED = "Exception occurred";
 
@@ -180,15 +180,14 @@ public class TableUtils {
     }
 
     /**
-     * Creates an instance of {@code {@link BStruct}} of the type TableOperationError.
+     * Creates an instance of {@code {@link BStruct}} of the type error.
      *
      * @param context The context
      * @param throwable The Throwable object to be used
-     * @return {@code {@link BStruct}} of the type {@code TableOperationError}
+     * @return {@code {@link BStruct}} of the type {@code error}
      */
     public static BStruct createTableOperationError(Context context, Throwable throwable) {
-        PackageInfo tableLibPackage = context.getProgramFile()
-                .getPackageInfo(TABLE_PACKAGE_PATH);
+        PackageInfo tableLibPackage = context.getProgramFile().getPackageInfo(TABLE_PACKAGE_PATH);
         StructInfo errorStructInfo = tableLibPackage.getStructInfo(TABLE_OPERATION_ERROR);
         BStruct tableOperationError = new BStruct(errorStructInfo.getType());
         if (throwable.getMessage() == null) {
@@ -198,5 +197,4 @@ public class TableUtils {
         }
         return tableOperationError;
     }
-
 }

@@ -154,6 +154,15 @@ public function Listener::init (ServiceEndpointConfiguration config) {
 //////////////////////////////////
 /// WebSocket Service Endpoint ///
 //////////////////////////////////
+documentation {
+    Represents a WebSocket server endpoint.
+
+    F{{id}} the connection id
+    F{{negotiatedSubProtocol}} the subprotocols negoriated with the client
+    F{{isSecure}} true if the connection is secure
+    F{{isOpen}} true if the connection is open
+    F{{attributes}} a map to store connection related attributes
+}
 public type WebSocketListener object {
     public {
         string id;
@@ -169,41 +178,47 @@ public type WebSocketListener object {
         Listener httpEndpoint;
     }
 
-    public new () {
+    public new() {
     }
 
-    @Description {value:"Gets called when the endpoint is being initialize during package init time"}
-    @Param {value:"epName: The endpoint name"}
-    @Param {value:"config: The ServiceEndpointConfiguration of the endpoint"}
-    @Return {value:"Error occured during initialization"}
+    documentation {
+        Gets called when the endpoint is being initialize during package init time.
+
+        P{{config}} The `ServiceEndpointConfiguration` of the endpoint
+    }
     public function init(ServiceEndpointConfiguration config) {
         self.config = config;
         httpEndpoint.init(config);
     }
 
-    @Description {value:"gets called every time a service attaches itself to this endpoint - also happens at package init time"}
-    @Param {value:"conn: The server connector connection"}
-    @Param {value:"res: The outbound response message"}
-    @Return {value:"Error occured during registration"}
+    documentation {
+        Gets called every time a service attaches itself to this endpoint - also happens at package init time.
+
+        P{{serviceType}} The service type
+    }
     public function register(typedesc serviceType) {
         httpEndpoint.register(serviceType);
     }
 
-    @Description {value:"Starts the registered service"}
-    @Return {value:"Error occured during registration"}
+    documentation {
+        Starts the registered service.
+    }
     public function start() {
         httpEndpoint.start();
     }
 
-    @Description {value:"Returns the connector that client code uses"}
-    @Return {value:"The connector that client code uses"}
-    @Return {value:"Error occured during registration"}
+    documentation {
+        Allows access to connector that the listener endpoint uses.
+
+        R{{}} The connector that listener endpoint uses
+    }
     public function getCallerActions() returns (WebSocketConnector) {
         return conn;
     }
 
-    @Description {value:"Stops the registered service"}
-    @Return {value:"Error occured during registration"}
+    documentation {
+        Stops the registered service.
+    }
     public function stop() {
         httpEndpoint.stop();
     }

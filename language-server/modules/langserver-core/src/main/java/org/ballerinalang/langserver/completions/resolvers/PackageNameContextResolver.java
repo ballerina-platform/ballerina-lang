@@ -33,6 +33,8 @@ import org.eclipse.lsp4j.CompletionItemKind;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -48,7 +50,7 @@ public class PackageNameContextResolver extends AbstractItemResolver {
         if (tokenStream.get(currentIndex).getText().equals(UtilSymbolKeys.IMPORT_KEYWORD_KEY)) {
             completionItems.addAll(this.getOrgNameCompletionItems());
         } else {
-            StringBuilder orgNameComponent = new StringBuilder();
+            StringBuilder orgNameComponentReversed = new StringBuilder();
             while (true) {
                 if (currentIndex < 0) {
                     return new ArrayList<>();
@@ -57,12 +59,14 @@ public class PackageNameContextResolver extends AbstractItemResolver {
                 if (token.getText().equals(UtilSymbolKeys.IMPORT_KEYWORD_KEY)) {
                     break;
                 }
-                orgNameComponent.append(token.getText());
+                orgNameComponentReversed.append(token.getText());
                 currentIndex = token.getTokenIndex();
             }
-
-            if (orgNameComponent.toString().contains("/")) {
-                String orgName = orgNameComponent.toString().replace("/", "").trim();
+            
+            List<String> pkgNameComps = Arrays.asList(orgNameComponentReversed.toString().split("/"));
+            Collections.reverse(pkgNameComps);
+            if (orgNameComponentReversed.toString().contains("/")) {
+                String orgName = pkgNameComps.get(0);
                 completionItems.addAll(this.getPackageNameCompletions(orgName));
             } else {
                 completionItems.addAll(this.getOrgNameCompletionItems());

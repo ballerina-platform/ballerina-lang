@@ -95,12 +95,12 @@ public class Main {
 
             // Run command
             RunCmd runCmd = new RunCmd();
-            JCommander jcRunCmd = addSubCommand(cmdParser, "run", runCmd);
+            JCommander jcRunCmd = addSubCommand(cmdParser, BallerinaCliCommands.RUN, runCmd);
             runCmd.setParentCmdParser(cmdParser);
             runCmd.setSelfCmdParser(jcRunCmd);
 
             HelpCmd helpCmd = new HelpCmd();
-            cmdParser.addCommand("help", helpCmd);
+            cmdParser.addCommand(BallerinaCliCommands.HELP, helpCmd);
             helpCmd.setParentCmdParser(cmdParser);
 
             // loading additional commands via SPI
@@ -112,11 +112,11 @@ public class Main {
 
             // Build Version Command
             VersionCmd versionCmd = new VersionCmd();
-            cmdParser.addCommand("version", versionCmd);
+            cmdParser.addCommand(BallerinaCliCommands.VERSION, versionCmd);
             versionCmd.setParentCmdParser(cmdParser);
 
             EncryptCmd encryptCmd = new EncryptCmd();
-            cmdParser.addCommand("encrypt", encryptCmd);
+            cmdParser.addCommand(BallerinaCliCommands.ENCRYPT, encryptCmd);
             encryptCmd.setParentCmdParser(cmdParser);
 
             cmdParser.setProgramName("ballerina");
@@ -156,26 +156,9 @@ public class Main {
         }
     }
 
-    private static void printUsageInfo(JCommander cmdParser) {
-        StringBuilder out = new StringBuilder();
-        out.append("Ballerina is a general purpose, concurrent and strongly typed programming language \n");
-        out.append("with both textual and graphical syntaxes, optimized for integration.\n");
-        out.append("\n");
-        out.append("* Find more information at http://ballerinalang.org\n");
-        out.append("\n");
-        out.append("Usage:\n");
-        out.append("  ballerina [command] [options]\n");
-        out.append("\n");
-
-        out.append("Available Commands:\n");
-        BLauncherCmd.printCommandList(cmdParser, out);
-
-        out.append("\n");
-        BLauncherCmd.printFlags(cmdParser.getParameters(), out);
-
-        out.append("\n");
-        out.append("Use \"ballerina help [command]\" for more information about a command.");
-        outStream.println(out.toString());
+    private static void printUsageInfo(String commandName) {
+        String usageInfo = BLauncherCmd.getCommandUsageInfo(commandName);
+        outStream.println(usageInfo);
     }
 
     private static void printVersionInfo() {
@@ -198,8 +181,6 @@ public class Main {
      */
     @Parameters(commandNames = "run", commandDescription = "compile and run Ballerina program")
     private static class RunCmd implements BLauncherCmd {
-
-        private JCommander parentCmdParser;
 
         @Parameter(arity = 1, description = "arguments")
         private List<String> argList;
@@ -236,8 +217,7 @@ public class Main {
 
         public void execute() {
             if (helpFlag) {
-                String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "run");
-                outStream.println(commandUsageInfo);
+                printUsageInfo(BallerinaCliCommands.RUN);
                 return;
             }
 
@@ -281,7 +261,7 @@ public class Main {
 
         @Override
         public String getName() {
-            return "run";
+            return BallerinaCliCommands.RUN;
         }
 
         @Override
@@ -305,7 +285,6 @@ public class Main {
 
         @Override
         public void setParentCmdParser(JCommander parentCmdParser) {
-            this.parentCmdParser = parentCmdParser;
         }
 
         @Override
@@ -331,7 +310,7 @@ public class Main {
 
         public void execute() {
             if (helpCommands == null) {
-                printUsageInfo(parentCmdParser);
+                printUsageInfo(BallerinaCliCommands.HELP);
                 return;
 
             } else if (helpCommands.size() > 1) {
@@ -343,13 +322,13 @@ public class Main {
                 throw LauncherUtils.createUsageException("unknown help topic `" + userCommand + "`");
             }
 
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, userCommand);
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(userCommand);
             outStream.println(commandUsageInfo);
         }
 
         @Override
         public String getName() {
-            return "help";
+            return BallerinaCliCommands.HELP;
         }
 
         @Override
@@ -392,8 +371,7 @@ public class Main {
 
         public void execute() {
             if (helpFlag) {
-                String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "version");
-                outStream.println(commandUsageInfo);
+                printUsageInfo(BallerinaCliCommands.VERSION);
                 return;
             }
 
@@ -412,7 +390,7 @@ public class Main {
 
         @Override
         public String getName() {
-            return "version";
+            return BallerinaCliCommands.VERSION;
         }
 
         @Override
@@ -451,13 +429,10 @@ public class Main {
         @Parameter(names = {"--help", "-h"}, hidden = true)
         private boolean helpFlag;
 
-        private JCommander parentCmdParser;
-
         @Override
         public void execute() {
             if (helpFlag) {
-                String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "encrypt");
-                outStream.println(commandUsageInfo);
+                printUsageInfo(BallerinaCliCommands.ENCRYPT);
                 return;
             }
 
@@ -503,7 +478,7 @@ public class Main {
 
         @Override
         public String getName() {
-            return "encrypt";
+            return BallerinaCliCommands.ENCRYPT;
         }
 
         @Override
@@ -525,7 +500,6 @@ public class Main {
 
         @Override
         public void setParentCmdParser(JCommander parentCmdParser) {
-            this.parentCmdParser = parentCmdParser;
         }
 
         @Override
@@ -555,16 +529,14 @@ public class Main {
         @Parameter(names = "--java.debug", hidden = true)
         private String javaDebugPort;
 
-        private JCommander parentCmdParser;
-
         @Override
         public void execute() {
-            printUsageInfo(parentCmdParser);
+            printUsageInfo(BallerinaCliCommands.DEFAULT);
         }
 
         @Override
         public String getName() {
-            return "default-cmd";
+            return BallerinaCliCommands.DEFAULT;
         }
 
         @Override
@@ -578,7 +550,6 @@ public class Main {
 
         @Override
         public void setParentCmdParser(JCommander parentCmdParser) {
-            this.parentCmdParser = parentCmdParser;
         }
 
         @Override
@@ -586,4 +557,3 @@ public class Main {
         }
     }
 }
-
