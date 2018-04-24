@@ -1,4 +1,4 @@
-$ ballerina run distributed-transactions.bal
+$ ballerina run xa_transactions.bal
 2018-04-23 20:38:47,018 INFO  [] - CUSTOMER table create status in first DB:0
 2018-04-23 20:38:47,039 INFO  [] - SALARY table create status in second DB:0
 2018-04-23 20:38:47,053 INFO  [ballerina.transactions] -
