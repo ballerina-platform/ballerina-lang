@@ -32,31 +32,36 @@ documentation {
 @final public string NO_TRANSFORM = "no-transform";
 
 documentation {
-    When used in requests, it implies that clients are not willing to accept responses whose age is greater than max-age. When used in responses, the response is to be considered stale after the specified number of seconds.
+    When used in requests, it implies that clients are not willing to accept responses whose age is greater
+    than `max-age`. When used in responses, the response is to be considered stale after the specified
+    number of seconds.
 }
 @final public string MAX_AGE = "max-age";
 
 
 // Request only cache-control directives
 documentation {
-    Indicates that the client is willing to accept responses which have exceeded their freshness lifetime by no more than the specified number of seconds.
+    Indicates that the client is willing to accept responses which have exceeded their freshness lifetime by no more
+    than the specified number of seconds.
 }
 @final public string MAX_STALE = "max-stale";
 
 documentation {
-    Indicates that the client is only accepting responses whose freshness lifetime >= current age + min-fresh
+    Indicates that the client is only accepting responses whose freshness lifetime >= current age + min-fresh.
 }
 @final public string MIN_FRESH = "min-fresh";
 
 documentation {
-    Indicates that the client is only willing to accept a cached response. A cached response is served subject to other constraints posed by the request.
+    Indicates that the client is only willing to accept a cached response. A cached response is served subject to
+    other constraints posed by the request.
 }
 @final public string ONLY_IF_CACHED = "only-if-cached";
 
 
 // Response only cache-control directives
 documentation {
-    Indicates that once the response has become stale, it should not be reused for subsequent requests without validating with the origin server.
+    Indicates that once the response has become stale, it should not be reused for subsequent requests without
+    validating with the origin server.
 }
 @final public string MUST_REVALIDATE = "must-revalidate";
 
@@ -71,31 +76,31 @@ documentation {
 @final public string PRIVATE = "private";
 
 documentation {
-    Has the same meaning as must-revalidate, except that this does not apply to private caches.
+    Has the same semantics as `must-revalidate`, except that this does not apply to private caches.
 }
 @final public string PROXY_REVALIDATE = "proxy-revalidate";
 
 documentation {
-    In shared caches, this overrides the max-age or Expires header field
+    In shared caches, `s-maxage` overrides the `max-age` or `expires` header field.
 }
 @final public string S_MAX_AGE = "s-maxage";
 
 // Other constants
 documentation {
-    A constant for indicating that the max-stale directive does not specify a limit.
+    Setting this as the `max-stale` directives indicates that the `max-stale` directive does not specify a limit.
 }
 @final public int MAX_STALE_ANY_AGE = 9223372036854775807;
 
 documentation {
-    Cache control directives configuration for requests
+    Configures cache control directives for a `Request`.
 
-    F{{noCache}} Represents the no-cache directive
-    F{{noStore}} Represents the no-store directive
-    F{{noTransform}} Represents the no-transform directive
-    F{{onlyIfCached}} Represents the only-if-cached directive
-    F{{maxAge}} Represents the max-age directive
-    F{{maxStale}} Represents the max-stale directive
-    F{{minFresh}} Represents the min - fresh directive
+    F{{noCache}} Sets the `no-cache` directive
+    F{{noStore}} Sets the `no-store` directive
+    F{{noTransform}} Sets the `no-transform` directive
+    F{{onlyIfCached}} Sets the `only-if-cached` directive
+    F{{maxAge}} Sets the `max-age` directive
+    F{{maxStale}} Sets the `max-stale` directive
+    F{{minFresh}} Sets the `min-fresh` directive
 }
 public type RequestCacheControl object {
     public {
@@ -109,7 +114,7 @@ public type RequestCacheControl object {
     }
 
     documentation {
-        Build the cache control directives string from the current request cache control configurations
+        Builds the cache control directives string from the current `RequestCacheControl` configurations.
     }
     public function buildCacheControlDirectives () returns string {
         string[] directives = [];
@@ -158,20 +163,20 @@ public type RequestCacheControl object {
 };
 
 documentation {
-    Cache control directives configuration for responses
+    Configures cache control directives for a `Response`.
 
-    F{{mustRevalidate}} Represents the must-revalidate directive
-    F{{noCache}} Represents the no-cache directive
-    F{{noStore}} Represents the no-store directive
-    F{{noTransform}} Represents the no-transform directive
-    F{{isPrivate}} Represents the private and public directives
-    F{{proxyRevalidate}} Represents the proxy-revalidate directive
-    F{{maxAge}} Represents the max-age directive
-    F{{sMaxAge}} Represents the s-maxage directive
-    F{{noCacheFields}} Optional fields for no-cache directive. If sending any of the listed fields in a response,
-                        they must validated with the origin server.
-    F{{privateFields}} Optional fields for private directive. A cache can omit the fields specified and store
-                        the rest ofthe response.
+    F{{mustRevalidate}} Sets the `must-revalidate` directive
+    F{{noCache}} Sets the `no-cache` directive
+    F{{noStore}} Sets the `no-store` directive
+    F{{noTransform}} Sets the `no-transform` directive
+    F{{isPrivate}} Sets the `private` and `public` directives
+    F{{proxyRevalidate}} Sets the `proxy-revalidate` directive
+    F{{maxAge}} Sets the `max-age` directive
+    F{{sMaxAge}} Sets the `s-maxage` directive
+    F{{noCacheFields}} Optional fields for the `no-cache` directive. Before sending a listed field in a response, it
+                       must be validated with the origin server.
+    F{{privateFields}} Optional fields for the `private` directive. A cache can omit the fields specified and store
+                       the rest of the response.
 }
 public type ResponseCacheControl object {
     public {
@@ -188,7 +193,7 @@ public type ResponseCacheControl object {
     }
 
     documentation {
-        Build the cache control directives string from the current response cache control configurations
+        Builds the cache control directives string from the current `ResponseCacheControl` configurations.
     }
     public function buildCacheControlDirectives () returns string {
         string[] directives = [];
