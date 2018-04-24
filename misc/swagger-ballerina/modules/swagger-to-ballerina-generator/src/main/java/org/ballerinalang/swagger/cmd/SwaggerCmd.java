@@ -27,7 +27,6 @@ import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.swagger.CodeGenerator;
 import org.ballerinalang.swagger.utils.GeneratorConstants.GenType;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -158,7 +157,7 @@ public class SwaggerCmd implements BLauncherCmd {
 
         try {
             SwaggerConverterUtils.generateOAS3Definitions(servicePath, outPath, serviceName);
-        } catch (IOException e) {
+        } catch (Exception e) {
             String causeMessage = "";
             Throwable rootCause = ExceptionUtils.getRootCause(e);
 
