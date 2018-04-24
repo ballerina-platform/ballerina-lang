@@ -34,7 +34,7 @@ function testTypicalScenario () returns (http:Response[] , error[]) {
             },
             failureThreshold:0.3,
             resetTimeMillis:1000,
-            statusCodes:[400, 404, 500, 502]
+            statusCodes:[400, 404, 500, 502, 503]
         },
         timeoutMillis:2000
     };
@@ -54,7 +54,6 @@ function testTypicalScenario () returns (http:Response[] , error[]) {
                 responses[counter] = res;
             }
             error httpConnectorError => {
-                httpConnectorError.statusCode = http:SERVICE_UNAVAILABLE_503;
                 errs[counter] = httpConnectorError; 
             }
         }
@@ -78,7 +77,7 @@ function testTrialRunFailure () returns (http:Response[] , error[]) {
             },
             failureThreshold:0.3,
             resetTimeMillis:1000,
-            statusCodes:[400, 404, 500, 502]
+            statusCodes:[400, 404, 500, 502, 503]
         },
         timeoutMillis:2000
     };
@@ -98,7 +97,6 @@ function testTrialRunFailure () returns (http:Response[] , error[]) {
                 responses[counter] = res;
             }
             error httpConnectorError => {
-                httpConnectorError.statusCode = http:SERVICE_UNAVAILABLE_503;
                 errs[counter] = httpConnectorError; 
             }
         }
@@ -122,7 +120,7 @@ function testHttpStatusCodeFailure () returns (http:Response[] , error[]) {
             },
             failureThreshold:0.3,
             resetTimeMillis:1000,
-            statusCodes:[400, 404, 500, 502]
+            statusCodes:[400, 404, 500, 502, 503]
         },
         timeoutMillis:2000
     };
@@ -142,7 +140,6 @@ function testHttpStatusCodeFailure () returns (http:Response[] , error[]) {
                 responses[counter] = res;
             }
             error httpConnectorError => {
-                httpConnectorError.statusCode = http:SERVICE_UNAVAILABLE_503;
                 errs[counter] = httpConnectorError; 
             }
         }
@@ -201,7 +198,7 @@ public type MockClient object {
                 }
                 error httpConnectorError => {
                     string message = httpConnectorError.message;
-                    response.statusCode = httpConnectorError.statusCode;
+                    response.statusCode = http:INTERNAL_SERVER_ERROR_500;
                     response.setTextPayload(message);
                 }
             }
@@ -212,7 +209,7 @@ public type MockClient object {
                 }
                 error httpConnectorError => {
                     string message = httpConnectorError.message;
-                    response.statusCode = httpConnectorError.statusCode;
+                    response.statusCode = http:INTERNAL_SERVER_ERROR_500;
                     response.setTextPayload(message);
                 }
             }
@@ -223,7 +220,7 @@ public type MockClient object {
                 }
                 error httpConnectorError => {
                     string message = httpConnectorError.message;
-                    response.statusCode = httpConnectorError.statusCode;
+                    response.statusCode = http:INTERNAL_SERVER_ERROR_500;
                     response.setTextPayload(message);
                 }
             }
@@ -303,7 +300,7 @@ function handleHTTPStatusCodeErrorScenario (int counter) returns (http:Response 
 }
 
 function getErrorStruct () returns (error) {
-    error err = {message:"Connection refused", statusCode:http:BAD_GATEWAY_502};
+    error err = {message:"Connection refused"};
     return err;
 }
 
@@ -315,6 +312,6 @@ function getResponse () returns (http:Response) {
 }
 
 function getMockErrorStruct () returns (error) {
-    error err = {message:"Internal Server Error", statusCode:http:INTERNAL_SERVER_ERROR_500};
+    error err = {message:"Internal Server Error"};
     return err;
 }

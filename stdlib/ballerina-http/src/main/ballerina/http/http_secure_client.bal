@@ -322,7 +322,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     Response tokenResponse;
     match refreshTokenResponse {
         Response httpResponse => tokenResponse = httpResponse;
-        HttpConnectorErr err => return err;
+        error err => return err;
     }
     var requestAccessTokenJson = tokenResponse.getJsonPayload();
     json generatedToken = check requestAccessTokenJson;

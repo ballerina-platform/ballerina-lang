@@ -403,16 +403,15 @@ public class HttpUtil {
     }
 
     public static BStruct getHttpConnectorError(Context context, Throwable throwable) {
-        PackageInfo httpPackageInfo = context.getProgramFile()
-                .getPackageInfo(HttpConstants.PROTOCOL_PACKAGE_HTTP);
-        StructInfo errorStructInfo = httpPackageInfo.getStructInfo(HttpConstants.HTTP_CONNECTOR_ERROR);
-        BStruct httpConnectorError = new BStruct(errorStructInfo.getType());
+        PackageInfo filePkg = context.getProgramFile().getPackageInfo(PACKAGE_BUILTIN);
+        StructInfo entityErrInfo = filePkg.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
+        BStruct genericError = new BStruct(entityErrInfo.getType());
         if (throwable.getMessage() == null) {
-            httpConnectorError.setStringField(0, IO_EXCEPTION_OCCURED);
+            genericError.setStringField(0, IO_EXCEPTION_OCCURED);
         } else {
-            httpConnectorError.setStringField(0, throwable.getMessage());
+            genericError.setStringField(0, throwable.getMessage());
         }
-        return httpConnectorError;
+        return genericError;
     }
 
     public static HTTPCarbonMessage getCarbonMsg(BStruct struct, HTTPCarbonMessage defaultMsg) {

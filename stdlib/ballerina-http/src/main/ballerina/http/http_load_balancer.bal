@@ -293,7 +293,7 @@ function performLoadBalanceExecuteAction (LoadBalancer lb, string path, Request 
     if (connectorAction != HTTP_NONE) {
         return performLoadBalanceAction(lb, path, request, connectorAction);
     } else {
-        error httpConnectorErr = {message:"Unsupported connector action received.", statusCode:501};
+        error httpConnectorErr = {message:"Unsupported connector action received."};
         return httpConnectorErr;
     }
 }

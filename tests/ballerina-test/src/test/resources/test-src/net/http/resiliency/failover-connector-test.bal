@@ -15,13 +15,14 @@
 // under the License.
 
 import ballerina/http;
+import ballerina/io;
 
 int counter = 0;
 
 function testSuccessScenario () returns (http:Response | error) {
 
     endpoint http:FailoverClient backendClientEP {
-        failoverCodes : [400, 404, 502],
+        failoverCodes : [400, 404, 502, 503],
         targets: [
                  {url: "http://invalidEP"},
                  {url: "http://localhost:8080"}],
@@ -51,7 +52,7 @@ function testSuccessScenario () returns (http:Response | error) {
 
 function testFailureScenario () returns (http:Response | error) {
     endpoint http:FailoverClient backendClientEP {
-        failoverCodes : [400, 404, 502],
+        failoverCodes : [400, 404, 502, 503],
         targets: [
                  {url: "http://invalidEP"},
                  {url: "http://localhost:50000000"}],
@@ -64,16 +65,18 @@ function testFailureScenario () returns (http:Response | error) {
     MockClient mockClient2 = new;
     http:CallerActions[] httpClients = [<http:CallerActions> mockClient1, <http:CallerActions> mockClient2];
     foClient.failoverInferredConfig.failoverClientsArray = httpClients;
-
+io:println(counter);
     while (counter < 1) {
        http:Request request = new;
        match foClient.get("/hello", request = request) {
             http:Response res => {
             }
             error httpConnectorError => {
+                io:println(httpConnectorError);
                 err = httpConnectorError;
             }
         }
+
         counter = counter + 1;
     }
     return err;
@@ -123,7 +126,7 @@ public type MockClient object {
             }
             error httpConnectorError => {
                 string message = httpConnectorError.message;
-                response.statusCode = httpConnectorError.statusCode;
+                response.statusCode = http:INTERNAL_SERVER_ERROR_500;
                 response.setTextPayload(message);
             }
         }
@@ -170,7 +173,7 @@ public type MockClient object {
 
 function handleFailoverScenario (int count) returns (http:Response | error) {
     if (count == 0) {
-        error err = {message:"Connection refused", statusCode:http:BAD_GATEWAY_502};
+        error err = {message:"Connection refused"};
         return err;
     } else {
         http:Response inResponse = new;

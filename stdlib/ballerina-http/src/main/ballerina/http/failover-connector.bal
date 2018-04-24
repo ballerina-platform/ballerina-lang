@@ -319,7 +319,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
     int failoverInterval = failoverInferredConfig.failoverInterval;
 
     //TODO: workaround to initialize a type inside a function. Change this once fix is aailable.
-    FailoverConnectorError failoverConnectorError = {statusCode:500};
+    FailoverConnectorError failoverConnectorError = {};
     CallerActions[] failoverClients = failoverInferredConfig.failoverClientsArray;
     CallerActions failoverClient = failoverClients[currentIndex];
     Response inResponse = new;
@@ -383,7 +383,6 @@ function performFailoverAction (string path, Request request, HttpOperation requ
 // Populates generic error specific to Failover connector by including all the errors returned from endpoints.
 function populateGenericFailoverConnectorError (FailoverConnectorError failoverConnectorError, error httpConnectorErr, int index)
            returns (error) {
-    httpConnectorErr.statusCode = INTERNAL_SERVER_ERROR_500;
     failoverConnectorError.httpConnectorErr[index] = httpConnectorErr;
     string lastErrorMsg = httpConnectorErr.message;
     failoverConnectorError.message = "All the failover endpoints failed. Last error was " + lastErrorMsg;
@@ -404,7 +403,7 @@ function populateFailoverErrorHttpStatusCodes (Response inResponse, FailoverConn
 function populateErrorsFromLastResponse (Response inResponse, FailoverConnectorError failoverConnectorError, int index)
                                                                             returns (error) {
     string failoverMessage = "Last endpoint returned response: " + inResponse.statusCode + " " + inResponse.reasonPhrase;
-    error lastHttpConnectorErr = {message:failoverMessage, statusCode:inResponse.statusCode};
+    error lastHttpConnectorErr = {message:failoverMessage};
     failoverConnectorError.httpConnectorErr[index] = lastHttpConnectorErr;
     failoverConnectorError.statusCode = INTERNAL_SERVER_ERROR_500;
     failoverConnectorError.message = "All the failover endpoints failed. Last endpoint returned response is: "
