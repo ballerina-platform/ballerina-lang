@@ -27,7 +27,7 @@ service http11Service bind http11ServiceEP {
             http:Response resultantResponse => {
                 response = resultantResponse;
             }
-            http:HttpConnectorError err => {
+            error err => {
                 // Handle if there is an error returned from the forward function invocation.
                 response.statusCode = 500;
                 response.setPayload(err.message);
