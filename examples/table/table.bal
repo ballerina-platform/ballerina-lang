@@ -17,16 +17,21 @@ function main(string... args) {
         primaryKey: ["id"]
     };
 
-    // Add some data rows to the table.
-    Employee e1 = {id: 1, name: "Jane", salary: 300.50};
-    Employee e2 = {id: 2, name: "Anne", salary: 100.50};
-    Employee e3 = {id: 3, name: "John", salary: 400.50};
-    Employee e4 = {id: 4, name: "Peter", salary: 150.0};
+    // Create Employee records.
+    Employee e1 = { id: 1, name: "Jane", salary: 300.50 };
+    Employee e2 = { id: 2, name: "Anne", salary: 100.50 };
+    Employee e3 = { id: 3, name: "John", salary: 400.50 };
+    Employee e4 = { id: 4, name: "Peter", salary: 150.0 };
+    Employee[] employees = [e1, e2, e3, e4];
 
-    _ = tb.add(e1);
-    _ = tb.add(e2);
-    _ = tb.add(e3);
-    _ = tb.add(e4);
+    // Add the created records to the table.
+    foreach (e in employees) {
+        var ret = tb.add(e);
+        match ret {
+            () => io:println("Adding to table successful");
+            error err => io:println("Adding to table failed: " + err.message);
+        }
+    }
 
     // Print the table data.
     io:print("Table Information: ");
@@ -54,6 +59,7 @@ function main(string... args) {
 
     //Select subset of columns from the table.
     table<EmployeeSalary> salaryTable = tb.select(getEmployeeSalary);
+
     //Get the table count using the count operation.
     int count = salaryTable.count();
     io:println("Selected row count: " + count);
@@ -69,14 +75,24 @@ function main(string... args) {
     io:println(tb);
 
     // Convert to JSON.
-    json j = check <json>tb;
-    io:print("JSON: ");
-    io:println(j);
+    var retValJson = <json>tb;
+    match retValJson {
+        json j => {
+            io:print("JSON: ");
+            io:println(j);
+        }
+        error e => io:println("Error in table to json conversion");
+    }
 
     // Convert to XML.
-    xml x = check <xml>tb;
-    io:print("XML: ");
-    io:println(x);
+    var retValXml = <xml>tb;
+    match retValXml {
+        xml x => {
+            io:print("XML: ");
+            io:println(x);
+        }
+        error e => io:println("Error in table to xml conversion");
+    }
 }
 
 function isLowerSalary(Employee p) returns boolean {
@@ -88,6 +104,6 @@ function getSalary(Employee p) returns float {
 }
 
 function getEmployeeSalary(Employee e) returns (EmployeeSalary) {
-    EmployeeSalary s = {id: e.id, salary: e.salary};
+    EmployeeSalary s = { id: e.id, salary: e.salary };
     return s;
 }

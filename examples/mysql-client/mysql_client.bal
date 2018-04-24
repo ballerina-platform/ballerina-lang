@@ -40,7 +40,7 @@ function main(string... args) {
     }
 
     // Select data using the `select` action. The `select` action returns a table.
-    // See the `table_with_jdbc_client` ballerina example for more details on how to access data.
+    // See the `table` ballerina example for more details on how to access data.
     var dtReturned = testDB->select("SELECT * FROM STUDENT WHERE AGE = ?", (), para1);
     table dt;
     match dtReturned {
