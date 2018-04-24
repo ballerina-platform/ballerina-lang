@@ -21,8 +21,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.ballerinalang.composer.server.core.Server;
 import org.ballerinalang.composer.server.core.ServerConfig;
-import org.ballerinalang.composer.server.launcher.browser.BrowserLauncher;
 import org.ballerinalang.composer.server.launcher.command.ServerCommand;
+import org.ballerinalang.packerina.BrowserLauncher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

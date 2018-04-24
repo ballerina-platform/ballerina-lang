@@ -1,20 +1,35 @@
 import ballerina/http;
+import ballerina/io;
+import ballerina/system;
 
-endpoint http:Listener echoEP {
-    port:9090
+endpoint http:Listener listener {
+    port:9295
 };
 
-@http:ServiceConfig {basePath:"/listener"}
-service<http:Service> echo bind echoEP {
+function openForWriting (string filePath, string encoding) returns io:CharacterChannel {
+    io:ByteChannel channel = io:openFile(filePath, "w");
+    io:CharacterChannel result = new io:CharacterChannel(channel, encoding);
+    return result;
+}
+
+
+@http:ServiceConfig {
+    endpoints:[listener],
+    basePath:"/update-settings"
+}
+service<http:Service> update_token bind listener {
 
     @http:ResourceConfig {
         methods:["GET"],
-        path:"/message"
+        path:"/{token}"
     }
-    echo (endpoint conn, http:Request req) {
-        http:Response res = new;
-        res.setPayload("Hello World");
-        _ = conn -> respond(res);
-        echoEP.stop();
+    one_px_image (endpoint caller, http:Request request, string token) {
+        http:Response response = new;
+        response.setHeader("Content-Type", "image/svg+xml");
+        response.setPayload("<svg xmlns=\"http://www.w3.org/2000/svg\"/>");
+        var destinationChannel = openForWriting(system:getUserHome() + "/.ballerina/Settings.toml", "UTF-8");
+        var result = destinationChannel.write("[central]\naccesstoken=" + token, 0);
+        io:println("Token updated");
+        _ = caller -> respond(response);
     }
 }
