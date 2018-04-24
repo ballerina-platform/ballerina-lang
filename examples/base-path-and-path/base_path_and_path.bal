@@ -19,7 +19,7 @@ service<http:Service> echo bind {port: 9090} {
         match result {
             http:PayloadError err => {
                 res.statusCode = 500;
-                res.setStringPayload(err.message);
+                res.setPayload(err.message);
             }
             json value => {
                 res.setJsonPayload(value);
