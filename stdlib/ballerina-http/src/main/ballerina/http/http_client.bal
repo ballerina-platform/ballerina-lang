@@ -141,7 +141,7 @@ public type CallerActions object {
 		Retrieves the `Response` for a previously submitted request.
 		
         P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
-        R{{}} A HTTP response message, or an error if the invocation fails
+        R{{}} An HTTP response message, or an error if the invocation fails
 	}
     public native function getResponse(HttpFuture httpFuture) returns Response|HttpConnectorError;
 
@@ -157,7 +157,7 @@ public type CallerActions object {
 		Retrieves the next available `PushPromise` for a previously submitted request.
 		
         P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
-        R{{}} A HTTP Push Promise message, or an error if the invocation fails
+        R{{}} An HTTP Push Promise message, or an error if the invocation fails
 	}
     public native function getNextPromise(HttpFuture httpFuture) returns PushPromise|HttpConnectorError;
 
