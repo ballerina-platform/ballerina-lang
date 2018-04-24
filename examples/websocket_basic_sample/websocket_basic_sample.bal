@@ -2,18 +2,12 @@ import ballerina/io;
 import ballerina/log;
 import ballerina/http;
 
-// This example gives you the basic idea of WebSocket endpoint.
-endpoint http:Listener basicEp {
-    host:"0.0.0.0",
-    port:9090
-};
-
 @http:WebSocketServiceConfig {
-    path:"/basic/ws",
-    subProtocols:["xml", "json"],
-    idleTimeoutInSeconds:120
+    path: "/basic/ws",
+    subProtocols: ["xml", "json"],
+    idleTimeoutInSeconds: 120
 }
-service<http:WebSocketService> basic bind basicEp {
+service<http:WebSocketService> basic bind {port: 9090} {
 
     string ping = "ping";
     blob pingData = ping.toBlob("UTF-8");

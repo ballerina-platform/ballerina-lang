@@ -3,14 +3,11 @@ import ballerina/http;
 
 @final string NAME = "NAME";
 @final string AGE = "AGE";
-endpoint http:Listener chatEp {
-    port:9090
-};
 
 @http:ServiceConfig {
     basePath:"/chat"
 }
-service<http:Service> chatAppUpgrader bind chatEp {
+service<http:Service> chatAppUpgrader bind {port:9090} {
 
     // Upgrade from HTTP to WebSocket and define the service the WebSocket client needs to connect to.
     @http:ResourceConfig {

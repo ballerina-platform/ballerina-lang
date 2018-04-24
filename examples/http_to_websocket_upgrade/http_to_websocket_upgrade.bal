@@ -3,18 +3,14 @@ import ballerina/http;
 import ballerina/mime;
 import ballerina/log;
 
-endpoint http:Listener servicEp {
-    port:9090
-};
-
 @http:ServiceConfig {
-    basePath:"/hello"
+    basePath: "/hello"
 }
-service<http:Service> httpService bind servicEp {
+service<http:Service> httpService bind {port: 9090} {
 
     @http:ResourceConfig {
-        path:"/world",
-        methods:["POST"]
+        path: "/world",
+        methods: ["POST"]
     }
     httpResource(endpoint caller, http:Request req) {
         http:Response resp = new;
@@ -36,9 +32,9 @@ service<http:Service> httpService bind servicEp {
 
 
     @http:ResourceConfig {
-        webSocketUpgrade:{
-            upgradePath:"/ws",
-            upgradeService:wsService
+        webSocketUpgrade: {
+            upgradePath: "/ws",
+            upgradeService: wsService
         }
     }
     upgrader(endpoint caller, http:Request req) {
@@ -52,8 +48,8 @@ service<http:Service> httpService bind servicEp {
 // - If path is defined in the WebSocketServiceConfig it shall be ignored.
 // - This service can also be bound to a different endpoint in which case the path configuration becomes useful.
 @http:WebSocketServiceConfig {
-    subProtocols:["xml, json"],
-    idleTimeoutInSeconds:20
+    subProtocols: ["xml, json"],
+    idleTimeoutInSeconds: 20
 }
 service<http:WebSocketService> wsService {
 
