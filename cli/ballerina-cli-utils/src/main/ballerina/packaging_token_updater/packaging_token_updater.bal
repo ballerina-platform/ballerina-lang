@@ -13,7 +13,7 @@ service<http:Service> echo bind echoEP {
     }
     echo (endpoint conn, http:Request req) {
         http:Response res = new;
-        res.setStringPayload("Hello World");
+        res.setPayload("Hello World");
         _ = conn -> respond(res);
         echoEP.stop();
     }

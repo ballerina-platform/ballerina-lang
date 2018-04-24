@@ -117,10 +117,9 @@ public class PushUtils {
             // Push package to central
             String resourcePath = resolvePkgPathInRemoteRepo(packageID);
             String msg = orgName + "/" + packageName + ":" + version + " [project repo -> central]";
-            EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
-            executor.execute("packaging_push/packaging_push.balx", "function",accessToken, mdFileContent, description,
-                             homepageURL, repositoryURL, apiDocURL, authors, keywords, license, resourcePath,
-                             pkgPathFromPrjtDir.toString(), msg);
+            executor.execute("packaging_push/packaging_push.balx", "function", accessToken, mdFileContent,
+                             description, homepageURL, repositoryURL, apiDocURL, authors, keywords, license,
+                             resourcePath, pkgPathFromPrjtDir.toString(), msg);
 
         } else {
             if (!installToRepo.equals("home")) {
@@ -140,7 +139,7 @@ public class PushUtils {
 
         if (accessToken.isEmpty()) {
             long modifiedTimeOfFileAtStart = getLastModifiedTimeOfFile(SETTINGS_TOML_FILE_PATH);
-            executor.execute("packaging.token.updater/ballerina.token.updater.balx", "service");
+            executor.execute("packaging_token_updater/packaging_token_updater.balx", "service");
 
             boolean waitForToken = true;
             while (waitForToken) {
