@@ -107,6 +107,7 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.PROPER
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PEER_ADDRESS;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PEER_HOSTNAME;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PEER_PORT;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
@@ -139,7 +140,7 @@ public class HttpUtil {
         }
 
         if (propertyValue instanceof String) {
-            return new BValue[] { new BString((String) propertyValue) };
+            return new BValue[]{new BString((String) propertyValue)};
         } else {
             throw new BallerinaException("Property value is of unknown type : " + propertyValue.getClass().getName());
         }
@@ -184,9 +185,9 @@ public class HttpUtil {
     /**
      * Get the entity from request or response.
      *
-     * @param context                Ballerina context
-     * @param isRequest              boolean representing whether the message is a request or a response
-     * @param isEntityBodyRequired   boolean representing whether the entity body is required
+     * @param context              Ballerina context
+     * @param isRequest            boolean representing whether the message is a request or a response
+     * @param isEntityBodyRequired boolean representing whether the entity body is required
      * @return Entity of the request or response
      */
     public static BValue[] getEntity(Context context, boolean isRequest, boolean isEntityBodyRequired) {
@@ -444,7 +445,7 @@ public class HttpUtil {
      * Populates the push promise struct from native {@code Http2PushPromise}.
      *
      * @param pushPromiseStruct the push promise struct
-     * @param pushPromise the native Http2PushPromise
+     * @param pushPromise       the native Http2PushPromise
      */
     public static void populatePushPromiseStruct(BStruct pushPromiseStruct, Http2PushPromise pushPromise) {
         pushPromiseStruct.addNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE, pushPromise);
@@ -498,7 +499,7 @@ public class HttpUtil {
                                                         HTTPCarbonMessage inboundRequestMsg) {
         if (inboundRequestMsg.getHeader(HttpHeaderNames.USER_AGENT.toString()) != null) {
             inboundRequestStruct.setStringField(HttpConstants.REQUEST_USER_AGENT_INDEX,
-                                                inboundRequestMsg.getHeader(HttpHeaderNames.USER_AGENT.toString()));
+                    inboundRequestMsg.getHeader(HttpHeaderNames.USER_AGENT.toString()));
             inboundRequestMsg.removeHeader(HttpHeaderNames.USER_AGENT.toString());
         }
     }
@@ -515,7 +516,7 @@ public class HttpUtil {
                 (Map<String, String>) inboundRequestMsg.getProperty(HttpConstants.RESOURCE_ARGS);
         if (resourceArgValues != null) {
             inboundRequestStruct.setStringField(HttpConstants.REQUEST_EXTRA_PATH_INFO_INDEX,
-                                                resourceArgValues.get(HttpConstants.EXTRA_PATH_INFO));
+                    resourceArgValues.get(HttpConstants.EXTRA_PATH_INFO));
         }
     }
 
@@ -533,11 +534,11 @@ public class HttpUtil {
      * Populate serviceEndpoint information.
      *
      * @param serviceEndpoint Represent the serviceEndpoint struct
-     * @param inboundMsg Represent carbon message.
-     * @param httpResource Represent Http Resource.
+     * @param inboundMsg      Represent carbon message.
+     * @param httpResource    Represent Http Resource.
      */
     public static void enrichServiceEndpointInfo(BStruct serviceEndpoint, HTTPCarbonMessage inboundMsg,
-            HttpResource httpResource) {
+                                                 HttpResource httpResource) {
         BStruct remote = BLangConnectorSPIUtil.createBStruct(
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                 PROTOCOL_PACKAGE_HTTP, HttpConstants.REMOTE);
@@ -570,12 +571,13 @@ public class HttpUtil {
 
     /**
      * Populate inbound response with headers and entity.
-     * @param inboundResponse  Ballerina struct to represent response
-     * @param entity    Entity of the response
-     * @param mediaType Content type of the response
-     * @param responseCacheControl  Cache control struct which holds the cache control directives related to the
-     *                              response
-     * @param inboundResponseMsg      Represent carbon message.
+     *
+     * @param inboundResponse      Ballerina struct to represent response
+     * @param entity               Entity of the response
+     * @param mediaType            Content type of the response
+     * @param responseCacheControl Cache control struct which holds the cache control directives related to the
+     *                             response
+     * @param inboundResponseMsg   Represent carbon message.
      */
     public static void populateInboundResponse(BStruct inboundResponse, BStruct entity, BStruct mediaType,
                                                ResponseCacheControlStruct responseCacheControl,
@@ -584,11 +586,11 @@ public class HttpUtil {
         int statusCode = (Integer) inboundResponseMsg.getProperty(HTTP_STATUS_CODE);
         inboundResponse.setIntField(RESPONSE_STATUS_CODE_INDEX, statusCode);
         inboundResponse.setStringField(RESPONSE_REASON_PHRASE_INDEX,
-                                       HttpResponseStatus.valueOf(statusCode).reasonPhrase());
+                HttpResponseStatus.valueOf(statusCode).reasonPhrase());
 
         if (inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString()) != null) {
             inboundResponse.setStringField(HttpConstants.RESPONSE_SERVER_INDEX,
-                                           inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString()));
+                    inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString()));
             inboundResponseMsg.removeHeader(HttpHeaderNames.SERVER.toString());
         }
 
@@ -668,13 +670,13 @@ public class HttpUtil {
             if (struct.getStringField(HttpConstants.REQUEST_USER_AGENT_INDEX) != null && !struct.getStringField
                     (HttpConstants.REQUEST_USER_AGENT_INDEX).isEmpty()) {
                 transportHeaders.set(HttpHeaderNames.USER_AGENT.toString(),
-                                     struct.getStringField(HttpConstants.REQUEST_USER_AGENT_INDEX));
+                        struct.getStringField(HttpConstants.REQUEST_USER_AGENT_INDEX));
             }
         } else {
             if (struct.getStringField(HttpConstants.RESPONSE_SERVER_INDEX) != null && !struct.getStringField
                     (HttpConstants.RESPONSE_SERVER_INDEX).isEmpty()) {
                 transportHeaders.set(HttpHeaderNames.SERVER.toString(),
-                                     struct.getStringField(HttpConstants.RESPONSE_SERVER_INDEX));
+                        struct.getStringField(HttpConstants.RESPONSE_SERVER_INDEX));
             }
         }
     }
@@ -1071,8 +1073,8 @@ public class HttpUtil {
         HttpUtil.injectHeaders(message, ObservabilityUtils.getContextProperties(observerContext));
         observerContext.addTag(TAG_KEY_HTTP_METHOD, String.valueOf(message.getProperty(HttpConstants.HTTP_METHOD)));
         observerContext.addTag(TAG_KEY_HTTP_URL, String.valueOf(message.getProperty(HttpConstants.TO)));
-        observerContext.addTag(TAG_KEY_PEER_HOSTNAME, String.valueOf(message.getProperty(PROPERTY_HTTP_HOST)));
-        observerContext.addTag(TAG_KEY_PEER_PORT, String.valueOf(message.getProperty(PROPERTY_HTTP_PORT)));
+        observerContext.addTag(TAG_KEY_PEER_ADDRESS, String.valueOf(message.getProperty(PROPERTY_HTTP_HOST)
+                + ":" + message.getProperty(PROPERTY_HTTP_PORT)));
         // Add HTTP Status Code tag. The HTTP status code will be set using the response message.
         // Sometimes the HTTP status code will not be set due to errors etc. Therefore, it's very important to set
         // some value to HTTP Status Code to make sure that tags will not change depending on various
