@@ -132,11 +132,17 @@ function testAddData() returns (int, int, int, int[], int[], int[]) {
     return (count1, count2, count3, dt1data, dt2data, ct1data);
 }
 
-function testTableAddInvalid() {
+function testTableAddInvalid() returns string {
     Company c1 = {id:100, name:"ABC"};
 
     table<Person> dt1 = table{};
-    _ = dt1.add(c1);
+    var ret = dt1.add(c1);
+    string s;
+    match (ret) {
+        error e => s = e.message;
+        () => s = "nil";
+    }
+    return s;
 }
 
 function testMultipleAccess() returns (int, int, int[], int[]) {

@@ -147,7 +147,7 @@ function testDeleteFromMirrorTable() returns (boolean, int) {
     int removedCount;
     match val {
         int count => removedCount = count;
-        TableOperationError e => removedCount = -1;
+        error e => removedCount = -1;
     }
 
     table dt2 = check testDB->select("SELECT  * from employeeDel", Employee);

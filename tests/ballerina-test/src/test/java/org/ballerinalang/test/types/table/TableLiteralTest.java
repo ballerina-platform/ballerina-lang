@@ -339,13 +339,11 @@ public class TableLiteralTest {
         BRunUtil.invoke(result, "testEmptyTableCreateInvalid");
     }
 
-    @Test(priority = 1,
-          description = "Test add data with  mismatched types",
-          expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*message: incompatible types: struct of type:Company cannot be added "
-                  + "to a table with type:Person.*")
+    @Test(priority = 1, description = "Test add data with  mismatched types")
     public void testTableAddInvalid() {
-        BRunUtil.invoke(result, "testTableAddInvalid");
+        BValue[] returns = BRunUtil.invoke(result, "testTableAddInvalid");
+        Assert.assertEquals((returns[0]).stringValue(), "incompatible types: struct of type:Company cannot be added "
+                + "to a table with type:Person");
     }
 
     @Test(priority = 3, enabled = false) //Issue #5106

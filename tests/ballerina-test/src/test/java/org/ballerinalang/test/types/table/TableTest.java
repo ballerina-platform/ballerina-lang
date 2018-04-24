@@ -30,7 +30,6 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.test.utils.SQLDBUtils;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
@@ -573,19 +572,16 @@ public class TableTest {
     }
 
     @Test(groups = "TableTest",
-          description = "Test adding data to database table",
-          expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*message: data cannot be added to a table returned from a database.*")
+          description = "Test adding data to database table")
     public void testTableAddInvalid() {
-        BRunUtil.invoke(result, "testTableAddInvalid");
+        BValue[] returns = BRunUtil.invoke(result, "testTableAddInvalid");
+        Assert.assertEquals((returns[0]).stringValue(), "data cannot be added to a table returned from a database");
     }
 
-    @Test(groups = "TableTest",
-          description = "Test deleting data from a database table",
-          expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*message: data cannot be deleted from a table returned from a database.*")
+    @Test(groups = "TableTest", description = "Test deleting data from a database table")
     public void testTableRemoveInvalid() {
-        BRunUtil.invoke(result, "testTableRemoveInvalid");
+        BValue[] returns = BRunUtil.invoke(result, "testTableRemoveInvalid");
+        Assert.assertEquals((returns[0]).stringValue(), "data cannot be deleted from a table returned from a database");
     }
     @AfterSuite
     public void cleanup() {

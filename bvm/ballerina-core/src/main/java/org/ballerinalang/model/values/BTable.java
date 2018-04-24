@@ -25,6 +25,7 @@ import org.ballerinalang.model.types.BTableType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.TableProvider;
+import org.ballerinalang.util.TableUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
@@ -231,8 +232,12 @@ public class BTable implements BRefType<Object>, BCollection {
      * @param context The context which represents the runtime state of the program that called "table.add"
      */
     public void performAddOperation(BStruct data, Context context) {
-        this.addData(data, context);
-        context.setReturnValues();
+        try {
+            this.addData(data, context);
+            context.setReturnValues();
+        } catch (Throwable e) {
+            context.setReturnValues(TableUtils.createTableOperationError(context, e));
+        }
     }
 
     public void addData(BStruct data, Context context) {
@@ -258,22 +263,25 @@ public class BTable implements BRefType<Object>, BCollection {
      * @param lambdaFunction The function that decides the condition of data removal
      */
     public void performRemoveOperation(Context context, BFunctionPointer lambdaFunction) {
-        if (!this.isInMemoryTable) {
-            throw new BallerinaException("data cannot be deleted from a table returned from a database");
-        }
-        int deletedCount = 0;
-        while (this.hasNext(false)) {
-            BStruct data = this.getNext();
-            BValue[] args = { data };
-            BValue[] returns = BLangFunctions
-                    .invokeCallable(lambdaFunction.value().getFunctionInfo(), args);
-            if (((BBoolean) returns[0]).booleanValue()) {
-                ++deletedCount;
-                this.removeData(data);
+        try {
+            if (!this.isInMemoryTable) {
+                throw new BallerinaException("data cannot be deleted from a table returned from a database");
             }
+            int deletedCount = 0;
+            while (this.hasNext(false)) {
+                BStruct data = this.getNext();
+                BValue[] args = { data };
+                BValue[] returns = BLangFunctions.invokeCallable(lambdaFunction.value().getFunctionInfo(), args);
+                if (((BBoolean) returns[0]).booleanValue()) {
+                    ++deletedCount;
+                    this.removeData(data);
+                }
+            }
+            context.setReturnValues(new BInteger(deletedCount));
+            reset(false);
+        } catch (Throwable e) {
+            context.setReturnValues(TableUtils.createTableOperationError(context, e));
         }
-        context.setReturnValues(new BInteger(deletedCount));
-        reset(false);
     }
 
     private void removeData(BStruct data) {
