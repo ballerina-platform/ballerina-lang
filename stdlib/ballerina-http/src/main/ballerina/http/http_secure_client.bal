@@ -338,7 +338,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
 
     Request refreshTokenRequest = new;
     refreshTokenRequest.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + base64ClientIdSecret);
-    refreshTokenRequest.setStringPayload("grant_type=refresh_token&refresh_token=" + refreshToken,
+    refreshTokenRequest.setTextPayload("grant_type=refresh_token&refresh_token=" + refreshToken,
         contentType = mime:APPLICATION_FORM_URLENCODED);
     Response refreshTokenResponse = check refreshTokenClient.post(EMPTY_STRING, request = refreshTokenRequest);
 
