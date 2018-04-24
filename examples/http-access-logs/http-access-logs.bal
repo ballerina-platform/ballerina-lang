@@ -1,7 +1,7 @@
 import ballerina/http;
 
 endpoint http:Listener helloServiceEP {
-    port:9095
+    port: 9095
 };
 
 @http:ServiceConfig {
@@ -9,12 +9,12 @@ endpoint http:Listener helloServiceEP {
 }
 service<http:Service> helloService bind helloServiceEP {
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/"
+        methods: ["GET"],
+        path: "/"
     }
-    hello (endpoint caller, http:Request request) {
+    hello(endpoint caller, http:Request request) {
         http:Response response = new;
         response.setStringPayload("Successful");
-        _ = caller -> respond(response);
+        _ = caller->respond(response);
     }
 }

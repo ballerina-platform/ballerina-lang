@@ -1,0 +1,2 @@
+// The gRPC Server Connector can be used to expose service gRPC service over http2.
+// This sample is to demonstrate gRPC bidirectional streaming service and non blocking client where both sides send a sequence of messages using a read-write stream. The two streams operate independently, so clients and servers can read and write in whatever order they like.

@@ -1,0 +1,7 @@
+$ ballerina run functions_with_defaultable_parameters.bal
+Base Salary: 2500 | Annual Increment: 20 | Bonus Rate: 0.02
+Base Salary: 2500 | Annual Increment: 100 | Bonus Rate: 0.02
+Base Salary: 2500 | Annual Increment: 20 | Bonus Rate: 0.1
+Base Salary: 2500 | Annual Increment: 100 | Bonus Rate: 0.1
+Base Salary: 2500 | Annual Increment: 100 | Bonus Rate: 0.1
+Base Salary: 2500 | Annual Increment: 100 | Bonus Rate: 0.1

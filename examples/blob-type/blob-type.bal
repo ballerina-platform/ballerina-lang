@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main (string... args) {
+function main(string... args) {
     //Convert the value type string to blob by providing the encoding.
     string text = "Sample Text";
     blob content = text.toBlob("UTF-8");

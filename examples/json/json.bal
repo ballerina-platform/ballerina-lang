@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main (string... args) {
+function main(string... args) {
     // JSON string value.
     json j1 = "Apple";
     io:println(j1);
@@ -21,11 +21,10 @@ function main (string... args) {
     json j5 = null;
 
     //JSON Objects.
-    json j6 = {name:"apple", color:"red", price:j2};
+    json j6 = {name: "apple", color: "red", price: j2};
     io:println(j6);
 
     //JSON Arrays. They are arrays of any JSON value.
-    json j7 = [1, false, null, "foo",
-               {first:"John", last:"Pala"}];
+    json j7 = [1, false, null, "foo", {first: "John", last: "Pala"}];
     io:println(j7);
 }
