@@ -33,7 +33,7 @@ documentation {
 public type Response object {
 
     public {
-        int statusCode;
+        int statusCode = 200;
         string reasonPhrase;
         string server;
         ResponseCacheControl? cacheControl;
