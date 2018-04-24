@@ -2,7 +2,6 @@
 import ballerina/io;
 
 function main(string... args) {
-
     endpoint HelloWorldBlockingClient helloWorldBlockingEp {
         url: "https://localhost:9090",
         secureSocket: {

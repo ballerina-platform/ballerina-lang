@@ -5,7 +5,6 @@ import ballerina/log;
 import ballerina/runtime;
 
 int total = 0;
-
 function main(string... args) {
 
     //Client endpoint configuration
