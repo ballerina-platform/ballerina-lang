@@ -16,7 +16,7 @@ function printFruits(string separator, string title = "Fruits: ", string... conc
     io:println(title + finalStr);
 }
 
-function main (string... args) {
+function main(string... args) {
     // Call the function by passing only the required parameter.
     printFruits(",");
 

@@ -6,7 +6,7 @@ import ballerina/websub;
 
 // The endpoint to which the subscriber service is bound.
 endpoint websub:Listener websubEP {
-    port:8181
+    port: 8181
 };
 
 // Annotations specifying the subscription parameters.
@@ -14,7 +14,7 @@ endpoint websub:Listener websubEP {
 // automatically on start up.
 // Also note the exclusion of the onIntentVerification resource which will result in auto intent-verification.
 @websub:SubscriberServiceConfig {
-    path:"/websub",
+    path: "/websub",
     topic: "http://www.websubpubtopic.com",
     hub: "https://localhost:9191/websub/hub",
     secret: "Kslk30SNF2AChs2"
@@ -22,8 +22,7 @@ endpoint websub:Listener websubEP {
 service websubSubscriber bind websubEP {
 
     // Resource accepting content delivery requests.
-    onNotification (websub:Notification notification) {
+    onNotification(websub:Notification notification) {
         log:printInfo("WebSub Notification Received: " + notification.payload.toString());
     }
-
 }

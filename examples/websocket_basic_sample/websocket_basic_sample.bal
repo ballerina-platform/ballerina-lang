@@ -60,9 +60,9 @@ service<http:WebSocketService> basic bind {port: 9090} {
     onIdleTimeout(endpoint caller) {
         io:println("\nReached idle timeout");
         io:println("Closing connection " + caller.id);
-        caller->close(1001, "Connection timeout") but { error e => log:printError(
-                                                                       "Error occured when closing the connection",
-                                                                       err = e) };
+        caller->close(1001, "Connection timeout") but {
+            error e => log:printError("Error occured when closing the connection", err = e)
+        };
     }
 
     // This resource is triggered when a client connection is closed from the client side.

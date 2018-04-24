@@ -22,7 +22,11 @@ function main(string... args) {
     log:printInfo("Publishing update to internal Hub");
     // Publish directly to the internal Ballerina Hub.
     var publishResponse = webSubHub.publishUpdate("http://www.websubpubtopic.com",
-                                                                    { "action": "publish", "mode": "internal-hub" });
+        {
+            "action": "publish",
+            "mode": "internal-hub"
+        }
+    );
     match (publishResponse) {
         error webSubError => log:printError("Error notifying hub: " + webSubError.message);
         () => log:printInfo("Update notification successful!");

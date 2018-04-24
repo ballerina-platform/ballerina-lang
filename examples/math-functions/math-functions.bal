@@ -1,19 +1,19 @@
 import ballerina/io;
 import ballerina/math;
 
-function main (string... args) {
+function main(string... args) {
 
-    io:println("Value of PI : " + math:PI );
-    io:println("Value of E  : " + math:E );
-  
+    io:println("Value of PI : " + math:PI);
+    io:println("Value of E  : " + math:E);
+
     //Returns the absolute value of a float value.
     float absoluteFloatValue = math:absFloat(-152.2544);
-    io:println("Absolute value of -152.2544 : " + absoluteFloatValue );
+    io:println("Absolute value of -152.2544 : " + absoluteFloatValue);
 
     //Returns the absolute value of an int value.
     int absoluteIntValue = math:absInt(-152);
-    io:println("Absolute value of -152      : " + absoluteIntValue );
-    
+    io:println("Absolute value of -152      : " + absoluteIntValue);
+
     //Returns the arc cosine of a value.
     float acosValue = math:acos(0.027415567780803774);
     io:println("Arc cosine of 0.027415567780803774  : " + acosValue);

@@ -13,7 +13,7 @@ service<mb:Consumer> mbListener bind subscriber {
     onMessage(endpoint consumer, mb:Message message) {
         match (message.getTextMessageContent()) {
             string messageText => log:printInfo("Message : " + messageText);
-            error e => log:printError("Error occurred while reading message", err=e);
+            error e => log:printError("Error occurred while reading message", err = e);
         }
     }
 }

@@ -5,15 +5,15 @@ import ballerina/http;
 @final string AGE = "AGE";
 
 @http:ServiceConfig {
-    basePath:"/chat"
+    basePath: "/chat"
 }
-service<http:Service> chatAppUpgrader bind {port:9090} {
+service<http:Service> chatAppUpgrader bind {port: 9090} {
 
     // Upgrade from HTTP to WebSocket and define the service the WebSocket client needs to connect to.
     @http:ResourceConfig {
-        webSocketUpgrade:{
-            upgradePath:"/{name}",
-            upgradeService:chatApp
+        webSocketUpgrade: {
+            upgradePath: "/{name}",
+            upgradeService: chatApp
         }
     }
     upgrader(endpoint caller, http:Request req, string name) {
@@ -25,7 +25,6 @@ service<http:Service> chatAppUpgrader bind {port:9090} {
         string msg = "Hi " + name + "! You have succesfully connected to the chat";
         wsEp->pushText(msg) but { error e => log:printError("Error sending message", err = e) };
     }
-
 }
 
 // The map to stores connection ids of users who joined the chat.

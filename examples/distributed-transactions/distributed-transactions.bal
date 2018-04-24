@@ -6,24 +6,24 @@ function main(string... args) {
     //Create an endpoint for the first database named testdb1. Since this endpoint is
     //participated in a distributed transaction, the isXA property should be true.
     endpoint mysql:Client testDBEP1 {
-        host:"localhost",
-        port:3306,
-        name:"testdb1",
-        username:"root",
-        password:"root",
-        poolOptions:{maximumPoolSize:5}
+        host: "localhost",
+        port: 3306,
+        name: "testdb1",
+        username: "root",
+        password: "root",
+        poolOptions: {maximumPoolSize: 5}
     };
 
     //Create an endpoint for the second database named testdb2. Since this endpoint is
     //participated in a distributed transaction, the isXA property of the
     //sql:ClientConnector should be true.
     endpoint mysql:Client testDBEP2 {
-        host:"localhost",
-        port:3306,
-        name:"testdb2",
-        username:"root",
-        password:"root",
-        poolOptions:{maximumPoolSize:5}
+        host: "localhost",
+        port: 3306,
+        name: "testdb2",
+        username: "root",
+        password: "root",
+        poolOptions: {maximumPoolSize: 5}
     };
 
 

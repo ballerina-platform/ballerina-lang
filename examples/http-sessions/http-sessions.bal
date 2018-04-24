@@ -2,18 +2,18 @@ import ballerina/http;
 import ballerina/io;
 
 endpoint http:Listener sessionTestEP {
-    port:9090
+    port: 9090
 };
 
-@http:ServiceConfig { basePath:"/sessionTest" }
+@http:ServiceConfig {basePath: "/sessionTest"}
 service<http:Service> sessionTest bind sessionTestEP {
 
     string key = "status";
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/sayHello"
+        methods: ["GET"],
+        path: "/sayHello"
     }
-    sayHello (endpoint caller, http:Request req) {
+    sayHello(endpoint caller, http:Request req) {
         //createSessionIfAbsent() function returns an existing session for a valid session id, otherwise it returns a new session.
         http:Session session = req.createSessionIfAbsent();
         string result;
@@ -27,14 +27,14 @@ service<http:Service> sessionTest bind sessionTestEP {
         session.setAttribute(key, "Session sample");
         http:Response res = new;
         res.setStringPayload(result);
-        _ = caller -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/doTask"
+        methods: ["GET"],
+        path: "/doTask"
     }
-    doTask (endpoint caller, http:Request req) {
+    doTask(endpoint caller, http:Request req) {
         //getSession() returns an existing session for a valid session id. otherwise null.
         http:Session session = req.getSession();
         string attributeValue;
@@ -46,14 +46,14 @@ service<http:Service> sessionTest bind sessionTestEP {
         }
         http:Response res = new;
         res.setStringPayload(attributeValue);
-        _ = caller -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/sayBye"
+        methods: ["GET"],
+        path: "/sayBye"
     }
-    sayBye (endpoint caller, http:Request req) {
+    sayBye(endpoint caller, http:Request req) {
         http:Session session = req.getSession();
         http:Response res = new;
         if (session != null) {
@@ -65,6 +65,6 @@ service<http:Service> sessionTest bind sessionTestEP {
         } else {
             res.setStringPayload("Session unavailable");
         }
-        _ = caller -> respond(res);
+        _ = caller->respond(res);
     }
 }

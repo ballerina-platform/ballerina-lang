@@ -3,17 +3,17 @@ import ballerina/test;
 
 boolean serviceStarted;
 
-function startService(){
+function startService() {
     serviceStarted = test:startServices("header_based_routing");
 }
 
 @test:Config {
-    before:"startService",
-    after:"stopService"
+    before: "startService",
+    after: "stopService"
 }
 function testFunc() {
     // Invoking the main function.
-    endpoint http:Client httpEndpoint { url:"http://localhost:9090" };
+    endpoint http:Client httpEndpoint {url: "http://localhost:9090"};
     // Check whether the server is started.
     test:assertTrue(serviceStarted, msg = "Unable to start the service");
 
@@ -27,7 +27,7 @@ function testFunc() {
     http:Request req = new;
     req.setHeader("x-type", "location");
     // Send a GET request to the specified endpoint.
-    var response = httpEndpoint -> get("/hbr/route", request=req);
+    var response = httpEndpoint->get("/hbr/route", request = req);
     match response {
         http:Response resp => {
             var realResponse = check resp.getJsonPayload();
@@ -37,6 +37,6 @@ function testFunc() {
     }
 }
 
-function stopService(){
+function stopService() {
     test:stopServices("header-based-routing");
 }

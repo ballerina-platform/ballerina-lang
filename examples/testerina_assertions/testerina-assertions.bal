@@ -2,19 +2,18 @@ import ballerina/test;
 
 // This function allows you to compare primitive types (e.g., int) to composite objects.
 @test:Config
-function testAssertIntEquals (){
+function testAssertIntEquals() {
 
     int answer = 0;
     int a = 5;
     int b = 3;
     answer = intAdd(a, b);
     test:assertEquals(answer, 8, msg = "intAdd function failed");
-
 }
 
 // Compare the values of type float.
 @test:Config
-function testAssertFloatEquals () {
+function testAssertFloatEquals() {
     float a = 10.000;
     float b = 20.050;
     float answer = floatAdd(a, b);
@@ -23,7 +22,7 @@ function testAssertFloatEquals () {
 
 // Comparing strings.
 @test:Config
-function testAssertStringEquals () {
+function testAssertStringEquals() {
     string a = "John";
     string b = "Doe";
     string concatenated = stringConcat(a, b);
@@ -32,16 +31,16 @@ function testAssertStringEquals () {
 
 // Comparing JSON objects.
 @test:Config
-function testAssertJsonEquals () {
+function testAssertJsonEquals() {
 
-    json a = { "name": "Ballerina" };
-    json b = { "name": "Ballerina" };
+    json a = {"name": "Ballerina"};
+    json b = {"name": "Ballerina"};
     test:assertEquals(a, b, msg = "json assert equals failed");
 }
 
 // Comparing boolean values.
 @test:Config
-function testAssertBooleanEquals () {
+function testAssertBooleanEquals() {
 
     boolean x = true;
     boolean y = true;
@@ -50,7 +49,7 @@ function testAssertBooleanEquals () {
 
 // Comparing string arrays.
 @test:Config
-function testAssertStringArrayEquals () {
+function testAssertStringArrayEquals() {
 
     string[] x = ["A", "B", "C"];
     string[] y = ["A", "B", "C"];
@@ -60,7 +59,7 @@ function testAssertStringArrayEquals () {
 
 // Comparing Integer arrays.
 @test:Config
-function testAssertIntArrayEquals () {
+function testAssertIntArrayEquals() {
 
     int[] x = [1, 2, 3];
     int[] y = [1, 2, 3];
@@ -70,7 +69,7 @@ function testAssertIntArrayEquals () {
 
 // Comparing Float arrays.
 @test:Config
-function testAssertFloatArrayEquals () {
+function testAssertFloatArrayEquals() {
 
     float[] x = [1.1, 2.2, 3.3];
     float[] y = [1.1, 2.2, 3.3];
@@ -80,7 +79,7 @@ function testAssertFloatArrayEquals () {
 
 // Comparing distinct strings.
 @test:Config
-function testAssertNotEqualsString () {
+function testAssertNotEqualsString() {
 
     string s1 = "abc";
     string s2 = "def";
@@ -90,25 +89,24 @@ function testAssertNotEqualsString () {
 
 // Comparing distinct JSON objects.
 @test:Config
-function testAssertNotEqualsJson () {
+function testAssertNotEqualsJson() {
 
-    json s1 = {"a":"b"};
-    json s2 = {"a":"c"};
+    json s1 = {"a": "b"};
+    json s2 = {"a": "c"};
 
     test:assertNotEquals(s1, s2, msg = "Json are equal");
 }
 
-
 // Asserting true.
 @test:Config
-function testAssertTrue () {
+function testAssertTrue() {
     boolean value = true;
     test:assertTrue(value, msg = "assertTrue failed");
 }
 
 // Asserting false.
 @test:Config
-function testAssertFalse () {
+function testAssertFalse() {
 
     boolean value = false;
     test:assertFalse(value, msg = "assertFalse failed");
@@ -116,7 +114,7 @@ function testAssertFalse () {
 
 // Intentionally failing a test.
 @test:Config
-function testAssertFail1 () {
+function testAssertFail1() {
     try {
         // I'm expecting an error
         test:assertFail(msg = "Exception Never occured");
@@ -128,21 +126,21 @@ function testAssertFail1 () {
 
 // Intentionally failing a test-example 2.
 @test:Config
-function testAssertFail2 () {
+function testAssertFail2() {
     if (true) {
         return;
     }
     test:assertFail(msg = "assertFailed");
 }
 
-function intAdd (int a, int b) returns (int) {
+function intAdd(int a, int b) returns (int) {
     return (a + b);
 }
 
-function floatAdd (float a, float b) returns (float) {
+function floatAdd(float a, float b) returns (float) {
     return (a + b);
 }
 
-function stringConcat (string a, string b) returns (string) {
+function stringConcat(string a, string b) returns (string) {
     return (a + b);
 }

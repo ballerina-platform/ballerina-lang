@@ -2,22 +2,22 @@ import ballerina/http;
 import ballerina/log;
 
 endpoint http:Client locationEP {
-    url:"http://www.mocky.io"
+    url: "http://www.mocky.io"
 };
 
 endpoint http:Client weatherEP {
-    url:"http://samples.openweathermap.org"
+    url: "http://samples.openweathermap.org"
 };
 
 //Service is invoked using `basePath` value "/hbr".
 @http:ServiceConfig {
-    basePath:"/hbr"
+    basePath: "/hbr"
 }
-service<http:Service> headerBasedRouting bind {port:9090} {
+service<http:Service> headerBasedRouting bind {port: 9090} {
     //`http:resourceConfig{}` annotation with GET method declares the HTTP method.
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/route"
+        methods: ["GET"],
+        path: "/route"
     }
     hbrResource(endpoint caller, http:Request req) {
         //Create new outbound request to handle client call.
@@ -26,9 +26,9 @@ service<http:Service> headerBasedRouting bind {port:9090} {
         if (!req.hasHeader("x-type")) {
             http:Response errorResponse = new;
             errorResponse.statusCode = 500;
-            json errMsg = {"error":"'x-type' header is not found"};
+            json errMsg = {"error": "'x-type' header is not found"};
             errorResponse.setPayload(errMsg);
-            caller->respond(errorResponse)  but { error e => log:printError("Error sending response", err=e) };
+            caller->respond(errorResponse) but { error e => log:printError("Error sending response", err = e) };
             done;
         }
         //`getHeader()` returns header value of a specified header name.
@@ -46,13 +46,13 @@ service<http:Service> headerBasedRouting bind {port:9090} {
         match response {
             http:Response clientResponse => {
                 //`respond()` sends back the inbound clientResponse to the caller if no any error is found.
-                caller->respond(clientResponse) but { error e => log:printError("Error sending response", err=e) };
+                caller->respond(clientResponse) but { error e => log:printError("Error sending response", err = e) };
             }
             http:HttpConnectorError err => {
                 http:Response errorResponse = new;
                 errorResponse.statusCode = 500;
                 errorResponse.setPayload(err.message);
-                caller->respond(errorResponse)  but { error e => log:printError("Error sending response", err=e) };
+                caller->respond(errorResponse) but { error e => log:printError("Error sending response", err = e) };
             }
         }
     }

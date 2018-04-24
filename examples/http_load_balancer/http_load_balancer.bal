@@ -3,7 +3,7 @@ import ballerina/log;
 
 // Create an endpoint with port 8080 for the mock backend services.
 endpoint http:Listener backendEP {
-    port:8080
+    port: 8080
 };
 
 // Define the load balance client end point to the call the backend services.
@@ -52,7 +52,7 @@ service<http:Service> loadBalancerDemoService bind {port: 9090} {
 }
 
 // Mock backend services which are called by load balancer.
-@http:ServiceConfig {basePath:"/mock1"}
+@http:ServiceConfig {basePath: "/mock1"}
 service mock1 bind backendEP {
     @http:ResourceConfig {
         path: "/"
@@ -61,11 +61,12 @@ service mock1 bind backendEP {
         http:Response outResponse = new;
         outResponse.setPayload("Mock1 Resource is invoked.");
         caller->respond(outResponse) but {
-            error e => log:printError("Error sending response from mock service", err = e) };
+            error e => log:printError("Error sending response from mock service", err = e)
+        };
     }
 }
 
-@http:ServiceConfig {basePath:"/mock2"}
+@http:ServiceConfig {basePath: "/mock2"}
 service mock2 bind backendEP {
     @http:ResourceConfig {
         path: "/"
@@ -74,11 +75,12 @@ service mock2 bind backendEP {
         http:Response outResponse = new;
         outResponse.setPayload("Mock2 Resource is Invoked.");
         caller->respond(outResponse) but {
-            error e => log:printError("Error sending response from mock service", err = e) };
+            error e => log:printError("Error sending response from mock service", err = e)
+        };
     }
 }
 
-@http:ServiceConfig {basePath:"/mock3"}
+@http:ServiceConfig {basePath: "/mock3"}
 service mock3 bind backendEP {
     @http:ResourceConfig {
         path: "/"
@@ -87,6 +89,7 @@ service mock3 bind backendEP {
         http:Response outResponse = new;
         outResponse.setPayload("Mock3 Resource is Invoked.");
         caller->respond(outResponse) but {
-            error e => log:printError("Error sending response from mock service", err = e) };
+            error e => log:printError("Error sending response from mock service", err = e)
+        };
     }
 }

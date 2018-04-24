@@ -2,16 +2,16 @@ import ballerina/jms;
 import ballerina/log;
 
 // Initialize a JMS connection with the provider.
-jms:Connection conn = new ({
-    initialContextFactory: "bmbInitialContextFactory",
-    providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'"
-});
+jms:Connection conn = new({
+        initialContextFactory: "bmbInitialContextFactory",
+        providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'"
+    });
 
 // Initialize a JMS session on top of the created connection.
-jms:Session jmsSession = new (conn, {
-    // Set to client acknowledgment mode.
-    acknowledgementMode: "CLIENT_ACKNOWLEDGE"
-});
+jms:Session jmsSession = new(conn, {
+        // Set to client acknowledgment mode.
+        acknowledgementMode: "CLIENT_ACKNOWLEDGE"
+    });
 
 // Initialize a Queue receiver using the created session.
 endpoint jms:QueueReceiver consumer {
@@ -30,9 +30,9 @@ service<jms:Consumer> jmsListener bind consumer {
                 log:printInfo("Message : " + messageText);
                 // Acknowledge the received message using the queue receiver endpoint's acknowledge function.
                 consumer->acknowledge(message)
-                    but { error e => log:printError("Error occurred while acknowledging message", err = e) };
+                but { error e => log:printError("Error occurred while acknowledging message", err = e) };
             }
             error e => log:printError("Error occurred while reading message", err = e);
         }
-  }
+    }
 }

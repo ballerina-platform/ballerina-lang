@@ -1,7 +1,6 @@
 import ballerina/io;
 
-function main (string... args) {
-
+function main(string... args) {
     string name = "Ballerina";
     // Create a string template.
     string template = string `Hello {{name}}!!!`;

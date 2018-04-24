@@ -4,13 +4,13 @@ import ballerina/grpc;
 
 // Server endpoint configuration
 endpoint grpc:Listener ep {
-    host:"localhost",
-    port:9090
+    host: "localhost",
+    port: 9090
 };
 
 @grpc:ServiceConfig {
-    name:"lotsOfGreetings",
-    clientStreaming:true
+    name: "lotsOfGreetings",
+    clientStreaming: true
 }
 service<grpc:Service> HelloWorld bind ep {
 

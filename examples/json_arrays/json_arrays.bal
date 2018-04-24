@@ -1,9 +1,8 @@
 import ballerina/io;
 
-function main (string... args) {
+function main(string... args) {
     // JSON Arrays. They are arrays of any JSON value.
-    json j1 = [1, false, null, "foo",
-               {first:"John", last:"Pala"}];
+    json j1 = [1, false, null, "foo", {first: "John", last: "Pala"}];
     io:println(j1);
 
     // Access JSON array elements by index.
@@ -16,12 +15,12 @@ function main (string... args) {
 
     // JSON array in an object literal.
     json p = {
-                 fname:"John", lname:"Stallone",
-                 family:[{fname:"Peter", lname:"Stallone"},
-                         {fname:"Emma", lname:"Stallone"},
-                         {fname:"Jena", lname:"Stallone"},
-                         {fname:"Paul", lname:"Stallone"}]
-             };
+        fname: "John", lname: "Stallone",
+        family: [{fname: "Peter", lname: "Stallone"},
+        {fname: "Emma", lname: "Stallone"},
+        {fname: "Jena", lname: "Stallone"},
+        {fname: "Paul", lname: "Stallone"}]
+    };
     p.family[2].fname = "Alisha";
     io:println(p);
 

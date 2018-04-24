@@ -2,17 +2,17 @@ import ballerina/test;
 import ballerina/io;
 
 // The `dataProvider` attribute allows you to add a data provider function to the test-case. 
-@test:Config{
+@test:Config {
     // `ValueProvider` provides the data set to this function.
-    dataProvider:"ValueProvider"
+    dataProvider: "ValueProvider"
 }
 // Data is parsed to the function as function parameters.
-function testAddingValues (string fValue, string sValue, string result) {
+function testAddingValues(string fValue, string sValue, string result) {
 
     int value1 = check <int>fValue;
     int value2 = check <int>sValue;
     int result1 = check <int>result;
-    io:println("Input params: ["+fValue+","+sValue+","+result+"]");
+    io:println("Input params: [" + fValue + "," + sValue + "," + result + "]");
     test:assertEquals(value1 + value2, result1, msg = "The sum is not correct");
 }
 
@@ -22,10 +22,10 @@ function ValueProvider() returns (string[][]) {
 }
 
 // This is the test function. Here we provide a JSON value set as the dataset.
-@test:Config{
-    dataProvider:"jsonDataProvider"
+@test:Config {
+    dataProvider: "jsonDataProvider"
 }
-function testJsonObjects (json fValue, json sValue, json result) {
+function testJsonObjects(json fValue, json sValue, json result) {
     json a = {"a": "a"};
     json b = {"b": "b"};
     json c = {"c": "c"};

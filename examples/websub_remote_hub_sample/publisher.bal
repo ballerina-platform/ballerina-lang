@@ -23,7 +23,11 @@ function main(string... args) {
     log:printInfo("Publishing update to remote Hub");
     // Publish updates to the remote hub.
     var publishResponse = websubHubClientEP->publishUpdate("http://www.websubpubtopic.com",
-                                                                        { "action": "publish", "mode": "remote-hub" });
+        {
+            "action": "publish",
+            "mode": "remote-hub"
+        }
+    );
     match (publishResponse) {
         error webSubError => log:printError("Error notifying hub: " + webSubError.message);
         () => log:printInfo("Update notification successful!");
