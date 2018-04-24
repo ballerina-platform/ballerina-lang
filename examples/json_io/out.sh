@@ -1,5 +1,5 @@
-#At the command line, navigate to the directory that contains the
-#`.bal` file and run the `ballerina run` command.
+# At the command line, navigate to the directory that contains the
+# `.bal` file and run the `ballerina run` command.
 $ ballerina run json_io.bal
 Preparing to write json file
 Content written successfully
