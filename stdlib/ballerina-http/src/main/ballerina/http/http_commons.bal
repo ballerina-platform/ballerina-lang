@@ -17,7 +17,7 @@
 documentation {
     Options for HTTP chunking.
 
-    `AUTO`: If the payload is less than 8KB content-length header is set in the outbound response/response,
+    `AUTO`: If the payload is less than 8KB, content-length header is set in the outbound response/response,
             otherwise chunking header is set in the outbound response/response
     `ALWAYS`: Always set chunking header in the response
     `NEVER`: Never set the chunking header even if the payload is larger than 8KB in the outbound response/response
@@ -52,7 +52,7 @@ public type AcceptEncoding "AUTO" | "ALWAYS" | "NEVER";
 documentation {
     Represent transfer encoding options.
 
-    `CHUNKING`: Payload is devided into chunks of data if payload is larger than 8KB
+    `CHUNKING`: Payload is divided into chunks of data if payload is larger than 8KB
 }
 public type TransferEncoding "CHUNKING";
 
