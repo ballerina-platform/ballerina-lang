@@ -256,11 +256,11 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"setBinaryPayload(blob payload, string contentType \u003d application/octec-stream)",
+      "label":"setBinaryPayload(blob payload, string contentType \u003d application/octet-stream)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"setBinaryPayload(${1:payload}, contentType \u003d ${2:application/octec-stream})",
+      "insertText":"setBinaryPayload(${1:payload}, contentType \u003d ${2:application/octet-stream})",
       "insertTextFormat":"Snippet"
     },
     {
@@ -272,19 +272,19 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"setFileAsPayload(string filePath, string contentType \u003d application/octec-stream)",
+      "label":"setFileAsPayload(string filePath, string contentType \u003d application/octet-stream)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"setFileAsPayload(${1:filePath}, contentType \u003d ${2:application/octec-stream})",
+      "insertText":"setFileAsPayload(${1:filePath}, contentType \u003d ${2:application/octet-stream})",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"setByteChannel(io:ByteChannel payload, string contentType \u003d application/octec-stream)",
+      "label":"setByteChannel(io:ByteChannel payload, string contentType \u003d application/octet-stream)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"setByteChannel(${1:payload}, contentType \u003d ${2:application/octec-stream})",
+      "insertText":"setByteChannel(${1:payload}, contentType \u003d ${2:application/octet-stream})",
       "insertTextFormat":"Snippet"
     },
     {

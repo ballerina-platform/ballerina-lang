@@ -267,7 +267,7 @@
 
         <resources>
             <resource>
-                <directory>bin/</directory>
+                <directory>lib/</directory>
                 <filtering>true</filtering>
                 <includes>
                     <include>**/version.txt</include>
