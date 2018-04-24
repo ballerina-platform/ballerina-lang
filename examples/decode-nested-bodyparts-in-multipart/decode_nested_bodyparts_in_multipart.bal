@@ -1,82 +1,74 @@
 import ballerina/http;
-import ballerina/mime;
 import ballerina/io;
+import ballerina/log;
+import ballerina/mime;
 
-endpoint http:Listener multipartEP {
-    port: 9090
-};
-
-@http:ServiceConfig {basePath: "/nestedparts"}
-service<http:Service> test bind multipartEP {
+@http:ServiceConfig {basePath:"/nestedparts"}
+service<http:Service> test bind {port:9090} {
     @http:ResourceConfig {
-        methods: ["POST"],
-        path: "/decoder"
+        methods:["POST"],
+        path:"/decoder"
     }
-    nestedPartReceiver(endpoint conn, http:Request req) {
+    nestedPartReceiver(endpoint caller, http:Request req) {
         http:Response res = new;
         match req.getBodyParts() {
-            mime:EntityError err => {
-                res.setStringPayload("Error occurred while decoding parent parts!");
+            error err => {
+                res.setPayload(err.message);
                 res.statusCode = 500;
             }
             mime:Entity[] parentParts => {
-                int i = 0;
-                while (i < lengthof parentParts) {
-                    mime:Entity parentPart = parentParts[i];
+                foreach parentPart in parentParts {
                     handleNestedParts(parentPart);
-                    i = i + 1;
                 }
-                res.setStringPayload("Nested Parts Received!");
+                res.setPayload("Nested Parts Received!");
             }
         }
-        _ = conn->respond(res);
+        caller->respond(res) but { error e => log:printError("Error in responding ", err = e) };
     }
 }
 
-//This function retrieves the child parts of the specified parent part.
+// This function retrieves the child parts of the specified parent part.
 function handleNestedParts(mime:Entity parentPart) {
     string contentTypeOfParent = parentPart.getContentType();
     if (contentTypeOfParent.hasPrefix("multipart/")) {
         match parentPart.getBodyParts() {
-            mime:EntityError err => {
-                io:println("Error retrieving child parts!");
+            error err => {
+                log:printInfo("Error retrieving child parts!");
             }
             mime:Entity[] childParts => {
                 int i = 0;
-                io:println("Nested Parts Detected!");
-                while (i < lengthof childParts) {
-                    mime:Entity childPart = childParts[i];
+                log:printInfo("Nested Parts Detected!");
+                foreach childPart in childParts {
                     handleContent(childPart);
-                    i = i + 1;
                 }
             }
         }
     }
 }
 
-@Description {value: "The logic depending on the format in which you want to retrieve body part content."}
+// The logic depending on the format in which you want to retrieve body part content.
 function handleContent(mime:Entity bodyPart) {
     string baseType = check mime:getMediaType(bodyPart.getContentType())!getBaseType();
     if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
-        //Extract xml data from the body part and print the content.
+        // Extract xml data from the body part and print the content.
         var payload = bodyPart.getXml();
         match payload {
-            mime:EntityError err => io:println("Error in getting xml payload");
+            error err => log:printInfo("Error in getting xml payload");
             xml xmlContent => io:println(xmlContent);
         }
     } else if (mime:APPLICATION_JSON == baseType) {
-        //Extract json data from the body part and print the content.
+        // Extract json data from the body part and print the content.
         var payload = bodyPart.getJson();
         match payload {
-            mime:EntityError err => io:println("Error in getting json payload");
+            error err => log:printInfo("Error in getting json payload");
             json jsonContent => io:println(jsonContent);
         }
     } else if (mime:TEXT_PLAIN == baseType) {
-        //Extract text data from the body part and print the content.
+        // Extract text data from the body part and print the content.
         var payload = bodyPart.getText();
         match payload {
-            mime:EntityError err => io:println("Error in getting string payload");
-            string textContent => io:println(textContent);
+            error err => log:printInfo("Error in getting string payload");
+            string textContent => log:printInfo(textContent);
         }
     }
 }
