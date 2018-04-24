@@ -153,3 +153,5 @@ Object Initializer
 Object Member Functions
 Object Assignability
 Locks
+Union Type
+Optional Type

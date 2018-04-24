@@ -1,0 +1,4 @@
+// One of the design principals of Ballerina's type system is to eliminate null reference error.
+// Over the years, null reference errors have caused numerous system crashes, security vulnerabilities, etc.
+// Optional types in Ballerina allows developers identify places where the value or function
+// is of type T optionally for any T. You can syntactically represent this as T? or T|().
