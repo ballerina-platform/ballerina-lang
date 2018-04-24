@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 import ballerina/io;
 
 ////////////////////////////////
@@ -47,12 +46,6 @@ public type Client object {
     }
     public function init(ClientEndpointConfig config);
 
-    public function register(typedesc serviceType) {
-    }
-
-    public function start() {
-    }
-
     documentation {
         Returns the HTTP actions associated with the endpoint.
 
@@ -60,12 +53,6 @@ public type Client object {
     }
     public function getCallerActions() returns CallerActions {
         return self.httpClient;
-    }
-
-    documentation {
-        Stops the registered service
-    }
-    public function stop() {
     }
 };
 
@@ -119,9 +106,9 @@ public type ClientEndpointConfig {
     AuthConfig? auth,
 };
 
-public native function createHttpClient(string uri, ClientEndpointConfig config) returns CallerActions;
+native function createHttpClient(string uri, ClientEndpointConfig config) returns CallerActions;
 
-public native function createSimpleHttpClient(string uri, ClientEndpointConfig config) returns CallerActions;
+native function createSimpleHttpClient(string uri, ClientEndpointConfig config) returns CallerActions;
 
 documentation {
     Provides configurations for controlling the retry behaviour in failure scenarios.
