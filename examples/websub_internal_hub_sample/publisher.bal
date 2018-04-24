@@ -29,5 +29,5 @@ function main (string... args) {
     }
 
     // Make sure the service is running until the subscriber receives the update notification.
-    runtime:sleep(50000);
+    runtime:sleep(5000);
 }
