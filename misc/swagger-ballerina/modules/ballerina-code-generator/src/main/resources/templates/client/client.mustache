@@ -55,7 +55,7 @@ public function {{../name}}Client::{{name}}({{#parameters}}{{type}} {{name}}{{#u
     //Create the required request as needed{{#contentType}}
     request.setHeader("Content-Type", "{{contentType}}");{{/contentType}}
     string path = string `{{path}}`;
-    var res = ep -> {{lower method}}(path, request);
+    var res = ep -> {{lower method}}(path, request = request);
 
     match res {
         http:HttpConnectorError httpError => {
