@@ -448,12 +448,13 @@ public class BLangPackageBuilder {
         recordNode.setName(this.createIdentifier(identifier));
         if (publicRecord) {
             recordNode.flagSet.add(Flag.PUBLIC);
+            recordNode.isFieldAnalyseRequired = true;
         }
 
         this.compUnit.addTopLevelNode(recordNode);
     }
 
-    void addAnonRecordType(DiagnosticPos pos, Set<Whitespace> ws) {
+    void addAnonRecordType(DiagnosticPos pos, Set<Whitespace> ws, boolean isFieldAnalyseRequired) {
         // Generate a name for the anonymous record
         String genName = anonymousModelHelper.getNextAnonymousRecordKey(pos.src.pkgID);
         IdentifierNode anonRecordGenName = createIdentifier(genName);
@@ -461,6 +462,7 @@ public class BLangPackageBuilder {
         // Create an anonymous record and add it to the list of records in the current package.
         BLangRecord recordNode = populateRecordNode(pos, ws, anonRecordGenName, true);
         recordNode.addFlag(Flag.PUBLIC);
+        recordNode.isFieldAnalyseRequired = isFieldAnalyseRequired;
         this.compUnit.addTopLevelNode(recordNode);
 
         addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), recordNode.name));
