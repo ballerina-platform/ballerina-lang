@@ -59,8 +59,17 @@ public class LSPackageLoader {
      * @return {@link BLangPackage} Resolved BLang Package
      */
     public static BLangPackage getPackageById(CompilerContext context, PackageID packageID) {
-        PackageLoader pkgLoader = PackageLoader.getInstance(context);
-        return pkgLoader.loadAndDefinePackage(packageID);
+        BLangPackage bLangPackage = LSPackageCache.getInstance(context).get(packageID);
+        if (bLangPackage == null) {
+            synchronized (LSPackageLoader.class) {
+                bLangPackage = LSPackageCache.getInstance(context).get(packageID);
+                if (bLangPackage == null) {
+                    PackageLoader pkgLoader = PackageLoader.getInstance(context);
+                    bLangPackage = pkgLoader.loadAndDefinePackage(packageID);
+                }
+            }
+        }
+        return bLangPackage;
     }
 
     /**
