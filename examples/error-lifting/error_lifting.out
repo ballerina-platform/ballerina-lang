@@ -1,0 +1,4 @@
+$ ballerina run error-lifting.bal
+The status code: -1
+The status code: -2
+
