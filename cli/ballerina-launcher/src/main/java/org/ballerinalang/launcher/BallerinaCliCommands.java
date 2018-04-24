@@ -17,6 +17,11 @@
 */
 package org.ballerinalang.launcher;
 
+/**
+ * Ballerina CLI commands.
+ * 
+ * @since 0.970.0
+ */
 public class BallerinaCliCommands {
 
     public static final String DEFAULT = "default";
