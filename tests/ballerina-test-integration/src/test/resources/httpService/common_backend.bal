@@ -18,7 +18,7 @@ service<http:Service> echo bind echoEP{
         http:Response resp = new;
         var result = req.getTextPayload();
         match result {
-            http:PayloadError payloadError => io:println(payloadError.message);
+            error payloadError => io:println(payloadError.message);
             string payload => {
                 resp.setTextPayload(payload);
                 _ = caller -> respond(resp);

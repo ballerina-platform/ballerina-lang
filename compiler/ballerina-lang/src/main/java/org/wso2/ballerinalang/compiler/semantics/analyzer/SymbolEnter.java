@@ -22,6 +22,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -502,37 +503,29 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangFunction funcNode) {
         boolean validAttachedFunc = validateFuncReceiver(funcNode);
         if (funcNode.attachedOuterFunction) {
+            if (funcNode.receiver.type.tsymbol.kind == SymbolKind.RECORD) {
+                dlog.error(funcNode.pos, DiagnosticCode.CANNOT_ATTACH_FUNCTIONS_TO_RECORDS, funcNode.name,
+                        funcNode.receiver.type.tsymbol.name);
+                createDummyFunctionSymbol(funcNode);
+                visitObjectAttachedFunction(funcNode);
+                return;
+            }
             SymbolEnv objectEnv = SymbolEnv.createObjectEnv(null, funcNode.receiver.type.
                     tsymbol.scope, env);
             BSymbol funcSymbol = symResolver.lookupSymbol(objectEnv, getFuncSymbolName(funcNode), SymTag.FUNCTION);
             if (funcSymbol == symTable.notFoundSymbol) {
                 dlog.error(funcNode.pos, DiagnosticCode.CANNOT_FIND_MATCHING_FUNCTION, funcNode.name,
                         funcNode.receiver.type.tsymbol.name);
-                // This is only to keep the flow running so that at the end there will be proper semantic errors
-                funcNode.symbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
-                        getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner, true);
-                funcNode.symbol.scope = new Scope(funcNode.symbol);
-            } else {
-                funcNode.symbol = (BInvokableSymbol) funcSymbol;
-                if (funcNode.symbol.bodyExist) {
-                    dlog.error(funcNode.pos, DiagnosticCode.IMPLEMENTATION_ALREADY_EXIST, funcNode.name);
-                }
-                validateAttachedFunction(funcNode, funcNode.receiver.type.tsymbol.name);
-            }
-            //TODO check function parameters and return types
-            SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
-
-            invokableEnv.scope = funcNode.symbol.scope;
-            defineObjectAttachedInvokableSymbolParams(funcNode, invokableEnv);
-
-            if (env.enclPkg.objAttachedFunctions.contains(funcNode.symbol)) {
-                dlog.error(funcNode.pos, DiagnosticCode.IMPLEMENTATION_ALREADY_EXIST, funcNode.name);
+                createDummyFunctionSymbol(funcNode);
+                visitObjectAttachedFunction(funcNode);
                 return;
             }
-
-            env.enclPkg.objAttachedFunctions.add(funcNode.symbol);
-
-            funcNode.receiver.symbol = funcNode.symbol.receiverSymbol;
+            funcNode.symbol = (BInvokableSymbol) funcSymbol;
+            if (funcNode.symbol.bodyExist) {
+                dlog.error(funcNode.pos, DiagnosticCode.IMPLEMENTATION_ALREADY_EXIST, funcNode.name);
+            }
+            validateAttachedFunction(funcNode, funcNode.receiver.type.tsymbol.name);
+            visitObjectAttachedFunction(funcNode);
             return;
         }
         BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
@@ -543,6 +536,30 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (funcNode.receiver != null) {
             defineAttachedFunctions(funcNode, funcSymbol, invokableEnv, validAttachedFunc);
         }
+    }
+
+    private void createDummyFunctionSymbol(BLangFunction funcNode) {
+        // This is only to keep the flow running so that at the end there will be proper semantic errors
+        funcNode.symbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
+                getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner, true);
+        funcNode.symbol.scope = new Scope(funcNode.symbol);
+    }
+
+    private void visitObjectAttachedFunction(BLangFunction funcNode) {
+        //TODO check function parameters and return types
+        SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+
+        invokableEnv.scope = funcNode.symbol.scope;
+        defineObjectAttachedInvokableSymbolParams(funcNode, invokableEnv);
+
+        if (env.enclPkg.objAttachedFunctions.contains(funcNode.symbol)) {
+            dlog.error(funcNode.pos, DiagnosticCode.IMPLEMENTATION_ALREADY_EXIST, funcNode.name);
+            return;
+        }
+
+        env.enclPkg.objAttachedFunctions.add(funcNode.symbol);
+
+        funcNode.receiver.symbol = funcNode.symbol.receiverSymbol;
     }
 
     private void validateAttachedFunction(BLangFunction funcNode, Name objName) {

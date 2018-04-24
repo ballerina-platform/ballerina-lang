@@ -85,6 +85,10 @@ public class LauncherUtils {
                 !RepoUtils.hasProjectRepo(sourceRootPath)) {
             programFile = compile(fullPath.getParent(), fullPath.getFileName(), offline);
         } else if (Files.isDirectory(sourceRootPath)) {
+            if (Files.isDirectory(fullPath) && !RepoUtils.hasProjectRepo(sourceRootPath)) {
+                throw new BallerinaException("Do you mean to run the ballerina package as a project? If so run " +
+                                                     "ballerina init to make it a project with a .ballerina directory");
+            }
             programFile = compile(sourceRootPath, sourcePath, offline);
         } else {
             throw new BallerinaException("Invalid Ballerina source path, it should either be a directory or a file " +

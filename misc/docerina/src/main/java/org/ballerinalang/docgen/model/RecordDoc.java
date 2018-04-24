@@ -23,9 +23,9 @@ import java.util.List;
 /**
  * Documentable node for Structs.
  */
-public class StructDoc extends Documentable {
+public class RecordDoc extends Documentable {
     public final List<Field> fields;
-    public final boolean isStruct;
+    public final boolean isRecord;
     /**
      * Constructor.
      * @param name struct name.
@@ -33,9 +33,9 @@ public class StructDoc extends Documentable {
      * @param children children if any.
      * @param fields struct fields.
      */
-    public StructDoc(String name, String description, ArrayList<Documentable> children, List<Field> fields) {
-        super(name, "fw-struct", description, children);
+    public RecordDoc(String name, String description, ArrayList<Documentable> children, List<Field> fields) {
+        super(name, "fw-record", description, children);
         this.fields = fields;
-        isStruct = true;
+        isRecord = true;
     }
 }

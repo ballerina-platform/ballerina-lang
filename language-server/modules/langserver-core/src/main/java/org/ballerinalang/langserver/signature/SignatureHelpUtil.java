@@ -17,7 +17,7 @@ package org.ballerinalang.langserver.signature;
 
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSPackageCache;
+import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.model.elements.DocTag;
@@ -167,8 +167,7 @@ public class SignatureHelpUtil {
         List<ParameterInfoModel> paramModels = new ArrayList<>();
         String functionName = signatureContext.get(SignatureKeys.CALLABLE_ITEM_NAME);
         CompilerContext compilerContext = signatureContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-        LSPackageCache lsPackageCache = LSPackageCache.getInstance(compilerContext);
-        BLangPackage bLangPackage = lsPackageCache.findPackage(compilerContext, bInvokableSymbol.pkgID);
+        BLangPackage bLangPackage = LSPackageLoader.getPackageById(compilerContext, bInvokableSymbol.pkgID);
         BLangFunction blangFunction = bLangPackage.getFunctions().stream()
                 .filter(bLangFunction -> bLangFunction.getName().getValue().equals(functionName))
                 .findFirst()

@@ -57,7 +57,7 @@ function testSetEntityBody (string filePath, string contentType) returns (http:R
     return req;
 }
 
-function testSetPayloadAndGetText ((string | xml | json | blob | io:ByteChannel) payload) returns string | http:PayloadError {
+function testSetPayloadAndGetText ((string | xml | json | blob | io:ByteChannel) payload) returns string | error {
     http:Request req = new;
     req.setPayload(payload);
     return req.getTextPayload();
@@ -71,7 +71,7 @@ function testGetHeaders (http:Request req, string key) returns (string[]) {
     return req.getHeaders(key);
 }
 
-function testGetJsonPayload (http:Request req) returns (json | http:PayloadError) {
+function testGetJsonPayload (http:Request req) returns (json | error) {
     return req.getJsonPayload();
 }
 
@@ -80,15 +80,15 @@ function testGetMethod (http:Request req) returns (string) {
     return method;
 }
 
-function testGetStringPayload (http:Request req) returns (string | http:PayloadError) {
+function testGetStringPayload (http:Request req) returns (string | error) {
     return req.getTextPayload();
 }
 
-function testGetBinaryPayload (http:Request req) returns (blob | http:PayloadError) {
+function testGetBinaryPayload (http:Request req) returns (blob | error) {
     return req.getBinaryPayload();
 }
 
-function testGetXmlPayload (http:Request req) returns (xml | http:PayloadError) {
+function testGetXmlPayload (http:Request req) returns (xml | error) {
     return req.getXmlPayload();
 }
 
@@ -169,7 +169,7 @@ service<http:Service> hello bind mockEP {
         http:Response res = new;
         var returnResult = req.getJsonPayload();
         match returnResult {
-            http:PayloadError err => {
+            error err => {
                 res.setTextPayload("Error occurred");
                 res.statusCode = 500;
             }
@@ -186,7 +186,7 @@ service<http:Service> hello bind mockEP {
     GetStringPayload (endpoint caller, http:Request req) {
         http:Response res = new;
         match req.getTextPayload() {
-            http:PayloadError err => {
+            error err => {
                 res.setTextPayload("Error occurred");
                 res.statusCode =500;
             }
@@ -201,7 +201,7 @@ service<http:Service> hello bind mockEP {
     GetXmlPayload (endpoint caller, http:Request req) {
         http:Response res = new;
         match req.getXmlPayload() {
-            http:PayloadError err => {
+            error err => {
                 res.setTextPayload("Error occurred");
                 res.statusCode =500;
             }
@@ -219,7 +219,7 @@ service<http:Service> hello bind mockEP {
     GetBinaryPayload (endpoint caller, http:Request req) {
         http:Response res = new;
         match req.getBinaryPayload() {
-            http:PayloadError err => {
+            error err => {
                 res.setTextPayload("Error occurred");
                 res.statusCode =500;
             }
@@ -237,7 +237,7 @@ service<http:Service> hello bind mockEP {
     GetByteChannel (endpoint caller, http:Request req) {
         http:Response res = new;
         match req.getByteChannel() {
-            http:PayloadError err => {
+            error err => {
                 res.setTextPayload("Error occurred");
                 res.statusCode =500;
             }
@@ -306,7 +306,7 @@ service<http:Service> hello bind mockEP {
         var returnResult = req.getJsonPayload();
         http:Response res = new;
         match returnResult {
-            http:PayloadError err => {
+            error err => {
                 res.setTextPayload("Error occurred");
                 res.statusCode = 500;
             }
@@ -325,7 +325,7 @@ service<http:Service> hello bind mockEP {
         req.setTextPayload(value);
         http:Response res = new;
         match req.getTextPayload() {
-            http:PayloadError err => {
+            error err => {
                 res.setTextPayload("Error occurred");
                 res.statusCode =500;
             }
@@ -343,7 +343,7 @@ service<http:Service> hello bind mockEP {
         req.setXmlPayload(xmlStr);
         http:Response res = new;
         match req.getXmlPayload() {
-            http:PayloadError err => {
+            error err => {
                 res.setTextPayload("Error occurred");
                 res.statusCode =500;
             }
@@ -365,7 +365,7 @@ service<http:Service> hello bind mockEP {
         req.setBinaryPayload(payload);
         http:Response res = new;
         match req.getBinaryPayload() {
-            http:PayloadError err => {
+            error err => {
                 res.setTextPayload("Error occurred");
                 res.statusCode =500;
             }

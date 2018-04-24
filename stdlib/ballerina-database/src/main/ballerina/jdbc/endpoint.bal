@@ -19,11 +19,11 @@ import ballerina/sql;
 documentation {
     The Client endpoint configuration for SQL databases.
 
-    F{{url}} - URL of the database to connect.
-    F{{username}} - Username for the database connection.
-    F{{password}} - Password for the database connection.
-    F{{poolOptions}} - Properties for the connection pool configuration.
-    F{{dbOptions}} - Data source specific properties which are used along with the dataSourceClassName.
+    F{{url}} URL of the database to connect
+    F{{username}} Username for the database connection
+    F{{password}} Password for the database connection
+    F{{poolOptions}} Properties for the connection pool configuration
+    F{{dbOptions}} Data source specific properties which are used along with the dataSourceClassName
 }
 public type ClientEndpointConfiguration {
     string url,
@@ -36,7 +36,7 @@ public type ClientEndpointConfiguration {
 documentation {
     Represents an JDBC SQL client endpoint.
 
-    F{{config}} - The configurations associated with the SQL endpoint.
+    F{{config}} The configurations associated with the SQL endpoint
 }
 public type Client object {
     private {
@@ -47,7 +47,7 @@ public type Client object {
     documentation {
         Gets called when the endpoint is being initialized during the package initialization.
 
-        P{{config}} - he ClientEndpointConfiguration of the endpoint.
+        P{{config}} The ClientEndpointConfiguration of the endpoint
     }
     function init(ClientEndpointConfiguration config) {
         self.callerActions = createClient(config);
