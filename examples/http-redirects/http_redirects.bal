@@ -10,7 +10,7 @@ endpoint http:Client clientEP {
 
 function main(string... args) {
 
-    // Send a GET request to the specified endpoint
+    // Send a GET request to the specified endpoint.
     var returnResult = clientEP->get("/v2/59d590762700000a049cd694");
     match returnResult {
         error connectionErr => log:printError("Error in connection", err = connectionErr);
