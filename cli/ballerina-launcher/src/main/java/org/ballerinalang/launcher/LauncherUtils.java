@@ -85,7 +85,12 @@ public class LauncherUtils {
                 !RepoUtils.hasProjectRepo(sourceRootPath)) {
             programFile = compile(fullPath.getParent(), fullPath.getFileName(), offline);
         } else if (Files.isDirectory(sourceRootPath)) {
-            programFile = compile(sourceRootPath, sourcePath, offline);
+            if (RepoUtils.hasProjectRepo(sourceRootPath)) {
+                programFile = compile(sourceRootPath, sourcePath, offline);
+            } else {
+                throw new BallerinaException("Do you meant to run the ballerina package as a project? If so run " +
+                                                     "ballerina init to make it a project with a .ballerina directory");
+            }
         } else {
             throw new BallerinaException("Invalid Ballerina source path, it should either be a directory or a file " +
                                                  "with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension.");
