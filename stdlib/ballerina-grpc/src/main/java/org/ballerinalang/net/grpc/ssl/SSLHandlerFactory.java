@@ -155,7 +155,7 @@ public class SSLHandlerFactory {
                                     ApplicationProtocolConfig.SelectorFailureBehavior.NO_ADVERTISE,
                                     ApplicationProtocolConfig.SelectedListenerFailureBehavior.ACCEPT,
                                     ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1))
-                    .clientAuth(sslConfig.isNeedClientAuth() ? ClientAuth.REQUIRE : ClientAuth.NONE)
+                    .clientAuth(ClientAuth.NONE)
                     .build();
         } catch (SSLException e) {
             throw new GrpcSSLValidationException("Error generating SSL context.", e);
