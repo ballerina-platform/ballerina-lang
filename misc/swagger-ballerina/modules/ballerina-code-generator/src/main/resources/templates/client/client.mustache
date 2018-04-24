@@ -80,9 +80,9 @@ function main (string... args) { {{#endpoints}}
     match (res) {
         error err => io:println(err.message);
             http:Response resp => {
-                var payload = resp.getStringPayload();
+                var payload = resp.getTextPayload();
                 match payload {
-                    http:PayloadError err => io:println(err.message);
+                    error err => io:println(err.message);
                     string message => io:println(message);
                 }
             }
