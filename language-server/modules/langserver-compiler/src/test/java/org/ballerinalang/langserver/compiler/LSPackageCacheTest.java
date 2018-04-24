@@ -27,7 +27,7 @@ public class LSPackageCacheTest {
     private static final String TESTS_SAMPLES = "src" + File.separator + "test" + File.separator + "resources"
             + File.separator + "source";
 
-    protected static final Path SAMPLES_COPY_DIR =  ROOT_DIR.resolve("source");
+    protected static final Path SAMPLES_COPY_DIR = ROOT_DIR.resolve("source");
 
     @BeforeMethod
     public void loadTestCases() throws IOException {
@@ -39,7 +39,6 @@ public class LSPackageCacheTest {
 
     @Test
     public void testInvalidate() throws Exception {
-        // Read test bal file
         Path filePath = SAMPLES_COPY_DIR.resolve("singlepackage").resolve("io-sample.bal");
         compileFileAndCheckCache(filePath);
         filePath = SAMPLES_COPY_DIR.resolve("multipackages").resolve("sample").resolve("main.bal");
@@ -47,6 +46,7 @@ public class LSPackageCacheTest {
     }
 
     private void compileFileAndCheckCache(Path filePath) throws IOException {
+        // Read test bal file
         String content = new String(Files.readAllBytes(filePath));
         // Prepare compiler resources
         String sourceRoot = LSCompiler.getSourceRoot(filePath);
