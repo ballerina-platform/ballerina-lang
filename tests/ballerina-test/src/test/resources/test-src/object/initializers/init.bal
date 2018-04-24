@@ -6,7 +6,7 @@ public type employee object {
         string address;
     }
 
-    new (int age = 10, name) {
+    public new (int age = 10, name) {
         self.age = age;
     }
 
