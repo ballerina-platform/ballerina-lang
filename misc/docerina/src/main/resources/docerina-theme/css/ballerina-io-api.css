@@ -23,7 +23,7 @@
 }
 
 .cLectColStyle {
-    padding: 20px 30px;
+    padding: 20px 25px;
     background-color: #ffffff;
 }
 
@@ -37,7 +37,7 @@
 }
 
 .cBallerina-io-Home-Middle-col {
-/*    padding-right: 0px;*/
+    padding-right: 0px;
     padding-left: 10px;
 }
 
@@ -326,16 +326,10 @@ th.col-md-7 , th.col-md-7 {
 th.cAPI-table-desc {
     width: 50%;
 }
-th.cSummary-table-desc {
-    width: 80%;
-}
 
 td.cAPI-table-name,
 td.cAPI-table-type,
-td.cAPI-table-default,
-td.cAPI-table-default,
-td.cSummary-table-type
-{
+td.cAPI-table-default {
     font-family: Monaco, Consolas, "Courier New", monospace;
     font-weight: normal;
     font-size: 11px;
@@ -345,26 +339,15 @@ th.cAPI-table-name,
 th.cAPI-table-type,
 th.cAPI-table-default,
 th.cAPI-table-desc,
-th.cSummary-table-desc,
-th.cSummary-table-type,
 td.cAPI-table-name,
 td.cAPI-table-type,
 td.cAPI-table-default,
-td.cAPI-table-desc,
-td.cSummary-table-desc,
-td.cSummary-table-type {
+td.cAPI-table-desc {
     padding-left: 5px;
     padding-right: 5px;
 }
 
-.summary-wrapper p {
-    font-size: 12px !important;
-    line-height: 18px !important;
-    padding: 0 !important;
-    margin: 0 !important;
-}
-
-th.cAPI-table-name , th.cSummary-table-type{
+th.cAPI-table-name {
     width: 20%;
 }
 
@@ -376,13 +359,9 @@ th.cAPI-table-default {
     width: 15%;
 }
 
-td.cAPI-table-desc , td.cSummary-table-desc {
+td.cAPI-table-desc {
     font-family: "pragmatica", sans-serif;
     font-size: 12px;
-}
-
-td.cAPI-table-desc code , td.cSummary-table-desc code {
-    font-size: 11px !important;
 }
 
 .thin-text.light-gray {
