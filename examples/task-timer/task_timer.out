@@ -1,4 +1,4 @@
-$ ballerina run task-timer.bal
+$ ballerina run task_timer.bal
 Timer task demo
 Cleaning up...
 1

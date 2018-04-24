@@ -1,5 +1,5 @@
 #At the command line, navigate to the directory that contains the 
-#`http-retry.bal` file and run the `ballerina run` command to start the server.
+#`http_retry.bal` file and run the `ballerina run` command to start the server.
 $ ballerina run http_retry.bal.bal
 ballerina: initiating service(s) in 'http_retry.bal'
 ballerina: started HTTP/WS endpoint 0.0.0.0:8080

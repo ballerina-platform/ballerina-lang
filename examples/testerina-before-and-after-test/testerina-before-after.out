@@ -2,7 +2,7 @@
 #`.bal` file and run the `ballerina test` command.
 #Note that you need to have the ballerina-tools distribution 
 #installed in order to run this command. 
-$ ballerina test testerina-before-after.bal
+$ ballerina test testerina_before_after.bal
 ---------------------------------------------------------------------------
     T E S T S
 ---------------------------------------------------------------------------

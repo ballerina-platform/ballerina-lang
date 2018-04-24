@@ -16,7 +16,7 @@ Or add to the runtime command line:
 
 # The secret will have to be provided if a configuration contains an encrypted value. The secret can be provided
 # through a `secret.txt` file or through the CLI. In this example, the CLI is used.
-$ ballerina run config-api.bal
+$ ballerina run config_api.bal
 ballerina: enter secret for config value decryption:
 
 
@@ -29,7 +29,7 @@ ballerina: enter secret for config value decryption:
 # http.port=8085
 # keystore.password="@encrypted:{jFMAXsuMSiOCaxuDLuQjVXzMzZxQrten0652/j93Amw=}"
 # ```
-$ ballerina run --config path/to/conf/file/custom-config-file-name.conf config-api.bal
+$ ballerina run --config path/to/conf/file/custom-config-file-name.conf config_api.bal
 ballerina: enter secret for config value decryption:
 
 ballerina: initiating service(s) in 'config_api.bal'
@@ -37,7 +37,7 @@ ballerina: started HTTPS/WSS endpoint 0.0.0.0:8085
 
 # The same configs given through a config file can also be given through CLI parameters. <br>
 # E.g., hello.http.port
-$ ballerina run config-api.bal -e hello.http.port=8085 -e hello.keystore.password=@encrypted:{jFMAXsuMSiOCaxuDLuQjVXzMzZxQrten0652/j93Amw=}
+$ ballerina run config_api.bal -e hello.http.port=8085 -e hello.keystore.password=@encrypted:{jFMAXsuMSiOCaxuDLuQjVXzMzZxQrten0652/j93Amw=}
 ballerina: enter secret for config value decryption:
 
 ballerina: initiating service(s) in 'config_api.bal'
