@@ -1,19 +1,19 @@
 import ballerina/io;
 
 function main(string... args) {
-    //Here's how you create an empty map.
+    //Implicit initial value of a map is the empty map.
     map m;
 
-    //Here's how you create a map with values.
+    //You can also declare and initialize a `map` with a map literal.
     map addrMap = {line1: "No. 20", line2: "Palm Grove",
         city: "Colombo 03", country: "Sri Lanka"};
     io:println(addrMap);
 
-    //Here's how you can retrieve a value of a key using an index based notation.
+    //Here's how you can retrieve a value of a key using an index operator.
     var country = <string>addrMap["country"];
     io:println(country);
 
-    //Here's another way to retrieve a value of a key from the map.
+    //Here's another way to retrieve a value of a key from the map using the dot(.) operator.
     var city = <string>addrMap.city;
     io:println(city);
 
