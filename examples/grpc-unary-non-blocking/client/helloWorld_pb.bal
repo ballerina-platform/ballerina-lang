@@ -18,8 +18,8 @@ public type HelloWorldBlockingStub object {
     function hello(string req) returns (string|error) {
         var unionResp = self.stub.blockingExecute("HelloWorld/hello", req);
         match unionResp {
-            error payloadError => {
-                return payloadError;
+            error err => {
+                return err;
             }
             any payload => {
                 string result = <string>payload;
