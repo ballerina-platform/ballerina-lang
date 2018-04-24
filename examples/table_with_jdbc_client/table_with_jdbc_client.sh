@@ -1,4 +1,4 @@
-$ ballerina run table_with_sql_client.bal
+$ ballerina run table_with_jdbc_client.bal
 Create table status: 0
 Updated row count: 1
 Updated row count: 1

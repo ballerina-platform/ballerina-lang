@@ -21,7 +21,7 @@ function main(string... args) {
     endpoint jdbc:Client testDB {
         url: "jdbc:mysql://localhost:3306/testdb",
         username: "root",
-        password: "123",
+        password: "root",
         poolOptions: { maximumPoolSize: 5 },
         dbOptions: { useSSL: false }
     };

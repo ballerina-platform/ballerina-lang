@@ -7,7 +7,7 @@ endpoint mysql:Client testDB {
     port: 3306,
     name: "testdb",
     username: "root",
-    password: "123",
+    password: "root",
     poolOptions: { maximumPoolSize: 5 },
     dbOptions: { useSSL: false }
 };
