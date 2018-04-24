@@ -71,8 +71,8 @@ documentation {
 }
 function getHubUrl() returns string {
     match (serviceSecureSocket) {
-        http:ServiceSecureSocket => { return "https://0.0.0.0:" + hubPort + BASE_PATH + HUB_PATH; }
-        () => { return "http://0.0.0.0:" + hubPort + BASE_PATH + HUB_PATH; }
+        http:ServiceSecureSocket => { return "https://localhost:" + hubPort + BASE_PATH + HUB_PATH; }
+        () => { return "http://localhost:" + hubPort + BASE_PATH + HUB_PATH; }
     }
 }
 
