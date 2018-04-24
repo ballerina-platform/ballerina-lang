@@ -1,2 +1,2 @@
-$ ballerina run http-redirect.bal
+$ ballerina run http_redirects.bal
 Response received for GET request is : Redirect Works!
