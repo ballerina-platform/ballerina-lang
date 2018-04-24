@@ -5,9 +5,9 @@ This package exposes functionality required to handle user authentication and au
 ### Authentication
 There are two out-of-the-box authentication mechanisms:
 - Username and password based authentication
-… A user is authenticated based on a username and a password that are stored in a configuration file. By default these are stored in ‘ballerina.conf’. That fille can be changed by a runtime argument.
+   A user is authenticated based on a username and a password that are stored in a configuration file. By default these are stored in ‘ballerina.conf’. That fille can be changed by a runtime argument.
 - JWT based authentication
-… A user is authenticated by validating a JWT sent with the request. 
+   A user is authenticated by validating a JWT sent with the request. 
 
 ### Authorization
 User authorization is based on the concepts of scopes and groups. A scope is a particular permission that is needed to access a protected resource. A group consists of set of scopes, and users are assigned to a set of groups. Therefore, when trying to access a protected resource, a user is authorized based on the scope that
