@@ -41,7 +41,7 @@ JSON To XML Conversion
 XML To JSON Conversion
 Streams
 Foreach
-Iterable Operations
+Functional Iteration
 Worker
 Worker Interaction
 Fork/Join
