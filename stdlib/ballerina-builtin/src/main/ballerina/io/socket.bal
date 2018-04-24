@@ -34,21 +34,21 @@ public type Socket object {
         @readonly string localAddress;
     }
 
-    documentation{
+    documentation {
         Closes a socket connection.
 
         R{{}} An error if the connection could not be closed properly
     }
     public native function close() returns error?;
 
-    documentation{
+    documentation {
         Shutdown the connection from reading. In this case content cannot be read from the server.
 
         R{{}} An error if the connection could not be shutdown properly
     }
     public native function shutdownInput() returns error?;
 
-    documentation{
+    documentation {
         Shutdown the connection from writing. In this case content cannot be written to the server.
 
         R{{}} An error if the connection could not be shutdown properly

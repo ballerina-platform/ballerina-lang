@@ -23,7 +23,7 @@ public type CharacterChannel object {
         string charset;
     }
 
-    documentation{
+    documentation {
         Constructs a CharacterChannel from a given ByteChannel and Charset.
 
         P{{channel}} ByteChannel which would be used to read/write characters
@@ -33,7 +33,7 @@ public type CharacterChannel object {
         init(channel, charset);
     }
 
-    documentation{
+    documentation {
         Initializes a character channel.
 
         P{{channel}} ByteChannel which should be used to initalize the character channel
@@ -41,7 +41,7 @@ public type CharacterChannel object {
     }
     native function init(ByteChannel channel, string charset);
 
-    documentation{
+    documentation {
         Reads a given number of characters.
 
         P{{numberOfChars}} Number of characters which should be read
@@ -49,7 +49,7 @@ public type CharacterChannel object {
     }
     public native function read(@sensitive int numberOfChars) returns @tainted string|error;
 
-    documentation{
+    documentation {
         Writes a given sequence of characters (string).
 
         P{{content}} Content which should be written
@@ -57,21 +57,21 @@ public type CharacterChannel object {
     }
     public native function write(string content, int startOffset) returns int|error;
 
-    documentation{
+    documentation {
         Reads a json from the given channel.
 
         R{{}} Read json string or an error
     }
     public native function readJson() returns @tainted json|error;
 
-    documentation{
+    documentation {
         Reads a XML from the given channel.
 
         R{{}} Read xml or an error
     }
     public native function readXml() returns @tainted xml|error;
 
-    documentation{
+    documentation {
         Writes a given json to the given channel.
 
         P{{content}} The json which should be written
@@ -79,7 +79,7 @@ public type CharacterChannel object {
     }
     public native function writeJson(json content) returns error?;
 
-    documentation{
+    documentation {
         Writes a given xml to the channel.
 
         P{{content}} The XML which should be written
@@ -87,7 +87,7 @@ public type CharacterChannel object {
     }
     public native function writeXml(xml content) returns error?;
 
-    documentation{
+    documentation {
         Closes a given character channel.
 
         R{{}} If an error occurred while writing

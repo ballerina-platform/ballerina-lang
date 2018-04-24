@@ -14,17 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation{
+documentation {
     Prints 'any' value to the STDOUT.
 }
 public native function print(any... a);
 
-documentation{
+documentation {
     Prints an any value to the STDOUT in a new line.
 }
 public native function println(any... a);
 
-documentation{
+documentation {
     Returns a formatted string using the specified format string and arguments.
 
     P{{format}} Represent the format of the string which should be returned

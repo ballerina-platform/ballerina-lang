@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation{
+documentation {
    Represents the set of permissions supported to open file.
 
    READ - open the file in read mode
@@ -28,7 +28,7 @@ public type Mode "r"|"w"|"rw"|"a";
 @final public Mode RW = "rw";
 @final public Mode APPEND = "a";
 
-documentation{
+documentation {
     Retrieves a ByteChannel from a given file path.
 
     P{{path}} Relative/absolute path string to locate the file
@@ -37,7 +37,7 @@ documentation{
 }
 public native function openFile(@sensitive string path, @sensitive Mode accessMode) returns @tainted ByteChannel;
 
-documentation{
+documentation {
     Opens a socket from a specified network location.
 
     P{{host}} Remote server domain/IP
@@ -49,7 +49,7 @@ public native function openSocket(@sensitive string host,
                                   @sensitive int port,
                                   SocketProperties options) returns @tainted Socket|error;
 
-documentation{
+documentation {
     Opens a secure socket connection with a remote server.
 
     P{{host}} Remote server domain/IP
@@ -61,7 +61,7 @@ public native function openSecureSocket(@sensitive string host,
                                         @sensitive int port,
                                         SocketProperties options) returns @tainted Socket|error;
 
-documentation{
+documentation {
     Retrieves a CSV channel from a give file path.
 
     P{{path}} File path which describes the location of the CSV

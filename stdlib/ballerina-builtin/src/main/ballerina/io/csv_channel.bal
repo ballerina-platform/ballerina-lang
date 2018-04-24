@@ -14,22 +14,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation{
+documentation {
     Represents record separator of the CSV file.
 }
 @final string CSV_RECORD_SEPERATOR = "\n";
 
-documentation{
+documentation {
     Represents colon separator which should be used to identify colon separated files.
 }
 @final string FS_COLON = ":";
 
-documentation{
+documentation {
     Represents minimum number of headers which will be included in CSV.
 }
 @final int MINIMUM_HEADER_COUNT = 0;
 
-documentation{
+documentation {
     Represents a CSVChannel which could be used to read/write records from CSV file.
 }
 public type CSVChannel object {
@@ -37,7 +37,7 @@ public type CSVChannel object {
         DelimitedTextRecordChannel? dc;
     }
 
-    documentation{
+    documentation {
         Constructs a CSV channel from a CharacterChannel to read/write CSV records.
 
         P{{channel}} ChracterChannel which will represent the content in the CSV
@@ -55,7 +55,7 @@ public type CSVChannel object {
         skipHeaders(nHeaders);
     }
 
-    documentation{
+    documentation {
         Skips the given number of headers.
 
         P{{nHeaders}} Number of headers which should be skipped
@@ -68,7 +68,7 @@ public type CSVChannel object {
         }
     }
 
-    documentation{
+    documentation {
         Indicates whether there's another record which could be read.
 
         R{{}} True if there's a record
@@ -85,7 +85,7 @@ public type CSVChannel object {
         }
     }
 
-    documentation{
+    documentation {
         Gets the next record from the CSV file.
 
         R{{}} List of fields in the CSV or error
@@ -94,7 +94,7 @@ public type CSVChannel object {
         return dc.getNext();
     }
 
-    documentation{
+    documentation {
         Writes record to a given CSV file.
 
         R{{}} Returns an error if the record could not be written properly
@@ -103,7 +103,7 @@ public type CSVChannel object {
         return dc.write(record);
     }
 
-    documentation{
+    documentation {
         Closes a given CSVChannel.
 
         R{{}} Returns if an error is encountered
@@ -112,7 +112,7 @@ public type CSVChannel object {
         return dc.close();
     }
 
-    documentation{
+    documentation {
         Returns a table which coresponds to the CSV records.
 
         P{{structType}} The object the CSV records should be deserialized

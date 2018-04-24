@@ -19,7 +19,7 @@ documentation{
 }
 public type ByteChannel object {
 
-    documentation{
+    documentation {
         Source bytes from a given input/output resource.
 
         Number of bytes returned will be < 0 if the file reached its end.
@@ -32,7 +32,7 @@ public type ByteChannel object {
     }
     public native function read(@sensitive int nBytes) returns @tainted (blob, int)|error;
 
-    documentation{
+    documentation {
         Sink bytes from a given input/output resource.
 
         This operation will be asynchronous, write might return without writing all the content.
@@ -43,21 +43,21 @@ public type ByteChannel object {
     }
     public native function write(blob content, int offset) returns int|error;
 
-    documentation{
+    documentation {
         Closes a given byte channel.
 
         R{{}} Will return () if there's no error
     }
     public native function close() returns error?;
 
-    documentation{
+    documentation {
         Encodes a given ByteChannel with Base64 encoding scheme.
 
         R{{}} Return an encoded ByteChannel or an error
     }
     public native function base64Encode() returns ByteChannel|error;
 
-    documentation{
+    documentation {
         Decodes a given ByteChannel with Base64 encoding scheme.
 
         R{{}} Return a decoded ByteChannel or an error

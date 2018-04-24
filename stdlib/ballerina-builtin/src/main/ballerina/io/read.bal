@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation{
+documentation {
     Returns the input read from STDIN.
 
     P{{a}} Any value to be printed

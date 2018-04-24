@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation{
+documentation {
     Represents a channel which will allow to read/write records through a given CharacterChannel.
 }
 public type DelimitedTextRecordChannel object {
@@ -24,7 +24,7 @@ public type DelimitedTextRecordChannel object {
         string fs;
     }
 
-    documentation{
+    documentation {
         Constructs a DelimitedTextRecordChannel from a given CharacterChannel.
 
         P{{channel}} CharacterChannel which will point to the input/output resource
@@ -35,7 +35,7 @@ public type DelimitedTextRecordChannel object {
         init(channel, fs, rs, fmt);
     }
 
-    documentation{
+    documentation {
         Initializes delimited record channel.
 
         P{{channel}} Character channel which will be used for reading/writing records
@@ -45,21 +45,21 @@ public type DelimitedTextRecordChannel object {
     }
     native function init(CharacterChannel channel, string fs, string rs, string fmt);
 
-    documentation{
+    documentation {
         Checks whether there's a record left to be read.
 
         R{{}} True if there's a record left to be read
     }
     public native function hasNext() returns boolean;
 
-    documentation{
+    documentation {
         Get next record from the input/output resource.
 
         R{{}} Set of fields included in the record or an error
     }
     public native function getNext() returns @tainted string[]|error;
 
-    documentation{
+    documentation {
         Writes records to a given input/output resource.
 
         P{{record}} list of fields which should be written
@@ -67,7 +67,7 @@ public type DelimitedTextRecordChannel object {
     }
     public native function write(string[] record) returns error?;
 
-    documentation{
+    documentation {
         Closes a given record channel.
 
         R{{}} An error if the record channel could not be closed properly

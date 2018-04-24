@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation{
+documentation {
     Format which will be used to represent the CSV.
 
     DEFAULT - Would default to the format specified by CSVChannel. Presidence will be given to field
@@ -29,7 +29,7 @@ public type Format "default"|"csv"|"tdf";
 @final public Format CSV = "csv";
 @final public Format TDF = "tdf";
 
-documentation{
+documentation {
     Field separators which are supported by DelimitedTextRecordChannel.
 }
 public type Separator ","|"\t"|":";
