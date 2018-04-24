@@ -63,7 +63,8 @@ public final class Http2SourceHandlerBuilder
     protected Http2SourceHandler build(Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
                                        Http2Settings initialSettings) {
         Http2SourceHandler handler = new Http2SourceHandler(
-                decoder, encoder, initialSettings, interfaceId, connection(), serverConnectorFuture, serverName);
+                serverChannelInitializer, decoder, encoder, initialSettings, interfaceId, connection(),
+                serverConnectorFuture, serverName);
         frameListener(handler.getHttp2FrameListener());
         return handler;
     }

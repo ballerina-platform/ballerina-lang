@@ -130,7 +130,7 @@ public class Util {
         outboundNettyResponse.headers().add(outboundResponseMsg.getHeaders());
     }
 
-    private static HttpResponseStatus getHttpResponseStatus(HTTPCarbonMessage msg) {
+    public static HttpResponseStatus getHttpResponseStatus(HTTPCarbonMessage msg) {
         int statusCode = Util.getIntValue(msg, Constants.HTTP_STATUS_CODE, 200);
         String reasonPhrase = Util.getStringValue(msg, Constants.HTTP_REASON_PHRASE,
                 HttpResponseStatus.valueOf(statusCode).reasonPhrase());

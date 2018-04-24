@@ -266,7 +266,10 @@ public final class Constants {
     public static final String TRACE_LOG_UPSTREAM = "http.tracelog.upstream";
     public static final String TRACE_LOG_DOWNSTREAM = "http.tracelog.downstream";
 
+    // Access Logger related parameters
     public static final String ACCESS_LOG = "http.accesslog";
+    public static final String ACCESS_LOG_FORMAT =
+            "%1$s - - [%2$td/%2$tb/%2$tY:%2$tT %2$tz] \"%3$s %4$s %5$s\" %6$d %7$d \"%8$s\" \"%9$s\"";
 
     public static final String LISTENER_PORT = "LISTENER_PORT";
 
@@ -299,6 +302,9 @@ public final class Constants {
 
     public static final String REMOTE_SERVER_CLOSE_RESPONSE_CONNECTION_AFTER_REQUEST_READ
             = "Remote host closed the connection without sending inbound response";
+
+    public static final String PROMISED_STREAM_REJECTED_ERROR
+            = "Promised stream is already rejected or stream is no longer valid";
 
     public static final String MAXIMUM_WAIT_TIME_EXCEED = "Could not obtain a connection within maximum wait time";
 

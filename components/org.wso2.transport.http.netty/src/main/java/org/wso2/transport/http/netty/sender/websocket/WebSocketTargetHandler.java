@@ -19,6 +19,7 @@
 
 package org.wso2.transport.http.netty.sender.websocket;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -27,6 +28,7 @@ import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -43,6 +45,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketFrameType;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnection;
 import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
@@ -72,6 +75,7 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
     private DefaultWebSocketConnection webSocketConnection;
     private ChannelPromise handshakeFuture;
     private ChannelHandlerContext ctx;
+    private WebSocketFrameType continuationFrameType;
 
     public WebSocketTargetHandler(WebSocketClientHandshaker handshaker, boolean isSecure, String requestedUri,
                                   WebSocketConnectorListener webSocketConnectorListener) {
@@ -147,11 +151,22 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
                     "Unexpected FullHttpResponse (getStatus=" + response.status() +
                             ", content=" + response.content().toString(CharsetUtil.UTF_8) + ')');
         }
+
+        // If the continuation of frames are not following the protocol, netty handles them internally.
+        // Hence those situations are not handled here.
         WebSocketFrame frame = (WebSocketFrame) msg;
         if (frame instanceof TextWebSocketFrame) {
-            notifyTextMessage((TextWebSocketFrame) frame, ctx);
+            TextWebSocketFrame textFrame = (TextWebSocketFrame) msg;
+            if (!textFrame.isFinalFragment()) {
+                continuationFrameType = WebSocketFrameType.TEXT;
+            }
+            notifyTextMessage(textFrame, textFrame.text(), textFrame.isFinalFragment(), ctx);
         } else if (frame instanceof BinaryWebSocketFrame) {
-            notifyBinaryMessage((BinaryWebSocketFrame) frame, ctx);
+            BinaryWebSocketFrame binaryFrame = (BinaryWebSocketFrame) msg;
+            if (!binaryFrame.isFinalFragment()) {
+                continuationFrameType = WebSocketFrameType.BINARY;
+            }
+            notifyBinaryMessage(binaryFrame, binaryFrame.content(), binaryFrame.isFinalFragment(), ctx);
         } else if (frame instanceof PongWebSocketFrame) {
             notifyPongMessage((PongWebSocketFrame) frame, ctx);
         } else if (frame instanceof PingWebSocketFrame) {
@@ -162,21 +177,32 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
             }
             notifyCloseMessage((CloseWebSocketFrame) frame, ctx);
             ch.close();
+        } else if (frame instanceof ContinuationWebSocketFrame) {
+            ContinuationWebSocketFrame conframe = (ContinuationWebSocketFrame) msg;
+            switch (continuationFrameType) {
+                case TEXT:
+                    notifyTextMessage(conframe, conframe.text(), conframe.isFinalFragment(), ctx);
+                    break;
+                case BINARY:
+                    notifyBinaryMessage(conframe, conframe.content(), conframe.isFinalFragment(), ctx);
+                    break;
+            }
         } else {
             throw new UnknownWebSocketFrameTypeException("Cannot identify the WebSocket frame type");
         }
     }
 
-    private void notifyTextMessage(TextWebSocketFrame textWebSocketFrame, ChannelHandlerContext ctx)
+    private void notifyTextMessage(WebSocketFrame frame, String text, boolean finalFragment, ChannelHandlerContext ctx)
             throws ServerConnectorException {
-        WebSocketMessageImpl webSocketTextMessage = WebSocketUtil.getWebSocketMessage(textWebSocketFrame);
+        WebSocketMessageImpl webSocketTextMessage = WebSocketUtil.getWebSocketMessage(frame, text, finalFragment);
         setupCommonProperties(webSocketTextMessage, ctx);
         connectorListener.onMessage((WebSocketTextMessage) webSocketTextMessage);
     }
 
-    private void notifyBinaryMessage(BinaryWebSocketFrame binaryWebSocketFrame, ChannelHandlerContext ctx)
+    private void notifyBinaryMessage(WebSocketFrame frame, ByteBuf content, boolean finalFragment,
+                                     ChannelHandlerContext ctx)
             throws ServerConnectorException {
-        WebSocketMessageImpl webSocketBinaryMessage = WebSocketUtil.getWebSocketMessage(binaryWebSocketFrame);
+        WebSocketMessageImpl webSocketBinaryMessage = WebSocketUtil.getWebSocketMessage(frame, content, finalFragment);
         setupCommonProperties(webSocketBinaryMessage, ctx);
         connectorListener.onMessage((WebSocketBinaryMessage) webSocketBinaryMessage);
     }

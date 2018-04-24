@@ -98,6 +98,16 @@ public class DefaultWebSocketInitMessage extends WebSocketMessageImpl implements
     }
 
     @Override
+    public HandshakeFuture handshake(String[] subProtocols, boolean allowExtensions, int idleTimeout,
+                                     HttpHeaders responseHeaders, int maxFramePayloadLength) {
+        WebSocketServerHandshakerFactory wsFactory =
+                new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest), getSubProtocolsCSV(subProtocols),
+                                                     allowExtensions, maxFramePayloadLength);
+        WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(httpRequest);
+        return handleHandshake(handshaker, idleTimeout, responseHeaders);
+    }
+
+    @Override
     public void cancelHandShake(int closeCode, String closeReason) {
         try {
             WebSocketServerHandshakerFactory wsFactory =
@@ -133,7 +143,7 @@ public class DefaultWebSocketInitMessage extends WebSocketMessageImpl implements
 
         try {
             ChannelFuture channelFuture = handshaker.handshake(ctx.channel(), httpRequest, headers,
-                                                        ctx.channel().newPromise());
+                                                               ctx.channel().newPromise());
             channelFuture.addListener(future -> {
                 String selectedSubProtocol = handshaker.selectedSubprotocol();
                 webSocketSourceHandler.setNegotiatedSubProtocol(selectedSubProtocol);

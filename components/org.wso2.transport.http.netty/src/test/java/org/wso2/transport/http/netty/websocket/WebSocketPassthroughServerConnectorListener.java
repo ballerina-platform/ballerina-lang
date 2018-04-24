@@ -37,8 +37,6 @@ import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.util.TestUtil;
 
-import java.io.IOException;
-
 /**
  * Server Connector Listener to check WebSocket pass-through scenarios.
  */
@@ -88,7 +86,7 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
     public void onMessage(WebSocketTextMessage textMessage) {
         WebSocketConnection serverConnection = WebSocketPassThroughTestConnectionManager.getInstance().
                 getClientConnection(textMessage.getWebSocketConnection());
-        serverConnection.getSession().getAsyncRemote().sendText(textMessage.getText());
+        serverConnection.pushText(textMessage.getText());
         serverConnection.readNextFrame();
     }
 
@@ -96,7 +94,7 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
     public void onMessage(WebSocketBinaryMessage binaryMessage) {
         WebSocketConnection serverConnection = WebSocketPassThroughTestConnectionManager.getInstance().
                 getClientConnection(binaryMessage.getWebSocketConnection());
-        serverConnection.getSession().getAsyncRemote().sendBinary(binaryMessage.getByteBuffer());
+        serverConnection.pushBinary(binaryMessage.getByteBuffer());
         serverConnection.readNextFrame();
     }
 
@@ -107,13 +105,9 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
 
     @Override
     public void onMessage(WebSocketCloseMessage closeMessage) {
-        try {
-            WebSocketConnection clientConnection = WebSocketPassThroughTestConnectionManager.getInstance()
-                    .getClientConnection(closeMessage.getWebSocketConnection());
-            clientConnection.getSession().close();
-        } catch (IOException e) {
-            logger.error("IO error when sending message: " + e.getMessage());
-        }
+        WebSocketConnection clientConnection = WebSocketPassThroughTestConnectionManager.getInstance()
+                .getClientConnection(closeMessage.getWebSocketConnection());
+        clientConnection.close();
     }
 
     @Override
