@@ -18,10 +18,10 @@ function main(string... args) {
     };
 
     // Create Employee records.
-    Employee e1 = { id: 1, name: "Jane", salary: 300.50 };
-    Employee e2 = { id: 2, name: "Anne", salary: 100.50 };
-    Employee e3 = { id: 3, name: "John", salary: 400.50 };
-    Employee e4 = { id: 4, name: "Peter", salary: 150.0 };
+    Employee e1 = {id: 1, name: "Jane", salary: 300.50};
+    Employee e2 = {id: 2, name: "Anne", salary: 100.50};
+    Employee e3 = {id: 3, name: "John", salary: 400.50};
+    Employee e4 = {id: 4, name: "Peter", salary: 150.0};
     Employee[] employees = [e1, e2, e3, e4];
 
     // Add the created records to the table.
@@ -104,6 +104,6 @@ function getSalary(Employee p) returns float {
 }
 
 function getEmployeeSalary(Employee e) returns (EmployeeSalary) {
-    EmployeeSalary s = { id: e.id, salary: e.salary };
+    EmployeeSalary s = {id: e.id, salary: e.salary};
     return s;
 }

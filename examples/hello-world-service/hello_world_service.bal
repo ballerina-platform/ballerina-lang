@@ -12,6 +12,6 @@ service<http:Service> hello bind {port: 9090} {
 
         // Sends the response back to the caller.
         caller->respond(res) but { error e => log:printError("Error sending response", err = e) };
-        
+
     }
 }

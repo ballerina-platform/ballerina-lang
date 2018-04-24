@@ -8,8 +8,8 @@ endpoint mysql:Client testDB {
     name: "testdb",
     username: "root",
     password: "root",
-    poolOptions: { maximumPoolSize: 5 },
-    dbOptions: { useSSL: false }
+    poolOptions: {maximumPoolSize: 5},
+    dbOptions: {useSSL: false}
 };
 
 function main(string... args) {
@@ -28,8 +28,8 @@ function main(string... args) {
 
     // Insert data using the `update` action. If the DML statement execution
     // is successful, the `update` action returns the updated row count.
-    sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: 8 };
-    sql:Parameter para2 = { sqlType: sql:TYPE_VARCHAR, value: "Sam" };
+    sql:Parameter para1 = {sqlType: sql:TYPE_INTEGER, value: 8};
+    sql:Parameter para2 = {sqlType: sql:TYPE_VARCHAR, value: "Sam"};
     ret = testDB->update("INSERT INTO STUDENT (AGE,NAME) VALUES (?,?)", para1, para2);
     match ret {
         int rows => io:println("Inserted row count: " + rows);

@@ -6,12 +6,12 @@ import ballerina/transactions;
 // This service is a participant in the distributed transaction. It will get infected when it receives a transaction
 // context from the participant. The transaction context, in the HTTP case, will be passed in as custom HTTP headers.
 @http:ServiceConfig {
-    basePath:"/stockquote"
+    basePath: "/stockquote"
 }
 service<http:Service> ParticipantService bind {port: 8889} {
 
     @http:ResourceConfig {
-        path:"/update"
+        path: "/update"
     }
     updateStockQuote(endpoint conn, http:Request req) {
         log:printInfo("Received update stockquote request");
@@ -20,16 +20,16 @@ service<http:Service> ParticipantService bind {port: 8889} {
         // At the beginning of the transaction statement, since a transaction context has been received, this service
         // will register with the initiator as a participant.
         transaction with oncommit = printParticipantCommit, onabort = printParticipantAbort {
-            // Print the current transaction ID
+        // Print the current transaction ID
             log:printInfo("Joined transaction: " + transactions:getCurrentTransactionId());
             var updateReq = untaint req.getJsonPayload();
-            match updateReq{
+            match updateReq {
                 json updateReqJson => {
                     string msg = io:sprintf("Update stock quote request received. symbol:%j, price:%j",
                         updateReqJson.symbol, updateReqJson.price);
                     log:printInfo(msg);
 
-                    json jsonRes = {"message":"updating stock"};
+                    json jsonRes = {"message": "updating stock"};
                     res.statusCode = http:OK_200;
                     res.setJsonPayload(jsonRes);
                 }

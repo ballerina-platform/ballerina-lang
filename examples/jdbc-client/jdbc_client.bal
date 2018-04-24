@@ -6,8 +6,8 @@ endpoint jdbc:Client testDB {
     url: "jdbc:mysql://localhost:3306/testdb",
     username: "root",
     password: "root",
-    poolOptions: { maximumPoolSize: 5 },
-    dbOptions: { useSSL: false }
+    poolOptions: {maximumPoolSize: 5},
+    dbOptions: {useSSL: false}
 };
 
 public type Student {
@@ -47,8 +47,8 @@ function main(string... args) {
 
     // Insert data using the `update` action. If the DML statement execution
     // is successful, the `update` action returns the updated row count.
-    sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: 8 };
-    sql:Parameter para2 = { sqlType: sql:TYPE_VARCHAR, value: "Sam" };
+    sql:Parameter para1 = {sqlType: sql:TYPE_INTEGER, value: 8};
+    sql:Parameter para2 = {sqlType: sql:TYPE_VARCHAR, value: "Sam"};
     updateRet = testDB->update("INSERT INTO STUDENT (AGE,NAME) VALUES (?,?)", para1, para2);
     match updateRet {
         int rows => io:println("Inserted row count: " + rows);
@@ -131,11 +131,11 @@ function main(string... args) {
     io:println("Second Iteration Over\n");
 
     // Create parameters for `batchUpdate` action.
-    sql:Parameter p1 = { sqlType: sql:TYPE_INTEGER, value: 10 };
-    sql:Parameter p2 = { sqlType: sql:TYPE_VARCHAR, value: "Smith" };
+    sql:Parameter p1 = {sqlType: sql:TYPE_INTEGER, value: 10};
+    sql:Parameter p2 = {sqlType: sql:TYPE_VARCHAR, value: "Smith"};
     sql:Parameter[] item1 = [p1, p2];
-    sql:Parameter p3 = { sqlType: sql:TYPE_INTEGER, value: 20 };
-    sql:Parameter p4 = { sqlType: sql:TYPE_VARCHAR, value: "John" };
+    sql:Parameter p3 = {sqlType: sql:TYPE_INTEGER, value: 20};
+    sql:Parameter p4 = {sqlType: sql:TYPE_VARCHAR, value: "John"};
     sql:Parameter[] item2 = [p3, p4];
 
     // A batch of data can be inserted using the `batchUpdate` action. The number
@@ -152,9 +152,9 @@ function main(string... args) {
 
     // Create parameters for executing a stored procedure using the `call` action.
     // The direction is used to specify `IN`/`OUT`/`INOUT` parameters.
-    sql:Parameter pAge = { sqlType: sql:TYPE_INTEGER, value: 10 };
-    sql:Parameter pCount = { sqlType: sql:TYPE_INTEGER, value: (), direction: sql:DIRECTION_OUT };
-    sql:Parameter pId = { sqlType: sql:TYPE_INTEGER, value: 1, direction: sql:DIRECTION_INOUT };
+    sql:Parameter pAge = {sqlType: sql:TYPE_INTEGER, value: 10};
+    sql:Parameter pCount = {sqlType: sql:TYPE_INTEGER, value: (), direction: sql:DIRECTION_OUT};
+    sql:Parameter pId = {sqlType: sql:TYPE_INTEGER, value: 1, direction: sql:DIRECTION_INOUT};
 
     // Invoke stored procedure using the `call` action.
     var callRet = testDB->call("{CALL GETCOUNT(?,?,?)}", (), pAge, pCount, pId);
@@ -190,7 +190,7 @@ function main(string... args) {
     }
 
     // Data can be added to the database table through the proxied table.
-    Student s = { id: 30, name: "Tim", age: 14 };
+    Student s = {id: 30, name: "Tim", age: 14};
     var addRet = dt.add(s);
     match addRet {
         () => io:println("Insertion to table successful");

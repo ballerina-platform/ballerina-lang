@@ -4,14 +4,14 @@ import ballerina/log;
 import ballerina/mime;
 
 endpoint http:Client clientEP {
-    url:"http://localhost:9090"
+    url: "http://localhost:9090"
 };
 
-@http:ServiceConfig {basePath:"/nestedparts"}
-service<http:Service> test bind {port:9092} {
+@http:ServiceConfig {basePath: "/nestedparts"}
+service<http:Service> test bind {port: 9092} {
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/encoder"
+        methods: ["GET"],
+        path: "/encoder"
     }
     nestedPartSender(endpoint caller, http:Request req) {
 
@@ -20,7 +20,7 @@ service<http:Service> test bind {port:9092} {
 
         // Create a child part with json content.
         mime:Entity childPart1 = new;
-        childPart1.setJson({"name":"wso2"});
+        childPart1.setJson({"name": "wso2"});
 
         // Create another child part with a file.
         mime:Entity childPart2 = new;
@@ -47,8 +47,9 @@ service<http:Service> test bind {port:9092} {
                 resp1.statusCode = 500;
                 caller->respond(resp1) but { error e => log:printError("Error in responding ", err = e) };
             }
-            http:Response returnResult => caller->respond(returnResult) but { error e => log:printError(
-                                                "Error in responding ", err = e) };
+            http:Response returnResult => caller->respond(returnResult) but {
+                error e => log:printError("Error in responding ", err = e)
+            };
         }
     }
 }

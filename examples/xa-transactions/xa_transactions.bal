@@ -9,8 +9,8 @@ function main(string... args) {
         url: "jdbc:mysql://localhost:3306/testdb1",
         username: "root",
         password: "root",
-        poolOptions: { maximumPoolSize: 5, isXA: true },
-        dbOptions: { useSSL: false }
+        poolOptions: {maximumPoolSize: 5, isXA: true},
+        dbOptions: {useSSL: false}
     };
 
     // Create an endpoint for the second database named testdb2. Since this endpoint is
@@ -20,8 +20,8 @@ function main(string... args) {
         url: "jdbc:mysql://localhost:3306/testdb2",
         username: "root",
         password: "root",
-        poolOptions: { maximumPoolSize: 5, isXA: true },
-        dbOptions: { useSSL: false }
+        poolOptions: {maximumPoolSize: 5, isXA: true},
+        dbOptions: {useSSL: false}
     };
 
     // Create the table named CUSTOMER in the first database.

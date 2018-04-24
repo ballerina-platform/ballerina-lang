@@ -3,11 +3,11 @@ import ballerina/io;
 import ballerina/log;
 import ballerina/mime;
 
-@http:ServiceConfig {basePath:"/nestedparts"}
-service<http:Service> test bind {port:9090} {
+@http:ServiceConfig {basePath: "/nestedparts"}
+service<http:Service> test bind {port: 9090} {
     @http:ResourceConfig {
-        methods:["POST"],
-        path:"/decoder"
+        methods: ["POST"],
+        path: "/decoder"
     }
     nestedPartReceiver(endpoint caller, http:Request req) {
         http:Response res = new;

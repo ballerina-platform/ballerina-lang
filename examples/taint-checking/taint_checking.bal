@@ -2,7 +2,7 @@ import ballerina/mysql;
 
 // The @sensitive annotation can be used with parameters of user-defined functions. This allow users to restrict
 // passing untrusted (tainted) data into a security sensitive parameter.
-function userDefinedSecureOperation (@sensitive string secureParameter) {
+function userDefinedSecureOperation(@sensitive string secureParameter) {
 
 }
 
@@ -11,14 +11,14 @@ type Student {
 };
 
 
-function main (string... args) {
+function main(string... args) {
     endpoint mysql:Client customerDBEP {
         host: "localhost",
         port: 3306,
         name: "testdb",
         username: "root",
         password: "root",
-        poolOptions: { maximumPoolSize: 5 }
+        poolOptions: {maximumPoolSize: 5}
     };
 
     // Sensitive parameters of functions built-in to Ballerina are decorated with the @sensitive annotation. This
@@ -28,9 +28,9 @@ function main (string... args) {
     // disallowing tainted data in the SQL query.
     //
     // This line results in a compiler error because the query is appended with a user-provided argument.
-    table dataTable = check customerDBEP ->
-        select("SELECT firstname FROM student WHERE registration_id = " +
-               args[0], null);
+    table dataTable = check customerDBEP->
+    select("SELECT firstname FROM student WHERE registration_id = " +
+            args[0], null);
 
     // This line results in a compiler error because a user-provided argument is passed to a sensitive parameter.
     userDefinedSecureOperation(args[0]);
@@ -40,12 +40,12 @@ function main (string... args) {
         // the proceeding value trusted and pass it to a sensitive parameter.
         userDefinedSecureOperation(untaint args[0]);
     } else {
-        error err = { message: "Validation error: ID should be an integer" };
+        error err = {message: "Validation error: ID should be an integer"};
         throw err;
     }
 
     while (dataTable.hasNext()) {
-        var jsonData = check < Student > dataTable.getNext();
+        var jsonData = check <Student>dataTable.getNext();
         // The return values of certain functions built-in to Ballerina are decorated with the @tainted annotation to
         // denote that the return value should be untrusted (tainted). One such example is the data read from a
         // database.
@@ -69,19 +69,19 @@ function main (string... args) {
     return;
 }
 
-function sanitizeAndReturnTainted (string input) returns string {
+function sanitizeAndReturnTainted(string input) returns string {
     string regEx = "[^a-zA-Z]";
     return input.replace(regEx, "");
 }
 
 // The "@untainted" annotation denotes that the return value of the function should be trusted (untainted) even though
 // the return value is derived from tainted data.
-function sanitizeAndReturnUntainted (string input) returns @untainted string {
+function sanitizeAndReturnUntainted(string input) returns @untainted string {
     string regEx = "[^a-zA-Z]";
     return input.replace(regEx, "");
 }
 
-function isInteger (string input) returns boolean {
+function isInteger(string input) returns boolean {
     string regEx = "\\d+";
     boolean isInteger = check input.matches(regEx);
     return isInteger;

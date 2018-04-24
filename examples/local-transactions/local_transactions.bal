@@ -9,7 +9,7 @@ function main(string... args) {
         name: "testdb",
         username: "root",
         password: "root",
-        poolOptions: { maximumPoolSize: 5 }
+        poolOptions: {maximumPoolSize: 5}
     };
 
     // Create the tables required for the transaction.
