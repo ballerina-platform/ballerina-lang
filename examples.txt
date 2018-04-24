@@ -2,7 +2,7 @@ Hello World
 Hello World Parallel
 Hello World Service
 Secured Hello World Service with Basic Auth
-Value Types
+Values
 Constants
 Directory Listener
 Global Variables
