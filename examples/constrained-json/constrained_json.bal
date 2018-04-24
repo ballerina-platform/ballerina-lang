@@ -1,6 +1,6 @@
 import ballerina/io;
 
-@Description {value:"Defining Person type."}
+// Defining Person type.
 type Person {
     string name;
     int age;
