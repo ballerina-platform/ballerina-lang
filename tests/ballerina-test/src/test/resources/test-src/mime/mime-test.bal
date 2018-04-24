@@ -106,31 +106,31 @@ function testSetContentIdAndGetValueAsHeader() returns string {
     return entity.getHeader(mime:CONTENT_ID);
 }
 
-function testMimeBase64EncodeString(string contentToBeEncoded) returns (string|mime:Base64EncodeError) {
+function testMimeBase64EncodeString(string contentToBeEncoded) returns (string|error) {
     return mime:base64EncodeString(contentToBeEncoded);
 }
 
-function testMimeBase64DecodeString(string contentToBeDecoded) returns (string|mime:Base64DecodeError) {
+function testMimeBase64DecodeString(string contentToBeDecoded) returns (string|error) {
     return mime:base64DecodeString(contentToBeDecoded);
 }
 
-function testMimeBase64EncodeBlob(blob contentToBeEncoded) returns (blob|mime:Base64EncodeError) {
+function testMimeBase64EncodeBlob(blob contentToBeEncoded) returns (blob|error) {
     return mime:base64EncodeBlob(contentToBeEncoded);
 }
 
-function testMimeBase64DecodeBlob(blob contentToBeDecoded) returns (blob|mime:Base64DecodeError) {
+function testMimeBase64DecodeBlob(blob contentToBeDecoded) returns (blob|error) {
     return mime:base64DecodeBlob(contentToBeDecoded);
 }
 
-function testMimeBase64EncodeByteChannel(io:ByteChannel contentToBeEncoded) returns (io:ByteChannel|mime:Base64EncodeError) {
+function testMimeBase64EncodeByteChannel(io:ByteChannel contentToBeEncoded) returns (io:ByteChannel|error) {
     return mime:base64EncodeByteChannel(contentToBeEncoded);
 }
 
-function testMimeBase64DecodeByteChannel(io:ByteChannel contentToBeDecoded) returns (io:ByteChannel|mime:Base64DecodeError) {
+function testMimeBase64DecodeByteChannel(io:ByteChannel contentToBeDecoded) returns (io:ByteChannel|error) {
     return mime:base64DecodeByteChannel(contentToBeDecoded);
 }
 
-function testSetAndGetJson(json jsonContent) returns json|mime:EntityError {
+function testSetAndGetJson(json jsonContent) returns json|error {
     mime:Entity entity = new;
     entity.setJson(jsonContent);
     return entity.getJson();
@@ -139,27 +139,27 @@ function testSetAndGetJson(json jsonContent) returns json|mime:EntityError {
 function testGetJsonMultipleTimes(json jsonContent) returns (json) {
     mime:Entity entity = new;
     entity.setJson(jsonContent);
-    json|mime:EntityError returnContent1 = entity.getJson();
-    json|mime:EntityError returnContent2 = entity.getJson();
-    json|mime:EntityError returnContent3 = entity.getJson();
+    json|error returnContent1 = entity.getJson();
+    json|error returnContent2 = entity.getJson();
+    json|error returnContent3 = entity.getJson();
 
     json content1 = {};
     json content2 = {};
     json content3 = {};
 
     match returnContent1 {
-        mime:EntityError err => log:printInfo("error in returnContent1");
+        error err => log:printInfo("error in returnContent1");
         json j => { content1 = j;}
 
     }
 
     match returnContent2 {
-        mime:EntityError err => log:printInfo("error in returnContent2");
+        error err => log:printInfo("error in returnContent2");
         json j => { content2 = j;}
     }
 
     match returnContent3 {
-        mime:EntityError err => log:printInfo("error in returnContent3");
+        error err => log:printInfo("error in returnContent3");
         json j => { content3 = j;}
     }
 
@@ -167,7 +167,7 @@ function testGetJsonMultipleTimes(json jsonContent) returns (json) {
     return returnContent;
 }
 
-function testSetAndGetXml(xml xmlContent) returns xml|mime:EntityError {
+function testSetAndGetXml(xml xmlContent) returns xml|error {
     mime:Entity entity = new;
     entity.setXml(xmlContent);
     return entity.getXml();
@@ -176,26 +176,26 @@ function testSetAndGetXml(xml xmlContent) returns xml|mime:EntityError {
 function testGetXmlMultipleTimes(xml xmlContent) returns (xml) {
     mime:Entity entity = new;
     entity.setXml(xmlContent);
-    xml|mime:EntityError returnContent1 = entity.getXml();
-    xml|mime:EntityError returnContent2 = entity.getXml();
-    xml|mime:EntityError returnContent3 = entity.getXml();
+    xml|error returnContent1 = entity.getXml();
+    xml|error returnContent2 = entity.getXml();
+    xml|error returnContent3 = entity.getXml();
 
     xml content1;
     xml content2;
     xml content3;
 
     match returnContent1 {
-        mime:EntityError err => log:printInfo("error in returnContent1");
+        error err => log:printInfo("error in returnContent1");
         xml j => { content1 = j;}
     }
 
     match returnContent2 {
-        mime:EntityError err => log:printInfo("error in returnContent2");
+        error err => log:printInfo("error in returnContent2");
         xml j => { content2 = j;}
     }
 
     match returnContent3 {
-        mime:EntityError err => log:printInfo("error in returnContent3");
+        error err => log:printInfo("error in returnContent3");
         xml j => { content3 = j;}
     }
 
@@ -203,7 +203,7 @@ function testGetXmlMultipleTimes(xml xmlContent) returns (xml) {
     return returnContent;
 }
 
-function testSetAndGetText(string textContent) returns string|mime:EntityError {
+function testSetAndGetText(string textContent) returns string|error {
     mime:Entity entity = new;
     entity.setText(textContent);
     return entity.getText();
@@ -212,33 +212,33 @@ function testSetAndGetText(string textContent) returns string|mime:EntityError {
 function testGetTextMultipleTimes(string textContent) returns (string) {
     mime:Entity entity = new;
     entity.setText(textContent);
-    string|mime:EntityError returnContent1 = entity.getText();
-    string|mime:EntityError returnContent2 = entity.getText();
-    string|mime:EntityError returnContent3 = entity.getText();
+    string|error returnContent1 = entity.getText();
+    string|error returnContent2 = entity.getText();
+    string|error returnContent3 = entity.getText();
 
     string content1;
     string content2;
     string content3;
 
     match returnContent1 {
-        mime:EntityError err => log:printInfo("error in returnContent1");
+        error err => log:printInfo("error in returnContent1");
         string j => { content1 = j;}
     }
 
     match returnContent2 {
-        mime:EntityError err => log:printInfo("error in returnContent2");
+        error err => log:printInfo("error in returnContent2");
         string j => { content2 = j;}
     }
 
     match returnContent3 {
-        mime:EntityError err => log:printInfo("error in returnContent3");
+        error err => log:printInfo("error in returnContent3");
         string j => { content3 = j;}
     }
     string returnContent = content1 + content2 + content3;
     return returnContent;
 }
 
-function testSetAndGetBlob(blob blobContent) returns blob|mime:EntityError {
+function testSetAndGetBlob(blob blobContent) returns blob|error {
     mime:Entity entity = new;
     entity.setBlob(blobContent);
     return entity.getBlob();
@@ -247,26 +247,26 @@ function testSetAndGetBlob(blob blobContent) returns blob|mime:EntityError {
 function testGetBlobMultipleTimes(blob blobContent) returns (string) {
     mime:Entity entity = new;
     entity.setBlob(blobContent);
-    blob|mime:EntityError returnContent1 = entity.getBlob();
-    blob|mime:EntityError returnContent2 = entity.getBlob();
-    blob|mime:EntityError returnContent3 = entity.getBlob();
+    blob|error returnContent1 = entity.getBlob();
+    blob|error returnContent2 = entity.getBlob();
+    blob|error returnContent3 = entity.getBlob();
 
     blob content1;
     blob content2;
     blob content3;
 
     match returnContent1 {
-        mime:EntityError err => log:printInfo("error in returnContent1");
+        error err => log:printInfo("error in returnContent1");
         blob j => { content1 = j;}
     }
 
     match returnContent2 {
-        mime:EntityError err => log:printInfo("error in returnContent2");
+        error err => log:printInfo("error in returnContent2");
         blob j => { content2 = j;}
     }
 
     match returnContent3 {
-        mime:EntityError err => log:printInfo("error in returnContent3");
+        error err => log:printInfo("error in returnContent3");
         blob j => { content3 = j;}
     }
 
@@ -276,19 +276,19 @@ function testGetBlobMultipleTimes(blob blobContent) returns (string) {
     return contentAsString;
 }
 
-function testSetFileAsEntityBody(string fileLocation) returns blob|mime:EntityError {
+function testSetFileAsEntityBody(string fileLocation) returns blob|error {
     mime:Entity entity = new;
     entity.setFileAsEntityBody(fileLocation);
     return entity.getBlob();
 }
 
-function testSetByteChannel(io:ByteChannel byteChannel) returns blob|mime:EntityError {
+function testSetByteChannel(io:ByteChannel byteChannel) returns blob|error {
     mime:Entity entity = new;
     entity.setByteChannel(byteChannel);
     return entity.getBlob();
 }
 
-function testGetByteChannel(io:ByteChannel byteChannel) returns io:ByteChannel|mime:EntityError {
+function testGetByteChannel(io:ByteChannel byteChannel) returns io:ByteChannel|error {
     mime:Entity entity = new;
     entity.setByteChannel(byteChannel);
     return entity.getByteChannel();
@@ -304,33 +304,33 @@ function testSetEntityBodyMultipleTimes(io:ByteChannel byteChannel, string textd
     return result;
 }
 
-function testSetJsonAndGetByteChannel(json jsonContent) returns io:ByteChannel|mime:EntityError {
+function testSetJsonAndGetByteChannel(json jsonContent) returns io:ByteChannel|error {
     mime:Entity entity = new;
     entity.setJson(jsonContent);
     return entity.getByteChannel();
 }
 
-function testGetTextDataSource(io:ByteChannel byteChannel) returns string|mime:EntityError {
+function testGetTextDataSource(io:ByteChannel byteChannel) returns string|error {
     mime:Entity entity = new;
     entity.setByteChannel(byteChannel);
     entity.setHeader("content-type", "text/plain");
     //Consume byte channel externally
     var result = entity.getByteChannel();
     match result {
-        mime:EntityError err => log:printInfo("error in returnContent1");
+        error err => log:printInfo("error in returnContent1");
         io:ByteChannel j => { consumeChannel(j);}
     }
     return entity.getText();
 }
 
-function testGetJsonDataSource(io:ByteChannel byteChannel) returns json|mime:EntityError {
+function testGetJsonDataSource(io:ByteChannel byteChannel) returns json|error {
     mime:Entity entity = new;
     entity.setByteChannel(byteChannel);
     entity.setHeader("content-type", "application/json");
     //Consume byte channel externally
     var result = entity.getByteChannel();
     match result {
-        mime:EntityError err => log:printInfo("error in returnContent1");
+        error err => log:printInfo("error in returnContent1");
         io:ByteChannel j => { consumeChannel(j);}
     }
 
@@ -341,66 +341,66 @@ function consumeChannel(io:ByteChannel channel) {
     var result = channel.read(1000000);
 }
 
-function testGetXmlWithSuffix(xml xmlContent) returns xml|mime:EntityError {
+function testGetXmlWithSuffix(xml xmlContent) returns xml|error {
     mime:Entity entity = new;
     entity.setHeader("content-type", "application/3gpdash-qoe-report+xml");
     entity.setXml(xmlContent);
     return entity.getXml();
 }
 
-function testGetXmlWithNonCompatibleMediaType(xml xmlContent) returns xml|mime:EntityError {
+function testGetXmlWithNonCompatibleMediaType(xml xmlContent) returns xml|error {
     mime:Entity entity = new;
     entity.setXml(xmlContent);
     entity.setHeader("content-type", "application/3gpdash-qoe-report");
     return entity.getXml();
 }
 
-function testGetJsonWithSuffix(json jsonContent) returns json|mime:EntityError {
+function testGetJsonWithSuffix(json jsonContent) returns json|error {
     mime:Entity entity = new;
     entity.setHeader("content-type", "application/yang-patch+json");
     entity.setJson(jsonContent);
     return entity.getJson();
 }
 
-function testGetJsonWithNonCompatibleMediaType(json jsonContent) returns json|mime:EntityError {
+function testGetJsonWithNonCompatibleMediaType(json jsonContent) returns json|error {
     mime:Entity entity = new;
     entity.setJson(jsonContent);
     entity.setHeader("content-type", "application/whoispp-query");
     return entity.getJson();
 }
 
-function testGetTextWithNonCompatibleMediaType(string textContent) returns string|mime:EntityError {
+function testGetTextWithNonCompatibleMediaType(string textContent) returns string|error {
     mime:Entity entity = new;
     entity.setText(textContent);
     entity.setHeader("content-type", "model/vnd.parasolid.transmit");
     return entity.getText();
 }
 
-function testSetBodyAndGetText((string|xml|json|blob|io:ByteChannel) entityBody) returns string|mime:EntityError {
+function testSetBodyAndGetText((string|xml|json|blob|io:ByteChannel) entityBody) returns string|error {
     mime:Entity entity = new;
     entity.setBody(entityBody);
     return entity.getText();
 }
 
-function testSetBodyAndGetXml((string|xml|json|blob|io:ByteChannel) entityBody) returns xml|mime:EntityError {
+function testSetBodyAndGetXml((string|xml|json|blob|io:ByteChannel) entityBody) returns xml|error {
     mime:Entity entity = new;
     entity.setBody(entityBody);
     return entity.getXml();
 }
 
-function testSetBodyAndGetJson((string|xml|json|blob|io:ByteChannel) entityBody) returns json|mime:EntityError {
+function testSetBodyAndGetJson((string|xml|json|blob|io:ByteChannel) entityBody) returns json|error {
     mime:Entity entity = new;
     entity.setBody(entityBody);
     return entity.getJson();
 }
 
-function testSetBodyAndGetBlob((string|xml|json|blob|io:ByteChannel) entityBody) returns blob|mime:EntityError {
+function testSetBodyAndGetBlob((string|xml|json|blob|io:ByteChannel) entityBody) returns blob|error {
     mime:Entity entity = new;
     entity.setBody(entityBody);
     return entity.getBlob();
 }
 
-function testSetBodyAndGetByteChannel((string|xml|json|blob|io:ByteChannel) entityBody) returns io:ByteChannel|mime:EntityError {
+function testSetBodyAndGetByteChannel((string|xml|json|blob|io:ByteChannel) entityBody) returns io:ByteChannel|error {
     mime:Entity entity = new;
     entity.setBody(entityBody);
     return entity.getByteChannel();

@@ -128,7 +128,7 @@ service<http:Service> sample bind sessionEP {
         http:Response res = new;
         string result;
         match req.getTextPayload() {
-            http:PayloadError err => res.setTextPayload("Error");
+            error err => res.setTextPayload("Error");
             string textPayload => {
                 result = textPayload;
                 http:Session session = req.createSessionIfAbsent();
@@ -223,7 +223,7 @@ service<http:Service> sample2 bind sessionEP {
     myStruct (endpoint conn, http:Request req) {
         http:Response res = new;
         match req.getTextPayload() {
-            http:PayloadError err => res.setTextPayload("Error");
+            error err => res.setTextPayload("Error");
             string payload => {
                 Data d = {name:payload};
                 http:Session Session = req.createSessionIfAbsent();

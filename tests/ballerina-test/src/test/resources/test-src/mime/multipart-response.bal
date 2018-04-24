@@ -49,7 +49,7 @@ service<http:Service> test bind mockEP {
         string contentType = request.getHeader("content-type");
         http:Response outResponse = new;
         match (request.getBodyParts()) {
-            mime:EntityError err => {
+            error err => {
                 outResponse.setTextPayload(err.message);
             }
             mime:Entity[] bodyParts => {
