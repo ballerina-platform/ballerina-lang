@@ -1,31 +1,28 @@
 import ballerina/io;
-import ballerina/mysql;
+import ballerina/jdbc;
 import ballerina/sql;
 
 function main(string... args) {
     // Create an endpoint for the first database named testdb1. Since this endpoint is
     // participated in a distributed transaction, the isXA property should be true.
-    endpoint mysql:Client testDBEP1 {
-        host: "localhost",
-        port: 3306,
-        name: "testdb1",
+    endpoint jdbc:Client testDBEP1 {
+        url: "jdbc:mysql://localhost:3306/testdb1",
         username: "root",
         password: "root",
-        poolOptions: { maximumPoolSize: 5, isXA: true }
+        poolOptions: { maximumPoolSize: 5, isXA: true },
+        dbOptions: { autoReconnect: true }
     };
 
     // Create an endpoint for the second database named testdb2. Since this endpoint is
     // participated in a distributed transaction, the isXA property of the
-    // poolOptions field of sql:Client should be true.
-    endpoint mysql:Client testDBEP2 {
-        host: "localhost",
-        port: 3306,
-        name: "testdb2",
+    // poolOptions field of jdbc:Client should be true.
+    endpoint jdbc:Client testDBEP2 {
+        url: "jdbc:mysql://localhost:3306/testdb2",
         username: "root",
         password: "root",
-        poolOptions: { maximumPoolSize: 5, isXA: true }
+        poolOptions: { maximumPoolSize: 5, isXA: true },
+        dbOptions: { autoReconnect: true }
     };
-
 
     // Create the table named CUSTOMER in the first database.
     var ret = testDBEP1->update("CREATE TABLE CUSTOMER (ID INT AUTO_INCREMENT PRIMARY KEY,
@@ -105,10 +102,8 @@ function onAbortFunction(string transactionId) {
     io:println("Transaction: " + transactionId + " aborted");
 }
 
-function handleError(string message, error e, mysql:Client db1, mysql:Client db2) {
-    endpoint mysql:Client testDB1 = db1;
-    endpoint mysql:Client testDB2 = db2;
+function handleError(string message, error e, jdbc:Client db1, jdbc:Client db2) {
     io:println(message + ": " + e.message);
-    testDB1.stop();
-    testDB2.stop();
+    db1.stop();
+    db2.stop();
 }
