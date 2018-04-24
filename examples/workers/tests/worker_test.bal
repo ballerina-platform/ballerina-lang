@@ -18,5 +18,6 @@ public function mockPrint(any... s) {
 function testFunc() {
     // Invoking the main function
     main();
-    test:assertEquals("[w1] iw: 200 kw: 5.44", outputs[0]);
+    test:assertEquals("sum of first 10000000 positive numbers = 50000005000000", outputs[0]);
+    test:assertEquals("sum of squares of first 10000000 positive numbers = 1291990006563070912", outputs[1]);
 }
