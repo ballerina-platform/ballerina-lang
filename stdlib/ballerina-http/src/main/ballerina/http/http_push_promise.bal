@@ -17,8 +17,8 @@
 documentation {
     PushPromise represents a HTTP/2 PUSH_PROMISE frame.
 
-    F{{path}} the resource path
-    F{{method}} the http method
+    F{{path}} The resource path
+    F{{method}} The HTTP method
 }
 public type PushPromise object {
     public {
@@ -32,49 +32,48 @@ public type PushPromise object {
     documentation {
         Checks whether the requested header exists.
 
-        P{{headerName}} - The header name.
-        R{{}} - A boolean representing the existence of a given header.
+        P{{headerName}} The header name
+        R{{}} A boolean representing the existence of a given header
     }
     public native function hasHeader (string headerName) returns (boolean);
-
 
     documentation {
         Returns the header value with the specified header name.
         If there are more than one header value for the specified header name, the first value is returned.
 
-        P{{headerName}} - The header name.
-        R{{}} - The first header value for the provided header name. Returns null if the header does not exist.
+        P{{headerName}} The header name
+        R{{}} The header value or null if there is no such header
     }
     public native function getHeader (string headerName) returns (string);
 
     documentation {
         Gets transport headers from the Push Promise.
 
-        P{{headerName}} - The header name.
-        R{{}} - The header values struct array for a given header name.
+        P{{headerName}} The header name
+        R{{}} The array of header values
     }
     public native function getHeaders (string headerName) returns (string[]);
 
     documentation {
         Adds the specified key/value pair as an HTTP header to the Push Promise.
 
-        P{{headerName}} - The header name.
-        P{{headerValue}} - The header value.
+        P{{headerName}} The header name
+        P{{headerValue}} The header value
     }
     public native function addHeader (string headerName, string headerValue);
 
     documentation {
         Sets the value of a transport header in Push Promise.
 
-        P{{headerName}} - The header name.
-        P{{headerValue}} - The header value.
+        P{{headerName}} The header name
+        P{{headerValue}} The header value
     }
     public native function setHeader (string headerName, string headerValue);
 
     documentation {
         Removes a transport header from the Push Promise.
 
-        P{{headerName}} - The header name.
+        P{{headerName}} The header name
     }
     public native function removeHeader (string headerName);
 
@@ -86,8 +85,7 @@ public type PushPromise object {
     documentation {
         Gets all transport header names from the Push Promise.
 
-        R{{}} - An array of all transport header names.
+        R{{}} An array of all transport header names
     }
     public native function getHeaderNames () returns (string[]);
 };
-
