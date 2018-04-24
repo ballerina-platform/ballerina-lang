@@ -20,9 +20,9 @@ function main(string... args) {
 
     // Create a DB table using the `update` action. If the DDL
     // statement execution is successful, the `update` action returns 0.
-    var ret = testDB->update("CREATE TABLE STUDENT(ID INT AUTO_INCREMENT, AGE INT,
+    var updateRet = testDB->update("CREATE TABLE STUDENT(ID INT AUTO_INCREMENT, AGE INT,
                                 NAME VARCHAR(255), PRIMARY KEY (ID))");
-    match ret {
+    match updateRet {
         int status => io:println("Table creation status: " + status);
         error err => {
             handleError("STUDENT table creation failed: ", err, testDB);
@@ -31,13 +31,13 @@ function main(string... args) {
     }
 
     // Create a stored procedure using the `update` action.
-    ret = testDB->update("CREATE PROCEDURE GETCOUNT (IN pAge INT, OUT pCount INT,
+    updateRet = testDB->update("CREATE PROCEDURE GETCOUNT (IN pAge INT, OUT pCount INT,
                          INOUT pInt INT)
                          BEGIN SELECT COUNT(*) INTO pCount FROM STUDENT
                               WHERE AGE = pAge; SELECT COUNT(*) INTO pInt FROM
                               STUDENT WHERE ID = pInt;
                          END");
-    match ret {
+    match updateRet {
         int status => io:println("Stored proc creation status: " + status);
         error err => {
             handleError("GETCOUNT procedure creation failed: ", err, testDB);
@@ -49,8 +49,8 @@ function main(string... args) {
     // is successful, the `update` action returns the updated row count.
     sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: 8 };
     sql:Parameter para2 = { sqlType: sql:TYPE_VARCHAR, value: "Sam" };
-    ret = testDB->update("INSERT INTO STUDENT (AGE,NAME) VALUES (?,?)", para1, para2);
-    match ret {
+    updateRet = testDB->update("INSERT INTO STUDENT (AGE,NAME) VALUES (?,?)", para1, para2);
+    match updateRet {
         int rows => io:println("Inserted row count: " + rows);
         error err => {
             handleError("Update action failed: ", err, testDB);
@@ -64,9 +64,9 @@ function main(string... args) {
     // names should be given as an array. The values of the auto incremented
     // column and the auto generated columns are returned as a string array.
     // Similar to the `update` action, the inserted row count is also returned.
-    var val = testDB->updateWithGeneratedKeys("INSERT INTO STUDENT
+    var updateGenKeyRet = testDB->updateWithGeneratedKeys("INSERT INTO STUDENT
                       (AGE,NAME) VALUES (?, ?)", (), para1, para2);
-    match val {
+    match updateGenKeyRet {
         (int, string[]) y => {
             int count;
             string[] ids;
@@ -82,22 +82,37 @@ function main(string... args) {
 
     // Select data using the `select` action. The `select` action returns a table.
     // See the `table` ballerina example for more details on how to access data.
-    var dtReturned = testDB->select("SELECT * FROM STUDENT WHERE AGE = ?", Student, para1);
+    var selectRet = testDB->select("SELECT * FROM STUDENT WHERE AGE = ?", Student, para1);
     table<Student> dt;
-    match dtReturned {
-        table val => dt = val;
+    match selectRet {
+        table tableReturned => dt = tableReturned;
         error e => {
             handleError("Select action failed: ", e, testDB);
             return;
         }
     }
 
+    // Conversion from type 'table' to either JSON or XML results in data streaming.
+    // When a service client makes a request, the result is streamed to the service
+    // client rather than building the full result in the server and returning it.
+    // This allows unlimited payload sizes in the result and the response is
+    // instantaneous to the client.
+    // Convert a table to JSON.
+    var jsonConversionRet = <json>dt;
+    match jsonConversionRet {
+        json jsonRes => {
+            io:print("JSON: ");
+            io:println(io:sprintf("%s", jsonRes));
+        }
+        error e => io:println("Error in table to json conversion");
+    }
+
     // The obtained result can be iterated.
     // Re-iteration of the result is possible only if `loadToMemory` named argument
     // is set to `true` in `select` action.
-    dtReturned = testDB->select("SELECT * from STUDENT", Student, loadToMemory = true);
-    match dtReturned {
-        table val => dt = val;
+    selectRet = testDB->select("SELECT * from STUDENT", Student, loadToMemory = true);
+    match selectRet {
+        table tableReturned => dt = tableReturned;
         error e => {
             handleError("Error in executing SELECT * from STUDENT: ", e, testDB);
             return;
@@ -115,21 +130,6 @@ function main(string... args) {
     }
     io:println("Second Iteration Over\n");
 
-    // Conversion from type 'table' to either JSON or XML results in data streaming.
-    // When a service client makes a request, the result is streamed to the service
-    // client rather than building the full result in the server
-    // and returning it. This allows unlimited payload sizes in the result and
-    // the response is instantaneous to the client.
-    // Convert a table to JSON.
-    var jsonConversionReturnVal = <json>dt;
-    match jsonConversionReturnVal {
-        json jsonRes => {
-            io:print("JSON: ");
-            io:println(io:sprintf("%s", jsonRes));
-        }
-        error e => io:println("Error in table to json conversion");
-    }
-
     // Create parameters for `batchUpdate` action.
     sql:Parameter p1 = { sqlType: sql:TYPE_INTEGER, value: 10 };
     sql:Parameter p2 = { sqlType: sql:TYPE_VARCHAR, value: "Smith" };
@@ -140,9 +140,9 @@ function main(string... args) {
 
     // A batch of data can be inserted using the `batchUpdate` action. The number
     // of inserted rows for each insert in the batch is returned as an array.
-    var insertVal = testDB->batchUpdate("INSERT INTO STUDENT (AGE,NAME) VALUES (?, ?)",
+    var batchUpdateRet = testDB->batchUpdate("INSERT INTO STUDENT (AGE,NAME) VALUES (?, ?)",
         item1, item2);
-    match insertVal {
+    match batchUpdateRet {
         int[] c => {
             io:println("Batch item 1 status: " + c[0]);
             io:println("Batch item 2 status: " + c[1]);
@@ -157,7 +157,14 @@ function main(string... args) {
     sql:Parameter pId = { sqlType: sql:TYPE_INTEGER, value: 1, direction: sql:DIRECTION_INOUT };
 
     // Invoke stored procedure using the `call` action.
-    var results = testDB->call("{CALL GETCOUNT(?,?,?)}", (), pAge, pCount, pId);
+    var callRet = testDB->call("{CALL GETCOUNT(?,?,?)}", (), pAge, pCount, pId);
+    match callRet {
+        ()|table[] => io:println("Call action successful");
+        error err => {
+            handleError("Call action failed: ", err, testDB);
+            return;
+        }
+    }
 
     // Obtain the values of OUT/INOUT parameters.
     int countValue = <int>pCount.value but { error => -1 };
@@ -170,7 +177,7 @@ function main(string... args) {
     // the actual database table, can be obtained by `getProxyTable` action.
     var proxyRet = testDB->getProxyTable("STUDENT", Student);
     match proxyRet {
-        table t => dt = t;
+        table dtReturned => dt = dtReturned;
         error err => {
             handleError("Proxying STUDENT table failed: ", err, testDB);
             return;
@@ -206,8 +213,8 @@ function main(string... args) {
     }
 
     // Drop the STUDENT table.
-    ret = testDB->update("DROP TABLE STUDENT");
-    match ret {
+    updateRet = testDB->update("DROP TABLE STUDENT");
+    match updateRet {
         int status => io:println("Table drop status: " + status);
         error err => {
             handleError("Dropping STUDENT table failed: ", err, testDB);
@@ -216,8 +223,8 @@ function main(string... args) {
     }
 
     // Drop the GETCOUNT procedure.
-    ret = testDB->update("DROP PROCEDURE GETCOUNT");
-    match ret {
+    updateRet = testDB->update("DROP PROCEDURE GETCOUNT");
+    match updateRet {
         int status => io:println("Procedure drop status: " + status);
         error err => {
             handleError("Dropping GETCOUNT procedure failed: ", err, testDB);

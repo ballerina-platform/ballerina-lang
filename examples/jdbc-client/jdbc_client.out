@@ -6,6 +6,7 @@ Stored proc creation status: 0
 Inserted row count: 1
 Inserted row count: 1
 Generated key: 2
+JSON: [{"id":1,"age":8,"name":"Sam"},{"id":2,"age":8,"name":"Sam"}]
 
 First Iteration Begin
 Student:1|Sam|8
@@ -17,9 +18,9 @@ Student:1|Sam|8
 Student:2|Sam|8
 Second Iteration Over
 
-JSON: [{"id":1,"age":8,"name":"Sam"},{"id":2,"age":8,"name":"Sam"}]
 Batch item 1 status: 1
 Batch item 2 status: 1
+Call action successful
 Age 10 count: 1
 Id 1 count: 1
 Student:1|Sam|8
