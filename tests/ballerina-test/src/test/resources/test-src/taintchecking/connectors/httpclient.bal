@@ -20,7 +20,7 @@ function main (string... args) {
                 string stringPayload => {
                     normalFunction (stringPayload);
                 }
-                http:PayloadError payloadError => return;
+                error payloadError => return;
             }
         }
         http:HttpConnectorError err => return;

@@ -185,7 +185,7 @@ function processWebSubNotification(http:Request request, typedesc serviceType) r
     var reqJsonPayload = request.getJsonPayload(); //TODO: fix for all types
     match (reqJsonPayload) {
         json jsonPayload => { payload = jsonPayload; }
-        mime:EntityError entityError => {
+        error entityError => {
             error webSubError = {message:"Error extracting notification payload", cause:entityError};
             return webSubError;
         }

@@ -692,4 +692,24 @@ public class MimeUtilityFunctionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "test-id");
     }
+
+    @Test
+    public void testGetAnyStreamAsString() throws IOException {
+        try {
+            File file = File.createTempFile("testFile", ".tmp");
+            file.deleteOnExit();
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
+            bufferedWriter.write("{'code':'123'}");
+            bufferedWriter.close();
+            BStruct byteChannelStruct = Util.getByteChannelStruct(compileResult);
+            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, EntityBodyHandler.getByteChannelForTempFile
+                    (file.getAbsolutePath()));
+            BValue[] args = {byteChannelStruct, new BString("application/json")};
+            BValue[] returns = BRunUtil.invoke(compileResult, "testGetAnyStreamAsString", args);
+            Assert.assertEquals(returns.length, 1);
+            Assert.assertEquals(returns[0].stringValue(), "{'code':'123'}");
+        } catch (IOException e) {
+            log.error("Error occurred in testTempFileDeletion", e.getMessage());
+        }
+    }
 }
