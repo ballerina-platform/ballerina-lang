@@ -78,6 +78,7 @@ public class HTTPCarbonMessage {
     public synchronized void addHttpContent(HttpContent httpContent) {
         if (this.messageFuture != null) {
             this.messageFuture.notifyMessageListener(httpContent);
+            this.contentObservable.notifyAddListener(httpContent);
             this.contentObservable.notifyGetListener(httpContent);
         } else {
             this.blockingEntityCollector.addHttpContent(httpContent);
