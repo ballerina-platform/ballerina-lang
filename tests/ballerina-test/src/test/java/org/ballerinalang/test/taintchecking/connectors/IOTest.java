@@ -35,14 +35,13 @@ public class IOTest {
         Assert.assertTrue(result.getDiagnostics().length == 0);
     }
 
-   // @Test
+    @Test
     public void testCharacterIONegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/connectors/character-io-negative.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 4);
+        Assert.assertTrue(result.getDiagnostics().length == 3);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'path'", 10, 43);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'accessMode'", 10, 53);
-        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'numberOfChars'", 15, 53);
-        BAssertUtil.validateError(result, 3, "tainted value passed to sensitive parameter 'sensitiveValue'", 18, 34);
+        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'numberOfChars'", 13, 35);
+        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'sensitiveValue'", 16, 26);
     }
 
 }
