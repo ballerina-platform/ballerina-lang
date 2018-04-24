@@ -49,10 +49,10 @@ public type HttpSecureClient object {
     public function post(string path, Request? request = ()) returns (Response|HttpConnectorError) {
         Request req = request ?: new;
         check generateSecureRequest(req, config);
-        Request newOutRequest = check cloneRequest(req);
         Response response = check httpClient.post(path, request = req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
+            Request newOutRequest = check cloneRequest(req);
             check updateRequestAndConfig(newOutRequest, config);
             return httpClient.post(path, request = newOutRequest);
         }
@@ -67,10 +67,10 @@ public type HttpSecureClient object {
     public function head(string path, Request? request = ()) returns (Response|HttpConnectorError) {
         Request req = request ?: new;
         check generateSecureRequest(req, config);
-        Request newOutRequest = check cloneRequest(req);
         Response response = check httpClient.head(path, request = req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
+            Request newOutRequest = check cloneRequest(req);
             check updateRequestAndConfig(newOutRequest, config);
             return httpClient.head(path, request = newOutRequest);
         }
@@ -85,10 +85,10 @@ public type HttpSecureClient object {
     public function put(string path, Request? request = ()) returns (Response|HttpConnectorError) {
         Request req = request ?: new;
         check generateSecureRequest(req, config);
-        Request newOutRequest = check cloneRequest(req);
         Response response = check httpClient.put(path, request = req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
+            Request newOutRequest = check cloneRequest(req);
             check updateRequestAndConfig(newOutRequest, config);
             return httpClient.put(path, request = newOutRequest);
         }
@@ -104,10 +104,10 @@ public type HttpSecureClient object {
     public function execute(string httpVerb, string path, Request request) returns (Response|HttpConnectorError) {
         var details = generateSecureRequest(request, config);
         check generateSecureRequest(request, config);
-        Request newOutRequest = check cloneRequest(request);
         Response response = check httpClient.execute(httpVerb, path, request);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
+            Request newOutRequest = check cloneRequest(request);
             check updateRequestAndConfig(newOutRequest, config);
             return httpClient.execute(httpVerb, path, newOutRequest);
         }
@@ -122,10 +122,10 @@ public type HttpSecureClient object {
     public function patch(string path, Request? request = ()) returns (Response|HttpConnectorError) {
         Request req = request ?: new;
         check generateSecureRequest(req, config);
-        Request newOutRequest = check cloneRequest(req);
         Response response = check httpClient.patch(path, request = req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
+            Request newOutRequest = check cloneRequest(req);
             check updateRequestAndConfig(newOutRequest, config);
             return httpClient.patch(path, request = newOutRequest);
         }
@@ -140,10 +140,10 @@ public type HttpSecureClient object {
     public function delete(string path, Request? request = ()) returns (Response|HttpConnectorError) {
         Request req = request ?: new;
         check generateSecureRequest(req, config);
-        Request newOutRequest = check cloneRequest(req);
         Response response = check httpClient.delete(path, request = req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
+            Request newOutRequest = check cloneRequest(req);
             check updateRequestAndConfig(newOutRequest, config);
             return httpClient.delete(path, request = newOutRequest);
         }
@@ -158,10 +158,10 @@ public type HttpSecureClient object {
     public function get(string path, Request? request = ()) returns (Response|HttpConnectorError) {
         Request req = request ?: new;
         check generateSecureRequest(req, config);
-        Request newOutRequest = check cloneRequest(req);
         Response response = check httpClient.get(path, request = req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
+            Request newOutRequest = check cloneRequest(req);
             check updateRequestAndConfig(newOutRequest, config);
             return httpClient.get(path, request = newOutRequest);
         }
@@ -176,10 +176,10 @@ public type HttpSecureClient object {
     public function options(string path, Request? request = ()) returns (Response|HttpConnectorError) {
         Request req = request ?: new;
         check generateSecureRequest(req, config);
-        Request newOutRequest = check cloneRequest(req);
         Response response = check httpClient.options(path, request = req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
+            Request newOutRequest = check cloneRequest(req);
             check updateRequestAndConfig(newOutRequest, config);
             return httpClient.options(path, request = newOutRequest);
         }
@@ -193,10 +193,10 @@ public type HttpSecureClient object {
     @Return {value:"Error occured during HTTP client invocation"}
     public function forward(string path, Request request) returns (Response|HttpConnectorError) {
         check generateSecureRequest(request, config);
-        Request newOutRequest = check cloneRequest(request);
         Response response = check httpClient.forward(path, request);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
+            Request newOutRequest = check cloneRequest(request);
             check updateRequestAndConfig(newOutRequest, config);
             return httpClient.forward(path, newOutRequest);
         }
