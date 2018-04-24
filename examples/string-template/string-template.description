@@ -1,3 +1,0 @@
-// String templates allow you to embed expressions in strings. You
-// can add any expression inside `{{}}` as long as the expression
-// produces a string type output after it is evaluated.

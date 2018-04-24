@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main (string... args) {
+function main(string... args) {
     // XML element. There can only be one root element.
     xml x1 = xml `<book>The Lost World</book>`;
     io:println(x1);
