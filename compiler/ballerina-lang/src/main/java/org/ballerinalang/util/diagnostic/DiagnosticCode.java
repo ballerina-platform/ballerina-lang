@@ -43,6 +43,7 @@ public enum DiagnosticCode {
     OBJECT_UN_INITIALIZABLE_FIELD("object.non.initialised.field"),
     CYCLIC_TYPE_REFERENCE("cyclic.type.reference"),
     ATTEMPT_REFER_NON_PUBLIC_SYMBOL("attempt.refer.non.public.symbol"),
+    ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL("attempt.expose.non.public.symbol"),
     UNDEFINED_PARAMETER("undefined.parameter"),
     CANNOT_FIND_MATCHING_FUNCTION("cannot.find.function.sig.for.function.in.object"),
     IMPLEMENTATION_ALREADY_EXIST("implementation.already.exist"),

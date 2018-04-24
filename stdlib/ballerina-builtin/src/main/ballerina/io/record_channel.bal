@@ -23,7 +23,7 @@ public type DelimitedTextRecordChannel object {
         string fs;
     }
 
-    new(channel, fs = "", rs = "", string fmt = "default") {
+    public new(channel, fs = "", rs = "", string fmt = "default") {
         init(channel, fs, rs, fmt);
     }
 

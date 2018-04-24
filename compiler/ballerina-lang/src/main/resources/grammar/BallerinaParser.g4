@@ -49,7 +49,7 @@ serviceEndpointAttachments
     ;
 
 serviceBody
-    :   LEFT_BRACE endpointDeclaration* variableDefinitionStatement* resourceDefinition* RIGHT_BRACE
+    :   LEFT_BRACE endpointDeclaration* (variableDefinitionStatement | namespaceDeclarationStatement)* resourceDefinition* RIGHT_BRACE
     ;
 
 resourceDefinition

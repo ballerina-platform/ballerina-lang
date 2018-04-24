@@ -20,6 +20,7 @@ package org.ballerinalang.test.object;
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -55,8 +56,11 @@ public class ObjectEquivalencyNegativeTest {
     public void testEquivalenceOfObjectsInSamePackageFromDifferentPackage() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object-equivalency-02-negative.bal");
 
+        Assert.assertEquals(compileResult.getErrorCount(), 2);
         BAssertUtil.validateError(compileResult, 0,
                 "incompatible types: expected 'org.foo:user', found 'org.foo:userFoo|error'", 11, 23);
+        BAssertUtil.validateError(compileResult, 1,
+                "incompatible types: expected 'org.foo:FooObj', found 'org.foo:FooObj|error'", 17, 25);
 
     }
 }
