@@ -64,14 +64,14 @@ function main(string... args) {
     try {
         io:println("Start processing the CSV file from " + srcFileName + " to the text file in " + dstFileName);
         process(srcRecordChannel, dstRecordChannel);
-        io:println("Processing completed. The processed file is located in " + dstFileName);
+        io:println("Processing completed. The processed file is located in ", dstFileName);
     } catch (error err) {
-        io:println("An error occurred while processing the records. " + err.message);
+        io:println("An error occurred while processing the records. ", err.message);
     } finally {
         //Close the text record channel.
         match srcRecordChannel.close() {
             error sourceCloseError => {
-                io:println("Error occured while closing the channel: " + sourceCloseError.message);
+                io:println("Error occured while closing the channel: ", sourceCloseError.message);
             }
             () => {
                 io:println("Source channel closed successfully.");
@@ -79,7 +79,7 @@ function main(string... args) {
         }
         match dstRecordChannel.close() {
             error destinationCloseError => {
-                io:println("Error occured while closing the channel: " + destinationCloseError.message);
+                io:println("Error occured while closing the channel: ", destinationCloseError.message);
             }
             () => {
                 io:println("Destination channel closed successfully.");
