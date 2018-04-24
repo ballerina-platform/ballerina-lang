@@ -18,7 +18,7 @@ Var
 Any Type
 Type Conversion
 Typeof
-Structs
+Records
 Maps
 Arrays
 Vector
@@ -49,7 +49,7 @@ Fork/Join Variable Access
 Async
 JDBC Client
 MYSQL Client
-Table Queries
+Table with MYSQL Client
 SQL Queries On Tables
 Local Transactions
 Transactions Distributed
