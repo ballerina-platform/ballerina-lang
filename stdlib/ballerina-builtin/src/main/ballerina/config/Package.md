@@ -156,5 +156,4 @@ ballerina: enter secret for config value decryption:
 
 **Note**: *The same config file cannot contain values that are encrypted using different secrets.* 
 
-## Package contents
 

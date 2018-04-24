@@ -144,7 +144,7 @@ public class BTestRunner {
             registry.getTestSuites().computeIfAbsent(packageName, func -> new TestSuite
                 (packageName));
             // compile
-            CompileResult compileResult = BCompileUtil.compile(sourceRoot, sourcePackage.toString(),
+            CompileResult compileResult = BCompileUtil.compileWithTests(sourceRoot, sourcePackage.toString(),
                 CompilerPhase.CODE_GEN);
             // print errors
             for (Diagnostic diagnostic : compileResult.getDiagnostics()) {

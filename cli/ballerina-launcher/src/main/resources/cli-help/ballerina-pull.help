@@ -1,0 +1,22 @@
+NAME
+    Ballerina pull - Download package from Ballerina Central 
+
+SYNOPSIS
+    ballerina pull <package-name>
+
+DESCRIPTION
+     Downloads the given package form Ballerina Central 
+     (https://central.ballerina.io/) repository and installs to home
+     repository. 
+     By default, package will be placed within the .ballerina home
+     repository of the user. 
+
+OPTIONS
+     Ballerina pull command takes no options  
+
+EXAMPLES
+     Download Gmail connector by WSO2 from Ballerina Central 
+     $ ballerina pull wso2/gmail
+
+     Download Bar package by Foo organization from Ballerina Central
+     $ ballerina pull foo/bar

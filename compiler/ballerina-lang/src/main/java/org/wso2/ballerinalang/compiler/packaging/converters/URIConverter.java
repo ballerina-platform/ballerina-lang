@@ -60,6 +60,11 @@ public class URIConverter implements Converter<URI> {
     }
 
     @Override
+    public Stream<URI> expandBalWithTest(URI uri) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Stream<URI> expandBal(URI u) {
         throw new UnsupportedOperationException();
 

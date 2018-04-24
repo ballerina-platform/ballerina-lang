@@ -1,0 +1,35 @@
+NAME
+    Ballerina encrypt - Encrypt sensitive configuration values 
+    
+SYNOPSIS
+    ballerina encrypt 
+
+DESCRIPTION
+     Encrypt command performs symmetric encryption of sensitive 
+     configuration values using AES, CBC mode with PKCS#5 padding. 
+
+     Configuration values containing sensitive information, such as 
+     passwords and secrets should be encrypted to maintain 
+     confidentiality. 
+
+     Once executed, the encrypt command will prompt for the value to 
+     be encrypted and a secret which is used as the AES encryption /     
+     decryption key.
+
+     The encrypted configuration value can then be used as a 
+     configuration value, by placing the encrypt command output in a 
+     configuration file or by passing it as a runtime argument.
+
+     The Ballerina Config API will automatically decrypt the
+     configuration values on-demand.
+
+OPTIONS
+     Ballerina encrypt command takes no options
+
+DEFAULT BEHAVIOUR
+     AES, CBC mode with PKCS#5 padding will be used to encrypt the 
+     provided value, by using the provided encryption key.
+
+EXAMPLES
+     Encrypt sensitive data
+     $ ballerina encrypt

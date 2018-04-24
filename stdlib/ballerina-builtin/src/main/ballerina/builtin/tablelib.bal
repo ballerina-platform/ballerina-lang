@@ -43,7 +43,7 @@ documentation {
     T{{dt}} The table object
     P{{data}} A struct with data
 }
-public native function<table dt> add(any data) returns (TableOperationError|());
+public native function<table dt> add(any data) returns (error|());
 
 documentation {
     Remove data from the table.
@@ -51,7 +51,7 @@ documentation {
     T{{dt}} The table object
     P{{func}} The function pointer for delete crieteria
 }
-public native function<table dt> remove(function (any) returns (boolean) func) returns (int|TableOperationError);
+public native function<table dt> remove(function (any) returns (boolean) func) returns (int|error);
 
 documentation {
     Execute the given sql query to fetch the records and return as a new in memory table.
@@ -75,17 +75,6 @@ documentation {
 }
 native function queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters,
                                             any retType) returns (table);
-
-documentation {
-    TableOperationError struct represents an error occured during a operation over a table.
-
-    F{{message}}  An error message explaining about the error
-    F{{cause}} The error(s) that caused TableOperationError to get thrown
-}
-public type TableOperationError {
-    string message,
-    error? cause,
-};
 
 documentation {
     TableConfig represents properties used during table initialization.
