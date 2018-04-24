@@ -15,8 +15,8 @@ endpoint http:Listener helloWorldEP {
     // The configuration API is particularly useful for configuring services. In this example, the port and keystore password
     // are read through the configuration API instead of hard coding it in the source file. The configuration APIs accept
     // a key and an optional default value. If a mapping does not exist for the specified key, the default value
-    // is returned as the configuration value. The default values of these optional default configurations are the respective
-    // default values of the types the functions return.
+    // is returned as the configuration value. The default values of these optional configurations are the
+    // default values of the return types of the functions.
     port:config: getAsInt("hello.http.port", default = 9095),
     secureSocket: {
         keyStore: {
