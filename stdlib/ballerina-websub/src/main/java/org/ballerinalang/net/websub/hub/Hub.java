@@ -18,32 +18,27 @@
 
 package org.ballerinalang.net.websub.hub;
 
-import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.broker.BrokerUtils;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.PrintStream;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH;
 
 /**
  * The Ballerina WebSub Hub.
@@ -58,6 +53,8 @@ public class Hub {
     private boolean hubTopicRegistrationRequired;
     private boolean hubPersistenceEnabled;
     private volatile boolean started = false;
+
+    //TODO: check if this could be removed
     private ProgramFile hubProgramFile;
 
     private Map<String, String> topics = new HashMap<>();
@@ -87,7 +84,7 @@ public class Hub {
             topics.put(topic, secret);
             if (hubPersistenceEnabled && !loadingOnStartUp) {
                 BValue[] args = { new BString("register"), new BString(topic), new BString(secret) };
-                BLangFunctions.invokeCallable(hubProgramFile.getPackageInfo("websub.hub")
+                BLangFunctions.invokeCallable(hubProgramFile.getPackageInfo(WEBSUB_PACKAGE_PATH)
                                               .getFunctionInfo("changeTopicRegistrationInDatabase"), args);
             }
         }
@@ -107,7 +104,7 @@ public class Hub {
             topics.remove(topic);
             if (hubPersistenceEnabled) {
                 BValue[] args = { new BString("unregister"), new BString(topic), new BString(secret) };
-                BLangFunctions.invokeCallable(hubProgramFile.getPackageInfo("websub.hub")
+                BLangFunctions.invokeCallable(hubProgramFile.getPackageInfo(WEBSUB_PACKAGE_PATH)
                                               .getFunctionInfo("changeTopicRegistrationInDatabase"), args);
             }
         }
@@ -207,17 +204,14 @@ public class Hub {
     /**
      * Method to compile and start up the default Ballerina WebSub Hub.
      */
-    public String startUpHubService() {
+    public String startUpHubService(ProgramFile hubProgramFile, BInteger port) {
         synchronized (this) {
             if (!isStarted()) {
-                URI balxPath = URI.create(String.valueOf(Hub.class.getClassLoader().getResource
-                        ("websub.hub.balx")));
-                ProgramFile hubProgramFile = readExecutableProgram(Paths.get(balxPath));
-                PackageInfo hubPackageInfo = hubProgramFile.getPackageInfo("websub.hub");
+                PackageInfo hubPackageInfo = hubProgramFile.getPackageInfo(WEBSUB_PACKAGE_PATH);
                 if (hubPackageInfo != null) {
-                    hubPackageInfo.setProgramFile(hubProgramFile);
-                    BLangProgramRunner.runService(hubProgramFile);
-                    BValue[] args = {};
+                    BValue[] args = {port};
+                    BLangFunctions.invokeCallable(hubPackageInfo.getFunctionInfo("startHubService"), args);
+                    args = new BValue[0];
                     String webSubHubUrl = (BLangFunctions.invokeCallable(
                             hubPackageInfo.getFunctionInfo("getHubUrl"), args)[0]).stringValue();
                     hubPersistenceEnabled = Boolean.parseBoolean((BLangFunctions.invokeCallable(
@@ -254,31 +248,6 @@ public class Hub {
      */
     public ProgramFile getHubProgramFile() {
         return hubProgramFile;
-    }
-
-    /**
-     * Get program file after reading the executable program i.e. balo file.
-     *
-     * @param baloFilePath path of the balo file
-     * @return program file
-     */
-    private static ProgramFile readExecutableProgram(Path baloFilePath) {
-        ByteArrayInputStream byteIS = null;
-        try {
-            byte[] byteArray = Files.readAllBytes(baloFilePath);
-            ProgramFileReader reader = new ProgramFileReader();
-            byteIS = new ByteArrayInputStream(byteArray);
-            return reader.readProgram(byteIS);
-        } catch (IOException ignore) {
-        } finally {
-            if (byteIS != null) {
-                try {
-                    byteIS.close();
-                } catch (IOException ignore) {
-                }
-            }
-        }
-        return null;
     }
 
 }

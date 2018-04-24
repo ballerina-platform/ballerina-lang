@@ -21,7 +21,9 @@ package org.ballerinalang.net.websub.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.websub.hub.Hub;
@@ -34,6 +36,7 @@ import org.ballerinalang.net.websub.hub.Hub;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
         functionName = "startUpHubService",
+        args = {@Argument(name = "port", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
@@ -45,7 +48,8 @@ public class StartUpHubService extends BlockingNativeCallableUnit {
         if (hubInstance.isStarted()) {
             context.setReturnValues(new BString(hubInstance.retrieveHubUrl()));
         } else {
-            context.setReturnValues(new BString(hubInstance.startUpHubService()));
+            BInteger port = new BInteger(context.getIntArgument(0));
+            context.setReturnValues(new BString(hubInstance.startUpHubService(context.getProgramFile(), port)));
         }
     }
 

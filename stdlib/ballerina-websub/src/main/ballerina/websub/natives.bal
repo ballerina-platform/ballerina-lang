@@ -37,10 +37,11 @@ native function retrieveSecret(typedesc serviceType) returns string;
 ///////////////////////////////////////////////////////////////////
 documentation {
     Starts up the internal Ballerina Hub.
-    
+
+    P{{port}} The port to start up the Hub service on
     R{{}} `string` The URL of the Hub service
 }
-native function startUpHubService() returns string;
+native function startUpHubService(int port) returns string;
 
 documentation {
     Stop the Ballerina Hub, if started.
@@ -51,13 +52,12 @@ documentation {
 }
 native function stopHubService(string hubUrl) returns boolean;
 
-//TODO: move the following functions to the net.websub.hub package and make private once packaging issue is sorted
 documentation {
     Adds a new subscription for the specified topic in the Ballerina Hub.
 
     P{{subscriptionDetails}} The details of the subscription including WebSub specifics
 }
-public native function addSubscription(SubscriptionDetails subscriptionDetails);
+native function addSubscription(SubscriptionDetails subscriptionDetails);
 
 documentation {
     Publishes an update against the topic in the Ballerina Hub.
@@ -66,7 +66,7 @@ documentation {
     P{{payload}} The update payload
     R{{}} `string` Error Message if an error occurred with publishing
 }
-public native function publishToInternalHub(string topic, json payload) returns string;
+native function publishToInternalHub(string topic, json payload) returns string;
 
 documentation {
     Removes a subscription added for the specified topic in the Ballerina Hub.
@@ -74,7 +74,7 @@ documentation {
     P{{topic}} The topic for which the subscription was added
     P{{callback}} The callback registered for this subscription
 }
-public native function removeSubscription(string topic, string callback);
+native function removeSubscription(string topic, string callback);
 
 documentation {
     Registers a topic in the Ballerina Hub.
@@ -84,7 +84,7 @@ documentation {
     P{{loadingOnStartUp}} Whether registration is being called on loading from the database at start up
     R{{}} `string` Error Message if an error occurred with registration
 }
-public native function registerTopicAtHub(string topic, string secret, boolean loadingOnStartUp = false) returns string;
+native function registerTopicAtHub(string topic, string secret, boolean loadingOnStartUp = false) returns string;
 
 documentation {
     Unregisters a topic in the Ballerina Hub.
@@ -93,7 +93,7 @@ documentation {
     P{{secret}} The secret specified at registration
     R{{}} `string` Error Message if an error occurred with unregistration
 }
-public native function unregisterTopicAtHub(string topic, string secret) returns string;
+native function unregisterTopicAtHub(string topic, string secret) returns string;
 
 documentation {
     Retrieves whether a topic is registered with the Ballerina Hub.
@@ -101,7 +101,7 @@ documentation {
     P{{topic}} The topic to check
     R{{}} `boolean` True if the topic has been registered by a publisher, false if not
 }
-public native function isTopicRegistered(string topic) returns boolean;
+native function isTopicRegistered(string topic) returns boolean;
 
 documentation {
     Retrieves secret for a topic registered with the Ballerina Hub.
@@ -109,7 +109,7 @@ documentation {
     P{{topic}} The topic for which the publisher's secret needs to be retrieved
     R{{}} `string` The secret specified at registration
 }
-public native function retrievePublisherSecret(string topic) returns string;
+native function retrievePublisherSecret(string topic) returns string;
 
 ///////////////////////////////////////////////////////////////////
 //////////////////// WebSub Publisher Natives /////////////////////
