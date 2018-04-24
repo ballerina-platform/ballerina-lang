@@ -10,7 +10,7 @@ type Person {
 
 function main(string... args) {
     // Here we create an instance of 'Person' record with an empty record literal. Implicit initial value of each
-    // field type will be assigned to the corresponding field
+    // field type will be assigned to the corresponding field.
     Person p1 = {};
     io:println(p1);
 
