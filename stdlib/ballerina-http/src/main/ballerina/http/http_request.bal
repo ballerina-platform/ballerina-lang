@@ -67,7 +67,7 @@ public type Request object {
 
         R{{}} The `Entity` of the request. `EntityError` will be returned if entity construction fails.
     }
-    public native function getEntity() returns mime:Entity|mime:EntityError;
+    public native function getEntity() returns mime:Entity|error;
 
     // Gets the `Entity` from the request without the body. This function is only for use within the package.
     native function getEntityWithoutBody() returns (mime:Entity);
@@ -158,49 +158,49 @@ public type Request object {
     documentation {
         Gets the request payload as a `json`.
 
-        R{{}} The JSON reresentation of the message payload or `PayloadError` in case of errors
+        R{{}} The JSON reresentation of the message payload or `error` in case of errors
     }
-    public function getJsonPayload() returns json|PayloadError;
+    public function getJsonPayload() returns json|error;
 
     @Description {value:"Get the text payload from the request"}
-    @Return {value:"The string representation of the message payload or 'PayloadError' in case of errors"}
-    public function getTextPayload () returns (string | PayloadError);
+    @Return {value:"The string representation of the message payload or 'error' in case of errors"}
+    public function getTextPayload() returns string|error;
 
     documentation {
         Gets the request payload as a `string`.
 
-        R{{}} The string representation of the message payload or `PayloadError` in case of errors
+        R{{}} The string representation of the message payload or `error` in case of errors
     }
-    public function getPayloadAsString () returns (string | PayloadError);
+    public function getPayloadAsString() returns string|error;
 
     documentation {
         Gets the request payload as an `xml`.
 
-        R{{}} The XML representation of the message payload or `PayloadError` in case of errors
+        R{{}} The XML representation of the message payload or `error` in case of errors
     }
-    public function getXmlPayload() returns xml|PayloadError;
+    public function getXmlPayload() returns xml|error;
 
     documentation {
         Gets the request payload as a `ByteChannel` except in the case of multiparts. To retrieve multiparts, use
         `getBodyParts()`.
 
-        R{{}} A byte channel from which the message payload can be read or `PayloadError` in case of errors
+        R{{}} A byte channel from which the message payload can be read or `error` in case of errors
     }
-    public function getByteChannel () returns (io:ByteChannel | PayloadError);
+    public function getByteChannel() returns io:ByteChannel|error;
 
     documentation {
         Gets the request payload as a `blob`.
 
-        R{{}} The blob representation of the message payload or `PayloadError` in case of errors
+        R{{}} The blob representation of the message payload or `error` in case of errors
     }
-    public function getBinaryPayload() returns blob|PayloadError;
+    public function getBinaryPayload() returns blob|error;
 
     documentation {
         Gets the form parameters from the HTTP request as a `map`.
 
-        R{{}} The map of form params or `PayloadError` in case of errors
+        R{{}} The map of form params or `error` in case of errors
     }
-    public function getFormParams () returns (map<string> | PayloadError);
+    public function getFormParams() returns (map<string>|error);
 
     documentation {
         Get multiparts from request.
@@ -208,7 +208,7 @@ public type Request object {
         R{{}} Returns the body parts as an array of entities or an `EntityError` if there were any errors in
               constructing the body parts from the request
     }
-    public function getBodyParts () returns (mime:Entity[] | mime:EntityError);
+    public function getBodyParts() returns mime:Entity[]|error;
 
     documentation {
         Sets a `json` as the payload.
@@ -244,7 +244,7 @@ public type Request object {
         P{{contentType}} The content type of the payload. Set this to override the default `content-type` header value
                          for `blob`.
     }
-    public function setBinaryPayload(blob payload, string contentType = "application/octec-stream");
+    public function setBinaryPayload(blob payload, string contentType = "application/octet-stream");
 
     documentation {
         Set multiparts as the payload.
@@ -253,7 +253,7 @@ public type Request object {
         P{{contentType}} The content type of the top level message. Set this to override the default
                          `content-type` header value.
     }
-    public function setBodyParts(mime:Entity[] bodyParts, string contentType="multipart/form-data");
+    public function setBodyParts(mime:Entity[] bodyParts, string contentType = "multipart/form-data");
 
     documentation {
         Sets the content of the specified file as the entity body of the request.
@@ -262,7 +262,7 @@ public type Request object {
         P{{contentType}} The content type of the specified file. Set this to override the default `content-type`
                          header value.
     }
-    public function setFileAsPayload (string filePath, string contentType = "application/octec-stream");
+    public function setFileAsPayload(string filePath, string contentType = "application/octet-stream");
 
     documentation {
         Sets a `ByteChannel` as the payload.
@@ -271,7 +271,7 @@ public type Request object {
         P{{contentType}} The content type of the payload. Set this to override the default `content-type`
                          header value.
     }
-    public function setByteChannel(io:ByteChannel payload, string contentType = "application/octec-stream");
+    public function setByteChannel(io:ByteChannel payload, string contentType = "application/octet-stream");
 
     documentation {
         Sets the request payload.
@@ -279,7 +279,7 @@ public type Request object {
         P{{payload}} Payload can be of type `string`, `xml`, `json`, `blob`, `ByteChannel` or `Entity[]` (i.e: a set
                      of body parts)
     }
-    public function setPayload ((string | xml | json | blob | io:ByteChannel | mime:Entity[]) payload);
+    public function setPayload(string|xml|json|blob|io:ByteChannel|mime:Entity[] payload);
 
     // For use within the package. Takes the Cache-Control header and parses it to a RequestCacheControl object.
     function parseCacheControlHeader();
@@ -343,88 +343,88 @@ public function Request::getContentType() returns (string) {
     return entity.getContentType();
 }
 
-public function Request::getJsonPayload() returns json|PayloadError {
+public function Request::getJsonPayload() returns json|error {
     match self.getEntity() {
-        mime:EntityError err => return <PayloadError>err;
+        error err => return err;
         mime:Entity mimeEntity => {
             match mimeEntity.getJson() {
-                mime:EntityError payloadErr => return <PayloadError>payloadErr;
+                error payloadErr => return payloadErr;
                 json jsonPayload => return jsonPayload;
             }
         }
     }
 }
 
-public function Request::getXmlPayload() returns xml|PayloadError {
+public function Request::getXmlPayload() returns xml|error {
     match self.getEntity() {
-        mime:EntityError err => return <PayloadError>err;
+        error err => return err;
         mime:Entity mimeEntity => {
             match mimeEntity.getXml() {
-                mime:EntityError payloadErr => return <PayloadError>payloadErr;
+                error payloadErr => return payloadErr;
                 xml xmlPayload => return xmlPayload;
             }
         }
     }
 }
 
-public function Request::getTextPayload() returns (string | PayloadError) {
+public function Request::getTextPayload() returns string|error {
     match self.getEntity() {
-        mime:EntityError err => return <PayloadError>err;
+        error err => return err;
         mime:Entity mimeEntity => {
             match mimeEntity.getText() {
-                mime:EntityError payloadErr => return <PayloadError>payloadErr;
+                error payloadErr => return payloadErr;
                 string textPayload => return textPayload;
             }
         }
     }
 }
 
-public function Request::getPayloadAsString () returns (string | PayloadError) {
+public function Request::getPayloadAsString() returns string|error {
     match self.getEntity() {
-        mime:EntityError err => return <PayloadError>err;
+        error err => return err;
         mime:Entity mimeEntity => {
             match mimeEntity.getBodyAsString() {
-                mime:EntityError payloadErr => return <PayloadError>payloadErr;
+                error payloadErr => return payloadErr;
                 string stringPayload => return stringPayload;
             }
         }
     }
 }
 
-public function Request::getBinaryPayload () returns (blob | PayloadError) {
+public function Request::getBinaryPayload() returns blob|error {
     match self.getEntity() {
-        mime:EntityError err => return <PayloadError>err;
+        error err => return err;
         mime:Entity mimeEntity => {
             match mimeEntity.getBlob() {
-                mime:EntityError payloadErr => return <PayloadError>payloadErr;
+                error payloadErr => return payloadErr;
                 blob binaryPayload => return binaryPayload;
             }
         }
     }
 }
 
-public function Request::getByteChannel() returns io:ByteChannel|PayloadError {
+public function Request::getByteChannel() returns io:ByteChannel|error {
     match self.getEntity() {
-        mime:EntityError err => return <PayloadError>err;
+        error err => return err;
         mime:Entity mimeEntity => {
             match mimeEntity.getByteChannel() {
-                mime:EntityError payloadErr => return <PayloadError>payloadErr;
+                error payloadErr => return payloadErr;
                 io:ByteChannel byteChannel => return byteChannel;
             }
         }
     }
 }
 
-public function Request::getFormParams() returns (map<string>|PayloadError) {
+public function Request::getFormParams() returns (map<string>|error) {
     var mimeEntity = self.getEntity();
     match mimeEntity {
-        mime:EntityError err => return <PayloadError>err;
+        error err => return err;
         mime:Entity entity => {
 
             map<string> parameters;
             var entityText = entity.getText();
             match entityText {
-                mime:EntityError txtErr => return <PayloadError>txtErr; // TODO: Check if this is ok
+                error txtErr => return txtErr; // TODO: Check if this is ok
 
                 string formData => {
                     if (formData != null && formData != "") {
@@ -450,11 +450,11 @@ public function Request::getFormParams() returns (map<string>|PayloadError) {
     }
 }
 
-public function Request::getBodyParts() returns mime:Entity[]|mime:EntityError {
+public function Request::getBodyParts() returns mime:Entity[]|error {
     var mimeEntity = self.getEntity();
     match mimeEntity {
         mime:Entity entity => return entity.getBodyParts();
-        mime:EntityError err => return err;
+        error err => return err;
     }
 }
 
@@ -470,7 +470,7 @@ public function Request::setXmlPayload(xml payload, string contentType = "applic
     self.setEntity(entity);
 }
 
-public function Request::setTextPayload(string payload, string contentType="text/plain") {
+public function Request::setTextPayload(string payload, string contentType = "text/plain") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setText(payload, contentType = contentType);
     self.setEntity(entity);
