@@ -50,7 +50,7 @@ Async
 JDBC Client
 MYSQL Client
 Table with MYSQL Client
-SQL Queries On Tables
+Table Queries
 Local Transactions
 Transactions Distributed
 Transformers
@@ -144,7 +144,7 @@ Testerina Guarantee Test Execution Order
 Testerina Function Mocks
 Testerina Group Tests
 Filter Streams on Conditions
-Streams within Services
+Temporal Aggregations and Windows
 Join Multiple Streams
 Identify Patterns
 Identify Trends
