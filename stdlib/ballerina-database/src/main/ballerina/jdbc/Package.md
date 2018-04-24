@@ -26,7 +26,7 @@ The full list of endpoint properties can be found in the `sql:PoolOptions` type.
 
 ### Creating tables
 
-Following is an example of creating a table with two fields. One field is of type int and the other of varchar. The CREATE statement is executed via the `update` operation of the endpoint.
+Following is an example of creating a table with two columns. One field is of type int and the other of varchar. The CREATE statement is executed via the `update` operation of the endpoint.
 
 ```ballerina
 //Create ‘Students’ table with fields ‘StudentID’ and ‘LastName’. 
@@ -74,11 +74,11 @@ In the following second example, parameter values are first assigned to local va
 
 ```ballerina
 string s1 = "Anne";
-sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:s1, direction:sql:DIRECTION_IN};
-sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:"James", direction:sql:DIRECTION_IN};
-sql:Parameter para3 = {sqlType:sql:TYPE_INTEGER, value:3, direction:sql:DIRECTION_IN};
-sql:Parameter para4 = {sqlType:sql:TYPE_DOUBLE, value:5000.75, direction:sql:DIRECTION_IN};
-sql:Parameter para5 = {sqlType:sql:TYPE_VARCHAR, value:"UK", direction:sql:DIRECTION_IN};
+sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:s1};
+sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:"James"};
+sql:Parameter para3 = {sqlType:sql:TYPE_INTEGER, value:3};
+sql:Parameter para4 = {sqlType:sql:TYPE_DOUBLE, value:5000.75};
+sql:Parameter para5 = {sqlType:sql:TYPE_VARCHAR, value:"UK"};
 
 //Insert data into Customers table
 int insertCount = check testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
