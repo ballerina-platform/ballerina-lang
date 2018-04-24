@@ -14,9 +14,13 @@ function main(string... args) {
     log:printTrace("trace log");
     log:printWarn("warn log");
     // To set the log level of the API, use the CLI parameter: <br>
-    // `-e[ballerina.log].level=[LOG_LEVEL]` <br>
+    // `-e b7a.log.level=[LOG_LEVEL]` <br>
 
     // To configure using a config file, place the entry given below in the file: <br>
-    // `[ballerina.log]` <br>
+    // `[b7a.log]` <br>
     // `level="[LOG_LEVEL]`"
+
+    // Each package can be assigned its own log level as well. To assign a log level to a package, provide the
+    // configuration `<PACKAGE_NAME>.loglevel`. <br>
+    // E.g.: `-e foo.loglevel=DEBUG`
 }
