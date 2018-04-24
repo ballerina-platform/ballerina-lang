@@ -115,7 +115,7 @@ function main(string... args) {
     select name as knownName, age;
     io:println("\ntable<PersonPublicProfile > childTable = from personTable select name as knownName, age;");
     io:print("childTable: ");
-    ret = check <json>childTable;
+    ret = <json>childTable;
     printTable(ret);
 
     // 5. Use the `group by` clause on a table and return a new table with the result.
@@ -124,7 +124,7 @@ function main(string... args) {
     io:println("\ntable<SummedOrder> summedOrderTable = from orderTable select personId, sum(amount) group by
     personId;");
     io:print("summedOrderTable: ");
-    ret = check <json>summedOrderTable;
+    ret = <json>summedOrderTable;
     printTable(ret);
 
     // 6. Join a table with another table and return the selected fields in a table constrained by a different struct.
@@ -137,7 +137,7 @@ function main(string... args) {
             select tempOrderTable.orderId as orderId, tempPersonTable.name as personName, tempOrderTable.items as
             items, tempOrderTable.amount as amount;");
     io:print("orderDetailsTable: ");
-    ret = check <json>orderDetailsTable;
+    ret = <json>orderDetailsTable;
     printTable(ret);
 
     // 7. Join a table with another table using the `where` clause and return the selected fields in a 
@@ -152,7 +152,7 @@ function main(string... args) {
         select tempOrderTable.orderId as orderId, tempPersonTable.name as personName, tempOrderTable.items as items,
         tempOrderTable.amount as amount;");
     io:print("orderDetailsWithFilter: ");
-    ret = check <json>orderDetailsWithFilter;
+    ret = <json>orderDetailsWithFilter;
     printTable(ret);
 }
 
