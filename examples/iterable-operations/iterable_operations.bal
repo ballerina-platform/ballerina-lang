@@ -1,7 +1,7 @@
 import ballerina/io;
 
 function main(string... args) {
-    map words = {a: "ant", b: "bear", c: "cat", d: "dear", e: "elephant"};
+    map words = { a: "ant", b: "bear", c: "cat", d: "dear", e: "elephant" };
     // The count operation returns the number of elements in any collection type.
     io:println("total words count " + words.count());
 
@@ -23,7 +23,7 @@ function main(string... args) {
 
     io:println("\nExecution Order");
     // This is an example for multiple iterable operations.
-    json j = {name: "apple", colors: ["red", "green"], price: 5};
+    json j = { name: "apple", colors: ["red", "green"], price: 5 };
     j.map((json j) => string {
             string s = j.toString();
             io:println("- map operation's value :" + s);

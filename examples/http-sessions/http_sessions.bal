@@ -5,7 +5,7 @@ endpoint http:Listener sessionTestEP {
     port: 9090
 };
 
-@http:ServiceConfig {basePath: "/sessionTest"}
+@http:ServiceConfig { basePath: "/sessionTest" }
 service<http:Service> sessionTest bind sessionTestEP {
 
     string key = "status";

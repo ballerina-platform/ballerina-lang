@@ -33,8 +33,8 @@ function testAssertStringEquals() {
 @test:Config
 function testAssertJsonEquals() {
 
-    json a = {"name": "Ballerina"};
-    json b = {"name": "Ballerina"};
+    json a = { "name": "Ballerina" };
+    json b = { "name": "Ballerina" };
     test:assertEquals(a, b, msg = "json assert equals failed");
 }
 
@@ -91,8 +91,8 @@ function testAssertNotEqualsString() {
 @test:Config
 function testAssertNotEqualsJson() {
 
-    json s1 = {"a": "b"};
-    json s2 = {"a": "c"};
+    json s1 = { "a": "b" };
+    json s2 = { "a": "c" };
 
     test:assertNotEquals(s1, s2, msg = "Json are equal");
 }

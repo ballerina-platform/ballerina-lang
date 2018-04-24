@@ -10,7 +10,7 @@ function readNext(io:CSVChannel channel) returns string[] {
             throw err;
         }
         () => {
-            error e = {message: "Record channel not initialized properly"};
+            error e = { message: "Record channel not initialized properly" };
             throw e;
         }
     }

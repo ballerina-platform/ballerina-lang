@@ -8,7 +8,7 @@ import ballerina/transactions;
 @http:ServiceConfig {
     basePath: "/stockquote"
 }
-service<http:Service> ParticipantService bind {port: 8889} {
+service<http:Service> ParticipantService bind { port: 8889 } {
 
     @http:ResourceConfig {
         path: "/update"
@@ -29,7 +29,7 @@ service<http:Service> ParticipantService bind {port: 8889} {
                         updateReqJson.symbol, updateReqJson.price);
                     log:printInfo(msg);
 
-                    json jsonRes = {"message": "updating stock"};
+                    json jsonRes = { "message": "updating stock" };
                     res.statusCode = http:OK_200;
                     res.setJsonPayload(jsonRes);
                 }

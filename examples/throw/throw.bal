@@ -12,14 +12,14 @@ function readRecord(Record|() value) {
             io:println("Record ID: ", rec.id, ", value: ", rec.name);
         }
         (any|()) => {
-            error err = {message: "Record is null"};
+            error err = { message: "Record is null" };
             throw err;
         }
     }
 }
 // Catch a thrown error. 
 function main(string... args) {
-    Record r1 = {id: 1, name: "record1"};
+    Record r1 = { id: 1, name: "record1" };
     readRecord(r1);
     Record|() r2;
     // Record r2 is null.
@@ -32,6 +32,6 @@ function main(string... args) {
         }
     }
     // The following lines of code will not be executed.
-    Record r3 = {id: 3, name: "record3"};
+    Record r3 = { id: 3, name: "record3" };
     readRecord(r3);
 }

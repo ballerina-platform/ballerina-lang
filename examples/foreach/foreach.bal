@@ -10,7 +10,7 @@ function main(string... args) {
     }
 
     io:println("\nIterating over a map:-");
-    map<string> words = {a: "apple", b: "banana", c: "cherry"};
+    map<string> words = { a: "apple", b: "banana", c: "cherry" };
     // For maps: use 1 variable to get the values defined in the map. Use 2 variables to get both the key (string) and
     // value.
     foreach k, v in words {
@@ -18,7 +18,7 @@ function main(string... args) {
     }
 
     io:println("\nIterating over a json object:-");
-    json apple = {name: "apple", colors: ["red", "green"], price: 5};
+    json apple = { name: "apple", colors: ["red", "green"], price: 5 };
     // For json: use only a single json typed variable.
     foreach j in apple {
         match j {

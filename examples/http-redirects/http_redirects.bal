@@ -5,7 +5,7 @@ import ballerina/mime;
 
 endpoint http:Client clientEP {
     url: "http://www.mocky.io",
-    followRedirects: {enabled: true, maxCount: 5}
+    followRedirects: { enabled: true, maxCount: 5 }
 };
 
 function main(string... args) {

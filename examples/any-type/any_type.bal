@@ -1,6 +1,6 @@
 import ballerina/io;
 
-@Description {value: "This function returns a value of type 'any'."}
+@Description { value: "This function returns a value of type 'any'." }
 function getValue() returns (any) {
     string name = "cat";
     return name;

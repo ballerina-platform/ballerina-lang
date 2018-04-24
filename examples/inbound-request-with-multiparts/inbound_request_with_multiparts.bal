@@ -8,7 +8,7 @@ endpoint http:Listener multipartEP {
 };
 
 // Binding the listener to the service.
-@http:ServiceConfig {basePath: "/multiparts"}
+@http:ServiceConfig { basePath: "/multiparts" }
 service<http:Service> test bind multipartEP {
     @http:ResourceConfig {
         methods: ["POST"],
@@ -41,7 +41,7 @@ service<http:Service> test bind multipartEP {
     }
 }
 
-@Description {value: "The content logic that handles the body parts vary based on your requirement."}
+@Description { value: "The content logic that handles the body parts vary based on your requirement." }
 function handleContent(mime:Entity bodyPart) {
     string baseType = check mime:getMediaType(bodyPart.getContentType())!getBaseType();
     if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {

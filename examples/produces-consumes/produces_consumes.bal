@@ -3,7 +3,7 @@ import ballerina/log;
 import ballerina/mime;
 
 // Consumes and produces annotations that contain MIME types as an array of strings.
-service<http:Service> infoService bind {port: 9092} {
+service<http:Service> infoService bind { port: 9092 } {
 
     // The resource can consume/accept `text/json` and `application/json` media types only. Therefore, the `Content-Type` header must have one of the types.
     // The resource can produce `application/xml` payloads. Therefore, the `Accept` header should be set accordingly.

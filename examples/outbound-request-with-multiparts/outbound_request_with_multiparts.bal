@@ -10,7 +10,7 @@ endpoint http:Listener multipartEP {
     port: 9092
 };
 
-@http:ServiceConfig {basePath: "/multiparts"}
+@http:ServiceConfig { basePath: "/multiparts" }
 service<http:Service> test bind multipartEP {
     @http:ResourceConfig {
         methods: ["POST"],
@@ -22,7 +22,7 @@ service<http:Service> test bind multipartEP {
         mime:Entity jsonBodyPart = new;
         jsonBodyPart.setContentType(mime:APPLICATION_JSON);
         jsonBodyPart.setContentDisposition(getContentDispositionForFormData("json part"));
-        jsonBodyPart.setJson({"name": "wso2"});
+        jsonBodyPart.setJson({ "name": "wso2" });
 
         //Create an xml body part as a file upload.
         mime:Entity xmlFilePart = new;

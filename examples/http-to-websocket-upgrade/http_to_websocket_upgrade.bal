@@ -6,7 +6,7 @@ import ballerina/log;
 @http:ServiceConfig {
     basePath: "/hello"
 }
-service<http:Service> httpService bind {port: 9090} {
+service<http:Service> httpService bind { port: 9090 } {
 
     @http:ResourceConfig {
         path: "/world",

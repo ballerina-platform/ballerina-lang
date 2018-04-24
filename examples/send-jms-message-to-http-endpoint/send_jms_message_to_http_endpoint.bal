@@ -33,8 +33,8 @@ service<jms:Consumer> jmsListener bind consumer {
     }
 }
 
-@Description {value: "Backend service that receive the forwarded message from the broker."}
-service<http:Service> backend bind {port: 9090} {
+@Description { value: "Backend service that receive the forwarded message from the broker." }
+service<http:Service> backend bind { port: 9090 } {
 
     @http:ResourceConfig {
         methods: ["POST"],

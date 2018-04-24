@@ -11,9 +11,11 @@ endpoint websub:Client websubHubClientEP {
 function main(string... args) {
 
     // Send the subscription request for the subscriber service.
-    websub:SubscriptionChangeRequest subscriptionRequest = {topic: "http://www.websubpubtopic.com",
+    websub:SubscriptionChangeRequest subscriptionRequest = {
+        topic: "http://www.websubpubtopic.com",
         callback: "http://localhost:8181/websub",
-        secret: "Kslk30SNF2AChs2"};
+        secret: "Kslk30SNF2AChs2"
+    };
 
     var response = websubHubClientEP->subscribe(subscriptionRequest);
 

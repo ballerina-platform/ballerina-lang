@@ -14,7 +14,7 @@ function startService() {
 }
 function testFunc() {
     // Invoking the main function.
-    endpoint http:Client httpEndpoint {url: "http://localhost:9095"};
+    endpoint http:Client httpEndpoint { url: "http://localhost:9095" };
     // Check whether the server has started.
     test:assertTrue(serviceStarted, msg = "Unable to start the service");
 

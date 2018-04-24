@@ -18,7 +18,7 @@ function main(string... args) {
         name: "testdb",
         username: "root",
         password: "root",
-        poolOptions: {maximumPoolSize: 5}
+        poolOptions: { maximumPoolSize: 5 }
     };
 
     // Sensitive parameters of functions built-in to Ballerina are decorated with the @sensitive annotation. This
@@ -40,7 +40,7 @@ function main(string... args) {
         // the proceeding value trusted and pass it to a sensitive parameter.
         userDefinedSecureOperation(untaint args[0]);
     } else {
-        error err = {message: "Validation error: ID should be an integer"};
+        error err = { message: "Validation error: ID should be an integer" };
         throw err;
     }
 

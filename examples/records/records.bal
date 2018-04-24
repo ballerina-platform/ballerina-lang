@@ -15,7 +15,7 @@ function main(string... args) {
     io:println(p1);
 
     // Here we create an instance of the `person` record with a non-empty record literal.
-    Person p2 = {name: "Jack", age: 20, parent: p1};
+    Person p2 = { name: "Jack", age: 20, parent: p1 };
     io:println(p2);
 
     // Get the value of a specific field in this record. Fields can be accessed using dot(.) or the index operator.
