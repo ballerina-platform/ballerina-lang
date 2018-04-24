@@ -18,7 +18,7 @@ Var
 Any Type
 Type Conversion
 Typeof
-Structs
+Records
 Maps
 Arrays
 Vector
