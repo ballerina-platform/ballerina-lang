@@ -689,6 +689,10 @@
     "before `": "",
     "after `": ""
   },
+  "Table": {
+    "before table": "",
+    "after table": ""
+  },
   "TernaryExpr": {
     "before condition": "",
     "after condition": "",

@@ -274,6 +274,10 @@ StringTemplateLiteral
    : string\u0020` <expressions>* `
    ;
 
+Table
+   : table <configurationExpression.source>
+   ;
+
 TernaryExpr
    : <condition.source> ? <thenExpression.source> : <elseExpression.source>
    ;

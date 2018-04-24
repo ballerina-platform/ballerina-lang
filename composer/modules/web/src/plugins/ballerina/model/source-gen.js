@@ -807,6 +807,9 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'StringTemplateLiteral':
             return w() + 'string\u0020`'
                  + join(node.expressions, pretty, replaceLambda, l, w, '') + w() + '`';
+        case 'Table':
+            return w() + 'table'
+                 + getSourceOf(node.configurationExpression, pretty, l, replaceLambda);
         case 'TernaryExpr':
             return getSourceOf(node.condition, pretty, l, replaceLambda) + w() + '?'
                  + getSourceOf(node.thenExpression, pretty, l, replaceLambda)
