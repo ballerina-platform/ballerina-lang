@@ -14,7 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-@Description { value:"Represents a future for aynchronous http invocation"}
+documentation {
+    Represents a future for aynchronous HTTP invocation.
+}
 public type HttpFuture object {
     private {
        int value; // dummy value to prevent pattern ordering issue when matching results

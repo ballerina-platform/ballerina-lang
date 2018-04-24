@@ -19,14 +19,14 @@ import ballerina/sql;
 documentation {
     The Client endpoint configuration for h2 databases.
 
-    F{{host}} - The host name of the database to connect (in case of server baased DB).
-    F{{path}} - The path of the database connection (in case of file baased DB).
-    F{{port}} - The port of the database to connect (in case of server baased DB).
-    F{{name}} - The name of the database to connect.
-    F{{username}} - Username for the database connection.
-    F{{password}} - Password for the database connection.
-    F{{poolOptions}} - Properties for the connection pool configuration.
-    F{{dbOptions}} - DB specific properties.
+    F{{host}} The host name of the database to connect (in case of server baased DB)
+    F{{path}} The path of the database connection (in case of file baased DB)
+    F{{port}} The port of the database to connect (in case of server baased DB)
+    F{{name}} The name of the database to connect
+    F{{username}} Username for the database connection
+    F{{password}} Password for the database connection
+    F{{poolOptions}} Properties for the connection pool configuration
+    F{{dbOptions}} DB specific properties
 }
 public type ClientEndpointConfiguration {
     string host,
@@ -43,7 +43,7 @@ public type ClientEndpointConfiguration {
 documentation {
     Represents an H2 client endpoint.
 
-    F{{config}} - The configurations associated with the SQL endpoint.
+    F{{config}} The configurations associated with the SQL endpoint
 }
 
 public type Client object {
@@ -55,7 +55,7 @@ public type Client object {
     documentation {
         Gets called when the endpoint is being initialized during the package initialization.
 
-        P{{config}} - he ClientEndpointConfiguration of the endpoint.
+        P{{config}} The ClientEndpointConfiguration of the endpoint
     }
     function init(ClientEndpointConfiguration config) {
         self.h2Client = createClient(config);
