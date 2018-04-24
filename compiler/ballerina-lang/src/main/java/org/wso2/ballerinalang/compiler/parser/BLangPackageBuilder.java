@@ -2780,10 +2780,9 @@ public class BLangPackageBuilder {
         return Arrays.asList(pkgParts);
     }
 
-    public void startOrderByClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startOrderByClauseNode(DiagnosticPos pos) {
         OrderByNode orderByNode = TreeBuilder.createOrderByNode();
         ((BLangOrderBy) orderByNode).pos = pos;
-        orderByNode.addWS(ws);
         this.orderByClauseStack.push(orderByNode);
     }
 
@@ -2797,10 +2796,9 @@ public class BLangPackageBuilder {
         }
     }
 
-    public void startOrderByVariableNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startOrderByVariableNode(DiagnosticPos pos) {
         OrderByVariableNode orderByVariableNode = TreeBuilder.createOrderByVariableNode();
         ((BLangOrderByVariable) orderByVariableNode).pos = pos;
-        orderByVariableNode.addWS(ws);
         this.orderByVariableStack.push(orderByVariableNode);
     }
 
@@ -2827,10 +2825,9 @@ public class BLangPackageBuilder {
         limitNode.setLimitValue(limitValue);
     }
 
-    public void startGroupByClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startGroupByClauseNode(DiagnosticPos pos) {
         GroupByNode groupByNode = TreeBuilder.createGroupByNode();
         ((BLangGroupBy) groupByNode).pos = pos;
-        groupByNode.addWS(ws);
         this.groupByClauseStack.push(groupByNode);
     }
 
@@ -2838,13 +2835,13 @@ public class BLangPackageBuilder {
         GroupByNode groupByNode = this.groupByClauseStack.peek();
         ((BLangGroupBy) groupByNode).pos = pos;
         groupByNode.addWS(ws);
+        groupByNode.addWS(commaWsStack.pop());
         this.exprNodeListStack.pop().forEach(groupByNode::addVariableReference);
     }
 
-    public void startHavingClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startHavingClauseNode(DiagnosticPos pos) {
         HavingNode havingNode = TreeBuilder.createHavingNode();
         ((BLangHaving) havingNode).pos = pos;
-        havingNode.addWS(ws);
         this.havingClauseStack.push(havingNode);
     }
 
@@ -2855,10 +2852,9 @@ public class BLangPackageBuilder {
         havingNode.setExpression(this.exprNodeStack.pop());
     }
 
-    public void startSelectExpressionNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startSelectExpressionNode(DiagnosticPos pos) {
         SelectExpressionNode selectExpr = TreeBuilder.createSelectExpressionNode();
         ((BLangSelectExpression) selectExpr).pos = pos;
-        selectExpr.addWS(ws);
         this.selectExpressionsStack.push(selectExpr);
     }
 
@@ -2875,6 +2871,7 @@ public class BLangPackageBuilder {
     }
 
     public void endSelectExpressionList(Set<Whitespace> ws, int selectExprCount) {
+        commaWsStack.push(ws);
         List<SelectExpressionNode> selectExprList = this.selectExpressionsListStack.peek();
         addSelectExprToSelectExprNodeList(selectExprList, selectExprCount);
     }
@@ -2890,10 +2887,9 @@ public class BLangPackageBuilder {
         selectExprList.add(expr);
     }
 
-    public void startWhereClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startWhereClauseNode(DiagnosticPos pos) {
         WhereNode whereNode = TreeBuilder.createWhereNode();
         ((BLangWhere) whereNode).pos = pos;
-        whereNode.addWS(ws);
         this.whereClauseStack.push(whereNode);
     }
 
@@ -2904,10 +2900,9 @@ public class BLangPackageBuilder {
         whereNode.setExpression(exprNodeStack.pop());
     }
 
-    public void startSelectClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startSelectClauseNode(DiagnosticPos pos) {
         SelectClauseNode selectClauseNode = TreeBuilder.createSelectClauseNode();
         ((BLangSelectClause) selectClauseNode).pos = pos;
-        selectClauseNode.addWS(ws);
         this.selectClausesStack.push(selectClauseNode);
     }
 
@@ -2917,6 +2912,7 @@ public class BLangPackageBuilder {
         ((BLangSelectClause) selectClauseNode).pos = pos;
         selectClauseNode.addWS(ws);
         if (!isSelectAll) {
+            selectClauseNode.addWS(commaWsStack.pop());
             selectClauseNode.setSelectExpressions(this.selectExpressionsListStack.pop());
         } else {
             selectClauseNode.setSelectAll(true);
@@ -2929,10 +2925,9 @@ public class BLangPackageBuilder {
         }
     }
 
-    public void startWindowClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startWindowClauseNode(DiagnosticPos pos) {
         WindowClauseNode windowClauseNode = TreeBuilder.createWindowClauseNode();
         ((BLangWindow) windowClauseNode).pos = pos;
-        windowClauseNode.addWS(ws);
         this.windowClausesStack.push(windowClauseNode);
     }
 
@@ -2949,10 +2944,9 @@ public class BLangPackageBuilder {
         }
     }
 
-    public void startStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startStreamingInputNode(DiagnosticPos pos) {
         StreamingInput streamingInput = TreeBuilder.createStreamingInputNode();
         ((BLangStreamingInput) streamingInput).pos = pos;
-        streamingInput.addWS(ws);
         this.streamingInputStack.push(streamingInput);
     }
 
@@ -2980,10 +2974,9 @@ public class BLangPackageBuilder {
         streamingInput.setAlias(alias);
     }
 
-    public void startJoinStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startJoinStreamingInputNode(DiagnosticPos pos) {
         JoinStreamingInput joinStreamingInput = TreeBuilder.createJoinStreamingInputNode();
         ((BLangJoinStreamingInput) joinStreamingInput).pos = pos;
-        joinStreamingInput.addWS(ws);
         this.joinStreamingInputsStack.push(joinStreamingInput);
     }
 
@@ -3075,10 +3068,9 @@ public class BLangPackageBuilder {
         setAssignmentNodeList.add(expr);
     }
 
-    public void startStreamActionNode(DiagnosticPos pos, Set<Whitespace> ws, PackageID packageID) {
+    public void startStreamActionNode(DiagnosticPos pos, PackageID packageID) {
         StreamActionNode streamActionNode = TreeBuilder.createStreamActionNode();
         ((BLangStreamAction) streamActionNode).pos = pos;
-        streamActionNode.addWS(ws);
         this.streamActionNodeStack.push(streamActionNode);
         this.startLambdaFunctionDef(packageID);
         this.startBlock();
@@ -3093,10 +3085,9 @@ public class BLangPackageBuilder {
         streamActionNode.setInvokableBody((BLangLambdaFunction) this.exprNodeStack.pop());
     }
 
-    public void startPatternStreamingEdgeInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startPatternStreamingEdgeInputNode(DiagnosticPos pos) {
         PatternStreamingEdgeInputNode patternStreamingEdgeInputNode = TreeBuilder.createPatternStreamingEdgeInputNode();
         ((BLangPatternStreamingEdgeInput) patternStreamingEdgeInputNode).pos = pos;
-        patternStreamingEdgeInputNode.addWS(ws);
         this.patternStreamingEdgeInputStack.push(patternStreamingEdgeInputNode);
     }
 
@@ -3119,10 +3110,9 @@ public class BLangPackageBuilder {
         patternStreamingEdgeInputNode.setAliasIdentifier(alias);
     }
 
-    public void startPatternStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startPatternStreamingInputNode(DiagnosticPos pos) {
         PatternStreamingInputNode patternStreamingInputNode = TreeBuilder.createPatternStreamingInputNode();
         ((BLangPatternStreamingInput) patternStreamingInputNode).pos = pos;
-        patternStreamingInputNode.addWS(ws);
         this.patternStreamingInputStack.push(patternStreamingInputNode);
     }
 
@@ -3225,10 +3215,9 @@ public class BLangPackageBuilder {
         this.recentStreamingPatternInputNode = patternStreamingInputNode;
     }
 
-    public void startStreamingQueryStatementNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startStreamingQueryStatementNode(DiagnosticPos pos) {
         StreamingQueryStatementNode streamingQueryStatementNode = TreeBuilder.createStreamingQueryStatementNode();
         ((BLangStreamingQueryStatement) streamingQueryStatementNode).pos = pos;
-        streamingQueryStatementNode.addWS(ws);
         this.streamingQueryStatementStack.push(streamingQueryStatementNode);
     }
 
@@ -3263,10 +3252,9 @@ public class BLangPackageBuilder {
         streamingQueryStatementNode.setStreamingAction(streamActionNodeStack.pop());
     }
 
-    public void startOutputRateLimitNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startOutputRateLimitNode(DiagnosticPos pos) {
         OutputRateLimitNode outputRateLimit = TreeBuilder.createOutputRateLimitNode();
         ((BLangOutputRateLimit) outputRateLimit).pos = pos;
-        outputRateLimit.addWS(ws);
         this.outputRateLimitStack.push(outputRateLimit);
     }
 
@@ -3284,10 +3272,9 @@ public class BLangPackageBuilder {
         outputRateLimit.setRateLimitValue(rateLimitValue);
     }
 
-    public void startWithinClause(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startWithinClause(DiagnosticPos pos) {
         WithinClause withinClause = TreeBuilder.createWithinClause();
         ((BLangWithinClause) withinClause).pos = pos;
-        withinClause.addWS(ws);
         this.withinClauseStack.push(withinClause);
     }
 
@@ -3298,10 +3285,9 @@ public class BLangPackageBuilder {
         withinClause.setWithinTimePeriod(exprNodeStack.pop());
     }
 
-    public void startPatternClause(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startPatternClause(DiagnosticPos pos) {
         PatternClause patternClause = TreeBuilder.createPatternClause();
         ((BLangPatternClause) patternClause).pos = pos;
-        patternClause.addWS(ws);
         this.patternClauseStack.push(patternClause);
     }
 
@@ -3317,10 +3303,9 @@ public class BLangPackageBuilder {
         }
     }
 
-    public void startForeverNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startForeverNode(DiagnosticPos pos) {
         ForeverNode foreverNode = TreeBuilder.createForeverNode();
         ((BLangForever) foreverNode).pos = pos;
-        foreverNode.addWS(ws);
         this.foreverNodeStack.push(foreverNode);
     }
 
