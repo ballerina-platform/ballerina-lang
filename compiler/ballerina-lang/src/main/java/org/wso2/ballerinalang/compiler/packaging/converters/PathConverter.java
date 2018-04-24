@@ -3,11 +3,13 @@ package org.wso2.ballerinalang.compiler.packaging.converters;
 import com.sun.nio.zipfs.ZipFileSystem;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Comparator;
 import java.util.stream.Stream;
@@ -23,7 +25,7 @@ public class PathConverter implements Converter<Path> {
         this.root = root;
     }
 
-    private static boolean isBal(Path path, BasicFileAttributes attributes) {
+    private static boolean isBalWithTest(Path path, BasicFileAttributes attributes) {
         Path fileName = path.getFileName();
         return attributes.isRegularFile() && fileName != null && fileName.toString().endsWith(".bal");
     }
@@ -51,10 +53,23 @@ public class PathConverter implements Converter<Path> {
     }
 
     @Override
+    public Stream<Path> expandBalWithTest(Path path) {
+        if (Files.isDirectory(path)) {
+            try {
+                return Files.find(path, Integer.MAX_VALUE, PathConverter::isBalWithTest);
+            } catch (IOException ignore) {
+            }
+        }
+        return Stream.of();
+    }
+
+    @Override
     public Stream<Path> expandBal(Path path) {
         if (Files.isDirectory(path)) {
             try {
-                return Files.find(path, Integer.MAX_VALUE, PathConverter::isBal);
+                FilterSearch filterSearch = new FilterSearch(Paths.get(ProjectDirConstants.TEST_DIR_NAME));
+                Files.walkFileTree(path, filterSearch);
+                return filterSearch.getPathList().stream();
             } catch (IOException ignore) {
             }
         }
