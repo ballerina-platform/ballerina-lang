@@ -44,7 +44,7 @@ public type CSVChannel object {
         P{{fs}} - Field separator which will separate between the records in the CSV
         P{{nHeaders}} - Number of headers which should be skipped prior to reading records
     }
-    new(CharacterChannel channel, Separator fs = ",", int nHeaders = 0) {
+    public new(CharacterChannel channel, Separator fs = ",", int nHeaders = 0) {
         if (fs == TAB){
             dc = new DelimitedTextRecordChannel(channel, fmt = "TDF");
         } else if (fs == COLON){
