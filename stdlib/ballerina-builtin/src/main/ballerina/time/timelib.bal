@@ -31,7 +31,7 @@ public type Timezone {
 documentation {
     Ballerina Time represents a particular time with its associated timezone.
     F{{time}} Time value as milliseconds since epoch
-    F{{zone}} The time   zone of the time
+    F{{zone}} The time zone of the time
 }
 public type Time object {
 
