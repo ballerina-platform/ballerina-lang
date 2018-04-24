@@ -36,6 +36,6 @@ public class SearchUtils {
     public static void searchInCentral(String argument) {
         String query = "?q=" + argument;
         EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
-        executor.execute("packaging_search/packaging_search.balx", "function", RepoUtils.getRemoteRepoURL(), query);
+        executor.execute("packaging_search/packaging_search.balx", true, RepoUtils.getRemoteRepoURL(), query);
     }
 }

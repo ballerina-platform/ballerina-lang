@@ -117,7 +117,7 @@ public class PushUtils {
             // Push package to central
             String resourcePath = resolvePkgPathInRemoteRepo(packageID);
             String msg = orgName + "/" + packageName + ":" + version + " [project repo -> central]";
-            executor.execute("packaging_push/packaging_push.balx", "function", accessToken, mdFileContent,
+            executor.execute("packaging_push/packaging_push.balx", true, accessToken, mdFileContent,
                              description, homepageURL, repositoryURL, apiDocURL, authors, keywords, license,
                              resourcePath, pkgPathFromPrjtDir.toString(), msg);
 
@@ -139,7 +139,7 @@ public class PushUtils {
 
         if (accessToken.isEmpty()) {
             long modifiedTimeOfFileAtStart = getLastModifiedTimeOfFile(SETTINGS_TOML_FILE_PATH);
-            executor.execute("packaging_token_updater/packaging_token_updater.balx", "service");
+            executor.execute("packaging_token_updater/packaging_token_updater.balx", false);
 
             boolean waitForToken = true;
             while (waitForToken) {
