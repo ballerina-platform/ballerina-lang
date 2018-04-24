@@ -14,24 +14,46 @@
 // specific language governing permissions and limitations
 // under the License.
 
+documentation {
+    Options for HTTP chunking.
+
+    `AUTO`: If the payload is less than 8KB content-length header is set in the outbound response/response,
+            otherwise chunking header is set in the outbound response/response
+    `ALWAYS`: Always set chunking header in the response
+    `NEVER`: Never set the chunking header even if the payload is larger than 8KB in the outbound response/response
+}
 public type Chunking "AUTO" | "ALWAYS" | "NEVER";
 
 @final public Chunking CHUNKING_AUTO = "AUTO";
 @final public Chunking CHUNKING_ALWAYS = "ALWAYS";
 @final public Chunking CHUNKING_NEVER = "NEVER";
 
+documentation {
+    Options to compress using gzip or deflate.
+
+    `AUTO`: When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the
+            outbound request/response accept-encoding option
+    `ALWAYS`: Always set accept-encoding in outbound request/response
+    `NEVER`: Never set accept-encoding header in outbound request/response
+}
 public type Compression "AUTO" | "ALWAYS" | "NEVER";
 
 @final public Compression COMPRESSION_AUTO = "AUTO";
 @final public Compression COMPRESSION_ALWAYS = "ALWAYS";
 @final public Compression COMPRESSION_NEVER = "NEVER";
 
+//TODO: Remove it.
 public type AcceptEncoding "AUTO" | "ALWAYS" | "NEVER";
 
 @final public AcceptEncoding ACCEPT_ENCODING_AUTO = "AUTO";
 @final public AcceptEncoding ACCEPT_ENCODING_ALWAYS = "ALWAYS";
 @final public AcceptEncoding ACCEPT_ENCODING_NEVER = "NEVER";
 
+documentation {
+    Represent transfer encoding options.
+
+    `CHUNKING`: Payload is devided into chunks of data if payload is larger than 8KB
+}
 public type TransferEncoding "CHUNKING";
 
 @final public TransferEncoding TRANSFERENCODE_CHUNKING = "CHUNKING";

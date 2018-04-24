@@ -26,7 +26,7 @@ documentation {
     F{{loadBalanceClientsArray}} Array of HTTP clients for load balancing
     F{{algorithm}} Load balancing algorithm
     F{{nextIndex}} Keeps to index which needs to be take the next load balance endpoint
-    F{{failover}} Whether to fail over incase of a failure
+    F{{failover}} Whether to fail over in case of a failure
 }
 public type LoadBalancer object {
    public {
@@ -128,7 +128,7 @@ public type LoadBalancer object {
 
         P{{httpVerb}} The HTTP verb value
         P{{path}} The Resource path
-        P{{req}} An HTTP request
+        P{{request}} An HTTP request
         R{{}} The Future for further interactions or an `HttpConnectorError` if failed to fulfill the request
     }
     public function submit (string httpVerb, string path, Request request) returns (HttpFuture | HttpConnectorError);
