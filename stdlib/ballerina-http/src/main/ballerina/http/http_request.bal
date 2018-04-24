@@ -65,7 +65,7 @@ public type Request object {
     documentation {
         Gets the `Entity` associated with the request.
 
-        R{{}} The `Entity` of the request. `error` is returned if entity construction fails
+        R{{}} The `Entity` of the request. An `error` is returned, if entity construction fails
     }
     public native function getEntity() returns mime:Entity|error;
 
@@ -156,28 +156,28 @@ public type Request object {
     public function getContentType() returns string;
 
     documentation {
-        Extract `json` payload from the request. If the payload is not json compatible an `error` is returned.
+        Extracts `json` payload from the request. If the payload is not json compatible, an `error` is returned.
 
         R{{}} The `json` payload or `error` in case of errors
     }
     public function getJsonPayload() returns json|error;
 
     documentation {
-        Extract `xml` payload from the request. If the payload is not xml compatible an `error` is returned.
+        Extracts `xml` payload from the request. If the payload is not xml compatible, an `error` is returned.
 
         R{{}} The `xml` payload or `error` in case of errors
     }
     public function getXmlPayload() returns xml|error;
 
     documentation {
-        Extract `text` payload from the request. If the payload is not text compatible an `error` is returned.
+        Extracts `text` payload from the request. If the payload is not text compatible, an `error` is returned.
 
         R{{}} The `text` payload or `error` in case of errors
     }
     public function getTextPayload() returns string|error;
 
     documentation {
-        Get the request payload as a `string`. Content-type is not checked during payload construction which
+        Gets the request payload as a `string`. Content-type is not checked during payload construction which
         makes this different from getTextPayload() method.
 
         R{{}} The string representation of the message payload or `error` in case of errors
@@ -207,7 +207,7 @@ public type Request object {
     public function getFormParams() returns map<string>|error;
 
     documentation {
-        Extract body parts from the request. If the payload is not compatible with any composite media type, an error
+        Extracts body parts from the request. If the payload is not compatible with any composite media type, an error
         is returned.
 
         R{{}} Returns the body parts as an array of entities or an `error` if there were any errors in

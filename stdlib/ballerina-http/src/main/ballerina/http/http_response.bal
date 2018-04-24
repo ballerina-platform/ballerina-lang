@@ -47,7 +47,7 @@ public type Response object {
     documentation {
         Gets the `Entity` associated with the response.
 
-        R{{}} The `Entity` of the response. `error` will be returned if entity construction fails
+        R{{}} The `Entity` of the response. An `error` is returned, if entity construction fails
     }
     public native function getEntity() returns mime:Entity|error;
 
@@ -142,21 +142,21 @@ public type Response object {
     public function getContentType() returns string;
 
     documentation {
-        Extract `json` payload from the response. If the payload is not json compatible an `error` is returned.
+        Extract `json` payload from the response. If the payload is not json compatible, an `error` is returned.
 
         R{{}} The `json` payload or `error` in case of errors
     }
     public function getJsonPayload() returns json|error;
 
     documentation {
-        Extract `xml` payload from the response. If the payload is not xml compatible an `error` is returned.
+        Extracts `xml` payload from the response. If the payload is not xml compatible, an `error` is returned.
 
         R{{}} The `xml` payload or `error` in case of errors
     }
     public function getXmlPayload() returns xml|error;
 
     documentation {
-        Extract `text` payload from the response. If the payload is not text compatible an `error` is returned.
+        Extracts `text` payload from the response. If the payload is not text compatible, an `error` is returned.
 
         R{{}} The string representation of the message payload or `error` in case of errors
     }
@@ -186,7 +186,7 @@ public type Response object {
     public function getBinaryPayload() returns blob|error;
 
     documentation {
-        Extract body parts from the response. If the payload is not compatible with any composite media type, an error
+        Extracts body parts from the response. If the payload is not compatible with any composite media type, an error
         is returned.
 
         R{{}} Returns the body parts as an array of entities or an `error` if there were any errors in
