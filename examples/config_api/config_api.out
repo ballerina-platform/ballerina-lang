@@ -32,7 +32,7 @@ ballerina: enter secret for config value decryption:
 $ ballerina run --config path/to/conf/file/custom-config-file-name.conf config-api.bal
 ballerina: enter secret for config value decryption:
 
-ballerina: initiating service(s) in 'config-api.bal'
+ballerina: initiating service(s) in 'config_api.bal'
 ballerina: started HTTPS/WSS endpoint 0.0.0.0:8085
 
 # The same configs given through a config file can also be given through CLI parameters. <br>
@@ -40,5 +40,5 @@ ballerina: started HTTPS/WSS endpoint 0.0.0.0:8085
 $ ballerina run config-api.bal -e hello.http.port=8085 -e hello.keystore.password=@encrypted:{jFMAXsuMSiOCaxuDLuQjVXzMzZxQrten0652/j93Amw=}
 ballerina: enter secret for config value decryption:
 
-ballerina: initiating service(s) in 'config-api.bal'
+ballerina: initiating service(s) in 'config_api.bal'
 ballerina: started HTTPS/WSS endpoint 0.0.0.0:8085

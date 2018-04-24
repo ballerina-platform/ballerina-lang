@@ -3,12 +3,12 @@
 #Run the service by setting `-e b7a.http.accesslog.console=true` to log to console.
 $ ballerina run http_access_logs.bal -e b7a.http.accesslog.console=true
 ballerina: HTTP access log enabled
-ballerina: initiating service(s) in 'http-access-logs.bal'
+ballerina: initiating service(s) in 'http_access_logs.bal'
 ballerina: started HTTP/WS server connector 0.0.0.0:9095
 127.0.0.1 - - [05/Mar/2018:10:16:38 +0530] "GET /hello HTTP/1.1" 200 10 "-" "curl/7.55.1"
 
 #Or, run the service by setting `-e b7a.http.accesslog.path=path/to/file.txt` to log to the specified file.
 $ ballerina run http_access_logs.bal -e b7a.http.accesslog.path=path/to/file.txt
 ballerina: HTTP access log enabled
-ballerina: initiating service(s) in 'http-access-logs.bal'
+ballerina: initiating service(s) in 'http_access_logs.bal'
 ballerina: started HTTP/WS server connector 0.0.0.0:9095

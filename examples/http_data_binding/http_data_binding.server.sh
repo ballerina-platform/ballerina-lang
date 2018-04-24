@@ -2,5 +2,5 @@
 # and use `$BALLERINA_HOME/bin`.
 $ ballerina run http_data_binding.bal
 #Service deployment:
-ballerina: initiating service(s) in 'http-data-binding.bal'
+ballerina: initiating service(s) in 'http_data_binding.bal'
 ballerina: started HTTP/WS server connector 0.0.0.0:9090
