@@ -14,6 +14,7 @@ function main(string... args) {
     http:HttpFuture httpFuture = new;
     // Submit a request.
     var submissionResult = clientEP->submit("GET", "/http2Service", serviceReq);
+
     match submissionResult {
         http:HttpFuture resultantFuture => {
             httpFuture = resultantFuture;
@@ -28,10 +29,12 @@ function main(string... args) {
     int promiseCount = 0;
     // Check whether promises exists.
     boolean hasPromise = clientEP->hasPromise(httpFuture);
+
     while (hasPromise) {
         http:PushPromise pushPromise = new;
         // Get the next promise.
         var nextPromiseResult = clientEP->getNextPromise(httpFuture);
+
         match nextPromiseResult {
             http:PushPromise resultantPushPromise => {
                 pushPromise = resultantPushPromise;
@@ -46,10 +49,12 @@ function main(string... args) {
         if (pushPromise.path == "/resource2") {
             // The client is not interested in receiving `/resource2` so, reject the promise.
             clientEP->rejectPromise(pushPromise);
+
             log:printInfo("Push promise for resource2 rejected");
         } else {
             // Store required promises.
             promises[promiseCount] = pushPromise;
+
             promiseCount = promiseCount + 1;
         }
         hasPromise = clientEP->hasPromise(httpFuture);
@@ -58,6 +63,7 @@ function main(string... args) {
     http:Response response = new;
     // Get the requested resource.
     var result = clientEP->getResponse(httpFuture);
+
     match result {
         http:Response resultantResponse => {
             response = resultantResponse;

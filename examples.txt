@@ -50,6 +50,7 @@ Fork/Join Variable Access
 Async
 JDBC Client
 MYSQL Client
+H2 Client
 Local Transactions
 Transactions Distributed
 Transformers
