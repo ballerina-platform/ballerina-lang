@@ -72,6 +72,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
@@ -1064,21 +1065,20 @@ public class HttpUtil {
     }
 
     public static void checkAndObserveHttpRequest(Context context, HTTPCarbonMessage message) {
-        if (!ObservabilityUtils.isObservabilityEnabled()) {
-            return;
-        }
-        ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
-        HttpUtil.injectHeaders(message, ObservabilityUtils.getContextProperties(observerContext));
-        observerContext.addTag(TAG_KEY_HTTP_METHOD, String.valueOf(message.getProperty(HttpConstants.HTTP_METHOD)));
-        observerContext.addTag(TAG_KEY_HTTP_URL, String.valueOf(message.getProperty(HttpConstants.TO)));
-        observerContext.addTag(TAG_KEY_PEER_HOSTNAME, String.valueOf(message.getProperty(PROPERTY_HTTP_HOST)));
-        observerContext.addTag(TAG_KEY_PEER_PORT, String.valueOf(message.getProperty(PROPERTY_HTTP_PORT)));
-        // Add HTTP Status Code tag. The HTTP status code will be set using the response message.
-        // Sometimes the HTTP status code will not be set due to errors etc. Therefore, it's very important to set
-        // some value to HTTP Status Code to make sure that tags will not change depending on various
-        // circumstances.
-        // HTTP Status code must be a number.
-        observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE, Integer.toString(0));
+        Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
+        observerContext.ifPresent(ctx -> {
+            HttpUtil.injectHeaders(message, ObservabilityUtils.getContextProperties(ctx));
+            ctx.addTag(TAG_KEY_HTTP_METHOD, String.valueOf(message.getProperty(HttpConstants.HTTP_METHOD)));
+            ctx.addTag(TAG_KEY_HTTP_URL, String.valueOf(message.getProperty(HttpConstants.TO)));
+            ctx.addTag(TAG_KEY_PEER_HOSTNAME, String.valueOf(message.getProperty(PROPERTY_HTTP_HOST)));
+            ctx.addTag(TAG_KEY_PEER_PORT, String.valueOf(message.getProperty(PROPERTY_HTTP_PORT)));
+            // Add HTTP Status Code tag. The HTTP status code will be set using the response message.
+            // Sometimes the HTTP status code will not be set due to errors etc. Therefore, it's very important to set
+            // some value to HTTP Status Code to make sure that tags will not change depending on various
+            // circumstances.
+            // HTTP Status code must be a number.
+            ctx.addTag(TAG_KEY_HTTP_STATUS_CODE, Integer.toString(0));
+        });
     }
 
     public static void injectHeaders(HTTPCarbonMessage msg, Map<String, String> headers) {

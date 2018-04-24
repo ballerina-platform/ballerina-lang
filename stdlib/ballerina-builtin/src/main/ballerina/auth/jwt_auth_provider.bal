@@ -32,7 +32,7 @@ public type JWTAuthProvider object {
         cache:Cache authCache;
     }
 
-    new(jwtAuthProviderConfig) {
+    public new(jwtAuthProviderConfig) {
     }
 
     documentation {

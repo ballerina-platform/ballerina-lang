@@ -1450,12 +1450,13 @@ public class BLangPackageBuilder {
         objectNode.setName(this.createIdentifier(identifier));
         if (publicRecord) {
             objectNode.flagSet.add(Flag.PUBLIC);
+            objectNode.isFieldAnalyseRequired = true;
         }
 
         this.compUnit.addTopLevelNode(objectNode);
     }
 
-    void addAnonObjectType(DiagnosticPos pos, Set<Whitespace> ws) {
+    void addAnonObjectType(DiagnosticPos pos, Set<Whitespace> ws, boolean isFieldAnalyseRequired) {
         // Generate a name for the anonymous object
         String genName = anonymousModelHelper.getNextAnonymousObjectKey(pos.src.pkgID);
         IdentifierNode anonObjectGenName = createIdentifier(genName);
@@ -1463,6 +1464,7 @@ public class BLangPackageBuilder {
         // Create an anonymous object and add it to the list of objects in the current package.
         BLangObject objectNode = populateObjectNode(pos, ws, anonObjectGenName, true);
         objectNode.addFlag(Flag.PUBLIC);
+        objectNode.isFieldAnalyseRequired = isFieldAnalyseRequired;
         this.compUnit.addTopLevelNode(objectNode);
 
         addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), objectNode.name));
@@ -2305,8 +2307,13 @@ public class BLangPackageBuilder {
     public void addServiceBody(Set<Whitespace> ws) {
         ServiceNode serviceNode = serviceNodeStack.peek();
         serviceNode.addWS(ws);
-        blockNodeStack.pop().getStatements()
-                .forEach(varDef -> serviceNode.addVariable((VariableDefinitionNode) varDef));
+        blockNodeStack.pop().getStatements().forEach(stmt -> {
+            if (stmt.getKind() == NodeKind.XMLNS) {
+                serviceNode.addNamespaceDeclaration((BLangXMLNSStatement) stmt);
+            } else {
+                serviceNode.addVariable((VariableDefinitionNode) stmt);
+            }
+        });
     }
 
     public void addAnonymousEndpointBind() {

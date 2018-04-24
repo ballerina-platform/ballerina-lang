@@ -22,12 +22,12 @@ import ballerina/io;
 
 @Description {value:"Representation of AuthzHandler"}
 @Field {value:"authzCache: authorization cache instance"}
-type HttpAuthzHandler object {
+public type HttpAuthzHandler object {
     public {
         auth:AuthProvider authProvider;
         cache:Cache? authzCache;
     }
-    new (authProvider, authzCache) {
+    public new (authProvider, authzCache) {
     }
     function canHandle(Request req) returns (boolean);
     function handle(string username, string serviceName, string resourceName, string method,
