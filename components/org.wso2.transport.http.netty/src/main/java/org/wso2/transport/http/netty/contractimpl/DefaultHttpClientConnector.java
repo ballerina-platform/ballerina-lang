@@ -24,8 +24,6 @@ import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http2.Http2CodecUtil;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
@@ -198,13 +196,14 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                                         setChannelAttributes(channelFuture.channel(), httpOutboundRequest,
                                                 httpResponseFuture, targetChannel);
                                     }
-                                    freshHttp2ClientChannel.getChannel().eventLoop().
-                                            execute(() -> freshHttp2ClientChannel.getChannel().write(outboundMsgHolder));
+                                    freshHttp2ClientChannel.getChannel().eventLoop().execute(
+                                            () -> freshHttp2ClientChannel.getChannel().write(outboundMsgHolder));
                                     httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                                 } else {
-                                    // Response for the upgrade request will arrive in stream 1, so use 1 as the stream id.
-                                    freshHttp2ClientChannel
-                                            .putInFlightMessage(Http2CodecUtil.HTTP_UPGRADE_STREAM_ID, outboundMsgHolder);
+                                    // Response for the upgrade request will arrive in stream 1,
+                                    // so use 1 as the stream id.
+                                    freshHttp2ClientChannel.putInFlightMessage(
+                                            Http2CodecUtil.HTTP_UPGRADE_STREAM_ID, outboundMsgHolder);
                                     httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                                     targetChannel.setChannel(channelFuture.channel());
                                     targetChannel.configTargetHandler(httpOutboundRequest, httpResponseFuture);
@@ -213,8 +212,8 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                                     targetChannel.setHttpVersion(httpVersion);
                                     targetChannel.setChunkConfig(chunkConfig);
                                     if (followRedirect) {
-                                        setChannelAttributes(channelFuture.channel(), httpOutboundRequest, httpResponseFuture,
-                                                targetChannel);
+                                        setChannelAttributes(channelFuture.channel(), httpOutboundRequest,
+                                                httpResponseFuture, targetChannel);
                                     }
                                     handleOutboundConnectionHeader(keepAliveConfig, httpOutboundRequest);
                                     targetChannel.setForwardedExtension(forwardedExtensionConfig, httpOutboundRequest);
