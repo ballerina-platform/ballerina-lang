@@ -56,7 +56,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getEntity()(ballerina.mime:Entity|ballerina.mime:EntityError)",
+      "label":"getEntity()(ballerina.mime:Entity|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -160,7 +160,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getJsonPayload()(json|ballerina.http:PayloadError)",
+      "label":"getJsonPayload()(json|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -168,7 +168,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getXmlPayload()(xml|ballerina.http:PayloadError)",
+      "label":"getXmlPayload()(xml|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -176,7 +176,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getTextPayload()(string|ballerina.http:PayloadError)",
+      "label":"getTextPayload()(string|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -184,7 +184,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getPayloadAsString()(string|ballerina.http:PayloadError)",
+      "label":"getPayloadAsString()(string|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -192,7 +192,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getBinaryPayload()(blob|ballerina.http:PayloadError)",
+      "label":"getBinaryPayload()(blob|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -200,7 +200,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getByteChannel()(ballerina.io:ByteChannel|ballerina.http:PayloadError)",
+      "label":"getByteChannel()(ballerina.io:ByteChannel|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -208,7 +208,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getBodyParts()(ballerina.mime:Entity[]|ballerina.mime:EntityError)",
+      "label":"getBodyParts()(ballerina.mime:Entity[]|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",

@@ -101,7 +101,7 @@ service<http:Service> frontendHttpService bind frontendEP {
             json resultantJsonPayload => {
                 responseJsonPayload = resultantJsonPayload;
             }
-            http:PayloadError err => {
+            error err => {
                 http:Response errorResponse = new;
                 json errMsg = {"error":"expected response message not received"};
                 errorResponse.setJsonPayload(errMsg);
@@ -144,7 +144,7 @@ service<http:Service> frontendHttpService bind frontendEP {
                 json resultantJsonPayload => {
                     promisedJsonPayload = resultantJsonPayload;
                 }
-                http:PayloadError err => {
+                error err => {
                     http:Response errorResponse = new;
                     json errMsg = {"error":"expected promised response not received"};
                     errorResponse.setJsonPayload(errMsg);

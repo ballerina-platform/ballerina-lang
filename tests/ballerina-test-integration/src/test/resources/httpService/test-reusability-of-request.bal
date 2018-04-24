@@ -142,7 +142,7 @@ service<http:Service> testService_2 bind testEP {
             string receivedVal => {
                 response.setTextPayload(receivedVal);
             }
-            http:PayloadError err => {
+            error err => {
                 response.setTextPayload(err.message);
             }
         }

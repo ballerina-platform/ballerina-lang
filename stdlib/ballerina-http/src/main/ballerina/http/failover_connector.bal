@@ -306,7 +306,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
     var mimeEntity = failoverRequest.getEntity();
     match mimeEntity {
         mime:Entity entity => requestEntity = entity;
-        mime:EntityError => io:println("mimeEntity null");
+        error err=> io:println(err.message);
     }
     while (startIndex != currentIndex) {
         startIndex = initialIndex;

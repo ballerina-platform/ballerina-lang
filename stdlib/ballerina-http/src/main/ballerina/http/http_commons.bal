@@ -95,17 +95,6 @@ public type ServiceOcspStapling {
     int cacheValidityPeriod,
 };
 
-documentation {
-    An error to be returned for failures related to HTTP payloads.
-
-    F{{message}} The error message
-    F{{cause}} The error which caused the entity error
-}
-public type PayloadError {
-    string message,
-    error? cause,
-};
-
 //////////////////////////////
 /// Native implementations ///
 //////////////////////////////

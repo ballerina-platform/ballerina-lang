@@ -66,7 +66,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
         http:Request clientRequest = new;
         var jsonReq = req.getJsonPayload();
         match jsonReq {
-            http:PayloadError err => {
+            error err => {
                 io:println("Error occurred while reading products payload");
             }
             json products => {
@@ -209,7 +209,7 @@ service<http:Service> productmgt bind serviceEndpoint {
         var jsonReq = req.getJsonPayload();
 
         match jsonReq {
-            http:PayloadError err => {
+            error err => {
                 io:println("Error occurred while reading bank locator request");
             }
             json prod => {

@@ -173,4 +173,32 @@ public class MultipartDecoderTest {
         Assert.assertEquals(ResponseReader.getReturnValue(response), "Child Part 1" + StringUtil.NEWLINE
                 + "Child Part 2" + StringUtil.NEWLINE);
     }
+
+    @Test(description = "Test multiparts when a boundary contains equal sign")
+    public void testMultipartBoundaryWithEqualSign() {
+        String path = "/test/multipleparts";
+        List<Header> headers = new ArrayList<>();
+        String multipartDataBoundary = "\"------=_Part_19_966827328.1524324134617--\"";
+        String boudaryWithoutQuotes = "------=_Part_19_966827328.1524324134617--";
+        headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
+                "multipart/mixed; boundary=" + multipartDataBoundary));
+        String multipartBody = "--" + boudaryWithoutQuotes + "\r\n" +
+                "Content-Type: text/plain; charset=UTF-8" + "\r\n" +
+                "\r\n" +
+                "Part1" +
+                "\r\n" +
+                "--" + boudaryWithoutQuotes + "\r\n" +
+                "Content-Type: text/plain" + "\r\n" +
+                "Content-Transfer-Encoding: binary" + "\r\n" +
+                "\r\n" +
+                "Part2" + StringUtil.NEWLINE +
+                "\r\n" +
+                "--" + boudaryWithoutQuotes + "--" + "\r\n";
+
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers,
+                multipartBody);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(ResponseReader.getReturnValue(response), " -- Part1 -- Part2" + StringUtil.NEWLINE);
+    }
 }

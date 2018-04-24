@@ -60,8 +60,10 @@ import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.saveFile;
  * Class to implement "grpc" command for ballerina.
  * Ex: ballerina grpc  --proto_path (proto-file-path)  --exe_path (protoc-executor-path)
  */
-@Parameters(commandNames = "grpc", commandDescription = "DescriptorGenerate connector/service using protobuf " +
-        "definition")
+@Parameters(
+        commandNames = "grpc",
+        commandDescription = "Generates ballerina gRPC client stub for gRPC service for a given grpc protoc " +
+                "definition.")
 public class GrpcCmd implements BLauncherCmd {
     private static final Logger LOG = LoggerFactory.getLogger(GrpcCmd.class);
     
@@ -70,25 +72,19 @@ public class GrpcCmd implements BLauncherCmd {
     
     private JCommander parentCmdParser;
     
-    @Parameter(names = {"--proto_path"},
-            description = "Path of the .proto file",
+    @Parameter(names = {"--input"},
+            description = "Input .proto file",
             required = true
     )
     private String protoPath;
     
-    @Parameter(names = {"--bal_out"},
-            description = "output location of .bal file"
+    @Parameter(names = {"--output"},
+            description = "Generated Ballerina source files location"
     )
     private String balOutPath = "";
     
-    @Parameter(names = {"--exe_path"},
-            description = "Full path of the .exe file"
-    )
     private String exePath;
     
-    @Parameter(names = {"--protoc_version"},
-            description = "Full path of the .exe file"
-    )
     private String protocVersion = "3.4.0";
     
     @Parameter(names = {"-h", "--help"}, hidden = true)
@@ -284,8 +280,7 @@ public class GrpcCmd implements BLauncherCmd {
     @Override
     public void printUsage(StringBuilder stringBuilder) {
         
-        stringBuilder.append("  ballerina " + COMPONENT_IDENTIFIER + " --proto_path <<proto-file-path>>  --exe_path " +
-                "<<protoc-executor-path>> \n");
+        stringBuilder.append("  ballerina " + COMPONENT_IDENTIFIER + " --input chat.proto\n");
     }
     
     private String getProtoFileName() {
