@@ -127,6 +127,7 @@ JMS Durable Topic Message Subscriber
 Taint Checking
 WebSub Internal Hub Sample
 WebSub Remote Hub Sample
+WebSub Hub Client Sample
 Testerina Assertions
 Testerina Before After
 Testerina Before After Suite
