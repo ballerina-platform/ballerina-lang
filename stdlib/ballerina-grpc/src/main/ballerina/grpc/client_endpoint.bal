@@ -15,12 +15,14 @@
 // under the License.
 
 documentation {
-    Represents the gRPC client endpoint.
+    The gRPC client endpoint provides the capability for initiating contact with a remote gRPC service. The API it
+    provides includes functions to send request/error messages.
 }
 public type Client object {
 
     documentation {
-        Gets called when the endpoint is being initialize during package init time.
+        Gets invoked to initialize the endpoint. During initialization, configurations provided through the `config`
+        record is used for endpoint initialization.
 
         P{{config}} - The ClientEndpointConfig of the endpoint.
     }
@@ -53,7 +55,7 @@ public type Client object {
 };
 
 documentation {
-    Represents the gRPC client endpoint configuration.
+    Represents client endpoint configuration.
 
     F{{url}} - The server url.
     F{{secureSocket}} - The SSL configurations for the client endpoint.

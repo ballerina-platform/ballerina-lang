@@ -15,7 +15,10 @@
 // under the License.
 
 documentation {
-    Represents the gRPC service endpoint.
+    Represents service endpoint where one or more services can be registered. so that ballerina program can offer
+    service through this endpoint.
+
+    F{{id}} - Caller endpoint id.
 }
 public type Listener object {
     public {

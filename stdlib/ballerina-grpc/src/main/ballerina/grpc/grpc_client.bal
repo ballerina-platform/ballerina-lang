@@ -15,16 +15,9 @@
 // under the License.
 
 documentation {
-    Represents the gRPC client.
-
-    F{{host}} - The server host name.
-    F{{port}} - The server port.
+    Provides the gRPC actions for interacting with gRPC server.
 }
 public type GrpcClient object {
-    public {
-        int port;
-        string host;
-    }
 
     documentation {
         Sends request message to the server.

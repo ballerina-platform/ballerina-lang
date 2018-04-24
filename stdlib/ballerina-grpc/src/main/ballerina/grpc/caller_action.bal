@@ -14,6 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+documentation {
+    Provides the gRPC actions for interacting with caller.
+}
 public type CallerAction object {
 
     documentation {

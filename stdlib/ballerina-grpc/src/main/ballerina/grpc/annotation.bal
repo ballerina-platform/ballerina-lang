@@ -32,7 +32,7 @@ public type GrpcServiceConfig {
 };
 
 documentation {
-    Service configuration annotation. Sets only for client and bidirectional streaming service.
+    Service configuration. Sets only for client and bidirectional streaming service.
 }
 public annotation<service> ServiceConfig GrpcServiceConfig;
 
@@ -47,20 +47,20 @@ public type GrpcResourceConfig {
 };
 
 documentation {
-    Service resource configuration annotation. Sets only for server streaming service.
+    Service resource configuration. Sets only for server streaming service.
 }
 public annotation<resource> ResourceConfig GrpcResourceConfig;
 
 documentation {
     Service descriptor data. This is for internal use.
 
-    F{{descriptor}} - gRPC server descriptor. Service descriptor sets at compile time.
+    F{{descriptor}} - Service descriptor sets at compile time.
 }
 public type ServiceDescriptorData {
     string descriptor;
 };
 
 documentation {
-    Service annotation which is to attach service descriptor generated at compile time. This is for internal use.
+    Service descriptor data generated at compile time. This is for internal use.
 }
 public annotation <service> ServiceDescriptor ServiceDescriptorData;
