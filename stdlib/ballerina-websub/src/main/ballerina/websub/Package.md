@@ -1,0 +1,251 @@
+## Package overview
+This package contains an implementation of the W3C [**WebSub**](https://www.w3.org/TR/websub/) recommendation which facilitates a push-based 
+content delivery/notification mechanism between publishers and subscribers.
+
+This implementation supports introducing all WebSub components, namely subscribers, hubs and publishers.
+ 
+- Publisher - A party which advertises topics for which interested parties need to subscribe to, to receive notifications
+ on occurrence of events, and the hub(s) the publisher would notify on updates to the topics
+- Subscriber - A party interested in receiving update notifications for particular topics
+- Hub - A party which accepts subscription requests from subscribers and delivers content to the subscribers once the topic 
+is updated, on notification from the topic's publisher
+ 
+ 
+#### Basic Flow with WebSub
+1. Subscriber discovers the topics it needs to subscribe to, to receive updates/content, and the hub(s) it can subscribe at
+
+2. Subscriber sends a subscription request to a hub, specifying the topic it needs to receive notifications for along 
+ with other subscription parameters such as:
+  - a callbak URL to which content is expected to be delivered
+  - (_optional_) a lease seconds value indicating how long it wishes the subscription to stay active
+  - (_optional_) a secret to use for [authenticated content distribution](https://www.w3.org/TR/websub/#signing-content)
+  
+3. The hub send an intent verification request to the specified callback URL, and if the response indicates verification
+ (by echoing a challenge specified in the request), by the subscriber, the subscription is added for the topic, at the 
+ hub
+   
+4. Publisher notifies the hub on updates to the topic, and the content to deliver is identified
+
+5. The hub delivers the identified content to the subscribers for the topic
+
+#### Features
+This package allows introducing a WebSub Subscriber Service with two resources namely ```bal onIntentVerification ```, 
+  which accepts HTTP GET requests for intent verification, and ```bal onNotification``` which accepts HTTP POST requests
+  for notifications. The WebSub Subscriber Service provides the following capabilities:
+ - Subscription Requests sent at service start time for the hub and topic specified as annotations, or discovered based 
+    on the resource URL specified as an annotation
+ - Auto Intent Verification against the topic specified as an annotation or discovered based on the resource URL 
+    specified as an annotation, if the ```bal onIntentVerification ``` is not specified
+ - Signature Validation for authenticated content distribution, if a secret is specified for the subscription
+  
+A WebSub compliant Hub, based on the Ballerina Message Broker, is also made available to be brought up either to use as 
+a remote Hub or to be used by publishers who wish to have their own internal Hub. Ballerina's WebSub Hub honours lease 
+periods specified and supports authenticated content distribution.
+
+Ballerina WebSub Publishers can make use of utility functions to add WebSub link headers indicating the hub and topic 
+URLs, to facilitate WebSub discovery.
+
+A Hub Client Endpoint is also made available to publishers and subscribers to perform the following:
+ 1. Publishers
+    - Register a topic at the Hub
+    - Publish to the hub, indicating an update of the topic
+ 2. Subscribers
+    - Subscribe/Unsubscribe to topics at a Hub
+
+## Samples
+This sample demonstrates a Subscriber Service with ```subscribeOnStartUp``` set to true, which will result in a
+ subscription request being sent to the specified hub for the specified topic, with the specified lease seconds value 
+ and the specified secret for authenticated content distribution.
+```ballerina
+import ballerina/log;
+import ballerina/mime;
+import ballerina/http;
+import ballerina/websub;
+
+endpoint websub:Listener websubEP {
+    port: 8181
+};
+
+@websub:SubscriberServiceConfig {
+    path: "/websub",
+    subscribeOnStartUp: true,
+    topic: "http://www.websubpubtopic.com",
+    hub: "https://localhost:9191/websub/hub",
+    leaseSeconds: 3600000,
+    secret: "Kslk30SNF2AChs2"
+}
+service websubSubscriber bind websubEP {
+
+    onIntentVerification(endpoint caller, websub:IntentVerificationRequest request) {
+        http:Response response = new;
+        if (request.mode == "subscribe") {
+            response = request.buildSubscriptionVerificationResponse();
+        } else if (request.mode == "unsubscribe") {
+            response = request.buildUnsubscriptionVerificationResponse();
+        } else {
+            response.statusCode = http:NOT_FOUND_404;
+        }
+        if (response.statusCode == 202) {
+            log:printInfo("Intent verified for subscription request");
+        } else {
+            log:printWarn("Intent verification denied for subscription request");
+        }
+        caller->respond(response)
+                but { error e => log:printError("Error responding to intent verification request", err = e) };
+    }
+
+    onNotification(websub:Notification notification) {
+        log:printInfo("WebSub Notification Received: " + notification.payload.toString());
+    }
+    
+}
+```
+
+If a service is defined, without an ```onIntentVerification``` resource, intent verification would happen for 
+subscription and unsubscription requests would be done automatically, if the topic specified in the request matches that
+ specified in the annotation or that discovered for the annotated resource URL.
+ 
+```ballerina
+import ballerina/log;
+import ballerina/mime;
+import ballerina/http;
+import ballerina/websub;
+
+endpoint websub:Listener websubEP {
+    port: 8181
+};
+
+@websub:SubscriberServiceConfig {
+    path: "/websub",
+    subscribeOnStartUp: true,
+    topic: "http://www.websubpubtopic.com",
+    hub: "https://localhost:9191/websub/hub",
+    leaseSeconds: 3600000,
+    secret: "Kslk30SNF2AChs2"
+}
+service websubSubscriber bind websubEP {
+
+    onNotification(websub:Notification notification) {
+        log:printInfo("WebSub Notification Received: " + notification.payload.toString());
+    }
+ 
+}
+```
+ 
+The Ballerina WebSub Hub could be brought up by Publishers and publishing could be done directly on the Hub brought up.
+```ballerina
+import ballerina/log;
+import ballerina/runtime;
+import ballerina/websub;
+
+function main(string... args) {
+
+    log:printInfo("Starting up the Ballerina Hub Service");
+    websub:WebSubHub webSubHub = websub:startUpBallerinaHub(port = 9191);
+
+    var registrationResponse = webSubHub.registerTopic("http://www.websubpubtopic.com");
+    match (registrationResponse) {
+        error webSubError => log:printError("Error occurred registering topic: " + webSubError.message);
+        () => log:printInfo("Topic registration successful!");
+    }
+
+    // Make the publisher wait until the subscriber subscribes at the hub.
+    runtime:sleep(20000);
+
+    log:printInfo("Publishing update to internal Hub");
+    var publishResponse = webSubHub.publishUpdate("http://www.websubpubtopic.com",
+                                                                        {"action": "publish", "mode": "internal-hub"});
+    match (publishResponse) {
+        error webSubError => log:printError("Error notifying hub: " + webSubError.message);
+        () => log:printInfo("Update notification successful!");
+    }
+
+    // Make sure the service is running until the subscriber receives the update notification.
+    runtime:sleep(5000);
+}
+```
+
+Ballerina Publishers could also use the Hub Client Endpoint, to register topics at Ballerina WebSub Hubs if required, 
+and publish/notify updates to the remote Hubs.
+```ballerina
+import ballerina/log;
+import ballerina/runtime;
+import ballerina/websub;
+
+endpoint websub:Client websubHubClientEP {
+    url: "https://localhost:9191/websub/hub"
+};
+
+function main(string... args) {
+
+    var registrationResponse = websubHubClientEP->registerTopic("http://www.websubpubtopic.com");
+    match (registrationResponse) {
+        error webSubError => log:printError("Error occurred registering topic: " + webSubError.message);
+        () => log:printInfo("Topic registration successful!");
+    }
+
+    // Make the publisher wait until the subscriber subscribes at the hub.
+    runtime:sleep(10000);
+
+    log:printInfo("Publishing update to remote Hub");
+    var publishResponse = websubHubClientEP->publishUpdate("http://www.websubpubtopic.com",
+                                                                        {"action": "publish", "mode": "remote-hub"});
+    match (publishResponse) {
+        error webSubError => log:printError("Error notifying hub: " + webSubError.message);
+        () => log:printInfo("Update notification successful!");
+    }
+
+}
+```
+
+The Hub Client Endpoint could also be used by Subscribers to send subscription and unsubscription requests explicitly.
+```ballerina
+import ballerina/log;
+import ballerina/runtime;
+import ballerina/websub;
+
+endpoint websub:Client websubHubClientEP {
+    url: "https://localhost:9191/websub/hub"
+};
+
+function main(string... args) {
+
+    // Send subscription request for a subscriber service.
+    websub:SubscriptionChangeRequest subscriptionRequest = {
+                                                                topic: "http://www.websubpubtopic.com",
+                                                                callback: "http://localhost:8181/websub",
+                                                                secret: "Kslk30SNF2AChs2"
+                                                           };
+
+    var response = websubHubClientEP->subscribe(subscriptionRequest);
+    match (response) {
+        websub:SubscriptionChangeResponse subscriptionChangeResponse => {
+            log:printInfo("Subscription Request successful at Hub [" + subscriptionChangeResponse.hub + "] for Topic ["
+                    + subscriptionChangeResponse.topic + "]");
+        }
+        error e => {
+            log:printError("Error occurred with Subscription Request", err = e);
+        }
+    }
+
+    // Send unsubscription request for the subscriber service.
+    websub:SubscriptionChangeRequest unsubscriptionRequest = {
+                                                                 topic: "http://www.websubpubtopic.com",
+                                                                 callback: "http://localhost:8181/websub"
+                                                             };
+
+    response = websubHubClientEP->unsubscribe(unsubscriptionRequest);
+    match (response) {
+        websub:SubscriptionChangeResponse subscriptionChangeResponse => {
+            log:printInfo("Unsubscription Request successful at Hub [" + subscriptionChangeResponse.hub
+                    + "] for Topic [" + subscriptionChangeResponse.topic + "]");
+        }
+        error e => {
+            log:printError("Error occurred with Unsubscription Request", err = e);
+        }
+    }
+
+}
+```
+ 
+## Package content
