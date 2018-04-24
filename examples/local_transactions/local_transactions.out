@@ -9,4 +9,3 @@ Inserted count: 1
 2018-04-23 23:31:12,262 INFO  [ballerina.transactions] - Running 2-phase commit for transaction: d5654fe9-b123-40b2-9898-21d6b8f59864:1
 Transaction: d5654fe9-b123-40b2-9898-21d6b8f59864:1 committed
 ballerina: stopped HTTP/WS endpoint 172.17.0.1:43925
-
