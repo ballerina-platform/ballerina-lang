@@ -38,7 +38,6 @@ OPTIONS
      -n
      --native
          Reads the source as native ballerina code. 
-         TODO: Can this be used to generate API docs from balx foles? 
 
      -e <package, ...>
      --exclude <package, ...>
@@ -48,15 +47,12 @@ OPTIONS
      -c <path>
      --config <path>
          Path to document generation configuration file. 
-         TODO: What is the format of this file? 
-         TODO: What should be included in there? 
 
      -v
      --verbose
          Prints debug level logs while generating documentation
      -e
          Ballerina environment parameters
-         TODO: What should be used when generating docs? 
 
 
 EXAMPLES

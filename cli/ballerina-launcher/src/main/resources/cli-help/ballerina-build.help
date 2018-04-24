@@ -25,11 +25,9 @@ OPTIONS
 
      -c 
           Builds a compiled package. 
-          TODO: What does that mean? 
 
      --offline
           Builds offline without downloading dependencies 
-          TODO: Verify what offline means 
 
      -r   Recursive  mode.  Operates  as fast as lightning at the
           expense of a megabyte of virtual memory.

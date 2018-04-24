@@ -40,11 +40,9 @@ OPTIONS
          service defined, the service will be started. In case both a 
          main function and a service is available in the program or
          package, this option allows you to start the service.  
-         TODO: Verify default behavior text above 
 
      -e <key1=value1, key2=value2, …>
          Sets Ballerina environment parameters as key, value pairs.
-         TODO: What environment params available? 
 
      --offline
          In a package build, the dependencies are always checked from 
@@ -60,7 +58,6 @@ OPTIONS
          Jaeger and Prometheus. Moreover, default configurations of
          Jaeger and Prometheus can be overridden using environment
          parameters or by defining them in ballerina.conf.
-         TODO: Where is the default config? What does that include? 
 
      --sourceroot <path>
          Provides the path to be taken as the root of the source. 
@@ -70,20 +67,11 @@ OPTIONS
      -c <config-file>
      --config <config-file>
          Provides path to the Ballerina configuration file. 
-         TODO: What is the config file used for? 
-         TODO: Where is the default config file located?   
-         TODO: What is the format/syntax for the config file? 
 
      -B <option1, option2, …>
          Provides a list of Ballerina VM options to be used by runtime 
          when executing a Ballerina program or package. This accepts a 
          comma separated list of options
-         TODO: Verify if it is a comma separated list you have to 
-             Provide
-         TODO: What is the list of options available? Need to list 
-             them all here. 
-         TODO: Are some of them just one word options and some 
-             key:value pairs? Or are they all key value pairs? 
 
      args... 
          The list of command line arguments for the Ballerina program 

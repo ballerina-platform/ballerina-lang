@@ -22,12 +22,9 @@ OPTIONS
 
      --proto_path <proto-file-path>
          Path of the .proto file to be used. 
-         TODO: What is a .proto file? 
 
      --exe_path <protoc-executor-path>
          Full path of the .exe file.
-         TODO: What does the .exe file do? 
 
 EXAMPLES
-     TODO: what ia a good sample? 
      $ ballerina grpc

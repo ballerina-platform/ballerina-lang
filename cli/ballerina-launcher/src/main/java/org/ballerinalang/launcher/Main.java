@@ -182,8 +182,6 @@ public class Main {
     @Parameters(commandNames = "run", commandDescription = "compile and run Ballerina program")
     private static class RunCmd implements BLauncherCmd {
 
-        private JCommander parentCmdParser;
-
         @Parameter(arity = 1, description = "arguments")
         private List<String> argList;
 
@@ -287,7 +285,6 @@ public class Main {
 
         @Override
         public void setParentCmdParser(JCommander parentCmdParser) {
-            this.parentCmdParser = parentCmdParser;
         }
 
         @Override
@@ -432,8 +429,6 @@ public class Main {
         @Parameter(names = {"--help", "-h"}, hidden = true)
         private boolean helpFlag;
 
-        private JCommander parentCmdParser;
-
         @Override
         public void execute() {
             if (helpFlag) {
@@ -505,7 +500,6 @@ public class Main {
 
         @Override
         public void setParentCmdParser(JCommander parentCmdParser) {
-            this.parentCmdParser = parentCmdParser;
         }
 
         @Override
@@ -535,8 +529,6 @@ public class Main {
         @Parameter(names = "--java.debug", hidden = true)
         private String javaDebugPort;
 
-        private JCommander parentCmdParser;
-
         @Override
         public void execute() {
             printUsageInfo(BallerinaCliCommands.DEFAULT);
@@ -558,7 +550,6 @@ public class Main {
 
         @Override
         public void setParentCmdParser(JCommander parentCmdParser) {
-            this.parentCmdParser = parentCmdParser;
         }
 
         @Override

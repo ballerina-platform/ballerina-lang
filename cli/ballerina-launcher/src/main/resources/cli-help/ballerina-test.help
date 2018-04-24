@@ -59,7 +59,6 @@ OPTIONS
 
      -e                    
          Ballerina environment parameters
-         TODO: What are these? 
 
      --debug <port>               
          Remote debug Ballerina tests over the port given.   
