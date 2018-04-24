@@ -19,7 +19,7 @@
 import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Button, Grid, Menu, Divider, List, Card, Item } from 'semantic-ui-react';
+import { Button, Grid, Menu } from 'semantic-ui-react';
 import { getPathSeperator } from 'api-client/api-client';
 import { COMMANDS as WORKSPACE_COMMANDS, VIEWS as WORKSPACE_VIEWS } from 'core/workspace/constants';
 import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
@@ -40,6 +40,7 @@ class WelcomeTab extends React.Component {
         super();
         this.state = {
             logoLoaded: false,
+            searchQuery: '',
         };
     }
 
@@ -93,7 +94,7 @@ class WelcomeTab extends React.Component {
     openSampleDir(url) {
         const pathSeperator = getPathSeperator();
         const ballerinaHome = this.props.balHome;
-        const folderPath = `${ballerinaHome}${pathSeperator}samples${pathSeperator}${url}`;
+        const folderPath = `${ballerinaHome}${pathSeperator}docs${pathSeperator}examples${pathSeperator}${url}`;
 
         this.props.commandManager.dispatch(WORKSPACE_COMMANDS.OPEN_FOLDER, {
             folderPath,
@@ -127,7 +128,6 @@ class WelcomeTab extends React.Component {
             </ul>
         );
     }
-
     /**
      * Renders view for welcome view.
      *
@@ -144,7 +144,6 @@ class WelcomeTab extends React.Component {
                     </Grid.Column>
                     <Grid.Column>
                         <Menu className='top-nav-links' position='right'>
-                            <Menu.Item name='Ballerina by Example' href={this.props.userGuide} target='_blank' rel='noopener noreferrer' />
                             <Menu.Item name='API Reference' />
                         </Menu>
                     </Grid.Column>
@@ -182,7 +181,7 @@ class WelcomeTab extends React.Component {
                                 className='btn-secondary'
                                 onClick={this.props.openFile}
                             >
-                                Create Script
+                                Create File
                             </Button>
                         </Grid.Column>
                         {/* <Divider />
@@ -215,7 +214,12 @@ class WelcomeTab extends React.Component {
                         </Grid.Column> */}
                     </Grid.Column>
                     <Grid.Column mobile={9} tablet={11} computer={13} className='rightContainer'>
-                        <Grid>
+                        <div className='ballerina-by-example'>
+                            <h2>Ballerina by Example</h2>
+                            <p>Ballerina by Example enables you to have complete coverage over the language, while emphasizing incremental learning. This is a series of commented example programs.</p>
+                            
+                        </div>
+                        <Grid padded>
                             <Grid.Row columns={4} className='sample-wrapper'>
                                 <Grid.Column mobile={16} tablet={16} computer={4} className=''>
                                     {samples[0].map(column => this.renderColumnItem(column))}
@@ -241,7 +245,6 @@ WelcomeTab.propTypes = {
     createNew: PropTypes.func.isRequired,
     openFile: PropTypes.func.isRequired,
     openDirectory: PropTypes.func.isRequired,
-    userGuide: PropTypes.string.isRequired,
     samples: PropTypes.arrayOf(PropTypes.shape({
         name: PropTypes.string.isRequired,
         isFile: PropTypes.bool,

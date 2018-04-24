@@ -40,6 +40,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
@@ -103,24 +104,20 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
         Resource balResource = httpResource.getBalResource();
 
-        ObserverContext ctx = null;
-        if (ObservabilityUtils.isObservabilityEnabled()) {
-            ctx = ObservabilityUtils.startServerObservation(SERVER_CONNECTOR_HTTP,
-                    balResource.getServiceName(),
-                    balResource.getName(), null);
+        Optional<ObserverContext> observerContext = ObservabilityUtils.startServerObservation(SERVER_CONNECTOR_HTTP,
+                balResource.getServiceName(), balResource.getName(), null);
+        observerContext.ifPresent(ctx -> {
             Map<String, String> httpHeaders = new HashMap<>();
             httpCarbonMessage.getHeaders().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
-            if (ctx != null) {
-                ctx.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
-                ctx.addTag(TAG_KEY_HTTP_METHOD, (String) httpCarbonMessage.getProperty(HttpConstants.HTTP_METHOD));
-                ctx.addTag(TAG_KEY_PROTOCOL, (String) httpCarbonMessage.getProperty(HttpConstants.PROTOCOL));
-                ctx.addTag(TAG_KEY_HTTP_URL, (String) httpCarbonMessage.getProperty(HttpConstants.REQUEST_URL));
-            }
-        }
+            ctx.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
+            ctx.addTag(TAG_KEY_HTTP_METHOD, (String) httpCarbonMessage.getProperty(HttpConstants.HTTP_METHOD));
+            ctx.addTag(TAG_KEY_PROTOCOL, (String) httpCarbonMessage.getProperty(HttpConstants.PROTOCOL));
+            ctx.addTag(TAG_KEY_HTTP_URL, (String) httpCarbonMessage.getProperty(HttpConstants.REQUEST_URL));
+        });
 
         CallableUnitCallback callback = new HttpCallableUnitCallback(httpCarbonMessage);
         //TODO handle BallerinaConnectorException
-        Executor.submit(balResource, callback, properties, ctx, parentCtx, signatureParams);
+        Executor.submit(balResource, callback, properties, observerContext.orElse(null), parentCtx, signatureParams);
     }
 
     protected BValue getRequestFilterContext(HttpResource httpResource) {

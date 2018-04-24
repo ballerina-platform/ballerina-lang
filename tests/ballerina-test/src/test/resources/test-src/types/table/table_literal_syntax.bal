@@ -94,7 +94,7 @@ function testTableAddOnConstrainedTableWithViolation() returns (int) {
     return count;
 }
 
-function testTableAddOnConstrainedTableWithViolation2() returns (int) {
+function testTableAddOnConstrainedTableWithViolation2() returns (string) {
     Person p1 = {id:1, age:30, salary:300.50, name:"jane", married:true};
     Person p2 = {id:2, age:30, salary:300.50, name:"jane", married:true};
     Person p3 = {id:2, age:30, salary:300.50, name:"jane", married:true};
@@ -105,7 +105,11 @@ function testTableAddOnConstrainedTableWithViolation2() returns (int) {
         data:[p1, p2]
     };
 
-    _ = t1.add(p3);
-    int count = t1.count();
-    return count;
+    var ret = t1.add(p3);
+    string s;
+    match (ret) {
+        error e => s = e.message;
+        () => s = "nil";
+    }
+    return s;
 }

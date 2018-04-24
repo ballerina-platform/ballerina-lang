@@ -80,6 +80,10 @@ Comment
    : <comment>
    ;
 
+CompoundAssignment
+   : <variable.source> += <expression.source> ;
+   ;
+
 Connector
    : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> connector <name.value> ( <parameters-joined-by,>* ) { <variableDefs>* <actions>* }
    | <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> connector <name.value> ( <parameters-joined-by,>* ) { <actions>* }
@@ -104,6 +108,10 @@ DocumentationAttribute
 
 Deprecated
    : deprecated { <documentationText> }
+   ;
+
+ElvisExpr
+   : <leftExpression.source> ?: <rightExpression.source>
    ;
 
 Endpoint
@@ -183,6 +191,10 @@ Literal
    | <value>
    ;
 
+Lock
+   : lock { <body.source> }
+   ;
+
 Match
    : match <expression.source> { <patternClauses>* }
    ;
@@ -213,6 +225,10 @@ Object
    | <noPrivateFieldsAvailable?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> object { public { <publicFields-suffixed-by-;>* }                                            <initFunction.source> <functions>* };
    | <noPublicFieldAvailable?>   <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> object {                                          private { <privateFields-suffixed-by-;>* } <initFunction.source> <functions>* };
    |                             <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> object { public { <publicFields-suffixed-by-;>* } private { <privateFields-suffixed-by-;>* } <initFunction.source> <functions>* };
+   ;
+
+PostIncrement
+   : <variable.source> <operator> ;
    ;
 
 Record
@@ -256,6 +272,10 @@ SimpleVariableRef
 
 StringTemplateLiteral
    : string\u0020` <expressions>* `
+   ;
+
+Table
+   : table <configurationExpression.source>
    ;
 
 TernaryExpr
@@ -323,11 +343,16 @@ TypeDefinition
    | <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                     <valueSet-joined-by|>* ;
    ;
 
+TypedescExpression
+   : <typeNode.source>
+   ;
+
 TypeofExpression
    : typeof <typeNode.source>
    ;
 
 TypeInitExpr
+   : <noExpressionAvailable?> new <hasParantheses?> (                           )
    : <noExpressionAvailable?> new
    | <noTypeAttached?>        new                   ( <expressions-joined-by,>* )
    |                          new <typeName.source> ( <expressions-joined-by,>* )
@@ -344,8 +369,10 @@ UnionTypeNode
 
 UserDefinedType
    : <anonStruct.source>
-   | <packageAlias.value> : <typeName.value>
-   | <typeName.value>
+   | <nullableOperatorAvailable?> <packageAlias.value> : <typeName.value> ?
+   | <nullableOperatorAvailable?>                        <typeName.value> ?
+   |                              <packageAlias.value> : <typeName.value>
+   |                                                     <typeName.value>
    |
    ;
 

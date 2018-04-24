@@ -85,14 +85,24 @@
     }
     .rightContainer {
       padding: 0 50px;
+      padding-right: 35px !important;
+      .ballerina-by-example {
+          p {
+              width: 450px;
+              font-size: 16px;
+              line-height: 23px;
+          }
+      }
+
       .template-wrapper,
       .sample-wrapper {
         margin: 20px 0 !important;
         background-color: #f1f1f1;
         ul{
-            padding-left: 10px;
+            padding: 0;
             li {
                 list-style: none;
+                font-size: 16px;
             }
             a {
                 color: #57595d;
@@ -106,9 +116,11 @@
             border-bottom: 1px solid #cecfd0;
             border-top: 1px solid #cecfd0;
             color: #57595d!important;
+            padding: 4px 0;
         }
         .list-item {
             border-bottom: 1px solid #cecfd0;
+            padding: 4px 15px;
         }
 
         .thumbnail-container {

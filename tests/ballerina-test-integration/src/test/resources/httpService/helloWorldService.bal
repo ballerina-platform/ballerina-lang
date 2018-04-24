@@ -15,7 +15,7 @@ service<http:Service> helloWorld bind helloWorldEp {
     }
     sayHello (endpoint caller, http:Request req) {
         http:Response resp = new;
-        resp.setStringPayload("Hello, World!");
+        resp.setTextPayload("Hello, World!");
         _ = caller -> respond(resp);
     }
 }

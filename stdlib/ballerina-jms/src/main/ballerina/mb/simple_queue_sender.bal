@@ -29,7 +29,7 @@ public type SimpleQueueSender object {
 
     public function init(SimpleQueueSenderEndpointConfiguration config) {
         endpoint jms:SimpleQueueSender queueSender {
-            initialContextFactory:"wso2mbInitialContextFactory",
+            initialContextFactory:"bmbInitialContextFactory",
             providerUrl:generateBrokerURL(config),
             connectionFactoryName:"ConnectionFactory",
             acknowledgementMode:config.acknowledgementMode,

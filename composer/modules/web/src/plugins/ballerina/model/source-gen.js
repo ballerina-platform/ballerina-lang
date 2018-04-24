@@ -229,6 +229,10 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + getSourceOf(node.expression, pretty, l, replaceLambda);
         case 'Comment':
             return dent() + w() + node.comment;
+        case 'CompoundAssignment':
+            return dent() + getSourceOf(node.variable, pretty, l, replaceLambda)
+                 + w() + '+=' + a(' ')
+                 + getSourceOf(node.expression, pretty, l, replaceLambda) + w() + ';';
         case 'Connector':
             if (node.annotationAttachments && node.documentationAttachments
                          && node.deprecatedAttachments && node.name.valueWithBar
@@ -273,6 +277,10 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'Deprecated':
             return dent() + w() + 'deprecated' + a(' ') + w() + '{' + indent() + w()
                  + node.documentationText + outdent() + w() + '}';
+        case 'ElvisExpr':
+            return getSourceOf(node.leftExpression, pretty, l, replaceLambda) + w()
+                 + '?:'
+                 + getSourceOf(node.rightExpression, pretty, l, replaceLambda);
         case 'Endpoint':
             return dent()
                  + join(node.annotationAttachments, pretty, replaceLambda, l, w, '') + w() + 'endpoint' + a(' ')
@@ -635,6 +643,9 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             } else {
                 return w() + node.value;
             }
+        case 'Lock':
+            return dent() + w() + 'lock' + w() + '{' + indent()
+                 + getSourceOf(node.body, pretty, l, replaceLambda) + outdent() + w() + '}';
         case 'Match':
             return dent() + w() + 'match' + a(' ')
                  + getSourceOf(node.expression, pretty, l, replaceLambda) + w(' ') + '{' + indent()
@@ -716,6 +727,9 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + getSourceOf(node.initFunction, pretty, l, replaceLambda)
                  + join(node.functions, pretty, replaceLambda, l, w, '') + w() + '};';
             }
+        case 'PostIncrement':
+            return dent() + getSourceOf(node.variable, pretty, l, replaceLambda)
+                 + w() + node.operator + w() + ';';
         case 'Record':
             return join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
@@ -793,6 +807,9 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'StringTemplateLiteral':
             return w() + 'string\u0020`'
                  + join(node.expressions, pretty, replaceLambda, l, w, '') + w() + '`';
+        case 'Table':
+            return w() + 'table'
+                 + getSourceOf(node.configurationExpression, pretty, l, replaceLambda);
         case 'TernaryExpr':
             return getSourceOf(node.condition, pretty, l, replaceLambda) + w() + '?'
                  + getSourceOf(node.thenExpression, pretty, l, replaceLambda)
@@ -1020,11 +1037,15 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + 'type' + a(' ') + w() + node.name.valueWithBar + a(' ')
                  + join(node.valueSet, pretty, replaceLambda, l, w, '', '|') + w() + ';';
             }
+        case 'TypedescExpression':
+            return getSourceOf(node.typeNode, pretty, l, replaceLambda);
         case 'TypeofExpression':
             return w() + 'typeof' + b(' ')
                  + getSourceOf(node.typeNode, pretty, l, replaceLambda);
         case 'TypeInitExpr':
-            if (node.noExpressionAvailable) {
+            if (node.noExpressionAvailable && node.hasParantheses) {
+                return w() + 'new' + w(' ') + '(' + w() + ')';
+            } else if (node.noExpressionAvailable) {
                 return w() + 'new';
             } else if (node.noTypeAttached && node.expressions) {
                 return w() + 'new' + w(' ') + '('
@@ -1047,6 +1068,12 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'UserDefinedType':
             if (node.anonStruct) {
                 return getSourceOf(node.anonStruct, pretty, l, replaceLambda);
+            } else if (node.nullableOperatorAvailable && node.packageAlias.valueWithBar
+                         && node.typeName.valueWithBar) {
+                return w() + node.packageAlias.valueWithBar + w() + ':' + w()
+                 + node.typeName.valueWithBar + w() + '?';
+            } else if (node.nullableOperatorAvailable && node.typeName.valueWithBar) {
+                return w() + node.typeName.valueWithBar + w() + '?';
             } else if (node.packageAlias.valueWithBar && node.typeName.valueWithBar) {
                 return w() + node.packageAlias.valueWithBar + w() + ':' + w()
                  + node.typeName.valueWithBar;

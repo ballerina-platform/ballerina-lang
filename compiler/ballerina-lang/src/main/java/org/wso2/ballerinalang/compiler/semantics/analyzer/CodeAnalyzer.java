@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -127,6 +128,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -270,6 +274,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
             boolean invokableReturns = invNode.returnTypeNode.type != symTable.nilType;
             if (invNode.workers.isEmpty()) {
+                if (isPublicInvokableNode(invNode)) {
+                    analyzeNode(invNode.returnTypeNode, invokableEnv);
+                }
                 /* the body can be null in the case of Object type function declarations */
                 if (invNode.body != null) {
                     analyzeNode(invNode.body, invokableEnv);
@@ -294,6 +301,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         } finally {
             this.finalizeCurrentWorkerActionSystem();
         }
+    }
+
+    private boolean isPublicInvokableNode(BLangInvokableNode invNode) {
+        return Symbols.isPublic(invNode.symbol) && (SymbolKind.PACKAGE.equals(invNode.symbol.owner.getKind()) ||
+                Symbols.isPublic(invNode.symbol.owner));
     }
 
     @Override
@@ -617,7 +629,22 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangObject objectNode) {
+        if (objectNode.isFieldAnalyseRequired && Symbols.isPublic(objectNode.symbol)) {
+            objectNode.fields.stream()
+                    .filter(field -> (Symbols.isPublic(field.symbol)))
+                    .forEach(field -> analyzeNode(field, this.env));
+        }
         objectNode.functions.forEach(e -> this.analyzeNode(e, this.env));
+    }
+
+    private void analyseType(BType type, DiagnosticPos pos) {
+        if (type == null || type.tsymbol == null) {
+            return;
+        }
+        BSymbol symbol = type.tsymbol;
+        if (Symbols.isPrivate(symbol)) {
+            dlog.error(pos, DiagnosticCode.ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL, symbol.name);
+        }
     }
 
     public void visit(BLangRecord record) {
@@ -630,6 +657,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangVariable varNode) {
         analyzeExpr(varNode.expr);
+
+        if (!Symbols.isPublic(varNode.symbol)) {
+            return;
+        }
+
+        int ownerSymTag = this.env.scope.owner.tag;
+        if (((ownerSymTag & SymTag.INVOKABLE) != SymTag.INVOKABLE) || (varNode.type != null &&
+                varNode.parent != null && NodeKind.FUNCTION.equals(varNode.parent.getKind()))) {
+            analyseType(varNode.type, varNode.pos);
+        }
     }
 
     public void visit(BLangIdentifier identifierNode) {
@@ -837,7 +874,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         recordLiteral.keyValuePairs.forEach(kv -> {
             analyzeExpr(kv.valueExpr);
         });
-        checkAccess(recordLiteral);
     }
 
     public void visit(BLangTableLiteral tableLiteral) {
@@ -1016,7 +1052,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangUserDefinedType userDefinedType) {
-        /* ignore */
+        analyseType(userDefinedType.type, userDefinedType.pos);
+    }
+
+    public void visit(BLangTupleTypeNode tupleTypeNode) {
+        tupleTypeNode.memberTypeNodes.forEach(memberType -> analyzeNode(memberType, env));
+    }
+
+    public void visit(BLangUnionTypeNode unionTypeNode) {
+        unionTypeNode.memberTypeNodes.forEach(memberType -> analyzeNode(memberType, env));
+    }
+
+    public void visit(BLangFunctionTypeNode functionTypeNode) {
+        analyseType(functionTypeNode.type, functionTypeNode.pos);
     }
 
     @Override
@@ -1115,15 +1163,31 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         checkAccess(node);
     }
 
+    /**
+     * This method checks for private symbols being accessed or used outside of package and|or private symbols being
+     * used in public fields of objects/records and will fail those occurrences.
+     *
+     * @param node expression node to analyse
+     */
     private <E extends BLangExpression> void checkAccess(E node) {
-        if (node.type == null || node.type.tsymbol == null) {
+        if (node.type != null) {
+            checkAccessSymbol(node.type.tsymbol, node.pos);
+        }
+
+        //check for object new invocation
+        if (node instanceof BLangInvocation) {
+            BLangInvocation bLangInvocation = (BLangInvocation) node;
+            checkAccessSymbol(bLangInvocation.symbol, bLangInvocation.pos);
+        }
+    }
+
+    private void checkAccessSymbol(BSymbol symbol, DiagnosticPos position) {
+        if (symbol == null) {
             return;
         }
 
-        BSymbol symbol = node.type.tsymbol;
-
-        if (!(env.enclPkg.symbol.pkgID == symbol.pkgID || (Symbols.isPublic(symbol)))) {
-            dlog.error(node.pos, DiagnosticCode.ATTEMPT_REFER_NON_PUBLIC_SYMBOL, symbol.name);
+        if (env.enclPkg.symbol.pkgID != symbol.pkgID && Symbols.isPrivate(symbol)) {
+            dlog.error(position, DiagnosticCode.ATTEMPT_REFER_NON_PUBLIC_SYMBOL, symbol.name);
         }
     }
 

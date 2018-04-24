@@ -111,6 +111,26 @@ public class JMSConnectorTestCase extends IntegrationTestCase {
         clientHandler.stop();
     }
 
+    @Test(description = "Test JMS property setters and getters")
+    public void testJMSProperties() throws Exception {
+        BallerinaServiceHandler serviceHandler =
+                new BallerinaServiceHandler("jms_properties_queue_receiver.bal",
+                                            "booleanVal:false|intVal:10|floatVal:10.5|stringVal:TestString|"
+                                                    + "message:Test Text");
+        serviceHandler.start();
+
+        BallerinaClientHandler clientHandler
+                = new BallerinaClientHandler("jms_properties_queue_sender.bal",
+                                             "Message successfully sent by jms:SimpleQueueSender");
+        clientHandler.start();
+
+        serviceHandler.waitForText(TimeUnit.SECONDS, 20);
+        clientHandler.waitForText(TimeUnit.SECONDS, 20);
+
+        serviceHandler.stop();
+        clientHandler.stop();
+    }
+
     @Test(description = "Test MB Connector simple queue receiver and producer")
     public void testMbSimpleQueueReceiverProducer() throws Exception {
         BallerinaServiceHandler serviceHandler = new BallerinaServiceHandler("mb_simple_queue_consumer.bal",

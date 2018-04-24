@@ -29,7 +29,7 @@ import org.ballerinalang.docgen.model.GlobalVariableDoc;
 import org.ballerinalang.docgen.model.Link;
 import org.ballerinalang.docgen.model.PackageName;
 import org.ballerinalang.docgen.model.Page;
-import org.ballerinalang.docgen.model.StructDoc;
+import org.ballerinalang.docgen.model.RecordDoc;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
@@ -164,8 +164,8 @@ public class HtmlDocTest {
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 2);
         Assert.assertEquals(page.constructs.get(0).name, "GitHubClientConfig");
-        Assert.assertEquals(page.constructs.get(0).icon, "fw-struct");
-        Assert.assertTrue(page.constructs.get(0) instanceof StructDoc, "Invalid documentable type");
+        Assert.assertEquals(page.constructs.get(0).icon, "fw-record");
+        Assert.assertTrue(page.constructs.get(0) instanceof RecordDoc, "Invalid documentable type");
 
         Assert.assertEquals(page.constructs.get(1).name, "Client");
         Assert.assertEquals(page.constructs.get(1).icon, "fw-connector");
@@ -255,7 +255,7 @@ public class HtmlDocTest {
 
     @Test(description = "Objects in a package should be shown in the constructs with new docerina syntax")
     public void testObjectsWithNewSyntax() throws Exception {
-        BLangPackage bLangPackage = createPackage("documentation {Object Test\n" + "F{{url}} " +
+        BLangPackage bLangPackage = createPackage("documentation {\n    Object Test\n" + "F{{url}} " +
                 "endpoint url\n" + "F{{path}} a valid path\n" + "}\n" + "public type Test object {\n" + "    public " +
                 "{\n" + "        string url;\n" + "        string path;\n" + "    }\n" + "    private {\n" + "       " +
                 " string idx;\n" + "    }\n" + "    documentation {test1 function\n" + "    P{{x}} an integer\n" + " " +
@@ -453,15 +453,15 @@ public class HtmlDocTest {
                                                   "@Field {value:\"interval: Retry interval in millisecond\"}" +
                                                   "struct Message {int interval;int count;}");
 
-        StructDoc structDoc = Generator.createDocForNode(bLangPackage.getRecords().get(0));
-        Assert.assertEquals(structDoc.name, "Message", "Struct name should be extracted");
-        Assert.assertEquals(structDoc.description, "Message sent by the client", "Description of the " +
+        RecordDoc recordDoc = Generator.createDocForNode(bLangPackage.getRecords().get(0));
+        Assert.assertEquals(recordDoc.name, "Message", "Struct name should be extracted");
+        Assert.assertEquals(recordDoc.description, "Message sent by the client", "Description of the " +
                 "struct should be extracted");
 
         // Struct fields
-        Assert.assertEquals(structDoc.fields.get(0).name, "interval", "Struct field name should be extracted");
-        Assert.assertEquals(structDoc.fields.get(0).dataType, "int", "Struct field type should be extracted");
-        Assert.assertEquals(structDoc.fields.get(0).description, "Retry interval in millisecond",
+        Assert.assertEquals(recordDoc.fields.get(0).name, "interval", "Struct field name should be extracted");
+        Assert.assertEquals(recordDoc.fields.get(0).dataType, "int", "Struct field type should be extracted");
+        Assert.assertEquals(recordDoc.fields.get(0).description, "Retry interval in millisecond",
                 "Description of the struct field should be extracted");
     }
 
@@ -574,12 +574,12 @@ public class HtmlDocTest {
                                                   "}");
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
-        Assert.assertTrue(page.constructs.get(0) instanceof StructDoc, "Documentable of type StructDoc expected.");
-        StructDoc personStructDoc = (StructDoc) page.constructs.get(0);
-        Assert.assertEquals(personStructDoc.fields.size(), 2, "2 fields are expected.");
-        Assert.assertEquals(personStructDoc.fields.get(0).name, "id", "Field \"id\" expected.");
-        Assert.assertEquals(personStructDoc.fields.get(1).name, "address", "Field \"address\" expected.");
-        Assert.assertEquals(personStructDoc.fields.get(1).defaultValue, "20,Palm Grove",
+        Assert.assertTrue(page.constructs.get(0) instanceof RecordDoc, "Documentable of type RecordDoc expected.");
+        RecordDoc personRecordDoc = (RecordDoc) page.constructs.get(0);
+        Assert.assertEquals(personRecordDoc.fields.size(), 2, "2 fields are expected.");
+        Assert.assertEquals(personRecordDoc.fields.get(0).name, "id", "Field \"id\" expected.");
+        Assert.assertEquals(personRecordDoc.fields.get(1).name, "address", "Field \"address\" expected.");
+        Assert.assertEquals(personRecordDoc.fields.get(1).defaultValue, "20,Palm Grove",
                 "Unexpected address value found.");
     }
     
@@ -598,13 +598,13 @@ public class HtmlDocTest {
                                                   "}");
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
-        Assert.assertTrue(page.constructs.get(0) instanceof StructDoc, "Documentable of type StructDoc expected.");
-        StructDoc personStructDoc = (StructDoc) page.constructs.get(0);
-        Assert.assertEquals(personStructDoc.fields.size(), 2, "2 fields are expected.");
-        Assert.assertEquals(personStructDoc.fields.get(0).name, "id", "Field \"id\" expected.");
-        Assert.assertEquals(personStructDoc.fields.get(1).name, "address", "Field \"address\" expected.");
-        Assert.assertEquals(personStructDoc.fields.get(1).description, "The address of the person.");
-        Assert.assertEquals(personStructDoc.fields.get(1).dataType,
+        Assert.assertTrue(page.constructs.get(0) instanceof RecordDoc, "Documentable of type RecordDoc expected.");
+        RecordDoc personRecordDoc = (RecordDoc) page.constructs.get(0);
+        Assert.assertEquals(personRecordDoc.fields.size(), 2, "2 fields are expected.");
+        Assert.assertEquals(personRecordDoc.fields.get(0).name, "id", "Field \"id\" expected.");
+        Assert.assertEquals(personRecordDoc.fields.get(1).name, "address", "Field \"address\" expected.");
+        Assert.assertEquals(personRecordDoc.fields.get(1).description, "The address of the person.");
+        Assert.assertEquals(personRecordDoc.fields.get(1).dataType,
                 "struct {string address1, string address2, string state}");
     }
 

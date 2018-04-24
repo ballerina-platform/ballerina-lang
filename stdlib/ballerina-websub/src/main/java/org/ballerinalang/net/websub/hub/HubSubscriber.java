@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.websub.WebSubSubscriberConstants;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 
@@ -58,7 +59,7 @@ class HubSubscriber extends Consumer {
         BValue[] args = {new BString(callback),
                 subscriptionDetails,
                 new BJSON(new String(bytes, StandardCharsets.UTF_8))};
-        BLangFunctions.invokeCallable(programFile.getPackageInfo("websub.hub")
+        BLangFunctions.invokeCallable(programFile.getPackageInfo(WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH)
                                      .getFunctionInfo("distributeContent"), args);
     }
 

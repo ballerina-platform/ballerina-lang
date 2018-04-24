@@ -30,6 +30,10 @@ public class TopLevel extends CompletionTest {
         return new Object[][] {
                 {"topLevelNonEmptyFirstLine.json", "toplevel"},
                 {"topLevelEmptyFirstLine.json", "toplevel"},
+                {"endpointTypeCompletion1.json", "toplevel"},
+                {"endpointTypeCompletion2.json", "toplevel"},
+                {"endpointTypeCompletion3.json", "toplevel"},
+                {"endpointTypeCompletion4.json", "toplevel"},
         };
     }
 }

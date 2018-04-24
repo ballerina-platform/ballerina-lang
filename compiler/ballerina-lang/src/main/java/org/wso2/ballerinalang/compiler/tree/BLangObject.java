@@ -48,6 +48,7 @@ public class BLangObject extends BLangNode implements ObjectNode {
     public List<BLangDocumentation> docAttachments;
     public List<BLangDeprecatedNode> deprecatedAttachments;
     public boolean isAnonymous;
+    public boolean isFieldAnalyseRequired;
 
     public BSymbol symbol;
 

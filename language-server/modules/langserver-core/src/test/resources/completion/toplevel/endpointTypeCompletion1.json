@@ -1,0 +1,21 @@
+{
+  "position": {
+    "line": 3,
+    "character": 9
+  },
+  "source": "toplevel/source/endpointTypeCompletion1.bal",
+  "items": [
+    {
+      "label":"swagger",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"swagger"
+    },
+    {
+      "label":"http",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"http"
+    }
+  ]
+}

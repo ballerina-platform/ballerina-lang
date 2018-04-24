@@ -228,30 +228,23 @@ public class TypeChecker extends BLangNodeVisitor {
         BType literalType = symTable.getTypeFromTag(literalExpr.typeTag);
         if (this.expType.tag == TypeTags.FINITE) {
             BFiniteType expType = (BFiniteType) this.expType;
-            boolean foundMember = expType.valueSpace
-                    .stream()
-                    .map(memberLiteral -> {
-                        if (((BLangLiteral) memberLiteral).value == null) {
-                            return literalExpr.value == null;
-                        } else {
-                            return ((BLangLiteral) memberLiteral).value.equals(literalExpr.value);
-                        }
-                    })
-                    .anyMatch(found -> found);
-
-            boolean foundMemberType = expType.memberTypes
-                    .stream()
-                    .map(memberType -> types.isAssignable(literalType, memberType))
-                    .anyMatch(foundType -> foundType);
-
-            if (foundMember || foundMemberType) {
-                types.setImplicitCastExpr(literalExpr, literalType, symTable.anyType);
+            boolean foundMember = types.isAssignableToFiniteType(expType, literalExpr);
+            if (foundMember) {
+                types.setImplicitCastExpr(literalExpr, literalType, this.expType);
                 resultType = literalType;
-            } else {
-                dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, literalType);
-                resultType = symTable.errType;
+                return;
             }
-            return;
+        } else if (this.expType.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) this.expType;
+            boolean foundMember = unionType.memberTypes
+                    .stream()
+                    .map(memberType -> types.isAssignableToFiniteType(memberType, literalExpr))
+                    .anyMatch(foundType -> foundType);
+            if (foundMember) {
+                types.setImplicitCastExpr(literalExpr, literalType, this.expType);
+                resultType = literalType;
+                return;
+            }
         }
         resultType = types.checkType(literalExpr, literalType, expType);
     }
@@ -624,6 +617,12 @@ public class TypeChecker extends BLangNodeVisitor {
         // Look up operator symbol if both rhs and lhs types are error types
         if (lhsType != symTable.errType && rhsType != symTable.errType) {
             BSymbol opSymbol = symResolver.resolveBinaryOperator(binaryExpr.opKind, lhsType, rhsType);
+
+            if (opSymbol == symTable.notFoundSymbol) {
+                opSymbol = getBinaryEqualityForTypeSets(binaryExpr.opKind, lhsType, rhsType,
+                        binaryExpr);
+            }
+
             if (opSymbol == symTable.notFoundSymbol) {
                 dlog.error(binaryExpr.pos, DiagnosticCode.BINARY_OP_INCOMPATIBLE_TYPES,
                         binaryExpr.opKind, lhsType, rhsType);
@@ -634,6 +633,25 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(binaryExpr, actualType, expType);
+    }
+
+    private BSymbol getBinaryEqualityForTypeSets(OperatorKind opKind, BType lhsType,
+                                                 BType rhsType, BLangBinaryExpr binaryExpr) {
+        if (opKind != OperatorKind.EQUAL && opKind != OperatorKind.NOT_EQUAL) {
+            return symTable.notFoundSymbol;
+        }
+        if (types.isIntersectionExist(lhsType, rhsType)) {
+            if ((!types.isValueType(lhsType) && !types.isValueType(rhsType)) ||
+                    (types.isValueType(lhsType) && types.isValueType(rhsType))) {
+                return symResolver.createReferenceEqualityOperator(opKind, lhsType, rhsType);
+            } else {
+                types.setImplicitCastExpr(binaryExpr.rhsExpr, rhsType, symTable.anyType);
+                types.setImplicitCastExpr(binaryExpr.lhsExpr, lhsType, symTable.anyType);
+                return symResolver.createReferenceEqualityOperator(opKind, symTable.anyType, symTable.anyType);
+            }
+        } else {
+            return symTable.notFoundSymbol;
+        }
     }
 
     public void visit(BLangElvisExpr elvisExpr) {

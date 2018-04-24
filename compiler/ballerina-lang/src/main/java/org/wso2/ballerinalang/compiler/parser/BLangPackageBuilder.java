@@ -363,6 +363,8 @@ public class BLangPackageBuilder {
 
     private Stack<List<MatchExpressionPatternNode>> matchExprPatternNodeListStack = new Stack<>();
 
+    private Stack<Set<Whitespace>> operatorWs = new Stack<>();
+
     private BLangAnonymousModelHelper anonymousModelHelper;
     private CompilerOptions compilerOptions;
 
@@ -1448,12 +1450,13 @@ public class BLangPackageBuilder {
         objectNode.setName(this.createIdentifier(identifier));
         if (publicRecord) {
             objectNode.flagSet.add(Flag.PUBLIC);
+            objectNode.isFieldAnalyseRequired = true;
         }
 
         this.compUnit.addTopLevelNode(objectNode);
     }
 
-    void addAnonObjectType(DiagnosticPos pos, Set<Whitespace> ws) {
+    void addAnonObjectType(DiagnosticPos pos, Set<Whitespace> ws, boolean isFieldAnalyseRequired) {
         // Generate a name for the anonymous object
         String genName = anonymousModelHelper.getNextAnonymousObjectKey(pos.src.pkgID);
         IdentifierNode anonObjectGenName = createIdentifier(genName);
@@ -1461,6 +1464,7 @@ public class BLangPackageBuilder {
         // Create an anonymous object and add it to the list of objects in the current package.
         BLangObject objectNode = populateObjectNode(pos, ws, anonObjectGenName, true);
         objectNode.addFlag(Flag.PUBLIC);
+        objectNode.isFieldAnalyseRequired = isFieldAnalyseRequired;
         this.compUnit.addTopLevelNode(objectNode);
 
         addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), objectNode.name));
@@ -1990,8 +1994,13 @@ public class BLangPackageBuilder {
         assignmentNode.setVariable((BLangVariableReference) exprNodeStack.pop());
         assignmentNode.pos = pos;
         assignmentNode.addWS(ws);
+        assignmentNode.addWS(this.operatorWs.pop());
         assignmentNode.opKind = OperatorKind.valueFrom(operator);
         addStmtToCurrentBlock(assignmentNode);
+    }
+
+    public void addCompoundOperator(Set<Whitespace> ws) {
+        this.operatorWs.push(ws);
     }
 
     public void addPostIncrementStatement(DiagnosticPos pos, Set<Whitespace> ws, String operator) {
@@ -2108,25 +2117,22 @@ public class BLangPackageBuilder {
         transactionNode.setOnRetryBody(onretryBlock);
     }
 
-    public void endTransactionStmt(DiagnosticPos pos, Set<Whitespace> ws, boolean distributedTransactionEnabled) {
+    public void endTransactionStmt(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangTransaction transaction = (BLangTransaction) transactionNodeStack.pop();
         transaction.pos = pos;
         transaction.addWS(ws);
         addStmtToCurrentBlock(transaction);
 
-        if (distributedTransactionEnabled) {
-            // TODO This is a temporary workaround to flag coordinator service start
-            String value = compilerOptions.get(CompilerOptionName.TRANSACTION_EXISTS);
-            if (value != null) {
-                return;
-            }
-
-            compilerOptions.put(CompilerOptionName.TRANSACTION_EXISTS, "true");
-            List<String> nameComps = getPackageNameComps(Names.TRANSACTION_PACKAGE.value);
-            addImportPackageDeclaration(pos, null, Names.TRANSACTION_ORG.value,
-                    nameComps, Names.DEFAULT_VERSION.value,
-                    Names.DOT.value + nameComps.get(nameComps.size() - 1));
+        // TODO This is a temporary workaround to flag coordinator service start
+        String value = compilerOptions.get(CompilerOptionName.TRANSACTION_EXISTS);
+        if (value != null) {
+            return;
         }
+
+        compilerOptions.put(CompilerOptionName.TRANSACTION_EXISTS, "true");
+        List<String> nameComps = getPackageNameComps(Names.TRANSACTION_PACKAGE.value);
+        addImportPackageDeclaration(pos, null, Names.TRANSACTION_ORG.value, nameComps, Names.DEFAULT_VERSION.value,
+                Names.DOT.value + nameComps.get(nameComps.size() - 1));
     }
 
     public void addAbortStatement(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -2298,8 +2304,13 @@ public class BLangPackageBuilder {
     public void addServiceBody(Set<Whitespace> ws) {
         ServiceNode serviceNode = serviceNodeStack.peek();
         serviceNode.addWS(ws);
-        blockNodeStack.pop().getStatements()
-                .forEach(varDef -> serviceNode.addVariable((VariableDefinitionNode) varDef));
+        blockNodeStack.pop().getStatements().forEach(stmt -> {
+            if (stmt.getKind() == NodeKind.XMLNS) {
+                serviceNode.addNamespaceDeclaration((BLangXMLNSStatement) stmt);
+            } else {
+                serviceNode.addVariable((VariableDefinitionNode) stmt);
+            }
+        });
     }
 
     public void addAnonymousEndpointBind() {

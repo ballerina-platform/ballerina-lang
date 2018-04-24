@@ -70,7 +70,7 @@ public type Message object {
 
     documentation {Sets DeliveryMode JMS transport header to the message
         P{{mode}} The header value}
-    public native function setDeliveryMode(@sensitive int mode) returns error?;
+    public native function setDeliveryMode(int mode) returns error?;
 
     documentation {Get JMS transport header DeliveryMode from the message
         returns The header value" }
@@ -78,7 +78,7 @@ public type Message object {
 
     documentation {Sets Expiration JMS transport header to the message
         P{{value}} The header value}
-    public native function setExpiration(@sensitive int value) returns error?;
+    public native function setExpiration(int value) returns error?;
 
     documentation {Get JMS transport header Expiration from the message
         returns int: The header value}
@@ -87,7 +87,7 @@ public type Message object {
     documentation { Sets Type JMS transport header to the message
         P{{messageType}} The message type header value
         returns error if any JMS provider level internal error occur}
-    public native function setType(@sensitive string messageType) returns error?;
+    public native function setType(string messageType) returns error?;
 
     documentation { Get JMS transport header Type from the message
         returns The message type header value }
@@ -103,7 +103,7 @@ public type Message object {
 
     documentation {Sets Priority JMS transport header to the message
         P{{value}} The header value}
-    public native function setPriority(@sensitive int value) returns error?;
+    public native function setPriority(int value) returns error?;
 
     documentation {Get JMS transport header Priority from the message
         returns The header value}
@@ -115,7 +115,7 @@ public type Message object {
 
     documentation {Sets CorrelationID JMS transport header to the message
         P{{value}} The header value}
-    public native function setCorrelationID(@sensitive string value) returns error?;
+    public native function setCorrelationID(string value) returns error?;
 
     documentation {Get JMS transport header CorrelationID from the message
         returns The header value}

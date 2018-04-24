@@ -31,7 +31,7 @@ public type SimpleTopicSubscriber object {
     public function init(SimpleTopicSubscriberEndpointConfiguration config) {
         self.config = config;
         self.subscriber.init({
-                initialContextFactory:"wso2mbInitialContextFactory",
+                initialContextFactory:"bmbInitialContextFactory",
                 providerUrl:generateBrokerURL(config),
                 connectionFactoryName:config.connectionFactoryName,
                 acknowledgementMode:config.acknowledgementMode,

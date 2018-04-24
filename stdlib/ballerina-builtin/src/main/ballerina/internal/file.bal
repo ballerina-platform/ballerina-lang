@@ -32,7 +32,7 @@ public type Path object {
         string root;
     }
 
-    new (root) {
+    public new (root){
         init(root);
     }
 

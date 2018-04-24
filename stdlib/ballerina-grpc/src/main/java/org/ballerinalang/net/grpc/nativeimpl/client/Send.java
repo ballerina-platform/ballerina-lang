@@ -50,7 +50,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
         functionName = "send",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = GrpcConstants.GRPC_CLIENT,
                 structPackage = GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC),
-        args = {@Argument(name = "response", type = TypeKind.STRING)},
+        args = {@Argument(name = "res", type = TypeKind.ANY)},
         returnType = @ReturnType(type = TypeKind.STRUCT, structType = STRUCT_GENERIC_ERROR, structPackage =
                 PACKAGE_BUILTIN),
         isPublic = true

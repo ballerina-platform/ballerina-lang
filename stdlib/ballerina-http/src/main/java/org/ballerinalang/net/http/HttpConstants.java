@@ -52,7 +52,6 @@ public class HttpConstants {
     public static final String HTTP_VERSION = "HTTP_VERSION";
     public static final String LISTENER_PORT = "LISTENER_PORT";
     public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
-    public static final int HTTP_DEFAULT_PORT = 9090;
     public static final String TLS_STORE_TYPE = "tlsStoreType";
     public static final String PKCS_STORE_TYPE = "PKCS12";
     public static final String AUTO = "AUTO";
@@ -65,6 +64,7 @@ public class HttpConstants {
 
     public static final String HTTP_PACKAGE_PATH = "ballerina.http";
 
+    public static final String HTTP_REQUEST_METHOD = "method";
     public static final String HTTP_METHOD_GET = "GET";
     public static final String HTTP_METHOD_POST = "POST";
     public static final String HTTP_METHOD_PUT = "PUT";

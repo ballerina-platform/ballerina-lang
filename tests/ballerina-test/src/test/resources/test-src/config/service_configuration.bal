@@ -16,7 +16,7 @@ service<http:Service> hello bind backendEP{
     }
     sayHello (endpoint caller, http:Request request) {
         http:Response response = new;
-        response.setStringPayload("Hello World!!!");
+        response.setTextPayload("Hello World!!!");
         _ = caller -> respond(response);
     }
 }

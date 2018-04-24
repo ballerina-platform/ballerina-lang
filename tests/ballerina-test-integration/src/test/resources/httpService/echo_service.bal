@@ -15,11 +15,11 @@ service<http:Service> echo bind echoEP {
         path:"/"
     }
     echo (endpoint caller, http:Request req) {
-        var payload = req.getStringPayload();
+        var payload = req.getTextPayload();
         match payload {
             string payloadValue => {
                 http:Response resp = new;
-                resp.setStringPayload(payloadValue);
+                resp.setTextPayload(payloadValue);
                 _ = caller -> respond(resp);
             }
             any | () => {

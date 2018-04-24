@@ -23,7 +23,6 @@ import org.ballerinalang.composer.server.core.Server;
 import org.ballerinalang.composer.server.core.ServerConfig;
 import org.ballerinalang.composer.server.launcher.browser.BrowserLauncher;
 import org.ballerinalang.composer.server.launcher.command.ServerCommand;
-import org.ballerinalang.composer.server.launcher.log.LogManagerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +31,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
 
 /**
  * Launcher for ballerina composer backend server.
@@ -48,14 +49,13 @@ public class ServerLauncher {
     private static Logger logger;
 
     static {
-        try {
-            // Update the default log manager.
-            LogManagerUtils composerLogManagerUtils = new LogManagerUtils();
-            composerLogManagerUtils.updateLogManager();
-            logger = LoggerFactory.getLogger(ServerLauncher.class);
-        } catch (IOException e) {
-            logger.debug("Error occurred while setting logging properties.", e);
-        }
+        initLogger();
+        logger = LoggerFactory.getLogger(ServerLauncher.class);
+    }
+
+    public static void initLogger() {
+        java.util.logging.Logger rootLogger = LogManager.getLogManager().getLogger("");
+        rootLogger.setLevel(Level.OFF);
     }
 
     public static void main(String[] args) {
@@ -117,7 +117,8 @@ public class ServerLauncher {
             PrintStream err = System.err;
             err.println("Error: Looks like you may be running the Ballerina composer already ?");
             err.println(String.format("In any case, it appears someone is already using port %d, " +
-                    "please kick them out or tell me a different port to use.", config.getPort()));
+                                              "please kick them out or tell me a different port to use.",
+                                      config.getPort()));
             printUsage();
             System.exit(1);
         }
@@ -197,8 +198,7 @@ public class ServerLauncher {
     }
 
     /**
-     * return a available port from the seed port.
-     * If the seed port is available it will return that.
+     * return a available port from the seed port. If the seed port is available it will return that.
      *
      * @param seed to check port
      * @return seed

@@ -21,7 +21,7 @@ public type AuthHandlerRegistry object {
     private {
         map<HttpAuthnHandler> httpAuthHandlers;
     }
-    new () {
+    public new () {
     }
     public function add (string id, HttpAuthnHandler authnHandler);
     public function get (string id) returns HttpAuthnHandler?;

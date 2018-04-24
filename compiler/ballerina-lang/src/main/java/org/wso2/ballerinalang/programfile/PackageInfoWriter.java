@@ -301,10 +301,6 @@ public class PackageInfoWriter {
         dataOutStream.writeInt(typeDefinitionInfo.flags);
         ValueSpaceItemInfo[] valueSpaceItemInfos = typeDefinitionInfo.
                 valueSpaceItemInfos.toArray(new ValueSpaceItemInfo[0]);
-        dataOutStream.writeShort(typeDefinitionInfo.typeDescCPIndexes.size());
-        for (int typeDescCPindex : typeDefinitionInfo.typeDescCPIndexes) {
-            dataOutStream.writeInt(typeDescCPindex);
-        }
 
         dataOutStream.writeShort(valueSpaceItemInfos.length);
         for (ValueSpaceItemInfo valueSpaceItem : valueSpaceItemInfos) {

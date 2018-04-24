@@ -196,7 +196,7 @@ $JAVACMD \
 	-classpath "$BALLERINA_CLASSPATH" \
 	-Dballerina.home=$BALLERINA_HOME \
 	-Dballerina.version=${project.version} \
-	-Djava.util.logging.config.file="$BALLERINA_HOME/bre/conf/logging.properties" \
+	-Djava.util.logging.config.class="org.ballerinalang.logging.util.LogConfigReader" \
 	-Djava.util.logging.manager="org.ballerinalang.logging.BLogManager" \
 	-Denable.nonblocking=false \
 	-Djava.security.egd=file:/dev/./urandom \

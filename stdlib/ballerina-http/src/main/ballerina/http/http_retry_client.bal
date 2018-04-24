@@ -262,7 +262,7 @@ function performRetryAction (@sensitive string path, Request request, HttpOperat
     var mimeEntity = inRequest.getEntity();
     match mimeEntity {
         mime:Entity entity => requestEntity = entity;
-        mime:EntityError => io:println("mimeEntity null");
+        error => io:println("mimeEntity null");
     }
 
     while(currentRetryCount < (retryCount + 1)) {

@@ -459,6 +459,7 @@ class HttpClient extends React.Component {
                 selection
                 placeholder='Select path'
                 options={urlItems}
+                value={this.state.appendUrl}
                 defaultValue={this.state.appendUrl}
                 onChange={this.onAppendUrlChange}
                 className='paths-dropdown'
@@ -523,8 +524,9 @@ class HttpClient extends React.Component {
                                         selection
                                         options={this.state.httpMethods}
                                         onChange={this.onHttpMethodChanged}
-                                        defaultValue={this.state.httpMethod}
+                                        value={this.state.httpMethod}
                                         className='select-method'
+                                        defaultValue={this.state.httpMethod}
                                     />
                                     <Select
                                         search
@@ -537,6 +539,7 @@ class HttpClient extends React.Component {
                                         }
                                         onChange={this.onChangeUrl}
                                         value={this.state.baseUrl}
+                                        defaultValue={this.state.baseUrl}
                                     />
                                     {pathsDropdown}
                                     {sendOrCancelButton}
@@ -762,6 +765,27 @@ class HttpClient extends React.Component {
                                                                     )}
 
                                                                 </div>
+                                                                <h4>Response Body</h4>
+                                                                <div className='body-content'>
+                                                                    <AceEditor
+                                                                        mode={this.getResponseBodyMode()}
+                                                                        theme='monokai'
+                                                                        name='ResponseBody'
+                                                                        value={this.state.responseBody}
+                                                                        editorProps={{
+                                                                            $blockScrolling: Infinity,
+                                                                        }}
+                                                                        setOptions={{
+                                                                            showLineNumbers: false,
+                                                                        }}
+                                                                        maxLines={Infinity}
+                                                                        minLines={10}
+                                                                        readOnly
+                                                                        width='auto'
+                                                                        showPrintMargin={false}
+                                                                    />
+                                                                </div>
+                                                                <Divider />
                                                                 <div className='request-headers'>
                                                                     <h4>Request Headers</h4>
                                                                     {this.state.returnedRequestHeaders.length > 0 ? (
@@ -784,31 +808,6 @@ class HttpClient extends React.Component {
                                                                         />
                                                                     )}
                                                                 </div>
-                                                            </div>
-                                                        </Form.Field>
-                                                    </Form.Group>
-                                                    <Form.Group>
-                                                        <Form.Field width={16} className='http-client-response-attributes'>
-                                                            <label htmlFor='body-content'>Body</label>
-                                                            <Divider />
-                                                            <div className='body-content'>
-                                                                <AceEditor
-                                                                    mode={this.getResponseBodyMode()}
-                                                                    theme='monokai'
-                                                                    name='ResponseBody'
-                                                                    value={this.state.responseBody}
-                                                                    editorProps={{
-                                                                        $blockScrolling: Infinity,
-                                                                    }}
-                                                                    setOptions={{
-                                                                        showLineNumbers: false,
-                                                                    }}
-                                                                    maxLines={Infinity}
-                                                                    minLines={10}
-                                                                    readOnly
-                                                                    width='auto'
-                                                                    showPrintMargin={false}
-                                                                />
                                                             </div>
                                                         </Form.Field>
                                                     </Form.Group>

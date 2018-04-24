@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
@@ -41,8 +42,6 @@ import static org.ballerinalang.util.tracer.TraceConstants.KEY_SPAN;
 public class ObservabilityUtils {
 
     private static final List<BallerinaObserver> observers = new CopyOnWriteArrayList<>();
-
-    private static final ObserverContext emptyContext = new ObserverContext();
 
     private static final boolean enabled;
 
@@ -88,12 +87,13 @@ public class ObservabilityUtils {
      *                         observation, the
      *                         {@link #continueServerObservation(ObserverContext, WorkerExecutionContext)}
      *                          method must be called later with relevant {@link ObserverContext}
-     * @return An {@link ObserverContext} instance.
+     * @return An {@link Optional} {@link ObserverContext} instance.
      */
-    public static ObserverContext startServerObservation(String connectorName, String serviceName,
-                                                         String resourceName, WorkerExecutionContext parentContext) {
+    public static Optional<ObserverContext> startServerObservation(String connectorName, String serviceName,
+                                                                   String resourceName,
+                                                                   WorkerExecutionContext parentContext) {
         if (!enabled) {
-            return null;
+            return Optional.empty();
         }
         Objects.requireNonNull(connectorName);
         ObserverContext ctx = new ObserverContext();
@@ -103,7 +103,7 @@ public class ObservabilityUtils {
         if (parentContext != null) {
             continueServerObservation(ctx, parentContext);
         }
-        return ctx;
+        return Optional.of(ctx);
     }
 
     /**
@@ -115,12 +115,12 @@ public class ObservabilityUtils {
      *                         observation, the
      *                         {@link #continueClientObservation(ObserverContext, WorkerExecutionContext)}
      *                         method must be called later with relevant {@link ObserverContext}
-     * @return An {@link ObserverContext} instance.
+     * @return An {@link Optional} of {@link ObserverContext} instance.
      */
-    public static ObserverContext startClientObservation(String connectorName, String actionName,
-                                                         WorkerExecutionContext parentCtx) {
+    public static Optional<ObserverContext> startClientObservation(String connectorName, String actionName,
+                                                                   WorkerExecutionContext parentCtx) {
         if (!enabled) {
-            return null;
+            return Optional.empty();
         }
         Objects.requireNonNull(connectorName);
         ObserverContext ctx = new ObserverContext();
@@ -129,7 +129,7 @@ public class ObservabilityUtils {
         if (parentCtx != null) {
             continueClientObservation(ctx, parentCtx);
         }
-        return ctx;
+        return Optional.of(ctx);
     }
 
     /**
@@ -194,9 +194,9 @@ public class ObservabilityUtils {
      * @return the parent {@link ObserverContext} or a new {@link ObserverContext} depending on whether observability
      * is enabled or not.
      */
-    public static ObserverContext getParentContext(Context context) {
-        return enabled ? populateAndGetParentObserverContext(context.getParentWorkerExecutionContext())
-                : new ObserverContext();
+    public static Optional<ObserverContext> getParentContext(Context context) {
+        return enabled ? Optional.of(populateAndGetParentObserverContext(context.getParentWorkerExecutionContext()))
+                : Optional.empty();
     }
 
     public static Map<String, String> getContextProperties(ObserverContext observerContext) {

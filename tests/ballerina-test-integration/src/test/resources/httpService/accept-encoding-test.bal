@@ -36,7 +36,7 @@ service<http:Service> passthrough bind passthroughEP {
                 http:HttpConnectorError err => {
                     http:Response res = new;
                     res.statusCode = 500;
-                    res.setStringPayload(err.message);
+                    res.setTextPayload(err.message);
                     _ = caller -> respond(res);
                 }
             }
@@ -49,7 +49,7 @@ service<http:Service> passthrough bind passthroughEP {
                 http:HttpConnectorError err => {
                     http:Response res = new;
                     res.statusCode = 500;
-                    res.setStringPayload(err.message);
+                    res.setTextPayload(err.message);
                     _ = caller -> respond(res);
                 }
             }
@@ -62,7 +62,7 @@ service<http:Service> passthrough bind passthroughEP {
                 http:HttpConnectorError err => {
                     http:Response res = new;
                     res.statusCode = 500;
-                    res.setStringPayload(err.message);
+                    res.setTextPayload(err.message);
                     _ = caller -> respond(res);
                 }
             }

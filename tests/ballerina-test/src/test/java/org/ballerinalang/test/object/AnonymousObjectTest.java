@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.test.object;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -132,5 +133,32 @@ public class AnonymousObjectTest {
 
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 8);
         Assert.assertEquals(returns[1].stringValue(), "sanjiva");
+    }
+
+    @Test(description = "Test object with self reference")
+    public void testObjectWithSelfReference() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectWithSelfReference");
+
+        Assert.assertEquals(returns.length, 2);
+
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertTrue(returns[1] instanceof BString);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 98);
+        Assert.assertEquals(returns[1].stringValue(), "Tyler Jewell");
+    }
+
+    @Test (description = "Negative test to test un-defaultable anon object")
+    public void testUndefaultableAnonObject() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_un_defaultable_anon.bal");
+        Assert.assertEquals(result.getErrorCount(), 6);
+        BAssertUtil.validateError(result, 0, "variable 'p1' is not initialized", 2, 1);
+        BAssertUtil.validateError(result, 1, "variable 'p2' is not initialized", 3, 1);
+        BAssertUtil.validateError(result, 2, "cannot initialize object '$anonObject$2', " +
+                "no implementation for the interface '$anonObject$2.test'", 4, 62);
+        BAssertUtil.validateError(result, 3, "variable 'p4' is not initialized", 7, 5);
+        BAssertUtil.validateError(result, 4, "variable 'p5' is not initialized", 8, 5);
+        BAssertUtil.validateError(result, 5, "cannot initialize object '$anonObject$5', " +
+                "no implementation for the interface '$anonObject$5.test'", 9, 66);
     }
 }

@@ -33,8 +33,8 @@ import org.ballerinalang.docgen.model.Link;
 import org.ballerinalang.docgen.model.PackageName;
 import org.ballerinalang.docgen.model.Page;
 import org.ballerinalang.docgen.model.PrimitiveTypeDoc;
+import org.ballerinalang.docgen.model.RecordDoc;
 import org.ballerinalang.docgen.model.StaticCaption;
-import org.ballerinalang.docgen.model.StructDoc;
 import org.ballerinalang.docgen.model.Variable;
 import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
@@ -70,7 +70,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.stream.Collectors;
 
 /**
@@ -227,11 +226,11 @@ public class Generator {
      */
     public static Page generatePageForPrimitives(BLangPackage balPackage, List<Link> packages, List<Link> primitives) {
         ArrayList<Documentable> primitiveTypes = new ArrayList<>();
-        Properties descriptions = BallerinaDocUtils.loadPrimitivesDescriptions();
+        List<String> descriptions = BallerinaDocUtils.loadPrimitivesDescriptions(false);
 
         for (Link primitiveType : primitives) {
             String type = primitiveType.caption.value;
-            String desc = descriptions.getProperty(type);
+            String desc = BallerinaDocUtils.getPrimitiveDescription(descriptions, type);
             primitiveTypes.add(new PrimitiveTypeDoc(type, desc != null && !desc.isEmpty() ? BallerinaDocUtils
                     .mdToHtml(desc) : desc, new ArrayList<>()));
         }
@@ -251,7 +250,7 @@ public class Generator {
                         if (existingPrimitiveType.isPresent()) {
                             primitiveTypeDoc = existingPrimitiveType.get();
                         } else {
-                            String desc = descriptions.getProperty(langType.toString());
+                            String desc = BallerinaDocUtils.getPrimitiveDescription(descriptions, langType.toString());
                             primitiveTypeDoc = new PrimitiveTypeDoc(langType.toString(), desc != null && !desc
                                     .isEmpty() ? BallerinaDocUtils.mdToHtml(desc) : desc, new ArrayList<>());
                             primitiveTypes.add(primitiveTypeDoc);
@@ -435,7 +434,7 @@ public class Generator {
      * @param structNode ballerina struct node.
      * @return documentation for structs.
      */
-    public static StructDoc createDocForNode(BLangRecord structNode) {
+    public static RecordDoc createDocForNode(BLangRecord structNode) {
         String structName = structNode.getName().getValue();
         // Check if its an anonymous struct
         if (structName.contains(ANONYMOUS_STRUCT)) {
@@ -448,7 +447,7 @@ public class Generator {
             getFields(structNode, structNode.fields, fields);
         }
 
-        return new StructDoc(structName, description(structNode), new ArrayList<>(), fields);
+        return new RecordDoc(structName, description(structNode), new ArrayList<>(), fields);
     }
 
     private static void getFields(BLangNode node, List<BLangVariable> allFields, List<Field> fields) {

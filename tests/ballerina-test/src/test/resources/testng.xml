@@ -43,6 +43,7 @@ under the License.
                 <exclude name="org.ballerinalang.test.statements.transform.*"/>
             </package>
             <package name="org.ballerinalang.test.types.*"/>
+            <package name="org.ballerinalang.test.access.*"/>
             <package name="org.ballerinalang.test.functions.*"/>
             <package name="org.ballerinalang.test.worker.*"/>
             <package name="org.ballerinalang.test.nativeimpl.*"/>

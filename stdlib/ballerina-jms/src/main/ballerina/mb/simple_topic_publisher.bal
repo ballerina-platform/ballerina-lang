@@ -29,7 +29,7 @@ public type SimpleTopicPublisher object {
 
     public function init(SimpleTopicPublisherEndpointConfiguration config) {
         endpoint jms:SimpleTopicPublisher topicPublisher {
-            initialContextFactory:"wso2mbInitialContextFactory",
+            initialContextFactory:"bmbInitialContextFactory",
             providerUrl:generateBrokerURL(config),
             connectionFactoryName:"ConnectionFactory",
             acknowledgementMode:config.acknowledgementMode,

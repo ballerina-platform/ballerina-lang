@@ -86,7 +86,7 @@ public type SimpleTopicPublisher object {
 };
 
 public type SimpleTopicPublisherEndpointConfiguration {
-    string initialContextFactory = "wso2mbInitialContextFactory";
+    string initialContextFactory = "bmbInitialContextFactory";
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";

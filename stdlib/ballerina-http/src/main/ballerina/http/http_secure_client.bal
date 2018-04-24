@@ -315,8 +315,8 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     Request refreshTokenRequest;
     refreshTokenRequest.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + base64ClientIdSecret);
     refreshTokenRequest.addHeader(CONTENT_TYPE_HEADER, mime:APPLICATION_FORM_URLENCODED);
-    refreshTokenRequest.setStringPayload("grant_type=refresh_token&refresh_token=" + refreshToken);
-    refreshTokenRequest.setStringPayload(requestParams);
+    refreshTokenRequest.setTextPayload("grant_type=refresh_token&refresh_token=" + refreshToken);
+    refreshTokenRequest.setTextPayload(requestParams);
     refreshTokenRequestPath = refreshTokenRequestPath + "?" + requestParams;
     var refreshTokenResponse = refreshTokenClient.post(refreshTokenRequestPath, request = refreshTokenRequest);
     Response tokenResponse;

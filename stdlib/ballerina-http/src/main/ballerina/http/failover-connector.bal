@@ -334,7 +334,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
     var mimeEntity = failoverRequest.getEntity();
     match mimeEntity {
         mime:Entity entity => requestEntity = entity;
-        mime:EntityError => io:println("mimeEntity null");
+        error err=> io:println(err.message);
     }
     while (startIndex != currentIndex) {
         startIndex = initialIndex;
@@ -347,7 +347,9 @@ function performFailoverAction (string path, Request request, HttpOperation requ
                 if (failoverCodeIndex[httpStatusCode] == true) {
                     if (noOfEndpoints > currentIndex) {
                         Request newOutRequest = new;
+                        populateRequestFields(failoverRequest, newOutRequest);
                         newOutRequest.setEntity(requestEntity);
+                        failoverRequest = newOutRequest;
                         runtime:sleep(failoverInterval);
                         failoverClient = failoverClients[currentIndex];
                         populateFailoverErrorHttpStatusCodes(inResponse, failoverConnectorError, currentIndex - 1);
@@ -361,6 +363,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
             }
             HttpConnectorError httpConnectorError => {
                 Request newOutRequest = new;
+                populateRequestFields(failoverRequest, newOutRequest);
                 newOutRequest.setEntity(requestEntity);
                 failoverRequest = newOutRequest;
                 if (noOfEndpoints > currentIndex) {

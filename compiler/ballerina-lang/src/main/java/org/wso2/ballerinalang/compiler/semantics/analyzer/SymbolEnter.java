@@ -22,6 +22,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -59,6 +60,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
@@ -411,21 +413,38 @@ public class SymbolEnter extends BLangNodeVisitor {
                 names.fromIdNode(typeDefinition.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         typeDefinition.symbol = typeDefSymbol;
 
-        HashSet<BType> memberTypes = new HashSet<>();
-        HashSet<BLangExpression> resultSet = new HashSet<>();
-
+        HashSet<BLangExpression> valueSpace = new HashSet<>();
         for (BLangExpression literal : typeDefinition.valueSpace) {
             BType literalType = symTable.getTypeFromTag(((BLangLiteral) literal).typeTag);
             ((BLangLiteral) literal).type = literalType;
-            resultSet.add(literal);
+            valueSpace.add(literal);
         }
+        BFiniteType finiteType = new BFiniteType((BTypeSymbol) typeDefSymbol, valueSpace);
 
+        BType definedType = symTable.noType;
         if (typeDefinition.typeNode != null) {
-            BType definedType = symResolver.resolveTypeNode(typeDefinition.typeNode, env);
-            memberTypes.add(definedType);
+            definedType = symResolver.resolveTypeNode(typeDefinition.typeNode, env);
         }
 
-        typeDefinition.symbol.type = new BFiniteType((BTypeSymbol) typeDefSymbol, memberTypes, resultSet);
+        if (definedType == symTable.noType) {
+            typeDefinition.symbol.type = finiteType;
+        } else if (definedType.tag == TypeTags.UNION) {
+            if (!valueSpace.isEmpty()) {
+                ((BUnionType) definedType).memberTypes.add(finiteType);
+            }
+            typeDefinition.symbol.type = definedType;
+        } else {
+            if (!valueSpace.isEmpty()) {
+                Set<BType> memberTypes = new HashSet<>();
+                memberTypes.add(definedType);
+                memberTypes.add(finiteType);
+                typeDefinition.symbol.type = new BUnionType(null, memberTypes,
+                        memberTypes.contains(symTable.nilType));
+            } else {
+                typeDefinition.symbol.type = definedType;
+            }
+        }
+
         defineSymbol(typeDefinition.pos, typeDefSymbol);
     }
 
@@ -484,37 +503,29 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangFunction funcNode) {
         boolean validAttachedFunc = validateFuncReceiver(funcNode);
         if (funcNode.attachedOuterFunction) {
+            if (funcNode.receiver.type.tsymbol.kind == SymbolKind.RECORD) {
+                dlog.error(funcNode.pos, DiagnosticCode.CANNOT_ATTACH_FUNCTIONS_TO_RECORDS, funcNode.name,
+                        funcNode.receiver.type.tsymbol.name);
+                createDummyFunctionSymbol(funcNode);
+                visitObjectAttachedFunction(funcNode);
+                return;
+            }
             SymbolEnv objectEnv = SymbolEnv.createObjectEnv(null, funcNode.receiver.type.
                     tsymbol.scope, env);
             BSymbol funcSymbol = symResolver.lookupSymbol(objectEnv, getFuncSymbolName(funcNode), SymTag.FUNCTION);
             if (funcSymbol == symTable.notFoundSymbol) {
                 dlog.error(funcNode.pos, DiagnosticCode.CANNOT_FIND_MATCHING_FUNCTION, funcNode.name,
                         funcNode.receiver.type.tsymbol.name);
-                // This is only to keep the flow running so that at the end there will be proper semantic errors
-                funcNode.symbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
-                        getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner, true);
-                funcNode.symbol.scope = new Scope(funcNode.symbol);
-            } else {
-                funcNode.symbol = (BInvokableSymbol) funcSymbol;
-                if (funcNode.symbol.bodyExist) {
-                    dlog.error(funcNode.pos, DiagnosticCode.IMPLEMENTATION_ALREADY_EXIST, funcNode.name);
-                }
-                validateAttachedFunction(funcNode, funcNode.receiver.type.tsymbol.name);
-            }
-            //TODO check function parameters and return types
-            SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
-
-            invokableEnv.scope = funcNode.symbol.scope;
-            defineObjectAttachedInvokableSymbolParams(funcNode, invokableEnv);
-
-            if (env.enclPkg.objAttachedFunctions.contains(funcNode.symbol)) {
-                dlog.error(funcNode.pos, DiagnosticCode.IMPLEMENTATION_ALREADY_EXIST, funcNode.name);
+                createDummyFunctionSymbol(funcNode);
+                visitObjectAttachedFunction(funcNode);
                 return;
             }
-
-            env.enclPkg.objAttachedFunctions.add(funcNode.symbol);
-
-            funcNode.receiver.symbol = funcNode.symbol.receiverSymbol;
+            funcNode.symbol = (BInvokableSymbol) funcSymbol;
+            if (funcNode.symbol.bodyExist) {
+                dlog.error(funcNode.pos, DiagnosticCode.IMPLEMENTATION_ALREADY_EXIST, funcNode.name);
+            }
+            validateAttachedFunction(funcNode, funcNode.receiver.type.tsymbol.name);
+            visitObjectAttachedFunction(funcNode);
             return;
         }
         BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
@@ -525,6 +536,30 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (funcNode.receiver != null) {
             defineAttachedFunctions(funcNode, funcSymbol, invokableEnv, validAttachedFunc);
         }
+    }
+
+    private void createDummyFunctionSymbol(BLangFunction funcNode) {
+        // This is only to keep the flow running so that at the end there will be proper semantic errors
+        funcNode.symbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
+                getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner, true);
+        funcNode.symbol.scope = new Scope(funcNode.symbol);
+    }
+
+    private void visitObjectAttachedFunction(BLangFunction funcNode) {
+        //TODO check function parameters and return types
+        SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+
+        invokableEnv.scope = funcNode.symbol.scope;
+        defineObjectAttachedInvokableSymbolParams(funcNode, invokableEnv);
+
+        if (env.enclPkg.objAttachedFunctions.contains(funcNode.symbol)) {
+            dlog.error(funcNode.pos, DiagnosticCode.IMPLEMENTATION_ALREADY_EXIST, funcNode.name);
+            return;
+        }
+
+        env.enclPkg.objAttachedFunctions.add(funcNode.symbol);
+
+        funcNode.receiver.symbol = funcNode.symbol.receiverSymbol;
     }
 
     private void validateAttachedFunction(BLangFunction funcNode, Name objName) {
@@ -999,6 +1034,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void defineServiceMembers(List<BLangService> services, SymbolEnv pkgEnv) {
         services.forEach(service -> {
             SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(service, service.symbol.scope, pkgEnv);
+            service.nsDeclarations.forEach(xmlns -> defineNode(xmlns, serviceEnv));
             service.vars.forEach(varDef -> defineNode(varDef.var, serviceEnv));
             defineServiceInitFunction(service, serviceEnv);
             service.resources.stream()
@@ -1163,11 +1199,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         object.functions.forEach(f -> f.setReceiver(createReceiver(object.pos, object.name)));
 
         initFunction.flagSet.add(Flag.ATTACHED);
-
-        //Add object level variables to the init function
-        BLangFunction finalInitFunction = initFunction;
-        object.fields.stream().filter(f -> f.expr != null).forEachOrdered(v -> finalInitFunction.initFunctionStmts
-                .put(v.symbol, (BLangStatement) createObjectAssignmentStmt(v, receiver)));
 
         object.initFunction = initFunction;
 
