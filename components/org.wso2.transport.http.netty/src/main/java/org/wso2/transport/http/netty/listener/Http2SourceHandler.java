@@ -53,6 +53,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Map;
 
+import static io.netty.handler.codec.http2.Http2CodecUtil.getEmbeddedHttp2Exception;
 import static org.wso2.transport.http.netty.common.Util.safelyRemoveHandlers;
 
 /**
@@ -143,6 +144,18 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
             HttpCarbonRequest requestCarbonMessage = setupCarbonRequest(httpRequest);
             requestCarbonMessage.addHttpContent(new DefaultLastHttpContent(upgradedRequest.content()));
             notifyRequestListener(requestCarbonMessage, 1);
+        }
+    }
+
+    @Override
+    public void onError(ChannelHandlerContext ctx, Throwable cause) {
+        Http2Exception embedded = getEmbeddedHttp2Exception(cause);
+        if (embedded instanceof Http2Exception.ClosedStreamCreationException) {
+            // We will end up here if we try to write to a already rejected stream
+            log.warn("Stream creation failed, {}, {}",
+                     Constants.PROMISED_STREAM_REJECTED_ERROR, embedded.getMessage());
+        } else {
+            super.onError(ctx, cause);
         }
     }
 
