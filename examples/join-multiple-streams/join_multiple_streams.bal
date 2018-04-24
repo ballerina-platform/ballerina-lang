@@ -88,7 +88,7 @@ service productMaterialService bind productMaterialListener {
             http:PayloadError err => {
                 http:Response res = new;
                 res.statusCode = 500;
-                res.setStringPayload(err.message);
+                res.setPayload(err.message);
                 _ = outboundEP->respond(res);
             }
         }
@@ -113,7 +113,7 @@ service productMaterialService bind productMaterialListener {
             http:PayloadError err => {
                 http:Response res = new;
                 res.statusCode = 500;
-                res.setStringPayload(err.message);
+                res.setPayload(err.message);
                 _ = outboundEP->respond(res);
             }
         }
