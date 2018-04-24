@@ -1,5 +1,5 @@
-#At the command line, navigate to the directory that contains the 
-#`.bal` file and run the `ballerina run` command.
+# At the command line, navigate to the directory that contains the
+# `.bal` file and run the `ballerina run` command.
 $ ballerina run local_transactions.bal
 ballerina: started HTTP/WS endpoint 172.17.0.1:43925
 2018-04-23 23:31:12,227 INFO  [] - CUSTOMER table create status in DB:0

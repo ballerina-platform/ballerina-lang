@@ -9,23 +9,23 @@ function main(string... args) {
         name:"testdb",
         username:"root",
         password:"root",
-        poolOptions:{maximumPoolSize:5}
+        poolOptions:{ maximumPoolSize:5 }
     };
 
     // Create the tables required for the transaction.
     var ret = testDBEP->update("CREATE TABLE IF NOT EXISTS CUSTOMER (ID INT, NAME VARCHAR(30))");
     match ret {
-        int retInt => io:println("CUSTOMER table create status in DB:" + retInt);
+        int retInt => io:println("CUSTOMER table create status in DB: " + retInt);
         error err => {
-            handleError("CUSTOMER table Creation failed:", err, testDBEP);
+            handleError("CUSTOMER table Creation failed: ", err, testDBEP);
             return;
         }
     }
     ret = testDBEP->update("CREATE TABLE IF NOT EXISTS SALARY (ID INT, MON_SALARY FLOAT)");
     match ret {
-        int retInt => io:println("SALARY table create status in DB:" + retInt);
+        int retInt => io:println("SALARY table create status in DB: " + retInt);
         error err => {
-            handleError("SALARY table Creation failed:", err, testDBEP);
+            handleError("SALARY table Creation failed: ", err, testDBEP);
             return;
         }
     }
