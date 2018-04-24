@@ -210,8 +210,6 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
     private void notifyCloseMessage(CloseWebSocketFrame closeWebSocketFrame) throws ServerConnectorException {
         String reasonText = closeWebSocketFrame.reasonText();
         int statusCode = closeWebSocketFrame.statusCode();
-        ctx.channel().close();
-        webSocketConnection.getDefaultWebSocketSession().setIsOpen(false);
         WebSocketMessageImpl webSocketCloseMessage = new WebSocketCloseMessageImpl(statusCode, reasonText);
         closeWebSocketFrame.release();
         setupCommonProperties(webSocketCloseMessage);

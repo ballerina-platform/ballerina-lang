@@ -172,11 +172,7 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
         } else if (frame instanceof PingWebSocketFrame) {
             notifyPingMessage((PingWebSocketFrame) frame, ctx);
         } else if (frame instanceof CloseWebSocketFrame) {
-            if (webSocketConnection != null) {
-                webSocketConnection.getDefaultWebSocketSession().setIsOpen(false);
-            }
             notifyCloseMessage((CloseWebSocketFrame) frame, ctx);
-            ch.close();
         } else if (frame instanceof ContinuationWebSocketFrame) {
             ContinuationWebSocketFrame conframe = (ContinuationWebSocketFrame) msg;
             switch (continuationFrameType) {
@@ -211,11 +207,9 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
             throws ServerConnectorException {
         String reasonText = closeWebSocketFrame.reasonText();
         int statusCode = closeWebSocketFrame.statusCode();
-        ctx.channel().close();
         if (webSocketConnection == null) {
             throw new ServerConnectorException("Cannot find initialized channel session");
         }
-        webSocketConnection.getDefaultWebSocketSession().setIsOpen(false);
         WebSocketMessageImpl webSocketCloseMessage = new WebSocketCloseMessageImpl(statusCode, reasonText);
         closeWebSocketFrame.release();
         setupCommonProperties(webSocketCloseMessage, ctx);
