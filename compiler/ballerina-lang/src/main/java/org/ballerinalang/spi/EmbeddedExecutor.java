@@ -24,6 +24,6 @@ package org.ballerinalang.spi;
  */
 public interface EmbeddedExecutor {
 
-    void execute(String cmdType, String... args);
+    void execute(String balxPath, boolean isFunction, String... args);
 
 }

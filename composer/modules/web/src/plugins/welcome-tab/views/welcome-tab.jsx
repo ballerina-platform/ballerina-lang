@@ -214,12 +214,8 @@ class WelcomeTab extends React.Component {
                         </Grid.Column> */}
                     </Grid.Column>
                     <Grid.Column mobile={9} tablet={11} computer={13} className='rightContainer'>
-                        <div className='ballerina-by-example'>
-                            <h2>Ballerina by Example</h2>
-                            <p>Ballerina by Example enables you to have complete coverage over the language, while emphasizing incremental learning. This is a series of commented example programs.</p>
-                            
-                        </div>
-                        <Grid padded>
+                        <h2>Examples</h2>
+                        <Grid>
                             <Grid.Row columns={4} className='sample-wrapper'>
                                 <Grid.Column mobile={16} tablet={16} computer={4} className=''>
                                     {samples[0].map(column => this.renderColumnItem(column))}

@@ -448,12 +448,13 @@ public class BLangPackageBuilder {
         recordNode.setName(this.createIdentifier(identifier));
         if (publicRecord) {
             recordNode.flagSet.add(Flag.PUBLIC);
+            recordNode.isFieldAnalyseRequired = true;
         }
 
         this.compUnit.addTopLevelNode(recordNode);
     }
 
-    void addAnonRecordType(DiagnosticPos pos, Set<Whitespace> ws) {
+    void addAnonRecordType(DiagnosticPos pos, Set<Whitespace> ws, boolean isFieldAnalyseRequired) {
         // Generate a name for the anonymous record
         String genName = anonymousModelHelper.getNextAnonymousRecordKey(pos.src.pkgID);
         IdentifierNode anonRecordGenName = createIdentifier(genName);
@@ -461,6 +462,7 @@ public class BLangPackageBuilder {
         // Create an anonymous record and add it to the list of records in the current package.
         BLangRecord recordNode = populateRecordNode(pos, ws, anonRecordGenName, true);
         recordNode.addFlag(Flag.PUBLIC);
+        recordNode.isFieldAnalyseRequired = isFieldAnalyseRequired;
         this.compUnit.addTopLevelNode(recordNode);
 
         addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), recordNode.name));
@@ -2117,25 +2119,22 @@ public class BLangPackageBuilder {
         transactionNode.setOnRetryBody(onretryBlock);
     }
 
-    public void endTransactionStmt(DiagnosticPos pos, Set<Whitespace> ws, boolean distributedTransactionEnabled) {
+    public void endTransactionStmt(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangTransaction transaction = (BLangTransaction) transactionNodeStack.pop();
         transaction.pos = pos;
         transaction.addWS(ws);
         addStmtToCurrentBlock(transaction);
 
-        if (distributedTransactionEnabled) {
-            // TODO This is a temporary workaround to flag coordinator service start
-            String value = compilerOptions.get(CompilerOptionName.TRANSACTION_EXISTS);
-            if (value != null) {
-                return;
-            }
-
-            compilerOptions.put(CompilerOptionName.TRANSACTION_EXISTS, "true");
-            List<String> nameComps = getPackageNameComps(Names.TRANSACTION_PACKAGE.value);
-            addImportPackageDeclaration(pos, null, Names.TRANSACTION_ORG.value,
-                    nameComps, Names.DEFAULT_VERSION.value,
-                    Names.DOT.value + nameComps.get(nameComps.size() - 1));
+        // TODO This is a temporary workaround to flag coordinator service start
+        String value = compilerOptions.get(CompilerOptionName.TRANSACTION_EXISTS);
+        if (value != null) {
+            return;
         }
+
+        compilerOptions.put(CompilerOptionName.TRANSACTION_EXISTS, "true");
+        List<String> nameComps = getPackageNameComps(Names.TRANSACTION_PACKAGE.value);
+        addImportPackageDeclaration(pos, null, Names.TRANSACTION_ORG.value, nameComps, Names.DEFAULT_VERSION.value,
+                Names.DOT.value + nameComps.get(nameComps.size() - 1));
     }
 
     public void addAbortStatement(DiagnosticPos pos, Set<Whitespace> ws) {

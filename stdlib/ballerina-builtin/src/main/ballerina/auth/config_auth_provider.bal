@@ -16,6 +16,7 @@
 
 import ballerina/config;
 import ballerina/crypto;
+import ballerina/runtime;
 
 @final string CONFIG_USER_SECTION = "b7a.users";
 
@@ -32,8 +33,15 @@ public type ConfigAuthProvider object {
         R{{}} true if authentication is a success, else false
     }
     public function authenticate(string user, string password) returns boolean {
-        return password == readPassword(user);
-    }
+        boolean isAuthenticated = password == readPassword(user);
+            if(isAuthenticated){
+                runtime:UserPrincipal userPrincipal = runtime:getInvocationContext().userPrincipal;
+                userPrincipal.userId = user;
+                // By default set userId as username.
+                userPrincipal.username = user;
+            }
+            return isAuthenticated;
+        }
 
     documentation {
         Reads the scope(s) for the user with the given username
