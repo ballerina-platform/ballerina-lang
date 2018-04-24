@@ -17,10 +17,10 @@
 */
 package org.ballerinalang.test.types.xml;
 
-
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
@@ -28,10 +28,15 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.model.values.BXMLSequence;
+import org.ballerinalang.test.services.testutils.HTTPTestRequest;
+import org.ballerinalang.test.services.testutils.MessageUtils;
+import org.ballerinalang.test.services.testutils.Services;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.IOException;
 
@@ -40,7 +45,7 @@ import java.io.IOException;
  *
  * @since 0.94
  */
-public class    XMLLiteralTest {
+public class XMLLiteralTest {
 
     CompileResult result;
     CompileResult literalWithNamespacesResult;
@@ -408,5 +413,36 @@ public class    XMLLiteralTest {
             expectedExceptionsMessageRegExp = ".*invalid xml qualified name: unsupported characters in 'foo&gt;bar'.*")
     public void testIvalidAttributeName() {
         BRunUtil.invoke(result, "testIvalidAttributeName");
+    }
+
+    @Test
+    public void testPackageLevelXML() {
+        CompileResult result = BCompileUtil.compile("test-src/types/xml/package_level_xml_literals.bal");
+        BValue[] returns = BRunUtil.invoke(result, "testPackageLevelXML");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(),
+                "<p:person xmlns:p=\"foo\" xmlns:q=\"bar\" xmlns:ns1=\"http://ballerina.com/b\">hello</p:person>");
+
+        Assert.assertTrue(returns[1] instanceof BXML);
+        Assert.assertEquals(returns[1].stringValue(),
+                "<ns1:student xmlns:ns1=\"http://ballerina.com/b\">hello</ns1:student>");
+    }
+
+    @Test
+    public void testServiceLevelXML() {
+        CompileResult result = BServiceUtil.setupProgramFile(this, "test-src/types/xml/xml_literals_in_service.bal");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/test/getXML", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(result, "testEP", cMsg);
+        Assert.assertNotNull(response);
+
+        BXML<?> xml = new BXMLItem(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(xml.stringValue(), "<p:person xmlns:p=\"foo\" xmlns:q=\"bar\" " +
+                "xmlns:ns1=\"http://ballerina.com/b\" xmlns:ns0=\"http://ballerina.com/a\">hello</p:person>");
+    }
+
+    @Test
+    public void testServiceLevelXMLNegative() {
+        CompileResult result = BCompileUtil.compile("test-src/types/xml/xml_literals_in_service_negative.bal");
+        BAssertUtil.validateError(result, 0, "redeclared symbol 'ns1'", 12, 5);
     }
 }

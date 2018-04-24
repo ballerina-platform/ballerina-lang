@@ -21,7 +21,6 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.elements.TypeFlag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -53,6 +52,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -159,7 +159,6 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
-import org.wso2.ballerinalang.util.TypeFlags;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -239,6 +238,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         analyzeFunctions(pkgNode.functions, pkgEnv);
 
+        pkgNode.objects.forEach(this::validateConstructorAndCheckDefaultable);
+
         analyzeDef(pkgNode.initFunction, pkgEnv);
         analyzeDef(pkgNode.startFunction, pkgEnv);
         analyzeDef(pkgNode.stopFunction, pkgEnv);
@@ -276,11 +277,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // Namespace node already having the symbol means we are inside an init-function,
         // and the symbol has already been declared by the original statement.
-        if (xmlnsNode.symbol != null) {
-            return;
+        if (xmlnsNode.symbol == null) {
+            symbolEnter.defineNode(xmlnsNode, env);
         }
 
-        symbolEnter.defineNode(xmlnsNode, env);
         typeChecker.checkExpr(xmlnsNode.namespaceURI, env, symTable.stringType);
     }
 
@@ -365,8 +365,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         analyzeDef(objectNode.initFunction, objectEnv);
 
-        validateConstructorAndCheckDefaultable(objectNode);
-
         //Visit temporary init statements in the init function
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(objectNode.initFunction,
                 objectNode.initFunction.symbol.scope, objectEnv);
@@ -406,6 +404,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangDocumentation docNode) {
         Set<BLangIdentifier> visitedAttributes = new HashSet<>();
         for (BLangDocumentationAttribute attribute : docNode.attributes) {
+            attribute.type = symTable.errType;
             if (attribute.docTag == DocTag.ENDPOINT) {
                 if (!this.env.enclObject.getFunctions().stream().anyMatch(bLangFunction ->
                         Names.EP_SPI_GET_CALLER_ACTIONS.value.equals(bLangFunction.getName().toString()))) {
@@ -833,6 +832,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             this.analyzeDef(a, serviceEnv);
         });
         serviceNode.docAttachments.forEach(doc -> analyzeDef(doc, serviceEnv));
+        serviceNode.nsDeclarations.forEach(xmlns -> this.analyzeDef(xmlns, serviceEnv));
         serviceNode.vars.forEach(v -> this.analyzeDef(v, serviceEnv));
         serviceNode.endpoints.forEach(e -> {
             symbolEnter.defineNode(e, serviceEnv);
@@ -912,11 +912,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (objectNode.initFunction.symbol.params.size() > 0) {
             defaultableStatus = false;
         }
+
+        for (BAttachedFunction func : ((BStructSymbol) objectNode.symbol).attachedFuncs) {
+            if ((func.symbol.flags & Flags.INTERFACE) == Flags.INTERFACE) {
+                defaultableStatus = false;
+                break;
+            }
+        }
+
+        objectNode.symbol.flags |= Flags.asMask(EnumSet.of(Flag.DEFAULTABLE_CHECKED));
         if (defaultableStatus) {
-            objectNode.symbol.type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED,
-                    TypeFlag.DEFAULTABLE));
-        } else {
-            objectNode.symbol.type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED));
+            objectNode.symbol.flags |= Flags.asMask(EnumSet.of(Flag.DEFAULTABLE));
         }
     }
 
@@ -929,11 +935,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             defaultableStatus = false;
             break;
         }
+
+        recordNode.symbol.flags |= Flags.asMask(EnumSet.of(Flag.DEFAULTABLE_CHECKED));
         if (defaultableStatus) {
-            recordNode.symbol.type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED,
-                    TypeFlag.DEFAULTABLE));
-        } else {
-            recordNode.symbol.type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED));
+            recordNode.symbol.flags |= Flags.asMask(EnumSet.of(Flag.DEFAULTABLE));
         }
     }
 

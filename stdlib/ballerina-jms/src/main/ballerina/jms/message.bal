@@ -1,5 +1,21 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
 
 public type Message object {
+
     documentation {Gets text content of the JMS message
         returns message content as string}
     public native function getTextMessageContent() returns @tainted string|error;
@@ -12,7 +28,7 @@ public type Message object {
     documentation {Gets a JMS transport string property from the message
         P{{key}} The string property name
         returns The string property value}
-    public native function getStringProperty(@sensitive string key) returns @tainted string|()|error;
+    public native function getStringProperty(@sensitive string key) returns @tainted (string|error)?;
 
     documentation {Sets a JMS transport integer property from the message
         P{{key}} The integer property name
@@ -54,7 +70,7 @@ public type Message object {
 
     documentation {Sets DeliveryMode JMS transport header to the message
         P{{mode}} The header value}
-    public native function setDeliveryMode(@sensitive int mode) returns error?;
+    public native function setDeliveryMode(int mode) returns error?;
 
     documentation {Get JMS transport header DeliveryMode from the message
         returns The header value" }
@@ -62,7 +78,7 @@ public type Message object {
 
     documentation {Sets Expiration JMS transport header to the message
         P{{value}} The header value}
-    public native function setExpiration(@sensitive int value) returns error?;
+    public native function setExpiration(int value) returns error?;
 
     documentation {Get JMS transport header Expiration from the message
         returns int: The header value}
@@ -71,7 +87,7 @@ public type Message object {
     documentation { Sets Type JMS transport header to the message
         P{{messageType}} The message type header value
         returns error if any JMS provider level internal error occur}
-    public native function setType(@sensitive string messageType) returns error?;
+    public native function setType(string messageType) returns error?;
 
     documentation { Get JMS transport header Type from the message
         returns The message type header value }
@@ -87,7 +103,7 @@ public type Message object {
 
     documentation {Sets Priority JMS transport header to the message
         P{{value}} The header value}
-    public native function setPriority(@sensitive int value) returns error?;
+    public native function setPriority(int value) returns error?;
 
     documentation {Get JMS transport header Priority from the message
         returns The header value}
@@ -99,9 +115,9 @@ public type Message object {
 
     documentation {Sets CorrelationID JMS transport header to the message
         P{{value}} The header value}
-    public native function setCorrelationID(@sensitive string value) returns error?;
+    public native function setCorrelationID(string value) returns error?;
 
     documentation {Get JMS transport header CorrelationID from the message
         returns The header value}
-    public native function getCorrelationID() returns @tainted string|()|error;
+    public native function getCorrelationID() returns @tainted (string|error)?;
 };

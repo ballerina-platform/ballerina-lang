@@ -59,19 +59,11 @@ public class LSPackageCache {
 
     /**
      * Find the package by Package ID.
-     * @param compilerContext       compiler context
      * @param pkgId                 Package Id to lookup
      * @return {@link BLangPackage} BLang Package resolved
      */
-    public BLangPackage findPackage(CompilerContext compilerContext, PackageID pkgId) {
-        BLangPackage bLangPackage = packageCache.get(pkgId);
-        if (bLangPackage != null) {
-            return bLangPackage;
-        } else {
-            bLangPackage = LSPackageLoader.getPackageById(compilerContext, pkgId);
-            addPackage(bLangPackage.packageID, bLangPackage);
-            return bLangPackage;
-        }
+    public BLangPackage get(PackageID pkgId) {
+        return packageCache.get(pkgId);
     }
 
     /**
@@ -79,7 +71,7 @@ public class LSPackageCache {
      *
      * @param packageID ballerina package id to be removed.
      */
-    public void removePackage(PackageID packageID) {
+    public void invalidate(PackageID packageID) {
         packageCache.remove(packageID);
     }
     
@@ -92,7 +84,7 @@ public class LSPackageCache {
      *
      * @param bLangPackage ballerina package to be added.
      */
-    public void addPackage(PackageID packageID, BLangPackage bLangPackage) {
+    public void put(PackageID packageID, BLangPackage bLangPackage) {
         if (bLangPackage != null) {
             bLangPackage.packageID = packageID;
             packageCache.put(packageID, bLangPackage);

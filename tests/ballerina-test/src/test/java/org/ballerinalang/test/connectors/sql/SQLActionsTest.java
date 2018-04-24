@@ -209,7 +209,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = "ConnectorTest", enabled = false)
+    @Test(groups = "ConnectorTest", enabled = false) //Issue #7700
     public void testInsertTableDataWithParameters3() {
         BValue[] returns = BRunUtil.invoke(result, "testInsertTableDataWithParameters3");
         BInteger retValue = (BInteger) returns[0];
@@ -489,7 +489,7 @@ public class SQLActionsTest {
     }
 
 
-    @Test(groups = "ConnectorTest", enabled = false)
+    @Test(groups = "ConnectorTest")
     public void testStructOutParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testStructOutParameters");
         BString retValue = (BString) returns[0];
@@ -600,6 +600,45 @@ public class SQLActionsTest {
                 + "name:\"Devni\", address:\"Sri Lanka\"}, {id:3, name:\"Thurani\", address:\"Sri Lanka\"}], [{id:1, "
                 + "name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, name:\"Devni\", address:\"Sri Lanka\"}, {id:3, "
                 + "name:\"Thurani\", address:\"Sri Lanka\"}]]");
+    }
+
+    @Test(groups = "ConnectorTest",
+                    description = "Test iterating data of a mirrored table after closing")
+    public void testIterateMirrorTableAfterClose() throws Exception {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invokeFunction(resultMirror, "testIterateMirrorTableAfterClose", args);
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns[0].stringValue(), "[[{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, "
+                + "name:\"Devni\", address:\"Sri Lanka\"}, {id:3, name:\"Thurani\", address:\"Sri Lanka\"}], [{id:1, "
+                + "name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, name:\"Devni\", address:\"Sri Lanka\"}, {id:3, "
+                + "name:\"Thurani\", address:\"Sri Lanka\"}], {message:\"Trying to perform hasNext operation over a "
+                + "closed table\", cause:null}]");
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test iterating data of a table loaded to memory multiple times")
+    public void testSelectLoadToMemory() throws Exception {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invokeFunction(result, "testSelectLoadToMemory", args);
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns[0].stringValue(), "[[{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, "
+                + "name:\"Devni\", address:\"Sri Lanka\"}, {id:3, name:\"Thurani\", address:\"Sri Lanka\"}], [{id:1, "
+                + "name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, name:\"Devni\", address:\"Sri Lanka\"}, {id:3, "
+                + "name:\"Thurani\", address:\"Sri Lanka\"}], [{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2,"
+                + " name:\"Devni\", address:\"Sri Lanka\"}, {id:3, name:\"Thurani\", address:\"Sri Lanka\"}]]");
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test iterating data of a table loaded to memory after closing")
+    public void testLoadToMemorySelectAfterTableClose() throws Exception {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invokeFunction(result, "testLoadToMemorySelectAfterTableClose", args);
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns[0].stringValue(), "[[{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, "
+                + "name:\"Devni\", address:\"Sri Lanka\"}, {id:3, name:\"Thurani\", address:\"Sri Lanka\"}], [{id:1, "
+                + "name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, name:\"Devni\", address:\"Sri Lanka\"}, {id:3, "
+                + "name:\"Thurani\", address:\"Sri Lanka\"}], {message:\"Trying to perform hasNext operation over a "
+                + "closed table\", cause:null}]");
     }
 
     @AfterSuite

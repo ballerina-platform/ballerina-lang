@@ -21,7 +21,7 @@ const { workspace, commands, window, Uri, ViewColumn } = require('vscode');
 const path = require('path');
 const _ = require('lodash');
 
-const DiagramProvider = require('./content-provider');
+const { DiagramProvider, StaticProvider } = require('./content-provider');
 let diagramProvider;
 const DEBOUNCE_WAIT = 500;
 
@@ -51,5 +51,17 @@ exports.activate = function(context) {
 	});
 
 	provider.activate();
+	context.subscriptions.push(diagramRenderDisposable, registration);
+}
+
+exports.errored = function(context) {
+	const provider = new StaticProvider();
+	let registration = workspace.registerTextDocumentContentProvider('ballerina-static', provider);
+
+	const diagramRenderDisposable = commands.registerCommand('ballerina.showDiagram', () => {
+		let uri = Uri.parse('ballerina-static:///pages/error.html');
+		commands.executeCommand('vscode.previewHtml', uri, ViewColumn.Two, 'Ballerina Diagram');
+	});
+
 	context.subscriptions.push(diagramRenderDisposable, registration);
 }

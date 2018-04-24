@@ -363,6 +363,8 @@ public class BLangPackageBuilder {
 
     private Stack<List<MatchExpressionPatternNode>> matchExprPatternNodeListStack = new Stack<>();
 
+    private Stack<Set<Whitespace>> operatorWs = new Stack<>();
+
     private BLangAnonymousModelHelper anonymousModelHelper;
     private CompilerOptions compilerOptions;
 
@@ -1047,7 +1049,7 @@ public class BLangPackageBuilder {
 
         BLangNameReference nameReference = nameReferenceStack.pop();
         invocationNode.name = (BLangIdentifier) nameReference.name;
-        invocationNode.addWS(nameReference.ws);
+        invocationNode.addWS(this.invocationWsStack.pop());
         invocationNode.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
         addExpressionNode(invocationNode);
     }
@@ -1448,12 +1450,13 @@ public class BLangPackageBuilder {
         objectNode.setName(this.createIdentifier(identifier));
         if (publicRecord) {
             objectNode.flagSet.add(Flag.PUBLIC);
+            objectNode.isFieldAnalyseRequired = true;
         }
 
         this.compUnit.addTopLevelNode(objectNode);
     }
 
-    void addAnonObjectType(DiagnosticPos pos, Set<Whitespace> ws) {
+    void addAnonObjectType(DiagnosticPos pos, Set<Whitespace> ws, boolean isFieldAnalyseRequired) {
         // Generate a name for the anonymous object
         String genName = anonymousModelHelper.getNextAnonymousObjectKey(pos.src.pkgID);
         IdentifierNode anonObjectGenName = createIdentifier(genName);
@@ -1461,6 +1464,7 @@ public class BLangPackageBuilder {
         // Create an anonymous object and add it to the list of objects in the current package.
         BLangObject objectNode = populateObjectNode(pos, ws, anonObjectGenName, true);
         objectNode.addFlag(Flag.PUBLIC);
+        objectNode.isFieldAnalyseRequired = isFieldAnalyseRequired;
         this.compUnit.addTopLevelNode(objectNode);
 
         addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), objectNode.name));
@@ -1990,8 +1994,13 @@ public class BLangPackageBuilder {
         assignmentNode.setVariable((BLangVariableReference) exprNodeStack.pop());
         assignmentNode.pos = pos;
         assignmentNode.addWS(ws);
+        assignmentNode.addWS(this.operatorWs.pop());
         assignmentNode.opKind = OperatorKind.valueFrom(operator);
         addStmtToCurrentBlock(assignmentNode);
+    }
+
+    public void addCompoundOperator(Set<Whitespace> ws) {
+        this.operatorWs.push(ws);
     }
 
     public void addPostIncrementStatement(DiagnosticPos pos, Set<Whitespace> ws, String operator) {
@@ -2298,8 +2307,13 @@ public class BLangPackageBuilder {
     public void addServiceBody(Set<Whitespace> ws) {
         ServiceNode serviceNode = serviceNodeStack.peek();
         serviceNode.addWS(ws);
-        blockNodeStack.pop().getStatements()
-                .forEach(varDef -> serviceNode.addVariable((VariableDefinitionNode) varDef));
+        blockNodeStack.pop().getStatements().forEach(stmt -> {
+            if (stmt.getKind() == NodeKind.XMLNS) {
+                serviceNode.addNamespaceDeclaration((BLangXMLNSStatement) stmt);
+            } else {
+                serviceNode.addVariable((VariableDefinitionNode) stmt);
+            }
+        });
     }
 
     public void addAnonymousEndpointBind() {

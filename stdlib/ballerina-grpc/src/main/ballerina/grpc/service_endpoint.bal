@@ -15,7 +15,7 @@
 // under the License.
 
 documentation {
-    Represents the gRPC service endpoint
+    Represents the gRPC service endpoint.
 }
 public type Listener object {
     public {
@@ -27,38 +27,38 @@ public type Listener object {
     }
 
     documentation {
-        Gets called when the endpoint is being initialize during package init time
+        Gets called when the endpoint is being initialize during package init time.
 
         P{{config}} - The ServiceEndpointConfiguration of the endpoint.
     }
     public native function init(ServiceEndpointConfiguration config);
 
     documentation {
-        Gets called every time a service attaches itself to this endpoint - also happens at package
-    init time. not supported in client connector
+        Gets called every time a service attaches itself to this endpoint - also happens at package init time.
+        Not supported in client connector.
 
         P{{serviceType}} - The type of the service to be registered.
     }
     public native function register(typedesc serviceType);
 
     documentation {
-        Starts the registered service
+        Starts the registered service.
     }
     public native function start();
 
     documentation {
-        Stops the registered service
+        Stops the registered service.
     }
     public native function stop();
 
     documentation {
-        Returns the client connection that servicestub code uses
+        Returns the client connection that servicestub code uses.
     }
     public native function getCallerActions() returns (CallerAction);
 };
 
 documentation {
-    Represents the gRPC server endpoint configuration
+    Represents the gRPC server endpoint configuration.
 
     F{{host}} - The server hostname.
     F{{port}} - The server port.
@@ -71,13 +71,14 @@ public type ServiceEndpointConfiguration {
 };
 
 documentation {
-    SecureSocket struct represents SSL/TLS options to be used for gRPC service
+    SecureSocket struct represents SSL/TLS options to be used for gRPC service.
 
     F{{trustStore}} - TrustStore related options.
     F{{keyStore}} - KeyStore related options.
     F{{protocol}} - SSL/TLS protocol related options.
     F{{certValidation}} - Certificate validation against CRL or OCSP related options.
-    F{{ciphers}} - List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA.
+    F{{ciphers}} - List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+                   TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA.
     F{{sslVerifyClient}} - The type of client certificate verification.
     F{{shareSession}} - Enable/disable new ssl session creation.
     F{{ocspStapling}} - Enable/disable ocsp stapling.

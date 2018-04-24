@@ -15,16 +15,16 @@
 // under the License.
 
 documentation {
-    gRPC service configuration
+    gRPC service configuration.
 
     F{{name}} - gRPC resource name. This applies only for client streaming and bidirectional streaming
-where we can define only one resource. In order to generate proto file, we need resource name.
+                where we can define only one resource. In order to generate proto file, we need resource name.
     F{{clientStreaming}} - gRPC client streaming service flag. This applies only for servicestub streaming and
-bidirectional streaming. Flag sets to true, if the service is client/bidirectional streaming.
+                           bidirectional streaming. Flag sets to true, if the service is client/bidirectional streaming.
     F{{serverStreaming}} - gRPC server streaming service flag. This applies only for client streaming and
-bidirectional streaming. Flag sets to true, if the service is bidirectional streaming.
+                           bidirectional streaming. Flag sets to true, if the service is bidirectional streaming.
 }
-public type ServiceConfig {
+public type GrpcServiceConfig {
     string name;
     boolean clientStreaming;
     boolean serverStreaming;
@@ -33,19 +33,33 @@ public type ServiceConfig {
 documentation {
     gRPC service configuration annotation.
 }
-public annotation<service> serviceConfig ServiceConfig;
+public annotation<service> ServiceConfig GrpcServiceConfig;
 
 documentation {
-    gRPC service resource configuration
+    gRPC service resource configuration.
 
     F{{streaming}} - gRPC server streaming flag. This flag sets to true when service resource is considered as server
-     streaming.
+                     streaming.
 }
-public type ResourceConfig {
+public type GrpcResourceConfig {
     boolean streaming;
 };
 
 documentation {
     gRPC service resource configuration annotation.
 }
-public annotation<resource> resourceConfig ResourceConfig;
+public annotation<resource> ResourceConfig GrpcResourceConfig;
+
+documentation {
+    gRPC service descriptor data.
+
+    F{{descriptor}} - gRPC server descriptor. Service descriptor sets at compile time.
+}
+public type ServiceDescriptorData {
+    string descriptor;
+};
+
+documentation {
+    gRPC service internal annotation which is to attach service descriptor generated at compile time.
+}
+public annotation <service> ServiceDescriptor ServiceDescriptorData;

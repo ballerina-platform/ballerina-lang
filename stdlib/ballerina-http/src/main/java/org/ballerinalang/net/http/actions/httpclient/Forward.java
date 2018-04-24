@@ -20,6 +20,7 @@ package org.ballerinalang.net.http.actions.httpclient;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
@@ -60,10 +61,10 @@ public class Forward extends AbstractHTTPAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        DataContext dataContext = new DataContext(context, callback);
+        DataContext dataContext = new DataContext(context, callback, createOutboundRequestMsg(context));
         try {
             // Execute the operation
-            executeNonBlockingAction(dataContext, createOutboundRequestMsg(context));
+            executeNonBlockingAction(dataContext);
         } catch (ClientConnectorException clientConnectorException) {
             BallerinaException exception = new BallerinaException("Failed to invoke 'forward' action in " +
                     HttpConstants.CALLER_ACTIONS + ". " + clientConnectorException.getMessage(), context);
@@ -76,16 +77,23 @@ public class Forward extends AbstractHTTPAction {
         String path = context.getStringArgument(0);
         BStruct requestStruct = ((BStruct) context.getRefArgument(1));
 
-        if (requestStruct.getNativeData(HttpConstants.REQUEST) == null) {
+        if (requestStruct.getNativeData(HttpConstants.REQUEST) == null &&
+                !HttpUtil.isEntityDataSourceAvailble(requestStruct)) {
             throw new BallerinaException("invalid inbound request parameter");
         }
-
         HTTPCarbonMessage outboundRequestMsg = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
-        prepareOutboundRequest(context, bConnector, path, outboundRequestMsg);
 
-        String httpVerb = (String) outboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD);
-        outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
+        if (HttpUtil.isEntityDataSourceAvailble(requestStruct)) {
+            HttpUtil.enrichOutboundMessage(outboundRequestMsg, requestStruct);
+            prepareOutboundRequest(context, bConnector, path, outboundRequestMsg);
+            outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD,
+                    BLangConnectorSPIUtil.toStruct(requestStruct).getStringField(HttpConstants.HTTP_REQUEST_METHOD));
+        } else {
+            prepareOutboundRequest(context, bConnector, path, outboundRequestMsg);
+            String httpVerb = (String) outboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD);
+            outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
+        }
         return outboundRequestMsg;
     }
 }

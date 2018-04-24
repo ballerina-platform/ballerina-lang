@@ -23,6 +23,7 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.util.internal.PlatformDependent;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
+import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -109,14 +110,18 @@ public class MimeUtil {
             return HeaderUtil.getHeaderValue(entity, HttpHeaderNames.CONTENT_TYPE.toString());
         }
         BStruct mediaType = (BStruct) entity.getRefField(MEDIA_TYPE_INDEX);
-        String contentType = mediaType.getStringField(PRIMARY_TYPE_INDEX) + "/" +
-                mediaType.getStringField(SUBTYPE_INDEX);
-        if (mediaType.getRefField(PARAMETER_MAP_INDEX) != null) {
-            BMap map = mediaType.getRefField(PARAMETER_MAP_INDEX) != null ?
-                    (BMap) mediaType.getRefField(PARAMETER_MAP_INDEX) : null;
-            if (map != null && !map.isEmpty()) {
-                contentType = contentType + SEMICOLON;
-                return HeaderUtil.appendHeaderParams(new StringBuilder(contentType), map);
+        String primaryType = mediaType.getStringField(PRIMARY_TYPE_INDEX);
+        String subType = mediaType.getStringField(SUBTYPE_INDEX);
+        String contentType = null;
+        if ((primaryType != null && !primaryType.isEmpty()) && (subType != null && !subType.isEmpty())) {
+            contentType = primaryType + "/" + subType;
+            if (mediaType.getRefField(PARAMETER_MAP_INDEX) != null) {
+                BMap map = mediaType.getRefField(PARAMETER_MAP_INDEX) != null ?
+                        (BMap) mediaType.getRefField(PARAMETER_MAP_INDEX) : null;
+                if (map != null && !map.isEmpty()) {
+                    contentType = contentType + SEMICOLON;
+                    return HeaderUtil.appendHeaderParams(new StringBuilder(contentType), map);
+                }
             }
         }
         return contentType;
@@ -170,6 +175,13 @@ public class MimeUtil {
             throw new BallerinaException("Error while parsing Content-Type value: " + e.getMessage());
         }
         return mediaType;
+    }
+
+    public static void setMediaTypeToEntity(Context context, BStruct entityStruct, String contentType) {
+        BStruct mediaType = ConnectorUtils.createAndGetStruct(context, Constants.PROTOCOL_PACKAGE_MIME,
+                Constants.MEDIA_TYPE);
+        MimeUtil.setContentType(mediaType, entityStruct, contentType);
+        HeaderUtil.setHeaderToEntity(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
     }
 
     /**

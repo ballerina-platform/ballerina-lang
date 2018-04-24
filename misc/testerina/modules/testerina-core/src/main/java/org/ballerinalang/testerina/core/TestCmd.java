@@ -26,10 +26,15 @@ import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.testerina.util.Utils;
+import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.parser.ManifestProcessor;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.VMOptions;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -55,7 +60,7 @@ public class TestCmd implements BLauncherCmd {
 
     private JCommander parentCmdParser;
 
-    @Parameter(arity = 1, description = "ballerina package/s to be tested")
+    @Parameter(arity = 1, description = "ballerina package/files to be tested")
     private List<String> sourceFileList;
 
     @Parameter(names = { "--help", "-h" }, hidden = true)
@@ -92,10 +97,31 @@ public class TestCmd implements BLauncherCmd {
             return;
         }
 
+        if (sourceFileList != null && sourceFileList.size() > 1) {
+            throw LauncherUtils.createUsageException("Too many arguments. You can only provide a single package or a" +
+                                                     " single file to test command");
+        }
+
+        Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
+        SourceDirectory srcDirectory = null;
         if (sourceFileList == null || sourceFileList.isEmpty()) {
-            Path userDir = Paths.get(System.getProperty("user.dir"));
-            SourceDirectory srcDirectory = new FileSystemProjectDirectory(userDir);
+            srcDirectory = new FileSystemProjectDirectory(sourceRootPath);
             sourceFileList = srcDirectory.getSourcePackageNames();
+        } else if (sourceFileList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+            Path sourceFilePath = Paths.get(sourceFileList.get(0));
+            if (sourceFilePath.isAbsolute()) {
+                sourceRootPath = sourceFilePath.getParent();
+            } else {
+                sourceRootPath = sourceRootPath.resolve(sourceFilePath).getParent();
+            }
+            Path fileName = sourceFilePath.getFileName();
+            if (fileName == null) {
+                throw new BallerinaIOException("Provided ballerina file doesn't exist!");
+            }
+            sourceFileList.clear();
+            sourceFileList.add(fileName.toString());
+        } else {
+            srcDirectory = new FileSystemProjectDirectory(sourceRootPath);
         }
 
         if (groupList != null && disableGroupList != null) {
@@ -110,7 +136,6 @@ public class TestCmd implements BLauncherCmd {
         // Setting the vm options
         VMOptions.getInstance().addOptions(vmOptions);
 
-        Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
         // Setting the source root so it can be accessed from anywhere
         System.setProperty(TesterinaConstants.BALLERINA_SOURCE_ROOT, sourceRootPath.toString());
         try {
@@ -122,6 +147,11 @@ public class TestCmd implements BLauncherCmd {
 
         Path[] paths = sourceFileList.stream().map(Paths::get).toArray(Path[]::new);
 
+        if (srcDirectory != null) {
+            Manifest manifest = readManifestConfigurations();
+            String orgName = manifest.getName();
+            TesterinaRegistry.getInstance().setOrgName(orgName);
+        }
         BTestRunner testRunner = new BTestRunner();
         if (listGroups) {
             testRunner.listGroups(sourceRootPath.toString(), paths);
@@ -251,5 +281,20 @@ public class TestCmd implements BLauncherCmd {
     public void setSelfCmdParser(JCommander selfCmdParser) {
         // ignore
 
+    }
+
+    /**
+     * Read the manifest.
+     *
+     * @return manifest configuration object
+     */
+    private static Manifest readManifestConfigurations() {
+        String tomlFilePath = Paths.get(".").toAbsolutePath().normalize().resolve
+            (ProjectDirConstants.MANIFEST_FILE_NAME).toString();
+        try {
+            return ManifestProcessor.parseTomlContentFromFile(tomlFilePath);
+        } catch (IOException e) {
+            return new Manifest();
+        }
     }
 }

@@ -54,7 +54,7 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.FILE_SEPA
  * @since 1.0.0
  */
 public class GrpcServicesBuilder {
-    
+
     /**
      * Initializes and returns gRPC server builder instance for endpoint configuration.
      *
@@ -80,7 +80,7 @@ public class GrpcServicesBuilder {
         }
         return serverBuilder;
     }
-    
+
     /**
      * Register new service to the gRPC Server Builder.
      *
@@ -104,7 +104,7 @@ public class GrpcServicesBuilder {
             throw new GrpcServerException("Error while reading the service descriptor. Service file definition not " +
                     "found");
         }
-        
+
         Descriptors.ServiceDescriptor serviceDescriptor = fileDescriptor.findServiceByName(service.getName());
         return getServiceDefinition(service, serviceDescriptor);
     }
@@ -134,24 +134,24 @@ public class GrpcServicesBuilder {
             // update response message descriptors.
             messageRegistry.addMessageDescriptor(responseDescriptor.getName(), responseDescriptor);
             setNestedMessages(responseDescriptor, messageRegistry);
-            
+
             MethodDescriptor.Marshaller<Message> reqMarshaller = ProtoUtils.marshaller(Message.newBuilder
                     (requestDescriptor.getName()).build());
             MethodDescriptor.Marshaller<Message> resMarshaller = ProtoUtils.marshaller(Message.newBuilder
                     (responseDescriptor.getName()).build());
-            
+
             MethodDescriptor.MethodType methodType;
             ServerCallHandler<Message, Message> serverCallHandler;
             Map<String, Resource> resourceMap = new HashMap<>();
             Resource mappedResource = null;
-            
+
             for (Resource resource : service.getResources()) {
                 if (methodDescriptor.getName().equals(resource.getName())) {
                     mappedResource = resource;
                 }
                 resourceMap.put(resource.getName(), resource);
             }
-            
+
             if (methodDescriptor.toProto().getServerStreaming() && methodDescriptor.toProto().getClientStreaming()) {
                 methodType = MethodDescriptor.MethodType.BIDI_STREAMING;
                 serverCallHandler = ServerCalls.asyncBidiStreamingCall(new BidirectionalStreamingListener
@@ -169,7 +169,7 @@ public class GrpcServicesBuilder {
                 serverCallHandler = ServerCalls.asyncUnaryCall(new UnaryMethodListener(methodDescriptor,
                         mappedResource));
             }
-            
+
             MethodDescriptor.Builder<Message, Message> methodBuilder = MethodDescriptor.newBuilder();
             MethodDescriptor<Message, Message> grpcMethodDescriptor = methodBuilder.setType(methodType)
                     .setFullMethodName(methodName)
@@ -188,7 +188,7 @@ public class GrpcServicesBuilder {
      */
     public static Server start(io.grpc.ServerBuilder serverBuilder) throws
             GrpcServerException {
-        
+
         if (serverBuilder == null) {
             throw new GrpcServerException("Error while starting gRPC server, client responder builder is null");
         }

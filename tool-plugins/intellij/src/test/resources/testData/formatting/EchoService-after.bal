@@ -10,8 +10,8 @@ service<http> echo {
         path:"/"
     }
     resource echo (http:Request req, http:Response res) {
-        string payload = request:getStringPayload(req);
-        response:setStringPayload(res, payload);
+        string payload = request:getTextPayload(req);
+        response:setTextPayload(res, payload);
         response:send(res);
     }
 }

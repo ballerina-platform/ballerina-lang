@@ -24,7 +24,7 @@ service<http:Service> sample bind sessionEP {
             result = "session created";
         }
         http:Response res = new;
-        res.setStringPayload(result);
+        res.setTextPayload(result);
         _ = conn -> respond(res);
     }
 
@@ -42,7 +42,7 @@ service<http:Service> sample bind sessionEP {
             result = "no session id available";
         }
         http:Response res = new;
-        res.setStringPayload(result);
+        res.setTextPayload(result);
         _ = conn -> respond(res);
     }
 
@@ -60,7 +60,7 @@ service<http:Service> sample bind sessionEP {
             result = "session is not created";
         }
         http:Response res = new;
-        res.setStringPayload(result);
+        res.setTextPayload(result);
         _ = conn -> respond(res);
     }
 
@@ -79,7 +79,7 @@ service<http:Service> sample bind sessionEP {
             result = "attribute not available";
         }
         http:Response res = new;
-        res.setStringPayload(result);
+        res.setTextPayload(result);
         _ = conn -> respond(res);
     }
 
@@ -94,9 +94,9 @@ service<http:Service> sample bind sessionEP {
         http:Session session = req.getSession();
         if (session != null) {
             any attribute = session.getAttribute("name");
-            res.setStringPayload(<string>attribute);
+            res.setTextPayload(<string>attribute);
         } else {
-            res.setStringPayload(result);
+            res.setTextPayload(result);
         }
         _ = conn -> respond(res);
     }
@@ -116,7 +116,7 @@ service<http:Service> sample bind sessionEP {
             myName = <string>attribute;
         }
         http:Response res = new;
-        res.setStringPayload(myName);
+        res.setTextPayload(myName);
         _ = conn -> respond(res);
     }
 
@@ -127,8 +127,8 @@ service<http:Service> sample bind sessionEP {
     hello (endpoint conn, http:Request req) {
         http:Response res = new;
         string result;
-        match req.getStringPayload() {
-            http:PayloadError err => res.setStringPayload("Error");
+        match req.getTextPayload() {
+            http:PayloadError err => res.setTextPayload("Error");
             string textPayload => {
                 result = textPayload;
                 http:Session session = req.createSessionIfAbsent();
@@ -138,7 +138,7 @@ service<http:Service> sample bind sessionEP {
                 } else {
                     session.setAttribute("name", result);
                 }
-                res.setStringPayload(result);
+                res.setTextPayload(result);
             }
         }
         _ = conn -> respond(res);
@@ -168,7 +168,7 @@ service<http:Service> counter bind sessionEP {
         session.setAttribute("Counter", sessionCounter);
 
         http:Response res = new;
-        res.setStringPayload(<string> sessionCounter);
+        res.setTextPayload(<string> sessionCounter);
         _ = conn -> respond(res);
     }
 
@@ -193,7 +193,7 @@ service<http:Service> counter bind sessionEP {
         session.setAttribute("Counter", sessionCounter);
 
         http:Response res = new;
-        res.setStringPayload(<string>(sessionCounter));
+        res.setTextPayload(<string>(sessionCounter));
         _ = conn -> respond(res);
     }
 }
@@ -213,7 +213,7 @@ service<http:Service> sample2 bind sessionEP {
         Session.setAttribute("name", "chamil");
 
         http:Response res = new;
-        res.setStringPayload(myName);
+        res.setTextPayload(myName);
         _ = conn -> respond(res);
     }
 
@@ -222,8 +222,8 @@ service<http:Service> sample2 bind sessionEP {
     }
     myStruct (endpoint conn, http:Request req) {
         http:Response res = new;
-        match req.getStringPayload() {
-            http:PayloadError err => res.setStringPayload("Error");
+        match req.getTextPayload() {
+            http:PayloadError err => res.setTextPayload("Error");
             string payload => {
                 Data d = {name:payload};
                 http:Session Session = req.createSessionIfAbsent();
@@ -237,7 +237,7 @@ service<http:Service> sample2 bind sessionEP {
                 } else {
                     Session.setAttribute("nameStruct", d);
                 }
-                res.setStringPayload(d.name);
+                res.setTextPayload(d.name);
             }
         }
         _ = conn -> respond(res);
@@ -256,7 +256,7 @@ service<http:Service> sample2 bind sessionEP {
         int arrsize = lengthof arr;
 
         http:Response res = new;
-        res.setStringPayload("arraysize:" + arrsize);
+        res.setTextPayload("arraysize:" + arrsize);
         _ = conn -> respond(res);
     }
 
@@ -272,7 +272,7 @@ service<http:Service> sample2 bind sessionEP {
         string[] arr = session.getAttributeNames();
 
         http:Response res = new;
-        res.setStringPayload(arr[0]);
+        res.setTextPayload(arr[0]);
         _ = conn -> respond(res);
     }
 
@@ -292,7 +292,7 @@ service<http:Service> sample2 bind sessionEP {
         int arrsize = lengthof arr;
 
         http:Response res = new;
-        res.setStringPayload(<string>(arrsize));
+        res.setTextPayload(<string>(arrsize));
         _ = conn -> respond(res);
     }
 
@@ -311,7 +311,7 @@ service<http:Service> sample2 bind sessionEP {
         int arrsize = lengthof arr;
 
         http:Response res = new;
-        res.setStringPayload(<string>(arrsize));
+        res.setTextPayload(<string>(arrsize));
         _ = conn -> respond(res);
     }
 
@@ -326,7 +326,7 @@ service<http:Service> sample2 bind sessionEP {
         int arrsize = lengthof arr;
 
         http:Response res = new;
-        res.setStringPayload(<string>(arrsize));
+        res.setTextPayload(<string>(arrsize));
         _ = conn -> respond(res);
     }
 
@@ -343,7 +343,7 @@ service<http:Service> sample2 bind sessionEP {
         int arrsize = lengthof arr;
 
         http:Response res = new;
-        res.setStringPayload(<string>(arrsize));
+        res.setTextPayload(<string>(arrsize));
         _ = conn -> respond(res);
     }
 
@@ -362,13 +362,13 @@ service<http:Service> sample2 bind sessionEP {
             string[] arr = attributes.keys();
             string v0;
             v0 = <string>attributes[arr[0]];
-            res.setStringPayload(arr[0] + ":" + v0);
+            res.setTextPayload(arr[0] + ":" + v0);
         } else {
             map attributes = session.getAttributes();
             string[] arr = attributes.keys();
             string v1;
             v1 = <string>attributes[arr[1]];
-            res.setStringPayload(arr[1] + ":" + v1);
+            res.setTextPayload(arr[1] + ":" + v1);
         }
         _ = conn -> respond(res);
     }
@@ -387,7 +387,7 @@ service<http:Service> sample2 bind sessionEP {
             v0 = <string>attributes[arr[0]];
         }
         http:Response res = new;
-        res.setStringPayload("value" + ":" + v0);
+        res.setTextPayload("value" + ":" + v0);
         _ = conn -> respond(res);
     }
 
@@ -401,7 +401,7 @@ service<http:Service> sample2 bind sessionEP {
         string id = session.getId();
 
         http:Response res = new;
-        res.setStringPayload(id);
+        res.setTextPayload(id);
         _ = conn -> respond(res);
     }
 
@@ -417,7 +417,7 @@ service<http:Service> sample2 bind sessionEP {
             id = session.getId();
         }
         http:Response res = new;
-        res.setStringPayload(id);
+        res.setTextPayload(id);
         _ = conn -> respond(res);
     }
 
@@ -431,7 +431,7 @@ service<http:Service> sample2 bind sessionEP {
         boolean stat = session.isNew();
 
         http:Response res = new;
-        res.setStringPayload(<string>(stat));
+        res.setTextPayload(<string>(stat));
         _ = conn -> respond(res);
     }
 
@@ -445,7 +445,7 @@ service<http:Service> sample2 bind sessionEP {
         int time = session.getCreationTime();
 
         http:Response res = new;
-        res.setStringPayload(<string>(time));
+        res.setTextPayload(<string>(time));
         _ = conn -> respond(res);
     }
 
@@ -460,7 +460,7 @@ service<http:Service> sample2 bind sessionEP {
         int time = session.getCreationTime();
 
         http:Response res = new;
-        res.setStringPayload(<string>(time));
+        res.setTextPayload(<string>(time));
         _ = conn -> respond(res);
     }
 
@@ -474,7 +474,7 @@ service<http:Service> sample2 bind sessionEP {
         int time = session.getLastAccessedTime();
 
         http:Response res = new;
-        res.setStringPayload(<string>(time));
+        res.setTextPayload(<string>(time));
         _ = conn -> respond(res);
     }
 
@@ -489,7 +489,7 @@ service<http:Service> sample2 bind sessionEP {
         int time = session.getLastAccessedTime();
 
         http:Response res = new;
-        res.setStringPayload(<string>(time));
+        res.setTextPayload(<string>(time));
         _ = conn -> respond(res);
     }
 
@@ -504,7 +504,7 @@ service<http:Service> sample2 bind sessionEP {
         session.setMaxInactiveInterval(60);
 
         http:Response res = new;
-        res.setStringPayload(<string>(time));
+        res.setTextPayload(<string>(time));
         _ = conn -> respond(res);
     }
 
@@ -519,7 +519,7 @@ service<http:Service> sample2 bind sessionEP {
         session.setMaxInactiveInterval(89);
 
         http:Response res = new;
-        res.setStringPayload("done");
+        res.setTextPayload("done");
         _ = conn -> respond(res);
     }
 
@@ -534,7 +534,7 @@ service<http:Service> sample2 bind sessionEP {
         session.setMaxInactiveInterval(-1);
 
         http:Response res = new;
-        res.setStringPayload(<string>(time));
+        res.setTextPayload(<string>(time));
         _ = conn -> respond(res);
     }
 
@@ -552,7 +552,7 @@ service<http:Service> sample2 bind sessionEP {
         Session.setAttribute("name", "SecondName");
 
         http:Response res = new;
-        res.setStringPayload(myName);
+        res.setTextPayload(myName);
         _ = conn -> respond(res);
     }
 }

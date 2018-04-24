@@ -15,7 +15,9 @@
 // under the License.
 
 
-@Description {value:"Schedules a timer task"}
+documentation {
+    Schedules a timer task.
+}
 public type Timer object {
 
     private {
@@ -35,7 +37,7 @@ public type Timer object {
     }
 
     // defaultable delay is -1, which means the delay will be the same as the interval
-    new(onTrigger, onError, interval, delay = -1) {}
+    public new(onTrigger, onError, interval, delay = -1) {}
 
     // Start the timer
     public native function start();
@@ -43,7 +45,9 @@ public type Timer object {
     public native function stop();
 };
 
-@Description {value:"Schedules an appointment"}
+documentation {
+    Schedules an appointment.
+}
 public type Appointment object {
     private {
         // The function which gets called when the appointment is up
@@ -59,7 +63,7 @@ public type Appointment object {
         boolean isRunning;
     }
 
-    new(onTrigger, onError, scheduleCronExpression) {}
+    public new(onTrigger, onError, scheduleCronExpression) {}
 
     // Schedule the appointment
     public native function schedule();

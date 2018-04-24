@@ -180,6 +180,16 @@
     "after comment": "",
     "dent": true
   },
+  "CompoundAssignment": {
+    "before variable": "",
+    "after variable": " ",
+    "before +=": "",
+    "after +=": " ",
+    "before expression": "",
+    "after expression": "",
+    "before ;": "",
+    "after ;": ""
+  },
   "Connector": {
     "before annotationAttachments": "",
     "after annotationAttachments": "",
@@ -258,6 +268,14 @@
     "after documentationText": "",
     "before }": "",
     "after }": ""
+  },
+  "ElvisExpr": {
+    "before leftExpression": "",
+    "after leftExpression": "",
+    "before ?:": "",
+    "after ?:": "",
+    "before rightExpression": "",
+    "after rightExpression": ""
   },
   "Endpoint": {
     "before annotationAttachments": "",
@@ -430,8 +448,8 @@
     "after ]": ""
   },
   "Invocation": {
-    "before async": "",
-    "after async": " ",
+    "before start": "",
+    "after start": " ",
     "before expression": "",
     "after expression": "",
     "before .": "",
@@ -458,6 +476,14 @@
     "after unescapedValue": "",
     "before value": "",
     "after value": ""
+  },
+  "Lock": {
+    "before lock": "",
+    "after lock": "",
+    "before {": "",
+    "after {": "",
+    "before }": "",
+    "after }": ""
   },
   "Match": {
     "before match": "",
@@ -541,6 +567,14 @@
     "before }":"",
     "after }": ""
   },
+  "PostIncrement": {
+    "before variable": "",
+    "after variable": "",
+    "before operator": "",
+    "after operator": "",
+    "before ;": "",
+    "after ;": ""
+  },
   "RecordLiteralExpr": {
     "before {": "",
     "after {": "",
@@ -582,6 +616,12 @@
     "after workers": "",
     "before }": "",
     "after }": ""
+  },
+  "RestArgsExpr": {
+    "before ...": "",
+    "after ...": "",
+    "before expression": "",
+    "after expression": ""
   },
   "Retry": {
     "before retry": "",
@@ -648,6 +688,10 @@
     "after expressions": "",
     "before `": "",
     "after `": ""
+  },
+  "Table": {
+    "before table": "",
+    "after table": ""
   },
   "TernaryExpr": {
     "before condition": "",
@@ -800,6 +844,16 @@
     "after >": " ",
     "before expression": "",
     "after expression": ""
+  },
+  "TypeDefinition": {
+    "before type":"",
+    "after type":" ",
+    "before name":"",
+    "after name":" "
+  },
+  "TypedescExpression": {
+    "before typeNode": "",
+    "after typeNode": ""
   },
   "TypeofExpression": {
     "before typeof": "",

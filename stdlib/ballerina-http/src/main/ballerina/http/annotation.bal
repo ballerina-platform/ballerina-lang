@@ -80,6 +80,7 @@ documentation {
     F{{basePath}} Path of the WebSocket service
     F{{subProtocols}} Negotiable sub protocol by the service
     F{{idleTimeoutInSeconds}} Idle timeout for the client connection. This can be triggered by putting onIdleTimeout resource in WS service.
+    F{{maxFrameSize}} The maximum payload size of a WebSocket frame in bytes
 }
 public type WSServiceConfig {
     Listener[] endpoints,
@@ -87,6 +88,7 @@ public type WSServiceConfig {
     string path,
     string[] subProtocols,
     int idleTimeoutInSeconds,
+    int maxFrameSize,
 };
 
 //@Description {value:"This specifies the possible ways in which a service can be used when serving requests."}

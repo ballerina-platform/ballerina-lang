@@ -249,7 +249,7 @@ public class ParserUtils {
             pkg.getEnums().forEach((enumerator) -> extractEnums(packages, packageName, enumerator));
             pkg.objects.forEach((object) -> extractObjects(packages, packageName, object));
             pkg.records.forEach((record) -> extractRecords(packages, packageName, record));
-            extractEndpoints(packages, packageName, pkg.structs, pkg.functions);
+            extractEndpoints(packages, packageName, pkg.objects, pkg.functions);
         }
     }
 
@@ -464,23 +464,23 @@ public class ParserUtils {
     }
 
     private static void extractEndpoints(Map<String, ModelPackage> packages, String packagePath,
-                                         List<BLangStruct> structs, List<BLangFunction> functions) {
+                                         List<BLangObject> objects, List<BLangFunction> functions) {
         functions.forEach((function) -> {
             if (function.getName().getValue().equals("register") && function.receiver != null &&
                     function.receiver.getTypeNode() instanceof UserDefinedTypeNode) {
-                String structName = function.receiver.getTypeNode().type.tsymbol.name.getValue();
-                structs.forEach((struct) -> {
-                    if (struct.name.getValue().equals(structName)) {
-                        String fileName = struct.getPosition().getSource().getCompilationUnitName();
+                String objectName = function.receiver.getTypeNode().type.tsymbol.name.getValue();
+                objects.forEach((object) -> {
+                    if (object.name.getValue().equals(objectName)) {
+                        String fileName = object.getPosition().getSource().getCompilationUnitName();
                         if (packages.containsKey(packagePath)) {
                             ModelPackage modelPackage = packages.get(packagePath);
-                            modelPackage.addEndpointItem(createNewEndpoint(struct.name.getValue(),
-                                    new ArrayList<>(), struct.fields, packagePath, fileName));
+                            modelPackage.addEndpointItem(createNewEndpoint(object.name.getValue(),
+                                    new ArrayList<>(), object.fields, packagePath, fileName));
                         } else {
                             ModelPackage modelPackage = new ModelPackage();
                             modelPackage.setName(packagePath);
-                            modelPackage.addEndpointItem(createNewEndpoint(struct.name.getValue(), new ArrayList<>(),
-                                    struct.fields, packagePath, fileName));
+                            modelPackage.addEndpointItem(createNewEndpoint(object.name.getValue(), new ArrayList<>(),
+                                    object.fields, packagePath, fileName));
                             packages.put(packagePath, modelPackage);
                         }
                     }

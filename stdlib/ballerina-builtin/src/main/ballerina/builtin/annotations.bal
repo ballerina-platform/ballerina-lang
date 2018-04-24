@@ -14,9 +14,27 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
-@Description {value:"Representation of readonly annotation"}
+documentation {
+    Representation of readonly annotation.
+}
 public annotation<type> readonly;
 
-@Description {value:"Representation of final annotation"}
+documentation {
+    Representation of final annotation.
+}
 public annotation<type> final;
+
+documentation {
+    Denote that the parameter is security sensitive hence tainted data should not be accepted.
+}
+public annotation<type, parameter> sensitive;
+
+documentation {
+    Denote that the return value is tainted.
+}
+public annotation<type, parameter> tainted;
+
+documentation {
+    Denote that the return value is untainted.
+}
+public annotation<type, parameter> untainted;

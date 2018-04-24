@@ -43,6 +43,7 @@ under the License.
                 <exclude name="org.ballerinalang.test.statements.transform.*"/>
             </package>
             <package name="org.ballerinalang.test.types.*"/>
+            <package name="org.ballerinalang.test.access.*"/>
             <package name="org.ballerinalang.test.functions.*"/>
             <package name="org.ballerinalang.test.worker.*"/>
             <package name="org.ballerinalang.test.nativeimpl.*"/>
@@ -81,7 +82,6 @@ under the License.
 			<class name="org.ballerinalang.test.types.map.BMapValueTest" />
 			<class name="org.ballerinalang.test.types.map.MapAccessExprTest" />
 			<class name="org.ballerinalang.test.types.map.MapInitializerExprTest" />
-		        <class name="org.ballerinalang.test.net.websocket.compilation.WebSocketCompilationTest" />
 		</classes>
     </test>
     <test name="ballerina-security-test-suite" preserve-order="true" parallel="false">

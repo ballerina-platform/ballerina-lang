@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.970.0-beta6-SNAPSHOT</version>
+        <version>0.970.0-beta14-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -98,7 +98,7 @@
                         <phase>compile</phase>
                         <configuration>
                             <arguments>
-                                <argument>${ballerina.source.directory}/packaging.pull</argument>
+                                <argument>${ballerina.source.directory}/packaging_pull</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -110,7 +110,7 @@
                         <phase>compile</phase>
                         <configuration>
                             <arguments>
-                                <argument>${ballerina.source.directory}/packaging.push</argument>
+                                <argument>${ballerina.source.directory}/packaging_push</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -122,7 +122,7 @@
                         <phase>compile</phase>
                         <configuration>
                             <arguments>
-                                <argument>${ballerina.source.directory}/packaging.search</argument>
+                                <argument>${ballerina.source.directory}/packaging_search</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -167,9 +167,9 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <delete file="${ballerina.source.directory}/packaging.pull/ballerina.pull.balx" />
-                                <delete file="${ballerina.source.directory}/packaging.push/ballerina.push.balx" />
-                                <delete file="${ballerina.source.directory}/packaging.search/ballerina.search.balx" />
+                                <delete file="${ballerina.source.directory}/packaging_pull/packaging_pull.balx" />
+                                <delete file="${ballerina.source.directory}/packaging_push/packaging_push.balx" />
+                                <delete file="${ballerina.source.directory}/packaging_search/packaging_search.balx" />
                             </tasks>
                         </configuration>
                     </execution>

@@ -21,7 +21,7 @@ import ballerina/http;
 //////////////////////////////////////////
 
 documentation {
-    Object representing the WebSub Hub Client Endpoint
+    Object representing the WebSub Hub Client Endpoint.
 }
 public type Client object {
 
@@ -36,11 +36,13 @@ public type Client object {
     documentation {
         Gets called when the endpoint is being initialized during package init.
 
-        P{{config}} The configuration for the endpoint.
+        P{{config}} The configuration for the endpoint
     }
-    public function init (HubClientEndpointConfiguration config) {
-        endpoint http:Client httpClientEndpoint {url:config.url, secureSocket:config.secureSocket,
-                                                    auth:config.auth};
+    public function init(HubClientEndpointConfiguration config) {
+        endpoint http:Client httpClientEndpoint {
+            url:config.url, secureSocket:config.secureSocket, auth:config.auth
+        };
+
         self.httpClientEndpoint = httpClientEndpoint;
         self.config = config;
     }
@@ -48,25 +50,25 @@ public type Client object {
     documentation {
         Gets called whenever a service attaches itself to this endpoint and during package init.
 
-        P{{serviceType}} The service attached.
+        P{{serviceType}} The service attached
     }
-    public function register (typedesc serviceType) {
+    public function register(typedesc serviceType) {
         httpClientEndpoint.register(serviceType);
     }
 
     documentation {
         Starts the registered service.
     }
-    public function start () {
+    public function start() {
         httpClientEndpoint.start();
     }
 
     documentation {
         Returns the connector that client code uses.
 
-        R{{}} `CallerActions` The caller actions available for clients.
+        R{{}} `CallerActions` The caller actions available for clients
     }
-    public function getCallerActions () returns (CallerActions) {
+    public function getCallerActions() returns (CallerActions) {
         //TODO: create a single object - move to init
         CallerActions webSubHubClientConn = new CallerActions(config.url, httpClientEndpoint);
         return webSubHubClientConn;
@@ -75,17 +77,16 @@ public type Client object {
     documentation {
         Stops the registered service.
     }
-    public function stop () {
+    public function stop() {
         httpClientEndpoint.stop();
     }
-
 };
 
 documentation {
     Object representing the WebSub Hub Client Endpoint configuration.
 
-    F{{url}} The URL of the target Hub.
-    F{{secureSocket}} SSL/TLS related options.
+    F{{url}} The URL of the target Hub
+    F{{secureSocket}} SSL/TLS related options
 }
 public type HubClientEndpointConfiguration {
     string url,

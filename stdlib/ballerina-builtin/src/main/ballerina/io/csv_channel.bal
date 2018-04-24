@@ -27,7 +27,7 @@ public type CSVChannel object {
         DelimitedTextRecordChannel? dc;
     }
 
-    new(CharacterChannel channel, Seperator fs = ",", boolean hasHeader = true) {
+    public new(CharacterChannel channel, Seperator fs = ",", boolean hasHeader = true) {
         if (fs == TAB){
             dc = new DelimitedTextRecordChannel(channel, fmt = "TDF");
         } else if (fs == COLON){

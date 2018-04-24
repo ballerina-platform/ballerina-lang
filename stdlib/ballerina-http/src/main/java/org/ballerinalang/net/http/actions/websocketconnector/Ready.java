@@ -43,7 +43,6 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
                 @Argument(name = "wsConnector", type = TypeKind.STRUCT),
         }
 )
-//Todo: Fix this: It is blocking because of the limitations in the transport where sendPing does not return a Future
 public class Ready implements NativeCallableUnit {
 
     @Override

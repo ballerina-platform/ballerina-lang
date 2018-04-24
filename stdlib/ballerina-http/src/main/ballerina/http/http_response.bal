@@ -155,19 +155,24 @@ public type Response object {
     }
     public function getXmlPayload () returns xml|PayloadError;
 
+    @Description {value:"Get the text payload from the response"}
+    @Param {value:"response: The response message"}
+    @Return {value:"The string representation of the message payload or 'PayloadError' in case of errors"}
+    public function getTextPayload () returns (string | PayloadError);
+
     documentation {
         Gets the response payload as a `string`.
 
         R{{}} The string representation of the message payload or `PayloadError` in case of errors
     }
-    public function getStringPayload () returns string|PayloadError;
+    public function getPayloadAsString () returns (string | PayloadError);
 
     documentation {
         Gets the response payload as a `blob`.
 
         R{{}} The blob representation of the message payload or `PayloadError` in case of errors
     }
-    public function getBinaryPayload () returns blob|PayloadError;
+    public function getBinaryPayload () returns (blob | PayloadError);
 
     documentation {
         Gets the response payload as a `ByteChannel` except in the case of multiparts. To retrieve multiparts, use
@@ -175,7 +180,7 @@ public type Response object {
 
         R{{}} A byte channel from which the message payload can be read or `PayloadError` in case of errors
     }
-    public function getByteChannel () returns io:ByteChannel|PayloadError;
+    public function getByteChannel () returns (io:ByteChannel | PayloadError);
 
     documentation {
         Get multiparts from response.
@@ -183,7 +188,7 @@ public type Response object {
         R{{}} Returns the body parts as an array of entities or an `EntityError` if there were any errors in
               constructing the body parts from the response
     }
-    public function getBodyParts () returns mime:Entity[]|mime:EntityError;
+    public function getBodyParts () returns (mime:Entity[] | mime:EntityError);
 
     documentation {
         Sets the `etag` header for the given payload. The ETag is generated using a CRC32 hash function.
@@ -222,7 +227,7 @@ public type Response object {
         P{{contentType}} The content type of the payload. Set this to override the default `content-type` header value
                          for `string`.
     }
-    public function setStringPayload(string payload, string contentType = "text/plain");
+    public function setTextPayload(string payload, string contentType = "text/plain");
 
     documentation {
         Sets a `blob` as the payload.
@@ -347,13 +352,25 @@ public function Response::getXmlPayload () returns xml|PayloadError {
     }
 }
 
-public function Response::getStringPayload () returns string|PayloadError {
+public function Response::getTextPayload() returns (string | PayloadError) {
     match self.getEntity() {
         mime:EntityError err => return <PayloadError>err;
         mime:Entity mimeEntity => {
             match mimeEntity.getText() {
                 mime:EntityError payloadErr => return <PayloadError>payloadErr;
                 string textPayload => return textPayload;
+            }
+        }
+    }
+}
+
+public function Response::getPayloadAsString() returns (string | PayloadError) {
+    match self.getEntity() {
+        mime:EntityError err => return <PayloadError>err;
+        mime:Entity mimeEntity => {
+            match mimeEntity.getBodyAsString() {
+                mime:EntityError payloadErr => return <PayloadError>payloadErr;
+                string stringPayload => return stringPayload;
             }
         }
     }
@@ -414,13 +431,13 @@ public function Response::setXmlPayload (xml payload, string contentType="applic
     self.setEntity(entity);
 }
 
-public function Response::setStringPayload (string payload, string contentType="text/plain") {
+public function Response::setTextPayload(string payload, string contentType="text/plain") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setText(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-public function Response::setBinaryPayload (blob payload, string contentType="application/octet-stream") {
+public function Response::setBinaryPayload(blob payload, string contentType="application/octet-stream") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setBlob(payload, contentType = contentType);
     self.setEntity(entity);
@@ -446,7 +463,7 @@ public function Response::setByteChannel (io:ByteChannel payload, string content
 
 public function Response::setPayload (string|xml|json|blob|io:ByteChannel|mime:Entity[] payload) {
     match payload {
-        string textContent => self.setStringPayload(textContent);
+        string textContent => self.setTextPayload(textContent);
         xml xmlContent => self.setXmlPayload(xmlContent);
         json jsonContent => self.setJsonPayload(jsonContent);
         blob blobContent => self.setBinaryPayload(blobContent);

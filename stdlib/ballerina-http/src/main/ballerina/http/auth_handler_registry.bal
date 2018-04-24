@@ -24,7 +24,7 @@ public type AuthHandlerRegistry object {
     private {
         map<HttpAuthnHandler> httpAuthHandlers;
     }
-    new () {
+    public new () {
     }
 
     documentation {

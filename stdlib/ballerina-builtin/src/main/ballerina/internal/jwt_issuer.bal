@@ -14,10 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 import ballerina/io;
 
-@Description {value:"Represents JWT issuer configurations"}
+documentation {
+    Represents JWT issuer configurations.
+}
 public type JWTIssuerConfig {
     string keyAlias,
     string keyPassword,
@@ -25,13 +26,16 @@ public type JWTIssuerConfig {
     string keyStorePassword,
 };
 
-@Description {value:"Issue a JWT token"}
-@Param {value:"header: JwtHeader object"}
-@Param {value:"payload: JwtPayload object"}
-@Param {value:"config: JWTIssuerConfig object"}
-@Return {value:"string: JWT token string"}
-@Return {value:"error: If token validation fails "}
-public function issue (JwtHeader header, JwtPayload payload, JWTIssuerConfig config) returns (string|error) {
+documentation {
+    Issue a JWT token.
+
+    P{{header}} JwtHeader object
+    P{{payload}} JwtPayload object
+    P{{config}} JWTIssuerConfig object
+    R{{}} JWT token string
+    R{{}} If token validation fails
+}
+public function issue(JwtHeader header, JwtPayload payload, JWTIssuerConfig config) returns (string|error) {
     string jwtHeader = createHeader(header);
     string jwtPayload = "";
     match createPayload(payload) {
@@ -48,7 +52,7 @@ public function issue (JwtHeader header, JwtPayload payload, JWTIssuerConfig con
     return (jwtAssertion + "." + signature);
 }
 
-function createHeader (JwtHeader header) returns (string) {
+function createHeader(JwtHeader header) returns (string) {
     json headerJson = {};
     headerJson[ALG] = header.alg;
     headerJson[TYP] = "JWT";
@@ -58,7 +62,7 @@ function createHeader (JwtHeader header) returns (string) {
     return encodedPayload;
 }
 
-function createPayload (JwtPayload payload) returns (string|error) {
+function createPayload(JwtPayload payload) returns (string|error) {
     json payloadJson = {};
     if (!validateMandatoryFields(payload)) {
         error err = {message:"Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty."};
@@ -77,7 +81,7 @@ function createPayload (JwtPayload payload) returns (string|error) {
     return payloadInString.base64Encode();
 }
 
-function addMapToJson (json inJson, map mapToConvert) returns (json) {
+function addMapToJson(json inJson, map mapToConvert) returns (json) {
     if (lengthof mapToConvert != 0) {
         foreach key in mapToConvert.keys() {
             match mapToConvert[key]{
@@ -93,7 +97,7 @@ function addMapToJson (json inJson, map mapToConvert) returns (json) {
     return inJson;
 }
 
-function convertStringArrayToJson (string[] arrayToConvert) returns (json) {
+function convertStringArrayToJson(string[] arrayToConvert) returns (json) {
     json jsonPayload = [];
     int i = 0;
     while (i < lengthof arrayToConvert) {
@@ -103,7 +107,7 @@ function convertStringArrayToJson (string[] arrayToConvert) returns (json) {
     return jsonPayload;
 }
 
-function convertIntArrayToJson (int[] arrayToConvert) returns (json) {
+function convertIntArrayToJson(int[] arrayToConvert) returns (json) {
     json jsonPayload = [];
     int i = 0;
     while (i < lengthof arrayToConvert) {

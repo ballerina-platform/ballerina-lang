@@ -22,7 +22,7 @@ service<http> Bankinfo {
             res.setJsonPayload(payload);
         } else {
             res.statusCode = 500;
-            res.setStringPayload(payloadError.message);
+            res.setTextPayload(payloadError.message);
         }
 
         _ = conn.respond(res);

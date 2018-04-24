@@ -80,6 +80,10 @@ Comment
    : <comment>
    ;
 
+CompoundAssignment
+   : <variable.source> += <expression.source> ;
+   ;
+
 Connector
    : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> connector <name.value> ( <parameters-joined-by,>* ) { <variableDefs>* <actions>* }
    | <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> connector <name.value> ( <parameters-joined-by,>* ) { <actions>* }
@@ -104,6 +108,10 @@ DocumentationAttribute
 
 Deprecated
    : deprecated { <documentationText> }
+   ;
+
+ElvisExpr
+   : <leftExpression.source> ?: <rightExpression.source>
    ;
 
 Endpoint
@@ -137,16 +145,18 @@ ForkJoin
 
 Function
    : <defaultConstructor?>
-   | <isConstructor?>          <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                <name.value> ( <parameters-joined-by,>*                         )                                                   { <endpointNodes>* <body.source> <workers>* }
-   | <isConstructor?>          <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                <name.value> ( <parameters-joined-by,>* <restParameters.source> )                                                   { <endpointNodes>* <body.source> <workers>* }
-   | <lambda?>                 <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* function                                                    ( <parameters-joined-by,>* <restParameters.source> )                ( <returnParameters-joined-by,>+ ) { <endpointNodes>* <body.source> <workers>* }
-   | <lambda?>                 <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* function                                                    ( <parameters-joined-by,>* <restParameters.source> )                                                   { <endpointNodes>* <body.source> <workers>* }
-   | <noVisibleReceiver?>      <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function                       <name.value> ( <parameters-joined-by,>* <restParameters.source> ) <hasReturns?>  returns <returnTypeNode.source>    { <endpointNodes>* <body.source> <workers>* }
-   | <noVisibleReceiver?>      <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function                       <name.value> ( <parameters-joined-by,>* <restParameters.source> )                                                   { <endpointNodes>* <body.source> <workers>* }
-   | <hasReturns?>             <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>* <restParameters.source> )                returns <returnTypeNode.source>    { <endpointNodes>* <body.source> <workers>* }
-   | <hasReturns?>             <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function                       <name.value> ( <parameters-joined-by,>* <restParameters.source> )                returns <returnTypeNode.source>    { <endpointNodes>* <body.source> <workers>* }
-   |                           <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>* <restParameters.source> )                                                   { <endpointNodes>* <body.source> <workers>* }
-   |                           <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function                       <name.value> ( <parameters-joined-by,>* <restParameters.source> )                                                   { <endpointNodes>* <body.source> <workers>* }
+   | <isConstructor?>          <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                <name.value> ( <parameters-joined-by,>* <hasRestParams?,> <restParameters.source> )                                                                                      { <endpointNodes>* <body.source> <workers>* }
+   | <isConstructor?>          <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                <name.value> ( <parameters-joined-by,>*                                           )                                                                                      { <endpointNodes>* <body.source> <workers>* }
+   | <lambda?>                 <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* function                                                    ( <parameters-joined-by,>* <hasRestParams?,> <restParameters.source> )                ( <returnParameters-joined-by,>+ )                                    { <endpointNodes>* <body.source> <workers>* }
+   | <lambda?>                 <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* function                                                    ( <parameters-joined-by,>* <hasRestParams?,> <restParameters.source> )                                                                                      { <endpointNodes>* <body.source> <workers>* }
+   | <noVisibleReceiver?>      <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function                       <name.value> ( <parameters-joined-by,>* <hasRestParams?,> <restParameters.source> ) <hasReturns?>  returns <returnTypeAnnotationAttachments>* <returnTypeNode.source>    { <endpointNodes>* <body.source> <workers>* }
+   | <noVisibleReceiver?>      <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function                       <name.value> ( <parameters-joined-by,>* <hasRestParams?,> <restParameters.source> )                                                                                      { <endpointNodes>* <body.source> <workers>* }
+   | <hasReturns?>             <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>* <hasRestParams?,> <restParameters.source> )                returns <returnTypeAnnotationAttachments>* <returnTypeNode.source>    { <endpointNodes>* <body.source> <workers>* }
+   | <hasReturns?>             <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>*                                           )                returns <returnTypeAnnotationAttachments>* <returnTypeNode.source>    { <endpointNodes>* <body.source> <workers>* }
+   | <hasReturns?>             <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function                       <name.value> ( <parameters-joined-by,>* <hasRestParams?,> <restParameters.source> )                returns <returnTypeAnnotationAttachments>* <returnTypeNode.source>    { <endpointNodes>* <body.source> <workers>* }
+   | <hasReturns?>             <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function                       <name.value> ( <parameters-joined-by,>*                                           )                returns <returnTypeAnnotationAttachments>* <returnTypeNode.source>    { <endpointNodes>* <body.source> <workers>* }
+   |                           <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>* <hasRestParams?,> <restParameters.source> )                                                                                      { <endpointNodes>* <body.source> <workers>* }
+   |                           <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function                       <name.value> ( <parameters-joined-by,>* <hasRestParams?,> <restParameters.source> )                                                                                      { <endpointNodes>* <body.source> <workers>* }
    ;
 
 FunctionType
@@ -165,10 +175,10 @@ IndexBasedAccessExpr
    ;
 
 Invocation
-   : <actionInvocation?>      <async?async> <expression.source>  ->   <name.value> ( <argumentExpressions-joined-by,>* )
-   | <expression.source>  .   <async?async> <name.value> ( <argumentExpressions-joined-by,>* )
-   | <packageAlias.value> :   <async?async> <name.value> ( <argumentExpressions-joined-by,>* )
-   |                          <async?async> <name.value> ( <argumentExpressions-joined-by,>* )
+   : <actionInvocation?>      <async?start> <expression.source>  ->   <name.value> ( <argumentExpressions-joined-by,>* )
+   | <expression.source>  .   <async?start>                           <name.value> ( <argumentExpressions-joined-by,>* )
+   | <packageAlias.value> :   <async?start>                           <name.value> ( <argumentExpressions-joined-by,>* )
+   |                          <async?start>                           <name.value> ( <argumentExpressions-joined-by,>* )
    ;
 
 Lambda
@@ -179,6 +189,10 @@ Literal
    : <inTemplateLiteral?> <unescapedValue>
    : <inTemplateLiteral?>
    | <value>
+   ;
+
+Lock
+   : lock { <body.source> }
    ;
 
 Match
@@ -213,6 +227,10 @@ Object
    |                             <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> object { public { <publicFields-suffixed-by-;>* } private { <privateFields-suffixed-by-;>* } <initFunction.source> <functions>* };
    ;
 
+PostIncrement
+   : <variable.source> <operator> ;
+   ;
+
 Record
    : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* type <name.value> { <fields-suffixed-by-;>* };
    ;
@@ -228,6 +246,10 @@ RecordLiteralKeyValue
 
 Resource
    : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <name.value> ( <parameters-joined-by,>* ) { <body.source> <workers>* }
+   ;
+
+RestArgsExpr
+   : ... <expression.source>
    ;
 
 Return
@@ -250,6 +272,10 @@ SimpleVariableRef
 
 StringTemplateLiteral
    : string\u0020` <expressions>* `
+   ;
+
+Table
+   : table <configurationExpression.source>
    ;
 
 TernaryExpr
@@ -312,11 +338,21 @@ TypeConversionExpr
    | < <typeNode.source> > <expression.source>
    ;
 
+TypeDefinition
+   : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> <typeNode.source> | <valueSet-joined-by|>* ;
+   | <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                     <valueSet-joined-by|>* ;
+   ;
+
+TypedescExpression
+   : <typeNode.source>
+   ;
+
 TypeofExpression
    : typeof <typeNode.source>
    ;
 
 TypeInitExpr
+   : <noExpressionAvailable?> new <hasParantheses?> (                           )
    : <noExpressionAvailable?> new
    | <noTypeAttached?>        new                   ( <expressions-joined-by,>* )
    |                          new <typeName.source> ( <expressions-joined-by,>* )
@@ -333,8 +369,10 @@ UnionTypeNode
 
 UserDefinedType
    : <anonStruct.source>
-   | <packageAlias.value> : <typeName.value>
-   | <typeName.value>
+   | <nullableOperatorAvailable?> <packageAlias.value> : <typeName.value> ?
+   | <nullableOperatorAvailable?>                        <typeName.value> ?
+   |                              <packageAlias.value> : <typeName.value>
+   |                                                     <typeName.value>
    |
    ;
 
