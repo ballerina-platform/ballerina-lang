@@ -51,7 +51,7 @@ function main(string... args) {
         }
     }
 
-    //Convert the returned table into json.
+    // Convert the returned table into json.
     var jsonConversionReturnVal = <json>dt;
     match jsonConversionReturnVal {
         json jsonRes => io:println(io:sprintf("%s", jsonRes));
