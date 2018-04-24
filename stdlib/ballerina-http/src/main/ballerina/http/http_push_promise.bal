@@ -26,6 +26,12 @@ public type PushPromise object {
         string method;
     }
 
+    documentation {
+        Constructs a PushPromise from a given path and a method.
+
+        P{{path}} The resource path
+        P{{method}} The HTTP method
+    }
     public new (path = "/", method = "GET") {
     }
 
