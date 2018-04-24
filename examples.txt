@@ -14,7 +14,7 @@ Elvis Operator
 Functions
 Functions With Defaultable Parameters
 Functions With Rest Parameters
-Errors
+Error Handling
 Var
 Any Type
 Type Conversion
@@ -42,10 +42,10 @@ XML To JSON Conversion
 Streams
 Foreach
 Functional Iteration
-Worker
+Workers
 Worker Interaction
 Fork/Join
-Fork/Join Condition Some
+Fork/Join Conditional Join
 Fork/Join Variable Access
 Async
 JDBC Client
