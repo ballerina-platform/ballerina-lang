@@ -15,8 +15,16 @@ public type HelloWorldStub object {
         self.stub = navStub;
     }
 
-    function lotsOfReplies(string req, typedesc listener, grpc:Headers... headers) returns (error?) {
-        return self.stub.nonBlockingExecute("HelloWorld/lotsOfReplies", req, listener, ...headers);
+    function lotsOfGreetings(typedesc listener, grpc:Headers? headers = ()) returns (grpc:Client|error) {
+        var res = self.stub.streamingExecute("HelloWorld/lotsOfGreetings", listener, headers = headers);
+        match res {
+            error err => {
+                return err;
+            }
+            grpc:Client con => {
+                return con;
+            }
+        }
     }
 };
 
@@ -47,7 +55,7 @@ public type HelloWorldClient object {
 map descriptorMap =
 {
     "HelloWorld.proto":
-    "0A1048656C6C6F576F726C642E70726F746F1A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F325B0A0A48656C6C6F576F726C64124D0A0D6C6F74734F665265706C696573121B676F6F676C652E70726F746F6275662E537472696E6756616C75651A1B676F6F676C652E70726F746F6275662E537472696E6756616C756528003001620670726F746F33"
+    "0A1048656C6C6F576F726C642E70726F746F1A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F325D0A0A48656C6C6F576F726C64124F0A0F6C6F74734F664772656574696E6773121B676F6F676C652E70726F746F6275662E537472696E6756616C75651A1B676F6F676C652E70726F746F6275662E537472696E6756616C756528013000620670726F746F33"
     ,
 
     "google.protobuf.google/protobuf/wrappers.proto":
