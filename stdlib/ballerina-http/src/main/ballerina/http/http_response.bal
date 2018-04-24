@@ -142,21 +142,21 @@ public type Response object {
     public function getContentType() returns string;
 
     documentation {
-        Extract `json` payload from the response. If the payload is not json compatible, an `error` is returned.
+        Extract `json` payload from the response. If the content-type is not JSON, an `error` is returned.
 
         R{{}} The `json` payload or `error` in case of errors
     }
     public function getJsonPayload() returns json|error;
 
     documentation {
-        Extracts `xml` payload from the response. If the payload is not xml compatible, an `error` is returned.
+        Extracts `xml` payload from the response. If the the content-type is not XML, an `error` is returned.
 
         R{{}} The `xml` payload or `error` in case of errors
     }
     public function getXmlPayload() returns xml|error;
 
     documentation {
-        Extracts `text` payload from the response. If the payload is not text compatible, an `error` is returned.
+        Extracts `text` payload from the response. If the content-type is not of type text, an `error` is returned.
 
         R{{}} The string representation of the message payload or `error` in case of errors
     }
@@ -186,8 +186,7 @@ public type Response object {
     public function getBinaryPayload() returns blob|error;
 
     documentation {
-        Extracts body parts from the response. If the payload is not compatible with any composite media type, an error
-        is returned.
+        Extracts body parts from the response. If the payload is not a composite media type, an error is returned.
 
         R{{}} Returns the body parts as an array of entities or an `error` if there were any errors in
               constructing the body parts from the response
