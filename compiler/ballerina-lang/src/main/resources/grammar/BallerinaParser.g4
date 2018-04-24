@@ -97,7 +97,7 @@ privateObjectFields
     ;
 
 objectInitializer
-    :   annotationAttachment* documentationAttachment? (PUBLIC)? (NATIVE)? NEW objectInitializerParameterList callableUnitBody
+    :   annotationAttachment* documentationAttachment? (PUBLIC)? NEW objectInitializerParameterList callableUnitBody
     ;
 
 objectInitializerParameterList
