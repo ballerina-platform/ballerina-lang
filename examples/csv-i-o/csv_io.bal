@@ -38,16 +38,16 @@ function main(string... args) {
     //io:CSVChannel csvChannel = io:openCsvFile(srcFileName, mode="r",fieldSeparator=",",charset="UTF-8",skipHeaders=0);
     io:CSVChannel csvChannel = io:openCsvFile(srcFileName);
     try {
-        io:println("Start processing the CSV file from " + srcFileName);
+        io:println("Start processing the CSV file from ", srcFileName);
         process(csvChannel);
         io:println("Processing completed.");
     } catch (error err) {
-        io:println("An error occurred while processing the records. " + err.message);
+        io:println("An error occurred while processing the records. ", err.message);
     } finally {
         //Close the text record channel.
         match csvChannel.close() {
             error sourceCloseError => {
-                io:println("Error occured while closing the channel: " + sourceCloseError.message);
+                io:println("Error occured while closing the channel: ", sourceCloseError.message);
             }
             () => {
                 io:println("Source channel closed successfully.");
