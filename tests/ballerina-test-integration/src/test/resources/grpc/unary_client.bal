@@ -27,7 +27,7 @@ function testUnaryBlockingClient(string name) returns (string) {
     grpc:Headers headers = new;
     headers.setEntry("x-id", "0987654321");
     // Executing unary blocking call
-    (string, grpc:Headers)|error unionResp = helloWorldBlockingEp->hello("WSO2", headers);
+    (string, grpc:Headers)|error unionResp = helloWorldBlockingEp->hello("WSO2", headers = headers);
     match unionResp {
         (string, grpc:Headers) payload => {
             string result;
@@ -49,7 +49,7 @@ function testBlockingHeader(string name) returns (string) {
     grpc:Headers headers = new;
     headers.setEntry("x-id", "0987654321");
     // Executing unary blocking call
-    (string, grpc:Headers)|error unionResp = helloWorldBlockingEp->hello("WSO2", headers);
+    (string, grpc:Headers)|error unionResp = helloWorldBlockingEp->hello("WSO2", headers = headers);
     match unionResp {
         (string, grpc:Headers) payload => {
             string result;
@@ -80,8 +80,8 @@ public type HelloWorldBlockingStub object {
         self.stub = navStub;
     }
 
-    function hello(string req, grpc:Headers... headers) returns ((string, grpc:Headers)|error) {
-        var unionResp = self.stub.blockingExecute("HelloWorld/hello", req, ...headers);
+    function hello(string req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
+        var unionResp = self.stub.blockingExecute("HelloWorld/hello", req, headers = headers);
         match unionResp {
             error payloadError => {
                 return payloadError;
@@ -109,8 +109,8 @@ public type HelloWorldStub object {
         self.stub = navStub;
     }
 
-    function hello(string req, typedesc listener, grpc:Headers... headers) returns (error|()) {
-        return self.stub.nonBlockingExecute("HelloWorld/hello", req, listener, ...headers);
+    function hello(string req, typedesc listener, grpc:Headers? headers = ()) returns (error|()) {
+        return self.stub.nonBlockingExecute("HelloWorld/hello", req, listener, headers = headers);
     }
 };
 

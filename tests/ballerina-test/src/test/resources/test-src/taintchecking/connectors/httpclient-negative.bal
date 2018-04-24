@@ -20,7 +20,7 @@ function main (string... args) {
                 string stringPayload => {
                     secureFunction (stringPayload, stringPayload);
                 }
-                http:PayloadError payloadError => return;
+                error payloadError => return;
             }
         }
         http:HttpConnectorError err => return;

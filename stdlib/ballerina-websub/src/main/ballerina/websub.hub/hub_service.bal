@@ -60,7 +60,7 @@ service<http:Service> hubService bind hubServiceEP {
         map params;
         match (request.getFormParams()) {
             map<string> reqFormParamMap => { params = reqFormParamMap; }
-            http:PayloadError => {}
+            error => {}
         }
 
         if (params.hasKey(websub:HUB_MODE)) {
@@ -194,7 +194,7 @@ service<http:Service> hubService bind hubServiceEP {
                             }
                             done;
                         }
-                        http:PayloadError payloadError => {
+                        error payloadError => {
                             log:printError("Error retreiving payload for WebSub publish request: "
                                     + payloadError.message);
                         }
@@ -304,7 +304,7 @@ function verifyIntent(string callback, string topic, map params) {
                                 + callback + "]");
                     }
                 }
-                http:PayloadError payloadError => {
+                error payloadError => {
                     log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: [" + callback
                             + "]: Error retrieving response payload: " + payloadError.message);
                 }

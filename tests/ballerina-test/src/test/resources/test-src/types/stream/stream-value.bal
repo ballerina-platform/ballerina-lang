@@ -130,7 +130,7 @@ function testStreamPublishingAndSubscriptionForTupleTypeStream () returns (any[]
     arrayIndex = 0;
     stream<(string, int)> tupleStream;
     tupleStream.subscribe(addToGlobalAnyArrayForTupleType);
-    any[] publishedEvents = [("Maryam", 1234), ("Ziyad", 9876)];
+    any[] publishedEvents = [("tuple1", 1234), ("tuple2", 9876)];
     foreach event in publishedEvents {
         tupleStream.publish(event);
     }
@@ -146,7 +146,7 @@ function testStreamPublishingAndSubscriptionForAnyTypeStream () returns (any[], 
     arrayIndex = 0;
     stream<any> anyStream;
     anyStream.subscribe(addToGlobalAnyArrayForAnyType);
-    any[] publishedEvents = [("Maryam", 1234), "Ziyad", false, 0.5];
+    any[] publishedEvents = [("anyStream", 1234), "any", false, 0.5];
     foreach event in publishedEvents {
         anyStream.publish(event);
     }
@@ -162,7 +162,7 @@ function testStreamPublishingAndSubscriptionForUnconstrainedStream () returns (a
     arrayIndex = 0;
     stream unconstrainedStream;
     unconstrainedStream.subscribe(addToGlobalAnyArrayForAnyType);
-    any[] publishedEvents = [("Maryam", 1234), "Ziyad", false, 0.5];
+    any[] publishedEvents = [("unconstrainedStream", 9876), "unconstrained", true, 10.5];
     foreach event in publishedEvents {
         unconstrainedStream.publish(event);
     }

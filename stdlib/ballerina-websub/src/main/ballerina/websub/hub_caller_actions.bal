@@ -123,7 +123,7 @@ public function CallerActions::registerTopic(string topic, string? secret = ()) 
     match (registrationResponse) {
         http:Response response => {
             if (response.statusCode != http:ACCEPTED_202) {
-                string payload = response.getTextPayload() but { http:PayloadError => "" };
+                string payload = response.getTextPayload() but { error => "" };
                 error webSubError = {message:"Error occured during topic registration: " + payload};
                 return webSubError;
             }
@@ -144,7 +144,7 @@ public function CallerActions::unregisterTopic(string topic, string? secret = ()
     match (unregistrationResponse) {
         http:Response response => {
             if (response.statusCode != http:ACCEPTED_202) {
-                string payload = response.getTextPayload() but { http:PayloadError => "" };
+                string payload = response.getTextPayload() but { error => "" };
                 error webSubError = {message:"Error occured during topic unregistration: " + payload};
                 return webSubError;
             }
@@ -305,7 +305,7 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
                 string errorMessage = "Error in request: Mode[" + mode + "] at Hub[" + hub + "]";
                 match (responsePayload) {
                     string responseErrorPayload => { errorMessage = errorMessage + " - " + responseErrorPayload; }
-                    http:PayloadError payloadError => { errorMessage = errorMessage + " - "
+                    error payloadError => { errorMessage = errorMessage + " - "
                         + "Error occurred identifying cause: "
                         + payloadError.message; }
                 }
