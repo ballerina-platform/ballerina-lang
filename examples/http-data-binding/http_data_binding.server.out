@@ -1,4 +1,4 @@
-# To run the service, put the code in `http-data-binding.bal`
+# To run the service, put the code in `http_data_binding.bal`
 # and use `$BALLERINA_HOME/bin`.
 $ ballerina run http_data_binding.bal
 #Service deployment:

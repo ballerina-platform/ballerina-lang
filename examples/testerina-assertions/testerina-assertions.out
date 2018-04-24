@@ -1,4 +1,4 @@
-$ ballerina test testerina-assertions.bal
+$ ballerina test testerina_assertions.bal
 ---------------------------------------------------------------------------
     T E S T S
 ---------------------------------------------------------------------------
