@@ -1215,6 +1215,9 @@
 
                 <module>benchmarks</module>
             </modules>
+            <properties>
+                <skipBenchmarks>true</skipBenchmarks>
+            </properties>
         </profile>
         <profile>
             <id>platform-windows</id>
@@ -1226,7 +1229,6 @@
             <properties>
                 <!-- Override the executable names for Windows -->
                 <npm.executable>npm.cmd</npm.executable>
-                <skipBenchmarks>true</skipBenchmarks>
             </properties>
         </profile>
     </profiles>
