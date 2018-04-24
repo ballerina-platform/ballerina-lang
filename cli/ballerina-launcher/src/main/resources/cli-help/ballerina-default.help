@@ -56,7 +56,6 @@ BALLERINA COMMANDS
          version    Print Ballerina version
          encrypt    Encrypt sensitive data
 
-
 EXAMPLES
      Check the current version of Ballerina in use on your system
      $ ballerina -v

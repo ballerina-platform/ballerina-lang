@@ -8,7 +8,6 @@ SYNOPSIS
         [-c <path>|--config <path>] [-v|--verbose] [-e] 
         [<balfile>|<packagename]
 
-
 DESCRIPTION
      Ballerina doc command generates API documentation for given 
      program or package. 
@@ -19,7 +18,6 @@ DESCRIPTION
 
      The default output location of API docs is a folder named 
      api-docs. 
-
 
 OPTIONS
      -t <path>
@@ -53,7 +51,6 @@ OPTIONS
          Prints debug level logs while generating documentation
      -e
          Ballerina environment parameters
-
 
 EXAMPLES
      Generate API documentation for current project 

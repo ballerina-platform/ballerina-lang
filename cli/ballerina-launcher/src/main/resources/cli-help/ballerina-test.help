@@ -1,5 +1,6 @@
 NAME
-    Ballerina help - Display help information about ballerina
+    Ballerina test - Run ballerina tests and display a summary of 
+    test results.
 
 SYNOPSIS
     ballerina test [-lg|--list-groups] [--groups <test_group, ...>] 
@@ -23,7 +24,6 @@ DESCRIPTION
     ballerina test <balfile> will execute the given Ballerina test 
     file. Note that imports from other packages will not work for 
     file executions. File path can be a relative or absolute.
-
 
 OPTIONS
 

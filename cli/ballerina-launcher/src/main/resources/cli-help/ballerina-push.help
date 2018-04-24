@@ -26,7 +26,6 @@ DESCRIPTION
 OPTIONS
      Ballerina push command takes no options 
 
-
 EXAMPLES
      Push math package to Ballerina Central 
      $ ballerina push math

@@ -6,7 +6,6 @@ SYNOPSIS
         --proto_path <proto-file-path>  
         --exe_path <protoc-executor-path> 
         
-
 DESCRIPTION
      Generates ballerina gRPC client stub for gRPC service
      for a given grpc protoc definition. 

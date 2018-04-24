@@ -6,7 +6,6 @@ SYNOPSIS
     ballerina build [-o <output>] [-c] [--offline] 
         <balfile | packagename> 
         
-
 DESCRIPTION
      Compiles Ballerina sources and writes the output to a file. 
 
@@ -16,7 +15,6 @@ DESCRIPTION
 
      If the output file is specified with the -o flag, the output 
      will be written to the given output file name. 
-
 
 OPTIONS
      -o <output>   

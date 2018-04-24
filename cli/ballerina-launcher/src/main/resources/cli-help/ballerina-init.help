@@ -8,10 +8,10 @@ DESCRIPTION
      Ballerina init creates an initial project structure for you to 
      get started with a Ballerina project. 
 
-The created set of artifacts includes a Ballerina.toml and a sample ballerina source file.You can use Ballerina.toml to manage the organization setting and version for the project.
+    The created set of artifacts includes a Ballerina.toml and a 
+    sample ballerina source file.You can use Ballerina.toml to manage
+    the organization setting and version for the project.
      
-TODO: What else can manifest be used for? 
-
      The generated set of artifacts also include a service skeleton 
      and a test skeleton that you can use to kick start the project
      with. 

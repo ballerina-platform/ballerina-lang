@@ -30,7 +30,6 @@ DESCRIPTION
      You must have either a main function or a service in order to run 
      a program or a package
 
-
 OPTIONS
      -s
      --service
