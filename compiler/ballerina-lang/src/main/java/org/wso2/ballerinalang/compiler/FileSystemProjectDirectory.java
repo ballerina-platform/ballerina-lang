@@ -100,7 +100,9 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
     }
 
     private boolean isSpecialDirectory(Path dirName) {
-        List<String> ignoreDirs = Arrays.asList(ProjectDirConstants.TEST_DIR_NAME,
+        List<String> ignoreDirs = Arrays.asList(//TODO : Top level test directory is needed for testerina and
+                                                // removing this check till it's handled properly.
+                                                //ProjectDirConstants.TEST_DIR_NAME,
                                                 ProjectDirConstants.TARGET_DIR_NAME,
                                                 ProjectDirConstants.RESOURCE_DIR_NAME);
         try {
