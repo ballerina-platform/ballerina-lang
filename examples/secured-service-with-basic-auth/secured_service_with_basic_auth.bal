@@ -43,6 +43,6 @@ service<http:Service> echo bind ep {
     hello(endpoint caller, http:Request req) {
         http:Response res = new;
         res.setStringPayload("Hello, World!!!");
-        _ = client->respond(res);
+        _ = caller->respond(res);
     }
 }
