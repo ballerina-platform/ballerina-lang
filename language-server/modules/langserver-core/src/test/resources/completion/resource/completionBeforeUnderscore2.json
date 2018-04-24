@@ -1,51 +1,51 @@
 {
   "position": {
-    "line": 6,
-    "character": 8
+    "line": 10,
+    "character": 15
   },
-  "source": "function/source/variableBoundItemSuggestions3.bal",
+  "source": "resource/source/completionBeforeUnderscore2.bal",
   "items": [
     {
-      "label":"statusCode",
-      "kind":"Unit",
-      "detail":"int",
-      "sortText":"110",
-      "insertText":"statusCode"
-    },
-    {
-      "label":"reasonPhrase",
+      "label":"rawPath",
       "kind":"Unit",
       "detail":"string",
       "sortText":"110",
-      "insertText":"reasonPhrase"
+      "insertText":"rawPath"
     },
     {
-      "label":"server",
+      "label":"method",
       "kind":"Unit",
       "detail":"string",
       "sortText":"110",
-      "insertText":"server"
+      "insertText":"method"
+    },
+    {
+      "label":"httpVersion",
+      "kind":"Unit",
+      "detail":"string",
+      "sortText":"110",
+      "insertText":"httpVersion"
+    },
+    {
+      "label":"userAgent",
+      "kind":"Unit",
+      "detail":"string",
+      "sortText":"110",
+      "insertText":"userAgent"
+    },
+    {
+      "label":"extraPathInfo",
+      "kind":"Unit",
+      "detail":"string",
+      "sortText":"110",
+      "insertText":"extraPathInfo"
     },
     {
       "label":"cacheControl",
       "kind":"Unit",
-      "detail":"ballerina.http:ResponseCacheControl?",
+      "detail":"ballerina.http:RequestCacheControl?",
       "sortText":"110",
       "insertText":"cacheControl"
-    },
-    {
-      "label":"receivedTime",
-      "kind":"Unit",
-      "detail":"int",
-      "sortText":"110",
-      "insertText":"receivedTime"
-    },
-    {
-      "label":"requestTime",
-      "kind":"Unit",
-      "detail":"int",
-      "sortText":"110",
-      "insertText":"requestTime"
     },
     {
       "label":"new()",
@@ -53,6 +53,30 @@
       "detail":"Function",
       "sortText":"120",
       "insertText":"new()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"setEntity(mime:Entity entity)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"setEntity(${1:entity})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"getQueryParams()(map\u003cstring\u003e)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"getQueryParams()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"getMatrixParams(string path)(map)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"getMatrixParams(${1:path})",
       "insertTextFormat":"Snippet"
     },
     {
@@ -72,14 +96,6 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"setEntity(mime:Entity entity)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"setEntity(${1:entity})",
-      "insertTextFormat":"Snippet"
-    },
-    {
       "label":"hasHeader(string headerName)(boolean)",
       "kind":"Function",
       "detail":"Function",
@@ -96,14 +112,6 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"addHeader(string headerName, string headerValue)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"addHeader(${1:headerName}, ${2:headerValue})",
-      "insertTextFormat":"Snippet"
-    },
-    {
       "label":"getHeaders(string headerName)(string[])",
       "kind":"Function",
       "detail":"Function",
@@ -117,6 +125,14 @@
       "detail":"Function",
       "sortText":"120",
       "insertText":"setHeader(${1:headerName}, ${2:headerValue})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"addHeader(string headerName, string headerValue)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"addHeader(${1:headerName}, ${2:headerValue})",
       "insertTextFormat":"Snippet"
     },
     {
@@ -144,6 +160,14 @@
       "insertTextFormat":"Snippet"
     },
     {
+      "label":"expects100Continue()(boolean)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"expects100Continue()",
+      "insertTextFormat":"Snippet"
+    },
+    {
       "label":"setContentType(string contentType)",
       "kind":"Function",
       "detail":"Function",
@@ -168,14 +192,6 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getXmlPayload()(xml|error)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"getXmlPayload()",
-      "insertTextFormat":"Snippet"
-    },
-    {
       "label":"getTextPayload()(string|error)",
       "kind":"Function",
       "detail":"Function",
@@ -192,11 +208,11 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getBinaryPayload()(blob|error)",
+      "label":"getXmlPayload()(xml|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"getBinaryPayload()",
+      "insertText":"getXmlPayload()",
       "insertTextFormat":"Snippet"
     },
     {
@@ -208,27 +224,27 @@
       "insertTextFormat":"Snippet"
     },
     {
+      "label":"getBinaryPayload()(blob|error)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"getBinaryPayload()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"getFormParams()(map\u003cstring\u003e|error)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"getFormParams()",
+      "insertTextFormat":"Snippet"
+    },
+    {
       "label":"getBodyParts()(ballerina.mime:Entity[]|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
       "insertText":"getBodyParts()",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"setETag(json|xml|string|blob payload)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"setETag(${1:payload})",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"setLastModified()",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"setLastModified()",
       "insertTextFormat":"Snippet"
     },
     {
@@ -293,6 +309,14 @@
       "detail":"Function",
       "sortText":"120",
       "insertText":"setPayload(${1:payload})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"parseCacheControlHeader()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"parseCacheControlHeader()",
       "insertTextFormat":"Snippet"
     }
   ]
