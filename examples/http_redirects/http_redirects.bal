@@ -3,14 +3,14 @@ import ballerina/http;
 import ballerina/mime;
 
 endpoint http:Client clientEP {
-    url:"http://www.mocky.io",
-    followRedirects : { enabled : true, maxCount : 5 }
+    url: "http://www.mocky.io",
+    followRedirects: {enabled: true, maxCount: 5}
 };
 
-function main (string... args) {
+function main(string... args) {
 
-    //Send a GET request to the specified endpoint
-    var returnResult = clientEP -> get("/v2/59d590762700000a049cd694");
+    // Send a GET request to the specified endpoint
+    var returnResult = clientEP->get("/v2/59d590762700000a049cd694");
     match returnResult {
         http:HttpConnectorError connectorErr => {io:println("Connector error!");}
         http:Response resp => {
