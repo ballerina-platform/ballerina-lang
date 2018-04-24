@@ -1,10 +1,10 @@
 import ballerina/io;
 
-function divideBy10 (int d) returns (int, int) {
+function divideBy10(int d) returns (int, int) {
     return (d / 10, d % 10);
 }
 
-function main (string... args) {
+function main(string... args) {
     //The variable type is inferred from the initial value. This is the same as 'int k = 5';
     var k = 5;
     io:println(10 + k);

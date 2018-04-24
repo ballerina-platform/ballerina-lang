@@ -1,16 +1,16 @@
 import ballerina/io;
 
 // This function takes a string argument but does not have a return value.
-function printValue (string value) {
+function printValue(string value) {
     io:println(value);
 }
 
 // This function takes two int values and return their sum as an integer.
-function add (int a, int b) returns (int) {
+function add(int a, int b) returns (int) {
     return a + b;
 }
 
-function main (string... args) {
+function main(string... args) {
     // Call a function which prints the given value to the console.
     printValue("This is a sample text");
 

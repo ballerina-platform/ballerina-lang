@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main (string... args) {
+function main(string... args) {
     io:println("Iterating over a string array:-");
     string[] fruits = ["apple", "banana", "cherry"];
     // For arrays: use one variable to get the values defined in the array.
@@ -10,22 +10,22 @@ function main (string... args) {
     }
 
     io:println("\nIterating over a map:-");
-    map<string> words = { a: "apple", b: "banana", c: "cherry" };
+    map<string> words = {a: "apple", b: "banana", c: "cherry"};
     // For maps: use 1 variable to get the values defined in the map. Use 2 variables to get both the key (string) and
     // value.
     foreach k, v in words {
-       io:println("letter: ", k, ", word: ", v);
+        io:println("letter: ", k, ", word: ", v);
     }
 
     io:println("\nIterating over a json object:-");
-    json apple = { name: "apple", colors: ["red", "green"], price: 5 };
+    json apple = {name: "apple", colors: ["red", "green"], price: 5};
     // For json: use only a single json typed variable.
     foreach j in apple {
         match j {
             string js => {
                 io:println("string value: ", js);
             }
-            json jx => { 
+            json jx => {
                 io:println("non-string value: ", jx);
             }
         }
@@ -33,7 +33,7 @@ function main (string... args) {
 
     io:println("\nIterating over a json array:-");
     // To Iterate over a JSON array, you need to first cast it into an array of json (json[]).
-    json[] colors = check <json[]> apple.colors;
+    json[] colors = check <json[]>apple.colors;
     foreach i, j in colors {
         io:println("color ", i, ": ", j);
     }
