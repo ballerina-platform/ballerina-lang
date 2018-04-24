@@ -12,36 +12,27 @@ public type WebSocketConnector object {
     @Description {value:"Push text to the connection"}
     @Param {value:"text: Text to be sent"}
     @Param {value:"final: True if this is a final frame of a long message"}
-    public native function pushText(string text, boolean final = true) returns WebSocketConnectorError|();
+    public native function pushText(string text, boolean final = true) returns error|();
 
     @Description {value:"Push binary data to the connection"}
     @Param {value:"data: Binary data to be sent"}
     @Param {value:"final: True if this is a final frame of a long message"}
-    public native function pushBinary(blob data, boolean final = true) returns WebSocketConnectorError|();
+    public native function pushBinary(blob data, boolean final = true) returns error|();
 
     @Description {value:"Ping the connection"}
     @Param {value:"data: Binary data to be sent"}
-    public native function ping(blob data) returns WebSocketConnectorError|();
+    public native function ping(blob data) returns error|();
 
     @Description {value:"Send pong message to the connection"}
     @Param {value:"data: Binary data to be sent"}
-    public native function pong(blob data) returns WebSocketConnectorError|();
+    public native function pong(blob data) returns error|();
 
     @Description {value:"Close the connection"}
     @Param {value:"statusCode: Status code for closing the connection"}
     @Param {value:"reason: Reason for closing the connection"}
-    public native function close(int statusCode, string reason) returns WebSocketConnectorError|();
+    public native function close(int statusCode, string reason) returns error|();
 
-    public native function ready() returns WebSocketConnectorError|();
+    public native function ready() returns error|();
 
 };
 
-@Description {value:"WebSocketConnectorError struct represents an error occured during WebSocket message transfers"}
-public type WebSocketConnectorError object{
-    public {
-        // An error message explaining about the error
-        string message;
-        //The error(s) that caused HTTP connector error to get thrown
-        error? cause;
-    }
-};
