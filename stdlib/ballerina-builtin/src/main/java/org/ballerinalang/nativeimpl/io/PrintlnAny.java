@@ -43,15 +43,16 @@ public class PrintlnAny extends BlockingNativeCallableUnit {
     public void execute(Context ctx) {
         // Had to write "System . out . println" (ignore spaces) in another way to deceive the Check style plugin.
         PrintStream out = System.out;
+        StringBuilder content = new StringBuilder();
         BRefValueArray result = (BRefValueArray) ctx.getNullableRefArgument(0);
         if (result != null) {
             for (int i = 0; i < result.size(); i++) {
                 final BValue bValue = result.getBValue(i);
                 if (bValue != null) {
-                    out.print(bValue.stringValue());
+                    content.append(bValue.stringValue());
                 }
             }
-            out.println();
+            out.println(content);
         } else {
             out.println((Object) null);
         }
