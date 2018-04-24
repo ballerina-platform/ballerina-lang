@@ -183,7 +183,7 @@ type TypeAliasTwo TypeAliasOne;
 type TypeAliasThree TypeAliasTwo;
 
 function testTypeAliasing() returns string {
-    TypeAliasThree p = {name:"Can tell my name"};
+    TypeAliasThree p = {name:"Anonymous name"};
     return p.name;
 }
 
