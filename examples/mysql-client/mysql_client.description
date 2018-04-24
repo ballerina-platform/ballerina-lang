@@ -2,4 +2,4 @@
 // databases. Before running the sample, copy the
 // MySQL JDBC driver to the `BALLERINA_HOME/bre/lib` folder and change the DB connection
 // properties as required. This sample contains only a subset of operations.
-// Please refer Ballerina JDBC Endpoint for all available operations.
+// Please refer jdbc_client sample for all available operations.

@@ -1,6 +1,5 @@
 import ballerina/io;
-import ballerina/log;
-import ballerina/mysql;
+import ballerina/jdbc;
 import ballerina/sql;
 
 @Description {value:
@@ -19,14 +18,12 @@ type Employee {
 
 function main(string... args) {
 
-    endpoint mysql:Client testDB {
-        host: "localhost",
-        port: 3306,
-        name: "testdb",
+    endpoint jdbc:Client testDB {
+        url: "jdbc:mysql://localhost:3306/testdb",
         username: "root",
-        password: "root",
-        poolOptions: {maximumPoolSize: 5},
-        dbOptions: {useSSL: false}
+        password: "123",
+        poolOptions: { maximumPoolSize: 5 },
+        dbOptions: { useSSL: false }
     };
 
     int count;
@@ -39,7 +36,7 @@ function main(string... args) {
         updated TIMESTAMP)");
 
     match createTableRetVal {
-        int count => log:printInfo("Create table status: " + count);
+        int count => io:println("Create table status: " + count);
         error e => {
             handleError("Error in executing CREATE TABLE EMPLOYEE", e, testDB);
             return;
@@ -50,7 +47,7 @@ function main(string... args) {
         '1990-12-31', '11:30:45', '2007-05-23 09:15:28')");
 
     match insertTableRetVal {
-        int count => log:printInfo("Updated row count: " + count);
+        int count => io:println("Updated row count: " + count);
         error e => {
             handleError("Error in executing INSERT INTO EMPLOYEE", e, testDB);
             return;
@@ -61,7 +58,7 @@ function main(string... args) {
         '1999-12-31', '13:40:24', '2017-05-23 09:15:28')");
 
     match insertTableRetVal2 {
-        int val => log:printInfo("Updated row count: " + val);
+        int val => io:println("Updated row count: " + val);
         error e => {
             handleError("Error in executing INSERT INTO EMPLOYEE", e, testDB);
             return;
@@ -86,7 +83,7 @@ function main(string... args) {
         var returnedNextRec = <Employee>dt.getNext();
         match returnedNextRec {
             Employee rs => {
-                log:printInfo("Employee:" + rs.id + "|" + rs.name + "|" + rs.salary +
+                io:println("Employee:" + rs.id + "|" + rs.name + "|" + rs.salary +
                         "|" + rs.status + "|" + rs.birthdate + "|"
                         + rs.birthtime + "|" + rs.updated);
             }
@@ -114,8 +111,8 @@ function main(string... args) {
     var jsonConversionReturnVal = <json>dt;
 
     match jsonConversionReturnVal {
-        json jsonRes => log:printInfo(io:sprintf("%s", jsonRes));
-        error e => log:printError("Error in table to json conversion");
+        json jsonRes => io:println(io:sprintf("%s", jsonRes));
+        error e => io:println("Error in table to json conversion");
     }
 
     // Convert a table to XML.
@@ -132,14 +129,14 @@ function main(string... args) {
     var xmlConversionReturnVal = <xml>dt;
 
     match xmlConversionReturnVal {
-        xml xmlRes => log:printInfo(io:sprintf("%s", xmlRes));
-        error e => log:printError("Error in table to xml conversion");
+        xml xmlRes => io:println(io:sprintf("%s", xmlRes));
+        error e => io:println("Error in table to xml conversion");
     }
 
     // Drop the EMPLOYEE table.
     var dropTableRetVal = testDB->update("DROP TABLE EMPLOYEE");
     match dropTableRetVal {
-        int status => log:printInfo("Table drop status:" + status);
+        int status => io:println("Table drop status:" + status);
         error e => {
             handleError("Error in executing DROP TABLE EMPLOYEE", e, testDB);
             return;
@@ -150,8 +147,7 @@ function main(string... args) {
     testDB.stop();
 }
 
-function handleError(string message, error e, mysql:Client db) {
-    endpoint mysql:Client testDB = db;
-    log:printError(message, err = e);
-    testDB.stop();
+function handleError(string message, error e, jdbc:Client db) {
+    io:println(message + ": " + e.message);
+    db.stop();
 }

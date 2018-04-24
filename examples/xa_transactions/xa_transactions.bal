@@ -10,7 +10,7 @@ function main(string... args) {
         username: "root",
         password: "root",
         poolOptions: { maximumPoolSize: 5, isXA: true },
-        dbOptions: { autoReconnect: true }
+        dbOptions: { useSSL: false }
     };
 
     // Create an endpoint for the second database named testdb2. Since this endpoint is
@@ -21,7 +21,7 @@ function main(string... args) {
         username: "root",
         password: "root",
         poolOptions: { maximumPoolSize: 5, isXA: true },
-        dbOptions: { autoReconnect: true }
+        dbOptions: { useSSL: false }
     };
 
     // Create the table named CUSTOMER in the first database.

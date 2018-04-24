@@ -1,13 +1,13 @@
 import ballerina/io;
 import ballerina/jdbc;
-import ballerina/log;
 import ballerina/sql;
 
 endpoint jdbc:Client testDB {
     url: "jdbc:mysql://localhost:3306/testdb",
     username: "root",
     password: "root",
-    poolOptions: {maximumPoolSize: 5}
+    poolOptions: { maximumPoolSize: 5 },
+    dbOptions: { useSSL: false }
 };
 
 function main(string... args) {
@@ -17,7 +17,7 @@ function main(string... args) {
     var ret = testDB->update("CREATE TABLE STUDENT(ID INT AUTO_INCREMENT, AGE INT,
                                 NAME VARCHAR(255), PRIMARY KEY (ID))");
     match ret {
-        int status => log:printInfo("Table creation status: " + status);
+        int status => io:println("Table creation status: " + status);
         error err => {
             handleError("STUDENT table creation failed", err, testDB);
             return;
@@ -32,7 +32,7 @@ function main(string... args) {
                               STUDENT WHERE ID = pInt;
                          END");
     match ret {
-        int status => log:printInfo("Stored proc creation status: " + status);
+        int status => io:println("Stored proc creation status: " + status);
         error err => {
             handleError("GETCOUNT procedure creation failed", err, testDB);
             return;
@@ -45,7 +45,7 @@ function main(string... args) {
     sql:Parameter para2 = {sqlType: sql:TYPE_VARCHAR, value: "Sam"};
     ret = testDB->update("INSERT INTO STUDENT (AGE,NAME) VALUES (?,?)", para1, para2);
     match ret {
-        int rows => log:printInfo("Inserted row count: " + rows);
+        int rows => io:println("Inserted row count: " + rows);
         error err => {
             handleError("Update action failed", err, testDB);
             return;
@@ -65,8 +65,8 @@ function main(string... args) {
             int count;
             string[] ids;
             (count, ids) = y;
-            log:printInfo("Inserted row count: " + count);
-            log:printInfo("Generated key: " + ids[0]);
+            io:println("Inserted row count: " + count);
+            io:println("Generated key: " + ids[0]);
         }
         error err => {
             handleError("Update action failed", err, testDB);
@@ -75,7 +75,7 @@ function main(string... args) {
     }
 
     // Select data using the `select` action. The `select` action returns a table.
-    // See the `sql-queries-on-tables` ballerina example for more details on how to access data.
+    // See the `table_with_jdbc_client` ballerina example for more details on how to access data.
     var dtReturned = testDB->select("SELECT * FROM STUDENT WHERE AGE = ?", (), para1);
 
     table dt;
@@ -89,8 +89,8 @@ function main(string... args) {
     var jsonConversionReturnVal = <json>dt;
 
     match jsonConversionReturnVal {
-        json jsonRes => log:printInfo(io:sprintf("%s", jsonRes));
-        error e => log:printError("Error in table to json conversion");
+        json jsonRes => io:println(io:sprintf("%s", jsonRes));
+        error e => io:println("Error in table to json conversion");
     }
 
     // A batch of data can be inserted using the `batchUpdate` action. The number
@@ -104,8 +104,8 @@ function main(string... args) {
     var insertVal = testDB->batchUpdate("INSERT INTO STUDENT (AGE,NAME) VALUES (?, ?)", item1, item2);
     int[] default = [];
     int[] c = insertVal but { error => default };
-    log:printInfo("Batch item 1 status: " + c[0]);
-    log:printInfo("Batch item 2 status: " + c[1]);
+    io:println("Batch item 1 status: " + c[0]);
+    io:println("Batch item 2 status: " + c[1]);
 
     // A stored procedure can be invoked using the `call` action. The direction is
     // used to specify `IN`/`OUT`/`INOUT` parameters.
@@ -117,15 +117,15 @@ function main(string... args) {
 
     // Obtain the values of OUT/INOUT parameters
     int countValue = <int>pCount.value but { error => -1 };
-    log:printInfo("Age 10 count: " + countValue);
+    io:println("Age 10 count: " + countValue);
 
     int idValue = <int>pId.value but { error => -1 };
-    log:printInfo("Id 1 count: " + idValue);
+    io:println("Id 1 count: " + idValue);
 
     // Drop the STUDENT table.
     ret = testDB->update("DROP TABLE STUDENT");
     match ret {
-        int status => log:printInfo("Table drop status: " + status);
+        int status => io:println("Table drop status: " + status);
         error err => {
             handleError("Dropping STUDENT table failed", err, testDB);
             return;
@@ -135,7 +135,7 @@ function main(string... args) {
     // Drop the GETCOUNT procedure.
     ret = testDB->update("DROP PROCEDURE GETCOUNT");
     match ret {
-        int status => log:printInfo("Procedure drop status: " + status);
+        int status => io:println("Procedure drop status: " + status);
         error err => {
             handleError("Dropping GETCOUNT procedure failed", err, testDB);
             return;
@@ -147,7 +147,6 @@ function main(string... args) {
 }
 
 function handleError(string message, error e, jdbc:Client db) {
-    endpoint jdbc:Client testDB = db;
-    log:printError(message, err = e);
-    testDB.stop();
+    io:println(message + ": " + e.message);
+    db.stop();
 }
