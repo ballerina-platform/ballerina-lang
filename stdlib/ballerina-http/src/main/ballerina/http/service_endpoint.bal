@@ -189,7 +189,7 @@ documentation {
     Represents a WebSocket service endpoint.
 
     F{{id}} The connection ID
-    F{{negotiatedSubProtocol}} The subprotocols negoriated with the client
+    F{{negotiatedSubProtocol}} The subprotocols negotiated with the client
     F{{isSecure}} `true` if the connection is secure
     F{{isOpen}} `true` if the connection is open
     F{{attributes}} A `map` to store connection related attributes

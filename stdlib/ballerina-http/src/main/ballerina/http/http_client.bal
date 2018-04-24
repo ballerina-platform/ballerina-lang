@@ -126,53 +126,52 @@ public type CallerActions object {
 
     documentation {
 		Submits an HTTP request to a service with the specified HTTP verb.
-		
+		The `submit()` function does not give out a `Response` as the result,
+		rather it returns an `HttpFuture` which can be used to do further interactions with the endpoint.
+
         P{{httpVerb}} The HTTP verb value
-        P{{path}} The Resource path 
+        P{{path}} The resource path
         P{{request}} An HTTP outbound request message
-        R{{}} The Future for further interactions
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
 	}
     public native function submit(@sensitive string httpVerb, string path, Request request)
                                                                             returns HttpFuture|HttpConnectorError;
 
     documentation {
-		Retrieves response for a previously submitted request.
+		Retrieves the `Response` for a previously submitted request.
 		
-        P{{httpFuture}} The Future which relates to previous async invocation
-        R{{}} The HTTP response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
+        R{{}} An HTTP response message, or an error if the invocation fails
 	}
     public native function getResponse(HttpFuture httpFuture) returns Response|HttpConnectorError;
 
     documentation {
-		Checks whether server push exists for a previously submitted request.
+		Checks whether a `PushPromise` exists for a previously submitted request.
 		
-        P{{httpFuture}} The Future which relates to previous async invocation
-        R{{}} Returns true if the push promise exists
+        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
+        R{{}} A `boolean` that represents whether a `PushPromise` exists
 	}
     public native function hasPromise(HttpFuture httpFuture) returns (boolean);
 
     documentation {
-		Retrieves the next available push promise for a previously submitted request.
+		Retrieves the next available `PushPromise` for a previously submitted request.
 		
-        P{{httpFuture}} The Future which relates to previous async invocation
-        R{{}} The HTTP Push Promise message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
+        R{{}} An HTTP Push Promise message, or an error if the invocation fails
 	}
     public native function getNextPromise(HttpFuture httpFuture) returns PushPromise|HttpConnectorError;
 
     documentation {
-		Retrieves the promised server push response.
+		Retrieves the promised server push `Response` message.
 		
-        P{{promise}} The related Push Promise message
-        R{{}}HTTP The Push Response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        P{{promise}} The related `PushPromise`
+        R{{}} A promised HTTP `Response` message, or an error if the invocation fails
 	}
     public native function getPromisedResponse(PushPromise promise) returns Response|HttpConnectorError;
 
     documentation {
-		Rejects a push promise.
+		Rejects a `PushPromise`.
+		When a `PushPromise` is rejected, there is no chance of fetching a promised response using the rejected promise.
 		
         P{{promise}} The Push Promise to be rejected
 	}

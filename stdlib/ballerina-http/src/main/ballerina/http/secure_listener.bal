@@ -99,6 +99,7 @@ public type AuthProvider {
     string keyPassword,
     int expTime,
     string signingAlg,
+    boolean propagateToken,
 };
 
 public function SecureListener::init (SecureEndpointConfiguration config) {
@@ -173,7 +174,7 @@ function createAuthHandler (AuthProvider authProvider) returns HttpAuthnHandler 
     if (authProvider.scheme == AUTHN_SCHEME_BASIC) {
         auth:AuthProvider authProvider1;
         if (authProvider.authProvider == AUTH_PROVIDER_CONFIG) {
-            if(authProvider.issuer != ""){
+            if(authProvider.propagateToken) {
                 auth:ConfigJwtAuthProvider configAuthProvider = new(getConfigJwtAuthProviderConfig(authProvider));
                 authProvider1 = <auth:AuthProvider> configAuthProvider;
             } else {

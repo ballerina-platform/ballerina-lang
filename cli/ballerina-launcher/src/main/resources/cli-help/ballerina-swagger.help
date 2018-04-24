@@ -1,6 +1,6 @@
 NAME
     Ballerina swagger - Generates Ballerina code for a provided 
-    swagger definition or exports the swagger definition of a 
+    Swagger definition or exports the Swagger definition of a 
     Ballerina service.
 
 SYNOPSIS
@@ -13,71 +13,69 @@ SYNOPSIS
         [-s <servicename>|--service <servicename>]
 
 DESCRIPTION
-    Ballerina swagger command can generate Ballerina source using 
-    swagger definition. Either a mock service or a client stub can 
-    be generated with a given Swagger definition file. 
-    
-    It can also export a swagger definition of a Ballerina service.
+    Ballerina swagger command can generate a Ballerina source (either
+    a mock service or a client stub) from the given Swagger definition 
+    file. It can also export a Swagger definition from a Ballerina service.
     
     Generated Ballerina sources will be written into the gen folder 
     under the provided package name. 
 
 SUB COMMANDS
     mock <swaggerfile>
-        Generates a ballerina service for the swagger file. This 
+        Generates a Ballerina service from the Swagger file. This 
         generated service can be used as a mock version of the 
         actual service implementation. Generated sources will 
         contain service definition in gen/ and resource 
         implementation file in package root directory with suffix
-         _impl. _impl file is not overwritten by code regeneration.
+         _impl. The _impl file is not overwritten by code regeneration.
 
     client <swaggerfile>
-        Generates a ballerina client stub for the service defined 
-        in swagger file. This client can be used in client 
-        applications to call the service defined in swagger file.
+        Generates a Ballerina client stub for the service defined 
+        in the Swagger file. This client can be used in client 
+        applications to call the service defined in the Swagger file.
 
     export <balfile>
-        Export the ballerina service to a OpenApi Specification 3.0 
-        definition. For export to work properly input ballerina 
-        service must contain basic service and resource level http 
+        Export the Ballerina service to an OpenApi Specification 3.0 
+        definition. For export to work properly, the input ballerina 
+        service must contain basic service and resource level HTTP 
         annotations defining the service.
 
 OPTIONS
     -p <packagename>
     --package <packagename>
-        Name of a ballerina package which should contain the 
+        Name of a Ballerina package, which should contain the 
         generated source files. If provided package doesn’t exist 
         in output directory, it’ll be created automatically. If 
         package name is not provided while generating ballerina code, 
         generated sources will be written into main package (current 
-        directory)
+        directory).
 
     -o <path>
     --output<path>
         Generated/Exported sources will be written into this 
         directory. 
-        In the case of ballerina code generation output directory 
-        must be a ballerina project
+        In the case of Ballerina code generation, output directory 
+        must be a Ballerina project.
 
     -s <servicename>
     --service <servicename>
-        If input ballerina file contain multiple services, service 
+        If input Ballerina file contains multiple services, service 
         can be used to provide a specific service name to export. 
-        If not provided first service definition found in input 
-        ballerina file will be exported to a swagger definition
+        If not provided, the first service definition found in the input 
+        Ballerina file will be exported to a Swagger definition.
 
-DEFAULT BEHAVIOUR
+DEFAULT BEHAVIOR
     If output path is not provided, current directory will be 
-    selected as the output directory
+    selected as the output directory.
 
 EXAMPLES
-    Generate ballerina mock service with package name hellomock
-    and output written to service_project folder 
+    Generate a Ballerina mock service with package name hellomock
+    and write the output to the service_project folder 
     $ ballerina swagger mock hello.yaml -p hellomock -o service_project
 
-    Generate ballerina client  with package name helloclient
-    and output written to client_project folder
+    Generate a Ballerina client with package name helloclient
+    and write the output to the client_project folder
     $ ballerina swagger client hello.yaml -p helloclient -o client_project
 
-    Export swagger definition for hello_service.bal
+    Export a Swagger definition for hello_service.bal
     $ ballerina swagger export hello_service.bal -o project
