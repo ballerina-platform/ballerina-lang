@@ -1,10 +1,7 @@
 import ballerina/http;
+import ballerina/log;
 
-endpoint http:Listener crossOriginServiceEP {
-    port: 9092
-};
-
-@Description {value: "Service-level CORS headers apply globally to each resource."}
+//Service-level CORS headers apply globally to each resource.
 @http:ServiceConfig {
     cors: {
         allowOrigins: ["http://www.m3.com", "http://www.hello.com"],
@@ -14,9 +11,9 @@ endpoint http:Listener crossOriginServiceEP {
         maxAge: 84900
     }
 }
-service<http:Service> crossOriginService bind crossOriginServiceEP {
+service<http:Service> crossOriginService bind {port: 9092} {
 
-    @Description {value: "Resource-level CORS headers override the service-level CORS headers."}
+    //Resource-level CORS headers override the service-level CORS headers.
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/company",
@@ -30,11 +27,10 @@ service<http:Service> crossOriginService bind crossOriginServiceEP {
         http:Response res = new;
         json responseJson = {"type": "middleware"};
         res.setJsonPayload(responseJson);
-        _ = caller->respond(res);
+        caller->respond(res) but { error e => log:printError("Failed to respond to the caller", err = e) };
     }
 
-    @Description {value:
-    "Service-level CORS headers are applied to this resource as resource-level CORS headers are not defined."}
+    //Service-level CORS headers are applied to this resource as resource-level CORS headers are not defined.
     @http:ResourceConfig {
         methods: ["POST"],
         path: "/lang"
@@ -43,6 +39,6 @@ service<http:Service> crossOriginService bind crossOriginServiceEP {
         http:Response res = new;
         json responseJson = {"lang": "Ballerina"};
         res.setJsonPayload(responseJson);
-        _ = caller->respond(res);
+        caller->respond(res) but { error e => log:printError("Failed to respond to the caller", err = e) };
     }
 }

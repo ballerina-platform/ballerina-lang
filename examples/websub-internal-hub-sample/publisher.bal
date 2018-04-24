@@ -5,9 +5,10 @@ import ballerina/runtime;
 import ballerina/websub;
 
 function main(string... args) {
-    // Start up the internal Ballerina Hub.
+
+    // Start up the internal Ballerina Hub, specifying the port to start up on.
     log:printInfo("Starting up the Ballerina Hub Service");
-    websub:WebSubHub webSubHub = websub:startUpBallerinaHub();
+    websub:WebSubHub webSubHub = websub:startUpBallerinaHub(port = 9191);
 
     // Register a topic at the hub.
     var registrationResponse = webSubHub.registerTopic("http://www.websubpubtopic.com");

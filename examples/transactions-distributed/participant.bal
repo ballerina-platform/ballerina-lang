@@ -5,7 +5,6 @@ import ballerina/transactions;
 
 // This service is a participant in the distributed transaction. It will get infected when it receives a transaction
 // context from the participant. The transaction context, in the HTTP case, will be passed in as custom HTTP headers.
-
 @http:ServiceConfig {
     basePath:"/stockquote"
 }
@@ -36,7 +35,7 @@ service<http:Service> ParticipantService bind {port: 8889} {
                 }
                 http:PayloadError payloadError => {
                     res.statusCode = http:INTERNAL_SERVER_ERROR_500;
-                    res.setStringPayload(payloadError.message);
+                    res.setPayload(payloadError.message);
                     log:printError("Payload error occurred!", err = payloadError);
                 }
             }
