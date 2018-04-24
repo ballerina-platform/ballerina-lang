@@ -55,6 +55,7 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 
 /**
  * Utility methods for compile Ballerina files.
@@ -65,6 +66,7 @@ public class BCompileUtil {
 
     //TODO find a way to remove below line.
     private static Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
+    private static String includeTests = "false";
 
 //    Compile and setup methods
     /**
@@ -201,6 +203,7 @@ public class BCompileUtil {
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
+        options.put(TEST_ENABLED, includeTests);
 
         CompileResult comResult = new CompileResult();
 
@@ -223,6 +226,19 @@ public class BCompileUtil {
         }
 
         return comResult;
+    }
+
+    /**
+     * Compile with tests and return the semantic errors.
+     *
+     * @param sourceRoot    root path of the source packages
+     * @param packageName   name of the package to compile
+     * @param compilerPhase Compiler phase
+     * @return Semantic errors
+     */
+    public static CompileResult compileWithTests(String sourceRoot, String packageName, CompilerPhase compilerPhase) {
+        includeTests = "true";
+        return compile(sourceRoot, packageName, compilerPhase);
     }
 
     public static CompileResult compile(String sourceRoot, String packageName, CompilerPhase compilerPhase,
