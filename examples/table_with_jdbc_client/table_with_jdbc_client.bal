@@ -94,13 +94,58 @@ function main(string... args) {
         }
     }
 
+    // Re-iteration of the result is possible if `loadToMemory` named argument is set to `true` in `select` action
+    var selectRetVal2 = testDB->select("SELECT * from EMPLOYEE", Employee, loadToMemory = true);
+
+    match selectRetVal2 {
+        table val => dt = val;
+        error e => {
+            handleError("Error in executing SELECT * from EMPLOYEE", e, testDB);
+            return;
+        }
+    }
+
+    io:println("\nFirst Iteration Begin");
+    while (dt.hasNext()) {
+        var returnedNextRec = <Employee>dt.getNext();
+        match returnedNextRec {
+            Employee rs => {
+                io:println("Employee:" + rs.id + "|" + rs.name + "|" + rs.salary +
+                        "|" + rs.status + "|" + rs.birthdate + "|"
+                        + rs.birthtime + "|" + rs.updated);
+            }
+            error e => {
+                handleError("Error in retrieving next record", e, testDB);
+                return;
+            }
+        }
+    }
+    io:println("First Iteration Over\n");
+
+    io:println("Second Iteration Begin");
+    while (dt.hasNext()) {
+        var returnedNextRec = <Employee>dt.getNext();
+        match returnedNextRec {
+            Employee rs => {
+                io:println("Employee:" + rs.id + "|" + rs.name + "|" + rs.salary +
+                        "|" + rs.status + "|" + rs.birthdate + "|"
+                        + rs.birthtime + "|" + rs.updated);
+            }
+            error e => {
+                handleError("Error in retrieving next record", e, testDB);
+                return;
+            }
+        }
+    }
+    io:println("Second Iteration Over\n");
+
     // Conversion from type 'table' to either JSON or XML results in data streaming. When a service client makes a
     // request, the result is streamed to the service client rather than building the full result in the server
     // and returning it. This allows unlimited payload sizes in the result and
     // the response is instantaneous to the client. <br>
     // Convert a table to JSON.
-    var selectRetVal2 = testDB->select("SELECT id,name FROM EMPLOYEE", ());
-    match selectRetVal2 {
+    var selectRetVal3 = testDB->select("SELECT id,name FROM EMPLOYEE", ());
+    match selectRetVal3 {
         table val => dt = val;
         error e => {
             handleError("Error in executing SELECT id,name FROM EMPLOYEE", e, testDB);
@@ -116,9 +161,9 @@ function main(string... args) {
     }
 
     // Convert a table to XML.
-    var selectRetVal3 = testDB->select("SELECT id,name FROM EMPLOYEE", ());
+    var selectRetVal4 = testDB->select("SELECT id,name FROM EMPLOYEE", ());
 
-    match selectRetVal3 {
+    match selectRetVal4 {
         table val => dt = val;
         error e => {
             handleError("Error in executing SELECT id,name FROM EMPLOYEE", e, testDB);
