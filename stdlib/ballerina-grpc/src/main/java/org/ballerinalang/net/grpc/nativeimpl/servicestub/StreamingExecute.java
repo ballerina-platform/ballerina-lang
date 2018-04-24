@@ -27,9 +27,9 @@ import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.connector.impl.ValueImpl;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTypeDescValue;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -75,7 +75,8 @@ import static org.ballerinalang.net.grpc.MessageUtils.getMessageHeaders;
         args = {
                 @Argument(name = "methodID", type = TypeKind.STRING),
                 @Argument(name = "listenerService", type = TypeKind.TYPEDESC),
-                @Argument(name = "headers", type = TypeKind.ARRAY)
+                @Argument(name = "headers", type = TypeKind.STRUCT, structType = "Headers",
+                        structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC)
         },
         returnType = {
                 @ReturnType(type = TypeKind.STRUCT, structType = CLIENT,
@@ -127,7 +128,7 @@ public class StreamingExecute extends AbstractExecute {
         }
 
         // Update request headers when request headers exists in the context.
-        BRefValueArray headerValues = (BRefValueArray) context.getRefArgument(MESSAGE_HEADER_REF_INDEX);
+        BValue headerValues = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
         MessageHeaders headers = getMessageHeaders(headerValues);
 
         if (connectionStub instanceof GrpcNonBlockingStub) {
