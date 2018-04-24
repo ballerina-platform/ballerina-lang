@@ -33,30 +33,30 @@ public type CallerActions object {
     }
 
     documentation {
-		The `POST()` function can be used to send HTTP POST requests to HTTP endpoints.
-		
-        P{{path}} Resource path 
-        P{{req}} An HTTP outbound request message
+        The `post()` function can be used to send HTTP POST requests to HTTP endpoints.
+
+        P{{path}} Resource path
+        P{{request}} An HTTP outbound request message
         R{{}} The inbound response message
         R{{}} The error occurred while attempting to fulfill the HTTP request
 	}
     public native function post(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
 
     documentation {
-		The `HEAD()` function can be used to send HTTP HEAD requests to HTTP endpoints.
-		
-        P{{path}} Resource path 
-        P{{req}} An HTTP outbound request message
+        The `head()` function can be used to send HTTP HEAD requests to HTTP endpoints.
+
+        P{{path}} Resource path
+        P{{request}} An HTTP outbound request message
         R{{}} The inbound response message
         R{{}} The error occurred while attempting to fulfill the HTTP request
 	}
     public native function head(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
 
     documentation {
-		The `PUT()` function can be used to send HTTP PUT requests to HTTP endpoints.
-		
-        P{{path}} Resource path 
-        P{{req}} An HTTP outbound request message
+        The `put()` function can be used to send HTTP PUT requests to HTTP endpoints.
+
+        P{{path}} Resource path
+        P{{request}} An HTTP outbound request message
         R{{}} The inbound response message
         R{{}} The error occurred while attempting to fulfill the HTTP request
 	}
@@ -67,7 +67,7 @@ public type CallerActions object {
 		
         P{{httpVerb}} HTTP verb value
         P{{path}} Resource path 
-        P{{req}} An HTTP outbound request message
+        P{{request}} An HTTP outbound request message
         R{{}} The inbound response message
         R{{}} The error occurred while attempting to fulfill the HTTP request
 	}
@@ -75,50 +75,50 @@ public type CallerActions object {
                                                                                 returns Response|HttpConnectorError;
 
     documentation {
-		The `PATCH()` function can be used to send HTTP PATCH requests to HTTP endpoints.
+		The `patch()` function can be used to send HTTP PATCH requests to HTTP endpoints.
 		
         P{{path}} Resource path 
-        P{{req}} An HTTP outbound request message
+        P{{request}} An HTTP outbound request message
         R{{}} The inbound response message
         R{{}} The error occurred while attempting to fulfill the HTTP request
 	}
     public native function patch(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
 
     documentation {
-		The `DELETE()` function can be used to send HTTP DELETE requests to HTTP endpoints.
+		The `delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.
 		
         P{{path}} Resource path 
-        P{{req}} An HTTP outbound request message
+        P{{request}} An HTTP outbound request message
         R{{}} The inbound response message
         R{{}} The error occurred while attempting to fulfill the HTTP request
 	}
     public native function delete(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
 
     documentation {
-		The `GET()` function can be used to send HTTP GET requests to HTTP endpoints.
+		The `get()` function can be used to send HTTP GET requests to HTTP endpoints.
 		
         P{{path}} Request path
-        P{{req}} An HTTP outbound request message
+        P{{request}} An HTTP outbound request message
         R{{}} The inbound response message
         R{{}} The error occurred while attempting to fulfill the HTTP request
 	}
     public native function get(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
 
     documentation {
-		The `OPTIONS()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.
+		The `options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.
 		
         P{{path}} Request path
-        P{{req}} An HTTP outbound request message
+        P{{request}} An HTTP outbound request message
         R{{}} The inbound response message
         R{{}} The error occurred while attempting to fulfill the HTTP request
 	}
     public native function options(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
 
     documentation {
-		The `Forward()` function can be used to invoke an HTTP call with inbound request's HTTP verb
+		The `forward()` function can be used to invoke an HTTP call with inbound request's HTTP verb
 		
         P{{path}} Request path
-        P{{req}} An HTTP inbound request message
+        P{{request}} An HTTP inbound request message
         R{{}} The inbound response message
         R{{}} The error occurred while attempting to fulfill the HTTP request
 	}
@@ -129,7 +129,7 @@ public type CallerActions object {
 		
         P{{httpVerb}} The HTTP verb value
         P{{path}} The Resource path 
-        P{{req}} An HTTP outbound request message
+        P{{request}} An HTTP outbound request message
         R{{}} The Future for further interactions
         R{{}} The error occurred while attempting to fulfill the HTTP request
 	}

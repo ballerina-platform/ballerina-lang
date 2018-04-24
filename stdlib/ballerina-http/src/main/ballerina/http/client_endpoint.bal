@@ -58,7 +58,7 @@ public type Client object {
 
         R{{}} The HTTP caller actions provider of the endpoint
     }
-    public function getCallerActions() returns HttpClient {
+    public function getCallerActions() returns CallerActions {
         return self.httpClient;
     }
 
@@ -143,7 +143,7 @@ documentation {
 
     F{{trustStore}} TrustStore related options
     F{{keyStore}} KeyStore related options
-    F{{protocols}} SSL/TLS protocol related options
+    F{{protocol}} SSL/TLS protocol related options
     F{{certValidation}} Certificate validation against CRL or OCSP related options
     F{{ciphers}} List of ciphers to be used
                     eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
@@ -176,10 +176,10 @@ public type FollowRedirects {
 documentation {
     Proxy server configurations to be used with the HTTP client endpoint.
 
-    F{{proxyHost}} Host name of the proxy server
-    F{{proxyPort}} Proxy server port
-    F{{proxyUserName}} Proxy server username
-    F{{proxyPassword}} proxy server password
+    F{{host}} Host name of the proxy server
+    F{{port}} Proxy server port
+    F{{userName}} Proxy server username
+    F{{password}} proxy server password
 }
 public type ProxyConfig {
     string host,
@@ -210,9 +210,7 @@ documentation {
     F{{password}} Password for Basic authentication
     F{{accessToken}} Access token for OAuth2 authentication
     F{{refreshToken}} Refresh token for OAuth2 authentication
-    F{{refreshToken}} Refresh token for OAuth2 authentication
     F{{refreshUrl}} Refresh token URL for OAuth2 authentication
-    F{{consumerKey}} Consumer key for OAuth2 authentication
     F{{consumerKey}} Consumer key for OAuth2 authentication
     F{{consumerSecret}} Consumer secret for OAuth2 authentication
     F{{tokenUrl}} Token URL for OAuth2 authentication

@@ -55,7 +55,7 @@ public type Connection object {
     documentation {
         Cancels the handshake.
         
-        P{{statusCode}} Status code for closing the connection
+        P{{status}} Status code for closing the connection
         P{{reason}} Reason for closing the connection
     }
     public native function cancelWebSocketUpgrade(int status, string reason);
@@ -71,7 +71,7 @@ public type Connection object {
         Sends a redirect response to the user with the specified redirection status code.
 
         P{{response}} Response to be sent to the caller
-        P{{redirectCode}} The redirect status code to be sent
+        P{{code}} The redirect status code to be sent
         P{{locations}} An array of URLs to which the caller can redirect to
         R{{}} Returns an `HttpConnectorError` if failed to send the redirect response
     }
@@ -84,14 +84,14 @@ public type Connection object {
 documentation {
     Status codes for HTTP redirect
     
-    F{{MULTIPLE_CHOICES_300}} Represents status code 300 - Multiple Choices
-    F{{MOVED_PERMANENTLY_301}} Represents status code 301 - Moved Permanently
-    F{{FOUND_302}} Represents status code 302 - Found
-    F{{SEE_OTHER_303}} Represents status code 303 - See Other
-    F{{NOT_MODIFIED_304}} Represents status code 304 - Not Modified
-    F{{USE_PROXY_305}} Represents status code 305 - Use Proxy
-    F{{TEMPORARY_REDIRECT_307}} Represents status code 307 - Temporary Redirect
-    F{{PERMANENT_REDIRECT_308}} Represents status code 308 - Permanent Redirect
+    `MULTIPLE_CHOICES_300`: Represents status code 300 - Multiple Choices
+    `MOVED_PERMANENTLY_301`: Represents status code 301 - Moved Permanently
+    `FOUND_302`: Represents status code 302 - Found
+    `SEE_OTHER_303`: Represents status code 303 - See Other
+    `NOT_MODIFIED_304`: Represents status code 304 - Not Modified
+    `USE_PROXY_305`: Represents status code 305 - Use Proxy
+    `TEMPORARY_REDIRECT_307`: Represents status code 307 - Temporary Redirect
+    `PERMANENT_REDIRECT_308`: Represents status code 308 - Permanent Redirect
 }
 public type RedirectCode 300 | 301 | 302 | 303 | 304 | 305 | 307 | 308;
 

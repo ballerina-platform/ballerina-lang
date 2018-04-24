@@ -243,7 +243,7 @@ public type CircuitBreakerClient object {
 
         P{{httpVerb}} The HTTP verb
         P{{path}} The resource path
-        P{{req}} An HTTP outbound request message
+        P{{request}} An HTTP outbound request message
         R{{}} The `Future` for further interactions
         R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
     }

@@ -36,7 +36,7 @@ public type FailoverClient object {
     documentation {
         Initializes the endpoint using the configurations provided.
 
-        P{{config}} The configurations to be used when initializing the endpoint
+        P{{failoverClientConfig}} The configurations to be used when initializing the endpoint
     }
     public function init(FailoverClientEndpointConfiguration failoverClientConfig);
 
@@ -77,7 +77,7 @@ documentation {
     F{{timeoutMillis}} The maximum time to wait (in milliseconds) for a response before closing the connection
     F{{httpVersion}} The HTTP version supported by the endpoint
     F{{forwarded}} The choice of setting `forwarded`/`x-forwarded` header
-    F{{keepAlive}} SSpecifies whether to reuse a connection for multiple requests
+    F{{keepAlive}} Specifies whether to reuse a connection for multiple requests
     F{{transferEncoding}} The types of encoding applied to the request
     F{{chunking}} The chunking behaviour of the request
     F{{followRedirects}} Redirect related options

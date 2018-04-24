@@ -20,12 +20,12 @@
 ///////////////////////////
 
 documentation {
-    Contains the configurations for an HTTP service
+    Contains the configurations for an HTTP service.
 
     F{{endpoints}} An array of endpoints the service would be attached to
     F{{lifetime}} The life time of the service
     F{{basePath}} Service base path
-    F{{compression}} The status of compression (default value: AUTO)
+    F{{compression}} The status of compression
     F{{cors}} The CORS configurations for the service
     F{{authConfig}} AuthConfig instance to secure the service
 }
@@ -41,7 +41,7 @@ public type HttpServiceConfig {
 };
 
 documentation {
-    Configurations for CORS support
+    Configurations for CORS support.
 
     F{{allowHeaders}} The array of allowed headers by the service
     F{{allowMethods}} The array of allowed methods by the service
@@ -61,7 +61,7 @@ public type CorsConfig {
 
 
 documentation {
-    Configurations for service versioning
+    Configurations for service versioning.
 
     F{{pattern}} Expecting version pattern in the request url
     F{{allowNoVersion}} Allow to dispatch requests which does not hold version path segment in url
@@ -77,9 +77,11 @@ documentation {
     Configuration for a WebSocket service.
 
     F{{endpoints}} An array of endpoints the service would be attached to
-    F{{basePath}} Path of the WebSocket service
+    F{{webSocketEndpoints}} An array of endpoints the service would be attached to
+    F{{path}} Path of the WebSocket service
     F{{subProtocols}} Negotiable sub protocol by the service
-    F{{idleTimeoutInSeconds}} Idle timeout for the client connection. This can be triggered by putting onIdleTimeout resource in WS service.
+    F{{idleTimeoutInSeconds}} Idle timeout for the client connection. This can be triggered by putting onIdleTimeout
+                              resource in WS service.
     F{{maxFrameSize}} The maximum payload size of a WebSocket frame in bytes
 }
 public type WSServiceConfig {
@@ -106,12 +108,12 @@ public type WSServiceConfig {
 public type HttpServiceLifeTime "REQUEST"|"CONNECTION"|"SESSION"|"SINGLETON";
 
 documentation {
-    Configurations annotation for an HTTP service
+    Configurations annotation for an HTTP service.
 }
 public annotation <service> ServiceConfig HttpServiceConfig;
 
 documentation {
-    Configurations annotation for a WebSocket service
+    Configurations annotation for a WebSocket service.
 }
 public annotation <service> WebSocketServiceConfig WSServiceConfig;
 
@@ -119,14 +121,16 @@ public annotation <service> WebSocketServiceConfig WSServiceConfig;
 /// Resource Annotations ///
 ////////////////////////////
 documentation {
-    Configuration for an HTTP resource
+    Configuration for an HTTP resource.
+
     F{{methods}} The array of allowed HTTP methods
     F{{path}} The path of resource
     F{{body}} Inbound request entity body name which declared in signature
     F{{consumes}} The media types which are accepted by resource
     F{{produces}} The media types which are produced by resource
     F{{cors}} The CORS configurations for the resource. If not set, the resource will inherit the CORS behaviour of the enclosing service.
-    F{{webSocket}} Annotation to define HTTP to WebSocket upgrade
+    F{{transactionInfectable}}
+    F{{webSocketUpgrade}} Annotation to define HTTP to WebSocket upgrade
     F{{authConfig}} AuthConfig instance to secure the resource
 }
 public type HttpResourceConfig {
@@ -147,10 +151,10 @@ public type WebSocketUpgradeConfig {
 };
 
 documentation {
-    Representation of AuthConfig"
+    Representation of AuthConfig.
 
     F{{authentication}} Authentication instance
-    F{{providers}} array of providers
+    F{{authProviders}} array of providers
     F{{scopes}} array of scopes
 }
 public type ListenerAuthConfig {
@@ -160,7 +164,7 @@ public type ListenerAuthConfig {
 };
 
 documentation {
-    Representation of Authentication Config
+    Representation of Authentication Config.
 
     F{{enabled}} flag to enable/disable authentication
 }
@@ -169,6 +173,6 @@ public type Authentication {
 };
 
 documentation {
-    Configurations annotation for an HTTP resource
+    Configurations annotation for an HTTP resource.
 }
 public annotation <resource> ResourceConfig HttpResourceConfig;

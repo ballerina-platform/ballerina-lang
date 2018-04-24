@@ -157,7 +157,7 @@ public type Failover object {
 
         P{{httpVerb}} The HTTP verb value
         P{{path}} The Resource path
-        P{{req}} An HTTP request
+        P{{request}} An HTTP request
         R{{}} The Future for further interactions or an `HttpConnectorError` if failed to fulfill the request
     }
     public function submit(string httpVerb, string path, Request request) returns HttpFuture|HttpConnectorError;

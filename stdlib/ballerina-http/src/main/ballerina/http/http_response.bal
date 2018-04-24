@@ -193,7 +193,7 @@ public type Response object {
     documentation {
         Sets the `etag` header for the given payload. The ETag is generated using a CRC32 hash function.
 
-        P{{}} The payload for which the ETag should be set.
+        P{{payload}} The payload for which the ETag should be set.
     }
     public function setETag(json|xml|string|blob payload);
 

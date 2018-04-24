@@ -41,10 +41,10 @@ documentation {
     Used for configuring the caching behaviour. Setting the `policy` field in the `CacheConfig` record allows
     the user to control the caching behaviour.
 
-    F{{CACHE_CONTROL_AND_VALIDATORS}} This a more restricted mode of RFC 7234. This restricts caching to instances
+    `CACHE_CONTROL_AND_VALIDATORS`: This a more restricted mode of RFC 7234. This restricts caching to instances
                                       where the Cache-Control header and either the ETag or Last-Modified header
                                       are present.
-    F{{RFC_7234}} Caching behaviour is as specified by the RFC 7234 specification.
+    `RFC_7234`: Caching behaviour is as specified by the RFC 7234 specification.
 }
 public type CachingPolicy "CACHE_CONTROL_AND_VALIDATORS"|"RFC_7234";
 
