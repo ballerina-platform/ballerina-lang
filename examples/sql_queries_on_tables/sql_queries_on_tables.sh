@@ -1,6 +1,6 @@
 #At the command line, navigate to the directory that contains the 
 #`.bal` file and run the `ballerina run` command. 
-$ ballerina run sql-queries-on-tables.bal
+$ ballerina run sql_queries_on_tables.bal
 The personTable: [{"id":1,"age":25,"salary":1000.5,"name":"jane","married":true},{"id":2,"age":26,"salary":1050.5,"name":"kane","married":false},{"id":3,"age":27,"salary":1200.5,"name":"jack","married":true},{"id":4,"age":28,"salary":1100.5,"name":"alex","married":false}]
 
 The orderTable: [{"personId":1,"orderId":1234,"items":"pen, book, eraser","amount":34.75},{"personId":1,"orderId":2314,"items":"dhal, rice, carrot","amount":14.75},{"personId":2,"orderId":5643,"items":"Macbook Pro","amount":2334.75},{"personId":3,"orderId":8765,"items":"Tshirt","amount":20.75}]

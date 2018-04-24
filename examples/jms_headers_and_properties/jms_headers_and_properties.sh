@@ -3,4 +3,4 @@ $ broker.sh
 
 # At the command line, navigate to the directory that contains the
 # `jms-headers-and-properties.bal` file and run the `ballerina run` command.
-$ ballerina run jms-headers-and-properties.bal
+$ ballerina run jms_headers_and_properties.bal

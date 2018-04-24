@@ -1,4 +1,4 @@
-$ ballerina run distributed-transactions.bal
+$ ballerina run distributed_transactions.bal
 CUSTOMER table create status in first DB:0
 SALARY table create status in second DB:0
 2018-04-20 16:44:02,684 INFO  [ballerina.transactions] - Created transaction: bf62eb016a524874b2fb006cf6a1acce

@@ -1,1 +1,1 @@
-$ ballerina run decode-nested-bodyparts-in-multipart.bal
+$ ballerina run decode_nested_bodyparts_in_multipart.bal

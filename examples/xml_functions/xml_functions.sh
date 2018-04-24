@@ -1,6 +1,6 @@
 #At the command line, navigate to the directory that contains the 
 #`.bal` file and run the `ballerina run` command. 
-$ ballerina run xml-functions.bal
+$ ballerina run xml_functions.bal
 # Type of XML element.
 comment
 # Name of the XML element.

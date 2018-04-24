@@ -1,4 +1,4 @@
-$ ballerina run file-api.bal
+$ ballerina run file_api.bal
 File exists in {path}/tmp/src/test.txt
 Iterating through directory content
 ./tmp/dst

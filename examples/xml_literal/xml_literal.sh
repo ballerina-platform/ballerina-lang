@@ -1,6 +1,6 @@
 #At the command line, navigate to the directory that contains the 
 #`.bal` file and run the `ballerina run` command. 
-$ ballerina run xml-literal.bal
+$ ballerina run xml_literal.bal
 <book>
                     <name>Sherlock Holmes</name>
                     <author>Sir Arthur Conan Doyle</author>

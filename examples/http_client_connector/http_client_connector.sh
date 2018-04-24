@@ -1,6 +1,6 @@
 #At the command line, navigate to the directory that contains the 
 #`.bal` file and run the `ballerina run` command. 
-$ ballerina run http-client-connector.bal
+$ ballerina run http_client_connector.bal
 GET request:
 {"args":{"test":"123"},"headers":{"host":"postman-echo.com","user-agent":"ballerina/0.92.1-SNAPSHOT","x-forwarded-port":"443","x-forwarded-proto":"https"},"url":"https://postman-echo.com/get?test=123"}
 

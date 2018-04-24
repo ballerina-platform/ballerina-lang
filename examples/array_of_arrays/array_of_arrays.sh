@@ -1,4 +1,4 @@
-$ ballerina run array-of-arrays.bal
+$ ballerina run array_of_arrays.bal
 3
 3
 10

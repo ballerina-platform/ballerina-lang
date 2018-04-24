@@ -1,4 +1,4 @@
-$ ballerina run value-types.bal
+$ ballerina run value_types.bal
 0
 20.0
 

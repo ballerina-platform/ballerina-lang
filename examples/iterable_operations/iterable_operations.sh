@@ -1,4 +1,4 @@
-$ ballerina run iterable-operations.bal
+$ ballerina run iterable_operations.bal
 total words count 5
 ["ANT", "BEAR", "CAT", "DEAR", "ELEPHANT"]
 Average of positive numbers 7.0

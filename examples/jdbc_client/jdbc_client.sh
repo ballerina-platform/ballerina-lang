@@ -1,6 +1,6 @@
 #At the command line, navigate to the directory that contains the 
 #`.bal` file and run the `ballerina run` command. 
-$ ballerina run jdbc-connector.bal
+$ ballerina run jdbc_connector.bal
 Table creation status: 0
 Stored proc creation status: 0
 Inserted row count: 1

@@ -1,1 +1,1 @@
-$ ballerina run outbound-request-with-multiparts.bal
+$ ballerina run outbound_request_with_multiparts.bal

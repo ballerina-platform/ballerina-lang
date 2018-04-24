@@ -1,4 +1,4 @@
-$ ballerina run math-functions.bal
+$ ballerina run math_functions.bal
 Value of PI : 3.141592653589793
 Value of E  : 2.718281828459045
 Absolute value of -152.2544 : 152.2544
