@@ -18,6 +18,7 @@
 documentation {
     LoadBalanceClient endpoint provides load balancing functionality over multiple HTTP clients.
 
+    E{{}}
     F{{epName}} - Name of the endpoint
     F{{loadBalanceClientConfig}} - The configurations for the load balance client endpoint
 }

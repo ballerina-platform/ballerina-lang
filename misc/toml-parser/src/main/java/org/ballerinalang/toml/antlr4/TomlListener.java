@@ -348,16 +348,6 @@ public interface TomlListener extends ParseTreeListener {
 	 */
 	void exitOctPrefix(TomlParser.OctPrefixContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link TomlParser#binPrefix}.
-	 * @param ctx the parse tree
-	 */
-	void enterBinPrefix(TomlParser.BinPrefixContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link TomlParser#binPrefix}.
-	 * @param ctx the parse tree
-	 */
-	void exitBinPrefix(TomlParser.BinPrefixContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link TomlParser#decInt}.
 	 * @param ctx the parse tree
 	 */
