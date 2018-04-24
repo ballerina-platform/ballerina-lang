@@ -1,29 +1,28 @@
-
-function benchmarkFloatAddition() {
+public function benchmarkFloatAddition() {
     float b = 9.9;
     float a = 10.1;
     float c = a + b;
 }
 
-function benchmarkFloatMultiplication() {
+public function benchmarkFloatMultiplication() {
     float a = 2.5;
     float b = 5.5;
     float c = a * b;
 }
 
-function benchmarkFloatSubtraction() {
+public function benchmarkFloatSubtraction() {
     float a = 25.5;
     float b = 15.5;
     float c = a - b;
 }
 
-function benchmarkFloatDivision() {
+public function benchmarkFloatDivision() {
     float a = 25.5;
     float b = 5.1;
     float c = a / b;
 }
 
-function benchmarkFloatAdditionWithReturn() {
+public function benchmarkFloatAdditionWithReturn() {
     float a = floatAddition();
 }
 
@@ -33,7 +32,7 @@ function floatAddition() returns (float) {
     return a + b;
 }
 
-function benchmarkFloatMultiplicationWithReturn() {
+public function benchmarkFloatMultiplicationWithReturn() {
     float a = floatMultiplication();
 }
 
@@ -43,7 +42,7 @@ function floatMultiplication() returns (float) {
     return a * b;
 }
 
-function benchmarkFloatSubtractionWithReturn() {
+public function benchmarkFloatSubtractionWithReturn() {
     float a = floatSubtraction();
 }
 
@@ -53,7 +52,7 @@ function floatSubtraction() returns (float) {
     return a - b;
 }
 
-function benchmarkFloatDivisionWithReturn() {
+public function benchmarkFloatDivisionWithReturn() {
     float a = floatDivision();
 }
 
@@ -62,3 +61,4 @@ function floatDivision() returns (float) {
     float b = 5.1;
     return a / b;
 }
+

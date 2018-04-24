@@ -30,7 +30,7 @@ public type HttpBasicAuthnHandler object {
         string name;
         auth:AuthProvider authProvider;
     }
-    new (authProvider) {
+    public new (authProvider) {
         name = "basic";
     }
 
