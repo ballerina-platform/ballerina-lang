@@ -16,9 +16,9 @@ ballerina: started HTTP/WS server connector localhost:8181
 
 Output from  the hub:
 
-2018-04-12 18:48:05,214 INFO  [websub.hub] - Topic registration successful at Hub, for topic[http://www.websubpubtopic.com]
-2018-04-12 18:48:06,808 INFO  [websub.hub] - Intent verification successful for mode: [subscribe], for callback URL: [http://0.0.0.0:8181/websub]
-2018-04-12 18:48:15,465 INFO  [websub.hub] - Event notification done for Topic [http://www.websubpubtopic.com]
+2018-04-12 18:48:05,214 INFO  [ballerina.websub] - Topic registration successful at Hub, for topic[http://www.websubpubtopic.com]
+2018-04-12 18:48:06,808 INFO  [ballerina.websub] - Intent verification successful for mode: [subscribe], for callback URL: [http://0.0.0.0:8181/websub]
+2018-04-12 18:48:15,465 INFO  [ballerina.websub] - Event notification done for Topic [http://www.websubpubtopic.com]
 
 Output from  the publisher:
 

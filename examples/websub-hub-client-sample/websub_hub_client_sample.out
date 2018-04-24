@@ -2,7 +2,8 @@
 # the topic, and the subscriber service representing the callback is started up.
 # Note how the update published after unsubscription is not received by the subscriber_service.
 
-# If the port is not specified, the hub service will be started up on the default port
+# Note the port specified as a configuration, the hub service will be started up on the default port if not specified as
+# a parameter or a configuration.
 $ ballerina run publisher.bal -e b7a.websub.hub.port=9191
 2018-04-24 08:14:08,559 INFO  [] - Starting up the Ballerina Hub Service
 ballerina: Default Ballerina WebSub Hub started up at https://localhost:9191/websub/hub
@@ -17,9 +18,9 @@ $ ballerina run subscriber_client.bal
 Output from  the publisher:
 
 2018-04-24 08:14:09,654 INFO  [] - Topic registration successful!
-2018-04-24 08:14:14,388 INFO  [websub.hub] - Intent verification successful for mode: [subscribe], for callback URL: [http://localhost:8181/websub]
+2018-04-24 08:14:14,388 INFO  [ballerina.websub] - Intent verification successful for mode: [subscribe], for callback URL: [http://localhost:8181/websub]
 2018-04-24 08:14:24,866 INFO  [] - Update notification successful!
-2018-04-24 08:14:29,230 INFO  [websub.hub] - Intent verification successful for mode: [unsubscribe], for callback URL: [http://localhost:8181/websub]
+2018-04-24 08:14:29,230 INFO  [ballerina.websub] - Intent verification successful for mode: [unsubscribe], for callback URL: [http://localhost:8181/websub]
 2018-04-24 08:14:39,869 INFO  [] - Update notification successful!
 
 Output from the subscriber_service:
