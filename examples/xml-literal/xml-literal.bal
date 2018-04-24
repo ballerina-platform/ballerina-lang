@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main (string... args) {
+function main(string... args) {
 
     // A complex XML defined using the literal syntax, containing nested elements of different types.
     xml x1 = xml `<book>

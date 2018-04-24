@@ -3,12 +3,12 @@ import ballerina/mysql;
 import ballerina/io;
 
 endpoint mysql:Client testDB {
-    host:"localhost",
-    port:3306,
-    name:"testdb",
-    username:"root",
-    password:"root",
-    poolOptions:{maximumPoolSize:5}
+    host: "localhost",
+    port: 3306,
+    name: "testdb",
+    username: "root",
+    password: "root",
+    poolOptions: {maximumPoolSize: 5}
 };
 
 function main(string... args) {

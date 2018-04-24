@@ -1,11 +1,11 @@
 import ballerina/io;
 
-@Description {value:"As a best practice, ensure that error is the last return value, and also ensure that it is of type `error`. Note that type `error` is a built-in reference type."}
-function getAccountBalance (int accountID) returns (int) | error {
-    //Create an instance of the error struct and return it.
-    //The logic used here is just sample logic to demonstrate the concept of error.
+// Note that type `error` is a built-in reference type.
+function getAccountBalance (int accountID) returns (int|error) {
+    // Create an instance of the error record and return it.
+    // The logic used here is just a sample scenario to demonstrate the concept of error handling.
     if (accountID < 100) {
-        error err = {message:"Account with id:" + accountID + " is not found"};
+        error err = { message: "Account with id: " + accountID + " is not found" };
         return err;
     } else {
         return 600;

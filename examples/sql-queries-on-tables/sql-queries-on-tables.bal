@@ -46,16 +46,16 @@ function main(string... args) {
     table<Order> orderTable = table{};
 
     // A few sample values which represent different persons. 
-    Person p1 = {id:1, age:25, salary:1000.50, name:"jane", married:true};
-    Person p2 = {id:2, age:26, salary:1050.50, name:"kane", married:false};
-    Person p3 = {id:3, age:27, salary:1200.50, name:"jack", married:true};
-    Person p4 = {id:4, age:28, salary:1100.50, name:"alex", married:false};
+    Person p1 = {id: 1, age: 25, salary: 1000.50, name: "jane", married: true};
+    Person p2 = {id: 2, age: 26, salary: 1050.50, name: "kane", married: false};
+    Person p3 = {id: 3, age: 27, salary: 1200.50, name: "jack", married: true};
+    Person p4 = {id: 4, age: 28, salary: 1100.50, name: "alex", married: false};
 
     // A few sample values which represent orders made by the persons listed above. 
-    Order o1 = {personId:1, orderId:1234, items:"pen, book, eraser", amount:34.75};
-    Order o2 = {personId:1, orderId:2314, items:"dhal, rice, carrot", amount:14.75};
-    Order o3 = {personId:2, orderId:5643, items:"Macbook Pro", amount:2334.75};
-    Order o4 = {personId:3, orderId:8765, items:"Tshirt", amount:20.75};
+    Order o1 = {personId: 1, orderId: 1234, items: "pen, book, eraser", amount: 34.75};
+    Order o2 = {personId: 1, orderId: 2314, items: "dhal, rice, carrot", amount: 14.75};
+    Order o3 = {personId: 2, orderId: 5643, items: "Macbook Pro", amount: 2334.75};
+    Order o4 = {personId: 3, orderId: 8765, items: "Tshirt", amount: 20.75};
 
     // Insert the `Person` struct objects and populate the table.
     _ = personTable.add(p1);
@@ -81,7 +81,7 @@ function main(string... args) {
 
     // 1. Query all records from a table and return it as another in-memory table.
     table<Person> personTableCopy = from personTable
-                                         select *;
+    select *;
     io:println("\ntable<Person> personTableCopy = from personTable select *;");
     io:print("personTableCopy: ");
     json personJsonCopy = check <json>personTableCopy;
@@ -89,7 +89,7 @@ function main(string... args) {
 
     // 2. Query all records in ascending order of salary.
     table<Person> orderedPersonTableCopy = from personTable
-                                         select * order by salary;
+    select * order by salary;
     io:println("\ntable<Person> orderedPersonTableCopy = from personTable select * order by salary;");
     io:print("orderedPersonTableCopy: ");
     json orderJsonCopy = check <json>orderedPersonTableCopy;
@@ -97,15 +97,15 @@ function main(string... args) {
 
     // 3. Query all records from a table and return it as another in-memory table.
     table<Person> personTableCopyWithFilter = from personTable where name == "jane"
-                                         select *;
+    select *;
     io:println("\ntable<Person> personTableCopyWithFilter = from personTable where name == 'jane' select *;");
     io:print("personTableCopyWithFilter: ");
     json personTableWithFilterJson = check <json>personTableCopyWithFilter;
     io:println(personTableWithFilterJson);
 
     // 4. Query only new fields from a table and return it as a new in-memory table constrained by a different struct.
-    table<PersonPublicProfile > childTable = from personTable
-                                                  select name as knownName, age;
+    table<PersonPublicProfile> childTable = from personTable
+    select name as knownName, age;
     io:println("\ntable<PersonPublicProfile > childTable = from personTable select name as knownName, age;");
     io:print("childTable: ");
     json childJson = check <json>childTable;
@@ -113,7 +113,7 @@ function main(string... args) {
 
     // 5. Use the `group by` clause on a table and return a new table with the result.
     table<SummedOrder> summedOrderTable = from orderTable
-                                               select personId, sum(amount) group by personId;
+    select personId, sum(amount) group by personId;
     io:println("\ntable<SummedOrder> summedOrderTable = from orderTable select personId, sum(amount) group by
     personId;");
     io:print("summedOrderTable: ");
@@ -122,9 +122,9 @@ function main(string... args) {
 
     // 6. Join a table with another table and return the selected fields in a table constrained by a different struct.
     table<OrderDetails> orderDetailsTable = from personTable as tempPersonTable
-            join orderTable as tempOrderTable on tempPersonTable.id == tempOrderTable.personId
-            select tempOrderTable.orderId as orderId, tempPersonTable.name as personName, tempOrderTable.items as
-            items, tempOrderTable.amount as amount;
+    join orderTable as tempOrderTable on tempPersonTable.id == tempOrderTable.personId
+    select tempOrderTable.orderId as orderId, tempPersonTable.name as personName, tempOrderTable.items as
+    items, tempOrderTable.amount as amount;
     io:println("\ntable<OrderDetails> orderDetailsTable = from personTable as tempPersonTable
             join orderTable as tempOrderTable on tempPersonTable.id == tempOrderTable.personId
             select tempOrderTable.orderId as orderId, tempPersonTable.name as personName, tempOrderTable.items as
@@ -136,9 +136,9 @@ function main(string... args) {
     // 7. Join a table with another table using the `where` clause and return the selected fields in a 
     // table constrained by a different struct.
     table<OrderDetails> orderDetailsWithFilter = from personTable where name != "jane" as tempPersonTable
-        join orderTable where personId != 3 as tempOrderTable on tempPersonTable.id == tempOrderTable.personId
-        select tempOrderTable.orderId as orderId, tempPersonTable.name as personName, tempOrderTable.items as items,
-        tempOrderTable.amount as amount;
+    join orderTable where personId != 3 as tempOrderTable on tempPersonTable.id == tempOrderTable.personId
+    select tempOrderTable.orderId as orderId, tempPersonTable.name as personName, tempOrderTable.items as items,
+    tempOrderTable.amount as amount;
     io:println("\ntable<OrderDetails> orderDetailsWithFilter = from personTable where name != 'jane' as tempPersonTable
         join orderTable where personId != 3 as tempOrderTable on tempPersonTable.id == tempOrderTable.personId
         select tempOrderTable.orderId as orderId, tempPersonTable.name as personName, tempOrderTable.items as items,

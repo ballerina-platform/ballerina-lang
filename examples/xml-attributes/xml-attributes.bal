@@ -2,7 +2,7 @@ import ballerina/io;
 
 xmlns "http://ballerina.com/aa" as ns0;
 
-function main (string... args) {
+function main(string... args) {
     // Create an XML element that has attributes that are bound to a namespace as well as ones that are not.
     xml x1 = xml `<ns0:book ns0:status="available" count="5"/>`;
     io:println(x1);

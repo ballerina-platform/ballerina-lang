@@ -3,26 +3,26 @@ import ballerina/mime;
 import ballerina/io;
 
 endpoint http:Client clientEP {
-    url:"http://localhost:9090"
+    url: "http://localhost:9090"
 };
 
 endpoint http:Listener multipartEP {
-    port:9092
+    port: 9092
 };
 
-@http:ServiceConfig {basePath:"/multiparts"}
+@http:ServiceConfig {basePath: "/multiparts"}
 service<http:Service> test bind multipartEP {
     @http:ResourceConfig {
-        methods:["POST"],
-        path:"/encoder"
+        methods: ["POST"],
+        path: "/encoder"
     }
-    encodeMultiparts (endpoint conn, http:Request req) {
+    encodeMultiparts(endpoint conn, http:Request req) {
 
         //Create a json body part.
         mime:Entity jsonBodyPart = new;
         jsonBodyPart.setContentType(mime:APPLICATION_JSON);
         jsonBodyPart.setContentDisposition(getContentDispositionForFormData("json part"));
-        jsonBodyPart.setJson({"name":"wso2"});
+        jsonBodyPart.setJson({"name": "wso2"});
 
         //Create an xml body part as a file upload.
         mime:Entity xmlFilePart = new;
@@ -36,7 +36,7 @@ service<http:Service> test bind multipartEP {
         mime:Entity xmlBodyPart = new;
         xmlBodyPart.setContentType(mime:APPLICATION_XML);
         xmlBodyPart.setContentDisposition(getContentDispositionForFormData("xml part"));
-        xml xmlContent= xml `<name>Ballerina</name>`;
+        xml xmlContent = xml `<name>Ballerina</name>`;
         xmlBodyPart.setXml(xmlContent);
 
         //Create an array to hold all the body parts.
@@ -46,24 +46,24 @@ service<http:Service> test bind multipartEP {
         // Set the body parts to the request. Here the content-type is set as multipart form data. This also works with
         // any other multipart media type. eg:- multipart/mixed, multipart/related etc. You need to pass the content
         // type that suit your requirement.
-        request.setBodyParts(bodyParts, contentType=mime:MULTIPART_FORM_DATA);
-        var returnResponse = clientEP -> post("/multiparts/decode_in_request", request=request);
+        request.setBodyParts(bodyParts, contentType = mime:MULTIPART_FORM_DATA);
+        var returnResponse = clientEP->post("/multiparts/decode_in_request", request = request);
         match returnResponse {
             http:HttpConnectorError err => {
                 http:Response resp1 = new;
                 io:println(err);
                 resp1.setStringPayload("Error occurred while sending multipart request!");
                 resp1.statusCode = 500;
-                _ = conn -> respond(resp1);
+                _ = conn->respond(resp1);
             }
-            http:Response returnResult => {_ = conn -> respond(returnResult);}
+            http:Response returnResult => {_ = conn->respond(returnResult);}
         }
     }
 }
 
-function getContentDispositionForFormData(string partName) returns (mime:ContentDisposition){
+function getContentDispositionForFormData(string partName) returns (mime:ContentDisposition) {
     mime:ContentDisposition contentDisposition = new;
-    contentDisposition.name =  partName;
+    contentDisposition.name = partName;
     contentDisposition.disposition = "form-data";
     return contentDisposition;
 }

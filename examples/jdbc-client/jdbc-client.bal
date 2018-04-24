@@ -3,10 +3,10 @@ import ballerina/io;
 import ballerina/jdbc;
 
 endpoint jdbc:Client testDB {
-    url:"mysql://localhost:3306/testdb",
-    username:"root",
-    password:"root",
-    poolOptions:{maximumPoolSize:5}
+    url: "mysql://localhost:3306/testdb",
+    username: "root",
+    password: "root",
+    poolOptions: {maximumPoolSize: 5}
 };
 
 function main(string... args) {
@@ -100,10 +100,10 @@ function main(string... args) {
     var results = testDB->call("{CALL GETCOUNT(?,?,?)}", (), pAge, pCount, pId);
 
     //Obtain the values of OUT/INOUT parameters
-    int countValue = <int>pCount.value but {error => -1};
+    int countValue = <int>pCount.value but { error => -1 };
     io:println("Age 10 count: " + countValue);
 
-    int idValue = <int>pId.value but {error => -1};
+    int idValue = <int>pId.value but { error => -1 };
     io:println("Id 1 count: " + idValue);
 
     //Drop the STUDENT table.

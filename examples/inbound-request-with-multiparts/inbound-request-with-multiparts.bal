@@ -4,22 +4,22 @@ import ballerina/io;
 
 // Creating a listener for the service.
 endpoint http:Listener multipartEP {
-    port:9090
+    port: 9090
 };
 
 // Binding the listener to the service.
-@http:ServiceConfig {basePath:"/multiparts"}
+@http:ServiceConfig {basePath: "/multiparts"}
 service<http:Service> test bind multipartEP {
     @http:ResourceConfig {
-        methods:["POST"],
-        path:"/decode_in_request"
+        methods: ["POST"],
+        path: "/decode_in_request"
     }
     // This resource accepts multipart requests.
-    receiveMultiparts (endpoint conn, http:Request request) {
+    receiveMultiparts(endpoint conn, http:Request request) {
         http:Response response = new;
         // Extract the bodyparts from the request.
         match request.getBodyParts() {
-        // Setting the error response in case of an error
+            // Setting the error response in case of an error
             mime:EntityError err => {
                 io:println(err);
                 response.setStringPayload("Error in decoding multiparts!");
@@ -37,12 +37,12 @@ service<http:Service> test bind multipartEP {
                 response.setStringPayload("Multiparts Received!");
             }
         }
-        _ = conn -> respond(response);
+        _ = conn->respond(response);
     }
 }
 
-@Description {value:"The content logic that handles the body parts vary based on your requirement."}
-function handleContent (mime:Entity bodyPart) {
+@Description {value: "The content logic that handles the body parts vary based on your requirement."}
+function handleContent(mime:Entity bodyPart) {
     string baseType = check mime:getMediaType(bodyPart.getContentType())!getBaseType();
     if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
         //Extract the xml data from the body part and print it.

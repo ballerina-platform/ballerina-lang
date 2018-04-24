@@ -1,0 +1,35 @@
+# This sample requires running the subscriber client main program after the Publisher starts up the hub and registers
+# the topic, and the subscriber service representing the callback is started up.
+# Note how the update published after unsubscription is not received by the subscriber_service.
+
+# If the port is not specified, the hub service will be started up on the default port
+$ ballerina run publisher.bal -e b7a.websub.hub.port=9191
+2018-04-24 08:14:08,559 INFO  [] - Starting up the Ballerina Hub Service
+ballerina: Default Ballerina WebSub Hub started up at https://localhost:9191/websub/hub
+ballerina: started HTTPS/WSS endpoint localhost:9191
+
+$ ballerina run subscriber_service.bal
+ballerina: initiating service(s) in 'subscriber_service.bal'
+ballerina: started HTTP/WS endpoint 0.0.0.0:8181
+
+$ ballerina run subscriber_client.bal
+
+Output from  the publisher:
+
+2018-04-24 08:14:09,654 INFO  [] - Topic registration successful!
+2018-04-24 08:14:14,388 INFO  [websub.hub] - Intent verification successful for mode: [subscribe], for callback URL: [http://localhost:8181/websub]
+2018-04-24 08:14:24,866 INFO  [] - Update notification successful!
+2018-04-24 08:14:29,230 INFO  [websub.hub] - Intent verification successful for mode: [unsubscribe], for callback URL: [http://localhost:8181/websub]
+2018-04-24 08:14:39,869 INFO  [] - Update notification successful!
+
+Output from the subscriber_service:
+
+ballerina: Intent Verification agreed - Mode [subscribe], Topic [http://www.websubpubtopic.com], Lease Seconds [86400000]
+2018-04-24 08:14:25,079 INFO  [] - WebSub Notification Received: {"action":"publish","mode":"internal-hub"}
+ballerina: Intent Verification agreed - Mode [unsubscribe], Topic [http://www.websubpubtopic.com], Lease Seconds [86400000]
+
+Output from the subscriber_client:
+
+2018-04-24 08:14:14,168 INFO  [] - Subscription Request successful at Hub [https://localhost:9191/websub/hub] for Topic [http://www.websubpubtopic.com]
+2018-04-24 08:14:29,209 INFO  [] - Unsubscription Request successful at Hub [https://localhost:9191/websub/hub] for Topic [http://www.websubpubtopic.com]
+

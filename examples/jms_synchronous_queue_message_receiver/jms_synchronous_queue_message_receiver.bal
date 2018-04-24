@@ -3,19 +3,21 @@ import ballerina/log;
 
 // Initialize a JMS connection with the provider.
 jms:Connection jmsConnection = new({
-        initialContextFactory:"bmbInitialContextFactory",
-        providerUrl:"amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'"
-});
+        initialContextFactory: "bmbInitialContextFactory",
+        providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'"
+    }
+);
 
 // Initialize a JMS session on top of the created connection.
 jms:Session jmsSession = new(jmsConnection, {
-        acknowledgementMode:"AUTO_ACKNOWLEDGE"
-});
+        acknowledgementMode: "AUTO_ACKNOWLEDGE"
+    }
+);
 
 // Initialize a queue receiver on top of the the created sessions.
 endpoint jms:QueueReceiver queueReceiver {
-    session:jmsSession,
-    queueName:"MyQueue"
+    session: jmsSession,
+    queueName: "MyQueue"
 };
 
 function main(string... args) {
@@ -28,7 +30,7 @@ function main(string... args) {
             // If the message is received, this block is executed.
             match (msg.getTextMessageContent()) {
                 string messageText => log:printInfo("Message : " + messageText);
-                error e => log:printError("Error occurred while reading message", err=e);
+                error e => log:printError("Error occurred while reading message", err = e);
             }
         }
         () => {

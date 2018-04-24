@@ -2,16 +2,18 @@ import ballerina/jms;
 import ballerina/log;
 
 // Initialize a JMS connection with the provider.
-jms:Connection conn = new ({
-    initialContextFactory: "bmbInitialContextFactory",
-    providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'"
-});
+jms:Connection conn = new({
+        initialContextFactory: "bmbInitialContextFactory",
+        providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'"
+    }
+);
 
 // Initialize a JMS session on top of the created connection.
-jms:Session jmsSession = new (conn, {
-    // An optional property that defaults to AUTO_ACKNOWLEDGE.
-    acknowledgementMode: "AUTO_ACKNOWLEDGE"
-});
+jms:Session jmsSession = new(conn, {
+        // An optional property that defaults to AUTO_ACKNOWLEDGE.
+        acknowledgementMode: "AUTO_ACKNOWLEDGE"
+    }
+);
 
 // Initialize a topic subscriber using the created session.
 endpoint jms:TopicSubscriber subscriber {
@@ -26,7 +28,7 @@ service<jms:Consumer> jmsListener bind subscriber {
     onMessage(endpoint subscriber, jms:Message message) {
         match (message.getTextMessageContent()) {
             string messageText => log:printInfo("Message : " + messageText);
-            error e => log:printError("Error occurred while reading message", err=e);
+            error e => log:printError("Error occurred while reading message", err = e);
         }
-  }
+    }
 }
