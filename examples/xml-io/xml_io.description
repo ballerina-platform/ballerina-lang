@@ -1,0 +1,2 @@
+// Sample demonstrates how xml content could be read and written to file
+// The content will be read and written through io character channel readXml() and writeXml() APIs

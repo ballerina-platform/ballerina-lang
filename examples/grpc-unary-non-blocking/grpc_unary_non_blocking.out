@@ -1,0 +1,9 @@
+# To run the service, put the code in  `grpc_unary_non_blocking.bal`
+# and use "ballerina run" command.
+$ ballerina run grpc_unary_non_blocking.bal
+
+# To run the client and send request, build 'client' package using ballerina tool distribution using following command
+$ ballerina build client
+
+# Then run client.blax using following command to run the client
+$ ballerina run client.balx

@@ -2,38 +2,33 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/runtime;
 
-// Create an endpoint with port 9090 for the `failoverDemoService`.
-endpoint http:Listener failoverEP {
-    port:9090
-};
-
 // Create an endpoint with port 8080 for the mock backend services.
 endpoint http:Listener backendEP {
-    port:8080
+    port: 8080
 };
 
 // Define the failover client end point to the call the backend services.
 endpoint http:FailoverClient foBackendEP {
-    timeoutMillis:5000,
-    failoverCodes:[501, 502, 503],
-    intervalMillis:5000,
+    timeoutMillis: 5000,
+    failoverCodes: [501, 502, 503],
+    intervalMillis: 5000,
     // Define set of HTTP Clients that needs to be Failover.
-    targets:[
-        {url:"http://localhost:3000/mock1"},
-        {url:"http://localhost:8080/echo"},
-        {url:"http://localhost:8080/mock"}
+    targets: [
+        {url: "http://localhost:3000/mock1"},
+        {url: "http://localhost:8080/echo"},
+        {url: "http://localhost:8080/mock"}
     ]
 };
 
 // Create an HTTP service bound to the endpoint (failoverEP).
 @http:ServiceConfig {
-    basePath:"/fo"
+    basePath: "/fo"
 }
-service<http:Service> failoverDemoService bind failoverEP {
+service<http:Service> failoverDemoService bind {port: 9090} {
     // Create a REST resource within the API.
     @http:ResourceConfig {
-        methods:["GET", "POST"],
-        path:"/"
+        methods: ["GET", "POST"],
+        path: "/"
     }
     // Parameters include a reference to the caller endpoint and a object with the request data.
     invokeEndpoint(endpoint caller, http:Request request) {
@@ -51,7 +46,7 @@ service<http:Service> failoverDemoService bind failoverEP {
                 // Create new HTTP response by looking at the error message.
                 http:Response response = new;
                 response.statusCode = 500;
-                response.setStringPayload(responseError.message);
+                response.setPayload(responseError.message);
                 caller->respond(response) but { error e => log:printError("Error sending response", err = e) };
             }
         }
@@ -60,35 +55,36 @@ service<http:Service> failoverDemoService bind failoverEP {
 
 // This sample service can be used to mock connection timeouts and service outages.
 @http:ServiceConfig {
-    basePath:"/echo"
+    basePath: "/echo"
 }
-service<http:Service> echo bind backendEP {
+service echo bind backendEP {
     @http:ResourceConfig {
-        methods:["POST", "PUT", "GET"],
-        path:"/"
+        methods: ["POST", "PUT", "GET"],
+        path: "/"
     }
     echoResource(endpoint caller, http:Request req) {
         http:Response outResponse = new;
         // Delaying the response for 30000 to mimic network level delays.
         runtime:sleep(30000);
-        outResponse.setStringPayload("echo Resource is invoked");
+        outResponse.setPayload("echo Resource is invoked");
         caller->respond(outResponse) but {
-            error e => log:printError("Error sending response from mock service", err = e) };
+            error e => log:printError("Error sending response from mock service", err = e)
+        };
     }
 }
 
 // This sample service can be used to mock healthy service.
 @http:ServiceConfig {
-    basePath:"/mock"
+    basePath: "/mock"
 }
-service<http:Service> mock bind backendEP {
+service mock bind backendEP {
     @http:ResourceConfig {
-        methods:["POST", "PUT", "GET"],
-        path:"/"
+        methods: ["POST", "PUT", "GET"],
+        path: "/"
     }
     mockResource(endpoint caller, http:Request req) {
         http:Response outResponse = new;
-        outResponse.setStringPayload("Mock Resource is Invoked.");
+        outResponse.setPayload("Mock Resource is Invoked.");
         caller->respond(outResponse) but {
             error e => log:printError("Error sending response from mock service", err = e)
         };

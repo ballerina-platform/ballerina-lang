@@ -3,20 +3,17 @@ import ballerina/http;
 
 @final string NAME = "NAME";
 @final string AGE = "AGE";
-endpoint http:Listener chatEp {
-    port:9090
-};
 
 @http:ServiceConfig {
-    basePath:"/chat"
+    basePath: "/chat"
 }
-service<http:Service> chatAppUpgrader bind chatEp {
+service<http:Service> chatAppUpgrader bind {port: 9090} {
 
-    //Upgrade from HTTP to WebSocket and define the service the WebSocket client needs to connect to.
+    // Upgrade from HTTP to WebSocket and define the service the WebSocket client needs to connect to.
     @http:ResourceConfig {
-        webSocketUpgrade:{
-            upgradePath:"/{name}",
-            upgradeService:chatApp
+        webSocketUpgrade: {
+            upgradePath: "/{name}",
+            upgradeService: chatApp
         }
     }
     upgrader(endpoint caller, http:Request req, string name) {
@@ -28,16 +25,15 @@ service<http:Service> chatAppUpgrader bind chatEp {
         string msg = "Hi " + name + "! You have succesfully connected to the chat";
         wsEp->pushText(msg) but { error e => log:printError("Error sending message", err = e) };
     }
-
 }
 
-//The map to stores connection ids of users who joined the chat.
+// The map to stores connection ids of users who joined the chat.
 map<http:WebSocketListener> consMap;
 
 service<http:WebSocketService> chatApp {
 
-    //Store the attributes of the user, such as username and age, once the user connects to the chat client, and
-    //broadcast that the user has joined the chat.
+    // Store the attributes of the user, such as username and age, once the user connects to the chat client, and
+    // broadcast that the user has joined the chat.
     onOpen(endpoint caller) {
         string msg = string `{{getAttributeStr(caller, NAME)}} with age {{getAttributeStr(caller, AGE)}}
          connected to chat`;
@@ -45,14 +41,14 @@ service<http:WebSocketService> chatApp {
         consMap[caller.id] = caller;
     }
 
-    //Broadcast the messages sent by a user.
+    // Broadcast the messages sent by a user.
     onText(endpoint caller, string text) {
         string msg = string `{{getAttributeStr(caller, NAME)}}: {{text}}`;
         log:printInfo(msg);
         broadcast(consMap, msg);
     }
 
-    //Broadcast that a user has left the chat once a user leaves the chat client.
+    // Broadcast that a user has left the chat once a user leaves the chat.
     onClose(endpoint caller, int statusCode, string reason) {
         _ = consMap.remove(caller.id);
         string msg = string `{{getAttributeStr(caller, NAME)}} left the chat`;

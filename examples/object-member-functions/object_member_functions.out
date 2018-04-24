@@ -1,0 +1,4 @@
+$ ballerina run object_member_functions.bal
+{age:5, firstName:"John", lastName:"Doe"}
+John Doe
+{age:50, firstName:"John", lastName:"Doe"}

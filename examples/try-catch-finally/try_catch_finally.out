@@ -1,0 +1,4 @@
+$ ballerina run try_catch_finally.bal
+Start dividing numbers
+Error occurred: call failed
+Finally block executed

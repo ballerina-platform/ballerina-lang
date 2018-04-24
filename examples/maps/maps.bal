@@ -1,12 +1,12 @@
 import ballerina/io;
 
-function main (string... args) {
+function main(string... args) {
     //Here's how you create an empty map.
     map m;
 
     //Here's how you create a map with values.
-    map addrMap = {line1:"No. 20", line2:"Palm Grove",
-                      city:"Colombo 03", country:"Sri Lanka"};
+    map addrMap = {line1: "No. 20", line2: "Palm Grove",
+        city: "Colombo 03", country: "Sri Lanka"};
     io:println(addrMap);
 
     //Here's how you can retrieve a value of a key using an index based notation.

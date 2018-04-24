@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main (string... args) {
+function main(string... args) {
     int x = 20;
 
     string ifElseOutput;
@@ -19,6 +19,6 @@ function main (string... args) {
 
     // This is a nested condition using ternary expression.
     string nestedOutput = x >= 50 ? "more than 50" :
-                               x >= 10 ? "more than 10" : "less than 10";
+        x >= 10 ? "more than 10" : "less than 10";
     io:println("The output from nested ternary expression: " + nestedOutput);
 }
