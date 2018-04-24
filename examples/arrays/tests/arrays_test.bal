@@ -19,7 +19,11 @@ function testFunc() {
     // Invoking the main function
     main();
     test:assertEquals(0, outputs[0]);
-    test:assertEquals(8, outputs[1]);
-    test:assertEquals(23, outputs[2]);
-    test:assertEquals(1000, outputs[3]);
+    test:assertEquals(1, outputs[1]);
+    test:assertEquals(8, outputs[2]);
+    test:assertEquals(23, outputs[3]);
+    test:assertEquals(1000, outputs[4]);
+    test:assertEquals(3, outputs[5]);
+    test:assertEquals(3, outputs[6]);
+    test:assertEquals(9, outputs[7]);
 }
