@@ -12,15 +12,14 @@ writing, respectively.
 The most primitive channel is the `ByteChannel` which reads and writes 8-bit bytes.
 
 ```ballerina
-	// Open a file in read-write mode.
+// Open a file in read-write mode.
 io:ByteChannel byteChannel = io:openFile("some/file.txt", io:RW);
 
-// Read 100 bytes from the file.
+// Here is how 100 bytes are read from the channel.
 var readResult = byteChannel.read(100);
     match readResult {
         (blob, int) content => {
-            var (bytes, _) = content;
-            return bytes; // Return the read bytes.
+            return content; // Return the read content.
         }
     error err => {
         return err; // An IO error occurred when reading the bytes.
@@ -28,7 +27,7 @@ var readResult = byteChannel.read(100);
 }
 
 // Write some content to the beginning of the file.
-var content = "some content".toBlob("UTF-8");
+blob content = "some content".toBlob("UTF-8");
 var writeResult = byteChannel.write(content, 0);
 match writeResult {
     int numberOfBytesWritten => {
@@ -69,6 +68,9 @@ var writeResult = charChannel.writeJson(content);
 match writeResult {
     error err => {
         return err; // An IO error occurred when writing the JSON.
+    }
+    () => {
+        io:println("JSON content written successfully.");
     }
 }
 ```
