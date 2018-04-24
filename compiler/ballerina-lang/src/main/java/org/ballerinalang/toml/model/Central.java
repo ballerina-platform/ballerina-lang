@@ -23,7 +23,7 @@ package org.ballerinalang.toml.model;
  * @since 0.964
  */
 public class Central {
-    private String accessToken;
+    private String accessToken = "";
 
     /**
      * Get the access token.

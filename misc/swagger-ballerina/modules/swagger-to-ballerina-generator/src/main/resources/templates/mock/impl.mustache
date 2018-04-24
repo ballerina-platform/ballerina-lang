@@ -4,7 +4,7 @@ public function {{operationId}} (http:Request req{{#parameters}}{{>pathParams}}{
     //stub code - fill as necessary
     http:Response resp = new;
     string payload = "Sample {{operationId}} Response";
-    resp.setStringPayload(payload);
+    resp.setTextPayload(payload);
 
 	return resp;
 }

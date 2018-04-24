@@ -21,8 +21,13 @@ public class StringConverter implements Converter<String> {
     }
 
     @Override
-    public Stream<String> expandBal(String t) {
+    public Stream<String> expandBalWithTest(String t) {
         return Stream.of(t + "/**~test~resources/*.bal");
+    }
+
+    @Override
+    public Stream<String> expandBal(String s) {
+        return Stream.of(s + "/**~resources/*.bal");
     }
 
     @Override

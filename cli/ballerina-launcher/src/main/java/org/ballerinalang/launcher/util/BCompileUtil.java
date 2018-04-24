@@ -55,6 +55,7 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 
 /**
  * Utility methods for compile Ballerina files.
@@ -202,27 +203,27 @@ public class BCompileUtil {
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
 
-        CompileResult comResult = new CompileResult();
+        return compile(context, packageName, compilerPhase);
+    }
 
-        // catch errors
-        DiagnosticListener listener = comResult::addDiagnostic;
-        context.put(DiagnosticListener.class, listener);
 
-        // compile
-        Compiler compiler = Compiler.getInstance(context);
-        BLangPackage packageNode = compiler.compile(packageName);
-        comResult.setAST(packageNode);
-        if (comResult.getErrorCount() > 0 || CompilerPhase.CODE_GEN.compareTo(compilerPhase) > 0) {
-            return comResult;
-        }
+    /**
+     * Compile with tests and return the semantic errors.
+     *
+     * @param sourceRoot    root path of the source packages
+     * @param packageName   name of the package to compile
+     * @param compilerPhase Compiler phase
+     * @return Semantic errors
+     */
+    public static CompileResult compileWithTests(String sourceRoot, String packageName, CompilerPhase compilerPhase) {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(PROJECT_DIR, sourceRoot);
+        options.put(COMPILER_PHASE, compilerPhase.toString());
+        options.put(PRESERVE_WHITESPACE, "false");
+        options.put(TEST_ENABLED, "true");
 
-        CompiledBinaryFile.ProgramFile programFile = compiler.getExecutableProgram(packageNode);
-        if (programFile != null) {
-            ProgramFile pFile = LauncherUtils.getExecutableProgram(programFile);
-            comResult.setProgFile(pFile);
-        }
-
-        return comResult;
+        return compile(context, packageName, compilerPhase);
     }
 
     public static CompileResult compile(String sourceRoot, String packageName, CompilerPhase compilerPhase,
@@ -249,6 +250,29 @@ public class BCompileUtil {
             comResult.setProgFile(LauncherUtils.getExecutableProgram(programFile));
         }
 
+        return comResult;
+    }
+
+    private static CompileResult compile(CompilerContext context, String packageName,
+                                         CompilerPhase compilerPhase) {
+        CompileResult comResult = new CompileResult();
+        // catch errors
+        DiagnosticListener listener = comResult::addDiagnostic;
+        context.put(DiagnosticListener.class, listener);
+
+        // compile
+        Compiler compiler = Compiler.getInstance(context);
+        BLangPackage packageNode = compiler.compile(packageName);
+        comResult.setAST(packageNode);
+        if (comResult.getErrorCount() > 0 || CompilerPhase.CODE_GEN.compareTo(compilerPhase) > 0) {
+            return comResult;
+        }
+
+        CompiledBinaryFile.ProgramFile programFile = compiler.getExecutableProgram(packageNode);
+        if (programFile != null) {
+            ProgramFile pFile = LauncherUtils.getExecutableProgram(programFile);
+            comResult.setProgFile(pFile);
+        }
         return comResult;
     }
 

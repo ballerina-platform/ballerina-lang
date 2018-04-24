@@ -23,6 +23,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
@@ -95,6 +96,117 @@ public class CsvChannelTest {
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertFalse(hasNextRecord.booleanValue(), "Not expecting anymore records");
+
+        BRunUtil.invokeStateful(csvInputOutputProgramFile, "close");
+    }
+
+    @Test(description = "Test 'readDefaultCSVRecords'")
+    public void openAndReadCsvTest() throws URISyntaxException {
+        String resourceToRead = "datafiles/io/records/sample.csv";
+        BStringArray records;
+        BBoolean hasNextRecord;
+        int expectedRecordLength = 3;
+
+        //Will initialize the channel
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8"),
+                new BString(","), new BInteger(0)};
+        BRunUtil.invokeStateful(csvInputOutputProgramFile, "initOpenCsv", args);
+
+        BValue[] returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
+        records = (BStringArray) returns[0];
+        Assert.assertEquals(records.size(), expectedRecordLength);
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
+        hasNextRecord = (BBoolean) returns[0];
+        Assert.assertTrue(hasNextRecord.booleanValue(), "Expecting more records");
+
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
+        records = (BStringArray) returns[0];
+        Assert.assertEquals(records.size(), expectedRecordLength);
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
+        hasNextRecord = (BBoolean) returns[0];
+        Assert.assertTrue(hasNextRecord.booleanValue(), "Expecting more records");
+
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
+        records = (BStringArray) returns[0];
+
+        Assert.assertEquals(records.size(), expectedRecordLength);
+
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
+        records = (BStringArray) returns[0];
+        Assert.assertEquals(records.size(), 0);
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
+        hasNextRecord = (BBoolean) returns[0];
+        Assert.assertFalse(hasNextRecord.booleanValue(), "Not expecting anymore records");
+
+        BRunUtil.invokeStateful(csvInputOutputProgramFile, "close");
+    }
+
+    @Test(description = "Test 'readColonDelimitedRecords'")
+    public void openAndReadColonDelimitedFileTest() throws URISyntaxException {
+        String resourceToRead = "datafiles/io/records/sampleWithColon.txt";
+        BStringArray records;
+        BBoolean hasNextRecord;
+        int expectedRecordLength = 3;
+
+        //Will initialize the channel
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8"),
+                new BString(":"), new BInteger(0)};
+        BRunUtil.invokeStateful(csvInputOutputProgramFile, "initOpenCsv", args);
+
+        BValue[] returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
+        records = (BStringArray) returns[0];
+        Assert.assertEquals(records.size(), expectedRecordLength);
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
+        hasNextRecord = (BBoolean) returns[0];
+        Assert.assertTrue(hasNextRecord.booleanValue(), "Expecting more records");
+
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
+        records = (BStringArray) returns[0];
+        Assert.assertEquals(records.size(), expectedRecordLength);
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
+        hasNextRecord = (BBoolean) returns[0];
+        Assert.assertTrue(hasNextRecord.booleanValue(), "Expecting more records");
+
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
+        records = (BStringArray) returns[0];
+
+        Assert.assertEquals(records.size(), expectedRecordLength);
+
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
+        records = (BStringArray) returns[0];
+        Assert.assertEquals(records.size(), 0);
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
+        hasNextRecord = (BBoolean) returns[0];
+        Assert.assertFalse(hasNextRecord.booleanValue(), "Not expecting anymore records");
+
+        BRunUtil.invokeStateful(csvInputOutputProgramFile, "close");
+    }
+
+    @Test(description = "Test 'readCSVWithHeaders'")
+    public void openAndReadCsvWithHeadersTest() throws URISyntaxException {
+        String resourceToRead = "datafiles/io/records/sampleWithHeader.csv";
+        BStringArray records;
+        BBoolean hasNextRecord;
+        int expectedRecordLength = 3;
+
+        //Will initialize the channel
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8"),
+                new BString(","), new BInteger(1)};
+        BRunUtil.invokeStateful(csvInputOutputProgramFile, "initOpenCsv", args);
+
+        BValue[] returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
+        records = (BStringArray) returns[0];
+        Assert.assertEquals(records.size(), expectedRecordLength);
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
+        hasNextRecord = (BBoolean) returns[0];
+        Assert.assertTrue(hasNextRecord.booleanValue(), "Expecting more records");
+
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
+        records = (BStringArray) returns[0];
+        Assert.assertEquals(records.size(), expectedRecordLength);
+        returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
+        hasNextRecord = (BBoolean) returns[0];
+        Assert.assertFalse(hasNextRecord.booleanValue(), "Expecting more records");
 
         BRunUtil.invokeStateful(csvInputOutputProgramFile, "close");
     }
