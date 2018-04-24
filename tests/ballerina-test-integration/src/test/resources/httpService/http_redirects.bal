@@ -18,7 +18,7 @@ endpoint http:Client endPoint {
 @http:ServiceConfig {
     basePath:"/service1"
 }
-service<http:Service> testClientConHEAD bind serviceEndpoint {
+service<http:Service> testRedirect bind serviceEndpoint {
 
     @http:ResourceConfig {
         path:"/"
@@ -27,9 +27,9 @@ service<http:Service> testClientConHEAD bind serviceEndpoint {
         http:Request clientRequest = new;
         var response = endPoint -> get("/redirect1");
         match response {
-            http:HttpConnectorError connectorErr => {io:println("Connector error!");}
+            error connectorErr => {io:println("Connector error!");}
             http:Response httpResponse => {
-                    httpResponse.setStringPayload(httpResponse.resolvedRequestedURI);
+                    httpResponse.setPayload(httpResponse.resolvedRequestedURI);
                   _ = client -> respond(httpResponse);
             }
         }
@@ -62,7 +62,7 @@ service<http:Service> redirect2 bind serviceEndpoint2 {
     }
     redirect2 (endpoint client, http:Request req) {
         http:Response res = new;
-        res. setStringPayload("hello world");
+        res. setPayload("hello world");
         _ = client -> respond( res);
     }
 }
