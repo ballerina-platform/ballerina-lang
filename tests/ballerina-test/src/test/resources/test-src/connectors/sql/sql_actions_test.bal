@@ -553,6 +553,21 @@ function testINParameters() returns (int) {
     return insertCount;
 }
 
+function testINParameters2() returns (int) {
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
+    };
+
+    int insertCount = check testDB->update("INSERT INTO DataTypeTable (row_id, int_type, long_type,
+            float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type)
+            VALUES (?,?,?,?,?,?,?,?,?,?)", 25, 1, 9223372036854774807, 123.34, 2139095039.1, true,
+        "Hello", 1234.567, 1234.567, 1234.567);
+    testDB.stop();
+    return insertCount;
+}
+
 function testNullINParameterValues() returns (int) {
     endpoint jdbc:Client testDB {
         url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",

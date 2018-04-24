@@ -279,6 +279,13 @@ public class SQLActionsTest {
     }
 
     @Test(groups = "ConnectorTest")
+    public void testINParameters2() {
+        BValue[] returns = BRunUtil.invoke(result, "testINParameters2");
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 1);
+    }
+
+    @Test(groups = "ConnectorTest")
     public void testNullINParameterValues() {
         BValue[] returns = BRunUtil.invoke(result, "testNullINParameterValues");
         BInteger retValue = (BInteger) returns[0];
