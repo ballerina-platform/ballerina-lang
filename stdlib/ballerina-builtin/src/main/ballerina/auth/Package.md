@@ -4,9 +4,12 @@ This package exposes functionality required to handle user authentication and au
 
 ### Authentication
 There are two out-of-the-box authentication mechanisms:
-- Username and password based authentication
+- Username and password based authentication.
+
    A user is authenticated based on a username and a password that are stored in a configuration file. By default these are stored in ‘ballerina.conf’. That fille can be changed by a runtime argument.
+
 - JWT based authentication
+
    A user is authenticated by validating a JWT sent with the request. 
 
 ### Authorization
@@ -95,6 +98,6 @@ service<http:Service> nyseStockQuote bind listener1 {
     }
 }
 ```
-## Package Contents
 
+## Package Contents
 
