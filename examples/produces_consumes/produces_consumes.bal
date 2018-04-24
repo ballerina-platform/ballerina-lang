@@ -25,7 +25,7 @@ service<http:Service> infoService bind {port: 9092} {
                 xml name = xml `<name>{{nameString}}</name>`;
                 res.setXmlPayload(name);
             }
-            http:PayloadError payloadError => {
+            error payloadError => {
                 res.statusCode = 500;
                 res.setStringPayload(payloadError.message);
 

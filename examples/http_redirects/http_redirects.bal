@@ -1,5 +1,6 @@
 import ballerina/io;
 import ballerina/http;
+import ballerina/log;
 import ballerina/mime;
 
 endpoint http:Client clientEP {
@@ -12,10 +13,10 @@ function main(string... args) {
     // Send a GET request to the specified endpoint
     var returnResult = clientEP->get("/v2/59d590762700000a049cd694");
     match returnResult {
-        http:HttpConnectorError connectorErr => {io:println("Connector error!");}
+        error connectionErr => log:printError("Error in connection", err = connectionErr);
         http:Response resp => {
-            match resp.getStringPayload() {
-                http:PayloadError payloadError => {io:println(payloadError.message);}
+            match resp.getTextPayload() {
+                error payloadError => log:printError("Error in payload", err = payloadError);
                 string payload => io:println("Response received for the GET request is : " + payload);
             }
         }
