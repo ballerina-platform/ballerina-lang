@@ -477,6 +477,14 @@
     "before value": "",
     "after value": ""
   },
+  "Lock": {
+    "before lock": "",
+    "after lock": "",
+    "before {": "",
+    "after {": "",
+    "before }": "",
+    "after }": ""
+  },
   "Match": {
     "before match": "",
     "after match": " ",

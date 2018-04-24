@@ -191,6 +191,10 @@ Literal
    | <value>
    ;
 
+Lock
+   : lock { <body.source> }
+   ;
+
 Match
    : match <expression.source> { <patternClauses>* }
    ;

@@ -643,6 +643,9 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             } else {
                 return w() + node.value;
             }
+        case 'Lock':
+            return dent() + w() + 'lock' + w() + '{' + indent()
+                 + getSourceOf(node.body, pretty, l, replaceLambda) + outdent() + w() + '}';
         case 'Match':
             return dent() + w() + 'match' + a(' ')
                  + getSourceOf(node.expression, pretty, l, replaceLambda) + w(' ') + '{' + indent()
