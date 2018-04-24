@@ -23,7 +23,7 @@ Maps
 Arrays
 Vector
 Table
-SQL queries on tables
+Table Queries
 Lengthof
 Identifier Literals
 JSON
@@ -49,8 +49,6 @@ Fork/Join Variable Access
 Async
 JDBC Client
 MYSQL Client
-Table with MYSQL Client
-SQL Queries On Tables
 Local Transactions
 Transactions Distributed
 Transformers
@@ -144,7 +142,7 @@ Testerina Guarantee Test Execution Order
 Testerina Function Mocks
 Testerina Group Tests
 Filter Streams on Conditions
-Streams within Services
+Temporal Aggregations and Windows
 Join Multiple Streams
 Identify Patterns
 Identify Trends
