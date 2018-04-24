@@ -165,7 +165,7 @@ documentation {
     P{{serviceType}} The type of the service for which the request was rceived
     R{{}} `error`, if an error occurred in extraction or signature validation failed
 }
-public function processWebSubNotification(http:Request request, typedesc serviceType) returns error? {
+function processWebSubNotification(http:Request request, typedesc serviceType) returns error? {
     string secret = retrieveSecret(serviceType);
     string xHubSignature;
 

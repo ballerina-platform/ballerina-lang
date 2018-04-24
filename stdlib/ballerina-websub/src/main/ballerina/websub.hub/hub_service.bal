@@ -509,7 +509,7 @@ documentation {
     P{{subscriptionDetails}} The subscription details for the particular subscriber
     P{{payload}} The update payload to be delivered to the subscribers
 }
-public function distributeContent(string callback, websub:SubscriptionDetails subscriptionDetails, json payload) {
+function distributeContent(string callback, websub:SubscriptionDetails subscriptionDetails, json payload) {
     endpoint http:Client callbackEp {
         url:callback,
         secureSocket:secureSocket
