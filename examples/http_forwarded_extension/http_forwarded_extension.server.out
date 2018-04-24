@@ -1,4 +1,4 @@
-# To run the service, put the code in `http-forwarded-extension.bal`
+# To run the service, put the code in `http_forwarded_extension.bal`
 # and use `$BALLERINA_HOME/bin`.
 $ ballerina run http_forwarded_extension.bal
 #Service deployment:

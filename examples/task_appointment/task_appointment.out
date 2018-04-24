@@ -1,4 +1,4 @@
-$ ballerina run task-appointment.bal
+$ ballerina run task_appointment.bal
 
 ------- Scheduling Appointments ----------------
 Appointment#1 cleanup running...

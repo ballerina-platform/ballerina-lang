@@ -1,4 +1,4 @@
-# To run the service, put the code in `http-failover.bal`
+# To run the service, put the code in `http_failover.bal`
 # and execute the following command from `$BALLERINA_HOME/bin`.
 $ ballerina run http_failover.bal
 ballerina: initiating service(s) in 'http_failover.bal'

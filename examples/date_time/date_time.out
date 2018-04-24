@@ -1,4 +1,4 @@
-$ ballerina run date-time.bal
+$ ballerina run date_time.bal
 Current system time in milliseconds: 1509122456117
 Created Time: 2017-03-28T23:42:45.554-05:00
 Parsed Time: 2017-06-26T09:46:22.444-05:00
