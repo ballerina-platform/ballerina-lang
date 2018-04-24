@@ -3,7 +3,7 @@ import ballerina/io;
 // Shared counter variable among multiple workers.
 int counter;
 
-function main (string... args) {
+function main(string... args) {
     process();
     io:println("final counter value - ", counter);
 }

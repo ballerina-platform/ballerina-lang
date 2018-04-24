@@ -13,16 +13,16 @@ type Person object {
         int[] marks,
     }
 
-    new (age, name = "John", string firstname, string lastname = "Doe", int... scores) {
+    new(age, name = "John", string firstname, string lastname = "Doe", int... scores) {
         marks = scores;
     }
 };
 
-function main (string... args) {
+function main(string... args) {
     // Initializing variable of object type Person
-    Person p1 = new (5, "John", 4, 5);
+    Person p1 = new(5, "John", 4, 5);
     io:println(p1);
 
-    Person p2 = new (5, "Adam", name = "Adam", lastname = "Page", 3);
+    Person p2 = new(5, "Adam", name = "Adam", lastname = "Page", 3);
     io:println(p2);
 }

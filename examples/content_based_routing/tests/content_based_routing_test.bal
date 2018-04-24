@@ -4,17 +4,17 @@ import ballerina/test;
 
 boolean serviceStarted;
 
-function startService(){
+function startService() {
     serviceStarted = test:startServices("content_based_routing");
 }
 
 @test:Config {
-    before:"startService",
-    after:"stopService"
+    before: "startService",
+    after: "stopService"
 }
 function testFunc() {
     // Invoking the main function
-    endpoint http:Client httpEndpoint { url:"http://localhost:9090" };
+    endpoint http:Client httpEndpoint {url: "http://localhost:9090"};
     // Chck whether the server is started
     test:assertTrue(serviceStarted, msg = "Unable to start the service");
     json payload = {name: "sanFrancisco"};
@@ -39,7 +39,7 @@ function testFunc() {
     http:Request req = new;
     req.setJsonPayload(payload);
     // Send a GET request to the specified endpoint
-    var response = httpEndpoint -> post("/cbr/route", request=req);
+    var response = httpEndpoint->post("/cbr/route", request = req);
     match response {
         http:Response resp => {
             var jsonRes = check resp.getJsonPayload();
@@ -51,7 +51,7 @@ function testFunc() {
     http:Request req2 = new;
     req2.setJsonPayload(payload2);
     // Send a GET request to the specified endpoint
-    var respnc = httpEndpoint -> post("/cbr/route", request=req2);
+    var respnc = httpEndpoint->post("/cbr/route", request = req2);
     match respnc {
         http:Response resp => {
             var jsonRes = check resp.getJsonPayload();
@@ -61,6 +61,6 @@ function testFunc() {
     }
 }
 
-function stopService(){
+function stopService() {
     test:stopServices("content-based-routing");
 }

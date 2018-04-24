@@ -8,7 +8,7 @@ type Person object {
         string lastName,
     }
 
-    new (age, firstName, lastName) {
+    new(age, firstName, lastName) {
     }
 
     // Function defined within the object.
@@ -27,9 +27,9 @@ function Person::checkAndModifyAge(int condition, int age) {
     }
 }
 
-function main (string... args) {
+function main(string... args) {
     // Initializing variable of object type Person
-    Person p1 = new (5, "John", "Doe");
+    Person p1 = new(5, "John", "Doe");
     io:println(p1);
 
     io:println(p1.getFullName());

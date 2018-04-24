@@ -20,7 +20,7 @@ public type Employee object {
         string address,
     }
 
-    public new (age, name, address) {
+    public new(age, name, address) {
 
     }
 
@@ -33,7 +33,7 @@ public type Employee object {
     }
 };
 
-function main (string... args) {
+function main(string... args) {
     // Initializing variable of object type Employee and assign that to Person type variable
     Person p1 = new Employee(50, "John", "street1");
     io:println(p1);

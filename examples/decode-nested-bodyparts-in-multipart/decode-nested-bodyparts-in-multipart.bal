@@ -3,16 +3,16 @@ import ballerina/mime;
 import ballerina/io;
 
 endpoint http:Listener multipartEP {
-    port:9090
+    port: 9090
 };
 
-@http:ServiceConfig {basePath:"/nestedparts"}
+@http:ServiceConfig {basePath: "/nestedparts"}
 service<http:Service> test bind multipartEP {
     @http:ResourceConfig {
-      methods:["POST"],
-      path:"/decoder"
+        methods: ["POST"],
+        path: "/decoder"
     }
-    nestedPartReceiver (endpoint conn, http:Request req)  {
+    nestedPartReceiver(endpoint conn, http:Request req) {
         http:Response res = new;
         match req.getBodyParts() {
             mime:EntityError err => {
@@ -29,12 +29,12 @@ service<http:Service> test bind multipartEP {
                 res.setStringPayload("Nested Parts Received!");
             }
         }
-        _ = conn -> respond(res);
+        _ = conn->respond(res);
     }
 }
 
 //This function retrieves the child parts of the specified parent part.
-function handleNestedParts (mime:Entity parentPart) {
+function handleNestedParts(mime:Entity parentPart) {
     string contentTypeOfParent = parentPart.getContentType();
     if (contentTypeOfParent.hasPrefix("multipart/")) {
         match parentPart.getBodyParts() {
@@ -42,8 +42,8 @@ function handleNestedParts (mime:Entity parentPart) {
                 io:println("Error retrieving child parts!");
             }
             mime:Entity[] childParts => {
-            int i = 0;
-            io:println("Nested Parts Detected!");
+                int i = 0;
+                io:println("Nested Parts Detected!");
                 while (i < lengthof childParts) {
                     mime:Entity childPart = childParts[i];
                     handleContent(childPart);
@@ -54,8 +54,8 @@ function handleNestedParts (mime:Entity parentPart) {
     }
 }
 
-@Description {value:"The logic depending on the format in which you want to retrieve body part content."}
-function handleContent (mime:Entity bodyPart) {
+@Description {value: "The logic depending on the format in which you want to retrieve body part content."}
+function handleContent(mime:Entity bodyPart) {
     string baseType = check mime:getMediaType(bodyPart.getContentType())!getBaseType();
     if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
         //Extract xml data from the body part and print the content.

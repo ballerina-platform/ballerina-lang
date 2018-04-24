@@ -8,16 +8,16 @@ endpoint http:Client locationEP {
 };
 
 @http:ServiceConfig {
-    basePath:"/cbr"
+    basePath: "/cbr"
 }
-service<http:Service> contentBasedRouting bind {port:9090} {
+service<http:Service> contentBasedRouting bind {port: 9090} {
 
     //Use `resourceConfig` annotation to declare the HTTP method.
     @http:ResourceConfig {
-        methods:["POST"],
-        path:"/route"
+        methods: ["POST"],
+        path: "/route"
     }
-    cbrResource (endpoint outboundEP, http:Request req) {
+    cbrResource(endpoint outboundEP, http:Request req) {
         //Get the JSON payload from the request message.
         var jsonMsg = req.getJsonPayload();
 
@@ -38,14 +38,18 @@ service<http:Service> contentBasedRouting bind {port:9090} {
                 //Use the native function 'respond' to send the client response back to the caller.
                 match clientResponse {
                     http:Response respone => {
-                        outboundEP->respond(respone) but { error e => log:printError("Error sending response", err=e) };
+                        outboundEP->respond(respone) but {
+                            error e => log:printError("Error sending response", err = e)
+                        };
                     }
                     http:HttpConnectorError conError => {
                         http:HttpConnectorError err = {};
                         http:Response res = new;
                         res.statusCode = 500;
                         res.setPayload(err.message);
-                        outboundEP->respond(res) but { error e => log:printError("Error sending response", err=e) };
+                        outboundEP->respond(res) but {
+                            error e => log:printError("Error sending response", err = e)
+                        };
                     }
                     () => {
                     }
@@ -55,7 +59,9 @@ service<http:Service> contentBasedRouting bind {port:9090} {
                 http:Response res = new;
                 res.statusCode = 500;
                 res.setPayload(err.message);
-                outboundEP->respond(res) but { error e => log:printError("Error sending response", err=e) };
+                outboundEP->respond(res) but {
+                    error e => log:printError("Error sending response", err = e)
+                };
             }
         }
     }

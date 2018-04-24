@@ -1,14 +1,15 @@
 import ballerina/test;
 import ballerina/io;
 
-any [] outputs = [];
+any[] outputs = [];
 int counter = 0;
- // This is the mock function which will replace the real function
+
+// This is the mock function which will replace the real function
 @test:Mock {
-    packageName : "ballerina.io" ,
-    functionName : "println"
+    packageName: "ballerina.io",
+    functionName: "println"
 }
-public function mockPrint (any... s) {
+public function mockPrint(any... s) {
     outputs[counter] = s[0];
     counter++;
 }
@@ -24,39 +25,39 @@ function testFunc() {
         null,
         "foo",
         {
-            "first":"John",
-            "last":"Pala"
+            "first": "John",
+            "last": "Pala"
         }
     ];
 
     json jt2 = "John";
-    json jt3 = [1,false,null,"foo",8.0];
+    json jt3 = [1, false, null, "foo", 8.0];
     json jt4 = {
-                "fname":"John",
-                "lname":"Stallone",
-                "family":[
-                    {
-                        "fname":"Peter",
-                        "lname":"Stallone"
-                    },
-                    {
-                        "fname":"Emma",
-                        "lname":"Stallone"
-                    },
-                    {
-                        "fname":"Alisha",
-                        "lname":"Stallone"
-                    },
-                    {
-                        "fname":"Paul",
-                        "lname":"Stallone"
-                    }
-                ]
-            };
-    json jt5 = {"fname":"Peter","lname":"Stallone"};
-    json jt6 = {"fname":"Emma","lname":"Stallone"};
-    json jt7 = {"fname":"Alisha","lname":"Stallone"};
-    json jt8 = {"fname":"Paul","lname":"Stallone"};
+        "fname": "John",
+        "lname": "Stallone",
+        "family": [
+            {
+                "fname": "Peter",
+                "lname": "Stallone"
+            },
+            {
+                "fname": "Emma",
+                "lname": "Stallone"
+            },
+            {
+                "fname": "Alisha",
+                "lname": "Stallone"
+            },
+            {
+                "fname": "Paul",
+                "lname": "Stallone"
+            }
+        ]
+    };
+    json jt5 = {"fname": "Peter", "lname": "Stallone"};
+    json jt6 = {"fname": "Emma", "lname": "Stallone"};
+    json jt7 = {"fname": "Alisha", "lname": "Stallone"};
+    json jt8 = {"fname": "Paul", "lname": "Stallone"};
 
     string o1 = "length of array: 4";
 

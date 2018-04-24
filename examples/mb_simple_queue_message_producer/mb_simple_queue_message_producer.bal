@@ -9,7 +9,7 @@ endpoint mb:SimpleQueueSender queueSender {
 };
 
 
-function main (string... args) {
+function main(string... args) {
     // Create a Text message.
     match (queueSender.createTextMessage("Hello from Ballerina")) {
         error e => {

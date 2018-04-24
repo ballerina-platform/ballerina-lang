@@ -2,10 +2,11 @@
 import ballerina/io;
 
 int total = 0;
+
 function main(string... args) {
     // Client endpoint configuration
     endpoint HelloWorldClient helloWorldEp {
-        url:"http://localhost:9090"
+        url: "http://localhost:9090"
     };
 
     endpoint grpc:Client ep;

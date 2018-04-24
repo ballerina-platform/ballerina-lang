@@ -1,7 +1,7 @@
 # The two services have to be run separately to observe the following output. 
 # For clarity, only the relevant parts of the HTTP trace logs have been included here.
-#At the command line, navigate to the directory that contains the 
-#`.bal` file and run the `ballerina run` command by setting `-e b7a.http.tracelog.console=true` to start the service. 
+# At the command line, navigate to the directory that contains the
+# `.bal` file and run the `ballerina run` command by setting `-e b7a.http.tracelog.console=true` to start the service.
 $ ballerina run caching_proxy.bal -e b7a.http.tracelog.console=true
 ballerina: deploying service(s) in 'caching_proxy.bal'
 ballerina: started HTTP/WS server connector 0.0.0.0:9090

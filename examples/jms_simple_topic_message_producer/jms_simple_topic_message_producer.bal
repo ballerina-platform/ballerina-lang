@@ -9,7 +9,7 @@ endpoint jms:SimpleTopicPublisher topicPublisher {
     topicPattern: "BallerinaTopic"
 };
 
-function main (string... args) {
+function main(string... args) {
     // Create a Text message.
     match (topicPublisher.createTextMessage("Hello from Ballerina")) {
         error e => {
@@ -18,7 +18,9 @@ function main (string... args) {
 
         jms:Message msg => {
             // Send the Ballerina message to the JMS provider.
-            topicPublisher->send(msg) but { error e => log:printError("Error occurred while sending message", err = e) };
+            topicPublisher->send(msg) but {
+                error e => log:printError("Error occurred while sending message", err = e)
+            };
         }
     }
 }

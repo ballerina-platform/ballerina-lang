@@ -2,24 +2,24 @@ import ballerina/http;
 import ballerina/log;
 
 endpoint http:Listener helloWorldEP {
-    port:9095,
-    secureSocket:{
-        keyStore:{
-            path:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
-            password:"ballerina"
+    port: 9095,
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
         }
     }
 };
 
 @http:ServiceConfig {
-    endpoints:[helloWorldEP],
-    basePath:"/hello"
+    endpoints: [helloWorldEP],
+    basePath: "/hello"
 }
 
 service helloWorld bind helloWorldEP {
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/"
+        methods: ["GET"],
+        path: "/"
     }
 
     sayHello(endpoint caller, http:Request req) {
@@ -30,11 +30,11 @@ service helloWorld bind helloWorldEP {
 }
 
 endpoint http:Client clientEP {
-    url:"https://localhost:9095",
-    secureSocket:{
-        trustStore:{
-            path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password:"ballerina"
+    url: "https://localhost:9095",
+    secureSocket: {
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
         }
     }
 };

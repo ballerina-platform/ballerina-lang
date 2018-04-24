@@ -16,7 +16,7 @@ service<jms:Consumer> jmsListener bind subscriber {
     onMessage(endpoint consumer, jms:Message message) {
         match (message.getTextMessageContent()) {
             string messageText => log:printInfo("Message : " + messageText);
-            error e => log:printError("Error occurred while reading message", err=e);
+            error e => log:printError("Error occurred while reading message", err = e);
         }
-  }
+    }
 }

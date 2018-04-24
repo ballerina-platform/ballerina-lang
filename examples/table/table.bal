@@ -11,10 +11,10 @@ function main(string... args) {
     table<Employee> tb = table {};
 
     // Add some data rows to the table.
-    Employee e1 = { id:1, name: "Jane", salary: 300.50 };
-    Employee e2 = { id:2, name: "Anne", salary: 100.50 };
-    Employee e3 = { id:3, name: "John", salary: 400.50 };
-    Employee e4 = { id:4, name: "Peter", salary: 150.0 };
+    Employee e1 = {id: 1, name: "Jane", salary: 300.50};
+    Employee e2 = {id: 2, name: "Anne", salary: 100.50};
+    Employee e3 = {id: 3, name: "John", salary: 400.50};
+    Employee e4 = {id: 4, name: "Peter", salary: 150.0};
 
     _ = tb.add(e1);
     _ = tb.add(e2);
@@ -41,13 +41,13 @@ function main(string... args) {
     io:println(tb);
 
     // Convert to JSON.
-    json j = check <json> tb;
+    json j = check <json>tb;
 
     io:print("JSON: ");
     io:println(j);
 
     // Convert to XML.
-    xml x = check <xml> tb;
+    xml x = check <xml>tb;
 
     io:print("XML: ");
     io:println(x);

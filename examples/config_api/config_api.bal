@@ -17,27 +17,27 @@ endpoint http:Listener helloWorldEP {
     // a key and an optional default value. In case there isn't a mapping for the specified key, the default value
     // is returned as the config value. The default values of these optional default configs are the respective
     // default values of the types the functions return.
-    port:config:getAsInt("hello.http.port", default = 9095),
-    secureSocket:{
-        keyStore:{
-            path:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
-            password:config:getAsString("hello.keystore.password")
+    port:config: getAsInt("hello.http.port", default = 9095),
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: config:getAsString("hello.keystore.password")
         }
     }
 };
 
 @http:ServiceConfig {
-    basePath:"/hello"
+    basePath: "/hello"
 }
 service helloWorld bind helloWorldEP {
 
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/"
+        methods: ["GET"],
+        path: "/"
     }
     sayHello(endpoint caller, http:Request req) {
         http:Response res = new;
         res.setPayload("Hello World!");
-        caller->respond(res) but {error e => log:printError("Failed to respond to the caller", err = e)};
+        caller->respond(res) but { error e => log:printError("Failed to respond to the caller", err = e) };
     }
 }

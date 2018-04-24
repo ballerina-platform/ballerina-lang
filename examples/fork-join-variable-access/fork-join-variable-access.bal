@@ -1,11 +1,11 @@
 import ballerina/io;
 
-@Description {value:"The in scope variables can be accessed by the workers in the fork-join statement."}
-function main (string... args) {
+@Description {value: "The in scope variables can be accessed by the workers in the fork-join statement."}
+function main(string... args) {
     // These variables can be accessed by the forked workers.
     int i = 100;
     string s = "WSO2";
-    map m = {"name":"Abhaya", "era":"Anuradhapura"};
+    map m = {"name": "Abhaya", "era": "Anuradhapura"};
 
     // Declare the fork-join statement.
     fork {
@@ -59,12 +59,12 @@ function main (string... args) {
 
     var varName = <string>m["name"];
     match varName {
-        string val  => {name = <string > val;}
+        string val => {name = <string>val;}
     }
 
     var varEra = <string>m["era"];
     match varEra {
-        string val  => {era = <string > val;}
+        string val => {era = <string>val;}
     }
 
     io:println("[default worker] after fork-join:

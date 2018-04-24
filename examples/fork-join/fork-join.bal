@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main (string... args) {
+function main(string... args) {
     // The fork-join allows developers to spawn (fork) multiple workers within a ballerina program, join the results of
     // those workers, and execute code on joined results.
     // In this example, you are forking worker w1 and w2.
@@ -19,8 +19,8 @@ function main (string... args) {
             // The reply to the join block from worker w2.
             f -> fork;
         }
-    //The 'all' condition makes the join block wait until all the workers have sent in their replies.
-    //Once all the workers have replied, the replies are stored in the 'result' variable as a map.
+        //The 'all' condition makes the join block wait until all the workers have sent in their replies.
+        //Once all the workers have replied, the replies are stored in the 'result' variable as a map.
     } join (all) (map results) {
         // Get the values received from worker 'w1'.
         int iW1;
