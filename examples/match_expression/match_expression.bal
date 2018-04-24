@@ -4,7 +4,7 @@ import ballerina/io;
 // it returns an error. 
 function getAgeCategory(int age) returns string|error {
     if (age < 0) {
-        error e = {message: "Invalid"};
+        error e = { message: "Invalid" };
         return e;
     } else if (age <= 18) {
         return "Child";
@@ -17,7 +17,7 @@ function main (string... args) {
 
     // getAgeCategory function will return a string for a valid age. Then it will be matched 
     // to the string pattern in the match statement, and will assign the same string as the
-    // error ctegory. 
+    // error category.
     string ageCategory = getAgeCategory(25) but {
                             string s => s,
                             error e => e.message
@@ -27,7 +27,7 @@ function main (string... args) {
 
     // Providing a negative value will return an error. Then it will match to the 
     // error pattern in the match expression, and will assign the message of the error,
-    // as the error category
+    // as the error category.
     ageCategory = getAgeCategory(-5) but {
                       string s => s,
                       error e => e.message
