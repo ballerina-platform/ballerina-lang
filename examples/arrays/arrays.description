@@ -1,1 +1,2 @@
-//All arrays are unbounded in length and support a 0 based indexing. Arrays can be sparse and grow upto any length based on the given index, as long as there is available memory.
+// Arrays in Ballerina are dynamic length, mutable list of values, where each member of the list is
+// specified with the same type. The implicit initial value of an array is the array of length 0.
