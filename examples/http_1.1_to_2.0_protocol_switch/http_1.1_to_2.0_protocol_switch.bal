@@ -10,7 +10,7 @@ endpoint http:Client http2serviceClientEP {
 @http:ServiceConfig {
     basePath: "/http11Service"
 }
-service<http:Service> http11Service bind {port:9090} {
+service<http:Service> http11Service bind {port: 9090} {
 
     @http:ResourceConfig {
         path: "/"

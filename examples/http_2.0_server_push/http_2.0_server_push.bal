@@ -1,6 +1,7 @@
 import ballerina/http;
 import ballerina/log;
 
+// Create an endpoint with port 7090 which accepts HTTP requests.
 endpoint http:Listener http2ServiceEP {
     port: 7090,
     // HTTP version is set to 2.0.
@@ -70,13 +71,15 @@ service http2Service bind http2ServiceEP {
     }
 }
 
+// Create a http client endpoint which can send HTTP/2 messages.
 endpoint http:Client clientEP {
     url: "http://localhost:7090",
     // HTTP version is set to 2.0.
     httpVersion: "2.0"
 };
 
-
+// Main function get invoked after the service deployment.
+// This will  created service happens here.
 function main(string... args) {
 
     http:Request serviceReq = new;
