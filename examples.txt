@@ -2,7 +2,7 @@ Hello World
 Hello World Parallel
 Hello World Service
 Secured Hello World Service with Basic Auth
-Value Types
+Values
 Constants
 Directory Listener
 Global Variables
@@ -21,7 +21,6 @@ Typeof
 Structs
 Maps
 Arrays
-Array of Arrays
 Vector
 Table
 SQL queries on tables
@@ -50,7 +49,7 @@ Fork/Join Variable Access
 Async
 JDBC Client
 MYSQL Client
-Table with MYSQL Client
+Table Queries
 SQL Queries On Tables
 Local Transactions
 Transactions Distributed

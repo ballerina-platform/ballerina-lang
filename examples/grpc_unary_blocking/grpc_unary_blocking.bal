@@ -17,7 +17,7 @@ service HelloWorld bind ep {
         io:println(headers.get("Keep-Alive"));
         grpc:Headers resHeader = new;
         resHeader.setEntry("Host", "ballerina.io");
-        error? err = caller->send(message, resHeader);
+        error? err = caller->send(message, headers = headers);
         io:println(err.message but { () => "Server send response : " + message });
         _ = caller->complete();
     }
