@@ -780,7 +780,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         if (!(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext)) {
-            this.pkgBuilder.addAnonRecordType(getCurrentPos(ctx), getWS(ctx));
+            // check whether this anon object is defined as a global var or as as function return param
+            boolean isFieldAnalyseRequired =
+                    (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
+                            ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext);
+            this.pkgBuilder.addAnonRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired);
         }
     }
 

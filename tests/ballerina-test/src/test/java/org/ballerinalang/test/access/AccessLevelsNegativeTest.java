@@ -32,7 +32,7 @@ public class AccessLevelsNegativeTest {
     public void testPrivateAccessLevel() {
         CompileResult compileResult = BCompileUtil.compile("test-src/access/private_access_negative.bal");
 
-        Assert.assertEquals(compileResult.getErrorCount(), 13);
+        Assert.assertEquals(compileResult.getErrorCount(), 25);
         String expectedErrMsg = "attempt to expose non-public symbol ";
 
         BAssertUtil.validateError(compileResult, 0, expectedErrMsg + "'Foo'", 13, 1);
@@ -48,5 +48,17 @@ public class AccessLevelsNegativeTest {
         BAssertUtil.validateError(compileResult, 10, expectedErrMsg + "'Baz'", 60, 48);
         BAssertUtil.validateError(compileResult, 11, expectedErrMsg + "'Baz'", 77, 49);
         BAssertUtil.validateError(compileResult, 12, expectedErrMsg + "'Foo'", 78, 49);
+        BAssertUtil.validateError(compileResult, 13, expectedErrMsg + "'Baz'", 127, 6);
+        BAssertUtil.validateError(compileResult, 14, expectedErrMsg + "'Foo'", 128, 6);
+        BAssertUtil.validateError(compileResult, 15, expectedErrMsg + "'BarRecord'", 129, 6);
+        BAssertUtil.validateError(compileResult, 16, expectedErrMsg + "'ChildFoo'", 134, 5);
+        BAssertUtil.validateError(compileResult, 17, expectedErrMsg + "'ChildRecord'", 135, 5);
+        BAssertUtil.validateError(compileResult, 18, expectedErrMsg + "'Foo'", 136, 5);
+        BAssertUtil.validateError(compileResult, 19, expectedErrMsg + "'Baz'", 137, 5);
+        BAssertUtil.validateError(compileResult, 20, expectedErrMsg + "'Baz'", 166, 37);
+        BAssertUtil.validateError(compileResult, 21, expectedErrMsg + "'Foo'", 167, 37);
+        BAssertUtil.validateError(compileResult, 22, expectedErrMsg + "'BarRecord'", 168, 37);
+        BAssertUtil.validateError(compileResult, 23, expectedErrMsg + "'FooTypeObj'", 192, 1);
+        BAssertUtil.validateError(compileResult, 24, expectedErrMsg + "'BarTypeRecord'", 194, 1);
     }
 }
