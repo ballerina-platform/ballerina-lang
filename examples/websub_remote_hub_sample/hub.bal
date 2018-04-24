@@ -5,11 +5,11 @@ import ballerina/websub;
 
 function main (string... args) {
 
-    //Start up the internal Ballerina Hub.
+    // Start up the internal Ballerina Hub.
     log:printInfo("Starting up the Ballerina Hub Service");
     websub:WebSubHub webSubHub = websub:startUpBallerinaHub();
 
-    //Wait for the subscriber to subscribe at this hub and for the publisher to publish the notifications.
+    // Wait for the subscriber to subscribe at this hub and for the publisher to publish the notifications.
     runtime:sleep(60000);
 
 }
