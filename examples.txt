@@ -10,6 +10,7 @@ While
 IF Else
 Ternary
 Match Expression
+Elvis Operator
 Functions
 Functions With Defaultable Parameters
 Functions With Rest Parameters
@@ -18,12 +19,12 @@ Var
 Any Type
 Type Conversion
 Typeof
-Structs
+Records
 Maps
 Arrays
 Vector
 Table
-SQL queries on tables
+Table Queries
 Lengthof
 Identifier Literals
 JSON
@@ -49,8 +50,7 @@ Fork/Join Variable Access
 Async
 JDBC Client
 MYSQL Client
-Table Queries
-SQL Queries On Tables
+H2 Client
 Local Transactions
 Transactions Distributed
 Transformers
@@ -144,7 +144,7 @@ Testerina Guarantee Test Execution Order
 Testerina Function Mocks
 Testerina Group Tests
 Filter Streams on Conditions
-Streams within Services
+Temporal Aggregations and Windows
 Join Multiple Streams
 Identify Patterns
 Identify Trends
