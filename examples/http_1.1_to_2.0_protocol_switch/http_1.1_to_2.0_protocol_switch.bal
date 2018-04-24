@@ -1,10 +1,6 @@
 import ballerina/http;
 import ballerina/log;
 
-endpoint http:Listener http11ServiceEP {
-    port:9090
-};
-
 endpoint http:Client http2serviceClientEP {
     url:"http://localhost:7090",
     // HTTP version is set to 2.0.
@@ -14,7 +10,7 @@ endpoint http:Client http2serviceClientEP {
 @http:ServiceConfig {
     basePath:"/http11Service"
 }
-service http11Service bind http11ServiceEP {
+service<http:Service> http11Service bind {port:9090} {
 
     @http:ResourceConfig {
         path:"/"
