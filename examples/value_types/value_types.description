@@ -1,0 +1,2 @@
+//The Ballerina type system has two types of variables named value types and reference types. The Ballerina value types
+//include int, float, string, boolean, and blob.
