@@ -1212,6 +1212,8 @@
                 <!-- Intellij build disabled in default build -->
                 <!--<module>tool-plugins/intellij</module>-->
                 <module>tool-plugins/vscode</module>
+
+                <module>benchmarks</module>
             </modules>
         </profile>
         <profile>
@@ -1224,6 +1226,7 @@
             <properties>
                 <!-- Override the executable names for Windows -->
                 <npm.executable>npm.cmd</npm.executable>
+                <skipBenchmarks>true</skipBenchmarks>
             </properties>
         </profile>
     </profiles>
