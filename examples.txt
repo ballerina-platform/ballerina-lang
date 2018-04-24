@@ -10,6 +10,7 @@ While
 IF Else
 Ternary
 Match Expression
+Elvis Operator
 Functions
 Functions With Defaultable Parameters
 Functions With Rest Parameters
@@ -49,6 +50,7 @@ Fork/Join Variable Access
 Async
 JDBC Client
 MYSQL Client
+H2 Client
 Local Transactions
 Transactions Distributed
 Transformers
