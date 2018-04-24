@@ -86,7 +86,7 @@ function main(string... args) {
         http:HttpFuture resultantFuture => {
             httpFuture = resultantFuture;
         }
-        http:HttpConnectorError resultantErr => {
+        error resultantErr => {
             log:printError("Error occurred while submitting a request", err = resultantErr);
             return;
         }
@@ -104,7 +104,7 @@ function main(string... args) {
             http:PushPromise resultantPushPromise => {
                 pushPromise = resultantPushPromise;
             }
-            http:HttpConnectorError resultantErr => {
+            error resultantErr => {
                 log:printError("Error occurred while fetching a push promise", err = resultantErr);
                 return;
             }
@@ -130,7 +130,7 @@ function main(string... args) {
         http:Response resultantResponse => {
             response = resultantResponse;
         }
-        http:HttpConnectorError resultantErr => {
+        error resultantErr => {
             log:printError("Error occurred while fetching response", err = resultantErr);
             return;
         }
@@ -150,7 +150,7 @@ function main(string... args) {
             http:Response resultantPromisedResponse => {
                 promisedResponse = resultantPromisedResponse;
             }
-            http:HttpConnectorError resultantErr => {
+            error resultantErr => {
                 log:printError("Error occurred while fetching promised response", err = resultantErr);
                 return;
             }
