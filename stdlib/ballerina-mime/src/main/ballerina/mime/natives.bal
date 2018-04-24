@@ -273,90 +273,90 @@ public type Entity object {
     public function setBody((string|xml|json|blob|io:ByteChannel|Entity[]) entityBody);
 
     documentation {
-        Set the entity body with a given file. This method will override any existing content-type headers
-        with the default content-type 'application/octec-stream'. You can override the default value by passing
-        the content-type as an optional parameter.
+        Set the entity body with a given file. This method overrides any existing content-type headers
+        with the default content-type 'application/octec-stream'. Default value 'application/octec-stream'
+        can be overridden by passing the content-type as an optional parameter.
 
         P{{filePath}} Represent the path to the file
         P{{contentType}} Content-type to be used with the payload. This is an optional parameter.
-        'application/octec-stream' will be used as the default value
+        'application/octec-stream' is used as the default value
     }
     public function setFileAsEntityBody(@sensitive string filePath, string contentType = "application/octec-stream");
 
     documentation {
-        Set the entity body with the given json content. This method will override any existing content-type headers
-        with the default content-type 'application/json'. You can override the default value by passing the content-type
-        as an optional parameter.
+        Set the entity body with the given json content. This method overrides any existing content-type headers
+        with the default content-type 'application/json'. The default value 'application/json' can be overridden
+        by passing the content-type as an optional parameter.
 
         P{{jsonContent}} Json content that needs to be set to entity
         P{{contentType}} Content-type to be used with the payload. This is an optional parameter. 'application/json'
-        will be used as the default value
+        is used as the default value
     }
     public native function setJson(json jsonContent, string contentType = "application/json");
 
     documentation {
-        Extract json body from the entity. If the entity body is not json compatible an error will be returned.
+        Extract json body from the entity. If the entity body is not json compatible, an error is returned.
 
-        R{{}} Return `json` data extracted from the the entity body. An `error` record will be returned in case of
+        R{{}} Return `json` data extracted from the the entity body. An `error` record is returned in case of
         errors.
     }
     public native function getJson() returns @tainted json|error;
 
     documentation {
-        Set the entity body with the given xml content. This method will override any existing content-type headers
-        with the default content-type 'application/xml'. You can override the default value by passing the content-type
-        as an optional parameter.
+        Set the entity body with the given xml content. This method overrides any existing content-type headers
+        with the default content-type 'application/xml'. The default value 'application/xml' can be overridden
+        by passing the content-type as an optional parameter.
 
         P{{xmlContent}} Xml content that needs to be set to entity
         P{{contentType}} Content-type to be used with the payload. This is an optional parameter. 'application/xml'
-        will be used as the default value
+        is used as the default value
     }
     public native function setXml(xml xmlContent, string contentType = "application/xml");
 
     documentation {
-        Extract xml body from the entity. If the entity body is not xml compatible an error will be returned.
+        Extract xml body from the entity. If the entity body is not xml compatible an error is returned.
 
-        R{{}} Return `xml` data extracted from the the entity body. An `error` record will be returned in case of
+        R{{}} Return `xml` data extracted from the the entity body. An `error` record is returned in case of
         errors.
     }
     public native function getXml() returns @tainted xml|error;
 
     documentation {
-        Set the entity body with the given text content. This method will override any existing content-type headers
-        with the default content-type 'text/plain'. You can override the default value by passing the content-type
-        as an optional parameter.
+        Set the entity body with the given text content. This method overrides any existing content-type headers
+        with the default content-type 'text/plain'. The default value 'text/plain' can be overridden
+        by passing the content-type as an optional parameter.
 
         P{{textContent}} Text content that needs to be set to entity
         P{{contentType}} Content-type to be used with the payload. This is an optional parameter. 'text/plain'
-        will be used as the default value
+        is used as the default value
     }
     public native function setText(string textContent, string contentType = "text/plain");
 
     documentation {
-        Extract text body from the entity. If the entity body is not text compatible an error will be returned.
+        Extract text body from the entity. If the entity body is not text compatible an error is returned.
 
-        R{{}} Return `string` data extracted from the the entity body. An `error` record will be returned in case of
+        R{{}} Return `string` data extracted from the the entity body. An `error` record is returned in case of
         errors.
     }
     public native function getText() returns @tainted string|error;
 
     documentation {
-        Given an entity, get the entity body as a string. Content-type will not be checked during entity body construction which
+        Given an entity, get the entity body as a string. Content-type is be checked during entity body construction which
         makes this different from getText() method.
 
-        R{{}} Return entity body as a `string`. An `error` record will be returned in case of errors occurred during
+        R{{}} Return entity body as a `string`. An `error` record is returned in case of errors occurred during
         construction of the string body.
     }
     public native function getBodyAsString() returns @tainted string|error;
 
     documentation {
-        Set the entity body with the given blob content. This method will override any existing content-type headers
-        with the default content-type 'application/octec-stream'. You can override the default value by passing
-        the content-type as an optional parameter.
+        Set the entity body with the given blob content. This method overrides any existing content-type headers
+        with the default content-type 'application/octec-stream'. The default value 'application/octec-stream'
+        can be overridden by passing the content-type as an optional parameter.
 
         P{{blobContent}} Blob content that needs to be set to entity
         P{{contentType}} Content-type to be used with the payload. This is an optional parameter.
-        'application/octec-stream' will be used as the default value
+        'application/octec-stream' is used as the default value
     }
     public native function setBlob(blob blobContent, string contentType = "application/octec-stream");
 
@@ -364,19 +364,19 @@ public type Entity object {
         Given an entity, get the entity body as a blob. If the entity size is considerably large consider
         using getByteChannel() method instead.
 
-        R{{}} Return `blob` data extracted from the the entity body. An `error` record will be returned in case of
+        R{{}} Return `blob` data extracted from the the entity body. An `error` record is returned in case of
         errors.
     }
     public native function getBlob() returns @tainted blob|error;
 
     documentation {
-        Set the entity body with the given byte channel content. This method will override any existing content-type headers
-        with the default content-type 'application/octec-stream'. You can override the default value by passing
-        the content-type as an optional parameter.
+        Set the entity body with the given byte channel content. This method overrides any existing content-type headers
+        with the default content-type 'application/octec-stream'. The default value 'application/octec-stream'
+        can be overridden by passing the content-type as an optional parameter.
 
         P{{byteChannel}} Byte channel that needs to be set to entity
         P{{contentType}} Content-type to be used with the payload. This is an optional parameter.
-        'application/octec-stream' will be used as the default value
+        'application/octec-stream' is used as the default value
     }
     public native function setByteChannel(io:ByteChannel byteChannel, string contentType = "application/octec-stream");
 
@@ -403,13 +403,13 @@ public type Entity object {
     public native function getBodyPartsAsChannel() returns @tainted io:ByteChannel;
 
     documentation {
-        Set body parts to entity. This method will override any existing content-type headers
-        with the default content-type 'multipart/form-data'. You can override the default value by passing
-        the content-type as an optional parameter.
+        Set body parts to entity. This method overrides any existing content-type headers
+        with the default content-type 'multipart/form-data'. The default value 'multipart/form-data' can be overridden
+        by passing the content-type as an optional parameter.
 
         P{{bodyParts}} Represent the body parts that needs to be set to the entity
         P{{contentType}} Content-type to be used with the payload. This is an optional parameter.
-        'multipart/form-data' will be used as the default value
+        'multipart/form-data' is used as the default value
     }
     public native function setBodyParts(Entity[] bodyParts, string contentType = "multipart/form-data");
 
@@ -418,7 +418,7 @@ public type Entity object {
 
         P{{headerName}} Represent header name
         R{{}} Return header value associated with the given header name as a `string`. If multiple header values are
-              present, then the first value will be returned
+              present, then the first value is returned
     }
     public native function getHeader(@sensitive string headerName) returns @tainted string;
 
@@ -446,7 +446,7 @@ public type Entity object {
     public native function addHeader(@sensitive string headerName, string headerValue);
 
     documentation {
-        Set the given header value against the given header. If a header already exist, its value will be replaced
+        Set the given header value against the given header. If a header already exist, it's value is replaced
         with the given header value.
 
         P{{headerName}} Represent the header name
@@ -495,10 +495,10 @@ documentation {
     P{{contentToBeEncoded}} Content that needs to be encoded can be of type string, blob or io ByteChannel
     P{{charset}} Charset to be used. This is used only with the string input
 
-    R{{}} If the given input is of type string, return value will be an encoded `string`
-          If the given input is of type blob, return value will be an encoded `blob`
-          If the given input is of type io:ByteChannel, return value will be an encoded `io:ByteChannel`
-          An `error` record will be returned, in case of errors
+    R{{}} If the given input is of type string, an encoded `string` is returned
+          If the given input is of type blob, an encoded `blob` is returned
+          If the given input is of type io:ByteChannel, return an encoded `io:ByteChannel` is returned
+          In case of errors, an `error` record is returned
 }
 native function base64Encode((string|blob|io:ByteChannel) contentToBeEncoded, string charset = "utf-8")
     returns (string|blob|io:ByteChannel|error);
@@ -508,10 +508,10 @@ documentation {
 
     P{{contentToBeDecoded}} Content that needs to be decoded can be of type string, blob or io ByteChannel
     P{{charset}} Charset to be used. This is used only with the string input
-    R{{}} If the given input is of type string, return value will be an decoded `string`
-          If the given input is of type blob, return value will be an decoded `blob`
-          If the given input is of type io:ByteChannel, return value will be an decoded `io:ByteChannel`
-          An `error` record will be returned, in case of errors
+    R{{}} If the given input is of type string, a decoded `string` is returned
+          If the given input is of type blob, a decoded `blob` is returned
+          If the given input is of type io:ByteChannel, an decoded `io:ByteChannel` is returned
+          In case of errors, an `error` record is returned
 }
 native function base64Decode((string|blob|io:ByteChannel) contentToBeDecoded, string charset = "utf-8")
     returns (string|blob|io:ByteChannel|error);
@@ -520,7 +520,7 @@ documentation {
     Encode a given blob with Base64 encoding scheme.
 
     P{{valueToBeEncoded}} Content that needs to be encoded
-    R{{}} Return an encoded blob. An `error` record will be returned, in case of errors
+    R{{}} Return an encoded blob. In case of errors, an `error` record is returned
 }
 public function base64EncodeBlob(blob valueToBeEncoded) returns blob|error {
     error customErr = {message:"Error occurred while encoding blob"};
@@ -537,7 +537,7 @@ documentation {
 
     P{{valueToBeEncoded}} Content that needs to be encoded
     P{{charset}} Charset to be used
-    R{{}} Return an encoded `string`. An `error` record will be returned in case of errors
+    R{{}} Return an encoded `string`. In case of errors, an `error` record is returned
 }
 public function base64EncodeString(string valueToBeEncoded, string charset = "utf-8") returns string|error {
     error customErr = {message:"Error occurred while encoding string"};
@@ -553,7 +553,7 @@ documentation {
     Encode a given ByteChannel with Base64 encoding scheme.
 
     P{{valueToBeEncoded}} Content that needs to be encoded
-    Return an encoded `io:ByteChannel`. An `error` record will be returned in case of errors
+    Return an encoded `io:ByteChannel`. In case of errors, an `error` record is returned
 }
 public function base64EncodeByteChannel(io:ByteChannel valueToBeEncoded) returns io:ByteChannel|error {
     error customErr = {message:"Error occurred while encoding ByteChannel content"};
@@ -569,7 +569,7 @@ documentation {
     Decode a given blob with Base64 encoding scheme.
 
     P{{valueToBeDecoded}} Content that needs to be decoded
-    R{{}} Return a decoded `blob`. An `error` will be returned, in case of errors
+    R{{}} Return a decoded `blob`. In case of errors, an `error` record is returned
 }
 public function base64DecodeBlob(blob valueToBeDecoded) returns blob|error {
     error customErr = {message:"Error occurred while decoding blob"};
@@ -586,7 +586,7 @@ documentation {
 
     P{{valueToBeDecoded}} Content that needs to be decoded
     P{{charset}} Charset to be used
-    R{{}} Return a decoded `string`. An `error` will be returned, in case of errors
+    R{{}} Return a decoded `string`. In case of errors, an `error` record is returned
 }
 public function base64DecodeString(string valueToBeDecoded, string charset = "utf-8") returns string|error {
     error customErr = {message:"Error occurred while decoding string"};
@@ -602,7 +602,7 @@ documentation {
     Decode a given ByteChannel with Base64 encoding scheme.
 
     P{{valueToBeDecoded}} Content that needs to be decoded
-    R{{}} Return a decoded `io:ByteChannel`. An `error` will be returned, in case of errors
+    R{{}} Return a decoded `io:ByteChannel`. In case of errors, an `error` record is returned
 }
 public function base64DecodeByteChannel(io:ByteChannel valueToBeDecoded) returns io:ByteChannel|error {
     error customErr = {message:"Error occurred while decoding ByteChannel content"};

@@ -26,6 +26,7 @@ The sample service given below handles a multipart request. It gets the message 
 ``` ballerina
 import ballerina/http;
 import ballerina/io;
+import ballerina/log;
 import ballerina/mime;
 
 endpoint http:Listener mockEP {
@@ -46,23 +47,21 @@ service<http:Service> test bind mockEP {
        // Get the body parts from the request.
        match request.getBodyParts() {
            // If there is an error while getting the body parts, set the response code as 500 and set the error message as the response message.
-           mime:EntityError err => {
+           error err => {
                response.statusCode = 500;
-               response.setStringPayload(err.message);
+               response.setPayload(err.message);
            }
            // If the body parts were returned, iterate through each body part and handle the content.
            mime:Entity[] bodyParts => {
                string content = "";
                int i = 0;
-               while (i < lengthof bodyParts) {
-                   mime:Entity part = bodyParts[i];
-                   content = content + " -- " + handleContent(part);
-                   i = i + 1;
+               foreach part in bodyParts {
+               content = content + " -- " + handleContent(part);
                }
-               response.setStringPayload(content);
+               response.setPayload(content);
            }
        }
-       _ = client -> respond(response);
+       client -> respond(response) but { error e => log:printError("Error in responding ", err = e) };
    }
 
 }
@@ -70,7 +69,7 @@ service<http:Service> test bind mockEP {
 // The function that handles the content based on the body part type.
 function handleContent(mime:Entity bodyPart) returns (string) {
    // Getting the base type of the specific body part.
-   string baseType = bodyPart.contentType.getBaseType();
+   string baseType = check mime:getMediaType(bodyPart.getContentType())!getBaseType();
 
    // If the base type is ‘application/xml’ or ‘text/xml’, get the XML content from body part.
    if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
@@ -96,7 +95,7 @@ function handleContent(mime:Entity bodyPart) returns (string) {
 The sample request that is sent to the above service and the response that is printed on the console are shown below.
 
 ```
-curl -v -F "request={\"param1\": \"value1\"};type=application/json" -F "language=ballerina;type=text/plain" -F "upload=@/home/megala/encode.txt;type=application/octet-stream"  http://localhost:9090/test/multipleparts -H "Expect:"
+curl -v -F "request={\"param1\": \"value1\"};type=application/json" -F "language=ballerina;type=text/plain" -F "upload=@/home/path-to-file/encode.txt;type=application/octet-stream"  http://localhost:9090/test/multipleparts -H "Expect:"
 *   Trying 127.0.0.1...
 * Connected to localhost (127.0.0.1) port 9090 (#0)
 > POST /test/multipleparts HTTP/1.1
