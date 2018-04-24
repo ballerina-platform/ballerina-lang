@@ -2,18 +2,18 @@ import ballerina/http;
 import ballerina/log;
 
 endpoint http:Listener http2ServiceEP {
-    port:7090,
+    port: 7090,
     // HTTP version is set to 2.0.
-    httpVersion:"2.0"
+    httpVersion: "2.0"
 };
 
 @http:ServiceConfig {
-    basePath:"/http2Service"
+    basePath: "/http2Service"
 }
 service http2Service bind http2ServiceEP {
 
     @http:ResourceConfig {
-        path:"/"
+        path: "/"
     }
     http2Resource(endpoint caller, http:Request req) {
 
@@ -34,7 +34,7 @@ service http2Service bind http2ServiceEP {
 
         // Construct requested resource.
         http:Response response = new;
-        json msg = {"response":{"name":"main resource"}};
+        json msg = {"response": {"name": "main resource"}};
         response.setPayload(msg);
 
         // Send the requested resource.
@@ -43,7 +43,7 @@ service http2Service bind http2ServiceEP {
 
         // Construct promised resource1.
         http:Response push1 = new;
-        msg = {"push":{"name":"resource1"}};
+        msg = {"push": {"name": "resource1"}};
         push1.setPayload(msg);
 
         // Push promised resource1.
@@ -52,7 +52,7 @@ service http2Service bind http2ServiceEP {
 
         // Construct promised resource2.
         http:Response push2 = new;
-        msg = {"push":{"name":"resource2"}};
+        msg = {"push": {"name": "resource2"}};
         push2.setPayload(msg);
 
         // Push promised resource2.
@@ -61,7 +61,7 @@ service http2Service bind http2ServiceEP {
 
         // Construct promised resource3.
         http:Response push3 = new;
-        msg = {"push":{"name":"resource3"}};
+        msg = {"push": {"name": "resource3"}};
         push3.setPayload(msg);
 
         // Push promised resource3.
@@ -71,9 +71,9 @@ service http2Service bind http2ServiceEP {
 }
 
 endpoint http:Client clientEP {
-    url:"http://localhost:7090",
+    url: "http://localhost:7090",
     // HTTP version is set to 2.0.
-    httpVersion:"2.0"
+    httpVersion: "2.0"
 };
 
 function main(string... args) {

@@ -4,11 +4,12 @@ import ballerina/io;
 // The first parameter "baseSalary" is a required parameter. The next two parameters "annualIncrement" 
 // and "bonusRate" are two defaultable parameters. They are optional parameters with a default value 
 // of 20 and 0.02 respectively. Defaultable parameters must be always defined after the required parameters.
-function printSalaryDetails (int baseSalary, int annualIncrement = 20, float bonusRate = 0.02) {
-    io:println("Base Salary: " + baseSalary + " | Annual Increment: " + annualIncrement + " | Bonus Rate: " + bonusRate);
+function printSalaryDetails(int baseSalary, int annualIncrement = 20, float bonusRate = 0.02) {
+    io:println("Base Salary: " + baseSalary + " | Annual Increment: " + annualIncrement + " | Bonus Rate: " +
+            bonusRate);
 }
 
-function main (string... args) {
+function main(string... args) {
     // Call the function by passing only the salary. The annualIncrement and the bonusRate will be defaults 
     // to 20 and 0.02 respectively.
     printSalaryDetails(2500);

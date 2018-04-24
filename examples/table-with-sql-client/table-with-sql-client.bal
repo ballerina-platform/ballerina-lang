@@ -19,13 +19,13 @@ type Employee {
 function main(string... args) {
 
     endpoint mysql:Client testDB {
-        host:"localhost",
-        port:3306,
-        name:"testdb",
-        username:"root",
-        password:"root",
-        poolOptions:{maximumPoolSize:5},
-        dbOptions:{useSSL:false}
+        host: "localhost",
+        port: 3306,
+        name: "testdb",
+        username: "root",
+        password: "root",
+        poolOptions: {maximumPoolSize: 5},
+        dbOptions: {useSSL: false}
     };
 
     int count;

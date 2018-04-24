@@ -5,11 +5,12 @@ import ballerina/log;
 import ballerina/runtime;
 
 int total = 0;
+
 function main(string... args) {
 
     //Client endpoint configuration
     endpoint ChatClient chatEp {
-        url:"http://localhost:9090"
+        url: "http://localhost:9090"
     };
 
     endpoint grpc:Client ep;
@@ -23,7 +24,7 @@ function main(string... args) {
             ep = con;
         }
     }
-    ChatMsg mes = {name:"Sam", message:"Hi "};
+    ChatMsg mes = {name: "Sam", message: "Hi "};
     error? connErr = ep->send(mes);
     io:println(connErr.message but { () => "" });
     //this will hold forever since this is chat application

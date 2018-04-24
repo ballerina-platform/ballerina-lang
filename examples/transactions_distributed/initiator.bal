@@ -6,13 +6,13 @@ import ballerina/transactions;
 // This is the initiator of the distributed transaction.
 
 @http:ServiceConfig {
-    basePath:"/"
+    basePath: "/"
 }
 service<http:Service> InitiatorService bind {port: 8080} {
 
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/"
+        methods: ["GET"],
+        path: "/"
     }
     init(endpoint conn, http:Request req) {
         http:Response res = new;
@@ -20,7 +20,7 @@ service<http:Service> InitiatorService bind {port: 8080} {
 
         // When the transaction statement starts, a distributed transaction context is created.
         transaction with oncommit = printCommit, onabort = printAbort {
-            // Print the current transaction ID
+        // Print the current transaction ID
             log:printInfo("Started transaction: " + transactions:getCurrentTransactionId());
 
             // When a participant is called, the transaction context is propagated, and that participant
@@ -57,13 +57,13 @@ function printCommit(string transactionId) {
 
 function callBusinessService() returns boolean {
     endpoint http:Client participantEP {
-        url:"http://localhost:8889/stockquote/update"
+        url: "http://localhost:8889/stockquote/update"
     };
 
     boolean successful;
 
     float price = math:randomInRange(200, 250) + math:random();
-    json bizReq = {symbol:"GOOG", price:price};
+    json bizReq = {symbol: "GOOG", price: price};
     http:Request req = new;
     req.setJsonPayload(bizReq);
     var result = participantEP->post("", request = req);

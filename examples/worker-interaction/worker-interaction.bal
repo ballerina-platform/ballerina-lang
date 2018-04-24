@@ -1,7 +1,7 @@
 import ballerina/io;
 
 @Description {value:"Workers interact with each other by sending and receiving messages. Ballerina checks the send/receive signatures of every pair of workers and validates them in order to avoid deadlocks."}
-function main (string... args) {
+function main(string... args) {
 
     worker w1 {
         int i = 100;
@@ -21,11 +21,11 @@ function main (string... args) {
         int iw;
         float kw;
         any vW1;
-        vW1 <-  w1;
+        vW1 <- w1;
         (iw, kw) = check <(int, float)>vW1;
         io:println("[w2 <- w1] iw: " + iw + " kw: " + kw);
         // Send a message to the default worker.
-        json jw = {"name":"Ballerina"};
+        json jw = {"name": "Ballerina"};
         string jwStr = jw.toString();
         io:println("[w2 -> w1] jw: " + jwStr);
         jw -> w1;

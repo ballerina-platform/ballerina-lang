@@ -3,14 +3,14 @@ import ballerina/http;
 import ballerina/mime;
 
 endpoint http:Client clientEndpoint {
-    url:"https://postman-echo.com"
+    url: "https://postman-echo.com"
 };
 
-function main (string... args) {
+function main(string... args) {
 
     http:Request req = new;
     // Send a GET request to the specified endpoint.
-    var response = clientEndpoint -> get("/get?test=123");
+    var response = clientEndpoint->get("/get?test=123");
     match response {
         http:Response resp => {
             io:println("GET request:");
@@ -24,11 +24,11 @@ function main (string... args) {
                 }
             }
         }
-        http:HttpConnectorError err =>{io:println(err.message);}
+        http:HttpConnectorError err => {io:println(err.message);}
     }
     // Set a string payload to the message to be sent to the endpoint.
     req.setStringPayload("POST: Hello World");
-    response = clientEndpoint -> post("/post", request=req);
+    response = clientEndpoint->post("/post", request = req);
     match response {
         http:Response resp => {
             io:println("\nPOST request:");
@@ -42,14 +42,14 @@ function main (string... args) {
                 }
             }
         }
-        http:HttpConnectorError err =>{io:println(err.message);}
+        http:HttpConnectorError err => {io:println(err.message);}
 
     }
 
     // Set a JSON payload to the message to be sent to the endpoint.
-    json jsonMsg = {method:"PUT", payload:"Hello World"};
+    json jsonMsg = {method: "PUT", payload: "Hello World"};
     req.setJsonPayload(jsonMsg);
-    response = clientEndpoint -> put("/put", request=req);
+    response = clientEndpoint->put("/put", request = req);
     match response {
         http:Response resp => {
             io:println("\nPUT request:");
@@ -63,7 +63,7 @@ function main (string... args) {
                 }
             }
         }
-        http:HttpConnectorError err =>{io:println(err.message);}
+        http:HttpConnectorError err => {io:println(err.message);}
     }
 
     // Set an XML payload to the message to be sent to the endpoint.
@@ -72,7 +72,7 @@ function main (string... args) {
     json j = {};
     // Remove the json payload.
     req.setJsonPayload(j);
-    response = clientEndpoint -> patch("/patch", request=req);
+    response = clientEndpoint->patch("/patch", request = req);
     match response {
         http:Response resp => {
             io:println("\nPATCH request:");
@@ -86,11 +86,11 @@ function main (string... args) {
                 }
             }
         }
-        http:HttpConnectorError err =>{io:println(err.message);}
+        http:HttpConnectorError err => {io:println(err.message);}
     }
 
     req.setStringPayload("DELETE: Hello World");
-    response = clientEndpoint -> delete("/delete", request=req);
+    response = clientEndpoint->delete("/delete", request = req);
     match response {
         http:Response resp => {
             io:println("\nDELETE request:");
@@ -104,17 +104,16 @@ function main (string... args) {
                 }
             }
         }
-        http:HttpConnectorError err =>{io:println(err.message);}
-
+        http:HttpConnectorError err => {io:println(err.message);}
     }
 
     req.setStringPayload("CUSTOM: Hello World");
     // The `execute()` action can be used if one needs to use custom HTTP verbs.
-    response = clientEndpoint -> execute("COPY", "/get", req);
+    response = clientEndpoint->execute("COPY", "/get", req);
 
     req = new;
     req.addHeader("Sample-Name", "http-client-connector");
-    response = clientEndpoint -> get("/get", request=req);
+    response = clientEndpoint->get("/get", request = req);
     match response {
         http:Response resp => {
             string contentType = resp.getHeader("Content-Type");
@@ -124,7 +123,6 @@ function main (string... args) {
             io:println("Status code: " + statusCode);
 
         }
-        http:HttpConnectorError err =>{io:println(err.message);}
-
+        http:HttpConnectorError err => {io:println(err.message);}
     }
 }

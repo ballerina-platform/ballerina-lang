@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main (string... args) {
+function main(string... args) {
 
     string statement = "Lion in Town. Catch the Lion ";
 

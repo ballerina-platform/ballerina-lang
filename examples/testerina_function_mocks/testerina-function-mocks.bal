@@ -5,18 +5,18 @@ import ballerina/io;
 @test:Mock {
     // Since we don't have a package declaration, `.` is the current package
     // We can include any package here e.g : `ballerina.io`
-    packageName : "." ,
-    functionName : "intAdd"
+    packageName: ".",
+    functionName: "intAdd"
 }
 // The mock function's signature should match with the actual function's signature.
-public function mockIntAdd (int a, int b) returns (int) {
+public function mockIntAdd(int a, int b) returns (int) {
     io:println("I'm the mock function!");
-    return (a-b);
+    return (a - b);
 }
 
 // This is the test function.
-@test:Config{}
-function testAssertIntEquals () {
+@test:Config {}
+function testAssertIntEquals() {
     int answer = 0;
     answer = intAdd(5, 3);
     io:println("Function mocking test");
@@ -24,6 +24,6 @@ function testAssertIntEquals () {
 }
 
 // The real function which is mocked above.
-public function intAdd (int a, int b) returns (int) {
+public function intAdd(int a, int b) returns (int) {
     return (a + b);
 }

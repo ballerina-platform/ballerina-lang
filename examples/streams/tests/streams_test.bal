@@ -1,14 +1,15 @@
 import ballerina/test;
 import ballerina/io;
 
-any [] outputs = [];
+any[] outputs = [];
 int counter = 0;
- // This is the mock function which will replace the real function
+
+// This is the mock function which will replace the real function
 @test:Mock {
-    packageName : "ballerina.io" ,
-    functionName : "println"
+    packageName: "ballerina.io",
+    functionName: "println"
 }
-public function mockPrint (any... s) {
+public function mockPrint(any... s) {
     outputs[counter] = s[0];
     if (counter > 5) {
         counter++;
@@ -32,6 +33,6 @@ function testFunc() {
     test:assertEquals("Event received: ", outputs[8]);
     test:assertEquals(1.0, outputs[9]);
     test:assertEquals("Event received: ", outputs[10]);
-    Employee e = { id: 1, name: "Jane" };
+    Employee e = {id: 1, name: "Jane"};
     test:assertEquals(e, outputs[11]);
 }

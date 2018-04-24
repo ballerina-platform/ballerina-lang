@@ -7,48 +7,46 @@ string printInfo;
 string printTrace;
 string printWarn;
 
- // This is the mock function which will replace the real function
+// This is the mock function which will replace the real function
 @test:Mock {
-    packageName : "ballerina.log" ,
-    functionName : "printDebug"
+    packageName: "ballerina.log",
+    functionName: "printDebug"
 }
-public function mockPrintDebug (string s) {
+public function mockPrintDebug(string s) {
     debugLog = s;
 }
 
 @test:Mock {
-    packageName : "ballerina.log" ,
-    functionName : "printError"
+    packageName: "ballerina.log",
+    functionName: "printError"
 }
-public function mockPrintError (string s) {
+public function mockPrintError(string s) {
     printError = s;
 }
 
 @test:Mock {
-    packageName : "ballerina.log" ,
-    functionName : "printInfo"
+    packageName: "ballerina.log",
+    functionName: "printInfo"
 }
-public function mockPrintInfo (string s) {
+public function mockPrintInfo(string s) {
     printInfo = s;
 }
 
 @test:Mock {
-    packageName : "ballerina.log" ,
-    functionName : "printTrace"
+    packageName: "ballerina.log",
+    functionName: "printTrace"
 }
-public function mockPrintTrace (string s) {
+public function mockPrintTrace(string s) {
     printTrace = s;
 }
 
 @test:Mock {
-    packageName : "ballerina.log" ,
-    functionName : "printWarn"
+    packageName: "ballerina.log",
+    functionName: "printWarn"
 }
-public function mockPrintWarn (string s) {
+public function mockPrintWarn(string s) {
     printWarn = s;
 }
-
-
 
 @test:Config
 function testFunc() {

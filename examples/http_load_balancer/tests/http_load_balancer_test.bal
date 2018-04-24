@@ -4,22 +4,22 @@ import ballerina/http;
 
 boolean serviceStarted;
 
-function startService(){
+function startService() {
     serviceStarted = test:startServices("http_load_balancer");
 }
 
 @test:Config {
-    before:"startService",
-    after:"stopService"
+    before: "startService",
+    after: "stopService"
 }
 function testFunc() {
     // Invoking the main function
-    endpoint http:Client httpEndpoint { url:"http://localhost:9090" };
+    endpoint http:Client httpEndpoint {url: "http://localhost:9090"};
     // Chck whether the server is started
     test:assertTrue(serviceStarted, msg = "Unable to start the service");
 
     // Send a GET request to the specified endpoint
-    var response = httpEndpoint -> get("/lb");
+    var response = httpEndpoint->get("/lb");
     match response {
         http:Response resp => {
             var res = check resp.getTextPayload();
@@ -29,7 +29,7 @@ function testFunc() {
     }
 
     // Send a GET request to the specified endpoint
-    var response2 = httpEndpoint -> get("/lb");
+    var response2 = httpEndpoint->get("/lb");
     match response2 {
         http:Response resp => {
             var res = check resp.getTextPayload();
@@ -40,7 +40,7 @@ function testFunc() {
 
     // Invoke the service for the third time
     // Send a GET request to the specified endpoint
-    var response3 = httpEndpoint -> get("/lb");
+    var response3 = httpEndpoint->get("/lb");
     match response3 {
         http:Response resp => {
             var res = check resp.getTextPayload();
@@ -51,7 +51,7 @@ function testFunc() {
 
     // Invoke the service for the third time
     // Send a GET request to the specified endpoint
-    var response4 = httpEndpoint -> get("/lb");
+    var response4 = httpEndpoint->get("/lb");
     match response4 {
         http:Response resp => {
             var res = check resp.getTextPayload();
@@ -61,6 +61,6 @@ function testFunc() {
     }
 }
 
-function stopService(){
+function stopService() {
     test:stopServices("http_load_balancer");
 }

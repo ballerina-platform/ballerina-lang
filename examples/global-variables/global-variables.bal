@@ -1,11 +1,11 @@
 import ballerina/io;
 
-@Description {value:"Defining the global variables."}
+@Description {value: "Defining the global variables."}
 int total = 98;
 
 string content = "";
 
-function main (string... args) {
+function main(string... args) {
 
     // Accessing a global variable.
     io:println(total);

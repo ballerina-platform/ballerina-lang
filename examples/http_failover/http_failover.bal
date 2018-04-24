@@ -68,7 +68,8 @@ service echo bind backendEP {
         runtime:sleep(30000);
         outResponse.setPayload("echo Resource is invoked");
         caller->respond(outResponse) but {
-            error e => log:printError("Error sending response from mock service", err = e) };
+            error e => log:printError("Error sending response from mock service", err = e)
+        };
     }
 }
 

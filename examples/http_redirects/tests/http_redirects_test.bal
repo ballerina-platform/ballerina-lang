@@ -3,6 +3,7 @@ import ballerina/io;
 
 any[] outputs = [];
 int counter = 0;
+
 // This is the mock function which will replace the real function
 @test:Mock {
     packageName: "ballerina.io",

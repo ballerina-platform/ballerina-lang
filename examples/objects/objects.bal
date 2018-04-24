@@ -11,12 +11,12 @@ type Person object {
     }
 };
 
-function main (string... args) {
+function main(string... args) {
     // There are three ways to initialize this object
     Person p1 = new;
     io:println(p1);
 
-    Person p2 = new ();
+    Person p2 = new();
     io:println(p2);
 
     // Below initialization is usefull when need to initialize different type in right hand side

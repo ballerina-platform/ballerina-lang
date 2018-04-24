@@ -2,22 +2,22 @@ import ballerina/http;
 import ballerina/log;
 
 endpoint http:Listener http11ServiceEP {
-    port:9090
+    port: 9090
 };
 
 endpoint http:Client http2serviceClientEP {
-    url:"http://localhost:7090",
+    url: "http://localhost:7090",
     // HTTP version is set to 2.0.
-    httpVersion:"2.0"
+    httpVersion: "2.0"
 };
 
 @http:ServiceConfig {
-    basePath:"/http11Service"
+    basePath: "/http11Service"
 }
 service http11Service bind http11ServiceEP {
 
     @http:ResourceConfig {
-        path:"/"
+        path: "/"
     }
     http11Resource(endpoint caller, http:Request clientRequest) {
         // Forward the clientRequest to http2 service.
@@ -40,23 +40,23 @@ service http11Service bind http11ServiceEP {
 }
 
 endpoint http:Listener http2serviceEP {
-    port:7090,
+    port: 7090,
     // HTTP version is set to 2.0.
-    httpVersion:"2.0"
+    httpVersion: "2.0"
 };
 
 @http:ServiceConfig {
-    basePath:"/http2service"
+    basePath: "/http2service"
 }
 service http2service bind http2serviceEP {
 
     @http:ResourceConfig {
-        path:"/"
+        path: "/"
     }
     http2Resource(endpoint caller, http:Request clientRequest) {
         // Construct the response message.
         http:Response response = new;
-        json msg = {"response":{"message":"response from http2 service"}};
+        json msg = {"response": {"message": "response from http2 service"}};
         response.setPayload(msg);
 
         // Send the response back to the caller (http11Service).

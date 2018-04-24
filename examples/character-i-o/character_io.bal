@@ -2,8 +2,8 @@ import ballerina/io;
 
 
 // This function returns a CharacterChannel from a given file location, according to the permissions and encoding that you specify.
-function getFileCharacterChannel(string filePath, io:Mode permission, string encoding) returns
-                                                                                           io:CharacterChannel {
+function getFileCharacterChannel(string filePath, io:Mode permission, string encoding)
+    returns io:CharacterChannel {
 
     // First, get the ByteChannel representation of the file.
     io:ByteChannel channel = io:openFile(filePath, permission);
@@ -14,7 +14,6 @@ function getFileCharacterChannel(string filePath, io:Mode permission, string enc
 
 // This function reads characters from 'channel', which is an instance of CharacterChannel.
 function readCharacters(io:CharacterChannel channel, int numberOfChars) returns string {
-
     //This is how the characters are read.
     match channel.read(numberOfChars) {
         string characters => {

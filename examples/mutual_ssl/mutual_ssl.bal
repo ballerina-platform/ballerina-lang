@@ -3,36 +3,36 @@ import ballerina/log;
 
 // Create a new service endpoint to accept new connections that are secured via mutual SSL.
 endpoint http:Listener helloWorldEP {
-    port:9095,
-    secureSocket:{
-        keyStore:{
-            path:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
-            password:"ballerina"
+    port: 9095,
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
         },
-        trustStore:{
-            path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password:"ballerina"
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
         },
-        protocol:{
-            name:"TLS",
-            versions:["TLSv1.2", "TLSv1.1"]
+        protocol: {
+            name: "TLS",
+            versions: ["TLSv1.2", "TLSv1.1"]
         },
-        ciphers:["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"],
+        ciphers: ["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"],
         // Enable mutual SSL.
-        sslVerifyClient:"require"
+        sslVerifyClient: "require"
     }
 };
 
 @http:ServiceConfig {
-    endpoints:[helloWorldEP],
-    basePath:"/hello"
+    endpoints: [helloWorldEP],
+    basePath: "/hello"
 }
 
 // Bind the service to the endpoint that you declared above.
 service helloWorld bind helloWorldEP {
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/"
+        methods: ["GET"],
+        path: "/"
     }
 
     sayHello(endpoint caller, http:Request req) {
@@ -46,20 +46,20 @@ service helloWorld bind helloWorldEP {
 
 // Create a new client endpoint to connect to the service endpoint you created above via mutual SSL.
 endpoint http:Client clientEP {
-    url:"https://localhost:9095",
-    secureSocket:{
-        keyStore:{
-            path:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
-            password:"ballerina"
+    url: "https://localhost:9095",
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
         },
-        trustStore:{
-            path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password:"ballerina"
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
         },
-        protocol:{
-            name:"TLS"
+        protocol: {
+            name: "TLS"
         },
-        ciphers:["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"]
+        ciphers: ["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"]
     }
 };
 // The Ballerina client can be used to connect to the created HTTPS listener.

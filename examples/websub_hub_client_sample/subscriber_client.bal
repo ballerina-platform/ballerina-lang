@@ -11,16 +11,16 @@ endpoint websub:Client websubHubClientEP {
 function main(string... args) {
 
     // Send the subscription request for the subscriber service.
-    websub:SubscriptionChangeRequest subscriptionRequest = { topic: "http://www.websubpubtopic.com",
-                                                             callback: "http://localhost:8181/websub",
-                                                             secret: "Kslk30SNF2AChs2" };
+    websub:SubscriptionChangeRequest subscriptionRequest = {topic: "http://www.websubpubtopic.com",
+        callback: "http://localhost:8181/websub",
+        secret: "Kslk30SNF2AChs2"};
 
     var response = websubHubClientEP->subscribe(subscriptionRequest);
 
     match (response) {
         websub:SubscriptionChangeResponse subscriptionChangeResponse => {
             log:printInfo("Subscription Request successful at Hub [" + subscriptionChangeResponse.hub + "] for Topic ["
-                            + subscriptionChangeResponse.topic + "]");
+                    + subscriptionChangeResponse.topic + "]");
         }
         error e => {
             log:printError("Error occurred with Subscription Request", err = e);
@@ -31,15 +31,17 @@ function main(string... args) {
     runtime:sleep(15000);
 
     // Send unsubscription request for the subscriber service.
-    websub:SubscriptionChangeRequest unsubscriptionRequest = { topic: "http://www.websubpubtopic.com",
-                                                               callback: "http://localhost:8181/websub" };
+    websub:SubscriptionChangeRequest unsubscriptionRequest = {
+        topic: "http://www.websubpubtopic.com",
+        callback: "http://localhost:8181/websub"
+    };
 
     response = websubHubClientEP->unsubscribe(unsubscriptionRequest);
 
     match (response) {
         websub:SubscriptionChangeResponse subscriptionChangeResponse => {
             log:printInfo("Unsubscription Request successful at Hub [" + subscriptionChangeResponse.hub
-                            + "] for Topic [" + subscriptionChangeResponse.topic + "]");
+                    + "] for Topic [" + subscriptionChangeResponse.topic + "]");
         }
         error e => {
             log:printError("Error occurred with Unsubscription Request", err = e);
@@ -48,5 +50,4 @@ function main(string... args) {
 
     // Confirm unsubscription - no notifications should be received.
     runtime:sleep(5000);
-
 }

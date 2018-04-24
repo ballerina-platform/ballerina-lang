@@ -4,26 +4,26 @@ import ballerina/http;
 
 boolean serviceStarted;
 
-function startService(){
+function startService() {
     serviceStarted = test:startServices("http-cors");
 }
 
 @test:Config {
-    before:"startService",
-    after:"stopService"
+    before: "startService",
+    after: "stopService"
 }
 function testFunc() {
     // Invoking the main function.
-    endpoint http:Client httpEndpoint { url:"http://localhost:9092" };
+    endpoint http:Client httpEndpoint {url: "http://localhost:9092"};
     // Checking whether the server is started.
     test:assertTrue(serviceStarted, msg = "Unable to start the service");
 
-    json response1 = {"type":"middleware"};
+    json response1 = {"type": "middleware"};
 
     http:Request req = new;
     req.setHeader("Origin", "http://www.bbc.com");
     // Sending a GET request to the specified endpoint.
-    var response = httpEndpoint -> get("/crossOriginService/company", request=req);
+    var response = httpEndpoint->get("/crossOriginService/company", request = req);
     match response {
         http:Response resp => {
             var res = check resp.getJsonPayload();
@@ -34,9 +34,9 @@ function testFunc() {
 
     http:Request req2 = new;
     req2.setHeader("Origin", "http://www.m3.com");
-    req2.setHeader("Access-Control-Request-Method","POST");
+    req2.setHeader("Access-Control-Request-Method", "POST");
     // Sending a GET request to the specified endpoint.
-    var response2 = httpEndpoint -> options("/crossOriginService/lang", request=req2);
+    var response2 = httpEndpoint->options("/crossOriginService/lang", request = req2);
     match response2 {
         http:Response resp => {
             var res = check resp.getStringPayload();
@@ -49,6 +49,6 @@ function testFunc() {
     }
 }
 
-function stopService(){
+function stopService() {
     test:stopServices("http-cors");
 }
