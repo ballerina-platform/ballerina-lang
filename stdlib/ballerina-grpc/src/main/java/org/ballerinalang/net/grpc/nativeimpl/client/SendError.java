@@ -46,8 +46,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
         receiver = @Receiver(type = TypeKind.STRUCT, structType = GrpcConstants.GRPC_CLIENT,
                 structPackage = GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC),
         args = {@Argument(name = "statusCode", type = TypeKind.INT),
-                @Argument(name = "message", type = TypeKind.STRING),
-                @Argument(name = "headers", type = TypeKind.ARRAY)},
+                @Argument(name = "message", type = TypeKind.STRING)},
         returnType = @ReturnType(type = TypeKind.STRUCT, structType = STRUCT_GENERIC_ERROR, structPackage =
                 PACKAGE_BUILTIN),
         isPublic = true
