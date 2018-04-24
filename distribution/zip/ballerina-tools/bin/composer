@@ -175,7 +175,7 @@ status=$START_EXIT_STATUS
 
 # Setting Classpath
 
-COMPOSER_CLASSPATH="$BAL_COMPOSER_HOME/resources/composer/services/*"
+COMPOSER_CLASSPATH="$BAL_COMPOSER_HOME/lib/resources/composer/services/*"
 COMPOSER_CLASSPATH="$COMPOSER_CLASSPATH:$BAL_COMPOSER_HOME/bre/lib/*"
 
 #To monitor a Carbon server in remote JMX mode on linux host machines, set the below system property.
@@ -186,20 +186,19 @@ COMPOSER_CLASSPATH="$COMPOSER_CLASSPATH:$BAL_COMPOSER_HOME/bre/lib/*"
     -Xms256m -Xmx1024m \
     -XX:+HeapDumpOnOutOfMemoryError \
     -XX:HeapDumpPath="$BAL_COMPOSER_HOME/logs/heap-dump-tool.hprof" \
-    -Djava.util.logging.config.file="$BAL_COMPOSER_HOME/resources/composer/conf/composer-logging.properties" \
     $JAVA_OPTS \
     -classpath "$COMPOSER_CLASSPATH" \
     -Djava.command="$JAVACMD" \
     -Dballerina.home="$BAL_COMPOSER_HOME" \
-    -Dcomposer.config.path="$BAL_COMPOSER_HOME/resources/composer/conf/composer-config.yml" \
-    -Dcomposer.public.path="$BAL_COMPOSER_HOME/resources/composer/web/public" \
+    -Dcomposer.config.path="$BAL_COMPOSER_HOME/lib/resources/composer/conf/composer-config.yml" \
+    -Dcomposer.public.path="$BAL_COMPOSER_HOME/lib/resources/composer/web/public" \
     -Djava.security.egd=file:/dev/./urandom \
     -Dfile.encoding=UTF8 \
     -Dcomposer.port=9091 \
     -DenableCloud=$ENABLE_CLOUD \
     -Dworkspace.port=8289 \
     -Dopen.browser=true \
-    -Dtransports.netty.conf=./resources/composer/services/netty-transports.yml \
-    -Dmsf4j.conf=./resources/composer/services/deployment.yaml \
+    -Dtransports.netty.conf=./lib/resources/composer/services/netty-transports.yml \
+    -Dmsf4j.conf=./lib/resources/composer/services/deployment.yaml \
     org.ballerinalang.composer.server.launcher.ServerLauncher $@
 

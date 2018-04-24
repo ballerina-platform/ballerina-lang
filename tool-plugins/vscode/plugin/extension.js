@@ -71,7 +71,7 @@ function showHomeNotSetWarning() {
 
 function checkHome(homePath) {
 	try {
-		if (fs.readdirSync(path.join(homePath, 'resources')).indexOf('composer') > -1) {
+		if (fs.readdirSync(path.join(homePath, 'lib', 'resources')).indexOf('composer') > -1) {
 			return true;
 		}
 	} catch(e) {
@@ -106,7 +106,7 @@ exports.activate = function(context) {
 		return;
 	}
 
-	if(!checkHome(config.home)) {
+	if (!checkHome(config.home)) {
 		rendererErrored(context);
 		return;
 	}
