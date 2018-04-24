@@ -13,11 +13,15 @@ if [ ! -d "$resultsFolderName" ]; then
  mkdir ${resultsFolderName}
 fi
 
-echo "Function_Name,Total Time (ms),Average Latency (ns),Throughput (operations/second) " > ${resultsFolderName}/$4.txt
+echo "Function_Name,Total Time (ms),Average Latency (ns),Throughput (operations/second), GC throughput (%) " > ${resultsFolderName}/$4.csv
 
 ballerina build benchmark
 
 for word in $(<benchmarkFunctions.txt)
 do
-  ballerina run target/benchmark.balx $2 $3 ${word} >> ${resultsFolderName}/$4.txt
+ export _JAVA_OPTIONS="-Xloggc:"$5gc_${word}.log""
+ ballerina run target/benchmark.balx $2 $3 ${word} | tr -d "\n" >> ${resultsFolderName}/$4.csv
+ unset _JAVA_OPTIONS
+ java -jar target/gcviewer-$6.jar target/gc_${word}.log target/gc_summarry_${word}.csv
+ awk -F "\"*;\"*" '{print $2}' target/gc_summarry_${word}.csv | awk NR==37   >>  ${resultsFolderName}/$4.csv
 done
