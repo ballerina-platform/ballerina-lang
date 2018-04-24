@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation{
+documentation {
     ByteChannel represents an input/output resource (i.e file, socket). which could be used to source/sink bytes.
 }
 public type ByteChannel object {

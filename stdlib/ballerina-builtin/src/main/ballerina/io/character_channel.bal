@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation{
+documentation {
     Represents a channel which could be used to read/write characters through a given ByteChannel.
 }
 public type CharacterChannel object {
