@@ -37,8 +37,7 @@ public type CallerActions object {
 
         P{{path}} Resource path
         P{{request}} An HTTP outbound request message
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
 	}
     public native function post(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
 
@@ -47,8 +46,7 @@ public type CallerActions object {
 
         P{{path}} Resource path
         P{{request}} An HTTP outbound request message
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
 	}
     public native function head(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
 
@@ -57,8 +55,7 @@ public type CallerActions object {
 
         P{{path}} Resource path
         P{{request}} An HTTP outbound request message
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
 	}
     public native function put(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
 
@@ -68,8 +65,7 @@ public type CallerActions object {
         P{{httpVerb}} HTTP verb value
         P{{path}} Resource path 
         P{{request}} An HTTP outbound request message
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
 	}
     public native function execute(@sensitive string httpVerb, @sensitive string path, Request request)
                                                                                 returns Response|HttpConnectorError;
@@ -79,8 +75,7 @@ public type CallerActions object {
 		
         P{{path}} Resource path 
         P{{request}} An HTTP outbound request message
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
 	}
     public native function patch(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
 
@@ -89,8 +84,7 @@ public type CallerActions object {
 		
         P{{path}} Resource path 
         P{{request}} An HTTP outbound request message
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
 	}
     public native function delete(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
 
@@ -99,8 +93,7 @@ public type CallerActions object {
 		
         P{{path}} Request path
         P{{request}} An HTTP outbound request message
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
 	}
     public native function get(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
 
@@ -109,8 +102,7 @@ public type CallerActions object {
 		
         P{{path}} Request path
         P{{request}} An HTTP outbound request message
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
 	}
     public native function options(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
 
@@ -119,8 +111,7 @@ public type CallerActions object {
 		
         P{{path}} Request path
         P{{request}} An HTTP inbound request message
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
 	}
     public native function forward(@sensitive string path, Request request) returns Response|HttpConnectorError;
 
@@ -132,7 +123,7 @@ public type CallerActions object {
         P{{httpVerb}} The HTTP verb value
         P{{path}} The resource path
         P{{request}} An HTTP outbound request message
-        R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
+        R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
 	}
     public native function submit(@sensitive string httpVerb, string path, Request request)
                                                                             returns HttpFuture|HttpConnectorError;
@@ -140,8 +131,8 @@ public type CallerActions object {
     documentation {
 		Retrieves the `Response` for a previously submitted request.
 		
-        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
-        R{{}} An HTTP response message, or an error if the invocation fails
+        P{{httpFuture}} The `HttpFuture` related to a previous asynchronous invocation
+        R{{}} An HTTP response message, or an `error` if the invocation fails
 	}
     public native function getResponse(HttpFuture httpFuture) returns Response|HttpConnectorError;
 
@@ -157,7 +148,7 @@ public type CallerActions object {
 		Retrieves the next available `PushPromise` for a previously submitted request.
 		
         P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
-        R{{}} An HTTP Push Promise message, or an error if the invocation fails
+        R{{}} An HTTP Push Promise message, or an `error` if the invocation fails
 	}
     public native function getNextPromise(HttpFuture httpFuture) returns PushPromise|HttpConnectorError;
 
@@ -165,7 +156,7 @@ public type CallerActions object {
 		Retrieves the promised server push `Response` message.
 		
         P{{promise}} The related `PushPromise`
-        R{{}} A promised HTTP `Response` message, or an error if the invocation fails
+        R{{}} A promised HTTP `Response` message, or an `error` if the invocation fails
 	}
     public native function getPromisedResponse(PushPromise promise) returns Response|HttpConnectorError;
 

@@ -197,46 +197,45 @@ public type HttpCachingClient object {
         P{{httpVerb}} The HTTP verb value
         P{{path}} The resource path
         P{{request}} An HTTP request
-        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
+        R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
     }
-    public function submit(string httpVerb, string path, Request request) returns (HttpFuture|HttpConnectorError);
+    public function submit(string httpVerb, string path, Request request) returns HttpFuture|HttpConnectorError;
 
     documentation {
-        Retrieves the response for a previously submitted request.
+        Retrieves the `Response` for a previously submitted request.
 
-        P{{httpFuture}} The Future which relates to previous async invocation
+        P{{httpFuture}} The `HttpFuture` related to a previous asynchronous invocation
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function getResponse(HttpFuture httpFuture) returns Response|HttpConnectorError;
 
     documentation {
-        Checks whether server push exists for a previously submitted request.
+        Checks whether a `PushPromise` exists for a previously submitted request.
 
-        P{{httpFuture}} The Future which relates to previous async invocation
-        R{{}} Returns true if the push promise exists
+        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
+        R{{}} A `boolean` that represents whether a `PushPromise` exists
     }
     public function hasPromise(HttpFuture httpFuture) returns boolean;
 
     documentation {
-        Retrieves the next available push promise for a previously submitted request.
+        Retrieves the next available `PushPromise` for a previously submitted request.
 
-        P{{httpFuture}} The Future which relates to previous async invocation
-        R{{}} The HTTP Push Promise message
-        R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
+        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
+        R{{}} An HTTP Push Promise message, or an `error` if the invocation fails
     }
-    public function getNextPromise(HttpFuture httpFuture) returns (PushPromise|HttpConnectorError);
+    public function getNextPromise(HttpFuture httpFuture) returns PushPromise|HttpConnectorError;
 
     documentation {
-        Retrieves the promised server push response.
+        Retrieves the promised server push `Response` message.
 
-        P{{promise}} The related Push Promise message
-        R{{}} HTTP The Push Response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
+        P{{promise}} The related `PushPromise`
+        R{{}} A promised HTTP `Response` message, or an `error` if the invocation fails
     }
     public function getPromisedResponse(PushPromise promise) returns Response|HttpConnectorError;
 
     documentation {
-        Rejects a push promise.
+        Rejects a `PushPromise`.
+		When a `PushPromise` is rejected, there is no chance of fetching a promised response using the rejected promise.
 
         P{{promise}} The Push Promise to be rejected
     }
