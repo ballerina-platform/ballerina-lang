@@ -15,9 +15,13 @@
 // under the License.
 
 
-@Description {value:"Representation of an API Listener"}
-@Field {value:"config: SecureEndpointConfiguration instance"}
-@Field {value:"secureListener: Secure HTTP Listener instance"}
+documentation {
+    Representation of an API Listener
+
+    E{{}}
+    F{{config}} SecureEndpointConfiguration instance
+    F{{secureListener}} Secure HTTP Listener instance
+}
 public type APIListener object {
     public {
         SecureEndpointConfiguration config;

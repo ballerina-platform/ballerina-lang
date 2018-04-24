@@ -15,31 +15,57 @@
 // specific language governing permissions and limitations
 // under the License.
 
-@Description {value:"Representation of the Http Auth Handler Registry"}
-@Field {value:"httpAuthHandlers: map for auth handlers. key = auth provider id"}
+documentation {
+    Representation of the Http Auth Handler Registry
+
+    F{{httpAuthHandlers}} map for auth handlers. key = auth provider id
+}
 public type AuthHandlerRegistry object {
     private {
         map<HttpAuthnHandler> httpAuthHandlers;
     }
     new () {
     }
+
+    documentation {
+        Add an HttpAuthnHandler to HttpAuthHandlerRegistry
+
+        P{{id}} Auth provider id
+        P{{authnHandler}} HttpAuthnHandler instance
+    }
     public function add (string id, HttpAuthnHandler authnHandler);
+
+    documentation {
+        Retrieves an HttpAuthnHandler from HttpAuthHandlerRegistry which corresponds to the given id
+
+        P{{id}} Auth provider id
+        R{{HttpAuthnHandler}} HttpAuthnHandler instance or nil if not found
+    }
     public function get (string id) returns HttpAuthnHandler?;
+
+
+    documentation {
+        Retrieve the HttpAuthnHandler map
+
+        R{{}} map of HttpAuthnHandler
+    }
     public function getAll () returns map<HttpAuthnHandler>;
+
+    documentation {
+        Removes a specific authn handler from the HttpAuthnHandler map
+    }
     public function remove (string id);
+
+    documentation {
+        Removes all authn handler from the HttpAuthnHandler map
+    }
     public function clear ();
 };
 
-@Description {value:"Add a HttpAuthnHandler to HttpAuthHandlerRegistry"}
-@Param {value:"id: auth provider id"}
-@Param {value:"authnHandler: HttpAuthnHandler instance"}
 public function AuthHandlerRegistry::add (string id, HttpAuthnHandler authnHandler) {
     self.httpAuthHandlers[id] = authnHandler;
 }
 
-@Description {value:"Retrieve a HttpAuthnHandler from HttpAuthHandlerRegistry which corresponds to the given id"}
-@Param {value:"id: auth provider id"}
-@Return {value:"HttpAuthnHandler: HttpAuthnHandler instance or nil if not found"}
 public function AuthHandlerRegistry::get (string id) returns HttpAuthnHandler? {
     if (self.httpAuthHandlers.hasKey(id)) {
         return self.httpAuthHandlers[id];
@@ -47,18 +73,14 @@ public function AuthHandlerRegistry::get (string id) returns HttpAuthnHandler? {
     return ();
 }
 
-@Description {value:"Retrieve the HttpAuthnHandler map"}
-@Return {value:"map<HttpAuthnHandler>: map of HttpAuthnHandler"}
 public function AuthHandlerRegistry::getAll () returns map<HttpAuthnHandler> {
     return self.httpAuthHandlers;
 }
 
-@Description {value:"Removes a specific authn handler from the HttpAuthnHandler map"}
 public function AuthHandlerRegistry::remove (string id) {
     _ = self.httpAuthHandlers.remove(id);
 }
 
-@Description {value:"Removes all authn handler from the HttpAuthnHandler map"}
 public function AuthHandlerRegistry::clear () {
     self.httpAuthHandlers.clear();
 }

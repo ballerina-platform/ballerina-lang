@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 documentation{The HTTP response status code: 100 Continue}
 @final public int CONTINUE_100 = 100;
 documentation{The HTTP response status code: 101 Switching Protocols}

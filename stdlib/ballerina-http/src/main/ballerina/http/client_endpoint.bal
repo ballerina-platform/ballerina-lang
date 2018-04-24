@@ -16,13 +16,21 @@
 
 
 import ballerina/io;
+
 ////////////////////////////////
 ///// HTTP Client Endpoint /////
 ////////////////////////////////
 
-@Description {value:"Represents an HTTP client endpoint"}
-@Field {value:"epName: The name of the endpoint"}
-@Field {value:"config: The configurations associated with the endpoint"}
+documentation {
+    The HTTP client endpoint provides the capability for initiating contact with a remote HTTP service. The API it
+    provides includes functions for the standard HTTP methods, forwarding a received request and sending requests
+    using custom HTTP verbs.
+
+    E{{}}
+    F{{epName}} The name of the endpoint
+    F{{config}} The configurations associated with the endpoint
+    F{{httpClient}} The provider which implements the HTTP methods
+}
 public type Client object {
     public {
         string epName;
@@ -30,10 +38,13 @@ public type Client object {
         CallerActions httpClient;
     }
 
-    @Description {value:"Gets called when the endpoint is being initialized during the package initialization."}
-    @Param {value:"ep: The endpoint to be initialized"}
-    @Param {value:"epName: The endpoint name"}
-    @Param {value:"config: The ClientEndpointConfig of the endpoint"}
+    documentation {
+        Gets invoked to initialize the endpoint. During initialization, configurations provided through the `config`
+        record is used to determine which type of additional behaviours are added to the endpoint (e.g: caching,
+        security, circuit breaking).
+
+        P{{config}} The configurations to be used when initializing the endpoint
+    }
     public function init(ClientEndpointConfig config);
 
     public function register(typedesc serviceType) {
@@ -42,45 +53,53 @@ public type Client object {
     public function start() {
     }
 
-    @Description { value:"Returns the connector that client code uses"}
-    @Return { value:"The connector that client code uses" }
-    public function getCallerActions() returns CallerActions {
+    documentation {
+        Returns the HTTP actions associated with the endpoint.
+
+        R{{}} The HTTP caller actions provider of the endpoint
+    }
+    public function getCallerActions() returns HttpClient {
         return self.httpClient;
     }
 
-    @Description { value:"Stops the registered service"}
-    @Return { value:"Error occured during registration" }
+    documentation {
+        Stops the registered service
+    }
     public function stop() {
     }
 };
 
-public type Algorithm "NONE" | "LOAD_BALANCE" | "FAIL_OVER";
+documentation {
+    Represents a single service and its related configurations.
 
-@Description {value:"Represents the configurations applied to a particular service."}
-@Field {value:"url: Target service URI"}
-@Field {value:"secureSocket: SSL/TLS related options"}
+    F{{url}} URL of the target service
+    F{{secureSocket}} Configurations for secure communication with the remote HTTP endpoint
+}
 public type TargetService {
     string url,
     SecureSocket? secureSocket,
 };
 
-@Description { value:"ClientEndpointConfig struct represents options to be used for HTTP client invocation" }
-@Field {value:"url: Target service URI"}
-@Field {value:"circuitBreaker: Circuit Breaker configuration"}
-@Field {value:"timeoutMillis: Endpoint timeout value in millisecond"}
-@Field {value:"keepAlive: Specifies whether to reuse a connection for multiple requests"}
-@Field {value:"transferEncoding: The types of encoding applied to the request"}
-@Field {value:"chunking: The chunking behaviour of the request"}
-@Field {value:"httpVersion: The HTTP version understood by the client"}
-@Field {value:"forwarded: The choice of setting forwarded/x-forwarded header"}
-@Field {value:"followRedirects: Redirect related options"}
-@Field {value:"retryConfig: Retry related options"}
-@Field {value:"proxy: Proxy server related options"}
-@Field {value:"connectionThrottling: Configurations for connection throttling"}
-@Field {value:"secureSocket: SSL/TLS related options"}
-@Field {value:"cache: HTTP caching related configurations"}
-@Field {value:"acceptEncoding: Specifies the way of handling accept-encoding header."}
-@Field {value:"auth: HTTP authentication releated configurations."}
+documentation {
+    Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.
+
+    F{{url}} URL of the target service
+    F{{circuitBreaker}} Circuit Breaker behaviour configurations
+    F{{timeoutMillis}} The maximum time to wait (in milliseconds) for a response before closing the connection
+    F{{keepAlive}} Specifies whether to reuse a connection for multiple requests
+    F{{transferEncoding}} The types of encoding applied to the request
+    F{{chunking}} The chunking behaviour of the request
+    F{{httpVersion}} The HTTP version understood by the client
+    F{{forwarded}} The choice of setting `forwarded`/`x-forwarded` header
+    F{{followRedirects}} Redirect related options
+    F{{retryConfig}} Retry related options
+    F{{proxy}} Proxy server related options
+    F{{connectionThrottling}} Configurations for connection throttling
+    F{{secureSocket}} SSL/TLS related options
+    F{{cache}} HTTP caching related configurations
+    F{{acceptEncoding}} Specifies the way of handling `accept-encoding` header
+    F{{auth}} HTTP authentication releated configurations
+}
 public type ClientEndpointConfig {
     string url,
     CircuitBreakerConfig? circuitBreaker,
@@ -104,11 +123,14 @@ public native function createHttpClient(string uri, ClientEndpointConfig config)
 
 public native function createSimpleHttpClient(string uri, ClientEndpointConfig config) returns CallerActions;
 
-@Description { value:"RetryConfig struct represents retry related options for HTTP client invocation" }
-@Field {value:"count: Number of retry attempts before giving up"}
-@Field {value:"interval: Retry interval in milliseconds"}
-@Field {value:"backOffFactor: Multiplier of the retry interval to exponentailly increase retry interval"}
-@Field {value:"maxWaitInterval: Maximum time of the retry interval in milliseconds"}
+documentation {
+    Provides configurations for controlling the retry behaviour in failure scenarios.
+
+    F{{count}} Number of retry attempts before giving up
+    F{{interval}} Retry interval in milliseconds
+    F{{backOffFactor}} Multiplier of the retry interval to exponentailly increase retry interval
+    F{{maxWaitInterval}} Maximum time of the retry interval in milliseconds
+}
 public type RetryConfig {
     int count,
     int interval,
@@ -116,15 +138,19 @@ public type RetryConfig {
     int maxWaitInterval,
 };
 
-@Description { value:"SecureSocket struct represents SSL/TLS options to be used for HTTP client invocation" }
-@Field {value: "trustStore: TrustStore related options"}
-@Field {value: "keyStore: KeyStore related options"}
-@Field {value: "protocols: SSL/TLS protocol related options"}
-@Field {value: "certValidation: Certificate validation against CRL or OCSP related options"}
-@Field {value:"ciphers: List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"}
-@Field {value:"verifyHostname: Enable/disable host name verification"}
-@Field {value:"shareSession: Enable/disable new ssl session creation"}
-@Field {value:"ocspStapling: Enable/disable ocsp stapling"}
+documentation {
+    Provides configurations for facilitating secure communication with a remote HTTP endpoint.
+
+    F{{trustStore}} TrustStore related options
+    F{{keyStore}} KeyStore related options
+    F{{protocols}} SSL/TLS protocol related options
+    F{{certValidation}} Certificate validation against CRL or OCSP related options
+    F{{ciphers}} List of ciphers to be used
+                    eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
+    F{{verifyHostname}} Enable/disable host name verification
+    F{{shareSession}} Enable/disable new SSL session creation
+    F{{ocspStapling}} Enable/disable OCSP stapling
+}
 public type SecureSocket {
     TrustStore? trustStore,
     KeyStore? keyStore,
@@ -136,19 +162,25 @@ public type SecureSocket {
     boolean ocspStapling,
 };
 
-@Description { value:"FollowRedirects struct represents HTTP redirect related options to be used for HTTP client invocation" }
-@Field {value:"enabled: Enable redirect"}
-@Field {value:"maxCount: Maximun number of redirects to follow"}
+documentation {
+    Provides configurations for controlling the endpoint's behaviour in response to HTTP redirect related responses.
+
+    F{{enabled}} Enable/disable redirection
+    F{{maxCount}} Maximun number of redirects to follow
+}
 public type FollowRedirects {
     boolean enabled = false,
     int maxCount = 5,
 };
 
-@Description { value:"ProxyConfig struct represents proxy server configurations to be used for HTTP client invocation" }
-@Field {value:"proxyHost: host name of the proxy server"}
-@Field {value:"proxyPort: proxy server port"}
-@Field {value:"proxyUserName: Proxy server user name"}
-@Field {value:"proxyPassword: proxy server password"}
+documentation {
+    Proxy server configurations to be used with the HTTP client endpoint.
+
+    F{{proxyHost}} Host name of the proxy server
+    F{{proxyPort}} Proxy server port
+    F{{proxyUserName}} Proxy server username
+    F{{proxyPassword}} proxy server password
+}
 public type ProxyConfig {
     string host,
     int port,
@@ -156,30 +188,37 @@ public type ProxyConfig {
     string password,
 };
 
-@Description { value:"This struct represents the options to be used for connection throttling" }
-@Field {value:"maxActiveConnections: Number of maximum active connections for connection throttling. Default value -1, indicates the number of connections are not restricted"}
-@Field {value:"waitTime: Maximum waiting time for a request to grab an idle connection from the client connector"}
-@Field {value:"maxActiveStreamsPerConnection: Maximum number of active streams allowed per an HTTP/2 connection"}
+documentation {
+    Provides configurations for throttling connections of the endpoint.
+
+    F{{maxActiveConnections}} Maximum number of active connections allowed for the endpoint. The default value, -1,
+                              indicates that the number of connections are not restricted.
+    F{{waitTime}} Maximum waiting time for a request to grab an idle connection from the client
+    F{{maxActiveStreamsPerConnection}} Maximum number of active streams allowed per an HTTP/2 connection
+}
 public type ConnectionThrottling {
     int maxActiveConnections = -1,
     int waitTime = 60000,
     int maxActiveStreamsPerConnection = -1,
 };
 
-@Description { value:"AuthConfig record represents the authentication mechanism that HTTP client uses" }
-@Field {value:"scheme: scheme of the configuration. (basic, oauth, jwt etc.)"}
-@Field {value:"username: username for basic authentication"}
-@Field {value:"username: password for basic authentication"}
-@Field {value:"accessToken: access token for oauth2 authentication"}
-@Field {value:"refreshToken: refresh token for oauth2 authentication"}
-@Field {value:"refreshToken: refresh token for oauth2 authentication"}
-@Field {value:"refreshUrl: refresh token url for oauth2 authentication"}
-@Field {value:"consumerKey: consume key for oauth2 authentication"}
-@Field {value:"consumerKey: consume key for oauth2 authentication"}
-@Field {value:"consumerSecret: consume secret for oauth2 authentication"}
-@Field {value:"tokenUrl: token url for oauth2 authentication"}
-@Field {value:"clientId: clietnt id for oauth2 authentication"}
-@Field {value:"clientSecret: client secret for oauth2 authentication"}
+documentation {
+    AuthConfig record can be used to configure the authentication mechanism used by the HTTP endpoint.
+
+    F{{scheme}} Scheme of the configuration (Basic, OAuth, JWT etc.)
+    F{{username}} Username for Basic authentication
+    F{{password}} Password for Basic authentication
+    F{{accessToken}} Access token for OAuth2 authentication
+    F{{refreshToken}} Refresh token for OAuth2 authentication
+    F{{refreshToken}} Refresh token for OAuth2 authentication
+    F{{refreshUrl}} Refresh token URL for OAuth2 authentication
+    F{{consumerKey}} Consumer key for OAuth2 authentication
+    F{{consumerKey}} Consumer key for OAuth2 authentication
+    F{{consumerSecret}} Consumer secret for OAuth2 authentication
+    F{{tokenUrl}} Token URL for OAuth2 authentication
+    F{{clientId}} Clietnt ID for OAuth2 authentication
+    F{{clientSecret}} Client secret for OAuth2 authentication
+}
 public type AuthConfig {
     string scheme,
     string username,

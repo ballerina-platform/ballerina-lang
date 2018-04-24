@@ -17,12 +17,19 @@
 
 // TODO: Document these. Should we make FORWARD a private constant?
 @final public HttpOperation HTTP_FORWARD = "FORWARD";
+documentation {Constant for the HTTP GET method}
 @final public HttpOperation HTTP_GET = "GET";
+documentation {Constant for the HTTP POST method}
 @final public HttpOperation HTTP_POST = "POST";
+documentation {Constant for the HTTP DELETE method}
 @final public HttpOperation HTTP_DELETE = "DELETE";
+documentation {Constant for the HTTP OPTIONS method}
 @final public HttpOperation HTTP_OPTIONS = "OPTIONS";
+documentation {Constant for the HTTP PUT method}
 @final public HttpOperation HTTP_PUT = "PUT";
+documentation {Constant for the HTTP PATCH method}
 @final public HttpOperation HTTP_PATCH = "PATCH";
+documentation {Constant for the HTTP HEAD method}
 @final public HttpOperation HTTP_HEAD = "HEAD";
 @final public HttpOperation HTTP_NONE = "NONE";
 

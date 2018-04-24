@@ -16,58 +16,83 @@
 
 
 documentation {
-    Represents HTTP connection which can be used to comminicate either with client or with other service.
+    The caller actions for responding to client requests.
 }
 public type Connection object {
 
-    @Description {value:"Sends outbound response to the caller"}
-    @Param {value:"conn: The server connector connection"}
-    @Param {value:"res: The outbound response message"}
-    @Return {value:"Error occured during HTTP server connector respond"}
-    @Return {value:"Returns null if any error does not exist."}
-    public native function respond(Response res) returns HttpConnectorError|();
+    documentation {
+        Sends the outbound response to the caller.
+     
+        P{{response}} The outbound response
+        R{{}} Returns an `HttpConnectorError` if failed to respond
+    }
+    public native function respond(Response response) returns HttpConnectorError?;
 
-    @Description { value:"Pushes a promise to the caller."}
-    @Param { value:"conn: The server connector connection" }
-    @Param { value:"promise: Push promise message" }
-    @Return { value:"Error occured during HTTP server connector promise function invocation" }
-    @Return {value:"Returns null if any error does not exist."}
-    public native function promise(PushPromise promise) returns HttpConnectorError|();
+    documentation {
+        Pushes a promise to the caller.
+        
+        P{{promise}} Push promise message
+        R{{}} Returns an `HttpConnectorError` if failed to push the promise
+    }
+    public native function promise(PushPromise promise) returns HttpConnectorError?;
 
-    @Description { value:"Sends a promised push response to the caller."}
-    @Param { value:"conn: The server connector connection" }
-    @Param { value:"promise: Push promise message" }
-    @Param { value:"res: The outbound response message" }
-    @Return { value:"Error occured during HTTP server connector pushPromisedResponse function invocation" }
-    @Return {value:"Returns null if any error does not exist."}
-    public native function pushPromisedResponse(PushPromise promise, Response res) returns HttpConnectorError|();
+    documentation {
+        Sends a promised push response to the caller.
+        
+        P{{promise}} Push promise message
+        P{{response}} The outbound response
+        R{{}} Returns an `HttpConnectorError` if failed to respond with the promised response
+    }
+    public native function pushPromisedResponse(PushPromise promise, Response response) returns HttpConnectorError?;
 
-    @Description {value:"Sends a upgrade request with custom headers"}
-    @Param {value:"headers: a map of custom headers for handshake."}
+    documentation {
+        Sends an upgrade request with custom headers.
+          
+        P{{headers}} A `map` of custom headers for handshake
+    }
     public native function acceptWebSocketUpgrade(map headers) returns WebSocketListener;
 
-    @Description {value:"Cancels the handshake"}
-    @Param {value:"statusCode: Status code for closing the connection"}
-    @Param {value:"reason: Reason for closing the connection"}
+    documentation {
+        Cancels the handshake.
+        
+        P{{statusCode}} Status code for closing the connection
+        P{{reason}} Reason for closing the connection
+    }
     public native function cancelWebSocketUpgrade(int status, string reason);
 
-    public function continue() returns HttpConnectorError|();
+    documentation {
+        Sends a `100-continue` response to the caller.
 
-    public function redirect(Response response, RedirectCode code, string[] locations) returns HttpConnectorError|();
+        R{{}} Returns an `HttpConnectorError` if failed to send the `100-continue` response
+    }
+    public function continue() returns HttpConnectorError?;
+
+    documentation {
+        Sends a redirect response to the user with the specified redirection status code.
+
+        P{{response}} Response to be sent to the caller
+        P{{redirectCode}} The redirect status code to be sent
+        P{{locations}} An array of URLs to which the caller can redirect to
+        R{{}} Returns an `HttpConnectorError` if failed to send the redirect response
+    }
+    public function redirect(Response response, RedirectCode code, string[] locations) returns HttpConnectorError?;
 };
 
 /////////////////////////////////
 /// Ballerina Implementations ///
 /////////////////////////////////
-@Description { value:"Status codes for HTTP redirect"}
-@Field { value:"MULTIPLE_CHOICES_300: Represents status code 300 - Multiple Choices."}
-@Field { value:"MOVED_PERMANENTLY_301: Represents status code 301 - Moved Permanently."}
-@Field { value:"FOUND_302: Represents status code 302 - Found."}
-@Field { value:"SEE_OTHER_303: Represents status code 303 - See Other."}
-@Field { value:"NOT_MODIFIED_304: Represents status code 304 - Not Modified."}
-@Field { value:"USE_PROXY_305: Represents status code 305 - Use Proxy."}
-@Field { value:"TEMPORARY_REDIRECT_307: Represents status code 307 - Temporary Redirect."}
-@Field { value:"PERMANENT_REDIRECT_308: Represents status code 308 - Permanent Redirect."}
+documentation {
+    Status codes for HTTP redirect
+    
+    F{{MULTIPLE_CHOICES_300}} Represents status code 300 - Multiple Choices
+    F{{MOVED_PERMANENTLY_301}} Represents status code 301 - Moved Permanently
+    F{{FOUND_302}} Represents status code 302 - Found
+    F{{SEE_OTHER_303}} Represents status code 303 - See Other
+    F{{NOT_MODIFIED_304}} Represents status code 304 - Not Modified
+    F{{USE_PROXY_305}} Represents status code 305 - Use Proxy
+    F{{TEMPORARY_REDIRECT_307}} Represents status code 307 - Temporary Redirect
+    F{{PERMANENT_REDIRECT_308}} Represents status code 308 - Permanent Redirect
+}
 public type RedirectCode 300 | 301 | 302 | 303 | 304 | 305 | 307 | 308;
 
 @final public RedirectCode REDIRECT_MULTIPLE_CHOICES_300 = 300;
@@ -79,24 +104,13 @@ public type RedirectCode 300 | 301 | 302 | 303 | 304 | 305 | 307 | 308;
 @final public RedirectCode REDIRECT_TEMPORARY_REDIRECT_307 = 307;
 @final public RedirectCode REDIRECT_PERMANENT_REDIRECT_308 = 308;
 
-@Description { value:"Sends a 100-continue response to the client."}
-@Param { value:"conn: The server connector connection" }
-@Return { value:"Returns an HttpConnectorError if there was any issue in sending the response." }
-@Return {value:"Returns null if any error does not exist."}
-public function Connection::continue() returns HttpConnectorError|() {
+public function Connection::continue() returns HttpConnectorError? {
     Response res = new;
     res.statusCode = CONTINUE_100;
     return self.respond(res);
 }
 
-@Description { value:"Sends a redirect response to the user with given redirection status code." }
-@Param { value:"conn: The server connector connection" }
-@Param { value:"response: Response to be sent to client." }
-@Param { value:"redirectCode: Status code of the specific redirect." }
-@Param { value:"locations: Array of locations where the redirection can happen." }
-@Return { value:"Returns an HttpConnectorError if there was any issue in sending the response." }
-@Return { value:"Returns null if any error does not exist." }
-public function Connection::redirect(Response response, RedirectCode code, string[] locations) returns HttpConnectorError|() {
+public function Connection::redirect(Response response, RedirectCode code, string[] locations) returns HttpConnectorError? {
     if (code == REDIRECT_MULTIPLE_CHOICES_300) {
         response.statusCode = MULTIPLE_CHOICES_300;
     } else if (code == REDIRECT_MOVED_PERMANENTLY_301) {

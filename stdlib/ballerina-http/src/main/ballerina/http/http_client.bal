@@ -15,7 +15,15 @@
 // under the License.
 
 
-@Description { value:"The Caller actions for interacting with an HTTP server."}
+documentation {
+    Provides the HTTP actions for interacting with an HTTP server. Apart from the standard HTTP methods, `forward()`
+    and `execute()` functions are provided. `forward()` takes an incoming HTTP requests and sends it to an upstream
+    HTTP endpoint while `execute()` can be used for sending HTTP requests with custom verbs. More complex and specific
+    endpoint types can be created by wrapping this generic HTTP actions implementation.
+
+    F{{serviceUri}} The URL of the remote HTTP endpoint
+    F{{config}} The configurations of the client endpoint associated with this HttpActions instance
+}
 public type CallerActions object {
     //These properties are populated from the init call to the client connector as these were needed later stage
     //for retry and other few places.
@@ -24,120 +32,173 @@ public type CallerActions object {
         ClientEndpointConfig config;
     }
 
-    @Description {value:"The POST action implementation of the HTTP Connector."}
-    @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
-    public native function post(@sensitive string path, Request? request = ()) returns (Response | HttpConnectorError);
+    documentation {
+		The `POST()` function can be used to send HTTP POST requests to HTTP endpoints.
+		
+        P{{path}} Resource path 
+        P{{req}} An HTTP outbound request message
+        R{{}} The inbound response message
+        R{{}} The error occurred while attempting to fulfill the HTTP request
+	}
+    public native function post(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
 
-    @Description {value:"The HEAD action implementation of the HTTP Connector."}
-    @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
-    public native function head(@sensitive string path, Request? request = ()) returns (Response | HttpConnectorError);
+    documentation {
+		The `HEAD()` function can be used to send HTTP HEAD requests to HTTP endpoints.
+		
+        P{{path}} Resource path 
+        P{{req}} An HTTP outbound request message
+        R{{}} The inbound response message
+        R{{}} The error occurred while attempting to fulfill the HTTP request
+	}
+    public native function head(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
 
-    @Description {value:"The PUT action implementation of the HTTP Connector."}
-    @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
-    public native function put(@sensitive string path, Request? request = ()) returns (Response | HttpConnectorError);
+    documentation {
+		The `PUT()` function can be used to send HTTP PUT requests to HTTP endpoints.
+		
+        P{{path}} Resource path 
+        P{{req}} An HTTP outbound request message
+        R{{}} The inbound response message
+        R{{}} The error occurred while attempting to fulfill the HTTP request
+	}
+    public native function put(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
 
-    @Description {value:"Invokes an HTTP call with the specified HTTP verb."}
-    @Param {value:"httpVerb: HTTP verb value"}
-    @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
-    public native function execute(@sensitive string httpVerb, @sensitive string path, Request request) returns (Response | HttpConnectorError);
+    documentation {
+		Invokes an HTTP call with the specified HTTP verb.
+		
+        P{{httpVerb}} HTTP verb value
+        P{{path}} Resource path 
+        P{{req}} An HTTP outbound request message
+        R{{}} The inbound response message
+        R{{}} The error occurred while attempting to fulfill the HTTP request
+	}
+    public native function execute(@sensitive string httpVerb, @sensitive string path, Request request)
+                                                                                returns Response|HttpConnectorError;
 
-    @Description {value:"The PATCH action implementation of the HTTP Connector."}
-    @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
-    public native function patch(@sensitive string path, Request? request = ()) returns (Response | HttpConnectorError);
+    documentation {
+		The `PATCH()` function can be used to send HTTP PATCH requests to HTTP endpoints.
+		
+        P{{path}} Resource path 
+        P{{req}} An HTTP outbound request message
+        R{{}} The inbound response message
+        R{{}} The error occurred while attempting to fulfill the HTTP request
+	}
+    public native function patch(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
 
-    @Description {value:"The DELETE action implementation of the HTTP connector"}
-    @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
-    public native function delete(@sensitive string path, Request? request = ()) returns (Response | HttpConnectorError);
+    documentation {
+		The `DELETE()` function can be used to send HTTP DELETE requests to HTTP endpoints.
+		
+        P{{path}} Resource path 
+        P{{req}} An HTTP outbound request message
+        R{{}} The inbound response message
+        R{{}} The error occurred while attempting to fulfill the HTTP request
+	}
+    public native function delete(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
 
-    @Description {value:"GET action implementation of the HTTP Connector"}
-    @Param {value:"path: Request path"}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
-    public native function get(@sensitive string path, Request? request = ()) returns (Response | HttpConnectorError);
+    documentation {
+		The `GET()` function can be used to send HTTP GET requests to HTTP endpoints.
+		
+        P{{path}} Request path
+        P{{req}} An HTTP outbound request message
+        R{{}} The inbound response message
+        R{{}} The error occurred while attempting to fulfill the HTTP request
+	}
+    public native function get(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
 
-    @Description {value:"OPTIONS action implementation of the HTTP Connector"}
-    @Param {value:"path: Request path"}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
-    public native function options(@sensitive string path, Request? request = ()) returns (Response | HttpConnectorError);
+    documentation {
+		The `OPTIONS()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.
+		
+        P{{path}} Request path
+        P{{req}} An HTTP outbound request message
+        R{{}} The inbound response message
+        R{{}} The error occurred while attempting to fulfill the HTTP request
+	}
+    public native function options(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
 
-    @Description {value:"Forward action can be used to invoke an HTTP call with inbound request's HTTP verb"}
-    @Param {value:"path: Request path"}
-    @Param {value:"req: An HTTP inbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
-    public native function forward(@sensitive string path, Request request) returns (Response | HttpConnectorError);
+    documentation {
+		The `Forward()` function can be used to invoke an HTTP call with inbound request's HTTP verb
+		
+        P{{path}} Request path
+        P{{req}} An HTTP inbound request message
+        R{{}} The inbound response message
+        R{{}} The error occurred while attempting to fulfill the HTTP request
+	}
+    public native function forward(@sensitive string path, Request request) returns Response|HttpConnectorError;
 
-    @Description { value:"Submits an HTTP request to a service with the specified HTTP verb."}
-    @Param { value:"httpVerb: The HTTP verb value" }
-    @Param { value:"path: The Resource path " }
-    @Param { value:"req: An HTTP outbound request message" }
-    @Return { value:"The Future for further interactions" }
-    @Return { value:"The Error occured during HTTP client invocation" }
-    public native function submit(@sensitive string httpVerb, string path, Request request) returns (HttpFuture | HttpConnectorError);
+    documentation {
+		Submits an HTTP request to a service with the specified HTTP verb.
+		
+        P{{httpVerb}} The HTTP verb value
+        P{{path}} The Resource path 
+        P{{req}} An HTTP outbound request message
+        R{{}} The Future for further interactions
+        R{{}} The error occurred while attempting to fulfill the HTTP request
+	}
+    public native function submit(@sensitive string httpVerb, string path, Request request)
+                                                                            returns HttpFuture|HttpConnectorError;
 
-    @Description { value:"Retrieves response for a previously submitted request."}
-    @Param { value:"httpFuture: The Future which relates to previous async invocation" }
-    @Return { value:"The HTTP response message" }
-    @Return { value:"The Error occured during HTTP client invocation" }
-    public native function getResponse(HttpFuture httpFuture) returns (Response | HttpConnectorError);
+    documentation {
+		Retrieves response for a previously submitted request.
+		
+        P{{httpFuture}} The Future which relates to previous async invocation
+        R{{}} The HTTP response message
+        R{{}} The error occurred while attempting to fulfill the HTTP request
+	}
+    public native function getResponse(HttpFuture httpFuture) returns Response|HttpConnectorError;
 
-    @Description { value:"Checks whether server push exists for a previously submitted request."}
-    @Param { value:"httpFuture: The Future which relates to previous async invocation" }
-    @Return { value:"Whether push promise exists" }
+    documentation {
+		Checks whether server push exists for a previously submitted request.
+		
+        P{{httpFuture}} The Future which relates to previous async invocation
+        R{{}} Returns true if the push promise exists
+	}
     public native function hasPromise(HttpFuture httpFuture) returns (boolean);
 
-    @Description { value:"Retrieves the next available push promise for a previously submitted request."}
-    @Param { value:"httpFuture: The Future which relates to previous async invocation" }
-    @Return { value:"The HTTP Push Promise message" }
-    @Return { value:"The Error occured during HTTP client invocation" }
-    public native function getNextPromise(HttpFuture httpFuture) returns (PushPromise | HttpConnectorError);
+    documentation {
+		Retrieves the next available push promise for a previously submitted request.
+		
+        P{{httpFuture}} The Future which relates to previous async invocation
+        R{{}} The HTTP Push Promise message
+        R{{}} The error occurred while attempting to fulfill the HTTP request
+	}
+    public native function getNextPromise(HttpFuture httpFuture) returns PushPromise|HttpConnectorError;
 
-    @Description { value:"Retrieves the promised server push response."}
-    @Param { value:"promise: The related Push Promise message" }
-    @Return { value:"HTTP The Push Response message" }
-    @Return { value:"The Error occured during HTTP client invocation" }
-    public native function getPromisedResponse(PushPromise promise) returns (Response | HttpConnectorError);
+    documentation {
+		Retrieves the promised server push response.
+		
+        P{{promise}} The related Push Promise message
+        R{{}}HTTP The Push Response message
+        R{{}} The error occurred while attempting to fulfill the HTTP request
+	}
+    public native function getPromisedResponse(PushPromise promise) returns Response|HttpConnectorError;
 
-    @Description { value:"Rejects a push promise."}
-    @Param { value:"promise: The Push Promise need to be rejected" }
+    documentation {
+		Rejects a push promise.
+		
+        P{{promise}} The Push Promise to be rejected
+	}
     public native function rejectPromise(PushPromise promise);
 };
 
-@Description { value:"HttpConnectorError record represents an error occured during the HTTP client invocation" }
-@Field {value:"message:  An error message explaining the error"}
-@Field {value:"cause: The error(s) which caused the HttpConnectorError"}
-@Field {value:"statusCode: HTTP status code"}
+documentation {
+    `HttpConnectorError` record represents an error occurred during the HTTP client invocation.
+
+    F{{message}}  An explanation on what went wrong
+    F{{cause}} The error which caused the `HttpConnectorError`
+    F{{statusCode}} HTTP status code
+}
 public type HttpConnectorError {
     string message,
     error? cause,
     int statusCode,
 };
 
-@Description {value:"HttpTimeoutError record represents a timeout error occurred during service invocation."}
-@Field {value:"message: An error message explaining the error"}
-@Field {value:"cause: The error(s) which caused the HttpTimeoutError"}
-@Field {value:"statusCode: HTTP status code."}
+documentation {
+    `HttpTimeoutError` record represents a timeout error occurred during service invocation.
+
+    F{{message}} An explanation on what went wrong
+    F{{cause}} The error which caused the `HttpTimeoutError`
+    F{{statusCode}} HTTP status code.
+}
 public type HttpTimeoutError {
     string message,
     error? cause,

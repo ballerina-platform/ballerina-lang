@@ -18,13 +18,17 @@
 ///////////////////////////
 /// Service Annotations ///
 ///////////////////////////
-@Description {value:"Configuration for an HTTP service"}
-@Field {value:"endpoints: An array of endpoints the service would be attached to"}
-@Field {value:"lifetime: The life time of the service"}
-@Field {value:"basePath: Service base path"}
-@Field {value:"compression: The status of compression {default value : AUTO}"}
-@Field {value:"cors: The CORS configurations for the service"}
-@Field {value:"authConfig: AuthConfig instance to secure the service"}
+
+documentation {
+    Contains the configurations for an HTTP service
+
+    F{{endpoints}} An array of endpoints the service would be attached to
+    F{{lifetime}} The life time of the service
+    F{{basePath}} Service base path
+    F{{compression}} The status of compression (default value: AUTO)
+    F{{cors}} The CORS configurations for the service
+    F{{authConfig}} AuthConfig instance to secure the service
+}
 public type HttpServiceConfig {
     Listener[] endpoints,
     HttpServiceLifeTime lifetime,
@@ -36,13 +40,16 @@ public type HttpServiceConfig {
     ListenerAuthConfig? authConfig,
 };
 
-@Description {value:"Configurations for CORS support"}
-@Field {value:"allowHeaders: The array of allowed headers by the service"}
-@Field {value:"allowMethods: The array of allowed methods by the service"}
-@Field {value:"allowOrigins: The array of origins with which the response is shared by the service"}
-@Field {value:"exposeHeaders: The whitelisted headers which clients are allowed to access"}
-@Field {value:"allowCredentials: Specifies whether credentials are required to access the service"}
-@Field {value:"maxAge: The maximum duration to cache the preflight from client side"}
+documentation {
+    Configurations for CORS support
+
+    F{{allowHeaders}} The array of allowed headers by the service
+    F{{allowMethods}} The array of allowed methods by the service
+    F{{allowOrigins}} The array of origins with which the response is shared by the service
+    F{{exposeHeaders}} The whitelisted headers which clients are allowed to access
+    F{{allowCredentials}} Specifies whether credentials are required to access the service
+    F{{maxAge}} The maximum duration to cache the preflight from client side
+}
 public type CorsConfig {
     string[] allowHeaders,
     string[] allowMethods,
@@ -53,21 +60,27 @@ public type CorsConfig {
 };
 
 
-@Description {value:"Configurations for service versioning"}
-@Field {value:"pattern: Expecting version pattern in the request url"}
-@Field {value:"allowNoVersion: Allow to dispatch requests which does not hold version path segment in url"}
-@Field {value:"matchMajorVersion: Allow to dispatch requests which specify only the major version in url"}
+documentation {
+    Configurations for service versioning
+
+    F{{pattern}} Expecting version pattern in the request url
+    F{{allowNoVersion}} Allow to dispatch requests which does not hold version path segment in url
+    F{{matchMajorVersion}} Allow to dispatch requests which specify only the major version in url
+}
 public type Versioning {
     string pattern = "v{major}.{minor}",
     boolean allowNoVersion = false,
     boolean matchMajorVersion = false,
 };
 
-@Description {value:"Configuration for a WebSocket service."}
-@Field {value:"endpoints: An array of endpoints the service would be attached to"}
-@Field {value:"basePath: Path of the WebSocket service"}
-@Field {value:"subProtocols: Negotiable sub protocol by the service"}
-@Field {value:"idleTimeoutInSeconds: Idle timeout for the client connection. This can be triggered by putting onIdleTimeout resource in WS service."}
+documentation {
+    Configuration for a WebSocket service.
+
+    F{{endpoints}} An array of endpoints the service would be attached to
+    F{{basePath}} Path of the WebSocket service
+    F{{subProtocols}} Negotiable sub protocol by the service
+    F{{idleTimeoutInSeconds}} Idle timeout for the client connection. This can be triggered by putting onIdleTimeout resource in WS service.
+}
 public type WSServiceConfig {
     Listener[] endpoints,
     WebSocketListener[] webSocketEndpoints,
@@ -90,24 +103,30 @@ public type WSServiceConfig {
 
 public type HttpServiceLifeTime "REQUEST"|"CONNECTION"|"SESSION"|"SINGLETON";
 
-@Description {value:"Configurations annotation for an HTTP service"}
+documentation {
+    Configurations annotation for an HTTP service
+}
 public annotation <service> ServiceConfig HttpServiceConfig;
 
-@Description {value:"Configurations annotation for a WebSocket service"}
+documentation {
+    Configurations annotation for a WebSocket service
+}
 public annotation <service> WebSocketServiceConfig WSServiceConfig;
 
 ////////////////////////////
 /// Resource Annotations ///
 ////////////////////////////
-@Description {value:"Configuration for an HTTP resource"}
-@Field {value:"methods: The array of allowed HTTP methods"}
-@Field {value:"path: The path of resource"}
-@Field {value:"body: Inbound request entity body name which declared in signature"}
-@Field {value:"consumes: The media types which are accepted by resource"}
-@Field {value:"produces: The media types which are produced by resource"}
-@Field {value:"cors: The CORS configurations for the resource. If not set, the resource will inherit the CORS behaviour of the enclosing service."}
-@Field {value:"webSocket: Annotation to define HTTP to WebSocket upgrade"}
-@Field {value:"authConfig: AuthConfig instance to secure the resource"}
+documentation {
+    Configuration for an HTTP resource
+    F{{methods}} The array of allowed HTTP methods
+    F{{path}} The path of resource
+    F{{body}} Inbound request entity body name which declared in signature
+    F{{consumes}} The media types which are accepted by resource
+    F{{produces}} The media types which are produced by resource
+    F{{cors}} The CORS configurations for the resource. If not set, the resource will inherit the CORS behaviour of the enclosing service.
+    F{{webSocket}} Annotation to define HTTP to WebSocket upgrade
+    F{{authConfig}} AuthConfig instance to secure the resource
+}
 public type HttpResourceConfig {
         string[] methods,
         string path,
@@ -125,21 +144,29 @@ public type WebSocketUpgradeConfig {
         typedesc upgradeService,
 };
 
-@Description {value:"Representation of AuthConfig"}
-@Field {value:"authentication: Authentication instance"}
-@Field {value:"providers: array of providers"}
-@Field {value:"scopes: array of scopes"}
+documentation {
+    Representation of AuthConfig"
+
+    F{{authentication}} Authentication instance
+    F{{providers}} array of providers
+    F{{scopes}} array of scopes
+}
 public type ListenerAuthConfig {
     Authentication? authentication,
     string[]? authProviders,
     string[]? scopes,
 };
 
-@Description {value:"Representation of Authentication Config"}
-@Field {value:"enabled: flag to enable/disable authentication"}
+documentation {
+    Representation of Authentication Config
+
+    F{{enabled}} flag to enable/disable authentication
+}
 public type Authentication {
     boolean enabled,
 };
 
-@Description {value:"Configurations annotation for an HTTP resource"}
+documentation {
+    Configurations annotation for an HTTP resource
+}
 public annotation <resource> ResourceConfig HttpResourceConfig;

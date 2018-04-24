@@ -1,15 +1,36 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
 
 import ballerina/file;
 import ballerina/io;
 import ballerina/mime;
 
-@Description { value:"Represents an HTTP request message"}
-@Field {value:"path: Resource path of request URI"}
-@Field {value:"method: HTTP request method"}
-@Field {value:"httpVersion: The version of HTTP"}
-@Field {value:"userAgent: User-Agent request header"}
-@Field {value:"extraPathInfo: Additional information associated with the URL sent by the client"}
+documentation {
+    Represents an HTTP request.
+
+    F{{rawPath}} Resource path of the request URL
+    F{{method}} The HTTP request method
+    F{{httpVersion}} The HTTP version supported by the client
+    F{{userAgent}} The user-agent. This value is used when setting the `user-agent` header
+    F{{extraPathInfo}} Additional information associated with the URL provided by the client
+    F{{cacheControl}} The cache-control directives for the request. This needs to be explicitly initialized if intending
+                      on utilizing HTTP caching.
+}
 public type Request object {
+
     public {
         string rawPath;
         string method;
@@ -19,144 +40,244 @@ public type Request object {
         RequestCacheControl? cacheControl;
     }
 
-    @Description {value:"Set the entity to request"}
-    @Return {value:"Entity of the request"}
-    public native function setEntity (mime:Entity entity);
+    documentation {
+        Sets the provided `Entity` to the request.
 
-    @Description {value:"Gets the query parameters from the HTTP request as a map"}
-    @Return {value:"String map of query params"}
-    public native function getQueryParams () returns (map<string>);
+        P{{entity}} The `Entity` to be set to the request
+    }
+    public native function setEntity(mime:Entity entity);
 
-    @Description {value:"Get matrix parameters from the request"}
-    @Param {value:"path: Path to the location of matrix parameters"}
-    @Return {value:"A map of matrix paramters which can be found for a given path"}
-    public native function getMatrixParams (string path) returns (map);
+    documentation {
+        Gets the query parameters of the request, as a map.
 
-    @Description {value:"Get the entity from the request"}
-    @Return {value:"Entity of the request"}
-    @Return {value:"EntityError will might get thrown during entity construction in case of errors"}
-    public native function getEntity () returns (mime:Entity | mime:EntityError);
+        R{{}}  String map of query params
+    }
+    public native function getQueryParams() returns (map<string>);
 
-    @Description {value:"Get the entity from the request without the body. This function is to be used only internally"}
-    @Return {value:"Entity of the request"}
-    native function getEntityWithoutBody () returns (mime:Entity);
+    documentation {
+        Gets the matrix parameters of the request.
 
-    @Description {value:"Check whether the requested header exists"}
-    @Param {value:"headerName: The header name"}
-    @Return {value:"Boolean representing the existence of a given header"}
-    public function hasHeader (string headerName) returns (boolean);
+        P{{path}} Path to the location of matrix parameters
+        R{{}} A map of matrix paramters which can be found for the given path
+    }
+    public native function getMatrixParams(string path) returns (map);
 
-    @Description {value:"Returns the header value with the specified header name. If there are more than one header value for the specified header name, the first value is returned."}
-    @Param {value:"headerName: The header name"}
-    @Return {value:"The first header value for the provided header name. Returns null if the header does not exist."}
-    public function getHeader (string headerName) returns (string);
+    documentation {
+        Gets the `Entity` associated with the request.
 
-    @Description {value:"Gets transport headers from the request"}
-    @Param {value:"headerName: The header name"}
-    @Return {value:"The header values struct array for a given header name"}
-    public function getHeaders (string headerName) returns (string[]);
+        R{{}} The `Entity` of the request. `EntityError` will be returned if entity construction fails.
+    }
+    public native function getEntity() returns mime:Entity|mime:EntityError;
 
-    @Description {value:"Sets the value of a transport header"}
-    @Param {value:"headerName: The header name"}
-    @Param {value:"headerValue: The header value"}
-    public function setHeader (string headerName, string headerValue);
+    // Gets the `Entity` from the request without the body. This function is only for use within the package.
+    native function getEntityWithoutBody() returns (mime:Entity);
 
-    @Description {value:"Adds the specified key/value pair as an HTTP header to the request"}
-    @Param {value:"headerName: The header name"}
-    @Param {value:"headerValue: The header value"}
-    public function addHeader (string headerName, string headerValue);
+    documentation {
+        Checks whether the requested header key exists in the header map.
 
-    @Description {value:"Removes a transport header from the request"}
-    @Param {value:"key: The header name"}
-    public function removeHeader (string key);
+        P{{headerName}} The header name
+        R{{}} Returns true if the specified header key exists
+    }
+    public function hasHeader(string headerName) returns (boolean);
 
-    @Description {value:"Removes all transport headers from the message"}
-    public function removeAllHeaders ();
+    documentation {
+        Returns the value of the specified header. If the specified header key maps to multiple values, the first of
+        these values is returned.
 
-    @Description {value:"Get all transport header names from the request."}
-    @Return {value:"An array of all transport header names"}
-    public function getHeaderNames () returns (string[]);
+        P{{headerName}} The header name
+        R{{}} The first header value for the specified header name. Returns an empty string if the header does not
+              exist.
+    }
+    public function getHeader(string headerName) returns (string);
 
-    @Description {value:"Checks whether the client expects a 100-continue response."}
-    @Return {value:"Returns true if the client expects a 100-continue response. If not, returns false."}
-    public function expects100Continue () returns (boolean);
+    documentation {
+        Gets all the header values to which the specified header key maps to.
 
-    @Description {value:"Set the content-type header to request"}
-    @Param {value:"contentType: Content type value that needs to be set to Content-Type header"}
-    public function setContentType (string contentType);
+        P{{headerName}} The header name
+        R{{}} The header values the specified header key maps to
+    }
+    public function getHeaders(string headerName) returns (string[]);
 
-    @Description {value:"Get the content-type value from the request"}
-    @Return {value:"Returns the content-type header value as a string."}
-    public function getContentType () returns (string);
+    documentation {
+        Sets the specified header to the request. If a mapping already exists for the specified header key, the existing
+        header value is replaced with the specfied header value.
 
-    @Description {value:"Gets the request payload in JSON format"}
-    @Return {value:"The JSON reresentation of the message payload or 'PayloadError' in case of errors"}
-    public function getJsonPayload () returns (json | PayloadError);
+        P{{headerName}} The header name
+        P{{headerValue}} The header value
+    }
+    public function setHeader(string headerName, string headerValue);
 
-    @Description {value:"Gets the request payload in XML format"}
-    @Return {value:"The XML representation of the message payload or 'PayloadError' in case of errors"}
-    public function getXmlPayload () returns (xml | PayloadError);
+    documentation {
+        Adds the specified header to the request. Existing header values are not replaced.
 
-    @Description {value:"Gets the request payload as a string"}
-    @Return {value:"The string representation of the message payload or 'PayloadError' in case of errors"}
-    public function getStringPayload () returns (string | PayloadError);
+        P{{headerName}} The header name
+        P{{headerValue}} The header value
+    }
+    public function addHeader(string headerName, string headerValue);
 
-    @Description {value:"Gets the request payload in blob format"}
-    @Return {value:"The blob representation of the message payload or 'PayloadError' in case of errors"}
-    public function getBinaryPayload () returns (blob | PayloadError);
+    documentation {
+        Removes the specified header from the request.
 
-    @Description {value:"Get the request payload as a byte channel except for multiparts. In case of multiparts,
-    please use 'getBodyParts()' instead."}
-    @Return {value:"A byte channel as the message payload or 'PayloadError' in case of errors"}
-    public function getByteChannel () returns (io:ByteChannel | PayloadError);
+        P{{key}} The header name
+    }
+    public function removeHeader(string key);
 
-    @Description {value:"Gets the form parameters from the HTTP request as a map"}
-    @Return {value:"The map of form params or 'PayloadError' in case of errors"}
-    public function getFormParams () returns (map<string> | PayloadError);
+    documentation {
+        Removes all the headers from the request.
+    }
+    public function removeAllHeaders();
 
-    @Description {value:"Get multiparts from request"}
-    @Return {value:"Returns the body parts as an array of entities"}
-    public function getBodyParts () returns (mime:Entity[] | mime:EntityError);
+    documentation {
+        Gets all the names of the headers of the request.
 
-    @Description {value:"Sets a JSON as the request payload"}
-    @Param {value:"payload: The JSON payload to be set to the request"}
-    @Param {value:"contentType: Represent the content-type to be used with the payload"}
+        R{{}} An array of all the header names
+    }
+    public function getHeaderNames() returns (string[]);
+
+    documentation {
+        Checks whether the client expects a `100-continue` response.
+
+        R{{}} Returns true if the client expects a `100-continue` response
+    }
+    public function expects100Continue() returns (boolean);
+
+    documentation {
+        Sets the `content-type` header to the request.
+
+        P{{contentType}} Content type value to be set as the `content-type` header
+    }
+    public function setContentType(string contentType);
+
+    documentation {
+        Gets the type of the payload of the request (i.e: the `content-type` header value).
+
+        R{{}} Returns the `content-type` header value as a string
+    }
+    public function getContentType() returns (string);
+
+    documentation {
+        Gets the request payload as a `json`.
+
+        R{{}} The JSON reresentation of the message payload or `PayloadError` in case of errors
+    }
+    public function getJsonPayload() returns json|PayloadError;
+
+    documentation {
+        Gets the request payload as an `xml`.
+
+        R{{}} The XML representation of the message payload or `PayloadError` in case of errors
+    }
+    public function getXmlPayload() returns xml|PayloadError;
+
+    documentation {
+        Gets the request payload as a `string`.
+
+        R{{}} The string representation of the message payload or `PayloadError` in case of errors
+    }
+    public function getStringPayload() returns string|PayloadError;
+
+    documentation {
+        Gets the request payload as a `blob`.
+
+        R{{}} The blob representation of the message payload or `PayloadError` in case of errors
+    }
+    public function getBinaryPayload() returns blob|PayloadError;
+
+    documentation {
+        Gets the request payload as a `ByteChannel` except in the case of multiparts. To retrieve multiparts, use
+        `getBodyParts()`.
+
+        R{{}} A byte channel from which the message payload can be read or `PayloadError` in case of errors
+    }
+    public function getByteChannel() returns io:ByteChannel|PayloadError;
+
+    documentation {
+        Gets the form parameters from the HTTP request as a `map`.
+
+        R{{}} The map of form params or `PayloadError` in case of errors
+    }
+    public function getFormParams() returns (map<string>|PayloadError);
+
+    documentation {
+        Get multiparts from request.
+
+        R{{}} Returns the body parts as an array of entities or an `EntityError` if there were any errors in
+              constructing the body parts from the request
+    }
+    public function getBodyParts() returns mime:Entity[]|mime:EntityError;
+
+    documentation {
+        Sets a `json` as the payload.
+
+        P{{payload}} The `json` payload
+        P{{contentType}} The content type of the payload. Set this to override the default `content-type` header value
+                         for `json`.
+    }
     public function setJsonPayload(json payload, string contentType = "application/json");
 
-    @Description {value:"Sets an XML as the payload"}
-    @Param {value:"payload: The XML payload object"}
-    @Param {value:"contentType: Represent the content-type to be used with the payload"}
+    documentation {
+        Sets an `xml` as the payload
+
+        P{{payload}} The `xml` payload
+        P{{contentType}} The content type of the payload. Set this to override the default `content-type` header value
+                         for `xml`.
+    }
     public function setXmlPayload(xml payload, string contentType = "application/xml");
 
-    @Description {value:"Sets a string as the request payload"}
-    @Param {value:"payload: The payload to be set to the request as a string"}
-    @Param {value:"contentType: Represent the content-type to be used with the payload"}
+    documentation {
+        Sets a `string` as the payload.
+
+        P{{payload}} The `string` payload
+        P{{contentType}} The content type of the payload. Set this to override the default `content-type` header value
+                         for `string`.
+    }
     public function setStringPayload(string payload, string contentType = "text/plain");
 
-    @Description {value:"Sets a blob as the request payload"}
-    @Param {value:"payload: The blob representation of the message payload"}
-    @Param {value:"contentType: Represent the content-type to be used with the payload"}
-    public function setBinaryPayload(blob payload, string contentType = "application/octec-stream");
+    documentation {
+        Sets a `blob` as the payload.
 
-    @Description {value:"Set multiparts as the request payload"}
-    @Param {value:"bodyParts: Represent body parts that needs to be set to the request"}
-    @Param {value:"contentType: Content type of the top level message"}
-    public function setBodyParts (mime:Entity[] bodyParts, string contentType="multipart/form-data");
+        P{{payload}} The `blob` payload
+        P{{contentType}} The content type of the payload. Set this to override the default `content-type` header value
+                         for `blob`.
+    }
+    public function setBinaryPayload(blob payload, string contentType = "application/octet-stream");
 
-    @Description {value:"Sets the entity body of the request with the given file content"}
-    @Param {value:"filePath: Path to the file that needs to be set to the payload"}
-    @Param {value:"contentType: Content-Type of the given file"}
-    public function setFileAsPayload (string filePath, string contentType = "application/octec-stream");
+    documentation {
+        Set multiparts as the payload.
 
-    @Description {value:"Set a byte channel as the request payload"}
-    @Param {value:"payload: The byte channel representation of the message payload"}
-    @Param {value:"contentType: Represent the content-type to be used with the payload"}
-    public function setByteChannel(io:ByteChannel payload, string contentType = "application/octec-stream");
+        P{{bodyParts}} The entities which make up the message body
+        P{{contentType}} The content type of the top level message. Set this to override the default
+                         `content-type` header value.
+    }
+    public function setBodyParts(mime:Entity[] bodyParts, string contentType = "multipart/form-data");
 
-    @Description {value:"Set the request payload"}
-    @Param {value:"payload: Payload can be of type string, xml, json, blob or byte channel"}
-    public function setPayload ((string | xml | json | blob | io:ByteChannel | mime:Entity[]) payload);
+    documentation {
+        Sets the content of the specified file as the entity body of the request.
 
+        P{{filePath}} Path to the file to be set as the payload
+        P{{contentType}} The content type of the specified file. Set this to override the default `content-type`
+                         header value.
+    }
+    public function setFileAsPayload(string filePath, string contentType = "application/octet-stream");
+
+    documentation {
+        Sets a `ByteChannel` as the payload.
+
+        P{{payload}} A `ByteChannel` through which the message payload can be read
+        P{{contentType}} The content type of the payload. Set this to override the default `content-type`
+                         header value.
+    }
+    public function setByteChannel(io:ByteChannel payload, string contentType = "application/octet-stream");
+
+    documentation {
+        Sets the request payload.
+
+        P{{payload}} Payload can be of type `string`, `xml`, `json`, `blob`, `ByteChannel` or `Entity[]` (i.e: a set
+                     of body parts)
+    }
+    public function setPayload(string|xml|json|blob|io:ByteChannel|mime:Entity[] payload);
+
+    // For use within the package. Takes the Cache-Control header and parses it to a RequestCacheControl object.
     function parseCacheControlHeader();
 };
 
@@ -164,61 +285,61 @@ public type Request object {
 /// Ballerina Implementations ///
 /////////////////////////////////
 
-public function Request::hasHeader (string headerName) returns (boolean) {
+public function Request::hasHeader(string headerName) returns (boolean) {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.hasHeader(headerName);
 }
 
-public function Request::getHeader (string headerName) returns (string) {
+public function Request::getHeader(string headerName) returns (string) {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeader(headerName);
 }
 
-public function Request::getHeaders (string headerName) returns (string[]) {
+public function Request::getHeaders(string headerName) returns (string[]) {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeaders(headerName);
 }
 
-public function Request::setHeader (string headerName, string headerValue) {
+public function Request::setHeader(string headerName, string headerValue) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setHeader(headerName, headerValue);
 }
 
-public function Request::addHeader (string headerName, string headerValue) {
+public function Request::addHeader(string headerName, string headerValue) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.addHeader(headerName, headerValue);
 }
 
-public function Request::removeHeader (string key) {
+public function Request::removeHeader(string key) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.removeHeader(key);
 }
 
-public function Request::removeAllHeaders () {
+public function Request::removeAllHeaders() {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.removeAllHeaders();
 }
 
-public function Request::getHeaderNames () returns (string[]) {
+public function Request::getHeaderNames() returns (string[]) {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeaderNames();
 }
 
-public function Request::expects100Continue () returns (boolean) {
-    return self.hasHeader(EXPECT) ? self.getHeader(EXPECT) ==  "100-continue" : false;
+public function Request::expects100Continue() returns (boolean) {
+    return self.hasHeader(EXPECT) ? self.getHeader(EXPECT) == "100-continue" : false;
 }
 
-public function Request::setContentType (string contentType) {
+public function Request::setContentType(string contentType) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setContentType(contentType);
 }
 
-public function Request::getContentType () returns (string) {
+public function Request::getContentType() returns (string) {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getContentType();
 }
 
-public function Request::getJsonPayload () returns (json | PayloadError) {
+public function Request::getJsonPayload() returns json|PayloadError {
     match self.getEntity() {
         mime:EntityError err => return <PayloadError>err;
         mime:Entity mimeEntity => {
@@ -230,7 +351,7 @@ public function Request::getJsonPayload () returns (json | PayloadError) {
     }
 }
 
-public function Request::getXmlPayload () returns (xml | PayloadError) {
+public function Request::getXmlPayload() returns xml|PayloadError {
     match self.getEntity() {
         mime:EntityError err => return <PayloadError>err;
         mime:Entity mimeEntity => {
@@ -242,7 +363,7 @@ public function Request::getXmlPayload () returns (xml | PayloadError) {
     }
 }
 
-public function Request::getStringPayload () returns (string | PayloadError) {
+public function Request::getStringPayload() returns string|PayloadError {
     match self.getEntity() {
         mime:EntityError err => return <PayloadError>err;
         mime:Entity mimeEntity => {
@@ -254,7 +375,7 @@ public function Request::getStringPayload () returns (string | PayloadError) {
     }
 }
 
-public function Request::getBinaryPayload () returns (blob | PayloadError) {
+public function Request::getBinaryPayload() returns blob|PayloadError {
     match self.getEntity() {
         mime:EntityError err => return <PayloadError>err;
         mime:Entity mimeEntity => {
@@ -266,10 +387,10 @@ public function Request::getBinaryPayload () returns (blob | PayloadError) {
     }
 }
 
-public function Request::getByteChannel () returns (io:ByteChannel | PayloadError) {
+public function Request::getByteChannel() returns io:ByteChannel|PayloadError {
     match self.getEntity() {
         mime:EntityError err => return <PayloadError>err;
-            mime:Entity mimeEntity => {
+        mime:Entity mimeEntity => {
             match mimeEntity.getByteChannel() {
                 mime:EntityError payloadErr => return <PayloadError>payloadErr;
                 io:ByteChannel byteChannel => return byteChannel;
@@ -278,7 +399,7 @@ public function Request::getByteChannel () returns (io:ByteChannel | PayloadErro
     }
 }
 
-public function Request::getFormParams () returns (map<string> | PayloadError) {
+public function Request::getFormParams() returns (map<string>|PayloadError) {
     var mimeEntity = self.getEntity();
     match mimeEntity {
         mime:EntityError err => return <PayloadError>err;
@@ -313,7 +434,7 @@ public function Request::getFormParams () returns (map<string> | PayloadError) {
     }
 }
 
-public function Request::getBodyParts () returns (mime:Entity[] | mime:EntityError) {
+public function Request::getBodyParts() returns mime:Entity[]|mime:EntityError {
     var mimeEntity = self.getEntity();
     match mimeEntity {
         mime:Entity entity => return entity.getBodyParts();
@@ -321,49 +442,49 @@ public function Request::getBodyParts () returns (mime:Entity[] | mime:EntityErr
     }
 }
 
-public function Request::setJsonPayload (json payload, string contentType="application/json") {
+public function Request::setJsonPayload(json payload, string contentType = "application/json") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setJson(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-public function Request::setXmlPayload (xml payload, string contentType="application/xml") {
+public function Request::setXmlPayload(xml payload, string contentType = "application/xml") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setXml(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-public function Request::setStringPayload (string payload, string contentType="text/plain") {
+public function Request::setStringPayload(string payload, string contentType = "text/plain") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setText(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-public function Request::setBinaryPayload (blob payload, string contentType="application/octec-stream") {
+public function Request::setBinaryPayload(blob payload, string contentType = "application/octet-stream") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setBlob(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-public function Request::setBodyParts (mime:Entity[] bodyParts, string contentType="multipart/form-data") {
+public function Request::setBodyParts(mime:Entity[] bodyParts, string contentType = "multipart/form-data") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setBodyParts(bodyParts, contentType = contentType);
     self.setEntity(entity);
 }
 
-public function Request::setFileAsPayload (string filePath, @sensitive string contentType="application/octec-stream") {
+public function Request::setFileAsPayload(string filePath, @sensitive string contentType = "application/octet-stream") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setFileAsEntityBody(filePath, contentType = contentType);
     self.setEntity(entity);
 }
 
-public function Request::setByteChannel (io:ByteChannel payload, string contentType="application/octec-stream") {
+public function Request::setByteChannel(io:ByteChannel payload, string contentType = "application/octet-stream") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setByteChannel(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-public function Request::setPayload ((string | xml | json | blob | io:ByteChannel | mime:Entity[]) payload) {
+public function Request::setPayload(string|xml|json|blob|io:ByteChannel|mime:Entity[] payload) {
     match payload {
         string textContent => self.setStringPayload(textContent);
         xml xmlContent => self.setXmlPayload(xmlContent);
