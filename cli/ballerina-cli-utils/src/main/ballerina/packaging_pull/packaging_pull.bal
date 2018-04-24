@@ -89,6 +89,7 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
                         if (!createDirectories(destDirPath)) {
                             internal:Path pkgArchivePath = new(destArchivePath);
                             if (internal:pathExists(pkgArchivePath)){
+                                io:println("package already exists in the home repository");
                                 return;                              
                             }        
                         }

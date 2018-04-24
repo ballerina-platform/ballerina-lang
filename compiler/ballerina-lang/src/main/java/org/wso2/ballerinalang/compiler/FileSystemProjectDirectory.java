@@ -100,12 +100,14 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
     }
 
     private boolean isSpecialDirectory(Path dirName) {
-        List<String> ignoreDirs = Arrays.asList(ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
-                                                ProjectDirConstants.TEST_DIR_NAME,
+        List<String> ignoreDirs = Arrays.asList(ProjectDirConstants.TEST_DIR_NAME,
                                                 ProjectDirConstants.TARGET_DIR_NAME,
-                                                ProjectDirConstants.RESOURCE_DIR_NAME,
-                                                ProjectDirConstants.DOT_GIT_DIR_NAME);
-        return ignoreDirs.contains(dirName.toString());
+                                                ProjectDirConstants.RESOURCE_DIR_NAME);
+        try {
+            return Files.isHidden(dirName) || ignoreDirs.contains(dirName.toString());
+        } catch (IOException e) {
+            throw new BLangCompilerException("error reading directory: " + dirName.toString());
+        }
     }
 
     @Override

@@ -37,7 +37,7 @@ public type Timer object {
     }
 
     // defaultable delay is -1, which means the delay will be the same as the interval
-    new(onTrigger, onError, interval, delay = -1) {}
+    public new(onTrigger, onError, interval, delay = -1) {}
 
     // Start the timer
     public native function start();
@@ -63,7 +63,7 @@ public type Appointment object {
         boolean isRunning;
     }
 
-    new(onTrigger, onError, scheduleCronExpression) {}
+    public new(onTrigger, onError, scheduleCronExpression) {}
 
     // Schedule the appointment
     public native function schedule();

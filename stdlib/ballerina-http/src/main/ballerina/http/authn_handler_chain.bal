@@ -23,7 +23,7 @@ public type AuthnHandlerChain object {
     private {
         AuthHandlerRegistry authHandlerRegistry;
     }
-    new (authHandlerRegistry) {
+    public new (authHandlerRegistry) {
     }
     public function handle (Request req) returns (boolean);
     public function handleWithSpecificAuthnHandlers (string[] authProviderIds, Request req) returns (boolean);

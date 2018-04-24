@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.970.0-beta13-SNAPSHOT</version>
+    <version>0.970.0-beta14-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -1101,7 +1101,12 @@
                 <module>tests/ballerina-test-compiler-plugins</module>
                 <module>tool-plugins/intellij</module>
                 <module>tool-plugins/vscode</module>
+
+                <module>benchmarks</module>
             </modules>
+            <properties>
+                <skipBenchmarks>true</skipBenchmarks>
+            </properties>
         </profile>
         <profile>
             <id>ballerina</id>
@@ -1207,6 +1212,8 @@
                 <!-- Intellij build disabled in default build -->
                 <!--<module>tool-plugins/intellij</module>-->
                 <module>tool-plugins/vscode</module>
+
+                <module>benchmarks</module>
             </modules>
         </profile>
         <profile>
@@ -1219,6 +1226,7 @@
             <properties>
                 <!-- Override the executable names for Windows -->
                 <npm.executable>npm.cmd</npm.executable>
+                <skipBenchmarks>true</skipBenchmarks>
             </properties>
         </profile>
     </profiles>
@@ -1519,7 +1527,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.970.0-beta13-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.970.0-beta14-SNAPSHOT</ballerina.version>
         <npm.executable>npm</npm.executable>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 

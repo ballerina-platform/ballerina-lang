@@ -22,7 +22,7 @@ public type CharacterChannel object {
         string charset;
     }
 
-    new(channel, charset) {
+    public new(channel, charset) {
         init(channel, charset);
     }
 

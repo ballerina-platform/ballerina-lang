@@ -20,6 +20,7 @@ package org.ballerinalang.model.tree;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.ballerinalang.model.tree.statements.XMLNSDeclStatementNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 
 import java.util.List;
@@ -58,5 +59,9 @@ public interface ServiceNode extends AnnotatableNode, DocumentableNode, TopLevel
     RecordLiteralNode getAnonymousEndpointBind();
 
     void addAnonymousEndpointBind(RecordLiteralNode recordLiteralNode);
+
+    List<? extends XMLNSDeclStatementNode> getNamespaceDeclarations();
+    
+    void addNamespaceDeclaration(XMLNSDeclStatementNode xmlns);
 
 }

@@ -18,8 +18,6 @@
 
 package org.wso2.ballerinalang.programfile;
 
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -29,8 +27,6 @@ import java.util.Objects;
  */
 public class TypeDefinitionInfo extends StructureTypeInfo {
 
-    public BFiniteType finiteType;
-    public List<Integer> typeDescCPIndexes = new ArrayList<>();
     public List<ValueSpaceItemInfo> valueSpaceItemInfos = new ArrayList<>();
 
     public TypeDefinitionInfo(int pkgNameCPIndex, int nameCPIndex, int flags) {
