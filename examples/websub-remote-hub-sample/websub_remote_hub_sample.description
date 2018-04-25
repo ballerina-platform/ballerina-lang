@@ -6,4 +6,4 @@
 // Ballerina also comes with an in-built WebSub Hub service that can be brought up by publishers that need to bring up
 // a hub. This example demonstrates a simple WebSub publisher and subscriber scenario, where a Ballerina WebSub Hub
 // that is brought up remotely is used by a Ballerina WebSub publisher to publish updates to a topic. A Ballerina
-// WebSub Subscriber subscribes to get the topic updates at this remote hub.
+// WebSub Subscriber subscribes at this remote hub to get the topic updates.
