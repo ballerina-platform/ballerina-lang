@@ -20,6 +20,7 @@ documentation { Simplified queue receiver endpoint.
     A new connection and a session will be create when this endpoint is initialize. If your requirement is complex
     please refer QueueReceiver endpoint.
 
+    E{{}}
     F{{config}} configurations related to the SimpleQueueReceiver endpoint
 }
 public type SimpleQueueReceiver object {
@@ -118,7 +119,7 @@ documentation { Configurations related to the SimpleQueueReceiver endpoint
     F{{initialContextFactory}} JMS provider specific inital context factory
     F{{providerUrl}} JMS provider specific provider URL used to configure a connection
     F{{connectionFactoryName}} JMS connection factory to be used in creating JMS connections
-    F{{acknowledgementMode}}  specifies the session mode that will be used. Legal values are "AUTO_ACKNOWLEDGE",
+    F{{acknowledgementMode}} specifies the session mode that will be used. Legal values are "AUTO_ACKNOWLEDGE",
     "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
     F{{messageSelector}} JMS selector statement
     F{{properties}} Additional properties use in initializing the initial context
