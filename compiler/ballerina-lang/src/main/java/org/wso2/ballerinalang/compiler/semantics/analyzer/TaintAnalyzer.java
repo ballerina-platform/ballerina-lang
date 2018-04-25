@@ -1799,66 +1799,46 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     taintTable.get(ALL_UNTAINTED_TABLE_ENTRY_INDEX).retParamTaintedStatus);
         }
         if (invocationExpr.argExprs != null) {
-            for (int argIndex = 0; argIndex < invocationExpr.argExprs.size(); argIndex++) {
-                BLangExpression argExpr = invocationExpr.argExprs.get(argIndex);
-                argExpr.accept(this);
-                // If current argument is tainted, look-up the taint-table for the record of
-                // return-tainted-status when the given argument is in tainted state.
-                if (getObservedTaintedStatus()) {
-                    int requiredParamCount = invokableSymbol.params.size();
-                    int defaultableParamCount = invokableSymbol.defaultableParams.size();
-                    ParamType paramType = getParamType(invokableSymbol, argIndex, requiredParamCount,
-                            defaultableParamCount);
-                    TaintRecord taintRecord = null;
-                    if (paramType.equals(ParamType.REST)) {
-                        // Pick the index of the rest parameter in the invokable definition.
-                        int restParamInitialIndex = invokableSymbol.params.size()
-                                + invokableSymbol.defaultableParams.size();
-                        taintRecord = taintTable.get(restParamInitialIndex);
-                    } else if (paramType.equals(ParamType.DEFAULTABLE)) {
-                        BLangNamedArgsExpression currentNamedArgExpr = (BLangNamedArgsExpression) argExpr;
-                        String currentNamedArgExprName = currentNamedArgExpr.name.value;
-                        int defaultableParamsInitialIndex = invokableSymbol.params.size();
-                        // Pick the index of this defaultable parameter in the invokable definition.
-                        for (int paramIndex = 0; paramIndex < invokableSymbol.defaultableParams.size(); paramIndex++) {
-                            BVarSymbol defaultableParam = invokableSymbol.defaultableParams.get(paramIndex);
-                            if (defaultableParam.name.value.equals(currentNamedArgExprName)) {
-                                taintRecord = taintTable.get(defaultableParamsInitialIndex + paramIndex);
-                                break;
-                            }
-                        }
-                    } else {
-                        taintRecord = taintTable.get(argIndex);
-                    }
-                    BVarSymbol paramSymbol = getParamSymbol(invokableSymbol, argIndex, requiredParamCount,
-                            defaultableParamCount);
-                    if (taintRecord == null) {
-                        // This is when current parameter is "sensitive". Therefore, providing a tainted
-                        // value to a sensitive parameter is invalid and should return a compiler error.
-                        addTaintError(argExpr.pos, paramSymbol.name.value,
-                                DiagnosticCode.TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER);
-                    } else if (taintRecord.taintError != null && taintRecord.taintError.size() > 0) {
-                        // This is when current parameter is derived to be sensitive. The error already generated
-                        // during taint-table generation will be used.
-                        if (!mainPkgId.name.getValue().startsWith(Names.BUILTIN_PACKAGE.value) &&
-                                invocationExpr.symbol.pkgID.name.getValue().equals(mainPkgId.name.getValue())) {
-                            addTaintError(taintRecord.taintError);
-                        } else {
-                            addTaintError(argExpr.pos, paramSymbol.name.value,
-                                    DiagnosticCode.TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER);
-                        }
-                    } else {
-                        // Go through tainted status of returns for each "tainted" parameter value. Combine tainted
-                        // status of all returns to get accumulated tainted status of all returns for the invocation.
-                        for (int returnIndex = 0; returnIndex < returnTaintedStatus.size(); returnIndex++) {
-                            if (taintRecord.retParamTaintedStatus.get(returnIndex)) {
-                                returnTaintedStatus.set(returnIndex, true);
-                            }
+            int requiredParamCount = invokableSymbol.params.size();
+            int defaultableParamCount = invokableSymbol.defaultableParams.size();
+            for (int argIndex = 0; argIndex < invocationExpr.requiredArgs.size(); argIndex++) {
+                BLangExpression argExpr = invocationExpr.requiredArgs.get(argIndex);
+                analyzeArgument(ParamType.REQUIRED, argIndex, invokableSymbol, invocationExpr, argExpr,
+                        returnTaintedStatus);
+                if (stopAnalysis) {
+                    break;
+                }
+            }
+            for (int argIndex = 0; argIndex < invocationExpr.namedArgs.size(); argIndex++) {
+                BLangExpression argExpr = invocationExpr.namedArgs.get(argIndex);
+                if (argExpr instanceof BLangNamedArgsExpression) {
+                    String currentNamedArgExprName = ((BLangNamedArgsExpression) argExpr).name.value;
+                    int defaultableParamsInitialIndex = requiredParamCount;
+                    // Pick the index of this defaultable parameter in the invokable definition.
+                    int paramIndex = 0;
+                    for (int defaultableParamIndex = 0; defaultableParamIndex < invokableSymbol.defaultableParams
+                            .size(); defaultableParamIndex++) {
+                        BVarSymbol defaultableParam = invokableSymbol.defaultableParams.get(defaultableParamIndex);
+                        if (defaultableParam.name.value.equals(currentNamedArgExprName)) {
+                            paramIndex = defaultableParamsInitialIndex + defaultableParamIndex;
+                            break;
                         }
                     }
+                    analyzeArgument(ParamType.DEFAULTABLE, paramIndex, invokableSymbol, invocationExpr, argExpr,
+                            returnTaintedStatus);
                     if (stopAnalysis) {
                         break;
                     }
+                }
+            }
+            for (int argIndex = 0; argIndex < invocationExpr.restArgs.size(); argIndex++) {
+                BLangExpression argExpr = invocationExpr.restArgs.get(argIndex);
+                // Pick the index of the rest parameter in the invokable definition.
+                int paramIndex = requiredParamCount + defaultableParamCount;
+                analyzeArgument(ParamType.REST, paramIndex, invokableSymbol, invocationExpr, argExpr,
+                        returnTaintedStatus);
+                if (stopAnalysis) {
+                    break;
                 }
             }
         }
@@ -1874,6 +1854,46 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             }
         }
         taintedStatusList = returnTaintedStatus;
+    }
+
+    private void analyzeArgument(ParamType paramType, int paramIndex, BInvokableSymbol invokableSymbol,
+                                 BLangInvocation invocationExpr, BLangExpression argExpr,
+                                 List<Boolean> returnTaintedStatus) {
+        Map<Integer, TaintRecord> taintTable = invokableSymbol.taintTable;
+        argExpr.accept(this);
+        // If current argument is tainted, look-up the taint-table for the record of
+        // return-tainted-status when the given argument is in tainted state.
+        if (getObservedTaintedStatus()) {
+            TaintRecord taintRecord = taintTable.get(paramIndex);
+            int requiredParamCount = invokableSymbol.params.size();
+            int defaultableParamCount = invokableSymbol.defaultableParams.size();
+            BVarSymbol paramSymbol = getParamSymbol(invokableSymbol, paramIndex, requiredParamCount,
+                    defaultableParamCount);
+            if (taintRecord == null) {
+                // This is when current parameter is "sensitive". Therefore, providing a tainted
+                // value to a sensitive parameter is invalid and should return a compiler error.
+                addTaintError(argExpr.pos, paramSymbol.name.value,
+                        DiagnosticCode.TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER);
+            } else if (taintRecord.taintError != null && taintRecord.taintError.size() > 0) {
+                // This is when current parameter is derived to be sensitive. The error already generated
+                // during taint-table generation will be used.
+                if (!mainPkgId.name.getValue().startsWith(Names.BUILTIN_PACKAGE.value) &&
+                        invocationExpr.symbol.pkgID.name.getValue().equals(mainPkgId.name.getValue())) {
+                    addTaintError(taintRecord.taintError);
+                } else {
+                    addTaintError(argExpr.pos, paramSymbol.name.value,
+                            DiagnosticCode.TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER);
+                }
+            } else {
+                // Go through tainted status of returns for each "tainted" parameter value. Combine tainted
+                // status of all returns to get accumulated tainted status of all returns for the invocation.
+                for (int returnIndex = 0; returnIndex < returnTaintedStatus.size(); returnIndex++) {
+                    if (taintRecord.retParamTaintedStatus.get(returnIndex)) {
+                        returnTaintedStatus.set(returnIndex, true);
+                    }
+                }
+            }
+        }
     }
 
     private void resolveBlockedInvokable() {
@@ -1975,11 +1995,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         return param;
     }
 
-    private ParamType getParamType(BInvokableSymbol invSymbol, int paramIndex, int requiredParamCount,
-                                   int defaultableParamCount) {
-        if (paramIndex < requiredParamCount) {
+    private ParamType getParamType(BLangInvocation invocationExpr, BLangExpression argExpr) {
+        if (invocationExpr.requiredArgs.contains(argExpr)) {
             return ParamType.REQUIRED;
-        } else if (paramIndex < requiredParamCount + defaultableParamCount) {
+        } else if (invocationExpr.namedArgs.contains(argExpr)) {
             return ParamType.DEFAULTABLE;
         } else {
             return ParamType.REST;
