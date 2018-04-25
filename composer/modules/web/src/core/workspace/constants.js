@@ -29,6 +29,8 @@ export const COMMANDS = {
     REFRESH_EXPLORER: 'refresh-explorer',
     GO_TO_FILE_IN_EXPLORER: 'go-to-file-in-explorer',
     REFRESH_PATH_IN_EXPLORER: 'refresh-path-in-explorer',
+    CREATE_PROJECT: 'create-project',
+    SHOW_CREATE_PROJECT_WIZARD: 'create-project-wizard',
 };
 
 export const EVENTS = {
@@ -50,6 +52,7 @@ export const MENUS = {
     NEW_FILE: 'composer.menu.workspace.new-file',
     SHOW_FILE_OPEN_WIZARD: 'composer.menu.workspace.show-file-open-wizard',
     SHOW_FOLDER_OPEN_WIZARD: 'composer.menu.workspace.show-folder-open-wizard',
+    SHOW_CREATE_PROJECT_WIZARD: 'composer.menu.workspace.create-project-wizard',
     SAVE_FILE: 'composer.menu.workspace.save-file',
     SAVE_FILE_AS: 'composer.menu.workspace.save-file-as',
 };
@@ -67,7 +70,8 @@ export const LABELS = {
     SAVE_AS: 'Save As',
     FILE: 'File',
     SHOW_FILE_OPEN_WIZARD: 'Open File',
-    SHOW_FOLDER_OPEN_WIZARD: 'Open Project Directory',
+    SHOW_FOLDER_OPEN_WIZARD: 'Open Project',
+    SHOW_CREATE_PROJECT_WIZARD: 'Create Project',
 };
 
 export const DIALOGS = {
@@ -76,6 +80,7 @@ export const DIALOGS = {
     OPEN_FOLDER: 'composer.dialog.open-folder',
     REPLACE_FILE_CONFIRM: 'composer.dialog.replace-file-confirm',
     DELETE_FILE_CONFIRM: 'composer.dialog.delete-file-confirm',
+    CREATE_PROJECT: 'composer.dialog.create-project',
 };
 
 export const HISTORY = {
