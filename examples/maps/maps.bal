@@ -30,4 +30,14 @@ function main(string... args) {
     // You can remove a key using the 'remove' method.
     var isRemoved = addrMap.remove("postalCode");
     io:println(addrMap);
+
+    // Constrained maps can only contain values which the map is constrained to.
+    map<string> stringMap;
+
+    // Similarly, this is how you can add or update the value of a key to map constrained with string.
+    stringMap["index"] = "100892N";
+
+    // Notice you do not need explicit conversion to string here when retrieving string value.
+    string index = stringMap["index"];
+    io:println(index);
 }
