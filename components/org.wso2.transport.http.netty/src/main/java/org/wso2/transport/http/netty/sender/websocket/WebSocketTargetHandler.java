@@ -116,10 +116,8 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws ServerConnectorException {
-        if (webSocketConnection != null && webSocketConnection.getSession().isOpen()) {
-            webSocketConnection.getDefaultWebSocketSession().setIsOpen(false);
-            String reasonText = "Server is going away";
-            notifyCloseMessage(Constants.WEBSOCKET_STATUS_CODE_GOING_AWAY, reasonText, ctx);
+        if (webSocketConnection != null) {
+            notifyCloseMessage(-1, null, ctx);
         }
     }
 
@@ -138,9 +136,11 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
             throws UnknownWebSocketFrameTypeException, URISyntaxException, ServerConnectorException {
         Channel ch = ctx.channel();
         if (!handshaker.isHandshakeComplete()) {
-            handshaker.finishHandshake(ch, (FullHttpResponse) msg);
+            FullHttpResponse fullHttpResponse = (FullHttpResponse) msg;
+            handshaker.finishHandshake(ch, fullHttpResponse);
             log.debug("WebSocket Client connected!");
             handshakeFuture.setSuccess();
+            fullHttpResponse.release();
             webSocketConnection = WebSocketUtil.getWebSocketConnection(ctx, isSecure, requestedUri);
             return;
         }
@@ -218,11 +218,9 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
 
     private void notifyCloseMessage(int statusCode, String reasonText, ChannelHandlerContext ctx)
             throws ServerConnectorException {
-        ctx.channel().close();
         if (webSocketConnection == null) {
             throw new ServerConnectorException("Cannot find initialized channel session");
         }
-        webSocketConnection.getDefaultWebSocketSession().setIsOpen(false);
         WebSocketMessageImpl webSocketCloseMessage = new WebSocketCloseMessageImpl(statusCode, reasonText);
         setupCommonProperties(webSocketCloseMessage, ctx);
         connectorListener.onMessage((WebSocketCloseMessage) webSocketCloseMessage);
@@ -271,6 +269,8 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
         if (!handshakeFuture.isDone()) {
             handshakeFuture.setFailure(cause);
         }
+
+        //TODO: Should we close the connection without close frame?
         ctx.close();
         connectorListener.onError(cause);
     }

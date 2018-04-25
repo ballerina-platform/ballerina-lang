@@ -22,7 +22,7 @@ package org.wso2.transport.http.netty.listener;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
@@ -76,13 +76,13 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
      * @param connectorFuture {@link ServerConnectorFuture} to notify messages to application.
      * @param isSecured       indication of whether the connection is secured or not.
      * @param webSocketConnection  connection relates to the channel.
-     * @param httpRequest     {@link HttpRequest} which contains the details of WebSocket Upgrade.
+     * @param httpRequest     {@link FullHttpRequest} which contains the details of WebSocket Upgrade.
      * @param headers         Headers obtained from HTTP WebSocket upgrade request.
      * @param ctx             {@link ChannelHandlerContext} of WebSocket connection.
      * @param interfaceId     given ID for the socket interface.
      */
     public WebSocketSourceHandler(ServerConnectorFuture connectorFuture, boolean isSecured,
-                                  DefaultWebSocketConnection webSocketConnection, HttpRequest httpRequest,
+                                  DefaultWebSocketConnection webSocketConnection, FullHttpRequest httpRequest,
                                   Map<String, String> headers, ChannelHandlerContext ctx, String interfaceId) {
         this.connectorFuture = connectorFuture;
         this.isSecured = isSecured;
@@ -138,17 +138,13 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         // Stop the connector timer
-        ctx.close();
         if (handlerExecutor != null) {
             handlerExecutor.executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
             handlerExecutor = null;
         }
 
-        if (webSocketConnection.getDefaultWebSocketSession().isOpen()) {
-            webSocketConnection.getDefaultWebSocketSession().setIsOpen(false);
-            int statusCode = 1001; // Client is going away.
-            String reasonText = "Client is going away";
-            notifyCloseMessage(statusCode, reasonText);
+        if (webSocketConnection != null) {
+            notifyCloseMessage(-1, null);
         }
     }
 
@@ -217,8 +213,6 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void notifyCloseMessage(int statusCode, String reasonText) throws ServerConnectorException {
-        ctx.channel().close();
-        webSocketConnection.getDefaultWebSocketSession().setIsOpen(false);
         WebSocketMessageImpl webSocketCloseMessage =
                 new WebSocketCloseMessageImpl(statusCode, reasonText);
         setupCommonProperties(webSocketCloseMessage);

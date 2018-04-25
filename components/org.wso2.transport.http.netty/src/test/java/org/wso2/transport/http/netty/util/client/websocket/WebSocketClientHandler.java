@@ -52,7 +52,6 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
 
     private String textReceived = "";
     private ByteBuffer bufferReceived = null;
-    private boolean isOpen;
     private boolean isPingReceived;
     private boolean isPongReceived;
     private CountDownLatch latch;
@@ -60,7 +59,6 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     public WebSocketClientHandler(WebSocketClientHandshaker handshaker, CountDownLatch latch) {
         this.handshaker = handshaker;
         this.latch = latch;
-        this.isOpen = true;
     }
 
     public ChannelFuture handshakeFuture() {
@@ -81,8 +79,6 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws InterruptedException {
         logger.debug("WebSocket Client disconnected!");
-        ctx.channel().close().sync();
-        isOpen = false;
     }
 
     @Override
@@ -123,7 +119,15 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
             bufferReceived = pongFrame.content().nioBuffer();
         } else if (frame instanceof CloseWebSocketFrame) {
             logger.debug("WebSocket Client received closing");
-            isOpen = false;
+            if (ch.isOpen()) {
+                CloseWebSocketFrame closeWebSocketFrame = (CloseWebSocketFrame) frame;
+                ch.writeAndFlush(new CloseWebSocketFrame(closeWebSocketFrame.statusCode(), null))
+                        .addListener(future -> {
+                            if (ch.isOpen()) {
+                                ch.close().sync();
+                            }
+                        });
+            }
         }
         countDownLatch();
     }
@@ -144,17 +148,6 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         ByteBuffer tempBuffer = bufferReceived;
         bufferReceived = null;
         return tempBuffer;
-    }
-
-    /**
-     * Check whether the connection is still open or not.
-     *
-     * @return true if connection is still open.
-     */
-    public boolean isOpen() {
-        boolean isOpenTemp = isOpen;
-        isOpen = false;
-        return isOpenTemp;
     }
 
     /**

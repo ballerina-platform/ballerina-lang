@@ -92,7 +92,6 @@ public class WebSocketMessagePropertiesTestCase {
         } catch (ProtocolException e) {
             Assert.assertTrue(true, e.getMessage());
         }
-        wsClient.shutDown();
     }
 
     @AfterClass

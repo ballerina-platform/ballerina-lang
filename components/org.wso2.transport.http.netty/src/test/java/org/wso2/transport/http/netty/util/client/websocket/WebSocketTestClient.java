@@ -33,6 +33,7 @@ import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
@@ -249,7 +250,7 @@ public class WebSocketTestClient {
      * @return true if connection is still open.
      */
     public boolean isOpen() {
-       return handler.isOpen();
+       return channel.isOpen();
     }
 
     /**
@@ -274,8 +275,13 @@ public class WebSocketTestClient {
      * Shutdown the WebSocket Client.
      */
     public void shutDown() throws InterruptedException {
-        handler.shutDown();
-        group.shutdownGracefully();
+        if (channel.isOpen()) {
+            channel.writeAndFlush(new CloseWebSocketFrame(1001, "Going away")).addListener(future -> {
+                if (channel.isOpen()) {
+                    channel.close();
+                }
+            }).sync();
+        }
     }
 
 }
