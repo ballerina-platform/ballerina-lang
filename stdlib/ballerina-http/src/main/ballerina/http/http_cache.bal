@@ -17,7 +17,7 @@
 
 import ballerina/cache;
 
-type HttpCache object {
+public type HttpCache object {
 
     private {
         cache:Cache cache;
