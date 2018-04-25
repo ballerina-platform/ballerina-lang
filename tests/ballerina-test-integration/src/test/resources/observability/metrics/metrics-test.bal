@@ -29,22 +29,11 @@ endpoint jdbc:Client testDB {
 };
 
 @http:ServiceConfig {
-    basePath:"/"
+    basePath:"/test"
 }
 service<http:Service> metricsTest bind testEp {
-
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/test"
-    }
-    test (endpoint caller, http:Request req) {
-        http:Response resp = new;
-        resp.setTextPayload("Metric Test!");
-        _ = caller -> respond(resp);
-    }
-
-    @http:ResourceConfig {
-        path: "/product"
+        path: "/"
     }
     getProduct (endpoint caller, http:Request req) {
         var dbResult = testDB -> select("SELECT * FROM Products", null);
