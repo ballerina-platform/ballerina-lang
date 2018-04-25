@@ -195,7 +195,7 @@ Following top level node types are supported for documentation.
 - Function
 - Service
 
-<a name="Known Issues" />
+<a name="KnownIssues" />
 
 ## Known Issues
 Below you can find a list of known issues and possible workarounds to get over the particular issues.
