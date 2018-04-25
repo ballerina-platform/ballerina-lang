@@ -449,19 +449,12 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
                         HttpConstants.PROTOCOL_PACKAGE_HTTP);
             } else if (throwable instanceof IOException) {
                 this.outboundMsgDataStreamer.setIoException((IOException) throwable);
-                httpConnectorError = createStruct(this.dataContext.context, HttpConstants.HTTP_CONNECTOR_ERROR,
-                        HttpConstants.PROTOCOL_PACKAGE_HTTP);
+                httpConnectorError = HttpUtil.getHttpConnectorError(this.dataContext.context, throwable);
             } else {
                 this.outboundMsgDataStreamer.setIoException(new IOException(throwable.getMessage()));
-                httpConnectorError = createStruct(this.dataContext.context, HttpConstants.HTTP_CONNECTOR_ERROR,
-                        HttpConstants.PROTOCOL_PACKAGE_HTTP);
+                httpConnectorError = HttpUtil.getHttpConnectorError(this.dataContext.context, throwable);
             }
-
             httpConnectorError.setStringField(0, throwable.getMessage());
-            if (throwable instanceof ClientConnectorException) {
-                ClientConnectorException clientConnectorException = (ClientConnectorException) throwable;
-                httpConnectorError.setIntField(0, clientConnectorException.getHttpStatusCode());
-            }
             this.dataContext.notifyReply(null, httpConnectorError);
         }
     }
