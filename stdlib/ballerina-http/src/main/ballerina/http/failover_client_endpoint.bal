@@ -66,7 +66,7 @@ documentation {
     F{{connectionThrottling}} The configurations for controlling the number of connections allowed concurrently
     F{{targets}} The upstream HTTP endpoints among which the incoming HTTP traffic load should be sent on failover
     F{{cache}} The configurations for controlling the caching behaviour
-    F{{acceptEncoding}} Specifies how the `accept-encoding` header should be handled
+    F{{compression}} Specifies the way of handling compression (`accept-encoding`) header
     F{{auth}} HTTP authentication releated configurations
     F{{failoverCodes}} Array of HTTP response status codes for which the failover behaviour should be triggered
     F{{intervalMillis}} Failover delay interval in milliseconds
@@ -85,7 +85,7 @@ public type FailoverClientEndpointConfiguration {
     ConnectionThrottling? connectionThrottling,
     TargetService[] targets,
     CacheConfig cache = {},
-    AcceptEncoding acceptEncoding = ACCEPT_ENCODING_AUTO,
+    Compression compression = COMPRESSION_AUTO,
     AuthConfig? auth,
     int[] failoverCodes = [501, 502, 503, 504],
     int intervalMillis,
@@ -123,7 +123,7 @@ function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfigur
         connectionThrottling:foConfig.connectionThrottling,
         secureSocket:target.secureSocket,
         cache:foConfig.cache,
-        acceptEncoding:foConfig.acceptEncoding,
+        compression:foConfig.compression,
         auth:foConfig.auth
     };
     return clientEPConfig;

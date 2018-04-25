@@ -84,7 +84,7 @@ documentation {
     F{{connectionThrottling}} Configurations for connection throttling
     F{{secureSocket}} SSL/TLS related options
     F{{cache}} HTTP caching related configurations
-    F{{acceptEncoding}} Specifies the way of handling `accept-encoding` header
+    F{{compression}} Specifies the way of handling compression (`accept-encoding`) header
     F{{auth}} HTTP authentication releated configurations
 }
 public type ClientEndpointConfig {
@@ -102,7 +102,7 @@ public type ClientEndpointConfig {
     ConnectionThrottling? connectionThrottling,
     SecureSocket? secureSocket,
     CacheConfig cache,
-    AcceptEncoding acceptEncoding = ACCEPT_ENCODING_AUTO,
+    Compression compression = COMPRESSION_AUTO,
     AuthConfig? auth,
 };
 

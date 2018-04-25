@@ -54,13 +54,6 @@ documentation {Always set accept-encoding in outbound request/response.}
 documentation {Never set accept-encoding header in outbound request/response.}
 @final public Compression COMPRESSION_NEVER = "NEVER";
 
-//TODO: Remove it.
-public type AcceptEncoding "AUTO" | "ALWAYS" | "NEVER";
-
-@final public AcceptEncoding ACCEPT_ENCODING_AUTO = "AUTO";
-@final public AcceptEncoding ACCEPT_ENCODING_ALWAYS = "ALWAYS";
-@final public AcceptEncoding ACCEPT_ENCODING_NEVER = "NEVER";
-
 documentation {
     Represent transfer encoding options.
 
