@@ -87,7 +87,7 @@ function handleContent(mime:Entity bodyPart) returns (string) {
 }
 ```
 
-The sample request that is sent to the above service and the response that is printed on the console are shown below.
+A sample request is shown below.
 
 ```
 curl -v -F "request={\"param1\": \"value1\"};type=application/json" -F "language=ballerina;type=text/plain" -F "upload=@/home/path-to-file/encode.txt;type=application/octet-stream"  http://localhost:9090/test/multipleparts -H "Expect:"
