@@ -2,9 +2,9 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/runtime;
 
-// Circuit Breakers are a way of protecting against distributed failure in Ballerina.
-// The circuit breaker is looking for errors across a rolling time window.
-// After breaking the circuit, the circuit breaker will not send any more requests to the backend until the resetTime.
+// Circuit Breakers are used to protect against distributed failure.
+// The circuit breaker looks for errors across a rolling time window.
+// After the circuit is broken, it does not send requests to the backend until the `resetTime`.
 endpoint http:Client backendClientEP {
     url: "http://localhost:8080",
     circuitBreaker: {
@@ -24,17 +24,17 @@ endpoint http:Client backendClientEP {
     basePath: "/cb"
 }
 service<http:Service> circuitbreaker bind { port: 9090 } {
-    // Create a REST resource within the API
+    // Create a REST resource within the API.
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
     }
-    // Parameters include a reference to the caller endpoint and a object with the request data
+    // The parameters include a reference to the caller endpoint and an object of the request data.
     invokeEndpoint(endpoint caller, http:Request request) {
         var backendRes = backendClientEP->forward("/hello", request);
-        // "match" command in the code is used to handle a union-type return:
-        // if the return value is a Response - normal processing happens. If our service did not get the Response
-        // it expected - we use error-handling logic instead.
+        // `match` is used to handle union-type returns.
+        // If a response is returned, the normal process runs. If the service does not get the expected response,
+        // the error-handling logic is executed.
         match backendRes {
             http:Response res => {
                 caller->respond(res) but { error e => log:printError("Error sending response", err = e) };
@@ -51,9 +51,9 @@ service<http:Service> circuitbreaker bind { port: 9090 } {
 
 public int counter = 1;
 
-// This sample service can be used to mock connection timeouts and service outages. 
-// Service outage can be mocked by stopping/starting this service.
-// This should be run separately from the `circuitBreakerDemo` service.
+// This sample service is used to mock connection timeouts and service outages. 
+// Mock a service outage by stopping/starting this service.
+// This should run separately from the `circuitBreakerDemo` service.
 @http:ServiceConfig { basePath: "/hello" }
 service<http:Service> helloWorld bind { port: 8080 } {
     @http:ResourceConfig {
@@ -62,7 +62,7 @@ service<http:Service> helloWorld bind { port: 8080 } {
     }
     sayHello(endpoint caller, http:Request req) {
         if (counter % 5 == 0) {
-            // Delaying the response for 5000 to mimic network level delays.
+            // Delay the response by 5000 milliseconds to mimic the network level delays.
             runtime:sleep(5000);
             counter = counter + 1;
             http:Response res = new;
