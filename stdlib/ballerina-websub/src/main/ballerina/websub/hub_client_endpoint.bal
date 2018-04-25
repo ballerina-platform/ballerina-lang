@@ -51,22 +51,6 @@ public type Client object {
     }
 
     documentation {
-        Called whenever a service attaches itself to this endpoint and during package initialization.
-
-        P{{serviceType}} The service attached
-    }
-    public function register(typedesc serviceType) {
-        httpClientEndpoint.register(serviceType);
-    }
-
-    documentation {
-        Starts the registered service.
-    }
-    public function start() {
-        httpClientEndpoint.start();
-    }
-
-    documentation {
         Retrieves the caller actions client code uses.
 
         R{{}} `CallerActions` The caller actions available for clients
@@ -77,12 +61,6 @@ public type Client object {
         return webSubHubClientConn;
     }
 
-    documentation {
-        Stops the registered service.
-    }
-    public function stop() {
-        httpClientEndpoint.stop();
-    }
 };
 
 documentation {
