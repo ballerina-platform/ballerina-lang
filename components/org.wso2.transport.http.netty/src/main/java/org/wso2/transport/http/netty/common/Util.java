@@ -232,7 +232,7 @@ public class Util {
 
     public static boolean isEntityBodyAllowed(String method) {
         return method.equals(Constants.HTTP_POST_METHOD) || method.equals(Constants.HTTP_PUT_METHOD)
-                || method.equals(Constants.HTTP_PATCH_METHOD);
+                || method.equals(Constants.HTTP_PATCH_METHOD) || method.equals(Constants.HTTP_DELETE_METHOD);
     }
 
     /**
