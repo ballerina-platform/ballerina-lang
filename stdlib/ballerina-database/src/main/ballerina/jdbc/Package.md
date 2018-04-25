@@ -232,7 +232,7 @@ match ret9 {
 
 ### Get proxy table
 
-Use the `getProxyTable` action shows below to obain a proxy for a database table that allows performing add/remove operations over the actual database table.
+Use the `getProxyTable` action shown below to obtain a proxy for a database table that allows performing add/remove operations over the actual database table.
 
 ```ballerina
 var proxyRet = testDB->getProxyTable("student", Student);
