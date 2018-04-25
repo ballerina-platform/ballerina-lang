@@ -3,7 +3,7 @@ import ballerina/log;
 
 //The HTTP client's chunking behaviour can be configured as auto, always, or never.
 //In this example, it is set to as never, which means that chunking never happens irrespective of how it is specified
-//in the reqest. When chunking is set to auto, it is done as specified in the request.
+//in the request. When chunking is set to auto, chunking is done as specified in the request.
 endpoint http:Client clientEndpoint {
     url: "http://localhost:9090",
     chunking: http:CHUNKING_NEVER
@@ -14,7 +14,7 @@ service<http:Service> chunkingSample bind { port: 9092 } {
     @http:ResourceConfig {
         path: "/"
     }
-    //Parameters include a reference to the caller endpoint and a object with the request data.
+    //Parameters include a reference to the caller endpoint and an object with the request data.
     invokeEndpoint(endpoint caller, http:Request req) {
         //Create a new outbound request and set the payload.
         http:Request newReq = new;
