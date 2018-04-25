@@ -17,7 +17,7 @@ endpoint http:Client clientEndPoint {
 }
 service<http:Service> proxy bind serverEP {
 
-    @Description {value: "Proxy server forward the inbound request to a backend with forwarded config enabled."}
+    @Description { value: "Proxy server forward the inbound request to a backend with forwarded config enabled." }
     @http:ResourceConfig {
         path: "/"
     }
@@ -34,7 +34,7 @@ service<http:Service> proxy bind serverEP {
     }
 }
 
-@Description {value: "Sample backend which respond with forwarded header value."}
+@Description { value: "Sample backend which respond with forwarded header value." }
 @http:ServiceConfig {
     basePath: "/sample"
 }

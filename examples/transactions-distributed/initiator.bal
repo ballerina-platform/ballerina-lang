@@ -7,7 +7,7 @@ import ballerina/transactions;
 @http:ServiceConfig {
     basePath: "/"
 }
-service<http:Service> InitiatorService bind {port: 8080} {
+service<http:Service> InitiatorService bind { port: 8080 } {
 
     @http:ResourceConfig {
         methods: ["GET"],
@@ -62,7 +62,7 @@ function callBusinessService() returns boolean {
     boolean successful;
 
     float price = math:randomInRange(200, 250) + math:random();
-    json bizReq = {symbol: "GOOG", price: price};
+    json bizReq = { symbol: "GOOG", price: price };
     http:Request req = new;
     req.setJsonPayload(bizReq);
     var result = participantEP->post("", request = req);

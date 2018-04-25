@@ -11,7 +11,7 @@ import ballerina/log;
         maxAge: 84900
     }
 }
-service<http:Service> crossOriginService bind {port: 9092} {
+service<http:Service> crossOriginService bind { port: 9092 } {
 
     //Resource-level CORS headers override the service-level CORS headers.
     @http:ResourceConfig {
@@ -25,7 +25,7 @@ service<http:Service> crossOriginService bind {port: 9092} {
     }
     companyInfo(endpoint caller, http:Request req) {
         http:Response res = new;
-        json responseJson = {"type": "middleware"};
+        json responseJson = { "type": "middleware" };
         res.setJsonPayload(responseJson);
         caller->respond(res) but { error e => log:printError("Failed to respond to the caller", err = e) };
     }
@@ -37,7 +37,7 @@ service<http:Service> crossOriginService bind {port: 9092} {
     }
     langInfo(endpoint caller, http:Request req) {
         http:Response res = new;
-        json responseJson = {"lang": "Ballerina"};
+        json responseJson = { "lang": "Ballerina" };
         res.setJsonPayload(responseJson);
         caller->respond(res) but { error e => log:printError("Failed to respond to the caller", err = e) };
     }

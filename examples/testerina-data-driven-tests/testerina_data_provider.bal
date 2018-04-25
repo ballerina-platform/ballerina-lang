@@ -26,9 +26,9 @@ function ValueProvider() returns (string[][]) {
     dataProvider: "jsonDataProvider"
 }
 function testJsonObjects(json fValue, json sValue, json result) {
-    json a = {"a": "a"};
-    json b = {"b": "b"};
-    json c = {"c": "c"};
+    json a = { "a": "a" };
+    json b = { "b": "b" };
+    json c = { "c": "c" };
     test:assertEquals(fValue, a, msg = "json data provider failed");
     test:assertEquals(sValue, b, msg = "json data provider failed");
     test:assertEquals(result, c, msg = "json data provider failed");
@@ -36,5 +36,5 @@ function testJsonObjects(json fValue, json sValue, json result) {
 
 // This function returns a JSON value set.
 function jsonDataProvider() returns (json[][]) {
-    return [[{"a": "a"}, {"b": "b"}, {"c": "c"}]];
+    return [[{ "a": "a" }, { "b": "b" }, { "c": "c" }]];
 }

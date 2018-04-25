@@ -23,7 +23,7 @@ function main(string... args) {
             ep = con;
         }
     }
-    ChatMsg mes = {name: "Sam", message: "Hi "};
+    ChatMsg mes = { name: "Sam", message: "Hi " };
     error? connErr = ep->send(mes);
     io:println(connErr.message but { () => "" });
     //this will hold forever since this is chat application

@@ -36,8 +36,7 @@ function main(string... args) {
     runtime:sleep(15000);
 
     // Publish directly to the internal Ballerina Hub.
-    publishResponse = webSubHub.publishUpdate("http://www.websubpubtopic.com",
-        {"action": "publish", "mode": "internal-hub"});
+    publishResponse = webSubHub.publishUpdate("http://www.websubpubtopic.com", { "action": "publish", "mode": "internal-hub" });
     match (publishResponse) {
         error webSubError => log:printError("Error notifying hub: " + webSubError.message);
         () => log:printInfo("Update notification successful!");

@@ -13,15 +13,15 @@ function getAgeCategory(int age) returns string|error {
     }
 }
 
-function main (string... args) {
+function main(string... args) {
 
     // getAgeCategory function will return a string for a valid age. Then it will be matched 
     // to the string pattern in the match statement, and will assign the same string as the
     // error category.
     string ageCategory = getAgeCategory(25) but {
-                            string s => s,
-                            error e => e.message
-                        };
+        string s => s,
+        error e => e.message
+    };
     io:println(ageCategory);
 
 
@@ -29,9 +29,9 @@ function main (string... args) {
     // error pattern in the match expression, and will assign the message of the error,
     // as the error category.
     ageCategory = getAgeCategory(-5) but {
-                      string s => s,
-                      error e => e.message
-                  };
+        string s => s,
+        error e => e.message
+    };
     io:println(ageCategory);
 
 
@@ -40,7 +40,7 @@ function main (string... args) {
     // to match string type inside the match expression. Any string value returned by the function will
     // get assigned to ageCategory by default.
     ageCategory = getAgeCategory(25) but {
-                      error e => e.message
-                  };
+        error e => e.message
+    };
     io:println(ageCategory);
 }

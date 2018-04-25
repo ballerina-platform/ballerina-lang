@@ -54,10 +54,10 @@ function testFunc() {
             }
         ]
     };
-    json jt5 = {"fname": "Peter", "lname": "Stallone"};
-    json jt6 = {"fname": "Emma", "lname": "Stallone"};
-    json jt7 = {"fname": "Alisha", "lname": "Stallone"};
-    json jt8 = {"fname": "Paul", "lname": "Stallone"};
+    json jt5 = { "fname": "Peter", "lname": "Stallone" };
+    json jt6 = { "fname": "Emma", "lname": "Stallone" };
+    json jt7 = { "fname": "Alisha", "lname": "Stallone" };
+    json jt8 = { "fname": "Paul", "lname": "Stallone" };
 
     string o1 = "length of array: 4";
 

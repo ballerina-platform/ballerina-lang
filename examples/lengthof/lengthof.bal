@@ -13,8 +13,8 @@ function main(string... args) {
 
     //Create a JSON array with several JSON elements.
     json jsonArray = [
-        {"name": "John", "age": 31},
-        {"name": "Neal", "age": 22}
+        { "name": "John", "age": 31 },
+        { "name": "Neal", "age": 22 }
     ];
 
     //Print the length of the created JSON array. The length is calculated using the `lengthof` unary operator.

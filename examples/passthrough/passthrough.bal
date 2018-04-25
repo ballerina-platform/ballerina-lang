@@ -5,7 +5,7 @@ endpoint http:Client clientEP {
     url: "http://localhost:9092/hello"
 };
 
-service<http:Service> passthrough bind {port: 9090} {
+service<http:Service> passthrough bind { port: 9090 } {
 
     //The passthrough resource allows all HTTP methods since the resource configuration does not explicitly specify
     //which HTTP methods are allowed.
@@ -38,9 +38,9 @@ service<http:Service> passthrough bind {port: 9090} {
 }
 
 //Sample hello world service.
-service<http:Service> hello bind {port: 9092} {
+service<http:Service> hello bind { port: 9092 } {
 
-    @Description {value: "The helloResource only accepts requests made using the specified HTTP methods."}
+    @Description { value: "The helloResource only accepts requests made using the specified HTTP methods." }
     @http:ResourceConfig {
         methods: ["POST", "PUT", "GET"],
         path: "/"
