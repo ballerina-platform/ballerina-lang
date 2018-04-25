@@ -31,33 +31,18 @@ public type LoadBalanceClient object {
         Client httpEP;
     }
 
+    documentation {
+        The initialization function for the load balance client endpoint.
+
+        P{{loadBalanceClientConfig}} - The user provided configurations for the load balance client endpoint
+    }
     public function init(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig);
-
-    documentation {
-        The register() function is not implemented for the load balance client endpoint.
-    }
-    public function register(typedesc serviceType) {
-
-    }
-
-    documentation {
-        The start() function is not implemented for the load balance client endpoint.
-    }
-    public function start() {
-
-    }
 
     documentation {
         Returns the backing HTTP client used by the load balance client endpoint.
     }
     public function getCallerActions() returns CallerActions {
         return httpEP.httpClient;
-    }
-
-    documentation {
-        The stop() function is not implemented for the load balance client endpoint.
-    }
-    public function stop() {
     }
 };
 
@@ -75,6 +60,7 @@ documentation {
     F{{retryConfig}} - Retry related options
     F{{proxy}} - Proxy related options
     F{{connectionThrottling}} - The configurations for controlling the number of connections allowed concurrently
+    F{{targets}} - The upstream HTTP endpoints among which the incoming HTTP traffic load should be distributed
     F{{cache}} - The configurations for controlling the caching behaviour
     F{{acceptEncoding}} - Specifies the way of handling accept-encoding header
     F{{auth}} - HTTP authentication releated configurations
@@ -101,11 +87,6 @@ public type LoadBalanceClientEndpointConfiguration {
     boolean failover = true;
 };
 
-documentation {
-    The initialization function for the load balance client endpoint.
-
-    P{{loadBalanceClientConfig}} - The user provided configurations for the load balance client endpoint
-}
 public function LoadBalanceClient::init(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig) {
     self.httpEP.httpClient = createLoadBalancerClient(loadBalanceClientConfig);
     self.httpEP.config.circuitBreaker = loadBalanceClientConfig.circuitBreaker;
@@ -144,7 +125,8 @@ function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointCo
     return clientEPConfig;
 }
 
-function createLoadBalancerClient(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig) returns CallerActions {
+function createLoadBalancerClient(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig)
+                                                                                    returns CallerActions {
     ClientEndpointConfig config = createClientEPConfigFromLoalBalanceEPConfig(loadBalanceClientConfig,
                                                                             loadBalanceClientConfig.targets[0]);
     CallerActions[] lbClients = createLoadBalanceHttpClientArray(loadBalanceClientConfig);
@@ -152,8 +134,8 @@ function createLoadBalancerClient(LoadBalanceClientEndpointConfiguration loadBal
                                             loadBalanceClientConfig.algorithm, 0, loadBalanceClientConfig.failover);
 }
 
-function createLoadBalanceHttpClientArray (LoadBalanceClientEndpointConfiguration loadBalanceClientConfig)
-                                                                                                returns CallerActions[] {
+function createLoadBalanceHttpClientArray(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig)
+                                                                                    returns CallerActions[] {
     CallerActions[] httpClients = [];
     int i = 0;
     boolean httpClientRequired = false;
