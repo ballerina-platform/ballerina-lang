@@ -51,11 +51,16 @@ public class GetProxyTable extends AbstractSQLAction {
 
     @Override
     public void execute(Context context) {
+
         BStruct bConnector = (BStruct) context.getRefArgument(0);
         String tableName = context.getStringArgument(0);
         BStructType structType = getStructType(context, 1);
         SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CALLER_ACTIONS);
-
-        createMirroredTable(context, datasource, tableName, structType);
+        try {
+            checkAndObserveSQLAction(context, datasource, tableName);
+            createMirroredTable(context, datasource, tableName, structType);
+        } catch (Throwable e) {
+            checkAndObserveSQLError(context, e.getMessage());
+        }
     }
 }

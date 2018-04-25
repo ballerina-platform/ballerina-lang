@@ -76,7 +76,7 @@ public class BallerinaTracingObserver implements BallerinaObserver {
         stopObservation(observerContext);
     }
 
-    public void stopObservation(ObserverContext observerContext) {
+    private void stopObservation(ObserverContext observerContext) {
         BSpan span = (BSpan) observerContext.getProperty(KEY_SPAN);
         if (span != null) {
             Boolean error = (Boolean) observerContext.getProperty(PROPERTY_ERROR);
