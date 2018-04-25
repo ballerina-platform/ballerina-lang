@@ -21,7 +21,6 @@ import ballerina/mime;
 
 @final string EMPTY_STRING = "";
 @final string WHITE_SPACE = " ";
-@final string COLON = ":";
 @final string CONTENT_TYPE_HEADER = "Content-Type";
 @final string BASIC_SCHEME = "basic";
 @final string OAUTH_SCHEME = "oauth";
@@ -333,7 +332,7 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
     if (scheme == BASIC_SCHEME) {
         string username = config.auth.username but { () => EMPTY_STRING };
         string password = config.auth.password but { () => EMPTY_STRING };
-        string str = username + COLON + password;
+        string str = username + ":" + password;
         string token = check str.base64Encode();
         req.setHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + token);
     } else if (scheme == OAUTH_SCHEME) {
@@ -394,7 +393,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
 
     CallerActions refreshTokenClient = createHttpSecureClient(refreshUrl, {});
 
-    string clientIdSecret = clientId + COLON + clientSecret;
+    string clientIdSecret = clientId + ":" + clientSecret;
     string base64ClientIdSecret = check clientIdSecret.base64Encode();
 
     Request refreshTokenRequest = new;
