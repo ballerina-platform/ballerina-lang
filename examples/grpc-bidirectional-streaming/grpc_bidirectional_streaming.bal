@@ -17,13 +17,13 @@ endpoint grpc:Listener ep {
 service<grpc:Service> Chat bind ep {
     map<grpc:Listener> consMap;
 
-    //This resource is triggered when a new service is initialized.
+    //This resource is triggered when a new caller connection is initialized.
     onOpen(endpoint caller) {
         var connID = caller.id;
         consMap[<string>connID] = caller;
     }
 
-    //This resource is triggered when the client needs to send a request to the service.
+    //This resource is triggered when the caller sends a request message to the service.
     onMessage(endpoint caller, ChatMessage chatMsg) {
         endpoint grpc:Listener con;
         string msg = string `{{chatMsg.name}}: {{chatMsg.message}}`;
@@ -39,7 +39,7 @@ service<grpc:Service> Chat bind ep {
         }
     }
 
-    //This resource is triggered when an error has occurred at the server end.
+    //This resource is triggered when the server receives an error message from the caller.
     onError(endpoint caller, error err) {
         if (err != ()) {
             io:println("Something unexpected happens at server : " + err.message);
