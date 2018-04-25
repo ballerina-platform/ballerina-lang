@@ -1,8 +1,8 @@
-// This is server implementation for bidirectional streaming scenario
+// This is the server implementation for the bidirectional streaming scenario.
 import ballerina/io;
 import ballerina/grpc;
 
-// Server endpoint configuration
+// The server endpoint configuration.
 endpoint grpc:Listener ep {
     host: "localhost",
     port: 9090
@@ -17,13 +17,13 @@ endpoint grpc:Listener ep {
 service<grpc:Service> Chat bind ep {
     map<grpc:Listener> consMap;
 
-    //This resource is triggered when a new service is initializing
+    //This resource is triggered when a new caller connection is initialized.
     onOpen(endpoint caller) {
         var connID = caller.id;
         consMap[<string>connID] = caller;
     }
 
-    //This resource is triggered when client need to send request to service
+    //This resource is triggered when the caller sends a request message to the service.
     onMessage(endpoint caller, ChatMessage chatMsg) {
         endpoint grpc:Listener con;
         string msg = string `{{chatMsg.name}}: {{chatMsg.message}}`;
@@ -39,14 +39,14 @@ service<grpc:Service> Chat bind ep {
         }
     }
 
-    //This resource is triggered when some error has been happen at server end
+    //This resource is triggered when the server receives an error message from the caller.
     onError(endpoint caller, error err) {
         if (err != ()) {
             io:println("Something unexpected happens at server : " + err.message);
         }
     }
 
-    //This resource is triggered when client notify service that it has finish send requests
+    //This resource is triggered when the caller sends a notification to the server to indicate that it has finished sending messages.
     onComplete(endpoint caller) {
         endpoint grpc:Listener con;
         var connID = caller.id;

@@ -1,7 +1,7 @@
 import ballerina/jms;
 import ballerina/log;
 
-// Create a simple durable topic subscriber.
+// This creates a simple durable topic subscriber.
 endpoint jms:SimpleDurableTopicSubscriber subscriber {
     initialContextFactory: "bmbInitialContextFactory",
     providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'",
@@ -10,10 +10,10 @@ endpoint jms:SimpleDurableTopicSubscriber subscriber {
     identifier: "sub1"
 };
 
-// Bind the created subscriber to the listener service.
+// This binds the created subscriber to the listener service.
 service<jms:Consumer> jmsListener bind subscriber {
 
-    // The `OnMessage` resource is invoked when a message is received.
+    // This resource is invoked when a message is received.
     onMessage(endpoint consumer, jms:Message message) {
         match (message.getTextMessageContent()) {
             string messageText => log:printInfo("Message : " + messageText);
