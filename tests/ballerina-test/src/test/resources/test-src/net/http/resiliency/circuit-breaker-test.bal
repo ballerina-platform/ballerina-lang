@@ -23,7 +23,7 @@ import ballerina/runtime;
 @final string SCENARIO_TRIAL_RUN_FAILURE = "trial-run-failure";
 @final string SCENARIO_HTTP_SC_FAILURE = "http-status-code-failure";
 
-function testTypicalScenario () returns (http:Response[] , http:HttpConnectorError[]) {
+function testTypicalScenario () returns (http:Response[] , error[]) {
 
     endpoint http:Client backendClientEP {
         url: "http://localhost:8080",
@@ -34,13 +34,13 @@ function testTypicalScenario () returns (http:Response[] , http:HttpConnectorErr
             },
             failureThreshold:0.3,
             resetTimeMillis:1000,
-            statusCodes:[400, 404, 500, 502]
+            statusCodes:[400, 404, 500, 502, 503]
         },
         timeoutMillis:2000
     };
 
     http:Response[] responses = [];
-    http:HttpConnectorError[] errs = [];
+    error[] errs = [];
     int counter = 0;
     http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getCallerActions();
     MockClient mockClient = new;
@@ -53,8 +53,7 @@ function testTypicalScenario () returns (http:Response[] , http:HttpConnectorErr
             http:Response res => {
                 responses[counter] = res;
             }
-            http:HttpConnectorError httpConnectorError => {
-                httpConnectorError.statusCode = http:SERVICE_UNAVAILABLE_503;
+            error httpConnectorError => {
                 errs[counter] = httpConnectorError; 
             }
         }
@@ -67,7 +66,7 @@ function testTypicalScenario () returns (http:Response[] , http:HttpConnectorErr
     return (responses, errs);
 }
 
-function testTrialRunFailure () returns (http:Response[] , http:HttpConnectorError[]) {
+function testTrialRunFailure () returns (http:Response[] , error[]) {
     
     endpoint http:Client backendClientEP {
         url: "http://localhost:8080",
@@ -78,13 +77,13 @@ function testTrialRunFailure () returns (http:Response[] , http:HttpConnectorErr
             },
             failureThreshold:0.3,
             resetTimeMillis:1000,
-            statusCodes:[400, 404, 500, 502]
+            statusCodes:[400, 404, 500, 502, 503]
         },
         timeoutMillis:2000
     };
 
     http:Response[] responses = [];
-    http:HttpConnectorError[] errs = [];
+    error[] errs = [];
     int counter = 0;
     http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getCallerActions();
     MockClient mockClient = new;
@@ -97,8 +96,7 @@ function testTrialRunFailure () returns (http:Response[] , http:HttpConnectorErr
             http:Response res => {
                 responses[counter] = res;
             }
-            http:HttpConnectorError httpConnectorError => {
-                httpConnectorError.statusCode = http:SERVICE_UNAVAILABLE_503;
+            error httpConnectorError => {
                 errs[counter] = httpConnectorError; 
             }
         }
@@ -111,7 +109,7 @@ function testTrialRunFailure () returns (http:Response[] , http:HttpConnectorErr
     return (responses, errs);
 }
 
-function testHttpStatusCodeFailure () returns (http:Response[] , http:HttpConnectorError[]) {
+function testHttpStatusCodeFailure () returns (http:Response[] , error[]) {
     
     endpoint http:Client backendClientEP {
         url: "http://localhost:8080",
@@ -122,13 +120,13 @@ function testHttpStatusCodeFailure () returns (http:Response[] , http:HttpConnec
             },
             failureThreshold:0.3,
             resetTimeMillis:1000,
-            statusCodes:[400, 404, 500, 502]
+            statusCodes:[400, 404, 500, 502, 503]
         },
         timeoutMillis:2000
     };
 
     http:Response[] responses = [];
-    http:HttpConnectorError[] errs = [];
+    error[] errs = [];
     int counter = 0;
     http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getCallerActions();
     MockClient mockClient = new;
@@ -141,8 +139,7 @@ function testHttpStatusCodeFailure () returns (http:Response[] , http:HttpConnec
             http:Response res => {
                 responses[counter] = res;
             }
-            http:HttpConnectorError httpConnectorError => {
-                httpConnectorError.statusCode = http:SERVICE_UNAVAILABLE_503;
+            error httpConnectorError => {
                 errs[counter] = httpConnectorError; 
             }
         }
@@ -159,37 +156,37 @@ public type MockClient object {
         http:ClientEndpointConfig config;
     }
 
-    public function post (string path, http:Request req) returns (http:Response | http:HttpConnectorError) {
-        http:HttpConnectorError httpConnectorError = {message:"Unsupported fuction for MockClient"};
+    public function post (string path, http:Request req) returns (http:Response | error) {
+        error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function head (string path, http:Request req) returns (http:Response | http:HttpConnectorError) {
-        http:HttpConnectorError httpConnectorError = {message:"Unsupported fuction for MockClient"};
+    public function head (string path, http:Request req) returns (http:Response | error) {
+        error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function put (string path, http:Request req) returns (http:Response | http:HttpConnectorError) {
-        http:HttpConnectorError httpConnectorError = {message:"Unsupported fuction for MockClient"};
+    public function put (string path, http:Request req) returns (http:Response | error) {
+        error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function execute (string httpVerb, string path, http:Request req) returns (http:Response | http:HttpConnectorError) {
-        http:HttpConnectorError httpConnectorError = {message:"Unsupported fuction for MockClient"};
+    public function execute (string httpVerb, string path, http:Request req) returns (http:Response | error) {
+        error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function patch (string path, http:Request req) returns (http:Response | http:HttpConnectorError) {
-        http:HttpConnectorError httpConnectorError = {message:"Unsupported fuction for MockClient"};
+    public function patch (string path, http:Request req) returns (http:Response | error) {
+        error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function delete (string path, http:Request req) returns (http:Response | http:HttpConnectorError) {
-        http:HttpConnectorError httpConnectorError = {message:"Unsupported fuction for MockClient"};
+    public function delete (string path, http:Request req) returns (http:Response | error) {
+        error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function get (string path, http:Request req) returns (http:Response | http:HttpConnectorError){
+    public function get (string path, http:Request req) returns (http:Response | error){
         http:Response response = new;
         actualRequestNumber = actualRequestNumber + 1;
         string scenario = req.getHeader(TEST_SCENARIO_HEADER);
@@ -199,9 +196,9 @@ public type MockClient object {
                 http:Response res => {
                     response = res;
                 }
-                http:HttpConnectorError httpConnectorError => {
+                error httpConnectorError => {
                     string message = httpConnectorError.message;
-                    response.statusCode = httpConnectorError.statusCode;
+                    response.statusCode = http:INTERNAL_SERVER_ERROR_500;
                     response.setTextPayload(message);
                 }
             }
@@ -210,9 +207,9 @@ public type MockClient object {
                 http:Response res => {
                     response = res;
                 }
-                http:HttpConnectorError httpConnectorError => {
+                error httpConnectorError => {
                     string message = httpConnectorError.message;
-                    response.statusCode = httpConnectorError.statusCode;
+                    response.statusCode = http:INTERNAL_SERVER_ERROR_500;
                     response.setTextPayload(message);
                 }
             }
@@ -221,9 +218,9 @@ public type MockClient object {
                 http:Response res => {
                     response = res;
                 }
-                http:HttpConnectorError httpConnectorError => {
+                error httpConnectorError => {
                     string message = httpConnectorError.message;
-                    response.statusCode = httpConnectorError.statusCode;
+                    response.statusCode = http:INTERNAL_SERVER_ERROR_500;
                     response.setTextPayload(message);
                 }
             }
@@ -231,23 +228,23 @@ public type MockClient object {
         return response;
     }
 
-    public function options (string path, http:Request req) returns (http:Response | http:HttpConnectorError) {
-        http:HttpConnectorError httpConnectorError = {message:"Unsupported fuction for MockClient"};
+    public function options (string path, http:Request req) returns (http:Response | error) {
+        error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function forward (string path, http:Request req) returns (http:Response | http:HttpConnectorError) {
-        http:HttpConnectorError httpConnectorError = {message:"Unsupported fuction for MockClient"};
+    public function forward (string path, http:Request req) returns (http:Response | error) {
+        error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function submit (string httpVerb, string path, http:Request req) returns (http:HttpFuture | http:HttpConnectorError) {
-        http:HttpConnectorError httpConnectorError = {message:"Unsupported fuction for MockClient"};
+    public function submit (string httpVerb, string path, http:Request req) returns (http:HttpFuture | error) {
+        error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function getResponse (http:HttpFuture httpFuture)  returns (http:Response | http:HttpConnectorError) {
-        http:HttpConnectorError httpConnectorError = {message:"Unsupported fuction for MockClient"};
+    public function getResponse (http:HttpFuture httpFuture)  returns (http:Response | error) {
+        error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
@@ -255,13 +252,13 @@ public type MockClient object {
         return false;
     }
 
-    public function getNextPromise (http:HttpFuture httpFuture) returns (http:PushPromise | http:HttpConnectorError) {
-        http:HttpConnectorError httpConnectorError = {message:"Unsupported fuction for MockClient"};
+    public function getNextPromise (http:HttpFuture httpFuture) returns (http:PushPromise | error) {
+        error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function getPromisedResponse (http:PushPromise promise) returns (http:Response | http:HttpConnectorError) {
-        http:HttpConnectorError httpConnectorError = {message:"Unsupported fuction for MockClient"};
+    public function getPromisedResponse (http:PushPromise promise) returns (http:Response | error) {
+        error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
@@ -269,10 +266,10 @@ public type MockClient object {
     }
 };
 
-function handleBackendFailureScenario (int requesetNo) returns (http:Response | http:HttpConnectorError) {
+function handleBackendFailureScenario (int requesetNo) returns (http:Response | error) {
     // Deliberately fail a request
     if (requesetNo == 3) {
-        http:HttpConnectorError err = getErrorStruct();
+        error err = getErrorStruct();
         return err;
     }
 
@@ -280,10 +277,10 @@ function handleBackendFailureScenario (int requesetNo) returns (http:Response | 
     return response;
 }
 
-function handleTrialRunFailureScenario (int counter) returns (http:Response | http:HttpConnectorError) {
+function handleTrialRunFailureScenario (int counter) returns (http:Response | error) {
     // Fail a request. Then, fail the trial request sent while in the HALF_OPEN state as well.
     if (counter == 2 || counter == 3) {
-        http:HttpConnectorError err = getErrorStruct();
+        error err = getErrorStruct();
         return err;
     }
 
@@ -291,10 +288,10 @@ function handleTrialRunFailureScenario (int counter) returns (http:Response | ht
     return response;
 }
 
-function handleHTTPStatusCodeErrorScenario (int counter) returns (http:Response | http:HttpConnectorError) {
+function handleHTTPStatusCodeErrorScenario (int counter) returns (http:Response | error) {
     // Fail a request. Then, fail the trial request sent while in the HALF_OPEN state as well.
     if (counter == 2 || counter == 3) {
-        http:HttpConnectorError err = getMockErrorStruct();
+        error err = getMockErrorStruct();
         return err;
     }
 
@@ -302,8 +299,8 @@ function handleHTTPStatusCodeErrorScenario (int counter) returns (http:Response 
     return response;
 }
 
-function getErrorStruct () returns (http:HttpConnectorError) {
-    http:HttpConnectorError err = {message:"Connection refused", statusCode:http:BAD_GATEWAY_502};
+function getErrorStruct () returns (error) {
+    error err = {message:"Connection refused"};
     return err;
 }
 
@@ -314,7 +311,7 @@ function getResponse () returns (http:Response) {
     return response;
 }
 
-function getMockErrorStruct () returns (http:HttpConnectorError) {
-    http:HttpConnectorError err = {message:"Internal Server Error", statusCode:http:INTERNAL_SERVER_ERROR_500};
+function getMockErrorStruct () returns (error) {
+    error err = {message:"Internal Server Error"};
     return err;
 }

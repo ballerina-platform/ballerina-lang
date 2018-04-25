@@ -134,7 +134,7 @@ public class PackageLoader {
         this.offline = Boolean.parseBoolean(options.get(OFFLINE));
         this.testEnabled = Boolean.parseBoolean(options.get(TEST_ENABLED));
         this.repos = genRepoHierarchy(Paths.get(options.get(PROJECT_DIR)));
-        this.manifest = ManifestProcessor.parseTomlContentAsStream(sourceDirectory.getManifestContent());
+        this.manifest = ManifestProcessor.getInstance(context).getManifest();
     }
 
     private RepoHierarchy genRepoHierarchy(Path sourceRoot) {

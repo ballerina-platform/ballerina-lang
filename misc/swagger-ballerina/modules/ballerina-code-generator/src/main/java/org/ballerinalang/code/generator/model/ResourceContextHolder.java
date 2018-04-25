@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +38,8 @@ public class ResourceContextHolder {
     private String name;
     private String contentType;
     private List<ParameterContextHolder> parameters;
+    private boolean isMultiMethod;
+    private List<String> supportedMethods;
 
     /**
      * path wil be in the the format of /foo/{{bar}}
@@ -68,11 +71,20 @@ public class ResourceContextHolder {
         List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
         Map<String, String[]> attrs = GeneratorUtils.getKeyValuePairAsMap(list);
 
-        // We don't expect multiple http methods to be supported by single action
-        // We only consider first content type for a single resource
-        context.method = attrs.get(GeneratorConstants.ATTR_METHODS) != null ?
-                attrs.get(GeneratorConstants.ATTR_METHODS)[0] :
-                null;
+        if (attrs.get(GeneratorConstants.ATTR_METHODS) != null) {
+
+            // If multiple http methods are supported by this resource. Mark those separately
+            if (attrs.get(GeneratorConstants.ATTR_METHODS).length > 1) {
+                context.isMultiMethod = true;
+                context.supportedMethods = Arrays.asList(attrs.get(GeneratorConstants.ATTR_METHODS));
+            } else {
+                context.method = attrs.get(GeneratorConstants.ATTR_METHODS)[0];
+            }
+
+        } else {
+            context.method = null;
+        }
+
         context.contentType = attrs.get(GeneratorConstants.ATTR_CONSUMES) != null ?
                 attrs.get(GeneratorConstants.ATTR_CONSUMES)[0] :
                 null;
@@ -111,5 +123,13 @@ public class ResourceContextHolder {
 
     public List<ParameterContextHolder> getParameters() {
         return parameters;
+    }
+
+    public boolean isMultiMethod() {
+        return isMultiMethod;
+    }
+
+    public List<String> getSupportedMethods() {
+        return supportedMethods;
     }
 }

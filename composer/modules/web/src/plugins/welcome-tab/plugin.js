@@ -40,12 +40,12 @@ class WelcomeTabPlugin extends Plugin {
     }
 
     /**
-     * Creates new tab.
+     * Creates new project.
      * @memberof WelcomeTabPlugin
      */
     createNewHandler() {
         const { command } = this.appContext;
-        command.dispatch(WORKSPACE_COMMANDS.CREATE_NEW_FILE, '');
+        command.dispatch(WORKSPACE_COMMANDS.SHOW_CREATE_PROJECT_WIZARD, {});
     }
 
     /**

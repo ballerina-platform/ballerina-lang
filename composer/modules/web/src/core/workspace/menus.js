@@ -73,6 +73,17 @@ export function getMenuDefinitions(workspaceManager) {
             command: COMMANDS.SHOW_FOLDER_OPEN_WIZARD,
             icon: 'folder-open',
             type: MENU_DEF_TYPES.ITEM,
+        },
+        {
+            id: MENUS.SHOW_CREATE_PROJECT_WIZARD,
+            parent: MENUS.FILE_MENU,
+            label: LABELS.SHOW_CREATE_PROJECT_WIZARD,
+            isActive: (appContext) => {
+                return true;
+            },
+            command: COMMANDS.SHOW_CREATE_PROJECT_WIZARD,
+            icon: 'folder-open',
+            type: MENU_DEF_TYPES.ITEM,
             divider: {
                 after: true,
             },

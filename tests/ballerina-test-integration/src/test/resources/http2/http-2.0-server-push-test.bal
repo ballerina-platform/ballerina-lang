@@ -27,7 +27,7 @@ service<http:Service> frontendHttpService bind frontendEP {
         // Submit a request
         var submissionResult = backendClientEP -> submit("GET", "/backend/main", serviceReq);
         match submissionResult {
-            http:HttpConnectorError err => {
+            error err => {
                 io:println("Error occurred while submitting a request");
                 http:Response errorResponse = new;
                 json errMsg = {"error":"error occurred while submitting a request"};
@@ -52,7 +52,7 @@ service<http:Service> frontendHttpService bind frontendEP {
                 http:PushPromise resultantPushPromise => {
                     pushPromise = resultantPushPromise;
                 }
-                http:HttpConnectorError err => {
+                error err => {
                     io:println("Error occurred while fetching a push promise");
                     http:Response errorResponse = new;
                     json errMsg = {"error":"error occurred while fetching a push promise"};
@@ -85,7 +85,7 @@ service<http:Service> frontendHttpService bind frontendEP {
             http:Response resultantResponse => {
                 res = resultantResponse;
             }
-            http:HttpConnectorError err => {
+            error err => {
                 io:println("Error occurred while fetching response");
                 http:Response errorResponse = new;
                 json errMsg = {"error":"error occurred while fetching response"};
@@ -128,7 +128,7 @@ service<http:Service> frontendHttpService bind frontendEP {
                 http:Response resultantPromisedResponse => {
                     promisedResponse = resultantPromisedResponse;
                 }
-                http:HttpConnectorError err => {
+                error err => {
                     io:println("Error occurred while fetching promised response");
                     http:Response errorResponse = new;
                     json errMsg = {"error":"error occurred while fetching promised response"};

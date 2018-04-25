@@ -50,9 +50,9 @@ public type Request object {
     documentation {
         Gets the query parameters of the request, as a map.
 
-        R{{}}  String map of query params
+        R{{}} String map of query params
     }
-    public native function getQueryParams() returns (map<string>);
+    public native function getQueryParams() returns map<string>;
 
     documentation {
         Gets the matrix parameters of the request.
@@ -60,17 +60,17 @@ public type Request object {
         P{{path}} Path to the location of matrix parameters
         R{{}} A map of matrix paramters which can be found for the given path
     }
-    public native function getMatrixParams(string path) returns (map);
+    public native function getMatrixParams(string path) returns map;
 
     documentation {
         Gets the `Entity` associated with the request.
 
-        R{{}} The `Entity` of the request. `EntityError` will be returned if entity construction fails.
+        R{{}} The `Entity` of the request. An `error` is returned, if entity construction fails
     }
     public native function getEntity() returns mime:Entity|error;
 
-    // Gets the `Entity` from the request without the body. This function is only for use within the package.
-    native function getEntityWithoutBody() returns (mime:Entity);
+    //Gets the `Entity` from the request without the body. This function is only for use within the package
+    native function getEntityWithoutBody() returns mime:Entity;
 
     documentation {
         Checks whether the requested header key exists in the header map.
@@ -78,7 +78,7 @@ public type Request object {
         P{{headerName}} The header name
         R{{}} Returns true if the specified header key exists
     }
-    public function hasHeader(string headerName) returns (boolean);
+    public function hasHeader(string headerName) returns boolean;
 
     documentation {
         Returns the value of the specified header. If the specified header key maps to multiple values, the first of
@@ -86,9 +86,9 @@ public type Request object {
 
         P{{headerName}} The header name
         R{{}} The first header value for the specified header name. Returns an empty string if the header does not
-              exist.
+              exist
     }
-    public function getHeader(string headerName) returns (string);
+    public function getHeader(string headerName) returns string;
 
     documentation {
         Gets all the header values to which the specified header key maps to.
@@ -132,14 +132,14 @@ public type Request object {
 
         R{{}} An array of all the header names
     }
-    public function getHeaderNames() returns (string[]);
+    public function getHeaderNames() returns string[];
 
     documentation {
         Checks whether the client expects a `100-continue` response.
 
         R{{}} Returns true if the client expects a `100-continue` response
     }
-    public function expects100Continue() returns (boolean);
+    public function expects100Continue() returns boolean;
 
     documentation {
         Sets the `content-type` header to the request.
@@ -153,32 +153,36 @@ public type Request object {
 
         R{{}} Returns the `content-type` header value as a string
     }
-    public function getContentType() returns (string);
+    public function getContentType() returns string;
 
     documentation {
-        Gets the request payload as a `json`.
+        Extracts `json` payload from the request. If the content type is not JSON, an `error` is returned.
 
-        R{{}} The JSON reresentation of the message payload or `error` in case of errors
+        R{{}} The `json` payload or `error` in case of errors
     }
     public function getJsonPayload() returns json|error;
 
-    @Description {value:"Get the text payload from the request"}
-    @Return {value:"The string representation of the message payload or 'error' in case of errors"}
+    documentation {
+        Extracts `xml` payload from the request. If the content type is not XML, an `error` is returned.
+
+        R{{}} The `xml` payload or `error` in case of errors
+    }
+    public function getXmlPayload() returns xml|error;
+
+    documentation {
+        Extracts `text` payload from the request. If the content type is not of type text, an `error` is returned.
+
+        R{{}} The `text` payload or `error` in case of errors
+    }
     public function getTextPayload() returns string|error;
 
     documentation {
-        Gets the request payload as a `string`.
+        Gets the request payload as a `string`. Content type is not checked during payload construction which
+        makes this different from `getTextPayload()` function.
 
         R{{}} The string representation of the message payload or `error` in case of errors
     }
     public function getPayloadAsString() returns string|error;
-
-    documentation {
-        Gets the request payload as an `xml`.
-
-        R{{}} The XML representation of the message payload or `error` in case of errors
-    }
-    public function getXmlPayload() returns xml|error;
 
     documentation {
         Gets the request payload as a `ByteChannel` except in the case of multiparts. To retrieve multiparts, use
@@ -200,12 +204,13 @@ public type Request object {
 
         R{{}} The map of form params or `error` in case of errors
     }
-    public function getFormParams() returns (map<string>|error);
+    public function getFormParams() returns map<string>|error;
 
     documentation {
-        Get multiparts from request.
+        Extracts body parts from the request. If the content type is not a composite media type, an error
+        is returned.
 
-        R{{}} Returns the body parts as an array of entities or an `EntityError` if there were any errors in
+        R{{}} Returns the body parts as an array of entities or an `error` if there were any errors in
               constructing the body parts from the request
     }
     public function getBodyParts() returns mime:Entity[]|error;
@@ -215,16 +220,16 @@ public type Request object {
 
         P{{payload}} The `json` payload
         P{{contentType}} The content type of the payload. Set this to override the default `content-type` header value
-                         for `json`.
+                         for `json`
     }
     public function setJsonPayload(json payload, string contentType = "application/json");
 
     documentation {
-        Sets an `xml` as the payload
+        Sets an `xml` as the payload.
 
         P{{payload}} The `xml` payload
         P{{contentType}} The content type of the payload. Set this to override the default `content-type` header value
-                         for `xml`.
+                         for `xml`
     }
     public function setXmlPayload(xml payload, string contentType = "application/xml");
 
@@ -233,7 +238,7 @@ public type Request object {
 
         P{{payload}} The `string` payload
         P{{contentType}} The content type of the payload. Set this to override the default `content-type` header value
-                         for `string`.
+                         for `string`
     }
     public function setTextPayload(string payload, string contentType = "text/plain");
 
@@ -242,7 +247,7 @@ public type Request object {
 
         P{{payload}} The `blob` payload
         P{{contentType}} The content type of the payload. Set this to override the default `content-type` header value
-                         for `blob`.
+                         for `blob`
     }
     public function setBinaryPayload(blob payload, string contentType = "application/octet-stream");
 
@@ -251,7 +256,7 @@ public type Request object {
 
         P{{bodyParts}} The entities which make up the message body
         P{{contentType}} The content type of the top level message. Set this to override the default
-                         `content-type` header value.
+                         `content-type` header value
     }
     public function setBodyParts(mime:Entity[] bodyParts, string contentType = "multipart/form-data");
 
@@ -260,7 +265,7 @@ public type Request object {
 
         P{{filePath}} Path to the file to be set as the payload
         P{{contentType}} The content type of the specified file. Set this to override the default `content-type`
-                         header value.
+                         header value
     }
     public function setFileAsPayload(string filePath, string contentType = "application/octet-stream");
 
@@ -269,7 +274,7 @@ public type Request object {
 
         P{{payload}} A `ByteChannel` through which the message payload can be read
         P{{contentType}} The content type of the payload. Set this to override the default `content-type`
-                         header value.
+                         header value
     }
     public function setByteChannel(io:ByteChannel payload, string contentType = "application/octet-stream");
 
@@ -289,17 +294,17 @@ public type Request object {
 /// Ballerina Implementations ///
 /////////////////////////////////
 
-public function Request::hasHeader(string headerName) returns (boolean) {
+public function Request::hasHeader(string headerName) returns boolean {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.hasHeader(headerName);
 }
 
-public function Request::getHeader(string headerName) returns (string) {
+public function Request::getHeader(string headerName) returns string {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeader(headerName);
 }
 
-public function Request::getHeaders(string headerName) returns (string[]) {
+public function Request::getHeaders(string headerName) returns string[] {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeaders(headerName);
 }
@@ -324,12 +329,12 @@ public function Request::removeAllHeaders() {
     entity.removeAllHeaders();
 }
 
-public function Request::getHeaderNames() returns (string[]) {
+public function Request::getHeaderNames() returns string[] {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeaderNames();
 }
 
-public function Request::expects100Continue() returns (boolean) {
+public function Request::expects100Continue() returns boolean {
     return self.hasHeader(EXPECT) ? self.getHeader(EXPECT) == "100-continue" : false;
 }
 
@@ -338,7 +343,7 @@ public function Request::setContentType(string contentType) {
     entity.setContentType(contentType);
 }
 
-public function Request::getContentType() returns (string) {
+public function Request::getContentType() returns string {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getContentType();
 }
@@ -415,7 +420,7 @@ public function Request::getByteChannel() returns io:ByteChannel|error {
     }
 }
 
-public function Request::getFormParams() returns (map<string>|error) {
+public function Request::getFormParams() returns map<string>|error {
     var mimeEntity = self.getEntity();
     match mimeEntity {
         error err => return err;

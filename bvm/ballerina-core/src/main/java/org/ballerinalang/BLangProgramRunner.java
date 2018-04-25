@@ -71,6 +71,9 @@ public class BLangProgramRunner {
         try {
             BLangFunctions.invokeEntrypointCallable(programFile, mainPkgInfo, mainFuncInfo, extractMainArgs(args));
         } finally {
+            if (programFile.isServiceEPAvailable()) {
+                return;
+            }
             if (debugger.isDebugEnabled()) {
                 debugger.notifyExit();
             }

@@ -30,6 +30,6 @@ function testService () {
                     string expected = "Sample listPets Response";
                     test:assertEquals(strRes, expected);
                }
-               http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint: "+uri);
+               error err => test:assertFail(msg = "Failed to call the endpoint: "+uri);
     }
 }

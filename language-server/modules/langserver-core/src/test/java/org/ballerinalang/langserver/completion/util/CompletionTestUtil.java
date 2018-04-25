@@ -116,9 +116,8 @@ public class CompletionTestUtil {
         LSServiceOperationContext completionContext = new LSServiceOperationContext();
         completionContext.put(DocumentServiceKeys.POSITION_KEY, pos);
         completionContext.put(DocumentServiceKeys.FILE_URI_KEY, pos.getTextDocument().getUri());
-        BLangPackage bLangPackage = LSCompiler.getBLangPackage(completionContext, documentManager,
-                                                               false, CompletionCustomErrorStrategy.class, false).get(
-                0);
+        BLangPackage bLangPackage = LSCompiler.getBLangPackage(completionContext, documentManager, false,
+                CompletionCustomErrorStrategy.class, false, completionContext).get(0);
         completionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                               bLangPackage.symbol.getName().getValue());
         // Visit the package to resolve the symbols

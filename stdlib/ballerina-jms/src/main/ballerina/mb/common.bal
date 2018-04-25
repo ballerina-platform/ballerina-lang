@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/log;
+
 public type BrokerURLConfig {
     string username = "admin",
     string password = "admin",
@@ -21,9 +23,62 @@ public type BrokerURLConfig {
     int port = 5672,
     string clientID = "ballerina",
     string virtualHost = "default",
+    ServiceSecureSocket? secureSocket,
+};
+
+public type ServiceSecureSocket {
+    Store? trustStore,
+    Store? keyStore,
+    string sslCertAlias,
+};
+
+public type Store {
+    string path,
+    string password,
 };
 
 function generateBrokerURL(BrokerURLConfig config) returns string {
     return "amqp://" + config.username + ":" + config.password + "@" + config.clientID + "/" + config.virtualHost
         + "?brokerlist='tcp://" + config.host + ":" + config.port + "'";
+}
+
+function generateSecureBrokerURL(BrokerURLConfig config, ServiceSecureSocket secureSocket) returns string {
+    var (trustStorePath, trustStorePassword) = getStoreDetails(secureSocket.trustStore);
+    var (keyStorePath, keyStorePassword) = getStoreDetails(secureSocket.keyStore);
+
+    return "amqp://" + config.username + ":" + config.password + "@" + config.clientID + "/" + config.virtualHost
+        + "?brokerlist='tcp://" + config.host + ":" + config.port
+        + "?ssl='true'"
+        + "&ssl_cert_alias='" + secureSocket.sslCertAlias + "'"
+        + "&trust_store='" + trustStorePath + "'"
+        + "&trust_store_password='" + trustStorePassword + "'"
+        + "&key_store='" + keyStorePath + "'"
+        + "&key_store_password='" + keyStorePassword + "'"
+        + "'";
+}
+
+function getConnectionUrl(BrokerURLConfig config) returns string {
+    string connectionUrl;
+    match (config.secureSocket) {
+        ServiceSecureSocket secSocket => {
+            connectionUrl = generateSecureBrokerURL(config, secSocket);
+        }
+        () => {
+            connectionUrl = generateBrokerURL(config);
+        }
+    }
+    return connectionUrl;
+}
+
+function getStoreDetails(Store? store) returns (string, string) {
+    match(store) {
+        Store t => {
+            return (t.path, t.password);
+        }
+        () => {
+            log:printInfo("Store details not provided.");
+            return ("", "");
+        }
+    }
+
 }

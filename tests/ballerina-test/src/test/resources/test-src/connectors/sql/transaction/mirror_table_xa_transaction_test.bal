@@ -18,23 +18,23 @@ type SalaryTrx {
 
 function testXATransactionSuccess() returns (int, int) {
     endpoint jdbc:Client testDB1 {
-        url:"jdbc:h2:file:./target/H2_1/TestDB1",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1, isXA:true}
+        url: "jdbc:h2:file:./target/H2_1/TestDB1",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1, isXA: true }
     };
 
     endpoint jdbc:Client testDB2 {
-        url:"jdbc:h2:file:./target/H2_2/TestDB2",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1, isXA:true}
+        url: "jdbc:h2:file:./target/H2_2/TestDB2",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1, isXA: true }
     };
 
     table dt0 = check testDB1->getProxyTable("CustomersTrx", CustomersTrx);
     table dt1 = check testDB2->getProxyTable("SalaryTrx", SalaryTrx);
 
     transaction {
-        CustomersTrx c1 = {customerId:1, name:"Anne", creditLimit:1000, country:"UK"};
-        SalaryTrx s1 = {id:1, value:1000};
+        CustomersTrx c1 = { customerId: 1, name: "Anne", creditLimit: 1000, country: "UK" };
+        SalaryTrx s1 = { id: 1, value: 1000 };
 
         var result1 = dt0.add(c1);
         var result2 = dt1.add(s1);
@@ -43,7 +43,8 @@ function testXATransactionSuccess() returns (int, int) {
     int count1;
     int count2;
     //check whether update action is performed
-    table dt = check testDB1->select("Select COUNT(*) as countval from CustomersTrx where customerId = 1 ",ResultCount);
+    table dt = check testDB1->select("Select COUNT(*) as countval from CustomersTrx where customerId = 1 ", ResultCount)
+    ;
     while (dt.hasNext()) {
         var rs = check <ResultCount>dt.getNext();
         count1 = rs.COUNTVAL;
@@ -62,15 +63,15 @@ function testXATransactionSuccess() returns (int, int) {
 function testXATransactionFailed1() returns (int, int) {
 
     endpoint jdbc:Client testDB1 {
-        url:"jdbc:h2:file:./target/H2_1/TestDB1",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1, isXA:true}
+        url: "jdbc:h2:file:./target/H2_1/TestDB1",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1, isXA: true }
     };
 
     endpoint jdbc:Client testDB2 {
-        url:"jdbc:h2:file:./target/H2_2/TestDB2",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1, isXA:true}
+        url: "jdbc:h2:file:./target/H2_2/TestDB2",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1, isXA: true }
     };
 
     table dt0 = check testDB1->getProxyTable("CustomersTrx", CustomersTrx);
@@ -78,8 +79,8 @@ function testXATransactionFailed1() returns (int, int) {
 
     try {
         transaction {
-            CustomersTrx c1 = {customerId:2, name:"John", creditLimit:1000, country:"UK"};
-            SalaryTrx s1 = {id:20, value:1000};
+            CustomersTrx c1 = { customerId: 2, name: "John", creditLimit: 1000, country: "UK" };
+            SalaryTrx s1 = { id: 20, value: 1000 };
 
             var result1 = dt0.add(c1);
             var result2 = dt1.add(s1);
@@ -110,15 +111,15 @@ function testXATransactionFailed1() returns (int, int) {
 function testXATransactionFailed2() returns (int, int) {
 
     endpoint jdbc:Client testDB1 {
-        url:"jdbc:h2:file:./target/H2_1/TestDB1",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1, isXA:true}
+        url: "jdbc:h2:file:./target/H2_1/TestDB1",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1, isXA: true }
     };
 
     endpoint jdbc:Client testDB2 {
-        url:"jdbc:h2:file:./target/H2_2/TestDB2",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1, isXA:true}
+        url: "jdbc:h2:file:./target/H2_2/TestDB2",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1, isXA: true }
     };
 
     table dt0 = check testDB1->getProxyTable("CustomersTrx", CustomersTrx);
@@ -126,8 +127,8 @@ function testXATransactionFailed2() returns (int, int) {
 
     try {
         transaction {
-            CustomersTrx c1 = {customerId:30, name:"John", creditLimit:1000, country:"UK"};
-            SalaryTrx s1 = {id:3, value:1000};
+            CustomersTrx c1 = { customerId: 30, name: "John", creditLimit: 1000, country: "UK" };
+            SalaryTrx s1 = { id: 3, value: 1000 };
 
             var result1 = dt0.add(c1);
             var result2 = dt1.add(s1);
@@ -136,8 +137,10 @@ function testXATransactionFailed2() returns (int, int) {
 
     }
     //check whether update action is performed
-    table dt = check testDB1->select("Select COUNT(*) as countval from CustomersTrx where customerId = 30 AND name = 'John'",
-        ResultCount);
+    table dt = check testDB1->select(
+                                  "Select COUNT(*) as countval from CustomersTrx where customerId = 30 AND name = 'John'"
+                                  ,
+                                  ResultCount);
     int count1;
     int count2;
     while (dt.hasNext()) {
@@ -159,15 +162,15 @@ function testXATransactionFailed2() returns (int, int) {
 function testXATransactionRetry() returns (int, int) {
 
     endpoint jdbc:Client testDB1 {
-        url:"jdbc:h2:file:./target/H2_1/TestDB1",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1, isXA:true}
+        url: "jdbc:h2:file:./target/H2_1/TestDB1",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1, isXA: true }
     };
 
     endpoint jdbc:Client testDB2 {
-        url:"jdbc:h2:file:./target/H2_2/TestDB2",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1, isXA:true}
+        url: "jdbc:h2:file:./target/H2_2/TestDB2",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1, isXA: true }
     };
 
     int i = 0;
@@ -176,9 +179,9 @@ function testXATransactionRetry() returns (int, int) {
 
     try {
         transaction {
-            CustomersTrx c1 = {customerId:30, name:"John", creditLimit:1000, country:"UK"};
-            CustomersTrx c2 = {customerId:4, name:"John", creditLimit:1000, country:"UK"};
-            SalaryTrx s1 = {id:4, value:1000};
+            CustomersTrx c1 = { customerId: 30, name: "John", creditLimit: 1000, country: "UK" };
+            CustomersTrx c2 = { customerId: 4, name: "John", creditLimit: 1000, country: "UK" };
+            SalaryTrx s1 = { id: 4, value: 1000 };
             if (i == 2) {
                 var result1 = dt0.add(c2);
             } else {

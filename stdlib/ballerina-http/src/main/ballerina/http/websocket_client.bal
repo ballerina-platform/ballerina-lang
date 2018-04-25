@@ -17,11 +17,11 @@
 documentation {
     Represents a WebSocket client endpoint.
 
-    F{{id}} the connection id
-    F{{negotiatedSubProtocol}} the subprotocols negoriated with the server
-    F{{isSecure}} true if the connection is secure
-    F{{isOpen}} true if the connection is open
-    F{{attributes}} a map to store connection related attributes
+    F{{id}} The connection id
+    F{{negotiatedSubProtocol}} The subprotocols negoriated with the server
+    F{{isSecure}} `true` if the connection is secure
+    F{{isOpen}} `true` if the connection is open
+    F{{attributes}} A map to store connection related attributes
 }
 public type WebSocketClient object {
     public {
@@ -48,7 +48,7 @@ public type WebSocketClient object {
     }
 
     documentation {
-        Native function that initializes the endpoint.
+        Initializes the endpoint.
     }
     public native function initEndpoint();
 
@@ -78,7 +78,7 @@ public type WebSocketClient object {
     }
     public function stop() {
         WebSocketConnector webSocketConnector = getCallerActions();
-        WebSocketConnectorError|() ignoredValue = webSocketConnector.close(1001, "The connection has been stopped");
+        error|() ignoredValue = webSocketConnector.close(1001, "The connection has been stopped");
     }
 };
 

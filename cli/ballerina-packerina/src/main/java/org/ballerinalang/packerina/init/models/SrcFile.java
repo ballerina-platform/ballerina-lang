@@ -23,8 +23,6 @@ package org.ballerinalang.packerina.init.models;
  */
 public class SrcFile {
 
-    private static final String PACKAGE_TEMPLATE = "package %s;%n%n";
-
     private static final String SERVICE_CONTENT = "// A system package containing protocol access constructs\n" +
                                                   "// Package objects referenced with 'http:' in code\n" +
                                                   "import ballerina/http;\n" +
@@ -48,7 +46,7 @@ public class SrcFile {
                                                   "        http:Response response = new;\n" +
                                                   "\n" +
                                                   "        // Objects and structs can have function calls\n" +
-                                                  "        response.setStringPayload(\"Hello Ballerina!\\n\");\n" +
+                                                  "        response.setTextPayload(\"Hello Ballerina!\\n\");\n" +
                                                   "\n" +
                                                   "        // Send a response back to caller\n" +
                                                   "        // Errors are ignored with '_'\n" +
@@ -129,7 +127,7 @@ public class SrcFile {
     public SrcFile(String name, SrcFileType fileType) {
         this.srcFileType = fileType;
         this.name = name;
-        content = this.name.isEmpty() ? "" : String.format(PACKAGE_TEMPLATE, this.name);
+        content = this.name;
         switch (fileType) {
             case SERVICE:
                 content += SERVICE_CONTENT;

@@ -9,7 +9,7 @@ DESCRIPTION
      packages for a given Ballerina source file or a package. 
 
 OPTIONS
-     Ballerina list command takes no options
+     Ballerina list command takes no options.
 
 EXAMPLES
      List dependencies for hello_service.bal 

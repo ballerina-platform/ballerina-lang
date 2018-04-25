@@ -5,7 +5,7 @@ SYNOPSIS
     ballerina grpc --input <proto-file-path> [--output <path>]
         
 DESCRIPTION
-     Generates ballerina gRPC client stub for gRPC service for a given gRPC protoc definition.
+     Generates the Ballerina gRPC client stub for gRPC service for a given gRPC protoc definition.
 
 OPTIONS
      --input <proto-file-path>
