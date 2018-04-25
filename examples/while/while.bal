@@ -2,7 +2,7 @@ import ballerina/io;
 
 function main(string... args) {
     int i = 0;
-    // This is a basic while loop.
+    // This is a basic `while` loop.
     while (i < 3) {
         io:println(i);
         i = i + 1;
@@ -13,7 +13,7 @@ function main(string... args) {
         io:println(j);
         j = j + 1;
 
-        // Use the break statement if you want to break the loop.
+        // If you want to break the loop, use the `break` statement as shown here.
         if (j == 3) {
             break;
         }
@@ -21,7 +21,7 @@ function main(string... args) {
 
     int k = 0;
     while (k < 5) {
-        // Use the next statement to immediately jump to the next loop iteration.
+        // If you want to move to the next loop iteration immediately, use the `next` statement as shown here.
         if (k < 3) {
             k = k + 1;
             next;
