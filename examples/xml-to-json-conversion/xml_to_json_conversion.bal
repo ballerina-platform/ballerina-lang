@@ -13,6 +13,6 @@ function main(string... args) {
     io:println(j1);
 
     // This converts the XML to JSON without namespaces and with a custom 'attributePrefix'.
-    json j2 = x.toJSON({attributePrefix: "#", preserveNamespaces: false});
+    json j2 = x.toJSON({ attributePrefix: "#", preserveNamespaces: false });
     io:println(j2);
 }

@@ -46,9 +46,9 @@ function main(string... args) {
     testAggregationQuery(filteredStatusCountStream, teacherStream);
 
     // Create sample events. These events are sent into the `teacherStream` input stream.
-    Teacher t1 = {name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College"};
-    Teacher t2 = {name: "Shareek", age: 33, status: "single", batch: "LK1998", school: "Thomas College"};
-    Teacher t3 = {name: "Nimal", age: 45, status: "married", batch: "LK1988", school: "Ananda College"};
+    Teacher t1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
+    Teacher t2 = { name: "Shareek", age: 33, status: "single", batch: "LK1998", school: "Thomas College" };
+    Teacher t3 = { name: "Nimal", age: 45, status: "married", batch: "LK1988", school: "Ananda College" };
 
     // Subscribe the `filteredStatusCountStream` stream to the `printStatusCount` function. Each time the stream
     // receives an event, this function is called.

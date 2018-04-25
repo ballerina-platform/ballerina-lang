@@ -10,7 +10,7 @@ endpoint http:Client http2serviceClientEP {
 @http:ServiceConfig {
     basePath: "/http11Service"
 }
-service<http:Service> http11Service bind {port: 9090} {
+service<http:Service> http11Service bind { port: 9090 } {
 
     @http:ResourceConfig {
         path: "/"
@@ -55,7 +55,7 @@ service http2service bind http2serviceEP {
     http2Resource(endpoint caller, http:Request clientRequest) {
         // Construct the response message.
         http:Response response = new;
-        json msg = {"response": {"message": "response from http2 service"}};
+        json msg = { "response": { "message": "response from http2 service" } };
         response.setPayload(msg);
 
         // Send the response back to the caller (http11Service).

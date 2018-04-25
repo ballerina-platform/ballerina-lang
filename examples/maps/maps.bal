@@ -5,8 +5,7 @@ function main(string... args) {
     map m;
 
     // You can also declare and initialize a `map` with a map literal.
-    map addrMap = {line1: "No. 20", line2: "Palm Grove",
-        city: "Colombo 03", country: "Sri Lanka"};
+    map addrMap = { line1: "No. 20", line2: "Palm Grove", city: "Colombo 03", country: "Sri Lanka" };
     io:println(addrMap);
 
     // Here's how you can retrieve a value of a key using an index operator.

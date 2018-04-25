@@ -6,19 +6,19 @@ import ballerina/mime;
 
 // Creating an endpoint for the client.
 endpoint http:Client clientEP {
-    url:"http://localhost:9092"
+    url: "http://localhost:9092"
 };
 
 // Creating a listener for the service.
 endpoint http:Listener multipartEP {
-    port:9090
+    port: 9090
 };
 
-@http:ServiceConfig {basePath:"/multiparts"}
-service<http:Service> multipartResponseEncoder bind {port:9092} {
+@http:ServiceConfig { basePath: "/multiparts" }
+service<http:Service> multipartResponseEncoder bind { port: 9092 } {
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/encode_out_response"
+        methods: ["GET"],
+        path: "/encode_out_response"
     }
     multipartSender(endpoint caller, http:Request request) {
 
@@ -27,7 +27,7 @@ service<http:Service> multipartResponseEncoder bind {port:9092} {
 
         // Create a child part with json content.
         mime:Entity childPart1 = new;
-        childPart1.setJson({"name":"wso2"});
+        childPart1.setJson({ "name": "wso2" });
 
         // Create another child part with a file.
         mime:Entity childPart2 = new;
@@ -50,11 +50,11 @@ service<http:Service> multipartResponseEncoder bind {port:9092} {
 }
 
 // Binding the listener to the service.
-@http:ServiceConfig {basePath:"/multiparts"}
+@http:ServiceConfig { basePath: "/multiparts" }
 service multipartResponseDecoder bind multipartEP {
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/decode_in_response"
+        methods: ["GET"],
+        path: "/decode_in_response"
     }
     // This resource accepts multipart responses.
     multipartReceiver(endpoint caller, http:Request request) {

@@ -14,9 +14,9 @@ endpoint http:FailoverClient foBackendEP {
     intervalMillis: 5000,
     // Define set of HTTP Clients that needs to be Failover.
     targets: [
-        {url: "http://localhost:3000/mock1"},
-        {url: "http://localhost:8080/echo"},
-        {url: "http://localhost:8080/mock"}
+        { url: "http://localhost:3000/mock1" },
+        { url: "http://localhost:8080/echo" },
+        { url: "http://localhost:8080/mock" }
     ]
 };
 
@@ -24,7 +24,7 @@ endpoint http:FailoverClient foBackendEP {
 @http:ServiceConfig {
     basePath: "/fo"
 }
-service<http:Service> failoverDemoService bind {port: 9090} {
+service<http:Service> failoverDemoService bind { port: 9090 } {
     // Create a REST resource within the API.
     @http:ResourceConfig {
         methods: ["GET", "POST"],

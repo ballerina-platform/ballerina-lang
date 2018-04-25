@@ -7,8 +7,8 @@ function main(string... args) {
     string s = "WSO2";
     map m = { "name": "Abhaya", "era": "Anuradhapura" };
 
-    string name = <string> m["name"];
-    string era = <string> m["era"];
+    string name = <string>m["name"];
+    string era = <string>m["era"];
     io:println("[default worker] before fork-join: value of name is [", name, "] value of era is [", era, "]");
 
     // Declare the fork-join statement.
@@ -38,10 +38,10 @@ function main(string... args) {
         // Declare variables to receive the results from the forked workers W1 and W2.
         // The 'results' map contains a map of any typed values from each worker defined within the fork-join statement
         // The tuple value received from worker W1 is de-structured and assigned to variables "p" and "l".
-        (p, l) = check <(int, string)> results["W1"];
+        (p, l) = check <(int, string)>results["W1"];
 
         // The string value received from worker W2 is assigned to the variable "q".
-        string q = <string> results["W2"];
+        string q = <string>results["W2"];
 
         // Print the values received from workers within the join block.
         io:println("[default worker] within join: value of integer variable from W1 is [", p, "]");
@@ -51,11 +51,11 @@ function main(string... args) {
     // Print the values after the fork-join statement to check the values of the variables.
     // The value type variables have not changed since they are passed in as a copy of the original variable.
     io:println("[default worker] after fork-join: value of integer variable is [", i, "]",
-               " value of string variable is [", s, "]");
+        " value of string variable is [", s, "]");
     // The reference type variables' internal content have got updated since they are passed in
     // as a reference to the workers.
-    name = <string> m["name"];
-    era = <string> m["era"];
+    name = <string>m["name"];
+    era = <string>m["era"];
 
     io:println("[default worker] after fork-join: value of name is [", name, "] value of era is [", era, "]");
 }

@@ -8,7 +8,7 @@ endpoint h2:Client testDB {
     name: "testdb",
     username: "SA",
     password: "",
-    poolOptions: {maximumPoolSize: 5}
+    poolOptions: { maximumPoolSize: 5 }
 };
 
 function main(string... args) {
@@ -27,9 +27,9 @@ function main(string... args) {
 
     // Insert data using the `update` action. If the DML statement execution
     // is successful, the `update` action returns the updated row count.
-    sql:Parameter p0 = {sqlType: sql:TYPE_INTEGER, value: 1};
-    sql:Parameter p1 = {sqlType: sql:TYPE_INTEGER, value: 8};
-    sql:Parameter p2 = {sqlType: sql:TYPE_VARCHAR, value: "Sam"};
+    sql:Parameter p0 = { sqlType: sql:TYPE_INTEGER, value: 1 };
+    sql:Parameter p1 = { sqlType: sql:TYPE_INTEGER, value: 8 };
+    sql:Parameter p2 = { sqlType: sql:TYPE_VARCHAR, value: "Sam" };
     ret = testDB->update("INSERT INTO STUDENT (ID,AGE,NAME) VALUES (?,?,?)", p0, p1, p2);
     match ret {
         int rows => io:println("Inserted row count: " + rows);
