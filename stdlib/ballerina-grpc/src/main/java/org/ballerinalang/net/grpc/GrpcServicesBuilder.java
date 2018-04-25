@@ -190,14 +190,15 @@ public class GrpcServicesBuilder {
             GrpcServerException {
 
         if (serverBuilder == null) {
-            throw new GrpcServerException("Error while starting gRPC server, client responder builder is null");
+            throw new GrpcServerException("Error occurred while starting gRPC server. Please check server " +
+                    "configurations");
         }
         Server server = serverBuilder.build();
         if (server != null) {
             try {
                 server.start();
             } catch (IOException e) {
-                throw new GrpcServerException(e);
+                throw new GrpcServerException("Failed to start gRPC server. " + e.getMessage(), e);
             }
         } else {
             throw new GrpcServerException("No gRPC service is registered to Start" +

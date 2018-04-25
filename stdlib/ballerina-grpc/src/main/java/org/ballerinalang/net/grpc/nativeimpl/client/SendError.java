@@ -28,6 +28,8 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
@@ -52,7 +54,8 @@ import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
         isPublic = true
 )
 public class SendError extends BlockingNativeCallableUnit {
-    
+    private static final Logger LOG = LoggerFactory.getLogger(SendError.class);
+
     @Override
     public void execute(Context context) {
         BStruct connectionStruct = (BStruct) context.getRefArgument(0);
@@ -65,8 +68,13 @@ public class SendError extends BlockingNativeCallableUnit {
                     .fromCode(Status.INTERNAL.getCode()).withDescription("Error while sending the error. Response" +
                             " observer not found."))));
         } else {
-            requestSender.onError(new StatusRuntimeException(Status.fromCodeValue((int) statusCode).withDescription
-                    (errorMsg)));
+            try {
+                requestSender.onError(new StatusRuntimeException(Status.fromCodeValue((int) statusCode).withDescription
+                        (errorMsg)));
+            } catch (Throwable e) {
+                LOG.error("Error while sending error to server.", e);
+                context.setError(MessageUtils.getConnectorError(context, e));
+            }
         }
     }
 }
