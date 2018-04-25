@@ -1,23 +1,11 @@
 import ballerina/reflect;
 
 @final string assertFailureErrorCategory = "assert-failure";
-@final string arraysNotEqualMessage = "Arrays are not equal";
-@final string arrayLengthsMismatchMessage = " (Array lengths are not the same)";
-
-@Description{value:"The error struct for assertion errors"}
-@Field{value:"The assertion error message"}
-@Field{value:"The error which caused the assertion error"}
-@Field{value:"The assert error category"}
-type AssertError {
-    string message;
-    error? cause;
-    string category;
-};
 
 @Description{value:"Creates an AssertError with custom message and category"}
 @Param{value:"errorMessage: Custom message for the ballerina error"}
 @Param{value:"category: error category"}
-public function createBallerinaError (string errorMessage, string category) returns (error) {
+function createBallerinaError (string errorMessage, string category) returns (error) {
     error e = { message : errorMessage };
     return e;
 }
@@ -50,7 +38,7 @@ public function assertEquals(any actual, any expected, string msg = "Assertion F
     if (!reflect:equals(actual,expected)) {
         string expectedStr = <string> expected;
         string actualStr = <string> actual;
-        string errorMsg = string `{{msg}}: expected {{expectedStr}} but found {{actualStr}}`;
+        string errorMsg = string `{{msg}}: expected {{actualStr}} but found {{expectedStr}}`;
         throw createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
 }
