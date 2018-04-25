@@ -30,11 +30,6 @@ import io.netty.handler.logging.LoggingHandler;
  */
 public final class WebSocketRemoteServer {
 
-    public static void main(String[] args) throws InterruptedException {
-        WebSocketRemoteServer remoteServer = new WebSocketRemoteServer(15500);
-        remoteServer.run();
-    }
-
     private final int port;
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;

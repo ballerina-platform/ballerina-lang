@@ -51,6 +51,13 @@ public class PushText implements NativeCallableUnit {
             BStruct wsConnection = (BStruct) context.getRefArgument(0);
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
+
+            if (connectionInfo.isCloseFrameSent()) {
+                String msg = "Cannot send text data. Connection closing is initiated.";
+                context.setReturnValues(WebSocketUtil.createWebSocketConnectorError(context, msg));
+                return;
+            }
+
             String text = context.getStringArgument(0);
             boolean finalFrame = context.getBooleanArgument(0);
             ChannelFuture future = connectionInfo.getWebSocketConnection().pushText(text, finalFrame);

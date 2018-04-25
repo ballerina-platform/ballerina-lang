@@ -53,6 +53,13 @@ public class PushBinary implements NativeCallableUnit {
             BStruct wsConnection = (BStruct) context.getRefArgument(0);
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
+
+            if (connectionInfo.isCloseFrameSent()) {
+                String msg = "Cannot send binary data. Connection closing is initiated.";
+                context.setReturnValues(WebSocketUtil.createWebSocketConnectorError(context, msg));
+                return;
+            }
+
             byte[] binaryData = context.getBlobArgument(0);
             boolean finalFrame = context.getBooleanArgument(0);
             ChannelFuture webSocketChannelFuture =

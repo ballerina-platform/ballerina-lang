@@ -50,7 +50,6 @@ public class WebSocketConstants {
 
     public static final String WEBSOCKET_MESSAGE = "WEBSOCKET_MESSAGE";
 
-//    public static final String NATIVE_DATA_WEBSOCKET_CONNECTION = "NATIVE_DATA_WEBSOCKET_CONNECTION";
     public static final String NATIVE_DATA_WEBSOCKET_CONNECTION_INFO = "NATIVE_DATA_WEBSOCKET_CONNECTION_INFO";
 
     public static final String NATIVE_DATA_QUERY_PARAMS = "NATIVE_DATA_QUERY_PARAMS";
