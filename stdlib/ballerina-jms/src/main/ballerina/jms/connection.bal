@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation { JMS Connection
+documentation { Represents JMS Connection
     F{{config}} Used to store configurations related to a JMS connection
 }
 public type Connection object {
@@ -24,7 +24,7 @@ public type Connection object {
     }
 
     documentation { JMS connection constructor
-        F{{config}} Configurations related to a JMS connection
+        P{{config}} Configurations related to the JMS connection
     }
     public new(config) {
         createConnection();
