@@ -17,7 +17,7 @@ service<http:Service> helloWorld bind { port: 9090 } {
             http:Response response => caller->respond(response) but {
                 error e => log:printError("Failed to respond to caller", err = e)
             };
-            http:HttpConnectorError e => log:printError("Faild to fulfill request", err = e);
+            http:HttpConnectorError e => log:printError("Failed to fulfill request", err = e);
         }
     }
 }
