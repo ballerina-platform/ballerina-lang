@@ -9,6 +9,7 @@ Global Variables
 While
 IF Else
 Ternary
+Match
 Match Expression
 Elvis Operator
 Functions
@@ -157,3 +158,4 @@ Object Assignability
 Locks
 Union Type
 Optional Type
+Tuple Type
