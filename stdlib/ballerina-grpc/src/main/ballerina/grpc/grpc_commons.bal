@@ -14,22 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type Chunking "AUTO"|"ALWAYS"|"NEVER";
-
-@final public Chunking CHUNKING_AUTO = "AUTO";
-@final public Chunking CHUNKING_ALWAYS = "ALWAYS";
-@final public Chunking CHUNKING_NEVER = "NEVER";
-
-public type Compression "AUTO"|"ALWAYS"|"NEVER";
-
-@final public Compression COMPRESSION_AUTO = "AUTO";
-@final public Compression COMPRESSION_ALWAYS = "ALWAYS";
-@final public Compression COMPRESSION_NEVER = "NEVER";
-
-public type TransferEncoding "CHUNKING";
-
-@final public TransferEncoding TRANSFERENCODE_CHUNKING = "CHUNKING";
-
 documentation {
     TrustStore record represents trust store related options to be used for HTTP client/service invocation.
 
@@ -87,15 +71,4 @@ public type ServiceOcspStapling {
     boolean enable,
     int cacheSize,
     int cacheValidityPeriod,
-};
-
-documentation {
-    Represent all http payload related.
-
-    F{{message}} The error message
-    F{{cause}} The error which caused the entity error
-}
-public type PayloadError {
-    string message,
-    error? cause,
 };

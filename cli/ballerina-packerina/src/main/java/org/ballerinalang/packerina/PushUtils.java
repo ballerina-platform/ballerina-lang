@@ -60,6 +60,8 @@ public class PushUtils {
     private static final Path BALLERINA_HOME_PATH = RepoUtils.createAndGetHomeReposPath();
     private static final Path SETTINGS_TOML_FILE_PATH = BALLERINA_HOME_PATH.resolve(
             ProjectDirConstants.SETTINGS_FILE_NAME);
+    public static final String BALLERINA_CENTRAL_CLI_TOKEN = "https://central.ballerina.io/cli-token";
+    public static final PrintStream SYS_ERR = System.err;
     private static PrintStream outStream = System.err;
     private static EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
 
@@ -138,6 +140,16 @@ public class PushUtils {
         String accessToken = getAccessTokenOfCLI();
 
         if (accessToken.isEmpty()) {
+            try {
+                SYS_ERR.println("Opening the web browser to " +
+                                        BALLERINA_CENTRAL_CLI_TOKEN +
+                                        " for auto token update ...");
+
+                BrowserLauncher.startInDefaultBrowser(BALLERINA_CENTRAL_CLI_TOKEN);
+            } catch (IOException e) {
+                throw new BLangCompilerException("Access token is missing in " + SETTINGS_TOML_FILE_PATH.toString() +
+                                                 "\nAuto update failed. Please visit https://central.ballerina.io");
+            }
             long modifiedTimeOfFileAtStart = getLastModifiedTimeOfFile(SETTINGS_TOML_FILE_PATH);
             executor.execute("packaging_token_updater/packaging_token_updater.balx", false);
 
@@ -149,7 +161,7 @@ public class PushUtils {
                     accessToken = getAccessTokenOfCLI();
                     if (accessToken.isEmpty()) {
                         throw new BLangCompilerException("Access token is missing in " +
-                                                                 SETTINGS_TOML_FILE_PATH.toString() + " Please " +
+                                                                 SETTINGS_TOML_FILE_PATH.toString() + "\nPlease " +
                                                                  "visit https://central.ballerina.io");
                     } else {
                         waitForToken = false;
@@ -178,11 +190,14 @@ public class PushUtils {
      * @return last modified time in milliseconds
      */
     private static long getLastModifiedTimeOfFile(Path path) {
+        if (!Files.isRegularFile(path)) {
+            return -1;
+        }
         try {
             return Files.getLastModifiedTime(path).toMillis();
         } catch (IOException ex) {
             throw new BLangCompilerException("Error occurred when reading file for token " +
-                                                     SETTINGS_TOML_FILE_PATH.toString());
+                                             SETTINGS_TOML_FILE_PATH.toString());
         }
     }
 

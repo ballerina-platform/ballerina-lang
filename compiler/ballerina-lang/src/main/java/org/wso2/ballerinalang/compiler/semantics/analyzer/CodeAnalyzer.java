@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.ForkJoinNode;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -245,7 +246,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeDefinition typeDefinition) {
-        //TODO
+        if (!Symbols.isPublic(typeDefinition.symbol) ||
+                typeDefinition.symbol.type != null && TypeKind.FINITE.equals(typeDefinition.symbol.type.getKind())) {
+            return;
+        }
+        analyseType(typeDefinition.symbol.type, typeDefinition.pos);
     }
 
     private void validateMainFunction(BLangFunction funcNode) {
@@ -648,7 +653,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangRecord record) {
-        /* ignore */
+        if (record.isFieldAnalyseRequired && Symbols.isPublic(record.symbol)) {
+            record.fields.stream()
+                    .filter(field -> (Symbols.isPublic(field.symbol)))
+                    .forEach(field -> analyzeNode(field, this.env));
+        }
     }
 
     public void visit(BLangEnum enumNode) {
