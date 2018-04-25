@@ -91,7 +91,7 @@ public type SimpleQueueSender object {
     }
 
     documentation { Creates a JMS message which holds text content
-        P{{message}} the text content used to initialize this message
+        P{{content}} the text content used to initialize this message
     }
     public function createTextMessage(string content) returns Message|error {
         match (session) {
