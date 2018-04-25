@@ -3,19 +3,19 @@ import ballerina/test;
 function testAssertIntEquals (int a, int b) {
     int answer = 0;
     answer = intAdd(a, b);
-    test:assertEquals(answer, 8, msg = "intAdd function failed");
+    test:assertEquals(8, answer, msg = "intAdd function failed");
 }
 
 function testAssertFloatEquals (float a, float b) {
     float float1 = 10.000;
     float float2 = 20.050;
     float answer = floatAdd(a, b);
-    test:assertEquals(answer, 30.050);
+    test:assertEquals(30.050, answer);
 }
 
 function testAssertStringEquals (string a, string b) {
     string concatenated = stringConcat(a, b);
-    test:assertEquals(concatenated, "JohnDoe");
+    test:assertEquals("JohnDoe", concatenated);
 }
 
 function testAssertJsonEquals (json a, json b) {

@@ -119,7 +119,7 @@ public class AssertTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp =
-            ".*expected false but found true.*")
+            ".*expected true but found false.*")
     public void testAssertBooleanEqualsFail() {
         BValue[] args = {new BBoolean(true), new BBoolean(false)};
         BTestUtils.invoke(compileResult, "testAssertBooleanEquals", args);
@@ -145,23 +145,23 @@ public class AssertTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*expected \\[\"A\", \"B\", \"C\"\\] but found \\[\"A\", \"B\"," +
-                  " \"C\", \"D\"\\].*")
+        expectedExceptionsMessageRegExp = ".*expected \\[\"A\", \"B\", \"C\", \"D\"\\] " +
+          "but found \\[\"A\", \"B\", \"C\"\\].*")
     public void testAssertStringArrayEquals1() {
         BValue[] args = {new BInteger(1)};
         BTestUtils.invoke(compileResult, "testAssertStringArrayEquals", args);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*expected \\[\"A\", \"b\", \"C\"\\] but found \\[\"A\", \"B\"," +
-                  " \"C\"\\].*")
+        expectedExceptionsMessageRegExp = ".*expected \\[\"A\", \"B\", \"C\"\\] " +
+          "but found \\[\"A\", \"b\", \"C\"\\].*")
     public void testAssertStringArrayEquals2() {
         BValue[] args = {new BInteger(2)};
         BTestUtils.invoke(compileResult, "testAssertStringArrayEquals", args);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp = ".*expected " +
-            "\\[\"A\", \"b\", \"C\"\\] but found \\[\"A\", \"B\", \"C\"\\].*")
+        "\\[\"A\", \"B\", \"C\"\\] but found \\[\"A\", \"b\", \"C\"\\].*")
     public void testAssertStringArrayEquals3() {
         BValue[] args = {new BInteger(3)};
         BTestUtils.invoke(compileResult, "testAssertStringArrayEquals", args);
@@ -174,14 +174,14 @@ public class AssertTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*expected \\[1, 2, 3\\] but found \\[1, 2, 3, 4\\].*")
+          expectedExceptionsMessageRegExp = ".*expected \\[1, 2, 3, 4\\] but found \\[1, 2, 3\\].*")
     public void testAssertIntArrayEquals1() {
         BValue[] args = {new BInteger(1)};
         BTestUtils.invoke(compileResult, "testAssertIntArrayEquals", args);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*expected \\[1, 5, 3\\] but found \\[1, 2, 3\\].*")
+          expectedExceptionsMessageRegExp = ".*expected \\[1, 2, 3\\] but found \\[1, 5, 3\\].*")
     public void testAssertIntArrayEquals2() {
         BValue[] args = {new BInteger(2)};
         BTestUtils.invoke(compileResult, "testAssertIntArrayEquals", args);
@@ -194,22 +194,21 @@ public class AssertTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*expected \\[1.1, 2.2, 3.3\\] but found \\[1.1, 2.2, 3.3, " +
-                  "4.4\\].*")
+        expectedExceptionsMessageRegExp = ".*expected \\[1.1, 2.2, 3.3, 4.4\\] but found \\[1.1, 2.2, 3.3\\].*")
     public void testAssertFloatArrayEquals1() {
         BValue[] args = {new BInteger(1)};
         BTestUtils.invoke(compileResult, "testAssertFloatArrayEquals", args);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*expected \\{\\} but found \\{\"a\":\"b\"\\}.*")
+            expectedExceptionsMessageRegExp = ".*expected \\{\"a\":\"b\"\\} but found \\{\\}.*")
     public void testAssertJsonEquals1() {
         BValue[] args = {new BJSON("{\"a\":\"b\"}"), new BJSON("{}")};
         BTestUtils.invoke(compileResult, "testAssertJsonEquals", args);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*expected \\[1.1, 2.22, 3.3\\] but found \\[1.1, 2.2, 3.3\\].*")
+          expectedExceptionsMessageRegExp = ".*expected \\[1.1, 2.2, 3.3\\] but found \\[1.1, 2.22, 3.3\\].*")
     public void testAssertFloatArrayEquals2() {
         BValue[] args = {new BInteger(2)};
         BTestUtils.invoke(compileResult, "testAssertFloatArrayEquals", args);
