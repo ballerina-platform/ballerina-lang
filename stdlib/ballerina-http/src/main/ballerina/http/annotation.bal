@@ -108,12 +108,12 @@ public type WSServiceConfig {
 public type HttpServiceLifeTime "REQUEST"|"CONNECTION"|"SESSION"|"SINGLETON";
 
 documentation {
-    The annotation which is used for configuring an HTTP service.
+    The annotation which is used to configure an HTTP service.
 }
 public annotation <service> ServiceConfig HttpServiceConfig;
 
 documentation {
-    The annotation which is used for configuring a WebSocket service.
+    The annotation which is used to configure a WebSocket service.
 }
 public annotation <service> WebSocketServiceConfig WSServiceConfig;
 
@@ -166,13 +166,13 @@ public type ListenerAuthConfig {
 documentation {
     Can be used for enabling/disabling authentication in an HTTP service.
 
-    F{{enabled}} Setting this to `true` enables authentication
+    F{{enabled}} Specifies whether authentication is enabled
 }
 public type Authentication {
     boolean enabled,
 };
 
 documentation {
-    The annotation which is used for configuring an HTTP resource.
+    The annotation which is used to configure an HTTP resource.
 }
 public annotation <resource> ResourceConfig HttpResourceConfig;
