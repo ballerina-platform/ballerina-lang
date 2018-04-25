@@ -28,12 +28,6 @@ under the License.
 
     <!-- Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
-        <groups>
-            <run>
-                <exclude name="broken"/>
-            </run>
-        </groups>
-
         <packages>
             <package name="org.ballerinalang.test.vm.*"/>
             <package name="org.ballerinalang.test.annotations.*"/>
