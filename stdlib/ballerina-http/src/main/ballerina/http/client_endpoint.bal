@@ -74,7 +74,6 @@ documentation {
     F{{circuitBreaker}} Configurations associated with Circuit Breaker behaviour
     F{{timeoutMillis}} The maximum time to wait (in milliseconds) for a response before closing the connection
     F{{keepAlive}} Specifies whether to reuse a connection for multiple requests
-    F{{transferEncoding}} The types of encoding applied to the request
     F{{chunking}} The chunking behaviour of the request
     F{{httpVersion}} The HTTP version understood by the client
     F{{forwarded}} The choice of setting `forwarded`/`x-forwarded` header
@@ -92,7 +91,6 @@ public type ClientEndpointConfig {
     CircuitBreakerConfig? circuitBreaker,
     int timeoutMillis = 60000,
     KeepAlive keepAlive = KEEPALIVE_AUTO,
-    TransferEncoding transferEncoding = "CHUNKING",
     Chunking chunking = "AUTO",
     string httpVersion = "1.1",
     string forwarded = "disable",

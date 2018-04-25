@@ -76,7 +76,6 @@ documentation {
     F{{host}} Host of the endpoint
     F{{port}} Port of the endpoint
     F{{keepAlive}} The keepAlive behaviour of the endpoint
-    F{{transferEncoding}} The types of encoding applied to the response
     F{{secureSocket}} The SSL configurations for the `endpoint`
     F{{httpVersion}} Highest HTTP version supported
     F{{requestLimits}} Request validation limits configuration
@@ -87,7 +86,6 @@ public type SecureEndpointConfiguration {
     string host,
     int port = 9090,
     KeepAlive keepAlive = KEEPALIVE_AUTO,
-    TransferEncoding transferEncoding = TRANSFERENCODE_CHUNKING,
     ServiceSecureSocket? secureSocket,
     string httpVersion = "1.1",
     RequestLimits? requestLimits,
