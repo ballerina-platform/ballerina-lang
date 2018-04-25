@@ -1,4 +1,4 @@
-## Package overview
+## Package Overview
 
 This package provides a set of default authentication providers that can be extended to create new authentication providers. 
 
