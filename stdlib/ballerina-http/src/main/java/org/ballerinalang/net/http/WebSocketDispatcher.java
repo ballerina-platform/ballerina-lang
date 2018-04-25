@@ -177,12 +177,12 @@ public class WebSocketDispatcher {
 
     public static void dispatchCloseMessage(WebSocketOpenConnectionInfo connectionInfo,
                                             WebSocketCloseMessage closeMessage) {
-        //According to protocol
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
         if (connectionInfo.isCloseFrameSent()) {
             if (webSocketConnection.getSession().isOpen()) {
-                webSocketConnection.close();
-                connectionInfo.getWebSocketEndpoint().setBooleanField(0, 0);
+                webSocketConnection.close().addListener(closeFuture -> {
+                    connectionInfo.getWebSocketEndpoint().setBooleanField(0, 0);
+                });
             }
             if (closeMessage.getCloseCode() == connectionInfo.getCloseStatusCode()) {
                 String errorMsg = String.format("Illegal close status code received. Expected %d found %d !",
@@ -197,8 +197,9 @@ public class WebSocketDispatcher {
         if (onCloseResource == null) {
             webSocketConnection.close(closeMessage.getCloseCode(), null).addListener(future -> {
                 if (webSocketConnection.getSession().isOpen()) {
-                    webSocketConnection.close().sync();
-                    connectionInfo.getWebSocketEndpoint().setBooleanField(0, 0);
+                    webSocketConnection.close().addListener(closeFuture -> {
+                        connectionInfo.getWebSocketEndpoint().setBooleanField(0, 0);
+                    });
                 }
             });
             return;
@@ -215,8 +216,9 @@ public class WebSocketDispatcher {
                 //TODO: Need to wait until the connection is closed from the other side
                 webSocketConnection.close(closeMessage.getCloseCode(), null).addListener(future -> {
                     if (webSocketConnection.getSession().isOpen()) {
-                        webSocketConnection.close().sync();
-                        connectionInfo.getWebSocketEndpoint().setBooleanField(0, 0);
+                        webSocketConnection.close().addListener(closeFuture -> {
+                            connectionInfo.getWebSocketEndpoint().setBooleanField(0, 0);
+                        });
                     }
                 });
             }
