@@ -261,12 +261,12 @@ public function Failover::hasPromise(HttpFuture httpFuture) returns (boolean) {
 
 public function Failover::getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
     error err = {message:"Unsupported action for Failover client."};
-    return error;
+    return err;
 }
 
 public function Failover::getPromisedResponse(PushPromise promise) returns Response|error {
     error err = {message:"Unsupported action for Failover client."};
-    return error;
+    return err;
 }
 
 public function Failover::rejectPromise(PushPromise promise) {
