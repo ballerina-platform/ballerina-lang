@@ -103,5 +103,3 @@ service helloWorld bind helloWorldEP {
    }
 }
 ```
-
-## Package contents

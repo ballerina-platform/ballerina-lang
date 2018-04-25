@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 import ballerina/io;
 
 ////////////////////////////////
@@ -107,9 +106,9 @@ public type ClientEndpointConfig {
     AuthConfig? auth,
 };
 
-public native function createHttpClient(string uri, ClientEndpointConfig config) returns CallerActions;
+native function createHttpClient(string uri, ClientEndpointConfig config) returns CallerActions;
 
-public native function createSimpleHttpClient(string uri, ClientEndpointConfig config) returns CallerActions;
+native function createSimpleHttpClient(string uri, ClientEndpointConfig config) returns CallerActions;
 
 documentation {
     Provides configurations for controlling the retry behaviour in failure scenarios.
@@ -259,7 +258,7 @@ public function Client::init(ClientEndpointConfig config) {
     }
 }
 
-function createCircuitBreakerClient (string uri, ClientEndpointConfig configuration) returns CallerActions {
+function createCircuitBreakerClient(string uri, ClientEndpointConfig configuration) returns CallerActions {
     var cbConfig = configuration.circuitBreaker;
     match cbConfig {
         CircuitBreakerConfig cb => {
@@ -310,7 +309,7 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfig configurat
     }
 }
 
-function createRetryClient (string url, ClientEndpointConfig configuration) returns CallerActions {
+function createRetryClient(string url, ClientEndpointConfig configuration) returns CallerActions {
     var retryConfigVal = configuration.retryConfig;
     match retryConfigVal {
         RetryConfig retryConfig => {

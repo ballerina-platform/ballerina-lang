@@ -144,7 +144,7 @@ service<http:Service> hubService {
                     if (hubRemotePublishingMode == REMOTE_PUBLISHING_MODE_FETCH) {
                         match (fetchTopicUpdate(topic)) {
                             http:Response fetchResp => { reqJsonPayload = fetchResp.getJsonPayload(); }
-                            http:HttpConnectorError err => {
+                            error err => {
                                 log:printError("Error fetching updates for topic URL [" + topic + "]: " + err.message);
                                 response.statusCode = http:BAD_REQUEST_400;
                                 _ = client->respond(response);
@@ -303,7 +303,7 @@ function verifyIntent(string callback, string topic, map params) {
                 }
             }
         }
-        http:HttpConnectorError httpConnectorError => {
+        error httpConnectorError => {
             log:printInfo("Error sending intent verification request for callback URL: [" + callback
                     + "]: " + httpConnectorError.message);
         }
@@ -481,9 +481,9 @@ documentation {
 
     P{{topic}} The topic URL to be fetched to retrieve updates
     R{{}} `http:Response` indicating the response received on fetching the topic URL if successful,
-          `http:HttpConnectorError` if an HTTP error occurred
+          `error` if an HTTP error occurred
 }
-function fetchTopicUpdate(string topic) returns http:Response|http:HttpConnectorError {
+function fetchTopicUpdate(string topic) returns http:Response|error {
     endpoint http:Client topicEp {
         url:topic,
         secureSocket:secureSocket
@@ -543,7 +543,7 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
         var contentDistributionRequest = callbackEp->post("", request = request);
         match (contentDistributionRequest) {
             http:Response response => { return; }
-            http:HttpConnectorError err => { log:printError("Error delievering content to: " + callback); }
+            error err => { log:printError("Error delievering content to: " + callback); }
         }
     }
 }

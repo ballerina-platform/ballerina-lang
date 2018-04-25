@@ -64,6 +64,7 @@ documentation {
     F{{retryConfig}} Retry related options
     F{{proxy}} Proxy related options
     F{{connectionThrottling}} The configurations for controlling the number of connections allowed concurrently
+    F{{targets}} The upstream HTTP endpoints among which the incoming HTTP traffic load should be sent on failover
     F{{cache}} The configurations for controlling the caching behaviour
     F{{acceptEncoding}} Specifies how the `accept-encoding` header should be handled
     F{{auth}} HTTP authentication releated configurations
@@ -143,7 +144,7 @@ function createFailOverClient(FailoverClientEndpointConfiguration failoverClient
     return new Failover(config.url, config, failoverInferredConfig);
 }
 
-function createFailoverHttpClientArray (FailoverClientEndpointConfiguration failoverClientConfig) returns CallerActions[] {
+function createFailoverHttpClientArray(FailoverClientEndpointConfiguration failoverClientConfig) returns CallerActions[] {
     CallerActions[] httpClients = [];
     int i = 0;
     boolean httpClientRequired = false;

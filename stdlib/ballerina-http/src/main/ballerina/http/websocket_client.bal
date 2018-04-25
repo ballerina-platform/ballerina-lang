@@ -48,7 +48,7 @@ public type WebSocketClient object {
     }
 
     documentation {
-        Native function that initializes the endpoint.
+        Initializes the endpoint.
     }
     public native function initEndpoint();
 
@@ -78,7 +78,7 @@ public type WebSocketClient object {
     }
     public function stop() {
         WebSocketConnector webSocketConnector = getCallerActions();
-        WebSocketConnectorError|() ignoredValue = webSocketConnector.close(1001, "The connection has been stopped");
+        error|() ignoredValue = webSocketConnector.close(1001, "The connection has been stopped");
     }
 };
 
