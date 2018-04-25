@@ -1,6 +1,5 @@
 import ballerina/io;
 import ballerina/h2;
-import ballerina/sql;
 
 // Create an endpoint for h2 database. Change the path before running the sample.
 endpoint h2:Client testDB {
@@ -52,7 +51,7 @@ function main(string... args) {
     testDB.stop();
 }
 
-//Function to handle return of the update operation.
+// Function to handle return of the update operation.
 function handleUpdate(int|error returned, string message) {
     match returned {
         int retInt => io:println(message + " status: " + retInt);

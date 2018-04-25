@@ -52,7 +52,7 @@ function main(string... args) {
     testDB.stop();
 }
 
-//Function to handle return of the update operation.
+// Function to handle return of the update operation.
 function handleUpdate(int|error returned, string message) {
     match returned {
         int retInt => io:println(message + " status: " + retInt);
