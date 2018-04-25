@@ -31,6 +31,7 @@ public type SimpleDurableTopicSubscriber object {
         Connection? connection;
         Session? session;
         DurableTopicSubscriber? subscriber;
+        SimpleDurableTopicSubscriberActions? consumerActions;
     }
 
     documentation { Initializes the simple durable topic subscriber endpoint
@@ -60,6 +61,8 @@ public type SimpleDurableTopicSubscriber object {
         };
         topicSubscriber.init(consumerConfig);
         self.subscriber = topicSubscriber;
+        self.consumerActions = new SimpleDurableTopicSubscriberActions(topicSubscriber.getCallerActions(), newSession,
+                                                                       config.identifier);
     }
 
     documentation { Binds the endpoint to a service
@@ -86,11 +89,11 @@ public type SimpleDurableTopicSubscriber object {
     documentation { Retrieves the durable topic subscriber consumer actions
         R{{}} Durable topic subscriber actions
     }
-    public function getCallerActions() returns DurableTopicSubscriberActions {
-        match (subscriber) {
-            DurableTopicSubscriber c => return c.getCallerActions();
+    public function getCallerActions() returns SimpleDurableTopicSubscriberActions {
+        match (consumerActions) {
+            SimpleDurableTopicSubscriberActions c => return c;
             () => {
-                error e = {message:"Topic subscriber cannot be nil"};
+                error e = {message:"Consumer actions cannot be nil"};
                 throw e;
             }
         }
@@ -111,29 +114,6 @@ public type SimpleDurableTopicSubscriber object {
             () => {
                 error e = {message:"Session cannot be nil"};
                 throw e;
-            }
-        }
-
-    }
-
-    documentation { Unsubscribes the durable subscriber from topic
-    }
-    public function unsubscribe() returns error? {
-        match (self.session) {
-            Session s => {
-                var result = s.unsubscribe(self.config.identifier);
-                match (result) {
-                    error e => {
-                        log:printError("Error occurred while unsubscribing with subscription id "
-                                + self.config.identifier, err = e);
-                        return e;
-                    }
-                    () => return;
-                }
-            }
-            () => {
-                log:printInfo("JMS session not set.");
-                return;
             }
         }
     }
@@ -159,4 +139,41 @@ public type SimpleDurableTopicSubscriberEndpointConfiguration {
     map properties;
     string messageSelector;
     string topicPattern;
+};
+
+
+documentation { Caller actions related to durable topic subscriber endpoint
+}
+public type SimpleDurableTopicSubscriberActions object {
+
+    private {
+        DurableTopicSubscriberActions helper;
+        Session session;
+        string identifier;
+    }
+
+    new(helper, session, identifier) {
+    }
+
+    documentation { Acknowledges a received message
+        P{{message}} JMS message to be acknowledged
+    }
+    public function acknowledge(Message message) returns error? {
+        return self.helper.acknowledge(message);
+    }
+
+    documentation { Synchronously receive a message from the JMS provider
+        P{{timeoutInMilliSeconds}} time to wait until a message is received
+        R{{}} Returns a message or nill if the timeout exceededs. Returns an error on jms provider internal error.
+    }
+    public function receive(int timeoutInMilliSeconds = 0) returns (Message|error)? {
+        return helper.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
+    }
+
+    documentation { Unsubscribes the durable subscriber from topic
+        R{{}} Returns an error on JMS provider internal error
+    }
+    public function unsubscribe() returns error? {
+        return self.session.unsubscribe(self.identifier);
+    }
 };
