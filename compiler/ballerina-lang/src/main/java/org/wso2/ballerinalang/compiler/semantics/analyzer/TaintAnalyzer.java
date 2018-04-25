@@ -219,7 +219,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     private static final int ALL_UNTAINTED_TABLE_ENTRY_INDEX = -1;
 
-    private enum ParamType { REQUIRED, DEFAULTABLE, REST };
+    private enum ParamType { REQUIRED, NAMED, REST };
     private enum AnalyzerPhase { INITIAL_ANALYSIS, BLOCKED_NODE_ANALYSIS };
     private AnalyzerPhase analyzerPhase;
 
@@ -1824,7 +1824,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                             break;
                         }
                     }
-                    analyzeArgument(ParamType.DEFAULTABLE, paramIndex, invokableSymbol, invocationExpr, argExpr,
+                    analyzeArgument(ParamType.NAMED, paramIndex, invokableSymbol, invocationExpr, argExpr,
                             returnTaintedStatus);
                     if (stopAnalysis) {
                         break;
@@ -1993,16 +1993,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             param = invSymbol.restParam;
         }
         return param;
-    }
-
-    private ParamType getParamType(BLangInvocation invocationExpr, BLangExpression argExpr) {
-        if (invocationExpr.requiredArgs.contains(argExpr)) {
-            return ParamType.REQUIRED;
-        } else if (invocationExpr.namedArgs.contains(argExpr)) {
-            return ParamType.DEFAULTABLE;
-        } else {
-            return ParamType.REST;
-        }
     }
 
     /**
