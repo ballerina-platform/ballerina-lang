@@ -1,2 +1,2 @@
 // This sample demonstrates how xml content can be read from a file and written to file
-// using io character channel readXml() and writeXml() APIs.
+// using character channel readXml() and writeXml() of the I/O API.
