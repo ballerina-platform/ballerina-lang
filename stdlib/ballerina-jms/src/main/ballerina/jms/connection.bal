@@ -37,7 +37,7 @@ public type Connection object {
     }
     public native function start();
 
-    documentation { Temporarily stops a connection's delivery of incoming messages
+    documentation { Temporarily stops a connection's delivery of incoming messages.
         Delivery can be restarted using the connection's start method.
     }
     public native function stop();
