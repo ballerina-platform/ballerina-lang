@@ -16,6 +16,13 @@
 
 import ballerina/log;
 
+documentation { Simplified queue sender object
+    A new connection and a session will be create when this endpoint is initialize. If your requirement is complex
+    please refer QueueSender endpoint.
+
+    E{{}}
+    F{{config}} configurations related to the SimpleQueueSender endpoint
+}
 public type SimpleQueueSender object {
 
     public {
@@ -28,6 +35,9 @@ public type SimpleQueueSender object {
         QueueSender? sender;
     }
 
+    documentation { Initialize the SimpleQueueSender endpoint
+        P{{config}} Configurations related to the SimpleQueueSender endpoint
+    }
     public function init(SimpleQueueSenderEndpointConfiguration config) {
         self.config = config;
         Connection conn = new({
@@ -52,14 +62,20 @@ public type SimpleQueueSender object {
         self.sender = queueSender;
     }
 
+    documentation { Registers the endpoint in the service.
+        This method is not used since SimpleQueueSender is a non-service endpoint.
+        F{{serviceType}} type descriptor of the service
+    }
     public function register(typedesc serviceType) {
 
     }
 
+    documentation { Starts the SimpleQueueSender endpoint }
     public function start() {
 
     }
 
+    documentation { Returns the caller action object of the SimpleQueueSender }
     public function getCallerActions() returns QueueSenderActions {
         match (sender) {
             QueueSender s => return s.getCallerActions();
@@ -70,9 +86,13 @@ public type SimpleQueueSender object {
         }
     }
 
+    documentation { Stops the  SimpleQueueSender endpoint }
     public function stop() {
     }
 
+    documentation { Creates a JMS message which holds text content
+        P{{content}} the text content used to initialize this message
+    }
     public function createTextMessage(string message) returns Message|error {
         match (session) {
             Session s => return s.createTextMessage(message);
@@ -84,6 +104,15 @@ public type SimpleQueueSender object {
     }
 };
 
+documentation { Configurations related to the SimpleQueueSender endpoint
+    F{{initialContextFactory}} JMS provider specific inital context factory
+    F{{providerUrl}} JMS provider specific provider URL used to configure a connection
+    F{{connectionFactoryName}} JMS connection factory to be used in creating JMS connections
+    F{{acknowledgementMode}}  specifies the session mode that will be used. Legal values are "AUTO_ACKNOWLEDGE",
+    "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
+    F{{properties}} Additional properties use in initializing the initial context
+    F{{queueName}} Name of the target queue
+}
 public type SimpleQueueSenderEndpointConfiguration {
     string initialContextFactory = "bmbInitialContextFactory";
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";

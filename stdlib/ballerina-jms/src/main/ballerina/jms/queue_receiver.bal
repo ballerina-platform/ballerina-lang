@@ -19,7 +19,7 @@ import ballerina/log;
 documentation { Queue Receiver endpoint
     E{{}}
     F{{consumerActions}} handles all the caller actions related to the queue receiver endpoint
-    F{{config}} configurations related to the queue receiver
+    F{{config}} configurations related to the QueueReceiver
 }
 public type QueueReceiver object {
 
@@ -28,8 +28,8 @@ public type QueueReceiver object {
         QueueReceiverEndpointConfiguration config;
     }
 
-    documentation { Initializes the queue receiver endpoint
-        P{{config}} Configurations related to the queue receiver endpoint
+    documentation { Initializes the QueueReceiver endpoint
+        P{{config}} Configurations related to the QueueReceiver endpoint
     }
     public function init(QueueReceiverEndpointConfiguration config) {
         self.config = config;
@@ -54,21 +54,19 @@ public type QueueReceiver object {
 
     native function createQueueReceiver(Session session, string messageSelector);
 
-    documentation { Starts the endpoint. Function is ignored by the receiver endpoint
-    }
+    documentation { Starts the endpoint. Function is ignored by the receiver endpoint }
     public function start() {
         // Ignore
     }
 
-    documentation { Retrieves the queue receiver consumer actions
-        R{{}} queue receiver actions
+    documentation { Retrieves the QueueReceiver consumer action handler
+        R{{}} queue receiver action handler
     }
     public function getCallerActions() returns QueueReceiverActions {
         return consumerActions;
     }
 
-    documentation { Ends consuming messages through queue receiver endpoint
-    }
+    documentation { Stops consuming messages through QueueReceiver endpoint}
     public function stop() {
         self.closeQueueReceiver(consumerActions);
     }

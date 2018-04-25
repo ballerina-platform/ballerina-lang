@@ -16,7 +16,7 @@
 
 import ballerina/log;
 
-documentation { JMS Queue Sender Endpoint
+documentation { JMS QueueSender Endpoint
     E{{}}
     F{{producerActions}} Handle all the actions related to the endpoint
     F{{config}} Used to store configurations related to a JMS Queue sender
@@ -59,7 +59,7 @@ public type QueueSender object {
 
     }
 
-    documentation { Returns the caller action object of QueueSender }
+    documentation { Returns the caller action object of the QueueSender }
     public function getCallerActions() returns QueueSenderActions {
         return self.producerActions;
     }
