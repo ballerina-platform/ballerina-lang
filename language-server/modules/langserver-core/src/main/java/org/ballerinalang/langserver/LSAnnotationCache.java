@@ -45,9 +45,9 @@ public class LSAnnotationCache {
 
     private static final Logger logger = LoggerFactory.getLogger(LSPackageCache.class);
 
-    private final HashMap<PackageID, List<BLangAnnotation>> serviceAnnotations = new HashMap<>();
-    private HashMap<PackageID, List<BLangAnnotation>> resourceAnnotations = new HashMap<>();
-    private HashMap<PackageID, List<BLangAnnotation>> functionAnnotations = new HashMap<>();
+    private static HashMap<PackageID, List<BLangAnnotation>> serviceAnnotations = new HashMap<>();
+    private static HashMap<PackageID, List<BLangAnnotation>> resourceAnnotations = new HashMap<>();
+    private static HashMap<PackageID, List<BLangAnnotation>> functionAnnotations = new HashMap<>();
     private static LSAnnotationCache lsAnnotationCache = null;
     
     private LSAnnotationCache() {
@@ -62,7 +62,7 @@ public class LSAnnotationCache {
             lsAnnotationCache = new LSAnnotationCache();
             CompilerContext context = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
             Map<String, BLangPackage> packages = loadPackagesMap(context);
-            lsAnnotationCache.loadAnnotations(packages.values().stream().collect(Collectors.toList()));
+            loadAnnotations(packages.values().stream().collect(Collectors.toList()));
         }
     }
 
@@ -86,29 +86,11 @@ public class LSAnnotationCache {
         return staticPackages;
     }
     
-    private void loadAnnotations(List<BLangPackage> packageList) {
-        packageList.forEach(bLangPackage -> {
-            bLangPackage.getAnnotations().forEach(bLangAnnotation -> {
-                bLangAnnotation.getAttachmentPoints().forEach(attachmentPoint -> {
-                    switch (attachmentPoint.attachmentPoint) {
-                        case SERVICE:
-                            this.addAttachment(bLangAnnotation, serviceAnnotations, bLangPackage.packageID);
-                            break;
-                        case RESOURCE:
-                            this.addAttachment(bLangAnnotation, resourceAnnotations, bLangPackage.packageID);
-                            break;
-                        case FUNCTION:
-                            this.addAttachment(bLangAnnotation, functionAnnotations, bLangPackage.packageID);
-                            break;
-                        default:
-                            break;
-                    }
-                });
-            });
-        });
+    private static void loadAnnotations(List<BLangPackage> packageList) {
+        packageList.forEach(LSAnnotationCache::loadAnnotationsFromPackage);
     }
     
-    private void addAttachment(BLangAnnotation bLangAnnotation, HashMap<PackageID, List<BLangAnnotation>> map,
+    private static void addAttachment(BLangAnnotation bLangAnnotation, HashMap<PackageID, List<BLangAnnotation>> map,
                                PackageID packageID) {
         if (map.containsKey(packageID)) {
             map.get(packageID).add(bLangAnnotation);
@@ -157,5 +139,39 @@ public class LSAnnotationCache {
         }
 
         return annotationMap;
+    }
+
+    /**
+     * Check whether annotations have been loaded from a given package.
+     * @param packageID         Package ID to check against
+     * @return {@link Boolean}  whether annotations are loaded or not
+     */
+    public static boolean containsAnnotationsForPackage(PackageID packageID) {
+        return serviceAnnotations.containsKey(packageID) || resourceAnnotations.containsKey(packageID)
+                || functionAnnotations.containsKey(packageID);
+    }
+
+    /**
+     * Load annotations from the package.
+     * @param bLangPackage      BLang Package to load annotations
+     */
+    public static void loadAnnotationsFromPackage(BLangPackage bLangPackage) {
+        bLangPackage.getAnnotations().forEach(bLangAnnotation -> {
+            bLangAnnotation.getAttachmentPoints().forEach(attachmentPoint -> {
+                switch (attachmentPoint.attachmentPoint) {
+                    case SERVICE:
+                        addAttachment(bLangAnnotation, serviceAnnotations, bLangPackage.packageID);
+                        break;
+                    case RESOURCE:
+                        addAttachment(bLangAnnotation, resourceAnnotations, bLangPackage.packageID);
+                        break;
+                    case FUNCTION:
+                        addAttachment(bLangAnnotation, functionAnnotations, bLangPackage.packageID);
+                        break;
+                    default:
+                        break;
+                }
+            });
+        });
     }
 }
