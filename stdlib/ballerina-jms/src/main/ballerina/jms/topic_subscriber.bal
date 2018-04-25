@@ -52,20 +52,17 @@ public type TopicSubscriber object {
 
     native function createSubscriber(Session session, string messageSelector);
 
-    documentation { Start topic subscriber endpoint
-    }
+    documentation { Start topic subscriber endpoint }
     public function start() {
 
     }
 
-    documentation { Get topic subscriber actions
-    }
+    documentation { Get topic subscriber actions }
     public function getCallerActions() returns TopicSubscriberActions {
         return consumerActions;
     }
 
-    documentation { Stop topic subscriber endpoint
-    }
+    documentation { Stop topic subscriber endpoint }
     public function stop() {
         self.closeSubscriber(consumerActions);
     }
@@ -86,8 +83,7 @@ public type TopicSubscriberEndpointConfiguration {
     string identifier;
 };
 
-documentation { Actions that topic subscriber endpoint could perform
-}
+documentation { Actions that topic subscriber endpoint could perform }
 public type TopicSubscriberActions object {
 
     public native function acknowledge(Message message) returns error?;

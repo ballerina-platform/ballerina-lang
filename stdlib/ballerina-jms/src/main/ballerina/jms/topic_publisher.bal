@@ -26,8 +26,7 @@ public type TopicPublisher object {
         TopicPublisherEndpointConfiguration config;
     }
 
-    documentation { Topic publisher contructor
-    }
+    documentation { Topic publisher contructor }
     new() {
         self.producerActions = new;
     }
@@ -52,20 +51,17 @@ public type TopicPublisher object {
 
     }
 
-    documentation { Start topic publisher endpoint
-    }
+    documentation { Start topic publisher endpoint }
     public function start() {
 
     }
 
-    documentation { Get topic publisher actions
-    }
+    documentation { Get topic publisher actions }
     public function getCallerActions() returns TopicPublisherActions {
         return self.producerActions;
     }
 
-    documentation { Stop topic publisher endpoint
-    }
+    documentation { Stop topic publisher endpoint }
     public function stop() {
 
     }
@@ -80,8 +76,7 @@ public type TopicPublisherEndpointConfiguration {
     string topicPattern;
 };
 
-documentation { Actions that topic publisher endpoint could perform
-}
+documentation { Actions that topic publisher endpoint could perform }
 public type TopicPublisherActions object {
 
     public native function send(Message m) returns error?;
