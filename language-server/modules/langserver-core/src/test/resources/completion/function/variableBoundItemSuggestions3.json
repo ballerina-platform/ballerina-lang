@@ -56,7 +56,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getEntity()(ballerina.mime:Entity|ballerina.mime:EntityError)",
+      "label":"getEntity()(ballerina.mime:Entity|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -160,7 +160,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getJsonPayload()(json|ballerina.http:PayloadError)",
+      "label":"getJsonPayload()(json|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -168,7 +168,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getXmlPayload()(xml|ballerina.http:PayloadError)",
+      "label":"getXmlPayload()(xml|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -176,7 +176,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getTextPayload()(string|ballerina.http:PayloadError)",
+      "label":"getTextPayload()(string|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -184,7 +184,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getPayloadAsString()(string|ballerina.http:PayloadError)",
+      "label":"getPayloadAsString()(string|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -192,7 +192,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getBinaryPayload()(blob|ballerina.http:PayloadError)",
+      "label":"getBinaryPayload()(blob|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -200,7 +200,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getByteChannel()(ballerina.io:ByteChannel|ballerina.http:PayloadError)",
+      "label":"getByteChannel()(ballerina.io:ByteChannel|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -208,7 +208,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getBodyParts()(ballerina.mime:Entity[]|ballerina.mime:EntityError)",
+      "label":"getBodyParts()(ballerina.mime:Entity[]|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -236,7 +236,7 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"setJsonPayload(${1:payload}, contentType \u003d ${2:application/json})",
+      "insertText":"setJsonPayload(${1:payload}, contentType \u003d ${2:\"application/json\"})",
       "insertTextFormat":"Snippet"
     },
     {
@@ -244,7 +244,7 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"setXmlPayload(${1:payload}, contentType \u003d ${2:application/xml})",
+      "insertText":"setXmlPayload(${1:payload}, contentType \u003d ${2:\"application/xml\"})",
       "insertTextFormat":"Snippet"
     },
     {
@@ -252,15 +252,15 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"setTextPayload(${1:payload}, contentType \u003d ${2:text/plain})",
+      "insertText":"setTextPayload(${1:payload}, contentType \u003d ${2:\"text/plain\"})",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"setBinaryPayload(blob payload, string contentType \u003d application/octec-stream)",
+      "label":"setBinaryPayload(blob payload, string contentType \u003d application/octet-stream)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"setBinaryPayload(${1:payload}, contentType \u003d ${2:application/octec-stream})",
+      "insertText":"setBinaryPayload(${1:payload}, contentType \u003d ${2:\"application/octet-stream\"})",
       "insertTextFormat":"Snippet"
     },
     {
@@ -268,23 +268,23 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"setBodyParts(${1:bodyParts}, contentType \u003d ${2:multipart/form-data})",
+      "insertText":"setBodyParts(${1:bodyParts}, contentType \u003d ${2:\"multipart/form-data\"})",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"setFileAsPayload(string filePath, string contentType \u003d application/octec-stream)",
+      "label":"setFileAsPayload(string filePath, string contentType \u003d application/octet-stream)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"setFileAsPayload(${1:filePath}, contentType \u003d ${2:application/octec-stream})",
+      "insertText":"setFileAsPayload(${1:filePath}, contentType \u003d ${2:\"application/octet-stream\"})",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"setByteChannel(io:ByteChannel payload, string contentType \u003d application/octec-stream)",
+      "label":"setByteChannel(io:ByteChannel payload, string contentType \u003d application/octet-stream)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"setByteChannel(${1:payload}, contentType \u003d ${2:application/octec-stream})",
+      "insertText":"setByteChannel(${1:payload}, contentType \u003d ${2:\"application/octet-stream\"})",
       "insertTextFormat":"Snippet"
     },
     {

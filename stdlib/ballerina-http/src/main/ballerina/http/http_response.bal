@@ -1,3 +1,18 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
 
 import ballerina/file;
 import ballerina/io;
@@ -5,14 +20,20 @@ import ballerina/mime;
 import ballerina/crypto;
 import ballerina/time;
 
-@Description { value:"Represents an HTTP response message"}
-@Field {value:"statusCode: The response status code"}
-@Field {value:"reasonPhrase: The status code reason phrase"}
-@Field {value:"server: The server header"}
-@Field {value:"cacheControl: The cache control directives configuration of the response"}
+documentation {
+    Represents an HTTP response.
+
+    F{{statusCode}} The response status code
+    F{{reasonPhrase}} The status code reason phrase
+    F{{server}} The server header
+    F{{cacheControl}} The cache-control directives for the response. This needs to be explicitly initialized if
+                      intending on utilizing HTTP caching. For incoming responses, this will already be populated
+                      if the response was sent with cache-control directives
+}
 public type Response object {
+
     public {
-        int statusCode;
+        int statusCode = 200;
         string reasonPhrase;
         string server;
         ResponseCacheControl? cacheControl;
@@ -23,294 +44,369 @@ public type Response object {
         int requestTime;
     }
 
-    @Description {value:"Get the entity from the response with the body"}
-    @Param {value:"res: The response message"}
-    @Return {value:"Entity of the response"}
-    @Return {value:"EntityError will might get thrown during entity construction in case of errors"}
-    public native function getEntity () returns (mime:Entity | mime:EntityError);
+    documentation {
+        Gets the `Entity` associated with the response.
 
-    @Description {value:"Get the entity from the response without the body"}
-    @Param {value:"req: The response message"}
-    @Return {value:"Entity of the response"}
-    public native function getEntityWithoutBody () returns (mime:Entity);
+        R{{}} The `Entity` of the response. `EntityError` will be returned if entity construction fails
+    }
+    public native function getEntity() returns mime:Entity|error;
 
-    @Description {value:"Set the entity to response"}
-    @Param {value:"res: The response message"}
-    @Return {value:"Entity of the response"}
-    public native function setEntity (mime:Entity entity);
+    documentation {
+        Gets the `Entity` from the response without the entity body.
 
-    @Description {value:"Check whether the requested header exists"}
-    @Param {value:"res: The response message"}
-    @Param {value:"headerName: The header name"}
-    @Return {value:"Boolean representing the existence of a given header"}
-    public function hasHeader (string headerName) returns (boolean);
+        R{{}} The `Entity` of the response
+    }
+    public native function getEntityWithoutBody() returns mime:Entity;
 
-    @Description {value:"Returns the header value with the specified header name. If there are more than one header value for the specified header name, the first value is returned."}
-    @Param {value:"res: The response struct"}
-    @Param {value:"headerName: The header name"}
-    @Return {value:"The first header value struct for the provided header name. Returns null if the header does not exist."}
-    public function getHeader (string headerName) returns (string);
+    documentation {
+        Sets the provided `Entity` to the response.
 
-    @Description {value:"Adds the specified key/value pair as an HTTP header to the outbound response"}
-    @Param {value:"res: The response message"}
-    @Param {value:"headerName: The header name"}
-    @Param {value:"headerValue: The header value"}
-    public function addHeader (string headerName, string headerValue);
+        P{{entity}} The `Entity` to be set to the response
+    }
+    public native function setEntity(mime:Entity entity);
 
-    @Description {value:"Gets the HTTP headers from the inbound response"}
-    @Param {value:"res: The response message"}
-    @Param {value:"headerName: The header name"}
-    @Return {value:"The header values struct array for a given header name"}
-    public function getHeaders (string headerName) returns (string[]);
+    documentation {
+        Checks whether the requested header key exists in the header map.
 
-    @Description {value:"Sets the value of a transport header"}
-    @Param {value:"res: The response message"}
-    @Param {value:"headerName: The header name"}
-    @Param {value:"headerValue: The header value"}
-    public function setHeader (string headerName, string headerValue);
+        P{{headerName}} The header name
+        R{{}} Returns true if the specified header key exists
+    }
+    public function hasHeader(string headerName) returns boolean;
 
-    @Description {value:"Removes a transport header from the response"}
-    @Param {value:"res: The response message"}
-    @Param {value:"key: The header name"}
-    public function removeHeader (string key);
+    documentation {
+        Returns the value of the specified header. If the specified header key maps to multiple values, the first of
+        these values is returned.
 
-    @Description {value:"Removes all transport headers from the response"}
-    @Param {value:"res: The response message"}
-    public function removeAllHeaders ();
+        P{{headerName}} The header name
+        R{{}} The first header value for the specified header name. Returns an empty string if the header does not
+              exist
+    }
+    public function getHeader(string headerName) returns string;
 
-    @Description {value:"Get all transport header names from the response."}
-    @Return {value:"An array of all transport header names"}
-    public function getHeaderNames () returns (string[]);
+    documentation {
+        Adds the specified header to the response. Existing header values are not replaced.
 
-    @Description {value:"Set the content-type header to response"}
-    @Param {value:"contentType: Content type value that needs to be set to Content-Type header"}
-    public function setContentType (string contentType);
+        P{{headerName}} The header name
+        P{{headerValue}} The header value
+    }
+    public function addHeader(string headerName, string headerValue);
 
-    @Description {value:"Get the content-type value from the response"}
-    @Return {value:"Returns the content-type header value as a string."}
-    public function getContentType () returns (string);
+    documentation {
+        Gets all the header values to which the specified header key maps to.
 
-    @Description {value:"Get the json payload from the response"}
-    @Param {value:"response: The response message"}
-    @Return {value:"The JSON reresentation of the message payload or 'PayloadError' in case of errors"}
-    public function getJsonPayload () returns (json | PayloadError);
+        P{{headerName}} The header name
+        R{{}} The header values the specified header key maps to
+    }
+    public function getHeaders(string headerName) returns (string[]);
 
-    @Description {value:"Get the xml payload from the response"}
-    @Param {value:"response: The response message"}
-    @Return {value:"The XML representation of the message payload or 'PayloadError' in case of errors"}
-    public function getXmlPayload () returns (xml | PayloadError);
+    documentation {
+        Sets the specified header to the response. If a mapping already exists for the specified header key, the
+        existing header value is replaced with the specfied header value.
 
-    @Description {value:"Get the text payload from the response"}
-    @Param {value:"response: The response message"}
-    @Return {value:"The string representation of the message payload or 'PayloadError' in case of errors"}
-    public function getTextPayload () returns (string | PayloadError);
+        P{{headerName}} The header name
+        P{{headerValue}} The header value
+    }
+    public function setHeader(string headerName, string headerValue);
 
-    @Description {value:"Get the response payload as a string. Content-type will not be checked during payload construction which
-        makes this different from getTextPayload() method."}
-    @Return {value:"The string representation of the message payload or 'PayloadError' in case of errors"}
-    public function getPayloadAsString () returns (string | PayloadError);
+    documentation {
+        Removes the specified header from the response.
 
-    @Description {value:"Gets the response payload in blob format"}
-    @Param {value:"response: The response message"}
-    @Return {value:"The blob representation of the message payload or 'PayloadError' in case of errors"}
-    public function getBinaryPayload () returns (blob | PayloadError);
+        P{{key}} The header name
+    }
+    public function removeHeader(string key);
 
-    @Description {value:"Gets the response payload as a byte channel except for multiparts. In case of multiparts,
-    please use 'getBodyParts()' instead."}
-    @Param {value:"response: The response message"}
-    @Return {value:"A byte channel as the message payload or 'PayloadError' in case of errors"}
-    public function getByteChannel () returns (io:ByteChannel | PayloadError);
+    documentation {
+        Removes all the headers from the response.
+    }
+    public function removeAllHeaders();
 
-    @Description {value:"Get multiparts from response"}
-    @Param {value:"response: The response message"}
-    @Return {value:"Returns the body parts as an array of entities"}
-    public function getBodyParts () returns (mime:Entity[] | mime:EntityError);
+    documentation {
+        Gets all the names of the headers of the response.
 
-    @Description {value:"Sets the ETag header for the given payload. The ETag is generated using a CRC32 hash function."}
-    @Param {value:"The payload for which the ETag should be set."}
+        R{{}} An array of all the header names
+    }
+    public function getHeaderNames() returns string[];
+
+    documentation {
+        Sets the `content-type` header to the response.
+
+        P{{contentType}} Content type value to be set as the `content-type` header
+    }
+    public function setContentType(string contentType);
+
+    documentation {
+        Gets the type of the payload of the response (i.e: the `content-type` header value).
+
+        R{{}} Returns the `content-type` header value as a string
+    }
+    public function getContentType() returns string;
+
+    documentation {
+        Gets the response payload as a `json`.
+
+        R{{}} The JSON representation of the message payload or `error` in case of errors
+    }
+    public function getJsonPayload() returns json|error;
+
+    documentation {
+        Gets the response payload as an `xml`.
+
+        R{{}} The XML representation of the message payload or `error` in case of errors
+    }
+    public function getXmlPayload() returns xml|error;
+
+    documentation {
+        Get the text payload from the response.
+
+        R{{}} The string representation of the message payload or `error` in case of errors
+    }
+    public function getTextPayload() returns string|error;
+
+    documentation {
+        Gets the response payload as a `string`.
+
+        R{{}} The string representation of the message payload or `error` in case of errors
+    }
+    public function getPayloadAsString() returns string|error;
+
+    documentation {
+        Gets the response payload as a `blob`.
+
+        R{{}} The blob representation of the message payload or `error` in case of errors
+    }
+    public function getBinaryPayload() returns blob|error;
+
+    documentation {
+        Gets the response payload as a `ByteChannel` except in the case of multiparts. To retrieve multiparts, use
+        `getBodyParts()`.
+
+        R{{}} A byte channel from which the message payload can be read or `error` in case of errors
+    }
+    public function getByteChannel() returns io:ByteChannel|error;
+
+    documentation {
+        Get multiparts from response.
+
+        R{{}} Returns the body parts as an array of entities or an `EntityError` if there were any errors in
+              constructing the body parts from the response
+    }
+    public function getBodyParts() returns mime:Entity[]|error;
+
+    documentation {
+        Sets the `etag` header for the given payload. The ETag is generated using a CRC32 hash function.
+
+        P{{payload}} The payload for which the ETag should be set
+    }
     public function setETag(json|xml|string|blob payload);
 
-    @Description {value:"Sets the current time as the Last-Modified header."}
+    documentation {
+        Sets the current time as the `last-modified` header.
+    }
     public function setLastModified();
 
-    @Description {value:"Sets a JSON as the outbound response payload"}
-    @Param {value:"response: The response message"}
-    @Param {value:"payload: The JSON payload object"}
-    @Param {value:"contentType: Represent the content-type to be used with the payload"}
+    documentation {
+        Sets a `json` as the payload.
+
+        P{{payload}} The `json` payload
+        P{{contentType}} The content type of the payload. Set this to override the default `content-type` header value
+                         for `json`
+    }
     public function setJsonPayload(json payload, string contentType = "application/json");
 
-    @Description {value:"Sets an XML as the outbound response payload"}
-    @Param {value:"response: The response message"}
-    @Param {value:"payload: The XML payload object"}
-    @Param {value:"contentType: Represent the content-type to be used with the payload"}
+    documentation {
+        Sets an `xml` as the payload
+
+        P{{payload}} The `xml` payload
+        P{{contentType}} The content type of the payload. Set this to override the default `content-type` header value
+                         for `xml`
+    }
     public function setXmlPayload(xml payload, string contentType = "application/xml");
 
-    @Description { value:"Sets a text as the outbound response payload"}
-    @Param { value:"response: The response message" }
-    @Param { value:"payload: The payload to be set to the response as a string" }
-    @Param {value:"contentType: Represent the content-type to be used with the payload"}
+    documentation {
+        Sets a `string` as the payload.
+
+        P{{payload}} The `string` payload
+        P{{contentType}} The content type of the payload. Set this to override the default `content-type` header value
+                         for `string`
+    }
     public function setTextPayload(string payload, string contentType = "text/plain");
 
-    @Description {value:"Sets a blob as the outbound response payload"}
-    @Param {value:"response: The response message"}
-    @Param {value:"payload: The blob representation of the message payload"}
-    @Param {value:"contentType: Represent the content-type to be used with the payload"}
-    public function setBinaryPayload(blob payload, string contentType = "application/octec-stream");
+    documentation {
+        Sets a `blob` as the payload.
 
-    @Description {value:"Set multiparts as the response payload"}
-    @Param {value:"response: The response message"}
-    @Param {value:"bodyParts: Represent body parts that needs to be set to the response"}
-    @Param {value:"contentType: Content type of the top level message"}
+        P{{payload}} The `blob` payload
+        P{{contentType}} The content type of the payload. Set this to override the default `content-type` header value
+                         for `blob`
+    }
+    public function setBinaryPayload(blob payload, string contentType = "application/octet-stream");
+
+    documentation {
+        Set multiparts as the payload.
+
+        P{{bodyParts}} The entities which make up the message body
+        P{{contentType}} The content type of the top level message. Set this to override the default
+                         `content-type` header value
+    }
     public function setBodyParts(mime:Entity[] bodyParts, string contentType = "multipart/form-data");
 
-    @Description {value:"Sets the entity body of the outbound response with the given file content"}
-    @Param {value:"response: The response message"}
-    @Param {value:"filePath: Path to the file that needs to be set to the payload"}
-    @Param {value:"contentType: Content-Type of the file"}
-    public function setFileAsPayload (string filePath, string contentType = "application/octec-stream");
+    documentation {
+        Sets the content of the specified file as the entity body of the response.
 
-    @Description {value:"Sets a byte channel as the outbound response payload"}
-    @Param {value:"response: The response message"}
-    @Param {value:"payload: The byte channel representation of the message payload"}
-    @Param {value:"contentType: Represent the content-type to be used with the payload"}
-    public function setByteChannel(io:ByteChannel payload, string contentType = "application/octec-stream");
+        P{{filePath}} Path to the file to be set as the payload
+        P{{contentType}} The content type of the specified file. Set this to override the default `content-type`
+                         header value
+    }
+    public function setFileAsPayload(string filePath, string contentType = "application/octet-stream");
 
-    @Description {value:"Set the response payload"}
-    @Param {value:"payload: Payload can be of type string, xml, json, blob, byte channel or set of body parts"}
-    public function setPayload ((string | xml | json | blob | io:ByteChannel | mime:Entity[]) payload);
+    documentation {
+        Sets a `ByteChannel` as the payload.
+
+        P{{payload}} A `ByteChannel` through which the message payload can be read
+        P{{contentType}} The content type of the payload. Set this to override the default `content-type`
+                         header value
+    }
+    public function setByteChannel(io:ByteChannel payload, string contentType = "application/octet-stream");
+
+    documentation {
+        Sets the response payload.
+
+        P{{payload}} Payload can be of type `string`, `xml`, `json`, `blob`, `ByteChannel` or `Entity[]` (i.e: a set
+                     of body parts)
+    }
+    public function setPayload(string|xml|json|blob|io:ByteChannel|mime:Entity[] payload);
 };
 
 /////////////////////////////////
 /// Ballerina Implementations ///
 /////////////////////////////////
 
-public function Response::hasHeader (string headerName) returns (boolean) {
+public function Response::hasHeader(string headerName) returns boolean {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.hasHeader(headerName);
 }
 
-public function Response::getHeader (string headerName) returns (string) {
+public function Response::getHeader(string headerName) returns string {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeader(headerName);
 }
 
-public function Response::addHeader (string headerName, string headerValue) {
+public function Response::addHeader(string headerName, string headerValue) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.addHeader(headerName, headerValue);
 }
 
-public function Response::getHeaders (string headerName) returns (string[]) {
+public function Response::getHeaders(string headerName) returns (string[]) {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeaders(headerName);
 }
 
-public function Response::setHeader (string headerName, string headerValue) {
+public function Response::setHeader(string headerName, string headerValue) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setHeader(headerName, headerValue);
 }
 
-public function Response::removeHeader (string key) {
+public function Response::removeHeader(string key) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.removeHeader(key);
 }
 
-public function Response::removeAllHeaders () {
+public function Response::removeAllHeaders() {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.removeAllHeaders();
 }
 
-public function Response::getHeaderNames () returns (string[]) {
+public function Response::getHeaderNames() returns string[] {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeaderNames();
 }
 
-public function Response::setContentType (string contentType) {
+public function Response::setContentType(string contentType) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setHeader(mime:CONTENT_TYPE, contentType);
 }
 
-public function Response::getContentType () returns (string) {
+public function Response::getContentType() returns string {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getContentType();
 }
 
-public function Response::getJsonPayload () returns (json | PayloadError) {
+public function Response::getJsonPayload() returns json|error {
     match self.getEntity() {
-        mime:EntityError err => return <PayloadError>err;
+        error err => return err;
         mime:Entity mimeEntity => {
             match mimeEntity.getJson() {
-                mime:EntityError payloadErr => return <PayloadError>payloadErr;
+                error payloadErr => return payloadErr;
                 json jsonPayload => return jsonPayload;
             }
         }
     }
 }
 
-public function Response::getXmlPayload () returns (xml | PayloadError) {
+public function Response::getXmlPayload() returns xml|error {
     match self.getEntity() {
-        mime:EntityError err => return <PayloadError>err;
+        error err => return err;
         mime:Entity mimeEntity => {
             match mimeEntity.getXml() {
-                mime:EntityError payloadErr => return <PayloadError>payloadErr;
+                error payloadErr => return payloadErr;
                 xml xmlPayload => return xmlPayload;
             }
         }
     }
 }
 
-public function Response::getTextPayload () returns (string | PayloadError) {
+public function Response::getTextPayload() returns string|error {
     match self.getEntity() {
-        mime:EntityError err => return <PayloadError>err;
+        error err => return err;
         mime:Entity mimeEntity => {
             match mimeEntity.getText() {
-                mime:EntityError payloadErr => return <PayloadError>payloadErr;
+                error payloadErr => return payloadErr;
                 string textPayload => return textPayload;
             }
         }
     }
 }
 
-public function Response::getPayloadAsString () returns (string | PayloadError) {
+public function Response::getPayloadAsString() returns string|error {
     match self.getEntity() {
-        mime:EntityError err => return <PayloadError>err;
+        error err => return err;
         mime:Entity mimeEntity => {
             match mimeEntity.getBodyAsString() {
-                mime:EntityError payloadErr => return <PayloadError>payloadErr;
+                error payloadErr => return payloadErr;
                 string stringPayload => return stringPayload;
             }
         }
     }
 }
 
-public function Response::getBinaryPayload () returns (blob | PayloadError) {
+public function Response::getBinaryPayload() returns blob|error {
     match self.getEntity() {
-        mime:EntityError err => return <PayloadError>err;
+        error err => return err;
         mime:Entity mimeEntity => {
             match mimeEntity.getBlob() {
-                mime:EntityError payloadErr => return <PayloadError>payloadErr;
+                error payloadErr => return payloadErr;
                 blob binaryPayload => return binaryPayload;
             }
         }
     }
 }
 
-public function Response::getByteChannel () returns (io:ByteChannel | PayloadError) {
+public function Response::getByteChannel() returns io:ByteChannel|error {
     match self.getEntity() {
-        mime:EntityError err => return <PayloadError>err;
+        error err => return err;
         mime:Entity mimeEntity => {
             match mimeEntity.getByteChannel() {
-                mime:EntityError payloadErr => return <PayloadError>payloadErr;
+                error payloadErr => return payloadErr;
                 io:ByteChannel byteChannel => return byteChannel;
             }
         }
     }
 }
 
-public function Response::getBodyParts () returns mime:Entity[] | mime:EntityError {
+public function Response::getBodyParts() returns mime:Entity[]|error {
     var mimeEntity = self.getEntity();
     match mimeEntity {
         mime:Entity entity => return entity.getBodyParts();
-        mime:EntityError err => return err;
+        error err => return err;
     }
 }
 
@@ -325,49 +421,50 @@ public function Response::setLastModified() {
     self.setHeader(LAST_MODIFIED, lastModified);
 }
 
-public function Response::setJsonPayload (json payload, string contentType="application/json") {
+public function Response::setJsonPayload(json payload, string contentType = "application/json") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setJson(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-public function Response::setXmlPayload (xml payload, string contentType="application/xml") {
+public function Response::setXmlPayload(xml payload, string contentType = "application/xml") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setXml(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-public function Response::setTextPayload (string payload, string contentType="text/plain") {
+public function Response::setTextPayload(string payload, string contentType = "text/plain") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setText(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-public function Response::setBinaryPayload (blob payload, string contentType="application/octec-stream") {
+public function Response::setBinaryPayload(blob payload, string contentType = "application/octet-stream") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setBlob(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-public function Response::setBodyParts (mime:Entity[] bodyParts, string contentType="multipart/form-data") {
+public function Response::setBodyParts(mime:Entity[] bodyParts, string contentType = "multipart/form-data") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setBodyParts(bodyParts, contentType = contentType);
     self.setEntity(entity);
 }
 
-public function Response::setFileAsPayload (string filePath, @sensitive string contentType = "application/octec-stream") {
+public function Response::setFileAsPayload(string filePath, @sensitive string contentType = "application/octet-stream")
+{
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setFileAsEntityBody(filePath, contentType = contentType);
     self.setEntity(entity);
 }
 
-public function Response::setByteChannel (io:ByteChannel payload, string contentType="application/octec-stream") {
+public function Response::setByteChannel(io:ByteChannel payload, string contentType = "application/octet-stream") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setByteChannel(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-public function Response::setPayload ((string | xml | json | blob | io:ByteChannel | mime:Entity[]) payload) {
+public function Response::setPayload(string|xml|json|blob|io:ByteChannel|mime:Entity[] payload) {
     match payload {
         string textContent => self.setTextPayload(textContent);
         xml xmlContent => self.setXmlPayload(xmlContent);
@@ -377,4 +474,3 @@ public function Response::setPayload ((string | xml | json | blob | io:ByteChann
         mime:Entity[] bodyParts => self.setBodyParts(bodyParts);
     }
 }
-

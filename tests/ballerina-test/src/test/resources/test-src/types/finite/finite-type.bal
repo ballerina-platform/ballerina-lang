@@ -183,7 +183,7 @@ type TypeAliasTwo TypeAliasOne;
 type TypeAliasThree TypeAliasTwo;
 
 function testTypeAliasing() returns string {
-    TypeAliasThree p = {name:"Can tell my name"};
+    TypeAliasThree p = {name:"Anonymous name"};
     return p.name;
 }
 
@@ -195,3 +195,15 @@ function testTypeAliasingCaseOne() returns (MyType,MyType) {
      return (a,b);
 }
 
+public type ParamTest string|int;
+
+function testTypeDefinitionWithVarArgs() returns (ParamTest, ParamTest) {
+    string s1 = "Anne";
+    ParamTest p1 = testVarArgs("John");
+    ParamTest p2 = testVarArgs(s1);
+    return (p1, p2);
+}
+
+function testVarArgs(ParamTest... p1) returns ParamTest {
+    return p1[0];
+}

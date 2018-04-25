@@ -44,7 +44,6 @@ import org.ballerinalang.util.transactions.BallerinaTransactionContext;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 import org.ballerinalang.util.transactions.TransactionResourceManager;
 import org.ballerinalang.util.transactions.TransactionUtils;
-import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -1070,10 +1069,6 @@ public class SQLDatasourceUtils {
         int transactionBlockId = localTransactionInfo.getCurrentTransactionBlockId();
 
         if (localTransactionInfo.isRetryPossible(context.getParentWorkerExecutionContext(), transactionBlockId)) {
-            return;
-        }
-
-        if (!CompilerUtils.isDistributedTransactionsEnabled()) {
             return;
         }
 

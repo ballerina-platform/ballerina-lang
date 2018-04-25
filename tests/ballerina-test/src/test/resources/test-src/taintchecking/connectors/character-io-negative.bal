@@ -2,7 +2,7 @@ import ballerina/io;
 
 function main (string... args) {
     string filePath = args[0];
-    io:Mode permission = args[0];
+    io:Mode permission = "r";
     string chars = args[0];
 
     int intArg = check <int> args[0];

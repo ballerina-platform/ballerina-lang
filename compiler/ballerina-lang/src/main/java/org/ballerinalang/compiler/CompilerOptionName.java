@@ -36,6 +36,8 @@ public enum CompilerOptionName {
 
     BUILD_COMPILED_PACKAGE("buildCompiledPackage"),
 
+    TEST_ENABLED("testEnabled"),
+
     TARGET_BINARY_PATH("targetBinaryPath");
 
     public final String name;
