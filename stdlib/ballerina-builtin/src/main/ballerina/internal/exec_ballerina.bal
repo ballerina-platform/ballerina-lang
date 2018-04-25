@@ -15,7 +15,7 @@
 // under the License.
 
 public type BallerinaCommand "run" | "docker" | "build" | "install" | "uninstall" | "pull" | "push" | "init" |
-"serach" | "doc" | "grpc" | "swagger" | "test" | "version" | "encrypt";
+"search" | "doc" | "grpc" | "swagger" | "test" | "version" | "encrypt";
 
 documentation{
     Executes a ballerina command
