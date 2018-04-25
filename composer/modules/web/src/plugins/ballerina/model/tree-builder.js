@@ -377,6 +377,10 @@ class TreeBuilder {
                 node.invokableBody.functionNode.isStreamAction = true;
             }
         }
+
+        if (node.kind === 'StreamingInput' && node.alias) {
+            node.aliasAvailable = true;
+        }
     }
 
     static modify(tree, parentKind = null) {

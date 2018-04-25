@@ -2098,16 +2098,22 @@ public class BLangPackageBuilder {
         startBlock();
     }
 
-    public void addTransactionBlock(DiagnosticPos pos) {
+    public void addTransactionBlock(DiagnosticPos pos, Set<Whitespace> ws) {
         TransactionNode transactionNode = transactionNodeStack.peek();
         BLangBlockStmt transactionBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         transactionBlock.pos = pos;
+        transactionNode.addWS(ws);
         transactionNode.setTransactionBody(transactionBlock);
     }
 
     public void endTransactionBlock(Set<Whitespace> ws) {
         TransactionNode transactionNode = transactionNodeStack.peek();
         transactionNode.getTransactionBody().addWS(ws);
+    }
+
+    public void endTransactionPropertyInitStatementList(Set<Whitespace> ws) {
+        TransactionNode transactionNode = transactionNodeStack.peek();
+        transactionNode.addWS(ws);
     }
 
     public void startOnretryBlock() {
@@ -2161,18 +2167,21 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(retryNode);
     }
 
-    public void addRetryCountExpression() {
+    public void addRetryCountExpression(Set<Whitespace> ws) {
         BLangTransaction transaction = (BLangTransaction) transactionNodeStack.peek();
+        transaction.addWS(ws);
         transaction.retryCount = (BLangExpression) exprNodeStack.pop();
     }
 
-    public void addCommittedBlock() {
+    public void addCommittedBlock(Set<Whitespace> ws) {
         BLangTransaction transaction = (BLangTransaction) transactionNodeStack.peek();
+        transaction.addWS(ws);
         transaction.onCommitFunction = (BLangExpression) exprNodeStack.pop();
     }
 
-    public void addAbortedBlock() {
+    public void addAbortedBlock(Set<Whitespace> ws) {
         BLangTransaction transaction = (BLangTransaction) transactionNodeStack.peek();
+        transaction.addWS(ws);
         transaction.onAbortFunction = (BLangExpression) exprNodeStack.pop();
     }
 
@@ -2814,10 +2823,9 @@ public class BLangPackageBuilder {
         orderByVariableNode.setOrderByType(isAscending, isDescending);
     }
 
-    public void startLimitClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startLimitClauseNode(DiagnosticPos pos) {
         LimitNode limitNode = TreeBuilder.createLimitNode();
         ((BLangLimit) limitNode).pos = pos;
-        limitNode.addWS(ws);
         this.limitClauseStack.push(limitNode);
     }
 
@@ -2995,10 +3003,14 @@ public class BLangPackageBuilder {
         joinStreamingInput.setJoinType(joinType);
     }
 
-    public void startTableQueryNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void endJoinType(Set<Whitespace> ws) {
+        JoinStreamingInput joinStreamingInput = this.joinStreamingInputsStack.peek();
+        joinStreamingInput.addWS(ws);
+    }
+
+    public void startTableQueryNode(DiagnosticPos pos) {
         TableQuery tableQuery = TreeBuilder.createTableQueryNode();
         ((BLangTableQuery) tableQuery).pos = pos;
-        tableQuery.addWS(ws);
         this.tableQueriesStack.push(tableQuery);
     }
 
