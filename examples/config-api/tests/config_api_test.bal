@@ -1,36 +1,37 @@
-import ballerina/config;
 import ballerina/test;
 import ballerina/io;
+import ballerina/http;
 
-any[] outputs = [];
-int counter = 0;
+boolean serviceStarted;
 
-// This is the mock function which will replace the real function
-@test:Mock {
-    packageName: "ballerina.io",
-    functionName: "println"
-}
-public function mockPrint(any... s) {
-    outputs[counter] = s[0];
-    counter++;
+function startService() {
+    serviceStarted = test:startServices("config-api");
 }
 
-// Before function to set the config values
-function setConfigValues() {
-    config:setConfig("username.instances", "john,peter");
-    config:setConfig("john.access.rights", "RW");
-    config:setConfig("peter.access.rights", "R");
-    config:setConfig("sum.limit", "5");
-}
-
+// Execute this test as ballerina test config-api -e hello.keystore.password=@encrypted:{jFMAXsuMSiOCaxuDLuQjVXzMzZxQrten0652/j93Amw=}
 @test:Config {
-    before: "setConfigValues"
+    before: "startService",
+    after: "stopService"
 }
 function testFunc() {
     // Invoking the main function
-    main();
-    test:assertEquals("john has RW access", outputs[0]);
-    test:assertEquals("peter has R access", outputs[1]);
-    test:assertEquals("Before changing sum.limit in code: 5", outputs[2]);
-    test:assertEquals("After changing sum.limit: 10", outputs[3]);
+    endpoint http:Client httpEndpoint {url: "https://localhost:9095"};
+    // Chck whether the server is started
+    test:assertTrue(serviceStarted, msg = "Unable to start the service");
+
+    string response1 = "Hello World!";
+
+    // Send a GET request to the specified endpoint
+    var response = httpEndpoint->get("/hello");
+    match response {
+        http:Response resp => {
+            var res = check resp.getTextPayload();
+            test:assertEquals(res, response1);
+        }
+        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
+    }
+}
+
+function stopService() {
+    test:stopServices("config-api");
 }
