@@ -24,20 +24,20 @@ service<http:Service> retryDemoService bind { port: 9090 } {
         methods: ["GET"],
         path: "/"
     }
-    // Parameters include a reference to the caller endpoint and a object with the request data.
+    // Parameters include a reference to the caller endpoint and an object of the request data.
     invokeEndpoint(endpoint caller, http:Request request) {
         var backendResponse = backendClientEP->get("/hello", request = request);
-        // "match" command in the code is used to handle a union-type return:
-        // if the return value is a Response - normal processing happens. If our service did not get the Response
-        // it expected - we use error-handling logic instead.
+        // `match` is used to handle union-type returns.
+        // If a response is returned, the normal process runs. If the service does not get the expected response,
+        // the error-handling logic is executed.
         match backendResponse {
             http:Response response => {
-                // Return response, '->' signifies remote call.
-                // '_' means ignore the function return value.
+                // '->' signifies remote call.
+                // '_' ignores the function return value.
                 caller->respond(response) but { error e => log:printError("Error sending response", err = e) };
             }
             error responseError => {
-                // Create new HTTP response by looking at the error message.
+                // Create a new HTTP response by looking at the error message.
                 http:Response errorResponse = new;
                 errorResponse.statusCode = 500;
                 errorResponse.setPayload(responseError.message);
@@ -49,9 +49,9 @@ service<http:Service> retryDemoService bind { port: 9090 } {
 
 public int counter = 0;
 
-// This sample service can be used to mock connection timeouts and service outages.
-// Service outage can be mocked by stopping/starting this service.
-// This should be run separately from the `retryDemoService` service.
+// This sample service is used to mock connection timeouts and service outages.
+// The service outage is mocked by stopping/starting this service.
+// This should run separately from the `retryDemoService` service.
 @http:ServiceConfig { basePath: "/hello" }
 service<http:Service> mockHelloService bind { port: 8080 } {
     @http:ResourceConfig {
@@ -62,7 +62,7 @@ service<http:Service> mockHelloService bind { port: 8080 } {
         counter = counter + 1;
         if (counter % 4 != 0) {
             log:printInfo("Request received from the client to delayed service.");
-            // Delaying the response for 5000 to mimic network level delays.
+            // Delay the response by 5000 milliseconds to mimic network level delays.
             runtime:sleep(5000);
             http:Response res = new;
             res.setPayload("Hello World!!!");
