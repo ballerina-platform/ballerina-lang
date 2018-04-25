@@ -26,6 +26,7 @@ documentation {
     F{{statusCode}} The response status code
     F{{reasonPhrase}} The status code reason phrase
     F{{server}} The server header
+    F{{resolvedRequestedURI}} The ultimate request URI that was made to receive the response when redirect is on
     F{{cacheControl}} The cache-control directives for the response. This needs to be explicitly initialized if
                       intending on utilizing HTTP caching. For incoming responses, this will already be populated
                       if the response was sent with cache-control directives
@@ -36,6 +37,7 @@ public type Response object {
         int statusCode = 200;
         string reasonPhrase;
         string server;
+        string resolvedRequestedURI;
         ResponseCacheControl? cacheControl;
     }
 
