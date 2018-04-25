@@ -14,6 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
+documentation { Configurations related to Ballerina message broker URL
+    F{{username}} The caller's user name
+    F{{password}} The caller's password
+    F{{host}} Hostname of the broker node
+    F{{port}} AMQP port of the broker node
+    F{{clientID}} Identifier used to uniquely identify the client connection
+    F{{virtualHost}} target virtualhost
+}
 public type BrokerURLConfig {
     string username = "admin",
     string password = "admin",
@@ -23,6 +31,9 @@ public type BrokerURLConfig {
     string virtualHost = "default",
 };
 
+documentation { Generate the broker URL using the configurations provided
+    F{{config}} URL configurations
+}
 function generateBrokerURL(BrokerURLConfig config) returns string {
     return "amqp://" + config.username + ":" + config.password + "@" + config.clientID + "/" + config.virtualHost
         + "?brokerlist='tcp://" + config.host + ":" + config.port + "'";
