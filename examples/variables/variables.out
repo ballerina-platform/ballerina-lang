@@ -1,0 +1,6 @@
+$ ballerina run global_variables.bal
+99
+1
+false
+
+

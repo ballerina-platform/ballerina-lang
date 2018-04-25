@@ -5,7 +5,7 @@ import ballerina/http;
 boolean serviceStarted;
 
 function startService() {
-    serviceStarted = test:startServices("http_retry");
+    serviceStarted = test:startServices("http-retry");
 }
 
 @test:Config {
@@ -13,7 +13,7 @@ function startService() {
     after: "stopService"
 }
 function testFunc() {
-    endpoint http:Client httpEndpoint {url: "http://localhost:9090"};
+    endpoint http:Client httpEndpoint { url: "http://localhost:9090" };
     // Chck whether the server is started
     test:assertTrue(serviceStarted, msg = "Unable to start the service");
 

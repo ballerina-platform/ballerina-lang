@@ -3,26 +3,26 @@ import ballerina/io;
 import ballerina/runtime;
 
 function main(string... args) {
-    // Create a new cache. Cache cleanup task runs every 5 seconds and clears
-    // any expired cache. So cache expiry time is set to 4 seconds to demonstrate
-    // cache cleaning.
+    // This creates a new cache. The cache cleanup task runs every five seconds and clears
+    // all the expired caches. In this example, the cache expiry time is set to four seconds in order to demonstrate how
+    // cache cleaning is carried out.
     cache:Cache cache = new(expiryTimeMillis = 4000);
 
-    // Add a new entry to the cache.
+    // This adds a new entry to the cache.
     cache.put("Name", "Ballerina");
 
-    // Get the cached value.
+    // This fetches the cached value.
     string name;
     if (cache.hasKey("Name")){
         name = <string>cache.get("Name");
     }
     io:println("Name: " + name);
 
-    // Send the current worker to sleep mode for 6 seconds. No execution takes place during this period.
+    // This sends the current worker to the sleep mode for six seconds. No execution takes place during this period.
     runtime:sleep(6000);
 
-    // Since the cache expiry time is 4 seconds, the cache cleanup task runs at the 5th
-    // second and cleans the cache while this thread is sleeping. Now, this value
+    // The cache expires after 4 seconds. The cache cleanup task runs during the fifth
+    // second and cleans the cache while this thread is in the sleep mode. As a result, the value in the cache
     // is null.
     if (cache.hasKey("Name")){
         name = <string>cache.get("Name");

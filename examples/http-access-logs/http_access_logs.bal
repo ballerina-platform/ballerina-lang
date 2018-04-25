@@ -4,7 +4,7 @@ import ballerina/log;
 @http:ServiceConfig {
     basePath: "/hello"
 }
-service<http:Service> helloService bind {port: 9095} {
+service<http:Service> helloService bind { port: 9095 } {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"

@@ -1,6 +1,6 @@
-# Start Ballerina message broker using `broker.sh` or `broker.bat` command
+# At the command line, use the `broker.sh` or `broker.bat` command to start the Ballerina message broker.
 $ broker.sh
 
-# To run the program, put the code in `mb_simple_topic_message_subscriber.bal`
-# and use `$BALLERINA_HOME/bin/ballerina`.
+# At the command line, navigate to the directory that contains the
+# `.bal` file and run the `ballerina run` command.
 $ ballerina run mb_simple_topic_message_subscriber.bal

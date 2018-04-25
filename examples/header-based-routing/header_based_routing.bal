@@ -13,7 +13,7 @@ endpoint http:Client weatherEP {
 @http:ServiceConfig {
     basePath: "/hbr"
 }
-service<http:Service> headerBasedRouting bind {port: 9090} {
+service<http:Service> headerBasedRouting bind { port: 9090 } {
     //`http:resourceConfig{}` annotation with GET method declares the HTTP method.
     @http:ResourceConfig {
         methods: ["GET"],
@@ -26,7 +26,7 @@ service<http:Service> headerBasedRouting bind {port: 9090} {
         if (!req.hasHeader("x-type")) {
             http:Response errorResponse = new;
             errorResponse.statusCode = 500;
-            json errMsg = {"error": "'x-type' header is not found"};
+            json errMsg = { "error": "'x-type' header is not found" };
             errorResponse.setPayload(errMsg);
             caller->respond(errorResponse) but { error e => log:printError("Error sending response", err = e) };
             done;

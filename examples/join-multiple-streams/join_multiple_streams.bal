@@ -81,11 +81,11 @@ service productMaterialService bind productMaterialListener {
                 rawMaterialStream.publish(productMaterial);
 
                 http:Response res = new;
-                res.setJsonPayload({"message": "Raw material request successfully received"});
+                res.setJsonPayload({ "message": "Raw material request successfully received" });
                 _ = outboundEP->respond(res);
 
             }
-            http:PayloadError err => {
+            error err => {
                 http:Response res = new;
                 res.statusCode = 500;
                 res.setPayload(err.message);
@@ -106,11 +106,11 @@ service productMaterialService bind productMaterialListener {
                 productionInputStream.publish(productMaterial);
 
                 http:Response res = new;
-                res.setJsonPayload({"message": "Production input request successfully received"});
+                res.setJsonPayload({ "message": "Production input request successfully received" });
                 _ = outboundEP->respond(res);
 
             }
-            http:PayloadError err => {
+            error err => {
                 http:Response res = new;
                 res.statusCode = 500;
                 res.setPayload(err.message);

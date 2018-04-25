@@ -1,2 +1,2 @@
-// This example shows you how to publish a message to a queue using a simple Java Message Service (JMS) queue sender
+// This example demonstrates how to publish a message to a queue using a simple Java Message Service (JMS) queue sender
 // endpoint.

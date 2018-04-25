@@ -34,7 +34,7 @@ service<http:Service> multipartDemoService bind {port: 9090} {
                     handleContent(part);
                     i = i + 1;
                 }
-                response.setPayload("Multiparts Received!");
+                response.setBodyParts(bodyParts);
             }
         }
         caller->respond(response) but { error e => log:printError("Error sending response", err = e) };
@@ -108,6 +108,7 @@ function handleContent(mime:Entity bodyPart) {
     } else if (mime:TEXT_PLAIN == baseType) {
         //Extract the text data from the body part and print it.
         var payload = bodyPart.getText();
+
         match payload {
             error err => log:printError("Error in getting text payload");
             string textContent => log:printInfo(textContent);

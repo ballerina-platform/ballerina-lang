@@ -1,20 +1,23 @@
 Hello World
 Hello World Parallel
 Hello World Service
+Hello World Streams
 Secured Hello World Service with Basic Auth
 Values
 Constants
 Directory Listener
-Global Variables
+Variables
 While
 IF Else
 Ternary
+Match
 Match Expression
 Elvis Operator
 Functions
 Functions With Defaultable Parameters
 Functions With Rest Parameters
-Errors
+Error Handling
+Check
 Var
 Any Type
 Type Conversion
@@ -32,6 +35,7 @@ JSON Literals
 JSON Arrays
 JSON/Struct/Map Conversion
 Constrained JSON
+Nil Lifting
 XML
 XML Namespaces
 XML Literal
@@ -41,11 +45,11 @@ JSON To XML Conversion
 XML To JSON Conversion
 Streams
 Foreach
-Iterable Operations
-Worker
+Functional Iteration
+Workers
 Worker Interaction
 Fork/Join
-Fork/Join Condition Some
+Fork/Join Conditional Join
 Fork/Join Variable Access
 Async
 JDBC Client
@@ -85,6 +89,7 @@ HTTP 1.1 To 2.0 Protocol Switch
 Log API
 Function Pointers
 Lambda
+Closures
 WebSocket Basic Sample
 WebSocket Chat Application
 WebSocket Proxy Server
@@ -101,12 +106,8 @@ Task Appointment
 Config API
 String Template
 HTTP Redirects
-Inbound Request with Multiparts
-Outbound Request with Multiparts
-Encode Nested BodyParts in Multipart
-Decode Nested BodyParts in Multipart
-Inbound Response with Multiparts
-Outbound Response with Multiparts
+Request with Multiparts
+Response with Multiparts
 gRPC Unary Non Blocking
 grpc Unary Blocking
 grpc Secured Unary Blocking
@@ -143,7 +144,6 @@ Testerina Data Driven Tests
 Testerina Guarantee Test Execution Order
 Testerina Function Mocks
 Testerina Group Tests
-Filter Streams on Conditions
 Temporal Aggregations and Windows
 Join Multiple Streams
 Identify Patterns
@@ -153,3 +153,6 @@ Object Initializer
 Object Member Functions
 Object Assignability
 Locks
+Union Type
+Optional Type
+Tuple Type

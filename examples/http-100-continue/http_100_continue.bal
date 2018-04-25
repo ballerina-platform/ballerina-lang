@@ -1,15 +1,10 @@
-import ballerina/io;
 import ballerina/http;
-
-@Description {value: "Attributes associated with the service endpoint are defined here."}
-endpoint http:Listener helloWorldEP {
-    port: 9090
-};
+import ballerina/log;
 
 @http:ServiceConfig {
     basePath: "/hello"
 }
-service<http:Service> helloWorld bind helloWorldEP {
+service<http:Service> helloWorld bind { port: 9090 } {
 
     @http:ResourceConfig {
         path: "/"
@@ -18,22 +13,23 @@ service<http:Service> helloWorld bind helloWorldEP {
         // Check if the client expects a 100-continue response.
         if (request.expects100Continue()) {
             // Send a 100-continue response to the client.
-            _ = caller->continue();
+            caller->continue() but { error e => log:printError("Error sending response", err = e) };
         }
 
-        // The client starts sending the payload once it receives the 100-continue response. Retrieve the payload that is sent by the client.
+        // The client starts sending the payload once it receives the 100-continue response.
+        // Retrieve the payload that is sent by the client.
         http:Response res = new;
         match request.getTextPayload() {
             string payload => {
-                io:println(payload);
+                log:printInfo(payload);
                 res.statusCode = 200;
-                res.setStringPayload("Hello World!\n");
-                _ = caller->respond(res);
+                res.setPayload("Hello World!\n");
+                caller->respond(res) but { error e => log:printError("Error sending response", err = e) };
             }
-            error payloadError => {
+            error err => {
                 res.statusCode = 500;
-                res.setStringPayload(payloadError.message);
-                _ = caller->respond(res);
+                res.setPayload(err.message);
+                caller->respond(res) but { error e => log:printError("Error sending response", err = e) };
             }
         }
     }

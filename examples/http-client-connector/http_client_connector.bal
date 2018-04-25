@@ -19,8 +19,8 @@ function main(string... args) {
                 json jsonPayload => {
                     io:println(jsonPayload);
                 }
-                http:PayloadError payloadError => {
-                    io:println(payloadError.message);
+                error err => {
+                    io:println(err.message);
                 }
             }
         }
@@ -37,8 +37,8 @@ function main(string... args) {
                 json jsonPayload => {
                     io:println(jsonPayload);
                 }
-                http:PayloadError payloadError => {
-                    io:println(payloadError.message);
+                error err => {
+                    io:println(err.message);
                 }
             }
         }
@@ -47,7 +47,7 @@ function main(string... args) {
     }
 
     // Set a JSON payload to the message to be sent to the endpoint.
-    json jsonMsg = {method: "PUT", payload: "Hello World"};
+    json jsonMsg = { method: "PUT", payload: "Hello World" };
     req.setJsonPayload(jsonMsg);
     response = clientEndpoint->put("/put", request = req);
     match response {
@@ -58,8 +58,8 @@ function main(string... args) {
                 json jsonPayload => {
                     io:println(jsonPayload);
                 }
-                http:PayloadError payloadError => {
-                    io:println(payloadError.message);
+                error err => {
+                    io:println(err.message);
                 }
             }
         }
@@ -81,8 +81,8 @@ function main(string... args) {
                 json jsonPayload => {
                     io:println(jsonPayload);
                 }
-                http:PayloadError payloadError => {
-                    io:println(payloadError.message);
+                error err => {
+                    io:println(err.message);
                 }
             }
         }
@@ -99,8 +99,8 @@ function main(string... args) {
                 json jsonPayload => {
                     io:println(jsonPayload);
                 }
-                http:PayloadError payloadError => {
-                    io:println(payloadError.message);
+                error err => {
+                    io:println(err.message);
                 }
             }
         }

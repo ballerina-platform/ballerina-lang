@@ -1,33 +1,70 @@
-#At the command line, navigate to the directory that contains the
-#`.bal` file and run the `ballerina run` command.
+# At the command line, navigate to the directory that contains the
+# `.bal` file and run the `ballerina run` command.
 $ ballerina run jdbc_client.bal
-Table creation status: 0
-Stored proc creation status: 0
+The update operation - Creating a table:
+Create student table status: 0
+
+The update operation - Inserting data to a table
+Insert to student table with no parameters status: 1
+Insert to student table with variable parameters status: 1
+Insert to student table with sql:parameter values status: 1
+
+The Update operation - Update data in a table
+Update a row in student table status: 1
+
+The Update operation - Delete data from table
+Delete a row from student table status: 1
+
+The updateWithGeneratedKeys operation - Inserting data to a table
 Inserted row count: 1
-Inserted row count: 1
-Generated key: 2
-JSON: [{"id":1,"age":8,"name":"Sam"},{"id":2,"age":8,"name":"Sam"}]
+Generated key: 4
 
-First Iteration Begin
-Student:1|Sam|8
-Student:2|Sam|8
-First Iteration Over
+The batchUpdate operation - Inserting a batch of data to a table
+Batch 1 update counts: 1
+Batch 2 update counts: 1
 
-Second Iteration Begin
-Student:1|Sam|8
-Student:2|Sam|8
-Second Iteration Over
+The call operation - Calling a stored procedure with IN params
+Stored procedure with IN param creation status: 0
+Call action with IN params successful
 
-Batch item 1 status: 1
-Batch item 2 status: 1
-Call action successful
-Age 10 count: 1
-Id 1 count: 1
-Student:1|Sam|8
-Student:2|Sam|8
-Student:3|Smith|10
-Student:4|John|20
+The call operation - Calling a stored procedure with INOUT/OUT params
+Stored procedure with INOUT/OUT param creation status: 0
+Call action with INOUT and OUT params successful
+Student ID of the person with age = 25: 3
+Student count with age = 27: 1
+
+The getProxyTable operation - Get a proxy for a table and view data
+Student:1|Johnes|23
+Student:3|James|25
+Student:4|Kate|31
+Student:5|Alex|27
+Student:6|Peter|28
+Student:7|George|19
+
+Add data to a proxied table
 Insertion to table successful
-Removed count: 4
-Table drop status: 0
-Procedure drop status: 0
+
+Remove data from a proxied table
+Removed count: 2
+
+The select operation - Select data from a database table
+JSON: [{"id":1,"age":23,"name":"Johnes"},{"id":3,"age":25,"name":"James"},{"id":4,"age":31,"name":"Kate"},{"id":5,"age":27,"name":"Alex"},{"id":6,"age":28,"name":"Peter"}]
+
+The select operation - Select data by loading table to memory
+Iterating data first time:
+Student:1|Johnes|23
+Student:3|James|25
+Student:4|Kate|31
+Student:5|Alex|27
+Student:6|Peter|28
+Iterating data second time:
+Student:1|Johnes|23
+Student:3|James|25
+Student:4|Kate|31
+Student:5|Alex|27
+Student:6|Peter|28
+
+The update operation - Drop the created tables and procedures
+Drop table student status: 0
+Drop stored procedure INSERTDATA status: 0
+Drop stored procedure GETCOUNT status: 0

@@ -18,8 +18,8 @@ public type HelloWorldBlockingStub object {
     function hello(string req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
         var unionResp = self.stub.blockingExecute("HelloWorld/hello", req, headers = headers);
         match unionResp {
-            error payloadError => {
-                return payloadError;
+            error err => {
+                return err;
             }
             (any, grpc:Headers) payload => {
                 any result;

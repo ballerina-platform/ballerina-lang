@@ -23,8 +23,8 @@ function testFunc() {
     json jt2 = 5.36;
     json jt3 = true;
     json jt4 = false;
-    json jt5 = {"name": "apple", "color": "red", "price": 5.36};
-    json jt6 = [1, false, null, "foo", {"first": "John", "last": "Pala"}];
+    json jt5 = { "name": "apple", "color": "red", "price": 5.36 };
+    json jt6 = [1, false, null, "foo", { "first": "John", "last": "Pala" }];
     test:assertEquals(jt1, outputs[0]);
     test:assertEquals(jt2, outputs[1]);
     test:assertEquals(jt3, outputs[2]);
