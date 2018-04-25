@@ -18,7 +18,7 @@ function main(string... args) {
     // Schedule a timer task, which initially runs 500ms from now.
     //After that, it runs every 1000ms.
     timer = new task:Timer(onTriggerFunction, onErrorFunction, 1000, delay = 500);
-    _ = timer.start();
+    timer.start();
 
     runtime:sleep(30000); // Temporary workaround to stop the process from exiting.
 }
@@ -31,11 +31,11 @@ function cleanup() returns (error|()) {
     // An error is randomly returned to demonstrate how the error is propagated to the
     //'onError' function when an error occurs in the 'onTrigger' function.
     if (math:randomInRange(0, 10) == 5) {
-        error e = {message: "Cleanup error"};
+        error e = { message: "Cleanup error" };
         return e;
     }
     if (count >= 10) {
-        _ = timer.stop();
+        timer.stop();
         io:println("Stopped timer");
     }
     return ();
