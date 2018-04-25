@@ -1,0 +1,5 @@
+$ ballerina run closures.bal
+Answer: 48
+Answer: 63
+Answer: 15
+Answer: Ballerina22

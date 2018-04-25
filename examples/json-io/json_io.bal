@@ -47,7 +47,7 @@ function read(string path) returns json {
 function main(string... args) {
     string filePath = "./files/sample.json";
     // We create a json out of string
-    json j1 = {"Store": {
+    json j1 = { "Store": {
         "@id": "AST",
         "name": "Anne",
         "address": {

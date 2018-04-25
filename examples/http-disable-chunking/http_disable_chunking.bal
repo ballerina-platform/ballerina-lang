@@ -9,7 +9,7 @@ endpoint http:Client clientEndpoint {
     chunking: http:CHUNKING_NEVER
 };
 
-service<http:Service> chunkingSample bind {port: 9092} {
+service<http:Service> chunkingSample bind { port: 9092 } {
 
     @http:ResourceConfig {
         path: "/"
@@ -18,7 +18,7 @@ service<http:Service> chunkingSample bind {port: 9092} {
     invokeEndpoint(endpoint caller, http:Request req) {
         //Create a new outbound request and set the payload.
         http:Request newReq = new;
-        newReq.setPayload({"name": "Ballerina"});
+        newReq.setPayload({ "name": "Ballerina" });
         var result = clientEndpoint->post("/echo/", request = newReq);
         match result {
             http:Response clientResponse => {
@@ -27,7 +27,7 @@ service<http:Service> chunkingSample bind {port: 9092} {
             }
             error responseError => {
                 http:Response errorResponse = new;
-                json errMsg = {"error": "error occurred while invoking the service"};
+                json errMsg = { "error": "error occurred while invoking the service" };
                 errorResponse.setPayload(errMsg);
                 caller->respond(errorResponse) but { error e => log:printError("Error sending response", err = e) };
             }
@@ -36,7 +36,7 @@ service<http:Service> chunkingSample bind {port: 9092} {
 }
 
 // A sample backend that responds according to chunking behaviour.
-service<http:Service> echo bind {port: 9090} {
+service<http:Service> echo bind { port: 9090 } {
     @http:ResourceConfig {
         path: "/"
     }
@@ -51,7 +51,7 @@ service<http:Service> echo bind {port: 9090} {
             value = "Neither Transfer-Encoding nor content-length header found";
         }
         http:Response res = new;
-        res.setPayload({"Outbound request content": value});
+        res.setPayload({ "Outbound request content": value });
         caller->respond(res) but { error e => log:printError("Error sending response from echo service", err = e) };
     }
 }

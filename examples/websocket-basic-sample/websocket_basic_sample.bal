@@ -7,7 +7,7 @@ import ballerina/http;
     subProtocols: ["xml", "json"],
     idleTimeoutInSeconds: 120
 }
-service<http:WebSocketService> basic bind {port: 9090} {
+service<http:WebSocketService> basic bind { port: 9090 } {
 
     string ping = "ping";
     blob pingData = ping.toBlob("UTF-8");

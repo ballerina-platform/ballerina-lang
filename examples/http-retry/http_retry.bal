@@ -18,7 +18,7 @@ endpoint http:Client backendClientEP {
 @http:ServiceConfig {
     basePath: "/retry"
 }
-service<http:Service> retryDemoService bind {port: 9090} {
+service<http:Service> retryDemoService bind { port: 9090 } {
     // Create a REST resource within the API.
     @http:ResourceConfig {
         methods: ["GET"],
@@ -52,8 +52,8 @@ public int counter = 0;
 // This sample service can be used to mock connection timeouts and service outages.
 // Service outage can be mocked by stopping/starting this service.
 // This should be run separately from the `retryDemoService` service.
-@http:ServiceConfig {basePath: "/hello"}
-service<http:Service> mockHelloService bind {port: 8080} {
+@http:ServiceConfig { basePath: "/hello" }
+service<http:Service> mockHelloService bind { port: 8080 } {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"

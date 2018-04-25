@@ -1,0 +1,4 @@
+$ ballerina run match.bal
+value: value1
+value is ()
+key 'key3' not found

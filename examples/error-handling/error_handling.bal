@@ -1,7 +1,7 @@
 import ballerina/io;
 
 // Note that type `error` is a built-in reference type.
-function getAccountBalance (int accountID) returns (int|error) {
+function getAccountBalance(int accountID) returns (int|error) {
     // Create an instance of the error record and return it.
     // The logic used here is just a sample scenario to demonstrate the concept of error handling.
     if (accountID < 100) {
@@ -12,7 +12,7 @@ function getAccountBalance (int accountID) returns (int|error) {
     }
 }
 
-function main (string... args) {
+function main(string... args) {
     // As a best practice, check whether an error occurrs.
     var r = getAccountBalance(24);
 

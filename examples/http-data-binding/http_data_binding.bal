@@ -9,7 +9,7 @@ type Student {
 };
 
 @http:ServiceConfig
-service<http:Service> hello bind {port: 9090} {
+service<http:Service> hello bind { port: 9090 } {
 
     //The 'body' annotation represents the entity body of the inbound request.
     @http:ResourceConfig {
@@ -53,7 +53,7 @@ service<http:Service> hello bind {port: 9090} {
         int grade = student.Grade;
 
         http:Response res = new;
-        res.setPayload({Name: name, Grade: grade});
+        res.setPayload({ Name: name, Grade: grade });
         caller->respond(res) but { error e => log:printError("Failed to respond to the caller", err = e) };
     }
 }

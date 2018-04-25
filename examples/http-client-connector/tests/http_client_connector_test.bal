@@ -41,7 +41,7 @@ function testFunc() {
             "content-type": "text/plain",
             "user-agent": "ballerina/0.970.0-alpha4-SNAPSHOT",
             "x-forwarded-port": "443",
-            "x-forwarded-proto": "https"},
+            "x-forwarded-proto": "https" },
         "json": null,
         "url": "https://postman-echo.com/post"
     };
