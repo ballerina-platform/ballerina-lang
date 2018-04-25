@@ -27,7 +27,7 @@ documentation {
     F{{basePath}} Service base path
     F{{compression}} The status of compression
     F{{cors}} The cross origin resource sharing configurations for the service
-    F{{authConfig}} Authentication Configs to secure the service
+    F{{authConfig}} Authentication configurations for securing the service
 }
 public type HttpServiceConfig {
     Listener[] endpoints,
@@ -63,9 +63,9 @@ public type CorsConfig {
 documentation {
     Configurations for service versioning.
 
-    F{{pattern}} Expecting pattern of the version in the request url
-    F{{allowNoVersion}} Allow to dispatch requests which does not hold version path segment in url
-    F{{matchMajorVersion}} Allow to dispatch requests which specify only the major version in url
+    F{{pattern}} Expected version pattern in the request URL
+    F{{allowNoVersion}} Allow requests with missing version path segment in the URL to be dispatched
+    F{{matchMajorVersion}} Allow requests with only the major version specified in the URL to be dispatched
 }
 public type Versioning {
     string pattern = "v{major}.{minor}",
@@ -74,14 +74,14 @@ public type Versioning {
 };
 
 documentation {
-    Configuration for a WebSocket service.
+    Configurations for a WebSocket service.
 
     F{{endpoints}} An array of endpoints the service would be attached to
     F{{webSocketEndpoints}} An array of endpoints the service would be attached to
     F{{path}} Path of the WebSocket service
     F{{subProtocols}} Negotiable sub protocol by the service
-    F{{idleTimeoutInSeconds}} Idle timeout for the client connection. This can be triggered by putting onIdleTimeout
-                              resource in WS service.
+    F{{idleTimeoutInSeconds}} Idle timeout for the client connection. This can be triggered by putting
+                              an `onIdleTimeout` resource in the WebSocket service.
     F{{maxFrameSize}} The maximum payload size of a WebSocket frame in bytes
 }
 public type WSServiceConfig {
@@ -108,12 +108,12 @@ public type WSServiceConfig {
 public type HttpServiceLifeTime "REQUEST"|"CONNECTION"|"SESSION"|"SINGLETON";
 
 documentation {
-    Configurations annotation for an HTTP service.
+    The annotation which is used for configuring an HTTP service.
 }
 public annotation <service> ServiceConfig HttpServiceConfig;
 
 documentation {
-    Configurations annotation for a WebSocket service.
+    The annotation which is used for configuring a WebSocket service.
 }
 public annotation <service> WebSocketServiceConfig WSServiceConfig;
 
@@ -151,10 +151,10 @@ public type WebSocketUpgradeConfig {
 };
 
 documentation {
-    Representation of AuthConfig.
+    Configures the authentication scheme for a service or a resource.
 
-    F{{authentication}} Authentication instance
-    F{{authProviders}} Array of authentication providers
+    F{{authentication}} Enables/disables authentication
+    F{{authProviders}} Array of authentication provider IDs
     F{{scopes}} Array of scopes
 }
 public type ListenerAuthConfig {
@@ -164,15 +164,15 @@ public type ListenerAuthConfig {
 };
 
 documentation {
-    Representation of Authentication Config.
+    Can be used for enabling/disabling authentication in an HTTP service.
 
-    F{{enabled}} flag to enable/disable authentication
+    F{{enabled}} Setting this to `true` enables authentication
 }
 public type Authentication {
     boolean enabled,
 };
 
 documentation {
-    Configurations annotation for an HTTP resource.
+    The annotation which is used for configuring an HTTP resource.
 }
 public annotation <resource> ResourceConfig HttpResourceConfig;
