@@ -1,2 +1,0 @@
-//Using the Ballerina http client connector, you can send multiparts via outbound requests. First, build the body parts
-//that need to be sent out and then set those body parts to the outbound request.
