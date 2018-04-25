@@ -1,4 +1,4 @@
-// The Ballerina WebSub Publisher brings up the internal Ballerina Hub, registers a topic at the hub, and publishes
+// The Ballerina WebSub Publisher brings up the internal Ballerina hub, registers a topic at the hub, and publishes
 // updates to the topic.
 import ballerina/log;
 import ballerina/runtime;
@@ -6,7 +6,7 @@ import ballerina/websub;
 
 function main(string... args) {
 
-    // Start up the internal Ballerina Hub, specifying the port to start up on.
+    // Specify the port that the internal Ballerina hub needs to start on and start the hub.
     log:printInfo("Starting up the Ballerina Hub Service");
     websub:WebSubHub webSubHub = websub:startUpBallerinaHub(port = 9191);
 
@@ -21,7 +21,7 @@ function main(string... args) {
     runtime:sleep(20000);
 
     log:printInfo("Publishing update to internal Hub");
-    // Publish directly to the internal Ballerina Hub.
+    // Publish directly to the internal Ballerina hub.
     var publishResponse = webSubHub.publishUpdate("http://www.websubpubtopic.com",
         {
             "action": "publish",
