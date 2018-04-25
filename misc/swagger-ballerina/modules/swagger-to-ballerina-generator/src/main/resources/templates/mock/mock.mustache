@@ -1,3 +1,4 @@
+import ballerina/log;
 import ballerina/http;
 import ballerina/swagger;
 
@@ -42,14 +43,15 @@ service {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unless @last}}, {
             }{{#unless @last}},{{/unless}}{{/parameters}}
         ]
     }
-    @http:ResourceConfig {
-        methods:["{{upper key}}"],
+    @http:ResourceConfig { {{#equals key "multi"}}{{#if methods}}
+        methods:[{{#methods}}"{{.}}"{{#unless @last}}, {{/unless}}{{/methods}}],{{/if}}{{else}}
+        methods:["{{upper key}}"],{{/equals}}
         path:"{{../../key}}"
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
     {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
         http:Response res = {{operationId}}(req{{#parameters}}{{#equals in "path"}}, {{name}}{{/equals}}{{/parameters}});
-        _ = outboundEp -> respond(res);
+        outboundEp->respond(res) but { error e => log:printError("Error while responding", err = e) };
     }
 {{/value}}{{/operations}}{{/value}}{{/paths}}
 }

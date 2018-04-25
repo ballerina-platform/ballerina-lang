@@ -43,19 +43,19 @@ public type {{name}}Client object {
     }
 
     new (clientEp) {}
-    {{#resources}}
-    public function {{name}}({{#parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/parameters}}) returns http:Response | error;{{/resources}}
+    {{#resources}}{{#isMultiMethod}}{{#supportedMethods}}
+    public function {{lower .}}{{name}}({{#parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/parameters}}) returns http:Response | error;{{/supportedMethods}}{{/isMultiMethod}}{{^isMultiMethod}}
+    public function {{name}}({{#parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/parameters}}) returns http:Response | error;{{/isMultiMethod}}{{/resources}}
 };
-
-{{#resources}}
-public function {{../name}}Client::{{name}}({{#parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/parameters}}) returns http:Response | error {
+{{#resources}}{{#isMultiMethod}}{{#supportedMethods}}
+public function {{../../name}}Client::{{lower .}}{{../name}}({{#parameters}}{{type}} {{../name}}{{#unless @last}}, {{/unless}}{{/parameters}}) returns http:Response | error {
     endpoint http:Client ep = self.clientEp.client;
     http:Request request = new;
 
     //Create the required request as needed{{#contentType}}
     request.setHeader("Content-Type", "{{contentType}}");{{/contentType}}
     string path = string `{{path}}`;
-    var res = ep -> {{lower method}}(path, request = request);
+    var res = ep->{{lower .}}(path, request = request);
 
     match res {
         http:HttpConnectorError httpError => {
@@ -65,6 +65,24 @@ public function {{../name}}Client::{{name}}({{#parameters}}{{type}} {{name}}{{#u
         http:Response resp => return resp;
     }
 }
+{{/supportedMethods}}{{/isMultiMethod}}{{^isMultiMethod}}
+public function {{../name}}Client::{{name}}({{#parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/parameters}}) returns http:Response | error {
+    endpoint http:Client ep = self.clientEp.client;
+    http:Request request = new;
+
+    //Create the required request as needed{{#contentType}}
+    request.setHeader("Content-Type", "{{contentType}}");{{/contentType}}
+    string path = string `{{path}}`;
+    var res = ep->{{lower method}}(path, request = request);
+
+    match res {
+        http:HttpConnectorError httpError => {
+            error err = {message: httpError.message};
+            return err;
+        }
+        http:Response resp => return resp;
+    }
+}{{/isMultiMethod}}
 {{/resources}}
 {{#if endpoints}}//======================================================
 //============Invocation of Generated Client============
@@ -75,8 +93,9 @@ function main (string... args) { {{#endpoints}}
     };{{/endpoints}}
 
     {{#resources.0}}
-    // Sample invocation of the generated client connector
-    var res = ep0 -> {{name}}({{#parameters}}{{>arguments}}{{/parameters}});
+    // Sample invocation of the generated client connector{{#isMultiMethod}}{{#supportedMethods.0}}
+    var res = ep0->{{lower .}}{{name}}({{#parameters}}{{>arguments}}{{/parameters}});{{/supportedMethods.0}}{{/isMultiMethod}}{{^isMultiMethod}}
+    var res = ep0->{{name}}({{#parameters}}{{>arguments}}{{/parameters}});{{/isMultiMethod}}
     match (res) {
         error err => io:println(err.message);
             http:Response resp => {
