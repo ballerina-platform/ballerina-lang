@@ -22,7 +22,6 @@ documentation {
     F{{epName}} Name of the endpoint
     F{{failoverClientConfig}} The configurations for the failover client endpoint
 }
-// TODO: Remove the empty implementations
 public type FailoverClient object {
 
     public {
@@ -42,32 +41,12 @@ public type FailoverClient object {
     public function init(FailoverClientEndpointConfiguration failoverClientConfig);
 
     documentation {
-        Not implemented for the failover client endpoint.
-    }
-    public function register(typedesc serviceType) {
-
-    }
-
-    documentation {
-        The start() function is not implemented for the failover client endpoint.
-    }
-    public function start() {
-
-    }
-
-    documentation {
         Returns the HTTP actions associated with the endpoint.
 
         R{{}} The HTTP caller actions provider of the endpoint
     }
     public function getCallerActions() returns CallerActions {
         return httpEP.httpClient;
-    }
-
-    documentation {
-        The stop() function is not implemented for the failover client endpoint.
-    }
-    public function stop() {
     }
 };
 
@@ -86,7 +65,7 @@ documentation {
     F{{proxy}} Proxy related options
     F{{connectionThrottling}} The configurations for controlling the number of connections allowed concurrently
     F{{cache}} The configurations for controlling the caching behaviour
-    F{{acceptEncoding}} Specifies the way of handling `accept-encoding` header
+    F{{acceptEncoding}} Specifies how the `accept-encoding` header should be handled
     F{{auth}} HTTP authentication releated configurations
     F{{failoverCodes}} Array of HTTP response status codes for which the failover behaviour should be triggered
     F{{intervalMillis}} Failover delay interval in milliseconds
