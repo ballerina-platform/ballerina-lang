@@ -30,7 +30,7 @@ export default {
             service<http:Service> serviceName bind endpointName {
                 getAction (endpoint client){
                     http:Response res = new;
-                    res.setStringPayload("Successful");
+                    res.setPayload("Successful");
                     _ = client -> respond(res);
                 }
             }

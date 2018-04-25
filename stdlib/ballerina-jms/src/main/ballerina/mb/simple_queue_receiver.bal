@@ -41,7 +41,7 @@ public type SimpleQueueReceiver object {
         self.config = config;
         self.receiver.init({
                 initialContextFactory:"bmbInitialContextFactory",
-                providerUrl:generateBrokerURL(config),
+                providerUrl:getConnectionUrl(config),
                 connectionFactoryName:config.connectionFactoryName,
                 acknowledgementMode:config.acknowledgementMode,
                 messageSelector:config.messageSelector,
@@ -115,6 +115,7 @@ public type SimpleQueueListenerEndpointConfiguration {
     int port = 5672,
     string clientID = "ballerina",
     string virtualHost = "default",
+    ServiceSecureSocket? secureSocket,
     string connectionFactoryName = "ConnectionFactory",
     string acknowledgementMode = "AUTO_ACKNOWLEDGE",
     string messageSelector,

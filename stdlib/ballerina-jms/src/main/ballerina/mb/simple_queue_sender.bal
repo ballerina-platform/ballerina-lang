@@ -39,7 +39,7 @@ public type SimpleQueueSender object {
     public function init(SimpleQueueSenderEndpointConfiguration config) {
         endpoint jms:SimpleQueueSender queueSender {
             initialContextFactory:"bmbInitialContextFactory",
-            providerUrl:generateBrokerURL(config),
+            providerUrl:getConnectionUrl(config),
             connectionFactoryName:"ConnectionFactory",
             acknowledgementMode:config.acknowledgementMode,
             properties:config.properties,
@@ -137,6 +137,7 @@ public type SimpleQueueSenderEndpointConfiguration {
     int port = 5672,
     string clientID = "ballerina",
     string virtualHost = "default",
+    ServiceSecureSocket? secureSocket,
     string acknowledgementMode = "AUTO_ACKNOWLEDGE",
     map properties,
     string queueName,

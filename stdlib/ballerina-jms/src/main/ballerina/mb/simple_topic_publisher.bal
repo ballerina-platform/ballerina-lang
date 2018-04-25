@@ -39,7 +39,7 @@ public type SimpleTopicPublisher object {
     public function init(SimpleTopicPublisherEndpointConfiguration config) {
         endpoint jms:SimpleTopicPublisher topicPublisher {
             initialContextFactory:"bmbInitialContextFactory",
-            providerUrl:generateBrokerURL(config),
+            providerUrl:getConnectionUrl(config),
             connectionFactoryName:"ConnectionFactory",
             acknowledgementMode:config.acknowledgementMode,
             properties:config.properties,
@@ -138,6 +138,7 @@ public type SimpleTopicPublisherEndpointConfiguration {
     int port = 5672,
     string clientID = "ballerina",
     string virtualHost = "default",
+    ServiceSecureSocket? secureSocket,
     string acknowledgementMode = "AUTO_ACKNOWLEDGE",
     map properties,
     string topicPattern,

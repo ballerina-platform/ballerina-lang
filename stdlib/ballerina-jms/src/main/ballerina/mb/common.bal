@@ -21,6 +21,7 @@ documentation { Configurations related to Ballerina message broker URL
     F{{port}} AMQP port of the broker node
     F{{clientID}} Identifier used to uniquely identify the client connection
     F{{virtualHost}} target virtualhost
+    F{{secureSocket}} TLS configurations
 }
 public type BrokerURLConfig {
     string username = "admin",
@@ -29,12 +30,71 @@ public type BrokerURLConfig {
     int port = 5672,
     string clientID = "ballerina",
     string virtualHost = "default",
+    ServiceSecureSocket? secureSocket,
 };
 
-documentation { Generate the broker URL using the configurations provided
-    P{{config}} URL configurations
+documentation { Configurations related to TLS
+    F{{trustStore}} Trustore configurations
+    F{{keyStore}} Keystore configuration
+    F{{sslCertAlias}} name of the ssl cert alias
 }
+public type ServiceSecureSocket {
+    Store? trustStore,
+    Store? keyStore,
+    string sslCertAlias,
+};
+
+documentation {
+    F{{path}} file path to key store
+    F{{password}} password used to protect the key store
+}
+public type Store {
+    string path,
+    string password,
+};
+
 function generateBrokerURL(BrokerURLConfig config) returns string {
     return "amqp://" + config.username + ":" + config.password + "@" + config.clientID + "/" + config.virtualHost
         + "?brokerlist='tcp://" + config.host + ":" + config.port + "'";
+}
+
+function generateSecureBrokerURL(BrokerURLConfig config, ServiceSecureSocket secureSocket) returns string {
+    var (trustStorePath, trustStorePassword) = getStoreDetails(secureSocket.trustStore);
+    var (keyStorePath, keyStorePassword) = getStoreDetails(secureSocket.keyStore);
+
+    return "amqp://" + config.username + ":" + config.password + "@" + config.clientID + "/" + config.virtualHost
+        + "?brokerlist='tcp://" + config.host + ":" + config.port
+        + "?ssl='true'"
+        + "&ssl_cert_alias='" + secureSocket.sslCertAlias + "'"
+        + "&trust_store='" + trustStorePath + "'"
+        + "&trust_store_password='" + trustStorePassword + "'"
+        + "&key_store='" + keyStorePath + "'"
+        + "&key_store_password='" + keyStorePassword + "'"
+        + "'";
+}
+
+function getConnectionUrl(BrokerURLConfig config) returns string {
+    string connectionUrl;
+    match (config.secureSocket) {
+        ServiceSecureSocket secSocket => {
+            connectionUrl = generateSecureBrokerURL(config, secSocket);
+        }
+        () => {
+            connectionUrl = generateBrokerURL(config);
+        }
+    }
+    return connectionUrl;
+}
+
+function getStoreDetails(Store? store) returns (string, string) {
+    match(store) {
+        Store t => {
+            return (t.path, t.password);
+        }
+        () => {
+            error e = {message:"Store details not provided."};
+            throw e;
+        }
+    }
+
 }
