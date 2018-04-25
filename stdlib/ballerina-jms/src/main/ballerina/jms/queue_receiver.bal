@@ -87,8 +87,7 @@ public type QueueReceiverEndpointConfiguration {
     string identifier;
 };
 
-documentation { Caller actions related to queue receiver endpoint
-}
+documentation { Caller actions related to queue receiver endpoint }
 public type QueueReceiverActions object {
 
     documentation { Acknowledges a received message

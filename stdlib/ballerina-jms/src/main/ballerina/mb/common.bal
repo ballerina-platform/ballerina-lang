@@ -32,7 +32,7 @@ public type BrokerURLConfig {
 };
 
 documentation { Generate the broker URL using the configurations provided
-    F{{config}} URL configurations
+    P{{config}} URL configurations
 }
 function generateBrokerURL(BrokerURLConfig config) returns string {
     return "amqp://" + config.username + ":" + config.password + "@" + config.clientID + "/" + config.virtualHost
