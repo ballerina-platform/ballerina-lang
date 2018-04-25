@@ -17,9 +17,8 @@
 
 documentation {
     Provides the HTTP actions for interacting with an HTTP server. Apart from the standard HTTP methods, `forward()`
-    and `execute()` functions are provided. `forward()` takes an incoming HTTP requests and sends it to an upstream
-    HTTP endpoint while `execute()` can be used for sending HTTP requests with custom verbs. More complex and specific
-    endpoint types can be created by wrapping this generic HTTP actions implementation.
+    and `execute()` functions are provided. More complex and specific endpoint types can be created by wrapping this
+    generic HTTP actions implementation.
 
     F{{serviceUri}} The URL of the remote HTTP endpoint
     F{{config}} The configurations of the client endpoint associated with this HttpActions instance
@@ -37,8 +36,7 @@ public type CallerActions object {
 
         P{{path}} Resource path
         P{{request}} An HTTP outbound request message
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        R{{}} The HTTP `Response` message, or an error if the invocation fails
 	}
     public native function post(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
 
@@ -47,8 +45,7 @@ public type CallerActions object {
 
         P{{path}} Resource path
         P{{request}} An HTTP outbound request message
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        R{{}} The HTTP `Response` message, or an error if the invocation fails
 	}
     public native function head(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
 
@@ -57,8 +54,7 @@ public type CallerActions object {
 
         P{{path}} Resource path
         P{{request}} An HTTP outbound request message
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        R{{}} The HTTP `Response` message, or an error if the invocation fails
 	}
     public native function put(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
 
@@ -68,8 +64,7 @@ public type CallerActions object {
         P{{httpVerb}} HTTP verb value
         P{{path}} Resource path 
         P{{request}} An HTTP outbound request message
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        R{{}} The HTTP `Response` message, or an error if the invocation fails
 	}
     public native function execute(@sensitive string httpVerb, @sensitive string path, Request request)
                                                                                 returns Response|HttpConnectorError;
@@ -79,8 +74,7 @@ public type CallerActions object {
 		
         P{{path}} Resource path 
         P{{request}} An HTTP outbound request message
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        R{{}} The HTTP `Response` message, or an error if the invocation fails
 	}
     public native function patch(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
 
@@ -89,8 +83,7 @@ public type CallerActions object {
 		
         P{{path}} Resource path 
         P{{request}} An HTTP outbound request message
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        R{{}} The HTTP `Response` message, or an error if the invocation fails
 	}
     public native function delete(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
 
@@ -99,8 +92,7 @@ public type CallerActions object {
 		
         P{{path}} Request path
         P{{request}} An HTTP outbound request message
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        R{{}} The HTTP `Response` message, or an error if the invocation fails
 	}
     public native function get(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
 
@@ -109,8 +101,7 @@ public type CallerActions object {
 		
         P{{path}} Request path
         P{{request}} An HTTP outbound request message
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        R{{}} The HTTP `Response` message, or an error if the invocation fails
 	}
     public native function options(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
 
@@ -119,8 +110,7 @@ public type CallerActions object {
 		
         P{{path}} Request path
         P{{request}} An HTTP inbound request message
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        R{{}} The HTTP `Response` message, or an error if the invocation fails
 	}
     public native function forward(@sensitive string path, Request request) returns Response|HttpConnectorError;
 
@@ -179,7 +169,7 @@ public type CallerActions object {
 };
 
 documentation {
-    `HttpConnectorError` record represents an error occurred during the HTTP client invocation.
+    Defines an error occurred during the HTTP client invocation.
 
     F{{message}}  An explanation on what went wrong
     F{{cause}} The error which caused the `HttpConnectorError`
@@ -192,11 +182,11 @@ public type HttpConnectorError {
 };
 
 documentation {
-    `HttpTimeoutError` record represents a timeout error occurred during service invocation.
+    Defines a timeout error occurred during service invocation.
 
     F{{message}} An explanation on what went wrong
     F{{cause}} The error which caused the `HttpTimeoutError`
-    F{{statusCode}} HTTP status code.
+    F{{statusCode}} HTTP status code
 }
 public type HttpTimeoutError {
     string message,
