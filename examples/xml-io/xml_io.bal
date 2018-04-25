@@ -46,7 +46,7 @@ function read(string path) returns xml {
 
 function main(string... args) {
     string filePath = "./files/sample.xml";
-    // Create an xml from the string
+    // Create xml content from the string
     xml x1 = xml `<book>The Lost World</book>`;
     io:println("Preparing to write xml file");
     // Write the content
