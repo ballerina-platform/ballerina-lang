@@ -85,8 +85,8 @@ public type SimpleQueueReceiver object {
     documentation { Creates a message which holds text content
         P{{content}} the text content used to initialize this message
     }
-    public function createTextMessage(string message) returns Message|error {
-        var result = self.receiver.createTextMessage(message);
+    public function createTextMessage(string content) returns Message|error {
+        var result = self.receiver.createTextMessage(content);
         match (result) {
             jms:Message m => return new Message(m);
             error e => return e;

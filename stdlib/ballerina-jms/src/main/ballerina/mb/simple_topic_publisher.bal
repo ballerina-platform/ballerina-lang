@@ -52,7 +52,7 @@ public type SimpleTopicPublisher object {
 
     documentation { Registers the endpoint in the service.
         This method is generally not used since SimpleTopicPublisher is a non-service endpoint.
-        F{{serviceType}} type descriptor of the service
+        P{{serviceType}} type descriptor of the service
     }
     public function register(typedesc serviceType) {
 
@@ -112,9 +112,9 @@ public type TopicPublisherActions object {
     documentation { Sends a message to Ballerina message broker
         P{{message}} message to be sent to Ballerina message broker
     }
-    public function send(Message m) returns error? {
+    public function send(Message message) returns error? {
         endpoint jms:SimpleTopicPublisher publisherEP = self.publisher;
-        var result = publisherEP->send(m.getJMSMessage());
+        var result = publisherEP->send(message.getJMSMessage());
         return result;
     }
 };

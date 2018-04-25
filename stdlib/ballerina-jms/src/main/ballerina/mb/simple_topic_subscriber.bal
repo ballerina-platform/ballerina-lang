@@ -92,7 +92,7 @@ public type SimpleTopicSubscriber object {
 documentation { Configuration related to simple topic subscriber endpoint
     F{{username}} Valid user to connect to the Ballerina message broker
     F{{password}} Password of the user
-    F{{hostname}} Hostname of the Ballerina message broker
+    F{{host}} Hostname of the Ballerina message broker
     F{{port}} Hostname of the Ballerina message broker
     F{{clientID}} Used to identify the JMS client
     F{{virtualHost}} Name of the virtual host where the virtual host is a path that acts as a namespace

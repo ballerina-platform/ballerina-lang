@@ -64,7 +64,7 @@ public type SimpleQueueSender object {
 
     documentation { Registers the endpoint in the service.
         This method is not used since SimpleQueueSender is a non-service endpoint.
-        F{{serviceType}} type descriptor of the service
+        P{{serviceType}} type descriptor of the service
     }
     public function register(typedesc serviceType) {
 
@@ -93,9 +93,9 @@ public type SimpleQueueSender object {
     documentation { Creates a JMS message which holds text content
         P{{content}} the text content used to initialize this message
     }
-    public function createTextMessage(string message) returns Message|error {
+    public function createTextMessage(string content) returns Message|error {
         match (session) {
-            Session s => return s.createTextMessage(message);
+            Session s => return s.createTextMessage(content);
             () => {
                 error e = {message:"Session cannot be nil"};
                 throw e;

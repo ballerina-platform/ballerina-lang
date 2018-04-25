@@ -52,7 +52,7 @@ public type SimpleQueueSender object {
 
     documentation { Registers the endpoint in the service.
         This method is not used since SimpleQueueSender is a non-service endpoint.
-        F{{serviceType}} type descriptor of the service
+        P{{serviceType}} type descriptor of the service
     }
     public function register(typedesc serviceType) {
 
@@ -79,13 +79,13 @@ public type SimpleQueueSender object {
 
     }
 
-    public    documentation { Creates a message which holds text content
+    documentation { Creates a message which holds text content
         P{{content}} the text content used to initialize this message
     }
-    function createTextMessage(string message) returns Message|error {
+    public function createTextMessage(string content) returns Message|error {
         match (self.sender) {
             jms:SimpleQueueSender s => {
-                var result = s.createTextMessage(message);
+                var result = s.createTextMessage(content);
                 match (result) {
                     jms:Message m => return new Message(m);
                     error e => return e;
@@ -111,9 +111,9 @@ public type QueueSenderActions object {
     documentation { Sends a message to Ballerina message broker
         P{{message}} message to be sent to Ballerina message broker
     }
-    public function send(Message m) returns error? {
+    public function send(Message message) returns error? {
         endpoint jms:SimpleQueueSender senderEP = self.sender;
-        var result = senderEP->send(m.getJMSMessage());
+        var result = senderEP->send(message.getJMSMessage());
         return result;
     }
 };

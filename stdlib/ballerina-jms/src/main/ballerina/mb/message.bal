@@ -154,28 +154,27 @@ public type Message object {
     public function getExpiration() returns @tainted int|error {
         return self.message.getExpiration();
     }
-    public native function getExpiration() returns @tainted int|error;
 
     documentation { Sets message type header to the message
         P{{messageType}} The message type header value
         R{{}} nil or an MB error if any JMS provider level internal error occur
     }
-    public native function setType(string messageType) returns error? {
+    public function setType(string messageType) returns error? {
         return self.message.setType(messageType);
     }
 
     documentation { Gets message type header from the message
         R{{}} The JMS message type header value or JMS error
     }
-    public native function getType() returns @tainted string|error {
+    public function getType() returns @tainted string|error {
         return self.message.getType();
     }
 
-    documentation {Clear properties of the message
+    documentation { Clear properties of the message
         R{{}} nil or an MB error
     }
-    public function clearProperties() {
-        self.message.clearProperties();
+    public function clearProperties() returns error? {
+        return self.message.clearProperties();
     }
 
     documentation { Clears body of the message
