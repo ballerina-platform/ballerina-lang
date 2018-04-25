@@ -32,6 +32,7 @@ JSON Literals
 JSON Arrays
 JSON/Struct/Map Conversion
 Constrained JSON
+Nil Lifting
 XML
 XML Namespaces
 XML Literal
@@ -153,3 +154,5 @@ Object Initializer
 Object Member Functions
 Object Assignability
 Locks
+Union Type
+Optional Type
