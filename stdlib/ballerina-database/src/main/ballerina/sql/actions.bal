@@ -25,11 +25,11 @@ public type CallerActions object {
 
         P{{sqlQuery}} SQL statement to execute
         P{{recordType}} Array of record types of the returned tables if there is any
-        R{{}} A `table[]` if there are tables returned by the call action and else nill,
+        R{{}} A `table[]` if there are tables returned by the call action and else nil,
                 `error` will be returned if there is any error
     }
     public native function call(@sensitive string sqlQuery, typedesc[]? recordType, Param... parameters)
-        returns @tainted table[]|error;
+        returns @tainted table[]|()|error;
 
     documentation {
         The select action implementation for SQL connector to select data from tables.

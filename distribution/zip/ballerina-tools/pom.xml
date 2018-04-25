@@ -256,7 +256,6 @@
                         </goals>
                         <configuration>
                             <target>
-                                <delete dir="${project.build.directory}/extracted-distributions" includeemptydirs="true" deleteonexit="true" />
                                 <delete dir="${project.build.directory}/api-docs" includeemptydirs="true" deleteonexit="true" />
                             </target>
                         </configuration>
