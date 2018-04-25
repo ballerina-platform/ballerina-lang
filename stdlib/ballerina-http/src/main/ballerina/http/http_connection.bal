@@ -32,7 +32,7 @@ public type Connection object {
         Pushes a promise to the caller.
         
         P{{promise}} Push promise message
-        R{{}} Returns an `HttpConnectorError` if failed to push the promise
+        R{{}} An `HttpConnectorError` if an error happens while pushing the promise
     }
     public native function promise(PushPromise promise) returns HttpConnectorError?;
 
@@ -41,7 +41,7 @@ public type Connection object {
         
         P{{promise}} Push promise message
         P{{response}} The outbound response
-        R{{}} Returns an `HttpConnectorError` if failed to respond with the promised response
+        R{{}} An `HttpConnectorError` if an error happens while responding with the promised response
     }
     public native function pushPromisedResponse(PushPromise promise, Response response) returns HttpConnectorError?;
 
