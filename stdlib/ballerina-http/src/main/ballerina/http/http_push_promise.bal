@@ -39,7 +39,7 @@ public type PushPromise object {
         Checks whether the requested header exists.
 
         P{{headerName}} The header name
-        R{{}} A boolean representing the existence of a given header
+        R{{}} A `boolean` representing the existence of a given header
     }
     public native function hasHeader (string headerName) returns (boolean);
 
@@ -48,7 +48,7 @@ public type PushPromise object {
         If there are more than one header value for the specified header name, the first value is returned.
 
         P{{headerName}} The header name
-        R{{}} The header value or null if there is no such header
+        R{{}} The header value, or null if there is no such header
     }
     public native function getHeader (string headerName) returns (string);
 
