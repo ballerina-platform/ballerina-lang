@@ -1,1 +1,1 @@
-// Record is a fixed set of named fields where each field may have a different type.
+// A record is a fixed set of named fields where each field can be of a different type.
