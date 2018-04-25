@@ -23,7 +23,7 @@ function main (string... args) {
                 error payloadError => return;
             }
         }
-        http:HttpConnectorError err => return;
+        error err => return;
     }
 }
 

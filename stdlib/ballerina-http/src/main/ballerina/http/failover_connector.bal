@@ -36,13 +36,13 @@ documentation {
     F{{message}} An explanation on what went wrong
     F{{cause}} The cause of the `FailoverConnectorError`, if available
     F{{statusCode}} HTTP status code to be sent to the caller
-    F{{httpConnectorError}} Errors which occurred at each endpoint during the failover
+    F{{httpConnectorErr}} Errors which occurred at each endpoint during the failover
 }
 public type FailoverConnectorError {
     string message,
     error? cause,
     int statusCode,
-    HttpConnectorError[] httpConnectorError,
+    error[] httpConnectorErr,
 };
 
 // TODO: This can be made package private
@@ -75,54 +75,54 @@ public type Failover object {
 
         P{{path}} Resource path
         P{{request}} An optional HTTP request
-        R{{}} The response or an `HttpConnectorError` if failed to fulfill the request
+        R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function post(string path, Request? request = ()) returns Response|HttpConnectorError;
+    public function post(string path, Request? request = ()) returns Response|error;
 
     documentation {
         The HEAD action implementation of the Failover Connector.
 
         P{{path}} Resource path
         P{{request}} An optional HTTP request
-        R{{}} The response or an `HttpConnectorError` if failed to fulfill the request
+        R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function head(string path, Request? request = ()) returns Response|HttpConnectorError;
+    public function head(string path, Request? request = ()) returns Response|error;
 
     documentation {
         The PATCH action implementation of the Failover Connector.
 
         P{{path}} Resource path
         P{{request}} An optional HTTP request
-        R{{}} The response or an `HttpConnectorError` if failed to fulfill the request
+        R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function patch(string path, Request? request = ()) returns Response|HttpConnectorError;
+    public function patch(string path, Request? request = ()) returns Response|error;
 
     documentation {
         The PUT action  implementation of the Failover Connector.
 
         P{{path}} Resource path
         P{{request}} An optional HTTP request
-        R{{}} The response or an `HttpConnectorError` if failed to fulfill the request
+        R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function put(string path, Request? request = ()) returns Response|HttpConnectorError;
+    public function put(string path, Request? request = ()) returns Response|error;
 
     documentation {
         The OPTIONS action implementation of the Failover Connector.
 
         P{{path}} Resource path
         P{{request}} An optional HTTP request
-        R{{}} The response or an `HttpConnectorError` if failed to fulfill the request
+        R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function options(string path, Request? request = ()) returns Response|HttpConnectorError;
+    public function options(string path, Request? request = ()) returns Response|error;
 
     documentation {
         Invokes an HTTP call using the incoming request's HTTP method.
 
         P{{path}} Resource path
         P{{request}} An HTTP request
-        R{{}} The response or an `HttpConnectorError` if failed to fulfill the request
+        R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function forward(string path, Request request) returns Response|HttpConnectorError;
+    public function forward(string path, Request request) returns Response|error;
 
     documentation {
         Invokes an HTTP call with the specified HTTP method.
@@ -130,27 +130,27 @@ public type Failover object {
         P{{httpVerb}} HTTP method to be used for the request
         P{{path}} Resource path
         P{{request}} An HTTP request
-        R{{}} The response or an `HttpConnectorError` if failed to fulfill the request
+        R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function execute(string httpVerb, string path, Request request) returns Response|HttpConnectorError;
+    public function execute(string httpVerb, string path, Request request) returns Response|error;
 
     documentation {
         The DELETE action implementation of the Failover Connector.
 
         P{{path}} Resource path
         P{{request}} An optional HTTP request
-        R{{}} The response or an `HttpConnectorError` if failed to fulfill the request
+        R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function delete(string path, Request? request = ()) returns Response|HttpConnectorError;
+    public function delete(string path, Request? request = ()) returns Response|error;
 
     documentation {
         The GET action implementation of the Failover Connector.
 
         P{{path}} Resource path
         P{{request}} An optional HTTP request
-        R{{}} The response or an `HttpConnectorError` if failed to fulfill the request
+        R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function get(string path, Request? request = ()) returns Response|HttpConnectorError;
+    public function get(string path, Request? request = ()) returns Response|error;
 
     documentation {
         Submits an HTTP request to a service with the specified HTTP verb. The `submit()` function does not return
@@ -162,7 +162,7 @@ public type Failover object {
         P{{request}} An HTTP outbound request message
         R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
     }
-    public function submit(string httpVerb, string path, Request request) returns HttpFuture|HttpConnectorError;
+    public function submit(string httpVerb, string path, Request request) returns HttpFuture|error;
 
     documentation {
         Retrieves the `Response` for a previously submitted request.
@@ -170,7 +170,7 @@ public type Failover object {
         P{{httpFuture}} The `HttpFuture` related to a previous asynchronous invocation
         R{{}} An HTTP response message, or an `error` if the invocation fails
     }
-    public function getResponse(HttpFuture httpFuture) returns HttpConnectorError;
+    public function getResponse(HttpFuture httpFuture) returns error;
 
     documentation {
         Checks whether a `PushPromise` exists for a previously submitted request.
@@ -186,7 +186,7 @@ public type Failover object {
         P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
         R{{}} An HTTP Push Promise message, or an `error` if the invocation fails
     }
-    public function getNextPromise(HttpFuture httpFuture) returns PushPromise|HttpConnectorError;
+    public function getNextPromise(HttpFuture httpFuture) returns PushPromise|error;
 
     documentation {
         Retrieves the promised server push `Response` message.
@@ -194,7 +194,7 @@ public type Failover object {
         P{{promise}} The related `PushPromise`
         R{{}} A promised HTTP `Response` message, or an `error` if the invocation fails
     }
-    public function getPromisedResponse(PushPromise promise) returns Response|HttpConnectorError;
+    public function getPromisedResponse(PushPromise promise) returns Response|error;
 
     documentation {
         Rejects a `PushPromise`. When a `PushPromise` is rejected, there is no chance of fetching a promised
@@ -205,71 +205,71 @@ public type Failover object {
     public function rejectPromise(PushPromise promise);
 };
 
-public function Failover::post(string path, Request? request = ()) returns Response|HttpConnectorError {
+public function Failover::post(string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performFailoverAction(path, req, HTTP_POST, self.failoverInferredConfig);
 }
 
-public function Failover::head(string path, Request? request = ()) returns Response|HttpConnectorError {
+public function Failover::head(string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performFailoverAction(path, req, HTTP_HEAD, self.failoverInferredConfig);
 }
 
-public function Failover::patch(string path, Request? request = ()) returns Response|HttpConnectorError {
+public function Failover::patch(string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performFailoverAction(path, req, HTTP_PATCH, self.failoverInferredConfig);
 }
 
-public function Failover::put(string path, Request? request = ()) returns Response|HttpConnectorError {
+public function Failover::put(string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performFailoverAction(path, req, HTTP_PUT, self.failoverInferredConfig);
 }
 
-public function Failover::options(string path, Request? request = ()) returns Response|HttpConnectorError {
+public function Failover::options(string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performFailoverAction(path, req, HTTP_OPTIONS, self.failoverInferredConfig);
 }
 
-public function Failover::forward(string path, Request request) returns Response|HttpConnectorError {
+public function Failover::forward(string path, Request request) returns Response|error {
     return performFailoverAction(path, request, HTTP_FORWARD, self.failoverInferredConfig);
 }
 
-public function Failover::execute(string httpVerb, string path, Request request) returns Response|HttpConnectorError {
+public function Failover::execute(string httpVerb, string path, Request request) returns Response|error {
     return performExecuteAction(path, request, httpVerb, self.failoverInferredConfig);
 }
 
-public function Failover::delete(string path, Request? request = ()) returns Response|HttpConnectorError {
+public function Failover::delete(string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performFailoverAction(path, req, HTTP_DELETE, self.failoverInferredConfig);
 }
 
-public function Failover::get(string path, Request? request = ()) returns Response|HttpConnectorError {
+public function Failover::get(string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performFailoverAction(path, req, HTTP_GET, self.failoverInferredConfig);
 }
 
-public function Failover::submit(string httpVerb, string path, Request request) returns HttpFuture|HttpConnectorError {
-    HttpConnectorError httpConnectorError = {message:"Unsupported action for Failover client."};
-    return httpConnectorError;
+public function Failover::submit(string httpVerb, string path, Request request) returns HttpFuture|error {
+    error err = {message:"Unsupported action for Failover client."};
+    return err;
 }
 
-public function Failover::getResponse(HttpFuture httpFuture) returns (HttpConnectorError) {
-    HttpConnectorError httpConnectorError = {message:"Unsupported action for Failover client."};
-    return httpConnectorError;
+public function Failover::getResponse(HttpFuture httpFuture) returns (error) {
+    error err = {message:"Unsupported action for Failover client."};
+    return err;
 }
 
 public function Failover::hasPromise(HttpFuture httpFuture) returns (boolean) {
     return false;
 }
 
-public function Failover::getNextPromise(HttpFuture httpFuture) returns PushPromise|HttpConnectorError {
-    HttpConnectorError httpConnectorError = {message:"Unsupported action for Failover client."};
-    return httpConnectorError;
+public function Failover::getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+    error err = {message:"Unsupported action for Failover client."};
+    return err;
 }
 
-public function Failover::getPromisedResponse(PushPromise promise) returns Response|HttpConnectorError {
-    HttpConnectorError httpConnectorError = {message:"Unsupported action for Failover client."};
-    return httpConnectorError;
+public function Failover::getPromisedResponse(PushPromise promise) returns Response|error {
+    error err = {message:"Unsupported action for Failover client."};
+    return err;
 }
 
 public function Failover::rejectPromise(PushPromise promise) {
@@ -278,14 +278,14 @@ public function Failover::rejectPromise(PushPromise promise) {
 // Performs execute action of the Failover connector. extract the corresponding http integer value representation
 // of the http verb and invokes the perform action method.
 function performExecuteAction (string path, Request request, string httpVerb,
-                               FailoverInferredConfig failoverInferredConfig) returns Response|HttpConnectorError {
+                               FailoverInferredConfig failoverInferredConfig) returns Response|error {
     HttpOperation connectorAction = extractHttpOperation(httpVerb);
     return performFailoverAction(path, request, connectorAction, failoverInferredConfig);
 }
 
 // Handles all the actions exposed through the Failover connector.
 function performFailoverAction (string path, Request request, HttpOperation requestAction,
-                                FailoverInferredConfig failoverInferredConfig) returns Response|HttpConnectorError {
+                                FailoverInferredConfig failoverInferredConfig) returns Response|error {
     boolean[] failoverCodeIndex = failoverInferredConfig.failoverCodesIndex;
     int noOfEndpoints = lengthof (failoverInferredConfig.failoverClientsArray);
     int currentIndex = 0;
@@ -294,12 +294,12 @@ function performFailoverAction (string path, Request request, HttpOperation requ
     int failoverInterval = failoverInferredConfig.failoverInterval;
 
     //TODO: workaround to initialize a type inside a function. Change this once fix is aailable.
-    FailoverConnectorError failoverConnectorError = {statusCode:500};
+    FailoverConnectorError failoverConnectorError = {};
     CallerActions[] failoverClients = failoverInferredConfig.failoverClientsArray;
     CallerActions failoverClient = failoverClients[currentIndex];
     Response inResponse = new;
     Request failoverRequest = request;
-    failoverConnectorError.httpConnectorError = [];
+    failoverConnectorError.httpConnectorErr = [];
 
     // When performing passthrough scenarios using Failover connector, message needs to be built before trying out the
     // failover endpoints to keep the request message to failover the messages.
@@ -336,17 +336,17 @@ function performFailoverAction (string path, Request request, HttpOperation requ
                     break;
                 }
             }
-            HttpConnectorError httpConnectorError => {
+            error httpConnectorErr => {
                 Request newOutRequest = new;
                 populateRequestFields(failoverRequest, newOutRequest);
                 newOutRequest.setEntity(requestEntity);
                 failoverRequest = newOutRequest;
                 if (noOfEndpoints > currentIndex) {
                     runtime:sleep(failoverInterval);
-                    failoverConnectorError.httpConnectorError[currentIndex - 1] = httpConnectorError;
+                    failoverConnectorError.httpConnectorErr[currentIndex - 1] = httpConnectorErr;
                     failoverClient = failoverClients[currentIndex];
                 } else {
-                    return populateGenericFailoverConnectorError(failoverConnectorError, httpConnectorError, currentIndex - 1);
+                    return populateGenericFailoverConnectorError(failoverConnectorError, httpConnectorErr, currentIndex - 1);
                 }
             }
 
@@ -356,13 +356,12 @@ function performFailoverAction (string path, Request request, HttpOperation requ
 }
 
 // Populates generic error specific to Failover connector by including all the errors returned from endpoints.
-function populateGenericFailoverConnectorError (FailoverConnectorError failoverConnectorError, HttpConnectorError httpConnectorError, int index)
-           returns (HttpConnectorError) {
-    httpConnectorError.statusCode = INTERNAL_SERVER_ERROR_500;
-    failoverConnectorError.httpConnectorError[index] = httpConnectorError;
-    string lastErrorMsg = httpConnectorError.message;
+function populateGenericFailoverConnectorError (FailoverConnectorError failoverConnectorError, error httpConnectorErr, int index)
+           returns (error) {
+    failoverConnectorError.httpConnectorErr[index] = httpConnectorErr;
+    string lastErrorMsg = httpConnectorErr.message;
     failoverConnectorError.message = "All the failover endpoints failed. Last error was " + lastErrorMsg;
-    HttpConnectorError connectorError = failoverConnectorError;
+    error connectorError = failoverConnectorError;
     return connectorError;                                                                                                                                                                                                                                                                                                
 }
 
@@ -370,20 +369,20 @@ function populateGenericFailoverConnectorError (FailoverConnectorError failoverC
 // will be generated with last response status code and generic failover response.
 function populateFailoverErrorHttpStatusCodes (Response inResponse, FailoverConnectorError failoverConnectorError, int index) {
     string failoverMessage = "Endpoint " + index + " returned response is: " + inResponse.statusCode + " " + inResponse.reasonPhrase;
-    HttpConnectorError httpConnectorError = {message:failoverMessage};
-    failoverConnectorError.httpConnectorError[index] = httpConnectorError;
+    error httpConnectorErr = {message:failoverMessage};
+    failoverConnectorError.httpConnectorErr[index] = httpConnectorErr;
 }
 
 // If leaf endpoint returns a response with status code configured to retry in the failover connector, generic
-// failover error and HttpConnectorError error will be generated.
+// failover error and HTTP connector error will be generated.
 function populateErrorsFromLastResponse (Response inResponse, FailoverConnectorError failoverConnectorError, int index)
-                                                                            returns (HttpConnectorError) {
+                                                                            returns (error) {
     string failoverMessage = "Last endpoint returned response: " + inResponse.statusCode + " " + inResponse.reasonPhrase;
-    HttpConnectorError lastHttpConnectorError = {message:failoverMessage, statusCode:inResponse.statusCode};
-    failoverConnectorError.httpConnectorError[index] = lastHttpConnectorError;
+    error lastHttpConnectorErr = {message:failoverMessage};
+    failoverConnectorError.httpConnectorErr[index] = lastHttpConnectorErr;
     failoverConnectorError.statusCode = INTERNAL_SERVER_ERROR_500;
     failoverConnectorError.message = "All the failover endpoints failed. Last endpoint returned response is: "
                                         + inResponse.statusCode + " " + inResponse.reasonPhrase;
-    HttpConnectorError connectorError = failoverConnectorError;
+    error connectorError = failoverConnectorError;
     return connectorError;
 }
