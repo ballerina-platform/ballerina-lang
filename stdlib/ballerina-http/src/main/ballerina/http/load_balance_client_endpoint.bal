@@ -54,7 +54,6 @@ documentation {
     F{{httpVersion}} The HTTP version to be used to communicate with the endpoint
     F{{forwarded}} The choice of setting forwarded/x-forwarded header
     F{{keepAlive}} Specifies whether to keep the connection alive (or not) for multiple request/response pairs
-    F{{transferEncoding}} The types of encoding applied to the request
     F{{chunking}} The chunking behaviour of the request
     F{{followRedirects}} Redirect related options
     F{{retryConfig}} Retry related options
@@ -73,7 +72,6 @@ public type LoadBalanceClientEndpointConfiguration {
     string httpVersion = "1.1",
     string forwarded = "disable",
     KeepAlive keepAlive = KEEPALIVE_AUTO,
-    TransferEncoding transferEncoding = "CHUNKING",
     Chunking chunking = "AUTO",
     FollowRedirects? followRedirects,
     RetryConfig? retryConfig,
@@ -94,7 +92,6 @@ public function LoadBalanceClient::init(LoadBalanceClientEndpointConfiguration l
     self.httpEP.config.httpVersion = loadBalanceClientConfig.httpVersion;
     self.httpEP.config.forwarded = loadBalanceClientConfig.forwarded;
     self.httpEP.config.keepAlive = loadBalanceClientConfig.keepAlive;
-    self.httpEP.config.transferEncoding = loadBalanceClientConfig.transferEncoding;
     self.httpEP.config.chunking = loadBalanceClientConfig.chunking;
     self.httpEP.config.followRedirects = loadBalanceClientConfig.followRedirects;
     self.httpEP.config.retryConfig = loadBalanceClientConfig.retryConfig;
@@ -109,7 +106,6 @@ function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointCo
         circuitBreaker:lbConfig.circuitBreaker,
         timeoutMillis:lbConfig.timeoutMillis,
         keepAlive:lbConfig.keepAlive,
-        transferEncoding:lbConfig.transferEncoding,
         chunking:lbConfig.chunking,
         httpVersion:lbConfig.httpVersion,
         forwarded:lbConfig.forwarded,

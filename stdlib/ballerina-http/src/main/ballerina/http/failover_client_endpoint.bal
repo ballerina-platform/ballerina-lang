@@ -58,7 +58,6 @@ documentation {
     F{{httpVersion}} The HTTP version supported by the endpoint
     F{{forwarded}} The choice of setting `forwarded`/`x-forwarded` header
     F{{keepAlive}} Specifies whether to reuse a connection for multiple requests
-    F{{transferEncoding}} The types of encoding applied to the request
     F{{chunking}} The chunking behaviour of the request
     F{{followRedirects}} Redirect related options
     F{{retryConfig}} Retry related options
@@ -77,7 +76,6 @@ public type FailoverClientEndpointConfiguration {
     string httpVersion = "1.1",
     string forwarded = "disable",
     KeepAlive keepAlive = KEEPALIVE_AUTO,
-    TransferEncoding transferEncoding = "CHUNKING",
     Chunking chunking = "AUTO",
     FollowRedirects? followRedirects,
     RetryConfig? retryConfig,
@@ -98,7 +96,6 @@ public function FailoverClient::init(FailoverClientEndpointConfiguration failove
     self.httpEP.config.httpVersion = failoverClientConfig.httpVersion;
     self.httpEP.config.forwarded = failoverClientConfig.forwarded;
     self.httpEP.config.keepAlive = failoverClientConfig.keepAlive;
-    self.httpEP.config.transferEncoding = failoverClientConfig.transferEncoding;
     self.httpEP.config.chunking = failoverClientConfig.chunking;
     self.httpEP.config.followRedirects = failoverClientConfig.followRedirects;
     self.httpEP.config.retryConfig = failoverClientConfig.retryConfig;
@@ -113,7 +110,6 @@ function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfigur
         circuitBreaker:foConfig.circuitBreaker,
         timeoutMillis:foConfig.timeoutMillis,
         keepAlive:foConfig.keepAlive,
-        transferEncoding:foConfig.transferEncoding,
         chunking:foConfig.chunking,
         httpVersion:foConfig.httpVersion,
         forwarded:foConfig.forwarded,
