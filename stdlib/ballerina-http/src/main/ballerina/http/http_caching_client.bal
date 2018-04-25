@@ -40,16 +40,19 @@ import ballerina/io;
 documentation {
     Used for configuring the caching behaviour. Setting the `policy` field in the `CacheConfig` record allows
     the user to control the caching behaviour.
-
-    `CACHE_CONTROL_AND_VALIDATORS`: This a more restricted mode of RFC 7234. This restricts caching to instances
-                                      where the Cache-Control header and either the ETag or Last-Modified header
-                                      are present.
-    `RFC_7234`: Caching behaviour is as specified by the RFC 7234 specification.
 }
 public type CachingPolicy "CACHE_CONTROL_AND_VALIDATORS"|"RFC_7234";
 
-public CachingPolicy CACHE_CONTROL_AND_VALIDATORS = "CACHE_CONTROL_AND_VALIDATORS";
-public CachingPolicy RFC_7234 = "RFC_7234";
+documentation {
+    This is a more restricted mode of RFC 7234. Setting this as the caching policy restricts caching to instances
+    where the `cache-control` header and either the `etag` or `last-modified` header are present.
+}
+@final public CachingPolicy CACHE_CONTROL_AND_VALIDATORS = "CACHE_CONTROL_AND_VALIDATORS";
+
+documentation {
+    Caching behaviour is as specified by the RFC 7234 specification.
+}
+@final public CachingPolicy RFC_7234 = "RFC_7234";
 
 documentation {
     Provides a set of configurations for controlling the caching behaviour of the endpoint.
@@ -80,7 +83,7 @@ documentation {
     F{{config}} The configurations of the client endpoint associated with this `CachingActions` instance
     F{{httpClient}} The underlying `HttpActions` instance which will be making the actual network calls
     F{{cache}} The cache storage for the HTTP responses
-    F{{cacheConfig}} Caching configurations for the HTTP cache
+    F{{cacheConfig}} Configurations for the underlying cache storage and for controlling the HTTP caching behaviour
 }
 public type HttpCachingClient object {
 
@@ -103,8 +106,7 @@ public type HttpCachingClient object {
 
         P{{path}} Resource path
         P{{request}} An optional HTTP request
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
+        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function post(string path, Request? request = ()) returns Response|HttpConnectorError;
 
@@ -114,8 +116,7 @@ public type HttpCachingClient object {
 
         P{{path}} Resource path
         P{{request}} An optional HTTP request
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
+        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function head(string path, Request? request = ()) returns Response|HttpConnectorError;
 
@@ -125,8 +126,7 @@ public type HttpCachingClient object {
 
         P{{path}} Resource path
         P{{request}} An optional HTTP request
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
+        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function put(string path, Request? request = ()) returns Response|HttpConnectorError;
 
@@ -137,8 +137,7 @@ public type HttpCachingClient object {
         P{{httpMethod}} HTTP method to be used for the request
         P{{path}} Resource path
         P{{request}} An HTTP request
-        R{{}} The inbound response message
-        R{{}} Error occurred during HTTP client invocation
+        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function execute(string httpMethod, string path, Request request) returns Response|HttpConnectorError;
 
@@ -148,8 +147,7 @@ public type HttpCachingClient object {
 
         P{{path}} Resource path
         P{{request}} An optional HTTP request
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
+        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function patch(string path, Request? request = ()) returns Response|HttpConnectorError;
 
@@ -159,8 +157,7 @@ public type HttpCachingClient object {
 
         P{{path}} Resource path
         P{{request}} An optional HTTP request
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
+        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function delete(string path, Request? request = ()) returns Response|HttpConnectorError;
 
@@ -170,8 +167,7 @@ public type HttpCachingClient object {
 
         P{{path}} Request path
         P{{request}} An optional HTTP request
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
+        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function get(string path, Request? request = ()) returns Response|HttpConnectorError;
 
@@ -181,8 +177,7 @@ public type HttpCachingClient object {
 
         P{{path}} Request path
         P{{request}} An optional HTTP request
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
+        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function options(string path, Request? request = ()) returns Response|HttpConnectorError;
 
@@ -192,8 +187,7 @@ public type HttpCachingClient object {
 
         P{{path}} Request path
         P{{request}} The HTTP request to be forwarded
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
+        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function forward(string path, Request request) returns Response|HttpConnectorError;
 
@@ -203,48 +197,45 @@ public type HttpCachingClient object {
         P{{httpVerb}} The HTTP verb value
         P{{path}} The resource path
         P{{request}} An HTTP request
-        R{{}} The Future for further interactions
-        R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
+        R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
     }
-    public function submit(string httpVerb, string path, Request request) returns (HttpFuture|HttpConnectorError);
+    public function submit(string httpVerb, string path, Request request) returns HttpFuture|HttpConnectorError;
 
     documentation {
-        Retrieves the response for a previously submitted request.
+        Retrieves the `Response` for a previously submitted request.
 
-        P{{httpFuture}} The Future which relates to previous async invocation
-        R{{}} The HTTP response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
+        P{{httpFuture}} The `HttpFuture` related to a previous asynchronous invocation
+        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function getResponse(HttpFuture httpFuture) returns Response|HttpConnectorError;
 
     documentation {
-        Checks whether server push exists for a previously submitted request.
+        Checks whether a `PushPromise` exists for a previously submitted request.
 
-        P{{httpFuture}} The Future which relates to previous async invocation
-        R{{}} Returns true if the push promise exists
+        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
+        R{{}} A `boolean` that represents whether a `PushPromise` exists
     }
     public function hasPromise(HttpFuture httpFuture) returns boolean;
 
     documentation {
-        Retrieves the next available push promise for a previously submitted request.
+        Retrieves the next available `PushPromise` for a previously submitted request.
 
-        P{{httpFuture}} The Future which relates to previous async invocation
-        R{{}} The HTTP Push Promise message
-        R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
+        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
+        R{{}} An HTTP Push Promise message, or an `error` if the invocation fails
     }
-    public function getNextPromise(HttpFuture httpFuture) returns (PushPromise|HttpConnectorError);
+    public function getNextPromise(HttpFuture httpFuture) returns PushPromise|HttpConnectorError;
 
     documentation {
-        Retrieves the promised server push response.
+        Retrieves the promised server push `Response` message.
 
-        P{{promise}} The related Push Promise message
-        R{{}} HTTP The Push Response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
+        P{{promise}} The related `PushPromise`
+        R{{}} A promised HTTP `Response` message, or an `error` if the invocation fails
     }
     public function getPromisedResponse(PushPromise promise) returns Response|HttpConnectorError;
 
     documentation {
-        Rejects a push promise.
+        Rejects a `PushPromise`. When a `PushPromise` is rejected, there is no chance of fetching a promised
+        response using the rejected promise.
 
         P{{promise}} The Push Promise to be rejected
     }
