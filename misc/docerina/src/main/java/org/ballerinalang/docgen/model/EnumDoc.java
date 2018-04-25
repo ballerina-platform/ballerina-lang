@@ -33,7 +33,7 @@ public class EnumDoc extends Documentable {
      * @param valueSet values of the type.
      */
     public EnumDoc(String name, String description, ArrayList<Documentable> children, String valueSet) {
-        super(name, "fw-constant", description, children);
+        super(name, "fw-type", description, children);
         this.valueSet = valueSet;
         isType = true;
     }

@@ -26,8 +26,8 @@ documentation {
     F{{lifetime}} The life time of the service
     F{{basePath}} Service base path
     F{{compression}} The status of compression
-    F{{cors}} The CORS configurations for the service
-    F{{authConfig}} AuthConfig instance to secure the service
+    F{{cors}} The cross origin resource sharing configurations for the service
+    F{{authConfig}} Authentication Configs to secure the service
 }
 public type HttpServiceConfig {
     Listener[] endpoints,
@@ -63,7 +63,7 @@ public type CorsConfig {
 documentation {
     Configurations for service versioning.
 
-    F{{pattern}} Expecting version pattern in the request url
+    F{{pattern}} Expecting pattern of the version in the request url
     F{{allowNoVersion}} Allow to dispatch requests which does not hold version path segment in url
     F{{matchMajorVersion}} Allow to dispatch requests which specify only the major version in url
 }
@@ -128,26 +128,26 @@ documentation {
     F{{body}} Inbound request entity body name which declared in signature
     F{{consumes}} The media types which are accepted by resource
     F{{produces}} The media types which are produced by resource
-    F{{cors}} The CORS configurations for the resource. If not set, the resource will inherit the CORS behaviour of the enclosing service.
-    F{{transactionInfectable}}
+    F{{cors}} The cross origin resource sharing configurations for the resource. If not set, the resource will inherit the CORS behaviour of the enclosing service.
+    F{{transactionInfectable}} Allow to participate in the distributed transactions if value is true
     F{{webSocketUpgrade}} Annotation to define HTTP to WebSocket upgrade
-    F{{authConfig}} AuthConfig instance to secure the resource
+    F{{authConfig}} Authentication Configs to secure the resource
 }
 public type HttpResourceConfig {
-        string[] methods,
-        string path,
-        string body,
-        string[] consumes,
-        string[] produces,
-        CorsConfig cors,
-        boolean transactionInfectable = true,
-        WebSocketUpgradeConfig? webSocketUpgrade,
-        ListenerAuthConfig? authConfig,
+    string[] methods,
+    string path,
+    string body,
+    string[] consumes,
+    string[] produces,
+    CorsConfig cors,
+    boolean transactionInfectable = true,
+    WebSocketUpgradeConfig? webSocketUpgrade,
+    ListenerAuthConfig? authConfig,
 };
 
 public type WebSocketUpgradeConfig {
-        string upgradePath,
-        typedesc upgradeService,
+    string upgradePath,
+    typedesc upgradeService,
 };
 
 documentation {

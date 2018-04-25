@@ -162,7 +162,7 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"base64Encode(charset \u003d ${2:utf-8})",
+      "insertText":"base64Encode(charset \u003d ${2:\"utf-8\"})",
       "insertTextFormat":"Snippet"
     },
     {
@@ -170,7 +170,7 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"base64Decode(charset \u003d ${2:utf-8})",
+      "insertText":"base64Decode(charset \u003d ${2:\"utf-8\"})",
       "insertTextFormat":"Snippet"
     },
     {
