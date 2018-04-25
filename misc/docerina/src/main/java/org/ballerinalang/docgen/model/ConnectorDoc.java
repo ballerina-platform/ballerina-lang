@@ -28,21 +28,23 @@ import java.util.List;
 public class ConnectorDoc extends Documentable {
     public final boolean isConnector;
     public final boolean isObject;
+    public final boolean hasConstructor;
     public final List<Field> fields;
     private BLangObject object;
 
     /**
      * Constructor.
      *
-     * @param name        connector name.
-     * @param description description.
-     * @param children    connector actions.
-     * @param fields      fields of the connector.
-     * @param isConnector whether a connector or an object.
+     * @param name           connector name.
+     * @param description    description.
+     * @param children       connector actions.
+     * @param fields         fields of the connector.
+     * @param isConnector    whether a connector or an object.
+     * @param hasConstructor indicates whether this object has a constructor or not.
      */
     public ConnectorDoc(String name, String description, List<Documentable> children, List<Field> fields,
-                        List<Documentable> utilityFunctions, boolean isConnector) {
-        super(name, "fw-connector", description, children);
+                        List<Documentable> utilityFunctions, boolean isConnector, boolean hasConstructor) {
+        super(name, "fw-endpoint", description, children);
         if (!isConnector) {
             super.icon = "fw-struct";
         }
@@ -55,6 +57,7 @@ public class ConnectorDoc extends Documentable {
         this.fields = fields;
         this.isConnector = isConnector;
         this.isObject = !isConnector;
+        this.hasConstructor = hasConstructor;
     }
 
     public BLangObject getObject() {
