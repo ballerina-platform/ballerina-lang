@@ -74,7 +74,7 @@ public type TopicSubscriber object {
 };
 
 documentation { Configuration related to topic subscriber endpoint
-    F{{session}} Session object used to create topic subscriber endpoint
+    F{{session}} Session object used to create topic subscriber
     F{{topicPattern}} Topic name pattern
     F{{messageSelector}} Message selector condition to filter messages
     F{{identifier}} Identifier of topic subscriber endpoint
