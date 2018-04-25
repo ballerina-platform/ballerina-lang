@@ -10,8 +10,8 @@ function main(string... args) {
     // Executing unary non-blocking call registering server message listener.
     error? result = helloWorldEp->lotsOfReplies("Sam", HelloWorldMessageListener);
     match result {
-        error payloadError => {
-            io:println("Error occured while sending event " + payloadError.message);
+        error err => {
+            io:println("Error occured while sending event " + err.message);
         }
         () => {
             io:println("Connected successfully");

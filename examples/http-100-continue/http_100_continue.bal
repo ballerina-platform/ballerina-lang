@@ -30,9 +30,9 @@ service<http:Service> helloWorld bind helloWorldEP {
                 res.setStringPayload("Hello World!\n");
                 _ = caller->respond(res);
             }
-            error payloadError => {
+            error err => {
                 res.statusCode = 500;
-                res.setStringPayload(payloadError.message);
+                res.setStringPayload(err.message);
                 _ = caller->respond(res);
             }
         }

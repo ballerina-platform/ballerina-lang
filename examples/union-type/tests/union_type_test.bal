@@ -18,6 +18,16 @@ public function mockPrint(any... s) {
 function testFunc() {
     // Invoking the main function
     main();
-    test:assertEquals(15, outputs[0]);
-    test:assertEquals("Hello!", outputs[1]);
+    test:assertEquals("This is a string", outputs[0]);
+    test:assertEquals(101, outputs[1]);
+    test:assertEquals("this is a value", outputs[2]);
+
+    //ExpectedRecordType expectedError = {message: "key '' not found", cause: null, key: ""};
+    //test:assertEquals(expectedError, outputs[3]);
 }
+
+type ExpectedRecordType {
+    string message;
+    error? cause;
+    string key;
+};
