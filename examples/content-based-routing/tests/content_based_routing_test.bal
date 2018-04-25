@@ -14,11 +14,11 @@ function startService() {
 }
 function testFunc() {
     // Invoking the main function
-    endpoint http:Client httpEndpoint {url: "http://localhost:9090"};
+    endpoint http:Client httpEndpoint { url: "http://localhost:9090" };
     // Chck whether the server is started
     test:assertTrue(serviceStarted, msg = "Unable to start the service");
-    json payload = {name: "sanFrancisco"};
-    json payload2 = {name: "london"};
+    json payload = { name: "sanFrancisco" };
+    json payload2 = { name: "london" };
 
     json response1 = {
         name: "San Francisco Test Station,USA",

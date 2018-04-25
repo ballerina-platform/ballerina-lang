@@ -10,11 +10,11 @@ import ballerina/log;
 // `RFC_7234`.
 endpoint http:Client cachingEP {
     url: "http://localhost:8080",
-    cache: {isShared: true}
+    cache: { isShared: true }
 };
 
-@http:ServiceConfig {basePath: "/cache"}
-service<http:Service> cachingProxy bind {port: 9090} {
+@http:ServiceConfig { basePath: "/cache" }
+service<http:Service> cachingProxy bind { port: 9090 } {
 
     @http:ResourceConfig {
         methods: ["GET"],
@@ -41,12 +41,12 @@ service<http:Service> cachingProxy bind {port: 9090} {
 }
 
 // Sample backend service which serves cacheable responses.
-@http:ServiceConfig {basePath: "/hello"}
-service<http:Service> helloWorld bind {port: 8080} {
+@http:ServiceConfig { basePath: "/hello" }
+service<http:Service> helloWorld bind { port: 8080 } {
 
-    json payload = {"message": "Hello, World!"};
+    json payload = { "message": "Hello, World!" };
 
-    @http:ResourceConfig {path: "/"}
+    @http:ResourceConfig { path: "/" }
     sayHello(endpoint caller, http:Request req) {
         http:Response res = new;
 

@@ -7,7 +7,7 @@ import ballerina/log;
 @http:WebSocketServiceConfig {
     path: "/proxy/ws"
 }
-service<http:WebSocketService> SimpleProxyService bind {port: 9090} {
+service<http:WebSocketService> SimpleProxyService bind { port: 9090 } {
 
     //This resource triggered when a new client is connected.
     //Since messages from server side are not read by service until `onOpen` resource exeucution finishes,

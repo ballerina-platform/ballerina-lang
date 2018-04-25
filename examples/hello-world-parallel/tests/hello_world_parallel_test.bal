@@ -1,7 +1,7 @@
 import ballerina/test;
 import ballerina/io;
 
-any [] outputs = [];
+any[] outputs = [];
 int counter = 0;
 
 // This is the mock function which will replace the real function
@@ -9,7 +9,7 @@ int counter = 0;
     packageName: "ballerina.io",
     functionName: "println"
 }
-public function mockPrint (any... s) {
+public function mockPrint(any... s) {
     outputs[counter] = s[0];
     counter++;
 }
@@ -20,12 +20,12 @@ function testFunc() {
     main();
     // The output is in random order
     foreach x in outputs {
-        string value = <string> x;
-        if(value.equalsIgnoreCase("Hello, World! #m")) {
+        string value = <string>x;
+        if (value.equalsIgnoreCase("Hello, World! #m")) {
             // continue;
         } else if (value.equalsIgnoreCase("Hello, World! #n")) {
             // continue;
-        } else if(value.equalsIgnoreCase("Hello, World! #k")) {
+        } else if (value.equalsIgnoreCase("Hello, World! #k")) {
             // continue;
         }
         else {

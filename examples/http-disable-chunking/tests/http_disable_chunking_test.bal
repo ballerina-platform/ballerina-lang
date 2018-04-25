@@ -14,11 +14,11 @@ function startService() {
 }
 function testFunc() {
     // Invoking the main function.
-    endpoint http:Client httpEndpoint {url: "http://localhost:9092"};
+    endpoint http:Client httpEndpoint { url: "http://localhost:9092" };
     // Checking whether the server is started.
     test:assertTrue(serviceStarted, msg = "Unable to start the service");
 
-    json response1 = {"Outbound request content": "Lenght-20"};
+    json response1 = { "Outbound request content": "Lenght-20" };
 
     // Sending a GET request to the specified endpoint.
     var response = httpEndpoint->get("/chunkingSample");

@@ -63,7 +63,7 @@ service requestService bind ep {
     }
     requests(endpoint conn, http:Request req) {
         string hostName = untaint req.getHeader("Host");
-        ClientRequest clientRequest = {host: hostName};
+        ClientRequest clientRequest = { host: hostName };
         requestStream.publish(clientRequest);
 
         http:Response res = new;
