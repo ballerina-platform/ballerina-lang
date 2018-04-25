@@ -22,11 +22,14 @@ import ballerina/http;
 
 documentation {
     Object representing the WebSub Hub Client Endpoint.
+
+    E{{}}
+    F{{config}} The configuration for the endpoint
 }
 public type Client object {
 
     public {
-        HubClientEndpointConfiguration config;
+        HubClientEndpointConfig config;
     }
 
     private {
@@ -34,11 +37,11 @@ public type Client object {
     }
 
     documentation {
-        Gets called when the endpoint is being initialized during package init.
+        Called when the endpoint is being initialized during package initialization.
 
         P{{config}} The configuration for the endpoint
     }
-    public function init(HubClientEndpointConfiguration config) {
+    public function init(HubClientEndpointConfig config) {
         endpoint http:Client httpClientEndpoint {
             url:config.url, secureSocket:config.secureSocket, auth:config.auth
         };
@@ -48,7 +51,7 @@ public type Client object {
     }
 
     documentation {
-        Gets called whenever a service attaches itself to this endpoint and during package init.
+        Called whenever a service attaches itself to this endpoint and during package initialization.
 
         P{{serviceType}} The service attached
     }
@@ -64,7 +67,7 @@ public type Client object {
     }
 
     documentation {
-        Returns the connector that client code uses.
+        Retrieves the caller actions client code uses.
 
         R{{}} `CallerActions` The caller actions available for clients
     }
@@ -83,12 +86,13 @@ public type Client object {
 };
 
 documentation {
-    Object representing the WebSub Hub Client Endpoint configuration.
+    Record representing the configuration parameters for the WebSub Hub Client Endpoint.
 
     F{{url}} The URL of the target Hub
-    F{{secureSocket}} SSL/TLS related options
+    F{{secureSocket}} SSL/TLS related options for the underlying HTTP Client
+    F{{auth}} Authentication mechanism for the underlying HTTP Client
 }
-public type HubClientEndpointConfiguration {
+public type HubClientEndpointConfig {
     string url,
     http:SecureSocket? secureSocket,
     http:AuthConfig? auth,
