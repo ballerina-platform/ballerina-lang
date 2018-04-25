@@ -19,18 +19,18 @@ echo "Function_Name,Total Time (ms),Average Latency (ns),Throughput (operations/
 
 ballerina build benchmark
 
-for word in $(<benchmarkFunctions.txt)
+for functionName in $(<benchmarkFunctions.txt)
     do
-         export _JAVA_OPTIONS="-Xloggc:"$5gc_${word}.log""
-         ballerina run target/benchmark.balx $2 $3 ${word} | tr -d "\n" >> ${resultsFileName}
+         export _JAVA_OPTIONS="-Xloggc:"$5gc_${functionName}.log""
+         ballerina run target/benchmark.balx $2 $3 ${functionName} | tr -d "\n" >> ${resultsFileName}
          unset _JAVA_OPTIONS
 
          ## check whether there are any GC events.
-         if  ((3 < "$(wc -l < target/gc_${word}.log)")); then
+         if  ((3 < "$(wc -l < target/gc_${functionName}.log)")); then
 
              ###### Analyze GC Logs ######
-             gcSummaryFile=target/gc_summarry_${word}.csv
-             java -jar target/gcviewer-$6.jar target/gc_${word}.log ${gcSummaryFile}
+             gcSummaryFile=target/gc_summarry_${functionName}.csv
+             java -jar target/gcviewer-$6.jar target/gc_${functionName}.log ${gcSummaryFile}
 
              # GC throughput
              GC_throughput=$(awk -F "\"*;\"*" '{print $2}' ${gcSummaryFile} | awk NR==37 )
