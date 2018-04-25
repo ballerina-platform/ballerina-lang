@@ -23,6 +23,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,6 +38,7 @@ import java.util.Comparator;
 public class Utils {
 
     private static PrintStream errStream = System.err;
+    private static TesterinaRegistry registry = TesterinaRegistry.getInstance();
 
 
     public static void startService(ProgramFile programFile) {
@@ -52,13 +54,13 @@ public class Utils {
         // Invoke package init function
         if (isPackageInitialized(programFile.getEntryPkgName())) {
             BLangFunctions.invokePackageInitFunction(servicesPackage.getInitFunctionInfo());
-            TesterinaRegistry.getInstance().addInitializedPackage(programFile.getEntryPkgName());
+            registry.addInitializedPackage(programFile.getEntryPkgName());
         }
         BLangFunctions.invokeVMUtilFunction(servicesPackage.getStartFunctionInfo());
     }
 
     public static boolean isPackageInitialized(String entryPkgName) {
-        return !TesterinaRegistry.getInstance().getInitializedPackages().contains(entryPkgName);
+        return !registry.getInitializedPackages().contains(entryPkgName);
     }
 
     /**
@@ -87,5 +89,22 @@ public class Utils {
             debugger.init();
             debugger.waitTillDebuggeeResponds();
         }
+    }
+
+    /**
+     * Returns the full package name with org name for a given package.
+     * @param packageName package name
+     * @return full package name with organization name if org name exists
+     */
+    public static String getFullPackageName(String packageName) {
+        String orgName = registry.getOrgName();
+        // If the orgName is null there is no package, .bal execution
+        if (orgName == null) {
+            return ".";
+        }
+        if (orgName.isEmpty() || orgName.equals(Names.ANON_ORG.toString())) {
+            return packageName;
+        }
+       return orgName + "." + packageName;
     }
 }

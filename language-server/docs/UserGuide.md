@@ -195,10 +195,9 @@ Following top level node types are supported for documentation.
 - Function
 - Service
 
-<a name="Known Issues" />
+<a name="KnownIssues" />
 
 ## Known Issues
 Below you can find a list of known issues and possible workarounds to get over the particular issues.
 
-- [Match Statement Completion Issue](https://github.com/ballerina-platform/ballerina-lang/issues/7737)
-    - As a workaround in order to get the suggestions you need to hit _**Ctrl + Space**_ after the **match** Keyword
+- [Issue Tracker](https://github.com/ballerina-platform/ballerina-lang/issues?q=is%3Aopen+is%3Aissue+label%3Acomponent%2FLanguageServer+label%3A%22L1%2FL2+for+May%22)

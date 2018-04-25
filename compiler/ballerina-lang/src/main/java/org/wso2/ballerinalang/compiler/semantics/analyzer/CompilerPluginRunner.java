@@ -86,6 +86,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     private BLangDiagnosticLog dlog;
 
     private DiagnosticPos defaultPos;
+    private CompilerContext context;
     private List<CompilerPlugin> pluginList;
     private Map<DefinitionID, List<CompilerPlugin>> processorMap;
     private Map<DefinitionID, List<CompilerPlugin>> endpointProcessorMap;
@@ -109,6 +110,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.names = Names.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.context = context;
 
         this.pluginList = new ArrayList<>();
         this.processorMap = new HashMap<>();
@@ -249,7 +251,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
 
         handleAnnotationProcesses(plugin);
         handleEndpointProcesses(plugin);
-
+        plugin.setCompilerContext(context);
         plugin.init(dlog);
     }
 

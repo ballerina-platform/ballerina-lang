@@ -8,7 +8,7 @@ endpoint grpc:Listener ep {
     port:9090
 };
 
-@grpc:serviceConfig {name:"lotsOfGreetings",
+@grpc:ServiceConfig {name:"lotsOfGreetings",
     clientStreaming:true}
 service HelloWorld bind ep {
     onOpen(endpoint caller) {

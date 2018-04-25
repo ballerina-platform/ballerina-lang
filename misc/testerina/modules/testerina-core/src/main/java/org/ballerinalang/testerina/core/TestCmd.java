@@ -26,9 +26,11 @@ import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.testerina.util.Utils;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.VMOptions;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
@@ -58,7 +60,7 @@ public class TestCmd implements BLauncherCmd {
 
     private JCommander parentCmdParser;
 
-    @Parameter(arity = 1, description = "ballerina package/s to be tested")
+    @Parameter(arity = 1, description = "ballerina package/files to be tested")
     private List<String> sourceFileList;
 
     @Parameter(names = { "--help", "-h" }, hidden = true)
@@ -94,16 +96,33 @@ public class TestCmd implements BLauncherCmd {
             printCommandUsageInfo(parentCmdParser, "test");
             return;
         }
-        Path userDir = Paths.get(System.getProperty("user.dir"));
-        SourceDirectory srcDirectory = null;
-        if (sourceFileList == null || sourceFileList.isEmpty()) {
-            srcDirectory = new FileSystemProjectDirectory(userDir);
-            sourceFileList = srcDirectory.getSourcePackageNames();
-        } else if (!sourceFileList.get(0).endsWith(".bal")) {
-            //TODO check how source root affects
-            srcDirectory = new FileSystemProjectDirectory(userDir);
+
+        if (sourceFileList != null && sourceFileList.size() > 1) {
+            throw LauncherUtils.createUsageException("Too many arguments. You can only provide a single package or a" +
+                                                     " single file to test command");
         }
 
+        Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
+        SourceDirectory srcDirectory = null;
+        if (sourceFileList == null || sourceFileList.isEmpty()) {
+            srcDirectory = new FileSystemProjectDirectory(sourceRootPath);
+            sourceFileList = srcDirectory.getSourcePackageNames();
+        } else if (sourceFileList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+            Path sourceFilePath = Paths.get(sourceFileList.get(0));
+            if (sourceFilePath.isAbsolute()) {
+                sourceRootPath = sourceFilePath.getParent();
+            } else {
+                sourceRootPath = sourceRootPath.resolve(sourceFilePath).getParent();
+            }
+            Path fileName = sourceFilePath.getFileName();
+            if (fileName == null) {
+                throw new BallerinaIOException("Provided ballerina file doesn't exist!");
+            }
+            sourceFileList.clear();
+            sourceFileList.add(fileName.toString());
+        } else {
+            srcDirectory = new FileSystemProjectDirectory(sourceRootPath);
+        }
 
         if (groupList != null && disableGroupList != null) {
             throw LauncherUtils
@@ -117,7 +136,6 @@ public class TestCmd implements BLauncherCmd {
         // Setting the vm options
         VMOptions.getInstance().addOptions(vmOptions);
 
-        Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
         // Setting the source root so it can be accessed from anywhere
         System.setProperty(TesterinaConstants.BALLERINA_SOURCE_ROOT, sourceRootPath.toString());
         try {

@@ -67,3 +67,16 @@ public function newUser() returns (user) {
     u.zipcode = "23126";
     return u;
 }
+
+public type FooObj object {
+    public {
+        int age;
+        string name;
+    }
+
+    public function getName() returns (string);
+};
+
+public function FooObj::getName() returns (string) {
+    return self.name;
+}

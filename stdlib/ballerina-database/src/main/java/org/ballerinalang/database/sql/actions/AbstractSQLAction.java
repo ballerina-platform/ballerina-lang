@@ -78,6 +78,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.TimeZone;
 import javax.sql.rowset.CachedRowSet;
 
@@ -113,7 +114,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             BRefValueArray generatedParams  = constructParameters(context, parameters);
             conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, isInTransaction);
             String processedQuery = createProcessedQueryString(query, generatedParams);
-            stmt = getPreparedStatement(conn, datasource, processedQuery);
+            stmt = getPreparedStatement(conn, datasource, processedQuery, loadSQLTableToMemory);
             createProcessedStatement(conn, stmt, generatedParams);
             rs = stmt.executeQuery();
             TableResourceManager rm  = new TableResourceManager(conn, stmt);
@@ -316,14 +317,13 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     }
 
     protected void checkAndObserveSQLAction(Context context, SQLDatasource datasource, String query) {
-        if (!ObservabilityUtils.isObservabilityEnabled()) {
-            return;
-        }
-        ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
-        observerContext.addTag(TAG_KEY_PEER_ADDRESS, datasource.getPeerAddress());
-        observerContext.addTag(TAG_KEY_DB_INSTANCE, datasource.getDatabaseName());
-        observerContext.addTag(TAG_KEY_DB_STATEMENT, query);
-        observerContext.addTag(TAG_KEY_DB_TYPE, TAG_DB_TYPE_SQL);
+        Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
+        observerContext.ifPresent(ctx -> {
+            ctx.addTag(TAG_KEY_PEER_ADDRESS, datasource.getPeerAddress());
+            ctx.addTag(TAG_KEY_DB_INSTANCE, datasource.getDatabaseName());
+            ctx.addTag(TAG_KEY_DB_STATEMENT, query);
+            ctx.addTag(TAG_KEY_DB_TYPE, TAG_DB_TYPE_SQL);
+        });
     }
 
     private BRefValueArray constructParameters(Context context, BRefValueArray parameters) {
@@ -434,13 +434,13 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         datasource.closeConnectionPool();
     }
 
-    private PreparedStatement getPreparedStatement(Connection conn, SQLDatasource datasource, String query)
-            throws SQLException {
+    private PreparedStatement getPreparedStatement(Connection conn, SQLDatasource datasource, String query,
+            boolean loadToMemory) throws SQLException {
         PreparedStatement stmt;
         boolean mysql = datasource.getDatabaseProductName().contains("mysql");
         /* In MySQL by default, ResultSets are completely retrieved and stored in memory.
            Following properties are set to stream the results back one row at a time.*/
-        if (mysql) {
+        if (mysql && !loadToMemory) {
             stmt = conn.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             // To fulfill OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE findbugs validation.
             try {

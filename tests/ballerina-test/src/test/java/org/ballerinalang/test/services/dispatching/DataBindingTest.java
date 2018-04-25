@@ -176,7 +176,8 @@ public class DataBindingTest {
                 , "Key variable not set properly.");
     }
 
-    @Test(description = "Test data binding without a payload")
+    @Test(description = "Test data binding without a payload", expectedExceptions = BallerinaConnectorException.class,
+            expectedExceptionsMessageRegExp = ".*Error in reading payload : String payload is null*")
     public void testDataBindingWithoutPayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body1", "GET");
@@ -184,12 +185,11 @@ public class DataBindingTest {
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        Assert.assertEquals(bJson.value().get("Person").asText(), ""
-                , "Person variable not set properly.");
     }
 
     @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = ".*data binding failed: Unexpected character.*")
+            expectedExceptionsMessageRegExp = ".*data binding failed: Error in reading payload : " +
+                    "Unexpected character.*")
     public void testDataBindingIncompatibleXMLPayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body4", "POST", "name':'WSO2', 'team':'ballerina");
@@ -206,12 +206,17 @@ public class DataBindingTest {
         Services.invokeNew(compileResult, TEST_EP, requestMsg);
     }
 
-    @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = ".*data binding failed: failed to create json: empty JSON document.*")
+    @Test
     public void testDataBindingWithEmptyJsonPayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body3", "GET");
-        Services.invokeNew(compileResult, TEST_EP, requestMsg);
+        HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_EP, requestMsg);
+        Assert.assertNotNull(responseMsg, "responseMsg message not found");
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertEquals(bJson.value().get("Key").asText(), "null"
+                , "Key variable not set properly.");
+        Assert.assertEquals(bJson.value().get("Team").asText(), "null"
+                , "Team variable not set properly.");
     }
 
     //TODO following two test cases doesn't throw error anymore. json to struct conversion doesn't do field validation.

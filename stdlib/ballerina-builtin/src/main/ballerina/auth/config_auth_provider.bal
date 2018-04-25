@@ -16,6 +16,7 @@
 
 import ballerina/config;
 import ballerina/crypto;
+import ballerina/runtime;
 
 @final string CONFIG_USER_SECTION = "b7a.users";
 
@@ -32,8 +33,15 @@ public type ConfigAuthProvider object {
         R{{}} true if authentication is a success, else false
     }
     public function authenticate(string user, string password) returns boolean {
-        return password == readPassword(user);
-    }
+        boolean isAuthenticated = password == readPassword(user);
+            if(isAuthenticated){
+                runtime:UserPrincipal userPrincipal = runtime:getInvocationContext().userPrincipal;
+                userPrincipal.userId = user;
+                // By default set userId as username.
+                userPrincipal.username = user;
+            }
+            return isAuthenticated;
+        }
 
     documentation {
         Reads the scope(s) for the user with the given username
@@ -53,13 +61,13 @@ public type ConfigAuthProvider object {
         P{{username}} username
         R{{}} password hash read from userstore, or nil if not found
     }
-    function readPassword(string username) returns string {
+    public function readPassword(string username) returns string {
         // first read the user id from user->id mapping
         // read the hashed password from the userstore file, using the user id
         return getConfigAuthValue(CONFIG_USER_SECTION + "." + username, "password");
     }
 
-    function getConfigAuthValue(string instanceId, string property) returns string {
+    public function getConfigAuthValue(string instanceId, string property) returns string {
         return config:getAsString(instanceId + "." + property, default = "");
     }
 
@@ -69,7 +77,7 @@ public type ConfigAuthProvider object {
         P{{groupString}} comma separated string of groups
         R{{}} array of groups, nil if the groups string is empty/nil
     }
-    function getArray(string groupString) returns (string[]) {
+    public function getArray(string groupString) returns (string[]) {
         string[] groupsArr = [];
         if (lengthof groupString == 0) {
             return groupsArr;

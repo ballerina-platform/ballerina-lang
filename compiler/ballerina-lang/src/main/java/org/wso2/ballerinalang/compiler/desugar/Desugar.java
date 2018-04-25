@@ -393,6 +393,8 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangService serviceNode) {
         SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.symbol.scope, env);
         serviceNode.resources = rewrite(serviceNode.resources, serviceEnv);
+        
+        serviceNode.nsDeclarations.forEach(xmlns -> serviceNode.initFunction.body.stmts.add(xmlns));
         serviceNode.vars.forEach(v -> {
             BLangAssignment assignment = (BLangAssignment) createAssignmentStmt(v.var);
             if (assignment.expr == null) {
@@ -402,6 +404,7 @@ public class Desugar extends BLangNodeVisitor {
                 serviceNode.initFunction.body.stmts.add(assignment);
             }
         });
+
         serviceNode.vars = rewrite(serviceNode.vars, serviceEnv);
         serviceNode.endpoints = rewrite(serviceNode.endpoints, serviceEnv);
         BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(serviceNode.pos, symTable.nilType);
@@ -768,7 +771,8 @@ public class Desugar extends BLangNodeVisitor {
         BSymbol ownerSymbol = xmlnsNode.symbol.owner;
 
         // Local namespace declaration in a function/resource/action/worker
-        if ((ownerSymbol.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+        if ((ownerSymbol.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE ||
+                (ownerSymbol.tag & SymTag.SERVICE) == SymTag.SERVICE) {
             generatedXMLNSNode = new BLangLocalXMLNS();
         } else {
             generatedXMLNSNode = new BLangPackageXMLNS();

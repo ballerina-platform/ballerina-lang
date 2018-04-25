@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Intellisense, Diagram View, Debugging, code formatting and refactoring for Ballerina",
-    "version": "0.970.0-beta4-SNAPSHOT",
+    "version": "0.970.0-beta14-SNAPSHOT",
     "publisher": "ballerina",
     "repository": {
         "type": "git",
@@ -47,13 +47,13 @@
             "type": "object",
             "title": "Ballerina configuration",
             "properties": {
-                "ballerina.sdk": {
+                "ballerina.home": {
                     "type": [
                         "string",
                         "null"
                     ],
                     "default": null,
-                    "description": "Specifies the path to the ballerina sdk"
+                    "description": "Specifies the path to the ballerina home directory"
                 },
                 "ballerina.showLSErrors": {
                     "type": [
@@ -62,6 +62,11 @@
                     "default": false,
                     "description": "If set to true the language server's error log will be printed in the plugins console"
                 }
+            }
+        },
+        "configurationDefaults": {
+            "[ballerina]": {
+                "editor.wordBasedSuggestions": false
             }
         },
         "breakpoints": [

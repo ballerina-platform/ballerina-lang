@@ -202,7 +202,7 @@ public type MockClient object {
                 http:HttpConnectorError httpConnectorError => {
                     string message = httpConnectorError.message;
                     response.statusCode = httpConnectorError.statusCode;
-                    response.setStringPayload(message);
+                    response.setTextPayload(message);
                 }
             }
         } else if (scenario == SCENARIO_TRIAL_RUN_FAILURE) {
@@ -213,7 +213,7 @@ public type MockClient object {
                 http:HttpConnectorError httpConnectorError => {
                     string message = httpConnectorError.message;
                     response.statusCode = httpConnectorError.statusCode;
-                    response.setStringPayload(message);
+                    response.setTextPayload(message);
                 }
             }
         }   else if (scenario == SCENARIO_HTTP_SC_FAILURE) {
@@ -224,7 +224,7 @@ public type MockClient object {
                 http:HttpConnectorError httpConnectorError => {
                     string message = httpConnectorError.message;
                     response.statusCode = httpConnectorError.statusCode;
-                    response.setStringPayload(message);
+                    response.setTextPayload(message);
                 }
             }
         }

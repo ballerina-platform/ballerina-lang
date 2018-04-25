@@ -95,7 +95,7 @@ public class WebSocketDispatcher {
         bValues[0] = connectionInfo.getWebSocketEndpoint();
         bValues[1] = new BString(textMessage.getText());
         if (paramDetails.size() == 3) {
-            bValues[2] = new BBoolean(!textMessage.isFinalFragment());
+            bValues[2] = new BBoolean(textMessage.isFinalFragment());
         }
         //TODO handle BallerinaConnectorException
         Executor.submit(onTextMessageResource, new WebSocketResourceCallableUnitCallback(webSocketConnection), null,
@@ -117,7 +117,7 @@ public class WebSocketDispatcher {
         bValues[0] = connectionInfo.getWebSocketEndpoint();
         bValues[1] = new BBlob(binaryMessage.getByteArray());
         if (paramDetails.size() == 3) {
-            bValues[2] = new BBoolean(!binaryMessage.isFinalFragment());
+            bValues[2] = new BBoolean(binaryMessage.isFinalFragment());
         }
         //TODO handle BallerinaConnectorException
         Executor.submit(onBinaryMessageResource, new WebSocketResourceCallableUnitCallback(webSocketConnection), null,

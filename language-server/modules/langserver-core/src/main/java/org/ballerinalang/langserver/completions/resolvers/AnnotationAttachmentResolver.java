@@ -371,7 +371,7 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
         
         fields.forEach(bStructField -> {
             String defaultFieldEntry = bStructField.getName().getValue()
-                    + UtilSymbolKeys.PKG_DELIMITER_KEYWORD + getDefaultValueForType(bStructField.getType());
+                    + UtilSymbolKeys.PKG_DELIMITER_KEYWORD + " " + getDefaultValueForType(bStructField.getType());
             fieldEntries.add(defaultFieldEntry);
         });
         

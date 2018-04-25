@@ -51,7 +51,7 @@
       "label":"type \u003cObjectName\u003e object",
       "detail":"Snippet",
       "sortText":"190",
-      "insertText":"type ${1:ObjectName} object {\n\t${2}\n}",
+      "insertText":"type ${1:ObjectName} object {\n\t${2}\n};",
       "insertTextFormat":"Snippet"
     },
     {

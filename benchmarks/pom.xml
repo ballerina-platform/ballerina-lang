@@ -17,13 +17,12 @@
   ~ under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.970.0-alpha5-SNAPSHOT</version>
+        <version>0.970.0-beta15-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -31,8 +30,38 @@
     <artifactId>benchmarks</artifactId>
     <name>Ballerina - Microbenchmarks</name>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina</artifactId>
+            <type>zip</type>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>${maven.dependency.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>unpack-dependencies</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skipBenchmarks}</skip>
+                            <includeArtifactIds>ballerina</includeArtifactIds>
+                            <outputDirectory>target</outputDirectory>
+                            <overWriteReleases>true</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>${maven.antrun.plugin.version}</version>
@@ -44,22 +73,9 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
+                            <skip>${skipBenchmarks}</skip>
                             <target>
-                                <mkdir dir="${project.basedir}/.ballerina"/>
-                            </target>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>unzip</id>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <unzip
-                                        src="${project.basedir}/../distribution/zip/ballerina/target/ballerina-${project.version}.zip"
-                                        dest="target"/>
+                                <mkdir dir="${project.basedir}/.ballerina" />
                             </target>
                         </configuration>
                     </execution>
@@ -77,6 +93,7 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
+                            <skip>${skipBenchmarks}</skip>
                             <executable>${project.basedir}/script</executable>
                             <arguments>
                                 <argument>${project.basedir}/target/ballerina-${project.version}</argument>
@@ -90,4 +107,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

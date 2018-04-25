@@ -34,7 +34,7 @@ service<http:Service> participant1 bind participant1EP {
 
     getState(endpoint ep, http:Request req) {
         http:Response res = new;
-        res.setStringPayload(state.toString());
+        res.setTextPayload(state.toString());
         state.reset();
         _ = ep -> respond(res);
     }
@@ -72,7 +72,7 @@ service<http:Service> participant1 bind participant1EP {
             }
         }
         http:Response res = new;  res.statusCode = 200;
-        res.setStringPayload("Non infectable resource call successful");
+        res.setTextPayload("Non infectable resource call successful");
         _ = ep -> respond(res);
     }
 

@@ -29,7 +29,7 @@ service<http:Service> echo bind echoEP {
     }
     echo (endpoint caller, http:Request req) {
         http:Response res = new;
-        res.setStringPayload("hello world");
+        res.setTextPayload("hello world");
         _ = caller -> respond(res);
     }
 }
@@ -44,7 +44,7 @@ service<http:Service> echoOne bind echoEP, echoHttpEP {
     }
     echoAbc (endpoint caller, http:Request req) {
         http:Response res = new;
-        res.setStringPayload("hello world");
+        res.setTextPayload("hello world");
         _ = caller -> respond(res);
     }
 }
@@ -60,7 +60,7 @@ service<http:Service> echoDummy bind echoDummyEP {
     }
     echoDummy (endpoint caller, http:Request req) {
         http:Response res = new;
-        res.setStringPayload("hello world");
+        res.setTextPayload("hello world");
         _ = caller -> respond(res);
     }
 }

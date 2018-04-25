@@ -19,7 +19,7 @@ import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSPackageCache;
+import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkedString;
@@ -202,16 +202,15 @@ public class HoverUtil {
      * @param currentBLangPackage package which currently user working on.
      * @return {@link Hover} return Hover object.
      */
-    public static Hover getHoverContent(LSServiceOperationContext hoverContext, BLangPackage currentBLangPackage,
-                                        LSPackageCache packageContext) {
+    public static Hover getHoverContent(LSServiceOperationContext hoverContext, BLangPackage currentBLangPackage) {
         PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(hoverContext);
         currentBLangPackage.accept(positionTreeVisitor);
         Hover hover;
 
         // If the cursor is on a node of the current package go inside, else check builtin and native packages.
         if (hoverContext.get(NodeContextKeys.PACKAGE_OF_NODE_KEY) != null) {
-            hover = getHoverInformation(packageContext
-                    .findPackage(hoverContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY),
+            hover = getHoverInformation(LSPackageLoader.getPackageById(
+                    hoverContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY),
                             hoverContext.get(NodeContextKeys.PACKAGE_OF_NODE_KEY)), hoverContext);
         } else {
             hover = new Hover();

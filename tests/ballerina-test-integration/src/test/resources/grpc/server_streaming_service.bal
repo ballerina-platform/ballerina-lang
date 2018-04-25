@@ -8,10 +8,9 @@ endpoint grpc:Listener ep {
     port:9090
 };
 
-@grpc:serviceConfig
 service HelloWorld bind ep {
 
-    @grpc:resourceConfig {streaming:true}
+    @grpc:ResourceConfig {streaming:true}
     lotsOfReplies(endpoint caller, string name) {
         io:println("Server received hello from " + name);
         string[] greets = ["Hi", "Hey", "GM"];

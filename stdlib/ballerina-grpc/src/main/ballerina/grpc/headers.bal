@@ -14,29 +14,35 @@
 // specific language governing permissions and limitations
 // under the License.
 
+documentation {
+    Provides actions to read/write header values in gRPC request/response message.
+}
 public type Headers object {
 
     documentation {
         Check whether the requested header exists.
 
         P{{headerName}} - The header name.
+        R{{}} - Returns true if header exists, false otherwise.
     }
-    public native function exists(string headerName) returns (boolean);
+    public native function exists(string headerName) returns boolean;
 
     documentation {
         Returns the header value with the specified header name. If there are more than one header value for the
         specified header name, the first value is returned.
 
         P{{headerName}} - The header name.
+        R{{}} - Returns first header value if exists, nil otherwise.
     }
-    public native function get(string headerName) returns (string|());
+    public native function get(string headerName) returns string?;
 
     documentation {
-        Gets transport headers from the request.
+        Gets all transport headers with the specified header name.
 
         P{{headerName}} - The header name.
+        R{{}} - Returns header value array.
     }
-    public native function getAll(string headerName) returns (string[]);
+    public native function getAll(string headerName) returns string[];
 
     documentation {
         Sets the value of a transport header.

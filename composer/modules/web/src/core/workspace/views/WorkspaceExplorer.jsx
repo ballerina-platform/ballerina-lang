@@ -125,7 +125,7 @@ class WorkspaceExplorer extends View {
                 {_.isEmpty(trees) &&
                     <div className='open-folder-btn-wrapper' onClick={this.onClickOpenProgramDir} >
                         <span className='open-folder-button'>
-                            <i className='fw fw-folder-open' />Open Program Directory
+                            <i className='fw fw-folder-open' />Open Project Directory
                         </span>
                     </div>
                 }

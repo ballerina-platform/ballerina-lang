@@ -34,7 +34,7 @@ service<http:Service> helloWorld bind echo {
     }
     sayHello (endpoint conn, http:Request req) {
         http:Response res = new;
-        res. setStringPayload("hello world");
+        res.setTextPayload("hello world");
         _ = conn -> respond( res);
         io:println("successful");
     }
@@ -56,7 +56,7 @@ service<http:Service> echoDummyService bind echoDummy {
     }
     sayHello (endpoint conn, http:Request req) {
         http:Response res = new;
-        res.setStringPayload("hello world");
+        res.setTextPayload("hello world");
         _ = conn -> respond(res);
     }
 }

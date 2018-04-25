@@ -363,6 +363,8 @@ public class BLangPackageBuilder {
 
     private Stack<List<MatchExpressionPatternNode>> matchExprPatternNodeListStack = new Stack<>();
 
+    private Stack<Set<Whitespace>> operatorWs = new Stack<>();
+
     private BLangAnonymousModelHelper anonymousModelHelper;
     private CompilerOptions compilerOptions;
 
@@ -446,12 +448,13 @@ public class BLangPackageBuilder {
         recordNode.setName(this.createIdentifier(identifier));
         if (publicRecord) {
             recordNode.flagSet.add(Flag.PUBLIC);
+            recordNode.isFieldAnalyseRequired = true;
         }
 
         this.compUnit.addTopLevelNode(recordNode);
     }
 
-    void addAnonRecordType(DiagnosticPos pos, Set<Whitespace> ws) {
+    void addAnonRecordType(DiagnosticPos pos, Set<Whitespace> ws, boolean isFieldAnalyseRequired) {
         // Generate a name for the anonymous record
         String genName = anonymousModelHelper.getNextAnonymousRecordKey(pos.src.pkgID);
         IdentifierNode anonRecordGenName = createIdentifier(genName);
@@ -459,6 +462,7 @@ public class BLangPackageBuilder {
         // Create an anonymous record and add it to the list of records in the current package.
         BLangRecord recordNode = populateRecordNode(pos, ws, anonRecordGenName, true);
         recordNode.addFlag(Flag.PUBLIC);
+        recordNode.isFieldAnalyseRequired = isFieldAnalyseRequired;
         this.compUnit.addTopLevelNode(recordNode);
 
         addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), recordNode.name));
@@ -1448,12 +1452,13 @@ public class BLangPackageBuilder {
         objectNode.setName(this.createIdentifier(identifier));
         if (publicRecord) {
             objectNode.flagSet.add(Flag.PUBLIC);
+            objectNode.isFieldAnalyseRequired = true;
         }
 
         this.compUnit.addTopLevelNode(objectNode);
     }
 
-    void addAnonObjectType(DiagnosticPos pos, Set<Whitespace> ws) {
+    void addAnonObjectType(DiagnosticPos pos, Set<Whitespace> ws, boolean isFieldAnalyseRequired) {
         // Generate a name for the anonymous object
         String genName = anonymousModelHelper.getNextAnonymousObjectKey(pos.src.pkgID);
         IdentifierNode anonObjectGenName = createIdentifier(genName);
@@ -1461,6 +1466,7 @@ public class BLangPackageBuilder {
         // Create an anonymous object and add it to the list of objects in the current package.
         BLangObject objectNode = populateObjectNode(pos, ws, anonObjectGenName, true);
         objectNode.addFlag(Flag.PUBLIC);
+        objectNode.isFieldAnalyseRequired = isFieldAnalyseRequired;
         this.compUnit.addTopLevelNode(objectNode);
 
         addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), objectNode.name));
@@ -1990,8 +1996,13 @@ public class BLangPackageBuilder {
         assignmentNode.setVariable((BLangVariableReference) exprNodeStack.pop());
         assignmentNode.pos = pos;
         assignmentNode.addWS(ws);
+        assignmentNode.addWS(this.operatorWs.pop());
         assignmentNode.opKind = OperatorKind.valueFrom(operator);
         addStmtToCurrentBlock(assignmentNode);
+    }
+
+    public void addCompoundOperator(Set<Whitespace> ws) {
+        this.operatorWs.push(ws);
     }
 
     public void addPostIncrementStatement(DiagnosticPos pos, Set<Whitespace> ws, String operator) {
@@ -2108,25 +2119,22 @@ public class BLangPackageBuilder {
         transactionNode.setOnRetryBody(onretryBlock);
     }
 
-    public void endTransactionStmt(DiagnosticPos pos, Set<Whitespace> ws, boolean distributedTransactionEnabled) {
+    public void endTransactionStmt(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangTransaction transaction = (BLangTransaction) transactionNodeStack.pop();
         transaction.pos = pos;
         transaction.addWS(ws);
         addStmtToCurrentBlock(transaction);
 
-        if (distributedTransactionEnabled) {
-            // TODO This is a temporary workaround to flag coordinator service start
-            String value = compilerOptions.get(CompilerOptionName.TRANSACTION_EXISTS);
-            if (value != null) {
-                return;
-            }
-
-            compilerOptions.put(CompilerOptionName.TRANSACTION_EXISTS, "true");
-            List<String> nameComps = getPackageNameComps(Names.TRANSACTION_PACKAGE.value);
-            addImportPackageDeclaration(pos, null, Names.TRANSACTION_ORG.value,
-                    nameComps, Names.DEFAULT_VERSION.value,
-                    Names.DOT.value + nameComps.get(nameComps.size() - 1));
+        // TODO This is a temporary workaround to flag coordinator service start
+        String value = compilerOptions.get(CompilerOptionName.TRANSACTION_EXISTS);
+        if (value != null) {
+            return;
         }
+
+        compilerOptions.put(CompilerOptionName.TRANSACTION_EXISTS, "true");
+        List<String> nameComps = getPackageNameComps(Names.TRANSACTION_PACKAGE.value);
+        addImportPackageDeclaration(pos, null, Names.TRANSACTION_ORG.value, nameComps, Names.DEFAULT_VERSION.value,
+                Names.DOT.value + nameComps.get(nameComps.size() - 1));
     }
 
     public void addAbortStatement(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -2298,8 +2306,13 @@ public class BLangPackageBuilder {
     public void addServiceBody(Set<Whitespace> ws) {
         ServiceNode serviceNode = serviceNodeStack.peek();
         serviceNode.addWS(ws);
-        blockNodeStack.pop().getStatements()
-                .forEach(varDef -> serviceNode.addVariable((VariableDefinitionNode) varDef));
+        blockNodeStack.pop().getStatements().forEach(stmt -> {
+            if (stmt.getKind() == NodeKind.XMLNS) {
+                serviceNode.addNamespaceDeclaration((BLangXMLNSStatement) stmt);
+            } else {
+                serviceNode.addVariable((VariableDefinitionNode) stmt);
+            }
+        });
     }
 
     public void addAnonymousEndpointBind() {
@@ -2767,10 +2780,9 @@ public class BLangPackageBuilder {
         return Arrays.asList(pkgParts);
     }
 
-    public void startOrderByClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startOrderByClauseNode(DiagnosticPos pos) {
         OrderByNode orderByNode = TreeBuilder.createOrderByNode();
         ((BLangOrderBy) orderByNode).pos = pos;
-        orderByNode.addWS(ws);
         this.orderByClauseStack.push(orderByNode);
     }
 
@@ -2784,10 +2796,9 @@ public class BLangPackageBuilder {
         }
     }
 
-    public void startOrderByVariableNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startOrderByVariableNode(DiagnosticPos pos) {
         OrderByVariableNode orderByVariableNode = TreeBuilder.createOrderByVariableNode();
         ((BLangOrderByVariable) orderByVariableNode).pos = pos;
-        orderByVariableNode.addWS(ws);
         this.orderByVariableStack.push(orderByVariableNode);
     }
 
@@ -2814,10 +2825,9 @@ public class BLangPackageBuilder {
         limitNode.setLimitValue(limitValue);
     }
 
-    public void startGroupByClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startGroupByClauseNode(DiagnosticPos pos) {
         GroupByNode groupByNode = TreeBuilder.createGroupByNode();
         ((BLangGroupBy) groupByNode).pos = pos;
-        groupByNode.addWS(ws);
         this.groupByClauseStack.push(groupByNode);
     }
 
@@ -2825,13 +2835,13 @@ public class BLangPackageBuilder {
         GroupByNode groupByNode = this.groupByClauseStack.peek();
         ((BLangGroupBy) groupByNode).pos = pos;
         groupByNode.addWS(ws);
+        groupByNode.addWS(commaWsStack.pop());
         this.exprNodeListStack.pop().forEach(groupByNode::addVariableReference);
     }
 
-    public void startHavingClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startHavingClauseNode(DiagnosticPos pos) {
         HavingNode havingNode = TreeBuilder.createHavingNode();
         ((BLangHaving) havingNode).pos = pos;
-        havingNode.addWS(ws);
         this.havingClauseStack.push(havingNode);
     }
 
@@ -2842,10 +2852,9 @@ public class BLangPackageBuilder {
         havingNode.setExpression(this.exprNodeStack.pop());
     }
 
-    public void startSelectExpressionNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startSelectExpressionNode(DiagnosticPos pos) {
         SelectExpressionNode selectExpr = TreeBuilder.createSelectExpressionNode();
         ((BLangSelectExpression) selectExpr).pos = pos;
-        selectExpr.addWS(ws);
         this.selectExpressionsStack.push(selectExpr);
     }
 
@@ -2862,6 +2871,7 @@ public class BLangPackageBuilder {
     }
 
     public void endSelectExpressionList(Set<Whitespace> ws, int selectExprCount) {
+        commaWsStack.push(ws);
         List<SelectExpressionNode> selectExprList = this.selectExpressionsListStack.peek();
         addSelectExprToSelectExprNodeList(selectExprList, selectExprCount);
     }
@@ -2877,10 +2887,9 @@ public class BLangPackageBuilder {
         selectExprList.add(expr);
     }
 
-    public void startWhereClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startWhereClauseNode(DiagnosticPos pos) {
         WhereNode whereNode = TreeBuilder.createWhereNode();
         ((BLangWhere) whereNode).pos = pos;
-        whereNode.addWS(ws);
         this.whereClauseStack.push(whereNode);
     }
 
@@ -2891,10 +2900,9 @@ public class BLangPackageBuilder {
         whereNode.setExpression(exprNodeStack.pop());
     }
 
-    public void startSelectClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startSelectClauseNode(DiagnosticPos pos) {
         SelectClauseNode selectClauseNode = TreeBuilder.createSelectClauseNode();
         ((BLangSelectClause) selectClauseNode).pos = pos;
-        selectClauseNode.addWS(ws);
         this.selectClausesStack.push(selectClauseNode);
     }
 
@@ -2904,6 +2912,7 @@ public class BLangPackageBuilder {
         ((BLangSelectClause) selectClauseNode).pos = pos;
         selectClauseNode.addWS(ws);
         if (!isSelectAll) {
+            selectClauseNode.addWS(commaWsStack.pop());
             selectClauseNode.setSelectExpressions(this.selectExpressionsListStack.pop());
         } else {
             selectClauseNode.setSelectAll(true);
@@ -2916,10 +2925,9 @@ public class BLangPackageBuilder {
         }
     }
 
-    public void startWindowClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startWindowClauseNode(DiagnosticPos pos) {
         WindowClauseNode windowClauseNode = TreeBuilder.createWindowClauseNode();
         ((BLangWindow) windowClauseNode).pos = pos;
-        windowClauseNode.addWS(ws);
         this.windowClausesStack.push(windowClauseNode);
     }
 
@@ -2936,10 +2944,9 @@ public class BLangPackageBuilder {
         }
     }
 
-    public void startStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startStreamingInputNode(DiagnosticPos pos) {
         StreamingInput streamingInput = TreeBuilder.createStreamingInputNode();
         ((BLangStreamingInput) streamingInput).pos = pos;
-        streamingInput.addWS(ws);
         this.streamingInputStack.push(streamingInput);
     }
 
@@ -2967,10 +2974,9 @@ public class BLangPackageBuilder {
         streamingInput.setAlias(alias);
     }
 
-    public void startJoinStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startJoinStreamingInputNode(DiagnosticPos pos) {
         JoinStreamingInput joinStreamingInput = TreeBuilder.createJoinStreamingInputNode();
         ((BLangJoinStreamingInput) joinStreamingInput).pos = pos;
-        joinStreamingInput.addWS(ws);
         this.joinStreamingInputsStack.push(joinStreamingInput);
     }
 
@@ -3062,10 +3068,9 @@ public class BLangPackageBuilder {
         setAssignmentNodeList.add(expr);
     }
 
-    public void startStreamActionNode(DiagnosticPos pos, Set<Whitespace> ws, PackageID packageID) {
+    public void startStreamActionNode(DiagnosticPos pos, PackageID packageID) {
         StreamActionNode streamActionNode = TreeBuilder.createStreamActionNode();
         ((BLangStreamAction) streamActionNode).pos = pos;
-        streamActionNode.addWS(ws);
         this.streamActionNodeStack.push(streamActionNode);
         this.startLambdaFunctionDef(packageID);
         this.startBlock();
@@ -3080,10 +3085,9 @@ public class BLangPackageBuilder {
         streamActionNode.setInvokableBody((BLangLambdaFunction) this.exprNodeStack.pop());
     }
 
-    public void startPatternStreamingEdgeInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startPatternStreamingEdgeInputNode(DiagnosticPos pos) {
         PatternStreamingEdgeInputNode patternStreamingEdgeInputNode = TreeBuilder.createPatternStreamingEdgeInputNode();
         ((BLangPatternStreamingEdgeInput) patternStreamingEdgeInputNode).pos = pos;
-        patternStreamingEdgeInputNode.addWS(ws);
         this.patternStreamingEdgeInputStack.push(patternStreamingEdgeInputNode);
     }
 
@@ -3106,10 +3110,9 @@ public class BLangPackageBuilder {
         patternStreamingEdgeInputNode.setAliasIdentifier(alias);
     }
 
-    public void startPatternStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startPatternStreamingInputNode(DiagnosticPos pos) {
         PatternStreamingInputNode patternStreamingInputNode = TreeBuilder.createPatternStreamingInputNode();
         ((BLangPatternStreamingInput) patternStreamingInputNode).pos = pos;
-        patternStreamingInputNode.addWS(ws);
         this.patternStreamingInputStack.push(patternStreamingInputNode);
     }
 
@@ -3212,10 +3215,9 @@ public class BLangPackageBuilder {
         this.recentStreamingPatternInputNode = patternStreamingInputNode;
     }
 
-    public void startStreamingQueryStatementNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startStreamingQueryStatementNode(DiagnosticPos pos) {
         StreamingQueryStatementNode streamingQueryStatementNode = TreeBuilder.createStreamingQueryStatementNode();
         ((BLangStreamingQueryStatement) streamingQueryStatementNode).pos = pos;
-        streamingQueryStatementNode.addWS(ws);
         this.streamingQueryStatementStack.push(streamingQueryStatementNode);
     }
 
@@ -3250,10 +3252,9 @@ public class BLangPackageBuilder {
         streamingQueryStatementNode.setStreamingAction(streamActionNodeStack.pop());
     }
 
-    public void startOutputRateLimitNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startOutputRateLimitNode(DiagnosticPos pos) {
         OutputRateLimitNode outputRateLimit = TreeBuilder.createOutputRateLimitNode();
         ((BLangOutputRateLimit) outputRateLimit).pos = pos;
-        outputRateLimit.addWS(ws);
         this.outputRateLimitStack.push(outputRateLimit);
     }
 
@@ -3271,10 +3272,9 @@ public class BLangPackageBuilder {
         outputRateLimit.setRateLimitValue(rateLimitValue);
     }
 
-    public void startWithinClause(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startWithinClause(DiagnosticPos pos) {
         WithinClause withinClause = TreeBuilder.createWithinClause();
         ((BLangWithinClause) withinClause).pos = pos;
-        withinClause.addWS(ws);
         this.withinClauseStack.push(withinClause);
     }
 
@@ -3285,10 +3285,9 @@ public class BLangPackageBuilder {
         withinClause.setWithinTimePeriod(exprNodeStack.pop());
     }
 
-    public void startPatternClause(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startPatternClause(DiagnosticPos pos) {
         PatternClause patternClause = TreeBuilder.createPatternClause();
         ((BLangPatternClause) patternClause).pos = pos;
-        patternClause.addWS(ws);
         this.patternClauseStack.push(patternClause);
     }
 
@@ -3304,10 +3303,9 @@ public class BLangPackageBuilder {
         }
     }
 
-    public void startForeverNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startForeverNode(DiagnosticPos pos) {
         ForeverNode foreverNode = TreeBuilder.createForeverNode();
         ((BLangForever) foreverNode).pos = pos;
-        foreverNode.addWS(ws);
         this.foreverNodeStack.push(foreverNode);
     }
 

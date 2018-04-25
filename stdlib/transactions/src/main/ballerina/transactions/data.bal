@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 public type TransactionContext {
     @readonly string contextVersion = "1.0";
     @readonly string transactionId;
@@ -37,7 +36,7 @@ type RegistrationResponse {
 function toProtocolArray(RemoteProtocol[] remoteProtocols) returns Protocol[] {
     Protocol[] protocols;
     foreach remoteProtocol in remoteProtocols {
-        Protocol proto = {name: remoteProtocol.name};
+        Protocol proto = {name:remoteProtocol.name};
         protocols[lengthof protocols] = proto;
     }
     return protocols;

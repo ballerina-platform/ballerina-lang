@@ -133,7 +133,7 @@ class FolderOpenDialog extends React.Component {
         return (
             <Dialog
                 show={this.state.showDialog}
-                title='Open Program Directory'
+                title='Open Project Directory'
                 actions={
                     <Button
                         primary

@@ -15,7 +15,8 @@
 // under the License.
 
 documentation {
-    gRPC Service Stub for outbound gRPC requests.
+    gRPC Service Stub for outbound gRPC requests. gRPC client code not directly calls these functions.
+    Generated client endpoint actions uses these functions to interact with gRPC service.
 }
 public type Stub object {
     public {
@@ -23,7 +24,7 @@ public type Stub object {
     }
 
     documentation {
-        Init native function for initialize the Stub.
+        Calls when initializing client endpoint with service descriptor data extracted from proto file.
 
         P{{clientEndpoint}} - client endpoint struct.
         P{{stubType}} - Service Stub type. possible values: blocking, nonblocking.
@@ -33,31 +34,37 @@ public type Stub object {
     public native function initStub(any clientEndpoint, string stubType, string descriptorKey, map descriptorMap);
 
     documentation {
-        Blocking execute function implementation of the gRPC client stub.
+        Calls when executing blocking call with gRPC service.
 
-        P{{methodID}} - remote procedure call id.
-        P{{payload}} - Any type of request payload.
+        P{{methodID}} - Remote service method id.
+        P{{payload}} - Request message. Message type varies with remote service method parameter.
+        P{{headers}} - Optional headers parameter. Passes header value if needed. Default sets to nil.
+        R{{}} - Returns response message and headers if executes successfully, error otherwise.
     }
-    public native function blockingExecute(string methodID, any payload, Headers... headers)
+    public native function blockingExecute(string methodID, any payload, Headers? headers = ())
         returns ((any, Headers)|error);
 
     documentation {
-        Non Blocking execute function implementation of the gRPC client stub.
+        Calls when executing non-blocking call with gRPC service.
 
-        P{{methodID}} - remote procedure call id.
-        P{{payload}} - Any type of request payload.
-        P{{listenerService}} - call back listener service.
+        P{{methodID}} - Remote service method id.
+        P{{payload}} - Request message. Message type varies with remote service method parameter..
+        P{{listenerService}} - Call back listener service. This service listens the response message from service.
+        P{{headers}} - Optional headers parameter. Passes header value if needed. Default sets to nil.
+        R{{}} - Returns an error if encounters an error while sending the request, returns nil otherwise.
     }
-    public native function nonBlockingExecute(string methodID, any payload, typedesc listenerService,
-                                              Headers... headers) returns error?;
+    public native function nonBlockingExecute(string methodID, any payload, typedesc listenerService, Headers?
+    headers = ()) returns error?;
 
 
     documentation {
-        Blocking execute function implementation of the gRPC client stub.
+        Calls when executing streaming call with gRPC service.
 
-        P{{methodID}} - remote procedure call id.
-        P{{listenerService}} - call back listener service.
+        P{{methodID}} - Remote service method id.
+        P{{listenerService}} - Call back listener service. This service listens the response message from service.
+        P{{headers}} - Optional headers parameter. Passes header value if needed. Default sets to nil.
+        R{{}} - Returns client connection if executes successfully, error otherwise.
     }
-    public native function streamingExecute(string methodID, typedesc listenerService, Headers... headers)
+    public native function streamingExecute(string methodID, typedesc listenerService, Headers? headers = ())
         returns Client|error;
 };

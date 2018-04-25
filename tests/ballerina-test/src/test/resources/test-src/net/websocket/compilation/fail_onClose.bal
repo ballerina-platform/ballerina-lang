@@ -11,6 +11,6 @@ endpoint http:WebSocketListener echoEP {
 }
 service<http:WebSocketService> echo bind echoEP {
 
-    onClose(endpoint conn, int status, boolean more) {
+    onClose(endpoint conn, int status, boolean final) {
     }
 }

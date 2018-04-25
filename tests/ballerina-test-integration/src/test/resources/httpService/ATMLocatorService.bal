@@ -35,7 +35,7 @@ service<http:Service> ATMLocator bind serviceEnpoint {
                 branchLocatorReq.BranchLocator.ZipCode = zipCode;
                 backendServiceReq.setJsonPayload(branchLocatorReq);
             }
-            http:PayloadError err => {
+            error err => {
                 io:println("Error occurred while reading ATM locator request");
             }
         }
@@ -61,7 +61,7 @@ service<http:Service> ATMLocator bind serviceEnpoint {
                 bankInfoReq.BranchInfo.BranchCode = branchCode;
                 backendServiceReq.setJsonPayload(bankInfoReq);
             }
-            http:PayloadError err => {
+            error err => {
                 io:println("Error occurred while reading branch locator response");
             }
         }
@@ -105,7 +105,7 @@ service<http:Service> Bankinfo bind serviceEnpoint {
 
                 res.setJsonPayload(payload);
             }
-            http:PayloadError err => {
+            error err => {
                 io:println("Error occurred while reading bank info request");
             }
         }
@@ -138,7 +138,7 @@ service<http:Service> Banklocator bind serviceEnpoint {
                 }
                 res.setJsonPayload(payload);
             }
-            http:PayloadError err => {
+            error err => {
                 io:println("Error occurred while reading bank locator request");
             }
         }

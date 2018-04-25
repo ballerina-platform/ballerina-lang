@@ -28,6 +28,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 
 /**
@@ -43,6 +44,7 @@ public class GenerateBalx {
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, prjctDir.toString());
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
+        options.put(OFFLINE, Boolean.toString(true));
 
         Compiler compiler = Compiler.getInstance(context);
         compiler.build();

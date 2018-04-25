@@ -1,11 +1,5 @@
 import ballerina/io;
 
-type Employee {
-    string id;
-    string name;
-    float salary;
-};
-
 io:DelimitedTextRecordChannel? txtChannel;
 
 function initDelimitedRecordChannel(string filePath, io:Mode permission, string encoding, string recordSeperator,

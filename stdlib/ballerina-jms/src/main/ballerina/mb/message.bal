@@ -1,12 +1,29 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
 
 import ballerina/jms;
 
 public type Message object {
+
     private {
         jms:Message message;
     }
 
-    public new (message) {
+    public new(message) {
+
     }
 
     documentation {Gets the internal JMS message
@@ -31,7 +48,7 @@ public type Message object {
     documentation {Gets a JMS transport string property from the message
         P{{key}} The string property name
         returns The string property value}
-    public function getStringProperty(@sensitive string key) returns @tainted string|error|() {
+    public function getStringProperty(@sensitive string key) returns @tainted (string|error)? {
         return self.message.getStringProperty(key);
     }
 
@@ -66,50 +83,50 @@ public type Message object {
     documentation {Sets a JMS transport float property from the message
         P{{key}} The float property name
         P{{value}} The float property value}
-    public function setFloatProperty (@sensitive string key, float value) returns error? {
+    public function setFloatProperty(@sensitive string key, float value) returns error? {
         return self.message.setFloatProperty(key, value);
     }
 
     documentation {Gets a JMS transport float property from the message
         P{{key}} The float property name
         returns The float property value}
-    public function getFloatProperty (@sensitive string key) returns @tainted float|error {
+    public function getFloatProperty(@sensitive string key) returns @tainted float|error {
         return self.message.getFloatProperty(key);
     }
 
     documentation {Get JMS transport header MessageID from the message
         returns The header value}
-    public function getMessageID () returns @tainted string|error {
+    public function getMessageID() returns @tainted string|error {
         return self.message.getMessageID();
     }
 
     documentation {Get JMS transport header Timestamp from the message
         returns The header value}
-    public function getTimestamp () returns @tainted int|error {
+    public function getTimestamp() returns @tainted int|error {
         return self.message.getTimestamp();
     }
 
     documentation {Sets DeliveryMode JMS transport header to the message
         P{{mode}} The header value}
-    public function setDeliveryMode (@sensitive int mode) returns error? {
+    public function setDeliveryMode(@sensitive int mode) returns error? {
         return self.message.setDeliveryMode(mode);
     }
 
     documentation {Get JMS transport header DeliveryMode from the message
         returns The header value" }
-    public function getDeliveryMode () returns @tainted int|error {
+    public function getDeliveryMode() returns @tainted int|error {
         return self.message.getDeliveryMode();
     }
 
     documentation {Sets Expiration JMS transport header to the message
         P{{value}} The header value}
-    public function setExpiration (@sensitive int value) returns error? {
+    public function setExpiration(@sensitive int value) returns error? {
         return self.message.setExpiration(value);
     }
 
     documentation {Get JMS transport header Expiration from the message
         returns int: The header value}
-    public function getExpiration () returns @tainted int|error {
+    public function getExpiration() returns @tainted int|error {
         return self.message.getExpiration();
     }
 
@@ -127,31 +144,31 @@ public type Message object {
 
     documentation {Sets Priority JMS transport header to the message
         P{{value}} The header value}
-    public function setPriority (@sensitive int value) returns error? {
+    public function setPriority(@sensitive int value) returns error? {
         return self.message.setPriority(value);
     }
 
     documentation {Get JMS transport header Priority from the message
         returns The header value}
-    public function getPriority () returns @tainted int|error {
+    public function getPriority() returns @tainted int|error {
         return self.message.getPriority();
     }
 
     documentation {Get JMS transport header Redelivered from the message
         returns The header value}
-    public function getRedelivered () returns @tainted boolean|error {
+    public function getRedelivered() returns @tainted boolean|error {
         return self.message.getRedelivered();
     }
 
     documentation {Sets CorrelationID JMS transport header to the message
         P{{value}} The header value}
-    public function setCorrelationID (@sensitive string value) returns error? {
+    public function setCorrelationID(@sensitive string value) returns error? {
         return self.message.setCorrelationID(value);
     }
 
     documentation {Get JMS transport header CorrelationID from the message
         returns The header value}
-    public function getCorrelationID () returns @tainted string|error|() {
+    public function getCorrelationID() returns @tainted (string|error)? {
         return self.message.getCorrelationID();
     }
 };

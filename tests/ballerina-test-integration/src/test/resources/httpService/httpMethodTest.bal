@@ -127,7 +127,7 @@ service<http:Service> quoteService bind serviceEndpoint {
     }
     company (endpoint caller, http:Request req) {
         http:Response res = new;
-        res.setStringPayload("wso2");
+        res.setTextPayload("wso2");
         _ = caller -> respond(res);
     }
 
@@ -137,7 +137,7 @@ service<http:Service> quoteService bind serviceEndpoint {
     }
     product (endpoint caller, http:Request req) {
         http:Response res = new;
-        res.setStringPayload("ballerina");
+        res.setTextPayload("ballerina");
         _ = caller -> respond(res);
     }
 
@@ -147,7 +147,7 @@ service<http:Service> quoteService bind serviceEndpoint {
     defaultStock (endpoint caller, http:Request req) {
         http:Response res = new;
         res.setHeader("Method", "any");
-        res.setStringPayload("default");
+        res.setTextPayload("default");
         _ = caller -> respond(res);
     }
 

@@ -18,31 +18,39 @@
 import ballerina/auth;
 import ballerina/reflect;
 
-@Description {value:"Representation of the Authentication filter"}
-@Field {value:"filterRequest: request filter method which attempts to authenticated the request"}
-@Field {value:"filterRequest: response filter method (not used this scenario)"}
+documentation {
+    Representation of the Authentication filter.
+
+    F{{authnHandlerChain}} The Authentication handler chain
+}
 public type AuthnFilter object {
 
     public {
         AuthnHandlerChain authnHandlerChain;
     }
 
-    new (authnHandlerChain) {}
-    
-    @Description {value:"filterRequest: Request filter function"}
-    public function filterRequest (Request request, FilterContext context) returns FilterResult {
-	    // get auth config for this resource
-    	boolean authenticated;
-    	var (isSecured, authProviders) = getResourceAuthConfig(context);
-    	if (isSecured) {
-        	// if auth providers are there, use those to authenticate
+    public new(authnHandlerChain) {}
+
+    documentation {
+        Request filter method which attempts to authenticated the request.
+
+        P{{request}} An inboud HTTP request message
+        P{{context}} A filter context
+        R{{}} The resulting object after filtering the request
+    }
+    public function filterRequest(Request request, FilterContext context) returns FilterResult {
+        // get auth config for this resource
+        boolean authenticated;
+        var (isSecured, authProviders) = getResourceAuthConfig(context);
+        if (isSecured) {
+            // if auth providers are there, use those to authenticate
             if (lengthof authProviders > 0) {
                 authenticated = self.authnHandlerChain.handleWithSpecificAuthnHandlers(authProviders, request);
             } else {
                 // if not, try to authenticate using any of available authn handlers
                 authenticated = self.authnHandlerChain.handle(request);
             }
-    	} else {
+        } else {
             // not secured, no need to authenticate
             return createAuthnResult(true);
         }
@@ -50,30 +58,36 @@ public type AuthnFilter object {
     }
 };
 
-@Description {value:"Creates an instance of FilterResult"}
-@Param {value:"authorized: authorization status for the request"}
-@Return {value:"FilterResult: Authorization result to indicate if the request can proceed or not"}
-function createAuthnResult (boolean authenticated) returns (FilterResult) {
+documentation {
+    Creates an instance of FilterResult.
+
+    P{{authenticated}} Authorization status for the request
+    R{{}} Authorization result to indicate if the request can proceed or not
+}
+function createAuthnResult(boolean authenticated) returns (FilterResult) {
     FilterResult requestFilterResult = {};
     if (authenticated) {
-        requestFilterResult = {canProceed:true, statusCode:200, message:"Successfully authenticated"};
+        requestFilterResult = {canProceed: true, statusCode: 200, message: "Successfully authenticated"};
     } else {
-        requestFilterResult = {canProceed:false, statusCode:401, message:"Authentication failure"};
+        requestFilterResult = {canProceed: false, statusCode: 401, message: "Authentication failure"};
     }
     return requestFilterResult;
 }
 
-@Description {value:"Checks if the resource is secured"}
-@Param {value:"context: FilterContext object"}
-@Return {value:"boolean, string[]: tuple of whether the resource is secured and the list of auth provider ids "}
-function getResourceAuthConfig (FilterContext context) returns (boolean, string[]) {
+documentation {
+    Checks if the resource is secured.
+
+    P{{context}} A filter context
+    R{{}} A tuple of whether the resource is secured and the list of auth provider ids
+}
+function getResourceAuthConfig(FilterContext context) returns (boolean, string[]) {
     boolean resourceSecured;
     string[] authProviderIds = [];
     // get authn details from the resource level
     ListenerAuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, RESOURCE_ANN_NAME,
-                                    reflect:getResourceAnnotations(context.serviceType, context.resourceName));
+        reflect:getResourceAnnotations(context.serviceType, context.resourceName));
     ListenerAuthConfig? serviceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, SERVICE_ANN_NAME,
-                                    reflect:getServiceAnnotations(context.serviceType));
+        reflect:getServiceAnnotations(context.serviceType));
     // check if authentication is enabled
     resourceSecured = isResourceSecured(resourceLevelAuthAnn, serviceLevelAuthAnn);
     // if resource is not secured, no need to check further
@@ -100,8 +114,8 @@ function getResourceAuthConfig (FilterContext context) returns (boolean, string[
     return (resourceSecured, authProviderIds);
 }
 
-function isResourceSecured (ListenerAuthConfig? resourceLevelAuthAnn, ListenerAuthConfig? serviceLevelAuthAnn)
-                                                                                                    returns boolean {
+function isResourceSecured(ListenerAuthConfig? resourceLevelAuthAnn, ListenerAuthConfig? serviceLevelAuthAnn)
+    returns boolean {
     boolean isSecured;
     match resourceLevelAuthAnn.authentication {
         Authentication authn => {
@@ -124,14 +138,16 @@ function isResourceSecured (ListenerAuthConfig? resourceLevelAuthAnn, ListenerAu
     return isSecured;
 }
 
-@Description {value:"Tries to retrieve the annotation value for authentication hierarchically - first from the resource
-level
-and then from the service level, if its not there in the resource level"}
-@Param {value:"annotationPackage: annotation package name"}
-@Param {value:"annotationName: annotation name"}
-@Param {value:"annData: array of annotationData instances"}
-@Return {value:"ListenerAuthConfig: ListenerAuthConfig instance if its defined, else nil"}
-function getAuthAnnotation (string annotationPackage, string annotationName, reflect:annotationData[] annData) returns (ListenerAuthConfig?) {
+documentation {
+    Tries to retrieve the annotation value for authentication hierarchically - first from the resource level and then from the service level, if it  is not there in the resource level.
+
+    P{{annotationPackage}} Annotation package name
+    P{{annotationName}} Annotation name
+    P{{annData}} Array of annotationData instances
+    R{{}} ListenerAuthConfig instance if its defined, else nil
+}
+function getAuthAnnotation(string annotationPackage, string annotationName, reflect:annotationData[] annData) returns (
+        ListenerAuthConfig?) {
     if (lengthof annData == 0) {
         return ();
     }

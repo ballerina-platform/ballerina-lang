@@ -15,34 +15,31 @@
 // under the License.
 
 documentation {
-    Represents the gRPC client.
-
-    F{{host}} - The server host name.
-    F{{port}} - The server port.
+    Provides the gRPC actions for interacting with gRPC server.
 }
 public type GrpcClient object {
-    public {
-        int port;
-        string host;
-    }
 
     documentation {
         Sends request message to the server.
 
         P{{res}} - The inbound request message.
+        R{{}} - Returns an error if encounters an error while sending the response, returns nil otherwise.
     }
-    public native function send(any res, Headers... headers) returns error?;
+    public native function send(any res) returns error?;
 
     documentation {
         Informs the server, caller finished sending messages.
+
+        R{{}} - Returns an error if encounters an error while sending the response, returns nil otherwise.
     }
-    public native function complete(Headers... headers) returns error?;
+    public native function complete() returns error?;
 
     documentation {
-        Sends error response to the server.
+        Sends error message to the server.
 
         P{{statusCode}} - Error status code.
         P{{message}} - Error message.
+        R{{}} - Returns an error if encounters an error while sending the response, returns nil otherwise.
     }
-    public native function sendError(int statusCode, string message, Headers... headers) returns error?;
+    public native function sendError(int statusCode, string message) returns error?;
 };

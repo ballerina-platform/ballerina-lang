@@ -400,8 +400,6 @@ public class ProgramFileReader {
         // Resolve unresolved CP entries.
         resolveCPEntries();
 
-        resolveTypeDefinitionEntries(packageInfo);
-
         // Read attribute info entries
         readAttributeInfoEntries(dataInStream, packageInfo, packageInfo);
 
@@ -517,13 +515,6 @@ public class ProgramFileReader {
             BFiniteType finiteType = new BFiniteType(typeDefName, packageInfo.getPkgPath());
             typeDefinitionInfo.setType(finiteType);
 
-            int memberTypeCount = dataInStream.readShort();
-            for (int j = 0; j < memberTypeCount; j++) {
-                int memberTypeCPIndex = dataInStream.readInt();
-                TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) packageInfo.getCPEntry(memberTypeCPIndex);
-                finiteType.memberCPEntries.add(typeRefCPEntry);
-            }
-
             int valueSpaceCount = dataInStream.readShort();
             for (int k = 0; k < valueSpaceCount; k++) {
                 finiteType.valueSpace.add(getDefaultValueToBValue(getDefaultValue(dataInStream, packageInfo)));
@@ -532,17 +523,6 @@ public class ProgramFileReader {
             readAttributeInfoEntries(dataInStream, packageInfo, typeDefinitionInfo);
         }
 
-    }
-
-    private void resolveTypeDefinitionEntries(PackageInfo packageInfo) {
-        TypeDefinitionInfo[] typeDefinitionInfos = packageInfo.getTypeDefinitionInfoEntries();
-        for (TypeDefinitionInfo typeDefInfo : typeDefinitionInfos) {
-            BFiniteType finiteType = typeDefInfo.getType();
-            finiteType.memberCPEntries.forEach(typeRefCPEntry -> {
-                finiteType.memberTypes.add(typeRefCPEntry.getType());
-            });
-            finiteType.memberCPEntries.clear();
-        }
     }
 
     private void readServiceInfoEntries(DataInputStream dataInStream,

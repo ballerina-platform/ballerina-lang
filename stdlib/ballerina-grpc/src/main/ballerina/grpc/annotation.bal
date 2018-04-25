@@ -15,37 +15,52 @@
 // under the License.
 
 documentation {
-    gRPC service configuration.
+    Service configuration. Sets only for client and bidirectional streaming service.
 
-    F{{name}} - gRPC resource name. This applies only for client streaming and bidirectional streaming
-                where we can define only one resource. In order to generate proto file, we need resource name.
-    F{{clientStreaming}} - gRPC client streaming service flag. This applies only for servicestub streaming and
-                           bidirectional streaming. Flag sets to true, if the service is client/bidirectional streaming.
-    F{{serverStreaming}} - gRPC server streaming service flag. This applies only for client streaming and
-                           bidirectional streaming. Flag sets to true, if the service is bidirectional streaming.
+    F{{name}} - Resource name. This applies only for client streaming and bidirectional streaming
+                where we can define only one resource. In order to generate proto file, service resource name need to
+                pass as annotation parameter.
+    F{{clientStreaming}} - Client streaming flag. This applies only for client streaming and
+    bidirectional streaming. Flag sets to true, if the service defines as client/bidirectional streaming.
+    F{{serverStreaming}} - Server streaming flag. This applies only for bidirectional streaming. Flag
+    sets to true, if the service defines as bidirectional streaming.
 }
-public type ServiceConfig {
+public type GrpcServiceConfig {
     string name;
     boolean clientStreaming;
     boolean serverStreaming;
 };
 
 documentation {
-    gRPC service configuration annotation.
+    Service configuration. Sets only for client and bidirectional streaming service.
 }
-public annotation<service> serviceConfig ServiceConfig;
+public annotation<service> ServiceConfig GrpcServiceConfig;
 
 documentation {
-    gRPC service resource configuration.
+    Service resource configuration. Sets only for server streaming service.
 
-    F{{streaming}} - gRPC server streaming flag. This flag sets to true when service resource is considered as server
-                     streaming.
+    F{{streaming}} - Server streaming flag. This flag sets to true to specify that the resource is capable of sending
+     multiple responses per request.
 }
-public type ResourceConfig {
+public type GrpcResourceConfig {
     boolean streaming;
 };
 
 documentation {
-    gRPC service resource configuration annotation.
+    Service resource configuration. Sets only for server streaming service.
 }
-public annotation<resource> resourceConfig ResourceConfig;
+public annotation<resource> ResourceConfig GrpcResourceConfig;
+
+documentation {
+    Service descriptor data. This is for internal use.
+
+    F{{descriptor}} - Service descriptor sets at compile time.
+}
+public type ServiceDescriptorData {
+    string descriptor;
+};
+
+documentation {
+    Service descriptor data generated at compile time. This is for internal use.
+}
+public annotation <service> ServiceDescriptor ServiceDescriptorData;

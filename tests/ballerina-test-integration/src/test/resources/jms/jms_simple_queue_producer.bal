@@ -3,7 +3,7 @@ import ballerina/io;
 
 // Create a queue sender
 endpoint jms:SimpleQueueSender queueSender {
-    initialContextFactory: "wso2mbInitialContextFactory",
+    initialContextFactory: "bmbInitialContextFactory",
     providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5772'",
     queueName: "testMbSimpleQueueReceiverProducer"
 };

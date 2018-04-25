@@ -386,7 +386,7 @@ public class CommonUtil {
      * @return {@link String}          Label string
      */
     private static String getAnnotationLabel(PackageID packageID, BLangAnnotation annotation) {
-        String pkgComponent = UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY;
+        String pkgComponent = "";
         if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())) {
 
             pkgComponent += packageID.getNameComps().get(packageID.getNameComps().size() - 1).getValue()

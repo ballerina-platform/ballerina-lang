@@ -21,7 +21,7 @@ service<http:Service> sample bind echoEP {
 
     getCount(endpoint conn, http:Request req) {
         http:Response res = new;
-        res.setStringPayload("count - " + requestCount);
+        res.setTextPayload("count - " + requestCount);
         _ = conn -> respond(res);
     }
 }
@@ -92,7 +92,7 @@ service<http:Service> sample1 bind echoEP {
     getResult(endpoint conn, http:Request req) {
         http:Response res = new;
         var strVal = <string> mapVal.name;
-        res.setStringPayload(finalText + requestCount + price + person.age + person.address.line1
+        res.setTextPayload(finalText + requestCount + price + person.age + person.address.line1
                              + floatArr[0] + floatArr[1] + strVal);
         _ = conn -> respond(res);
     }
@@ -179,7 +179,7 @@ service<http:Service> sample2 bind echoEP {
     getResult(endpoint conn, http:Request req) {
         http:Response res = new;
         var strVal = <string> mapVal.name;
-        res.setStringPayload(finalText1 + requestCount + price + person1.age + person1.address.line1
+        res.setTextPayload(finalText1 + requestCount + price + person1.age + person1.address.line1
                                 + floatArr1[0] + floatArr1[1] + strVal);
         _ = conn -> respond(res);
     }
@@ -208,7 +208,7 @@ service<http:Service> sample3 bind echoEP {
         lock {
             message = "modified by second resource";
         }
-        res.setStringPayload(message);
+        res.setTextPayload(message);
         _ = conn -> respond(res);
     }
 }

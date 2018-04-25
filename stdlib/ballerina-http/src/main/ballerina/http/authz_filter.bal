@@ -28,7 +28,7 @@ public type AuthzFilter object {
         HttpAuthzHandler authzHandler;
     }
 
-    new (authzHandler) {
+    public new (authzHandler) {
     }
     
     @Description {value:"Filter function implementation which tries to authorize the request"}

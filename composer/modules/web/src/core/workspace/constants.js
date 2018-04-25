@@ -67,7 +67,7 @@ export const LABELS = {
     SAVE_AS: 'Save As',
     FILE: 'File',
     SHOW_FILE_OPEN_WIZARD: 'Open File',
-    SHOW_FOLDER_OPEN_WIZARD: 'Open Program Directory',
+    SHOW_FOLDER_OPEN_WIZARD: 'Open Project Directory',
 };
 
 export const DIALOGS = {

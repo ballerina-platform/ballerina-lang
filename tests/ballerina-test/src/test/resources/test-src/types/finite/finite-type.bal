@@ -113,3 +113,97 @@ function foo() returns PreparedResult | error | () {
        PreparedResult x = "ss";
        return x;
 }
+
+
+function testFiniteTypesWithDefaultValues() returns State {
+   return assignFiniteValueAsDefaultParam();
+}
+
+function assignFiniteValueAsDefaultParam(State cd = "on") returns State {
+   Channel c = new(b = cd);
+   return c.b ?: "off";
+}
+
+type Channel object {
+
+    public {
+      State? b,
+    }
+
+    new (b = "off", boolean a = true){
+        State o =  "on";
+        if(b == o) {
+           int i = 4;
+        }
+    }
+};
+
+type CombinedState "on"|"off"|int;
+
+function testFiniteTypesWithUnion() returns CombinedState {
+   CombinedState abc = 1;
+   return abc;
+}
+
+function testFiniteTypesWithUnionCaseOne() returns CombinedState {
+   CombinedState abc = "off";
+   if( abc == "off"){
+       return 100;
+   }
+   return 0;
+}
+
+function testFiniteTypesWithUnionCaseTwo() returns CombinedState {
+   CombinedState abc = "off";
+   if( abc == "off"){
+       return "on";
+   }
+   return "off";
+}
+
+function testFiniteTypesWithUnionCaseThree() returns int {
+   CombinedState abc = "off";
+   if( abc == "off"){
+       return 1001;
+   }
+   return 1002;
+}
+
+function testFiniteTypesWithTuple() returns State {
+   State onState = "on";
+   (State, int ) b = (onState, 20);
+   var (i, j) = b;
+   return i;
+}
+
+type TypeAliasOne Person;
+
+type TypeAliasTwo TypeAliasOne;
+
+type TypeAliasThree TypeAliasTwo;
+
+function testTypeAliasing() returns string {
+    TypeAliasThree p = {name:"Anonymous name"};
+    return p.name;
+}
+
+type MyType int|string;
+
+function testTypeAliasingCaseOne() returns (MyType,MyType) {
+     MyType a = 100;
+     MyType b = "hundred";
+     return (a,b);
+}
+
+public type ParamTest string|int;
+
+function testTypeDefinitionWithVarArgs() returns (ParamTest, ParamTest) {
+    string s1 = "Anne";
+    ParamTest p1 = testVarArgs("John");
+    ParamTest p2 = testVarArgs(s1);
+    return (p1, p2);
+}
+
+function testVarArgs(ParamTest... p1) returns ParamTest {
+    return p1[0];
+}

@@ -1,0 +1,41 @@
+{
+  "position": {
+    "line": 6,
+    "character": 13
+  },
+  "source": "function/source/variableBoundItemSuggestions2.bal",
+  "items": [
+    {
+      "label":"foreach(\u003c@lambda:function\u003e)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"foreach(function (string v) {\n\t${1}\n});",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"map(\u003c@lambda:function\u003e)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"map(function (string v) (any){\n\t${1}\n});",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"filter(\u003c@lambda:function\u003e)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"filter(function (string v) (boolean){\n\t${1}\n});",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"count()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"count();",
+      "insertTextFormat":"Snippet"
+    }
+  ]
+}

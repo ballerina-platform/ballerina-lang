@@ -36,6 +36,8 @@ import org.ballerinalang.util.observability.ObservabilityUtils;
 import org.ballerinalang.util.observability.ObserverContext;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
+import java.util.Optional;
+
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_INDEX;
@@ -61,11 +63,10 @@ public class Respond extends ConnectionAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        DataContext dataContext = new DataContext(context, callback);
         BStruct connectionStruct = (BStruct) context.getRefArgument(0);
         HTTPCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionStruct, null);
         HttpUtil.checkFunctionValidity(connectionStruct, inboundRequestMsg);
-
+        DataContext dataContext = new DataContext(context, callback, inboundRequestMsg);
         BStruct outboundResponseStruct = (BStruct) context.getRefArgument(1);
         HTTPCarbonMessage outboundResponseMsg = HttpUtil
                 .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
@@ -79,11 +80,10 @@ public class Respond extends ConnectionAction {
             outboundResponseMsg.completeMessage();
         }
 
-        if (ObservabilityUtils.isObservabilityEnabled()) {
-            ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
-            observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE, String.valueOf(outboundResponseStruct.
-                    getIntField(RESPONSE_STATUS_CODE_INDEX)));
-        }
+        Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
+        observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_HTTP_STATUS_CODE,
+                String.valueOf(outboundResponseStruct.getIntField(RESPONSE_STATUS_CODE_INDEX))));
+
         sendOutboundResponseRobust(dataContext, inboundRequestMsg, outboundResponseStruct, outboundResponseMsg);
     }
 
