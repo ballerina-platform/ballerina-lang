@@ -89,6 +89,7 @@ HTTP 1.1 To 2.0 Protocol Switch
 Log API
 Function Pointers
 Lambda
+Closures
 WebSocket Basic Sample
 WebSocket Chat Application
 WebSocket Proxy Server
