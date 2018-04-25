@@ -95,7 +95,7 @@ service<http:Service> testService_1 bind testEP {
         http:Response testResponse = new;
         string secondVal;
         match secondResponse {
-            http:HttpConnectorError err => {
+            error err => {
                 secondVal = err.message;
             }
             http:Response response => {

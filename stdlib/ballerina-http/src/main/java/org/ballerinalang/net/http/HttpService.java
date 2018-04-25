@@ -304,6 +304,10 @@ public class HttpService implements Cloneable {
         if (basePath.endsWith(HttpConstants.DEFAULT_BASE_PATH) && basePath.length() != 1) {
             basePath = basePath.substring(0, basePath.length() - 1);
         }
+        //TODO Add proper basePath validation()
+        if (basePath.endsWith("*")) {
+            basePath = basePath.substring(0, basePath.length() - 1);
+        }
 
         return basePath;
     }

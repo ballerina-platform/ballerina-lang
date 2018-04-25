@@ -16,6 +16,10 @@
 
 import ballerina/log;
 
+documentation { JMS simple topic publisher
+    E{{}}
+    F{{config}} Simple topic publisher enpoint configuration
+}
 public type SimpleTopicPublisher object {
 
     public {
@@ -28,6 +32,9 @@ public type SimpleTopicPublisher object {
         TopicPublisher? publisher;
     }
 
+    documentation { Initialize simple topic publisher endpoint
+        P{{config}} Simple topic publisher enpoint configuration
+    }
     public function init(SimpleTopicPublisherEndpointConfiguration config) {
         self.config = config;
         Connection conn = new({
@@ -52,14 +59,19 @@ public type SimpleTopicPublisher object {
         self.publisher = topicPublisher;
     }
 
+    documentation { Register simple topic publisher endpoint
+        P{{serviceType}} Type descriptor of the service
+    }
     public function register(typedesc serviceType) {
 
     }
 
+    documentation { Start simple topic pubilsher endpoint }
     public function start() {
 
     }
 
+    documentation { Get simple topic pubilsher actions }
     public function getCallerActions() returns TopicPublisherActions {
         match (publisher) {
             TopicPublisher s => return s.getCallerActions();
@@ -70,10 +82,14 @@ public type SimpleTopicPublisher object {
         }
     }
 
+    documentation { Stop simple topic pubilsher endpoint }
     public function stop() {
 
     }
 
+    documentation { Create JMS text message
+        P{{message}} A message body to create a text message
+    }
     public function createTextMessage(string message) returns Message|error {
         match (session) {
             Session s => return s.createTextMessage(message);
@@ -85,6 +101,14 @@ public type SimpleTopicPublisher object {
     }
 };
 
+documentation { Configuration related to simple topic publisher endpoint
+    F{{initialContextFactory}} JNDI initial context factory class
+    F{{providerUrl}} JNDI provider URL
+    F{{connectionFactoryName}}  JNDI name of the connection factory
+    F{{acknowledgementMode}} JMS session acknwoledge mode
+    F{{properties}} JMS message properties
+    F{{topicPattern}} name of the target topic
+}
 public type SimpleTopicPublisherEndpointConfiguration {
     string initialContextFactory = "bmbInitialContextFactory";
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";

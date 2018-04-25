@@ -14,26 +14,55 @@
 // specific language governing permissions and limitations
 // under the License.
 
+documentation {
+    Defines the possible values for the chunking configuration in the HTTP client endpoint.
+
+    `AUTO`: If the payload is less than 8KB, content-length header is set in the outbound request/response,
+            otherwise chunking header is set in the outbound request/response
+    `ALWAYS`: Always set chunking header in the response
+    `NEVER`: Never set the chunking header even if the payload is larger than 8KB in the outbound request/response
+}
 public type Chunking "AUTO" | "ALWAYS" | "NEVER";
 
+documentation {If the payload is less than 8KB, content-length header is set in the outbound request/response,
+              otherwise chunking header is set in the outbound request/response.}
 @final public Chunking CHUNKING_AUTO = "AUTO";
+
+documentation {Always set chunking header in the response.}
 @final public Chunking CHUNKING_ALWAYS = "ALWAYS";
+
+documentation {Never set the chunking header even if the payload is larger than 8KB in the outbound request/response.}
 @final public Chunking CHUNKING_NEVER = "NEVER";
 
+documentation {
+    Options to compress using gzip or deflate.
+
+    `AUTO`: When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the
+            outbound request/response accept-encoding option
+    `ALWAYS`: Always set accept-encoding in outbound request/response
+    `NEVER`: Never set accept-encoding header in outbound request/response
+}
 public type Compression "AUTO" | "ALWAYS" | "NEVER";
 
+documentation {When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the
+               outbound request/response accept-encoding option.}
 @final public Compression COMPRESSION_AUTO = "AUTO";
+
+documentation {Always set accept-encoding in outbound request/response.}
 @final public Compression COMPRESSION_ALWAYS = "ALWAYS";
+
+documentation {Never set accept-encoding header in outbound request/response.}
 @final public Compression COMPRESSION_NEVER = "NEVER";
 
-public type AcceptEncoding "AUTO" | "ALWAYS" | "NEVER";
+documentation {
+    Represent transfer encoding options.
 
-@final public AcceptEncoding ACCEPT_ENCODING_AUTO = "AUTO";
-@final public AcceptEncoding ACCEPT_ENCODING_ALWAYS = "ALWAYS";
-@final public AcceptEncoding ACCEPT_ENCODING_NEVER = "NEVER";
-
+    `CHUNKING`: Payload is divided into chunks of data if payload is larger than 8KB
+}
 public type TransferEncoding "CHUNKING";
 
+
+documentation {Payload is divided into chunks of data if payload is larger than 8KB.}
 @final public TransferEncoding TRANSFERENCODE_CHUNKING = "CHUNKING";
 
 documentation {
@@ -61,8 +90,8 @@ public type KeyStore {
 documentation {
     A record for configuring SSL/TLS protocol and version to be used.
 
-    F{{name}} SSL Protocol to be used (eg: TLS1.2)
-    F{{versions}} SSL/TLS protocols to be enabled (eg: TLSv1,TLSv1.1,TLSv1.2)
+    F{{name}} SSL Protocol to be used (e.g.: TLS1.2)
+    F{{versions}} SSL/TLS protocols to be enabled (e.g.: TLSv1,TLSv1.1,TLSv1.2)
 }
 public type Protocols {
     string name,
@@ -105,4 +134,5 @@ documentation {
     P{{headerValue}} The header value
     R{{}} Returns a tuple containing the value and its parameter map
 }
+//TODO: Make the error nillable
 public native function parseHeader (string headerValue) returns (string, map)|error;

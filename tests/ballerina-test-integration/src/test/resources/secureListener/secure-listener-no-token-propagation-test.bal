@@ -31,7 +31,7 @@ service<http:Service> passthroughService bind listener {
             http:Response httpResponse => {
                 _ = caller -> respond(httpResponse);
             }
-            http:HttpConnectorError err => {
+            error err => {
                 http:Response errorResponse = new;
                 json errMsg = {"error":"error occurred while invoking the service"};
                 errorResponse.setJsonPayload(errMsg);

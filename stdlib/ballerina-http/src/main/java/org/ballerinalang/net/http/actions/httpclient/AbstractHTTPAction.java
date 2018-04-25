@@ -113,16 +113,16 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         return requestMsg;
     }
 
-    private String getAcceptEncodingConfigFromEndpointConfig(BStruct httpClientStruct) {
+    protected String getAcceptEncodingConfigFromEndpointConfig(BStruct httpClientStruct) {
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(httpClientStruct);
         Struct epConfig = (Struct) clientEndpointConfig.getNativeData(HttpConstants.CLIENT_ENDPOINT_CONFIG);
         if (epConfig == null) {
             return HttpConstants.AUTO;
         }
-        return epConfig.getRefField(HttpConstants.CLIENT_EP_ACCEPT_ENCODING).getStringValue();
+        return epConfig.getRefField(HttpConstants.ANN_CONFIG_ATTR_COMPRESSION).getStringValue();
     }
 
-    private static AcceptEncodingConfig getAcceptEncodingConfig(String acceptEncodingConfig) {
+    protected static AcceptEncodingConfig getAcceptEncodingConfig(String acceptEncodingConfig) {
         if (HttpConstants.AUTO.equalsIgnoreCase(acceptEncodingConfig)) {
             return AcceptEncodingConfig.AUTO;
         } else if (HttpConstants.ALWAYS.equalsIgnoreCase(acceptEncodingConfig)) {
@@ -135,7 +135,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         }
     }
 
-    private void handleAcceptEncodingHeader(HTTPCarbonMessage outboundRequest,
+    protected void handleAcceptEncodingHeader(HTTPCarbonMessage outboundRequest,
             AcceptEncodingConfig acceptEncodingConfig) {
         if (acceptEncodingConfig == AcceptEncodingConfig.ALWAYS && (
                 outboundRequest.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString()) == null)) {
@@ -449,19 +449,12 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
                         HttpConstants.PROTOCOL_PACKAGE_HTTP);
             } else if (throwable instanceof IOException) {
                 this.outboundMsgDataStreamer.setIoException((IOException) throwable);
-                httpConnectorError = createStruct(this.dataContext.context, HttpConstants.HTTP_CONNECTOR_ERROR,
-                        HttpConstants.PROTOCOL_PACKAGE_HTTP);
+                httpConnectorError = HttpUtil.getHttpConnectorError(this.dataContext.context, throwable);
             } else {
                 this.outboundMsgDataStreamer.setIoException(new IOException(throwable.getMessage()));
-                httpConnectorError = createStruct(this.dataContext.context, HttpConstants.HTTP_CONNECTOR_ERROR,
-                        HttpConstants.PROTOCOL_PACKAGE_HTTP);
+                httpConnectorError = HttpUtil.getHttpConnectorError(this.dataContext.context, throwable);
             }
-
             httpConnectorError.setStringField(0, throwable.getMessage());
-            if (throwable instanceof ClientConnectorException) {
-                ClientConnectorException clientConnectorException = (ClientConnectorException) throwable;
-                httpConnectorError.setIntField(0, clientConnectorException.getHttpStatusCode());
-            }
             this.dataContext.notifyReply(null, httpConnectorError);
         }
     }

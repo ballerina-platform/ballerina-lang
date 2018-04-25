@@ -173,8 +173,12 @@ public class CodeGenerator {
             if (param0 == null) {
                 throw new IllegalArgumentException("found 'null', expected 'string'");
             }
-            if (object != null && object.toString().equals(param0.toString())) {
-                result = options.fn(options.context);
+            if (object != null) {
+                if (object.toString().equals(param0.toString())) {
+                    result = options.fn(options.context);
+                } else {
+                    result = options.inverse();
+                }
             } else {
                 result = null;
             }

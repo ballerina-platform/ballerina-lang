@@ -75,7 +75,7 @@ public class Send extends BlockingNativeCallableUnit {
                 Message requestMessage = MessageUtils.generateProtoMessage(responseValue, inputType);
                 requestSender.onNext(requestMessage);
             } catch (Throwable e) {
-                LOG.error("Error while sending client response.", e);
+                LOG.error("Error while sending request message to server.", e);
                 context.setError(MessageUtils.getConnectorError(context, e));
             }
         }

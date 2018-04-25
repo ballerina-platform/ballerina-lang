@@ -98,7 +98,7 @@ public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi
      * @throws BallerinaOpenApiException when context building fails
      */
     private void setPaths(OpenAPI openAPI) throws BallerinaOpenApiException {
-        if (openAPI.getComponents() == null || openAPI.getComponents().getSchemas() == null) {
+        if (openAPI.getPaths() == null) {
             return;
         }
 
@@ -164,7 +164,8 @@ public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi
                 BallerinaServer balServer = new BallerinaServer().buildContext(server);
                 servers.add(balServer);
             } catch (BallerinaOpenApiException e) {
-                // Ignore the exception and move to other servers
+                // Ignore the exception, set default value for this server and move forward
+                servers.add(new BallerinaServer().getDefaultValue());
             }
         });
     }

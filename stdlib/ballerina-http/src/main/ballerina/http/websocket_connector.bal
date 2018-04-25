@@ -27,34 +27,34 @@ public type WebSocketConnector object {
 
         P{{text}} Text to be sent
         P{{final}} True if this is a final frame of a (long) message
-        R{{}} `WebSocketConnectorError` if an error occurs when sending
+        R{{}} `error` if an error occurs when sending
     }
-    public native function pushText(string text, boolean final = true) returns WebSocketConnectorError|();
+    public native function pushText(string text, boolean final = true) returns error|();
 
     documentation {
         Push binary data to the connection.
 
         P{{data}} Binary data to be sent
         P{{final}} True if this is a final frame of a (long) message
-        R{{}} `WebSocketConnectorError` if an error occurs when sending
+        R{{}} `error` if an error occurs when sending
     }
-    public native function pushBinary(blob data, boolean final = true) returns WebSocketConnectorError|();
+    public native function pushBinary(blob data, boolean final = true) returns error|();
 
     documentation {
         Ping the connection.
 
         P{{data}} Binary data to be sent.
-        R{{}} `WebSocketConnectorError` if an error occurs when sending
+        R{{}} `error` if an error occurs when sending
     }
-    public native function ping(blob data) returns WebSocketConnectorError|();
+    public native function ping(blob data) returns error|();
 
     documentation {
         Send pong message to the connection.
 
         P{{data}} Binary data to be sent
-        R{{}} `WebSocketConnectorError` if an error occurs when sending
+        R{{}} `error` if an error occurs when sending
     }
-    public native function pong(blob data) returns WebSocketConnectorError|();
+    public native function pong(blob data) returns error|();
 
     @Description {value: ""}
     @Param {value: "statusCode: "}
@@ -64,27 +64,17 @@ public type WebSocketConnector object {
 
         P{{statusCode}} Status code for closing the connection
         P{{reason}} Reason for closing the connection
-        R{{}} `WebSocketConnectorError` if an error occurs when sending
+        R{{}} `error` if an error occurs when sending
     }
-    public native function close(int statusCode, string reason) returns WebSocketConnectorError|();
+    public native function close(int statusCode, string reason) returns error|();
 
     documentation {
         Called when the endpoint is ready to receive messages. Can be called only once per endpoint. For the
          WebSocketListener can be called only in upgrade or onOpen resources.
 
-        R{{}} `WebSocketConnectorError` if an error occurs when sending
+        R{{}} `error` if an error occurs when sending
     }
-    public native function ready() returns WebSocketConnectorError|();
+    public native function ready() returns error|();
 
 };
 
-documentation {
-    Represents the error that occurs during WebSocket message transfers.
-
-    F{{message}} An error message that explains the error
-    F{{cause}} The error(s) that caused the `WebSocketConnectorError` to be thrown
-}
-public type WebSocketConnectorError {
-    string message,
-    error? cause,
-};

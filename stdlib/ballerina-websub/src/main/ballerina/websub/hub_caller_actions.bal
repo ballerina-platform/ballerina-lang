@@ -36,9 +36,9 @@ public type CallerActions object {
     new (hubUrl, httpClientEndpoint) {}
 
     documentation {
-        Function to send a subscription request to a WebSub Hub.
+        Sends a subscription request to a WebSub Hub.
 
-        P{{subscriptionRequest}} The SubscriptionChangeRequest containing subscription details
+        P{{subscriptionRequest}} The `SubscriptionChangeRequest` containing subscription details
         R{{}} `SubscriptionChangeResponse` indicating subscription details, if the request was successful else
                 `error` if an error occurred with the subscription request
     }
@@ -46,9 +46,9 @@ public type CallerActions object {
         returns @tainted (SubscriptionChangeResponse|error);
 
     documentation {
-        Function to send an unsubscription request to a WebSub Hub.
+        Sends an unsubscription request to a WebSub Hub.
 
-        P{{unsubscriptionRequest}} The SubscriptionChangeRequest containing unsubscription details
+        P{{unsubscriptionRequest}} The `SubscriptionChangeRequest` containing unsubscription details
         R{{}} `SubscriptionChangeResponse` indicating unsubscription details, if the request was successful else
                 `error` if an error occurred with the unsubscription request
     }
@@ -56,8 +56,8 @@ public type CallerActions object {
         returns @tainted (SubscriptionChangeResponse|error);
 
     documentation {
-        Function to register a topic in a Ballerina WebSub Hub against which subscribers can subscribe and the publisher
-         will publish updates, with a secret which will be used in signature generation if specified.
+        Registers a topic in a Ballerina WebSub Hub against which subscribers can subscribe and the publisher will
+         publish updates, with a secret which will be used in signature generation if specified.
 
         P{{topic}} The topic to register
         P{{secret}} The secret the publisher will use to generate a signature when publishing updates
@@ -66,7 +66,7 @@ public type CallerActions object {
     public function registerTopic(string topic, string? secret = ()) returns error?;
 
     documentation {
-        Function to unregister a topic in a Ballerina WebSub Hub.
+        Unregisters a topic in a Ballerina WebSub Hub.
 
         P{{topic}} The topic to unregister
         P{{secret}} The secret the publisher used when registering the topic
@@ -75,7 +75,7 @@ public type CallerActions object {
     public function unregisterTopic(string topic, string? secret = ()) returns error?;
 
     documentation {
-        Function to publish an update to a remote Ballerina WebSub Hub.
+        Publishes an update to a remote Ballerina WebSub Hub.
 
         P{{topic}} The topic for which the update occurred
         P{{payload}} The update payload
@@ -88,7 +88,7 @@ public type CallerActions object {
                                   map<string>? headers = ()) returns error?;
 
     documentation {
-        Function to notify a remote WebSub Hub that an update is available to fetch, for hubs that require publishing to
+        Notifies a remote WebSub Hub that an update is available to fetch, for hubs that require publishing to
          happen as such.
 
         P{{topic}} The topic for which the update occurred
@@ -129,7 +129,7 @@ public function CallerActions::registerTopic(string topic, string? secret = ()) 
             }
             return;
         }
-        http:HttpConnectorError err => {
+        error err => {
             error webSubError = {message:"Error sending topic registration request: " + err.message,
                 cause:err};
             return webSubError;
@@ -150,7 +150,7 @@ public function CallerActions::unregisterTopic(string topic, string? secret = ()
             }
             return;
         }
-        http:HttpConnectorError err => {
+        error err => {
             error webSubError = {message:"Error sending topic unregistration request: " + err.message,
                 cause:err};
             return webSubError;
@@ -195,7 +195,7 @@ public function CallerActions::publishUpdate(string topic, json payload, string?
     var response = httpClientEndpoint->post(untaint ("?" + queryParams), request = request);
     match (response) {
         http:Response => return;
-        http:HttpConnectorError httpConnectorError => { error webSubError = {
+        error httpConnectorError => { error webSubError = {
             message:"Notification failed for topic [" + topic + "]", cause:httpConnectorError};
         return webSubError;
         }
@@ -219,7 +219,7 @@ public function CallerActions::notifyUpdate(string topic, map<string>? headers =
     var response = httpClientEndpoint->post(untaint ("?" + queryParams), request = request);
     match (response) {
         http:Response => return;
-        http:HttpConnectorError httpConnectorError => { error webSubError = {
+        error httpConnectorError => { error webSubError = {
             message:"Update availability notification failed for topic [" + topic + "]", cause:httpConnectorError};
         return webSubError;
         }
@@ -227,7 +227,7 @@ public function CallerActions::notifyUpdate(string topic, map<string>? headers =
 }
 
 documentation {
-    Function to build the topic registration change request to rgister/unregister a topic at the hub.
+    Builds the topic registration change request to register or unregister a topic at the hub.
 
     P{{mode}} Whether the request is for registration or unregistration
     P{{topic}} The topic to register/unregister
@@ -276,19 +276,19 @@ documentation {
     P{{hub}} The hub to which the subscription/unsubscription request was sent
     P{{mode}} Whether the request was sent for subscription or unsubscription
     P{{subscriptionChangeRequest}} The subscription change request sent
-    P{{response}} The http:Response or http:HttpConnectorError received on request to the hub
+    P{{response}} The http:Response or error received on request to the hub
     P{{httpClientEndpoint}} The underlying HTTP Client Endpoint
     R{{}} `SubscriptionChangeResponse` indicating subscription/unsubscription details, if the request was successful
             else `error` if an error occurred
 }
 function processHubResponse(@sensitive string hub, @sensitive string mode,
                             SubscriptionChangeRequest subscriptionChangeRequest,
-                            http:Response|http:HttpConnectorError response, http:Client httpClientEndpoint)
+                            http:Response|error response, http:Client httpClientEndpoint)
     returns @tainted SubscriptionChangeResponse|error {
 
     string topic = subscriptionChangeRequest.topic;
     match response {
-        http:HttpConnectorError httpConnectorError => {
+        error httpConnectorError => {
             string errorMessage = "Error occurred for request: Mode[" + mode + "] at Hub[" + hub + "] - "
                 + httpConnectorError.message;
             error webSubError = {message:errorMessage, cause:httpConnectorError};

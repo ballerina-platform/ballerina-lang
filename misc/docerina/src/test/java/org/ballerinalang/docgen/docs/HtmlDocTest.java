@@ -168,14 +168,14 @@ public class HtmlDocTest {
         Assert.assertTrue(page.constructs.get(0) instanceof RecordDoc, "Invalid documentable type");
 
         Assert.assertEquals(page.constructs.get(1).name, "Client");
-        Assert.assertEquals(page.constructs.get(1).icon, "fw-connector");
+        Assert.assertEquals(page.constructs.get(1).icon, "fw-endpoint");
         Assert.assertEquals(page.constructs.get(1).description, "<p>GitHub client</p>\n");
         Assert.assertTrue(page.constructs.get(1) instanceof ConnectorDoc, "Invalid documentable type");
 
         ConnectorDoc connectorDoc = (ConnectorDoc) page.constructs.get(1);
         Assert.assertEquals(connectorDoc.fields.size(), 2);
         Assert.assertEquals(connectorDoc.fields.get(0).toString(), "string url");
-        Assert.assertEquals(connectorDoc.children.size(), 4);
+        Assert.assertEquals(connectorDoc.children.size(), 2);
         Assert.assertTrue(connectorDoc.children.get(0) instanceof FunctionDoc, "Invalid documentable type");
         FunctionDoc functionDoc1 = (FunctionDoc) connectorDoc.children.get(0);
         Assert.assertEquals(functionDoc1.name, "testAction", "Invalid function name testAction");
@@ -192,13 +192,6 @@ public class HtmlDocTest {
         Assert.assertEquals(functionDoc2.returnParams.get(0).toString(), "boolean", "Invalid return type");
         Assert.assertEquals(functionDoc2.returnParams.get(0).description, "<p>whether successful or not</p>\n");
 
-        FunctionDoc functionDoc3 = (FunctionDoc) connectorDoc.children.get(2);
-        Assert.assertEquals(functionDoc3.name, "init", "Invalid function name init");
-        Assert.assertEquals(functionDoc3.icon, "fw-function", "init function is not detected as a function");
-
-        FunctionDoc functionDoc4 = (FunctionDoc) connectorDoc.children.get(3);
-        Assert.assertEquals(functionDoc4.name, "getCallerActions", "Invalid function name getClient");
-        Assert.assertEquals(functionDoc4.icon, "fw-function", "getClient function is not detected as a function");
     }
 
     @Test(description = "Objects in a package should be shown in the constructs")
@@ -255,10 +248,18 @@ public class HtmlDocTest {
 
     @Test(description = "Objects in a package should be shown in the constructs with new docerina syntax")
     public void testObjectsWithNewSyntax() throws Exception {
-        BLangPackage bLangPackage = createPackage("documentation {\n    Object Test\n" + "F{{url}} " +
-                "endpoint url\n" + "F{{path}} a valid path\n" + "}\n" + "public type Test object {\n" + "    public " +
+        BLangPackage bLangPackage = createPackage(
+                "documentation {\n       Object Test\n\n         Description." +
+                        "F{{url}} endpoint url\n" + "F{{path}} a valid path\n" + "}\n" + "public type Test object " +
+                        "{\n" + "    public " +
                 "{\n" + "        string url;\n" + "        string path;\n" + "    }\n" + "    private {\n" + "       " +
-                " string idx;\n" + "    }\n" + "    documentation {test1 function\n" + "    P{{x}} an integer\n" + " " +
+                " string idx;\n" + "    }\n" +
+                "documentation {Initialized a new `Test` object\n" +
+                "P{{abc}} This is abc\n" +
+                "P{{path}} This is path\n" +
+                "}\n  public new (string abc =" +
+                " \"abc\", path = \"def\") {\n}\n " +
+                "documentation {test1 function\n" + "    P{{x}} an integer\n" + " " +
                 "   R{{}} is success?\n" + "    }\n" + "    public function test1(int x) returns boolean;\n" + "\n" +
                 "    documentation {test1 function\n" + "    R{{}} returns the string or an error\n" + "    }\n" + " " +
                 "   public function test2() returns string|error;\n" + "\n" + "    function test3();\n" + "};\n");
@@ -266,15 +267,25 @@ public class HtmlDocTest {
         Assert.assertEquals(page.constructs.size(), 1);
         Assert.assertEquals(page.constructs.get(0).name, "Test");
         Assert.assertEquals(page.constructs.get(0).icon, "fw-struct");
-        Assert.assertEquals(page.constructs.get(0).description, "<p>Object Test</p>\n");
+        Assert.assertEquals(page.constructs.get(0).description, "<p>Object Test</p>\n<p>Description.</p>\n");
         Assert.assertTrue(page.constructs.get(0) instanceof ConnectorDoc, "Invalid documentable type");
         ConnectorDoc connectorDoc = (ConnectorDoc) page.constructs.get(0);
         Assert.assertEquals(connectorDoc.fields.size(), 2);
         Assert.assertEquals(connectorDoc.fields.get(0).description, "<p>endpoint url</p>\n");
         Assert.assertEquals(connectorDoc.fields.get(1).description, "<p>a valid path</p>\n");
-        Assert.assertEquals(connectorDoc.children.size(), 2);
+        Assert.assertEquals(connectorDoc.children.size(), 3);
         Assert.assertTrue(connectorDoc.children.get(0) instanceof FunctionDoc, "Invalid documentable type");
-        FunctionDoc functionDoc1 = (FunctionDoc) connectorDoc.children.get(0);
+        FunctionDoc functionDoc0 = (FunctionDoc) connectorDoc.children.get(0);
+        Assert.assertEquals(functionDoc0.name, "new", "Invalid function name. Should be new");
+        Assert.assertEquals(functionDoc0.icon, "fw-constructor", "new function is not detected as a constructor");
+        Assert.assertEquals(functionDoc0.parameters.size(), 2);
+        Assert.assertEquals(functionDoc0.parameters.get(0).description, "<p>This is abc</p>\n");
+        Assert.assertEquals(functionDoc0.parameters.get(0).defaultValue, "abc");
+        Assert.assertEquals(functionDoc0.parameters.get(1).description, "<p>This is path</p>\n");
+        Assert.assertEquals(functionDoc0.parameters.get(1).defaultValue, "def");
+        Assert.assertEquals(functionDoc0.returnParams.size(), 0);
+
+        FunctionDoc functionDoc1 = (FunctionDoc) connectorDoc.children.get(1);
         Assert.assertEquals(functionDoc1.name, "test1", "Invalid function name. Should be test1");
         Assert.assertEquals(functionDoc1.icon, "fw-function", "test1 function is not detected as a function");
         Assert.assertEquals(functionDoc1.parameters.size(), 1);
@@ -282,7 +293,7 @@ public class HtmlDocTest {
         Assert.assertEquals(functionDoc1.returnParams.get(0).toString(), "boolean", "Invalid return type");
         Assert.assertEquals(functionDoc1.returnParams.get(0).description, "<p>is success?</p>\n");
 
-        FunctionDoc functionDoc2 = (FunctionDoc) connectorDoc.children.get(1);
+        FunctionDoc functionDoc2 = (FunctionDoc) connectorDoc.children.get(2);
         Assert.assertEquals(functionDoc2.name, "test2", "Invalid function name test2");
         Assert.assertEquals(functionDoc2.parameters.size(), 0);
         Assert.assertEquals(functionDoc2.icon, "fw-function", "test2 function is not detected as a function");

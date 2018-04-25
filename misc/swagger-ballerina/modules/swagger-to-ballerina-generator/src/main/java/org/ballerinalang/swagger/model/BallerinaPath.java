@@ -37,14 +37,24 @@ public class BallerinaPath implements BallerinaSwaggerObject<BallerinaPath, Path
     private String description;
     private Set<Map.Entry<String, BallerinaOperation>> operations;
 
+    public BallerinaPath() {
+        this.operations = new LinkedHashSet<>();
+    }
+
     @Override
     public BallerinaPath buildContext(PathItem item, OpenAPI openAPI) throws BallerinaOpenApiException {
         this.ref = item.get$ref();
         this.summary = item.getSummary();
         this.description = item.getDescription();
-        this.operations = new LinkedHashSet<>();
         Map.Entry<String, BallerinaOperation> entry;
         BallerinaOperation operation;
+
+        if (item.getExtensions() != null && item.getExtensions().size() > 0) {
+            for (Map.Entry<String, Object> xEntry: item.getExtensions().entrySet()) {
+                resolveExtension(xEntry);
+            }
+            return this;
+        }
 
         // Swagger PathItem object doesn't provide a iterable structure for operations
         // Therefore we have to manually check if each http verb exists
@@ -95,6 +105,15 @@ public class BallerinaPath implements BallerinaSwaggerObject<BallerinaPath, Path
     @Override
     public BallerinaPath buildContext(PathItem item) throws BallerinaOpenApiException {
         return buildContext(item, null);
+    }
+
+    private void resolveExtension(Map.Entry<String, Object> xEntry) {
+        // currently we only support x-MULTI extension
+        if ("x-MULTI".equals(xEntry.getKey())) {
+            BallerinaOperation operation = new BallerinaOperation().buildXContext(xEntry.getValue());
+            Map.Entry<String, BallerinaOperation> entry = new AbstractMap.SimpleEntry<>("multi", operation);
+            operations.add(entry);
+        }
     }
 
     @Override

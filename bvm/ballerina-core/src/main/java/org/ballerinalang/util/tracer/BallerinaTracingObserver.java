@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_BSTRUCT_ERROR;
+import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_ERROR;
+import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_ERROR_MESSAGE;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
 import static org.ballerinalang.util.tracer.TraceConstants.KEY_SPAN;
 import static org.ballerinalang.util.tracer.TraceConstants.LOG_ERROR_KIND_EXCEPTION;
@@ -74,15 +76,27 @@ public class BallerinaTracingObserver implements BallerinaObserver {
         stopObservation(observerContext);
     }
 
-    public void stopObservation(ObserverContext observerContext) {
+    private void stopObservation(ObserverContext observerContext) {
         BSpan span = (BSpan) observerContext.getProperty(KEY_SPAN);
         if (span != null) {
-            BStruct error = (BStruct) observerContext.getProperty(PROPERTY_BSTRUCT_ERROR);
-            if (error != null) {
+            Boolean error = (Boolean) observerContext.getProperty(PROPERTY_ERROR);
+            if (error != null && error) {
+                StringBuilder errorMessageBuilder = new StringBuilder();
+                String errorMessage = (String) observerContext.getProperty(PROPERTY_ERROR_MESSAGE);
+                if (errorMessage != null) {
+                    errorMessageBuilder.append(errorMessage);
+                }
+                BStruct bError = (BStruct) observerContext.getProperty(PROPERTY_BSTRUCT_ERROR);
+                if (bError != null) {
+                    if (errorMessage != null) {
+                        errorMessageBuilder.append('\n');
+                    }
+                    errorMessageBuilder.append(BLangVMErrors.getPrintableStackTrace(bError));
+                }
                 Map<String, Object> logProps = new HashMap<>();
                 logProps.put(LOG_KEY_ERROR_KIND, LOG_ERROR_KIND_EXCEPTION);
-                logProps.put(LOG_KEY_MESSAGE, BLangVMErrors.getPrintableStackTrace(error));
                 logProps.put(LOG_KEY_EVENT_TYPE, LOG_EVENT_TYPE_ERROR);
+                logProps.put(LOG_KEY_MESSAGE, errorMessageBuilder.toString());
                 span.logError(logProps);
             }
             span.addTags(observerContext.getTags());
