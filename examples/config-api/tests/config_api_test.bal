@@ -9,6 +9,7 @@ function startService() {
 }
 
 // Execute this test as ballerina test config-api -e hello.keystore.password=@encrypted:{jFMAXsuMSiOCaxuDLuQjVXzMzZxQrten0652/j93Amw=}
+// then enter 12345 as the secret
 @test:Config {
     before: "startService",
     after: "stopService"
@@ -28,7 +29,7 @@ function testFunc() {
             var res = check resp.getTextPayload();
             test:assertEquals(res, response1);
         }
-        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
+        error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 }
 
