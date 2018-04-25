@@ -15,6 +15,7 @@ Functions
 Functions With Defaultable Parameters
 Functions With Rest Parameters
 Error Handling
+Check
 Var
 Any Type
 Type Conversion
