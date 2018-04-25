@@ -31,7 +31,7 @@ public type FailoverConfig {
 };
 
 documentation {
-    Defines an error occurred during an attempt to failover.
+    Defines an error which occurred during an attempt to failover.
 
     F{{message}} An explanation on what went wrong
     F{{cause}} The cause of the `FailoverConnectorError`, if available
@@ -153,9 +153,9 @@ public type Failover object {
     public function get(string path, Request? request = ()) returns Response|HttpConnectorError;
 
     documentation {
-        Submits an HTTP request to a service with the specified HTTP verb. The `submit()` function does not give
-        out a `Response` as the result, rather it returns an `HttpFuture` which can be used to do further
-        interactions with the endpoint.
+        Submits an HTTP request to a service with the specified HTTP verb. The `submit()` function does not return
+        a `Response` as the result, rather it returns an `HttpFuture` which can be used for subsequent interactions
+        with the HTTP endpoint.
 
         P{{httpVerb}} The HTTP verb value
         P{{path}} The resource path
