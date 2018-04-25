@@ -84,6 +84,9 @@ public class SendError extends BlockingNativeCallableUnit {
             try {
                 responseObserver.onError(new StatusRuntimeException(Status.fromCodeValue((int) statusCode)
                         .withDescription(errorMsg)));
+            } catch (Throwable e) {
+                LOG.error("Error while sending error to caller.", e);
+                context.setError(MessageUtils.getConnectorError(context, e));
             } finally {
                 if (previous != null) {
                     msgContext.detach(previous);

@@ -44,6 +44,7 @@ public class MicroTransactionTestCase {
     private ServerInstance initiator;
     private ServerInstance participant1;
     private ServerInstance participant2;
+    private SQLDBUtils.SqlServer sqlServer;
     private static final String DB_NAME = "TEST_SQL_CONNECTOR";
     private static final String[] ARGS = {"-e", "http.coordinator.host=127.0.0.1"};
 
@@ -64,7 +65,7 @@ public class MicroTransactionTestCase {
                 new File(participant2.getServerHome() + File.separator + "bre" + File.separator + "lib" +
                         File.separator + "hsqldb.jar"));
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
-        SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "transaction/data.sql");
+        sqlServer = SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "transaction/data.sql");
         participant2.
                 startBallerinaServer(new File("src" + File.separator + "test" + File.separator + "resources"
                         + File.separator + "transaction" + File.separator + "participant2.bal").getAbsolutePath(),
@@ -299,6 +300,7 @@ public class MicroTransactionTestCase {
         initiator.stopServer();
         participant1.stopServer();
         participant2.stopServer();
+        sqlServer.stop();
     }
 
     private static void copyFile(File source, File dest) throws IOException {

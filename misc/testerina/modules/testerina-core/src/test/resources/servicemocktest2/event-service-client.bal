@@ -19,7 +19,7 @@ public function getEvents () returns (json) {
                             error err => io:println(err);
                         }
                    }
-                   http:HttpConnectorError err => io:println(err);
+                   error err => io:println(err);
     }
 
     return {};

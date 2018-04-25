@@ -31,7 +31,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.GrpcServicesBuilder;
-import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.ssl.SSLHandlerFactory;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
@@ -42,7 +41,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_DEFAULT_PORT;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
@@ -70,29 +68,21 @@ public class Init extends BlockingNativeCallableUnit {
     
     @Override
     public void execute(Context context) {
-        try {
-            Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-            BStruct endpointConfigStruct = (BStruct) context.getRefArgument(1);
-            Struct serviceEndpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
-            ListenerConfiguration configuration = getListenerConfig(serviceEndpointConfig);
-            io.grpc.ServerBuilder serverBuilder;
-            if (configuration.getSSLConfig() != null) {
-                SslContext sslCtx = new SSLHandlerFactory(configuration.getSSLConfig())
-                        .createHttp2TLSContextForServer();
-                serverBuilder = GrpcServicesBuilder.initService(configuration, sslCtx);
-            } else {
-                serverBuilder = GrpcServicesBuilder.initService(configuration, null);
-            }
-            serviceEndpoint.addNativeData(SERVICE_BUILDER, serverBuilder);
-            context.setReturnValues();
-        } catch (Throwable throwable) {
-            BStruct err = getConnectorError(context, throwable);
-            context.setError(err);
+
+        Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+        BStruct endpointConfigStruct = (BStruct) context.getRefArgument(1);
+        Struct serviceEndpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
+        ListenerConfiguration configuration = getListenerConfig(serviceEndpointConfig);
+        io.grpc.ServerBuilder serverBuilder;
+        if (configuration.getSSLConfig() != null) {
+            SslContext sslCtx = new SSLHandlerFactory(configuration.getSSLConfig())
+                    .createHttp2TLSContextForServer();
+            serverBuilder = GrpcServicesBuilder.initService(configuration, sslCtx);
+        } else {
+            serverBuilder = GrpcServicesBuilder.initService(configuration, null);
         }
-    }
-    
-    private static BStruct getConnectorError(Context context, Throwable throwable) {
-        return MessageUtils.getConnectorError(context, throwable);
+        serviceEndpoint.addNativeData(SERVICE_BUILDER, serverBuilder);
+        context.setReturnValues();
     }
     
     private ListenerConfiguration getListenerConfig(Struct endpointConfig) {
@@ -108,9 +98,9 @@ public class Init extends BlockingNativeCallableUnit {
         } else {
             listenerConfiguration.setHost(host);
         }
-        
-        if (port == GRPC_DEFAULT_PORT && configRegistry.contains("b7a.http.port")) {
-            port = Long.parseLong(configRegistry.getAsString("b7a.http.port"));
+
+        if (port == 0) {
+            throw new BallerinaConnectorException("Listener port is not defined!");
         }
         listenerConfiguration.setPort(Math.toIntExact(port));
         

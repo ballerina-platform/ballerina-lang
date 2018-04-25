@@ -21,26 +21,26 @@ type EmployeeSalaryIncompatible {
 };
 
 function getSalaryInCompatibleInput(EmployeeIncompatible e) returns (EmployeeSalary) {
-    EmployeeSalary s = {id:e.id, salary:e.salary};
+    EmployeeSalary s = { id: e.id, salary: e.salary };
     return s;
 }
 
 function getSalaryIncompatibleOutput(Employee e) returns (EmployeeSalaryIncompatible) {
-    EmployeeSalaryIncompatible s = {id:e.id, salary:e.salary};
+    EmployeeSalaryIncompatible s = { id: e.id, salary: e.salary };
     return s;
 }
 
 function getSalaryIncompatibleInputOutput(EmployeeIncompatible e) returns (EmployeeSalaryIncompatible) {
-    EmployeeSalaryIncompatible s = {id:e.id, salary:e.salary};
+    EmployeeSalaryIncompatible s = { id: e.id, salary: e.salary };
     return s;
 }
 
 function createTable() returns (table<Employee>) {
     table<Employee> dt = table{};
 
-    Employee e1 = {id:1, name:"A", salary:100};
-    Employee e2 = {id:2, name:"B", salary:200};
-    Employee e3 = {id:3, name:"C", salary:300};
+    Employee e1 = { id: 1, name: "A", salary: 100 };
+    Employee e2 = { id: 2, name: "B", salary: 200 };
+    Employee e3 = { id: 3, name: "C", salary: 300 };
 
     _ = dt.add(e1);
     _ = dt.add(e2);

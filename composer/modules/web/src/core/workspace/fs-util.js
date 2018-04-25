@@ -178,3 +178,22 @@ export function exists(path) {
             }).catch(error => reject(error));
     });
 }
+
+
+/**
+ * Create project
+ *
+ * @returns {Promise} Resolves status or reject with error.
+ */
+export function createProject(path) {
+    const endpoint = `${getServiceEndpoint(FS_SERVICE)}/project/create`;
+    const data = {
+        path,
+    };
+    return new Promise((resolve, reject) => {
+        axios.post(endpoint, data, { headers: CONTENT_TYPE_JSON_HEADER })
+            .then((response) => {
+                resolve(response.data);
+            }).catch(error => reject(error));
+    });
+}

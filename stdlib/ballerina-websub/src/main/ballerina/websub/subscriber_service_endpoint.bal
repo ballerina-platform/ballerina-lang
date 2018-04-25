@@ -22,6 +22,7 @@ import ballerina/http;
 documentation {
     Object representing the WebSubSubscriber Service Endpoint.
 
+    E{{}}
     F{{config}} The configuration for the endpoint
     F{{serviceEndpoint}} The underlying HTTP service endpoint
 }
@@ -41,14 +42,14 @@ public type Listener object {
     }
 
     documentation {
-         Gets called when the endpoint is being initialized during package init.
+         Gets called when the endpoint is being initialized during package initialization.
          
          P{{config}} The Subscriber Service Endpoint Configuration of the endpoint
     }
     public function init(SubscriberServiceEndpointConfiguration config);
 
     documentation {
-        Gets called whenever a service attaches itself to this endpoint and during package init.
+        Gets called whenever a service attaches itself to this endpoint and during package initialization.
 
         P{{serviceType}} The service attached
     }
@@ -60,7 +61,7 @@ public type Listener object {
     public function start();
 
     documentation {
-        Returns the connector that client code uses.
+        Returns the caller actions the client code uses.
 
         R{{}} `http:Connection` The connector that client code uses
     }
@@ -81,7 +82,7 @@ public type Listener object {
     function sendSubscriptionRequest();
 
     documentation {
-        Native function to start the registered WebSub Subscriber service.
+        Start the registered WebSub Subscriber service.
     }
     native function startWebSubSubscriberServiceEndpoint();
 
@@ -186,7 +187,7 @@ function Listener::sendSubscriptionRequest() {
 }
 
 documentation {
-    Object representing the configuration for the WebSubSubscriber Service Endpoint.
+    Object representing the configuration for the WebSub Subscriber Service Endpoint.
 
     F{{host}} The configuration for the endpoint
     F{{port}} The underlying HTTP service endpoint
@@ -272,7 +273,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:SecureSocket? secureSoc
                 websubError = {message:"Link header unavailable for resource URL[" + resourceUrl + "]"};
             }
         }
-        http:HttpConnectorError connErr => {
+        error connErr => {
             websubError = {message:"Error occurred with WebSub discovery for Resource URL [" + resourceUrl + "]: "
                 + connErr.message, cause:connErr};
         }

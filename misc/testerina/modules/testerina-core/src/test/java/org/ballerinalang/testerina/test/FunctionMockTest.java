@@ -60,5 +60,6 @@ public class FunctionMockTest {
                 new ArrayList<>());
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary("functionmocktest.pkg", "passed"), 1);
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary("functionmocktest2.pkg", "passed"), 1);
+        TesterinaRegistry.getInstance().setOrgName(null);
     }
 }

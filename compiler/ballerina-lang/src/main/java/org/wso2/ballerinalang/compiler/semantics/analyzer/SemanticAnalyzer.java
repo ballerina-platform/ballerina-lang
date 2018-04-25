@@ -425,6 +425,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
             Name attributeName = names.fromIdNode(attribute.documentationField);
             BSymbol attributeSymbol = this.env.scope.lookup(attributeName).symbol;
+            if (attributeSymbol == null && this.env.enclObject != null) {
+                // check whether the parameter is an inherited one
+                String originalParam = this.env.enclObject.getName().getValue() + "." + attribute.documentationField
+                        .getValue();
+                attributeSymbol = this.env.scope.lookup(names.fromString(originalParam)).symbol;
+            }
             if (attributeSymbol == null) {
                 this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE,
                         attribute.documentationField, attribute.docTag.getValue());

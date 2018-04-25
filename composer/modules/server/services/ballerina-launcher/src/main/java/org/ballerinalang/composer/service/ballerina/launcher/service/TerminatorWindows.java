@@ -46,7 +46,7 @@ public class TerminatorWindows implements Terminator {
      * Terminate running ballerina program.
      */
     public void terminate() {
-        String scriptLocation = command.getScriptLocation();
+        String scriptLocation = command.getScriptName();
         String findProcessCommand = getFindProcessCommand();
         try {
             Process findProcess = Runtime.getRuntime().exec(findProcessCommand);

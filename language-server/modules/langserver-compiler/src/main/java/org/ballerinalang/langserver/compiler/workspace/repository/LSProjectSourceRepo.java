@@ -27,10 +27,8 @@ import java.nio.file.Path;
  * Language Server Source Repo.
  */
 class LSProjectSourceRepo extends ProjectSourceRepo {
-    // TODO: By default b7a test files are not included during the build hence the flag is false.
-    // If you want to include test files make the flag true.
     private LSProjectSourceRepo(PathConverter converter) {
-        super(converter, false);
+        super(converter, true);
     }
 
     LSProjectSourceRepo(Path projectRoot, WorkspaceDocumentManager documentManager) {
