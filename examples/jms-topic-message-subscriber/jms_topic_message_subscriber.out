@@ -1,0 +1,8 @@
+# Start Ballerina message broker by issuing either the 'broker.sh' or the 'broker.bat' command.
+$ broker.sh
+
+# Navigate to the directory that contains the 'jms_topic_message_subscriber.bal' file and issue the
+# 'ballerina run' command.
+$ ballerina run jms_topic_message_subscriber.bal
+
+#The JMS subscriber runs as a Ballerina service and listens to the subscribed topic.

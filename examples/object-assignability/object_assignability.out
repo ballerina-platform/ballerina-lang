@@ -1,0 +1,3 @@
+$ ballerina run object_assignability.bal
+{age:50, name:"John", address:"street1"}
+John Doe

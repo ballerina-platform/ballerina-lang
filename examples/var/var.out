@@ -1,0 +1,3 @@
+$ ballerina run var.bal
+15
+Hello!

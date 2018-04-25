@@ -1,0 +1,4 @@
+// In the previous example, we illustrate how you can eliminate null reference errors by using optional types in Ballerina.
+// In this example, let's see how can operate on optional typed variables.
+// For example, the `+` operator cannot operate on values of type `int?`. But there are some operators which works on optional types.
+// They are called lifted operators because they operate on optional types by lifting the operator which already exists on non-optional types.

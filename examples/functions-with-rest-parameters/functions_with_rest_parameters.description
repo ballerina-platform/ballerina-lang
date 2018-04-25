@@ -1,0 +1,3 @@
+// Ballerina functions can have rest parameters. The rest parameter can take zero or more 
+// number of values. Inside the function, the rest parameter is equivalent to an array of 
+// the same type.

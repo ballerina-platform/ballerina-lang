@@ -1,0 +1,11 @@
+#At the command line, navigate to the directory that contains the 
+#`.bal` file and run the `ballerina run` command. 
+$ ballerina run csv_io.bal
+Start processing the CSV file from ./files/sample.csv
+["MATH", "Mathematics", "Mathematic", "CAS", "Department"]
+["MUS", "Music", "Music", "CAS", "Department"]
+["PHY", "Physics", "Physics", "CAS", "Department"]
+["PSY", "Psychology", "Psychology", "CAS", "Department"]
+["CHEM", "Chemistry", "Chemistry", "CAS", "Department"]
+Processing completed.
+Source channel closed successfully.

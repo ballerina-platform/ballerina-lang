@@ -1,0 +1,1 @@
+// The HTTP retry client can be used to retry the same request for configured backend service in case of the network level failure when using the HTTP Client.

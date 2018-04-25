@@ -1,0 +1,4 @@
+$ ballerina run objects.bal
+{age:0, name:"", email:"default@abc.com"}
+{age:0, name:"", email:"default@abc.com"}
+{age:0, name:"", email:"default@abc.com"}
