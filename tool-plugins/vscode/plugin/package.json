@@ -64,6 +64,11 @@
                 }
             }
         },
+        "configurationDefaults": {
+            "[ballerina]": {
+                "editor.wordBasedSuggestions": false
+            }
+        },
         "breakpoints": [
             {
                 "language": "ballerina"
