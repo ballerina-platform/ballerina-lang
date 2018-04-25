@@ -15,7 +15,7 @@ function testForkJoin() returns (int, int) {
                http:Response res => {
                    code = res.statusCode;
                }
-               http:HttpConnectorError err => { }
+               error err => { }
             }
             code -> fork;
         }

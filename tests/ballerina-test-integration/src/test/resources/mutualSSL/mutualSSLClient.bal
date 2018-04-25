@@ -25,7 +25,7 @@ function main (string... args) {
     http:Request req = new;
     var resp = clientEP -> get("/echo/", req);
     match resp {
-        http:HttpConnectorError err => io:println(err.message);
+        error err => io:println(err.message);
         http:Response response => {
              match (response.getTextPayload()) {
                 error payloadError => io:println(payloadError.message);

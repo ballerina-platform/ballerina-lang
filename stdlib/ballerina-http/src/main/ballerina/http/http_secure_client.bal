@@ -45,12 +45,12 @@ public type HttpSecureClient object {
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public function post(string path, Request? request = ()) returns (Response|HttpConnectorError) {
+    public function post(string path, Request? request = ()) returns (Response|error) {
         Request req = request ?: new;
         var details = prepareRequest(req, config);
         match details {
             () => {}
-            HttpConnectorError err => return err;
+            error err => return err;
         }
         return httpClient.post(path, request = req);
     }
@@ -60,12 +60,12 @@ public type HttpSecureClient object {
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public function head(string path, Request? request = ()) returns (Response|HttpConnectorError) {
+    public function head(string path, Request? request = ()) returns (Response|error) {
         Request req = request ?: new;
         var details = prepareRequest(req, config);
         match details {
             () => {}
-            HttpConnectorError err => return err;
+            error err => return err;
         }
         return httpClient.head(path, request = req);
     }
@@ -75,12 +75,12 @@ public type HttpSecureClient object {
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public function put(string path, Request? request = ()) returns (Response|HttpConnectorError) {
+    public function put(string path, Request? request = ()) returns (Response|error) {
         Request req = request ?: new;
         var details = prepareRequest(req, config);
         match details {
             () => {}
-            HttpConnectorError err => return err;
+            error err => return err;
         }
         return httpClient.put(path, request = req);
     }
@@ -91,11 +91,11 @@ public type HttpSecureClient object {
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public function execute(string httpVerb, string path, Request request) returns (Response|HttpConnectorError) {
+    public function execute(string httpVerb, string path, Request request) returns (Response|error) {
         var details = prepareRequest(request, config);
         match details {
             () => {}
-            HttpConnectorError err => return err;
+            error err => return err;
         }
         return httpClient.execute(httpVerb, path, request);
     }
@@ -105,12 +105,12 @@ public type HttpSecureClient object {
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public function patch(string path, Request? request = ()) returns (Response|HttpConnectorError) {
+    public function patch(string path, Request? request = ()) returns (Response|error) {
         Request req = request ?: new;
         var details = prepareRequest(req, config);
         match details {
             () => {}
-            HttpConnectorError err => return err;
+            error err => return err;
         }
         return httpClient.patch(path, request = req);
     }
@@ -120,12 +120,12 @@ public type HttpSecureClient object {
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public function delete(string path, Request? request = ()) returns (Response|HttpConnectorError) {
+    public function delete(string path, Request? request = ()) returns (Response|error) {
         Request req = request ?: new;
         var details = prepareRequest(req, config);
         match details {
             () => {}
-            HttpConnectorError err => return err;
+            error err => return err;
         }
         return httpClient.delete(path, request = req);
     }
@@ -135,12 +135,12 @@ public type HttpSecureClient object {
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public function get(string path, Request? request = ()) returns (Response|HttpConnectorError) {
+    public function get(string path, Request? request = ()) returns (Response|error) {
         Request req = request ?: new;
         var details = prepareRequest(req, config);
         match details {
             () => {}
-            HttpConnectorError err => return err;
+            error err => return err;
         }
         return httpClient.get(path, request = req);
     }
@@ -150,12 +150,12 @@ public type HttpSecureClient object {
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public function options(string path, Request? request = ()) returns (Response|HttpConnectorError) {
+    public function options(string path, Request? request = ()) returns (Response|error) {
         Request req = request ?: new;
         var details = prepareRequest(req, config);
         match details {
             () => {}
-            HttpConnectorError err => return err;
+            error err => return err;
         }
         return httpClient.options(path, request = req);
     }
@@ -165,11 +165,11 @@ public type HttpSecureClient object {
     @Param {value:"req: An HTTP inbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public function forward(string path, Request request) returns (Response|HttpConnectorError) {
+    public function forward(string path, Request request) returns (Response|error) {
         var details = prepareRequest(request, config);
         match details {
             () => {}
-            HttpConnectorError err => return err;
+            error err => return err;
         }
         return httpClient.forward(path, request);
     }
@@ -180,11 +180,11 @@ public type HttpSecureClient object {
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The Future for further interactions"}
     @Return {value:"The Error occured during HTTP client invocation"}
-    public function submit(string httpVerb, string path, Request request) returns (HttpFuture|HttpConnectorError) {
+    public function submit(string httpVerb, string path, Request request) returns (HttpFuture|error) {
         var details = prepareRequest(request, config);
         match details {
             () => {}
-            HttpConnectorError err => return err;
+            error err => return err;
         }
         return httpClient.submit(httpVerb, path, request);
     }
@@ -193,7 +193,7 @@ public type HttpSecureClient object {
     @Param {value:"httpFuture: The Future which relates to previous async invocation"}
     @Return {value:"The HTTP response message"}
     @Return {value:"The Error occured during HTTP client invocation"}
-    public function getResponse (HttpFuture httpFuture) returns (Response|HttpConnectorError) {
+    public function getResponse (HttpFuture httpFuture) returns (Response|error) {
         return httpClient.getResponse(httpFuture);
     }
 
@@ -208,7 +208,7 @@ public type HttpSecureClient object {
     @Param {value:"httpFuture: The Future which relates to previous async invocation"}
     @Return {value:"The HTTP Push Promise message"}
     @Return {value:"The Error occured during HTTP client invocation"}
-    public function getNextPromise (HttpFuture httpFuture) returns (PushPromise|HttpConnectorError) {
+    public function getNextPromise (HttpFuture httpFuture) returns (PushPromise|error) {
         return httpClient.getNextPromise(httpFuture);
     }
 
@@ -216,7 +216,7 @@ public type HttpSecureClient object {
     @Param {value:"promise: The related Push Promise message"}
     @Return {value:"HTTP The Push Response message"}
     @Return {value:"The Error occured during HTTP client invocation"}
-    public function getPromisedResponse (PushPromise promise) returns (Response|HttpConnectorError) {
+    public function getPromisedResponse (PushPromise promise) returns (Response|error) {
         return httpClient.getPromisedResponse(promise);
     }
 
@@ -244,7 +244,7 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
 @Description {value:"Prepare HTTP request with the required headers for authentication."}
 @Param {value:"req: An HTTP outbound request message"}
 @Param {value:"request:Client endpoint configurations"}
-function prepareRequest(Request req, ClientEndpointConfig config) returns (()|HttpConnectorError) {
+function prepareRequest(Request req, ClientEndpointConfig config) returns (()|error) {
     string scheme = config.auth.scheme but { () => EMPTY_STRING };
     if (scheme == BASIC_SCHEME){
         string username = config.auth.username but { () => EMPTY_STRING };
@@ -255,9 +255,9 @@ function prepareRequest(Request req, ClientEndpointConfig config) returns (()|Ht
         match encodedStringVar {
             string token => encodedString = token;
             error err => {
-                HttpConnectorError httpConnectorError = {};
-                httpConnectorError.message = "Failed to encode the username or password with base64";
-                return httpConnectorError;
+                error httpConnectorErr = {};
+                httpConnectorErr.message = "Failed to encode the username or password with base64";
+                return httpConnectorErr;
             }
         }
         req.setHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + encodedString);
@@ -273,12 +273,12 @@ function prepareRequest(Request req, ClientEndpointConfig config) returns (()|Ht
                 var accessTokenValueResponse = getAccessTokenFromRefreshToken(config);
                 match accessTokenValueResponse {
                     string accessTokenString => req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessTokenString);
-                    HttpConnectorError err => return err;
+                    error err => return err;
                 }
             } else {
-                HttpConnectorError httpConnectorError = {};
-                httpConnectorError.message = "Valid accessToken or refreshToken is not available to process the request";
-                return httpConnectorError;
+                error httpConnectorErr = {};
+                httpConnectorErr.message = "Valid accessToken or refreshToken is not available to process the request";
+                return httpConnectorErr;
             }
         } else {
             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
@@ -294,7 +294,7 @@ function prepareRequest(Request req, ClientEndpointConfig config) returns (()|Ht
 @Param {value:"request:Client endpoint configurations"}
 @Return {value:"AccessToken received from the authorization server"}
 @Return {value:"Error occured during HTTP client invocation"}
-function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (string|HttpConnectorError) {
+function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (string|error) {
     string refreshToken = config.auth.refreshToken but { () => EMPTY_STRING };
     string clientId = config.auth.clientId but { () => EMPTY_STRING };
     string clientSecret = config.auth.clientSecret but { () => EMPTY_STRING };
@@ -307,9 +307,9 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     match (clientIdSecret.base64Encode()){
         string encodeString => base64ClientIdSecret = encodeString;
         error err => {
-            HttpConnectorError httpConnectorError = {};
-            httpConnectorError.message = err.message;
-            return httpConnectorError;
+            error httpConnectorErr = {};
+            httpConnectorErr.message = err.message;
+            return httpConnectorErr;
         }
     }
     Request refreshTokenRequest;
@@ -322,7 +322,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     Response tokenResponse;
     match refreshTokenResponse {
         Response httpResponse => tokenResponse = httpResponse;
-        HttpConnectorError err => return err;
+        error err => return err;
     }
     var requestAccessTokenJson = tokenResponse.getJsonPayload();
     json generatedToken = check requestAccessTokenJson;

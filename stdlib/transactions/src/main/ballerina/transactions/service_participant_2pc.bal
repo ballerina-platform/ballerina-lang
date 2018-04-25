@@ -78,7 +78,7 @@ service Participant2pcService bind coordinatorListener {
         res.setJsonPayload(j);
         var resResult = conn->respond(res);
         match resResult {
-            http:HttpConnectorError err => log:printError("Sending response for prepare request for transaction " +
+            error err => log:printError("Sending response for prepare request for transaction " +
                     transactionId + " failed", err = err);
             () => {}
         }
