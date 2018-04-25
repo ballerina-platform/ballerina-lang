@@ -92,12 +92,11 @@ public abstract class WebSocketUtil {
 
                 webSocketEndpoint.setRefField(1, webSocketConnector);
                 populateEndpoint(webSocketConnection, webSocketEndpoint);
-                webSocketConnector.addNativeData(
-                        WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION, webSocketConnection);
-                WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService,
-                                                                                             webSocketEndpoint);
+                WebSocketOpenConnectionInfo connectionInfo =
+                        new WebSocketOpenConnectionInfo(wsService, webSocketConnection, webSocketEndpoint);
                 connectionManager.addConnection(webSocketConnection.getId(), connectionInfo);
-                webSocketConnector.addNativeData(WebSocketConstants.WEBSOCKET_CONNECTION_MANAGER, connectionManager);
+                webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO,
+                                                 connectionInfo);
                 if (context != null && callback != null) {
                     context.setReturnValues(webSocketEndpoint);
                     callback.notifySuccess();

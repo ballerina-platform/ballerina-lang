@@ -363,4 +363,7 @@ public class HttpConstants {
     public static final int LOCAL_STRUCT_INDEX = 3;
     public static final int LOCAL_HOST_INDEX = 0;
     public static final int LOCAL_PORT_INDEX = 0;
+
+    //WebSocket Related constants for WebSocket upgrade
+    public static final String NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER = "NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER";
 }
