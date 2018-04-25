@@ -1,1 +1,2 @@
-// Load balancers help distribute the load when multiple connectors are configured in Ballerina.
+// An HTTP load balancing endpoint is used when the request load needs to be load balanced across a given 
+// set of target endpoints.
