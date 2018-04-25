@@ -219,7 +219,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     private static final int ALL_UNTAINTED_TABLE_ENTRY_INDEX = -1;
 
-    private enum ParamType { REQUIRED, NAMED, REST };
     private enum AnalyzerPhase { INITIAL_ANALYSIS, BLOCKED_NODE_ANALYSIS };
     private AnalyzerPhase analyzerPhase;
 
@@ -1803,8 +1802,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             int defaultableParamCount = invokableSymbol.defaultableParams.size();
             for (int argIndex = 0; argIndex < invocationExpr.requiredArgs.size(); argIndex++) {
                 BLangExpression argExpr = invocationExpr.requiredArgs.get(argIndex);
-                analyzeArgument(ParamType.REQUIRED, argIndex, invokableSymbol, invocationExpr, argExpr,
-                        returnTaintedStatus);
+                analyzeArgument(argIndex, invokableSymbol, invocationExpr, argExpr, returnTaintedStatus);
                 if (stopAnalysis) {
                     break;
                 }
@@ -1824,8 +1822,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                             break;
                         }
                     }
-                    analyzeArgument(ParamType.NAMED, paramIndex, invokableSymbol, invocationExpr, argExpr,
-                            returnTaintedStatus);
+                    analyzeArgument(paramIndex, invokableSymbol, invocationExpr, argExpr, returnTaintedStatus);
                     if (stopAnalysis) {
                         break;
                     }
@@ -1835,8 +1832,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 BLangExpression argExpr = invocationExpr.restArgs.get(argIndex);
                 // Pick the index of the rest parameter in the invokable definition.
                 int paramIndex = requiredParamCount + defaultableParamCount;
-                analyzeArgument(ParamType.REST, paramIndex, invokableSymbol, invocationExpr, argExpr,
-                        returnTaintedStatus);
+                analyzeArgument(paramIndex, invokableSymbol, invocationExpr, argExpr, returnTaintedStatus);
                 if (stopAnalysis) {
                     break;
                 }
@@ -1856,9 +1852,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         taintedStatusList = returnTaintedStatus;
     }
 
-    private void analyzeArgument(ParamType paramType, int paramIndex, BInvokableSymbol invokableSymbol,
-                                 BLangInvocation invocationExpr, BLangExpression argExpr,
-                                 List<Boolean> returnTaintedStatus) {
+    private void analyzeArgument(int paramIndex, BInvokableSymbol invokableSymbol, BLangInvocation invocationExpr,
+                                 BLangExpression argExpr, List<Boolean> returnTaintedStatus) {
         Map<Integer, TaintRecord> taintTable = invokableSymbol.taintTable;
         argExpr.accept(this);
         // If current argument is tainted, look-up the taint-table for the record of
