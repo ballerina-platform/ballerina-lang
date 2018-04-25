@@ -42,7 +42,6 @@ import java.util.Map;
  * Testing pushing a package to central.
  */
 public class PackagingPushTestCase extends IntegrationTestCase {
-    private static final String STAGING_URL = "https://api.staging-central.ballerina.io/packages/";
     private ServerInstance ballerinaClient;
     private String serverZipPath;
     private Path tempDirectory;
@@ -55,30 +54,36 @@ public class PackagingPushTestCase extends IntegrationTestCase {
 
         // Write Settings.toml with the access token
         tomlFilePath = tempDirectory.resolve("Settings.toml");
-        String content = "[central]\n accesstoken = \"c77f0bb8-a266-3d12-a324-cb0b9a129db3\"";
+        String content = "[central]\n accesstoken = \"05308871-85ca-3b5d-82d5-1d2a126ca952\"";
         Files.write(tomlFilePath, content.getBytes(), StandardOpenOption.CREATE);
     }
 
     @Test(description = "Test pushing a package to central")
     public void testPush() throws Exception {
+        ballerinaClient = new ServerInstance(serverZipPath);
         String sourceRootPath = new File("src" + File.separator + "test" + File.separator + "resources"
                                                  + File.separator + "packaging" + File.separator +
                                                  "sample-project").getAbsolutePath();
-        String[] clientArgs = {"--sourceroot " + sourceRootPath, "my.app"};
-        ballerinaClient = new ServerInstance(serverZipPath);
-        ballerinaClient.runMain(clientArgs, getEnvVariables(), "push");
+        String[] clientArgs = {"--sourceroot", sourceRootPath, "my.app"};
 
-        checkIfPackagePushedExists();
+        LogLeecher clientLeecher = new LogLeecher("cannot push artifact as it already exists: " +
+                                                          "IntegrationTest/my.app:1.0.0");
+        ballerinaClient.addLogLeecher(clientLeecher);
+        ballerinaClient.runMain(clientArgs, getEnvVariables(), "push");
+        clientLeecher.waitForText(5000);
+
+        checkIfPackageExists();
     }
 
-    private void checkIfPackagePushedExists() throws BallerinaTestException {
+    private void checkIfPackageExists() throws BallerinaTestException {
+        ballerinaClient = new ServerInstance(serverZipPath);
         String[] clientArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
                                                 + File.separator + "packaging" + File.separator + "push_test.bal")
                 .getAbsolutePath()};
         LogLeecher clientLeecher = new LogLeecher("Package exists");
         ballerinaClient.addLogLeecher(clientLeecher);
         ballerinaClient.runMain(clientArgs, getEnvVariables(), "run");
-        clientLeecher.waitForText(10000);
+        clientLeecher.waitForText(5000);
     }
 
     /**
@@ -92,6 +97,7 @@ public class PackagingPushTestCase extends IntegrationTestCase {
         Map<String, String> envVarMap = System.getenv();
         envVarMap.forEach((key, value) -> variables.add(key + "=" + value));
         variables.add(ProjectDirConstants.HOME_REPO_ENV_KEY + "=" + tempDirectory.toString());
+        variables.add("BALLERINA_DEV_STAGE_CENTRAL" + "=" + "true");
 
         return variables.toArray(new String[0]);
     }
