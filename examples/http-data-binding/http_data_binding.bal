@@ -25,7 +25,7 @@ service<http:Service> hello bind { port: 9090 } {
         caller->respond(res) but { error e => log:printError("Failed to respond to the caller", err = e) };
     }
 
-    //Bind the XML payload of the inbound request to variable store.
+    //Bind the XML payload of the inbound request to the `store` variable.
     @http:ResourceConfig {
         methods: ["POST"],
         body: "store",

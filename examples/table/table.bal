@@ -12,7 +12,7 @@ type EmployeeSalary {
 };
 
 function main(string... args) {
-    // Create an in-memory table constrained by the Employee type and id as the primary key.
+    // This creates an in-memory table constrained by the employee type and with ID as the primary key.
     table<Employee> tb = table {
         primaryKey: ["id"]
     };
@@ -24,7 +24,7 @@ function main(string... args) {
     Employee e4 = { id: 4, name: "Peter", salary: 150.0 };
     Employee[] employees = [e1, e2, e3, e4];
 
-    // Add the created records to the table.
+    // This adds the created records to the table.
     foreach (e in employees) {
         var ret = tb.add(e);
         match ret {
@@ -33,17 +33,17 @@ function main(string... args) {
         }
     }
 
-    // Print the table data.
+    // This prints the table data.
     io:print("Table Information: ");
     io:println(tb);
 
-    // Access rows using the 'foreach' loop.
+    // This accesses rows using the `foreach` loop.
     io:println("Using foreach: ");
     foreach x in tb {
         io:println("Name: " + x.name);
     }
 
-    //Access rows using while loop
+    //This accesses rows using the `while` loop.
     io:println("Using while loop: ");
     while (tb.hasNext()) {
         var ret = <Employee>tb.getNext();
@@ -53,19 +53,19 @@ function main(string... args) {
         }
     }
 
-    // Find the average salary using the iterable operations.
+    // This derives the average salary using the iterable operations.
     float lowerAvgSal = tb.filter(isLowerSalary).map(getSalary).average();
     io:println("Average of Low salary: " + lowerAvgSal);
 
-    //Select subset of columns from the table.
+    //This selects a subset of columns from the table.
     table<EmployeeSalary> salaryTable = tb.select(getEmployeeSalary);
 
-    //Get the table count using the count operation.
+    //This fetches the table count using the count operation.
     int count = salaryTable.count();
     io:println("Selected row count: " + count);
     io:println(salaryTable);
 
-    // Delete the rows that match a given criteria.
+    // This deletes the rows that match a given criteria.
     var ret = tb.remove(isLowerSalary);
     match ret {
         int count => io:println("Deleted row count: " + count);
@@ -74,7 +74,7 @@ function main(string... args) {
     io:print("After Delete: ");
     io:println(tb);
 
-    // Convert to JSON.
+    // This converts the table to JSON format.
     var retValJson = <json>tb;
     match retValJson {
         json j => {
@@ -84,7 +84,7 @@ function main(string... args) {
         error e => io:println("Error in table to json conversion");
     }
 
-    // Convert to XML.
+    // This converts the table to XML format.
     var retValXml = <xml>tb;
     match retValXml {
         xml x => {

@@ -1,6 +1,7 @@
 import ballerina/io;
 import ballerina/mysql;
 
+// Create an endpoint for MySQL database. Change the DB details before running the sample.
 endpoint mysql:Client testDB {
     host: "localhost",
     port: 3306,

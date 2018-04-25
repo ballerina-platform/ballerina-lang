@@ -6,15 +6,15 @@ endpoint http:Listener backendEP {
     port: 8080
 };
 
-// Define the load balance client end point to the call the backend services.
+// Define the load balance client endpoint to call the backend services.
 endpoint http:LoadBalanceClient lbBackendEP {
-    // Define set of HTTP Clients that needs to be load balanced.
+    // Define the set of HTTP clients that need to be load balanced.
     targets: [
         { url: "http://localhost:8080/mock1" },
         { url: "http://localhost:8080/mock2" },
         { url: "http://localhost:8080/mock3" }
     ],
-    // The algorithm to be used for load balancing.
+    // The algorithm used for load balancing.
     algorithm: http:ROUND_ROBIN,
     timeoutMillis: 5000
 };
@@ -28,15 +28,15 @@ service<http:Service> loadBalancerDemoService bind { port: 9090 } {
     @http:ResourceConfig {
         path: "/"
     }
-    // Parameters include a reference to the caller endpoint and a object with the request data.
+    // Parameters include a reference to the caller endpoint and an object of the request data.
     invokeEndpoint(endpoint caller, http:Request req) {
         http:Request outRequest = new;
         json requestPayload = { "name": "Ballerina" };
         outRequest.setPayload(requestPayload);
         var response = lbBackendEP->post("/", request = outRequest);
-        // "match" command in the code is used to handle a union-type return:
-        // if the return value is a Response - normal processing happens. If our service did not get the Response
-        // it expected - we use error-handling logic instead.
+        // `match` is used to handle union-type returns.
+        // If a response is returned, the normal process runs. If the service does not get the expected response,
+        // the error-handling logic is executed.
         match response {
             http:Response resp => {
                 caller->respond(resp) but { error e => log:printError("Error sending response", err = e) };
@@ -51,7 +51,7 @@ service<http:Service> loadBalancerDemoService bind { port: 9090 } {
     }
 }
 
-// Mock backend services which are called by load balancer.
+// Define the mock backend services, which are called by the load balancer.
 @http:ServiceConfig { basePath: "/mock1" }
 service mock1 bind backendEP {
     @http:ResourceConfig {

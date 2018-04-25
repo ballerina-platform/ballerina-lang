@@ -31,29 +31,29 @@ type OrderDetails {
     float amount,
 };
 
-// This type represents the Person publci profile.
+// This type represents the Person public profile.
 type PersonPublicProfile {
     string knownName,
     int age = -1,
 };
 
-// main function
+// This is the main function.
 function main(string... args) {
 
-    // The in-memory table which is constrained by the `Person` struct. 
+    // This is the in-memory table that is constrained by the `Person` struct.
     table<Person> personTable = table{};
 
-    // The in-memory table which is constrained by the `Order` struct. 
+    // This is the in-memory table that is constrained by the `Order` struct.
     table<Order> orderTable = table{};
 
-    // A few sample values which represent different persons. 
+    // These are a few sample values that represent different person structs.
     Person p1 = { id: 1, age: 25, salary: 1000.50, name: "jane", married: true };
     Person p2 = { id: 2, age: 26, salary: 1050.50, name: "kane", married: false };
     Person p3 = { id: 3, age: 27, salary: 1200.50, name: "jack", married: true };
     Person p4 = { id: 4, age: 28, salary: 1100.50, name: "alex", married: false };
     Person[] personData = [p1, p2, p3, p4];
 
-    // Insert the `Person` struct objects and populate the table.
+    // This inserts the `Person` struct objects into the table and populates it.
     foreach (p in personData) {
         var ret = personTable.add(p);
         match ret {
@@ -62,18 +62,18 @@ function main(string... args) {
         }
     }
 
-    // Print the Person table content.
+    // This prints the `Person` table content.
     io:print("\nThe personTable: ");
     io:println(personTable);
 
-    // A few sample values which represent orders made by the persons listed above. 
+    // These are a few sample values that represent orders made by the people who were listed above as person structs.
     Order o1 = { personId: 1, orderId: 1234, items: "pen, book, eraser", amount: 34.75 };
     Order o2 = { personId: 1, orderId: 2314, items: "dhal, rice, carrot", amount: 14.75 };
     Order o3 = { personId: 2, orderId: 5643, items: "Macbook Pro", amount: 2334.75 };
     Order o4 = { personId: 3, orderId: 8765, items: "Tshirt", amount: 20.75 };
     Order[] orderData = [o1, o2, o3, o4];
 
-    // Insert the `Order` struct objects and populate the table.
+    // This inserts the `Order` struct objects into the table and populates it.
     foreach (o in orderData) {
         var ret = orderTable.add(o);
         match ret {
@@ -82,27 +82,27 @@ function main(string... args) {
         }
     }
 
-    // Print the Order table content.
+    // This prints the `Order` table content.
     io:print("\nThe orderTable: ");
     io:println(orderTable);
 
-    // Querying a table will always return a new in-memory table.
+    // Querying for a table always returns a new in-memory table.
 
-    // 1. Query all records from a table and return it as another in-memory table.
+    // 1. This queries for all the records in a table and returns them as another in-memory table.
     table<Person> personTableCopy = from personTable select *;
     io:println("\ntable<Person> personTableCopy = from personTable select *;");
     io:print("personTableCopy: ");
     var ret = <json>personTableCopy;
     printTable(ret);
 
-    // 2. Query all records in ascending order of salary.
+    // 2. This queries for all the records and returns them in the ascending order of the salary.
     table<Person> orderedPersonTableCopy = from personTable select * order by salary;
     io:println("\ntable<Person> orderedPersonTableCopy = from personTable select * order by salary;");
     io:print("orderedPersonTableCopy: ");
     ret = <json>orderedPersonTableCopy;
     printTable(ret);
 
-    // 3. Query all records from a table and return it as another in-memory table.
+    // 3. This queries for all the records in a table that match a specific filter criterion, and returns the results as another in-memory table.
     table<Person> personTableCopyWithFilter = from personTable where name == "jane"
     select *;
     io:println("\ntable<Person> personTableCopyWithFilter = from personTable where name == 'jane' select *;");
@@ -110,7 +110,7 @@ function main(string... args) {
     ret = <json>personTableCopyWithFilter;
     printTable(ret);
 
-    // 4. Query only new fields from a table and return it as a new in-memory table constrained by a different struct.
+    // 4. This queries only new fields in a table and returns the results as a new in-memory table constrained by a different struct.
     table<PersonPublicProfile> childTable = from personTable
     select name as knownName, age;
     io:println("\ntable<PersonPublicProfile > childTable = from personTable select name as knownName, age;");
@@ -118,7 +118,7 @@ function main(string... args) {
     ret = <json>childTable;
     printTable(ret);
 
-    // 5. Use the `group by` clause on a table and return a new table with the result.
+    // 5. This applies the `group by` clause to a table and returns a new table with the result.
     table<SummedOrder> summedOrderTable = from orderTable
     select personId, sum(amount) group by personId;
     io:println("\ntable<SummedOrder> summedOrderTable = from orderTable select personId, sum(amount) group by
@@ -127,7 +127,7 @@ function main(string... args) {
     ret = <json>summedOrderTable;
     printTable(ret);
 
-    // 6. Join a table with another table and return the selected fields in a table constrained by a different struct.
+    // 6. This joins a table with another table and returns the selected fields in a table constrained by a different struct.
     table<OrderDetails> orderDetailsTable = from personTable as tempPersonTable
     join orderTable as tempOrderTable on tempPersonTable.id == tempOrderTable.personId
     select tempOrderTable.orderId as orderId, tempPersonTable.name as personName, tempOrderTable.items as
@@ -140,7 +140,7 @@ function main(string... args) {
     ret = <json>orderDetailsTable;
     printTable(ret);
 
-    // 7. Join a table with another table using the `where` clause and return the selected fields in a 
+    // 7. This joins a table with another table using the `where` clause and return the selected fields in a
     // table constrained by a different struct.
     table<OrderDetails> orderDetailsWithFilter = from personTable
     where name != "jane" as tempPersonTable join orderTable
