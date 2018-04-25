@@ -1,13 +1,13 @@
 import ballerina/io;
 import ballerina/runtime;
 
-// Create an object type named `StatusCount`.
+// Create a record type named `StatusCount`.
 type StatusCount {
     string status;
     int totalCount;
 };
 
-// Create an object type named `Teacher` and define the attributes.
+// Create a record type named `Teacher` and define the attributes.
 type Teacher {
     string name;
     int age;
@@ -17,7 +17,6 @@ type Teacher {
 };
 
 function testAggregationQuery(stream<StatusCount> filteredStatusCountStream, stream<Teacher> teacherStream) {
-
     // Create a forever statement block with the respective streaming query.
     // Write a query to filter out the teachers who are older than 18 years, wait until three teacher
     // object is collected by the stream, group the 3 teachers based on their marital status, and calculate the
@@ -35,7 +34,6 @@ function testAggregationQuery(stream<StatusCount> filteredStatusCountStream, str
 }
 
 function main(string... args) {
-
     // Create a stream that is constrained by the StatusCount struct type.
     stream<StatusCount> filteredStatusCountStream;
 
@@ -64,6 +62,6 @@ function main(string... args) {
 
 // Print the output events.
 function printStatusCount(StatusCount s) {
-    io:println("Event received; status : " + s.status + " and total occurrences : " + s.totalCount);
+    io:println("Event received; status: " + s.status + ", total occurrences: " + s.totalCount);
 }
 
