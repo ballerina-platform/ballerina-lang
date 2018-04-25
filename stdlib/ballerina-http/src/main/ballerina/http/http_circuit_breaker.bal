@@ -19,7 +19,9 @@ import ballerina/time;
 import ballerina/io;
 
 documentation {
-    A finite type for modeling the states of the Circuit Breaker.
+    A finite type for modeling the states of the Circuit Breaker. The Circuit Breaker starts in the `CLOSED` state.
+    If any failure thresholds are exceeded during execution, the circuit trips
+
 }
 public type CircuitState "OPEN" | "HALF_OPEN" | "CLOSED";
 
