@@ -219,6 +219,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     private static final int ALL_UNTAINTED_TABLE_ENTRY_INDEX = -1;
 
+    private enum ParamType { REQUIRED, DEFAULTABLE, REST };
     private enum AnalyzerPhase { INITIAL_ANALYSIS, BLOCKED_NODE_ANALYSIS };
     private AnalyzerPhase analyzerPhase;
 
@@ -1784,7 +1785,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     // Private methods relevant to invocation analysis.
-
     private void analyzeInvocation(BLangInvocation invocationExpr) {
         BInvokableSymbol invokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
         Map<Integer, TaintRecord> taintTable = invokableSymbol.taintTable;
@@ -1805,9 +1805,31 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 // If current argument is tainted, look-up the taint-table for the record of
                 // return-tainted-status when the given argument is in tainted state.
                 if (getObservedTaintedStatus()) {
-                    TaintRecord taintRecord = taintTable.get(argIndex);
                     int requiredParamCount = invokableSymbol.params.size();
                     int defaultableParamCount = invokableSymbol.defaultableParams.size();
+                    ParamType paramType = getParamType(invokableSymbol, argIndex, requiredParamCount,
+                            defaultableParamCount);
+                    TaintRecord taintRecord = null;
+                    if (paramType.equals(ParamType.REST)) {
+                        // Pick the index of the rest parameter in the invokable definition.
+                        int restParamInitialIndex = invokableSymbol.params.size()
+                                + invokableSymbol.defaultableParams.size();
+                        taintRecord = taintTable.get(restParamInitialIndex);
+                    } else if (paramType.equals(ParamType.DEFAULTABLE)) {
+                        BLangNamedArgsExpression currentNamedArgExpr = (BLangNamedArgsExpression) argExpr;
+                        String currentNamedArgExprName = currentNamedArgExpr.name.value;
+                        int defaultableParamsInitialIndex = invokableSymbol.params.size();
+                        // Pick the index of this defaultable parameter in the invokable definition.
+                        for (int paramIndex = 0; paramIndex < invokableSymbol.defaultableParams.size(); paramIndex++) {
+                            BVarSymbol defaultableParam = invokableSymbol.defaultableParams.get(paramIndex);
+                            if (defaultableParam.name.value.equals(currentNamedArgExprName)) {
+                                taintRecord = taintTable.get(defaultableParamsInitialIndex + paramIndex);
+                                break;
+                            }
+                        }
+                    } else {
+                        taintRecord = taintTable.get(argIndex);
+                    }
                     BVarSymbol paramSymbol = getParamSymbol(invokableSymbol, argIndex, requiredParamCount,
                             defaultableParamCount);
                     if (taintRecord == null) {
@@ -1951,6 +1973,17 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             param = invSymbol.restParam;
         }
         return param;
+    }
+
+    private ParamType getParamType(BInvokableSymbol invSymbol, int paramIndex, int requiredParamCount,
+                                   int defaultableParamCount) {
+        if (paramIndex < requiredParamCount) {
+            return ParamType.REQUIRED;
+        } else if (paramIndex < requiredParamCount + defaultableParamCount) {
+            return ParamType.DEFAULTABLE;
+        } else {
+            return ParamType.REST;
+        }
     }
 
     /**
