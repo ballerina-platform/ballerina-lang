@@ -15,7 +15,10 @@
 // under the License.
 
 documentation {
-    Represents the gRPC service endpoint.
+    Represents service endpoint where one or more services can be registered. so that ballerina program can offer
+    service through this endpoint.
+
+    F{{id}} - Caller endpoint id.
 }
 public type Listener object {
     public {
@@ -35,7 +38,6 @@ public type Listener object {
 
     documentation {
         Gets called every time a service attaches itself to this endpoint - also happens at package init time.
-        Not supported in client connector.
 
         P{{serviceType}} - The type of the service to be registered.
     }
@@ -53,8 +55,10 @@ public type Listener object {
 
     documentation {
         Returns the client connection that servicestub code uses.
+
+        R{{}} - Client connection.
     }
-    public native function getCallerActions() returns (CallerAction);
+    public native function getCallerActions() returns CallerAction;
 };
 
 documentation {

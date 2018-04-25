@@ -9,16 +9,16 @@
       "label":"new()",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"120",
+      "sortText":"119",
       "insertText":"new()",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"respond(http:Response res)(ballerina.http:HttpConnectorError?)",
+      "label":"respond(http:Response response)(ballerina.http:HttpConnectorError?)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"respond(${1:res})",
+      "insertText":"respond(${1:response})",
       "insertTextFormat":"Snippet"
     },
     {
@@ -30,11 +30,11 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"pushPromisedResponse(http:PushPromise promise, http:Response res)(ballerina.http:HttpConnectorError?)",
+      "label":"pushPromisedResponse(http:PushPromise promise, http:Response response)(ballerina.http:HttpConnectorError?)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"pushPromisedResponse(${1:promise}, ${2:res})",
+      "insertText":"pushPromisedResponse(${1:promise}, ${2:response})",
       "insertTextFormat":"Snippet"
     },
     {
