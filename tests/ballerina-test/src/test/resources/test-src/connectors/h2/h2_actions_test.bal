@@ -280,3 +280,22 @@ function selectFunction(h2:Client testDBClient) returns (int[]) {
     }
     return [];
 }
+
+function testH2MemDBUpdate() returns (int, string) {
+    endpoint h2:Client testDB {
+        name: "TestMEMDB",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    var insertCountRet = testDB->update("CREATE TABLE student(id INTEGER,  name VARCHAR(30))");
+    insertCountRet = testDB->update("insert into student (id, name) values (15, 'Anne')");
+    table dt = check testDB->select("Select * From student", ());
+    json j = check <json>dt;
+    string data = io:sprintf("%j", j);
+
+    int insertCount = check insertCountRet;
+    testDB.stop();
+    return (insertCount, data);
+}
