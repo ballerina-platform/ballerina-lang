@@ -54,7 +54,7 @@ public class CircuitBreakerTest {
     @Test
     public void testCircuitBreaker() {
         // Expected HTTP status codes from circuit breaker responses.
-        int[] expectedStatusCodes = new int[] { 200, 200, 502, 503, 503, 200, 200, 200 };
+        int[] expectedStatusCodes = new int[] { 200, 200, 500, 503, 503, 200, 200, 200 };
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testTypicalScenario");
 
         Assert.assertEquals(returnVals.length, 2);
@@ -73,17 +73,9 @@ public class CircuitBreakerTest {
             } else {
                 Assert.assertNotNull(errs.get(i)); // the request which resulted in an error
                 BStruct err = (BStruct) errs.get(i);
-                statusCode = err.getIntField(0);
-
-                // Status code of 0 means it is not an error related to HTTP. In this case, it is the Circuit Breaker
-                // error for requests which were failed immediately.
-                if (statusCode == 0) {
-                    String msg = err.getStringField(0);
-                    Assert.assertTrue(msg != null && msg.startsWith(CB_ERROR_MSG),
-                            "Invalid error message from circuit breaker.");
-                } else {
-                    Assert.assertEquals(statusCode, 503, "Incorrect status code.");
-                }
+                String errMsg = err.getStringField(0);
+                Assert.assertTrue(errMsg != null && errMsg.startsWith(CB_ERROR_MSG),
+                        "Invalid error message from circuit breaker.");
             }
         }
     }
@@ -99,7 +91,7 @@ public class CircuitBreakerTest {
     @Test
     public void testTrialRunFailure() {
         // Expected HTTP status codes from circuit breaker responses.
-        int[] expectedStatusCodes = new int[] { 200, 502, 503, 502, 503, 502 };
+        int[] expectedStatusCodes = new int[] { 200, 500, 503, 500, 503, 500 };
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testTrialRunFailure");
 
         Assert.assertEquals(returnVals.length, 2);
@@ -119,17 +111,9 @@ public class CircuitBreakerTest {
             } else {
                 Assert.assertNotNull(errs.get(i)); // the request which resulted in an error
                 BStruct err = (BStruct) errs.get(i);
-                statusCode = err.getIntField(0);
-
-                // Status code of 0 means it is not an error related to HTTP. In this case, it is the Circuit Breaker
-                // error for requests which were failed immediately.
-                if (statusCode == 0) {
-                    String msg = err.getStringField(0);
-                    Assert.assertTrue(msg != null && msg.startsWith(CB_ERROR_MSG),
-                            "Invalid error message from circuit breaker.");
-                } else {
-                    Assert.assertEquals(statusCode, 503);
-                }
+                String msg = err.getStringField(0);
+                Assert.assertTrue(msg != null && msg.startsWith(CB_ERROR_MSG),
+                        "Invalid error message from circuit breaker.");
             }
         }
     }
@@ -166,17 +150,10 @@ public class CircuitBreakerTest {
             } else {
                 Assert.assertNotNull(errs.get(i)); // the request which resulted in an error
                 BStruct err = (BStruct) errs.get(i);
-                statusCode = err.getIntField(0);
 
-                // Status code of 0 means it is not an error related to HTTP. In this case, it is the Circuit Breaker
-                // error for requests which were failed immediately.
-                if (statusCode == 0) {
-                    String msg = err.getStringField(0);
-                    Assert.assertTrue(msg != null && msg.startsWith(CB_ERROR_MSG),
-                            "Invalid error message from circuit breaker.");
-                } else {
-                    Assert.assertEquals(statusCode, 500, "Incorrect status code.");
-                }
+                String msg = err.getStringField(0);
+                Assert.assertTrue(msg != null && msg.startsWith(CB_ERROR_MSG),
+                        "Invalid error message from circuit breaker.");
             }
         }
     }
