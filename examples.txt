@@ -32,6 +32,7 @@ JSON Literals
 JSON Arrays
 JSON/Struct/Map Conversion
 Constrained JSON
+Nil Lifting
 XML
 XML Namespaces
 XML Literal
