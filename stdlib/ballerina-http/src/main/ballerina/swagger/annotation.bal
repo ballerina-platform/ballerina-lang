@@ -101,10 +101,10 @@ public type SecurityRequirement {
 documentation {
     Model for keeping swagger parameter information.
 
-	F{{inInfo}} Where the parameter is located. Ex: query
+    F{{inInfo}} Where the parameter is located. Ex: query
     F{{name}} Parameter name
     F{{description}} Description of the parameter
-    F{{required}} Is this paramter MUST be present in the request
+    F{{required}} Is this parameter MUST be present in the request
     F{{discontinued}} Is this parameter deprecated
     F{{allowEmptyValue}} Is empty values allowed for this parameter. Valid only for query parameters
     F{{schema}} Parameter data type
