@@ -28,8 +28,8 @@ function main(string... args) {
     // The retry count which is given with `retries` is the number of times the transaction
     // is retried before aborting it. By default, a transaction is tried three times before
     // aborting. Only integer literals or constants are allowed for `retry count`.
-    // Two functions can be registered with oncommit and onabort which will be executed
-    // at the end when the transaction is aborted or committed.
+    // Two functions can be registered with oncommit and onabort. Those functions will be
+    // executed at the end when the transaction is either aborted or committed.
     transaction with retries = 4, oncommit = onCommitFunction, onabort = onAbortFunction {
     // This is the first action participant in the transaction.
         var result = testDB->update("INSERT INTO CUSTOMER(ID,NAME) VALUES (1, 'Anne')");
@@ -54,9 +54,9 @@ function main(string... args) {
     // The end curly bracket marks the end of the transaction and the transaction will
     // be committed or rolled back at this point.
     } onretry {
-    // The onretry block will be executed whenever the transaction is retried until it
-    // reaches the retry count. Transaction could be re-tried if it fails due to an
-    // exception or a throw statement, or an explicit retry statement.
+        // The onretry block will be executed whenever the transaction is retried until it
+        // reaches the retry count. Transaction could be re-tried if it fails due to an
+        // exception, throw statement, or an explicit retry statement.
         io:println("Retrying transaction");
     }
 
