@@ -83,9 +83,9 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
 
     @Override
     public void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
-        Channel ch = ctx.channel();
+        Channel channel = ctx.channel();
         if (!handshaker.isHandshakeComplete()) {
-            handshaker.finishHandshake(ch, (FullHttpResponse) msg);
+            handshaker.finishHandshake(channel, (FullHttpResponse) msg);
             logger.debug("WebSocket Client connected!");
             handshakeFuture.setSuccess();
             return;
@@ -119,12 +119,12 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
             bufferReceived = pongFrame.content().nioBuffer();
         } else if (frame instanceof CloseWebSocketFrame) {
             logger.debug("WebSocket Client received closing");
-            if (ch.isOpen()) {
+            if (channel.isOpen()) {
                 CloseWebSocketFrame closeWebSocketFrame = (CloseWebSocketFrame) frame;
-                ch.writeAndFlush(new CloseWebSocketFrame(closeWebSocketFrame.statusCode(), null))
+                channel.writeAndFlush(new CloseWebSocketFrame(closeWebSocketFrame.statusCode(), null))
                         .addListener(future -> {
-                            if (ch.isOpen()) {
-                                ch.close().sync();
+                            if (channel.isOpen()) {
+                                channel.close().sync();
                             }
                         });
             }
