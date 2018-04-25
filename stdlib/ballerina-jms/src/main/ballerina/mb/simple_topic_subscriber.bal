@@ -97,7 +97,8 @@ documentation { Configuration related to simple topic subscriber endpoint
     F{{clientID}} Used to identify the JMS client
     F{{virtualHost}} Name of the virtual host where the virtual host is a path that acts as a namespace
     F{{connectionFactoryName}} JNDI name of the connection factory
-    F{{acknowledgementMode}} JMS session acknowledgement mode
+    F{{acknowledgementMode}} JMS session acknowledgement mode. Legal values are "AUTO_ACKNOWLEDGE",
+    "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
     F{{messageSelector}} Message selector condition to filter messages
     F{{properties}} JMS message properties
     F{{topicPattern}} Topic name pattern
