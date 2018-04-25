@@ -32,7 +32,7 @@ public type SimpleDurableTopicSubscriber object {
         self.config = config;
         self.subscriber.init({
                 initialContextFactory:"wso2mbInitialContextFactory",
-                providerUrl:generateBrokerURL(config),
+                providerUrl:getConnectionUrl(config),
                 acknowledgementMode:config.acknowledgementMode,
                 identifier:config.identifier,
                 properties:config.properties,
@@ -80,6 +80,7 @@ public type SimpleDurableTopicSubscriberEndpointConfiguration {
     int port = 5672,
     string clientID = "ballerina",
     string virtualHost = "default",
+    ServiceSecureSocket? secureSocket,
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
     string identifier,
