@@ -20,6 +20,7 @@ package org.ballerinalang.test.packaging;
 import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.Constant;
+import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.ServerInstance;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -31,7 +32,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -42,6 +42,7 @@ import java.util.Map;
  * Testing pushing a package to central.
  */
 public class PackagingPushTestCase extends IntegrationTestCase {
+    private static final String STAGING_URL = "https://api.staging-central.ballerina.io/packages/";
     private ServerInstance ballerinaClient;
     private String serverZipPath;
     private Path tempDirectory;
@@ -56,15 +57,6 @@ public class PackagingPushTestCase extends IntegrationTestCase {
         tomlFilePath = tempDirectory.resolve("Settings.toml");
         String content = "[central]\n accesstoken = \"c77f0bb8-a266-3d12-a324-cb0b9a129db3\"";
         Files.write(tomlFilePath, content.getBytes(), StandardOpenOption.CREATE);
-
-        // Get the generated semVer version
-
-        // Write the newest version to Ballerina.toml
-        String relativePathOfToml = new File("src" + File.separator + "test" + File.separator + "resources"
-                                                     + File.separator + "packaging" + File.separator + "sample-project" +
-                                                     File.separator + "Ballerina.toml").getAbsolutePath();
-        String ballerinaTomlContent = "[project] \n org-name = \"IntegrationTest\" \n version = \"1.0.0\"";
-        Files.write(Paths.get(relativePathOfToml), ballerinaTomlContent.getBytes(), StandardOpenOption.WRITE);
     }
 
     @Test(description = "Test pushing a package to central")
@@ -72,10 +64,21 @@ public class PackagingPushTestCase extends IntegrationTestCase {
         String sourceRootPath = new File("src" + File.separator + "test" + File.separator + "resources"
                                                  + File.separator + "packaging" + File.separator +
                                                  "sample-project").getAbsolutePath();
-        String[] clientArgs = {"my.app", "--sourceroot " + sourceRootPath};
+        String[] clientArgs = {"--sourceroot " + sourceRootPath, "my.app"};
         ballerinaClient = new ServerInstance(serverZipPath);
-
         ballerinaClient.runMain(clientArgs, getEnvVariables(), "push");
+
+        checkIfPackagePushedExists();
+    }
+
+    private void checkIfPackagePushedExists() throws BallerinaTestException {
+        String[] clientArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
+                                                + File.separator + "packaging" + File.separator + "push_test.bal")
+                .getAbsolutePath()};
+        LogLeecher clientLeecher = new LogLeecher("Package exists");
+        ballerinaClient.addLogLeecher(clientLeecher);
+        ballerinaClient.runMain(clientArgs, getEnvVariables(), "run");
+        clientLeecher.waitForText(10000);
     }
 
     /**
@@ -96,7 +99,6 @@ public class PackagingPushTestCase extends IntegrationTestCase {
     @AfterClass
     private void cleanup() throws Exception {
         ballerinaClient.stopServer();
-        Files.deleteIfExists(tomlFilePath);
         Files.walk(tempDirectory)
              .sorted(Comparator.reverseOrder())
              .forEach(path -> {
