@@ -31,14 +31,14 @@ public function assertFalse(boolean condition, string msg = "Assertion Failed!")
 }
 
 @Description{value:"Asserts whether the given values are equal. If it is not, an AssertError is thrown with the given errorMessage."}
-@Param{value:"actual: Actual value"}
 @Param{value:"expected: Expected value"}
+@Param{value:"actual: Actual value"}
 @Param{value:"msg: Assertion error message"}
-public function assertEquals(any actual, any expected, string msg = "Assertion Failed!") {
-    if (!reflect:equals(actual,expected)) {
+public function assertEquals(any expected, any actual, string msg = "Assertion Failed!") {
+    if (!reflect:equals(expected,actual)) {
         string expectedStr = <string> expected;
-        string actualStr = <string> actual;
-        string errorMsg = string `{{msg}}: expected {{actualStr}} but found {{expectedStr}}`;
+        string actualStr = <string>actual;
+        string errorMsg = string `{{msg}}: expected {{expectedStr}} but found {{actualStr}}`;
         throw createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
 }
@@ -47,7 +47,7 @@ public function assertEquals(any actual, any expected, string msg = "Assertion F
 @Param{value:"actual: Actual value"}
 @Param{value:"expected: Expected value"}
 @Param{value:"msg: Assertion error message"}
-public function assertNotEquals(any actual, any expected, string msg = "Assertion Failed!") {
+public function assertNotEquals(any expected, any actual, string msg = "Assertion Failed!") {
     if (reflect:equals(actual,expected)) {
         string expectedStr = <string> expected;
         string actualStr = <string> actual;
