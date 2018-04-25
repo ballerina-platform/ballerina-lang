@@ -4,7 +4,7 @@ function main(string... args) {
     io:println("Documentation attachments are non executable constructs in Ballerina.");
 }
 
-// This is the documentation attachment for object `DummyObject`. You may use Markdown syntax to style text on these Descriptions.
+// This is the documentation attachment for object `DummyObject`. You may use Markdown syntax to style text on these descriptions.
 documentation {
     `DummyObject` is a user defined object type in Ballerina program. This `DummyObject` is used to hold two string data fields and
     one attached function definition, `doThatOnObject` perform that functionality on given `DummyObject` instance.
@@ -19,7 +19,7 @@ public type DummyObject object {
         string fieldTwo;
     }
 
-    // This is the documentation attachment for function `doThatOnObject`. You may use Markdown syntax to style text on these Descriptions.
+    // This is the documentation attachment for function `doThatOnObject`. You may use Markdown syntax to style text on these descriptions.
     documentation {
         `doThatOnObject` is an attached function for the object `DummyObject`.
 
@@ -30,7 +30,7 @@ public type DummyObject object {
 
 };
 
-// This is the documentation attachment for record `DummyType`. You may use Markdown syntax to style text on these Descriptions.
+// This is the documentation attachment for record `DummyType`. You may use Markdown syntax to style text on these descriptions.
 documentation {
    `DummyType` is a user defined record type in Ballerina program. This `DummyType` is used to hold a string type data and int type data.
 
