@@ -99,7 +99,8 @@ public class Init extends BlockingNativeCallableUnit {
                         .build();
             } else {
                 try {
-                    SslContext sslContext = new SSLHandlerFactory(configuration.getSSLConfig()).createHttp2TLSContextForClient();
+                    SslContext sslContext = new SSLHandlerFactory(configuration.getSSLConfig())
+                            .createHttp2TLSContextForClient();
                     channel = NettyChannelBuilder
                             .forAddress(generateSocketAddress(url.getHost(), url.getPort()))
                             .flowControlWindow(65 * 1024)
