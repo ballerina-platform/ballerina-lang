@@ -55,8 +55,7 @@ import javax.jms.Session;
                 @Argument(name = "session",
                           type = TypeKind.STRUCT,
                           structType = "Session")
-        },
-        isPublic = true
+        }
 )
 public class InitQueueSender implements NativeCallableUnit {
 

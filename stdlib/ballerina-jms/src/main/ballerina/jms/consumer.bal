@@ -29,6 +29,7 @@ public type Consumer object {
 };
 
 documentation { Represent a JMS consumer endpoint
+    E{{}}
     F{{consumerActions}} Handle all the actions related to the endpoint
     F{{config}} Used to store configurations related to a JMS connection
 }
@@ -53,28 +54,24 @@ public type ConsumerTemplate object {
 
     }
 
-    documentation { Starts the consumer endpoint
-    }
+    documentation { Starts the consumer endpoint }
     public function start() {
 
     }
 
-    documentation { Stops the consumer endpoint
-    }
+    documentation { Stops the consumer endpoint }
     public function stop() {
 
     }
 
-    documentation { Returns the action object of ConsumerTemplate
-    }
+    documentation { Returns the action object of ConsumerTemplate }
     public function getCallerActions() returns ConsumerActions {
         return new;
     }
 
 };
 
-documentation { JMS consumer action handling object
-}
+documentation { JMS consumer action handling object }
 public type ConsumerActions object {
 
     documentation { Acknowledge the received message to JMS provider.
