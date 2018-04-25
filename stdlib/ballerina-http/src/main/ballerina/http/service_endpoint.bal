@@ -196,11 +196,11 @@ documentation {
 }
 public type WebSocketListener object {
     public {
-        string id;
-        string negotiatedSubProtocol;
-        boolean isSecure;
-        boolean isOpen;
-        map attributes;
+        @readonly string id;
+        @readonly string negotiatedSubProtocol;
+        @readonly boolean isSecure;
+        @readonly boolean isOpen;
+        @readonly map attributes;
     }
 
     private {
