@@ -115,8 +115,8 @@ public type RequestLimits {
 documentation {
     Provides a set of configurations for HTTP service endpoints.
 
-    F{{host}} Host of the service
-    F{{port}} Port number of the service
+    F{{host}} The host name/IP of the endpoint
+    F{{port}} The port to which the endpoint should bind to
     F{{keepAlive}} Can be set to either `KEEPALIVE_AUTO`, which respects the `connection` header, or `KEEPALIVE_ALWAYS`,
                    which always keeps the connection alive, or `KEEPALIVE_NEVER`, which always closes the connection
     F{{transferEncoding}} The types of encoding applied to the response
@@ -213,7 +213,7 @@ public type WebSocketListener object {
     }
 
     documentation {
-        Gets called when the endpoint is being initialize during package init time.
+        Gets invoked during package initialization to initialize the endpoint.
 
         P{{config}} The `ServiceEndpointConfiguration` of the endpoint
     }
@@ -223,7 +223,7 @@ public type WebSocketListener object {
     }
 
     documentation {
-        Gets called every time a service attaches itself to this endpoint - also happens at package init time.
+        Gets invoked when binding a service to the endpoint.
 
         P{{serviceType}} The service type
     }
@@ -239,7 +239,7 @@ public type WebSocketListener object {
     }
 
     documentation {
-        Allows access to connector that the listener endpoint uses.
+        Returns a WebSocket actions provider which can be used to communicate with the remote host.
 
         R{{}} The connector that listener endpoint uses
     }
