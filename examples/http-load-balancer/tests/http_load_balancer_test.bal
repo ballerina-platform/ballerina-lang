@@ -25,7 +25,7 @@ function testFunc() {
             var res = check resp.getTextPayload();
             test:assertEquals(res, "Mock1 Resource is invoked.");
         }
-        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
+        error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 
     // Send a GET request to the specified endpoint
@@ -35,7 +35,7 @@ function testFunc() {
             var res = check resp.getTextPayload();
             test:assertEquals(res, "Mock2 Resource is Invoked.");
         }
-        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
+        error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 
     // Invoke the service for the third time
@@ -46,7 +46,7 @@ function testFunc() {
             var res = check resp.getTextPayload();
             test:assertEquals(res, "Mock3 Resource is Invoked.");
         }
-        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
+        error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 
     // Invoke the service for the third time
@@ -57,7 +57,7 @@ function testFunc() {
             var res = check resp.getTextPayload();
             test:assertEquals(res, "Mock1 Resource is invoked.");
         }
-        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
+        error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 }
 

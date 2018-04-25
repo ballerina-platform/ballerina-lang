@@ -26,7 +26,7 @@ function testFunc() {
             string matchWith = "forwarded header value : for=127.0.0.1; by=127.0.0.1; proto=http";
             test:assertEquals(res, matchWith);
         }
-        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
+        error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 }
 

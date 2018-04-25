@@ -24,7 +24,7 @@ function main(string... args) {
                 }
             }
         }
-        http:HttpConnectorError err => {io:println(err.message);}
+        error err => {io:println(err.message);}
     }
     // Set a string payload to the message to be sent to the endpoint.
     req.setPayload("POST: Hello World");
@@ -42,7 +42,7 @@ function main(string... args) {
                 }
             }
         }
-        http:HttpConnectorError err => {io:println(err.message);}
+        error err => {io:println(err.message);}
 
     }
 
@@ -63,7 +63,7 @@ function main(string... args) {
                 }
             }
         }
-        http:HttpConnectorError err => {io:println(err.message);}
+        error err => {io:println(err.message);}
     }
 
     // Set an XML payload to the message to be sent to the endpoint.
@@ -86,7 +86,7 @@ function main(string... args) {
                 }
             }
         }
-        http:HttpConnectorError err => {io:println(err.message);}
+        error err => {io:println(err.message);}
     }
 
     req.setPayload("DELETE: Hello World");
@@ -104,7 +104,7 @@ function main(string... args) {
                 }
             }
         }
-        http:HttpConnectorError err => {io:println(err.message);}
+        error err => {io:println(err.message);}
     }
 
     req.setPayload("CUSTOM: Hello World");
@@ -123,6 +123,6 @@ function main(string... args) {
             io:println("Status code: " + statusCode);
 
         }
-        http:HttpConnectorError err => {io:println(err.message);}
+        error err => {io:println(err.message);}
     }
 }
