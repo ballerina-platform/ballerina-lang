@@ -46,7 +46,7 @@ service<grpc:Service> Chat bind ep {
         }
     }
 
-    //This resource is triggered when the client notifies the service that it has finished sending requests.
+    //This resource is triggered when the caller sends a notification to the server to indicate that it has finished sending messages.
     onComplete(endpoint caller) {
         endpoint grpc:Listener con;
         var connID = caller.id;
