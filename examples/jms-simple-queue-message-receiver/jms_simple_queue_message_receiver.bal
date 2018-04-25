@@ -1,7 +1,7 @@
 import ballerina/jms;
 import ballerina/log;
 
-// Create a simple queue receiver.
+// This creates a simple queue receiver.
 endpoint jms:SimpleQueueReceiver consumer {
     initialContextFactory: "bmbInitialContextFactory",
     providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'",
@@ -9,10 +9,10 @@ endpoint jms:SimpleQueueReceiver consumer {
     queueName: "MyQueue"
 };
 
-// Bind the created consumer to the listener service.
+// This binds the created consumer to the listener service.
 service<jms:Consumer> jmsListener bind consumer {
 
-    // The `OnMessage` resource gets invoked when a message is received.
+    // This resource is invoked when a message is received.
     onMessage(endpoint consumer, jms:Message message) {
         match (message.getTextMessageContent()) {
             string messageText => log:printInfo("Message : " + messageText);

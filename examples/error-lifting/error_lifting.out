@@ -1,0 +1,4 @@
+$ ballerina run error-lifting.bal
+The status code: {message:"response error", cause:null}
+The status code:
+
