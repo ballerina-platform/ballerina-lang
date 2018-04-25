@@ -26,7 +26,7 @@ service<http:Service> contentBasedRouting bind { port: 9090 } {
                 //Get the string value relevant to the key `name`.
                 string nameString;
                 nameString = check <string>msg["name"];
-                (http:Response|http:HttpConnectorError|()) clientResponse;
+                (http:Response|error|()) clientResponse;
 
                 if (nameString == "sanFrancisco") {
                     //Here, `post` represents the POST action of the HTTP client connector.
@@ -42,8 +42,8 @@ service<http:Service> contentBasedRouting bind { port: 9090 } {
                             error e => log:printError("Error sending response", err = e)
                         };
                     }
-                    http:HttpConnectorError conError => {
-                        http:HttpConnectorError err = {};
+                    error conError => {
+                        error err = {};
                         http:Response res = new;
                         res.statusCode = 500;
                         res.setPayload(err.message);

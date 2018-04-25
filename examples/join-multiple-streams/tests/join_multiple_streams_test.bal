@@ -30,7 +30,7 @@ function testFunc() {
             var res = check resp.getJsonPayload();
             test:assertEquals(res, clientResp1);
         }
-        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
+        error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 
     http:Request req2 = new;
@@ -42,7 +42,7 @@ function testFunc() {
             var res = check resp.getJsonPayload();
             test:assertEquals(res, clientResp2);
         }
-        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
+        error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 }
 

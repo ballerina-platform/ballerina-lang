@@ -29,7 +29,7 @@ function testFunc() {
             var res = check resp.getJsonPayload();
             test:assertEquals(res, response1);
         }
-        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
+        error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 
     http:Request req2 = new;
@@ -45,7 +45,7 @@ function testFunc() {
             test:assertEquals(resp.getHeader("Access-Control-Allow-Methods"), "POST");
             test:assertEquals(resp.getHeader("Access-Control-Allow-Origin"), "http://www.m3.com");
         }
-        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
+        error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 }
 

@@ -28,7 +28,7 @@ function testFunc() {
             var jsonRes = check resp.getJsonPayload();
             test:assertEquals(jsonRes, payload);
         }
-        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
+        error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 }
 
