@@ -100,6 +100,8 @@ import static org.ballerinalang.net.http.HttpConstants.NEVER;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.RESOLVED_REQUESTED_URI;
+import static org.ballerinalang.net.http.HttpConstants.RESOLVED_REQUESTED_URI_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_REASON_PHRASE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_INDEX;
@@ -403,16 +405,15 @@ public class HttpUtil {
     }
 
     public static BStruct getHttpConnectorError(Context context, Throwable throwable) {
-        PackageInfo httpPackageInfo = context.getProgramFile()
-                .getPackageInfo(HttpConstants.PROTOCOL_PACKAGE_HTTP);
-        StructInfo errorStructInfo = httpPackageInfo.getStructInfo(HttpConstants.HTTP_CONNECTOR_ERROR);
-        BStruct httpConnectorError = new BStruct(errorStructInfo.getType());
+        PackageInfo filePkg = context.getProgramFile().getPackageInfo(PACKAGE_BUILTIN);
+        StructInfo entityErrInfo = filePkg.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
+        BStruct genericError = new BStruct(entityErrInfo.getType());
         if (throwable.getMessage() == null) {
-            httpConnectorError.setStringField(0, IO_EXCEPTION_OCCURED);
+            genericError.setStringField(0, IO_EXCEPTION_OCCURED);
         } else {
-            httpConnectorError.setStringField(0, throwable.getMessage());
+            genericError.setStringField(0, throwable.getMessage());
         }
-        return httpConnectorError;
+        return genericError;
     }
 
     public static HTTPCarbonMessage getCarbonMsg(BStruct struct, HTTPCarbonMessage defaultMsg) {
@@ -591,6 +592,11 @@ public class HttpUtil {
             inboundResponse.setStringField(HttpConstants.RESPONSE_SERVER_INDEX,
                     inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString()));
             inboundResponseMsg.removeHeader(HttpHeaderNames.SERVER.toString());
+        }
+
+        if (inboundResponseMsg.getProperty(RESOLVED_REQUESTED_URI) != null) {
+            inboundResponse.setStringField(RESOLVED_REQUESTED_URI_INDEX,
+                    inboundResponseMsg.getProperty(RESOLVED_REQUESTED_URI).toString());
         }
 
         if (inboundResponseMsg.getHeader(CACHE_CONTROL.toString()) != null) {

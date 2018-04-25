@@ -46,7 +46,7 @@ service<http:Service> ATMLocator bind serviceEnpoint {
             http:Response locRes => {
                 locatorResponse = locRes;
             }
-            http:HttpConnectorError err => {
+            error err => {
                 io:println("Error occurred while reading locator response");
             }
         }
@@ -72,7 +72,7 @@ service<http:Service> ATMLocator bind serviceEnpoint {
             http:Response res => {
                 infomationResponse = res;
             }
-            http:HttpConnectorError err => {
+            error err => {
                 io:println("Error occurred while writing info response");
             }
         }

@@ -71,7 +71,10 @@ public class ConfigProcessor {
         }
 
         if (runtimeParams != null && !runtimeParams.isEmpty()) {
-            configEntries.addConfigurations(parseRuntimeParams(runtimeParams).getConfigurations());
+            BConfig parsedRuntimeParams = parseRuntimeParams(runtimeParams);
+            configEntries.addConfigurations(parsedRuntimeParams.getConfigurations());
+            configEntries.setHasEncryptedValues(
+                    configEntries.hasEncryptedValues() | parsedRuntimeParams.hasEncryptedValues());
         }
         return configEntries;
     }

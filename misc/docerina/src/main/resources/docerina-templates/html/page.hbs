@@ -117,7 +117,7 @@
                                                 <li>
                                                     <a href="#PrimitivesSummary">
                                                         <div class="construct-icon">
-                                                            <span class="fw-variable"> </span>
+                                                            <span class="fw-primitive"> </span>
                                                         </div>
                                                         <div class="construct-name">
                                                             Primitives
@@ -129,7 +129,7 @@
                                                 <li>
                                                     <a href="#TypeDefinitions">
                                                         <div class="construct-icon">
-                                                            <span class="fw-constant"> </span>
+                                                            <span class="fw-type"> </span>
                                                         </div>
                                                         <div class="construct-name">
                                                             Type Definitions
@@ -272,7 +272,7 @@
                                             <!--Primitive Types-->
                                             {{#exists constructs "primitive"}}
                                                 <h2 id="PrimitivesSummary">
-                                                    <span class="fw-globe sm-icon"></span> Primitives Summary
+                                                    <span class="fw-primitive sm-icon"></span> Primitives Summary
                                                 </h2>
                                                 <table class="cPrimitive-summary-Table">
                                                     <tr>
@@ -292,7 +292,7 @@
                                             <!-- Type Definitions-->
                                             {{#exists constructs "type"}}
                                                 <h2 id="TypeDefinitions">
-                                                    <span class="fw-constant sm-icon"></span> Type Definitions
+                                                    <span class="fw-type sm-icon"></span> Type Definitions
                                                 </h2>
                                                 <table class="cSummary-Table">
                                                     <tr>
@@ -492,7 +492,7 @@
                                                                             <tr>
                                                                                 <td class="cAPI-table-name">{{name}}</td>
                                                                                 <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
-                                                                                <td class="cAPI-table-default"></td>
+                                                                                <td class="cAPI-table-default">{{defaultValue}}</td>
                                                                                 <td class="cAPI-table-desc">{{{description}}}</td>
                                                                             </tr>
                                                                         {{/each}}
@@ -542,7 +542,7 @@
                                                             <tr>
                                                                 <td class="cAPI-table-name">{{name}}</td>
                                                                 <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
-                                                                <td class="cAPI-table-default"></td>
+                                                                <td class="cAPI-table-default">{{defaultValue}}</td>
                                                                 <td class="cAPI-table-desc">{{{description}}}</td>
                                                             </tr>
                                                         {{/each}}
@@ -619,7 +619,7 @@
                                                                             <tr>
                                                                                 <td class="cAPI-table-name">{{name}}</td>
                                                                                 <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
-                                                                                <td class="cAPI-table-default"></td>
+                                                                                <td class="cAPI-table-default">{{defaultValue}}</td>
                                                                                 <td class="cAPI-table-desc">{{{description}}}</td>
                                                                             </tr>
                                                                         {{/each}}
@@ -701,7 +701,7 @@
                                                                             <tr>
                                                                                 <td class="cAPI-table-name">{{name}}</td>
                                                                                 <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
-                                                                                <td class="cAPI-table-default"></td>
+                                                                                <td class="cAPI-table-default">{{defaultValue}}</td>
                                                                                 <td class="cAPI-table-desc">{{{description}}}</td>
                                                                             </tr>
                                                                         {{/each}}
@@ -810,7 +810,7 @@
                                                                             <tr>
                                                                                 <td class="cAPI-table-name">{{name}}</td>
                                                                                 <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
-                                                                                <td class="cAPI-table-default"></td>
+                                                                                <td class="cAPI-table-default">{{defaultValue}}</td>
                                                                                 <td class="cAPI-table-desc">{{{description}}}</td>
                                                                             </tr>
                                                                         {{/each}}

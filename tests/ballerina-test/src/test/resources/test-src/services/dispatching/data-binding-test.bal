@@ -84,7 +84,7 @@ service<http:Service> echo bind testEP {
         methods:["POST"],
         body:"person"
     }
-     body7 (endpoint caller, http:Request req, http:HttpConnectorError person) {
+     body7 (endpoint caller, http:Request req, error person) {
         _ = caller -> respond(new);
     }
 }
