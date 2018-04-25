@@ -20,7 +20,7 @@ user-agent: curl/7.47.0
 host: localhost:8080
 accept-encoding: deflate, gzip
 
-# The backend service responds with a `200 OK` and it contains `etag` and `cache-control` headers. This response can be cached and as such, the caching client caches it. As it can be seen from the `max-age` directive of the 'cache-control` header, this response is valid for 15 seconds.
+# The backend service responds with a `200 OK` and it contains `etag` and `cache-control` headers. This response can be cached and as such, the caching client caches it. As seen from the `max-age` directive of the 'cache-control` header, this response is valid for 15 seconds.
 [2018-03-28 21:43:28,496] TRACE {tracelog.http.upstream} - [id: 0xb83303e8, correlatedSource: 0x340d752c, host:/127.0.0.1:47474 - remote:localhost/127.0.0.1:8080] INBOUND: DefaultHttpResponse(decodeResult: success, version: HTTP/1.1)
 HTTP/1.1 200 OK
 cache-control: must-revalidate, no-transform, public, max-age=15
@@ -62,7 +62,7 @@ server: ballerina/0.970.0-alpha1-SNAPSHOT
 content-length: 27, 27B
 {"message":"Hello, World!"}
 
-# Another request which results in a cached response being served.
+# Another request, which results in a cached response being served.
 2018-03-28 21:43:47,496] TRACE {http.tracelog.downstream} - [id: 0x8088f232, correlatedSource: n/a, host:/127.0.0.1:9090 - remote:/127.0.0.1:60372] INBOUND: DefaultHttpRequest(decodeResult: success, version: HTTP/1.1)
 GET /cache HTTP/1.1
 Host: localhost:9090
@@ -80,14 +80,14 @@ server: ballerina/0.970.0-alpha1-SNAPSHOT
 content-length: 27, 27B
 {"message":"Hello, World!"}
 
-# Another request sent is after remaining idle for a while.
+# Another request is sent after remaining idle for a while.
 [2018-03-28 21:43:57,308] TRACE {http.tracelog.downstream} - [id: 0xa960aed2, correlatedSource: n/a, host:/127.0.0.1:9090 - remote:/127.0.0.1:60376] INBOUND: DefaultHttpRequest(decodeResult: success, version: HTTP/1.1)
 GET /cache HTTP/1.1
 Host: localhost:9090
 User-Agent: curl/7.47.0
 Accept: */*
 
-# As seen here, this time, the request is not served from the cache. The backend service is contacted. The `if-none-match` header sends the entity tag of the now stale response, so that the backend service may determine whether this response is still valid.
+# This time, the request is not served from the cache. The backend service is contacted. The `if-none-match` header sends the entity tag of the now stale response, so that the backend service may determine whether this response is still valid.
 [2018-03-28 21:43:57,312] TRACE {tracelog.http.upstream} - [id: 0xb83303e8, correlatedSource: 0xa960aed2, host:/127.0.0.1:47474 - remote:localhost/127.0.0.1:8080] OUTBOUND: DefaultHttpRequest(decodeResult: success, version: HTTP/1.1)
 GET /hello HTTP/1.1
 if-none-match: 620328e8
@@ -148,7 +148,7 @@ host: localhost:8080
 user-agent: ballerina/0.970.0-alpha1-SNAPSHOT
 accept-encoding: deflate, gzip
 
-# After taking a look at the `if-none-match` header, the service determines that the response is still the same and that the proxy can keep reusing it.
+# After checking the `if-none-match` header, the service determines that the response is still the same and that the proxy can keep reusing it.
 [2018-03-28 21:43:57,323] TRACE {http.tracelog.downstream} - [id: 0x5f677afe, correlatedSource: n/a, host:/127.0.0.1:8080 - remote:/127.0.0.1:47474] OUTBOUND: DefaultFullHttpResponse(decodeResult: success, version: HTTP/1.1, content: CompositeByteBuf(ridx: 0, widx: 0, cap: 0, components=1))
 HTTP/1.1 304 Not Modified
 cache-control: must-revalidate, no-transform, public, max-age=15
