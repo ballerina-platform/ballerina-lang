@@ -58,7 +58,7 @@ public class LSPackageCacheTest {
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
         PackageID packageID = new PackageID(Names.ANON_ORG, new Name(pkgName), Names.DEFAULT_VERSION);
         CompilerContext context = LSCompiler.prepareCompilerContext(packageID, packageRepository, sourceDocument, true,
-                                                                    documentManager, CompilerPhase.TAINT_ANALYZE);
+                                                                    documentManager, null);
         // Compile test bal file
         LSCompiler lsCompiler = new LSCompiler(documentManager);
         lsCompiler.compileContent(content, filePath, CompilerPhase.TAINT_ANALYZE, true);
