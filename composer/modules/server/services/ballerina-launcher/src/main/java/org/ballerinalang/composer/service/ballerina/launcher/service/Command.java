@@ -20,6 +20,7 @@ import org.ballerinalang.composer.service.ballerina.launcher.service.util.Launch
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -103,18 +104,28 @@ public class Command {
      * @return String[] command array
      */
     public String[] getCommandArray() {
+        boolean isTestFile = false;
         List<String> commandList = new ArrayList<>();
 
         // path to ballerina
         String ballerinaExecute = System.getProperty("ballerina.home") + File.separator + "bin" + File.separator +
-                                  "ballerina";
+                "ballerina";
 
         if (LaunchUtils.isWindows()) {
             ballerinaExecute += ".bat";
         }
+
         commandList.add(ballerinaExecute);
-        commandList.add("run");
         sourceRoot = LSCompiler.getSourceRoot(Paths.get(filePath + fileName));
+        if (ProjectDirConstants.TEST_DIR_NAME.equals(Paths.get(filePath).toFile().getName())) {
+            isTestFile = true;
+        }
+
+        if (!isTestFile) {
+            commandList.add("run");
+        } else {
+            commandList.add("test");
+        }
 
         if (filePath != null && !filePath.equals(sourceRoot + File.separator)) {
             packageName =
@@ -131,11 +142,13 @@ public class Command {
             commandList.add(String.valueOf(this.port));
         }
 
-        commandList.add("-e");
-        commandList.add("b7a.http.tracelog.host=localhost");
+        if (!isTestFile) {
+            commandList.add("-e");
+            commandList.add("b7a.http.tracelog.host=localhost");
 
-        commandList.add("-e");
-        commandList.add("b7a.http.tracelog.port=5010");
+            commandList.add("-e");
+            commandList.add("b7a.http.tracelog.port=5010");
+        }
 
         if (this.commandArgs != null) {
             commandList.addAll(Arrays.asList(this.commandArgs));
