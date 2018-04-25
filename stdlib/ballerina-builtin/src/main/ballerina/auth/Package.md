@@ -9,7 +9,7 @@ An authentication provider defines an authentication scheme that could be used t
 By default there are two implementations of that. They are, `auth:ConfigAuthProvider` which authenticates based on usernames and passwords stored in ‘ballerina.conf’, and `auth:JWTAuthProvider` which authenticates by validating a JWT. It is possible to implement more such authentication mechanisms.
 
 When creating a new authentication provider, there are two functions that need to be implemented. 
-`authenticate` : authenticate the user based on a credential, which can be username/password or a token such as JWT.
-`getScopes` : provide the scopes associated with the user. Scopes are primarily permissions that are required to access a protected resource. 
+- `authenticate` : authenticate the user based on a credential, which can be username/password or a token such as JWT.
+- `getScopes` : provide the scopes associated with the user. Scopes are primarily permissions that are required to access a protected resource. 
 
 ## Package Contents
