@@ -22,39 +22,39 @@ public type Connection object {
 
     documentation {
         Sends the outbound response to the caller.
-     
+
         P{{response}} The outbound response
-        R{{}} Returns an `HttpConnectorError` if failed to respond
+        R{{}} Returns an `error` if failed to respond
     }
-    public native function respond(Response response) returns HttpConnectorError?;
+    public native function respond(Response response) returns error?;
 
     documentation {
         Pushes a promise to the caller.
-        
+
         P{{promise}} Push promise message
-        R{{}} An `HttpConnectorError` if an error happens while pushing the promise
+        R{{}} An `error` in case of failures
     }
-    public native function promise(PushPromise promise) returns HttpConnectorError?;
+    public native function promise(PushPromise promise) returns error?;
 
     documentation {
         Sends a promised push response to the caller.
-        
+
         P{{promise}} Push promise message
         P{{response}} The outbound response
-        R{{}} An `HttpConnectorError` if an error happens while responding with the promised response
+        R{{}} An `error` in case of failures while responding with the promised response
     }
-    public native function pushPromisedResponse(PushPromise promise, Response response) returns HttpConnectorError?;
+    public native function pushPromisedResponse(PushPromise promise, Response response) returns error?;
 
     documentation {
         Sends an upgrade request with custom headers.
-          
+
         P{{headers}} A `map` of custom headers for handshake
     }
     public native function acceptWebSocketUpgrade(map headers) returns WebSocketListener;
 
     documentation {
         Cancels the handshake.
-        
+
         P{{status}} Status code for closing the connection
         P{{reason}} Reason for closing the connection
     }
@@ -63,9 +63,9 @@ public type Connection object {
     documentation {
         Sends a `100-continue` response to the caller.
 
-        R{{}} Returns an `HttpConnectorError` if failed to send the `100-continue` response
+        R{{}} Returns an `error` if failed to send the `100-continue` response
     }
-    public function continue() returns HttpConnectorError?;
+    public function continue() returns error?;
 
     documentation {
         Sends a redirect response to the user with the specified redirection status code.
@@ -73,9 +73,9 @@ public type Connection object {
         P{{response}} Response to be sent to the caller
         P{{code}} The redirect status code to be sent
         P{{locations}} An array of URLs to which the caller can redirect to
-        R{{}} Returns an `HttpConnectorError` if failed to send the redirect response
+        R{{}} Returns an `error` if failed to send the redirect response
     }
-    public function redirect(Response response, RedirectCode code, string[] locations) returns HttpConnectorError?;
+    public function redirect(Response response, RedirectCode code, string[] locations) returns error?;
 };
 
 /////////////////////////////////
@@ -103,13 +103,13 @@ documentation { Represents the HTTP redirect status code `307 - Temporary Redire
 documentation { Represents the HTTP redirect status code `308 - Permanent Redirect`. }
 @final public RedirectCode REDIRECT_PERMANENT_REDIRECT_308 = 308;
 
-public function Connection::continue() returns HttpConnectorError? {
+public function Connection::continue() returns error? {
     Response res = new;
     res.statusCode = CONTINUE_100;
     return self.respond(res);
 }
 
-public function Connection::redirect(Response response, RedirectCode code, string[] locations) returns HttpConnectorError? {
+public function Connection::redirect(Response response, RedirectCode code, string[] locations) returns error? {
     if (code == REDIRECT_MULTIPLE_CHOICES_300) {
         response.statusCode = MULTIPLE_CHOICES_300;
     } else if (code == REDIRECT_MOVED_PERMANENTLY_301) {

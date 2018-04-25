@@ -46,7 +46,7 @@ public type RetryClient object {
         P{{request}} An HTTP outbound request message
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function post(string path, Request? request = ()) returns Response|HttpConnectorError;
+    public function post (string path, Request? request = ()) returns Response|error;
 
     documentation {
         The `head()` function wraps the underlying HTTP actions in a way to provide
@@ -56,7 +56,7 @@ public type RetryClient object {
         P{{request}} An HTTP outbound request message
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function head(string path, Request? request = ()) returns Response|HttpConnectorError;
+    public function head (string path, Request? request = ()) returns Response|error;
 
     documentation {
         The `put()` function wraps the underlying HTTP actions in a way to provide
@@ -66,17 +66,17 @@ public type RetryClient object {
         P{{request}} An HTTP outbound request message
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function put(string path, Request? request = ()) returns Response|HttpConnectorError;
+    public function put (string path, Request? request = ()) returns Response|error;
 
     documentation {
         The `forward()` function wraps the underlying HTTP actions in a way to provide retrying functionality
         for a given endpoint with inbound request's HTTP verb to recover from network level failures.
 
         P{{path}} Resource path
-        P{{request}} An HTTP outbound request message
+        P{{request}} An HTTP inbound request message
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function forward(string path, Request request) returns Response|HttpConnectorError;
+    public function forward (string path, Request request) returns Response|error;
 
     documentation {
         The `execute()` sends an HTTP request to a service with the specified HTTP verb. The function wraps the
@@ -87,7 +87,7 @@ public type RetryClient object {
         P{{request}} An HTTP outbound request message
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function execute(string httpVerb, string path, Request request) returns Response|HttpConnectorError;
+    public function execute (string httpVerb, string path, Request request) returns Response|error;
 
     documentation {
         The `patch()` function wraps the undeline underlying HTTP actions in a way to provide
@@ -97,7 +97,7 @@ public type RetryClient object {
         P{{request}} An HTTP outbound request message
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function patch(string path, Request? request = ()) returns Response|HttpConnectorError;
+    public function patch (string path, Request? request = ()) returns Response|error;
 
     documentation {
         The `delete()` function wraps the underlying HTTP actions in a way to provide
@@ -107,7 +107,7 @@ public type RetryClient object {
         P{{request}} An HTTP outbound request message
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function delete(string path, Request? request = ()) returns Response|HttpConnectorError;
+    public function delete (string path, Request? request = ()) returns Response|error;
 
     documentation {
         The `get()` function wraps the underlying HTTP actions in a way to provide
@@ -117,7 +117,7 @@ public type RetryClient object {
         P{{request}} An HTTP outbound request message
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function get(string path, Request? request = ()) returns Response|HttpConnectorError;
+    public function get (string path, Request? request = ()) returns Response|error;
 
     documentation {
         The `options()` function wraps the underlying HTTP actions in a way to provide
@@ -127,7 +127,7 @@ public type RetryClient object {
         P{{request}} An HTTP outbound request message
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function options(string path, Request? request = ()) returns Response|HttpConnectorError;
+    public function options (string path, Request? request = ()) returns Response|error;
 
     documentation {
 	Submits an HTTP request to a service with the specified HTTP verb.
@@ -139,7 +139,7 @@ public type RetryClient object {
         P{{request}} An HTTP outbound request message
         R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
     }
-    public function submit(string httpVerb, string path, Request request) returns HttpFuture|HttpConnectorError;
+    public function submit (string httpVerb, string path, Request request) returns HttpFuture|error;
 
     documentation {
 	Retrieves the `Response` for a previously submitted request.
@@ -147,7 +147,7 @@ public type RetryClient object {
         P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
         R{{}} An HTTP response message, or an error if the invocation fails
     }
-    public function getResponse(HttpFuture httpFuture) returns Response|HttpConnectorError;
+    public function getResponse (HttpFuture httpFuture) returns Response|error;
 
     documentation {
 	Checks whether a `PushPromise` exists for a previously submitted request.
@@ -163,7 +163,7 @@ public type RetryClient object {
         P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
         R{{}} An HTTP Push Promise message, or an error if the invocation fails
     }
-    public function getNextPromise(HttpFuture httpFuture) returns PushPromise|HttpConnectorError;
+    public function getNextPromise (HttpFuture httpFuture) returns PushPromise|error;
 
     documentation {
 	Retrieves the promised server push `Response` message.
@@ -171,7 +171,7 @@ public type RetryClient object {
         P{{promise}} The related `PushPromise`
         R{{}} A promised HTTP `Response` message, or an error if the invocation fails
     }
-    public function getPromisedResponse(PushPromise promise) returns Response|HttpConnectorError;
+    public function getPromisedResponse (PushPromise promise) returns Response|error;
 
     documentation {
 	Rejects a `PushPromise`.
@@ -182,81 +182,79 @@ public type RetryClient object {
     public function rejectPromise(PushPromise promise);
 };
 
-public function RetryClient::post(string path, Request? request = ()) returns Response|HttpConnectorError {
+public function RetryClient::post (string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performRetryAction(path, req, HTTP_POST, self);
 }
 
-public function RetryClient::head(string path, Request? request = ()) returns Response|HttpConnectorError {
+public function RetryClient::head (string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performRetryAction(path, req, HTTP_HEAD, self);
 }
 
-public function RetryClient::put(string path, Request? request = ()) returns Response|HttpConnectorError {
+public function RetryClient::put (string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performRetryAction(path, req, HTTP_PUT, self);
 }
 
-public function RetryClient::forward(string path, Request request) returns Response|HttpConnectorError {
-    return performRetryAction(path, request, HTTP_FORWARD, self);
+public function RetryClient::forward (string path, Request request) returns Response|error {
+	return performRetryAction(path, request, HTTP_FORWARD, self);
 }
 
-public function RetryClient::execute(string httpVerb, string path, Request request) returns Response|HttpConnectorError
-{
-    return performRetryClientExecuteAction(path, request, httpVerb, self);
+public function RetryClient::execute (string httpVerb, string path, Request request) returns Response|error {
+	return performRetryClientExecuteAction(path, request, httpVerb, self);
 }
 
-public function RetryClient::patch(string path, Request? request = ()) returns Response|HttpConnectorError {
+public function RetryClient::patch (string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performRetryAction(path, req, HTTP_PATCH, self);
 }
 
-public function RetryClient::delete(string path, Request? request = ()) returns Response|HttpConnectorError {
+public function RetryClient::delete (string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performRetryAction(path, req, HTTP_DELETE, self);
 }
 
-public function RetryClient::get(string path, Request? request = ()) returns Response|HttpConnectorError {
+public function RetryClient::get (string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performRetryAction(path, req, HTTP_GET, self);
 }
 
-public function RetryClient::options(string path, Request? request = ()) returns Response|HttpConnectorError {
+public function RetryClient::options (string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performRetryAction(path, req, HTTP_OPTIONS, self);
 }
 
-public function RetryClient::submit(string httpVerb, string path, Request request) returns HttpFuture|HttpConnectorError
-{
+public function RetryClient::submit (string httpVerb, string path, Request request) returns HttpFuture|error {
     //TODO : Initialize the record type correctly once it is fixed.
-    HttpConnectorError httpConnectorError = { statusCode: 501 };
-    httpConnectorError.message = "Unsupported action for Circuit breaker";
-    return httpConnectorError;
+	error httpConnectorErr = {};
+	httpConnectorErr.message = "Unsupported action for Circuit breaker";
+	return httpConnectorErr;
 }
 
-public function RetryClient::getResponse(HttpFuture httpFuture) returns Response|HttpConnectorError {
+public function RetryClient::getResponse (HttpFuture httpFuture) returns Response|error {
     //TODO : Initialize the record type correctly once it is fixed.
-    HttpConnectorError httpConnectorError = { statusCode: 501 };
-    httpConnectorError.message = "Unsupported action for Circuit breaker";
-    return httpConnectorError;
+	error httpConnectorErr = {};
+	httpConnectorErr.message = "Unsupported action for Circuit breaker";
+	return httpConnectorErr;
 }
 
 public function RetryClient::hasPromise(HttpFuture httpFuture) returns boolean {
     return false;
 }
 
-public function RetryClient::getNextPromise(HttpFuture httpFuture) returns PushPromise|HttpConnectorError {
+public function RetryClient::getNextPromise (HttpFuture httpFuture) returns PushPromise|error {
     //TODO : Initialize the record type once it is fixed.
-    HttpConnectorError httpConnectorError = { statusCode: 501 };
-    httpConnectorError.message = "Unsupported action for Circuit breaker";
-    return httpConnectorError;
+	error httpConnectorErr = {};
+    httpConnectorErr.message = "Unsupported action for Circuit breaker";
+	return httpConnectorErr;
 }
 
-public function RetryClient::getPromisedResponse(PushPromise promise) returns Response|HttpConnectorError {
+public function RetryClient::getPromisedResponse (PushPromise promise) returns Response|error {
     //TODO : Initialize this correctly, once it is fixed.
-    HttpConnectorError httpConnectorError = { statusCode: 501 };
-    httpConnectorError.message = "Unsupported action for Circuit breaker";
-    return httpConnectorError;
+	error httpConnectorErr = {};
+	httpConnectorErr.message = "Unsupported action for Circuit breaker";
+	return httpConnectorErr;
 }
 
 public function RetryClient::rejectPromise(PushPromise promise) {
@@ -264,15 +262,15 @@ public function RetryClient::rejectPromise(PushPromise promise) {
 
 // Performs execute action of the retry client. extract the corresponding http integer value representation
 // of the http verb and invokes the perform action method.
-function performRetryClientExecuteAction(@sensitive string path, Request request, @sensitive string httpVerb,
-                                         RetryClient retryClient) returns Response|HttpConnectorError {
+function performRetryClientExecuteAction (@sensitive string path, Request request, @sensitive string httpVerb,
+                                          RetryClient retryClient) returns Response|error {
     HttpOperation connectorAction = extractHttpOperation(httpVerb);
     return performRetryAction(path, request, connectorAction, retryClient);
 }
 
 // Handles all the actions exposed through the retry client.
-function performRetryAction(@sensitive string path, Request request, HttpOperation requestAction,
-                            RetryClient retryClient) returns Response|HttpConnectorError {
+function performRetryAction (@sensitive string path, Request request, HttpOperation requestAction,
+                             RetryClient retryClient) returns Response|error {
     int currentRetryCount = 0;
     int retryCount = retryClient.retryConfig.count;
     int interval = retryClient.retryConfig.interval;
@@ -287,7 +285,7 @@ function performRetryAction(@sensitive string path, Request request, HttpOperati
     CallerActions httpClient = retryClient.httpClient;
     Response response = new;
     //TODO : Initialize the record type correctly once it is fixed.
-    HttpConnectorError httpConnectorError = { statusCode: 501 };
+    error httpConnectorErr = {};
     Request inRequest = request;
     // When performing passthrough scenarios using retry client, message needs to be built before sending out the
     // to keep the request message to retry.
@@ -306,8 +304,8 @@ function performRetryAction(@sensitive string path, Request request, HttpOperati
             Response backendResponse => {
                 return backendResponse;
             }
-            HttpConnectorError errorResponse => {
-                httpConnectorError = errorResponse;
+            error errorResponse => {
+                httpConnectorErr = errorResponse;
             }
         }
         if (currentRetryCount != 0) {
@@ -316,7 +314,7 @@ function performRetryAction(@sensitive string path, Request request, HttpOperati
         runtime:sleep(interval);
         currentRetryCount = currentRetryCount + 1;
     }
-    return httpConnectorError;
+    return httpConnectorErr;
 }
 
 function getWaitTime(float backOffFactor, int maxWaitTime, int interval) returns (int) {

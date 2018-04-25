@@ -14,7 +14,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"post(string path, ballerina.http:Request? request \u003d ())(ballerina.http:Response|ballerina.http:HttpConnectorError)",
+      "label":"post(string path, ballerina.http:Request? request \u003d ())(ballerina.http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -22,7 +22,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"head(string path, ballerina.http:Request? request \u003d ())(ballerina.http:Response|ballerina.http:HttpConnectorError)",
+      "label":"head(string path, ballerina.http:Request? request \u003d ())(ballerina.http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -30,7 +30,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"put(string path, ballerina.http:Request? request \u003d ())(ballerina.http:Response|ballerina.http:HttpConnectorError)",
+      "label":"put(string path, ballerina.http:Request? request \u003d ())(ballerina.http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -38,7 +38,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"execute(string httpVerb, string path, http:Request request)(ballerina.http:Response|ballerina.http:HttpConnectorError)",
+      "label":"execute(string httpVerb, string path, http:Request request)(ballerina.http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -46,7 +46,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"patch(string path, ballerina.http:Request? request \u003d ())(ballerina.http:Response|ballerina.http:HttpConnectorError)",
+      "label":"patch(string path, ballerina.http:Request? request \u003d ())(ballerina.http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -54,7 +54,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"delete(string path, ballerina.http:Request? request \u003d ())(ballerina.http:Response|ballerina.http:HttpConnectorError)",
+      "label":"delete(string path, ballerina.http:Request? request \u003d ())(ballerina.http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -62,7 +62,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"get(string path, ballerina.http:Request? request \u003d ())(ballerina.http:Response|ballerina.http:HttpConnectorError)",
+      "label":"get(string path, ballerina.http:Request? request \u003d ())(ballerina.http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -70,7 +70,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"options(string path, ballerina.http:Request? request \u003d ())(ballerina.http:Response|ballerina.http:HttpConnectorError)",
+      "label":"options(string path, ballerina.http:Request? request \u003d ())(ballerina.http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -78,7 +78,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"forward(string path, http:Request request)(ballerina.http:Response|ballerina.http:HttpConnectorError)",
+      "label":"forward(string path, http:Request request)(ballerina.http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -86,7 +86,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"submit(string httpVerb, string path, http:Request request)(ballerina.http:HttpFuture|ballerina.http:HttpConnectorError)",
+      "label":"submit(string httpVerb, string path, http:Request request)(ballerina.http:HttpFuture|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -94,7 +94,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getResponse(http:HttpFuture httpFuture)(ballerina.http:Response|ballerina.http:HttpConnectorError)",
+      "label":"getResponse(http:HttpFuture httpFuture)(ballerina.http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -110,7 +110,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getNextPromise(http:HttpFuture httpFuture)(ballerina.http:PushPromise|ballerina.http:HttpConnectorError)",
+      "label":"getNextPromise(http:HttpFuture httpFuture)(ballerina.http:PushPromise|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -118,7 +118,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getPromisedResponse(http:PushPromise promise)(ballerina.http:Response|ballerina.http:HttpConnectorError)",
+      "label":"getPromisedResponse(http:PushPromise promise)(ballerina.http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
