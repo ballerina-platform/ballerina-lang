@@ -16,6 +16,10 @@
 
 import ballerina/log;
 
+documentation { Topic subscriber
+    F{{consumerActions}} Topic subscriber endpoint actions
+    F{{config}} Topic subscriber endpoint configuration
+}
 public type TopicSubscriber object {
 
     public {
@@ -23,6 +27,9 @@ public type TopicSubscriber object {
         TopicSubscriberEndpointConfiguration config;
     }
 
+    documentation { Initialize topic subscriber endpoint
+        P{{config}} Topic subscriber configuration
+    }
     public function init(TopicSubscriberEndpointConfiguration config) {
         self.config = config;
         match (config.session) {
@@ -34,6 +41,9 @@ public type TopicSubscriber object {
         }
     }
 
+    documentation { Register topic subscriber endpoint
+        P{{serviceType}} Type descriptor of the service
+    }
     public function register(typedesc serviceType) {
         self.registerListener(serviceType, consumerActions);
     }
@@ -42,14 +52,20 @@ public type TopicSubscriber object {
 
     native function createSubscriber(Session session, string messageSelector);
 
+    documentation { Start topic subscriber endpoint
+    }
     public function start() {
 
     }
 
+    documentation { Get topic subscriber actions
+    }
     public function getCallerActions() returns TopicSubscriberActions {
         return consumerActions;
     }
 
+    documentation { Stop topic subscriber endpoint
+    }
     public function stop() {
         self.closeSubscriber(consumerActions);
     }
@@ -57,6 +73,12 @@ public type TopicSubscriber object {
     native function closeSubscriber(TopicSubscriberActions consumerActions);
 };
 
+documentation { Configuration related to topic subscriber endpoint
+    F{{session}} Session object used to create topic subscriber endpoint
+    F{{topicPattern}} Topic name pattern
+    F{{messageSelector}} Message selector condition to filter messages
+    F{{identifier}} Identifier of topic subscriber endpoint
+}
 public type TopicSubscriberEndpointConfiguration {
     Session? session;
     string topicPattern;
@@ -64,6 +86,8 @@ public type TopicSubscriberEndpointConfiguration {
     string identifier;
 };
 
+documentation { Actions that topic subscriber endpoint could perform
+}
 public type TopicSubscriberActions object {
 
     public native function acknowledge(Message message) returns error?;
