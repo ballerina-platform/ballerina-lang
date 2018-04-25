@@ -48,7 +48,7 @@ public type WebSocketClient object {
     }
 
     documentation {
-        Native function that initializes the endpoint.
+        Initializes the endpoint.
     }
     public native function initEndpoint();
 

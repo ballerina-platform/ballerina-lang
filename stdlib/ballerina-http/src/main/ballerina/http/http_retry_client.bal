@@ -138,7 +138,7 @@ public type RetryClient object {
         P{{path}} The resource path
         P{{request}} An HTTP outbound request message
         R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
-	}
+    }
     public function submit(string httpVerb, string path, Request request) returns HttpFuture|HttpConnectorError;
 
     documentation {
@@ -146,7 +146,7 @@ public type RetryClient object {
 
         P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
         R{{}} An HTTP response message, or an error if the invocation fails
-	}
+    }
     public function getResponse(HttpFuture httpFuture) returns Response|HttpConnectorError;
 
     documentation {
@@ -154,7 +154,7 @@ public type RetryClient object {
 
         P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
         R{{}} A `boolean` that represents whether a `PushPromise` exists
-	}
+    }
     public function hasPromise(HttpFuture httpFuture) returns (boolean);
 
     documentation {
@@ -162,7 +162,7 @@ public type RetryClient object {
 
         P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
         R{{}} An HTTP Push Promise message, or an error if the invocation fails
-	}
+    }
     public function getNextPromise(HttpFuture httpFuture) returns PushPromise|HttpConnectorError;
 
     documentation {
@@ -170,7 +170,7 @@ public type RetryClient object {
 
         P{{promise}} The related `PushPromise`
         R{{}} A promised HTTP `Response` message, or an error if the invocation fails
-	}
+    }
     public function getPromisedResponse(PushPromise promise) returns Response|HttpConnectorError;
 
     documentation {
@@ -178,7 +178,7 @@ public type RetryClient object {
 	When a `PushPromise` is rejected, there is no chance of fetching a promised response using the rejected promise.
 
         P{{promise}} The Push Promise to be rejected
-	}
+    }
     public function rejectPromise(PushPromise promise);
 };
 
