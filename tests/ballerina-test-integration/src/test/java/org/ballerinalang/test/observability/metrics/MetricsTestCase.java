@@ -40,7 +40,7 @@ import java.util.regex.Pattern;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
- * TODO: Class level comment.
+ * Integration test for observability of metrics
  */
 public class MetricsTestCase {
 
@@ -174,27 +174,29 @@ public class MetricsTestCase {
         expectedMetrics.put("ballerina_scheduler_waiting_for_response_worker_count", regex);
         expectedMetrics.put("ballerina_http:Connection_inprogress_requests{action=\"respond\",}", regex);
         expectedMetrics.put("ballerina_http:Connection_response_time_seconds{action=\"respond\"," +
-                "http_status_code=\"0\",quantile=\"0.5\",}", regex);
+                "http_status_code=\"200\",quantile=\"0.5\",}", regex);
         expectedMetrics.put("ballerina_http:Connection_response_time_seconds{action=\"respond\"," +
-                "http_status_code=\"0\",quantile=\"0.75\",}", regex);
+                "http_status_code=\"200\",quantile=\"0.75\",}", regex);
         expectedMetrics.put("ballerina_http:Connection_response_time_seconds{action=\"respond\"," +
-                "http_status_code=\"0\",quantile=\"0.98\",}", regex);
+                "http_status_code=\"200\",quantile=\"0.98\",}", regex);
         expectedMetrics.put("ballerina_http:Connection_response_time_seconds{action=\"respond\"," +
-                "http_status_code=\"0\",quantile=\"0.99\",}", regex);
+                "http_status_code=\"200\",quantile=\"0.99\",}", regex);
         expectedMetrics.put("ballerina_http:Connection_response_time_seconds{action=\"respond\"," +
-                "http_status_code=\"0\",quantile=\"0.999\",}", regex);
+                "http_status_code=\"200\",quantile=\"0.999\",}", regex);
         expectedMetrics.put("ballerina_http:Connection_response_time_seconds_count{action=\"respond\"," +
-                "http_status_code=\"0\",}", Pattern.compile("12.0"));
+                "http_status_code=\"200\",}", Pattern.compile("12.0"));
         expectedMetrics.put("ballerina_http:Connection_response_time_seconds_sum{action=\"respond\"," +
-                "http_status_code=\"0\",}", regex);
+                "http_status_code=\"200\",}", regex);
         expectedMetrics.put("ballerina_http:Connection_response_time_seconds_max{action=\"respond\"," +
-                "http_status_code=\"0\",}", regex);
+                "http_status_code=\"200\",}", regex);
         expectedMetrics.put("startup_time_milliseconds", regex);
         expectedMetrics.put("ballerina_scheduler_ready_worker_count", regex);
         expectedMetrics.put("ballerina_scheduler_paused_worker_count", regex);
-        expectedMetrics.put("ballerina_http:Connection_requests_total{action=\"respond\",http_status_code=\"0\",}",
+        expectedMetrics.put("ballerina_http:Connection_requests_total{action=\"respond\",http_status_code=\"200\",}",
                 Pattern.compile("12.0"));
         expectedMetrics.put("http_inprogress_requests{resource=\"test\",service=\"metricsTest\",}", regex);
         expectedMetrics.put("http_inprogress_requests{resource=\"getProduct\",service=\"metricsTest\",}", regex);
+        expectedMetrics.put("ballerina_http:Connection_2XX_requests_total{action=\"respond\",}",
+                Pattern.compile("12.0"));
     }
 }
