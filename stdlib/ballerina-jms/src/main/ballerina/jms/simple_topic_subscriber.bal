@@ -17,6 +17,7 @@
 import ballerina/log;
 
 documentation { Simple topic subscriber
+    E{{}}
     F{{config}} Simple topic subscrirber enpoint configuration
 }
 public type SimpleTopicSubscriber object {
