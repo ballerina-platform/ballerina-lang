@@ -4,11 +4,11 @@ This package provides the functionality required to access and manipulate data s
 
 ### Endpoint 
 
-To access a database, you must first create an `Endpoint`, which is a virtual representation of the physical endpoint of the MySQL database that you are trying to connect to. Create an endpoint of the MySQL client type (i.e., `mysql:Client`) and provide the necessary connection parameters. This will create a pool of connections to the given MySQL database. A sample for creating an endpoint with MySQL client can be found below. 
+To access a database, you must first create an `endpoint`, which is a virtual representation of the physical endpoint of the MySQL database that you are trying to connect to. Create an endpoint of the MySQL client type (i.e., `mysql:Client`) and provide the necessary connection parameters. This will create a pool of connections to the given MySQL database. A sample for creating an endpoint with MySQL client can be found below. 
 
 ### Database operations
 
-Once the endpoint is created, database operations can be executed through that endpoint. This package provides support for creating tables and executing stored procedures. It also supports selecting, inserting, deleting, updating, and batch updating data. For more details on the supported actions refer the `jdbc` package. Details of the SQL data types and query parameters relevant for these database operations could be found in the documentation of SQL package. Once the operation is completed, `stop` function must be called to terminate the connection pool of the endpoint. 
+Once the endpoint is created, database operations can be executed through that endpoint. This package provides support for creating tables and executing stored procedures. It also supports selecting, inserting, deleting, updating, and batch updating data. For more details on the supported actions refer the `jdbc` package. Details of the SQL data types and query parameters relevant for these database operations could be found in the documentation of `sql` package. 
 
 ## Samples
 
@@ -23,7 +23,6 @@ endpoint mysql:Client testDB {
     poolOptions: { maximumPoolSize: 5 },
     dbOptions: { useSSL: false }
 };
-
 ```
 The full list of endpoint properties can be found in the `sql:PoolOptions` type.
 
