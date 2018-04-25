@@ -10,7 +10,7 @@ endpoint grpc:Listener ep {
 
 service HelloWorld bind ep {
 
-    @grpc:ResourceConfig {streaming: true}
+    @grpc:ResourceConfig { streaming: true }
     lotsOfReplies(endpoint caller, string name) {
         io:println("Server received hello from " + name);
         string[] greets = ["Hi", "Hey", "GM"];

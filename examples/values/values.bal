@@ -2,7 +2,7 @@ import ballerina/io;
 
 // The types int, float, string, boolean, blob, and nil are called simple basic types
 // because they are basic types with only simple values. Simple values are always immutable."}
-function main (string... args) {
+function main(string... args) {
     // The `int` type represents the set of 64-bit signed integers.
     // The implicit initial value of `int` type is 0.
     int i = 10;

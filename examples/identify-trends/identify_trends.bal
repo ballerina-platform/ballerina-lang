@@ -49,12 +49,12 @@ function main(string... args) {
     tempDiffInfoStream.subscribe(printInitalAndPeakTemp);
 
     // Simulating the data that is being sent to the `tempStream` stream.
-    DeviceTempInfo t1 = {deviceID: 1, roomNo: 23, temp: 20.0};
-    DeviceTempInfo t2 = {deviceID: 1, roomNo: 23, temp: 22.5};
-    DeviceTempInfo t3 = {deviceID: 1, roomNo: 23, temp: 23.0};
-    DeviceTempInfo t4 = {deviceID: 1, roomNo: 23, temp: 21.0};
-    DeviceTempInfo t5 = {deviceID: 1, roomNo: 23, temp: 24.0};
-    DeviceTempInfo t6 = {deviceID: 1, roomNo: 23, temp: 23.9};
+    DeviceTempInfo t1 = { deviceID: 1, roomNo: 23, temp: 20.0 };
+    DeviceTempInfo t2 = { deviceID: 1, roomNo: 23, temp: 22.5 };
+    DeviceTempInfo t3 = { deviceID: 1, roomNo: 23, temp: 23.0 };
+    DeviceTempInfo t4 = { deviceID: 1, roomNo: 23, temp: 21.0 };
+    DeviceTempInfo t5 = { deviceID: 1, roomNo: 23, temp: 24.0 };
+    DeviceTempInfo t6 = { deviceID: 1, roomNo: 23, temp: 23.9 };
 
     // Start simulating the events with the temperature readings.
     tempStream.publish(t1);

@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/http;
 
-@Description {value: "Attributes associated with the service endpoint are defined here."}
+@Description { value: "Attributes associated with the service endpoint are defined here." }
 endpoint http:Listener helloWorldEP {
     port: 9090
 };
@@ -27,12 +27,12 @@ service<http:Service> helloWorld bind helloWorldEP {
             string payload => {
                 io:println(payload);
                 res.statusCode = 200;
-                res.setStringPayload("Hello World!\n");
+                res.setTextPayload("Hello World!\n");
                 _ = caller->respond(res);
             }
             error err => {
                 res.statusCode = 500;
-                res.setStringPayload(err.message);
+                res.setTextPayload(err.message);
                 _ = caller->respond(res);
             }
         }

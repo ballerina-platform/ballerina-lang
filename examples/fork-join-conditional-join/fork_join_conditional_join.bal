@@ -28,13 +28,13 @@ function main(string... args) {
         if (results["w1"] != null) {
             int iW1;
             string sW1;
-            (iW1, sW1) = check <(int, string)> results["w1"];
+            (iW1, sW1) = check <(int, string)>results["w1"];
             io:println("[join-block] iW1: ", iW1, " sW1: ", sW1);
         }
 
         // Checks if the worker that finished executing is worker 'w2'.
         if (results["w2"] != null) {
-            float fW2 = check <float> results["w2"];
+            float fW2 = check <float>results["w2"];
             io:println("[join-block] fW2: ", fW2);
         }
     }

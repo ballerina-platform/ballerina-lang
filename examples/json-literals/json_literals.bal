@@ -8,7 +8,7 @@ function main(string... args) {
     int age = 30;
     // Create a JSON object. Keys can be defined with or without quotes.
     // Values can be any expression.
-    json p = {fname: "John", lname: "Stallone", "age": age};
+    json p = { fname: "John", lname: "Stallone", "age": age };
     io:println(p);
 
     // You can access the object values by using dot (.) notation or array index notation.

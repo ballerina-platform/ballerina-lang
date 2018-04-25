@@ -31,6 +31,6 @@ function main(string... args) {
             "codes": ["4", "8"]
         }
     };
-    var x2 = j2.toXML({attributePrefix: "#", arrayEntryTag: "wrapper"});
+    var x2 = j2.toXML({ attributePrefix: "#", arrayEntryTag: "wrapper" });
     io:println(x2);
 }

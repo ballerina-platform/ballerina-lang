@@ -10,7 +10,7 @@ endpoint http:Client locationEP {
 @http:ServiceConfig {
     basePath: "/cbr"
 }
-service<http:Service> contentBasedRouting bind {port: 9090} {
+service<http:Service> contentBasedRouting bind { port: 9090 } {
 
     //Use `resourceConfig` annotation to declare the HTTP method.
     @http:ResourceConfig {

@@ -1,6 +1,7 @@
 Hello World
 Hello World Parallel
 Hello World Service
+Hello World Streams
 Secured Hello World Service with Basic Auth
 Values
 Constants
@@ -9,12 +10,14 @@ Global Variables
 While
 IF Else
 Ternary
+Match
 Match Expression
 Elvis Operator
 Functions
 Functions With Defaultable Parameters
 Functions With Rest Parameters
 Error Handling
+Check
 Var
 Any Type
 Type Conversion
@@ -86,6 +89,7 @@ HTTP 1.1 To 2.0 Protocol Switch
 Log API
 Function Pointers
 Lambda
+Closures
 WebSocket Basic Sample
 WebSocket Chat Application
 WebSocket Proxy Server
@@ -144,7 +148,6 @@ Testerina Data Driven Tests
 Testerina Guarantee Test Execution Order
 Testerina Function Mocks
 Testerina Group Tests
-Filter Streams on Conditions
 Temporal Aggregations and Windows
 Join Multiple Streams
 Identify Patterns
@@ -156,3 +159,4 @@ Object Assignability
 Locks
 Union Type
 Optional Type
+Tuple Type

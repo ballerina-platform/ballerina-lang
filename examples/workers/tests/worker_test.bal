@@ -10,7 +10,11 @@ int counter = 0;
     functionName: "println"
 }
 public function mockPrint(any... s) {
-    outputs[counter] = s[0];
+    string outStr;
+    foreach str in s{
+        outStr = outStr + <string>str;
+    }
+    outputs[counter] = outStr;
     counter++;
 }
 

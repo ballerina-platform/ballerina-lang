@@ -27,8 +27,10 @@ function testFunc() {
 
 function testAuthSuccess() {
     // create client
-    endpoint http:Client httpEndpoint {url: "https://localhost:9090",
-        auth: {scheme: "basic", username: "tom", password: "password1"}};
+    endpoint http:Client httpEndpoint {
+        url: "https://localhost:9090",
+        auth: { scheme: "basic", username: "tom", password: "password1" }
+    };
     // Send a GET request to the specified endpoint
     var response = httpEndpoint->get("/hello/sayHello");
     match response {
@@ -41,8 +43,10 @@ function testAuthSuccess() {
 
 function testAuthnFailure() {
     // create client
-    endpoint http:Client httpEndpoint {url: "https://localhost:9090",
-        auth: {scheme: "basic", username: "tom", password: "password"}};
+    endpoint http:Client httpEndpoint {
+        url: "https://localhost:9090",
+        auth: { scheme: "basic", username: "tom", password: "password" }
+    };
     // Send a GET request to the specified endpoint
     var response = httpEndpoint->get("/hello/sayHello");
     match response {
@@ -55,8 +59,8 @@ function testAuthnFailure() {
 
 function testAuthzFailure() {
     // create client
-    endpoint http:Client httpEndpoint {url: "https://localhost:9090",
-        auth: {scheme: "basic", username: "dick", password: "password2"}};
+    endpoint http:Client httpEndpoint { url: "https://localhost:9090",
+        auth: { scheme: "basic", username: "dick", password: "password2" } };
     // Send a GET request to the specified endpoint
     var response = httpEndpoint->get("/hello/sayHello");
     match response {
