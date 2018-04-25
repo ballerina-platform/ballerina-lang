@@ -20,7 +20,7 @@ public type balCommand "run" | "docker" | "build" | "install" | "uninstall" | "p
 documentation{
     Executes a ballerina command
     P{{command}} - Ballerina command
-    P{{packageName}} - Package path with necessary flags
+    P{{packagePath}} - Package path with necessary flags
     R{{}} - Data piped from the standard output and error output of the process
 }
 public native function execBallerina(@sensitive balCommand command, @sensitive string packagePath) returns (string|error);
