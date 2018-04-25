@@ -28,7 +28,7 @@ public type DurableTopicSubscriber object {
         DurableTopicSubscriberEndpointConfiguration config;
     }
 
-    documentation { initialize durable topic subscriber endpoint
+    documentation { Initialize durable topic subscriber endpoint
         P{{config}} Configurations for a durable topic subscriber
     }
     public function init(DurableTopicSubscriberEndpointConfiguration config) {
@@ -42,7 +42,7 @@ public type DurableTopicSubscriber object {
         }
     }
 
-    documentation { binds a durable topic subscriber endpoint to a service
+    documentation { Binds the durable topic subscriber endpoint to a service
         P{{serviceType}} Type descriptor of the service
     }
     public function register(typedesc serviceType) {
@@ -91,7 +91,7 @@ documentation { Caller actions related to durable topic subscriber endpoint
 }
 public type DurableTopicSubscriberActions object {
 
-    documentation { Acknoledges a received message
+    documentation { Acknowledges a received message
         P{{message}} JMS message to be acknowledged
     }
     public native function acknowledge(Message message) returns error?;
