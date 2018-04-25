@@ -1784,6 +1784,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     // Private methods relevant to invocation analysis.
+
     private void analyzeInvocation(BLangInvocation invocationExpr) {
         BInvokableSymbol invokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
         Map<Integer, TaintRecord> taintTable = invokableSymbol.taintTable;
