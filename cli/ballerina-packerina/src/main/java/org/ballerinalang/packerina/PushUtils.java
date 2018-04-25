@@ -18,6 +18,7 @@
 package org.ballerinalang.packerina;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.toml.model.Manifest;
@@ -38,6 +39,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URI;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -69,9 +71,10 @@ public class PushUtils {
      * Push/Uploads packages to the central repository.
      *
      * @param packageName   path of the package folder to be pushed
+     * @param sourceRoot    path to the directory containing source files and packages
      * @param installToRepo if it should be pushed to central or home
      */
-    public static void pushPackages(String packageName, String installToRepo) {
+    public static void pushPackages(String packageName, String sourceRoot, String installToRepo) {
         Manifest manifest = readManifestConfigurations();
         if (manifest.getName().isEmpty()) {
             throw new BLangCompilerException("An org-name is required when pushing. This is not specified in " +
@@ -88,7 +91,7 @@ public class PushUtils {
 
         PackageID packageID = new PackageID(new Name(orgName), new Name(packageName), new Name(version));
 
-        Path prjDirPath = Paths.get(".").toAbsolutePath().normalize();
+        Path prjDirPath = LauncherUtils.getSourceRootPath(sourceRoot);
 
         // Get package path from project directory path
         Path pkgPathFromPrjtDir = Paths.get(prjDirPath.toString(), ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
