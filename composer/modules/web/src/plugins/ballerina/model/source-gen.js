@@ -302,6 +302,10 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + getSourceOf(node.collection, pretty, l, replaceLambda) + w(' ') + '{'
                  + indent() + getSourceOf(node.body, pretty, l, replaceLambda)
                  + outdent() + w() + '}';
+        case 'Forever':
+            return dent() + w() + 'forever' + w() + '{' + indent()
+                 + join(node.streamingQueryStatements, pretty, replaceLambda, l, w, '') + outdent()
+                 + w() + '}';
         case 'ForkJoin':
             if (node.workers && node.joinType && node.joinCount >= 0
                          && node.joinedWorkerIdentifiers && node.joinResultVar && node.joinBody
@@ -403,6 +407,33 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + getSourceOf(node.body, pretty, l, replaceLambda)
                  + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
             } else if (node.lambda && node.annotationAttachments
+                         && node.documentationAttachments && node.deprecatedAttachments && node.isStreamAction
+                         && node.parameters && node.restParameters && node.endpointNodes
+                         && node.body && node.workers) {
+                return dent()
+                 + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + w() + '=>' + w() + '('
+                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',')
+                 + (node.hasRestParams ? w() + ',' : '')
+                 + getSourceOf(node.restParameters, pretty, l, replaceLambda) + w() + ')' + a(' ') + w() + '{' + indent()
+                 + join(node.endpointNodes, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.body, pretty, l, replaceLambda)
+                 + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
+            } else if (node.lambda && node.annotationAttachments
+                         && node.documentationAttachments && node.deprecatedAttachments && node.isStreamAction
+                         && node.parameters && node.endpointNodes && node.body
+                         && node.workers) {
+                return dent()
+                 + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + w() + '=>' + w() + '('
+                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',') + w() + ')' + a(' ')
+                 + w() + '{' + indent()
+                 + join(node.endpointNodes, pretty, replaceLambda, l, w, '') + getSourceOf(node.body, pretty, l, replaceLambda)
+                 + join(node.workers, pretty, replaceLambda, l, w, '')
+                 + outdent() + w() + '}';
+            } else if (node.lambda && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments && node.parameters
                          && node.restParameters && node.returnParameters
                          && node.returnParameters.length && node.endpointNodes && node.body && node.workers) {
@@ -420,6 +451,20 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
             } else if (node.lambda && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments && node.parameters
+                         && node.returnParameters && node.returnParameters.length
+                         && node.endpointNodes && node.body && node.workers) {
+                return dent()
+                 + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + w() + 'function' + w() + '('
+                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',') + w() + ')'
+                 + a(' ') + w() + '('
+                 + join(node.returnParameters, pretty, replaceLambda, l, w, '', ',') + w() + ')' + a(' ') + w() + '{' + indent()
+                 + join(node.endpointNodes, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.body, pretty, l, replaceLambda)
+                 + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
+            } else if (node.lambda && node.annotationAttachments
+                         && node.documentationAttachments && node.deprecatedAttachments && node.parameters
                          && node.restParameters && node.endpointNodes && node.body
                          && node.workers) {
                 return dent()
@@ -432,6 +477,18 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + join(node.endpointNodes, pretty, replaceLambda, l, w, '')
                  + getSourceOf(node.body, pretty, l, replaceLambda)
                  + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
+            } else if (node.lambda && node.annotationAttachments
+                         && node.documentationAttachments && node.deprecatedAttachments && node.parameters
+                         && node.endpointNodes && node.body && node.workers) {
+                return dent()
+                 + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + w() + 'function' + w() + '('
+                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',') + w() + ')'
+                 + a(' ') + w() + '{' + indent()
+                 + join(node.endpointNodes, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.body, pretty, l, replaceLambda) + join(node.workers, pretty, replaceLambda, l, w, '')
+                 + outdent() + w() + '}';
             } else if (node.noVisibleReceiver && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments
                          && node.name.valueWithBar && node.parameters && node.restParameters
@@ -453,6 +510,24 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
             } else if (node.noVisibleReceiver && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments
+                         && node.name.valueWithBar && node.parameters && node.hasReturns
+                         && node.returnTypeAnnotationAttachments && node.returnTypeNode
+                         && node.endpointNodes && node.body && node.workers) {
+                return dent()
+                 + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + (node.public ? w() + 'public' + a(' ') : '')
+                 + w() + 'function' + w(' ') + node.name.valueWithBar + w() + '('
+                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',')
+                 + w() + ')' + a(' ') + w() + 'returns' + a(' ')
+                 + join(node.returnTypeAnnotationAttachments, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.returnTypeNode, pretty, l, replaceLambda) + w()
+                 + '{' + indent()
+                 + join(node.endpointNodes, pretty, replaceLambda, l, w, '') + getSourceOf(node.body, pretty, l, replaceLambda)
+                 + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w()
+                 + '}';
+            } else if (node.noVisibleReceiver && node.annotationAttachments
+                         && node.documentationAttachments && node.deprecatedAttachments
                          && node.name.valueWithBar && node.parameters && node.restParameters
                          && node.endpointNodes && node.body && node.workers) {
                 return dent()
@@ -467,6 +542,20 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + join(node.endpointNodes, pretty, replaceLambda, l, w, '') + getSourceOf(node.body, pretty, l, replaceLambda)
                  + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w()
                  + '}';
+            } else if (node.noVisibleReceiver && node.annotationAttachments
+                         && node.documentationAttachments && node.deprecatedAttachments
+                         && node.name.valueWithBar && node.parameters && node.endpointNodes && node.body
+                         && node.workers) {
+                return dent()
+                 + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + (node.public ? w() + 'public' + a(' ') : '')
+                 + w() + 'function' + w(' ') + node.name.valueWithBar + w() + '('
+                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',')
+                 + w() + ')' + a(' ') + w() + '{' + indent()
+                 + join(node.endpointNodes, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.body, pretty, l, replaceLambda)
+                 + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
             } else if (node.hasReturns && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments && node.receiver
                          && node.name.valueWithBar && node.parameters && node.restParameters
@@ -558,7 +647,24 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + join(node.endpointNodes, pretty, replaceLambda, l, w, '')
                  + getSourceOf(node.body, pretty, l, replaceLambda) + join(node.workers, pretty, replaceLambda, l, w, '')
                  + outdent() + w() + '}';
-            } else {
+            } else if (node.annotationAttachments && node.documentationAttachments
+                         && node.deprecatedAttachments && node.receiver
+                         && node.name.valueWithBar && node.parameters && node.endpointNodes && node.body
+                         && node.workers) {
+                return join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + dent() + (node.public ? w() + 'public' + a(' ') : '')
+                 + w() + 'function' + w() + '<'
+                 + getSourceOf(node.receiver, pretty, l, replaceLambda) + w() + '>' + w(' ')
+                 + node.name.valueWithBar + w() + '('
+                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',') + w() + ')' + a(' ') + w() + '{' + indent()
+                 + join(node.endpointNodes, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.body, pretty, l, replaceLambda)
+                 + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
+            } else if (node.annotationAttachments && node.documentationAttachments
+                         && node.deprecatedAttachments && node.name.valueWithBar
+                         && node.parameters && node.restParameters && node.endpointNodes && node.body
+                         && node.workers) {
                 return join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + dent() + (node.public ? w() + 'public' + a(' ') : '')
@@ -570,6 +676,16 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + join(node.endpointNodes, pretty, replaceLambda, l, w, '') + getSourceOf(node.body, pretty, l, replaceLambda)
                  + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w()
                  + '}';
+            } else {
+                return join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + dent() + (node.public ? w() + 'public' + a(' ') : '')
+                 + w() + 'function' + w(' ') + node.name.valueWithBar + w() + '('
+                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',')
+                 + w() + ')' + a(' ') + w() + '{' + indent()
+                 + join(node.endpointNodes, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.body, pretty, l, replaceLambda)
+                 + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
             }
         case 'FunctionType':
             if (node.paramTypeNode && node.returnParamTypeNode
@@ -582,6 +698,12 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                 return w() + 'function' + w() + '('
                  + join(node.paramTypeNode, pretty, replaceLambda, l, w, '', ',') + w() + ')';
             }
+        case 'GroupBy':
+            return w() + 'group' + w() + 'by'
+                 + join(node.variables, pretty, replaceLambda, l, w, '', ',');
+        case 'Having':
+            return w() + 'having'
+                 + getSourceOf(node.expression, pretty, l, replaceLambda);
         case 'If':
             if (node.ladderParent && node.condition && node.body
                          && node.elseStatement) {
@@ -766,6 +888,17 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                 return dent() + w() + 'return' + a(' ')
                  + getSourceOf(node.expression, pretty, l, replaceLambda) + w() + ';';
             }
+        case 'SelectClause':
+            return w() + 'select'
+                 + join(node.selectExpressions, pretty, replaceLambda, l, w, '', ',')
+                 + getSourceOf(node.groupBy, pretty, l, replaceLambda) + getSourceOf(node.having, pretty, l, replaceLambda);
+        case 'SelectExpression':
+            if (node.identifierAvailable && node.expression && node.identifier) {
+                return getSourceOf(node.expression, pretty, l, replaceLambda) + w(' ')
+                 + 'as' + w(' ') + node.identifier;
+            } else {
+                return getSourceOf(node.expression, pretty, l, replaceLambda);
+            }
         case 'Service':
             if (node.isServiceTypeUnavailable && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments
@@ -804,6 +937,17 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             } else {
                 return w() + node.variableName.valueWithBar;
             }
+        case 'StreamAction':
+            return getSourceOf(node.invokableBody, pretty, l, replaceLambda);
+        case 'StreamingInput':
+            return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda);
+        case 'StreamingQuery':
+            return w() + 'from'
+                 + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.selectClause, pretty, l, replaceLambda) + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
         case 'StringTemplateLiteral':
             return w() + 'string\u0020`'
                  + join(node.expressions, pretty, replaceLambda, l, w, '') + w() + '`';
@@ -1158,11 +1302,17 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                 return dent() + getSourceOf(node.variable, pretty, l, replaceLambda)
                  + w() + ';';
             }
+        case 'Where':
+            return w() + 'where'
+                 + getSourceOf(node.expression, pretty, l, replaceLambda);
         case 'While':
             return dent() + w() + 'while' + w(' ') + '('
                  + getSourceOf(node.condition, pretty, l, replaceLambda) + w() + ')' + w(' ') + '{'
                  + indent() + getSourceOf(node.body, pretty, l, replaceLambda) + outdent()
                  + w() + '}';
+        case 'WindowClause':
+            return w() + 'window'
+                 + getSourceOf(node.functionInvocation, pretty, l, replaceLambda);
         case 'Worker':
             return dent() + w() + 'worker' + w(' ') + node.name.valueWithBar
                  + w(' ') + '{' + indent()

@@ -17,12 +17,14 @@
 */
 package org.ballerinalang.langserver.compiler.workspace.repository;
 
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.packaging.converters.FileSystemSourceInput;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
+import java.util.regex.Pattern;
 
 /**
  * LSInMemorySourceEntry.
@@ -30,14 +32,22 @@ import java.nio.file.Path;
 class LSInMemorySourceEntry extends FileSystemSourceInput {
 
     private WorkspaceDocumentManager documentManager;
-    LSInMemorySourceEntry(Path path, PackageID pkgId, WorkspaceDocumentManager documentManager) {
+    private LSContext lsContext;
+    LSInMemorySourceEntry(Path path, PackageID pkgId, WorkspaceDocumentManager documentManager, LSContext lsContext) {
         super(path);
         this.documentManager = documentManager;
+        this.lsContext = lsContext;
     }
 
     @Override
     public byte[] getCode() {
         try {
+            // TODO: Remove using completion context after introducing a proper fix for _=.... issue
+            if (lsContext != null) {
+                return Pattern.compile("(\\s+_)").matcher(documentManager.getFileContent(this.getPath()))
+                        .replaceAll("var$1").getBytes("UTF-8");
+            }
+            
             return documentManager.getFileContent(this.getPath()).getBytes("UTF-8");
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("Error in loading package source entry '" + getPath() +

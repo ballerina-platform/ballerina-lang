@@ -331,6 +331,14 @@
     "before }": "",
     "after }": ""
   },
+  "Forever": {
+    "before forever": "",
+    "after forever": "",
+    "before {":"",
+    "after {": "",
+    "before }": "",
+    "after }": ""
+  },
   "ForkJoin": {
     "before fork": "",
     "after fork": "",
@@ -416,6 +424,18 @@
     "after returns": "",
     "before returnParamTypeNode": "",
     "after returnParamTypeNode": ""
+  },
+  "GroupBy": {
+    "before group": "",
+    "after group": "",
+    "before by": "",
+    "after by": "",
+    "before variables": "",
+    "after variables": ""
+  },
+  "Having": {
+    "before having": "",
+    "after having": ""
   },
   "If": {
     "before if": "",
@@ -639,6 +659,16 @@
     "before ;": "",
     "after ;": ""
   },
+  "SelectClause": {
+    "before select": "",
+    "after select": ""
+  },
+  "SelectExpression": {
+    "before as": " ",
+    "after as": "",
+    "before identifier": " ",
+    "after identifier": ""
+  },
   "Service": {
     "before annotationAttachments": "",
     "after annotationAttachments": "",
@@ -680,6 +710,10 @@
     "after variableName": "",
     "before }}": "",
     "after }}": ""
+  },
+  "StreamingQuery": {
+    "before from": "",
+    "after from": ""
   },
   "StringTemplateLiteral": {
     "before string\\u0020`": "",
@@ -931,6 +965,10 @@
     "before ;": "",
     "after ;": ""
   },
+  "Where": {
+    "before where": "",
+    "after where": ""
+  },
   "While": {
     "before while": "",
     "after while": "",
@@ -946,6 +984,10 @@
     "after body": "",
     "before }": "",
     "after }": ""
+  },
+  "WindowClause": {
+    "before window": "",
+    "after window": ""
   },
   "Worker": {
     "before worker": "",

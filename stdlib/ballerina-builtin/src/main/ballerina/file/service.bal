@@ -18,8 +18,8 @@
 documentation {
     Represents an event which will trigger when there is a changes to listining direcotry.
 
-    F{{name}} - Absolute file URI for triggerd event.
-    F{{operation}} - Triggered event action. This can be create, delete or modify.
+    F{{name}} Absolute file URI for triggerd event
+    F{{operation}} Triggered event action. This can be create, delete or modify
 }
 public type FileEvent {
     string name,
