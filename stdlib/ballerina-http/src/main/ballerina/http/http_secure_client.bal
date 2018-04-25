@@ -111,7 +111,7 @@ public type HttpSecureClient object {
     }
 
     documentation {
-		This wraps the `execute()` function of the underlying HTTP actions provider. Add relevant authentication headers
+        This wraps the `execute()` function of the underlying HTTP actions provider. Add relevant authentication headers
         to the request and send the request to actual network call.
 
         P{{httpVerb}} HTTP verb value
@@ -133,7 +133,7 @@ public type HttpSecureClient object {
     }
 
     documentation {
-		This wraps the `patch()` function of the underlying HTTP actions provider. Add relevant authentication headers
+        This wraps the `patch()` function of the underlying HTTP actions provider. Add relevant authentication headers
         to the request and send the request to actual network call.
 
         P{{path}} Resource path
@@ -154,7 +154,7 @@ public type HttpSecureClient object {
     }
 
     documentation {
-		This wraps the `delete()` function of the underlying HTTP actions provider. Add relevant authentication headers
+        This wraps the `delete()` function of the underlying HTTP actions provider. Add relevant authentication headers
         to the request and send the request to actual network call.
 
         P{{path}} Resource path
@@ -175,7 +175,7 @@ public type HttpSecureClient object {
     }
 
     documentation {
-		This wraps the `get()` function of the underlying HTTP actions provider. Add relevant authentication headers
+        This wraps the `get()` function of the underlying HTTP actions provider. Add relevant authentication headers
         to the request and send the request to actual network call.
 
         P{{path}} Request path
@@ -196,7 +196,7 @@ public type HttpSecureClient object {
     }
 
     documentation {
-		This wraps the `options()` function of the underlying HTTP actions provider. Add relevant authentication headers
+        This wraps the `options()` function of the underlying HTTP actions provider. Add relevant authentication headers
         to the request and send the request to actual network call.
 
         P{{path}} Request path
@@ -217,7 +217,7 @@ public type HttpSecureClient object {
     }
 
     documentation {
-		This wraps the `forward()` function of the underlying HTTP actions provider. Add relevant authentication headers
+        This wraps the `forward()` function of the underlying HTTP actions provider. Add relevant authentication headers
         to the request and send the request to actual network call.
 
         P{{path}} Request path
@@ -237,7 +237,7 @@ public type HttpSecureClient object {
     }
 
     documentation {
-		This wraps the `submit()` function of the underlying HTTP actions provider. Add relevant authentication headers
+        This wraps the `submit()` function of the underlying HTTP actions provider. Add relevant authentication headers
         to the request and send the request to actual network call.
 
         P{{httpVerb}} The HTTP verb value
@@ -251,7 +251,7 @@ public type HttpSecureClient object {
     }
 
     documentation {
-		This just pass the request to actual network call.
+        This just pass the request to actual network call.
 
         P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
         R{{}} An HTTP response message, or an error if the invocation fails
@@ -261,7 +261,7 @@ public type HttpSecureClient object {
     }
 
     documentation {
-		This just pass the request to actual network call.
+        This just pass the request to actual network call.
 
         P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
         R{{}} A `boolean` that represents whether a `PushPromise` exists
@@ -271,7 +271,7 @@ public type HttpSecureClient object {
     }
 
     documentation {
-		This just pass the request to actual network call.
+        This just pass the request to actual network call.
 
         P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
         R{{}} An HTTP Push Promise message, or an error if the invocation fails
@@ -281,7 +281,7 @@ public type HttpSecureClient object {
     }
 
     documentation {
-		This just pass the request to actual network call.
+        This just pass the request to actual network call.
 
         P{{promise}} The related `PushPromise`
         R{{}} A promised HTTP `Response` message, or an error if the invocation fails
@@ -291,7 +291,7 @@ public type HttpSecureClient object {
     }
 
     documentation {
-		This just pass the request to actual network call.
+        This just pass the request to actual network call.
 
         P{{promise}} The Push Promise to be rejected
 	}
