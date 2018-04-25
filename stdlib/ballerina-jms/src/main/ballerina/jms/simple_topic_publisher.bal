@@ -71,7 +71,7 @@ public type SimpleTopicPublisher object {
 
     }
 
-    documentation { Get simple topic consumer actions }
+    documentation { Get simple topic pubilsher actions }
     public function getCallerActions() returns TopicPublisherActions {
         match (publisher) {
             TopicPublisher s => return s.getCallerActions();
@@ -82,7 +82,7 @@ public type SimpleTopicPublisher object {
         }
     }
 
-    documentation { Stop simple topic consumer endpoint }
+    documentation { Stop simple topic pubilsher endpoint }
     public function stop() {
 
     }
@@ -107,7 +107,7 @@ documentation { Configuration related to simple topic publisher endpoint
     F{{connectionFactoryName}}  JNDI name of the connection factory
     F{{acknowledgementMode}} JMS session acknwoledge mode
     F{{properties}} JMS message properties
-    F{{topicPattern}} Topic name pattern
+    F{{topicPattern}} name of the target topic
 }
 public type SimpleTopicPublisherEndpointConfiguration {
     string initialContextFactory = "bmbInitialContextFactory";

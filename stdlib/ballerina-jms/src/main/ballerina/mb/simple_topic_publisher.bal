@@ -16,6 +16,12 @@
 
 import ballerina/log;
 
+documentation { Simplified topic publisher
+    A new connection and a session will be create when this endpoint is initialize.
+
+    E{{}}
+    F{{config}} configurations related to the SimpleTopicPublisher endpoint
+}
 public type SimpleTopicPublisher object {
 
     public {
@@ -27,6 +33,9 @@ public type SimpleTopicPublisher object {
         TopicPublisherActions? producerActions;
     }
 
+    documentation { Initialize SimpleTopicPublisher endpoint
+        P{{config}} Configurations related to SimpleTopicPublisher endpoint
+    }
     public function init(SimpleTopicPublisherEndpointConfiguration config) {
         endpoint jms:SimpleTopicPublisher topicPublisher {
             initialContextFactory:"bmbInitialContextFactory",
@@ -41,14 +50,20 @@ public type SimpleTopicPublisher object {
         self.config = config;
     }
 
+    documentation { Registers the endpoint in the service.
+        This method is generally not used since SimpleTopicPublisher is a non-service endpoint.
+        F{{serviceType}} type descriptor of the service
+    }
     public function register(typedesc serviceType) {
 
     }
 
+    documentation { Start simple topic pubilsher endpoint }
     public function start() {
 
     }
 
+    documentation { Get simple topic publisher actions }
     public function getCallerActions() returns TopicPublisherActions {
         match (self.producerActions) {
             TopicPublisherActions s => return s;
@@ -59,10 +74,14 @@ public type SimpleTopicPublisher object {
         }
     }
 
+    documentation { Stop simple topic pubilsher endpoint }
     public function stop() {
 
     }
 
+    documentation { Create JMS text message
+        P{{message}} A message body to create a text message
+    }
     public function createTextMessage(string message) returns Message|error {
         match (self.publisher) {
             jms:SimpleTopicPublisher s => {
@@ -81,16 +100,18 @@ public type SimpleTopicPublisher object {
     }
 };
 
+documentation { Caller action handler related to SimpleQueuePublisher endpoint }
 public type TopicPublisherActions object {
 
     private {
         jms:SimpleTopicPublisher publisher;
     }
 
-    new(publisher) {
+    new(publisher) {}
 
+    documentation { Sends a message to Ballerina message broker
+        P{{message}} message to be sent to Ballerina message broker
     }
-
     public function send(Message m) returns error? {
         endpoint jms:SimpleTopicPublisher publisherEP = self.publisher;
         var result = publisherEP->send(m.getJMSMessage());
@@ -98,6 +119,18 @@ public type TopicPublisherActions object {
     }
 };
 
+documentation { Configurations related to SimpleQueueSender endpoint
+    F{{username}} The caller's user name
+    F{{password}} The caller's password
+    F{{host}} Hostname of the broker node
+    F{{port}} AMQP port of the broker node
+    F{{clientID}} Identifier used to uniquely identify the client connection
+    F{{virtualHost}} target virtualhost
+    F{{acknowledgementMode}} specifies the session mode that will be used. Legal values are "AUTO_ACKNOWLEDGE",
+    "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
+    F{{properties}} Additional properties use in initializing the initial context
+    F{{topicPattern}} name of the target topic
+}
 public type SimpleTopicPublisherEndpointConfiguration {
     string username = "admin",
     string password = "admin",

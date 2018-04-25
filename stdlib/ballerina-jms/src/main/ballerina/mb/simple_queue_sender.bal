@@ -129,7 +129,6 @@ documentation { Configurations related to SimpleQueueSender endpoint
     "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
     F{{properties}} Additional properties use in initializing the initial context
     F{{queueName}} Name of the target queue
-
 }
 public type SimpleQueueSenderEndpointConfiguration {
     string username = "admin",
