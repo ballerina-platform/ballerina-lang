@@ -173,5 +173,3 @@ function cancelAppointment() {
 }
 
 ```
-
-## Package contents

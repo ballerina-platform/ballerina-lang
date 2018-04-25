@@ -52,6 +52,7 @@ public class ObservabilityConstants {
 
     public static final String PROPERTY_TRACE_PROPERTIES = "trace_properties";
     public static final String PROPERTY_ERROR = "error";
+    public static final String PROPERTY_ERROR_MESSAGE = "error_message";
     public static final String PROPERTY_BSTRUCT_ERROR = "bstruct_error";
 
     // TOML Configs

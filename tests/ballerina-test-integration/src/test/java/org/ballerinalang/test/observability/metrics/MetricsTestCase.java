@@ -22,7 +22,7 @@ import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.SQLDBUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.BufferedReader;
@@ -44,19 +44,20 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 public class MetricsTestCase {
 
     private ServerInstance serverInstance;
+    private SQLDBUtils.SqlServer sqlServer;
     private static final String RESOURCE_LOCATION = "src" + File.separator + "test" + File.separator +
             "resources" + File.separator + "observability" + File.separator + "metrics" + File.separator;
     private static final String DB_NAME = "TEST_DB";
     private Map<String, Pattern> expectedMetrics = new HashMap<>();
 
-    @BeforeTest
+    @BeforeClass
     private void setup() throws Exception {
         serverInstance = ServerInstance.initBallerinaServer();
         Files.copy(new File(System.getProperty("hsqldb.jar")).toPath(), new File(serverInstance.getServerHome() +
-                File.separator + "bre" + File.separator + "lib" + File.separator + "hsqldb.jar").toPath(),
+                        File.separator + "bre" + File.separator + "lib" + File.separator + "hsqldb.jar").toPath(),
                 REPLACE_EXISTING);
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
-        SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "observability" +
+        sqlServer = SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "observability" +
                 File.separator + "metrics" + File.separator + "data.sql");
         String balFile = new File(RESOURCE_LOCATION + "metrics-test.bal").getAbsolutePath();
         serverInstance.setArguments(new String[]{balFile, "--observe"});
@@ -98,6 +99,7 @@ public class MetricsTestCase {
     @AfterClass
     private void cleanup() throws Exception {
         serverInstance.stopServer();
+        sqlServer.stop();
     }
 
     private void addMetrics() {

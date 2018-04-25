@@ -1868,7 +1868,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             if (taintRecord == null) {
                 // This is when current parameter is "sensitive". Therefore, providing a tainted
                 // value to a sensitive parameter is invalid and should return a compiler error.
-                addTaintError(argExpr.pos, paramSymbol.name.value,
+                DiagnosticPos argPos = argExpr.pos != null ? argExpr.pos : invocationExpr.pos;
+                addTaintError(argPos, paramSymbol.name.value,
                         DiagnosticCode.TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER);
             } else if (taintRecord.taintError != null && taintRecord.taintError.size() > 0) {
                 // This is when current parameter is derived to be sensitive. The error already generated
@@ -1877,7 +1878,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                         invocationExpr.symbol.pkgID.name.getValue().equals(mainPkgId.name.getValue())) {
                     addTaintError(taintRecord.taintError);
                 } else {
-                    addTaintError(argExpr.pos, paramSymbol.name.value,
+                    DiagnosticPos argPos = argExpr.pos != null ? argExpr.pos : invocationExpr.pos;
+                    addTaintError(argPos, paramSymbol.name.value,
                             DiagnosticCode.TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER);
                 }
             } else {

@@ -172,7 +172,7 @@ class FinallyStatementDecorator extends React.Component {
         const viewState = bBox;
         const titleH = this.context.designer.config.statement.height;
         const statementBBox = viewState.components['statement-box'];
-        const gapLeft = viewState.components['left-margin'].w;
+        const gapLeft = viewState.leftMargin;
 
         // Defining coordinates of the diagram
         // (x,y)

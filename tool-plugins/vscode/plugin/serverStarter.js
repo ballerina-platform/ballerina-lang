@@ -86,8 +86,11 @@ function startServices() {
                 args.push('-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005,quiet=y')
             }
 
+            const balHomePath = workspace.getConfiguration('ballerina').get('home');
+            const balHomeSysProp = `-Dballerina.home=${balHomePath}`;
+
             console.log('Starting parser service on: ', parserPort);
-            serverProcess = spawn('java', [...args, main, LSPort, parserPort]);
+            serverProcess = spawn('java', [balHomeSysProp, ...args, main, LSPort, parserPort]);
 
             serverProcess.stdout.on('data', (data) => {
                 console.log(`ls: ${data}`);
