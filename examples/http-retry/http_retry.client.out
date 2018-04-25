@@ -1,4 +1,4 @@
-# If the request that was sent to the `retryDemoService` failes due to an error, the client tries sending the request again. 
+# If the request that was sent to the `retryDemoService` fails due to an error, the client tries sending the request again. 
 $ curl -v http://localhost:9090/retry
 *   Trying ::1...
 * TCP_NODELAY set
