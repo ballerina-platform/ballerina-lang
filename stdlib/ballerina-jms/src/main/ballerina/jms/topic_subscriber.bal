@@ -87,7 +87,14 @@ public type TopicSubscriberEndpointConfiguration {
 documentation { Actions that topic subscriber endpoint could perform }
 public type TopicSubscriberActions object {
 
+    documentation { Acknowledges a received message
+        P{{message}} JMS message to be acknowledged
+    }
     public native function acknowledge(Message message) returns error?;
 
+    documentation { Synchronously receive a message from the JMS provider
+        P{{timeoutInMilliSeconds}} Time to wait until a message is received
+        R{{}} Returns a message or nill if the timeout exceededs. Returns an error on jms provider internal error.
+    }
     public native function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
 };
