@@ -53,7 +53,7 @@ public type DurableTopicSubscriber object {
 
     native function createSubscriber(Session session, string messageSelector);
 
-    documentation { Begins consuming messages from the durable topic subscriber endpoint
+    documentation { Starts the endpoint. Function is ignored by the subscriber endpoint
     }
     public function start() {
     }
@@ -76,7 +76,7 @@ public type DurableTopicSubscriber object {
 
 documentation { Configurations related to the durable topic subscriber endpoint
     F{{session}} JMS session object
-    F{{topicPattern}} Name or the pattern of the topic
+    F{{topicPattern}} Name or the pattern of the topic subscription
     F{{messageSelector}} JMS selector statement
     F{{identifier}} unique identifier for the subscription
 }

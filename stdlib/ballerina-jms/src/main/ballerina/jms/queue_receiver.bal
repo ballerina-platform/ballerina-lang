@@ -54,10 +54,10 @@ public type QueueReceiver object {
 
     native function createQueueReceiver(Session session, string messageSelector);
 
-    documentation { Begin consuming messages through the queue receiver endpoint
+    documentation { Starts the endpoint. Function is ignored by the receiver endpoint
     }
     public function start() {
-
+        // Ignore
     }
 
     documentation { Retrieves the queue receiver consumer actions
