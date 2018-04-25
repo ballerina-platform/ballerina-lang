@@ -17,13 +17,13 @@ package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 
@@ -56,10 +56,12 @@ public class Register extends AbstractGrpcNativeFunction {
         Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
         io.grpc.ServerBuilder serverBuilder = getServiceBuilder(serviceEndpoint);
         try {
-            registerService(serverBuilder, service);
+            if (serverBuilder != null) {
+                registerService(serverBuilder, service);
+            }
             context.setReturnValues();
         } catch (GrpcServerException e) {
-            context.setError(MessageUtils.getConnectorError(context, e));
+            throw new BallerinaConnectorException("Error occurred while registering the service. " + e.getMessage(), e);
         }
     }
 }

@@ -14,8 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/log;
-
+documentation { Configurations related to Ballerina message broker URL
+    F{{username}} The caller's user name
+    F{{password}} The caller's password
+    F{{host}} Hostname of the broker node
+    F{{port}} AMQP port of the broker node
+    F{{clientID}} Identifier used to uniquely identify the client connection
+    F{{virtualHost}} target virtualhost
+    F{{secureSocket}} TLS configurations
+}
 public type BrokerURLConfig {
     string username = "admin",
     string password = "admin",
@@ -26,12 +33,21 @@ public type BrokerURLConfig {
     ServiceSecureSocket? secureSocket,
 };
 
+documentation { Configurations related to TLS
+    F{{trustStore}} Trustore configurations
+    F{{keyStore}} Keystore configuration
+    F{{sslCertAlias}} name of the ssl cert alias
+}
 public type ServiceSecureSocket {
     Store? trustStore,
     Store? keyStore,
     string sslCertAlias,
 };
 
+documentation {
+    F{{path}} file path to key store
+    F{{password}} password used to protect the key store
+}
 public type Store {
     string path,
     string password,
@@ -76,8 +92,8 @@ function getStoreDetails(Store? store) returns (string, string) {
             return (t.path, t.password);
         }
         () => {
-            log:printInfo("Store details not provided.");
-            return ("", "");
+            error e = {message:"Store details not provided."};
+            throw e;
         }
     }
 
