@@ -2,7 +2,7 @@ import ballerina/io;
 
 int globalInt = 5;
 
-// Basic example where a lambda with a if block access its outer scope variables.
+// Basic example where a lambda with a 'if' block access its outer scope variables.
 function basicClosure() returns (function (int) returns (int)) {
     int a = 3;
     var foo =  (int b) => (int) {
