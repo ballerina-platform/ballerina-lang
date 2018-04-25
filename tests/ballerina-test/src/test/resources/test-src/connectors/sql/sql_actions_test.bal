@@ -190,14 +190,20 @@ function testSelectIntFloatData() returns (int, int, float, float) {
     return (int_type, long_type, float_type, double_type);
 }
 
-function testCallProcedure() returns (string) {
+function testCallProcedure() returns (string, string) {
     endpoint jdbc:Client testDB {
         url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    _ = testDB->call("{call InsertPersonData(100,'James')}", ());
+    string returnValue;
+    var ret = testDB->call("{call InsertPersonData(100,'James')}", ());
+    match ret {
+        table[] dt => returnValue = "table";
+        () => returnValue = "nil";
+        error => returnValue = "error";
+    }
     table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 100", ResultCustomers);
     string firstName;
     while (dt.hasNext()) {
@@ -205,7 +211,7 @@ function testCallProcedure() returns (string) {
         firstName = rs.FIRSTNAME;
     }
     testDB.stop();
-    return firstName;
+    return (firstName, returnValue);
 }
 
 function testCallProcedureWithResultSet() returns (string) {
@@ -215,9 +221,14 @@ function testCallProcedureWithResultSet() returns (string) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table[] dts = check testDB->call("{call SelectPersonData()}", [ResultCustomers]);
-
     string firstName;
+    var ret = check testDB->call("{call SelectPersonData()}", [ResultCustomers]);
+    table[] dts;
+    match ret {
+        table[] dtsRet => dts = dtsRet;
+        () => firstName = "error";
+    }
+
     while (dts[0].hasNext()) {
         ResultCustomers rs = check <ResultCustomers>dts[0].getNext();
         firstName = rs.FIRSTNAME;
@@ -233,11 +244,16 @@ function testCallProcedureWithMultipleResultSets() returns (string, string, stri
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table[] dts = check testDB->call("{call SelectPersonDataMultiple()}", [ResultCustomers, ResultCustomers2]);
-
     string firstName1;
     string firstName2;
     string lastName;
+
+    var ret = check testDB->call("{call SelectPersonDataMultiple()}", [ResultCustomers, ResultCustomers2]);
+    table[] dts;
+    match ret {
+        table[] dtsRet => dts = dtsRet;
+        () => firstName1 = "error";
+    }
 
     while (dts[0].hasNext()) {
         ResultCustomers rs = check <ResultCustomers>dts[0].getNext();
