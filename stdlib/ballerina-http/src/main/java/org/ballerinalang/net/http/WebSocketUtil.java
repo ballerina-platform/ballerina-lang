@@ -99,6 +99,7 @@ public abstract class WebSocketUtil {
                                                  connectionInfo);
                 if (context != null && callback != null) {
                     context.setReturnValues(webSocketEndpoint);
+                    webSocketConnector.setBooleanField(0, 1);
                     callback.notifySuccess();
                 } else {
                     Resource onOpenResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_OPEN);
@@ -106,7 +107,6 @@ public abstract class WebSocketUtil {
                         executeOnOpenResource(onOpenResource, webSocketEndpoint, webSocketConnection);
                     } else {
                         webSocketConnection.readNextFrame();
-                        webSocketConnector.setBooleanField(0, 1);
                     }
                 }
             }

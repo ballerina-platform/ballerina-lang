@@ -195,7 +195,12 @@ public class WebSocketDispatcher {
         WebSocketService wsService = connectionInfo.getService();
         Resource onCloseResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_CLOSE);
         if (onCloseResource == null) {
-            webSocketConnection.readNextFrame();
+            webSocketConnection.close(closeMessage.getCloseCode(), null).addListener(future -> {
+                if (webSocketConnection.getSession().isOpen()) {
+                    webSocketConnection.close().sync();
+                    connectionInfo.getWebSocketEndpoint().setBooleanField(0, 0);
+                }
+            });
             return;
         }
         List<ParamDetail> paramDetails = onCloseResource.getParamDetails();
