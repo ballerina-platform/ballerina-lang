@@ -1,6 +1,7 @@
 Hello World
 Hello World Parallel
 Hello World Service
+Hello World Client
 Hello World Streams
 Secured Hello World Service with Basic Auth
 Values

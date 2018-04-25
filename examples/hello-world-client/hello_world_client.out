@@ -1,0 +1,4 @@
+# To run the program, put the code in "hello_world_client.bal"
+# and use "ballerina run" command.
+$ ballerina run hello_world_client.bal
+INFO  [] - Hello World
