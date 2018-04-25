@@ -61,6 +61,7 @@ import javax.annotation.CheckForNull;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 
 /**
  * Language server compiler implementation for Ballerina.
@@ -196,6 +197,7 @@ public class LSCompiler {
 
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, Boolean.valueOf(preserveWhitespace).toString());
+        options.put(TEST_ENABLED, String.valueOf(true));
 
         // In order to capture the syntactic errors, need to go through the default error strategy
         context.put(DefaultErrorStrategy.class, null);
