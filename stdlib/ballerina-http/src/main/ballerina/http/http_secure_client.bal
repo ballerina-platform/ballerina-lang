@@ -27,7 +27,6 @@ import ballerina/mime;
 @final string OAUTH_SCHEME = "oauth";
 @final string JWT_SCHEME = "jwt";
 
-@Description {value:"An HTTP secure client for interacting with an HTTP server with authentication."}
 documentation {
     Provides the HTTP actions for interacting with an HTTP server. Apart from the standard HTTP methods, `forward()`
     and `execute()` functions are provided. `forward()` takes an incoming HTTP requests and sends it to an upstream
@@ -352,7 +351,8 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                 return updateRequestAndConfig(req, config);
             } else {
                 HttpConnectorError httpConnectorError = {};
-                httpConnectorError.message = "Valid accessToken or refreshToken is not available to process the request";
+                httpConnectorError.message = "Valid accessToken or refreshToken is not available to process the request"
+                ;
                 return httpConnectorError;
             }
         } else {
