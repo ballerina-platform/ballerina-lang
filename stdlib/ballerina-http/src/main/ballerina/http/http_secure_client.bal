@@ -26,7 +26,14 @@ import ballerina/mime;
 @final string OAUTH_SCHEME = "oauth";
 @final string JWT_SCHEME = "jwt";
 
-@Description {value:"An HTTP secure client for interacting with an HTTP server with authentication."}
+documentation {
+    Provides secure HTTP actions for interacting with HTTP endpoints. This will make use of the authentication schemes
+    configured in the HTTP client endpoint to secure the HTTP requests.
+
+    F{{serviceUri}} The URL of the remote HTTP endpoint
+    F{{config}} The configurations of the client endpoint associated with this HttpActions instance
+    F{{httpClient}} The underlying `HttpActions` instance which will be making the actual network calls
+}
 public type HttpSecureClient object {
     //These properties are populated from the init call to the client connector as these were needed later stage
     //for retry and other few places.
@@ -40,194 +47,266 @@ public type HttpSecureClient object {
         self.httpClient = createSimpleHttpClient(serviceUri, config);
     }
 
-    @Description {value:"The POST action implementation of the HTTP Connector."}
-    @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
+    documentation {
+        This wraps the `post()` function of the underlying HTTP actions provider. Add relevant authentication headers
+        to the request and send the request to actual network call.
+
+        P{{path}} Resource path
+        P{{request}} An HTTP outbound request message
+        R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
+    }
     public function post(string path, Request? request = ()) returns (Response|error) {
         Request req = request ?: new;
-        var details = prepareRequest(req, config);
-        match details {
-            () => {}
-            error err => return err;
+        check generateSecureRequest(req, config);
+        Response response = check httpClient.post(path, request = req);
+        boolean isRetry = isRetryRequired(response, config);
+        if (isRetry) {
+            Request newOutRequest = check cloneRequest(req);
+            check updateRequestAndConfig(newOutRequest, config);
+            return httpClient.post(path, request = newOutRequest);
         }
-        return httpClient.post(path, request = req);
+        return response;
     }
 
-    @Description {value:"The HEAD action implementation of the HTTP Connector."}
-    @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
+    documentation {
+        This wraps the `head()` function of the underlying HTTP actions provider. Add relevant authentication headers
+        to the request and send the request to actual network call.
+
+        P{{path}} Resource path
+        P{{request}} An HTTP outbound request message
+        R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
+    }
     public function head(string path, Request? request = ()) returns (Response|error) {
         Request req = request ?: new;
-        var details = prepareRequest(req, config);
-        match details {
-            () => {}
-            error err => return err;
+        check generateSecureRequest(req, config);
+        Response response = check httpClient.head(path, request = req);
+        boolean isRetry = isRetryRequired(response, config);
+        if (isRetry) {
+            Request newOutRequest = check cloneRequest(req);
+            check updateRequestAndConfig(newOutRequest, config);
+            return httpClient.head(path, request = newOutRequest);
         }
-        return httpClient.head(path, request = req);
+        return response;
     }
 
-    @Description {value:"The PUT action implementation of the HTTP Connector."}
-    @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
+    documentation {
+        This wraps the `put()` function of the underlying HTTP actions provider. Add relevant authentication headers
+        to the request and send the request to actual network call.
+
+        P{{path}} Resource path
+        P{{request}} An HTTP outbound request message
+        R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
+    }
     public function put(string path, Request? request = ()) returns (Response|error) {
         Request req = request ?: new;
-        var details = prepareRequest(req, config);
-        match details {
-            () => {}
-            error err => return err;
+        check generateSecureRequest(req, config);
+        Response response = check httpClient.put(path, request = req);
+        boolean isRetry = isRetryRequired(response, config);
+        if (isRetry) {
+            Request newOutRequest = check cloneRequest(req);
+            check updateRequestAndConfig(newOutRequest, config);
+            return httpClient.put(path, request = newOutRequest);
         }
-        return httpClient.put(path, request = req);
+        return response;
     }
 
-    @Description {value:"Invokes an HTTP call with the specified HTTP verb."}
-    @Param {value:"httpVerb: HTTP verb value"}
-    @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
+    documentation {
+        This wraps the `execute()` function of the underlying HTTP actions provider. Add relevant authentication headers
+        to the request and send the request to actual network call.
+
+        P{{httpVerb}} HTTP verb value
+        P{{path}} Resource path
+        P{{request}} An HTTP outbound request message
+        R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
+    }
     public function execute(string httpVerb, string path, Request request) returns (Response|error) {
-        var details = prepareRequest(request, config);
-        match details {
-            () => {}
-            error err => return err;
+        var details = generateSecureRequest(request, config);
+        check generateSecureRequest(request, config);
+        Response response = check httpClient.execute(httpVerb, path, request);
+        boolean isRetry = isRetryRequired(response, config);
+        if (isRetry) {
+            Request newOutRequest = check cloneRequest(request);
+            check updateRequestAndConfig(newOutRequest, config);
+            return httpClient.execute(httpVerb, path, newOutRequest);
         }
-        return httpClient.execute(httpVerb, path, request);
+        return response;
     }
 
-    @Description {value:"The PATCH action implementation of the HTTP Connector."}
-    @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
+    documentation {
+        This wraps the `patch()` function of the underlying HTTP actions provider. Add relevant authentication headers
+        to the request and send the request to actual network call.
+
+        P{{path}} Resource path
+        P{{request}} An HTTP outbound request message
+        R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
+    }
     public function patch(string path, Request? request = ()) returns (Response|error) {
         Request req = request ?: new;
-        var details = prepareRequest(req, config);
-        match details {
-            () => {}
-            error err => return err;
+        check generateSecureRequest(req, config);
+        Response response = check httpClient.patch(path, request = req);
+        boolean isRetry = isRetryRequired(response, config);
+        if (isRetry) {
+            Request newOutRequest = check cloneRequest(req);
+            check updateRequestAndConfig(newOutRequest, config);
+            return httpClient.patch(path, request = newOutRequest);
         }
-        return httpClient.patch(path, request = req);
+        return response;
     }
 
-    @Description {value:"The DELETE action implementation of the HTTP connector"}
-    @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
+    documentation {
+        This wraps the `delete()` function of the underlying HTTP actions provider. Add relevant authentication headers
+        to the request and send the request to actual network call.
+
+        P{{path}} Resource path
+        P{{request}} An HTTP outbound request message
+        R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
+    }
     public function delete(string path, Request? request = ()) returns (Response|error) {
         Request req = request ?: new;
-        var details = prepareRequest(req, config);
-        match details {
-            () => {}
-            error err => return err;
+        check generateSecureRequest(req, config);
+        Response response = check httpClient.delete(path, request = req);
+        boolean isRetry = isRetryRequired(response, config);
+        if (isRetry) {
+            Request newOutRequest = check cloneRequest(req);
+            check updateRequestAndConfig(newOutRequest, config);
+            return httpClient.delete(path, request = newOutRequest);
         }
-        return httpClient.delete(path, request = req);
+        return response;
     }
 
-    @Description {value:"GET action implementation of the HTTP Connector"}
-    @Param {value:"path: Request path"}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
+    documentation {
+        This wraps the `get()` function of the underlying HTTP actions provider. Add relevant authentication headers
+        to the request and send the request to actual network call.
+
+        P{{path}} Request path
+        P{{request}} An HTTP outbound request message
+        R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
+    }
     public function get(string path, Request? request = ()) returns (Response|error) {
         Request req = request ?: new;
-        var details = prepareRequest(req, config);
-        match details {
-            () => {}
-            error err => return err;
+        check generateSecureRequest(req, config);
+        Response response = check httpClient.get(path, request = req);
+        boolean isRetry = isRetryRequired(response, config);
+        if (isRetry) {
+            Request newOutRequest = check cloneRequest(req);
+            check updateRequestAndConfig(newOutRequest, config);
+            return httpClient.get(path, request = newOutRequest);
         }
-        return httpClient.get(path, request = req);
+        return response;
     }
 
-    @Description {value:"OPTIONS action implementation of the HTTP Connector"}
-    @Param {value:"path: Request path"}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
+    documentation {
+        This wraps the `options()` function of the underlying HTTP actions provider. Add relevant authentication headers
+        to the request and send the request to actual network call.
+
+        P{{path}} Request path
+        P{{request}} An HTTP outbound request message
+        R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
+    }
     public function options(string path, Request? request = ()) returns (Response|error) {
         Request req = request ?: new;
-        var details = prepareRequest(req, config);
-        match details {
-            () => {}
-            error err => return err;
+        check generateSecureRequest(req, config);
+        Response response = check httpClient.options(path, request = req);
+        boolean isRetry = isRetryRequired(response, config);
+        if (isRetry) {
+            Request newOutRequest = check cloneRequest(req);
+            check updateRequestAndConfig(newOutRequest, config);
+            return httpClient.options(path, request = newOutRequest);
         }
-        return httpClient.options(path, request = req);
+        return response;
     }
 
-    @Description {value:"Forward action can be used to invoke an HTTP call with inbound request's HTTP verb"}
-    @Param {value:"path: Request path"}
-    @Param {value:"req: An HTTP inbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
+    documentation {
+        This wraps the `forward()` function of the underlying HTTP actions provider. Add relevant authentication headers
+        to the request and send the request to actual network call.
+
+        P{{path}} Request path
+        P{{request}} An HTTP inbound request message
+        R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
+    }
     public function forward(string path, Request request) returns (Response|error) {
-        var details = prepareRequest(request, config);
-        match details {
-            () => {}
-            error err => return err;
+        check generateSecureRequest(request, config);
+        Response response = check httpClient.forward(path, request);
+        boolean isRetry = isRetryRequired(response, config);
+        if (isRetry) {
+            Request newOutRequest = check cloneRequest(request);
+            check updateRequestAndConfig(newOutRequest, config);
+            return httpClient.forward(path, newOutRequest);
         }
-        return httpClient.forward(path, request);
+        return response;
     }
 
-    @Description {value:"Submits an HTTP request to a service with the specified HTTP verb."}
-    @Param {value:"httpVerb: The HTTP verb value"}
-    @Param {value:"path: The Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The Future for further interactions"}
-    @Return {value:"The Error occured during HTTP client invocation"}
+    documentation {
+        This wraps the `submit()` function of the underlying HTTP actions provider. Add relevant authentication headers
+        to the request and send the request to actual network call.
+
+        P{{httpVerb}} The HTTP verb value
+        P{{path}} The resource path
+        P{{request}} An HTTP outbound request message
+        R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
+    }
     public function submit(string httpVerb, string path, Request request) returns (HttpFuture|error) {
-        var details = prepareRequest(request, config);
-        match details {
-            () => {}
-            error err => return err;
-        }
+        check generateSecureRequest(request, config);
         return httpClient.submit(httpVerb, path, request);
     }
 
-    @Description {value:"Retrieves response for a previously submitted request."}
-    @Param {value:"httpFuture: The Future which relates to previous async invocation"}
-    @Return {value:"The HTTP response message"}
-    @Return {value:"The Error occured during HTTP client invocation"}
-    public function getResponse (HttpFuture httpFuture) returns (Response|error) {
+    documentation {
+        This just pass the request to actual network call.
+
+        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
+        R{{}} An HTTP response message, or an error if the invocation fails
+    }
+    public function getResponse(HttpFuture httpFuture) returns (Response|error) {
         return httpClient.getResponse(httpFuture);
     }
 
-    @Description {value:"Checks whether server push exists for a previously submitted request."}
-    @Param {value:"httpFuture: The Future which relates to previous async invocation"}
-    @Return {value:"Whether push promise exists"}
-    public function hasPromise (HttpFuture httpFuture) returns boolean {
+    documentation {
+        This just pass the request to actual network call.
+
+        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
+        R{{}} A `boolean` that represents whether a `PushPromise` exists
+    }
+    public function hasPromise(HttpFuture httpFuture) returns boolean {
         return httpClient.hasPromise(httpFuture);
     }
 
-    @Description {value:"Retrieves the next available push promise for a previously submitted request."}
-    @Param {value:"httpFuture: The Future which relates to previous async invocation"}
-    @Return {value:"The HTTP Push Promise message"}
-    @Return {value:"The Error occured during HTTP client invocation"}
-    public function getNextPromise (HttpFuture httpFuture) returns (PushPromise|error) {
+    documentation {
+        This just pass the request to actual network call.
+
+        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
+        R{{}} An HTTP Push Promise message, or an error if the invocation fails
+    }
+    public function getNextPromise(HttpFuture httpFuture) returns (PushPromise|error) {
         return httpClient.getNextPromise(httpFuture);
     }
 
-    @Description {value:"Retrieves the promised server push response."}
-    @Param {value:"promise: The related Push Promise message"}
-    @Return {value:"HTTP The Push Response message"}
-    @Return {value:"The Error occured during HTTP client invocation"}
-    public function getPromisedResponse (PushPromise promise) returns (Response|error) {
+    documentation {
+        This just pass the request to actual network call.
+
+        P{{promise}} The related `PushPromise`
+        R{{}} A promised HTTP `Response` message, or an error if the invocation fails
+    }
+    public function getPromisedResponse(PushPromise promise) returns (Response|error) {
         return httpClient.getPromisedResponse(promise);
     }
 
-    @Description {value:"Rejects a push promise."}
-    @Param {value:"promise: The Push Promise need to be rejected"}
-    public function rejectPromise (PushPromise promise) {
+    documentation {
+        This just pass the request to actual network call.
+
+        P{{promise}} The Push Promise to be rejected
+    }
+    public function rejectPromise(PushPromise promise) {
         return httpClient.rejectPromise(promise);
     }
 };
 
-@Description {value:"Creates an HTTP client capable of securing HTTP requests with authentication."}
+documentation {
+    Creates an HTTP client capable of securing HTTP requests with authentication.
+
+    P{{url}} Base URL
+    P{{config}} Client endpoint configurations
+    R{{}} Created secure HTTP client
+}
 public function createHttpSecureClient(string url, ClientEndpointConfig config) returns CallerActions {
     match config.auth {
         AuthConfig => {
@@ -241,27 +320,22 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
     }
 }
 
-@Description {value:"Prepare HTTP request with the required headers for authentication."}
-@Param {value:"req: An HTTP outbound request message"}
-@Param {value:"request:Client endpoint configurations"}
-function prepareRequest(Request req, ClientEndpointConfig config) returns (()|error) {
+documentation {
+    Prepare HTTP request with the required headers for authentication.
+
+    P{{req}} An HTTP outbound request message
+    P{{config}} Client endpoint configurations
+    R{{}} The Error occured during HTTP client invocation
+}
+function generateSecureRequest(Request req, ClientEndpointConfig config) returns (()|error) {
     string scheme = config.auth.scheme but { () => EMPTY_STRING };
-    if (scheme == BASIC_SCHEME){
+    if (scheme == BASIC_SCHEME) {
         string username = config.auth.username but { () => EMPTY_STRING };
         string password = config.auth.password but { () => EMPTY_STRING };
         string str = username + ":" + password;
-        var encodedStringVar = str.base64Encode();
-        string encodedString;
-        match encodedStringVar {
-            string token => encodedString = token;
-            error err => {
-                error httpConnectorErr = {};
-                httpConnectorErr.message = "Failed to encode the username or password with base64";
-                return httpConnectorErr;
-            }
-        }
-        req.setHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + encodedString);
-    } else if (scheme == OAUTH_SCHEME){
+        string token = check str.base64Encode();
+        req.setHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + token);
+    } else if (scheme == OAUTH_SCHEME) {
         string accessToken = config.auth.accessToken but { () => EMPTY_STRING };
         if (accessToken == EMPTY_STRING) {
             string refreshToken = config.auth.refreshToken but { () => EMPTY_STRING };
@@ -270,15 +344,12 @@ function prepareRequest(Request req, ClientEndpointConfig config) returns (()|er
             string refreshUrl = config.auth.refreshUrl but { () => EMPTY_STRING };
 
             if (refreshToken != EMPTY_STRING && clientId != EMPTY_STRING && clientSecret != EMPTY_STRING) {
-                var accessTokenValueResponse = getAccessTokenFromRefreshToken(config);
-                match accessTokenValueResponse {
-                    string accessTokenString => req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessTokenString);
-                    error err => return err;
-                }
+                return updateRequestAndConfig(req, config);
             } else {
-                error httpConnectorErr = {};
-                httpConnectorErr.message = "Valid accessToken or refreshToken is not available to process the request";
-                return httpConnectorErr;
+                error err = {};
+                err.message = "Valid accessToken or refreshToken is not available to process the request"
+                ;
+                return err;
             }
         } else {
             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
@@ -290,46 +361,83 @@ function prepareRequest(Request req, ClientEndpointConfig config) returns (()|er
     return ();
 }
 
-@Description {value:"Request an access token from authorization server using the provided refresh token"}
-@Param {value:"request:Client endpoint configurations"}
-@Return {value:"AccessToken received from the authorization server"}
-@Return {value:"Error occured during HTTP client invocation"}
+documentation {
+    Update request and client config with new access tokens retrieved.
+
+    P{{req}} `Request` object to be updated
+    P{{config}} Client endpoint configurations
+    R{{}} The Error occured during HTTP client invocation
+}
+function updateRequestAndConfig(Request req, ClientEndpointConfig config) returns (()|error) {
+    string accessToken = check getAccessTokenFromRefreshToken(config);
+    req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
+    AuthConfig? authConfig = config.auth;
+    match authConfig {
+        () => {}
+        AuthConfig ac => ac.accessToken = accessToken;
+    }
+    return ();
+}
+
+documentation {
+    Request an access token from authorization server using the provided refresh token.
+
+    P{{config}} Client endpoint configurations
+    R{{}} AccessToken received from the authorization server or `error` if error occured during HTTP client invocation
+}
 function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (string|error) {
     string refreshToken = config.auth.refreshToken but { () => EMPTY_STRING };
     string clientId = config.auth.clientId but { () => EMPTY_STRING };
     string clientSecret = config.auth.clientSecret but { () => EMPTY_STRING };
     string refreshUrl = config.auth.refreshUrl but { () => EMPTY_STRING };
-    CallerActions refreshTokenClient = createHttpSecureClient(refreshUrl, {});
-    string refreshTokenRequestPath = "/oauth2/v3/token";
-    string requestParams = "refresh_token=" + refreshToken + "&grant_type=refresh_token&client_secret=" + clientSecret + "&client_id=" + clientId;
-    string base64ClientIdSecret;
-    string clientIdSecret = clientId + ":" + clientSecret;
-    match (clientIdSecret.base64Encode()){
-        string encodeString => base64ClientIdSecret = encodeString;
-        error err => {
-            error httpConnectorErr = {};
-            httpConnectorErr.message = err.message;
-            return httpConnectorErr;
-        }
-    }
-    Request refreshTokenRequest;
-    refreshTokenRequest.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + base64ClientIdSecret);
-    refreshTokenRequest.addHeader(CONTENT_TYPE_HEADER, mime:APPLICATION_FORM_URLENCODED);
-    refreshTokenRequest.setTextPayload("grant_type=refresh_token&refresh_token=" + refreshToken);
-    refreshTokenRequest.setTextPayload(requestParams);
-    refreshTokenRequestPath = refreshTokenRequestPath + "?" + requestParams;
-    var refreshTokenResponse = refreshTokenClient.post(refreshTokenRequestPath, request = refreshTokenRequest);
-    Response tokenResponse;
-    match refreshTokenResponse {
-        Response httpResponse => tokenResponse = httpResponse;
-        error err => return err;
-    }
-    var requestAccessTokenJson = tokenResponse.getJsonPayload();
-    json generatedToken = check requestAccessTokenJson;
 
-    if (tokenResponse.statusCode == 200) {
+    CallerActions refreshTokenClient = createHttpSecureClient(refreshUrl, {});
+
+    string clientIdSecret = clientId + ":" + clientSecret;
+    string base64ClientIdSecret = check clientIdSecret.base64Encode();
+
+    Request refreshTokenRequest = new;
+    refreshTokenRequest.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + base64ClientIdSecret);
+    refreshTokenRequest.setTextPayload("grant_type=refresh_token&refresh_token=" + refreshToken,
+        contentType = mime:APPLICATION_FORM_URLENCODED);
+    Response refreshTokenResponse = check refreshTokenClient.post(EMPTY_STRING, request = refreshTokenRequest);
+
+    json generatedToken = check refreshTokenResponse.getJsonPayload();
+    if (refreshTokenResponse.statusCode == OK_200) {
         return generatedToken.access_token.toString();
+    } else {
+        error err = {};
+        err.message = "Failed to generate new access token from the given refresh token";
+        return err;
     }
-    return EMPTY_STRING;
 }
 
+documentation {
+    Clone the given request into a new request with request entity.
+
+    P{{req}} `Request` object to be cloned
+    R{{}} New request object created or `error` if entity construction failed
+}
+function cloneRequest(Request req) returns (Request|error) {
+    mime:Entity mimeEntity = check req.getEntity();
+    Request newOutRequest = new;
+    newOutRequest.setEntity(mimeEntity);
+    return newOutRequest;
+}
+
+documentation {
+    Check whether retry is required for the response. This returns true if the scheme is OAuth and the response status
+    is 401 only. That implies user has given a expired access token and the client should update it with the given
+    refresh url.
+
+    P{{response}} Response object
+    P{{config}} Client endpoint configurations
+    R{{}} Whether the client should retry or not
+}
+function isRetryRequired(Response response, ClientEndpointConfig config) returns boolean {
+    string scheme = config.auth.scheme but { () => EMPTY_STRING };
+    if (scheme == OAUTH_SCHEME && response.statusCode == UNAUTHORIZED_401) {
+        return true;
+    }
+    return false;
+}
