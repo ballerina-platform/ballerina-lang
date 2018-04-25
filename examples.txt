@@ -14,7 +14,7 @@ Elvis Operator
 Functions
 Functions With Defaultable Parameters
 Functions With Rest Parameters
-Errors
+Error Handling
 Var
 Any Type
 Type Conversion
@@ -32,6 +32,7 @@ JSON Literals
 JSON Arrays
 JSON/Struct/Map Conversion
 Constrained JSON
+Nil Lifting
 XML
 XML Namespaces
 XML Literal
@@ -41,11 +42,11 @@ JSON To XML Conversion
 XML To JSON Conversion
 Streams
 Foreach
-Iterable Operations
-Worker
+Functional Iteration
+Workers
 Worker Interaction
 Fork/Join
-Fork/Join Condition Some
+Fork/Join Conditional Join
 Fork/Join Variable Access
 Async
 JDBC Client
@@ -153,3 +154,5 @@ Object Initializer
 Object Member Functions
 Object Assignability
 Locks
+Union Type
+Optional Type

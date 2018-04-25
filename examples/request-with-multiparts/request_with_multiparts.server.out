@@ -1,0 +1,1 @@
+$ ballerina run request_with_multiparts.bal

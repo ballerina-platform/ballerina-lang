@@ -19,8 +19,8 @@ function main(string... args) {
                 json jsonPayload => {
                     io:println(jsonPayload);
                 }
-                http:PayloadError payloadError => {
-                    io:println(payloadError.message);
+                error err => {
+                    io:println(err.message);
                 }
             }
         }
@@ -37,8 +37,8 @@ function main(string... args) {
                 json jsonPayload => {
                     io:println(jsonPayload);
                 }
-                http:PayloadError payloadError => {
-                    io:println(payloadError.message);
+                error err => {
+                    io:println(err.message);
                 }
             }
         }
@@ -58,8 +58,8 @@ function main(string... args) {
                 json jsonPayload => {
                     io:println(jsonPayload);
                 }
-                http:PayloadError payloadError => {
-                    io:println(payloadError.message);
+                error err => {
+                    io:println(err.message);
                 }
             }
         }
@@ -81,8 +81,8 @@ function main(string... args) {
                 json jsonPayload => {
                     io:println(jsonPayload);
                 }
-                http:PayloadError payloadError => {
-                    io:println(payloadError.message);
+                error err => {
+                    io:println(err.message);
                 }
             }
         }
@@ -99,8 +99,8 @@ function main(string... args) {
                 json jsonPayload => {
                     io:println(jsonPayload);
                 }
-                http:PayloadError payloadError => {
-                    io:println(payloadError.message);
+                error err => {
+                    io:println(err.message);
                 }
             }
         }

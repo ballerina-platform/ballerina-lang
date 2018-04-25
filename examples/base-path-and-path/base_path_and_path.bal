@@ -17,7 +17,7 @@ service<http:Service> echo bind { port: 9090 } {
         var result = req.getJsonPayload();
         http:Response res = new;
         match result {
-            http:PayloadError err => {
+            error err => {
                 res.statusCode = 500;
                 res.setPayload(err.message);
             }

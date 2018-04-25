@@ -1,2 +1,1 @@
-// Ballerina natively supports Java Message Service (JMS). In this example, you create a simple JMS queue
-// consumer.
+// Ballerina natively supports the Java Message Service (JMS). In this example, a simple JMS queue consumer is created.
