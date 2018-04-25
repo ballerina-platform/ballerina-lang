@@ -367,7 +367,7 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
 documentation {
     Update request and client config with new access tokens retrieved.
 
-    P{{req}} Request object to be updated
+    P{{req}} `Request` object to be updated
     P{{config}} Client endpoint configurations
     R{{}} The Error occured during HTTP client invocation
 }
@@ -386,8 +386,7 @@ documentation {
     Request an access token from authorization server using the provided refresh token.
 
     P{{config}} Client endpoint configurations
-    R{{}} AccessToken received from the authorization server
-    R{{}} Error occured during HTTP client invocation
+    R{{}} AccessToken received from the authorization server or `HttpConnectorError` if error occured during HTTP client invocation
 }
 function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (string|HttpConnectorError) {
     string refreshToken = config.auth.refreshToken but { () => EMPTY_STRING };
@@ -419,8 +418,8 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
 documentation {
     Clone the given request into a new request with request entity.
 
-    P{{req}} Request object to be cloned
-    R{{}} New request object created
+    P{{req}} `Request` object to be cloned
+    R{{}} New request object created or `HttpConnectorError` if entity construction failed
 }
 function cloneRequest(Request req) returns (Request|HttpConnectorError) {
     mime:Entity mimeEntity = check req.getEntity();
