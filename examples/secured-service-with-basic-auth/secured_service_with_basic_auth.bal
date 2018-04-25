@@ -20,7 +20,7 @@ endpoint http:SecureListener ep {
 @http:ServiceConfig {
     basePath: "/hello",
     authConfig: {
-        authentication: {enabled: true},
+        authentication: { enabled: true },
         scopes: ["xxx"]
     }
 }

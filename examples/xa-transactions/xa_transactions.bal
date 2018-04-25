@@ -61,7 +61,7 @@ function main(string... args) {
         io:println("Generated key for the inserted row: " + returnedKey);
         // This is the second action participate in the transaction which insert the
         // salary info to the second DB along with the key generated in the first DB.
-        sql:Parameter para1 = {sqlType: sql:TYPE_INTEGER, value: returnedKey};
+        sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: returnedKey };
         ret = testDBEP2->update("INSERT INTO SALARY (ID, VALUE) VALUES (?, 2500)", para1);
         match ret {
             int retInt => io:println("Inserted count to SALARY table: " + retInt);

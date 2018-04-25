@@ -23,7 +23,7 @@ endpoint http:Client backendClientEP {
 @http:ServiceConfig {
     basePath: "/cb"
 }
-service<http:Service> circuitbreaker bind {port: 9090} {
+service<http:Service> circuitbreaker bind { port: 9090 } {
     // Create a REST resource within the API
     @http:ResourceConfig {
         methods: ["GET"],
@@ -54,8 +54,8 @@ public int counter = 1;
 // This sample service can be used to mock connection timeouts and service outages. 
 // Service outage can be mocked by stopping/starting this service.
 // This should be run separately from the `circuitBreakerDemo` service.
-@http:ServiceConfig {basePath: "/hello"}
-service<http:Service> helloWorld bind {port: 8080} {
+@http:ServiceConfig { basePath: "/hello" }
+service<http:Service> helloWorld bind { port: 8080 } {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
