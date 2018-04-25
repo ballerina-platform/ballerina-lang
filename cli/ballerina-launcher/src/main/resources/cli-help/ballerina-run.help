@@ -19,8 +19,10 @@ DESCRIPTION
      The binary runs much faster than a source file, because the source 
      file run requires a compilation phase. 
 
-     You must have either a main function or a service or both in order
-     to run a program or a package.
+     You must have either a main function or a service(s) or both in
+     order to run a program or a package. When both the main function
+     and services are present, run executes services first and then
+     executes the main function.
 
 OPTIONS
      -e <key1=value1, key2=value2, …>
