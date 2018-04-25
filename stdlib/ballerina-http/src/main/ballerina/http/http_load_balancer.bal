@@ -110,18 +110,18 @@ public type LoadBalancer object {
 
         P{{path}} Resource path
         P{{request}} An optional HTTP request
-        R{{}} The response or an `HttpConnectorError` if failed to fulfill the request
+        R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function delete(string path, Request? request = ()) returns Response|HttpConnectorError;
+    public function delete(string path, Request? request = ()) returns Response|error;
 
     documentation {
         The GET action implementation of the LoadBalancer Connector.
 
         P{{path}} Resource path
         P{{request}} An optional HTTP request
-        R{{}} The response or an `HttpConnectorError` if failed to fulfill the request
+        R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function get(string path, Request? request = ()) returns Response|HttpConnectorError;
+    public function get(string path, Request? request = ()) returns Response|error;
 
     documentation {
         The submit implementation of the LoadBalancer Connector.
@@ -129,17 +129,17 @@ public type LoadBalancer object {
         P{{httpVerb}} The HTTP verb value
         P{{path}} The Resource path
         P{{request}} An HTTP request
-        R{{}} The Future for further interactions or an `HttpConnectorError` if failed to fulfill the request
+        R{{}} The Future for further interactions or an `error` if failed to fulfill the request
     }
-    public function submit(string httpVerb, string path, Request request) returns HttpFuture|HttpConnectorError;
+    public function submit(string httpVerb, string path, Request request) returns HttpFuture|error;
 
     documentation {
         The getResponse implementation of the LoadBalancer Connector.
 
         P{{httpFuture}} The Future which relates to previous async invocation
-        R{{}} The response or an `HttpConnectorError` if failed to get the response
+        R{{}} The response or an `error` if failed to get the response
     }
-    public function getResponse(HttpFuture httpFuture) returns Response|HttpConnectorError;
+    public function getResponse(HttpFuture httpFuture) returns Response|error;
 
     documentation {
         The hasPromise implementation of the LoadBalancer Connector.
@@ -153,17 +153,17 @@ public type LoadBalancer object {
         The getNextPromise implementation of the LoadBalancer Connector.
 
         P{{httpFuture}} The Future which relates to previous async invocation
-        R{{}} The HTTP Push Promise message or an `HttpConnectorError` if failed to fulfill the request
+        R{{}} The HTTP Push Promise message or an `error` if failed to fulfill the request
     }
-    public function getNextPromise(HttpFuture httpFuture) returns PushPromise|HttpConnectorError;
+    public function getNextPromise(HttpFuture httpFuture) returns PushPromise|error;
 
     documentation {
         The getPromisedResponse implementation of the LoadBalancer Connector.
 
         P{{promise}} The related Push Promise message
-        R{{}} The HTTP Push Response message or an `HttpConnectorError` if failed to fulfill the request
+        R{{}} The HTTP Push Response message or an `error` if failed to fulfill the request
     }
-    public function getPromisedResponse(PushPromise promise) returns Response|HttpConnectorError;
+    public function getPromisedResponse(PushPromise promise) returns Response|error;
 
     documentation {
         The rejectPromise implementation of the LoadBalancer Connector.
@@ -178,9 +178,9 @@ documentation {
     Represents an error occurred in an action of the Load Balance connector.
 
     F{{message}} An error message explaining about the error
-    F{{cause}} The error that caused HttpConnectorError to get thrown
+    F{{cause}} Cause of the error
     F{{statusCode}} HTTP status code of the LoadBalanceConnectorError
-    F{{httpConnectorErr}} Array of HttpConnectorError error occurred at each endpoint
+    F{{httpConnectorErr}} Array of errors occurred at each endpoint
 }
 public type LoadBalanceConnectorError {
     string message,
@@ -227,7 +227,7 @@ public function LoadBalancer::delete(string path, Request? request = ()) returns
     return performLoadBalanceAction(self, path, req, HTTP_DELETE);
 }
 
-public function LoadBalancer::get(string path, Request? request = ()) returns Response|HttpConnectorError {
+public function LoadBalancer::get(string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performLoadBalanceAction(self, path, req, HTTP_GET);
 }
