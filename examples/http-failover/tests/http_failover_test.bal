@@ -25,7 +25,7 @@ function testFunc() {
             var res = check resp.getTextPayload();
             test:assertEquals(res, "Mock Resource is Invoked.");
         }
-        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
+        error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 }
 

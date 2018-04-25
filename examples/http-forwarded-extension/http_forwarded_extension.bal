@@ -27,7 +27,7 @@ service<http:Service> proxy bind serverEP {
             http:Response clientResponse => {
                 _ = caller->respond(clientResponse);
             }
-            http:HttpConnectorError err => {
+            error err => {
                 io:println("Error occurred while invoking the service");
             }
         }

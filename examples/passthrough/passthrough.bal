@@ -26,7 +26,7 @@ service<http:Service> passthrough bind { port: 9090 } {
                 // Here, the received response is forwarded to the client through the outbound endpoint.
                 caller->respond(res) but { error e => log:printError("Error sending response", err = e) };
             }
-            http:HttpConnectorError err => {
+            error err => {
                 // If there was an error, the 500 error response is constructed and sent back to the client.
                 http:Response res = new;
                 res.statusCode = 500;
