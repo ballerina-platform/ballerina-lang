@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
+import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
@@ -585,6 +586,10 @@ public class CommonUtil {
         }
         
         return false;
+    }
+    
+    public static boolean listContainsPackage(String pkg, List<BallerinaPackage> pkgList) {
+        return pkgList.stream().anyMatch(ballerinaPackage -> ballerinaPackage.toString().equals(pkg));
     }
 
     private static void populateIterableOperations(SymbolInfo variable, List<SymbolInfo> symbolInfoList) {
