@@ -139,18 +139,17 @@ public class PushUtils {
     private static String checkAccessToken() {
         String accessToken = getAccessTokenOfCLI();
 
-        try {
-            SYS_ERR.println("Opening the web browser to " +
-                            BALLERINA_CENTRAL_CLI_TOKEN +
-                            " for auto token update ...");
-
-            BrowserLauncher.startInDefaultBrowser(BALLERINA_CENTRAL_CLI_TOKEN);
-        } catch (IOException e) {
-            throw new BLangCompilerException("Access token is missing in " + SETTINGS_TOML_FILE_PATH.toString() +
-                                             "\nAuto update failed. Please visit https://central.ballerina.io");
-        }
-
         if (accessToken.isEmpty()) {
+            try {
+                SYS_ERR.println("Opening the web browser to " +
+                                        BALLERINA_CENTRAL_CLI_TOKEN +
+                                        " for auto token update ...");
+
+                BrowserLauncher.startInDefaultBrowser(BALLERINA_CENTRAL_CLI_TOKEN);
+            } catch (IOException e) {
+                throw new BLangCompilerException("Access token is missing in " + SETTINGS_TOML_FILE_PATH.toString() +
+                                                 "\nAuto update failed. Please visit https://central.ballerina.io");
+            }
             long modifiedTimeOfFileAtStart = getLastModifiedTimeOfFile(SETTINGS_TOML_FILE_PATH);
             executor.execute("packaging_token_updater/packaging_token_updater.balx", false);
 
@@ -162,8 +161,8 @@ public class PushUtils {
                     accessToken = getAccessTokenOfCLI();
                     if (accessToken.isEmpty()) {
                         throw new BLangCompilerException("Access token is missing in " +
-                                                         SETTINGS_TOML_FILE_PATH.toString() + "\nPlease " +
-                                                         "visit https://central.ballerina.io");
+                                                                 SETTINGS_TOML_FILE_PATH.toString() + "\nPlease " +
+                                                                 "visit https://central.ballerina.io");
                     } else {
                         waitForToken = false;
                     }
