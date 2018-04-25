@@ -234,8 +234,8 @@ public type HttpCachingClient object {
     public function getPromisedResponse(PushPromise promise) returns Response|HttpConnectorError;
 
     documentation {
-        Rejects a `PushPromise`.
-		When a `PushPromise` is rejected, there is no chance of fetching a promised response using the rejected promise.
+        Rejects a `PushPromise`. When a `PushPromise` is rejected, there is no chance of fetching a promised
+        response using the rejected promise.
 
         P{{promise}} The Push Promise to be rejected
     }
