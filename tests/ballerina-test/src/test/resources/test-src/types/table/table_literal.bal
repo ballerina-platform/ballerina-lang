@@ -60,12 +60,12 @@ function testEmptyTableCreate() returns (int, int) {
 
 function checkTableCount(string tablePrefix) returns (int) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:h2:mem:TABLEDB",
-        username:"sa",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:h2:mem:TABLEDB",
+        username: "sa",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
-    sql:Parameter p1 = {sqlType:sql:TYPE_VARCHAR, value:tablePrefix};
+    sql:Parameter p1 = { sqlType: sql:TYPE_VARCHAR, value: tablePrefix };
 
     int count;
     try {
@@ -86,11 +86,11 @@ function testEmptyTableCreateInvalid() {
 }
 
 function testAddData() returns (int, int, int, int[], int[], int[]) {
-    Person p1 = {id:1, age:30, salary:300.50, name:"jane", married:true};
-    Person p2 = {id:2, age:20, salary:200.50, name:"martin", married:true};
-    Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
+    Person p1 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
+    Person p2 = { id: 2, age: 20, salary: 200.50, name: "martin", married: true };
+    Person p3 = { id: 3, age: 32, salary: 100.50, name: "john", married: false };
 
-    Company c1 = {id:100, name:"ABC"};
+    Company c1 = { id: 100, name: "ABC" };
 
     table<Person> dt1 = table{};
     table<Person> dt2 = table{};
@@ -133,7 +133,7 @@ function testAddData() returns (int, int, int, int[], int[], int[]) {
 }
 
 function testTableAddInvalid() returns string {
-    Company c1 = {id:100, name:"ABC"};
+    Company c1 = { id: 100, name: "ABC" };
 
     table<Person> dt1 = table{};
     var ret = dt1.add(c1);
@@ -146,9 +146,9 @@ function testTableAddInvalid() returns string {
 }
 
 function testMultipleAccess() returns (int, int, int[], int[]) {
-    Person p1 = {id:1, age:30, salary:300.50, name:"jane", married:true};
-    Person p2 = {id:2, age:20, salary:200.50, name:"martin", married:true};
-    Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
+    Person p1 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
+    Person p2 = { id: 2, age: 20, salary: 200.50, name: "martin", married: true };
+    Person p3 = { id: 3, age: 32, salary: 100.50, name: "john", married: false };
 
     table<Person> dt1 = table{};
     _ = dt1.add(p1);
@@ -176,9 +176,9 @@ function testMultipleAccess() returns (int, int, int[], int[]) {
 }
 
 function testLoopingTable() returns (string) {
-    Person p1 = {id:1, age:30, salary:300.50, name:"jane", married:true};
-    Person p2 = {id:2, age:20, salary:200.50, name:"martin", married:true};
-    Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
+    Person p1 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
+    Person p2 = { id: 2, age: 20, salary: 200.50, name: "martin", married: true };
+    Person p3 = { id: 3, age: 32, salary: 100.50, name: "john", married: false };
 
     table<Person> dt = table{};
     _ = dt.add(p1);
@@ -195,9 +195,9 @@ function testLoopingTable() returns (string) {
 }
 
 function testToJson() returns (json) {
-    Person p1 = {id:1, age:30, salary:300.50, name:"jane", married:true};
-    Person p2 = {id:2, age:20, salary:200.50, name:"martin", married:true};
-    Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
+    Person p1 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
+    Person p2 = { id: 2, age: 20, salary: 200.50, name: "martin", married: true };
+    Person p3 = { id: 3, age: 32, salary: 100.50, name: "john", married: false };
 
     table<Person> dt = table{};
     _ = dt.add(p1);
@@ -209,9 +209,9 @@ function testToJson() returns (json) {
 }
 
 function testToXML() returns (xml) {
-    Person p1 = {id:1, age:30, salary:300.50, name:"jane", married:true};
-    Person p2 = {id:2, age:20, salary:200.50, name:"martin", married:true};
-    Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
+    Person p1 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
+    Person p2 = { id: 2, age: 20, salary: 200.50, name: "martin", married: true };
+    Person p3 = { id: 3, age: 32, salary: 100.50, name: "john", married: false };
 
     table<Person> dt = table{};
     _ = dt.add(p1);
@@ -223,11 +223,11 @@ function testToXML() returns (xml) {
 }
 
 function testPrintData() {
-    Person p1 = {id:1, age:30, salary:300.50, name:"jane", married:true};
-    Person p2 = {id:2, age:20, salary:200.50, name:"martin", married:true};
-    Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
+    Person p1 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
+    Person p2 = { id: 2, age: 20, salary: 200.50, name: "martin", married: true };
+    Person p3 = { id: 3, age: 32, salary: 100.50, name: "john", married: false };
 
-    table<Person> dt = table{index:["id", "age"], primaryKey:["id", "age"]};
+    table<Person> dt = table{ index: ["id", "age"], primaryKey: ["id", "age"] };
     _ = dt.add(p1);
     _ = dt.add(p2);
     _ = dt.add(p3);
@@ -241,17 +241,17 @@ function testPrintDataEmptyTable() {
 }
 
 function testTableDrop() {
-    Person p1 = {id:1, age:30, salary:300.50, name:"jane", married:true};
+    Person p1 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
 
     table<Person> dt = table{};
     _ = dt.add(p1);
 }
 
 function testTableWithAllDataToJson() returns (json) {
-    json j1 = {name:"apple", color:"red", price:30.3};
+    json j1 = { name: "apple", color: "red", price: 30.3 };
     xml x1 = xml `<book>The Lost World</book>`;
-    TypeTest t1 = {id:1, jsonData:j1, xmlData:x1};
-    TypeTest t2 = {id:2, jsonData:j1, xmlData:x1};
+    TypeTest t1 = { id: 1, jsonData: j1, xmlData: x1 };
+    TypeTest t2 = { id: 2, jsonData: j1, xmlData: x1 };
 
     table<TypeTest> dt1 = table{};
     _ = dt1.add(t1);
@@ -262,10 +262,10 @@ function testTableWithAllDataToJson() returns (json) {
 }
 
 function testTableWithAllDataToXml() returns (xml) {
-    json j1 = {name:"apple", color:"red", price:30.3};
+    json j1 = { name: "apple", color: "red", price: 30.3 };
     xml x1 = xml `<book>The Lost World</book>`;
-    TypeTest t1 = {id:1, jsonData:j1, xmlData:x1};
-    TypeTest t2 = {id:2, jsonData:j1, xmlData:x1};
+    TypeTest t1 = { id: 1, jsonData: j1, xmlData: x1 };
+    TypeTest t2 = { id: 2, jsonData: j1, xmlData: x1 };
 
     table<TypeTest> dt1 = table{};
     _ = dt1.add(t1);
@@ -277,9 +277,9 @@ function testTableWithAllDataToXml() returns (xml) {
 
 
 function testTableWithAllDataToStruct() returns (json, xml) {
-    json j1 = {name:"apple", color:"red", price:30.3};
+    json j1 = { name: "apple", color: "red", price: 30.3 };
     xml x1 = xml `<book>The Lost World</book>`;
-    TypeTest t1 = {id:1, jsonData:j1, xmlData:x1};
+    TypeTest t1 = { id: 1, jsonData: j1, xmlData: x1 };
 
     table<TypeTest> dt1 = table{};
     _ = dt1.add(t1);
@@ -297,7 +297,7 @@ function testTableWithAllDataToStruct() returns (json, xml) {
 function testTableWithBlobDataToJson() returns (json) {
     string text = "Sample Text";
     blob content = text.toBlob("UTF-8");
-    BlobTypeTest t1 = {id:1, blobData:content};
+    BlobTypeTest t1 = { id: 1, blobData: content };
 
     table<BlobTypeTest> dt1 = table{};
     _ = dt1.add(t1);
@@ -309,7 +309,7 @@ function testTableWithBlobDataToJson() returns (json) {
 function testTableWithBlobDataToXml() returns (xml) {
     string text = "Sample Text";
     blob content = text.toBlob("UTF-8");
-    BlobTypeTest t1 = {id:1, blobData:content};
+    BlobTypeTest t1 = { id: 1, blobData: content };
 
     table<BlobTypeTest> dt1 = table{};
     _ = dt1.add(t1);
@@ -321,7 +321,7 @@ function testTableWithBlobDataToXml() returns (xml) {
 function testTableWithBlobDataToStruct() returns (blob) {
     string text = "Sample Text";
     blob content = text.toBlob("UTF-8");
-    BlobTypeTest t1 = {id:1, blobData:content};
+    BlobTypeTest t1 = { id: 1, blobData: content };
 
     table<BlobTypeTest> dt1 = table{};
     _ = dt1.add(t1);
@@ -335,7 +335,7 @@ function testTableWithBlobDataToStruct() returns (blob) {
 }
 
 function testTableWithAnyDataToJson() returns (json) {
-    AnyTypeTest t1 = {id:1, anyData:"Sample Text"};
+    AnyTypeTest t1 = { id: 1, anyData: "Sample Text" };
 
     table<AnyTypeTest> dt1 = table{};
     _ = dt1.add(t1);
@@ -345,7 +345,7 @@ function testTableWithAnyDataToJson() returns (json) {
 }
 
 function testStructWithDefaultDataToJson() returns (json) {
-    Person p1 = {id:1};
+    Person p1 = { id: 1 };
 
     table<Person> dt1 = table{};
     _ = dt1.add(p1);
@@ -355,7 +355,7 @@ function testStructWithDefaultDataToJson() returns (json) {
 }
 
 function testStructWithDefaultDataToXml() returns (xml) {
-    Person p1 = {id:1};
+    Person p1 = { id: 1 };
 
     table<Person> dt1 = table{};
     _ = dt1.add(p1);
@@ -366,7 +366,7 @@ function testStructWithDefaultDataToXml() returns (xml) {
 
 
 function testStructWithDefaultDataToStruct() returns (int, float, string, boolean) {
-    Person p1 = {id:1};
+    Person p1 = { id: 1 };
 
     table<Person> dt1 = table{};
     _ = dt1.add(p1);
@@ -391,15 +391,15 @@ function testTableWithArrayDataToJson() returns (json) {
     float[] floatArray = [11.1, 22.2, 33.3];
     string[] stringArray = ["Hello", "World"];
     boolean[] boolArray = [true, false, true];
-    ArraTypeTest t1 = {id:1, intArrData:intArray, floatArrData:floatArray, stringArrData:stringArray,
-        booleanArrData:boolArray};
+    ArraTypeTest t1 = { id: 1, intArrData: intArray, floatArrData: floatArray, stringArrData: stringArray,
+        booleanArrData: boolArray };
 
     int[] intArray2 = [10, 20, 30];
     float[] floatArray2 = [111.1, 222.2, 333.3];
     string[] stringArray2 = ["Hello", "World", "test"];
     boolean[] boolArray2 = [false, false, true];
-    ArraTypeTest t2 = {id:2, intArrData:intArray2, floatArrData:floatArray2, stringArrData:stringArray2,
-        booleanArrData:boolArray2};
+    ArraTypeTest t2 = { id: 2, intArrData: intArray2, floatArrData: floatArray2, stringArrData: stringArray2,
+        booleanArrData: boolArray2 };
 
     table<ArraTypeTest> dt1 = table{};
     _ = dt1.add(t1);
@@ -414,15 +414,15 @@ function testTableWithArrayDataToXml() returns (xml) {
     float[] floatArray = [11.1, 22.2, 33.3];
     string[] stringArray = ["Hello", "World"];
     boolean[] boolArray = [true, false, true];
-    ArraTypeTest t1 = {id:1, intArrData:intArray, floatArrData:floatArray, stringArrData:stringArray,
-        booleanArrData:boolArray};
+    ArraTypeTest t1 = { id: 1, intArrData: intArray, floatArrData: floatArray, stringArrData: stringArray,
+        booleanArrData: boolArray };
 
     int[] intArray2 = [10, 20, 30];
     float[] floatArray2 = [111.1, 222.2, 333.3];
     string[] stringArray2 = ["Hello", "World", "test"];
     boolean[] boolArray2 = [false, false, true];
-    ArraTypeTest t2 = {id:2, intArrData:intArray2, floatArrData:floatArray2, stringArrData:stringArray2,
-        booleanArrData:boolArray2};
+    ArraTypeTest t2 = { id: 2, intArrData: intArray2, floatArrData: floatArray2, stringArrData: stringArray2,
+        booleanArrData: boolArray2 };
 
     table<ArraTypeTest> dt1 = table{};
     _ = dt1.add(t1);
@@ -437,8 +437,8 @@ function testTableWithArrayDataToStruct() returns (int[], float[], string[], boo
     float[] floatArray = [11.1, 22.2, 33.3];
     string[] stringArray = ["Hello", "World"];
     boolean[] boolArray = [true, false, true];
-    ArraTypeTest t1 = {id:1, intArrData:intArray, floatArrData:floatArray, stringArrData:stringArray,
-        booleanArrData:boolArray};
+    ArraTypeTest t1 = { id: 1, intArrData: intArray, floatArrData: floatArray, stringArrData: stringArray,
+        booleanArrData: boolArray };
 
     table<ArraTypeTest> dt1 = table{};
     _ = dt1.add(t1);
@@ -459,9 +459,9 @@ function testTableWithArrayDataToStruct() returns (int[], float[], string[], boo
 }
 
 function testTableRemoveSuccess() returns (int, json) {
-    Person p1 = {id:1, age:35, salary:300.50, name:"jane", married:true};
-    Person p2 = {id:2, age:20, salary:200.50, name:"martin", married:true};
-    Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
+    Person p1 = { id: 1, age: 35, salary: 300.50, name: "jane", married: true };
+    Person p2 = { id: 2, age: 20, salary: 200.50, name: "martin", married: true };
+    Person p3 = { id: 3, age: 32, salary: 100.50, name: "john", married: false };
 
     table<Person> dt = table{};
     _ = dt.add(p1);
@@ -475,9 +475,9 @@ function testTableRemoveSuccess() returns (int, json) {
 }
 
 function testTableRemoveSuccessMultipleMatch() returns (int, json) {
-    Person p1 = {id:1, age:35, salary:300.50, name:"john", married:true};
-    Person p2 = {id:2, age:20, salary:200.50, name:"martin", married:true};
-    Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
+    Person p1 = { id: 1, age: 35, salary: 300.50, name: "john", married: true };
+    Person p2 = { id: 2, age: 20, salary: 200.50, name: "martin", married: true };
+    Person p3 = { id: 3, age: 32, salary: 100.50, name: "john", married: false };
 
     table<Person> dt = table{};
     _ = dt.add(p1);
@@ -491,9 +491,9 @@ function testTableRemoveSuccessMultipleMatch() returns (int, json) {
 }
 
 function testTableRemoveFailed() returns (int, json) {
-    Person p1 = {id:1, age:35, salary:300.50, name:"jane", married:true};
-    Person p2 = {id:2, age:40, salary:200.50, name:"martin", married:true};
-    Person p3 = {id:3, age:42, salary:100.50, name:"john", married:false};
+    Person p1 = { id: 1, age: 35, salary: 300.50, name: "jane", married: true };
+    Person p2 = { id: 2, age: 40, salary: 200.50, name: "martin", married: true };
+    Person p3 = { id: 3, age: 42, salary: 100.50, name: "john", married: false };
 
 
     table<Person> dt = table{};
@@ -508,9 +508,9 @@ function testTableRemoveFailed() returns (int, json) {
 }
 
 function testTableAddAndAccess() returns (string, string) {
-    Person p1 = {id:1, age:35, salary:300.50, name:"jane", married:true};
-    Person p2 = {id:2, age:40, salary:200.50, name:"martin", married:true};
-    Person p3 = {id:3, age:42, salary:100.50, name:"john", married:false};
+    Person p1 = { id: 1, age: 35, salary: 300.50, name: "jane", married: true };
+    Person p2 = { id: 2, age: 40, salary: 200.50, name: "martin", married: true };
+    Person p3 = { id: 3, age: 42, salary: 100.50, name: "john", married: false };
 
 
     table<Person> dt = table{};
