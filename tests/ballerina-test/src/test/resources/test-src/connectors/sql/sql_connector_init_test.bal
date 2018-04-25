@@ -1,28 +1,28 @@
 import ballerina/sql;
 import ballerina/jdbc;
 
-sql:PoolOptions properties = {maximumPoolSize:1,
-    idleTimeout:600000, connectionTimeout:30000, autoCommit:true, maxLifetime:1800000,
-    minimumIdle:1, validationTimeout:5000,
-    connectionInitSql:"SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS"};
+sql:PoolOptions properties = { maximumPoolSize: 1,
+    idleTimeout: 600000, connectionTimeout: 30000, autoCommit: true, maxLifetime: 1800000,
+    minimumIdle: 1, validationTimeout: 5000,
+    connectionInitSql: "SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS" };
 
-map propertiesMap = {"loginTimeout":109};
-sql:PoolOptions properties3 = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource"};
+map propertiesMap = { "loginTimeout": 109 };
+sql:PoolOptions properties3 = { dataSourceClassName: "org.hsqldb.jdbc.JDBCDataSource" };
 
-map propertiesMap2 = {"loginTimeout":109};
-sql:PoolOptions properties4 = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource"};
+map propertiesMap2 = { "loginTimeout": 109 };
+sql:PoolOptions properties4 = { dataSourceClassName: "org.hsqldb.jdbc.JDBCDataSource" };
 
-sql:PoolOptions properties5 = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource"};
+sql:PoolOptions properties5 = { dataSourceClassName: "org.hsqldb.jdbc.JDBCDataSource" };
 
-map propertiesMap3 = {"url":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT"};
-sql:PoolOptions properties6 = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource"};
+map propertiesMap3 = { "url": "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT" };
+sql:PoolOptions properties6 = { dataSourceClassName: "org.hsqldb.jdbc.JDBCDataSource" };
 
 function testConnectionPoolProperties1() returns (json) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
-        username:"SA",
-        password:"",
-        poolOptions:properties
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+        username: "SA",
+        password: "",
+        poolOptions: properties
     };
 
 
@@ -35,9 +35,9 @@ function testConnectionPoolProperties1() returns (json) {
 
 function testConnectionPoolProperties2() returns (json) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
-        username:"SA",
-        poolOptions:properties
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+        username: "SA",
+        poolOptions: properties
     };
 
     var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
@@ -50,8 +50,8 @@ function testConnectionPoolProperties2() returns (json) {
 
 function testConnectionPoolProperties3() returns (json) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
-        username:"SA"
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+        username: "SA"
     };
 
     table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
@@ -64,9 +64,9 @@ function testConnectionPoolProperties3() returns (json) {
 
 function testConnectorWithDefaultPropertiesForListedDB() returns (json) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
-        username:"SA",
-        poolOptions:{}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+        username: "SA",
+        poolOptions: {}
     };
 
     var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
@@ -79,9 +79,9 @@ function testConnectorWithDefaultPropertiesForListedDB() returns (json) {
 
 function testConnectorWithWorkers() returns (json) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
-        username:"SA",
-        poolOptions:{}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+        username: "SA",
+        poolOptions: {}
     };
 
     worker w1 {
@@ -101,10 +101,10 @@ function testConnectorWithWorkers() returns (json) {
 
 function testConnectorWithDataSourceClass() returns (json) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
-        username:"SA",
-        poolOptions:properties3,
-        dbOptions:propertiesMap
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+        username: "SA",
+        poolOptions: properties3,
+        dbOptions: propertiesMap
     };
 
     table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
@@ -116,11 +116,11 @@ function testConnectorWithDataSourceClass() returns (json) {
 
 function testConnectorWithDataSourceClassAndProps() returns (json) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
-        username:"SA",
-        password:"",
-        poolOptions:properties4,
-        dbOptions:propertiesMap2
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+        username: "SA",
+        password: "",
+        poolOptions: properties4,
+        dbOptions: propertiesMap2
     };
 
     table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
@@ -132,10 +132,10 @@ function testConnectorWithDataSourceClassAndProps() returns (json) {
 
 function testConnectorWithDataSourceClassWithoutURL() returns (json) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
-        username:"SA",
-        password:"",
-        poolOptions:properties5
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+        username: "SA",
+        password: "",
+        poolOptions: properties5
     };
 
     table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
@@ -147,11 +147,11 @@ function testConnectorWithDataSourceClassWithoutURL() returns (json) {
 
 function testConnectorWithDataSourceClassURLPriority() returns (json) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
-        username:"SA",
-        password:"",
-        poolOptions:properties6,
-        dbOptions:propertiesMap3
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+        username: "SA",
+        password: "",
+        poolOptions: properties6,
+        dbOptions: propertiesMap3
     };
 
     table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());

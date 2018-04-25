@@ -75,6 +75,41 @@ public class AnnotationTest {
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 2, 30);
         BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 3, 29);
     }
+
+    @Test
+    public void testSensitiveRestParamsWithVaryingInvocationArgs () {
+        CompileResult result = BCompileUtil
+                .compile("test-src/taintchecking/annotations/sensitive-rest-params-with-varying-invocation-args.bal");
+        Assert.assertTrue(result.getDiagnostics().length == 0);
+    }
+
+    @Test
+    public void testSensitiveRestParamsWithVaryingInvocationArgsNegative() {
+        CompileResult result = BCompileUtil
+                .compile("test-src/taintchecking/annotations/" +
+                        "sensitive-rest-params-with-varying-invocation-args-negative.bal");
+        Assert.assertTrue(result.getDiagnostics().length == 3);
+        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'restParams'", 2, 46);
+        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'restParams'", 3, 68);
+        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'restParams'", 4, 82);
+    }
+
+    @Test
+    public void testSensitiveDefaultParamsWithUnorderedArgs() {
+        CompileResult result = BCompileUtil
+                .compile("test-src/taintchecking/annotations/sensitive-default-params-with-unordered-args.bal");
+        Assert.assertTrue(result.getDiagnostics().length == 0);
+    }
+
+    @Test
+    public void testSensitiveDefaultParamsWithUnorderedArgsNegative() {
+        CompileResult result = BCompileUtil
+                .compile("test-src/taintchecking/annotations/" +
+                        "sensitive-default-params-with-unordered-args-negative.bal");
+        Assert.assertTrue(result.getDiagnostics().length == 2);
+        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'defaultableInput2'", 2, 43);
+        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'defaultableInput2'", 3, 61);
+    }
     // Test @tainted annotation.
 
     @Test

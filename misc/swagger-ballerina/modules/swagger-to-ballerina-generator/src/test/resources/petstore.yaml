@@ -110,6 +110,22 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /action:
+    x-MULTI:
+      operationId: getAction
+      responses:
+        '200':
+          description: Successful
+          examples:
+            application/json: Ok
+      x-METHODS:
+        - HEAD
+        - OPTIONS
+        - PATCH
+        - DELETE
+        - POST
+        - PUT
+        - GET
 components:
   schemas:
     Pet:

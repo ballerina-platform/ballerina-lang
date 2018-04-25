@@ -24,11 +24,6 @@ documentation {
 }
 public native function equals(any value1, any value2) returns (boolean);
 
-//  Warning..!!!
-//
-//  ballerina.reflect package defines Internal APIs exposed by Ballerina Virtual Machine (BVM).
-//  They are subject to change in a undocumented or unsupported way, use with caution.
-
 public type anyStruct {};
 
 public type annotationData {

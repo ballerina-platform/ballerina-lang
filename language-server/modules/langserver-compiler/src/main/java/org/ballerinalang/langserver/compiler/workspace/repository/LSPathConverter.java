@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.langserver.compiler.workspace.repository;
 
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
@@ -32,18 +33,29 @@ import java.util.stream.Stream;
  */
 class LSPathConverter extends PathConverter {
     private WorkspaceDocumentManager documentManager;
+    private LSContext lsContext;
     
-    LSPathConverter(Path root, WorkspaceDocumentManager documentManager) {
+    LSPathConverter(Path root, WorkspaceDocumentManager documentManager, LSContext lsContext) {
         super(root);
         this.documentManager = documentManager;
+        this.lsContext = lsContext;
     }
 
     @Override
     public Stream<CompilerInput> finalize(Path path, PackageID id) {
         if (documentManager.isFileOpen(path) || !Files.isRegularFile(path)) {
-            return Stream.of(new LSInMemorySourceEntry(path, id, documentManager));
+            // TODO: Remove passing completion context after introducing a proper fix for _=.... issue
+            return Stream.of(new LSInMemorySourceEntry(path, id, documentManager, lsContext));
         } else {
             return Stream.of(new FileSystemSourceInput(path));
         }
+    }
+
+    /**
+     * Reset the LS context instance.
+     * @param lsContext     New LSContext instance
+     */
+    public void resetLSContext(LSContext lsContext) {
+        this.lsContext = lsContext;
     }
 }
