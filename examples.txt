@@ -156,3 +156,4 @@ Object Assignability
 Locks
 Union Type
 Optional Type
+Tuple Type
