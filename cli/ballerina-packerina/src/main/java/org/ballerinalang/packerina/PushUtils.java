@@ -39,7 +39,6 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URI;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -75,7 +74,8 @@ public class PushUtils {
      * @param installToRepo if it should be pushed to central or home
      */
     public static void pushPackages(String packageName, String sourceRoot, String installToRepo) {
-        Manifest manifest = readManifestConfigurations();
+        Path prjDirPath = LauncherUtils.getSourceRootPath(sourceRoot);
+        Manifest manifest = readManifestConfigurations(prjDirPath);
         if (manifest.getName().isEmpty()) {
             throw new BLangCompilerException("An org-name is required when pushing. This is not specified in " +
                                                      "Ballerina.toml inside the project");
@@ -90,8 +90,6 @@ public class PushUtils {
         String version = manifest.getVersion();
 
         PackageID packageID = new PackageID(new Name(orgName), new Name(packageName), new Name(version));
-
-        Path prjDirPath = LauncherUtils.getSourceRootPath(sourceRoot);
 
         // Get package path from project directory path
         Path pkgPathFromPrjtDir = Paths.get(prjDirPath.toString(), ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
@@ -258,10 +256,10 @@ public class PushUtils {
      * Read the manifest.
      *
      * @return manifest configuration object
+     * @param prjDirPath
      */
-    private static Manifest readManifestConfigurations() {
-        String tomlFilePath = Paths.get(".").toAbsolutePath().normalize().resolve
-                (ProjectDirConstants.MANIFEST_FILE_NAME).toString();
+    private static Manifest readManifestConfigurations(Path prjDirPath) {
+        String tomlFilePath = prjDirPath.resolve(ProjectDirConstants.MANIFEST_FILE_NAME).toString();
         try {
             return ManifestProcessor.parseTomlContentFromFile(tomlFilePath);
         } catch (IOException e) {
