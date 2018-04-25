@@ -1,6 +1,7 @@
 Hello World
 Hello World Parallel
 Hello World Service
+Hello World Streams
 Secured Hello World Service with Basic Auth
 Values
 Constants
@@ -146,7 +147,6 @@ Testerina Data Driven Tests
 Testerina Guarantee Test Execution Order
 Testerina Function Mocks
 Testerina Group Tests
-Filter Streams on Conditions
 Temporal Aggregations and Windows
 Join Multiple Streams
 Identify Patterns
