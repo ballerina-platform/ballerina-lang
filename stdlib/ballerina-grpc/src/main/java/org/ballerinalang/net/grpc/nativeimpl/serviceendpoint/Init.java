@@ -42,7 +42,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_DEFAULT_PORT;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
@@ -108,9 +107,9 @@ public class Init extends BlockingNativeCallableUnit {
         } else {
             listenerConfiguration.setHost(host);
         }
-        
-        if (port == GRPC_DEFAULT_PORT && configRegistry.contains("b7a.http.port")) {
-            port = Long.parseLong(configRegistry.getAsString("b7a.http.port"));
+
+        if (port == 0) {
+            throw new BallerinaConnectorException("Listener port is not defined!");
         }
         listenerConfiguration.setPort(Math.toIntExact(port));
         
