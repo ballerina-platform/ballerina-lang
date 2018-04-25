@@ -100,11 +100,6 @@ public class GrpcServicesBuilder {
     
     private static ServerServiceDefinition getServiceDefinition(Service service) throws GrpcServerException {
         Descriptors.FileDescriptor fileDescriptor = ServiceProtoUtils.getDescriptor(service);
-        if (fileDescriptor == null) {
-            throw new GrpcServerException("Error while reading the service descriptor. Service file definition not " +
-                    "found");
-        }
-
         Descriptors.ServiceDescriptor serviceDescriptor = fileDescriptor.findServiceByName(service.getName());
         return getServiceDefinition(service, serviceDescriptor);
     }
