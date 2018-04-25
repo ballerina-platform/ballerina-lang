@@ -20,7 +20,9 @@ import ballerina/io;
 
 documentation {
     A finite type for modeling the states of the Circuit Breaker. The Circuit Breaker starts in the `CLOSED` state.
-    If any failure thresholds are exceeded during execution, the circuit trips
+    If any failure thresholds are exceeded during execution, the circuit trips and goes to the `OPEN` state. After
+    the specified timeout period expires, the circuit goes to the `HALF_OPEN` state. If the trial request sent while
+    in the `HALF_OPEN` state succeeds, the circuit goes back to the `CLOSED` state.
 
 }
 public type CircuitState "OPEN" | "HALF_OPEN" | "CLOSED";
