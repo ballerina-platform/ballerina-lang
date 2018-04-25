@@ -125,7 +125,7 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
         OutboundMsgHolder outboundMsgHolder;
         int streamId;
 
-        public Http2RequestWriter(OutboundMsgHolder outboundMsgHolder) {
+        Http2RequestWriter(OutboundMsgHolder outboundMsgHolder) {
             this.outboundMsgHolder = outboundMsgHolder;
             httpOutboundRequest = outboundMsgHolder.getRequest();
         }
@@ -164,6 +164,7 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
                 writeOutboundRequestHeaders(ctx, httpRequest, streamId, endStream);
                 isHeadersWritten = true;
                 if (endStream) {
+                    markWriteCompletion();
                     return;
                 }
             }
@@ -187,6 +188,7 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
                 release = false;
                 for (Http2DataEventListener dataEventListener : http2ClientChannel.getDataEventListeners()) {
                     if (!dataEventListener.onDataWrite(ctx, streamId, content, endStream)) {
+                        markWriteCompletion();
                         return;
                     }
                 }
@@ -198,6 +200,7 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
                     writeHttp2Headers(ctx, streamId, trailers, http2Trailers, true);
                 }
                 if (endStream) {
+                    markWriteCompletion();
                     outboundMsgHolder.setRequestWritten(true);
                 }
             } finally {
@@ -240,8 +243,17 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
 
             ctx.flush();
             if (endStream) {
+                markWriteCompletion();
                 outboundMsgHolder.setRequestWritten(true);
             }
+        }
+
+        /**
+         * Marks the end of the request writing process.
+         * This should be called after writing the {@code LastHttpContent}.
+         */
+        private void markWriteCompletion() {
+            httpOutboundRequest.removeHttpContentAsyncFuture();
         }
     }
 
