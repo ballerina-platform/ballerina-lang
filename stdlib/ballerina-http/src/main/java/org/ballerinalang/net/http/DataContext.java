@@ -28,8 +28,8 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
-import static org.ballerinalang.net.http.HttpConstants.HTTP_CONNECTOR_ERROR;
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN;
+import static org.ballerinalang.net.http.HttpConstants.STRUCT_GENERIC_ERROR;
 
 /**
  * {@code DataContext} is the wrapper to hold {@code Context} and {@code CallableUnitCallback}.
@@ -68,8 +68,8 @@ public class DataContext {
         } else if (httpConnectorError != null) {
             context.setReturnValues(httpConnectorError);
         } else {
-            BStruct err = BLangConnectorSPIUtil.createBStruct(context, PROTOCOL_PACKAGE_HTTP, HTTP_CONNECTOR_ERROR,
-                                                              "HttpClient failed");
+            BStruct err = BLangConnectorSPIUtil.createBStruct(context, PACKAGE_BALLERINA_BUILTIN,
+                    STRUCT_GENERIC_ERROR, "HttpClient failed");
             context.setReturnValues(err);
         }
         callback.notifySuccess();
