@@ -96,7 +96,7 @@ curl -v -F "request={\"param1\": \"value1\"};type=application/json" -F "language
 The sample given below creates a multipart request. It includes ‘application/json’ and ‘text/xml’ type content.
 
 ``` ballerina
-// Create a json body part.
+// Create a JSON body part.
 mime:Entity bodyPart1 = new;
 // Finally, set the JSON content.
 bodyPart1.setJson({"bodyPart":"jsonPart"});
