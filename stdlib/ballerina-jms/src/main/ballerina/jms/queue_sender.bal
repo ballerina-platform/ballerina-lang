@@ -34,7 +34,7 @@ public type QueueSender object {
     }
 
     documentation { Initialize the consumer endpoint
-        F{{config}} Configurations related to the QueueSender endpoint
+        P{{config}} Configurations related to the QueueSender endpoint
     }
     public function init(QueueSenderEndpointConfiguration config) {
         self.config = config;
@@ -48,7 +48,7 @@ public type QueueSender object {
 
     documentation { Registers the endpoint in the service.
         This method is not used since QueueSender is a non-service endpoint.
-        F{{serviceType}} type descriptor of the service
+        P{{serviceType}} type descriptor of the service
     }
     public function register(typedesc serviceType) {
 
@@ -82,5 +82,8 @@ public type QueueSenderEndpointConfiguration {
 documentation { JMS QueueSender action handling object }
 public type QueueSenderActions object {
 
-    public native function send(Message m) returns error?;
+    documentation { Sends a message to the JMS provider
+        P{{message}} message to be sent to the JMS provider
+    }
+    public native function send(Message message) returns error?;
 };
