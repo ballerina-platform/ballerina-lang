@@ -111,8 +111,9 @@ service websubSubscriber bind websubEP {
     onIntentVerification(endpoint caller, websub:IntentVerificationRequest request) {
         http:Response response = new;
         // Insert logic to build subscription/unsubscription intent verification response
-        caller->respond(response)
-                but { error e => log:printError("Error responding to intent verification request", err = e) };
+        caller->respond(response) but { 
+            error e => log:printError("Error responding to intent verification request", err = e) 
+        };
     }
 
     onNotification(websub:Notification notification) {
@@ -153,7 +154,7 @@ function main(string... args) {
 
     log:printInfo("Publishing update to internal Hub");
     var publishResponse = webSubHub.publishUpdate("http://www.websubpubtopic.com",
-                                                                        {"action": "publish", "mode": "internal-hub"});
+                                                   {"action": "publish", "mode": "internal-hub"});
     match (publishResponse) {
         error webSubError => log:printError("Error notifying hub: " + webSubError.message);
         () => log:printInfo("Update notification successful!");
@@ -188,7 +189,7 @@ function main(string... args) {
 
     log:printInfo("Publishing update to remote Hub");
     var publishResponse = websubHubClientEP->publishUpdate("http://www.websubpubtopic.com",
-                                                                        {"action": "publish", "mode": "remote-hub"});
+                                                            {"action": "publish", "mode": "remote-hub"});
     match (publishResponse) {
         error webSubError => log:printError("Error notifying hub: " + webSubError.message);
         () => log:printInfo("Update notification successful!");
@@ -210,17 +211,15 @@ endpoint websub:Client websubHubClientEP {
 function main(string... args) {
 
     // Send subscription request for a subscriber service.
-    websub:SubscriptionChangeRequest subscriptionRequest = {
-                                                                topic: "http://www.websubpubtopic.com",
-                                                                callback: "http://localhost:8181/websub",
-                                                                secret: "Kslk30SNF2AChs2"
-                                                           };
+    websub:SubscriptionChangeRequest subscriptionRequest = { topic: "http://www.websubpubtopic.com", 
+                                                             callback: "http://localhost:8181/websub",
+                                                             secret: "Kslk30SNF2AChs2" };
 
     var response = websubHubClientEP->subscribe(subscriptionRequest);
     match (response) {
         websub:SubscriptionChangeResponse subscriptionChangeResponse => {
-            log:printInfo("Subscription Request successful at Hub [" + subscriptionChangeResponse.hub + "] for Topic ["
-                    + subscriptionChangeResponse.topic + "]");
+            log:printInfo("Subscription Request successful at Hub [" + subscriptionChangeResponse.hub 
+                    + "] for Topic [" + subscriptionChangeResponse.topic + "]");
         }
         error e => {
             log:printError("Error occurred with Subscription Request", err = e);
@@ -228,10 +227,8 @@ function main(string... args) {
     }
 
     // Send unsubscription request for the subscriber service.
-    websub:SubscriptionChangeRequest unsubscriptionRequest = {
-                                                                 topic: "http://www.websubpubtopic.com",
-                                                                 callback: "http://localhost:8181/websub"
-                                                             };
+    websub:SubscriptionChangeRequest unsubscriptionRequest = { topic: "http://www.websubpubtopic.com",
+                                                               callback: "http://localhost:8181/websub" };
 
     response = websubHubClientEP->unsubscribe(unsubscriptionRequest);
     match (response) {
