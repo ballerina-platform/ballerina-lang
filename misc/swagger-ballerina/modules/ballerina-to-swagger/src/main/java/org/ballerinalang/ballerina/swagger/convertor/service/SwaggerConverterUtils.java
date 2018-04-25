@@ -17,12 +17,15 @@
 package org.ballerinalang.ballerina.swagger.convertor.service;
 
 import io.swagger.models.Swagger;
+import io.swagger.parser.SwaggerParser;
+import io.swagger.parser.util.SwaggerDeserializationResult;
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.parser.converter.SwaggerConverter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.ballerina.swagger.convertor.Constants;
+import org.ballerinalang.ballerina.swagger.convertor.SwaggerConverterException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BFile;
 import org.ballerinalang.langserver.compiler.LSCompiler;
@@ -91,7 +94,6 @@ public class SwaggerConverterUtils {
         return swaggerServiceMapper.generateSwaggerString(swaggerDefinition);
     }
 
-
     /**
      * This method will generate open API 3.X specification for given ballerina service. Since we will need to
      * support both swagger 2.0 and OAS 3.0 it was implemented to convert to swagger by default and convert it
@@ -100,9 +102,11 @@ public class SwaggerConverterUtils {
      * @param ballerinaSource ballerina source to be converted to swagger/OAS definition
      * @param serviceName specific service name within ballerina source that need to map OAS
      * @return Generated OAS3 string output.
-     * @throws IOException When error occurs while converting, parsing input source.
+     * @throws IOException when error occurs while converting, parsing input source.
+     * @throws SwaggerConverterException when error occurs while converting, parsing generated swagger source.
      */
-    public static String generateOAS3Definitions(String ballerinaSource, String serviceName) throws IOException {
+    public static String generateOAS3Definitions(String ballerinaSource, String serviceName)
+            throws IOException, SwaggerConverterException {
         // Get the ballerina model using the ballerina source code.
         BFile balFile = new BFile();
         balFile.setContent(ballerinaSource);
@@ -132,7 +136,12 @@ public class SwaggerConverterUtils {
         }
         swaggerSource = swaggerServiceMapper.generateSwaggerString(swaggerDefinition);
         SwaggerConverter converter = new SwaggerConverter();
-        return Yaml.pretty(converter.readContents(swaggerSource, null, null).getOpenAPI());
+        SwaggerDeserializationResult result = new SwaggerParser().readWithInfo(swaggerSource);
+
+        if (result.getMessages().size() > 0) {
+            throw new SwaggerConverterException("Please check if input source is valid and complete");
+        }
+        return Yaml.pretty(converter.convert(result).getOpenAPI());
     }
 
     /**
@@ -144,8 +153,10 @@ public class SwaggerConverterUtils {
      * @param outPath output path to write generated swagger file
      * @param serviceName if bal file contain multiple services, name of a specific service to build
      * @throws IOException when file operations fail
+     * @throws SwaggerConverterException when converting swagger definition fails
      */
-    public static void generateOAS3Definitions(Path servicePath, Path outPath, String serviceName) throws IOException {
+    public static void generateOAS3Definitions(Path servicePath, Path outPath, String serviceName)
+            throws IOException, SwaggerConverterException {
         String balSource = readFromFile(servicePath);
         String swaggerName = getSwaggerFileName(servicePath, serviceName);
 

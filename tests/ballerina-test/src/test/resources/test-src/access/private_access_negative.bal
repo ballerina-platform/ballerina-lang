@@ -113,3 +113,121 @@ function test4() returns string {
     return m.s;
 }
 
+type FooRecord {
+    string s;
+    BarRecord br;
+};
+
+type BarRecord {
+    string s;
+};
+
+{
+     string s;
+     Baz z = 1;
+     Foo foo;
+     BarRecord br;
+} anonRecord;
+
+public type ParentRecord {
+    int i;
+    ChildFoo c;
+    ChildRecord r;
+    Foo f;
+    Baz z = 1;
+};
+
+type ChildRecord {
+    string name;
+};
+
+function test5() returns string {
+    {
+         string s;
+         Baz z = 1;
+         Foo foo;
+         BarRecord br;
+    } m = {};
+
+    return m.s;
+}
+
+public function test6({
+                          string s;
+                          Baz z = 1;
+                          Foo foo;
+                          BarRecord br;
+                      } anonRecord) returns string {
+    return "K";
+}
+
+public function test7() returns {
+                                    string s;
+                                    Baz z = 1;
+                                    Foo foo;
+                                    BarRecord br;
+                                }{
+    {
+          string s;
+          Baz z = 1;
+          Foo foo;
+          BarRecord br;
+      } m = {};
+
+    return m;
+}
+
+type FooTypeObj object {
+    public {
+        string s;
+    }
+};
+
+type BarTypeRecord {
+    string s;
+};
+
+type BazTypeFinite 1|2;
+
+public type TypeA FooTypeObj;
+
+public type TypeB BarTypeRecord;
+
+public type TypeC BazTypeFinite;
+
+
+public type FooTypePublicObj object {
+    public {
+        string s;
+    }
+};
+
+public type BarTypePublicRecord {
+    string s;
+};
+
+public type BazTypePublicFinite 1|2;
+
+public type TypeD FooTypePublicObj;
+
+public type TypeE BarTypePublicRecord;
+
+public type TypeF BazTypePublicFinite;
+
+public type Person {
+   string name;
+};
+
+type TypeAliasOne Person;
+
+type TypeAliasTwo TypeAliasOne;
+
+public type TypeAliasThree TypeAliasTwo;
+
+
+type A int;
+
+type B A;
+
+public type C B;
+

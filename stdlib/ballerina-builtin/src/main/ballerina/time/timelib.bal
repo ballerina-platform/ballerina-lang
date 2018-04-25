@@ -20,8 +20,8 @@ public type TimeFormat "RFC_1123";
 
 documentation {
     Ballerina Timezone represents the timezone information associated with a particular time.
-    F{{zoneId}} Zone short ID or offset string.
-    F{{zoneOffset}} The offset in seconds.
+    F{{zoneId}} Zone short ID or offset string
+    F{{zoneOffset}} The offset in seconds
 }
 public type Timezone {
     string zoneId,
@@ -30,8 +30,8 @@ public type Timezone {
 
 documentation {
     Ballerina Time represents a particular time with its associated timezone.
-    F{{time}} Time value as milliseconds since epoch.
-    F{{zone}} The time   zone of the time.
+    F{{time}} Time value as milliseconds since epoch
+    F{{zone}} The time zone of the time
 }
 public type Time object {
 
@@ -45,7 +45,7 @@ public type Time object {
     documentation {
         Returns ISO 8601 string representation of the given time.
 
-        R{{}} The ISO 8601 formatted string of the given time.
+        R{{}} The ISO 8601 formatted string of the given time
     }
     public native function toString() returns (string);
 
@@ -53,82 +53,82 @@ public type Time object {
         Returns formatted string representation of the given time.
 
         P{{format}} The format which is used to format the time represented by this object
-        R{{}} The formatted string of the given time.
+        R{{}} The formatted string of the given time
     }
     public native function format(string|TimeFormat format) returns (string);
 
     documentation {
         Returns the year representation of the given time.
 
-        R{{}} The year representation.
+        R{{}} The year representation
     }
     public native function year() returns (int);
 
     documentation {
         Returns the month representation of the given time.
 
-        R{{}} The month-of-year, from 1 (January) to 12 (December).
+        R{{}} The month-of-year, from 1 (January) to 12 (December)
     }
     public native function month() returns (int);
 
     documentation {
         Returns the date representation of the given time.
 
-        R{{}} The day-of-month, from 1 to 31.
+        R{{}} The day-of-month, from 1 to 31
     }
     public native function day() returns (int);
 
     documentation {
         Returns the weekday representation of the given time.
 
-        R{{}} The weekday representation from SUNDAY to SATURDAY.
+        R{{}} The weekday representation from SUNDAY to SATURDAY
     }
     public native function weekday() returns (string);
 
     documentation {
         Returns the hour representation of the given time.
 
-        R{{}} The hour-of-day, from 0 to 23.
+        R{{}} The hour-of-day, from 0 to 23
     }
     public native function hour() returns (int);
 
     documentation {
         Returns the minute representation of the given time.
 
-        R{{}} The minute-of-hour to represent, from 0 to 59.
+        R{{}} The minute-of-hour to represent, from 0 to 59
     }
     public native function minute() returns (int);
 
     documentation {
         Returns the second representation of the given time.
 
-        R{{}} The second-of-minute, from 0 to 59.
+        R{{}} The second-of-minute, from 0 to 59
     }
     public native function second() returns (int);
 
     documentation {
         Returns the millisecond representation of the given time.
 
-        R{{}} The milli-of-second, from 0 to 999.
+        R{{}} The milli-of-second, from 0 to 999
     }
     public native function milliSecond() returns (int);
 
     documentation {
         Returns the date representation of the given time.
 
-        R{{}} The year representation.
-        R{{}} The month-of-year, from 1 (January) to 12 (December).
-        R{{}} The day-of-month, from 1 to 31.
+        R{{}} The year representation
+        R{{}} The month-of-year, from 1 (January) to 12 (December)
+        R{{}} The day-of-month, from 1 to 31
     }
     public native function getDate() returns (int, int, int);
 
     documentation {
         Returns the time representation of the given time.
 
-        R{{}} The hour-of-day, from 0 to 23.
-        R{{}} The minute-of-hour to represent, from 0 to 59.
-        R{{}} The second-of-minute, from 0 to 59.
-        R{{}} The milli-of-second, from 0 to 999.
+        R{{}} The hour-of-day, from 0 to 23
+        R{{}} The minute-of-hour to represent, from 0 to 59
+        R{{}} The second-of-minute, from 0 to 59
+        R{{}} The milli-of-second, from 0 to 999
     }
     public native function getTime() returns (int, int, int, int);
 
@@ -142,7 +142,7 @@ public type Time object {
         P{{minutes}} The minute-of-hour to represent, from 0 to 59
         P{{seconds}} The second-of-minute to represent, from 0 to 59
         P{{milliSeconds}} The milli-of-second to represent, from 0 to 999
-        R{{}} Time object containing time and zone information after the addition.
+        R{{}} Time object containing time and zone information after the addition
     }
 
     public native function addDuration(int years, int months, int days, int hours, int minutes, int seconds,
@@ -158,7 +158,7 @@ public type Time object {
         P{{minutes}} The minute-of-hour to represent, from 0 to 59
         P{{seconds}} The second-of-minute to represent, from 0 to 59
         P{{milliSeconds}} The milli-of-second to represent, from 0 to 999
-        R{{}} Time object containing time and zone information after the subtraction.
+        R{{}} Time object containing time and zone information after the subtraction
     }
     public native function subtractDuration(int years, int months, int days, int hours, int minutes, int seconds,
                                             int milliSeconds) returns (Time);
@@ -167,7 +167,7 @@ public type Time object {
         Change the timezone of the given time.
 
         P{{zoneId}} The new timezone id
-        R{{}} Time object containing time and zone information after the conversion.
+        R{{}} Time object containing time and zone information after the conversion
     }
     public native function toTimezone(string zoneId) returns (Time);
 };
@@ -175,7 +175,7 @@ public type Time object {
 documentation {
     Returns the current time value with the system default timezone.
 
-    R{{}} Time object containing the time and zone information.
+    R{{}} Time object containing the time and zone information
 }
 public native function currentTime() returns (Time);
 
@@ -197,7 +197,7 @@ documentation {
     P{{second}} The second-of-minute to represent, from 0 to 59
     P{{milliSecond}} The milli-of-second to represent, from 0 to 999
     P{{zoneId}} The zone id of the required timezone.If empty the system local timezone will be used
-    R{{}} Time object containing time and zone information.
+    R{{}} Time object containing time and zone information
 }
 public native function createTime(int year, int month, int date, int hour, int minute, int second, int milliSecond,
                                   string zoneId) returns (Time);
@@ -207,6 +207,6 @@ documentation {
 
     P{{data}} The time text to parse
     P{{format}} The format which is used to parse the given text
-    R{{}} Time object containing time and zone information.
+    R{{}} Time object containing time and zone information
 }
 public native function parse(string data, string|TimeFormat format) returns (Time);

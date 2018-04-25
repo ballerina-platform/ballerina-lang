@@ -1,0 +1,127 @@
+{
+  "position": {
+    "line": 11,
+    "character": 10
+  },
+  "source": "resource/source/completionBeforeUnderscore1.bal",
+  "items": [
+    {
+      "label":"SocketProperties",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"SocketProperties"
+    },
+    {
+      "label":"ByteChannel",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"ByteChannel"
+    },
+    {
+      "label":"CharacterChannel",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"CharacterChannel"
+    },
+    {
+      "label":"CSVChannel",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"CSVChannel"
+    },
+    {
+      "label":"DelimitedTextRecordChannel",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"DelimitedTextRecordChannel"
+    },
+    {
+      "label":"Socket",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"Socket"
+    },
+    {
+      "label":"Format",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"Format"
+    },
+    {
+      "label":"Separator",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"Separator"
+    },
+    {
+      "label":"Mode",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"Mode"
+    },
+    {
+      "label":"openFile(string path, io:Mode accessMode)(ballerina.io:ByteChannel)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"openFile(${1:path}, ${2:accessMode})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"openSocket(string host, int port, io:SocketProperties options)(ballerina.io:Socket|error)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"openSocket(${1:host}, ${2:port}, ${3:options})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"openSecureSocket(string host, int port, io:SocketProperties options)(ballerina.io:Socket|error)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"openSecureSocket(${1:host}, ${2:port}, ${3:options})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"openCsvFile(string path, io:Mode mode \u003d r, io:Separator fieldSeparator \u003d ,, string charset \u003d UTF-8, int skipHeaders \u003d 0)(ballerina.io:CSVChannel)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"openCsvFile(${1:path}, mode \u003d ${5:r}, fieldSeparator \u003d ${6:,}, charset \u003d ${7:\"UTF-8\"}, skipHeaders \u003d ${8:0})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"print()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"print()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"println()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"println()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"sprintf(string format)(string)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"sprintf(${1:format})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"readln(any a)(string)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"readln(${1:a})",
+      "insertTextFormat":"Snippet"
+    }
+  ]
+}

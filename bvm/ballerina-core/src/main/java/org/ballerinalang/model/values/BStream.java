@@ -68,6 +68,7 @@ public class BStream implements BRefType<Object> {
         } else {
             this.topicName = TOPIC_NAME_PREFIX + name; //TODO: check for improvement
         }
+        topicName = topicName.concat("_").concat(UUID.randomUUID().toString());
         this.streamId = name;
     }
 

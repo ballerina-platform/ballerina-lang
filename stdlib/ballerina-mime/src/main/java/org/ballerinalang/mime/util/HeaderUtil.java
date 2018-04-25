@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
@@ -110,7 +109,7 @@ public class HeaderUtil {
         BMap<String, BValue> paramMap = new BMap<>();
         for (String param : paramList) {
             if (param.contains("=")) {
-                String[] keyValuePair = param.split("=");
+                String[] keyValuePair = param.split("=", 2);
                 if (keyValuePair.length != 2 || keyValuePair[0].isEmpty()) {
                     throw new BallerinaException("invalid header parameter: " + param);
                 }
@@ -131,11 +130,11 @@ public class HeaderUtil {
      * Set body part headers.
      *
      * @param bodyPartHeaders Represent decoded mime part headers
-     * @param httpHeaders       Represent netty headers
+     * @param httpHeaders     Represent netty headers
      * @return a populated ballerina map with body part headers
      */
     static HttpHeaders setBodyPartHeaders(List<? extends Header> bodyPartHeaders,
-                                                  HttpHeaders httpHeaders) {
+                                          HttpHeaders httpHeaders) {
         for (final Header header : bodyPartHeaders) {
             httpHeaders.add(header.getName(), header.getValue());
         }

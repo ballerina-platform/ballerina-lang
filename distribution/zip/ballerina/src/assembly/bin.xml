@@ -85,7 +85,7 @@
     <files>
         <file>
             <source>bin/version.txt</source>
-            <outputDirectory>bin/</outputDirectory>
+            <outputDirectory>lib/</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>

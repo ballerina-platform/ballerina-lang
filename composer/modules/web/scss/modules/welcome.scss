@@ -11,7 +11,7 @@
   }
   .welcome-navbar {
     color: $secondary-color;
-    margin-top: 50px;
+    margin-top: 30px;
     .nav-tagline {
       font-size: 16px;
       padding-left: 35px !important;
@@ -28,7 +28,6 @@
     }
   }
   .welcome-content-wrapper {
-    margin-top: 20px;
     margin-bottom: 8%;
     .leftContainer {
       padding: 0 35px !important;
@@ -84,8 +83,8 @@
       }
     }
     .rightContainer {
-      padding: 0 50px;
-      padding-right: 35px !important;
+      background-color: #f1f1f1;
+      padding: 0 35px!important;
       .ballerina-by-example {
           p {
               width: 450px;
@@ -96,8 +95,6 @@
 
       .template-wrapper,
       .sample-wrapper {
-        margin: 20px 0 !important;
-        background-color: #f1f1f1;
         ul{
             padding: 0;
             li {
@@ -114,9 +111,8 @@
         .title {
             font-weight: 600;
             border-bottom: 1px solid #cecfd0;
-            border-top: 1px solid #cecfd0;
             color: #57595d!important;
-            padding: 4px 0;
+            padding: 10px 0;
         }
         .list-item {
             border-bottom: 1px solid #cecfd0;

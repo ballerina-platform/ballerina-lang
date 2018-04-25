@@ -71,9 +71,9 @@ public type Listener object {
     }
     public function stop();
 
-    public native function initWebSubSubscriberServiceEndpoint();
+    native function initWebSubSubscriberServiceEndpoint();
 
-    public native function registerWebSubSubscriberServiceEndpoint(typedesc serviceType);
+    native function registerWebSubSubscriberServiceEndpoint(typedesc serviceType);
 
     documentation {
         Sends a subscription request to the specified hub if specified to subscribe on startup.
@@ -118,7 +118,6 @@ public function Listener::register(typedesc serviceType) {
 }
 
 public function Listener::start() {
-    self.serviceEndpoint.start();//TODO:not needed?
     self.startWebSubSubscriberServiceEndpoint();
     self.sendSubscriptionRequest();
 }

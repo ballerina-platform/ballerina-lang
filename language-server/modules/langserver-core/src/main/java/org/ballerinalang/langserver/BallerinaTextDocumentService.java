@@ -130,9 +130,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 completionContext.put(DocumentServiceKeys.POSITION_KEY, position);
                 completionContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
+                // TODO: Remove passing completion context after introducing a proper fix for _=.... issue
                 BLangPackage bLangPackage = LSCompiler.getBLangPackage(completionContext, documentManager, false,
                                                                        CompletionCustomErrorStrategy.class,
-                                                                       false).get(0);
+                                                                       false, completionContext).get(0);
                 completionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                       bLangPackage.symbol.getName().getValue());
                 completionContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
@@ -171,17 +172,12 @@ class BallerinaTextDocumentService implements TextDocumentService {
             hoverContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
             hoverContext.put(DocumentServiceKeys.POSITION_KEY, position);
             try {
+                // TODO: Remove passing completion context after introducing a proper fix for _=.... issue
                 BLangPackage currentBLangPackage =
                         LSCompiler.getBLangPackage(hoverContext, documentManager, false,
-                                                   LSCustomErrorStrategy.class, false).get(0);
+                                                   LSCustomErrorStrategy.class, false, hoverContext).get(0);
                 hoverContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                  currentBLangPackage.symbol.getName().getValue());
-
-                LSContextManager lsContextManager = LSContextManager.getInstance();
-                Path path = Paths.get(fileUri);
-                String sourceRoot = LSCompiler.getSourceRoot(path);
-                CompilerContext compilerContext = lsContextManager.getCompilerContext(currentBLangPackage.packageID,
-                                                                                      sourceRoot);
                 hover = HoverUtil.getHoverContent(hoverContext, currentBLangPackage);
             } catch (Exception | AssertionError e) {
                 hover = new Hover();
@@ -208,9 +204,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 signatureContext.put(DocumentServiceKeys.POSITION_KEY, position);
                 signatureContext.put(DocumentServiceKeys.FILE_URI_KEY, uri);
                 SignatureHelp signatureHelp;
+                // TODO: Remove passing completion context after introducing a proper fix for _=.... issue
                 BLangPackage bLangPackage = LSCompiler.getBLangPackage(signatureContext, documentManager,
-                                                                       false, LSCustomErrorStrategy.class, false).get(
-                        0);
+                        false, LSCustomErrorStrategy.class, false, signatureContext).get(0);
                 signatureContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                      bLangPackage.symbol.getName().getValue());
                 SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(signatureContext);
@@ -234,18 +230,14 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 LSServiceOperationContext definitionContext = new LSServiceOperationContext();
                 definitionContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
                 definitionContext.put(DocumentServiceKeys.POSITION_KEY, position);
+                // TODO: Remove passing completion context after introducing a proper fix for _=.... issue
                 BLangPackage currentBLangPackage =
                         LSCompiler.getBLangPackage(definitionContext, documentManager, false,
-                                                   LSCustomErrorStrategy.class, false).get(0);
+                                LSCustomErrorStrategy.class, false, definitionContext).get(0);
                 definitionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                       currentBLangPackage.symbol.getName().getValue());
                 PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(definitionContext);
                 currentBLangPackage.accept(positionTreeVisitor);
-                LSContextManager lsContextManager = LSContextManager.getInstance();
-                Path path = Paths.get(fileUri);
-                String sourceRoot = LSCompiler.getSourceRoot(path);
-                CompilerContext compilerContext = lsContextManager.getCompilerContext(currentBLangPackage.packageID,
-                                                                                      sourceRoot);
                 contents = DefinitionUtil.getDefinitionPosition(definitionContext);
             } catch (Throwable e) {
                 contents = new ArrayList<>();
@@ -267,10 +259,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 referenceContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
                 referenceContext.put(DocumentServiceKeys.POSITION_KEY, params);
                 List<Location> contents = new ArrayList<>();
-
-                List<BLangPackage> bLangPackages = LSCompiler
-                        .getBLangPackage(referenceContext, documentManager, false,
-                                         LSCustomErrorStrategy.class, true);
+                // TODO: Remove passing completion context after introducing a proper fix for _=.... issue
+                List<BLangPackage> bLangPackages = LSCompiler.getBLangPackage(referenceContext, documentManager, false,
+                        LSCustomErrorStrategy.class, true, referenceContext);
                 // Get the current package.
                 BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages, fileUri);
 
@@ -285,7 +276,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 for (BLangPackage bLangPackage : bLangPackages) {
                     referenceContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                          bLangPackage.symbol.getName().getValue());
-//                LSPackageCache.getInstance().put(bLangPackage.packageID, bLangPackage);
                     referenceContext.put(NodeContextKeys.REFERENCE_NODES_KEY, contents);
                     contents = ReferenceUtil.getReferences(referenceContext, bLangPackage);
                 }
@@ -314,8 +304,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
             LSServiceOperationContext symbolsContext = new LSServiceOperationContext();
             symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
             symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
+            // TODO: Remove passing completion context after introducing a proper fix for _=.... issue
             BLangPackage bLangPackage = LSCompiler.getBLangPackage(symbolsContext, documentManager,
-                                                                   false, LSCustomErrorStrategy.class, false).get(0);
+                    false, LSCustomErrorStrategy.class, false, symbolsContext).get(0);
             symbolsContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                bLangPackage.symbol.getName().getValue());
             Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
@@ -416,10 +407,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 renameContext.put(DocumentServiceKeys.POSITION_KEY,
                                   new TextDocumentPositionParams(params.getTextDocument(), params.getPosition()));
                 List<Location> contents = new ArrayList<>();
-
-                List<BLangPackage> bLangPackages =
-                        LSCompiler.getBLangPackage(renameContext, documentManager, false,
-                                                   LSCustomErrorStrategy.class, true);
+                // TODO: Remove passing completion context after introducing a proper fix for _=.... issue
+                List<BLangPackage> bLangPackages = LSCompiler.getBLangPackage(renameContext, documentManager, false,
+                        LSCustomErrorStrategy.class, true, renameContext);
                 // Get the current package.
                 BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages,
                                                                                           params.getTextDocument()
