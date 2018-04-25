@@ -1,6 +1,6 @@
-# This sample requires starting up the Hub Service via hub.bal prior to running the Publisher main program. The
-# Subscriber Service needs to be started up only once publisher registers the topic at the hub.
-# If the port is not specified, the hub service will be started up on the default port
+# This sample requires the Hub Service to start via hub.bal prior to running the Publisher main program. The
+# Subscriber Service needs to start after the publisher registers the topic at the hub.
+# If the port is not specified, the hub service starts on the default port.
 $ ballerina run hub.bal -e b7a.websub.hub.port=9191 -e b7a.websub.hub.remotepublish=true
 2018-04-12 18:48:00,530 INFO  [] - Starting up the Ballerina Hub Service
 ballerina: started HTTPS/WSS endpoint localhost:9191
