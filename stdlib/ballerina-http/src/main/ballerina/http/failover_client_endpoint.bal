@@ -66,7 +66,7 @@ documentation {
     F{{connectionThrottling}} The configurations for controlling the number of connections allowed concurrently
     F{{targets}} The upstream HTTP endpoints among which the incoming HTTP traffic load should be sent on failover
     F{{cache}} The configurations for controlling the caching behaviour
-    F{{acceptEncoding}} Specifies the way of handling `accept-encoding` header
+    F{{acceptEncoding}} Specifies how the `accept-encoding` header should be handled
     F{{auth}} HTTP authentication releated configurations
     F{{failoverCodes}} Array of HTTP response status codes for which the failover behaviour should be triggered
     F{{intervalMillis}} Failover delay interval in milliseconds
