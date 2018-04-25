@@ -178,50 +178,62 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                         log.debug("Created the connection to address: {}",
                                 route.toString() + " " + "Original Channel ID is : " + channelFuture.channel().id());
                     }
-                    channelFuture.channel().deregister().addListener(future -> {
-                        if (srcHandler != null) {
-                            srcHandler.getEventLoop().register(channelFuture.channel()).addListener(future1 -> {
+                    if (srcHandler != null) {
+                        channelFuture.channel().deregister().addListener(future ->
+                                srcHandler.getEventLoop().register(channelFuture.channel()).addListener(
+                                        future1 -> startExecutingOutboundRequest(protocol, channelFuture)));
+                    } else {
+                        startExecutingOutboundRequest(protocol, channelFuture);
+                    }
+                }
 
-                                if (protocol.equalsIgnoreCase(Constants.HTTP2_CLEARTEXT_PROTOCOL) ||
-                                        protocol.equalsIgnoreCase(Constants.HTTP2_TLS_PROTOCOL)) {
+                private void startExecutingOutboundRequest(String protocol, ChannelFuture channelFuture) {
+                    if (protocol.equalsIgnoreCase(Constants.HTTP2_CLEARTEXT_PROTOCOL)
+                            || protocol.equalsIgnoreCase(Constants.HTTP2_TLS_PROTOCOL)) {
+                        prepareTargetChannelForHttp2(channelFuture);
+                    } else {
+                        // Response for the upgrade request will arrive in stream 1,
+                        // so use 1 as the stream id.
+                        prepareTargetChannelForHttp(channelFuture);
+                        targetChannel.writeContent(httpOutboundRequest);
+                    }
+                }
 
-                                    freshHttp2ClientChannel.setSocketIdleTimeout(socketIdleTimeout);
-                                    connectionManager.getHttp2ConnectionManager().
-                                            addHttp2ClientChannel(route, freshHttp2ClientChannel);
-                                    freshHttp2ClientChannel.addDataEventListener(
-                                            Constants.IDLE_STATE_HANDLER,
-                                            new TimeoutHandler(socketIdleTimeout, freshHttp2ClientChannel));
+                private void prepareTargetChannelForHttp2(ChannelFuture channelFuture) {
+                    freshHttp2ClientChannel.setSocketIdleTimeout(socketIdleTimeout);
+                    connectionManager.getHttp2ConnectionManager().
+                            addHttp2ClientChannel(route, freshHttp2ClientChannel);
+                    freshHttp2ClientChannel.addDataEventListener(Constants.IDLE_STATE_HANDLER,
+                            new TimeoutHandler(socketIdleTimeout, freshHttp2ClientChannel));
 
-                                    if (followRedirect) {
-                                        setChannelAttributes(channelFuture.channel(), httpOutboundRequest,
-                                                httpResponseFuture, targetChannel);
-                                    }
-                                    freshHttp2ClientChannel.getChannel().eventLoop().execute(
-                                            () -> freshHttp2ClientChannel.getChannel().write(outboundMsgHolder));
-                                    httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
-                                } else {
-                                    // Response for the upgrade request will arrive in stream 1,
-                                    // so use 1 as the stream id.
-                                    freshHttp2ClientChannel.putInFlightMessage(
-                                            Http2CodecUtil.HTTP_UPGRADE_STREAM_ID, outboundMsgHolder);
-                                    httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
-                                    targetChannel.setChannel(channelFuture.channel());
-                                    targetChannel.configTargetHandler(httpOutboundRequest, httpResponseFuture);
-                                    targetChannel.setEndPointTimeout(socketIdleTimeout, followRedirect);
-                                    targetChannel.setCorrelationIdForLogging();
-                                    targetChannel.setHttpVersion(httpVersion);
-                                    targetChannel.setChunkConfig(chunkConfig);
-                                    if (followRedirect) {
-                                        setChannelAttributes(channelFuture.channel(), httpOutboundRequest,
-                                                httpResponseFuture, targetChannel);
-                                    }
-                                    handleOutboundConnectionHeader(keepAliveConfig, httpOutboundRequest);
-                                    targetChannel.setForwardedExtension(forwardedExtensionConfig, httpOutboundRequest);
-                                    targetChannel.writeContent(httpOutboundRequest);
-                                }
-                            });
-                        }
-                    });
+                    if (followRedirect) {
+                        setChannelAttributes(channelFuture.channel(), httpOutboundRequest,
+                                httpResponseFuture, targetChannel);
+                    }
+                    freshHttp2ClientChannel.getChannel().eventLoop().execute(
+                            () -> freshHttp2ClientChannel.getChannel().write(outboundMsgHolder));
+                    httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
+                }
+
+                private void prepareTargetChannelForHttp(ChannelFuture channelFuture) {
+                    // Response for the upgrade request will arrive in stream 1,
+                    // so use 1 as the stream id.
+                    freshHttp2ClientChannel.putInFlightMessage(Http2CodecUtil.HTTP_UPGRADE_STREAM_ID,
+                            outboundMsgHolder);
+                    httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
+                    targetChannel.setChannel(channelFuture.channel());
+                    targetChannel.configTargetHandler(httpOutboundRequest, httpResponseFuture);
+                    targetChannel.setEndPointTimeout(socketIdleTimeout, followRedirect);
+                    targetChannel.setCorrelationIdForLogging();
+                    targetChannel.setHttpVersion(httpVersion);
+                    targetChannel.setChunkConfig(chunkConfig);
+                    if (followRedirect) {
+                        setChannelAttributes(channelFuture.channel(), httpOutboundRequest,
+                                httpResponseFuture, targetChannel);
+                    }
+                    handleOutboundConnectionHeader(keepAliveConfig, httpOutboundRequest);
+                    targetChannel
+                            .setForwardedExtension(forwardedExtensionConfig, httpOutboundRequest);
                 }
 
                 @Override

@@ -49,7 +49,6 @@ import org.wso2.transport.http.netty.sender.RedirectUtil;
 import org.wso2.transport.http.netty.sender.channel.BootstrapConfiguration;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
-import org.wso2.transport.http.netty.sender.channel.pool.PoolConfiguration;
 import org.wso2.transport.http.netty.util.HTTPConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpServer;
@@ -114,7 +113,6 @@ public class HttpClientRedirectTestCase {
 
         Map<String, Object> transportProperties = HTTPConnectorUtil.getTransportProperties(transportsConfiguration);
 
-        PoolConfiguration poolConfiguration = new PoolConfiguration();
         BootstrapConfiguration bootstrapConfig = new BootstrapConfiguration(transportProperties);
         EventLoopGroup clientEventLoopGroup = new NioEventLoopGroup(
                 Util.getIntProperty(transportProperties, Constants.CLIENT_BOOTSTRAP_WORKER_GROUP_SIZE, 4));
