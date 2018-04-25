@@ -46,7 +46,7 @@ public class SrcFile {
                                                   "        http:Response response = new;\n" +
                                                   "\n" +
                                                   "        // Objects and structs can have function calls\n" +
-                                                  "        response.setStringPayload(\"Hello Ballerina!\\n\");\n" +
+                                                  "        response.setTextPayload(\"Hello Ballerina!\\n\");\n" +
                                                   "\n" +
                                                   "        // Send a response back to caller\n" +
                                                   "        // Errors are ignored with '_'\n" +
