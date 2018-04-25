@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.types.TypeConstants;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
@@ -71,7 +72,7 @@ public abstract class AbstractItemResolver {
                     || symbolInfo.isIterableOperation())  {
                 completionItem = this.populateBallerinaFunctionCompletionItem(symbolInfo);
             } else if (!(bSymbol instanceof BInvokableSymbol)
-                    && bSymbol instanceof BVarSymbol) {
+                    && bSymbol instanceof BVarSymbol && !"_".equals(bSymbol.name.getValue())) {
                 completionItem = this.populateVariableDefCompletionItem(symbolInfo);
             } else if (bSymbol instanceof BTypeSymbol
                     && !bSymbol.getName().getValue().equals(UtilSymbolKeys.NOT_FOUND_TYPE)
@@ -272,6 +273,10 @@ public abstract class AbstractItemResolver {
                 defaultStringVal = "()";
             } else {
                 defaultStringVal = bVarSymbol.defaultValue.toString();
+                if (bVarSymbol.getType() != null
+                        && bVarSymbol.getType().toString().equals(TypeConstants.STRING_TNAME)) {
+                    defaultStringVal = "\"" + defaultStringVal + "\"";
+                }
             }
             return bVarSymbol.getName() + " = " + "${" + iteration + ":" + defaultStringVal + "}";
         }

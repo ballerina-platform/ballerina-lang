@@ -21,13 +21,13 @@ import ballerina/io;
 ////////////////////////////////
 
 documentation {
-    The HTTP client endpoint provides the capability for initiating contact with a remote HTTP service. The API it
+    The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it
     provides includes functions for the standard HTTP methods, forwarding a received request and sending requests
     using custom HTTP verbs.
 
     E{{}}
-    F{{epName}} The name of the endpoint
-    F{{config}} The configurations associated with the endpoint
+    F{{epName}} The name of the client
+    F{{config}} The configurations associated with the client
     F{{httpClient}} The provider which implements the HTTP methods
 }
 public type Client object {
@@ -71,15 +71,15 @@ documentation {
     Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.
 
     F{{url}} URL of the target service
-    F{{circuitBreaker}} Circuit Breaker behaviour configurations
+    F{{circuitBreaker}} Configurations associated with Circuit Breaker behaviour
     F{{timeoutMillis}} The maximum time to wait (in milliseconds) for a response before closing the connection
     F{{keepAlive}} Specifies whether to reuse a connection for multiple requests
     F{{transferEncoding}} The types of encoding applied to the request
     F{{chunking}} The chunking behaviour of the request
     F{{httpVersion}} The HTTP version understood by the client
     F{{forwarded}} The choice of setting `forwarded`/`x-forwarded` header
-    F{{followRedirects}} Redirect related options
-    F{{retryConfig}} Retry related options
+    F{{followRedirects}} Configurations associated with Redirection
+    F{{retryConfig}} Configurations associated with Retry
     F{{proxy}} Proxy server related options
     F{{connectionThrottling}} Configurations for connection throttling
     F{{secureSocket}} SSL/TLS related options
@@ -128,8 +128,8 @@ public type RetryConfig {
 documentation {
     Provides configurations for facilitating secure communication with a remote HTTP endpoint.
 
-    F{{trustStore}} TrustStore related options
-    F{{keyStore}} KeyStore related options
+    F{{trustStore}} Configurations associated with TrustStore
+    F{{keyStore}} Configurations associated with KeyStore
     F{{protocol}} SSL/TLS protocol related options
     F{{certValidation}} Certificate validation against CRL or OCSP related options
     F{{ciphers}} List of ciphers to be used

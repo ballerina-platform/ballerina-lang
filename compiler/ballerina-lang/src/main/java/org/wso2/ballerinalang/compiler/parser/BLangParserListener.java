@@ -780,7 +780,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         if (!(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext)) {
-            this.pkgBuilder.addAnonRecordType(getCurrentPos(ctx), getWS(ctx));
+            // check whether this anon object is defined as a global var or as as function return param
+            boolean isFieldAnalyseRequired =
+                    (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
+                            ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext);
+            this.pkgBuilder.addAnonRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired);
         }
     }
 
@@ -2302,7 +2306,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startOrderByClauseNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startOrderByClauseNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -2338,7 +2342,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startOrderByVariableNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startOrderByVariableNode(getCurrentPos(ctx));
     }
 
     @Override public void exitOrderByVariable(BallerinaParser.OrderByVariableContext ctx) {
@@ -2358,7 +2362,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startGroupByClauseNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startGroupByClauseNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -2376,7 +2380,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startHavingClauseNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startHavingClauseNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -2394,7 +2398,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startSelectExpressionNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startSelectExpressionNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -2413,7 +2417,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startSelectClauseNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startSelectClauseNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -2453,7 +2457,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startWhereClauseNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startWhereClauseNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -2507,7 +2511,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startStreamActionNode(getCurrentPos(ctx), getWS(ctx), diagnosticSrc.pkgID);
+        this.pkgBuilder.startStreamActionNode(getCurrentPos(ctx), diagnosticSrc.pkgID);
     }
 
     @Override
@@ -2524,7 +2528,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startPatternStreamingEdgeInputNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startPatternStreamingEdgeInputNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -2543,7 +2547,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startWindowClauseNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startWindowClauseNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -2561,7 +2565,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startWithinClause(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startWithinClause(getCurrentPos(ctx));
     }
 
     @Override
@@ -2579,7 +2583,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startPatternClause(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startPatternClause(getCurrentPos(ctx));
     }
 
     @Override
@@ -2600,7 +2604,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startPatternStreamingInputNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startPatternStreamingInputNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -2627,7 +2631,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startStreamingInputNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startStreamingInputNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -2650,7 +2654,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startJoinStreamingInputNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startJoinStreamingInputNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -2684,7 +2688,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startOutputRateLimitNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startOutputRateLimitNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -2752,7 +2756,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startStreamingQueryStatementNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startStreamingQueryStatementNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -2770,7 +2774,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startForeverNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startForeverNode(getCurrentPos(ctx));
     }
 
     @Override

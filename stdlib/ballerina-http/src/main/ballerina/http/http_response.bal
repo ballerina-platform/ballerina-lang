@@ -26,16 +26,18 @@ documentation {
     F{{statusCode}} The response status code
     F{{reasonPhrase}} The status code reason phrase
     F{{server}} The server header
+    F{{resolvedRequestedURI}} The ultimate request URI that was made to receive the response when redirect is on
     F{{cacheControl}} The cache-control directives for the response. This needs to be explicitly initialized if
                       intending on utilizing HTTP caching. For incoming responses, this will already be populated
-                      if the response was sent with cache-control directives.
+                      if the response was sent with cache-control directives
 }
 public type Response object {
 
     public {
-        int statusCode;
+        int statusCode = 200;
         string reasonPhrase;
         string server;
+        string resolvedRequestedURI;
         ResponseCacheControl? cacheControl;
     }
 
@@ -47,7 +49,7 @@ public type Response object {
     documentation {
         Gets the `Entity` associated with the response.
 
-        R{{}} The `Entity` of the response. `EntityError` will be returned if entity construction fails.
+        R{{}} The `Entity` of the response. An `error` is returned, if entity construction fails
     }
     public native function getEntity() returns mime:Entity|error;
 
@@ -56,7 +58,7 @@ public type Response object {
 
         R{{}} The `Entity` of the response
     }
-    public native function getEntityWithoutBody() returns (mime:Entity);
+    public native function getEntityWithoutBody() returns mime:Entity;
 
     documentation {
         Sets the provided `Entity` to the response.
@@ -71,7 +73,7 @@ public type Response object {
         P{{headerName}} The header name
         R{{}} Returns true if the specified header key exists
     }
-    public function hasHeader(string headerName) returns (boolean);
+    public function hasHeader(string headerName) returns boolean;
 
     documentation {
         Returns the value of the specified header. If the specified header key maps to multiple values, the first of
@@ -79,9 +81,9 @@ public type Response object {
 
         P{{headerName}} The header name
         R{{}} The first header value for the specified header name. Returns an empty string if the header does not
-              exist.
+              exist
     }
-    public function getHeader(string headerName) returns (string);
+    public function getHeader(string headerName) returns string;
 
     documentation {
         Adds the specified header to the response. Existing header values are not replaced.
@@ -125,7 +127,7 @@ public type Response object {
 
         R{{}} An array of all the header names
     }
-    public function getHeaderNames() returns (string[]);
+    public function getHeaderNames() returns string[];
 
     documentation {
         Sets the `content-type` header to the response.
@@ -139,33 +141,44 @@ public type Response object {
 
         R{{}} Returns the `content-type` header value as a string
     }
-    public function getContentType() returns (string);
+    public function getContentType() returns string;
 
     documentation {
-        Gets the response payload as a `json`.
+        Extract `json` payload from the response. If the content type is not JSON, an `error` is returned.
 
-        R{{}} The JSON reresentation of the message payload or `error` in case of errors
+        R{{}} The `json` payload or `error` in case of errors
     }
     public function getJsonPayload() returns json|error;
 
     documentation {
-        Gets the response payload as an `xml`.
+        Extracts `xml` payload from the response. If the the content type is not XML, an `error` is returned.
 
-        R{{}} The XML representation of the message payload or `error` in case of errors
+        R{{}} The `xml` payload or `error` in case of errors
     }
     public function getXmlPayload() returns xml|error;
 
-    @Description {value:"Get the text payload from the response"}
-    @Param {value:"response: The response message"}
-    @Return {value:"The string representation of the message payload or 'error' in case of errors"}
+    documentation {
+        Extracts `text` payload from the response. If the content type is not of type text, an `error` is returned.
+
+        R{{}} The string representation of the message payload or `error` in case of errors
+    }
     public function getTextPayload() returns string|error;
 
     documentation {
-        Gets the response payload as a `string`.
+        Gets the response payload as a `string`. Content type is not checked during payload construction which
+        makes this different from `getTextPayload()` function.
 
         R{{}} The string representation of the message payload or `error` in case of errors
     }
     public function getPayloadAsString() returns string|error;
+
+    documentation {
+        Gets the response payload as a `ByteChannel`, except in the case of multiparts. To retrieve multiparts, use
+        `getBodyParts()`.
+
+        R{{}} A byte channel from which the message payload can be read or `error` in case of errors
+    }
+    public function getByteChannel() returns io:ByteChannel|error;
 
     documentation {
         Gets the response payload as a `blob`.
@@ -175,25 +188,17 @@ public type Response object {
     public function getBinaryPayload() returns blob|error;
 
     documentation {
-        Gets the response payload as a `ByteChannel` except in the case of multiparts. To retrieve multiparts, use
-        `getBodyParts()`.
+        Extracts body parts from the response. If the content type is not a composite media type, an error is returned.
 
-        R{{}} A byte channel from which the message payload can be read or `error` in case of errors
-    }
-    public function getByteChannel() returns io:ByteChannel|error;
-
-    documentation {
-        Get multiparts from response.
-
-        R{{}} Returns the body parts as an array of entities or an `EntityError` if there were any errors in
+        R{{}} Returns the body parts as an array of entities or an `error` if there were any errors in
               constructing the body parts from the response
     }
-    public function getBodyParts() returns (mime:Entity[]|error);
+    public function getBodyParts() returns mime:Entity[]|error;
 
     documentation {
         Sets the `etag` header for the given payload. The ETag is generated using a CRC32 hash function.
 
-        P{{payload}} The payload for which the ETag should be set.
+        P{{payload}} The payload for which the ETag should be set
     }
     public function setETag(json|xml|string|blob payload);
 
@@ -207,7 +212,7 @@ public type Response object {
 
         P{{payload}} The `json` payload
         P{{contentType}} The content type of the payload. Set this to override the default `content-type` header value
-                         for `json`.
+                         for `json`
     }
     public function setJsonPayload(json payload, string contentType = "application/json");
 
@@ -216,7 +221,7 @@ public type Response object {
 
         P{{payload}} The `xml` payload
         P{{contentType}} The content type of the payload. Set this to override the default `content-type` header value
-                         for `xml`.
+                         for `xml`
     }
     public function setXmlPayload(xml payload, string contentType = "application/xml");
 
@@ -225,7 +230,7 @@ public type Response object {
 
         P{{payload}} The `string` payload
         P{{contentType}} The content type of the payload. Set this to override the default `content-type` header value
-                         for `string`.
+                         for `string`
     }
     public function setTextPayload(string payload, string contentType = "text/plain");
 
@@ -234,7 +239,7 @@ public type Response object {
 
         P{{payload}} The `blob` payload
         P{{contentType}} The content type of the payload. Set this to override the default `content-type` header value
-                         for `blob`.
+                         for `blob`
     }
     public function setBinaryPayload(blob payload, string contentType = "application/octet-stream");
 
@@ -243,7 +248,7 @@ public type Response object {
 
         P{{bodyParts}} The entities which make up the message body
         P{{contentType}} The content type of the top level message. Set this to override the default
-                         `content-type` header value.
+                         `content-type` header value
     }
     public function setBodyParts(mime:Entity[] bodyParts, string contentType = "multipart/form-data");
 
@@ -252,7 +257,7 @@ public type Response object {
 
         P{{filePath}} Path to the file to be set as the payload
         P{{contentType}} The content type of the specified file. Set this to override the default `content-type`
-                         header value.
+                         header value
     }
     public function setFileAsPayload(string filePath, string contentType = "application/octet-stream");
 
@@ -261,7 +266,7 @@ public type Response object {
 
         P{{payload}} A `ByteChannel` through which the message payload can be read
         P{{contentType}} The content type of the payload. Set this to override the default `content-type`
-                         header value.
+                         header value
     }
     public function setByteChannel(io:ByteChannel payload, string contentType = "application/octet-stream");
 
@@ -278,12 +283,12 @@ public type Response object {
 /// Ballerina Implementations ///
 /////////////////////////////////
 
-public function Response::hasHeader(string headerName) returns (boolean) {
+public function Response::hasHeader(string headerName) returns boolean {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.hasHeader(headerName);
 }
 
-public function Response::getHeader(string headerName) returns (string) {
+public function Response::getHeader(string headerName) returns string {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeader(headerName);
 }
@@ -313,7 +318,7 @@ public function Response::removeAllHeaders() {
     entity.removeAllHeaders();
 }
 
-public function Response::getHeaderNames() returns (string[]) {
+public function Response::getHeaderNames() returns string[] {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeaderNames();
 }
@@ -323,7 +328,7 @@ public function Response::setContentType(string contentType) {
     entity.setHeader(mime:CONTENT_TYPE, contentType);
 }
 
-public function Response::getContentType() returns (string) {
+public function Response::getContentType() returns string {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getContentType();
 }
@@ -472,4 +477,3 @@ public function Response::setPayload(string|xml|json|blob|io:ByteChannel|mime:En
         mime:Entity[] bodyParts => self.setBodyParts(bodyParts);
     }
 }
-
