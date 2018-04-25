@@ -3,7 +3,7 @@ NAME
     binaries, or packages
 
 SYNOPSIS
-     ballerina run [-s|--service] [-e] [--offline] [--observe] 
+     ballerina run [-e] [--offline] [--observe]
          [--sourceroot] [-c|--config] [-B] 
          <balfile | packagename | balxfile> [args...]  
 
@@ -19,23 +19,10 @@ DESCRIPTION
      The binary runs much faster than a source file, because the source 
      file run requires a compilation phase. 
 
-     By default, ballerina run executes the main function. 
-     If the main function is not present, run executes services. 
-     When both a main function and a service are present, you can use 
-     [-s|--service] option to run the service instead of the main function. 
-     You must have either a main function or a service in order to run 
-     a program or a package.
+     You must have either a main function or a service or both in order
+     to run a program or a package.
 
 OPTIONS
-     -s
-     --service
-         Runs services instead of main function (if available) in the 
-         given program or package. The default behavior is to run 
-         the main function (if available), else if there is only a
-         service defined, the service will be started. If both a 
-         main function and a service are available in the program or
-         package, this option allows you to start the service.  
-
      -e <key1=value1, key2=value2, …>
          Sets Ballerina environment parameters as key, value pairs.
 
