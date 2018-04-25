@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type balCommand "run" | "docker" | "build" | "install" | "uninstall" | "pull" | "push" | "init" | "serach" |
-"doc" | "grpc" | "swagger" | "test" | "version" | "encrypt";
+public type BallerinaCommand "run" | "docker" | "build" | "install" | "uninstall" | "pull" | "push" | "init" |
+"serach" | "doc" | "grpc" | "swagger" | "test" | "version" | "encrypt";
 
 documentation{
     Executes a ballerina command
@@ -23,4 +23,5 @@ documentation{
     P{{packagePath}} - Package path with necessary flags
     R{{}} - Data piped from the standard output and error output of the process
 }
-public native function execBallerina(@sensitive balCommand command, @sensitive string packagePath) returns (string|error);
+public native function execBallerina(@sensitive BallerinaCommand command, @sensitive string packagePath)
+    returns (string|error);
