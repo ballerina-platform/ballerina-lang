@@ -7,23 +7,23 @@ import ballerina/http;
 @final int MAX_INT_VALUE = 2147483647;
 
 documentation {
-    Function to pull a package from ballerina central.
+    This function pulls a package from ballerina central.
 
-    P{{url}} - The endpoint url to be invoked.
-    P{{dirPath}} - The path of the directory to save the pulled package.
-    P{{pkgPath}} - The package path.
-    P{{fileSeparator}} - The file separator based on the operating system.
+    P{{url}} Endpoint url to be invoked
+    P{{dirPath}} Path of the directory to save the pulled package
+    P{{pkgPath}} Package path.
+    P{{fileSeparator}} File separator based on the operating system.
 }
 function pullPackage (string url, string dirPath, string pkgPath, string fileSeparator) {
     endpoint http:Client httpEndpoint {
-        url:url,
+        url: url,
         secureSocket:{
             trustStore:{
-                path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                password:"ballerina"
+                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                password: "ballerina"
             },
-            verifyHostname:false,
-            shareSession:true
+            verifyHostname: false,
+            shareSession: true
         }
     };
     string fullPkgPath = pkgPath;
@@ -79,10 +79,8 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
                         pkgVersion = pathArray[sizeOfArray - 2];
                         string pkgName = fullPkgPath.substring(fullPkgPath.lastIndexOf("/") + 1, fullPkgPath.length());
                         fullPkgPath = fullPkgPath + ":" + pkgVersion;
+                        destDirPath = destDirPath + fileSeparator + pkgVersion;        
 
-                        // Create the version directory
-                        destDirPath = destDirPath + fileSeparator + pkgVersion;
-                        
                         string archiveFileName = pkgName + ".zip";
                         string destArchivePath = destDirPath  + fileSeparator + archiveFileName;
 
@@ -118,18 +116,18 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
 }
 
 documentation {
-    Main function which invokes the method to pull the package.
+    This function will invoke the method to pull the package.
 }
 function main(string... args){
     pullPackage(args[0], args[1], args[2], args[3]);
 }
 
 documentation {
-    Function to get the file channel.
+    This function will get the file channel.
 
-    P{{filePath}} - The file path.
-    P{{permission}} - The permissions provided.
-    R{{}} - `ByteChannel` of the file content.
+    P{{filePath}} File path
+    P{{permission}} Permissions provided
+    R{{}} `ByteChannel` of the file content
 }
 function getFileChannel (string filePath, io:Mode permission) returns (io:ByteChannel) {
     io:ByteChannel channel = io:openFile(untaint filePath, permission);
@@ -137,11 +135,11 @@ function getFileChannel (string filePath, io:Mode permission) returns (io:ByteCh
 }
 
 documentation {
-    Function to read the bytes from the byte channel.
+    This function will read the bytes from the byte channel.
 
-    P{{channel}} - The byte channel.
-    P{{numberOfBytes}} - The number of bytes to be read.
-    R{{}} - `blob` of the bytes read as a blob along with the `int` number of bytes read.
+    P{{channel}} Byte channel
+    P{{numberOfBytes}} Number of bytes to be read
+    R{{}} Bytes read as a blob along with the number of bytes read.
 }
 function readBytes (io:ByteChannel channel, int numberOfBytes) returns (blob, int) {
     blob bytes;
@@ -151,12 +149,12 @@ function readBytes (io:ByteChannel channel, int numberOfBytes) returns (blob, in
 }
 
 documentation {
-    Function to write the bytes from the byte channel.
+    This function will write the bytes from the byte channel.
 
-    P{{channel}} - The byte channel.
-    P{{content}} - The content to be written as a blob.
-    P{{startOffset}} - The offset.
-    R{{}} - `int` number of bytes written.
+    P{{channel}} Byte channel
+    P{{content}} Content to be written as a blob
+    P{{startOffset}} Offset
+    R{{}} number of bytes written.
 }
 function writeBytes (io:ByteChannel channel, blob content, int startOffset) returns (int) {
     int numberOfBytesWritten = check (channel.write(content, startOffset));
@@ -164,13 +162,13 @@ function writeBytes (io:ByteChannel channel, blob content, int startOffset) retu
 }
 
 documentation {
-    Function to copy files from source to the destination path.
+    This function will copy files from source to the destination path.
 
-    P{{pkgSize}} - The size of the package pulled.
-    P{{src}} - The byte channel of the source file.
-    P{{dest}} - The byte channel of the destination folder.
-    P{{fullPkgPath}} - The full package path.
-    P{{toAndFrom}} - The pulled package details.
+    P{{pkgSize}} Size of the package pulled
+    P{{src}} Byte channel of the source file
+    P{{dest}} Byte channel of the destination folder
+    P{{fullPkgPath}} Full package path
+    P{{toAndFrom}} Pulled package details
 }
 function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string fullPkgPath, string toAndFrom) {
     string truncatedFullPkgPath = truncateString(fullPkgPath);
@@ -196,7 +194,7 @@ function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string full
             totalCount = totalCount + readCount;
             float percentage = totalCount / pkgSize;
             noOfBytesRead = totalCount + "/" + pkgSize;
-            string bar = equals.substring(0, <int>(percentage * 10));
+            string bar = equals.substring(0, <int> (percentage * 10));
             string spaces = tabspaces.substring(0, 10 - <int>(percentage * 10));
             io:print("\r" + rightPad(msg, 100) + "[" + bar + ">" + spaces + "] " + <int>totalCount + "/" + pkgSize);
         }
@@ -207,11 +205,11 @@ function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string full
 }
 
 documentation {
-    Function to include the right pad.
+    This function adds the right pad.
 
-    P{{logMsg}} - The log message to be printed.
-    P{{logMsgLength}} - The length of the log message.
-    R{{}} - `string` The log message to be printed after adding the right pad.
+    P{{logMsg}} Log message to be printed
+    P{{logMsgLength}} Length of the log message
+    R{{}} The log message to be printed after adding the right pad
 }
 function rightPad (string logMsg, int logMsgLength) returns (string) {
     string msg = logMsg;
@@ -227,10 +225,10 @@ function rightPad (string logMsg, int logMsgLength) returns (string) {
 }
 
 documentation {
-    Function to truncate the string.
+    This function truncates the string.
 
-    P{{text}} - The string to be truncated.
-    R{{}} - `string` The truncated string.
+    P{{text}} String to be truncated
+    R{{}} Truncated string.
 }
 function truncateString (string text) returns (string) {
     int indexOfVersion = text.lastIndexOf(":");
@@ -255,10 +253,10 @@ function truncateString (string text) returns (string) {
 }
 
 documentation {
-    Function to create directories.
+    This function creates directories.
 
-    P{{directoryPath}} - The directory path to be created.
-    R{{}} - `boolean` If the directories were created or not.
+    P{{directoryPath}} Directory path to be created
+    R{{}} If the directories were created or not
 }
 function createDirectories(string directoryPath) returns (boolean) {
     internal:Path dirPath = new(directoryPath);
@@ -271,22 +269,22 @@ function createDirectories(string directoryPath) returns (boolean) {
 }
 
 documentation {
-    Function to invoke the FileServer endpoint.
+    This function invokes the fileServer endpoint.
 
-    P{{url}} - The endpoint url to be invoked.
-    R{{}} - `Response` The response got after invoking the endpoint.
+    P{{url}} Endpoint url to be invoked
+    R{{}} Response got after invoking the endpoint
 }
 
 function callFileServer(string url) returns http:Response? {
     endpoint http:Client httpEndpoint {
-        url:url,
+        url: url,
         secureSocket:{
             trustStore:{
-                path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                password:"ballerina"
+                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                password: "ballerina"
             },
-            verifyHostname:false,
-            shareSession:true
+            verifyHostname: false,
+            shareSession: true
         }
     };
     http:Request req = new;

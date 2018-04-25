@@ -19,30 +19,42 @@ import ballerina/auth;
 import ballerina/log;
 import ballerina/runtime;
 
-@Description {value:"Authentication cache name"}
+documentation {Authentication cache name.}
 @final string AUTH_CACHE = "basic_auth_cache";
 
-@Description {value:"Representation of Basic Auth handler for HTTP traffic"}
-@Field {value:"authProvider: AuthProvider instance"}
-@Field {value:"name: Authentication handler name"}
+documentation {
+    Defines Basic Auth handler for HTTP traffic.
+
+    F{{name}} Authentication handler name
+    F{{authProvider}} AuthProvider instance
+}
 public type HttpBasicAuthnHandler object {
     public {
         string name;
         auth:AuthProvider authProvider;
     }
-    public new (authProvider) {
+    public new(authProvider) {
         name = "basic";
     }
 
-    public function canHandle (Request req) returns (boolean);
-    public function handle (Request req) returns (boolean);
+    documentation {
+        Checks if the provided request can be authenticated with basic auth.
+
+        P{{req}} Request object
+        R{{}} `true` if it is possible authenticate with basic auth, else `false`
+    }
+    public function canHandle(Request req) returns (boolean);
+    documentation {
+        Intercept requests for authentication.
+
+        P{{req}} Request object
+        R{{}} `true` if authentication is a success, else `false`
+    }
+    public function handle(Request req) returns (boolean);
 };
 
-@Description {value:"Intercepts a request for authentication"}
-@Param {value:"req: Request object"}
-@Return {value:"boolean: true if authentication is a success, else false"}
-public function HttpBasicAuthnHandler::handle (Request req) returns (boolean) {
-    
+public function HttpBasicAuthnHandler::handle(Request req) returns (boolean) {
+
     // extract the header value
     var basicAuthHeader = extractBasicAuthHeaderValue(req);
     string basicAuthHeaderValue;
@@ -78,10 +90,7 @@ public function HttpBasicAuthnHandler::handle (Request req) returns (boolean) {
     }
 }
 
-@Description {value:"Checks if the provided request can be authenticated with basic auth"}
-@Param {value:"req: Request object"}
-@Return {value:"boolean: true if its possible authenticate with basic auth, else false"}
-public function HttpBasicAuthnHandler::canHandle (Request req) returns (boolean) {
+public function HttpBasicAuthnHandler::canHandle(Request req) returns (boolean) {
     string basicAuthHeader;
     try {
         basicAuthHeader = req.getHeader(AUTH_HEADER);
@@ -95,12 +104,13 @@ public function HttpBasicAuthnHandler::canHandle (Request req) returns (boolean)
     }
 }
 
-@Description {value:"Extracts the basic authentication credentials from the header value"}
-@Param {value:"authHeader: basic authentication header"}
-@Return {value:"string: username extracted"}
-@Return {value:"string: password extracted"}
-@Return {value:"error: any error occurred while extracting creadentials"}
-function extractBasicAuthCredentials (string authHeader) returns (string, string)|error {
+documentation {
+    Extracts the basic authentication credentials from the header value.
+
+    P{{authHeader}} Basic authentication header
+    R{{}} A `string` tuple with the extracted username and password or `error` that occured while extracting credentials
+}
+function extractBasicAuthCredentials(string authHeader) returns (string, string)|error {
     // extract user credentials from basic auth header
     string decodedBasicAuthHeader;
     try {

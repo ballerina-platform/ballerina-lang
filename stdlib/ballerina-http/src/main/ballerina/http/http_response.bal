@@ -26,6 +26,7 @@ documentation {
     F{{statusCode}} The response status code
     F{{reasonPhrase}} The status code reason phrase
     F{{server}} The server header
+    F{{resolvedRequestedURI}} The ultimate request URI that was made to receive the response when redirect is on
     F{{cacheControl}} The cache-control directives for the response. This needs to be explicitly initialized if
                       intending on utilizing HTTP caching. For incoming responses, this will already be populated
                       if the response was sent with cache-control directives
@@ -36,6 +37,7 @@ public type Response object {
         int statusCode = 200;
         string reasonPhrase;
         string server;
+        string resolvedRequestedURI;
         ResponseCacheControl? cacheControl;
     }
 
@@ -47,7 +49,7 @@ public type Response object {
     documentation {
         Gets the `Entity` associated with the response.
 
-        R{{}} The `Entity` of the response. `EntityError` will be returned if entity construction fails
+        R{{}} The `Entity` of the response. An `error` is returned, if entity construction fails
     }
     public native function getEntity() returns mime:Entity|error;
 
@@ -142,32 +144,41 @@ public type Response object {
     public function getContentType() returns string;
 
     documentation {
-        Gets the response payload as a `json`.
+        Extract `json` payload from the response. If the content type is not JSON, an `error` is returned.
 
-        R{{}} The JSON representation of the message payload or `error` in case of errors
+        R{{}} The `json` payload or `error` in case of errors
     }
     public function getJsonPayload() returns json|error;
 
     documentation {
-        Gets the response payload as an `xml`.
+        Extracts `xml` payload from the response. If the the content type is not XML, an `error` is returned.
 
-        R{{}} The XML representation of the message payload or `error` in case of errors
+        R{{}} The `xml` payload or `error` in case of errors
     }
     public function getXmlPayload() returns xml|error;
 
     documentation {
-        Get the text payload from the response.
+        Extracts `text` payload from the response. If the content type is not of type text, an `error` is returned.
 
         R{{}} The string representation of the message payload or `error` in case of errors
     }
     public function getTextPayload() returns string|error;
 
     documentation {
-        Gets the response payload as a `string`.
+        Gets the response payload as a `string`. Content type is not checked during payload construction which
+        makes this different from `getTextPayload()` function.
 
         R{{}} The string representation of the message payload or `error` in case of errors
     }
     public function getPayloadAsString() returns string|error;
+
+    documentation {
+        Gets the response payload as a `ByteChannel`, except in the case of multiparts. To retrieve multiparts, use
+        `getBodyParts()`.
+
+        R{{}} A byte channel from which the message payload can be read or `error` in case of errors
+    }
+    public function getByteChannel() returns io:ByteChannel|error;
 
     documentation {
         Gets the response payload as a `blob`.
@@ -177,17 +188,9 @@ public type Response object {
     public function getBinaryPayload() returns blob|error;
 
     documentation {
-        Gets the response payload as a `ByteChannel` except in the case of multiparts. To retrieve multiparts, use
-        `getBodyParts()`.
+        Extracts body parts from the response. If the content type is not a composite media type, an error is returned.
 
-        R{{}} A byte channel from which the message payload can be read or `error` in case of errors
-    }
-    public function getByteChannel() returns io:ByteChannel|error;
-
-    documentation {
-        Get multiparts from response.
-
-        R{{}} Returns the body parts as an array of entities or an `EntityError` if there were any errors in
+        R{{}} Returns the body parts as an array of entities or an `error` if there were any errors in
               constructing the body parts from the response
     }
     public function getBodyParts() returns mime:Entity[]|error;
