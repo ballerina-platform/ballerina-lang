@@ -32,7 +32,7 @@ documentation {
 @final public string NO_TRANSFORM = "no-transform";
 
 documentation {
-    When used in requests, it implies that clients are not willing to accept responses whose age is greater
+    When used in requests, `max-age` implies that clients are not willing to accept responses whose age is greater
     than `max-age`. When used in responses, the response is to be considered stale after the specified
     number of seconds.
 }

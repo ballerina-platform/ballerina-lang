@@ -44,7 +44,7 @@ documentation {
 public type CachingPolicy "CACHE_CONTROL_AND_VALIDATORS"|"RFC_7234";
 
 documentation {
-    This a more restricted mode of RFC 7234. Setting this as the caching policy restricts caching to instances
+    This is a more restricted mode of RFC 7234. Setting this as the caching policy restricts caching to instances
     where the `cache-control` header and either the `etag` or `last-modified` header are present.
 }
 @final public CachingPolicy CACHE_CONTROL_AND_VALIDATORS = "CACHE_CONTROL_AND_VALIDATORS";
