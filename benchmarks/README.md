@@ -1,5 +1,7 @@
 # Ballerina-benchmarks
 
+This module includes micro-benchmarks for ballerina.
+
 ### How To Visualize benchmarks 
 
 ##### To run benchmarks: 
