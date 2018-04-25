@@ -156,7 +156,7 @@ public class H2ClientActionsTest {
     @Test
     public void testH2MemDBUpdate() {
         BValue[] returns = BRunUtil.invoke(result, "testH2MemDBUpdate");
-        Assert.assertEquals(((BInteger)returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(returns[1].stringValue(), "[{\"ID\":15,\"NAME\":\"Anne\"}]");
     }
 
