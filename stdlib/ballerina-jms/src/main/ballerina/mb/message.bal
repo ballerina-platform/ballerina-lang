@@ -17,10 +17,10 @@
 import ballerina/jms;
 
 documentation {
-    Represent the MB message used to send and receive content from the a Ballerina Message Broker.
+Represent the MB message used to send and receive content from the a Ballerina Message Broker.
 
-    A message consist of a header and a body. The header contains fields used for message routing and
-    identification; the body contains the application data being sent.
+A message consist of a header and a body. The header contains fields used for message routing and
+identification; the body contains the application data being sent.
 }
 public type Message object {
 
@@ -31,7 +31,7 @@ public type Message object {
     public new(message) {}
 
     documentation { Gets the internal JMS message
-        returns JMS message}
+        R{{}} JMS message}
     function getJMSMessage() returns @tainted jms:Message {
         return self.message;
     }

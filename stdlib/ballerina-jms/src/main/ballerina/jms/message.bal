@@ -15,11 +15,11 @@
 // under the License.
 
 documentation {
-    Represent the JMS message used to send and receive content from the a JMS provider.
+Represent the JMS message used to send and receive content from the a JMS provider.
 
-    Most message-oriented middleware (MOM) products treat messages as lightweight entities that consist of a header
-    and a body. The header contains fields used for message routing and identification; the body contains the
-    application data being sent.
+Most message-oriented middleware (MOM) products treat messages as lightweight entities that consist of a header
+and a body. The header contains fields used for message routing and identification; the body contains the
+application data being sent.
 }
 public type Message object {
 
