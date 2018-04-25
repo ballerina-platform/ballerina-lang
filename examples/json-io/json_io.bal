@@ -9,11 +9,11 @@ function close(io:CharacterChannel characterChannel) {
 }
 
 function write(json content, string path) {
-    // From the given path a byte channel will be created
+    // Create a byte channel from the given path
     io:ByteChannel byteChannel = io:openFile(path, io:WRITE);
-    // Character channel will be derived from ByteChannel
+    // Derive the character channel from the byte channel
     io:CharacterChannel characterChannel = new io:CharacterChannel(byteChannel, "UTF8");
-    // This is how json content could be written via the character channel
+    // This is how json content is written via the character channel
     match characterChannel.writeJson(content) {
         error err => {
             close(characterChannel);
@@ -27,11 +27,11 @@ function write(json content, string path) {
 }
 
 function read(string path) returns json {
-    // From the given path a byte channel will be created
+    // Create a byte channel from the given path
     io:ByteChannel byteChannel = io:openFile(path, io:READ);
-    // Character channel will be derived from ByteChannel
+    // Derive the character channel from the byte channel
     io:CharacterChannel characterChannel = new io:CharacterChannel(byteChannel, "UTF8");
-    // This is how json content could be read from the character channel
+    // This is how json content is read from the character channel
     match characterChannel.readJson() {
         json result => {
             close(characterChannel);
@@ -46,7 +46,7 @@ function read(string path) returns json {
 
 function main(string... args) {
     string filePath = "./files/sample.json";
-    // We create a json out of string
+    //Create json content from string
     json j1 = { "Store": {
         "@id": "AST",
         "name": "Anne",
@@ -58,10 +58,10 @@ function main(string... args) {
     }
     };
     io:println("Preparing to write json file");
-    // Content will be written
+    // Write the content
     write(j1, filePath);
     io:println("Preparing to read the content written");
-    // Content will be read
+    // Read the content
     json content = read(filePath);
     io:println(content);
 }
