@@ -34,6 +34,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.List;
+import java.util.Map;
 
 /**
  * {@code RedirectUtil} contains utility methods used to HTTP client side redirection.
@@ -49,7 +51,7 @@ public class RedirectUtil {
      * @throws MalformedURLException if url is malformed
      */
     public static HTTPCarbonMessage createRedirectCarbonRequest(String redirectionUrl, String redirectionMethod,
-                                                                String userAgent, ChannelHandlerContext ctx)
+            int statusCode, ChannelHandlerContext ctx, List<Map.Entry<String, String>> headers)
             throws MalformedURLException {
         if (log.isDebugEnabled()) {
             log.debug("Create redirect request with http method  : " + redirectionMethod);
@@ -60,8 +62,8 @@ public class RedirectUtil {
         HTTPCarbonMessage httpCarbonRequest = new HTTPCarbonMessage(
                 new DefaultHttpRequest(HttpVersion.HTTP_1_1, httpMethod, ""), new DefaultListener(ctx));
         httpCarbonRequest.setProperty(Constants.HTTP_PORT,
-                                      locationUrl.getPort() != -1 ? locationUrl.getPort() :
-                                      getDefaultPort(locationUrl.getProtocol()));
+                locationUrl.getPort() != -1 ? locationUrl.getPort() :
+                        getDefaultPort(locationUrl.getProtocol()));
         httpCarbonRequest.setProperty(Constants.PROTOCOL, locationUrl.getProtocol());
         httpCarbonRequest.setProperty(Constants.HTTP_HOST, locationUrl.getHost());
         httpCarbonRequest.setProperty(Constants.HTTP_METHOD, redirectionMethod);
@@ -70,11 +72,15 @@ public class RedirectUtil {
 
         StringBuilder host = new StringBuilder(locationUrl.getHost());
         if (locationUrl.getPort() != -1 && locationUrl.getPort() != Constants.DEFAULT_HTTP_PORT
-            && locationUrl.getPort() != Constants.DEFAULT_HTTPS_PORT) {
+                && locationUrl.getPort() != Constants.DEFAULT_HTTPS_PORT) {
             host.append(Constants.COLON).append(locationUrl.getPort());
         }
-        if (userAgent != null) {
-            httpCarbonRequest.setHeader(HttpHeaderNames.USER_AGENT.toString(), userAgent);
+        httpCarbonRequest.removeHeader(Constants.HTTP_METHOD);
+
+        headers.stream().forEach((entry) -> httpCarbonRequest.setHeader(entry.getKey(), entry.getValue()));
+        if (statusCode == 303) {
+            httpCarbonRequest.removeHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
+            httpCarbonRequest.removeHeader(HttpHeaderNames.TRANSFER_ENCODING.toString());
         }
         httpCarbonRequest.setHeader(HttpHeaderNames.HOST.toString(), host.toString());
         httpCarbonRequest.completeMessage();
