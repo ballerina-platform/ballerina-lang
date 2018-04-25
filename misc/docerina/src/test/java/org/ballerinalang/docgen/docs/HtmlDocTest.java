@@ -175,7 +175,7 @@ public class HtmlDocTest {
         ConnectorDoc connectorDoc = (ConnectorDoc) page.constructs.get(1);
         Assert.assertEquals(connectorDoc.fields.size(), 2);
         Assert.assertEquals(connectorDoc.fields.get(0).toString(), "string url");
-        Assert.assertEquals(connectorDoc.children.size(), 4);
+        Assert.assertEquals(connectorDoc.children.size(), 2);
         Assert.assertTrue(connectorDoc.children.get(0) instanceof FunctionDoc, "Invalid documentable type");
         FunctionDoc functionDoc1 = (FunctionDoc) connectorDoc.children.get(0);
         Assert.assertEquals(functionDoc1.name, "testAction", "Invalid function name testAction");
@@ -192,13 +192,6 @@ public class HtmlDocTest {
         Assert.assertEquals(functionDoc2.returnParams.get(0).toString(), "boolean", "Invalid return type");
         Assert.assertEquals(functionDoc2.returnParams.get(0).description, "<p>whether successful or not</p>\n");
 
-        FunctionDoc functionDoc3 = (FunctionDoc) connectorDoc.children.get(2);
-        Assert.assertEquals(functionDoc3.name, "init", "Invalid function name init");
-        Assert.assertEquals(functionDoc3.icon, "fw-function", "init function is not detected as a function");
-
-        FunctionDoc functionDoc4 = (FunctionDoc) connectorDoc.children.get(3);
-        Assert.assertEquals(functionDoc4.name, "getCallerActions", "Invalid function name getClient");
-        Assert.assertEquals(functionDoc4.icon, "fw-function", "getClient function is not detected as a function");
     }
 
     @Test(description = "Objects in a package should be shown in the constructs")
