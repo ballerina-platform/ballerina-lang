@@ -25,7 +25,7 @@ documentation {
     F{{config}} The configurations of the client endpoint associated with this `LoadBalancer` instance
     F{{loadBalanceClientsArray}} Array of HTTP clients for load balancing
     F{{algorithm}} Load balancing algorithm
-    F{{nextIndex}} Keeps to index which needs to be take the next load balance endpoint
+    F{{nextIndex}} Index of the next load balancing client
     F{{failover}} Whether to fail over in case of a failure
 }
 public type LoadBalancer object {
