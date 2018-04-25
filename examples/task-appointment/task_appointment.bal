@@ -15,7 +15,7 @@ function main(string... args) {
 
         //job 1 runs every 20 seconds.
         appointment1 = new task:Appointment(onTriggerFunction, onErrorFunction, "0/20 * * * * ?");
-        _ = appointment1.schedule();
+        appointment1.schedule();
 
         //job 2 runs every other minute (at 15 seconds past the minute).
         onTriggerFunction = appointment2Cleanup;
@@ -59,7 +59,7 @@ function appointment1Cleanup() returns (error?) {
     if (app1Count == 5) {
         log:printInfo("Stopping Appointment#1 cleanup task since it has run 5 times");
         // This is how you stop a task.
-        _ = appointment1.cancel();
+        appointment1.cancel();
     }
     return cleanup();
 }
