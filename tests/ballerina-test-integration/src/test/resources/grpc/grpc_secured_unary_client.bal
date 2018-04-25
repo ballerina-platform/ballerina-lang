@@ -21,19 +21,10 @@ function testUnarySecuredBlocking() returns (string) {
     endpoint HelloWorldBlockingClient helloWorldBlockingEp {
         url:"https://localhost:8085",
         secureSocket:{
-            keyStore:{
-                path:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
-                password:"ballerina"
-            },
             trustStore:{
                 path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
                 password:"ballerina"
-            },
-            protocol:{
-                name:"TLSv1.2",
-                versions:["TLSv1.2", "TLSv1.1"]
-            },
-            ciphers:["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"]
+            }
         }
 
     };
@@ -67,8 +58,8 @@ public type HelloWorldBlockingStub object {
         self.stub = navStub;
     }
 
-    function hello(string req, grpc:Headers... headers) returns ((string, grpc:Headers)|error) {
-        var unionResp = self.stub.blockingExecute("HelloWorld/hello", req, ...headers);
+    function hello(string req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
+        var unionResp = self.stub.blockingExecute("HelloWorld/hello", req, headers = headers);
         match unionResp {
             error payloadError => {
                 return payloadError;
@@ -95,8 +86,8 @@ public type HelloWorldStub object {
         self.stub = navStub;
     }
 
-    function hello(string req, typedesc listener, grpc:Headers... headers) returns (error|()) {
-        return self.stub.nonBlockingExecute("HelloWorld/hello", req, listener, ...headers);
+    function hello(string req, typedesc listener, grpc:Headers? headers = ()) returns (error|()) {
+        return self.stub.nonBlockingExecute("HelloWorld/hello", req, listener, headers = headers);
     }
 };
 

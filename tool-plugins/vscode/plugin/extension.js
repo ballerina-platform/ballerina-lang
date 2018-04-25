@@ -17,8 +17,9 @@
  *
  */
 
-const { workspace, commands, window, ExtensionContext, debug } = require('vscode');
+const { workspace, commands, window, ExtensionContext, debug, extensions } = require('vscode');
 const { LanguageClient, LanguageClientOptions, ServerOptions } = require('vscode-languageclient');
+const { exec } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const { getLSService } = require('./serverStarter');
@@ -71,7 +72,7 @@ function showHomeNotSetWarning() {
 
 function checkHome(homePath) {
 	try {
-		if (fs.readdirSync(path.join(homePath, 'resources')).indexOf('composer') > -1) {
+		if (fs.readdirSync(path.join(homePath, 'lib', 'resources')).indexOf('composer') > -1) {
 			return true;
 		}
 	} catch(e) {
@@ -86,6 +87,22 @@ function checkHome(homePath) {
 		}
 	});
 	return false;
+}
+
+function checkVersion(homePath) {
+	if (!fs.existsSync(path.join(homePath, 'bin', 'ballerina'))) {
+		return;
+	}
+
+	exec(`${path.join(homePath, 'bin', 'ballerina')} version`, (err, stdout, stderr) => {
+		const platformVersion = stderr.toString().trim();
+		const extensionVersion = 'Ballerina ' + extensions.getExtension('ballerina.ballerina').packageJSON.version
+
+		if (platformVersion != extensionVersion) {
+			console.log(`Version mismatch. Platform version: ${platformVersion} Extension version: ${extensionVersion}`);
+			window.showWarningMessage(msgs.VERSION_MISMATCH);
+		}
+	});
 }
 
 exports.activate = function(context) {
@@ -106,7 +123,9 @@ exports.activate = function(context) {
 		return;
 	}
 
-	if(!checkHome(config.home)) {
+	checkVersion(config.home);
+
+	if (!checkHome(config.home)) {
 		rendererErrored(context);
 		return;
 	}

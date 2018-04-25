@@ -36,7 +36,7 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
 
     match result {
         http:Response response => httpResponse = response;
-        http:HttpConnectorError e => {
+        error e => {
             io:println("Connection to the remote host failed : " + e.message);
             return;
         }
@@ -293,7 +293,7 @@ function callFileServer(string url) returns http:Response? {
     var result = httpEndpoint -> get("", request=req);
     match result {
         http:Response response => return response;
-        http:HttpConnectorError e => {
+        error e => {
             io:println("Connection to the remote host failed : " + e.message);
             return;
         }

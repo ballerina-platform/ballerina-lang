@@ -53,7 +53,7 @@ service<http:Service> echo bind echoEP {
         string payloadData;
         var payload = req.getTextPayload();
         match payload {
-            http:PayloadError err => {
+            error err => {
                 done;
             }
             string s => {
@@ -134,7 +134,7 @@ service<http:Service> echo bind echoEP {
                 json responseJson = {"Name":name , "Team":team};
                 res.setJsonPayload(responseJson);
             }
-            http:PayloadError err => {
+            error err => {
                 res.setTextPayload(err.message);
             }
         }

@@ -28,6 +28,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.BUILD_COMPILED_PACKA
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 
 /**
  * This class provides util methods for building Ballerina programs and packages.
@@ -47,6 +48,7 @@ public class BuilderUtils {
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(BUILD_COMPILED_PACKAGE, Boolean.toString(buildCompiledPkg));
         options.put(OFFLINE, Boolean.toString(offline));
+        options.put(TEST_ENABLED, "true");
 
         Compiler compiler = Compiler.getInstance(context);
         compiler.build(packagePath, targetPath);
@@ -58,6 +60,7 @@ public class BuilderUtils {
         options.put(PROJECT_DIR, sourceRootPath.toString());
         options.put(OFFLINE, Boolean.toString(offline));
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
+        options.put(TEST_ENABLED, "true");
 
         Compiler compiler = Compiler.getInstance(context);
         compiler.build();

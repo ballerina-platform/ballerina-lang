@@ -46,6 +46,7 @@ public class BLangRecord extends BLangNode implements RecordNode {
     public List<BLangDocumentation> docAttachments;
     public List<BLangDeprecatedNode> deprecatedAttachments;
     public boolean isAnonymous;
+    public boolean isFieldAnalyseRequired;
 
     public BSymbol symbol;
 

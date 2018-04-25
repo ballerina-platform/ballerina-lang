@@ -331,6 +331,14 @@
     "before }": "",
     "after }": ""
   },
+  "Forever": {
+    "before forever": "",
+    "after forever": "",
+    "before {":"",
+    "after {": "",
+    "before }": "",
+    "after }": ""
+  },
   "ForkJoin": {
     "before fork": "",
     "after fork": "",
@@ -417,6 +425,18 @@
     "before returnParamTypeNode": "",
     "after returnParamTypeNode": ""
   },
+  "GroupBy": {
+    "before group": "",
+    "after group": "",
+    "before by": "",
+    "after by": "",
+    "before variables": "",
+    "after variables": ""
+  },
+  "Having": {
+    "before having": "",
+    "after having": ""
+  },
   "If": {
     "before if": "",
     "after if": "",
@@ -476,6 +496,14 @@
     "after unescapedValue": "",
     "before value": "",
     "after value": ""
+  },
+  "Lock": {
+    "before lock": "",
+    "after lock": "",
+    "before {": "",
+    "after {": "",
+    "before }": "",
+    "after }": ""
   },
   "Match": {
     "before match": "",
@@ -631,6 +659,16 @@
     "before ;": "",
     "after ;": ""
   },
+  "SelectClause": {
+    "before select": "",
+    "after select": ""
+  },
+  "SelectExpression": {
+    "before as": " ",
+    "after as": "",
+    "before identifier": " ",
+    "after identifier": ""
+  },
   "Service": {
     "before annotationAttachments": "",
     "after annotationAttachments": "",
@@ -673,6 +711,10 @@
     "before }}": "",
     "after }}": ""
   },
+  "StreamingQuery": {
+    "before from": "",
+    "after from": ""
+  },
   "StringTemplateLiteral": {
     "before string\\u0020`": "",
     "after string\\u0020`": "",
@@ -680,6 +722,10 @@
     "after expressions": "",
     "before `": "",
     "after `": ""
+  },
+  "Table": {
+    "before table": "",
+    "after table": ""
   },
   "TernaryExpr": {
     "before condition": "",
@@ -839,6 +885,10 @@
     "before name":"",
     "after name":" "
   },
+  "TypedescExpression": {
+    "before typeNode": "",
+    "after typeNode": ""
+  },
   "TypeofExpression": {
     "before typeof": "",
     "after typeof": "",
@@ -915,6 +965,10 @@
     "before ;": "",
     "after ;": ""
   },
+  "Where": {
+    "before where": "",
+    "after where": ""
+  },
   "While": {
     "before while": "",
     "after while": "",
@@ -930,6 +984,10 @@
     "after body": "",
     "before }": "",
     "after }": ""
+  },
+  "WindowClause": {
+    "before window": "",
+    "after window": ""
   },
   "Worker": {
     "before worker": "",

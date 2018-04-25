@@ -36,6 +36,7 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
@@ -72,6 +73,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
@@ -107,8 +109,7 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.PROPER
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PEER_HOSTNAME;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PEER_PORT;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PEER_ADDRESS;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
 import static org.wso2.transport.http.netty.common.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
 
@@ -498,7 +499,7 @@ public class HttpUtil {
                                                         HTTPCarbonMessage inboundRequestMsg) {
         if (inboundRequestMsg.getHeader(HttpHeaderNames.USER_AGENT.toString()) != null) {
             inboundRequestStruct.setStringField(HttpConstants.REQUEST_USER_AGENT_INDEX,
-                                                inboundRequestMsg.getHeader(HttpHeaderNames.USER_AGENT.toString()));
+                    inboundRequestMsg.getHeader(HttpHeaderNames.USER_AGENT.toString()));
             inboundRequestMsg.removeHeader(HttpHeaderNames.USER_AGENT.toString());
         }
     }
@@ -515,7 +516,7 @@ public class HttpUtil {
                 (Map<String, String>) inboundRequestMsg.getProperty(HttpConstants.RESOURCE_ARGS);
         if (resourceArgValues != null) {
             inboundRequestStruct.setStringField(HttpConstants.REQUEST_EXTRA_PATH_INFO_INDEX,
-                                                resourceArgValues.get(HttpConstants.EXTRA_PATH_INFO));
+                    resourceArgValues.get(HttpConstants.EXTRA_PATH_INFO));
         }
     }
 
@@ -537,7 +538,7 @@ public class HttpUtil {
      * @param httpResource Represent Http Resource.
      */
     public static void enrichServiceEndpointInfo(BStruct serviceEndpoint, HTTPCarbonMessage inboundMsg,
-            HttpResource httpResource) {
+                                                 HttpResource httpResource) {
         BStruct remote = BLangConnectorSPIUtil.createBStruct(
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                 PROTOCOL_PACKAGE_HTTP, HttpConstants.REMOTE);
@@ -584,11 +585,11 @@ public class HttpUtil {
         int statusCode = (Integer) inboundResponseMsg.getProperty(HTTP_STATUS_CODE);
         inboundResponse.setIntField(RESPONSE_STATUS_CODE_INDEX, statusCode);
         inboundResponse.setStringField(RESPONSE_REASON_PHRASE_INDEX,
-                                       HttpResponseStatus.valueOf(statusCode).reasonPhrase());
+                HttpResponseStatus.valueOf(statusCode).reasonPhrase());
 
         if (inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString()) != null) {
             inboundResponse.setStringField(HttpConstants.RESPONSE_SERVER_INDEX,
-                                           inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString()));
+                    inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString()));
             inboundResponseMsg.removeHeader(HttpHeaderNames.SERVER.toString());
         }
 
@@ -668,13 +669,13 @@ public class HttpUtil {
             if (struct.getStringField(HttpConstants.REQUEST_USER_AGENT_INDEX) != null && !struct.getStringField
                     (HttpConstants.REQUEST_USER_AGENT_INDEX).isEmpty()) {
                 transportHeaders.set(HttpHeaderNames.USER_AGENT.toString(),
-                                     struct.getStringField(HttpConstants.REQUEST_USER_AGENT_INDEX));
+                        struct.getStringField(HttpConstants.REQUEST_USER_AGENT_INDEX));
             }
         } else {
             if (struct.getStringField(HttpConstants.RESPONSE_SERVER_INDEX) != null && !struct.getStringField
                     (HttpConstants.RESPONSE_SERVER_INDEX).isEmpty()) {
                 transportHeaders.set(HttpHeaderNames.SERVER.toString(),
-                                     struct.getStringField(HttpConstants.RESPONSE_SERVER_INDEX));
+                        struct.getStringField(HttpConstants.RESPONSE_SERVER_INDEX));
             }
         }
     }
@@ -705,6 +706,17 @@ public class HttpUtil {
         if (entity == null) {
             createNewEntity(context, struct);
         }
+    }
+
+    /**
+     * Check the existence of the message entity data source.
+     *
+     * @param struct  request/response struct.
+     * @return true if the message entity data source is available else false.
+     */
+    public static boolean isEntityDataSourceAvailble(BStruct struct) {
+        return (struct.getNativeData(MESSAGE_ENTITY) != null &&
+                EntityBodyHandler.getMessageDataSource((BStruct) struct.getNativeData(MESSAGE_ENTITY)) != null);
     }
 
     private static void setCompressionHeaders(Context context, HTTPCarbonMessage requestMsg, HTTPCarbonMessage
@@ -1064,21 +1076,20 @@ public class HttpUtil {
     }
 
     public static void checkAndObserveHttpRequest(Context context, HTTPCarbonMessage message) {
-        if (!ObservabilityUtils.isObservabilityEnabled()) {
-            return;
-        }
-        ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
-        HttpUtil.injectHeaders(message, ObservabilityUtils.getContextProperties(observerContext));
-        observerContext.addTag(TAG_KEY_HTTP_METHOD, String.valueOf(message.getProperty(HttpConstants.HTTP_METHOD)));
-        observerContext.addTag(TAG_KEY_HTTP_URL, String.valueOf(message.getProperty(HttpConstants.TO)));
-        observerContext.addTag(TAG_KEY_PEER_HOSTNAME, String.valueOf(message.getProperty(PROPERTY_HTTP_HOST)));
-        observerContext.addTag(TAG_KEY_PEER_PORT, String.valueOf(message.getProperty(PROPERTY_HTTP_PORT)));
-        // Add HTTP Status Code tag. The HTTP status code will be set using the response message.
-        // Sometimes the HTTP status code will not be set due to errors etc. Therefore, it's very important to set
-        // some value to HTTP Status Code to make sure that tags will not change depending on various
-        // circumstances.
-        // HTTP Status code must be a number.
-        observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE, Integer.toString(0));
+        Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
+        observerContext.ifPresent(ctx -> {
+            HttpUtil.injectHeaders(message, ObservabilityUtils.getContextProperties(ctx));
+            ctx.addTag(TAG_KEY_HTTP_METHOD, String.valueOf(message.getProperty(HttpConstants.HTTP_METHOD)));
+            ctx.addTag(TAG_KEY_HTTP_URL, String.valueOf(message.getProperty(HttpConstants.TO)));
+            ctx.addTag(TAG_KEY_PEER_ADDRESS,
+                    message.getProperty(PROPERTY_HTTP_HOST) + ":" + message.getProperty(PROPERTY_HTTP_PORT));
+            // Add HTTP Status Code tag. The HTTP status code will be set using the response message.
+            // Sometimes the HTTP status code will not be set due to errors etc. Therefore, it's very important to set
+            // some value to HTTP Status Code to make sure that tags will not change depending on various
+            // circumstances.
+            // HTTP Status code must be a number.
+            ctx.addTag(TAG_KEY_HTTP_STATUS_CODE, Integer.toString(0));
+        });
     }
 
     public static void injectHeaders(HTTPCarbonMessage msg, Map<String, String> headers) {
@@ -1101,4 +1112,3 @@ public class HttpUtil {
         }
     }
 }
-

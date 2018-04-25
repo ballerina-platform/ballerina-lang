@@ -11,9 +11,10 @@ function main(string... args) {
 
 function calculateExp5(int x, int y) returns (int) {
     int z;
-    while(x >= y) {
-        y = y + 1;
-        if(y == 10){
+    int a = y;
+    while(x >= a) {
+        a = a + 1;
+        if(a == 10){
             z = 100;
             break;
         }

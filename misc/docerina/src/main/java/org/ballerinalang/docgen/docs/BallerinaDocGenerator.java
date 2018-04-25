@@ -61,7 +61,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.StringJoiner;
 
 /**
@@ -345,10 +344,9 @@ public class BallerinaDocGenerator {
     }
 
     private static List<Link> primitives() {
-        Properties primitives = BallerinaDocUtils.loadPrimitivesDescriptions();
+        List<String> primitives = BallerinaDocUtils.loadPrimitivesDescriptions(true);
         List<Link> primitiveLinks = new ArrayList<>();
-        for (Object primitive : primitives.keySet()) {
-            String type = (String) primitive;
+        for (String type : primitives) {
             primitiveLinks.add(new Link(new Caption(type), BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_HREF.concat(""
                     + ".html#" + type), true));
         }

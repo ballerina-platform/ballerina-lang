@@ -60,7 +60,10 @@ public class PushUtils {
     private static final Path BALLERINA_HOME_PATH = RepoUtils.createAndGetHomeReposPath();
     private static final Path SETTINGS_TOML_FILE_PATH = BALLERINA_HOME_PATH.resolve(
             ProjectDirConstants.SETTINGS_FILE_NAME);
+    public static final String BALLERINA_CENTRAL_CLI_TOKEN = "https://central.ballerina.io/cli-token";
+    public static final PrintStream SYS_ERR = System.err;
     private static PrintStream outStream = System.err;
+    private static EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
 
     /**
      * Push/Uploads packages to the central repository.
@@ -69,7 +72,6 @@ public class PushUtils {
      * @param installToRepo if it should be pushed to central or home
      */
     public static void pushPackages(String packageName, String installToRepo) {
-        String accessToken = getAccessTokenOfCLI();
         Manifest manifest = readManifestConfigurations();
         if (manifest.getName().isEmpty()) {
             throw new BLangCompilerException("An org-name is required when pushing. This is not specified in " +
@@ -97,11 +99,8 @@ public class PushUtils {
         }
 
         if (installToRepo == null) {
-            if (accessToken == null) {
-                // TODO: get bal home location dynamically
-                throw new BLangCompilerException("Access token is missing in ~/ballerina_home/Settings.toml file.\n" +
-                                                         "Please visit https://central.ballerina.io/cli-token");
-            }
+            // Get access token
+            String accessToken = checkAccessToken();
 
             // Read the Package.md file content from the artifact
             String mdFileContent = getPackageMDFileContent(pkgPathFromPrjtDir.toString(), packageName);
@@ -120,16 +119,85 @@ public class PushUtils {
             // Push package to central
             String resourcePath = resolvePkgPathInRemoteRepo(packageID);
             String msg = orgName + "/" + packageName + ":" + version + " [project repo -> central]";
-            EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
-            executor.execute("packaging_push/packaging_push.balx", accessToken, mdFileContent, description,
-                             homepageURL, repositoryURL, apiDocURL, authors, keywords, license, resourcePath,
-                             pkgPathFromPrjtDir.toString(), msg);
+            executor.execute("packaging_push/packaging_push.balx", true, accessToken, mdFileContent,
+                             description, homepageURL, repositoryURL, apiDocURL, authors, keywords, license,
+                             resourcePath, pkgPathFromPrjtDir.toString(), msg);
 
         } else {
             if (!installToRepo.equals("home")) {
                 throw new BLangCompilerException("Unknown repository provided to push the package");
             }
             installToHomeRepo(packageID, pkgPathFromPrjtDir);
+        }
+    }
+
+    /**
+     * Checks if the access token is available in Settings.toml or not.
+     *
+     * @return access token if its present
+     */
+    private static String checkAccessToken() {
+        String accessToken = getAccessTokenOfCLI();
+
+        if (accessToken.isEmpty()) {
+            try {
+                SYS_ERR.println("Opening the web browser to " +
+                                        BALLERINA_CENTRAL_CLI_TOKEN +
+                                        " for auto token update ...");
+
+                BrowserLauncher.startInDefaultBrowser(BALLERINA_CENTRAL_CLI_TOKEN);
+            } catch (IOException e) {
+                throw new BLangCompilerException("Access token is missing in " + SETTINGS_TOML_FILE_PATH.toString() +
+                                                 "\nAuto update failed. Please visit https://central.ballerina.io");
+            }
+            long modifiedTimeOfFileAtStart = getLastModifiedTimeOfFile(SETTINGS_TOML_FILE_PATH);
+            executor.execute("packaging_token_updater/packaging_token_updater.balx", false);
+
+            boolean waitForToken = true;
+            while (waitForToken) {
+                pause();
+                long modifiedTimeOfFileAfter = getLastModifiedTimeOfFile(SETTINGS_TOML_FILE_PATH);
+                if (modifiedTimeOfFileAtStart != modifiedTimeOfFileAfter) {
+                    accessToken = getAccessTokenOfCLI();
+                    if (accessToken.isEmpty()) {
+                        throw new BLangCompilerException("Access token is missing in " +
+                                                                 SETTINGS_TOML_FILE_PATH.toString() + "\nPlease " +
+                                                                 "visit https://central.ballerina.io");
+                    } else {
+                        waitForToken = false;
+                    }
+                }
+            }
+        }
+        return accessToken;
+    }
+
+    /**
+     * Pause for 3s to check if the access token is received.
+     */
+    private static void pause() {
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException ex) {
+            throw new BLangCompilerException("Error occurred when getting the access token");
+        }
+    }
+
+    /**
+     * Get last modified time of file.
+     *
+     * @param path file path
+     * @return last modified time in milliseconds
+     */
+    private static long getLastModifiedTimeOfFile(Path path) {
+        if (!Files.isRegularFile(path)) {
+            return -1;
+        }
+        try {
+            return Files.getLastModifiedTime(path).toMillis();
+        } catch (IOException ex) {
+            throw new BLangCompilerException("Error occurred when reading file for token " +
+                                             SETTINGS_TOML_FILE_PATH.toString());
         }
     }
 
@@ -219,7 +287,7 @@ public class PushUtils {
         if (settings.getCentral() != null) {
             return settings.getCentral().getAccessToken();
         }
-        return null;
+        return "";
     }
 
     /**

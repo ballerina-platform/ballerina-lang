@@ -59,19 +59,11 @@ public class LSPackageCache {
 
     /**
      * Find the package by Package ID.
-     * @param compilerContext       compiler context
      * @param pkgId                 Package Id to lookup
      * @return {@link BLangPackage} BLang Package resolved
      */
-    public BLangPackage findPackage(CompilerContext compilerContext, PackageID pkgId) {
-        BLangPackage bLangPackage = packageCache.get(pkgId);
-        if (bLangPackage != null) {
-            return bLangPackage;
-        } else {
-            bLangPackage = LSPackageLoader.getPackageById(compilerContext, pkgId);
-            this.put(bLangPackage.packageID, bLangPackage);
-            return bLangPackage;
-        }
+    public BLangPackage get(PackageID pkgId) {
+        return packageCache.get(pkgId);
     }
 
     /**

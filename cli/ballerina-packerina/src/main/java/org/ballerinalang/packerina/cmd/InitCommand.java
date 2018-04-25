@@ -50,17 +50,17 @@ public class InitCommand implements BLauncherCmd {
     public static final String DEFAULT_VERSION = "0.0.1";
     private static final PrintStream outStream = System.err;
     private JCommander parentCmdParser;
-    
+
     @Parameter(names = {"--interactive", "-i"})
     private boolean interactiveFlag;
-    
+
     @Parameter(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
-    
+
     @Override
     public void execute() {
         PrintStream out = System.out;
-    
+
         // Get source root path.
         Path projectPath = Paths.get(System.getProperty(USER_DIR));
         Scanner scanner = new Scanner(System.in, Charset.defaultCharset().name());
@@ -77,11 +77,10 @@ public class InitCommand implements BLauncherCmd {
             if (interactiveFlag) {
 
                 // Check if Ballerina.toml file needs to be created.
-                out.print("Create Ballerina.toml [yes/y, no/n]: (y) ");
+                out.print("Create Ballerina.toml [yes/y, no/n]: (n) ");
                 String createToml = scanner.nextLine().trim();
 
-                if (createToml.equalsIgnoreCase("yes") || createToml.equalsIgnoreCase("y") ||
-                    createToml.isEmpty()) {
+                if (createToml.equalsIgnoreCase("yes") || createToml.equalsIgnoreCase("y")) {
                     manifest = new Manifest();
 
                     String defaultOrg = guessOrgName();
@@ -114,14 +113,10 @@ public class InitCommand implements BLauncherCmd {
 
                     if (srcInput.equalsIgnoreCase("service") || srcInput.equalsIgnoreCase("s") ||
                         (first && srcInput.isEmpty())) {
-                        out.print("Package for the service : (no package) ");
-                        String packageName = scanner.nextLine().trim();
-                        SrcFile srcFile = new SrcFile(packageName, SrcFile.SrcFileType.SERVICE);
+                        SrcFile srcFile = new SrcFile("", SrcFile.SrcFileType.SERVICE);
                         sourceFiles.add(srcFile);
                     } else if (srcInput.equalsIgnoreCase("main") || srcInput.equalsIgnoreCase("m")) {
-                        out.print("Package for the main : (no package) ");
-                        String packageName = scanner.nextLine().trim();
-                        SrcFile srcFile = new SrcFile(packageName, SrcFile.SrcFileType.MAIN);
+                        SrcFile srcFile = new SrcFile("", SrcFile.SrcFileType.MAIN);
                         sourceFiles.add(srcFile);
                     } else if (srcInput.isEmpty() || srcInput.equalsIgnoreCase("f")) {
                         validInput = true;
@@ -134,10 +129,6 @@ public class InitCommand implements BLauncherCmd {
 
                 out.print("\n");
             } else {
-                manifest = new Manifest();
-                manifest.setName(guessOrgName());
-                manifest.setVersion(DEFAULT_VERSION);
-
                 if (isDirEmpty(projectPath)) {
                     SrcFile srcFile = new SrcFile("", SrcFile.SrcFileType.SERVICE);
                     sourceFiles.add(srcFile);
@@ -159,7 +150,7 @@ public class InitCommand implements BLauncherCmd {
     public String getName() {
         return "init";
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -169,7 +160,7 @@ public class InitCommand implements BLauncherCmd {
         out.append("\n");
         out.append("Use --interactive or -i to create a ballerina project in interactive mode.\n");
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -177,7 +168,7 @@ public class InitCommand implements BLauncherCmd {
     public void printUsage(StringBuilder out) {
         out.append("  ballerina init [-i] \n");
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -185,15 +176,15 @@ public class InitCommand implements BLauncherCmd {
     public void setParentCmdParser(JCommander parentCmdParser) {
         this.parentCmdParser = parentCmdParser;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void setSelfCmdParser(JCommander selfCmdParser) {
-    
+
     }
-    
+
     /**
      * Validates the version is a semver version.
      * @param versionAsString The version.
