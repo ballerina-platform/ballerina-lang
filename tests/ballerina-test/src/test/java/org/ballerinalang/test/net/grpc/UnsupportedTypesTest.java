@@ -39,7 +39,8 @@ public class UnsupportedTypesTest {
         CompileResult result = BCompileUtil.compile(serviceBalPath.toAbsolutePath().toString());
         Assert.assertEquals(1, result.getErrorCount());
         Assert.assertEquals(1, result.getDiagnostics().length);
-        Assert.assertEquals("Unsupported field type, field type json currently not supported.", result.getDiagnostics()[0].getMessage());
+        Assert.assertEquals("Unsupported field type, field type json currently not supported.", result
+                .getDiagnostics()[0].getMessage());
     }
 
     @Test
@@ -50,7 +51,7 @@ public class UnsupportedTypesTest {
         CompileResult result = BCompileUtil.compile(serviceBalPath.toAbsolutePath().toString());
         Assert.assertEquals(1, result.getErrorCount());
         Assert.assertEquals(1, result.getDiagnostics().length);
-        Assert.assertEquals("Unsupported field type, field type map currently not supported.", result.getDiagnostics()
-                [0].getMessage());
+        Assert.assertEquals("Unsupported field type, field type map currently not supported.", result.getDiagnostics
+                ()[0].getMessage());
     }
 }
