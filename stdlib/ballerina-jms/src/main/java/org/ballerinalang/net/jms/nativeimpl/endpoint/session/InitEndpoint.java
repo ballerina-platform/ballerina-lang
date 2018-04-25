@@ -46,8 +46,7 @@ import javax.jms.Session;
         functionName = "initEndpoint",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Session", structPackage = "ballerina.jms"),
         args = {@Argument(name = "connection", type = TypeKind.STRUCT, structType = "Connection")
-        },
-        isPublic = true
+        }
 )
 public class InitEndpoint implements NativeCallableUnit {
 
