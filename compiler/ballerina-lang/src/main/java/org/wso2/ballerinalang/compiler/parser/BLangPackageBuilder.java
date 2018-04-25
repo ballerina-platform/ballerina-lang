@@ -1584,6 +1584,9 @@ public class BLangPackageBuilder {
         nillTypeNode.typeKind = TypeKind.NIL;
         function.returnTypeNode = nillTypeNode;
 
+        attachDocumentations(function);
+        attachDeprecatedNode(function);
+
         ((BLangObject) this.objectStack.peek()).initFunction = function;
     }
 
