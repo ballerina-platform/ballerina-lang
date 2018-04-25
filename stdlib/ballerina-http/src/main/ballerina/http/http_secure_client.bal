@@ -75,7 +75,7 @@ public type HttpSecureClient object {
         P{{path}} Resource path
         P{{request}} An HTTP outbound request message
         R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
-	}
+    }
     public function head(string path, Request? request = ()) returns (Response|error) {
         Request req = request ?: new;
         check generateSecureRequest(req, config);
@@ -96,7 +96,7 @@ public type HttpSecureClient object {
         P{{path}} Resource path
         P{{request}} An HTTP outbound request message
         R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
-	}
+    }
     public function put(string path, Request? request = ()) returns (Response|error) {
         Request req = request ?: new;
         check generateSecureRequest(req, config);
@@ -118,7 +118,7 @@ public type HttpSecureClient object {
         P{{path}} Resource path
         P{{request}} An HTTP outbound request message
         R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
-	}
+    }
     public function execute(string httpVerb, string path, Request request) returns (Response|error) {
         var details = generateSecureRequest(request, config);
         check generateSecureRequest(request, config);
@@ -139,7 +139,7 @@ public type HttpSecureClient object {
         P{{path}} Resource path
         P{{request}} An HTTP outbound request message
         R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
-	}
+    }
     public function patch(string path, Request? request = ()) returns (Response|error) {
         Request req = request ?: new;
         check generateSecureRequest(req, config);
@@ -160,7 +160,7 @@ public type HttpSecureClient object {
         P{{path}} Resource path
         P{{request}} An HTTP outbound request message
         R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
-	}
+    }
     public function delete(string path, Request? request = ()) returns (Response|error) {
         Request req = request ?: new;
         check generateSecureRequest(req, config);
@@ -181,7 +181,7 @@ public type HttpSecureClient object {
         P{{path}} Request path
         P{{request}} An HTTP outbound request message
         R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
-	}
+    }
     public function get(string path, Request? request = ()) returns (Response|error) {
         Request req = request ?: new;
         check generateSecureRequest(req, config);
@@ -202,7 +202,7 @@ public type HttpSecureClient object {
         P{{path}} Request path
         P{{request}} An HTTP outbound request message
         R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
-	}
+    }
     public function options(string path, Request? request = ()) returns (Response|error) {
         Request req = request ?: new;
         check generateSecureRequest(req, config);
@@ -223,7 +223,7 @@ public type HttpSecureClient object {
         P{{path}} Request path
         P{{request}} An HTTP inbound request message
         R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
-	}
+    }
     public function forward(string path, Request request) returns (Response|error) {
         check generateSecureRequest(request, config);
         Response response = check httpClient.forward(path, request);
@@ -244,7 +244,7 @@ public type HttpSecureClient object {
         P{{path}} The resource path
         P{{request}} An HTTP outbound request message
         R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
-	}
+    }
     public function submit(string httpVerb, string path, Request request) returns (HttpFuture|error) {
         check generateSecureRequest(request, config);
         return httpClient.submit(httpVerb, path, request);
@@ -255,7 +255,7 @@ public type HttpSecureClient object {
 
         P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
         R{{}} An HTTP response message, or an error if the invocation fails
-	}
+    }
     public function getResponse(HttpFuture httpFuture) returns (Response|error) {
         return httpClient.getResponse(httpFuture);
     }
@@ -265,7 +265,7 @@ public type HttpSecureClient object {
 
         P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
         R{{}} A `boolean` that represents whether a `PushPromise` exists
-	}
+    }
     public function hasPromise(HttpFuture httpFuture) returns boolean {
         return httpClient.hasPromise(httpFuture);
     }
@@ -275,7 +275,7 @@ public type HttpSecureClient object {
 
         P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
         R{{}} An HTTP Push Promise message, or an error if the invocation fails
-	}
+    }
     public function getNextPromise(HttpFuture httpFuture) returns (PushPromise|error) {
         return httpClient.getNextPromise(httpFuture);
     }
@@ -285,7 +285,7 @@ public type HttpSecureClient object {
 
         P{{promise}} The related `PushPromise`
         R{{}} A promised HTTP `Response` message, or an error if the invocation fails
-	}
+    }
     public function getPromisedResponse(PushPromise promise) returns (Response|error) {
         return httpClient.getPromisedResponse(promise);
     }
@@ -294,7 +294,7 @@ public type HttpSecureClient object {
         This just pass the request to actual network call.
 
         P{{promise}} The Push Promise to be rejected
-	}
+    }
     public function rejectPromise(PushPromise promise) {
         return httpClient.rejectPromise(promise);
     }
