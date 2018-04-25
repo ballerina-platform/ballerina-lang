@@ -16,6 +16,13 @@
 
 import ballerina/log;
 
+documentation { Simplified queue receiver endpoint.
+    A new connection and a session will be create when this endpoint is initialize. If your requirement is complex
+    please refer QueueReceiver endpoint.
+
+    E{{}}
+    F{{config}} configurations related to the SimpleQueueReceiver endpoint
+}
 public type SimpleQueueReceiver object {
 
     public {
@@ -28,6 +35,9 @@ public type SimpleQueueReceiver object {
         QueueReceiver? queueReceiver;
     }
 
+    documentation { Initialize the SimpleQueueReceiver endpoint
+        P{{config}} Configurations related to the SimpleQueueReceiver endpoint
+    }
     public function init(SimpleQueueReceiverEndpointConfiguration config) {
         self.config = config;
         Connection conn = new({
@@ -53,6 +63,9 @@ public type SimpleQueueReceiver object {
         self.queueReceiver = receiver;
     }
 
+    documentation { Binds the SimlpeQueueReceiver endpoint to a service
+        P{{serviceType}} type descriptor of the service to bind to
+    }
     public function register(typedesc serviceType) {
         match (queueReceiver) {
             QueueReceiver c => {
@@ -65,10 +78,14 @@ public type SimpleQueueReceiver object {
         }
     }
 
+    documentation { Starts the endpoint. Function is ignored by the receiver endpoint }
     public function start() {
 
     }
 
+    documentation { Retrieves the SimpleQueueReceiver consumer action handler
+        R{{}} simple queue receiver action handler
+    }
     public function getCallerActions() returns QueueReceiverActions {
         match (queueReceiver) {
             QueueReceiver c => return c.getCallerActions();
@@ -79,13 +96,17 @@ public type SimpleQueueReceiver object {
         }
     }
 
+    documentation { Stops consuming messages through QueueReceiver endpoint }
     public function stop() {
 
     }
 
-    public function createTextMessage(string message) returns Message|error {
+    documentation { Creates a JMS message which holds text content
+        P{{content}} the text content used to initialize this message
+    }
+    public function createTextMessage(string content) returns Message|error {
         match (session) {
-            Session s => return s.createTextMessage(message);
+            Session s => return s.createTextMessage(content);
             () => {
                 error e = {message:"Session cannot be null"};
                 throw e;
@@ -94,6 +115,16 @@ public type SimpleQueueReceiver object {
     }
 };
 
+documentation { Configurations related to the SimpleQueueReceiver endpoint
+    F{{initialContextFactory}} JMS provider specific inital context factory
+    F{{providerUrl}} JMS provider specific provider URL used to configure a connection
+    F{{connectionFactoryName}} JMS connection factory to be used in creating JMS connections
+    F{{acknowledgementMode}} specifies the session mode that will be used. Legal values are "AUTO_ACKNOWLEDGE",
+    "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
+    F{{messageSelector}} JMS selector statement
+    F{{properties}} Additional properties use in initializing the initial context
+    F{{queueName}} Name of the target queue
+}
 public type SimpleQueueReceiverEndpointConfiguration {
     string initialContextFactory = "bmbInitialContextFactory";
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";

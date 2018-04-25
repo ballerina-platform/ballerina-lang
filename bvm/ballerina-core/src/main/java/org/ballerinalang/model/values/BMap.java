@@ -41,10 +41,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @param <V> Value
  * @since 0.8.0
  */
+@SuppressWarnings("rawtypes")
 public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implements BRefType, BCollection {
 
-
-    @SuppressWarnings("unchecked")
     private LinkedHashMap<K, V> map;
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
     private final Lock readLock = lock.readLock();
@@ -116,7 +115,12 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
      * Clear map entries.
      */
     public void clear() {
-        map.clear();
+        writeLock.lock();
+        try {
+            map.clear();
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     /**
@@ -126,7 +130,12 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
      * @return returns boolean true if key exists
      */
     public boolean hasKey(K key) {
-        return map.containsKey(key);
+        readLock.lock();
+        try {
+            return map.containsKey(key);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     /**
@@ -142,7 +151,12 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
      * @return returns the size of the map
      */
     public int size() {
-        return map.size();
+        readLock.lock();
+        try {
+            return map.size();
+        } finally {
+            readLock.unlock();
+        }
     }
 
     /**
@@ -152,11 +166,16 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
      * @return boolean to indicate whether given key is removed.
      */
     public boolean remove(K key) {
-        boolean hasKey = map.containsKey(key);
-        if (hasKey) {
-            map.remove(key);
+        writeLock.lock();
+        try {
+            boolean hasKey = map.containsKey(key);
+            if (hasKey) {
+                map.remove(key);
+            }
+            return hasKey;
+        } finally {
+            writeLock.unlock();
         }
-        return hasKey;
     }
 
     /**
@@ -164,7 +183,12 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
      * @return returns the set of keys
      */
     public Set<K> keySet() {
-        return map.keySet();
+        readLock.lock();
+        try {
+            return map.keySet();
+        } finally {
+            readLock.unlock();
+        }
     }
 
     /**Return true if this map is empty.
@@ -172,7 +196,12 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
      * @return Flag indicating whether the map is empty or not
      */
     public boolean isEmpty() {
-        return map.size() == 0;
+        readLock.lock();
+        try {
+            return map.size() == 0;
+        } finally {
+            readLock.unlock();
+        }
     }
 
     @Override
@@ -182,28 +211,33 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
 
     @Override
     public String stringValue() {
-        StringJoiner sj = new StringJoiner(", ", "{", "}");
-
-        for (Iterator<Map.Entry<K, V>> i = map.entrySet().iterator(); i.hasNext();) {
-
-            String key;
-            String stringValue;
-
-            Map.Entry<K, V> e = i.next();
-            key = "\"" + (String) e.getKey() + "\"";
-            V value = e.getValue();
-
-            if (value == null) {
-                stringValue = null;
-            } else if (value instanceof BString) {
-                stringValue = "\"" + value.stringValue() + "\"";
-            } else {
-                stringValue = value.stringValue();
+        readLock.lock();
+        try {
+            StringJoiner sj = new StringJoiner(", ", "{", "}");
+    
+            for (Iterator<Map.Entry<K, V>> i = map.entrySet().iterator(); i.hasNext();) {
+    
+                String key;
+                String stringValue;
+    
+                Map.Entry<K, V> e = i.next();
+                key = "\"" + (String) e.getKey() + "\"";
+                V value = e.getValue();
+    
+                if (value == null) {
+                    stringValue = null;
+                } else if (value instanceof BString) {
+                    stringValue = "\"" + value.stringValue() + "\"";
+                } else {
+                    stringValue = value.stringValue();
+                }
+    
+                sj.add(key + ":" + stringValue);
             }
-
-            sj.add(key + ":" + stringValue);
+            return sj.toString();
+        } finally {
+            readLock.unlock();
         }
-        return sj.toString();
 
     }
 
@@ -214,12 +248,17 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
 
     @Override
     public BValue copy() {
-        BMap<K, BValue> newMap = BTypes.typeMap.getEmptyValue();
-        for (Map.Entry<K, V> entry: map.entrySet()) {
-            BValue value = entry.getValue();
-            newMap.put(entry.getKey(), value == null ? null : value.copy());
+        readLock.lock();
+        try {
+            BMap<K, BValue> newMap = BTypes.typeMap.getEmptyValue();
+            for (Map.Entry<K, V> entry: map.entrySet()) {
+                BValue value = entry.getValue();
+                newMap.put(entry.getKey(), value == null ? null : value.copy());
+            }
+            return newMap;
+        } finally {
+            readLock.unlock();
         }
-        return newMap;
     }
 
     @Override

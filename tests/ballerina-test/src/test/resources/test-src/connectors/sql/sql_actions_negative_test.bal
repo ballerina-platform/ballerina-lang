@@ -85,6 +85,7 @@ function testCallProcedure() returns (string) {
                 var j = check <json>dt[0];
                 returnData = io:sprintf("%j", j);
             }
+            () => returnData = "";
             error err1 => {
                 returnData = err1.message;
             }
@@ -196,6 +197,7 @@ function testCallProcedureWithMultipleResultSetsAndLowerConstraintCount() return
             testDB.stop();
             return (firstName1, firstName2);
         }
+        () => return ("", "");
         error e => {
             testDB.stop();
             return e;
@@ -230,6 +232,7 @@ function testCallProcedureWithMultipleResultSetsAndHigherConstraintCount() retur
             testDB.stop();
             return (firstName1, firstName2);
         }
+        () => return ("", "");
         error e => {
             testDB.stop();
             return e;
@@ -263,6 +266,7 @@ function testCallProcedureWithMultipleResultSetsAndNilConstraintCount() returns 
 
             return (firstName1, firstName2);
         }
+        () => return ("", "");
         error e => {
             testDB.stop();
             return e;

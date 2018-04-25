@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+set -e
+
+BAL_HOME=$1
+chmod +x ${BAL_HOME}/bin/ballerina
+export PATH=${BAL_HOME}/bin:$PATH
+resultsFolderName=results
+resultsFileName=${resultsFolderName}/$4.csv
+
+echo "Running Performance benchmarks ..."
+
+if [ ! -d "$resultsFolderName" ]; then
+ mkdir ${resultsFolderName}
+fi
+
+echo "Function_Name,Total Time (ms),Average Latency (ns),Throughput (operations/second)" > ${resultsFileName}
+
+ballerina build benchmark
+
+for functionName in $(<benchmarkFunctions.txt)
+ do
+   ballerina run target/benchmark.balx $2 $3 ${functionName} >> ${resultsFileName}
+ done

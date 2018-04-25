@@ -47,6 +47,18 @@ type ResultDates {
     string DATETIME_TYPE,
 };
 
+type ResultBalTypes {
+    int INT_TYPE,
+    int LONG_TYPE,
+    float FLOAT_TYPE,
+    float DOUBLE_TYPE,
+    boolean BOOLEAN_TYPE,
+    string STRING_TYPE,
+    float NUMERIC_TYPE,
+    float DECIMAL_TYPE,
+    float REAL_TYPE,
+};
+
 type Employee {
     int id,
     string name,
@@ -190,14 +202,20 @@ function testSelectIntFloatData() returns (int, int, float, float) {
     return (int_type, long_type, float_type, double_type);
 }
 
-function testCallProcedure() returns (string) {
+function testCallProcedure() returns (string, string) {
     endpoint jdbc:Client testDB {
         url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    _ = testDB->call("{call InsertPersonData(100,'James')}", ());
+    string returnValue;
+    var ret = testDB->call("{call InsertPersonData(100,'James')}", ());
+    match ret {
+        table[] dt => returnValue = "table";
+        () => returnValue = "nil";
+        error => returnValue = "error";
+    }
     table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 100", ResultCustomers);
     string firstName;
     while (dt.hasNext()) {
@@ -205,7 +223,7 @@ function testCallProcedure() returns (string) {
         firstName = rs.FIRSTNAME;
     }
     testDB.stop();
-    return firstName;
+    return (firstName, returnValue);
 }
 
 function testCallProcedureWithResultSet() returns (string) {
@@ -215,9 +233,14 @@ function testCallProcedureWithResultSet() returns (string) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table[] dts = check testDB->call("{call SelectPersonData()}", [ResultCustomers]);
-
     string firstName;
+    var ret = check testDB->call("{call SelectPersonData()}", [ResultCustomers]);
+    table[] dts;
+    match ret {
+        table[] dtsRet => dts = dtsRet;
+        () => firstName = "error";
+    }
+
     while (dts[0].hasNext()) {
         ResultCustomers rs = check <ResultCustomers>dts[0].getNext();
         firstName = rs.FIRSTNAME;
@@ -233,11 +256,16 @@ function testCallProcedureWithMultipleResultSets() returns (string, string, stri
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table[] dts = check testDB->call("{call SelectPersonDataMultiple()}", [ResultCustomers, ResultCustomers2]);
-
     string firstName1;
     string firstName2;
     string lastName;
+
+    var ret = check testDB->call("{call SelectPersonDataMultiple()}", [ResultCustomers, ResultCustomers2]);
+    table[] dts;
+    match ret {
+        table[] dtsRet => dts = dtsRet;
+        () => firstName1 = "error";
+    }
 
     while (dts[0].hasNext()) {
         ResultCustomers rs = check <ResultCustomers>dts[0].getNext();
@@ -551,6 +579,45 @@ function testINParameters() returns (int) {
         paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary);
     testDB.stop();
     return insertCount;
+}
+
+function testINParameters2() returns (int, int, float, float, boolean, string, float, float, float) {
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    int insertCount = check testDB->update("INSERT INTO DataTypeTable (row_id, int_type, long_type,
+            float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type)
+            VALUES (?,?,?,?,?,?,?,?,?,?)", 25, 1, 9223372036854774807, 123.34, 2139095039.1, true,
+        "Hello", 1234.567, 1234.567, 1234.567);
+    table dt = check testDB->select("SELECT int_type, long_type,
+            float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type from
+            DataTypeTable where row_id = 25", ResultBalTypes);
+    int i;
+    int l;
+    float f;
+    float d;
+    boolean b;
+    string s;
+    float n;
+    float dec;
+    float real;
+
+    while (dt.hasNext()) {
+        var rs = check <ResultBalTypes>dt.getNext();
+        i = rs.INT_TYPE;
+        l = rs.LONG_TYPE;
+        f = rs.FLOAT_TYPE;
+        d = rs.DOUBLE_TYPE;
+        s = rs.STRING_TYPE;
+        n = rs.NUMERIC_TYPE;
+        dec = rs.DECIMAL_TYPE;
+        real = rs.REAL_TYPE;
+    }
+    testDB.stop();
+    return (i, l, f, d, b, s, n, dec, real);
 }
 
 function testNullINParameterValues() returns (int) {
