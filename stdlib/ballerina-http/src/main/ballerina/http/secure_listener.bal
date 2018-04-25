@@ -73,15 +73,15 @@ public type SecureListener object {
 documentation {
     Configuration for secure HTTP service endpoint.
 
-    F{{host}} Host of the `endpoint`
-    F{{port}} Port of the `endpoint`
+    F{{host}} Host of the endpoint
+    F{{port}} Port of the endpoint
     F{{keepAlive}} The keepAlive behaviour of the endpoint
     F{{transferEncoding}} The types of encoding applied to the response
     F{{secureSocket}} The SSL configurations for the `endpoint`
     F{{httpVersion}} Highest HTTP version supported
     F{{requestLimits}} Request validation limits configuration
     F{{filters}} Filters to be applied to the request before being dispatched to the actual `resource`
-    F{{authProviders}} The array of AuthProviders which are used to authenticate the users
+    F{{authProviders}} The array of authentication providers which are used to authenticate the users
 }
 public type SecureEndpointConfiguration {
     string host,
