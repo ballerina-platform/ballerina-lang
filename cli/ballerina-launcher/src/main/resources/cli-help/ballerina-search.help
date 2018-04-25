@@ -5,13 +5,13 @@ SYNOPSIS
     ballerina search <text>
 
 DESCRIPTION
-     Searches Ballerina Central for given text appearing in 
-     organization name, package name or package descriptions. 
+     Searches Ballerina Central for the given text appearing in 
+     organization name, package name, or package descriptions. 
 
-     Search text is treated crease insensitive when search is execute. 
+     Search text is treated as case-insensitive when search is executed. 
 
 OPTIONS
-     Ballerina search command takes no options
+     Ballerina search command takes no options.
 
 EXAMPLES
      Search for Foo organization

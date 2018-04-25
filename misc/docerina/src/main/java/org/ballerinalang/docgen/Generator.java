@@ -172,7 +172,11 @@ public class Generator {
             return null;
         }).collect(Collectors.toList());
 
-        connectors.forEach(connectorDoc -> visitedObjects.add(connectorDoc.getObject()));
+        connectors.forEach(connectorDoc -> {
+            if (connectorDoc != null) {
+                visitedObjects.add(connectorDoc.getObject());
+            }
+        });
         documentables.addAll(connectors);
 
         // Check for objects in the package

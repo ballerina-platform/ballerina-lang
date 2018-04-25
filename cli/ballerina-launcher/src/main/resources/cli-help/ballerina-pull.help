@@ -5,14 +5,13 @@ SYNOPSIS
     ballerina pull <package-name>
 
 DESCRIPTION
-     Downloads the given package form Ballerina Central 
+     Downloads the given package from Ballerina Central 
      (https://central.ballerina.io/) repository and installs to home
-     repository. 
-     By default, package will be placed within the .ballerina home
-     repository of the user. 
+     repository. By default, package will be placed within the 
+     .ballerina home repository of the user. 
 
 OPTIONS
-     Ballerina pull command takes no options  
+     Ballerina pull command takes no options.
 
 EXAMPLES
      Download Gmail connector by WSO2 from Ballerina Central 

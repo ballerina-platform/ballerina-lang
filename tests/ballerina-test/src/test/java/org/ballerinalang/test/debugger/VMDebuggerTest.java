@@ -60,16 +60,16 @@ public class VMDebuggerTest {
     @Test(description = "Testing Resume with break points.")
     public void testResume() {
         BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".", FILE,
-                3, 16, 27, 28, 31, 33, 35, 41, 42, 43, 44, 45);
+                3, 9, 17, 29, 30, 33, 35, 37, 42, 43, 44, 45, 46, 47);
 
         List<DebugPoint> debugPoints = new ArrayList<>();
         debugPoints.add(Util.createDebugPoint(".", FILE, 3, RESUME, 1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 16, RESUME, 1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 41, RESUME, 1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 28, RESUME, 1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 35, RESUME, 1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 17, RESUME, 1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 30, RESUME, 1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 37, RESUME, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 42, RESUME, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 43, RESUME, 1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 9, RESUME, 1));
 
         ExpectedResults expRes = new ExpectedResults(debugPoints, 7);
 
@@ -78,7 +78,7 @@ public class VMDebuggerTest {
 
     @Test(description = "Testing Debugger with breakpoint in non executable and not reachable lines.")
     public void testNegativeBreakPoints() {
-        BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".", FILE, 4, 7, 51, 37);
+        BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".", FILE, 4, 7, 51, 39);
 
         List<DebugPoint> debugPoints = new ArrayList<>();
 
@@ -96,32 +96,34 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", FILE, 13, STEP_IN,  1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 14, STEP_IN,  1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 15, STEP_IN,  1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 19, STEP_IN,  1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 13, RESUME,  1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 16, STEP_IN,  1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 20, STEP_IN,  1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 14, RESUME,  1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 8, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 41, STEP_IN, 1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 25, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 26, STEP_IN, 1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 27, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 28, STEP_IN, 1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 29, STEP_IN,  1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 35, STEP_IN,  1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 36, STEP_IN,  1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 30, STEP_IN,  1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 31, STEP_IN,  1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 37, STEP_IN,  1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 38, STEP_IN,  1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 42, STEP_IN,  1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 43, STEP_IN,  1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 9, RESUME, 1));
 
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 18);
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 20);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test-debug.bal", breakPoints, expRes);
     }
 
     @Test(description = "Testing Step Out.")
     public void testStepOut() {
-        BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".", FILE, 25);
+        BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".", FILE, 26);
 
         List<DebugPoint> debugPoints = new ArrayList<>();
-        debugPoints.add(Util.createDebugPoint(".", FILE, 25, STEP_OUT, 1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 42, STEP_OUT, 1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 26, STEP_OUT, 1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 41, STEP_OUT, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 9, RESUME, 1));
 
         ExpectedResults expRes = new ExpectedResults(debugPoints, 3);
@@ -152,26 +154,28 @@ public class VMDebuggerTest {
 
         List<DebugPoint> debugPoints = new ArrayList<>();
         debugPoints.add(Util.createDebugPoint(".", FILE, 26, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 27, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 28, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 29, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 35, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 36, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 42, RESUME, 1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 30, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 31, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 37, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 38, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 41, RESUME, 1));
 
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 6);
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 8);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test-debug.bal", breakPoints, expRes);
     }
 
     @Test(description = "Testing Step over in WhileStmt.")
     public void testStepOverWhileStmt() {
-        BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".", FILE, 12, 13, 19, 21);
+        BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".", FILE, 13, 14, 20, 22);
 
         List<DebugPoint> debugPoints = new ArrayList<>();
-        debugPoints.add(Util.createDebugPoint(".", FILE, 12, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 13, RESUME, 5));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 19, RESUME, 4));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 21, RESUME, 1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 13, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 14, RESUME, 5));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 20, RESUME, 4));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 22, RESUME, 1));
 
         ExpectedResults expRes = new ExpectedResults(debugPoints, 11);
 
@@ -224,7 +228,7 @@ public class VMDebuggerTest {
     @Test(description = "Testing debug paths in workers")
     public void testDebuggingWorkers() {
         BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".",
-                "test-worker.bal", 3, 9, 10, 18, 19, 23, 46);
+                "test-worker.bal", 3, 9, 10, 18, 19, 23, 48);
 
         String file  = "test-worker.bal";
 
@@ -237,7 +241,7 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", file, 13, RESUME, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 18, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 19, RESUME, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 46, RESUME, 5));
+        debugPoints.add(Util.createDebugPoint(".", file, 48, RESUME, 5));
         debugPoints.add(Util.createDebugPoint(".", file, 23, RESUME, 1));
 
         ExpectedResults expRes = new ExpectedResults(debugPoints, 14);
@@ -258,17 +262,68 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", file, 14, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 15, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 16, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 20, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 14, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 17, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 21, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 15, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 16, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 20, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 14, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 22, RESUME, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 17, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 21, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 15, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 23, RESUME, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 9, RESUME, 1));
 
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 13);
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 14);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test-package-init.bal", breakPoints, expRes);
+    }
+
+    @Test(description = "Testing debug match statement and objects")
+    public void testDebuggingMatchAndObject() {
+        BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".",
+                "test_object_and_match.bal", 3, 48, 66, 54);
+
+        String file  = "test_object_and_match.bal";
+
+        List<DebugPoint> debugPoints = new ArrayList<>();
+        debugPoints.add(Util.createDebugPoint(".", file, 3, STEP_IN, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 7, STEP_IN, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 29, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 26, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 30, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 31, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 32, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 8, STEP_IN, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 35, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 36, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 37, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 51, STEP_OUT, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 9, STEP_IN, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 29, STEP_OUT, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 10, STEP_IN, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 35, STEP_IN, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 36, STEP_IN, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 39, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 40, STEP_OUT, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 11, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 12, STEP_IN, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 35, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 36, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 39, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 42, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 43, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 44, STEP_OUT, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 13, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 14, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 15, RESUME, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 48, STEP_OUT, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 16, RESUME, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 66, RESUME, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 54, STEP_OUT, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 67, STEP_OUT, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 4, RESUME, 1));
+
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 36);
+
+        VMDebuggerUtil.startDebug("test-src/debugger/test_object_and_match.bal", breakPoints, expRes);
     }
 }

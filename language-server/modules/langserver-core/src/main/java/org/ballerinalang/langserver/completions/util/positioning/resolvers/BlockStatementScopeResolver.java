@@ -24,6 +24,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -55,6 +58,16 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
         DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(nodePosition);
         int nodeSLine = zeroBasedPos.sLine;
         int nodeSCol = zeroBasedPos.sCol;
+        // TODO: Need to remove this particular check after introducing a proper fix for _=.... issue
+        if (node instanceof BLangAssignment) {
+            BLangExpression varRef = ((BLangAssignment) node).varRef;
+            if (varRef instanceof BLangSimpleVarRef
+                    && "_".equals(((BLangSimpleVarRef) varRef).getVariableName().getValue())) {
+                DiagnosticPos zeroBasedVarRefPos = CommonUtil.toZeroBasedPosition(varRef.getPosition());
+                nodeSLine = zeroBasedVarRefPos.sLine;
+                nodeSCol = zeroBasedVarRefPos.sCol;
+            }
+        }
         // node endLine for the BLangIf node has to calculate by considering the else node. End line of the BLangIf
         // node is the endLine of the else node.
         int nodeELine = node instanceof BLangIf ? getIfElseNodeEndLine((BLangIf) node) : zeroBasedPos.eLine;
@@ -67,7 +80,7 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
         boolean isWithinScopeAfterLastChild = this.isWithinScopeAfterLastChildNode(treeVisitor, isLastStatement,
                 nodeELine, nodeECol, line, col, node);
 
-        if (line < nodeSLine || (line == nodeSLine && col < nodeSCol) || isWithinScopeAfterLastChild) {
+        if (line < nodeSLine || (line == nodeSLine && col <= nodeSCol) || isWithinScopeAfterLastChild) {
             Map<Name, Scope.ScopeEntry> visibleSymbolEntries =
                     treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv());
             treeVisitor.populateSymbols(visibleSymbolEntries, null);
