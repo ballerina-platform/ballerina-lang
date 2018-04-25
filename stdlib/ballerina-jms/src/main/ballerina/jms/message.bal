@@ -14,110 +14,149 @@
 // specific language governing permissions and limitations
 // under the License.
 
+documentation {
+    Represent the JMS message used to send and receive content from the a JMS provider.
+
+    Most message-oriented middleware (MOM) products treat messages as lightweight entities that consist of a header
+    and a body. The header contains fields used for message routing and identification; the body contains the
+    application data being sent.
+}
 public type Message object {
 
-    documentation {Gets text content of the JMS message
-        returns message content as string}
+    documentation { Gets text content of the JMS message
+        R{{}} the string containing this message's data or an JMS error
+    }
     public native function getTextMessageContent() returns @tainted string|error;
 
-    documentation {Sets a JMS transport string property from the message
+    documentation { Sets a JMS transport string property from the message
         P{{key}} The string property name
-        P{{value}} The string property value}
+        P{{value}} The string property value
+        R{{}} nil or an JMS error
+    }
     public native function setStringProperty(@sensitive string key, string value) returns error?;
 
-    documentation {Gets a JMS transport string property from the message
+    documentation { Gets a JMS transport string property from the message
         P{{key}} The string property name
-        returns The string property value}
+        R{{}} The string property value, JMS error or nil if there is no property by this name
+    }
     public native function getStringProperty(@sensitive string key) returns @tainted (string|error)?;
 
-    documentation {Sets a JMS transport integer property from the message
+    documentation { Sets a JMS transport integer property from the message
         P{{key}} The integer property name
-        P{{value}} The integer property value}
+        P{{value}} The integer property value
+        R{{}} nil or an JMS error
+    }
     public native function setIntProperty(@sensitive string key, int value) returns error?;
 
-    documentation {Gets a JMS transport integer property from the message
+    documentation { Gets a JMS transport integer property from the message
         P{{key}} The integer property name
-        returns The integer property value}
+        R{{}} The integer property value or JMS error
+    }
     public native function getIntProperty(@sensitive string key) returns @tainted int|error;
 
-    documentation {Sets a JMS transport boolean property from the message
+    documentation { Sets a JMS transport boolean property from the message
         P{{key}} The boolean property name
-        P{{value}} The boolean property value}
+        P{{value}} The boolean property value
+        R{{}} nil or an JMS error
+    }
     public native function setBooleanProperty(@sensitive string key, boolean value) returns error?;
 
-    documentation {Gets a JMS transport boolean property from the message
+    documentation { Gets a JMS transport boolean property from the message
         P{{key}} The boolean property name
-        returns The boolean property value}
+        R{{}} The boolean property value or JMS error
+    }
     public native function getBooleanProperty(@sensitive string key) returns @tainted boolean|error;
 
-    documentation {Sets a JMS transport float property from the message
+    documentation { Sets a JMS transport float property from the message
         P{{key}} The float property name
-        P{{value}} The float property value}
+        P{{value}} The float property value
+        R{{}} nil or an JMS error
+    }
     public native function setFloatProperty(@sensitive string key, float value) returns error?;
 
-    documentation {Gets a JMS transport float property from the message
+    documentation { Gets a JMS transport float property from the message
         P{{key}} The float property name
-        returns The float property value}
+        R{{}} The float property value or JMS error
+    }
     public native function getFloatProperty(@sensitive string key) returns @tainted float|error;
 
-    documentation {Get JMS transport header MessageID from the message
-        returns The header value}
+    documentation { Gets JMS transport header MessageID from the message
+        R{{}} The header value or JMS error
+    }
     public native function getMessageID() returns @tainted string|error;
 
-    documentation {Get JMS transport header Timestamp from the message
-        returns The header value}
+    documentation { Gets JMS transport header Timestamp from the message
+        R{{}} The timestamp header value or JMS error
+    }
     public native function getTimestamp() returns @tainted int|error;
 
     documentation {Sets DeliveryMode JMS transport header to the message
-        P{{mode}} The header value}
+        P{{mode}} The header value
+        R{{}} nil or an JMS error
+    }
     public native function setDeliveryMode(int mode) returns error?;
 
-    documentation {Get JMS transport header DeliveryMode from the message
-        returns The header value" }
+    documentation { Get JMS transport header DeliveryMode from the message
+        R{{}} The delivery mode header value or JMS error
+    }
     public native function getDeliveryMode() returns @tainted int|error;
 
-    documentation {Sets Expiration JMS transport header to the message
-        P{{value}} The header value}
+    documentation { Sets Expiration JMS transport header to the message
+        P{{value}} The header value
+        R{{}} nil or an JMS error
+    }
     public native function setExpiration(int value) returns error?;
 
-    documentation {Get JMS transport header Expiration from the message
-        returns int: The header value}
+    documentation { Gets JMS transport header Expiration from the message
+        R{{}} The expiration header value or JMS error
+    }
     public native function getExpiration() returns @tainted int|error;
 
     documentation { Sets Type JMS transport header to the message
         P{{messageType}} The message type header value
-        returns error if any JMS provider level internal error occur}
+        R{{}} nil or an JMS error if any JMS provider level internal error occur
+    }
     public native function setType(string messageType) returns error?;
 
-    documentation { Get JMS transport header Type from the message
-        returns The message type header value }
+    documentation { Gets JMS transport header Type from the message
+        R{{}} The JMS message type header value or JMS error
+    }
     public native function getType() returns @tainted string|error;
 
-    documentation {Clear JMS properties of the message
-        returns error if any JMS provider level internal error occur}
-    public native function clearProperties();
+    documentation { Clears JMS properties of the message
+        R{{}} nil or error if any JMS provider level internal error occur
+    }
+    public native function clearProperties() returns error?;
 
     documentation {Clears body of the JMS message
-        returns error if any JMS provider level internal error occur}
+        R{{}} nil or an JMS error
+    }
     public native function clearBody() returns error?;
 
-    documentation {Sets Priority JMS transport header to the message
-        P{{value}} The header value}
+    documentation { Sets priority JMS transport header to the message
+        P{{value}} The header value
+        R{{}} nil or an JMS error
+    }
     public native function setPriority(int value) returns error?;
 
-    documentation {Get JMS transport header Priority from the message
-        returns The header value}
+    documentation {Gets JMS transport header Priority from the message
+        R{{}} The JMS priority header value or error
+    }
     public native function getPriority() returns @tainted int|error;
 
-    documentation {Get JMS transport header Redelivered from the message
-        returns The header value}
+    documentation { Gets JMS transport header Redelivered from the message
+        R{{}} The JMS redelivered header value or JMS error
+    }
     public native function getRedelivered() returns @tainted boolean|error;
 
-    documentation {Sets CorrelationID JMS transport header to the message
-        P{{value}} The header value}
+    documentation { Sets CorrelationID JMS transport header to the message
+        P{{value}} The header value
+        R{{}} nil or an JMS error
+    }
     public native function setCorrelationID(string value) returns error?;
 
-    documentation {Get JMS transport header CorrelationID from the message
-        returns The header value}
+    documentation { Gets JMS transport header CorrelationID from the message
+        R{{}} The JMS correlation ID header value or JMS error or nil if header is not set
+    }
     public native function getCorrelationID() returns @tainted (string|error)?;
 };
