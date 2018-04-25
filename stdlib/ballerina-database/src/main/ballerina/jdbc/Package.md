@@ -4,13 +4,13 @@ This package provides the functionality required to access and manipulate data s
 
 ### Endpoint 
 
-To access a database, you must first create an `endpoint`, which is a virtual representation of the physical endpoint that you are trying to connect to. Create an endpoint of the JDBC client type (i.e., `jdbc:Client`) and provide the necessary connection parameters. This will create a pool of connections to the specified database. A sample for creating an endpoint with JDBC client can be found below. 
+To access a database, you must first create an `endpoint`, which is a virtual representation of the physical endpoint that you are trying to connect to. Create an endpoint of the JDBC client type (i.e., `jdbc:Client`) and provide the necessary connection parameters. This will create a pool of connections to the specified database. A sample for creating an endpoint with a JDBC client can be found below. 
 
-**NOTE**: Even though JDBC client type supports connecting to any type of relational database that is accessible via JDBC, if you are using a MySQL or H2 database, it is recommended to use endpoints that are created using the client types specific to them via the relevant ballerina packages. 
+**NOTE**: Even though JDBC client type supports connecting to any type of relational database that is accessible via JDBC, if you are using a MySQL or H2 database, it is recommended to use endpoints that are created using the client types specific to them via the relevant Ballerina packages. 
 
 ### Database operations
 
-Once the endpoint is created, database operations can be executed through that endpoint. This package provides support for creating tables and executing stored procedures. It also supports selecting, inserting, deleting, updating, and batch updating data. Samples for these operations could be found below. Details of the SQL data types and query parameters relevant for these database operations could be found in the documentation of SQL package. 
+Once the endpoint is created, database operations can be executed through that endpoint. This package provides support for creating tables and executing stored procedures. It also supports selecting, inserting, deleting, updating, and batch updating data. Samples for these operations can be found below. Details of the SQL data types and query parameters relevant for these database operations can be found in the documentation for the SQL package. 
 
 ## Samples
 
@@ -28,7 +28,7 @@ The full list of endpoint properties can be found in the `sql:PoolOptions` type.
 
 ### Creating tables
 
-Following is an example of creating a table with two columns. One field is of type int and the other of varchar. The CREATE statement is executed via the `update` operation of the endpoint.
+Following is an example of creating a table with two columns. One column is of type int and the other of varchar. The CREATE statement is executed via the `update` operation of the endpoint.
 
 ```ballerina
 //Create ‘Students’ table with fields ‘StudentID’ and ‘LastName’.
@@ -53,7 +53,7 @@ match ret1 {
 }
 ```
 
-In the following second example, parameter values which are in local variables are directly passed as parameters to the `update` operation. This direct parameter passing can be done for any primitive ballerina type like string, int, float, boolean. The sql type of the parameter is derived from the type of the ballerina variable passed in. 
+In the next example, parameter values that are in local variables are directly passed as parameters to the `update` operation. This direct parameter passing can be done for any primitive Ballerina type like string, int, float or boolean. The sql type of the parameter is derived from the type of the Ballerina variable passed in. 
 
 ```ballerina
 int id = 2;
@@ -65,7 +65,7 @@ match ret2 {
 }
 ```
 
-In the following third example, parameter values are passed as `sql:Parameter` to the `update` operation. This sql:Parameter needs to used when we need to provide more details like exact sql type of the parameter, and parameter direction etc. The default parameter direction is "IN". Refer sql package for more details on parameters.
+In the next example, parameter values are passed as `sql:Parameter` to the `update` operation. Use sql:Parameter when you need to provide details such as the exact SQL type of the parameter or the parameter direction. The default parameter direction is "IN". Refer to the `sql` package for more details on parameters.
 
 ```ballerina
 sql:Parameter p1 = { sqlType: sql:TYPE_INTEGER, value: 3 };
@@ -97,7 +97,7 @@ match ret0 {
 
 ### Selecting data
 
-Following is an example of selecting data. First, a type is created to represent the returned result set. Then the SELECT query is execute via the `select` operation of the endpoint by passing that result set type. Once the query is executed, each data record can be retrieved by looping the result set. The table returned by the select operation holds a pointer to the actual data in the database and it loads data from the table only when it is accessed. This table can be iterated only once. 
+Following is an example of selecting data. First, a type is created to represent the returned result set. Then the SELECT query is executed via the `select` operation of the endpoint by passing that result set type. Once the query is executed, each data record can be retrieved by looping the result set. The table returned by the select operation holds a pointer to the actual data in the database and it loads data from the table only when it is accessed. This table can be iterated only once. 
 
 ```ballerina
 //Define a type to represent the results set.

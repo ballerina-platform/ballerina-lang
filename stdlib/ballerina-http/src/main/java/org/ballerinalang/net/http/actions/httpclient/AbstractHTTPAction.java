@@ -119,7 +119,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         if (epConfig == null) {
             return HttpConstants.AUTO;
         }
-        return epConfig.getRefField(HttpConstants.CLIENT_EP_ACCEPT_ENCODING).getStringValue();
+        return epConfig.getRefField(HttpConstants.ANN_CONFIG_ATTR_COMPRESSION).getStringValue();
     }
 
     protected static AcceptEncodingConfig getAcceptEncodingConfig(String acceptEncodingConfig) {
