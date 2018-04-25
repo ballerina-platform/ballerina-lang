@@ -18,5 +18,7 @@ public function mockPrint(any... s) {
 function testFunc() {
     // Invoking the main function
     main();
-    test:assertEquals("Sample Text", outputs[0]);
+    test:assertEquals(outputs[0], 99);
+    test:assertEquals(outputs[1], 1);
+    test:assertEquals(outputs[2], false);
 }

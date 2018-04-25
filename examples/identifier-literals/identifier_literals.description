@@ -1,8 +1,0 @@
-//Ballerina supports identifier literals. This means that it is possible to define
-//symbols without any of the usual restrictions that restrict whitespaces, special characters, etc. 
-
-//Ballerina allows identifiers to contain spaces and use any set of Unicode code points.
-
-//Identifiers can be used for names, functions, services, structs, variables, etc.
-//In Ballerina, identifiers are defined as "traditional" identifiers or identifier literals.
-

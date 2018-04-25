@@ -1,5 +1,0 @@
-//Ternary is a conditional operator that can be used as a shortcut to an if-else statement.
-//It evaluates a condition and chooses one of two branches to execute.
-//
-//The ternary operator takes three operands and uses the '?' and ':' symbols to form it. Syntax:
-//      condition ? trueExpression : falseExpression

@@ -15,14 +15,14 @@ function startService() {
 function testFunc() {
     // Invoking the main function.
     endpoint http:Client httpEndpoint { url: "http://localhost:9092" };
-    // Checking whether the server is started.
+    // Checking whether the server has started.
     test:assertTrue(serviceStarted, msg = "Unable to start the service");
 
     json response1 = { "type": "middleware" };
 
     http:Request req = new;
     req.setHeader("Origin", "http://www.bbc.com");
-    // Sending a GET request to the specified endpoint.
+    // Send a `GET` request to the specified endpoint.
     var response = httpEndpoint->get("/crossOriginService/company", request = req);
     match response {
         http:Response resp => {
@@ -35,7 +35,7 @@ function testFunc() {
     http:Request req2 = new;
     req2.setHeader("Origin", "http://www.m3.com");
     req2.setHeader("Access-Control-Request-Method", "POST");
-    // Sending a GET request to the specified endpoint.
+    // Send a `GET` request to the specified endpoint.
     var response2 = httpEndpoint->options("/crossOriginService/lang", request = req2);
     match response2 {
         http:Response resp => {

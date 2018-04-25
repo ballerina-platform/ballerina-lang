@@ -45,6 +45,9 @@ service helloWorld bind helloWorldEP {
 }
 
 // Create a new client endpoint to connect to the service endpoint you created above via mutual SSL.
+// The Ballerina client can be used to connect to the created HTTPS listener.
+// Provide the `keyStoreFile`, `keyStorePassword`, `trustStoreFile`,
+// and `trustStorePassword` in the client. 
 endpoint http:Client clientEP {
     url: "https://localhost:9095",
     secureSocket: {
@@ -62,9 +65,6 @@ endpoint http:Client clientEP {
         ciphers: ["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"]
     }
 };
-// The Ballerina client can be used to connect to the created HTTPS listener.
-// As this is a mutual ssl connection, the client needs to provide the keyStoreFile, keyStorePassword, trustStoreFile,
-// and trustStorePassword.
 function main(string... args) {
     // Create a request.
     var resp = clientEP->get("/hello");

@@ -6,7 +6,7 @@ Secured Hello World Service with Basic Auth
 Values
 Constants
 Directory Listener
-Global Variables
+Variables
 While
 IF Else
 Ternary
@@ -89,6 +89,7 @@ HTTP 1.1 To 2.0 Protocol Switch
 Log API
 Function Pointers
 Lambda
+Closures
 WebSocket Basic Sample
 WebSocket Chat Application
 WebSocket Proxy Server
@@ -105,12 +106,8 @@ Task Appointment
 Config API
 String Template
 HTTP Redirects
-Inbound Request with Multiparts
-Outbound Request with Multiparts
-Encode Nested BodyParts in Multipart
-Decode Nested BodyParts in Multipart
-Inbound Response with Multiparts
-Outbound Response with Multiparts
+Request with Multiparts
+Response with Multiparts
 gRPC Unary Non Blocking
 grpc Unary Blocking
 grpc Secured Unary Blocking
