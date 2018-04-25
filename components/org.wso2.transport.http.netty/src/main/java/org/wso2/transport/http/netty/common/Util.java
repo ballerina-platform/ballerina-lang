@@ -629,8 +629,9 @@ public class Util {
     /**
      * Creates HTTP carbon message
      *
-     * @param httpMessage   HTTP message
-     * @param ctx           Channel handler context
+     * @param httpMessage HTTP message
+     * @param ctx Channel handler context
+     * @return HttpCarbonMessage
      */
     public static HTTPCarbonMessage createHTTPCarbonMessage(HttpMessage httpMessage, ChannelHandlerContext ctx) {
         Listener contentListener = new DefaultListener(ctx);
