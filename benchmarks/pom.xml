@@ -60,17 +60,6 @@
                             <overWriteIfNewer>true</overWriteIfNewer>
                         </configuration>
                     </execution>
-                    <execution>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <skip>${skipBenchmarks}</skip>
-                            <outputDirectory>target</outputDirectory>
-                            <includeArtifactIds>gcviewer</includeArtifactIds>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -111,7 +100,6 @@
                                 <argument>${warmup.iterations}</argument>
                                 <argument>${benchmark.iterations}</argument>
                                 <argument>benchmark-ballerina_${project.version}</argument>
-                                <argument>${project.basedir}/target/</argument>
                             </arguments>
                         </configuration>
                     </execution>
