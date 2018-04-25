@@ -15,17 +15,18 @@
 // under the License.
 
 import ballerina/io;
-import ballerina/runtime;
-import ballerina/mime;
 import ballerina/math;
+import ballerina/mime;
+import ballerina/runtime;
 
 documentation {
-    Represents an HTTP Retry client to be used with the HTTP client to provide retrying over HTTP requests.
+    Provides the HTTP actions for interacting with an HTTP endpoint. The RetryClient created by wrapping the HTTP client
+    to provide retrying over HTTP requests.
 
-    F{{serviceUri}} - Target service url.
-    F{{config}}  - HTTP ClientEndpointConfig to be used for HTTP client invocation.
-    F{{retryConfig}} - Retry related configuration.
-    F{{httpClient}}  - HTTP client for outbound HTTP requests.
+    F{{serviceUri}} - Target service url
+    F{{config}}  - HTTP ClientEndpointConfig to be used for HTTP client invocation
+    F{{retryConfig}} - Configurations associated with Retry
+    F{{httpClient}}  - HTTP client for outbound HTTP requests
 }
 public type RetryClient object {
     public {
@@ -35,148 +36,165 @@ public type RetryClient object {
         CallerActions httpClient;
     }
 
-    public new (serviceUri, config, retryConfig, httpClient) {}
+    public new(serviceUri, config, retryConfig, httpClient) {}
 
     documentation {
-        The POST function implementation of the HTTP retry client. Protects the invocation of the POST function
-        attached to the underlying HTTP client.
+        The `post()` function wraps the underlying HTTP actions in a way to provide
+        retrying functionality for a given endpoint to recover from network level failures.
 
-        P{{path}} Target service url.
-        P{{request}} A request message.
+        P{{path}} Resource path
+        P{{request}} An HTTP outbound request message
+        R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
     public function post (string path, Request? request = ()) returns Response|error;
 
     documentation {
-        The HEAD function implementation of the HTTP retry client. Protects the invocation of the HEAD function
-        attached to the underlying HTTP client.
+        The `head()` function wraps the underlying HTTP actions in a way to provide
+        retrying functionality for a given endpoint to recover from network level failures.
 
-        P{{path}} Target service url.
-        P{{request}} A request message.
+        P{{path}} Resource path
+        P{{request}} An HTTP outbound request message
+        R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
     public function head (string path, Request? request = ()) returns Response|error;
 
     documentation {
-        The PUT function implementation of the HTTP retry client. Protects the invocation of the PUT function
-        attached to the underlying HTTP client.
+        The `put()` function wraps the underlying HTTP actions in a way to provide
+        retrying functionality for a given endpoint to recover from network level failures.
 
-        P{{path}} Target service url.
-        P{{request}} A request message.
+        P{{path}} Resource path
+        P{{request}} An HTTP outbound request message
+        R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
     public function put (string path, Request? request = ()) returns Response|error;
 
     documentation {
-        The FORWARD function implementation of the HTTP retry client. Protects the invocation of the FORWARD function
-        attached to the underlying HTTP client.
+        The `forward()` function wraps the underlying HTTP actions in a way to provide retrying functionality
+        for a given endpoint with inbound request's HTTP verb to recover from network level failures.
 
-        P{{path}} Target service url.
-        P{{request}} A request message.
+        P{{path}} Resource path
+        P{{request}} An HTTP inbound request message
+        R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
     public function forward (string path, Request request) returns Response|error;
 
     documentation {
-        The EXECUTE function implementation of the HTTP retry client. Protects the invocation of the EXECUTE function
-        attached to the underlying HTTP client.
+        The `execute()` sends an HTTP request to a service with the specified HTTP verb. The function wraps the
+        underlying HTTP actions in a way to provide retrying functionality for a given endpoint to recover
+        from network level failures.
 
-        P{{httpVerb}} HTTP verb to be used for the request.
-        P{{path}} Target service url.
-        P{{request}} A request message.
+        P{{path}} Resource path
+        P{{request}} An HTTP outbound request message
+        R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
     public function execute (string httpVerb, string path, Request request) returns Response|error;
 
     documentation {
-        The PATCH function implementation of the HTTP retry client. Protects the invocation of the PATCH function
-        attached to the underlying HTTP client.
+        The `patch()` function wraps the undeline underlying HTTP actions in a way to provide
+        retrying functionality for a given endpoint to recover from network level failures.
 
-        P{{path}} Target service url.
-        P{{request}} A request message.
+        P{{path}} Resource path
+        P{{request}} An HTTP outbound request message
+        R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
     public function patch (string path, Request? request = ()) returns Response|error;
 
     documentation {
-        The DELETE function implementation of the HTTP retry client. Protects the invocation of the DELETE function
-        attached to the underlying HTTP client.
+        The `delete()` function wraps the underlying HTTP actions in a way to provide
+        retrying functionality for a given endpoint to recover from network level failures.
 
-        P{{path}} Target service url.
-        P{{request}} A request message.
+        P{{path}} Resource path
+        P{{request}} An HTTP outbound request message
+        R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
     public function delete (string path, Request? request = ()) returns Response|error;
 
     documentation {
-        The GET function implementation of the HTTP retry client. Protects the invocation of the GET function
-        attached to the underlying HTTP client.
+        The `get()` function wraps the underlying HTTP actions in a way to provide
+        retrying functionality for a given endpoint to recover from network level failures.
 
-        P{{path}} Target service url.
-        P{{request}} A request message.
+        P{{path}} Resource path
+        P{{request}} An HTTP outbound request message
+        R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
     public function get (string path, Request? request = ()) returns Response|error;
 
     documentation {
-        The OPTIONS function implementation of the HTTP retry client. Protects the invocation of the OPTIONS function
-        attached to the underlying HTTP client.
+        The `options()` function wraps the underlying HTTP actions in a way to provide
+        retrying functionality for a given endpoint to recover from network level failures.
 
-        P{{path}} Target service url.
-        P{{request}} A request message.
+        P{{path}} Resource path
+        P{{request}} An HTTP outbound request message
+        R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
     public function options (string path, Request? request = ()) returns Response|error;
 
     documentation {
-        The SUBMIT function implementation of the HTTP retry client.
+	Submits an HTTP request to a service with the specified HTTP verb.
+	The `submit()` function does not give out a `Response` as the result,
+	rather it returns an `HttpFuture` which can be used to do further interactions with the endpoint.
 
-        P{{httpVerb}} HTTP verb to be used for the request.
-        P{{path}} Target service url.
-        P{{request}} A request message.
+        P{{httpVerb}} The HTTP verb value
+        P{{path}} The resource path
+        P{{request}} An HTTP outbound request message
+        R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
     }
     public function submit (string httpVerb, string path, Request request) returns HttpFuture|error;
 
     documentation {
-        The getResponse function implementation of the HTTP retry client.
+	Retrieves the `Response` for a previously submitted request.
 
-        P{{httpFuture}} -The Future which relates to previous async invocation.
+        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
+        R{{}} An HTTP response message, or an error if the invocation fails
     }
     public function getResponse (HttpFuture httpFuture) returns Response|error;
 
     documentation {
-        The hasPromise function implementation of the HTTP retry client.
+	Checks whether a `PushPromise` exists for a previously submitted request.
 
-        P{{httpFuture}} The Future which relates to previous async invocation.
+        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
+        R{{}} A `boolean` that represents whether a `PushPromise` exists
     }
-    public function hasPromise (HttpFuture httpFuture) returns (boolean);
+    public function hasPromise(HttpFuture httpFuture) returns (boolean);
 
     documentation {
-        The getNextPromise function implementation of the HTTP retry client.
+	Retrieves the next available `PushPromise` for a previously submitted request.
 
-        P{{httpFuture}} The Future which relates to previous async invocation.
+        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
+        R{{}} An HTTP Push Promise message, or an error if the invocation fails
     }
     public function getNextPromise (HttpFuture httpFuture) returns PushPromise|error;
 
     documentation {
-        The getPromisedResponse function implementation of the HTTP retry client.
+	Retrieves the promised server push `Response` message.
 
-        P{{promise}} The related Push Promise message.
+        P{{promise}} The related `PushPromise`
+        R{{}} A promised HTTP `Response` message, or an error if the invocation fails
     }
     public function getPromisedResponse (PushPromise promise) returns Response|error;
 
     documentation {
-        The rejectPromise function implementation of the HTTP retry client.
+	Rejects a `PushPromise`.
+	When a `PushPromise` is rejected, there is no chance of fetching a promised response using the rejected promise.
 
-        P{{promise}} The Push Promise need to be rejected.
+        P{{promise}} The Push Promise to be rejected
     }
-    public function rejectPromise (PushPromise promise);
+    public function rejectPromise(PushPromise promise);
 };
 
 public function RetryClient::post (string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
-	return performRetryAction(path, req, HTTP_POST, self);
+    return performRetryAction(path, req, HTTP_POST, self);
 }
 
 public function RetryClient::head (string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
-	return performRetryAction(path, req, HTTP_HEAD, self);
+    return performRetryAction(path, req, HTTP_HEAD, self);
 }
 
 public function RetryClient::put (string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
-	return performRetryAction(path, req, HTTP_PUT, self);
+    return performRetryAction(path, req, HTTP_PUT, self);
 }
 
 public function RetryClient::forward (string path, Request request) returns Response|error {
@@ -189,22 +207,22 @@ public function RetryClient::execute (string httpVerb, string path, Request requ
 
 public function RetryClient::patch (string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
-	return performRetryAction(path, req, HTTP_PATCH, self);
+    return performRetryAction(path, req, HTTP_PATCH, self);
 }
 
 public function RetryClient::delete (string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
-	return performRetryAction(path, req, HTTP_DELETE, self);
+    return performRetryAction(path, req, HTTP_DELETE, self);
 }
 
 public function RetryClient::get (string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
-	return performRetryAction(path, req, HTTP_GET, self);
+    return performRetryAction(path, req, HTTP_GET, self);
 }
 
 public function RetryClient::options (string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
-	return performRetryAction(path, req, HTTP_OPTIONS, self);
+    return performRetryAction(path, req, HTTP_OPTIONS, self);
 }
 
 public function RetryClient::submit (string httpVerb, string path, Request request) returns HttpFuture|error {
@@ -221,8 +239,8 @@ public function RetryClient::getResponse (HttpFuture httpFuture) returns Respons
 	return httpConnectorErr;
 }
 
-public function RetryClient::hasPromise (HttpFuture httpFuture) returns (boolean) {
-	return false;
+public function RetryClient::hasPromise(HttpFuture httpFuture) returns boolean {
+    return false;
 }
 
 public function RetryClient::getNextPromise (HttpFuture httpFuture) returns PushPromise|error {
@@ -239,7 +257,7 @@ public function RetryClient::getPromisedResponse (PushPromise promise) returns R
 	return httpConnectorErr;
 }
 
-public function RetryClient::rejectPromise (PushPromise promise) {
+public function RetryClient::rejectPromise(PushPromise promise) {
 }
 
 // Performs execute action of the retry client. extract the corresponding http integer value representation
@@ -280,7 +298,7 @@ function performRetryAction (@sensitive string path, Request request, HttpOperat
         error => io:println("mimeEntity null");
     }
 
-    while(currentRetryCount < (retryCount + 1)) {
+    while (currentRetryCount < (retryCount + 1)) {
         var invokedEndpoint = invokeEndpoint(path, inRequest, requestAction, httpClient);
         match invokedEndpoint {
             Response backendResponse => {
@@ -291,7 +309,7 @@ function performRetryAction (@sensitive string path, Request request, HttpOperat
             }
         }
         if (currentRetryCount != 0) {
-           interval = getWaitTime(backOffFactor, maxWaitInterval, interval);
+            interval = getWaitTime(backOffFactor, maxWaitInterval, interval);
         }
         runtime:sleep(interval);
         currentRetryCount = currentRetryCount + 1;

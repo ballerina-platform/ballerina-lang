@@ -159,7 +159,7 @@ function testTransactionThrowWithAllHandlers() returns (string) {
             a = a + " inTrx";
             int i = 0;
             if (i == 0) {
-                TrxError err = {message:" trxErr", data:"test"};
+                TrxError err = { message: " trxErr", data: "test" };
                 throw err;
             }
             a = a + " endTrx";
@@ -181,7 +181,7 @@ function testTransactionCommitAfterFailureWithAllHandlers() returns (string) {
         transaction with retries = 4, oncommit = commitFunction, onabort = abortFunction {
             a = a + " inTrx";
             if (i < 2) {
-                TrxError err = {message:" trxErr", data:"test"};
+                TrxError err = { message: " trxErr", data: "test" };
                 throw err;
             }
             a = a + " endTrx";
@@ -227,7 +227,7 @@ function testMultipleTransactionsFailedWithAllHandlers() returns (string) {
         transaction with retries = 0, oncommit = commitFunction, onabort = abortFunction {
             a = a + " inFirstTrx";
             if (i == 0) {
-                TrxError err = {message:" trxErr", data:"test"};
+                TrxError err = { message: " trxErr", data: "test" };
                 throw err;
             }
             a = a + " endFirstTrx";
@@ -288,7 +288,7 @@ function testMultipleTransactionsFailedWithAllHandlersWithID() returns (string, 
             id1WithinTx = transactions:getCurrentTransactionId();
             a = a + " inFirstTrx";
             if (i == 0) {
-                TrxError err = {message:" trxErr", data:"test"};
+                TrxError err = { message: " trxErr", data: "test" };
                 throw err;
             }
             a = a + " endFirstTrx";

@@ -185,9 +185,6 @@ public class Main {
         @Parameter(arity = 1, description = "arguments")
         private List<String> argList;
 
-        @Parameter(names = {"--service", "-s"}, description = "run services instead of main")
-        private boolean runServices;
-
         @Parameter(names = {"--sourceroot"}, description = "path to the directory containing source files and packages")
         private String sourceRoot;
 
@@ -233,17 +230,6 @@ public class Main {
             Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
             System.setProperty("ballerina.source.root", sourceRootPath.toString());
             VMOptions.getInstance().addOptions(vmOptions);
-
-            // Start all services, if the services flag is set.
-            if (runServices) {
-                if (argList.size() > 1) {
-                    throw LauncherUtils.createUsageException("too many arguments");
-                }
-
-                LauncherUtils.runProgram(sourceRootPath, Paths.get(argList.get(0)), true, runtimeParams,
-                        configFilePath, new String[0], offline, observeFlag);
-                return;
-            }
 
             Path sourcePath = Paths.get(argList.get(0));
             // Filter out the list of arguments given to the ballerina program.

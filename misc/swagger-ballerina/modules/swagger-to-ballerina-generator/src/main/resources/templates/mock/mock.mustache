@@ -1,8 +1,9 @@
+import ballerina/log;
 import ballerina/http;
 import ballerina/swagger;
 
-{{#servers}}endpoint http:Listener ep{{@index}} {
-    host: "{{host}}",
+{{#servers}}endpoint http:Listener ep{{@index}} { {{#host}}
+    host: "{{host}}",{{/host}}
     port: {{port}}
 };
 {{/servers}}
@@ -24,7 +25,7 @@ import ballerina/swagger;
 @http:ServiceConfig {
     basePath: "{{servers.0.basePath}}"{{!-- {{only one base path is allowed for all endpoints}} --}}
 }
-service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unless @last}}, {{/unless}}{{/servers}} {
+service {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unless @last}}, {{/unless}}{{/servers}} {
 {{#paths}}{{#value}}{{#operations}}{{#value}}
     @swagger:ResourceInfo {
         tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
@@ -42,14 +43,15 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
             }{{#unless @last}},{{/unless}}{{/parameters}}
         ]
     }
-    @http:ResourceConfig {
-        methods:["{{upper key}}"],
+    @http:ResourceConfig { {{#equals key "multi"}}{{#if methods}}
+        methods:[{{#methods}}"{{.}}"{{#unless @last}}, {{/unless}}{{/methods}}],{{/if}}{{else}}
+        methods:["{{upper key}}"],{{/equals}}
         path:"{{../../key}}"
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
     {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
         http:Response res = {{operationId}}(req{{#parameters}}{{#equals in "path"}}, {{name}}{{/equals}}{{/parameters}});
-        _ = outboundEp -> respond(res);
+        outboundEp->respond(res) but { error e => log:printError("Error while responding", err = e) };
     }
 {{/value}}{{/operations}}{{/value}}{{/paths}}
 }

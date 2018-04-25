@@ -43,12 +43,13 @@ class AwaitResponseNode extends React.Component {
         const viewState = this.props.model.viewState;
         const backwardArrowStart = {};
         const backwardArrowEnd = {};
+        const start = viewState.components.response.start;
 
         if (!TreeUtil.findCompatibleStart(this.props.model)) {
             return <g />;
         }
 
-        backwardArrowStart.x = viewState.components.response.start;
+        backwardArrowStart.x = viewState.components.response.start.x;
         backwardArrowStart.y = viewState.bBox.y + designer.config.statement.height;
         backwardArrowEnd.x = viewState.bBox.x;
         backwardArrowEnd.y = viewState.bBox.y + designer.config.statement.height;
@@ -62,6 +63,13 @@ class AwaitResponseNode extends React.Component {
                 >
                     {viewState.expression}
                 </text>
+                <rect
+                    x={start.x}
+                    y={start.y}
+                    width={designer.config.actionInvocationStatement.width}
+                    height={viewState.bBox.y - start.y + designer.config.statement.height}
+                    className='action-invocation-statement-rect'
+                />
                 <ArrowDecorator
                     start={backwardArrowStart}
                     end={backwardArrowEnd}
