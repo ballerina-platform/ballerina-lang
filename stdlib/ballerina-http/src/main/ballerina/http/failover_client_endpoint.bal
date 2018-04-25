@@ -64,7 +64,7 @@ documentation {
     F{{retryConfig}} Retry related options
     F{{proxy}} Proxy related options
     F{{connectionThrottling}} The configurations for controlling the number of connections allowed concurrently
-    F{{targets}} - The upstream HTTP endpoints among which the incoming HTTP traffic load should be sent on failover
+    F{{targets}} The upstream HTTP endpoints among which the incoming HTTP traffic load should be sent on failover
     F{{cache}} The configurations for controlling the caching behaviour
     F{{acceptEncoding}} Specifies the way of handling `accept-encoding` header
     F{{auth}} HTTP authentication releated configurations
