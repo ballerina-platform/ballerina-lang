@@ -28,13 +28,12 @@ import ballerina/mime;
 @final string JWT_SCHEME = "jwt";
 
 documentation {
-    Provides the HTTP actions for interacting with an HTTP server. Apart from the standard HTTP methods, `forward()`
-    and `execute()` functions are provided. `forward()` takes an incoming HTTP requests and sends it to an upstream
-    HTTP endpoint while `execute()` can be used for sending HTTP requests with custom verbs. More complex and specific
-    endpoint types can be created by wrapping this generic HTTP actions implementation.
+    Provides the Secure HTTP actions for interacting with an HTTP server. If the `AuthConfig` is provided with details
+    it creates an HTTP client capable of securing HTTP requests with authentication schemes.
 
     F{{serviceUri}} The URL of the remote HTTP endpoint
     F{{config}} The configurations of the client endpoint associated with this HttpActions instance
+    F{{httpClient}} The underlying `HttpActions` instance which will be making the actual network calls
 }
 public type HttpSecureClient object {
     //These properties are populated from the init call to the client connector as these were needed later stage
@@ -56,7 +55,7 @@ public type HttpSecureClient object {
         P{{request}} An HTTP outbound request message
         R{{}} The inbound response message
         R{{}} The error occurred while attempting to fulfill the HTTP request
-	}
+    }
     public function post(string path, Request? request = ()) returns (Response|HttpConnectorError) {
         Request req = request ?: new;
         check generateSecureRequest(req, config);
