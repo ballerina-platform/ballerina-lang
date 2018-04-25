@@ -70,11 +70,13 @@ public class WebSocketClient {
     private Channel channel = null;
 
     /**
-     * @param url url of the remote endpoint.
-     * @param subProtocols the negotiable sub-protocol if server is asking for it.
-     * @param idleTimeout Idle timeout of the connection.
-     * @param headers any specific headers which need to send to the server.
-     * @param connectorListener connector listener to notify incoming messages.
+     * @param url url of the remote endpoint
+     * @param subProtocols subProtocols the negotiable sub-protocol if server is asking for it
+     * @param idleTimeout Idle timeout of the connection
+     * @param wsClientEventLoopGroup of the client connector
+     * @param headers any specific headers which need to send to the server
+     * @param connectorListener connector listener to notify incoming messages
+     * @param autoRead sets the read interest
      */
     public WebSocketClient(String url, String subProtocols, int idleTimeout, EventLoopGroup wsClientEventLoopGroup,
                            Map<String, String> headers, WebSocketConnectorListener connectorListener,

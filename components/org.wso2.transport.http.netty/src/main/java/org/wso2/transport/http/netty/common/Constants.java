@@ -125,6 +125,7 @@ public final class Constants {
     public static final String HTTP_HEAD_METHOD = "HEAD";
     public static final String HTTP_PUT_METHOD = "PUT";
     public static final String HTTP_PATCH_METHOD = "PATCH";
+    public static final String HTTP_DELETE_METHOD = "DELETE";
 
     //HTTP server connector creation parameters
     public static final String HTTP_HOST = "host";
@@ -302,6 +303,9 @@ public final class Constants {
 
     public static final String REMOTE_SERVER_CLOSE_RESPONSE_CONNECTION_AFTER_REQUEST_READ
             = "Remote host closed the connection without sending inbound response";
+
+    public static final String PROMISED_STREAM_REJECTED_ERROR
+            = "Promised stream is already rejected or stream is no longer valid";
 
     public static final String MAXIMUM_WAIT_TIME_EXCEED = "Could not obtain a connection within maximum wait time";
 

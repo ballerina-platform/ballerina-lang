@@ -82,7 +82,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     @SuppressWarnings("unchecked")
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (targetChannel.isRequestWritten()) {
+        if (targetChannel.isRequestHeaderWritten()) {
             if (msg instanceof HttpResponse) {
                 HttpResponse httpInboundResponse = (HttpResponse) msg;
                 targetRespMsg = setUpCarbonMessage(ctx, msg);
@@ -172,7 +172,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     private void handleErrorCloseScenarios(String channelID) {
         if (!idleTimeoutTriggered) {
-            if (targetChannel.isRequestWritten()) {
+            if (targetChannel.isRequestHeaderWritten()) {
                 httpResponseFuture.notifyHttpListener(new ClientConnectorException(channelID,
                         Constants.REMOTE_SERVER_CLOSE_RESPONSE_CONNECTION_AFTER_REQUEST_READ));
             } else if (targetRespMsg != null) {
