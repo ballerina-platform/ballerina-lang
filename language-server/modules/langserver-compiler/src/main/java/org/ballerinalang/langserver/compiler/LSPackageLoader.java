@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.compiler;
 
+import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
@@ -22,7 +23,11 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,12 +36,16 @@ import java.util.List;
  */
 public class LSPackageLoader {
 
+    private static final String SOURCE_DIR = "src";
+    private static final String BALLERINA_ORG = "ballerina";
+    private static final String DOT = ".";
     private static final String[] STATIC_PKG_NAMES = {"http", "swagger", "mime", "auth", "cache", "config", "sql",
             "file", "internal", "io", "log", "math", "system", "reflect", "runtime", "crypto", "task",
             "time", "transactions", "builtin"};
 
     /**
      * Get the Builtin Package.
+     *
      * @return {@link BLangPackage} Builtin BLang package
      */
     public static List<BLangPackage> getBuiltinPackages(CompilerContext context) {
@@ -54,8 +63,9 @@ public class LSPackageLoader {
 
     /**
      * Get the package by ID via Package loader.
-     * @param context               Compiler context
-     * @param packageID             Package ID to resolve
+     *
+     * @param context   Compiler context
+     * @param packageID Package ID to resolve
      * @return {@link BLangPackage} Resolved BLang Package
      */
     public static BLangPackage getPackageById(CompilerContext context, PackageID packageID) {
@@ -79,5 +89,65 @@ public class LSPackageLoader {
      */
     public static String[] getStaticPkgNames() {
         return STATIC_PKG_NAMES.clone();
+    }
+
+    /**
+     * Get packages from the source directory.
+     *
+     * @param ballerinaSDKHome ballerina sdk home
+     * @return {@link List} array of package names available in SDK source directory
+     */
+    public static List<BallerinaPackage> getSDKPackagesFromSrcDir(String ballerinaSDKHome) {
+        List<BallerinaPackage> ballerinaPackages = new ArrayList<>();
+        String ballerinaSDKSrcDir = Paths.get(ballerinaSDKHome, SOURCE_DIR).toString();
+        File projectDir = new File(ballerinaSDKSrcDir);
+        String[] packageNames = projectDir.list(((dir, name) -> !name.startsWith(DOT)));
+        if (packageNames != null) {
+            for (String name : packageNames) {
+                BallerinaPackage ballerinaPackage = new BallerinaPackage(BALLERINA_ORG, name, null);
+                ballerinaPackages.add(ballerinaPackage);
+            }
+        }
+        return ballerinaPackages;
+    }
+
+    /**
+     * Get packages available in the home repo.
+     *
+     * @return {@link List} list of ballerina package details
+     */
+    public static List<BallerinaPackage> getPackagesFromHomeRepo() {
+        List<BallerinaPackage> ballerinaPackages = new ArrayList<>();
+        String homeRepoPath = Paths.get(RepoUtils.createAndGetHomeReposPath().toString(),
+                ProjectDirConstants.CACHES_DIR_NAME, ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME).toString();
+        File homeRepo = new File(homeRepoPath);
+        if (homeRepo.exists() && homeRepo.isDirectory()) {
+            File[] orgNames = homeRepo.listFiles(((dir, name) -> !name.startsWith(DOT)));
+            if (orgNames != null) {
+                for (File orgDir : orgNames) {
+                    if (orgDir.isDirectory()) {
+                        String orgName = orgDir.getName();
+                        File[] packageNames = orgDir.listFiles(((dir, name) -> !name.startsWith(DOT)));
+                        if (packageNames != null) {
+                            for (File pkgDir : packageNames) {
+                                if (pkgDir.isDirectory()) {
+                                    String pkgName = pkgDir.getName();
+                                    File[] versionNames = pkgDir.listFiles(((dir, name) -> !name.startsWith(DOT)));
+                                    if (versionNames != null) {
+                                        for (File versionDir : versionNames) {
+                                            if (versionDir.isDirectory()) {
+                                                String version = versionDir.getName();
+                                                ballerinaPackages.add(new BallerinaPackage(orgName, pkgName, version));
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return ballerinaPackages;
     }
 }
