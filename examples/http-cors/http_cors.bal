@@ -30,7 +30,7 @@ service<http:Service> crossOriginService bind { port: 9092 } {
         caller->respond(res) but { error e => log:printError("Failed to respond to the caller", err = e) };
     }
 
-    //Service-level CORS headers are applied to this resource as resource-level CORS headers are not defined.
+    // Since there are no resource-level CORS headers defined here, the global service-level CORS headers are applied to this resource. 
     @http:ResourceConfig {
         methods: ["POST"],
         path: "/lang"
