@@ -1,0 +1,3 @@
+// Ballerina allows two ways to declare variables;
+// using the `var` keyword followed by the variable name and the initializer expression and
+// type name followed by the variables and optionally the initializer expression.
