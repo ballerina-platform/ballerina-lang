@@ -113,7 +113,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         return requestMsg;
     }
 
-    private String getAcceptEncodingConfigFromEndpointConfig(BStruct httpClientStruct) {
+    protected String getAcceptEncodingConfigFromEndpointConfig(BStruct httpClientStruct) {
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(httpClientStruct);
         Struct epConfig = (Struct) clientEndpointConfig.getNativeData(HttpConstants.CLIENT_ENDPOINT_CONFIG);
         if (epConfig == null) {
@@ -122,7 +122,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         return epConfig.getRefField(HttpConstants.CLIENT_EP_ACCEPT_ENCODING).getStringValue();
     }
 
-    private static AcceptEncodingConfig getAcceptEncodingConfig(String acceptEncodingConfig) {
+    protected static AcceptEncodingConfig getAcceptEncodingConfig(String acceptEncodingConfig) {
         if (HttpConstants.AUTO.equalsIgnoreCase(acceptEncodingConfig)) {
             return AcceptEncodingConfig.AUTO;
         } else if (HttpConstants.ALWAYS.equalsIgnoreCase(acceptEncodingConfig)) {
@@ -135,7 +135,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         }
     }
 
-    private void handleAcceptEncodingHeader(HTTPCarbonMessage outboundRequest,
+    protected void handleAcceptEncodingHeader(HTTPCarbonMessage outboundRequest,
             AcceptEncodingConfig acceptEncodingConfig) {
         if (acceptEncodingConfig == AcceptEncodingConfig.ALWAYS && (
                 outboundRequest.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString()) == null)) {
