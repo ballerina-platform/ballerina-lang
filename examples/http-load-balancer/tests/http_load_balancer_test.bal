@@ -5,7 +5,7 @@ import ballerina/http;
 boolean serviceStarted;
 
 function startService() {
-    serviceStarted = test:startServices("http_load_balancer");
+    serviceStarted = test:startServices("http-load-balancer");
 }
 
 @test:Config {
