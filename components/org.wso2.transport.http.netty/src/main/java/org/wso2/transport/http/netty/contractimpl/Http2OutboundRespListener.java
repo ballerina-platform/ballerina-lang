@@ -28,6 +28,7 @@ import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
+import io.netty.handler.codec.http2.Http2Error;
 import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.HttpConversionUtil;
@@ -47,6 +48,8 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
 
 import java.util.Calendar;
 import java.util.Locale;
+
+import static org.wso2.transport.http.netty.common.Constants.PROMISED_STREAM_REJECTED_ERROR;
 
 /**
  * {@code Http2OutboundRespListener} is responsible for listening for outbound response messages
@@ -129,7 +132,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
             writeMessage(outboundResponseMsg, promiseId);
         } else {
             inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(
-                    new ServerConnectorException("Promise is already rejected or stream is no longer valid"));
+                    new ServerConnectorException(PROMISED_STREAM_REJECTED_ERROR));
         }
     }
 
@@ -180,7 +183,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
                     Util.createHttpResponse(outboundResponseMsg, Constants.HTTP2_VERSION, serverName, true);
             // Construct Http2 headers
             Http2Headers http2Headers = HttpConversionUtil.toHttp2Headers(httpMessage, true);
-
+            validatePromisedStreamState();
             isHeaderWritten = true;
             ChannelFuture channelFuture =
                     encoder.writeHeaders(ctx, streamId, http2Headers, 0, false, ctx.newPromise());
@@ -191,6 +194,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
 
         private void writeData(HttpContent httpContent, boolean endStream) throws Http2Exception {
             contentLength += httpContent.content().readableBytes();
+            validatePromisedStreamState();
             ChannelFuture channelFuture = encoder.writeData(
                     ctx, streamId, httpContent.content().retain(), 0, endStream, ctx.newPromise());
             encoder.flowController().writePendingBytes();
@@ -246,6 +250,17 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
             accessLogger.log(InternalLogLevel.INFO, String.format(
                     Constants.ACCESS_LOG_FORMAT, remoteAddress, inboundRequestArrivalTime, method, uri, protocol,
                     statusCode, contentLength, referrer, userAgent));
+        }
+
+        private void validatePromisedStreamState() throws Http2Exception {
+            if (streamId == originalStreamId) { // Not a promised stream, no need to validate
+                return;
+            }
+            if (!isValidStreamId(streamId)) {
+                inboundRequestMsg.getHttpOutboundRespStatusFuture().
+                        notifyHttpListener(new ServerConnectorException(PROMISED_STREAM_REJECTED_ERROR));
+                throw new Http2Exception(Http2Error.REFUSED_STREAM, PROMISED_STREAM_REJECTED_ERROR);
+            }
         }
     }
 
