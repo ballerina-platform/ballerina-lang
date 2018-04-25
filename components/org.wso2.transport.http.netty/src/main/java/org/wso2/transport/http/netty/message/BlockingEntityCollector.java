@@ -106,8 +106,8 @@ public class BlockingEntityCollector implements EntityCollector {
         return null;
     }
 
-    public int getFullMessageLength() {
-        int size = 0;
+    public long getFullMessageLength() {
+        long size = 0;
         try {
             readWriteLock.lock();
             List<HttpContent> contentList = new ArrayList<>();
@@ -135,8 +135,8 @@ public class BlockingEntityCollector implements EntityCollector {
         return size;
     }
 
-    public int countMessageLengthTill(int maxSize) {
-        int size = 0;
+    public long countMessageLengthTill(long maxSize) {
+        long size = 0;
         try {
             readWriteLock.lock();
             List<HttpContent> contentList = new ArrayList<>();

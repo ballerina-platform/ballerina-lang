@@ -72,7 +72,7 @@ public class TargetChannel {
     private Http2ClientChannel http2ClientChannel;
 
     private List<HttpContent> contentList = new ArrayList<>();
-    private int contentLength = 0;
+    private long contentLength = 0;
     private final ConnectionAvailabilityFuture connectionAvailabilityFuture;
 
     public TargetChannel(HttpClientChannelInitializer httpClientChannelInitializer, ChannelFuture channelFuture,

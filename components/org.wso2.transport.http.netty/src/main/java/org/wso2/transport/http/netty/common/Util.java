@@ -216,7 +216,7 @@ public class Util {
         return httpRequest;
     }
 
-    public static void setupContentLengthRequest(HTTPCarbonMessage httpOutboundRequest, int contentLength) {
+    public static void setupContentLengthRequest(HTTPCarbonMessage httpOutboundRequest, long contentLength) {
         httpOutboundRequest.removeHeader(HttpHeaderNames.TRANSFER_ENCODING.toString());
         httpOutboundRequest.removeHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
         if (httpOutboundRequest.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString()) == null) {

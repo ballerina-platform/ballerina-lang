@@ -26,7 +26,7 @@ public class RequestSizeValidationConfig {
     private int maxUriLength = 4096;
     private int maxHeaderSize = 8192;
     private int maxChunkSize = 8192;
-    private int maxEntityBodySize = -1;
+    private long maxEntityBodySize = -1;
 
     public int getMaxUriLength() {
         return maxUriLength;
@@ -52,11 +52,11 @@ public class RequestSizeValidationConfig {
         this.maxChunkSize = maxChunkSize;
     }
 
-    public int getMaxEntityBodySize() {
+    public long getMaxEntityBodySize() {
         return maxEntityBodySize;
     }
 
-    public void setMaxEntityBodySize(int maxEntityBodySize) {
+    public void setMaxEntityBodySize(long maxEntityBodySize) {
         this.maxEntityBodySize = maxEntityBodySize;
     }
 }
