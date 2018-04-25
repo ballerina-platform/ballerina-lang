@@ -104,7 +104,6 @@ public class Command {
      */
     public String[] getCommandArray() {
         List<String> commandList = new ArrayList<>();
-        String scriptLocation = getScriptLocation();
 
         // path to ballerina
         String ballerinaExecute = System.getProperty("ballerina.home") + File.separator + "bin" + File.separator +
@@ -120,14 +119,11 @@ public class Command {
         if (filePath != null && !filePath.equals(sourceRoot + File.separator)) {
             packageName =
                     LSCompiler.getPackageNameForGivenFile(sourceRoot, filePath + fileName);
+            commandList.add(packageName);
             commandList.add("--sourceroot");
             commandList.add(sourceRoot);
-        }
-
-        if (packageName == null) {
-            commandList.add(scriptLocation);
         } else {
-            commandList.add(packageName);
+            commandList.add(getScriptName());
         }
 
         if (debug) {
@@ -154,14 +150,14 @@ public class Command {
 
     public String getCommandIdentifier() {
         if (this.packageName == null) {
-            return this.getScriptLocation();
+            return this.getScriptName();
         } else {
             return this.packageName;
         }
     }
 
-    public String getScriptLocation() {
-        return this.filePath + File.separator + fileName;
+    public String getScriptName() {
+        return fileName;
     }
 
     public void setProgram(Process program) {
