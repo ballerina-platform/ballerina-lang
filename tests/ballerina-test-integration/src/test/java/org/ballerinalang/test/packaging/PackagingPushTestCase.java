@@ -54,7 +54,7 @@ public class PackagingPushTestCase extends IntegrationTestCase {
 
         // Write Settings.toml with the access token
         tomlFilePath = tempDirectory.resolve("Settings.toml");
-        String content = "[central]\n accesstoken = \"3ada0d6c-a9ce-3054-9909-cb0e7f810e44\"";
+        String content = "[central]\n accesstoken = \"c77f0bb8-a266-3d12-a324-cb0b9a129db3\"";
         Files.write(tomlFilePath, content.getBytes(), StandardOpenOption.CREATE);
 
         // Get the generated semVer version
