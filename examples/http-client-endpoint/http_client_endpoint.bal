@@ -1,5 +1,4 @@
 import ballerina/http;
-import ballerina/mime;
 import ballerina/log;
 
 endpoint http:Client clientEndpoint {
@@ -17,7 +16,7 @@ function main(string... args) {
             var msg = resp.getJsonPayload();
             match msg {
                 json jsonPayload => {
-                    log:printInfo(jsonPayload);
+                    log:printInfo(jsonPayload.toString());
                 }
                 error err => {
                     log:printError(err.message);
@@ -36,7 +35,7 @@ function main(string... args) {
             var msg = resp.getJsonPayload();
             match msg {
                 json jsonPayload => {
-                    log:printInfo(jsonPayload);
+                    log:printInfo(jsonPayload.toString());
                 }
                 error err => {
                     log:printError(err.message);
@@ -58,7 +57,7 @@ function main(string... args) {
             var msg = resp.getJsonPayload();
             match msg {
                 json jsonPayload => {
-                    log:printInfo(jsonPayload);
+                    log:printInfo(jsonPayload.toString());
                 }
                 error err => {
                     log:printError(err.message);
@@ -79,7 +78,7 @@ function main(string... args) {
             var msg = resp.getJsonPayload();
             match msg {
                 json jsonPayload => {
-                    log:printInfo(jsonPayload);
+                    log:printInfo(jsonPayload.toString());
                 }
                 error err => {
                     log:printError(err.message);
@@ -97,7 +96,7 @@ function main(string... args) {
             var msg = resp.getJsonPayload();
             match msg {
                 json jsonPayload => {
-                    log:printInfo(jsonPayload);
+                    log:printInfo(jsonPayload.toString());
                 }
                 error err => {
                     log:printError(err.message);
