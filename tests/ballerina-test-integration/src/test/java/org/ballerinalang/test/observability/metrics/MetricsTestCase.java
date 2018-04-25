@@ -56,7 +56,8 @@ public class MetricsTestCase {
                 File.separator + "bre" + File.separator + "lib" + File.separator + "hsqldb.jar").toPath(),
                 REPLACE_EXISTING);
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
-        SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "observability/metrics/data.sql");
+        SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "observability" +
+                File.separator + "metrics" + File.separator + "data.sql");
         String balFile = new File(RESOURCE_LOCATION + "metrics-test.bal").getAbsolutePath();
         serverInstance.setArguments(new String[]{balFile, "--observe"});
         serverInstance.startServer();
