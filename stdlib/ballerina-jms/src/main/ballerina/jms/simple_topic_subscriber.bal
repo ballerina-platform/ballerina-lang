@@ -16,7 +16,7 @@
 
 import ballerina/log;
 
-documentation { Simple topic subscriber
+documentation { JMS simple topic subscriber
     E{{}}
     F{{config}} Simple topic subscrirber enpoint configuration
 }

@@ -16,7 +16,7 @@
 
 import ballerina/log;
 
-documentation { Topic publisher
+documentation { JMS topic publisher
     E{{}}
     F{{producerActions}} Topic publisher endpoint actions
     F{{config}} Topic publisher endpoint configuration

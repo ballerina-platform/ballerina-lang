@@ -16,7 +16,7 @@
 
 import ballerina/log;
 
-documentation { Topic subscriber
+documentation { JMS topic subscriber
     E{{}}
     F{{consumerActions}} Topic subscriber endpoint actions
     F{{config}} Topic subscriber endpoint configuration

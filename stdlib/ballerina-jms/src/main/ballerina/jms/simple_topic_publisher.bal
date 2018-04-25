@@ -16,7 +16,7 @@
 
 import ballerina/log;
 
-documentation { Simple topic publisher
+documentation { JMS simple topic publisher
     E{{}}
     F{{config}} Simple topic publisher enpoint configuration
 }
