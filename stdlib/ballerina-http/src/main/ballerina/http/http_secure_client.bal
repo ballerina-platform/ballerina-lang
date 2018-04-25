@@ -49,12 +49,12 @@ public type HttpSecureClient object {
     }
 
     documentation {
-        The `post()` function can be used to send HTTP POST requests to HTTP endpoints.
+        This wraps the `post()` function of the underlying HTTP actions provider. Add relevant authentication headers
+        to the request and send the request to actual network call.
 
         P{{path}} Resource path
         P{{request}} An HTTP outbound request message
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
     }
     public function post(string path, Request? request = ()) returns (Response|HttpConnectorError) {
         Request req = request ?: new;
@@ -70,12 +70,12 @@ public type HttpSecureClient object {
     }
 
     documentation {
-        The `head()` function can be used to send HTTP HEAD requests to HTTP endpoints.
+        This wraps the `head()` function of the underlying HTTP actions provider. Add relevant authentication headers
+        to the request and send the request to actual network call.
 
         P{{path}} Resource path
         P{{request}} An HTTP outbound request message
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
 	}
     public function head(string path, Request? request = ()) returns (Response|HttpConnectorError) {
         Request req = request ?: new;
@@ -91,12 +91,12 @@ public type HttpSecureClient object {
     }
 
     documentation {
-        The `put()` function can be used to send HTTP PUT requests to HTTP endpoints.
+        This wraps the `put()` function of the underlying HTTP actions provider. Add relevant authentication headers
+        to the request and send the request to actual network call.
 
         P{{path}} Resource path
         P{{request}} An HTTP outbound request message
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
 	}
     public function put(string path, Request? request = ()) returns (Response|HttpConnectorError) {
         Request req = request ?: new;
@@ -112,13 +112,13 @@ public type HttpSecureClient object {
     }
 
     documentation {
-		Invokes an HTTP call with the specified HTTP verb.
+		This wraps the `execute()` function of the underlying HTTP actions provider. Add relevant authentication headers
+        to the request and send the request to actual network call.
 
         P{{httpVerb}} HTTP verb value
         P{{path}} Resource path
         P{{request}} An HTTP outbound request message
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
 	}
     public function execute(string httpVerb, string path, Request request) returns (Response|HttpConnectorError) {
         var details = generateSecureRequest(request, config);
@@ -134,12 +134,12 @@ public type HttpSecureClient object {
     }
 
     documentation {
-		The `patch()` function can be used to send HTTP PATCH requests to HTTP endpoints.
+		This wraps the `patch()` function of the underlying HTTP actions provider. Add relevant authentication headers
+        to the request and send the request to actual network call.
 
         P{{path}} Resource path
         P{{request}} An HTTP outbound request message
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
 	}
     public function patch(string path, Request? request = ()) returns (Response|HttpConnectorError) {
         Request req = request ?: new;
@@ -155,12 +155,12 @@ public type HttpSecureClient object {
     }
 
     documentation {
-		The `delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.
+		This wraps the `delete()` function of the underlying HTTP actions provider. Add relevant authentication headers
+        to the request and send the request to actual network call.
 
         P{{path}} Resource path
         P{{request}} An HTTP outbound request message
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
 	}
     public function delete(string path, Request? request = ()) returns (Response|HttpConnectorError) {
         Request req = request ?: new;
@@ -176,12 +176,12 @@ public type HttpSecureClient object {
     }
 
     documentation {
-		The `get()` function can be used to send HTTP GET requests to HTTP endpoints.
+		This wraps the `get()` function of the underlying HTTP actions provider. Add relevant authentication headers
+        to the request and send the request to actual network call.
 
         P{{path}} Request path
         P{{request}} An HTTP outbound request message
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
 	}
     public function get(string path, Request? request = ()) returns (Response|HttpConnectorError) {
         Request req = request ?: new;
@@ -197,12 +197,12 @@ public type HttpSecureClient object {
     }
 
     documentation {
-		The `options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.
+		This wraps the `options()` function of the underlying HTTP actions provider. Add relevant authentication headers
+        to the request and send the request to actual network call.
 
         P{{path}} Request path
         P{{request}} An HTTP outbound request message
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
 	}
     public function options(string path, Request? request = ()) returns (Response|HttpConnectorError) {
         Request req = request ?: new;
@@ -218,12 +218,12 @@ public type HttpSecureClient object {
     }
 
     documentation {
-		The `forward()` function can be used to invoke an HTTP call with inbound request's HTTP verb
+		This wraps the `forward()` function of the underlying HTTP actions provider. Add relevant authentication headers
+        to the request and send the request to actual network call.
 
         P{{path}} Request path
         P{{request}} An HTTP inbound request message
-        R{{}} The inbound response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request
+        R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
 	}
     public function forward(string path, Request request) returns (Response|HttpConnectorError) {
         check generateSecureRequest(request, config);
@@ -238,9 +238,8 @@ public type HttpSecureClient object {
     }
 
     documentation {
-		Submits an HTTP request to a service with the specified HTTP verb.
-		The `submit()` function does not give out a `Response` as the result,
-		rather it returns an `HttpFuture` which can be used to do further interactions with the endpoint.
+		This wraps the `submit()` function of the underlying HTTP actions provider. Add relevant authentication headers
+        to the request and send the request to actual network call.
 
         P{{httpVerb}} The HTTP verb value
         P{{path}} The resource path
@@ -253,7 +252,7 @@ public type HttpSecureClient object {
     }
 
     documentation {
-		Retrieves the `Response` for a previously submitted request.
+		This just pass the request to actual network call.
 
         P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
         R{{}} An HTTP response message, or an error if the invocation fails
@@ -263,7 +262,7 @@ public type HttpSecureClient object {
     }
 
     documentation {
-		Checks whether a `PushPromise` exists for a previously submitted request.
+		This just pass the request to actual network call.
 
         P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
         R{{}} A `boolean` that represents whether a `PushPromise` exists
@@ -273,7 +272,7 @@ public type HttpSecureClient object {
     }
 
     documentation {
-		Retrieves the next available `PushPromise` for a previously submitted request.
+		This just pass the request to actual network call.
 
         P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
         R{{}} An HTTP Push Promise message, or an error if the invocation fails
@@ -283,7 +282,7 @@ public type HttpSecureClient object {
     }
 
     documentation {
-		Retrieves the promised server push `Response` message.
+		This just pass the request to actual network call.
 
         P{{promise}} The related `PushPromise`
         R{{}} A promised HTTP `Response` message, or an error if the invocation fails
@@ -293,8 +292,7 @@ public type HttpSecureClient object {
     }
 
     documentation {
-		Rejects a `PushPromise`.
-		When a `PushPromise` is rejected, there is no chance of fetching a promised response using the rejected promise.
+		This just pass the request to actual network call.
 
         P{{promise}} The Push Promise to be rejected
 	}
