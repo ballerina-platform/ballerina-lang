@@ -62,7 +62,7 @@ documentation {
     F{{connectionThrottling}} The configurations for controlling the number of connections allowed concurrently
     F{{targets}} The upstream HTTP endpoints among which the incoming HTTP traffic load should be distributed
     F{{cache}} The configurations for controlling the caching behaviour
-    F{{acceptEncoding}} Specifies the way of handling accept-encoding header
+    F{{compression}} Specifies the way of handling compression (`accept-encoding`) header
     F{{auth}} HTTP authentication releated configurations
     F{{algorithm}} The algorithm to be used for load balancing. The HTTP package provides 'roundRobin()' by default
     F{{failover}} Configuration for load balancer whether to fail over in case of a failure
@@ -81,7 +81,7 @@ public type LoadBalanceClientEndpointConfiguration {
     ConnectionThrottling? connectionThrottling,
     TargetService[] targets,
     CacheConfig cache = {},
-    AcceptEncoding acceptEncoding = ACCEPT_ENCODING_AUTO,
+    Compression compression = COMPRESSION_AUTO,
     AuthConfig? auth,
     string algorithm = ROUND_ROBIN,
     boolean failover = true;
@@ -119,7 +119,7 @@ function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointCo
         connectionThrottling:lbConfig.connectionThrottling,
         secureSocket:target.secureSocket,
         cache:lbConfig.cache,
-        acceptEncoding:lbConfig.acceptEncoding,
+        compression:lbConfig.compression,
         auth:lbConfig.auth
     };
     return clientEPConfig;
