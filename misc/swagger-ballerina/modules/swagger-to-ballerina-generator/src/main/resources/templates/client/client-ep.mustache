@@ -47,15 +47,7 @@ public type {{cut info.title " "}}Client object {
         http:Request request = new;
 
         //Create the required request as needed
-        var res = ep->{{lower .}}("{{../../../key}}", request = request);
-
-        match res {
-            http:HttpConnectorError httpError => {
-                error err = {message: httpError.message};
-                return err;
-            }
-            http:Response resp => return resp;
-        }
+        return check ep->{{lower .}}("{{../../../key}}", request = request);
     }
     {{/methods}}{{else}}{{#allMethods}}
     public function {{lower .}}{{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
@@ -63,15 +55,7 @@ public type {{cut info.title " "}}Client object {
         http:Request request = new;
 
         //Create the required request as needed
-        var res = ep->{{lower .}}("{{../../../key}}", request = request);
-
-        match res {
-            http:HttpConnectorError httpError => {
-                error err = {message: httpError.message};
-                return err;
-            }
-            http:Response resp => return resp;
-        }
+        return check ep->{{lower .}}("{{../../../key}}", request = request);
     }
     {{/allMethods}}{{/if}}{{else}}
     public function {{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
@@ -79,15 +63,7 @@ public type {{cut info.title " "}}Client object {
         http:Request request = new;
 
         //Create the required request as needed
-        var res = ep->{{key}}("{{../../key}}", request = request);
-
-        match res {
-            http:HttpConnectorError httpError => {
-                error err = {message: httpError.message};
-                return err;
-            }
-            http:Response resp => return resp;
-        }
+        return check ep->{{key}}("{{../../key}}", request = request);
     }
     {{/equals}}{{/value}}{{/operations}}{{/value}}{{/paths}}
 };

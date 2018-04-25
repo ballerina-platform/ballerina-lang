@@ -55,15 +55,7 @@ public function {{../../name}}Client::{{lower .}}{{../name}}({{#parameters}}{{ty
     //Create the required request as needed{{#contentType}}
     request.setHeader("Content-Type", "{{contentType}}");{{/contentType}}
     string path = string `{{path}}`;
-    var res = ep->{{lower .}}(path, request = request);
-
-    match res {
-        http:HttpConnectorError httpError => {
-            error err = {message: httpError.message};
-            return err;
-        }
-        http:Response resp => return resp;
-    }
+    return check ep->{{lower .}}(path, request = request);
 }
 {{/supportedMethods}}{{/isMultiMethod}}{{^isMultiMethod}}
 public function {{../name}}Client::{{name}}({{#parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/parameters}}) returns http:Response | error {
@@ -73,15 +65,7 @@ public function {{../name}}Client::{{name}}({{#parameters}}{{type}} {{name}}{{#u
     //Create the required request as needed{{#contentType}}
     request.setHeader("Content-Type", "{{contentType}}");{{/contentType}}
     string path = string `{{path}}`;
-    var res = ep->{{lower method}}(path, request = request);
-
-    match res {
-        http:HttpConnectorError httpError => {
-            error err = {message: httpError.message};
-            return err;
-        }
-        http:Response resp => return resp;
-    }
+    return check ep->{{lower method}}(path, request = request);
 }{{/isMultiMethod}}
 {{/resources}}
 {{#if endpoints}}//======================================================
