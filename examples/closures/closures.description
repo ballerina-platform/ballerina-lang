@@ -1,2 +1,2 @@
-//In ballerina, a closure is an inner lambda function that has visibility to its enclosing environments scope. It can
-//access its own scope, it's enclosing environments scope and also can access variables defined at global scope.
+// In ballerina, a closure is an inner lambda function that has visibility to its enclosing environments scope. It can
+// access its own scope, it's enclosing environments scope and also can access variables defined at global scope.

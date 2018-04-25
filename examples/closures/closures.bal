@@ -2,7 +2,7 @@ import ballerina/io;
 
 int globalInt = 5;
 
-//basic example where a lambda with a if block access its outer scope variables
+// Basic example where a lambda with a if block access its outer scope variables
 function basicClosure() returns (function (int) returns (int)) {
     int a = 3;
     var foo =  (int b) => (int) {
@@ -15,7 +15,7 @@ function basicClosure() returns (function (int) returns (int)) {
     return foo;
 }
 
-//example function with multiple level of lambda functions within, which the inner most lambda has access to all of
+// Example function with multiple level of lambda functions within, which the inner most lambda has access to all of
 //it outer scope variables
 function multilevelClosure() returns (function (int) returns (int)) {
     int methodInt1 = 2;
@@ -33,7 +33,7 @@ function multilevelClosure() returns (function (int) returns (int)) {
     return addFunc1;
 }
 
-//example which shows how function pointers are passes around with closures, where inner scope lambdas accessing its
+// Example which shows how function pointers are passes around with closures, where inner scope lambdas accessing its
 //outer scope variables
 function functionPointers(int functionIntX) returns (function (int) returns (function (int) returns (int))) {
     return (int functionIntY) => (function (int) returns (int)) {
@@ -65,7 +65,7 @@ function variableShadow(int a) returns function (float) returns (string){
 }
 
 function main(string... args) {
-    // Call the function that shows basic closure support.
+    // Invoke the function that shows basic closure support.
     var foo = basicClosure();
     int result1 = foo(3);
     io:println("Answer: " + result1);
