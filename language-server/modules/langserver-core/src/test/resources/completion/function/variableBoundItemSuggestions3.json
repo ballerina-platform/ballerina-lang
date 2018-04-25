@@ -236,7 +236,7 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"setJsonPayload(${1:payload}, contentType \u003d ${2:application/json})",
+      "insertText":"setJsonPayload(${1:payload}, contentType \u003d ${2:\"application/json\"})",
       "insertTextFormat":"Snippet"
     },
     {
@@ -244,7 +244,7 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"setXmlPayload(${1:payload}, contentType \u003d ${2:application/xml})",
+      "insertText":"setXmlPayload(${1:payload}, contentType \u003d ${2:\"application/xml\"})",
       "insertTextFormat":"Snippet"
     },
     {
@@ -252,7 +252,7 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"setTextPayload(${1:payload}, contentType \u003d ${2:text/plain})",
+      "insertText":"setTextPayload(${1:payload}, contentType \u003d ${2:\"text/plain\"})",
       "insertTextFormat":"Snippet"
     },
     {
@@ -260,7 +260,7 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"setBinaryPayload(${1:payload}, contentType \u003d ${2:application/octet-stream})",
+      "insertText":"setBinaryPayload(${1:payload}, contentType \u003d ${2:\"application/octet-stream\"})",
       "insertTextFormat":"Snippet"
     },
     {
@@ -268,7 +268,7 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"setBodyParts(${1:bodyParts}, contentType \u003d ${2:multipart/form-data})",
+      "insertText":"setBodyParts(${1:bodyParts}, contentType \u003d ${2:\"multipart/form-data\"})",
       "insertTextFormat":"Snippet"
     },
     {
@@ -276,7 +276,7 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"setFileAsPayload(${1:filePath}, contentType \u003d ${2:application/octet-stream})",
+      "insertText":"setFileAsPayload(${1:filePath}, contentType \u003d ${2:\"application/octet-stream\"})",
       "insertTextFormat":"Snippet"
     },
     {
@@ -284,7 +284,7 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"setByteChannel(${1:payload}, contentType \u003d ${2:application/octet-stream})",
+      "insertText":"setByteChannel(${1:payload}, contentType \u003d ${2:\"application/octet-stream\"})",
       "insertTextFormat":"Snippet"
     },
     {

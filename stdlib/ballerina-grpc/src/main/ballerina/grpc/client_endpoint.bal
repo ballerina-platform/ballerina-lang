@@ -15,12 +15,14 @@
 // under the License.
 
 documentation {
-    Represents the gRPC client endpoint.
+    The gRPC client endpoint provides the capability for initiating contact with a remote gRPC service. The API it
+    provides includes functions to send request/error messages.
 }
 public type Client object {
 
     documentation {
-        Gets called when the endpoint is being initialize during package init time.
+        Gets invoked to initialize the endpoint. During initialization, configurations provided through the `config`
+        record is used for endpoint initialization.
 
         P{{config}} - The ClientEndpointConfig of the endpoint.
     }
@@ -28,30 +30,32 @@ public type Client object {
 
     documentation {
         Gets called every time a service attaches itself to this endpoint - also happens at package init time.
-        Not supported in client connector.
+        Not supported in client endpoint.
 
         P{{serviceType}} - The type of the service to be registered.
     }
     public native function register(typedesc serviceType);
 
     documentation {
-        Starts the registered service.
+        Starts the registered service. Not supported in client endpoint.
     }
     public native function start();
 
     documentation {
-        Stops the registered.
+        Stops the registered. Not supported in client endpoint.
     }
     public native function stop();
 
     documentation {
-        Returns the client connection that servicestub code uses.
+        Returns the client connection which is used to send message to server.
+
+        R{{}} - Client connection.
     }
-    public native function getCallerActions() returns (GrpcClient);
+    public native function getCallerActions() returns GrpcClient;
 };
 
 documentation {
-    Represents the gRPC client endpoint configuration.
+    Represents client endpoint configuration.
 
     F{{url}} - The server url.
     F{{secureSocket}} - The SSL configurations for the client endpoint.

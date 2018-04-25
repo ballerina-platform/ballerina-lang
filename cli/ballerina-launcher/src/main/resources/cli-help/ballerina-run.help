@@ -1,6 +1,6 @@
 NAME
     Ballerina help run - Run Ballerina program source files, 
-    binaries or packages
+    binaries, or packages
 
 SYNOPSIS
      ballerina run [-s|--service] [-e] [--offline] [--observe] 
@@ -8,36 +8,32 @@ SYNOPSIS
          <balfile | packagename | balxfile> [args...]  
 
 DESCRIPTION
-     Run command executes the provided program or package. 
+     Run command executes the given program or package. 
 
      If a Ballerina source file (.bal file) or a source package is 
-     given, run command compiles and runs it. 
-     When the source is given, the compilation is done internally, 
-     and it does not generate a binary file. 
+     given, the run command compiles and runs it. The compilation 
+     is done internally and does not generate a binary file. 
  
-     You may use ballerina build command to compile a source and 
-     provide the generated binary file (.balx file) to run command. 
-
-     The difference of running a source file as opposed to a compiled
-     binary file is that, running binary file is much faster. This is 
-     because the source file run requires compilation phase and 
-     running does not require that. 
+     You may use the Ballerina build command to compile a source and 
+     provide the generated binary file (.balx file) to the run command. 
+     The binary runs much faster than a source file, because the source 
+     file run requires a compilation phase. 
 
      By default, ballerina run executes the main function. 
-     If the main function is not there, it executes services. 
+     If the main function is not present, run executes services. 
      When both a main function and a service are present, you can use 
-     [-s|--service] option to run service over main function. 
+     [-s|--service] option to run the service instead of the main function. 
      You must have either a main function or a service in order to run 
-     a program or a package
+     a program or a package.
 
 OPTIONS
      -s
      --service
          Runs services instead of main function (if available) in the 
-         given program or package. The default behaviour is to run 
-         the main function if there is one, else if there is only a
-         service defined, the service will be started. In case both a 
-         main function and a service is available in the program or
+         given program or package. The default behavior is to run 
+         the main function (if available), else if there is only a
+         service defined, the service will be started. If both a 
+         main function and a service are available in the program or
          package, this option allows you to start the service.  
 
      -e <key1=value1, key2=value2, …>
@@ -46,13 +42,13 @@ OPTIONS
      --offline
          In a package build, the dependencies are always checked from 
          the remote repository (Ballerina Central) to check for latest 
-         Artifacts. If --offline is given, this remote check is not 
-         done, rather the local artifacts will be used. 
+         artifacts. If --offline is given, this remote check is not 
+         done and the local artifacts will be used instead. 
 
      --observe
          Enables observability for the Ballerina program and lets
          users observe it through Jaeger (tracing) and Prometheus
-         (metrics) by default. If --observe is given,  it will display
+         (metrics) by default. If --observe is given, it will display
          a log mentioning push/pull endpoints that will be used for
          Jaeger and Prometheus. Moreover, default configurations of
          Jaeger and Prometheus can be overridden using environment
@@ -61,7 +57,7 @@ OPTIONS
      --sourceroot <path>
          Provides the path to be taken as the root of the source. 
          Source will be looked up relative to the given source root 
-         path
+         path.
 
      -c <config-file>
      --config <config-file>
@@ -70,17 +66,17 @@ OPTIONS
      -B <option1, option2, …>
          Provides a list of Ballerina VM options to be used by runtime 
          when executing a Ballerina program or package. This accepts a 
-         comma separated list of options
+         comma-separated list of options.
 
      args... 
          The list of command line arguments for the Ballerina program 
          being run. The semantics of these arguments are defined by 
          the program design. 
 
-DEFAULT BEHAVIOUR
-     Runs the main function in the program or the package given.
-     If no main function defined, then it will look for a service. 
-     If none of them are present, the run command will fail.   
+DEFAULT BEHAVIOR
+     Runs the main function in the given program or package.
+     If no main function is defined, it will look for a service. 
+     If no main function or service is present, the run command will fail.   
 
 EXAMPLES
      Run hello source program  
@@ -92,5 +88,5 @@ EXAMPLES
      Run hello package  
      $ ballerina run hello
 
-     Run math package with three program args: add, 10 and 5
+     Run math package with three program args: add, 10, and 5
      $ ballerina run math add 10 5

@@ -6,21 +6,18 @@ SYNOPSIS
         <command> [<args>]
 
 DESCRIPTION
-     Ballerina is a general purpose, concurrent and strongly typed
+     Ballerina is a general purpose, concurrent, and strongly typed
      programming language with both textual and graphical syntaxes. 
      It is optimized for programming integration solutions.
 
-     To learn more on how to run commands with Ballerina, use
+     To learn how to run commands with Ballerina, use
          ballerina help [command]
      You can find the list of commands in the BALLERINA COMMANDS 
-     Section of this help page. 
+     section of this help page. 
 
-     You can follow https://ballerina.io/learn/quick-tour/ to get  
-     started. 
-     To lean more, you can follow the resources provided in
-     https://ballerina.io/learn/quick-tour/ 
-
-     To find out the latest on Ballerina, visit https://ballerina.io. 
+     To get started, visit https://ballerina.io/learn/quick-tour/ 
+     
+     To find out the latest on Ballerina, visit https://ballerina.io
 
 OPTIONS
      -v
@@ -38,7 +35,7 @@ OPTIONS
           port number for the remote connection. 
 
 BALLERINA COMMANDS
-     The list of available commands are:
+     Available commands are:
          run        Run Ballerina program
          build      Compile Ballerina program
          install    Install packages to home repository
@@ -50,8 +47,8 @@ BALLERINA COMMANDS
          doc        Generate Ballerina API documentation
          grpc       Generate connector/service using protobuf   
                     definition
-         swagger    Generate client/service using swagger definition
-                    or export swagger file for a Ballerina service
+         swagger    Generate client/service using Swagger definition
+                    or export Swagger file for a Ballerina service
          test       Test Ballerina program
          version    Print Ballerina version
          encrypt    Encrypt sensitive data
@@ -60,7 +57,7 @@ EXAMPLES
      Check the current version of Ballerina in use on your system
      $ ballerina -v
 
-     Look for help on how to use ballerina command 
+     Get help on how to use the ballerina command 
      $ ballerina help 
 
      Run your hello Ballerina program  

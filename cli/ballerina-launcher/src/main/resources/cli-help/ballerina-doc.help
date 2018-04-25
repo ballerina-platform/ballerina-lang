@@ -9,10 +9,10 @@ SYNOPSIS
         [<balfile>|<packagename]
 
 DESCRIPTION
-     Ballerina doc command generates API documentation for given 
+     Ballerina doc command generates API documentation for a given 
      program or package. 
 
-     By default if no source or package name given, it will generate 
+     By default if no source or package name is given, it will generate 
      API documentation for all the packages in the current project
      folder. 
 
@@ -26,7 +26,7 @@ OPTIONS
          to format the generated API documentation.
   
      --sourceroot <path>     
-         Path to the directory containing source files and packages
+         Path to the directory containing source files and packages.
 
      -o <path>
      --output <path>
@@ -35,11 +35,11 @@ OPTIONS
     
      -n
      --native
-         Reads the source as native ballerina code. 
+         Reads the source as native Ballerina code. 
 
      -e <package, ...>
      --exclude <package, ...>
-         Comma separated list of package names to be excluded from 
+         Comma-separated list of package names to be excluded from 
          generated documentation. 
 
      -c <path>
@@ -48,9 +48,9 @@ OPTIONS
 
      -v
      --verbose
-         Prints debug level logs while generating documentation
+         Prints debug level logs while generating documentation.
      -e
-         Ballerina environment parameters
+         Ballerina environment parameters.
 
 EXAMPLES
      Generate API documentation for current project 
