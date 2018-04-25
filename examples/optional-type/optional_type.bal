@@ -1,12 +1,12 @@
 import ballerina/io;
 
-// Now this function optionally returns a string value.
+//This function optionally returns a string value.
 function getValue(string key) returns string|() {
-    // In Ballerina, the nil type which is written as `()`, contains a single value, called nil, which is used
+    // In Ballerina, the `nil` type that is provided as `()` contains a single value named `nil`. This is used
     // to represent the absence of any other value.
     // The nil value is written as `()` or `null`.
-    // The “null” is syntactic sugar for nil that is to be used with json values as json uses `null` value.
-    // The implicit initial value for the nil type is `()`.
+    // `null` is syntactic sugar for `nil` that is to be used with JSON values because JSON uses `null`.
+    // The implicit initial value for the `nil` type is `()`.
     return ();
 }
 
@@ -18,7 +18,7 @@ type address {
     string zipcode;
 };
 
-// Here this `addr` and `guardian` fields may or may not contain a value.
+// Here, the `addr` and `guardian` fields may or may not contain values.
 type person {
     string name;
     int age;
@@ -30,9 +30,9 @@ function main(string... args) {
     person p = {};
     io:println(p);
 
-    // Now since the value of the `addr` field is optional, you have to explicitly handle it.
-    // The statement `address addr = p.addr` will produce a compilation error.
-    // The next example illustrates how you can operate on the address record if a value is available.
+    // It is optional for the `addr` field to have a value. Therefore, it needs to be handled explicitly.
+    // The statement `address addr = p.addr` produces a compilation error.
+    // The next example demonstrates how you can operate on the address record if a value is available.
     address? addr = p.addr;
     io:println(addr);
 
