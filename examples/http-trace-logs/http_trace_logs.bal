@@ -1,5 +1,6 @@
 import ballerina/http;
 import ballerina/io;
+import ballerina/log;
 
 endpoint http:Client clientEP {
     url: "http://httpstat.us"

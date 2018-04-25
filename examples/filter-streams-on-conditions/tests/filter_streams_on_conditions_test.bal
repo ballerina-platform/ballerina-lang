@@ -18,6 +18,6 @@ public function mockPrint(any... s) {
 function testFunc() {
     // Invoking the main function
     main();
-    string out1 = "Event received; status: single and total occurrences: 2";
+    string out1 = "Event received; status : single and total occurrences : 2";
     test:assertEquals(out1, outputs[0]);
 }
