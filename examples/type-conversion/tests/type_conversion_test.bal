@@ -20,9 +20,8 @@ function testFunc() {
     main();
     test:assertEquals(10, outputs[0]);
     test:assertEquals("error: 'string' cannot be converted to 'int'", outputs[1]);
-    test:assertEquals(5, outputs[2]);
-    test:assertEquals(1, outputs[3]);
+    test:assertEquals(1, outputs[2]);
+    test:assertEquals(true, outputs[3]);
     test:assertEquals(true, outputs[4]);
-    test:assertEquals(true, outputs[5]);
-    test:assertEquals(3.14, outputs[6]);
+    test:assertEquals(3.14, outputs[5]);
 }
