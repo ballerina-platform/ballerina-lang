@@ -123,7 +123,7 @@ public class HTTPCarbonMessage {
      * @param maxLength is the maximum length to count
      * @return counted length
      */
-    public int countMessageLengthTill(int maxLength) {
+    public long countMessageLengthTill(long maxLength) {
         return this.blockingEntityCollector.countMessageLengthTill(maxLength);
     }
 
@@ -131,7 +131,7 @@ public class HTTPCarbonMessage {
      * Return the length of entire payload. This is a blocking method.
      * @return the length.
      */
-    public int getFullMessageLength() {
+    public long getFullMessageLength() {
         return blockingEntityCollector.getFullMessageLength();
     }
 

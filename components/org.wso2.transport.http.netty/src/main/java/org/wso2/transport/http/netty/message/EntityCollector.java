@@ -62,7 +62,7 @@ public interface EntityCollector {
      * Get the full message length
      * @return message length
      */
-    int getFullMessageLength();
+    long getFullMessageLength();
 
     /**
      * Count the message length till the given message length and returns.
@@ -71,7 +71,7 @@ public interface EntityCollector {
      * @param maxLength is the maximum length to count
      * @return counted length
      */
-    int countMessageLengthTill(int maxLength);
+    long countMessageLengthTill(long maxLength);
 
     /**
      * Complete the message.

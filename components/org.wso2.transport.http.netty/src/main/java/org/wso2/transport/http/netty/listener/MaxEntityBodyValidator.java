@@ -93,7 +93,7 @@ public class MaxEntityBodyValidator extends ChannelInboundHandlerAdapter {
 
     private boolean isContentLengthInvalid(HttpMessage start, long maxContentLength) {
         try {
-            return HttpUtil.getContentLength(start, -1L) > (long) maxContentLength;
+            return HttpUtil.getContentLength(start, -1L) > maxContentLength;
         } catch (NumberFormatException var4) {
             return false;
         }
