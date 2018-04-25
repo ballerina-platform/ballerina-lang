@@ -132,7 +132,7 @@ public type Direction "IN"|"OUT"|"INOUT";
 @final public Direction DIRECTION_INOUT = "INOUT";
 
 documentation {
-    CallParam represents a parameter for the SQL call action where OUT or INOUT parameter is required.
+    Parameter represents a parameter for the SQL actions when a variable parameter needs to pass to the action.
 
     F{{sqlType}} The data type of the corresponding SQL parameter
     F{{value}} Value of paramter pass into the SQL query
