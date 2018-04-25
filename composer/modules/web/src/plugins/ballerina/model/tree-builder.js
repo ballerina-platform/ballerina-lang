@@ -370,6 +370,16 @@ class TreeBuilder {
         if (node.kind === 'PostIncrement') {
             node.operator = node.operatorKind + node.operatorKind;
         }
+
+        if (node.kind === 'SelectExpression' && node.identifier) {
+            node.identifierAvailable = true;
+        }
+
+        if (node.kind === 'StreamAction' && node.invokableBody) {
+            if (node.invokableBody.functionNode) {
+                node.invokableBody.functionNode.isStreamAction = true;
+            }
+        }
     }
 
     static modify(tree, parentKind = null) {
