@@ -17,15 +17,21 @@
 documentation {
     Options for HTTP chunking.
 
-    `AUTO`: If the payload is less than 8KB, content-length header is set in the outbound response/response,
-            otherwise chunking header is set in the outbound response/response
+    `AUTO`: If the payload is less than 8KB, content-length header is set in the outbound request/response,
+            otherwise chunking header is set in the outbound request/response
     `ALWAYS`: Always set chunking header in the response
-    `NEVER`: Never set the chunking header even if the payload is larger than 8KB in the outbound response/response
+    `NEVER`: Never set the chunking header even if the payload is larger than 8KB in the outbound request/response
 }
 public type Chunking "AUTO" | "ALWAYS" | "NEVER";
 
+documentation {If the payload is less than 8KB, content-length header is set in the outbound request/response,
+              otherwise chunking header is set in the outbound request/response.}
 @final public Chunking CHUNKING_AUTO = "AUTO";
+
+documentation {Always set chunking header in the response.}
 @final public Chunking CHUNKING_ALWAYS = "ALWAYS";
+
+documentation {Never set the chunking header even if the payload is larger than 8KB in the outbound request/response.}
 @final public Chunking CHUNKING_NEVER = "NEVER";
 
 documentation {
@@ -38,8 +44,14 @@ documentation {
 }
 public type Compression "AUTO" | "ALWAYS" | "NEVER";
 
+documentation {When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the
+               outbound request/response accept-encoding option.}
 @final public Compression COMPRESSION_AUTO = "AUTO";
+
+documentation {Always set accept-encoding in outbound request/response.}
 @final public Compression COMPRESSION_ALWAYS = "ALWAYS";
+
+documentation {Never set accept-encoding header in outbound request/response.}
 @final public Compression COMPRESSION_NEVER = "NEVER";
 
 //TODO: Remove it.
@@ -56,6 +68,8 @@ documentation {
 }
 public type TransferEncoding "CHUNKING";
 
+
+documentation {Payload is divided into chunks of data if payload is larger than 8KB.}
 @final public TransferEncoding TRANSFERENCODE_CHUNKING = "CHUNKING";
 
 documentation {

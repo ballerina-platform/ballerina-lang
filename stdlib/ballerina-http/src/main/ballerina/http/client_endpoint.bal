@@ -258,7 +258,7 @@ public function Client::init(ClientEndpointConfig config) {
     }
 }
 
-function createCircuitBreakerClient (string uri, ClientEndpointConfig configuration) returns CallerActions {
+function createCircuitBreakerClient(string uri, ClientEndpointConfig configuration) returns CallerActions {
     var cbConfig = configuration.circuitBreaker;
     match cbConfig {
         CircuitBreakerConfig cb => {
@@ -309,7 +309,7 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfig configurat
     }
 }
 
-function createRetryClient (string url, ClientEndpointConfig configuration) returns CallerActions {
+function createRetryClient(string url, ClientEndpointConfig configuration) returns CallerActions {
     var retryConfigVal = configuration.retryConfig;
     match retryConfigVal {
         RetryConfig retryConfig => {
