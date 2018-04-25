@@ -52,7 +52,7 @@ function testSuccessScenario () returns (http:Response | error) {
 
 function testFailureScenario () returns (http:Response | error) {
     endpoint http:FailoverClient backendClientEP {
-        failoverCodes : [400, 404, 502, 503],
+        failoverCodes : [400, 404, 500, 502, 503],
         targets: [
                  {url: "http://invalidEP"},
                  {url: "http://localhost:50000000"}],

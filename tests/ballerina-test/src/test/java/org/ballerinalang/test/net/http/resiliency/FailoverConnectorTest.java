@@ -66,7 +66,7 @@ public class FailoverConnectorTest {
      * - Once all endpoints were tried out failover connector responds with
      * - status code of 500 and the error return from the last endpoint.
      */
-    @Test(description = "Test case for failover connector when all endpoints return error response.", enabled = false)
+    @Test(description = "Test case for failover connector when all endpoints return error response.")
     public void testFailureScenario() {
         long expectedHttpSC = 500;
         String expectedErrprMessageContent =
