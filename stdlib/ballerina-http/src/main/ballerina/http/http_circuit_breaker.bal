@@ -19,7 +19,11 @@ import ballerina/time;
 import ballerina/io;
 
 documentation {
-    A finite type for modeling the states of the Circuit Breaker.
+    A finite type for modeling the states of the Circuit Breaker. The Circuit Breaker starts in the `CLOSED` state.
+    If any failure thresholds are exceeded during execution, the circuit trips and goes to the `OPEN` state. After
+    the specified timeout period expires, the circuit goes to the `HALF_OPEN` state. If the trial request sent while
+    in the `HALF_OPEN` state succeeds, the circuit goes back to the `CLOSED` state.
+
 }
 public type CircuitState "OPEN" | "HALF_OPEN" | "CLOSED";
 
@@ -144,8 +148,7 @@ public type CircuitBreakerClient object {
 
         P{{path}} Resource path
         P{{request}} A Request struct
-        R{{}} The Response struct
-        R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
+        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function post(string path, Request? request = ()) returns Response|error;
 
@@ -155,8 +158,7 @@ public type CircuitBreakerClient object {
 
         P{{path}} Resource path
         P{{request}} A Request struct
-        R{{}} The Response struct
-        R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
+        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
      }
     public function head(string path, Request? request = ()) returns Response|error;
 
@@ -166,8 +168,7 @@ public type CircuitBreakerClient object {
 
         P{{path}} Resource path
         P{{request}} A Request struct
-        R{{}} The Response struct
-        R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
+        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function put(string path, Request? request = ()) returns Response|error;
 
@@ -178,8 +179,7 @@ public type CircuitBreakerClient object {
         P{{httpVerb}} HTTP verb to be used for the request
         P{{path}} Resource path
         P{{request}} A Request struct
-        R{{}} The Response struct
-        R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
+        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function execute(string httpVerb, string path, Request request) returns Response|error;
 
@@ -189,8 +189,7 @@ public type CircuitBreakerClient object {
 
         P{{path}} Resource path
         P{{request}} A Request struct
-        R{{}} The Response struct
-        R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
+        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function patch(string path, Request? request = ()) returns Response|error;
 
@@ -200,8 +199,7 @@ public type CircuitBreakerClient object {
 
         P{{path}} Resource path
         P{{request}} A Request struct
-        R{{}} The Response struct
-        R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
+        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function delete(string path, Request? request = ()) returns Response|error;
 
@@ -211,8 +209,7 @@ public type CircuitBreakerClient object {
 
         P{{path}} Resource path
         P{{request}} A Request struct
-        R{{}} The Response struct
-        R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
+        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function get(string path, Request? request = ()) returns Response|error;
 
@@ -222,8 +219,7 @@ public type CircuitBreakerClient object {
 
         P{{path}} Resource path
         P{{request}} A Request struct
-        R{{}} The Response struct
-        R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
+        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function options(string path, Request? request = ()) returns Response|error;
 
@@ -233,8 +229,7 @@ public type CircuitBreakerClient object {
 
         P{{path}} Resource path
         P{{request}} A Request struct
-        R{{}} The Response struct
-        R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
+        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function forward(string path, Request request) returns Response|error;
 
