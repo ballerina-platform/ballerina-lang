@@ -255,8 +255,10 @@ public class HtmlDocTest {
 
     @Test(description = "Objects in a package should be shown in the constructs with new docerina syntax")
     public void testObjectsWithNewSyntax() throws Exception {
-        BLangPackage bLangPackage = createPackage("documentation {\n    Object Test\n" + "F{{url}} " +
-                "endpoint url\n" + "F{{path}} a valid path\n" + "}\n" + "public type Test object {\n" + "    public " +
+        BLangPackage bLangPackage = createPackage(
+                "documentation {\n       Object Test\n\n         Description." +
+                        "F{{url}} endpoint url\n" + "F{{path}} a valid path\n" + "}\n" + "public type Test object " +
+                        "{\n" + "    public " +
                 "{\n" + "        string url;\n" + "        string path;\n" + "    }\n" + "    private {\n" + "       " +
                 " string idx;\n" + "    }\n" +
                 "documentation {Initialized a new `Test` object\n" +
@@ -272,7 +274,7 @@ public class HtmlDocTest {
         Assert.assertEquals(page.constructs.size(), 1);
         Assert.assertEquals(page.constructs.get(0).name, "Test");
         Assert.assertEquals(page.constructs.get(0).icon, "fw-struct");
-        Assert.assertEquals(page.constructs.get(0).description, "<p>Object Test</p>\n");
+        Assert.assertEquals(page.constructs.get(0).description, "<p>Object Test</p>\n<p>Description.</p>\n");
         Assert.assertTrue(page.constructs.get(0) instanceof ConnectorDoc, "Invalid documentable type");
         ConnectorDoc connectorDoc = (ConnectorDoc) page.constructs.get(0);
         Assert.assertEquals(connectorDoc.fields.size(), 2);
