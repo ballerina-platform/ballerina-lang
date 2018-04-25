@@ -113,14 +113,10 @@ public class InitCommand implements BLauncherCmd {
 
                     if (srcInput.equalsIgnoreCase("service") || srcInput.equalsIgnoreCase("s") ||
                         (first && srcInput.isEmpty())) {
-                        out.print("Package for the service : (no package) ");
-                        String packageName = scanner.nextLine().trim();
-                        SrcFile srcFile = new SrcFile(packageName, SrcFile.SrcFileType.SERVICE);
+                        SrcFile srcFile = new SrcFile("", SrcFile.SrcFileType.SERVICE);
                         sourceFiles.add(srcFile);
                     } else if (srcInput.equalsIgnoreCase("main") || srcInput.equalsIgnoreCase("m")) {
-                        out.print("Package for the main : (no package) ");
-                        String packageName = scanner.nextLine().trim();
-                        SrcFile srcFile = new SrcFile(packageName, SrcFile.SrcFileType.MAIN);
+                        SrcFile srcFile = new SrcFile("", SrcFile.SrcFileType.MAIN);
                         sourceFiles.add(srcFile);
                     } else if (srcInput.isEmpty() || srcInput.equalsIgnoreCase("f")) {
                         validInput = true;

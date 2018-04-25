@@ -8,31 +8,31 @@ DESCRIPTION
      Ballerina init creates an initial project structure for you to 
      get started with a Ballerina project. 
 
-    The created set of artifacts includes a Ballerina.toml and a 
-    sample ballerina source file.You can use Ballerina.toml to manage
-    the organization setting and version for the project.
+     The created set of artifacts includes a Ballerina.toml and a 
+     sample Ballerina source file. You can use Ballerina.toml to manage
+     the organization setting and version for the project.
      
-     The generated set of artifacts also include a service skeleton 
-     and a test skeleton that you can use to kick start the project
-     with. 
+     The generated set of artifacts also includes a service skeleton 
+     and a test skeleton that you can use to kick start the project. 
 
-     You may create a new folder, cd to that folder and then run init 
-     command to generate artifacts into that folder to initiate a 
-     project with a clean start. 
+     To initiate a project with a clean start, you can create a new 
+     folder, cd to that folder, and then run the init command to generate 
+     artifacts into that folder. 
 
 OPTIONS
      -i
      --interactive
           Creates a new Ballerina project in interactive mode. 
-          You will be guided through a set of question on what 
-          configuration files to generate, sources files to generate, 
-          what version to use, what organization name to use and 
-          if it is a main program or a service. 
+          You will be guided through a set of questions on what 
+          configuration files to generate, source files to generate, 
+          version to use, organization name to use, and whether it 
+          is a main program or a service. 
 
 EXAMPLES
      Initialize a project 
      $ ballerina init
-     If you want to get a clean start, you may optionally 
+     
+     Optionally, if you want to get a clean start 
      $ mkdir myproj
      $ cd myproj
      $ ballerina init

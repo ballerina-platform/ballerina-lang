@@ -12,8 +12,8 @@ DESCRIPTION
      If a command is given, the help page for the given command 
      is printed. 
 
-     Note that ballerina ?, ballerina –h and ballerina --help are  
-     identical to ballerina help  Those formats are internally 
+     Note that ballerina ?, ballerina –h, and ballerina --help are  
+     identical to ballerina help. Those formats are internally 
      converted into ballerina help.
 
      ballerina command synopsis: 
@@ -41,8 +41,8 @@ OPTIONS
      Ballerina help takes no command line options 
 
 EXAMPLES
-     Look for help on how to use ballerina command 
+     Look for help on how to use the ballerina command 
      $ ballerina help 
 
-     Learn how to run ballerina run command  
+     Learn how to use the Ballerina run command  
      $ ballerina help run

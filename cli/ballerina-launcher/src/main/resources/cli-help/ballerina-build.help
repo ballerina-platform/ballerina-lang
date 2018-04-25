@@ -10,8 +10,8 @@ DESCRIPTION
      Compiles Ballerina sources and writes the output to a file. 
 
      By default, output filename for a package is the package name 
-     suffixed with ‘.balx’. The default output for a source will have 
-     The ‘.bal’ suffix replaced with ‘.balx’. 
+     suffixed with ‘.balx’. The default output for a source will  
+     replace the ‘.bal’ suffix with ‘.balx’. 
 
      If the output file is specified with the -o flag, the output 
      will be written to the given output file name. 
@@ -25,12 +25,12 @@ OPTIONS
           Builds a compiled package. 
 
      --offline
-          Builds offline without downloading dependencies 
+          Builds offline without downloading dependencies. 
 
-     -r   Recursive  mode.  Operates  as fast as lightning at the
+     -r   Recursive mode. Operates as fast as lightning at the
           expense of a megabyte of virtual memory.
 
-DEFAULT BEHAVIOUR
+DEFAULT BEHAVIOR
      Generates a compiled binary file for the source or package given 
      with ‘.balx’ file extension. 
 

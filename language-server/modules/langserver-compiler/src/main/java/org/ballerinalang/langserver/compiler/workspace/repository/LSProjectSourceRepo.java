@@ -34,6 +34,6 @@ class LSProjectSourceRepo extends ProjectSourceRepo {
     }
 
     LSProjectSourceRepo(Path projectRoot, WorkspaceDocumentManager documentManager) {
-        this(new LSPathConverter(projectRoot, documentManager));
+        this(new LSPathConverter(projectRoot, documentManager, null));
     }
 }
