@@ -22,7 +22,7 @@ import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.SQLDBUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.BufferedReader;
@@ -50,11 +50,11 @@ public class MetricsTestCase {
     private static final String DB_NAME = "TEST_DB";
     private Map<String, Pattern> expectedMetrics = new HashMap<>();
 
-    @BeforeTest
+    @BeforeClass
     private void setup() throws Exception {
         serverInstance = ServerInstance.initBallerinaServer();
         Files.copy(new File(System.getProperty("hsqldb.jar")).toPath(), new File(serverInstance.getServerHome() +
-                File.separator + "bre" + File.separator + "lib" + File.separator + "hsqldb.jar").toPath(),
+                        File.separator + "bre" + File.separator + "lib" + File.separator + "hsqldb.jar").toPath(),
                 REPLACE_EXISTING);
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         sqlServer = SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "observability" +
