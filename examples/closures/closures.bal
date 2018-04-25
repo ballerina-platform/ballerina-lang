@@ -1,14 +1,14 @@
 import ballerina/io;
 
-int globalInt = 5;
+int globalA = 5;
 
 // Basic example where a lambda with a 'if' block access its outer scope variables.
-function basicClosure() returns (function (int) returns (int)) {
+function basicClosure() returns (function (int) returns int) {
     int a = 3;
-    var foo =  (int b) => (int) {
+    var foo =  (int b) => int {
         int c = 34;
         if (b == 3) {
-            c = c + b + a + globalInt;
+            c = c + b + a + globalA;
         }
         return c + a;
     };
@@ -17,13 +17,13 @@ function basicClosure() returns (function (int) returns (int)) {
 
 // Example function with multiple level of lambda functions within, which the inner most lambda has access to all of
 // it outer scope variables.
-function multilevelClosure() returns (function (int) returns (int)) {
+function multilevelClosure() returns (function (int) returns int) {
     int methodInt1 = 2;
-    var addFunc1 = (int funcInt1) => (int) {
+    var addFunc1 = (int funcInt1) => int {
         int methodInt2 = 23;
-        var addFunc2 = (int funcInt2) => (int) {
+        var addFunc2 = (int funcInt2) => int {
             int methodInt3 = 7;
-            var addFunc3 = (int funcInt3) => (int) {
+            var addFunc3 = (int funcInt3) => int {
                 return funcInt3 + funcInt2 + funcInt1 + methodInt1 + methodInt2 + methodInt3;
             };
             return addFunc3(8) + funcInt2 + funcInt1;
@@ -35,9 +35,9 @@ function multilevelClosure() returns (function (int) returns (int)) {
 
 // Example which shows how function pointers are passes around with closures, where inner scope lambdas accessing its
 // outer scope variables.
-function functionPointers(int functionIntX) returns (function (int) returns (function (int) returns (int))) {
-    return (int functionIntY) => (function (int) returns (int)) {
-        return (int functionIntZ) => (int) {
+function functionPointers(int functionIntX) returns (function (int) returns (function (int) returns int)) {
+    return (int functionIntY) => (function (int) returns int) {
+        return (int functionIntZ) => int {
             return functionIntX + functionIntY + functionIntZ;
         };
     };
@@ -45,19 +45,19 @@ function functionPointers(int functionIntX) returns (function (int) returns (fun
 
 
 // Example function where inner scope variables can shadow its outer scope variables along with closure support.
-function variableShadow(int a) returns function (float) returns (string){
+function variableShadow(int a) returns (function (float) returns string) {
     int b = 4;
     float f = 5.6;
 
     if (a < 10) {
         int a = 4;
-        b = a + b + <int>f;
+        b = a + b + <int> f;
     }
 
-    var foo = (float f) => (string) {
+    var foo = (float f) => string {
         if (a > 8) {
             int a = 6;
-            b = a + <int>f + b;
+            b = a + <int> f + b;
         }
         return "Ballerina" + b;
     };
