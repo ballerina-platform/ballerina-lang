@@ -6,7 +6,7 @@ Secured Hello World Service with Basic Auth
 Values
 Constants
 Directory Listener
-Global Variables
+Variables
 While
 IF Else
 Ternary
