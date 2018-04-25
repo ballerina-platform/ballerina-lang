@@ -32,7 +32,7 @@ public type DummyObject object {
 
 // This is the documentation attachment for record `DummyType`. You may use Markdown syntax to style text on these Descriptions.
 documentation {
-   `DummyType` is a user defined record type in Ballerina program. This `DummyType` used to hold a string type data and int type data.
+   `DummyType` is a user defined record type in Ballerina program. This `DummyType` is used to hold a string type data and int type data.
 
     F{{fieldOne}} This is the description for the DummyType's field `fieldOne`. `F` doc prefix is used to mark a field on Record.
     F{{fieldTwo}} This is the description for the DummyType's field `fieldTwo`. `F` doc prefix is used to mark a field on Record.
