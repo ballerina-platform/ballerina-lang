@@ -1,0 +1,2 @@
+// The http-access-logs sample exhibits the nature of the access logs generation with
+// respect to the requests processed by Ballerina.
