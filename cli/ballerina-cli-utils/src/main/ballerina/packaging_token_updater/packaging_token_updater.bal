@@ -28,7 +28,7 @@ service<http:Service> update_token bind listener {
         response.setHeader("Content-Type", "image/svg+xml");
         response.setPayload("<svg xmlns=\"http://www.w3.org/2000/svg\"/>");
         var destinationChannel = openForWriting(system:getUserHome() + "/.ballerina/Settings.toml", "UTF-8");
-        var result = destinationChannel.write("[central]\naccesstoken=" + token, 0);
+        var result = destinationChannel.write("[central]\naccesstoken= \"" + token  + "\"", 0);
         io:println("Token updated");
         _ = caller -> respond(response);
     }
