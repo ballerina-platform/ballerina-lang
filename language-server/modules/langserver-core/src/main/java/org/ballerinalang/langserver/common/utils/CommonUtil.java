@@ -587,7 +587,13 @@ public class CommonUtil {
         
         return false;
     }
-    
+
+    /**
+     * Check whether the packages list contains a given package.
+     * @param pkg               Package to check
+     * @param pkgList           List of packages to check against
+     * @return {@link Boolean}  Check status of the package
+     */
     public static boolean listContainsPackage(String pkg, List<BallerinaPackage> pkgList) {
         return pkgList.stream().anyMatch(ballerinaPackage -> ballerinaPackage.toString().equals(pkg));
     }
