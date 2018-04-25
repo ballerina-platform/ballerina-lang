@@ -119,18 +119,10 @@ public class LauncherUtils {
     }
 
     public static void runMain(ProgramFile programFile, String[] args) {
+        BLangProgramRunner.runMain(programFile, args);
         if (programFile.isServiceEPAvailable()) {
-            PrintStream outStream = System.out;
-            ServerConnectorRegistry serverConnectorRegistry = new ServerConnectorRegistry();
-            programFile.setServerConnectorRegistry(serverConnectorRegistry);
-            serverConnectorRegistry.initServerConnectors();
-
-            BLangProgramRunner.runMain(programFile, args);
-            outStream.println("ballerina: initiating service(s) in '" + programFile.getProgramFilePath() + "'");
-            serverConnectorRegistry.deploymentComplete();
             return;
         }
-        BLangProgramRunner.runMain(programFile, args);
         try {
             ThreadPoolFactory.getInstance().getWorkerExecutor().shutdown();
             ThreadPoolFactory.getInstance().getWorkerExecutor().awaitTermination(10000, TimeUnit.MILLISECONDS);
