@@ -144,10 +144,23 @@ function Listener::sendSubscriptionRequest() {
         string resourceUrl = <string>subscriptionDetails["resourceUrl"];
         string hub = <string>subscriptionDetails["hub"];
         string topic = <string>subscriptionDetails["topic"];
+
         http:SecureSocket? secureSocket;
         match (<http:SecureSocket>subscriptionDetails["secureSocket"]) {
             http:SecureSocket httpSecureSocket => { secureSocket = httpSecureSocket; }
             error => { secureSocket = (); }
+        }
+
+        http:AuthConfig? auth;
+        match (<http:AuthConfig>subscriptionDetails["auth"]) {
+            http:AuthConfig httpAuth => { auth = httpAuth; }
+            error => { auth = (); }
+        }
+
+        http:FollowRedirects? followRedirects;
+        match (<http:FollowRedirects>subscriptionDetails["followRedirects"]) {
+            http:FollowRedirects httpFollowRedirects => { followRedirects = httpFollowRedirects; }
+            error => { followRedirects = (); }
         }
 
         if (hub == "" || topic == "") {
@@ -155,7 +168,7 @@ function Listener::sendSubscriptionRequest() {
                 log:printError("Subscription Request not sent since hub and/or topic and resource URL are unavailable");
                 return;
             }
-            match (retrieveHubAndTopicUrl(resourceUrl, secureSocket)) {
+            match (retrieveHubAndTopicUrl(resourceUrl, auth, secureSocket, followRedirects)) {
                 (string, string) discoveredDetails => {
                     var (retHub, retTopic) = discoveredDetails;
                     match (http:decode(retHub, "UTF-8")) {
@@ -177,12 +190,7 @@ function Listener::sendSubscriptionRequest() {
                 }
             }
         }
-        http:AuthConfig? auth;
-        match (<http:AuthConfig>subscriptionDetails["auth"]) {
-            http:AuthConfig httpAuthConfig => { auth = httpAuthConfig; }
-            error => { auth = (); }
-        }
-        invokeClientConnectorForSubscription(hub, secureSocket, auth, subscriptionDetails);
+        invokeClientConnectorForSubscription(hub, auth, secureSocket, followRedirects, subscriptionDetails);
     }
 }
 
@@ -213,13 +221,14 @@ documentation {
     P{{resourceUrl}} The resource URL advertising hub and topic URLs
     R{{}} `(string, string)` (hub, topic) URLs if successful, `error` if not
 }
-function retrieveHubAndTopicUrl(string resourceUrl, http:SecureSocket? secureSocket)
-    returns @tainted (string, string)|error {
+function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:SecureSocket? secureSocket,
+                                http:FollowRedirects? followRedirects) returns @tainted (string, string)|error {
 
     endpoint http:Client resourceEP {
         url:resourceUrl,
-        secureSocket:secureSocket
-        //followRedirects:{enabled:true} //TODO: enable when re-direction is fixed
+        auth:auth,
+        secureSocket:secureSocket,
+        followRedirects:followRedirects
     };
 
     http:Request request = new;
@@ -228,9 +237,6 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:SecureSocket? secureSoc
     match (discoveryResponse) {
         http:Response response => {
             int responseStatusCode = response.statusCode;
-            if (responseStatusCode == http:MOVED_PERMANENTLY_301 || responseStatusCode == http:FOUND_302) {
-                return retrieveHubAndTopicUrl(response.getHeader("Location"), secureSocket);
-            }
             string[] linkHeaders;
             if (response.hasHeader("Link")) {
                 linkHeaders = response.getHeaders("Link");
@@ -324,12 +330,13 @@ documentation {
     P{{hub}} The hub to which the subscription request is to be sent
     P{{subscriptionDetails}} Map containing subscription details
 }
-function invokeClientConnectorForSubscription(string hub, http:SecureSocket? secureSocket, http:AuthConfig? auth,
-                                              map subscriptionDetails) {
+function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth, http:SecureSocket? secureSocket,
+                                              http:FollowRedirects? followRedirects, map subscriptionDetails) {
     endpoint Client websubHubClientEP {
         url:hub,
         secureSocket:secureSocket,
-        auth:auth
+        auth:auth,
+        followRedirects:followRedirects
     };
 
     string topic = <string>subscriptionDetails["topic"];
