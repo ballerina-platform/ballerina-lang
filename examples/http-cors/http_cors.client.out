@@ -1,4 +1,4 @@
-# simple request
+# Run this curl command to send a CORS simple request. 
 $ curl -v "http://localhost:9092/crossOriginService/company" -H "Origin:http://www.bbc.com"
 
 < HTTP/1.1 200 OK
@@ -8,7 +8,7 @@ $ curl -v "http://localhost:9092/crossOriginService/company" -H "Origin:http://w
 < Content-Length: 21
 {"type":"middleware"}
 
-# preflight request
+# Run this curl command to send a CORS preflight request. 
 $ curl -v "http://localhost:9092/crossOriginService/lang" -X OPTIONS -H "Origin:http://www.m3.com" -H "Access-Control-Request-Method:POST"
 
 < HTTP/1.1 200 OK
