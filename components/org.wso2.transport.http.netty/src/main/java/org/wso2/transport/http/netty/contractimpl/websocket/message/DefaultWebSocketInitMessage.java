@@ -22,6 +22,7 @@ package org.wso2.transport.http.netty.contractimpl.websocket.message;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
@@ -46,13 +47,13 @@ import java.util.concurrent.TimeUnit;
 public class DefaultWebSocketInitMessage extends WebSocketMessageImpl implements WebSocketInitMessage {
 
     private final ChannelHandlerContext ctx;
-    private final HttpRequest httpRequest;
+    private final FullHttpRequest httpRequest;
     private final WebSocketSourceHandler webSocketSourceHandler;
     private boolean isCancelled = false;
     private boolean handshakeStarted = false;
     private HttpRequest request;
 
-    public DefaultWebSocketInitMessage(ChannelHandlerContext ctx, HttpRequest httpRequest,
+    public DefaultWebSocketInitMessage(ChannelHandlerContext ctx, FullHttpRequest httpRequest,
                                        WebSocketSourceHandler webSocketSourceHandler, Map<String, String> headers) {
         this.ctx = ctx;
         this.httpRequest = httpRequest;
@@ -149,7 +150,6 @@ public class DefaultWebSocketInitMessage extends WebSocketMessageImpl implements
                 webSocketSourceHandler.setNegotiatedSubProtocol(selectedSubProtocol);
                 setSubProtocol(selectedSubProtocol);
                 DefaultWebSocketConnection webSocketConnection = (DefaultWebSocketConnection) getWebSocketConnection();
-                webSocketConnection.getDefaultWebSocketSession().setIsOpen(true);
                 webSocketConnection.getDefaultWebSocketSession().setNegotiatedSubProtocol(selectedSubProtocol);
 
                 //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline

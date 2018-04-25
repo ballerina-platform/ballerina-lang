@@ -124,35 +124,35 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
     /**
      * Handle the WebSocket handshake.
      *
-     * @param httpRequest {@link HttpRequest} of the request.
+     * @param fullHttpRequest {@link HttpRequest} of the request.
      */
-    private void handleWebSocketHandshake(HttpRequest httpRequest, ChannelHandlerContext ctx) throws Exception {
+    private void handleWebSocketHandshake(FullHttpRequest fullHttpRequest, ChannelHandlerContext ctx) throws Exception {
         boolean isSecured = false;
 
         if (ctx.channel().pipeline().get(Constants.SSL_HANDLER) != null) {
             isSecured = true;
         }
-        String uri = httpRequest.uri();
+        String uri = fullHttpRequest.uri();
         DefaultWebSocketConnection webSocketConnection = WebSocketUtil.getWebSocketConnection(ctx, isSecured, uri);
 
         Map<String, String> headers = new HashMap<>();
-        httpRequest.headers().forEach(
+        fullHttpRequest.headers().forEach(
                 header -> headers.put(header.getKey(), header.getValue())
         );
         WebSocketSourceHandler webSocketSourceHandler =
-                new WebSocketSourceHandler(serverConnectorFuture, isSecured, webSocketConnection, httpRequest,
+                new WebSocketSourceHandler(serverConnectorFuture, isSecured, webSocketConnection, fullHttpRequest,
                                            headers, ctx, interfaceId);
-        DefaultWebSocketInitMessage initMessage = new DefaultWebSocketInitMessage(ctx, httpRequest,
+        DefaultWebSocketInitMessage initMessage = new DefaultWebSocketInitMessage(ctx, fullHttpRequest,
                                                                                   webSocketSourceHandler, headers);
 
         // Setting common properties for init message
         initMessage.setWebSocketConnection(webSocketConnection);
         initMessage.setIsServerMessage(true);
-        initMessage.setTarget(httpRequest.uri());
+        initMessage.setTarget(fullHttpRequest.uri());
         initMessage.setListenerInterface(interfaceId);
         initMessage.setProperty(Constants.SRC_HANDLER, webSocketSourceHandler);
         initMessage.setIsConnectionSecured(isSecured);
-        initMessage.setHttpRequest(httpRequest);
+        initMessage.setHttpRequest(fullHttpRequest);
 
         ctx.channel().config().setAutoRead(false);
         serverConnectorFuture.notifyWSListener(initMessage);

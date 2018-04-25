@@ -152,7 +152,6 @@ public class WebSocketClient {
                     String actualSubProtocol = websocketHandshaker.actualSubprotocol();
                     webSocketTargetHandler.setActualSubProtocol(actualSubProtocol);
                     webSocketConnection.getDefaultWebSocketSession().setNegotiatedSubProtocol(actualSubProtocol);
-                    webSocketConnection.getDefaultWebSocketSession().setIsOpen(true);
                     handshakeFuture.notifySuccess(webSocketConnection);
                 } else {
                     handshakeFuture.notifyError(cause);

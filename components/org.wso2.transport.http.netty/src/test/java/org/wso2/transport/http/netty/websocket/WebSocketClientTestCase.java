@@ -38,14 +38,11 @@ import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.websocket.WebSocketRemoteServer;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.NoSuchElementException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import javax.websocket.CloseReason;
-import javax.websocket.Session;
 
 /**
  * Test cases for the WebSocket Client implementation.
@@ -332,10 +329,10 @@ public class WebSocketClientTestCase {
         });
 
         latch.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
-        Assert.assertTrue(connectorListener.isClosed());
         WebSocketCloseMessage closeMessage = connectorListener.getCloseMessage();
-        Assert.assertEquals(closeMessage.getCloseCode(), 1001);
-        Assert.assertEquals(closeMessage.getCloseReason(), "Server is going away");
+        Assert.assertEquals(closeMessage.getCloseCode(), -1);
+        Assert.assertEquals(closeMessage.getCloseReason(), null);
+        Assert.assertTrue(connectorListener.isClosed());
     }
 
     @Test(priority = 7, description = "Test the behavior of client connector when auto read is false.")
@@ -386,12 +383,5 @@ public class WebSocketClientTestCase {
 
     private HandshakeFuture handshake(WebSocketConnectorListener connectorListener) {
         return clientConnector.connect(connectorListener);
-    }
-
-    private void shutDownClient(Session session) throws IOException {
-        session.close(new CloseReason(
-                () -> 1000,
-                "Normal Closure"
-        ));
     }
 }
