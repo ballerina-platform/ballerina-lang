@@ -82,26 +82,25 @@ public type Connection object {
 /// Ballerina Implementations ///
 /////////////////////////////////
 documentation {
-    Status codes for HTTP redirect
-    
-    `MULTIPLE_CHOICES_300`: Represents status code 300 - Multiple Choices
-    `MOVED_PERMANENTLY_301`: Represents status code 301 - Moved Permanently
-    `FOUND_302`: Represents status code 302 - Found
-    `SEE_OTHER_303`: Represents status code 303 - See Other
-    `NOT_MODIFIED_304`: Represents status code 304 - Not Modified
-    `USE_PROXY_305`: Represents status code 305 - Use Proxy
-    `TEMPORARY_REDIRECT_307`: Represents status code 307 - Temporary Redirect
-    `PERMANENT_REDIRECT_308`: Represents status code 308 - Permanent Redirect
+    Defines the HTTP redirect codes as a type.
 }
 public type RedirectCode 300 | 301 | 302 | 303 | 304 | 305 | 307 | 308;
 
+documentation { Represents the HTTP redirect status code `300 - Multiple Choices`. }
 @final public RedirectCode REDIRECT_MULTIPLE_CHOICES_300 = 300;
+documentation { Represents the HTTP redirect status code `301 - Moved Permanently`. }
 @final public RedirectCode REDIRECT_MOVED_PERMANENTLY_301 = 301;
+documentation { Represents the HTTP redirect status code `302 - Found`. }
 @final public RedirectCode REDIRECT_FOUND_302 = 302;
+documentation { Represents the HTTP redirect status code `303 - See Other`. }
 @final public RedirectCode REDIRECT_SEE_OTHER_303 = 303;
+documentation { Represents the HTTP redirect status code `304 - Not Modified`. }
 @final public RedirectCode REDIRECT_NOT_MODIFIED_304 = 304;
+documentation { Represents the HTTP redirect status code `305 - Use Proxy`. }
 @final public RedirectCode REDIRECT_USE_PROXY_305 = 305;
+documentation { Represents the HTTP redirect status code `307 - Temporary Redirect`. }
 @final public RedirectCode REDIRECT_TEMPORARY_REDIRECT_307 = 307;
+documentation { Represents the HTTP redirect status code `308 - Permanent Redirect`. }
 @final public RedirectCode REDIRECT_PERMANENT_REDIRECT_308 = 308;
 
 public function Connection::continue() returns HttpConnectorError? {

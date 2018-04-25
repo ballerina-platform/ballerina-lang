@@ -14,6 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+documentation {
+    Defines the possible values for the chunking configuration in the HTTP client endpoint.
+}
 public type Chunking "AUTO" | "ALWAYS" | "NEVER";
 
 @final public Chunking CHUNKING_AUTO = "AUTO";
@@ -61,8 +64,8 @@ public type KeyStore {
 documentation {
     A record for configuring SSL/TLS protocol and version to be used.
 
-    F{{name}} SSL Protocol to be used (eg: TLS1.2)
-    F{{versions}} SSL/TLS protocols to be enabled (eg: TLSv1,TLSv1.1,TLSv1.2)
+    F{{name}} SSL Protocol to be used (e.g.: TLS1.2)
+    F{{versions}} SSL/TLS protocols to be enabled (e.g.: TLSv1,TLSv1.1,TLSv1.2)
 }
 public type Protocols {
     string name,
@@ -105,4 +108,5 @@ documentation {
     P{{headerValue}} The header value
     R{{}} Returns a tuple containing the value and its parameter map
 }
+//TODO: Make the error nillable
 public native function parseHeader (string headerValue) returns (string, map)|error;
