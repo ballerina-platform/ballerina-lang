@@ -5,7 +5,7 @@ import ballerina/http;
 boolean serviceStarted;
 
 function startService() {
-    serviceStarted = test:startServices("http_retry");
+    serviceStarted = test:startServices("http-retry");
 }
 
 @test:Config {

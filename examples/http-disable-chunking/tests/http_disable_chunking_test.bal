@@ -5,7 +5,7 @@ import ballerina/http;
 boolean serviceStarted;
 
 function startService() {
-    serviceStarted = test:startServices("http_disable_chunking");
+    serviceStarted = test:startServices("http-disable-chunking");
 }
 
 @test:Config {

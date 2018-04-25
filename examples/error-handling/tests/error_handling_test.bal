@@ -18,5 +18,5 @@ public function mockPrint(any... s) {
 function testFunc() {
     // Invoking the main function
     main();
-    test:assertEquals("Error occurred: Account with id:24 is not found", outputs[0]);
+    test:assertEquals("Error occurred: Account with id: 24 is not found", outputs[0]);
 }

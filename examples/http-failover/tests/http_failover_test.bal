@@ -5,7 +5,7 @@ import ballerina/http;
 boolean serviceStarted;
 
 function startService() {
-    serviceStarted = test:startServices("http_failover");
+    serviceStarted = test:startServices("http-failover");
 }
 
 @test:Config {

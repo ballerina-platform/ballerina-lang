@@ -5,7 +5,7 @@ import ballerina/http;
 boolean serviceStarted;
 
 function startService() {
-    serviceStarted = test:startServices("http_circuit_breaker");
+    serviceStarted = test:startServices("http-circuit-breaker");
 }
 
 @test:Config {
