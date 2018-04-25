@@ -141,6 +141,7 @@ public class HttpConstants {
     public static final String PREFLIGHT_RESOURCES = "PREFLIGHT_RESOURCES";
     public static final String RESOURCES_CORS = "RESOURCES_CORS";
     public static final String LISTENER_INTERFACE_ID = "listener.interface.id";
+    public static final String PACKAGE_BALLERINA_BUILTIN = "ballerina.builtin";
 
     public static final String CALLER_ACTIONS = "CallerActions";
 
@@ -171,7 +172,7 @@ public class HttpConstants {
     public static final String ENTITY = "Entity";
     public static final String RESPONSE_CACHE_CONTROL = "ResponseCacheControl";
     public static final String REQUEST_CACHE_CONTROL = "RequestCacheControl";
-    public static final String HTTP_CONNECTOR_ERROR = "HttpConnectorError";
+    public static final String STRUCT_GENERIC_ERROR = "error";
     public static final String HTTP_TIMEOUT_ERROR = "HttpTimeoutError";
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";

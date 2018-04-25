@@ -17,5 +17,3 @@ The Direction type represents the direction of the parameter. IN parameters are 
 ### Parameter
 
 The Parameter type represents a parameter for the SQL actions when a variable needs to be passed into the action.
-
-## Package Contents

@@ -19,8 +19,8 @@ documentation {
     LoadBalanceClient endpoint provides load balancing functionality over multiple HTTP clients.
 
     E{{}}
-    F{{epName}} - Name of the endpoint
-    F{{loadBalanceClientConfig}} - The configurations for the load balance client endpoint
+    F{{epName}} Name of the endpoint
+    F{{loadBalanceClientConfig}} The configurations for the load balance client endpoint
 }
 public type LoadBalanceClient object {
     public {
@@ -31,21 +31,12 @@ public type LoadBalanceClient object {
         Client httpEP;
     }
 
+    documentation {
+        The initialization function for the load balance client endpoint.
+
+        P{{loadBalanceClientConfig}} The user provided configurations for the load balance client endpoint
+    }
     public function init(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig);
-
-    documentation {
-        The register() function is not implemented for the load balance client endpoint.
-    }
-    public function register(typedesc serviceType) {
-
-    }
-
-    documentation {
-        The start() function is not implemented for the load balance client endpoint.
-    }
-    public function start() {
-
-    }
 
     documentation {
         Returns the backing HTTP client used by the load balance client endpoint.
@@ -53,33 +44,28 @@ public type LoadBalanceClient object {
     public function getCallerActions() returns CallerActions {
         return httpEP.httpClient;
     }
-
-    documentation {
-        The stop() function is not implemented for the load balance client endpoint.
-    }
-    public function stop() {
-    }
 };
 
 documentation {
     The configurations related to the load balance client endpoint.
 
-    F{{circuitBreaker}} - Circuit Breaker configuration
-    F{{timeoutMillis}} - The maximum time to wait (in milli seconds) for a response before closing the connection
-    F{{httpVersion}} - The HTTP version to be used to communicate with the endpoint
-    F{{forwarded}} - The choice of setting forwarded/x-forwarded header
-    F{{keepAlive}} - Specifies whether to keep the connection alive (or not) for multiple request/response pairs
-    F{{transferEncoding}} - The types of encoding applied to the request
-    F{{chunking}} - The chunking behaviour of the request
-    F{{followRedirects}} - Redirect related options
-    F{{retryConfig}} - Retry related options
-    F{{proxy}} - Proxy related options
-    F{{connectionThrottling}} - The configurations for controlling the number of connections allowed concurrently
-    F{{cache}} - The configurations for controlling the caching behaviour
-    F{{acceptEncoding}} - Specifies the way of handling accept-encoding header
-    F{{auth}} - HTTP authentication releated configurations
-    F{{algorithm}} - The algorithm to be used for load balancing. The HTTP package provides 'roundRobin()' by default
-    F{{failover}} - Configuration for load balancer whether to fail over in case of a failure
+    F{{circuitBreaker}} Circuit Breaker configuration
+    F{{timeoutMillis}} The maximum time to wait (in milli seconds) for a response before closing the connection
+    F{{httpVersion}} The HTTP version to be used to communicate with the endpoint
+    F{{forwarded}} The choice of setting forwarded/x-forwarded header
+    F{{keepAlive}} Specifies whether to keep the connection alive (or not) for multiple request/response pairs
+    F{{transferEncoding}} The types of encoding applied to the request
+    F{{chunking}} The chunking behaviour of the request
+    F{{followRedirects}} Redirect related options
+    F{{retryConfig}} Retry related options
+    F{{proxy}} Proxy related options
+    F{{connectionThrottling}} The configurations for controlling the number of connections allowed concurrently
+    F{{targets}} The upstream HTTP endpoints among which the incoming HTTP traffic load should be distributed
+    F{{cache}} The configurations for controlling the caching behaviour
+    F{{acceptEncoding}} Specifies the way of handling accept-encoding header
+    F{{auth}} HTTP authentication releated configurations
+    F{{algorithm}} The algorithm to be used for load balancing. The HTTP package provides 'roundRobin()' by default
+    F{{failover}} Configuration for load balancer whether to fail over in case of a failure
 }
 public type LoadBalanceClientEndpointConfiguration {
     CircuitBreakerConfig? circuitBreaker,
@@ -101,11 +87,6 @@ public type LoadBalanceClientEndpointConfiguration {
     boolean failover = true;
 };
 
-documentation {
-    The initialization function for the load balance client endpoint.
-
-    P{{loadBalanceClientConfig}} - The user provided configurations for the load balance client endpoint
-}
 public function LoadBalanceClient::init(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig) {
     self.httpEP.httpClient = createLoadBalancerClient(loadBalanceClientConfig);
     self.httpEP.config.circuitBreaker = loadBalanceClientConfig.circuitBreaker;
@@ -144,7 +125,8 @@ function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointCo
     return clientEPConfig;
 }
 
-function createLoadBalancerClient(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig) returns CallerActions {
+function createLoadBalancerClient(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig)
+                                                                                    returns CallerActions {
     ClientEndpointConfig config = createClientEPConfigFromLoalBalanceEPConfig(loadBalanceClientConfig,
                                                                             loadBalanceClientConfig.targets[0]);
     CallerActions[] lbClients = createLoadBalanceHttpClientArray(loadBalanceClientConfig);
@@ -152,8 +134,8 @@ function createLoadBalancerClient(LoadBalanceClientEndpointConfiguration loadBal
                                             loadBalanceClientConfig.algorithm, 0, loadBalanceClientConfig.failover);
 }
 
-function createLoadBalanceHttpClientArray (LoadBalanceClientEndpointConfiguration loadBalanceClientConfig)
-                                                                                                returns CallerActions[] {
+function createLoadBalanceHttpClientArray(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig)
+                                                                                    returns CallerActions[] {
     CallerActions[] httpClients = [];
     int i = 0;
     boolean httpClientRequired = false;

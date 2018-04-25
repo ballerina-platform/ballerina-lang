@@ -53,6 +53,7 @@ import org.ballerinalang.util.TableResourceManager;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.observability.ObservabilityConstants;
 import org.ballerinalang.util.observability.ObservabilityUtils;
 import org.ballerinalang.util.observability.ObserverContext;
 
@@ -323,6 +324,14 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             ctx.addTag(TAG_KEY_DB_INSTANCE, datasource.getDatabaseName());
             ctx.addTag(TAG_KEY_DB_STATEMENT, query);
             ctx.addTag(TAG_KEY_DB_TYPE, TAG_DB_TYPE_SQL);
+        });
+    }
+
+    protected void checkAndObserveSQLError(Context context, String message) {
+        Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
+        observerContext.ifPresent(ctx -> {
+            ctx.addProperty(ObservabilityConstants.PROPERTY_ERROR, Boolean.TRUE);
+            ctx.addProperty(ObservabilityConstants.PROPERTY_ERROR_MESSAGE, message);
         });
     }
 

@@ -16,7 +16,6 @@
 
 package org.ballerinalang.net.http.actions.httpclient;
 
-import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
@@ -25,6 +24,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.http.AcceptEncodingConfig;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -33,9 +33,6 @@ import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Locale;
-
-import static org.wso2.transport.http.netty.common.Constants.ENCODING_DEFLATE;
-import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
 
 /**
  * {@code Execute} action can be used to invoke execute a http call with any httpVerb.
@@ -73,26 +70,29 @@ public class Execute extends AbstractHTTPAction {
         }
     }
 
+    @Override
     protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
         // Extract Argument values
         BStruct bConnector = (BStruct) context.getRefArgument(0);
         String httpVerb = context.getStringArgument(0);
         String path = context.getStringArgument(1);
         BStruct requestStruct = ((BStruct) context.getRefArgument(1));
-        //TODO check below line
-        HTTPCarbonMessage defaultCarbonMsg = HttpUtil.createHttpCarbonMessage(true);
-        HTTPCarbonMessage outboundRequestMsg = HttpUtil.getCarbonMsg(requestStruct, defaultCarbonMsg);
+
+        HTTPCarbonMessage outboundRequestMsg = HttpUtil
+                .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
+
+        HttpUtil.checkEntityAvailability(context, requestStruct);
+        HttpUtil.enrichOutboundMessage(outboundRequestMsg, requestStruct);
         prepareOutboundRequest(context, bConnector, path, outboundRequestMsg);
 
         // If the verb is not specified, use the verb in incoming message
-        if (httpVerb == null || "".equals(httpVerb)) {
+        if (httpVerb == null || httpVerb.isEmpty()) {
             httpVerb = (String) outboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD);
         }
         outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
-        if (outboundRequestMsg.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString()) == null) {
-            outboundRequestMsg.setHeader(HttpHeaderNames.ACCEPT_ENCODING.toString(),
-                    ENCODING_DEFLATE + ", " + ENCODING_GZIP);
-        }
+        AcceptEncodingConfig acceptEncodingConfig =
+                getAcceptEncodingConfig(getAcceptEncodingConfigFromEndpointConfig(bConnector));
+        handleAcceptEncodingHeader(outboundRequestMsg, acceptEncodingConfig);
 
         return outboundRequestMsg;
     }

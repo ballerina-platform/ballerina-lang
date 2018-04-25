@@ -55,7 +55,7 @@ service<http:Service> participant2 bind participant2EP {
         res.setTextPayload("Resource is invoked");
         var forwardRes = conn -> respond(res);  
         match forwardRes {
-            http:HttpConnectorError err => {
+            error err => {
                 io:print("Participant2 could not send response to participant1. Error:");
                 io:println(err);
             }
@@ -74,7 +74,7 @@ service<http:Service> participant2 bind participant2EP {
         res.setTextPayload(result);
         var forwardRes = conn -> respond(res);  
         match forwardRes {
-            http:HttpConnectorError err => {
+            error err => {
                 io:print("Participant2 could not send response to participant1. Error:");
                 io:println(err);
             }
@@ -137,7 +137,7 @@ function saveToDatabase(http:Listener conn, http:Request req, boolean shouldAbor
         res.setTextPayload(uuid);
         var forwardRes = ep -> respond(res);
         match forwardRes {
-            http:HttpConnectorError err => {
+            error err => {
                 io:print("Participant2 could not send response to participant1. Error:");
                 io:println(err);
             }

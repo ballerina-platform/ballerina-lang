@@ -18,6 +18,7 @@ package org.ballerinalang.langserver;
 import org.ballerinalang.langserver.compiler.LSContextManager;
 import org.ballerinalang.langserver.compiler.LSPackageCache;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
+import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.model.AttachmentPoint;
 import org.ballerinalang.model.elements.PackageID;
 import org.slf4j.Logger;
@@ -67,16 +68,18 @@ public class LSAnnotationCache {
 
     private static Map<String, BLangPackage> loadPackagesMap(CompilerContext tempCompilerContext) {
         Map<String, BLangPackage> staticPackages = new HashMap<>();
-        for (String staticPkgName : LSPackageLoader.getStaticPkgNames()) {
-            PackageID packageID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name("ballerina"),
-                    new org.wso2.ballerinalang.compiler.util.Name(staticPkgName),
-                    new org.wso2.ballerinalang.compiler.util.Name("0.0.0"));
+
+        // Annotation cache will only load the sk packages initially and the others will load in the runtime
+        for (BallerinaPackage sdkPackage : LSPackageLoader.getSdkPackages()) {
+            PackageID packageID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name(sdkPackage.getOrgName()),
+                    new org.wso2.ballerinalang.compiler.util.Name(sdkPackage.getPackageName()),
+                    new org.wso2.ballerinalang.compiler.util.Name(sdkPackage.getPackageName()));
             try {
                 // We will wrap this with a try catch to prevent LS crashing due to compiler errors.
                 BLangPackage bLangPackage = LSPackageLoader.getPackageById(tempCompilerContext, packageID);
                 staticPackages.put(bLangPackage.packageID.bvmAlias(), bLangPackage);
             } catch (Exception e) {
-                logger.warn("Error while loading package :" + staticPkgName);
+                logger.warn("Error while loading package :" + sdkPackage.getPackageName());
             }
         }
 

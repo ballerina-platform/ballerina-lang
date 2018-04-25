@@ -115,9 +115,9 @@ type TestTypeData {
 
 function testToJson() returns (json) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     try {
@@ -132,9 +132,9 @@ function testToJson() returns (json) {
 
 function testToXml() returns (xml) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     try {
@@ -150,9 +150,9 @@ function testToXml() returns (xml) {
 
 function testToXmlMultipleConsume() returns (xml) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     try {
@@ -170,9 +170,9 @@ function testToXmlMultipleConsume() returns (xml) {
 
 function testToXmlWithAdd() returns (xml) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:2}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 2 }
     };
 
     try {
@@ -194,9 +194,9 @@ function testToXmlWithAdd() returns (xml) {
 
 function testToJsonMultipleConsume() returns (json) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     try {
@@ -215,9 +215,9 @@ function testToJsonMultipleConsume() returns (json) {
 
 function toXmlComplex() returns (xml) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     try {
@@ -234,9 +234,9 @@ function toXmlComplex() returns (xml) {
 
 function testToXmlComplexWithStructDef() returns (xml) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     try {
@@ -254,9 +254,9 @@ function testToXmlComplexWithStructDef() returns (xml) {
 
 function testToJsonComplex() returns (json) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     try {
@@ -274,9 +274,9 @@ function testToJsonComplex() returns (json) {
 
 function testToJsonComplexWithStructDef() returns (json) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     try {
@@ -293,9 +293,9 @@ function testToJsonComplexWithStructDef() returns (json) {
 
 function testJsonWithNull() returns (json) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     try {
@@ -311,9 +311,9 @@ function testJsonWithNull() returns (json) {
 
 function testXmlWithNull() returns (xml) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     try {
@@ -329,9 +329,9 @@ function testXmlWithNull() returns (xml) {
 
 function testToXmlWithinTransaction() returns (string, int) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     int returnValue = 0;
@@ -352,9 +352,9 @@ function testToXmlWithinTransaction() returns (string, int) {
 
 function testToJsonWithinTransaction() returns (string, int) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     int returnValue = 0;
@@ -375,9 +375,9 @@ function testToJsonWithinTransaction() returns (string, int) {
 
 function testGetPrimitiveTypes() returns (int, int, float, float, boolean, string) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     var dtRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
@@ -405,9 +405,9 @@ function testGetPrimitiveTypes() returns (int, int, float, float, boolean, strin
 
 function testGetComplexTypes() returns (string, string, string) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     table dt = check testDB->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1",
@@ -430,9 +430,9 @@ function testGetComplexTypes() returns (string, string, string) {
 
 function testArrayData() returns (int[], int[], float[], string[], boolean[]) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     table dt = check testDB->select("SELECT int_array, long_array, float_array, boolean_array,
@@ -458,9 +458,9 @@ function testArrayData() returns (int[], int[], float[], string[], boolean[]) {
 
 function testArrayDataInsertAndPrint() returns (int, int, int, int, int, int) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     int[] dataint = [1, 2, 3];
@@ -468,12 +468,12 @@ function testArrayDataInsertAndPrint() returns (int, int, int, int, int, int) {
     string[] datastring = ["hello", "world"];
     boolean[] databoolean = [true, false, false, true, true];
 
-    sql:Parameter paraID = {sqlType:sql:TYPE_INTEGER, value:4};
-    sql:Parameter paraInt = {sqlType:sql:TYPE_ARRAY, value:dataint};
-    sql:Parameter paraLong = {sqlType:sql:TYPE_ARRAY, value:dataint};
-    sql:Parameter paraFloat = {sqlType:sql:TYPE_ARRAY, value:datafloat};
-    sql:Parameter paraString = {sqlType:sql:TYPE_ARRAY, value:datastring};
-    sql:Parameter paraBool = {sqlType:sql:TYPE_ARRAY, value:databoolean};
+    sql:Parameter paraID = { sqlType: sql:TYPE_INTEGER, value: 4 };
+    sql:Parameter paraInt = { sqlType: sql:TYPE_ARRAY, value: dataint };
+    sql:Parameter paraLong = { sqlType: sql:TYPE_ARRAY, value: dataint };
+    sql:Parameter paraFloat = { sqlType: sql:TYPE_ARRAY, value: datafloat };
+    sql:Parameter paraString = { sqlType: sql:TYPE_ARRAY, value: datastring };
+    sql:Parameter paraBool = { sqlType: sql:TYPE_ARRAY, value: databoolean };
 
     int intArrLen;
     int longArrLen;
@@ -508,20 +508,20 @@ function testArrayDataInsertAndPrint() returns (int, int, int, int, int, int) {
 
 function testDateTime(int datein, int timein, int timestampin) returns (string, string, string, string) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
     string date;
     string time;
     string timestamp;
     string datetime;
 
-    sql:Parameter para0 = {sqlType:sql:TYPE_INTEGER, value:1};
-    sql:Parameter para1 = {sqlType:sql:TYPE_DATE, value:datein};
-    sql:Parameter para2 = {sqlType:sql:TYPE_TIME, value:timein};
-    sql:Parameter para3 = {sqlType:sql:TYPE_TIMESTAMP, value:timestampin};
-    sql:Parameter para4 = {sqlType:sql:TYPE_DATETIME, value:timestampin};
+    sql:Parameter para0 = { sqlType: sql:TYPE_INTEGER, value: 1 };
+    sql:Parameter para1 = { sqlType: sql:TYPE_DATE, value: datein };
+    sql:Parameter para2 = { sqlType: sql:TYPE_TIME, value: timein };
+    sql:Parameter para3 = { sqlType: sql:TYPE_TIMESTAMP, value: timestampin };
+    sql:Parameter para4 = { sqlType: sql:TYPE_DATETIME, value: timestampin };
 
     int countRet = check testDB->update("Insert into DateTimeTypes
         (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
@@ -543,9 +543,9 @@ function testDateTime(int datein, int timein, int timestampin) returns (string, 
 
 function testDateTimeAsTimeStruct() returns (int, int, int, int, int, int, int, int) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     int dateInserted;
@@ -559,7 +559,7 @@ function testDateTimeAsTimeStruct() returns (int, int, int, int, int, int, int, 
 
     time:Time dateStruct = time:createTime(2017, 5, 23, 0, 0, 0, 0, "");
 
-    time:Timezone zoneValue = {zoneId:"UTC"};
+    time:Timezone zoneValue = { zoneId: "UTC" };
     time:Time timeStruct = new(51323000, zoneValue);
 
     time:Time timestampStruct = time:createTime(2017, 1, 25, 16, 12, 23, 0, "UTC");
@@ -569,11 +569,11 @@ function testDateTimeAsTimeStruct() returns (int, int, int, int, int, int, int, 
     timestampInserted = timestampStruct.time;
     datetimeInserted = datetimeStruct.time;
 
-    sql:Parameter para0 = {sqlType:sql:TYPE_INTEGER, value:31};
-    sql:Parameter para1 = {sqlType:sql:TYPE_DATE, value:dateStruct};
-    sql:Parameter para2 = {sqlType:sql:TYPE_TIME, value:timeStruct};
-    sql:Parameter para3 = {sqlType:sql:TYPE_TIMESTAMP, value:timestampStruct};
-    sql:Parameter para4 = {sqlType:sql:TYPE_DATETIME, value:datetimeStruct};
+    sql:Parameter para0 = { sqlType: sql:TYPE_INTEGER, value: 31 };
+    sql:Parameter para1 = { sqlType: sql:TYPE_DATE, value: dateStruct };
+    sql:Parameter para2 = { sqlType: sql:TYPE_TIME, value: timeStruct };
+    sql:Parameter para3 = { sqlType: sql:TYPE_TIMESTAMP, value: timestampStruct };
+    sql:Parameter para4 = { sqlType: sql:TYPE_DATETIME, value: datetimeStruct };
 
     int count = check testDB->update("Insert into DateTimeTypes
         (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
@@ -596,16 +596,16 @@ function testDateTimeAsTimeStruct() returns (int, int, int, int, int, int, int, 
 
 function testDateTimeInt(int datein, int timein, int timestampin) returns (int, int, int, int) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
-    sql:Parameter para0 = {sqlType:sql:TYPE_INTEGER, value:32};
-    sql:Parameter para1 = {sqlType:sql:TYPE_DATE, value:datein};
-    sql:Parameter para2 = {sqlType:sql:TYPE_TIME, value:timein};
-    sql:Parameter para3 = {sqlType:sql:TYPE_TIMESTAMP, value:timestampin};
-    sql:Parameter para4 = {sqlType:sql:TYPE_DATETIME, value:timestampin};
+    sql:Parameter para0 = { sqlType: sql:TYPE_INTEGER, value: 32 };
+    sql:Parameter para1 = { sqlType: sql:TYPE_DATE, value: datein };
+    sql:Parameter para2 = { sqlType: sql:TYPE_TIME, value: timein };
+    sql:Parameter para3 = { sqlType: sql:TYPE_TIMESTAMP, value: timestampin };
+    sql:Parameter para4 = { sqlType: sql:TYPE_DATETIME, value: timestampin };
 
     int date;
     int time;
@@ -632,9 +632,9 @@ function testDateTimeInt(int datein, int timein, int timestampin) returns (int, 
 
 function testBlobData() returns (string) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     string blobStringData;
@@ -653,9 +653,9 @@ function testBlobData() returns (string) {
 
 function testColumnAlias() returns (int, int, float, float, boolean, string, int) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     table dt = check testDB->select("SELECT dt1.int_type, dt1.long_type, dt1.float_type,
@@ -686,9 +686,9 @@ function testColumnAlias() returns (int, int, float, float, boolean, string, int
 
 function testBlobInsert() returns (int) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     table dt = check testDB->select("SELECT blob_type from ComplexTypes where row_id = 1", ResultBlob);
@@ -698,8 +698,8 @@ function testBlobInsert() returns (int) {
         ResultBlob rs = check <ResultBlob>dt.getNext();
         blobData = rs.BLOB_TYPE;
     }
-    sql:Parameter para0 = {sqlType:sql:TYPE_INTEGER, value:10};
-    sql:Parameter para1 = {sqlType:sql:TYPE_BLOB, value:blobData};
+    sql:Parameter para0 = { sqlType: sql:TYPE_INTEGER, value: 10 };
+    sql:Parameter para1 = { sqlType: sql:TYPE_BLOB, value: blobData };
     int insertCount = check testDB->update("Insert into ComplexTypes (row_id, blob_type) values (?,?)", para0, para1);
 
     testDB.stop();
@@ -709,9 +709,9 @@ function testBlobInsert() returns (int) {
 
 function testTableAutoClose() returns (int, json) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     table dt = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", ResultPrimitiveInt);
@@ -738,9 +738,9 @@ function testTableAutoClose() returns (int, json) {
 
 function testTableManualClose() returns (int) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     table dt = check testDB->select("SELECT int_type from DataTable", ResultPrimitiveInt);
@@ -770,12 +770,13 @@ function testTableManualClose() returns (int) {
 
 function testCloseConnectionPool() returns (int) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
-    table dt = check testDB->select ("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", ResultCount);
+    table dt = check testDB->select ("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", ResultCount)
+    ;
 
     int count;
     while (dt.hasNext()) {
@@ -788,9 +789,9 @@ function testCloseConnectionPool() returns (int) {
 
 function testTablePrintAndPrintln() {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
@@ -803,15 +804,15 @@ function testTablePrintAndPrintln() {
 
 function testMutltipleRows() returns (int, int) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     table dt = check testDB->select("SELECT int_type from DataTableRep", ResultPrimitiveInt);
 
-    ResultPrimitiveInt rs1 = {INT_TYPE:-1};
-    ResultPrimitiveInt rs2 = {INT_TYPE:-1};
+    ResultPrimitiveInt rs1 = { INT_TYPE: -1 };
+    ResultPrimitiveInt rs2 = { INT_TYPE: -1 };
     int i = 0;
     while (dt.hasNext()) {
         if (i == 0) {
@@ -827,9 +828,9 @@ function testMutltipleRows() returns (int, int) {
 
 function testMutltipleRowsWithoutLoop() returns (int, int, int, int, string, string) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     //Iterate the whole result
@@ -923,9 +924,9 @@ function testMutltipleRowsWithoutLoop() returns (int, int, int, int, string, str
 
 function testHasNextWithoutConsume() returns (boolean, boolean, boolean) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     table dt = check testDB->select("SELECT int_type from DataTableRep order by int_type desc", ResultPrimitiveInt);
@@ -949,9 +950,9 @@ function testHasNextWithoutConsume() returns (boolean, boolean, boolean) {
 
 function testGetFloatTypes() returns (float, float, float, float) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     table dt = check testDB->select("SELECT float_type, double_type,
@@ -975,9 +976,9 @@ function testGetFloatTypes() returns (float, float, float, float) {
 
 function testSignedIntMaxMinValues() returns (int, int, int, string, string, string) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     string insertSQL = "INSERT INTO IntegerTypes(id,tinyIntData, smallIntData, intData, bigIntData) VALUES (?,?, ?,?,?)"
@@ -992,27 +993,27 @@ function testSignedIntMaxMinValues() returns (int, int, int, string, string, str
     string str;
 
     //Insert signed max
-    sql:Parameter para1 = {sqlType:sql:TYPE_INTEGER, value:1};
-    sql:Parameter para2 = {sqlType:sql:TYPE_TINYINT, value:127};
-    sql:Parameter para3 = {sqlType:sql:TYPE_SMALLINT, value:32767};
-    sql:Parameter para4 = {sqlType:sql:TYPE_INTEGER, value:2147483647};
-    sql:Parameter para5 = {sqlType:sql:TYPE_BIGINT, value:9223372036854775807};
+    sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: 1 };
+    sql:Parameter para2 = { sqlType: sql:TYPE_TINYINT, value: 127 };
+    sql:Parameter para3 = { sqlType: sql:TYPE_SMALLINT, value: 32767 };
+    sql:Parameter para4 = { sqlType: sql:TYPE_INTEGER, value: 2147483647 };
+    sql:Parameter para5 = { sqlType: sql:TYPE_BIGINT, value: 9223372036854775807 };
     maxInsert = check testDB->update(insertSQL, para1, para2, para3, para4, para5);
 
     //Insert signed min
-    para1 = {sqlType:sql:TYPE_INTEGER, value:2};
-    para2 = {sqlType:sql:TYPE_TINYINT, value:-128};
-    para3 = {sqlType:sql:TYPE_SMALLINT, value:-32768};
-    para4 = {sqlType:sql:TYPE_INTEGER, value:-2147483648};
-    para5 = {sqlType:sql:TYPE_BIGINT, value:-9223372036854775808};
+    para1 = { sqlType: sql:TYPE_INTEGER, value: 2 };
+    para2 = { sqlType: sql:TYPE_TINYINT, value: -128 };
+    para3 = { sqlType: sql:TYPE_SMALLINT, value: -32768 };
+    para4 = { sqlType: sql:TYPE_INTEGER, value: -2147483648 };
+    para5 = { sqlType: sql:TYPE_BIGINT, value: -9223372036854775808 };
     minInsert = check testDB->update(insertSQL, para1, para2, para3, para4, para5);
 
     //Insert null
-    para1 = {sqlType:sql:TYPE_INTEGER, value:3};
-    para2 = {sqlType:sql:TYPE_TINYINT, value:()};
-    para3 = {sqlType:sql:TYPE_SMALLINT, value:()};
-    para4 = {sqlType:sql:TYPE_INTEGER, value:()};
-    para5 = {sqlType:sql:TYPE_BIGINT, value:()};
+    para1 = { sqlType: sql:TYPE_INTEGER, value: 3 };
+    para2 = { sqlType: sql:TYPE_TINYINT, value: () };
+    para3 = { sqlType: sql:TYPE_SMALLINT, value: () };
+    para4 = { sqlType: sql:TYPE_INTEGER, value: () };
+    para5 = { sqlType: sql:TYPE_BIGINT, value: () };
     nullInsert = check testDB->update(insertSQL, para1, para2, para3, para4, para5);
 
     var dtRet = testDB->select(selectSQL, ());
@@ -1042,9 +1043,9 @@ function testSignedIntMaxMinValues() returns (int, int, int, string, string, str
 
 function testComplexTypeInsertAndRetrieval() returns (int, int, string, string, string) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     string insertSQL = "INSERT INTO ComplexTypes(row_id, blob_type, clob_type, binary_type) VALUES (?,?,?,?)";
@@ -1060,17 +1061,17 @@ function testComplexTypeInsertAndRetrieval() returns (int, int, string, string, 
     string str;
 
     //Insert data
-    sql:Parameter para1 = {sqlType:sql:TYPE_INTEGER, value:100};
-    sql:Parameter para2 = {sqlType:sql:TYPE_BLOB, value:content};
-    sql:Parameter para3 = {sqlType:sql:TYPE_CLOB, value:text};
-    sql:Parameter para4 = {sqlType:sql:TYPE_BINARY, value:content};
+    sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: 100 };
+    sql:Parameter para2 = { sqlType: sql:TYPE_BLOB, value: content };
+    sql:Parameter para3 = { sqlType: sql:TYPE_CLOB, value: text };
+    sql:Parameter para4 = { sqlType: sql:TYPE_BINARY, value: content };
     retDataInsert = check testDB->update(insertSQL, para1, para2, para3, para4);
 
     //Insert null values
-    para1 = {sqlType:sql:TYPE_INTEGER, value:200};
-    para2 = {sqlType:sql:TYPE_BLOB, value:()};
-    para3 = {sqlType:sql:TYPE_CLOB, value:()};
-    para4 = {sqlType:sql:TYPE_BINARY, value:()};
+    para1 = { sqlType: sql:TYPE_INTEGER, value: 200 };
+    para2 = { sqlType: sql:TYPE_BLOB, value: () };
+    para3 = { sqlType: sql:TYPE_CLOB, value: () };
+    para4 = { sqlType: sql:TYPE_BINARY, value: () };
     retNullInsert = check testDB->update(insertSQL, para1, para2, para3, para4);
 
     var dtRet = testDB->select(selectSQL, ());
@@ -1098,9 +1099,9 @@ function testComplexTypeInsertAndRetrieval() returns (int, int, string, string, 
 
 function testJsonXMLConversionwithDuplicateColumnNames() returns (json, xml) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:2}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 2 }
     };
 
     table dt = check testDB->select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
@@ -1117,9 +1118,9 @@ function testJsonXMLConversionwithDuplicateColumnNames() returns (json, xml) {
 
 function testStructFieldNotMatchingColumnName() returns (int, int, int, int, int) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     table dt = check testDB->select("SELECT count(*) from DataTable WHERE row_id = 1", ResultCount);
@@ -1150,9 +1151,9 @@ function testStructFieldNotMatchingColumnName() returns (int, int, int, int, int
 
 function testGetPrimitiveTypesWithForEach() returns (int, int, float, float, boolean, string) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     table<ResultPrimitive> dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
@@ -1178,15 +1179,15 @@ function testGetPrimitiveTypesWithForEach() returns (int, int, float, float, boo
 
 function testMutltipleRowsWithForEach() returns (int, int) {
     endpoint jdbc:Client testDB {
-        url:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     table<ResultPrimitiveInt> dt = check testDB->select("SELECT int_type from DataTableRep", ResultPrimitiveInt);
 
-    ResultPrimitiveInt rs1 = {INT_TYPE:-1};
-    ResultPrimitiveInt rs2 = {INT_TYPE:-1};
+    ResultPrimitiveInt rs1 = { INT_TYPE: -1 };
+    ResultPrimitiveInt rs2 = { INT_TYPE: -1 };
     int i = 0;
     foreach x in dt {
         if (i == 0) {
@@ -1204,14 +1205,14 @@ function testTableAddInvalid() returns string {
     endpoint jdbc:Client testDB {
         url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
         username: "SA",
-        poolOptions: {maximumPoolSize: 1}
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     table dt = check testDB->select("SELECT int_type from DataTableRep", ResultPrimitiveInt);
 
     string s;
     try {
-        ResultPrimitiveInt row = {INT_TYPE: 443};
+        ResultPrimitiveInt row = { INT_TYPE: 443 };
         var ret = dt.add(row);
         match (ret) {
             error e => s = e.message;
@@ -1227,13 +1228,13 @@ function testTableRemoveInvalid() returns string {
     endpoint jdbc:Client testDB {
         url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
         username: "SA",
-        poolOptions: {maximumPoolSize: 1}
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     table dt = check testDB->select("SELECT int_type from DataTableRep", ResultPrimitiveInt);
     string s;
     try {
-        ResultPrimitiveInt row = {INT_TYPE: 443};
+        ResultPrimitiveInt row = { INT_TYPE: 443 };
         var ret = dt.remove(isDelete);
         match (ret) {
             int count => s = <string>count;

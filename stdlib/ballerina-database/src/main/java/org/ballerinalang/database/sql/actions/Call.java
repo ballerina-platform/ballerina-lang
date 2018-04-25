@@ -65,6 +65,7 @@ public class Call extends AbstractSQLAction {
         } catch (Throwable e) {
             context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e));
             SQLDatasourceUtils.handleErrorOnTransaction(context);
+            checkAndObserveSQLError(context, e.getMessage());
         }
     }
 }

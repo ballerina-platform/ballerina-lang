@@ -47,11 +47,11 @@
         </packages>
     </test>
 
-    <!--<test name="ballerina-websub-tests" preserve-order="true" parallel="false">-->
-        <!--<packages>-->
-            <!--<package name="org.ballerinalang.test.service.websub"/>-->
-        <!--</packages>-->
-    <!--</test>-->
+    <test name="ballerina-websub-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.test.service.websub"/>
+        </packages>
+    </test>
 
     <test name="ballerina-web-socket-sample-tests" preserve-order="true" parallel="false">
         <classes>
@@ -77,6 +77,7 @@
     <test name="ballerina-observability-tests" preserve-order="true" parallel="false">
         <classes>
             <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
+            <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
         </classes>
     </test>
 

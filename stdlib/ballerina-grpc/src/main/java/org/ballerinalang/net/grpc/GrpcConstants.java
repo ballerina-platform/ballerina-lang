@@ -149,8 +149,7 @@ public class GrpcConstants {
     public static final String TARGET_SERVICES = "targets";
     public static final String SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
     public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
-    public static final int GRPC_DEFAULT_PORT = 9090;
-    
+
     public static final String ENDPOINT_CONFIG_TRUST_STORE = "trustStore";
     public static final String FILE_PATH = "path";
     public static final String PASSWORD = "password";

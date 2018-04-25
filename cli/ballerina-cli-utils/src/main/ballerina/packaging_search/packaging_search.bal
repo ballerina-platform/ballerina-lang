@@ -4,21 +4,21 @@ import ballerina/http;
 import ballerina/time;
 
 documentation {
-    Function to search packages from ballerina central.
+    This function searches packages from ballerina central.
 
-    P{{url}} - The endpoint url to be invoked.
-    P{{querySearched}} - The text searched for.
+    P{{url}} Endpoint url to be invoked
+    P{{querySearched}} Text searched for
 }
 function search (string url, string querySearched) {
     endpoint http:Client httpEndpoint {
-        url:url,
+        url: url,
         secureSocket:{
             trustStore:{
-                path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                password:"ballerina"
+                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                password: "ballerina"
             },
-            verifyHostname:false,
-            shareSession:true
+            verifyHostname: false,
+            shareSession: true
         }
     };
     http:Request req = new;
@@ -41,7 +41,7 @@ function search (string url, string querySearched) {
         io:println(message);
     } else {
         jsonResponse = check (httpResponse.getJsonPayload());
-        json[] artifacts = check <json[]>jsonResponse.artifacts;
+        json[] artifacts = check <json[]> jsonResponse.artifacts;
         if (artifacts == null || lengthof artifacts > 0) {
             int artifactsLength = lengthof artifacts;
             io:println("Ballerina Central");
@@ -73,7 +73,7 @@ function search (string url, string querySearched) {
                 }
                 printInCLI(authors, 40);
 
-                json createTimeJson = <json>jsonElement.createdDate;
+                json createTimeJson = <json> jsonElement.createdDate;
                 printInCLI(getDateCreated(createTimeJson), 20);
                 
                 string packageVersion = jsonElement.packageVersion.toString();
@@ -88,10 +88,10 @@ function search (string url, string querySearched) {
 }
 
 documentation {
-    Function to print package information.
+    This function prints package information.
 
-    P{{element}} - The text to be printed.
-    P{{charactersAllowed}} - The maximum number of characters to be printed.
+    P{{element}} Text to be printed
+    P{{charactersAllowed}} Maximum number of characters to be printed
 }
 function printInCLI(string element, int charactersAllowed) {
     int lengthOfElement = element.length();
@@ -110,21 +110,21 @@ function printInCLI(string element, int charactersAllowed) {
 }
 
 documentation {
-    Function to get the date the package was created in UTC.
+    This function gets the date the package was created in UTC.
 
-    P{{jsonObj}} - The time object as a json.
-    R{{}} - `string` The date and time the package was created.
+    P{{jsonObj}} Time object as a json
+    R{{}} Date and time the package was created
 }
 function getDateCreated(json jsonObj) returns string {
     string jsonTime = jsonObj.time.toString();
     int timeInMillis = check <int> jsonTime;
-    time:Time timeStruct = new(timeInMillis, {zoneId:"UTC",zoneOffset:0});
+    time:Time timeStruct = new(timeInMillis, { zoneId: "UTC", zoneOffset: 0 });
     string customTimeString = timeStruct.format("yyyy-MM-dd-E");
     return customTimeString;
 }
 
 documentation {
-    Main function which invokes the method to search for packages.
+    This function invokes the method to search for packages.
 }
 function main (string... args) {
     search(args[0], args[1]);
