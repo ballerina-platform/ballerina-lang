@@ -31,7 +31,7 @@ public type FailoverConfig {
 };
 
 documentation {
-    `FailoverConnectorError` record represents an error occurred during an attempt to failover.
+    Defines an error which occurred during an attempt to failover.
 
     F{{message}} An explanation on what went wrong
     F{{cause}} The cause of the `FailoverConnectorError`, if available
@@ -153,49 +153,52 @@ public type Failover object {
     public function get(string path, Request? request = ()) returns Response|HttpConnectorError;
 
     documentation {
-        Submits an HTTP request to a service with the specified HTTP verb.
+        Submits an HTTP request to a service with the specified HTTP verb. The `submit()` function does not return
+        a `Response` as the result, rather it returns an `HttpFuture` which can be used for subsequent interactions
+        with the HTTP endpoint.
 
         P{{httpVerb}} The HTTP verb value
-        P{{path}} The Resource path
-        P{{request}} An HTTP request
-        R{{}} The Future for further interactions or an `HttpConnectorError` if failed to fulfill the request
+        P{{path}} The resource path
+        P{{request}} An HTTP outbound request message
+        R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
     }
     public function submit(string httpVerb, string path, Request request) returns HttpFuture|HttpConnectorError;
 
     documentation {
-        Retrieves the response for a previously submitted request.
+        Retrieves the `Response` for a previously submitted request.
 
-        P{{httpFuture}} The Future which relates to previous async invocation
-        R{{}} `HttpConnectorError` if failed to fulfill the request
+        P{{httpFuture}} The `HttpFuture` related to a previous asynchronous invocation
+        R{{}} An HTTP response message, or an `error` if the invocation fails
     }
     public function getResponse(HttpFuture httpFuture) returns HttpConnectorError;
 
     documentation {
-        Checks whether server push exists for a previously submitted request.
+        Checks whether a `PushPromise` exists for a previously submitted request.
 
-        P{{httpFuture}} The Future which relates to previous async invocation
-        R{{}} Returns true if the push promise exists
+        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
+        R{{}} A `boolean` that represents whether a `PushPromise` exists
     }
     public function hasPromise(HttpFuture httpFuture) returns boolean;
 
     documentation {
-        Retrieves the next available push promise for a previously submitted request.
+        Retrieves the next available `PushPromise` for a previously submitted request.
 
-        P{{httpFuture}} The Future which relates to previous async invocation
-        R{{}} The HTTP Push Promise message or an `HttpConnectorError` if failed to fulfill the request
+        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
+        R{{}} An HTTP Push Promise message, or an `error` if the invocation fails
     }
     public function getNextPromise(HttpFuture httpFuture) returns PushPromise|HttpConnectorError;
 
     documentation {
-        Retrieves the promised server push response.
+        Retrieves the promised server push `Response` message.
 
-        P{{promise}} The related Push Promise message
-        R{{}} The HTTP Push Response message or an `HttpConnectorError` if failed to fulfill the request
+        P{{promise}} The related `PushPromise`
+        R{{}} A promised HTTP `Response` message, or an `error` if the invocation fails
     }
     public function getPromisedResponse(PushPromise promise) returns Response|HttpConnectorError;
 
     documentation {
-        Rejects a push promise.
+        Rejects a `PushPromise`. When a `PushPromise` is rejected, there is no chance of fetching a promised
+        response using the rejected promise.
 
         P{{promise}} The Push Promise to be rejected
     }
