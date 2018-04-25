@@ -38,7 +38,7 @@ public type CallerActions object {
         P{{request}} An HTTP outbound request message
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public native function post(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
+    public native function post(@sensitive string path, Request? request = ()) returns Response|error;
 
     documentation {
         The `head()` function can be used to send HTTP HEAD requests to HTTP endpoints.
@@ -47,7 +47,7 @@ public type CallerActions object {
         P{{request}} An HTTP outbound request message
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public native function head(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
+    public native function head(@sensitive string path, Request? request = ()) returns Response|error;
 
     documentation {
         The `put()` function can be used to send HTTP PUT requests to HTTP endpoints.
@@ -56,18 +56,18 @@ public type CallerActions object {
         P{{request}} An HTTP outbound request message
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public native function put(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
+    public native function put(@sensitive string path, Request? request = ()) returns Response|error;
 
     documentation {
 		Invokes an HTTP call with the specified HTTP verb.
-		
+
         P{{httpVerb}} HTTP verb value
         P{{path}} Resource path
         P{{request}} An HTTP outbound request message
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public native function execute(@sensitive string httpVerb, @sensitive string path, Request request)
-                                                                                returns Response|HttpConnectorError;
+                                                                                returns Response|error;
 
     documentation {
         The `patch()` function can be used to send HTTP PATCH requests to HTTP endpoints.
@@ -76,7 +76,7 @@ public type CallerActions object {
         P{{request}} An HTTP outbound request message
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public native function patch(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
+    public native function patch(@sensitive string path, Request? request = ()) returns Response|error;
 
     documentation {
         The `delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.
@@ -85,7 +85,7 @@ public type CallerActions object {
         P{{request}} An HTTP outbound request message
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public native function delete(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
+    public native function delete(@sensitive string path, Request? request = ()) returns Response|error;
 
     documentation {
         The `get()` function can be used to send HTTP GET requests to HTTP endpoints.
@@ -94,7 +94,7 @@ public type CallerActions object {
         P{{request}} An HTTP outbound request message
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public native function get(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
+    public native function get(@sensitive string path, Request? request = ()) returns Response|error;
 
     documentation {
         The `options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.
@@ -103,7 +103,7 @@ public type CallerActions object {
         P{{request}} An HTTP outbound request message
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public native function options(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
+    public native function options(@sensitive string path, Request? request = ()) returns Response|error;
 
     documentation {
         The `forward()` function can be used to invoke an HTTP call with inbound request's HTTP verb
@@ -112,7 +112,7 @@ public type CallerActions object {
         P{{request}} An HTTP inbound request message
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public native function forward(@sensitive string path, Request request) returns Response|HttpConnectorError;
+    public native function forward(@sensitive string path, Request request) returns Response|error;
 
     documentation {
         Submits an HTTP request to a service with the specified HTTP verb.
@@ -125,7 +125,7 @@ public type CallerActions object {
         R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
     }
     public native function submit(@sensitive string httpVerb, string path, Request request)
-                                                                            returns HttpFuture|HttpConnectorError;
+                                                                            returns HttpFuture|error;
 
     documentation {
         Retrieves the `Response` for a previously submitted request.
@@ -133,7 +133,7 @@ public type CallerActions object {
         P{{httpFuture}} The `HttpFuture` related to a previous asynchronous invocation
         R{{}} An HTTP response message, or an `error` if the invocation fails
     }
-    public native function getResponse(HttpFuture httpFuture) returns Response|HttpConnectorError;
+    public native function getResponse(HttpFuture httpFuture) returns Response|error;
 
     documentation {
         Checks whether a `PushPromise` exists for a previously submitted request.
@@ -149,7 +149,7 @@ public type CallerActions object {
         P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
         R{{}} An HTTP Push Promise message, or an `error` if the invocation fails
     }
-    public native function getNextPromise(HttpFuture httpFuture) returns PushPromise|HttpConnectorError;
+    public native function getNextPromise(HttpFuture httpFuture) returns PushPromise|error;
 
     documentation {
         Retrieves the promised server push `Response` message.
@@ -157,7 +157,7 @@ public type CallerActions object {
         P{{promise}} The related `PushPromise`
         R{{}} A promised HTTP `Response` message, or an `error` if the invocation fails
     }
-    public native function getPromisedResponse(PushPromise promise) returns Response|HttpConnectorError;
+    public native function getPromisedResponse(PushPromise promise) returns Response|error;
 
     documentation {
         Rejects a `PushPromise`. When a `PushPromise` is rejected, there is no chance of fetching a promised
@@ -166,19 +166,6 @@ public type CallerActions object {
         P{{promise}} The Push Promise to be rejected
     }
     public native function rejectPromise(PushPromise promise);
-};
-
-documentation {
-    Defines an error occurred during the HTTP client invocation.
-
-    F{{message}}  An explanation on what went wrong
-    F{{cause}} The error which caused the `HttpConnectorError`
-    F{{statusCode}} HTTP status code
-}
-public type HttpConnectorError {
-    string message,
-    error? cause,
-    int statusCode,
 };
 
 documentation {

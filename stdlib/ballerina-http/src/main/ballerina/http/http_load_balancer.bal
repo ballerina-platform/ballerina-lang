@@ -15,296 +15,270 @@
 // under the License.
 
 
-@Description {value:"Stands for the round robin algorithm for load balancing."}
+documentation {Load balancing algorithm - Round Robin}
 @final public string ROUND_ROBIN = "round-robin";
 
-@Description {value:"Load Balancer adds an additional layer to the HTTP client to make network interactions more resilient."}
+documentation {
+    Load Balancer adds an additional layer to the HTTP client to make network interactions more resilient.
+
+    F{{serviceUri}} The URL of the remote HTTP endpoint
+    F{{config}} The configurations of the client endpoint associated with this `LoadBalancer` instance
+    F{{loadBalanceClientsArray}} Array of HTTP clients for load balancing
+    F{{algorithm}} Load balancing algorithm
+    F{{nextIndex}} Index of the next load balancing client
+    F{{failover}} Whether to fail over in case of a failure
+}
 public type LoadBalancer object {
    public {
        string serviceUri;
        ClientEndpointConfig config;
        CallerActions[] loadBalanceClientsArray;
        string algorithm;
-       int nextIndex; // Keeps to index which needs to be take the next load balance endpoint.
+       int nextIndex;
        boolean failover;
    }
 
    public new (serviceUri, config, loadBalanceClientsArray, algorithm, nextIndex, failover) {}
 
-    @Description {value:"The POST action implementation of the LoadBalancer Connector."}
-    @Param {value:"path: Resource path"}
-    @Param {value:"request: A Request struct"}
-    @Return {value:"The Response struct"}
-    @Return {value:"Error occurred during the action invocation, if any"}
-    public function post (string path, Request? request = ()) returns (Response | HttpConnectorError);
+    documentation {
+        The POST action implementation of the LoadBalancer Connector.
 
-    @Description {value:"The HEAD action implementation of the LoadBalancer Connector."}
-    @Param {value:"path: Resource path"}
-    @Param {value:"request: A Request struct"}
-    @Return {value:"The Response struct"}
-    @Return {value:"Error occurred during the action invocation, if any"}
-    public function head (string path, Request? request = ()) returns (Response | HttpConnectorError);
+        P{{path}} Resource path
+        P{{request}} An optional HTTP request
+        R{{}} The response or an `error` if failed to fulfill the request
+    }
+    public function post(string path, Request? request = ()) returns Response|error;
 
-    @Description {value:"The PATCH action implementation of the LoadBalancer Connector."}
-    @Param {value:"path: Resource path"}
-    @Param {value:"request: A Request struct"}
-    @Return {value:"The Response struct"}
-    @Return {value:"Error occurred during the action invocation, if any"}
-    public function patch (string path, Request? request = ()) returns (Response | HttpConnectorError);
+    documentation {
+        The HEAD action implementation of the LoadBalancer Connector.
 
-    @Description {value:"The PUT action implementation of the Load Balance Connector."}
-    @Param {value:"path: Resource path"}
-    @Param {value:"request: A Request struct"}
-    @Return {value:"The Response struct"}
-    @Return {value:"Error occurred during the action invocation, if any"}
-    public function put (string path, Request? request = ()) returns (Response | HttpConnectorError);
+        P{{path}} Resource path
+        P{{request}} An optional HTTP request
+        R{{}} The response or an `error` if failed to fulfill the request
+    }
+    public function head(string path, Request? request = ()) returns Response|error;
 
-    @Description {value:"The OPTIONS action implementation of the LoadBalancer Connector."}
-    @Param {value:"path: Resource path"}
-    @Param {value:"request: A Request struct"}
-    @Return {value:"The Response struct"}
-    @Return {value:"Error occurred during the action invocation, if any"}
-    public function options (string path, Request? request = ()) returns (Response | HttpConnectorError);
+    documentation {
+        The PATCH action implementation of the LoadBalancer Connector.
 
-    @Description {value:"The FORWARD action implementation of the LoadBalancer Connector."}
-    @Param {value:"path: Resource path"}
-    @Param {value:"request: A Request struct"}
-    @Return {value:"The Response struct"}
-    @Return {value:"Error occurred during the action invocation, if any"}
-    public function forward (string path, Request request) returns (Response | HttpConnectorError);
+        P{{path}} Resource path
+        P{{request}} An optional HTTP request
+        R{{}} The response or an `error` if failed to fulfill the request
+    }
+    public function patch(string path, Request? request = ()) returns Response|error;
 
-    @Description {value:"The EXECUTE action implementation of the LoadBalancer Connector. The Execute action can be used to invoke an HTTP call with the given HTTP verb."}
-    @Param {value:"httpVerb: HTTP verb to be used for the request"}
-    @Param {value:"path: Resource path"}
-    @Param {value:"request: A Request struct"}
-    @Return {value:"The Response struct"}
-    @Return {value:"Error occurred during the action invocation, if any"}
-    public function execute (string httpVerb, string path, Request request) returns (Response | HttpConnectorError);
+    documentation {
+        The PUT action implementation of the Load Balance Connector.
 
-    @Description {value:"The DELETE action implementation of the LoadBalancer Connector."}
-    @Param {value:"path: Resource path"}
-    @Param {value:"request: A Request struct"}
-    @Return {value:"The Response struct"}
-    @Return {value:"Error occurred during the action invocation, if any"}
-    public function delete (string path, Request? request = ()) returns (Response | HttpConnectorError);
+        P{{path}} Resource path
+        P{{request}} An optional HTTP request
+        R{{}} The response or an `error` if failed to fulfill the request
+    }
+    public function put(string path, Request? request = ()) returns Response|error;
 
-    @Description {value:"The GET action implementation of the LoadBalancer Connector."}
-    @Param {value:"path: Resource path"}
-    @Param {value:"request: A Request struct"}
-    @Return {value:"The Response struct"}
-    @Return {value:"Error occurred during the action invocation, if any"}
-    public function get (string path, Request? request = ()) returns (Response | HttpConnectorError);
+    documentation {
+        The OPTIONS action implementation of the LoadBalancer Connector.
 
-    @Description { value:"The submit implementation of the LoadBalancer Connector."}
-    @Param { value:"httpVerb: The HTTP verb value" }
-    @Param { value:"path: The Resource path " }
-    @Param { value:"req: An HTTP outbound request message" }
-    @Return { value:"The Future for further interactions" }
-    @Return { value:"The Error occured during HTTP client invocation" }
-    public function submit (string httpVerb, string path, Request request) returns (HttpFuture | HttpConnectorError);
+        P{{path}} Resource path
+        P{{request}} An optional HTTP request
+        R{{}} The response or an `error` if failed to fulfill the request
+    }
+    public function options(string path, Request? request = ()) returns Response|error;
 
-    @Description { value:"The getResponse implementation of the LoadBalancer Connector."}
-    @Param { value:"httpFuture: The Future which relates to previous async invocation" }
-    @Return { value:"The HTTP response message" }
-    @Return { value:"The Error occured during HTTP client invocation" }
-    public function getResponse (HttpFuture httpFuture) returns (Response | HttpConnectorError);
+    documentation {
+        The FORWARD action implementation of the LoadBalancer Connector.
 
-    @Description { value:"The hasPromise implementation of the LoadBalancer Connector."}
-    @Param { value:"httpFuture: The Future which relates to previous async invocation" }
-    @Return { value:"Whether push promise exists" }
-    public function hasPromise (HttpFuture httpFuture) returns (boolean);
+        P{{path}} Resource path
+        P{{request}} An optional HTTP request
+        R{{}} The response or an `error` if failed to fulfill the request
+    }
+    public function forward(string path, Request request) returns Response|error;
 
-    @Description { value:"The getNextPromise implementation of the LoadBalancer Connector."}
-    @Param { value:"httpFuture: The Future which relates to previous async invocation" }
-    @Return { value:"The HTTP Push Promise message" }
-    @Return { value:"The Error occured during HTTP client invocation" }
-    public function getNextPromise (HttpFuture httpFuture) returns (PushPromise | HttpConnectorError);
+    documentation {
+        The EXECUTE action implementation of the LoadBalancer Connector.
+        The Execute action can be used to invoke an HTTP call with the given HTTP verb.
 
-    @Description { value:"The getPromisedResponse implementation of the LoadBalancer Connector."}
-    @Param { value:"promise: The related Push Promise message" }
-    @Return { value:"HTTP The Push Response message" }
-    @Return { value:"The Error occured during HTTP client invocation" }
-    public function getPromisedResponse (PushPromise promise) returns (Response | HttpConnectorError);
+        P{{httpVerb}} HTTP method to be used for the request
+        P{{path}} Resource path
+        P{{request}} An HTTP request
+        R{{}} The response or an `error` if failed to fulfill the request
+    }
+    public function execute(string httpVerb, string path, Request request) returns Response|error;
 
-    @Description { value:"The rejectPromise implementation of the LoadBalancer Connector."}
-    @Param { value:"promise: The Push Promise need to be rejected" }
-    public function rejectPromise (PushPromise promise);
+    documentation {
+        The DELETE action implementation of the LoadBalancer Connector.
+
+        P{{path}} Resource path
+        P{{request}} An optional HTTP request
+        R{{}} The response or an `error` if failed to fulfill the request
+    }
+    public function delete(string path, Request? request = ()) returns Response|error;
+
+    documentation {
+        The GET action implementation of the LoadBalancer Connector.
+
+        P{{path}} Resource path
+        P{{request}} An optional HTTP request
+        R{{}} The response or an `error` if failed to fulfill the request
+    }
+    public function get(string path, Request? request = ()) returns Response|error;
+
+    documentation {
+        The submit implementation of the LoadBalancer Connector.
+
+        P{{httpVerb}} The HTTP verb value
+        P{{path}} The Resource path
+        P{{request}} An HTTP request
+        R{{}} The Future for further interactions or an `error` if failed to fulfill the request
+    }
+    public function submit(string httpVerb, string path, Request request) returns HttpFuture|error;
+
+    documentation {
+        The getResponse implementation of the LoadBalancer Connector.
+
+        P{{httpFuture}} The Future which relates to previous async invocation
+        R{{}} The response or an `error` if failed to get the response
+    }
+    public function getResponse(HttpFuture httpFuture) returns Response|error;
+
+    documentation {
+        The hasPromise implementation of the LoadBalancer Connector.
+
+        P{{httpFuture}} The Future which relates to previous async invocation
+        R{{}} Returns true if the push promise exists
+    }
+    public function hasPromise(HttpFuture httpFuture) returns boolean;
+
+    documentation {
+        The getNextPromise implementation of the LoadBalancer Connector.
+
+        P{{httpFuture}} The Future which relates to previous async invocation
+        R{{}} The HTTP Push Promise message or an `error` if failed to fulfill the request
+    }
+    public function getNextPromise(HttpFuture httpFuture) returns PushPromise|error;
+
+    documentation {
+        The getPromisedResponse implementation of the LoadBalancer Connector.
+
+        P{{promise}} The related Push Promise message
+        R{{}} The HTTP Push Response message or an `error` if failed to fulfill the request
+    }
+    public function getPromisedResponse(PushPromise promise) returns Response|error;
+
+    documentation {
+        The rejectPromise implementation of the LoadBalancer Connector.
+
+        P{{promise}} The Push Promise to be rejected
+    }
+    public function rejectPromise(PushPromise promise);
 
 };
 
-@Description {value:"Represents an error occurred in an action of the Load Balance connector."}
-@Field {value:"message: An error message explaining about the error."}
-@Field {value:"cause: The error that caused HttpConnectorError to get thrown."}
-@Field {value:"stackTrace: Represents the invocation stack when LoadBalanceConnectorError is thrown."}
-@Field {value:"statusCode: HTTP status code of the LoadBalanceConnectorError."}
-@Field {value:"httpConnectorError: Array of HttpConnectorError error occurred at each endpoint."}
+documentation {
+    Represents an error occurred in an action of the Load Balance connector.
+
+    F{{message}} An error message explaining about the error
+    F{{cause}} Cause of the error
+    F{{statusCode}} HTTP status code of the LoadBalanceConnectorError
+    F{{httpConnectorErr}} Array of errors occurred at each endpoint
+}
 public type LoadBalanceConnectorError {
     string message,
     error? cause,
     int statusCode,
-    HttpConnectorError[] httpConnectorError,
+    error[] httpConnectorErr,
 };
 
-
-@Description {value:"The POST action implementation of the LoadBalancer Connector."}
-@Param {value:"path: Resource path"}
-@Param {value:"request: A Request struct"}
-@Return {value:"The Response struct"}
-@Return {value:"Error occurred during the action invocation, if any"}
-public function LoadBalancer::post (string path, Request? request = ()) returns (Response | HttpConnectorError) {
+public function LoadBalancer::post(string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performLoadBalanceAction(self, path, req, HTTP_POST);
 }
 
-@Description {value:"The HEAD action implementation of the LoadBalancer Connector."}
-@Param {value:"path: Resource path"}
-@Param {value:"request: A Request struct"}
-@Return {value:"The Response struct"}
-@Return {value:"Error occurred during the action invocation, if any"}
-public function LoadBalancer::head (string path, Request? request = ()) returns (Response | HttpConnectorError) {
+public function LoadBalancer::head(string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performLoadBalanceAction(self, path, req, HTTP_HEAD);
 }
 
-@Description {value:"The PATCH action implementation of the LoadBalancer Connector."}
-@Param {value:"path: Resource path"}
-@Param {value:"request: A Request struct"}
-@Return {value:"The Response struct"}
-@Return {value:"Error occurred during the action invocation, if any"}
-public function LoadBalancer::patch (string path, Request? request = ()) returns (Response | HttpConnectorError) {
+public function LoadBalancer::patch(string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performLoadBalanceAction(self, path, req, HTTP_PATCH);
 }
 
-@Description {value:"The PUT action implementation of the Load Balance Connector."}
-@Param {value:"path: Resource path"}
-@Param {value:"request: A Request struct"}
-@Return {value:"The Response struct"}
-@Return {value:"Error occurred during the action invocation, if any"}
-public function LoadBalancer::put (string path, Request? request = ()) returns (Response | HttpConnectorError) {
+public function LoadBalancer::put(string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performLoadBalanceAction(self, path, req, HTTP_PUT);
 }
 
-@Description {value:"The OPTIONS action implementation of the LoadBalancer Connector."}
-@Param {value:"path: Resource path"}
-@Param {value:"request: A Request struct"}
-@Return {value:"The Response struct"}
-@Return {value:"Error occurred during the action invocation, if any"}
-public function LoadBalancer::options (string path, Request? request = ()) returns (Response | HttpConnectorError) {
+public function LoadBalancer::options(string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performLoadBalanceAction(self, path, req, HTTP_OPTIONS);
 }
 
-@Description {value:"The FORWARD action implementation of the LoadBalancer Connector."}
-@Param {value:"path: Resource path"}
-@Param {value:"request: A Request struct"}
-@Return {value:"The Response struct"}
-@Return {value:"Error occurred during the action invocation, if any"}
-public function LoadBalancer::forward (string path, Request request) returns (Response | HttpConnectorError) {
+public function LoadBalancer::forward(string path, Request request) returns Response|error {
     return performLoadBalanceAction(self, path, request, HTTP_FORWARD);
 }
 
-@Description {value:"The EXECUTE action implementation of the LoadBalancer Connector. The Execute action can be used to invoke an HTTP call with the given HTTP verb."}
-@Param {value:"httpVerb: HTTP verb to be used for the request"}
-@Param {value:"path: Resource path"}
-@Param {value:"request: A Request struct"}
-@Return {value:"The Response struct"}
-@Return {value:"Error occurred during the action invocation, if any"}
-public function LoadBalancer::execute (string httpVerb, string path, Request request) returns (Response | HttpConnectorError) {
+public function LoadBalancer::execute(string httpVerb, string path, Request request) returns Response|error {
     return performLoadBalanceExecuteAction(self, path, request, httpVerb);
 }
 
-@Description {value:"The DELETE action implementation of the LoadBalancer Connector."}
-@Param {value:"path: Resource path"}
-@Param {value:"request: A Request struct"}
-@Return {value:"The Response struct"}
-@Return {value:"Error occurred during the action invocation, if any"}
-public function LoadBalancer::delete (string path, Request? request = ()) returns (Response | HttpConnectorError) {
+public function LoadBalancer::delete(string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performLoadBalanceAction(self, path, req, HTTP_DELETE);
 }
 
-@Description {value:"The GET action implementation of the LoadBalancer Connector."}
-@Param {value:"path: Resource path"}
-@Param {value:"request: A Request struct"}
-@Return {value:"The Response struct"}
-@Return {value:"Error occurred during the action invocation, if any"}
-public function LoadBalancer::get (string path, Request? request = ()) returns (Response | HttpConnectorError) {
+public function LoadBalancer::get(string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performLoadBalanceAction(self, path, req, HTTP_GET);
 }
 
-@Description { value:"The submit implementation of the LoadBalancer Connector."}
-@Param { value:"httpVerb: The HTTP verb value" }
-@Param { value:"path: The Resource path " }
-@Param { value:"req: An HTTP outbound request message" }
-@Return { value:"The Future for further interactions" }
-@Return { value:"The Error occured during HTTP client invocation" }
-public function LoadBalancer::submit (string httpVerb, string path, Request request) returns (HttpFuture | HttpConnectorError) {
-    HttpConnectorError httpConnectorError = {message:"Unsupported action for LoadBalancer client."};
-    return httpConnectorError;
+public function LoadBalancer::submit(string httpVerb, string path, Request request) returns HttpFuture|error {
+    error err = {message:"Unsupported action for LoadBalancer client."};
+    return err;
 }
 
-@Description { value:"The getResponse implementation of the LoadBalancer Connector."}
-@Param { value:"httpFuture: The Future which relates to previous async invocation" }
-@Return { value:"The HTTP response message" }
-@Return { value:"The Error occured during HTTP client invocation" }
-public function LoadBalancer::getResponse (HttpFuture httpFuture) returns (Response | HttpConnectorError) {
-    HttpConnectorError httpConnectorError = {message:"Unsupported action for LoadBalancer client."};
-    return httpConnectorError;
+public function LoadBalancer::getResponse(HttpFuture httpFuture) returns Response|error {
+    error err = {message:"Unsupported action for LoadBalancer client."};
+    return err;
 }
 
-@Description { value:"The hasPromise implementation of the LoadBalancer Connector."}
-@Param { value:"httpFuture: The Future which relates to previous async invocation" }
-@Return { value:"Whether push promise exists" }
-public function LoadBalancer::hasPromise (HttpFuture httpFuture) returns (boolean) {
+public function LoadBalancer::hasPromise(HttpFuture httpFuture) returns (boolean) {
     return false;
 }
 
-@Description { value:"The getNextPromise implementation of the LoadBalancer Connector."}
-@Param { value:"httpFuture: The Future which relates to previous async invocation" }
-@Return { value:"The HTTP Push Promise message" }
-@Return { value:"The Error occured during HTTP client invocation" }
-public function LoadBalancer::getNextPromise (HttpFuture httpFuture) returns (PushPromise | HttpConnectorError) {
-    HttpConnectorError httpConnectorError = {message:"Unsupported action for LoadBalancer client."};
-    return httpConnectorError;
+public function LoadBalancer::getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+    error err = {message:"Unsupported action for LoadBalancer client."};
+    return err;
 }
 
-@Description { value:"The getPromisedResponse implementation of the LoadBalancer Connector."}
-@Param { value:"promise: The related Push Promise message" }
-@Return { value:"HTTP The Push Response message" }
-@Return { value:"The Error occured during HTTP client invocation" }
-public function LoadBalancer::getPromisedResponse (PushPromise promise) returns (Response | HttpConnectorError) {
-    HttpConnectorError httpConnectorError = {message:"Unsupported action for LoadBalancer client."};
-    return httpConnectorError;
+public function LoadBalancer::getPromisedResponse(PushPromise promise) returns Response|error {
+    error err = {message:"Unsupported action for LoadBalancer client."};
+    return err;
 }
 
-@Description { value:"The rejectPromise implementation of the LoadBalancer Connector."}
-@Param { value:"promise: The Push Promise need to be rejected" }
-public function LoadBalancer::rejectPromise (PushPromise promise) {
+public function LoadBalancer::rejectPromise(PushPromise promise) {
 }
 
 // Performs execute action of the Load Balance connector. extract the corresponding http integer value representation
 // of the http verb and invokes the perform action method.
-function performLoadBalanceExecuteAction (LoadBalancer lb, string path, Request request,
-                                          string httpVerb) returns (Response | HttpConnectorError) {
+function performLoadBalanceExecuteAction(LoadBalancer lb, string path, Request request,
+                                          string httpVerb) returns Response|error {
     HttpOperation connectorAction = extractHttpOperation(httpVerb);
     if (connectorAction != HTTP_NONE) {
         return performLoadBalanceAction(lb, path, request, connectorAction);
     } else {
-        HttpConnectorError httpConnectorError = {message:"Unsupported connector action received.", statusCode:501};
-        return httpConnectorError;
+        error httpConnectorErr = {message:"Unsupported connector action received."};
+        return httpConnectorErr;
     }
 }
 
 // Handles all the actions exposed through the Load Balance connector.
-function performLoadBalanceAction (LoadBalancer lb, string path, Request request, HttpOperation requestAction)
-                                    returns (Response | HttpConnectorError) {
+function performLoadBalanceAction(LoadBalancer lb, string path, Request request, HttpOperation requestAction)
+                                    returns Response|error {
     int loadBalanceTermination = 0; // Tracks at which point failover within the load balancing should be terminated.
     //TODO: workaround to initialize a type inside a function. Change this once fix is aailable.
     LoadBalanceConnectorError loadBalanceConnectorError = {statusCode:500};
-    loadBalanceConnectorError.httpConnectorError = [];
+    loadBalanceConnectorError.httpConnectorErr = [];
     Request loadBlancerInRequest = request;
     mime:Entity requestEntity = new;
 
@@ -321,15 +295,15 @@ function performLoadBalanceAction (LoadBalancer lb, string path, Request request
         match invokeEndpoint(path, request, requestAction, loadBalanceClient) {
             Response inResponse => return inResponse;
 
-            HttpConnectorError httpConnectorError => {
+            error httpConnectorErr => {
                 if (!lb.failover) {
-                    return httpConnectorError;
+                    return httpConnectorErr;
                 } else {
                     Request newOutRequest = new;
                     populateRequestFields(loadBlancerInRequest, newOutRequest);
                     newOutRequest.setEntity(requestEntity);
                     loadBlancerInRequest = newOutRequest;
-                    loadBalanceConnectorError.httpConnectorError[lb.nextIndex] = httpConnectorError;
+                    loadBalanceConnectorError.httpConnectorErr[lb.nextIndex] = httpConnectorErr;
                     loadBalanceTermination = loadBalanceTermination + 1;
                 }
             }
@@ -339,7 +313,7 @@ function performLoadBalanceAction (LoadBalancer lb, string path, Request request
 }
 
 // Round Robin Algorithm implementation with respect to load balancing endpoints.
-public function roundRobin(LoadBalancer lb, CallerActions[] loadBalanceConfigArray) returns (CallerActions) {
+public function roundRobin(LoadBalancer lb, CallerActions[] loadBalanceConfigArray) returns CallerActions {
     CallerActions httpClient = new;
 
     lock {
@@ -356,12 +330,12 @@ public function roundRobin(LoadBalancer lb, CallerActions[] loadBalanceConfigArr
 }
 
 // Populates generic error specific to Load Balance connector by including all the errors returned from endpoints.
-function populateGenericLoadBalanceConnectorError (LoadBalanceConnectorError loadBalanceConnectorError)
-                                                    returns (HttpConnectorError) {
-    int nErrs = lengthof loadBalanceConnectorError.httpConnectorError;
+function populateGenericLoadBalanceConnectorError(LoadBalanceConnectorError loadBalanceConnectorError)
+                                                    returns error {
+    int nErrs = lengthof loadBalanceConnectorError.httpConnectorErr;
     loadBalanceConnectorError.statusCode = INTERNAL_SERVER_ERROR_500;
     loadBalanceConnectorError.message = "All the load balance endpoints failed. Last error was: "
-                                        + loadBalanceConnectorError.httpConnectorError[nErrs - 1].message;
-    HttpConnectorError httpConnectorError = loadBalanceConnectorError;
-    return httpConnectorError;
+                                        + loadBalanceConnectorError.httpConnectorErr[nErrs - 1].message;
+    error httpConnectorErr = loadBalanceConnectorError;
+    return httpConnectorErr;
 }

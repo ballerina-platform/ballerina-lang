@@ -15,38 +15,67 @@
 // under the License.
 
 
-@Description {value:"Authentication header name"}
+documentation {
+    Authentication header name.
+}
 @final string AUTH_HEADER = "Authorization";
-@Description {value:"Basic authentication scheme"}
+documentation {
+    Basic authentication scheme.
+}
 @final string AUTH_SCHEME_BASIC = "Basic";
-@Description {value:"Bearer authentication scheme"}
+documentation {
+    Bearer authentication scheme.
+}
 @final string AUTH_SCHEME_BEARER = "Bearer";
-@Description {value:"Auth annotation package"}
+documentation {
+    Auth annotation package.
+}
 @final string ANN_PACKAGE = "ballerina.http";
-@Description {value:"Resource level annotation name"}
+documentation {
+    Resource level annotation name.
+}
 @final string RESOURCE_ANN_NAME = "ResourceConfig";
-@Description {value:"Service level annotation name"}
+documentation {
+    Service level annotation name.
+}
 @final string SERVICE_ANN_NAME = "ServiceConfig";
-@Description {value:"Auth provider config name"}
+documentation {
+    Auth provider config name.
+}
 @final string AUTH_PROVIDER_CONFIG = "config";
-@Description {value:"ldap auth provider config name"}
+documentation {
+    LDAP auth provider config name.
+}
 @final string AUTH_PROVIDER_LDAP = "ldap";
-@Description {value:"jdbc auth provider config name"}
+documentation {
+    JDBC auth provider config name.
+}
 @final string AUTH_PROVIDER_JDBC = "jdbc";
-@Description {value:"AD auth provider config name"}
+documentation {
+    AD auth provider config name.
+}
 @final string AUTH_PROVIDER_AD = "activeDirectory";
 
-@Description {value:"Authn scheme basic"}
+documentation {
+    Authn scheme basic.
+}
 @final string AUTHN_SCHEME_BASIC = "basic";
-@Description {value:"Authn scheme JWT"}
+documentation {
+    Authn scheme JWT.
+}
 @final string AUTH_SCHEME_JWT = "jwt";
-@Description {value:"Authn scheme OAuth2"}
+documentation {
+    Authn scheme OAuth2.
+}
 @final string AUTH_SCHEME_OAUTH2 = "oauth2";
 
-@Description {value:"Extracts the basic authentication header value from the request"}
-@Param {value:"req: Request instance"}
-@Return {value:"string: value of the basic authentication header, or null if not found"}
-public function extractBasicAuthHeaderValue (Request req) returns (string|()) {
+documentation {
+    Extracts the basic authentication header value from the request.
+
+    P{{req}} Request instance
+    R{{}} Value of the basic authentication header, or nil if not found
+}
+public function extractBasicAuthHeaderValue(Request req) returns (string|()) {
     // extract authorization header
     try {
         return req.getHeader(AUTH_HEADER);
@@ -56,10 +85,13 @@ public function extractBasicAuthHeaderValue (Request req) returns (string|()) {
     return ();
 }
 
-@Description {value:"Error handler"}
-@Param {value:"message: error message"}
-@Return {value:"error: error populated with the message"}
-function handleError (string message) returns (error) {
-    error e = {message:message};
+documentation {
+    Error handler.
+
+    P{{message}} Error message
+    R{{}} Error populated with the message
+}
+function handleError(string message) returns (error) {
+    error e = {message: message};
     return e;
 }

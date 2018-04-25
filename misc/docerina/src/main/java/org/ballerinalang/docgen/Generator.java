@@ -42,12 +42,12 @@ import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.DocumentationNode;
-import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.DocumentationAttributeNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
@@ -337,6 +338,14 @@ public class Generator {
         return "";
     }
 
+    private static String extractLink(BType type) {
+        if (type == null || type.tsymbol == null || type.tsymbol.pkgID == null) {
+            return "";
+        }
+        String pkg = type.tsymbol.pkgID.getName().getValue();
+        return pkg != null && !pkg.isEmpty() ? pkg + ".html#" + type.toString() : "#" + type.toString();
+    }
+
     /**
      * Create documentation for global variables.
      *
@@ -359,43 +368,58 @@ public class Generator {
      */
     public static FunctionDoc createDocForNode(BLangFunction functionNode) {
         String functionName = functionNode.getName().value;
-        List<Variable> parameters = new ArrayList<>();
+        List<Field> parameters = new ArrayList<>();
         List<Variable> returnParams = new ArrayList<>();
         // Iterate through the parameters
         if (functionNode.getParameters().size() > 0) {
             for (BLangVariable param : functionNode.getParameters()) {
-                String dataType = type(param);
-                String desc = paramAnnotation(functionNode, param);
-                String href = extractLink(param.getTypeNode());
-                Variable variable = new Variable(param.getName().value, dataType, desc, href);
+                Field variable = getVariable(functionNode, param);
+                parameters.add(variable);
+            }
+        }
+        // defaultable params
+        if (functionNode.getDefaultableParameters().size() > 0) {
+            for (BLangVariableDef variableDef : functionNode.getDefaultableParameters()) {
+                BLangVariable param = variableDef.getVariable();
+                Field variable = getVariable(functionNode, param);
+                parameters.add(variable);
+            }
+        }
+        // rest params
+        if (functionNode.getRestParameters() != null) {
+            VariableNode restParameter = functionNode.getRestParameters();
+            if (restParameter instanceof BLangVariable) {
+                BLangVariable param = (BLangVariable) restParameter;
+                Field variable = getVariable(functionNode, param);
                 parameters.add(variable);
             }
         }
 
+        // return params
         if (functionNode.getReturnTypeNode() != null) {
-            BLangVariable returnParam = new BLangVariable();
-            returnParam.typeNode = functionNode.getReturnTypeNode();
-            String dataType = type(returnParam);
+            BLangType returnType = functionNode.getReturnTypeNode();
+            String dataType = getTypeName(returnType);
             if (!dataType.equals("null")) {
                 String desc = returnParamAnnotation(functionNode);
-                String href = extractLink(returnParam.getTypeNode());
+                String href = extractLink(returnType);
                 Variable variable = new Variable("", dataType, desc, href);
                 returnParams.add(variable);
             }
 
         }
 
-        // Iterate through the return types
-//        if (functionNode.getReturnParameters().size() > 0) {
-//            for (int i = 0; i < functionNode.getReturnParameters().size(); i++) {
-//                BLangVariable returnParam = functionNode.getReturnParameters().get(i);
-//                String dataType = type(returnParam);
-//                String desc = returnParamAnnotation(functionNode, i);
-//                Variable variable = new Variable(returnParam.getName().value, dataType, desc);
-//                returnParams.add(variable);
-//            }
-//        }
         return new FunctionDoc(functionName, description(functionNode), new ArrayList<>(), parameters, returnParams);
+    }
+
+    private static Field getVariable(BLangFunction functionNode, BLangVariable param) {
+        String dataType = type(param);
+        String desc = paramAnnotation(functionNode, param);
+        String href = param.typeNode != null ? extractLink(param.typeNode) : extractLink(param.type);
+        String defaultValue = "";
+        if (null != param.getInitialExpression()) {
+            defaultValue = param.getInitialExpression().toString();
+        }
+        return new Field(param.getName().value, dataType, desc, defaultValue, href);
     }
 
     /**
@@ -482,6 +506,17 @@ public class Generator {
             getFields(connectorNode, connectorNode.fields, parameters);
         }
 
+        if (connectorNode.initFunction != null) {
+            BLangFunction constructor = connectorNode.initFunction;
+            if (constructor.flagSet.contains(Flag.PUBLIC)) {
+                FunctionDoc initFunction = createDocForNode(constructor);
+                // if it's the default constructor, we don't need to document
+                if (initFunction.parameters.size() > 0) {
+                    actions.add(initFunction);
+                }
+            }
+        }
+
         //Iterate through the actions of the connectors
         if (connectorNode.getFunctions().size() > 0) {
             for (BLangFunction action : connectorNode.getFunctions()) {
@@ -497,7 +532,7 @@ public class Generator {
             }
         }
         ConnectorDoc connectorDoc = new ConnectorDoc(connectorName, description == null ? description(connectorNode)
-                : description, actions, parameters, functions, isConnector);
+                : description, actions, parameters, functions, isConnector, false);
         connectorDoc.setObject(connectorNode);
         return connectorDoc;
     }
@@ -519,12 +554,7 @@ public class Generator {
      * @return data type of the variable.
      */
     private static String type(final BLangVariable bLangVariable) {
-        if (bLangVariable.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
-            if (((BLangUserDefinedType) bLangVariable.typeNode).typeName.value.contains(ANONYMOUS_STRUCT)) {
-                return getAnonStructString((BStructType) bLangVariable.type);
-            }
-        }
-        return getTypeName(bLangVariable.typeNode);
+        return bLangVariable.type != null ? bLangVariable.type.toString() : "null";
     }
 
     /**
@@ -739,28 +769,28 @@ public class Generator {
         return "";
     }
 
-    /**
-     * Get the anonymous struct string.
-     *
-     * @param type struct type.
-     * @return anonymous struct string.
-     */
-    private static String getAnonStructString(BStructType type) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("struct {");
-
-        BStructType.BStructField field;
-        int nFields = type.fields.size();
-        for (int i = 0; i < nFields; i++) {
-            field = type.fields.get(i);
-            builder.append(field.type.toString()).append(" ").append(field.name.value);
-            if (i == nFields - 1) {
-                return builder.append("}").toString();
-            }
-            builder.append(", ");
-        }
-
-        return builder.append("}").toString();
-    }
+//    /**
+//     * Get the anonymous struct string.
+//     *
+//     * @param type struct type.
+//     * @return anonymous struct string.
+//     */
+//    private static String getAnonStructString(BStructType type) {
+//        StringBuilder builder = new StringBuilder();
+//        builder.append("struct {");
+//
+//        BStructType.BStructField field;
+//        int nFields = type.fields.size();
+//        for (int i = 0; i < nFields; i++) {
+//            field = type.fields.get(i);
+//            builder.append(field.type.toString()).append(" ").append(field.name.value);
+//            if (i == nFields - 1) {
+//                return builder.append("}").toString();
+//            }
+//            builder.append(", ");
+//        }
+//
+//        return builder.append("}").toString();
+//    }
 }
 

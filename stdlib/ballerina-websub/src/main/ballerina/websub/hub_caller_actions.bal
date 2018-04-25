@@ -129,7 +129,7 @@ public function CallerActions::registerTopic(string topic, string? secret = ()) 
             }
             return;
         }
-        http:HttpConnectorError err => {
+        error err => {
             error webSubError = {message:"Error sending topic registration request: " + err.message,
                 cause:err};
             return webSubError;
@@ -150,7 +150,7 @@ public function CallerActions::unregisterTopic(string topic, string? secret = ()
             }
             return;
         }
-        http:HttpConnectorError err => {
+        error err => {
             error webSubError = {message:"Error sending topic unregistration request: " + err.message,
                 cause:err};
             return webSubError;
@@ -195,7 +195,7 @@ public function CallerActions::publishUpdate(string topic, json payload, string?
     var response = httpClientEndpoint->post(untaint ("?" + queryParams), request = request);
     match (response) {
         http:Response => return;
-        http:HttpConnectorError httpConnectorError => { error webSubError = {
+        error httpConnectorError => { error webSubError = {
             message:"Notification failed for topic [" + topic + "]", cause:httpConnectorError};
         return webSubError;
         }
@@ -219,7 +219,7 @@ public function CallerActions::notifyUpdate(string topic, map<string>? headers =
     var response = httpClientEndpoint->post(untaint ("?" + queryParams), request = request);
     match (response) {
         http:Response => return;
-        http:HttpConnectorError httpConnectorError => { error webSubError = {
+        error httpConnectorError => { error webSubError = {
             message:"Update availability notification failed for topic [" + topic + "]", cause:httpConnectorError};
         return webSubError;
         }
@@ -276,19 +276,19 @@ documentation {
     P{{hub}} The hub to which the subscription/unsubscription request was sent
     P{{mode}} Whether the request was sent for subscription or unsubscription
     P{{subscriptionChangeRequest}} The subscription change request sent
-    P{{response}} The http:Response or http:HttpConnectorError received on request to the hub
+    P{{response}} The http:Response or error received on request to the hub
     P{{httpClientEndpoint}} The underlying HTTP Client Endpoint
     R{{}} `SubscriptionChangeResponse` indicating subscription/unsubscription details, if the request was successful
             else `error` if an error occurred
 }
 function processHubResponse(@sensitive string hub, @sensitive string mode,
                             SubscriptionChangeRequest subscriptionChangeRequest,
-                            http:Response|http:HttpConnectorError response, http:Client httpClientEndpoint)
+                            http:Response|error response, http:Client httpClientEndpoint)
     returns @tainted SubscriptionChangeResponse|error {
 
     string topic = subscriptionChangeRequest.topic;
     match response {
-        http:HttpConnectorError httpConnectorError => {
+        error httpConnectorError => {
             string errorMessage = "Error occurred for request: Mode[" + mode + "] at Hub[" + hub + "] - "
                 + httpConnectorError.message;
             error webSubError = {message:errorMessage, cause:httpConnectorError};
