@@ -28,8 +28,8 @@ import ballerina/mime;
 @final string JWT_SCHEME = "jwt";
 
 documentation {
-    Provides the Secure HTTP actions for interacting with an HTTP server. If the `AuthConfig` is provided with details
-    it creates an HTTP client capable of securing HTTP requests with authentication schemes.
+    Provides secure HTTP actions for interacting with HTTP endpoints. This will make use of the authentication schemes
+    configured in the HTTP client endpoint to secure the HTTP requests.
 
     F{{serviceUri}} The URL of the remote HTTP endpoint
     F{{config}} The configurations of the client endpoint associated with this HttpActions instance
