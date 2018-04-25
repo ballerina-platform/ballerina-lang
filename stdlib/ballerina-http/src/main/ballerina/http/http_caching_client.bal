@@ -106,7 +106,7 @@ public type HttpCachingClient object {
         R{{}} The inbound response message
         R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
     }
-    public function post(string path, Request? request = ()) returns Response|HttpConnectorError;
+    public function post(string path, Request? request = ()) returns Response|error;
 
     documentation {
         Responses for HEAD requests are cacheable and as such, will be routed through the HTTP cache. Only if a
@@ -117,7 +117,7 @@ public type HttpCachingClient object {
         R{{}} The inbound response message
         R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
     }
-    public function head(string path, Request? request = ()) returns Response|HttpConnectorError;
+    public function head(string path, Request? request = ()) returns Response|error;
 
     documentation {
         Responses returned for PUT requests are not cacheable. Therefore, the requests are simply directed to the
@@ -128,7 +128,7 @@ public type HttpCachingClient object {
         R{{}} The inbound response message
         R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
     }
-    public function put(string path, Request? request = ()) returns Response|HttpConnectorError;
+    public function put(string path, Request? request = ()) returns Response|error;
 
     documentation {
         Invokes an HTTP call with the specified HTTP method. This is not a cacheable operation, unless the HTTP method
@@ -140,7 +140,7 @@ public type HttpCachingClient object {
         R{{}} The inbound response message
         R{{}} Error occurred during HTTP client invocation
     }
-    public function execute(string httpMethod, string path, Request request) returns Response|HttpConnectorError;
+    public function execute(string httpMethod, string path, Request request) returns Response|error;
 
     documentation {
         Responses returned for PATCH requests are not cacheable. Therefore, the requests are simply directed to
@@ -151,7 +151,7 @@ public type HttpCachingClient object {
         R{{}} The inbound response message
         R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
     }
-    public function patch(string path, Request? request = ()) returns Response|HttpConnectorError;
+    public function patch(string path, Request? request = ()) returns Response|error;
 
     documentation {
         Responses returned for DELETE requests are not cacheable. Therefore, the requests are simply directed to the
@@ -162,7 +162,7 @@ public type HttpCachingClient object {
         R{{}} The inbound response message
         R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
     }
-    public function delete(string path, Request? request = ()) returns Response|HttpConnectorError;
+    public function delete(string path, Request? request = ()) returns Response|error;
 
     documentation {
         Responses for GET requests are cacheable and as such, will be routed through the HTTP cache. Only if a suitable
@@ -173,7 +173,7 @@ public type HttpCachingClient object {
         R{{}} The inbound response message
         R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
     }
-    public function get(string path, Request? request = ()) returns Response|HttpConnectorError;
+    public function get(string path, Request? request = ()) returns Response|error;
 
     documentation {
         Responses returned for OPTIONS requests are not cacheable. Therefore, the requests are simply directed to the
@@ -184,7 +184,7 @@ public type HttpCachingClient object {
         R{{}} The inbound response message
         R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
     }
-    public function options(string path, Request? request = ()) returns Response|HttpConnectorError;
+    public function options(string path, Request? request = ()) returns Response|error;
 
     documentation {
         Forward action can be used to invoke an HTTP call with inbound request's HTTP method. Only inbound requests of
@@ -195,7 +195,7 @@ public type HttpCachingClient object {
         R{{}} The inbound response message
         R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
     }
-    public function forward(string path, Request request) returns Response|HttpConnectorError;
+    public function forward(string path, Request request) returns Response|error;
 
     documentation {
         Submits an HTTP request to a service with the specified HTTP verb.
@@ -206,7 +206,7 @@ public type HttpCachingClient object {
         R{{}} The Future for further interactions
         R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
     }
-    public function submit(string httpVerb, string path, Request request) returns (HttpFuture|HttpConnectorError);
+    public function submit(string httpVerb, string path, Request request) returns (HttpFuture|error);
 
     documentation {
         Retrieves the response for a previously submitted request.
@@ -215,7 +215,7 @@ public type HttpCachingClient object {
         R{{}} The HTTP response message
         R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
     }
-    public function getResponse(HttpFuture httpFuture) returns Response|HttpConnectorError;
+    public function getResponse(HttpFuture httpFuture) returns Response|error;
 
     documentation {
         Checks whether server push exists for a previously submitted request.
@@ -232,7 +232,7 @@ public type HttpCachingClient object {
         R{{}} The HTTP Push Promise message
         R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
     }
-    public function getNextPromise(HttpFuture httpFuture) returns (PushPromise|HttpConnectorError);
+    public function getNextPromise(HttpFuture httpFuture) returns (PushPromise|error);
 
     documentation {
         Retrieves the promised server push response.
@@ -241,7 +241,7 @@ public type HttpCachingClient object {
         R{{}} HTTP The Push Response message
         R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
     }
-    public function getPromisedResponse(PushPromise promise) returns Response|HttpConnectorError;
+    public function getPromisedResponse(PushPromise promise) returns Response|error;
 
     documentation {
         Rejects a push promise.

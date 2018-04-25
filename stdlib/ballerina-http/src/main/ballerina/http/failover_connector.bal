@@ -84,45 +84,45 @@ public type Failover object {
 
         P{{path}} Resource path
         P{{request}} An optional HTTP request
-        R{{}} The response or an `HttpConnectorError` if failed to fulfill the request
+        R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function head(string path, Request? request = ()) returns Response|HttpConnectorError;
+    public function head(string path, Request? request = ()) returns Response|error;
 
     documentation {
         The PATCH action implementation of the Failover Connector.
 
         P{{path}} Resource path
         P{{request}} An optional HTTP request
-        R{{}} The response or an `HttpConnectorError` if failed to fulfill the request
+        R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function patch(string path, Request? request = ()) returns Response|HttpConnectorError;
+    public function patch(string path, Request? request = ()) returns Response|error;
 
     documentation {
         The PUT action  implementation of the Failover Connector.
 
         P{{path}} Resource path
         P{{request}} An optional HTTP request
-        R{{}} The response or an `HttpConnectorError` if failed to fulfill the request
+        R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function put(string path, Request? request = ()) returns Response|HttpConnectorError;
+    public function put(string path, Request? request = ()) returns Response|error;
 
     documentation {
         The OPTIONS action implementation of the Failover Connector.
 
         P{{path}} Resource path
         P{{request}} An optional HTTP request
-        R{{}} The response or an `HttpConnectorError` if failed to fulfill the request
+        R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function options(string path, Request? request = ()) returns Response|HttpConnectorError;
+    public function options(string path, Request? request = ()) returns Response|error;
 
     documentation {
         Invokes an HTTP call using the incoming request's HTTP method.
 
         P{{path}} Resource path
         P{{request}} An HTTP request
-        R{{}} The response or an `HttpConnectorError` if failed to fulfill the request
+        R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function forward(string path, Request request) returns Response|HttpConnectorError;
+    public function forward(string path, Request request) returns Response|error;
 
     documentation {
         Invokes an HTTP call with the specified HTTP method.
@@ -130,27 +130,27 @@ public type Failover object {
         P{{httpVerb}} HTTP method to be used for the request
         P{{path}} Resource path
         P{{request}} An HTTP request
-        R{{}} The response or an `HttpConnectorError` if failed to fulfill the request
+        R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function execute(string httpVerb, string path, Request request) returns Response|HttpConnectorError;
+    public function execute(string httpVerb, string path, Request request) returns Response|error;
 
     documentation {
         The DELETE action implementation of the Failover Connector.
 
         P{{path}} Resource path
         P{{request}} An optional HTTP request
-        R{{}} The response or an `HttpConnectorError` if failed to fulfill the request
+        R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function delete(string path, Request? request = ()) returns Response|HttpConnectorError;
+    public function delete(string path, Request? request = ()) returns Response|error;
 
     documentation {
         The GET action implementation of the Failover Connector.
 
         P{{path}} Resource path
         P{{request}} An optional HTTP request
-        R{{}} The response or an `HttpConnectorError` if failed to fulfill the request
+        R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function get(string path, Request? request = ()) returns Response|HttpConnectorError;
+    public function get(string path, Request? request = ()) returns Response|error;
 
     documentation {
         Submits an HTTP request to a service with the specified HTTP verb.
@@ -158,17 +158,17 @@ public type Failover object {
         P{{httpVerb}} The HTTP verb value
         P{{path}} The Resource path
         P{{request}} An HTTP request
-        R{{}} The Future for further interactions or an `HttpConnectorError` if failed to fulfill the request
+        R{{}} The Future for further interactions or an `error` if failed to fulfill the request
     }
-    public function submit(string httpVerb, string path, Request request) returns HttpFuture|HttpConnectorError;
+    public function submit(string httpVerb, string path, Request request) returns HttpFuture|error;
 
     documentation {
         Retrieves the response for a previously submitted request.
 
         P{{httpFuture}} The Future which relates to previous async invocation
-        R{{}} `HttpConnectorError` if failed to fulfill the request
+        R{{}} `error` if failed to fulfill the request
     }
-    public function getResponse(HttpFuture httpFuture) returns HttpConnectorError;
+    public function getResponse(HttpFuture httpFuture) returns error;
 
     documentation {
         Checks whether server push exists for a previously submitted request.
@@ -182,17 +182,17 @@ public type Failover object {
         Retrieves the next available push promise for a previously submitted request.
 
         P{{httpFuture}} The Future which relates to previous async invocation
-        R{{}} The HTTP Push Promise message or an `HttpConnectorError` if failed to fulfill the request
+        R{{}} The HTTP Push Promise message or an `error` if failed to fulfill the request
     }
-    public function getNextPromise(HttpFuture httpFuture) returns PushPromise|HttpConnectorError;
+    public function getNextPromise(HttpFuture httpFuture) returns PushPromise|error;
 
     documentation {
         Retrieves the promised server push response.
 
         P{{promise}} The related Push Promise message
-        R{{}} The HTTP Push Response message or an `HttpConnectorError` if failed to fulfill the request
+        R{{}} The HTTP Push Response message or an `error` if failed to fulfill the request
     }
-    public function getPromisedResponse(PushPromise promise) returns Response|HttpConnectorError;
+    public function getPromisedResponse(PushPromise promise) returns Response|error;
 
     documentation {
         Rejects a push promise.
@@ -202,71 +202,71 @@ public type Failover object {
     public function rejectPromise(PushPromise promise);
 };
 
-public function Failover::post(string path, Request? request = ()) returns Response|HttpConnectorError {
+public function Failover::post(string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performFailoverAction(path, req, HTTP_POST, self.failoverInferredConfig);
 }
 
-public function Failover::head(string path, Request? request = ()) returns Response|HttpConnectorError {
+public function Failover::head(string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performFailoverAction(path, req, HTTP_HEAD, self.failoverInferredConfig);
 }
 
-public function Failover::patch(string path, Request? request = ()) returns Response|HttpConnectorError {
+public function Failover::patch(string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performFailoverAction(path, req, HTTP_PATCH, self.failoverInferredConfig);
 }
 
-public function Failover::put(string path, Request? request = ()) returns Response|HttpConnectorError {
+public function Failover::put(string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performFailoverAction(path, req, HTTP_PUT, self.failoverInferredConfig);
 }
 
-public function Failover::options(string path, Request? request = ()) returns Response|HttpConnectorError {
+public function Failover::options(string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performFailoverAction(path, req, HTTP_OPTIONS, self.failoverInferredConfig);
 }
 
-public function Failover::forward(string path, Request request) returns Response|HttpConnectorError {
+public function Failover::forward(string path, Request request) returns Response|error {
     return performFailoverAction(path, request, HTTP_FORWARD, self.failoverInferredConfig);
 }
 
-public function Failover::execute(string httpVerb, string path, Request request) returns Response|HttpConnectorError {
+public function Failover::execute(string httpVerb, string path, Request request) returns Response|error {
     return performExecuteAction(path, request, httpVerb, self.failoverInferredConfig);
 }
 
-public function Failover::delete(string path, Request? request = ()) returns Response|HttpConnectorError {
+public function Failover::delete(string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performFailoverAction(path, req, HTTP_DELETE, self.failoverInferredConfig);
 }
 
-public function Failover::get(string path, Request? request = ()) returns Response|HttpConnectorError {
+public function Failover::get(string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performFailoverAction(path, req, HTTP_GET, self.failoverInferredConfig);
 }
 
-public function Failover::submit(string httpVerb, string path, Request request) returns HttpFuture|HttpConnectorError {
-    HttpConnectorError httpConnectorError = {message:"Unsupported action for Failover client."};
-    return httpConnectorError;
+public function Failover::submit(string httpVerb, string path, Request request) returns HttpFuture|error {
+    error err = {message:"Unsupported action for Failover client."};
+    return err;
 }
 
-public function Failover::getResponse(HttpFuture httpFuture) returns (HttpConnectorError) {
-    HttpConnectorError httpConnectorError = {message:"Unsupported action for Failover client."};
-    return httpConnectorError;
+public function Failover::getResponse(HttpFuture httpFuture) returns (error) {
+    error err = {message:"Unsupported action for Failover client."};
+    return err;
 }
 
 public function Failover::hasPromise(HttpFuture httpFuture) returns (boolean) {
     return false;
 }
 
-public function Failover::getNextPromise(HttpFuture httpFuture) returns PushPromise|HttpConnectorError {
-    HttpConnectorError httpConnectorError = {message:"Unsupported action for Failover client."};
-    return httpConnectorError;
+public function Failover::getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+    error err = {message:"Unsupported action for Failover client."};
+    return error;
 }
 
-public function Failover::getPromisedResponse(PushPromise promise) returns Response|HttpConnectorError {
-    HttpConnectorError httpConnectorError = {message:"Unsupported action for Failover client."};
-    return httpConnectorError;
+public function Failover::getPromisedResponse(PushPromise promise) returns Response|error {
+    error err = {message:"Unsupported action for Failover client."};
+    return error;
 }
 
 public function Failover::rejectPromise(PushPromise promise) {
@@ -275,14 +275,14 @@ public function Failover::rejectPromise(PushPromise promise) {
 // Performs execute action of the Failover connector. extract the corresponding http integer value representation
 // of the http verb and invokes the perform action method.
 function performExecuteAction (string path, Request request, string httpVerb,
-                               FailoverInferredConfig failoverInferredConfig) returns Response|HttpConnectorError {
+                               FailoverInferredConfig failoverInferredConfig) returns Response|error {
     HttpOperation connectorAction = extractHttpOperation(httpVerb);
     return performFailoverAction(path, request, connectorAction, failoverInferredConfig);
 }
 
 // Handles all the actions exposed through the Failover connector.
 function performFailoverAction (string path, Request request, HttpOperation requestAction,
-                                FailoverInferredConfig failoverInferredConfig) returns Response|HttpConnectorError {
+                                FailoverInferredConfig failoverInferredConfig) returns Response|error {
     boolean[] failoverCodeIndex = failoverInferredConfig.failoverCodesIndex;
     int noOfEndpoints = lengthof (failoverInferredConfig.failoverClientsArray);
     int currentIndex = 0;

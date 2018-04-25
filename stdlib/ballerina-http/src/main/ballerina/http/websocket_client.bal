@@ -78,7 +78,7 @@ public type WebSocketClient object {
     }
     public function stop() {
         WebSocketConnector webSocketConnector = getCallerActions();
-        WebSocketConnectorError|() ignoredValue = webSocketConnector.close(1001, "The connection has been stopped");
+        error|() ignoredValue = webSocketConnector.close(1001, "The connection has been stopped");
     }
 };
 

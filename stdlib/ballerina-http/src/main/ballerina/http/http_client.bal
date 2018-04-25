@@ -40,7 +40,7 @@ public type CallerActions object {
         R{{}} The inbound response message
         R{{}} The error occurred while attempting to fulfill the HTTP request
 	}
-    public native function post(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
+    public native function post(@sensitive string path, Request? request = ()) returns Response|error;
 
     documentation {
         The `head()` function can be used to send HTTP HEAD requests to HTTP endpoints.
@@ -50,7 +50,7 @@ public type CallerActions object {
         R{{}} The inbound response message
         R{{}} The error occurred while attempting to fulfill the HTTP request
 	}
-    public native function head(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
+    public native function head(@sensitive string path, Request? request = ()) returns Response|error;
 
     documentation {
         The `put()` function can be used to send HTTP PUT requests to HTTP endpoints.
@@ -60,7 +60,7 @@ public type CallerActions object {
         R{{}} The inbound response message
         R{{}} The error occurred while attempting to fulfill the HTTP request
 	}
-    public native function put(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
+    public native function put(@sensitive string path, Request? request = ()) returns Response|error;
 
     documentation {
 		Invokes an HTTP call with the specified HTTP verb.
@@ -72,7 +72,7 @@ public type CallerActions object {
         R{{}} The error occurred while attempting to fulfill the HTTP request
 	}
     public native function execute(@sensitive string httpVerb, @sensitive string path, Request request)
-                                                                                returns Response|HttpConnectorError;
+                                                                                returns Response|error;
 
     documentation {
 		The `patch()` function can be used to send HTTP PATCH requests to HTTP endpoints.
@@ -82,7 +82,7 @@ public type CallerActions object {
         R{{}} The inbound response message
         R{{}} The error occurred while attempting to fulfill the HTTP request
 	}
-    public native function patch(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
+    public native function patch(@sensitive string path, Request? request = ()) returns Response|error;
 
     documentation {
 		The `delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.
@@ -92,7 +92,7 @@ public type CallerActions object {
         R{{}} The inbound response message
         R{{}} The error occurred while attempting to fulfill the HTTP request
 	}
-    public native function delete(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
+    public native function delete(@sensitive string path, Request? request = ()) returns Response|error;
 
     documentation {
 		The `get()` function can be used to send HTTP GET requests to HTTP endpoints.
@@ -102,7 +102,7 @@ public type CallerActions object {
         R{{}} The inbound response message
         R{{}} The error occurred while attempting to fulfill the HTTP request
 	}
-    public native function get(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
+    public native function get(@sensitive string path, Request? request = ()) returns Response|error;
 
     documentation {
 		The `options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.
@@ -112,7 +112,7 @@ public type CallerActions object {
         R{{}} The inbound response message
         R{{}} The error occurred while attempting to fulfill the HTTP request
 	}
-    public native function options(@sensitive string path, Request? request = ()) returns Response|HttpConnectorError;
+    public native function options(@sensitive string path, Request? request = ()) returns Response|error;
 
     documentation {
 		The `forward()` function can be used to invoke an HTTP call with inbound request's HTTP verb
@@ -122,7 +122,7 @@ public type CallerActions object {
         R{{}} The inbound response message
         R{{}} The error occurred while attempting to fulfill the HTTP request
 	}
-    public native function forward(@sensitive string path, Request request) returns Response|HttpConnectorError;
+    public native function forward(@sensitive string path, Request request) returns Response|error;
 
     documentation {
 		Submits an HTTP request to a service with the specified HTTP verb.
@@ -134,7 +134,7 @@ public type CallerActions object {
         R{{}} The error occurred while attempting to fulfill the HTTP request
 	}
     public native function submit(@sensitive string httpVerb, string path, Request request)
-                                                                            returns HttpFuture|HttpConnectorError;
+                                                                            returns HttpFuture|error;
 
     documentation {
 		Retrieves response for a previously submitted request.
@@ -143,7 +143,7 @@ public type CallerActions object {
         R{{}} The HTTP response message
         R{{}} The error occurred while attempting to fulfill the HTTP request
 	}
-    public native function getResponse(HttpFuture httpFuture) returns Response|HttpConnectorError;
+    public native function getResponse(HttpFuture httpFuture) returns Response|error;
 
     documentation {
 		Checks whether server push exists for a previously submitted request.
@@ -160,7 +160,7 @@ public type CallerActions object {
         R{{}} The HTTP Push Promise message
         R{{}} The error occurred while attempting to fulfill the HTTP request
 	}
-    public native function getNextPromise(HttpFuture httpFuture) returns PushPromise|HttpConnectorError;
+    public native function getNextPromise(HttpFuture httpFuture) returns PushPromise|error;
 
     documentation {
 		Retrieves the promised server push response.
@@ -169,7 +169,7 @@ public type CallerActions object {
         R{{}}HTTP The Push Response message
         R{{}} The error occurred while attempting to fulfill the HTTP request
 	}
-    public native function getPromisedResponse(PushPromise promise) returns Response|HttpConnectorError;
+    public native function getPromisedResponse(PushPromise promise) returns Response|error;
 
     documentation {
 		Rejects a push promise.
@@ -177,19 +177,6 @@ public type CallerActions object {
         P{{promise}} The Push Promise to be rejected
 	}
     public native function rejectPromise(PushPromise promise);
-};
-
-documentation {
-    `HttpConnectorError` record represents an error occurred during the HTTP client invocation.
-
-    F{{message}}  An explanation on what went wrong
-    F{{cause}} The error which caused the `HttpConnectorError`
-    F{{statusCode}} HTTP status code
-}
-public type HttpConnectorError {
-    string message,
-    error? cause,
-    int statusCode,
 };
 
 documentation {
