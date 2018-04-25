@@ -45,8 +45,12 @@ public class RedirectUtil {
     /**
      * Creates redirect request message.
      *
+     * @param redirectionUrl to which the request is sent
+     * @param redirectionMethod of the redirect request
+     * @param userAgent of the request
+     * @param ctx of the request
      * @return HTTPCarbonMessage with request properties
-     * @throws MalformedURLException if url is malformed
+     * @throws MalformedURLException when the url is incorrect
      */
     public static HTTPCarbonMessage createRedirectCarbonRequest(String redirectionUrl, String redirectionMethod,
                                                                 String userAgent, ChannelHandlerContext ctx)

@@ -61,6 +61,7 @@ public interface ServerConnectorFuture {
      * Notifies {@link Http2PushPromise} to the listener.
      *
      * @param pushPromise the push promise message
+     * @throws ServerConnectorException in case of failure
      */
     void notifyHttpListener(Http2PushPromise pushPromise) throws ServerConnectorException;
 

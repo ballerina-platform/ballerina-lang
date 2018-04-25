@@ -64,7 +64,7 @@ public class TargetChannel {
     private SourceHandler correlatedSource;
     private ChannelFuture channelFuture;
     private ConnectionManager connectionManager;
-    private boolean isRequestWritten = false;
+    private boolean requestHeaderWritten = false;
     private String httpVersion;
     private ChunkConfig chunkConfig;
     private HttpResponseFuture httpInboundResponseFuture;
@@ -94,7 +94,7 @@ public class TargetChannel {
         this.connectionAvailabilityFuture = connectionAvailabilityFuture;
     }
 
-    public ConnectionAvailabilityFuture getConnectionAvailabilityFuture() {
+    public ConnectionAvailabilityFuture getConnenctionReadyFuture() {
         return connectionAvailabilityFuture;
     }
 
@@ -135,12 +135,12 @@ public class TargetChannel {
         this.correlatedSource = correlatedSource;
     }
 
-    public boolean isRequestWritten() {
-        return isRequestWritten;
+    public boolean isRequestHeaderWritten() {
+        return requestHeaderWritten;
     }
 
-    public void setRequestWritten(boolean isRequestWritten) {
-        this.isRequestWritten = isRequestWritten;
+    public void setRequestHeaderWritten(boolean isRequestWritten) {
+        this.requestHeaderWritten = isRequestWritten;
     }
 
     public void setHttpVersion(String httpVersion) {
@@ -211,7 +211,7 @@ public class TargetChannel {
 
     private void writeOutboundRequest(HTTPCarbonMessage httpOutboundRequest, HttpContent httpContent) throws Exception {
         if (Util.isLastHttpContent(httpContent)) {
-            if (!this.isRequestWritten) {
+            if (!this.requestHeaderWritten) {
                 // this means we need to send an empty payload
                 // depending on the http verb
                 if (Util.isEntityBodyAllowed(getHttpMethod(httpOutboundRequest))) {
@@ -237,7 +237,7 @@ public class TargetChannel {
             if ((chunkConfig == ChunkConfig.ALWAYS || chunkConfig == ChunkConfig.AUTO) && (Util
                     .isVersionCompatibleForChunking(httpVersion)) || Util
                     .shouldEnforceChunkingforHttpOneZero(chunkConfig, httpVersion)) {
-                if (!this.isRequestWritten) {
+                if (!this.requestHeaderWritten) {
                     Util.setupChunkedRequest(httpOutboundRequest);
                     writeOutboundRequestHeaders(httpOutboundRequest);
                 }
@@ -291,7 +291,7 @@ public class TargetChannel {
     private void writeOutboundRequestHeaders(HTTPCarbonMessage httpOutboundRequest) {
         this.setHttpVersionProperty(httpOutboundRequest);
         HttpRequest httpRequest = Util.createHttpRequest(httpOutboundRequest);
-        this.setRequestWritten(true);
+        this.setRequestHeaderWritten(true);
         this.getChannel().write(httpRequest);
     }
 
