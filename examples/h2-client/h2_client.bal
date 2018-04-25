@@ -2,7 +2,7 @@ import ballerina/io;
 import ballerina/h2;
 import ballerina/sql;
 
-// Create an endpoint for h2. Change the path before running the sample.
+// Create an endpoint for h2 database. Change the path before running the sample.
 endpoint h2:Client testDB {
     path: "/home/ballerina/test/",
     name: "testdb",
@@ -13,66 +13,49 @@ endpoint h2:Client testDB {
 
 function main(string... args) {
 
-    // Create a DB table using the `update` action. If the DDL
-    // statement execution is successful, the `update` action returns 0.
+    // Creates a table using the update action.
+    io:println("The update operation - Creating a table:");
     var ret = testDB->update("CREATE TABLE STUDENT(ID INTEGER, AGE INTEGER,
                                 NAME VARCHAR(255), PRIMARY KEY (ID))");
-    match ret {
-        int status => io:println("Table creation status: " + status);
-        error err => {
-            handleError("STUDENT table creation failed: ", err, testDB);
-            return;
-        }
-    }
+    handleUpdate(ret, "Create student table");
 
-    // Insert data using the `update` action. If the DML statement execution
-    // is successful, the `update` action returns the updated row count.
-    sql:Parameter p0 = { sqlType: sql:TYPE_INTEGER, value: 1 };
-    sql:Parameter p1 = { sqlType: sql:TYPE_INTEGER, value: 8 };
-    sql:Parameter p2 = { sqlType: sql:TYPE_VARCHAR, value: "Sam" };
-    ret = testDB->update("INSERT INTO STUDENT (ID,AGE,NAME) VALUES (?,?,?)", p0, p1, p2);
-    match ret {
-        int rows => io:println("Inserted row count: " + rows);
-        error err => {
-            handleError("Update action failed: ", err, testDB);
-            return;
-        }
-    }
+    // Inserts data to the table using the update action.
+    io:println("\nThe update operation - Inserting data to a table");
+    ret = testDB->update("INSERT INTO student(id, age, name) values (1, 23, 'john')");
+    handleUpdate(ret, "Insert to student table with no parameters");
 
-    // Select data using the `select` action. The `select` action returns a table.
-    // See the `table` ballerina example for more details on how to access data.
-    var dtReturned = testDB->select("SELECT * FROM STUDENT WHERE AGE = ?", (), p1);
+    // Select data using the `select` action.
+    io:println("\nThe select operation - Select data from a database table");
+    var selectRet = testDB->select("SELECT * FROM student", ());
     table dt;
-    match dtReturned {
-        table val => dt = val;
-        error e => {
-            handleError("Select action failed: ", e, testDB);
-            return;
-        }
+    match selectRet {
+        table tableReturned => dt = tableReturned;
+        error err => io:println("Select data from student table failed: " + err.message);
     }
-
-    // Convert the returned table into json.
-    var jsonConversionReturnVal = <json>dt;
-    match jsonConversionReturnVal {
-        json jsonRes => io:println(io:sprintf("%s", jsonRes));
+    // Convert a table to JSON.
+    io:println("\nConvert the table into json");
+    var jsonConversionRet = <json>dt;
+    match jsonConversionRet {
+        json jsonRes => {
+            io:print("JSON: ");
+            io:println(io:sprintf("%s", jsonRes));
+        }
         error e => io:println("Error in table to json conversion");
     }
 
     // Drop the STUDENT table.
-    ret = testDB->update("DROP TABLE STUDENT");
-    match ret {
-        int status => io:println("Table drop status: " + status);
-        error err => {
-            handleError("Dropping STUDENT table failed: ", err, testDB);
-            return;
-        }
-    }
+    io:println("\nThe update operation - Drop student table");
+    ret = testDB->update("DROP TABLE student");
+    handleUpdate(ret, "Drop table student");
 
     // Finally, close the connection pool.
     testDB.stop();
 }
 
-function handleError(string message, error e, h2:Client db) {
-    io:println(message + e.message);
-    db.stop();
+//Function to handle return of the update operation.
+function handleUpdate(int|error returned, string message) {
+    match returned {
+        int retInt => io:println(message + " status: " + retInt);
+        error err => io:println(message + " failed: " + err.message);
+    }
 }
