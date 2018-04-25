@@ -16,7 +16,7 @@
 
 import ballerina/log;
 
-documentation { Topic publisher
+documentation { JMS topic publisher
     E{{}}
     F{{producerActions}} Topic publisher endpoint actions
     F{{config}} Topic publisher endpoint configuration
@@ -80,5 +80,8 @@ public type TopicPublisherEndpointConfiguration {
 documentation { Actions that topic publisher endpoint could perform }
 public type TopicPublisherActions object {
 
-    public native function send(Message m) returns error?;
+    documentation { Sends a message to the JMS provider
+        P{{message}} Message to be sent to the JMS provider
+    }
+    public native function send(Message message) returns error?;
 };
