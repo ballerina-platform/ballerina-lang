@@ -41,14 +41,14 @@ public type ConsumerTemplate object {
     }
 
     documentation { Initialize the consumer endpoint
-        F{{config}} Configurations related to the endpoint
+        P{{config}} Configurations related to the endpoint
     }
     public function init(ConsumerEndpointConfiguration config) {
 
     }
 
     documentation { Registers consumer endpoint in the service
-        F{{serviceType}} type descriptor of the service
+        P{{serviceType}} type descriptor of the service
     }
     public function register(typedesc serviceType) {
 

@@ -24,7 +24,6 @@ public type Connection object {
     }
 
     documentation { JMS connection constructor
-        P{{config}} Configurations related to the JMS connection
     }
     public new(config) {
         createConnection();

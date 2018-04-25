@@ -15,10 +15,10 @@
 // under the License.
 
 import ballerina/log;
+
 documentation { Simple Durable Topic Subscriber endpoint
     Simplified endpoint to consume from a topic without the explicit creation for JMS connection and session
     E{{}}
-    F{{consumerActions}} handles all the caller actions related to the endpoint
     F{{config}} configurations related to the endpoint
 }
 public type SimpleDurableTopicSubscriber object {
@@ -115,6 +115,28 @@ public type SimpleDurableTopicSubscriber object {
         }
 
     }
+
+    documentation { Unsubscribes the durable subscriber from topic
+    }
+    public function unsubscribe() returns error? {
+        match (self.session) {
+            Session s => {
+                var result = s.unsubscribe(self.config.identifier);
+                match (result) {
+                    error e => {
+                        log:printError("Error occurred while unsubscribing with subscription id "
+                                + self.config.identifier, err = e);
+                        return e;
+                    }
+                    () => return;
+                }
+            }
+            () => {
+                log:printInfo("JMS session not set.");
+                return;
+            }
+        }
+    }
 };
 
 documentation { Configurations of the simple durable topic subscriber endpoint
@@ -125,7 +147,7 @@ documentation { Configurations of the simple durable topic subscriber endpoint
     JMS acknowledgment mode needs to be provided.
     F{{identifier}} Unique identifier for the subscriber
     F{{properties}} Custom properties related to JMS provider
-    F{{identifier}} Unique identifier for the subscription
+    F{{messageSelector}} JMS selector statement
     F{{topicPattern}} Name or the pattern of the topic subscription
 }
 public type SimpleDurableTopicSubscriberEndpointConfiguration {
