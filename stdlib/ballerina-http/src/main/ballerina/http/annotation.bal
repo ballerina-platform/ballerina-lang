@@ -23,7 +23,6 @@ documentation {
     Contains the configurations for an HTTP service.
 
     F{{endpoints}} An array of endpoints the service would be attached to
-    F{{lifetime}} The life time of the service
     F{{basePath}} Service base path
     F{{compression}} The status of compression
     F{{cors}} The cross origin resource sharing configurations for the service
@@ -31,7 +30,6 @@ documentation {
 }
 public type HttpServiceConfig {
     Listener[] endpoints,
-    HttpServiceLifeTime lifetime,
     string basePath,
     Compression compression = "AUTO",
     Chunking chunking = CHUNKING_AUTO,
@@ -93,19 +91,8 @@ public type WSServiceConfig {
     int maxFrameSize,
 };
 
-//@Description {value:"This specifies the possible ways in which a service can be used when serving requests."}
-//@Field {value:"REQUEST: Create a new instance of the service to process each request"}
-//@Field {value:"CONNECTION: Create a new instance of the service for each connection"}
-//@Field {value:"SESSION: Create a new instance of the service for each session"}
-//@Field {value:"SINGLETON: Create a single instance of the service and use it to process all requests coming to an endpoint"}
-//public enum HttpServiceLifeTime {
-//    REQUEST,
-//    CONNECTION,
-//    SESSION,
-//    SINGLETON
-//}
-
-public type HttpServiceLifeTime "REQUEST"|"CONNECTION"|"SESSION"|"SINGLETON";
+// TODO: Enable this when Ballerina supports service life time
+//public type HttpServiceLifeTime "REQUEST"|"CONNECTION"|"SESSION"|"SINGLETON";
 
 documentation {
     Configurations annotation for an HTTP service.
