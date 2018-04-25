@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.langserver.compiler.common.modal;
 
+import org.wso2.ballerinalang.compiler.util.Names;
+
 /**
  * Class which contains Ballerina package details.
  */
@@ -26,7 +28,7 @@ public class BallerinaPackage {
     public BallerinaPackage() {
         this.packageName = "";
         this.orgName = "";
-        this.version = "0.0.0.0";
+        this.version = Names.DEFAULT_VERSION.getValue();
     }
 
     public BallerinaPackage(String orgName, String packageName, String version) {
@@ -57,5 +59,20 @@ public class BallerinaPackage {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    @Override
+    public String toString() {
+        String orgName = "";
+        if (this.orgName != null && !this.orgName.equals(Names.ANON_ORG.getValue())) {
+            orgName = this.orgName + "/";
+        }
+
+        if (version == null || version.equals(Names.DEFAULT_VERSION.getValue())
+                || version.equals(Names.EMPTY.getValue())) {
+            return orgName + this.packageName;
+        }
+
+        return orgName + this.packageName + ":" + this.version;
     }
 }
