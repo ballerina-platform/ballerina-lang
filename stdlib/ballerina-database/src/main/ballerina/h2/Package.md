@@ -23,5 +23,3 @@ endpoint h2:Client testDB {
 };
 ```
 The full list of endpoint properties can be found in the `sql:PoolOptions` type.
-
-## Package Contents

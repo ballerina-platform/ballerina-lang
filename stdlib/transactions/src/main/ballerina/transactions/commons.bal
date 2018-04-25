@@ -151,7 +151,7 @@ function respondToBadRequest(http:Listener conn, string msg) {
     res.setJsonPayload(resPayload);
     var resResult = ep->respond(res);
     match resResult {
-        http:HttpConnectorError respondErr => {
+        error respondErr => {
             log:printError("Could not send Bad Request error response to caller", err = respondErr);
         }
         () => return;
