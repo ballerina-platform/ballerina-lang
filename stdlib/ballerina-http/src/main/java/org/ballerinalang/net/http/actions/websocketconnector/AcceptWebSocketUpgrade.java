@@ -59,7 +59,7 @@ public class AcceptWebSocketUpgrade implements NativeCallableUnit {
         WebSocketInitMessage initMessage =
                 (WebSocketInitMessage) httpConnection.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
         WebSocketConnectionManager connectionManager = (WebSocketConnectionManager) httpConnection
-                .getNativeData(WebSocketConstants.WEBSOCKET_CONNECTION_MANAGER);
+                .getNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER);
         if (initMessage == null) {
             throw new BallerinaConnectorException("Not a WebSocket upgrade request. Cannot upgrade from HTTP to WS");
         }

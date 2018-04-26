@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketConstants;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
+import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -48,10 +48,10 @@ public class Ready implements NativeCallableUnit {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         BStruct webSocketConnector = (BStruct) context.getRefArgument(0);
-        WebSocketConnection webSocketConnection = (WebSocketConnection) webSocketConnector
-                .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION);
+        WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) webSocketConnector
+                .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
         if (webSocketConnector.getBooleanField(0) == 0) {
-            webSocketConnection.readNextFrame();
+            connectionInfo.getWebSocketConnection().readNextFrame();
             context.setReturnValues();
         } else {
             context.setReturnValues(BLangConnectorSPIUtil.createBStruct(context, HttpConstants.PROTOCOL_PACKAGE_HTTP,

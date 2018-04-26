@@ -36,6 +36,43 @@ See [Mutual SSL Example](https://ballerinalang.org/docs/by-example/mutual-ssl).
 
 See [Caching Example](https://ballerinalang.org/docs/by-example/caching), [HTTP Disable Chunking Example](https://ballerinalang.org/docs/by-example/http-disable-chunking).
 
+###WebSockets
+The package also provides support for WebSockets. There are two types of WebSocket endpoints: `WebSocketClient` and `WebSocketListener`. Both endpoints support all WebSocket frames. The `WebSocketClient` has a callback service.
+
+There are also two types of services for WebSocket: `WebSocketService` and `WebSocketClientService`. The callback service for `WebSocketClient` is always a `WebSocketClientService`. The WebSocket services have a fixed set of resources that do not have a resource config. The incoming messages are passed to these resources.
+
+**WebSocket upgrade**: During a WebSocket upgrade, the initial message is an HTTP request. To intercept this request and make the upgrade explicitly with custom headers, the user must create an HTTP resource with WebSocket specific configurations as follows:
+```
+ @http:ResourceConfig {
+        webSocketUpgrade: {
+            upgradePath: "/{name}",
+            upgradeService: chatApp
+        }
+    }
+    upgrader(endpoint caller, http:Request req, string name) {
+    }
+}
+```
+Here `upgradeService` is a `WebSocketService`.
+
+**onOpen resource**: As soon as the WebSocket handshake is completed and the connection is established, the `onOpen` resource is dispatched. This resource is only available in the `WebSocketService`.
+
+**onText resource**: Received Text messages are dispatched to this resource.
+
+**onBinary resource**: Received Binary messages are dispatched to this resource.
+
+**onPing and onPong resources**: Received ping and pong messages are dispatched to these resources respectively as a `blob`
+
+**onIdleTimeout**: This resource is dispatched when idle timeout is reached. idleTimeout has to be configured by the user.
+
+**onClose**: This resource is dispatched when a close message is recieved.
+
+
+
+See [WebSocket Basic Example](https://ballerinalang.org/docs/by-example/websocket-basic-sample), 
+[HTTP to WebSocket Upgrade Example](https://ballerinalang.org/docs/by-example/http-to-websocket-upgrade),
+[WebSocket Chat Application](https://ballerinalang.org/docs/by-example/websocket-chat-application)
+
 ### Logging
 
 This package supports two types of logs:
@@ -51,10 +88,6 @@ This package supports two types of logs:
 To publish logs to a socket, both the host and port configurations must be provided.  
 
 See [HTTP Trace Logs Example](https://ballerinalang.org/docs/by-example/http-trace-logs)
-
-The package also provides WebSocket support. WebSocket endpoints have two types as `WebSocketClient` and `WebSocketListener`. Both types support ping/pong control frames and `WebSocketClient` supports callback services. 
-
-See [WebSocket Basic Example](https://ballerinalang.org/docs/by-example/websocket-basic-sample), [HTTP to WebSocket Upgrade Example](https://ballerinalang.org/docs/by-example/http-to-websocket-upgrade)
 
 ## Samples
 
