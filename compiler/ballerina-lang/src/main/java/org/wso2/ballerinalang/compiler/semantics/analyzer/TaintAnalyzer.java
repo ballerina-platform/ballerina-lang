@@ -238,6 +238,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
+        blockedNode = null;
+        taintErrorSet = new LinkedHashSet<>();
+        blockedNodeMap = new HashMap<>();
         this.mainPkgId = pkgNode.packageID;
         pkgNode.accept(this);
         return pkgNode;
