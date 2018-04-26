@@ -15,7 +15,7 @@
 // under the License.
 
 documentation {
-    `PushPromise` represents an HTTP/2 PUSH_PROMISE frame.
+    Represents an HTTP/2 `PUSH_PROMISE` frame.
 
     F{{path}} The resource path
     F{{method}} The HTTP method

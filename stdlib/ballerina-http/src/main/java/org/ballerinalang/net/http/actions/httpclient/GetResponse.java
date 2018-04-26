@@ -27,7 +27,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -87,12 +86,8 @@ public class GetResponse extends AbstractHTTPAction {
 
         public void onError(Throwable throwable) {
             BStruct httpConnectorError = createStruct(
-                    dataContext.context, HttpConstants.HTTP_CONNECTOR_ERROR, HttpConstants.PROTOCOL_PACKAGE_HTTP);
+                    dataContext.context, HttpConstants.STRUCT_GENERIC_ERROR, HttpConstants.PACKAGE_BALLERINA_BUILTIN);
             httpConnectorError.setStringField(0, throwable.getMessage());
-            if (throwable instanceof ClientConnectorException) {
-                ClientConnectorException clientConnectorException = (ClientConnectorException) throwable;
-                httpConnectorError.setIntField(0, clientConnectorException.getHttpStatusCode());
-            }
             dataContext.notifyReply(null, httpConnectorError);
         }
     }

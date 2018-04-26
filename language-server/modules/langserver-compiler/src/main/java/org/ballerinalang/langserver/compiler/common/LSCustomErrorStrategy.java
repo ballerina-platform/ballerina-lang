@@ -115,7 +115,8 @@ public class LSCustomErrorStrategy extends BallerinaParserErrorStrategy {
         }
         if (conditionalContext instanceof BallerinaParser.IfClauseContext) {
             conditionalContext.getParent().exception = e;
-        } else if (conditionalContext instanceof BallerinaParser.WhileStatementContext) {
+        } else if (conditionalContext instanceof BallerinaParser.WhileStatementContext
+                || conditionalContext instanceof BallerinaParser.TypeConversionExpressionContext) {
             conditionalContext.exception = e;
         } else if (conditionalContext instanceof BallerinaParser.BinaryEqualExpressionContext) {
             setContextIfConditionalStatement(conditionalContext, e);

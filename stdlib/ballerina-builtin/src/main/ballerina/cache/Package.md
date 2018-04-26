@@ -22,4 +22,3 @@ cache.put("key-a", "value-a");
 string returnValue = <string>cache.get("key-a");
 ```
 
-## Package contents

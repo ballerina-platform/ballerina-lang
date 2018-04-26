@@ -50,7 +50,7 @@ class ServiceMenu extends React.Component {
         const serviceDef = this.props.model;
         const thisNodeIndex = serviceDef.resources.length;
         // Check if service of http
-        if (serviceDef.getProtocolPackageIdentifier().value === 'http') {
+        if (serviceDef.getType() === 'http:Service') {
             const resource = DefaultNodeFactory.createHTTPResource();
             serviceDef.addResources(resource, thisNodeIndex, true);
             serviceDef.generateDefaultName(serviceDef, resource);

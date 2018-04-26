@@ -99,3 +99,42 @@ function testMapRemoveNegative() returns (boolean, boolean, boolean) {
     map namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
     return (namesMap.hasKey("fname2"), namesMap.remove("fname2"), namesMap.hasKey("fname2"));
 }
+
+function testMapConcurrentAccess() returns int {
+    map<int> intMap;
+    int n = 100000;
+    processConcurrent(intMap, n);
+    return lengthof intMap;
+}
+
+function processConcurrent(map<int> intMap, int n) {
+    worker w1 {
+      int i = 0;
+      int j;
+      string k;
+      while (i < n) {
+         intMap["X"] = 100;
+         j = intMap["X"];
+         k = <string> i;
+         intMap[k] = i;
+         i = intMap[k];  
+         _ = intMap.remove(k);
+         i++;
+      }
+    }
+    worker w2 {
+      int i = n;
+      int j;
+      string k;
+      int n2 = n * 2;
+      while (i < n2) {
+         intMap["X"] = 200;
+         j = intMap["X"];
+         k = <string> i;
+         intMap[k] = i;
+         i = intMap[k];
+         _ = intMap.remove(k);
+         i++;
+      }
+    }
+}

@@ -45,10 +45,10 @@ public class CompletionUtil {
         // Visit the package to resolve the symbols
         TreeVisitor treeVisitor = new TreeVisitor(completionContext);
         if (completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY) != null
-                && completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY)
+                && (completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY)
                 instanceof BallerinaParser.MatchStatementContext
                 || completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY).getParent()
-                instanceof BallerinaParser.MatchStatementContext) {
+                instanceof BallerinaParser.MatchStatementContext)) {
             fallbackBLangPackage.accept(treeVisitor);
         } else if (bLangPackage == null) {
             return;

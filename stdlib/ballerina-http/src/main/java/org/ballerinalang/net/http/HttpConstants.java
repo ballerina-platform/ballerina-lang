@@ -105,7 +105,6 @@ public class HttpConstants {
     public static final String ANN_CONFIG_ATTR_CACHE_SIZE = "cacheSize";
     public static final String ANN_CONFIG_ATTR_CACHE_VALIDITY_PERIOD = "cacheValidityPeriod";
     public static final String ANN_CONFIG_ATTR_WEBSOCKET = "webSocket";
-    public static final String ANN_CONFIG_ATTR_TRANSFER_ENCODING = "transferEncoding";
     public static final String ANN_CONFIG_ATTR_MAXIMUM_URL_LENGTH = "maxUriLength";
     public static final String ANN_CONFIG_ATTR_MAXIMUM_HEADER_SIZE = "maxHeaderSize";
     public static final String ANN_CONFIG_ATTR_MAXIMUM_ENTITY_BODY_SIZE = "maxEntityBodySize";
@@ -141,6 +140,7 @@ public class HttpConstants {
     public static final String PREFLIGHT_RESOURCES = "PREFLIGHT_RESOURCES";
     public static final String RESOURCES_CORS = "RESOURCES_CORS";
     public static final String LISTENER_INTERFACE_ID = "listener.interface.id";
+    public static final String PACKAGE_BALLERINA_BUILTIN = "ballerina.builtin";
 
     public static final String CALLER_ACTIONS = "CallerActions";
 
@@ -171,7 +171,7 @@ public class HttpConstants {
     public static final String ENTITY = "Entity";
     public static final String RESPONSE_CACHE_CONTROL = "ResponseCacheControl";
     public static final String REQUEST_CACHE_CONTROL = "RequestCacheControl";
-    public static final String HTTP_CONNECTOR_ERROR = "HttpConnectorError";
+    public static final String STRUCT_GENERIC_ERROR = "error";
     public static final String HTTP_TIMEOUT_ERROR = "HttpTimeoutError";
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
@@ -275,7 +275,6 @@ public class HttpConstants {
 
     //Service Endpoint Config
     public static final String ENDPOINT_CONFIG_HOST = "host";
-    public static final String ENDPOINT_CONFIG_TRANSFER_ENCODING = "transferEncoding";
     public static final String ENDPOINT_CONFIG_PORT = "port";
     public static final String ENDPOINT_CONFIG_KEEP_ALIVE = "keepAlive";
     public static final String ENDPOINT_CONFIG_CHUNKING = "chunking";
@@ -313,7 +312,6 @@ public class HttpConstants {
 
     //Client Endpoint Config
     public static final String URI = "uri";
-    public static final String CLIENT_EP_TRNASFER_ENCODING = "transferEncoding";
     public static final String CLIENT_EP_CHUNKING = "chunking";
     public static final String CLIENT_EP_ENDPOINT_TIMEOUT = "timeoutMillis";
     public static final String CLIENT_EP_IS_KEEP_ALIVE = "keepAlive";

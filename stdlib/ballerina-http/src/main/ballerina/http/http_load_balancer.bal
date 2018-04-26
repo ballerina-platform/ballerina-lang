@@ -179,14 +179,14 @@ documentation {
 
     F{{message}} An error message explaining about the error
     F{{cause}} Cause of the error
-    F{{statusCode}} HTTP status code of the LoadBalanceConnectorError
-    F{{httpConnectorErr}} Array of errors occurred at each endpoint
+    F{{statusCode}} HTTP status code of the LoadBalanceActionError
+    F{{httpActionErr}} Array of errors occurred at each endpoint
 }
-public type LoadBalanceConnectorError {
+public type LoadBalanceActionError {
     string message,
     error? cause,
     int statusCode,
-    error[] httpConnectorErr,
+    error[] httpActionErr,
 };
 
 public function LoadBalancer::post(string path, Request? request = ()) returns Response|error {
@@ -267,8 +267,8 @@ function performLoadBalanceExecuteAction(LoadBalancer lb, string path, Request r
     if (connectorAction != HTTP_NONE) {
         return performLoadBalanceAction(lb, path, request, connectorAction);
     } else {
-        error httpConnectorErr = {message:"Unsupported connector action received."};
-        return httpConnectorErr;
+        error httpActionErr = {message:"Unsupported connector action received."};
+        return httpActionErr;
     }
 }
 
@@ -277,8 +277,8 @@ function performLoadBalanceAction(LoadBalancer lb, string path, Request request,
                                     returns Response|error {
     int loadBalanceTermination = 0; // Tracks at which point failover within the load balancing should be terminated.
     //TODO: workaround to initialize a type inside a function. Change this once fix is aailable.
-    LoadBalanceConnectorError loadBalanceConnectorError = {statusCode:500};
-    loadBalanceConnectorError.httpConnectorErr = [];
+    LoadBalanceActionError loadBalanceActionError = {statusCode:500};
+    loadBalanceActionError.httpActionErr = [];
     Request loadBlancerInRequest = request;
     mime:Entity requestEntity = new;
 
@@ -295,21 +295,21 @@ function performLoadBalanceAction(LoadBalancer lb, string path, Request request,
         match invokeEndpoint(path, request, requestAction, loadBalanceClient) {
             Response inResponse => return inResponse;
 
-            error httpConnectorErr => {
+            error httpActionErr => {
                 if (!lb.failover) {
-                    return httpConnectorErr;
+                    return httpActionErr;
                 } else {
                     Request newOutRequest = new;
                     populateRequestFields(loadBlancerInRequest, newOutRequest);
                     newOutRequest.setEntity(requestEntity);
                     loadBlancerInRequest = newOutRequest;
-                    loadBalanceConnectorError.httpConnectorErr[lb.nextIndex] = httpConnectorErr;
+                    loadBalanceActionError.httpActionErr[lb.nextIndex] = httpActionErr;
                     loadBalanceTermination = loadBalanceTermination + 1;
                 }
             }
         }
     }
-    return populateGenericLoadBalanceConnectorError(loadBalanceConnectorError);
+    return populateGenericLoadBalanceActionError(loadBalanceActionError);
 }
 
 // Round Robin Algorithm implementation with respect to load balancing endpoints.
@@ -330,12 +330,12 @@ public function roundRobin(LoadBalancer lb, CallerActions[] loadBalanceConfigArr
 }
 
 // Populates generic error specific to Load Balance connector by including all the errors returned from endpoints.
-function populateGenericLoadBalanceConnectorError(LoadBalanceConnectorError loadBalanceConnectorError)
+function populateGenericLoadBalanceActionError(LoadBalanceActionError loadBalanceActionError)
                                                     returns error {
-    int nErrs = lengthof loadBalanceConnectorError.httpConnectorErr;
-    loadBalanceConnectorError.statusCode = INTERNAL_SERVER_ERROR_500;
-    loadBalanceConnectorError.message = "All the load balance endpoints failed. Last error was: "
-                                        + loadBalanceConnectorError.httpConnectorErr[nErrs - 1].message;
-    error httpConnectorErr = loadBalanceConnectorError;
-    return httpConnectorErr;
+    int nErrs = lengthof loadBalanceActionError.httpActionErr;
+    loadBalanceActionError.statusCode = INTERNAL_SERVER_ERROR_500;
+    loadBalanceActionError.message = "All the load balance endpoints failed. Last error was: "
+                                        + loadBalanceActionError.httpActionErr[nErrs - 1].message;
+    error err = loadBalanceActionError;
+    return err;
 }

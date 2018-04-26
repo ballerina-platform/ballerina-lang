@@ -1,9 +1,9 @@
 ## Package overview
 
-The `ballerina/jms` package provides an API to connect to an external JMS provider like Ballerina Message Broker, ActiveMQ.
+The `ballerina/jms` package provides an API to connect to an external JMS provider like Ballerina Message Broker or ActiveMQ.
 
 The package provides consumer and producer endpoint types for queues and topics. Following are the endpoint types
-supported by this package.
+supported by this package:
 
 - QueueReceiver
 - TopicSubscriber
@@ -19,11 +19,11 @@ supported by this package.
 - SimpleDurableTopicSubscriber
 
 The endpoints prefixed with `Simple` will automatically create a JMS connection and a JMS session when the endpoint is
-initialized. For other endpoints the developer has explicitly provide a properly initialized JMS Sessions.
+initialized. For other endpoints, the developer must explicitly provide a properly initialized JMS Session.
 
 ## Samples
 
-### JMS Simple Queue Consumer.
+### JMS Simple Queue Consumer
 
 Following is a simple listener program that consumes messages from a Ballerina Message Broker queue named `MyQueue`.
 
@@ -68,7 +68,7 @@ endpoint jms:SimpleTopicPublisher topicPublisher {
 };
 
 function main(string... args) {
-    // Create a Text message.
+    // Create a text message.
     match (topicPublisher.createTextMessage("Hello from Ballerina")) {
         error e => {
             log:printError("Error occurred while creating message", err = e);
@@ -86,7 +86,7 @@ function main(string... args) {
 
 ### JMS queue message receiver
 
-Following is a listener program which explicitly initialize a JMS session to be used in the consumer.
+Following is a listener program that explicitly initializes a JMS session to be used in the consumer.
 
 ```ballerina
 import ballerina/jms;
@@ -126,7 +126,7 @@ service<jms:Consumer> jmsListener bind consumer {
 
 ### JMS queue message producer
 
-Following is a queue sender program which explicitly initialize a JMS session to be used in the producer.
+Following is a queue sender program that explicitly initializes a JMS session to be used in the producer.
 
 
 ```ballerina
@@ -150,7 +150,7 @@ endpoint jms:QueueSender queueSender {
 };
 
 function main(string... args) {
-    // Create a Text message.
+    // Create a text message.
     match (jmsSession.createTextMessage("Hello from Ballerina")) {
         error e => {
             log:printError("Error occurred while creating message", err = e);

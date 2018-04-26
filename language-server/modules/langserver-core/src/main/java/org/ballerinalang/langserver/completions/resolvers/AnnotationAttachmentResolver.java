@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.LSAnnotationCache;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
@@ -65,6 +66,16 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
         String attachmentPointType = completionContext.get(CompletionKeys.ATTACHMENT_POINT_NODE_TYPE_KEY);
         BLangNode symbolEnvNode = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
         AttachmentPoint attachmentPoint;
+        
+        completionContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY).getImports()
+                .forEach(bLangImportPackage -> {
+                    if (!LSAnnotationCache.containsAnnotationsForPackage(bLangImportPackage.symbol.pkgID)) {
+                        LSAnnotationCache.loadAnnotationsFromPackage(
+                                LSPackageLoader.getPackageById(
+                                        completionContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY),
+                                        bLangImportPackage.symbol.pkgID));
+                    }
+                });
         
         if (symbolEnvNode != null && symbolEnvNode instanceof BLangAnnotationAttachment) {
             return getFieldsFromBLangNode((BLangAnnotationAttachment) symbolEnvNode, completionContext);

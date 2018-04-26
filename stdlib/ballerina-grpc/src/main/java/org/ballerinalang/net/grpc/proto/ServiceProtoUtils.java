@@ -38,11 +38,9 @@ import org.ballerinalang.net.grpc.proto.definition.MessageKind;
 import org.ballerinalang.net.grpc.proto.definition.Method;
 import org.ballerinalang.net.grpc.proto.definition.Service;
 import org.ballerinalang.net.grpc.proto.definition.StandardDescriptorBuilder;
-import org.ballerinalang.net.grpc.proto.definition.StructMessage;
 import org.ballerinalang.net.grpc.proto.definition.UserDefinedEnumMessage;
 import org.ballerinalang.net.grpc.proto.definition.UserDefinedMessage;
 import org.ballerinalang.net.grpc.proto.definition.WrapperMessage;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
@@ -406,10 +404,6 @@ public class ServiceProtoUtils {
                 message = EmptyMessage.newBuilder().build();
                 break;
             }
-            case ARRAY: {
-                message = StructMessage.newBuilder(ServiceProtoConstants.STRUCT_LIST_MESSAGE).build();
-                break;
-            }
             default: {
                 throw new GrpcServerException("Unsupported field type, field type " + messageType.getKind()
                         .typeName() + " currently not supported.");
@@ -420,27 +414,26 @@ public class ServiceProtoUtils {
     
     private static Message getStructMessage(BStructType messageType) throws
             GrpcServerException {
-        UserDefinedMessage.Builder messageBuilder = UserDefinedMessage.newBuilder(messageType.toString());
+        UserDefinedMessage.Builder messageBuilder = UserDefinedMessage.newBuilder(messageType.tsymbol.name.value);
         int fieldIndex = 0;
         for (BStructType.BStructField structField : messageType.fields) {
             Field messageField;
             String fieldName = structField.getName().getValue();
-            String fieldType = structField.getType().toString();
+            BType fieldType = structField.getType();
             String fieldLabel = null;
-            BType type = structField.getType();
-            if (type instanceof BEnumType) {
-                BEnumType enumType = (BEnumType) type;
+            if (fieldType instanceof BEnumType) {
+                BEnumType enumType = (BEnumType) fieldType;
                 messageBuilder.addMessageDefinition(getEnumMessage(enumType));
-            } else if (type instanceof BStructType) {
-                BStructType structType = (BStructType) type;
+            } else if (fieldType instanceof BStructType) {
+                BStructType structType = (BStructType) fieldType;
                 messageBuilder.addMessageDefinition(getStructMessage(structType));
-            } else if (type instanceof BArrayType) {
-                BArrayType arrayType = (BArrayType) type;
+            } else if (fieldType instanceof BArrayType) {
+                BArrayType arrayType = (BArrayType) fieldType;
                 BType elementType = arrayType.getElementType();
                 if (elementType instanceof BStructType) {
                     messageBuilder.addMessageDefinition(getStructMessage((BStructType) elementType));
                 }
-                fieldType = elementType.toString();
+                fieldType = elementType;
                 fieldLabel = "repeated";
             }
 
@@ -538,17 +531,17 @@ public class ServiceProtoUtils {
      * @param service gRPC service.
      * @return File Descriptor of the service.
      */
-    public static com.google.protobuf.Descriptors.FileDescriptor getDescriptor(org.ballerinalang.connector.api
-                                                                                       .Service service) {
+    public static com.google.protobuf.Descriptors.FileDescriptor getDescriptor(
+            org.ballerinalang.connector.api.Service service) throws GrpcServerException {
         try {
             List<Annotation> annotationList = service.getAnnotationList("ballerina.grpc", "ServiceDescriptor");
             if (annotationList == null || annotationList.size() != 1) {
-                throw new BallerinaException("Couldn't find the service descriptor.");
+                throw new GrpcServerException("Couldn't find the service descriptor.");
             }
             Annotation descriptorAnn = annotationList.get(0);
             Struct descriptorStruct = descriptorAnn.getValue();
             if (descriptorStruct == null) {
-                throw new BallerinaException("Couldn't find the service descriptor.");
+                throw new GrpcServerException("Couldn't find the service descriptor.");
             }
             String descriptorData = descriptorStruct.getStringField("descriptor");
             byte[] descriptor = hexStringToByteArray(descriptorData);
@@ -556,7 +549,7 @@ public class ServiceProtoUtils {
             return Descriptors.FileDescriptor.buildFrom(proto,
                     StandardDescriptorBuilder.getFileDescriptors(proto.getDependencyList().toArray()));
         } catch (IOException | Descriptors.DescriptorValidationException e) {
-            throw new BallerinaException("Error while reading the service proto descriptor. check the service " +
+            throw new GrpcServerException("Error while reading the service proto descriptor. check the service " +
                     "implementation. ", e);
         }
     }

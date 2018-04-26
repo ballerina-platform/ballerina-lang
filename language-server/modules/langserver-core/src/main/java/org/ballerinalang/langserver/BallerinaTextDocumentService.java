@@ -25,10 +25,12 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSContextManager;
 import org.ballerinalang.langserver.compiler.LSPackageCache;
+import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
+import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.CompletionCustomErrorStrategy;
@@ -41,6 +43,8 @@ import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.ballerinalang.langserver.util.Debouncer;
+import org.ballerinalang.model.tree.ImportPackageNode;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.CodeLensParams;
@@ -74,6 +78,7 @@ import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -88,6 +93,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Text document service implementation for ballerina.
@@ -485,6 +492,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             balDiagnostics = balFile.getDiagnostics();
         }
         publishDiagnostics(balDiagnostics, path);
+        this.fillNewPackages(balFile.getBLangPackage());
     }
 
     private void publishDiagnostics(List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics, Path path) {
@@ -560,5 +568,34 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public void didSave(DidSaveTextDocumentParams params) {
+    }
+    
+    // Private methods
+    
+    private void fillNewPackages(BLangPackage bLangPackage) {
+        if (bLangPackage == null) {
+            return;
+        }
+        List<TopLevelNode> importPkgs = new ArrayList<>();
+        bLangPackage.getCompilationUnits().forEach(bLangCompilationUnit -> {
+            importPkgs.addAll(bLangCompilationUnit.getTopLevelNodes().stream()
+                    .filter(topLevelNode -> topLevelNode instanceof ImportPackageNode)
+                    .collect(Collectors.toList()));
+        });
+        List<BallerinaPackage> ballerinaPackages = new ArrayList<>();
+        Stream.of(LSPackageLoader.getSdkPackages(), LSPackageLoader.getHomeRepoPackages())
+                .forEach(ballerinaPackages::addAll);
+        importPkgs.forEach(bLangImportPackage -> {
+            if (bLangImportPackage instanceof BLangImportPackage) {
+                BLangImportPackage pkgNode = ((BLangImportPackage) bLangImportPackage);
+                if (pkgNode.symbol != null
+                        && !CommonUtil.listContainsPackage(pkgNode.symbol.pkgID.toString(), ballerinaPackages)) {
+                    LSPackageLoader.getHomeRepoPackages()
+                            .add(new BallerinaPackage(pkgNode.symbol.pkgID.getOrgName().getValue(),
+                                    pkgNode.symbol.pkgID.getName().getValue(),
+                                    pkgNode.symbol.pkgID.getPackageVersion().getValue()));
+                }
+            }
+        });
     }
 }
