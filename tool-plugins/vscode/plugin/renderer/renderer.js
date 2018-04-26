@@ -1,4 +1,3 @@
-const fs = require('fs');
 const request = require('request-promise');
 const { getParserService } = require('../serverStarter');
 
@@ -68,11 +67,15 @@ function renderDiagram(jsonModelObj) {
                 overflow: scroll;
                 height : 100%;
             }
-            #errors .warning {
-                color:rgb(230, 70, 70);
-            }
             #errors {
-                padding: 10px;
+                display: table;
+                width: 100%;
+                height: 100%;
+            }
+            #errors span { 
+                display: table-cell;
+                vertical-align: middle;
+                text-align: center;
             }
         </style>
     </head>
@@ -86,24 +89,20 @@ function renderDiagram(jsonModelObj) {
         (function() {
             const json = ${jsonModel};
 
-            if (!json) {
-                drawError("Could not parse")
-            }
-
             function drawDiagram() {
                 try {
                     ballerinaDiagram.renderDiagram(document.getElementById("diagram"), json, {
                         width: window.innerWidth - 6, height: window.innerHeight
                     });
                 } catch(e) {
-                    drawError(e.stack);
+                    console.log(e.stack);
+                    drawError('Oops. Something went wrong.');
                 }
             }
 
             function drawError(message) {
                 document.getElementById("diagram").innerHTML = \`
                 <div id="errors">
-                    <span class="warning fw fw-error"></span>
                     <span>\$\{message\}
                 </div>
                 \`;
