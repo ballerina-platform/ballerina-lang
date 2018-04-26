@@ -283,6 +283,10 @@ class AbstractTreeUtil {
         return node.kind === 'Match';
     }
 
+    isMatchExpression(node) {
+        return node.kind === 'MatchExpression';
+    }
+
     isMatchPatternClause(node) {
         return node.kind === 'MatchPatternClause';
     }

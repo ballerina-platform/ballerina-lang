@@ -119,12 +119,12 @@ public class SrcFile {
                                                        "    test:stopServices(\"%1$s\");%n" +
                                                        "}";
 
-    private SrcFileType srcFileType;
+    private FileType srcFileType;
     private String content;
     private String testFileContent;
     private String name;
     private String testFileName;
-    public SrcFile(String name, SrcFileType fileType) {
+    public SrcFile(String name, FileType fileType) {
         this.srcFileType = fileType;
         this.name = name;
         switch (fileType) {
@@ -142,7 +142,7 @@ public class SrcFile {
         }
     }
     
-    public SrcFileType getSrcFileType() {
+    public FileType getSrcFileType() {
         return srcFileType;
     }
     
@@ -156,24 +156,6 @@ public class SrcFile {
     
     public String getName() {
         return name;
-    }
-    
-    /**
-     * Enum for the source file type.
-     */
-    public enum SrcFileType {
-        SERVICE("hello_service.bal"),
-        MAIN("main.bal");
-
-        private final String fileName;
-
-        SrcFileType(String fileName) {
-            this.fileName = fileName;
-        }
-
-        public String getFileName() {
-            return fileName;
-        }
     }
 
     /**
