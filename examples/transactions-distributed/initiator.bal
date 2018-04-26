@@ -35,9 +35,10 @@ service<http:Service> InitiatorService bind { port: 8080 } {
                 abort;
             }
 
-            // As soon as the transaction block ends, the `2-phase commit coordination` protocol will run. All participants
-            // are prepared and depending on the joint outcome, either a `notify commit` or `notify abort` will
-            // be sent to the participants.
+            // As soon as the transaction block ends, the `2-phase commit
+            // coordination` protocol will run. All participants are prepared
+            // and depending on the joint outcome, either a `notify commit` or
+            // `notify abort` will be sent to the participants.
         }
 
         var result = conn->respond(res);
@@ -50,15 +51,16 @@ service<http:Service> InitiatorService bind { port: 8080 } {
     }
 }
 
-// The initiator function which will get called when the distributed transaction is aborted
+// The initiator function which will get called when the distributed transaction
+// is aborted
 function printAbort(string transactionId) {
     log:printInfo("Initiated transaction: " + transactionId + " aborted");
 }
 
-// The initiator function which will get called when the distributed transaction is committed
+// The initiator function which will get called when the distributed transaction
+// is committed
 function printCommit(string transactionId) {
-    log:printInfo("Initiated transaction: " + transactionId +
-                  " committed");
+    log:printInfo("Initiated transaction: " + transactionId + " committed");
 }
 
 function callBusinessService() returns boolean {
@@ -76,8 +78,7 @@ function callBusinessService() returns boolean {
     log:printInfo("Got response from bizservice");
     match result {
         http:Response res => {
-            successful = (res.statusCode == http:OK_200) ?
-                         true : false;
+            successful = (res.statusCode == http:OK_200) ? true : false;
         }
         error => successful = false;
     }
