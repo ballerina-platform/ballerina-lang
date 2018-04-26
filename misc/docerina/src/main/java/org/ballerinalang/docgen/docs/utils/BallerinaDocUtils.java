@@ -19,6 +19,8 @@
 package org.ballerinalang.docgen.docs.utils;
 
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
+import org.commonmark.Extension;
+import org.commonmark.ext.gfm.tables.TablesExtension;
 import org.commonmark.node.BlockQuote;
 import org.commonmark.node.FencedCodeBlock;
 import org.commonmark.node.Heading;
@@ -74,10 +76,12 @@ public class BallerinaDocUtils {
      * @return html representation
      */
     public static String mdToHtml(String mdContent) {
-        Parser parser = Parser.builder().enabledBlockTypes(new HashSet<>(Arrays.asList(Heading.class, HtmlBlock
-                .class, ThematicBreak.class, FencedCodeBlock.class, BlockQuote.class, ListBlock.class))).build();
+        List<Extension> extensions = Arrays.asList(TablesExtension.create());
+        Parser parser = Parser.builder().extensions(extensions).enabledBlockTypes(new HashSet<>(Arrays.asList(Heading
+                .class, HtmlBlock.class, ThematicBreak.class, FencedCodeBlock.class, BlockQuote.class, ListBlock
+                .class))).build();
         Node document = parser.parse(mdContent != null ? mdContent.trim() : "");
-        HtmlRenderer renderer = HtmlRenderer.builder().build();
+        HtmlRenderer renderer = HtmlRenderer.builder().extensions(extensions).build();
         return renderer.render(document);
     }
 

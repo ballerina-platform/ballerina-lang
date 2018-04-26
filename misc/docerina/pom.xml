@@ -83,6 +83,11 @@
             <version>0.11.0</version>
         </dependency>
         <dependency>
+            <groupId>com.atlassian.commonmark</groupId>
+            <artifactId>commonmark-ext-gfm-tables</artifactId>
+            <version>0.11.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
@@ -152,6 +157,7 @@
                         <includes>
                             <include>com.github.jknack:handlebars</include>
                             <include>com.atlassian.commonmark:commonmark</include>
+                            <include>com.atlassian.commonmark:commonmark-ext-gfm-tables</include>
                         </includes>
                     </artifactSet>
                     <filters>
