@@ -34,7 +34,7 @@ service<http:Service> InitiatorService bind { port: 8080 } {
         }
 
         // As soon as the transaction block ends, the `2-phase commit coordination` protocol will run. All participants
-        // are prepared and depending on the join outcome, either a `notify commit` or `notify abort` will
+        // are prepared and depending on the joint outcome, either a `notify commit` or `notify abort` will
         // be sent to the participants.
         var result = conn->respond(res);
         match result {
