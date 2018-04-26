@@ -1,4 +1,5 @@
 import ballerina/io;
+import ballerina/log;
 
 // This function reads the next record from the channel.
 function readNext(io:CSVChannel channel) returns string[] {
@@ -10,8 +11,7 @@ function readNext(io:CSVChannel channel) returns string[] {
             throw err;
         }
         () => {
-            error e = { message:
-            "Record channel not initialized properly" };
+            error e = { message:"Record channel not initialized properly" };
             throw e;
         }
     }
@@ -42,15 +42,15 @@ function main(string... args) {
         io:println("Start processing the CSV file from ", srcFileName);
         process(csvChannel);
         io:println("Processing completed.");
-    } catch (error err) {
-        io:println("An error occurred while processing the records. ",
-            err.message);
+    } catch (error e) {
+        log:printError("An error occurred while processing the records. ",
+                        err = e);
     } finally {
         //Close the text record channel.
         match csvChannel.close() {
             error sourceCloseError => {
-                io:println("Error occured while closing the channel: "
-                    , sourceCloseError.message);
+                log:printError("Error occured while closing the channel: ",
+                                err = sourceCloseError);
             }
             () => {
                 io:println("Source channel closed successfully.");

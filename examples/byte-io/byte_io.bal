@@ -70,25 +70,22 @@ function copy(io:ByteChannel src, io:ByteChannel dst) {
 function main(string... args) {
     string srcFilePath = "./files/ballerina.jpg";
     string dstFilePath = "./files/ballerinaCopy.jpg";
-    io:ByteChannel sourceChannel = getFileChannel(srcFilePath
-        , io:READ);
-    io:ByteChannel destinationChannel = getFileChannel(dstFilePath
-        , io:WRITE);
+    io:ByteChannel sourceChannel = getFileChannel(srcFilePath, io:READ);
+    io:ByteChannel destinationChannel = getFileChannel(dstFilePath, io:WRITE);
     try {
-        io:println("Start to copy files from " + srcFilePath + " to "
-                + dstFilePath);
+        io:println("Start to copy files from " + srcFilePath + " to " +
+                    dstFilePath);
         copy(sourceChannel, destinationChannel);
-        io:println("File copy completed. The copied file could be" +
-        "located in " + dstFilePath);
+        io:println("File copy completed. The copied file could be located in " +
+                    dstFilePath);
     } catch (error err) {
-        io:println("error occurred while performing copy " +
-                err.message);
+        io:println("error occurred while performing copy " + err.message);
     } finally {
         // Close the created connections.
         match sourceChannel.close() {
             error sourceCloseError => {
-                io:println("Error occured while closing the channel: "
-                        + sourceCloseError.message);
+                io:println("Error occured while closing the channel: " +
+                           sourceCloseError.message);
             }
             () => {
                 io:println("Source channel closed successfully.");
@@ -96,8 +93,8 @@ function main(string... args) {
         }
         match destinationChannel.close() {
             error destinationCloseError => {
-                io:println("Error occured while closing the channel: "
-                        + destinationCloseError.message);
+                io:println("Error occured while closing the channel: " +
+                           destinationCloseError.message);
             }
             () => {
                 io:println("Destination channel closed successfully.");

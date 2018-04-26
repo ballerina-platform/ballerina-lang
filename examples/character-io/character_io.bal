@@ -1,19 +1,22 @@
 import ballerina/io;
 
 
-// This function returns a CharacterChannel from a given file location, according to the permissions and encoding that you specify.
-function getFileCharacterChannel(string filePath, io:Mode permission, string encoding)
-    returns io:CharacterChannel {
-
+// This function returns a CharacterChannel from a given file location,
+// according to the permissions and encoding that you specify.
+function getFileCharacterChannel(string filePath, io:Mode permission,
+                                 string encoding) returns io:CharacterChannel {
     // First, get the ByteChannel representation of the file.
     io:ByteChannel channel = io:openFile(filePath, permission);
-    // Then, create an instance of the CharacterChannel from the ByteChannel to read content as text.
+    // Then, create an instance of the CharacterChannel from the ByteChannel
+    // to read content as text.
     io:CharacterChannel charChannel = new(channel, encoding);
     return charChannel;
 }
 
-// This function reads characters from 'channel', which is an instance of CharacterChannel.
-function readCharacters(io:CharacterChannel channel, int numberOfChars) returns string {
+// This function reads characters from 'channel',
+//which is an instance of CharacterChannel.
+function readCharacters(io:CharacterChannel channel,
+                        int numberOfChars) returns string {
     //This is how the characters are read.
     match channel.read(numberOfChars) {
         string characters => {
@@ -26,7 +29,8 @@ function readCharacters(io:CharacterChannel channel, int numberOfChars) returns 
 }
 
 // This function wrties characters to 'channel'
-function writeCharacters(io:CharacterChannel channel, string content, int startOffset) {
+function writeCharacters(io:CharacterChannel channel, string content,
+                         int startOffset) {
     //This is how the characters are written.
     match channel.write(content, startOffset) {
         int numberOfCharsWritten => {
@@ -38,8 +42,10 @@ function writeCharacters(io:CharacterChannel channel, string content, int startO
     }
 }
 
-// This function reads content from a file, appends the additional string, and writes the content.
-function process(io:CharacterChannel sourceChannel, io:CharacterChannel destinationChannel) {
+// This function reads content from a file,
+// appends the additional string, and writes the content.
+function process(io:CharacterChannel sourceChannel,
+                 io:CharacterChannel destinationChannel) {
     try {
         // Here is the string that is appended in-between.
         string intermediateCharacterString = " my name is ";
@@ -51,7 +57,8 @@ function process(io:CharacterChannel sourceChannel, io:CharacterChannel destinat
         writeCharacters(destinationChannel, greetingText, 0);
         // Here is how the intermediate string is appended to the file.
         writeCharacters(destinationChannel, intermediateCharacterString, 0);
-        // Here is how the remaining characters are written to the file, leaving an offset.
+        // Here is how the remaining characters are written to the file,
+        // leaving an offset.
         writeCharacters(destinationChannel, name, 1);
     } catch (error err) {
         throw err;
@@ -59,8 +66,10 @@ function process(io:CharacterChannel sourceChannel, io:CharacterChannel destinat
 }
 
 function main(string... args) {
-    var sourceChannel = getFileCharacterChannel("./files/sample.txt", io:READ, "UTF-8");
-    var destinationChannel = getFileCharacterChannel("./files/sampleResponse.txt", io:WRITE, "UTF-8");
+    var sourceChannel =
+        getFileCharacterChannel("./files/sample.txt", io:READ, "UTF-8");
+    var destinationChannel =
+        getFileCharacterChannel("./files/sampleResponse.txt", io:WRITE, "UTF-8");
     try {
         io:println("Started to process the file.");
         process(sourceChannel, destinationChannel);
@@ -71,7 +80,8 @@ function main(string... args) {
         // Close the created connections.
         match sourceChannel.close() {
             error sourceCloseError => {
-                io:println("Error occured while closing the channel: " + sourceCloseError.message);
+                io:println("Error occured while closing the channel: " +
+                            sourceCloseError.message);
             }
             () => {
                 io:println("Source channel closed successfully.");
@@ -79,7 +89,8 @@ function main(string... args) {
         }
         match destinationChannel.close() {
             error destinationCloseError => {
-                io:println("Error occured while closing the channel: " + destinationCloseError.message);
+                io:println("Error occured while closing the channel: " +
+                            destinationCloseError.message);
             }
             () => {
                 io:println("Destination channel closed successfully.");
