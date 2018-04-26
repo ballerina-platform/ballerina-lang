@@ -2,7 +2,12 @@ const fs = require('fs');
 const request = require('request-promise');
 const { getParserService } = require('../serverStarter');
 
-function render (content) {
+const RETRY_COUNT = 10;
+const RETRY_WAIT = 2000;
+
+let jsonModel;
+
+function render (content, retries=0) {
     const parseOpts = {
         content,
         filename: 'file.bal',
@@ -19,18 +24,32 @@ function render (content) {
         })
     })
     .then((body) => {
-        jsonModel = JSON.stringify(body.model);
-        const diagram = renderDiagram(body.model);
-        return diagram;
+        if (body.model) {
+            jsonModel = body.model;
+        }
+        return renderDiagram(jsonModel);
+    })
+    .catch((e) => {
+        return new Promise((res, rej) => {
+            if (retries > RETRY_COUNT) {
+                res(renderError());
+                return;
+            }
+
+            setTimeout(() => {
+                console.log('Retrying rendering');
+                res(render(content, retries + 1));
+            }, RETRY_WAIT);
+        });
     });
 };
 
+function renderDiagram(jsonModelObj) {
+    const jsonModel = JSON.stringify(jsonModelObj);
 
-function renderDiagram(modelJson) {
     const page = `
     <!DOCTYPE html>
     <html>
-    
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -49,6 +68,12 @@ function renderDiagram(modelJson) {
                 overflow: scroll;
                 height : 100%;
             }
+            #errors .warning {
+                color:rgb(230, 70, 70);
+            }
+            #errors {
+                padding: 10px;
+            }
         </style>
     </head>
 
@@ -58,20 +83,60 @@ function renderDiagram(modelJson) {
     </body>
     <script charset="UTF-8" src="file://${__dirname}/resources/ballerina-diagram-library.js"></script>
     <script>
-            const json = window.modeljsonbal = ${jsonModel};
-            window.onresize = () => {
-                ballerinaDiagram.renderDiagram(document.getElementById("diagram"), json, {
-                    width: window.innerWidth - 6, height: window.innerHeight
-                });
-            };
-            ballerinaDiagram.renderDiagram(document.getElementById("diagram"), json, {
-                width: window.innerWidth - 6, height: window.innerHeight
-            });
+        (function() {
+            const json = ${jsonModel};
+
+            if (!json) {
+                drawError("Could not parse")
+            }
+
+            function drawDiagram() {
+                try {
+                    ballerinaDiagram.renderDiagram(document.getElementById("diagram"), json, {
+                        width: window.innerWidth - 6, height: window.innerHeight
+                    });
+                } catch(e) {
+                    drawError(e.stack);
+                }
+            }
+
+            function drawError(message) {
+                document.getElementById("diagram").innerHTML = \`
+                <div id="errors">
+                    <span class="warning fw fw-error"></span>
+                    <span>\$\{message\}
+                </div>
+                \`;
+            }
+            
+            window.onresize = drawDiagram;
+            drawDiagram();
+        }());
     </script>
     </html>
     `;
 
     return page;
+}
+
+function renderError() {
+    return `
+    <!DOCTYPE html>
+    <html>
+    
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body>
+    <div>
+        Could not connect to the parser service. Please try again after restarting vscode.
+        <a href="command:workbench.action.reloadWindow">Restart</a>
+    </div>
+    </body>
+    </html>
+    `;
 }
 
 module.exports.render = render;
