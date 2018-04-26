@@ -13,7 +13,7 @@ endpoint websub:Listener websubEP {
 @websub:SubscriberServiceConfig {
     path: "/websub",
     subscribeOnStartUp: true,
-    topic: "http://www.websubpubtopic.com",
+    topic: "http://websubpubtopic.com",
     hub: "https://localhost:9191/websub/hub",
     leaseSeconds: 3600000,
     secret: "Kslk30SNF2AChs2"
@@ -21,21 +21,27 @@ endpoint websub:Listener websubEP {
 service websubSubscriber bind websubEP {
 
     // Define the resource that accepts the intent verification requests.
-    // If the resource is not specified, intent verification happens automatically. It verifies if the topic specified in the intent verification request matches the topic specified as the annotation. 
-    onIntentVerification(endpoint caller, websub:IntentVerificationRequest request) {
+    // If the resource is not specified, intent verification happens automatically. It verifies if the topic specified in the intent
+    // verification request matches the topic specified as the annotation.
+    onIntentVerification(endpoint caller,
+                         websub:IntentVerificationRequest request) {
         // Build the response to the intent verification request that was received for subscription.
-        http:Response response = request.buildSubscriptionVerificationResponse();
+        http:Response response =
+                            request.buildSubscriptionVerificationResponse();
         if (response.statusCode == 202) {
             log:printInfo("Intent verified for subscription request");
         } else {
             log:printWarn("Intent verification denied for subscription request");
         }
-        caller->respond(response)
-        but { error e => log:printError("Error responding to intent verification request", err = e) };
+        caller->respond(response) but {
+            error e => log:printError("Error responding to intent verification request",
+                                        err = e)
+        };
     }
 
     // Define the resource that accepts the content delivery requests.
     onNotification(websub:Notification notification) {
-        log:printInfo("WebSub Notification Received: " + notification.payload.toString());
+        log:printInfo("WebSub Notification Received: "
+                                            + notification.payload.toString());
     }
 }
