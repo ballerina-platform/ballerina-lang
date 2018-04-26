@@ -5,6 +5,7 @@ endpoint http:Client http2serviceClientEP {
     url: "http://localhost:7090",
     // HTTP version is set to 2.0.
     httpVersion: "2.0"
+
 };
 
 @http:ServiceConfig {
@@ -45,6 +46,7 @@ endpoint http:Listener http2serviceEP {
     port: 7090,
     // HTTP version is set to 2.0.
     httpVersion: "2.0"
+
 };
 
 @http:ServiceConfig {
@@ -66,5 +68,6 @@ service http2service bind http2serviceEP {
             error e => log:printError(
                            "Error occurred while sending the response",
                            err = e) };
+
     }
 }
