@@ -41,6 +41,3 @@ function main(string[] args) {
 }
 
 ```
-
-## Package contents
-
