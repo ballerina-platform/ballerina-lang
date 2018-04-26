@@ -127,16 +127,15 @@ public class SrcFile {
     public SrcFile(String name, SrcFileType fileType) {
         this.srcFileType = fileType;
         this.name = name;
-        content = this.name;
         switch (fileType) {
             case SERVICE:
-                content += SERVICE_CONTENT;
+                content = SERVICE_CONTENT;
                 testFileContent = String.format(SERVICE_TEST_CONTENT, this.name.isEmpty() ? "." : this.name);
                 testFileName = "hello_service_test.bal";
                 break;
             case MAIN:
             default:
-                content += MAIN_FUNCTION_CONTENT;
+                content = MAIN_FUNCTION_CONTENT;
                 testFileContent = MAIN_FUNCTION_TEST_CONTENT;
                 testFileName = "main_test.bal";
                 break;

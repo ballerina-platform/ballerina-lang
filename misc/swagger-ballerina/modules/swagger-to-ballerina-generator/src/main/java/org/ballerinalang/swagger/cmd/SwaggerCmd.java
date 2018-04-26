@@ -44,9 +44,9 @@ public class SwaggerCmd implements BLauncherCmd {
     private static final String client = "CLIENT";
     private static final String mock = "MOCK";
     private static final String export = "EXPORT";
+    private static final String CMD_NAME = "swagger";
 
     private static final PrintStream outStream = System.err;
-    private JCommander parentCmdParser;
 
     @Parameter(arity = 1, description = "<action> <swagger spec| ballerina file>. action : mock|client|export")
     private List<String> argList;
@@ -74,7 +74,7 @@ public class SwaggerCmd implements BLauncherCmd {
     @Override
     public void execute() {
         if (helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "swagger");
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(CMD_NAME);
             outStream.println(commandUsageInfo);
             return;
         }
@@ -109,27 +109,15 @@ public class SwaggerCmd implements BLauncherCmd {
 
     @Override
     public String getName() {
-        return "swagger";
+        return CMD_NAME;
     }
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Generates ballerina mock service, client for a given swagger definition ");
-        out.append(System.lineSeparator());
-        out.append("or exports swagger definition of a ballerina service");
-        out.append(System.lineSeparator());
-        out.append(System.lineSeparator());
     }
 
     @Override
     public void printUsage(StringBuilder stringBuilder) {
-        stringBuilder.append("  ballerina swagger <mock | client> <swagger file> -p<package name> "
-                + "-o[<output directory name>]\n");
-        stringBuilder.append("  ballerina swagger export <ballerina service file> -o[<output directory name>] "
-                + "-s<service name>\n");
-        stringBuilder.append("\tmock      : generates a ballerina mock service\n");
-        stringBuilder.append("\tclient    : generates a ballerina client\n");
-        stringBuilder.append("\texport    : exports swagger definition of a ballerina service\n");
     }
 
     private void generateFromSwagger(String targetLanguage) {
@@ -172,7 +160,6 @@ public class SwaggerCmd implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(JCommander parentCmdParser) {
-        this.parentCmdParser = parentCmdParser;
     }
 
     @Override

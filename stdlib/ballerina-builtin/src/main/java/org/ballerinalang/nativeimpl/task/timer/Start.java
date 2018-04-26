@@ -23,20 +23,20 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.task.SchedulingException;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 /**
- * Native function ballerina.task:scheduleTimer.
+ * Native function ballerina/task:Timer.start.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "task",
-        functionName = "Timer.start",
-        args = {@Argument(name = "task", type = TypeKind.STRUCT, structType = "Timer",
-                structPackage = "ballerina.task")},
+        orgName = "ballerina",
+        packageName = "task",
+        functionName = "start",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Timer", structPackage = "ballerina.task"),
         isPublic = true
 )
 public class Start extends BlockingNativeCallableUnit {
