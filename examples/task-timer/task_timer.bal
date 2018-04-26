@@ -40,6 +40,8 @@ function cleanup() returns error? {
     }
     
     if (count >= 10) {
+        
+        // This is how you stop a timer.
         timer.stop();
         io:println("Stopped timer");
     }
