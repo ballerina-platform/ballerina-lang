@@ -1,7 +1,8 @@
 import ballerina/http;
 
-// The endpoint used here is 'http:SecureListener', which by default tries to authenticate and authorize each request.
-// The developer has the option to override the authentication and authorization at service and resource level.
+// The endpoint used here is 'http:SecureListener', which by default tries to
+// authenticate and authorize each request. The developer has the option to
+// override the authentication and authorization at service and resource level.
 endpoint http:SecureListener ep {
     port: 9090,
     // The secure hello world sample uses https.
@@ -24,11 +25,14 @@ endpoint http:SecureListener ep {
         scopes: ["xxx"]
     }
 }
-// Auth configuration comprises of two parts - authentication and authorization.
-// Authentication can be enabled by setting 'authentication:{enabled:true}' annotation attribute.
+// Auth configuration comprises of two parts - authentication & authorization.
+// Authentication can be enabled by setting 'authentication:{enabled:true}'
+// annotation attribute.
 // Authorization is based on scopes, where a scope maps to one or more groups.
-// For a user to access a resource, the user should be in the same groups as the scope.
-// To specify one or more scope of a resource, the annotation attribute 'scopes' can be used.
+// For a user to access a resource, the user should be in the same groups as
+// the scope.
+// To specify one or more scope of a resource, the annotation attribute
+// 'scopes' can be used.
 service<http:Service> echo bind ep {
     @http:ResourceConfig {
         methods: ["GET"],
@@ -37,9 +41,11 @@ service<http:Service> echo bind ep {
             scopes: ["scope2"]
         }
     }
-    // The authentication and authorization settings can be overridden at resource level.
-    // The hello resource would inherit the authentication:{enabled:true} flag from the
-    // service level, and override scope defined in service level (xxx) with scope2.
+    // The authentication and authorization settings can be overridden at
+    // resource level.
+    // The hello resource would inherit the authentication:{enabled:true} flag
+    // from the service level, and override scope defined in service level
+    // (xxx) with scope2.
     hello(endpoint caller, http:Request req) {
         http:Response res = new;
         res.setPayload("Hello, World!!!");
