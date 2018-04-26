@@ -24,7 +24,7 @@ endpoint jdbc:Client testDB {
     dbOptions: { useSSL: false }
 };
 ```
-The full list of endpoint properties can be found listed under the `sql:PoolOptions` type located in the `types.bal` file of the SQL package directory.
+The full list of endpoint properties can be found listed under the `sql:PoolOptions` type, which is located in the `types.bal` file of the SQL package directory.
 
 ### Creating tables
 
