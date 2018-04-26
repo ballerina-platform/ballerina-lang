@@ -12,20 +12,19 @@ endpoint http:Listener helloWorldEP {
 };
 
 @http:ServiceConfig {
-    endpoints: [helloWorldEP],
     basePath: "/hello"
 }
-
 service helloWorld bind helloWorldEP {
+
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
     }
-
     sayHello(endpoint caller, http:Request req) {
         http:Response res = new;
-        res.setPayload("Successful");
-        caller->respond(res) but { error e => log:printError("Error in responding ", err = e) };
+        res.setPayload("Hello World!");
+        caller->respond(res) but {
+                    error e => log:printError("Failed to respond", err = e) };
     }
 }
 
@@ -38,12 +37,14 @@ endpoint http:Client clientEP {
         }
     }
 };
-// The Ballerina client can be used to connect to the created HTTPS listener. You have to run the service before
-// running this main function. As this is a 1-way SSL connection, the client needs to provide values for
-// ‘trustStoreFile’ and ‘trustStorePassword’.
+// The Ballerina client can be used to connect to the created HTTPS listener.
+// You have to run the service before running this main function. As this is a
+// 1-way SSL connection, the client needs to provide values for
+// `trustStoreFile` and `trustStorePassword`.
 function main(string... args) {
-    // Creates an outbound request.
+    // Sends an outbound request.
     var resp = clientEP->get("/hello/");
+
     match resp {
         http:Response response => {
             match (response.getTextPayload()) {
