@@ -93,7 +93,7 @@ function handleContent(mime:Entity bodyPart) {
         //Extract the xml data from the body part and print it.
         var payload = bodyPart.getXml();
         match payload {
-            error err => log:printError("Error in getting xml payload");
+            error err => log:printError(err.message);
             xml xmlContent => log:printInfo(<string>xmlContent);
         }
 
@@ -101,7 +101,7 @@ function handleContent(mime:Entity bodyPart) {
         //Extract the json data from the body part and print it.
         var payload = bodyPart.getJson();
         match payload {
-            error err => log:printError("Error in getting json payload");
+            error err => log:printError(err.message);
             json jsonContent => log:printInfo(jsonContent.toString());
         }
 
@@ -110,7 +110,7 @@ function handleContent(mime:Entity bodyPart) {
         var payload = bodyPart.getText();
 
         match payload {
-            error err => log:printError("Error in getting text payload");
+            error err => log:printError(err.message);
             string textContent => log:printInfo(textContent);
         }
 

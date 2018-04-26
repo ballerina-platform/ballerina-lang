@@ -109,7 +109,8 @@ function handleNestedParts(mime:Entity parentPart) {
 
 // The content logic that handles the body parts vary based on your requirement.
 function handleContent(mime:Entity bodyPart) {
-    string baseType = check mime:getMediaType(bodyPart.getContentType())!getBaseType();
+    mime:MediaType mediaType = check mime:getMediaType(bodyPart.getContentType());
+    string baseType = mediaType.getBaseType();
     if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
         // Extract xml data from body part and print.
         var payload = bodyPart.getXml();
@@ -139,9 +140,9 @@ function handleContent(mime:Entity bodyPart) {
                 io:ByteChannel destinationChannel = getFileChannel("ReceivedFile.pdf", io:WRITE);
                 try {
                     copy(byteChannel, destinationChannel);
-                    log:printInfo("File copy completed. The copied file could be located in ");
+                    log:printInfo("File Received");
                 } catch (error err) {
-                    log:printError("error occurred while performing copy " + err.message);
+                    log:printError("error occurred while saving file : " + err.message);
                 } finally {
                     // Close the created connections.
                     byteChannel.close() but { error e => log:printError("Error closing byteChannel ", err = e) };
