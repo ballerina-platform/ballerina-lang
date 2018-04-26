@@ -35,6 +35,12 @@ export function getCommandDefinitions() {
             },
         },
         {
+            id: COMMANDS.CREATE_PROJECT,
+            shortcut: {
+                default: 'ctrl+alt+p',
+            },
+        },
+        {
             id: COMMANDS.OPEN_FILE,
             argTypes: {
                 filePath: PropTypes.string.isRequired,

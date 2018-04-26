@@ -25,17 +25,16 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSContextManager;
 import org.ballerinalang.langserver.compiler.LSPackageCache;
+import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
+import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.CompletionCustomErrorStrategy;
-import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.TreeVisitor;
-import org.ballerinalang.langserver.completions.resolvers.TopLevelResolver;
-import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
+import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.definition.util.DefinitionUtil;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.langserver.references.util.ReferenceUtil;
@@ -44,6 +43,8 @@ import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.ballerinalang.langserver.util.Debouncer;
+import org.ballerinalang.model.tree.ImportPackageNode;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.CodeLensParams;
@@ -76,9 +77,8 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -93,6 +93,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Text document service implementation for ballerina.
@@ -104,9 +106,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
     private final WorkspaceDocumentManager documentManager;
     private Map<String, List<Diagnostic>> lastDiagnosticMap;
     private LSGlobalContext lsGlobalContext;
-    // In case of there are any specific error scenarios, then the fallback BLang package will be used
-    // to get completions
-    private BLangPackage fallbackBLangPackage = null;
 
     private final Debouncer diagPushDebouncer;
 
@@ -137,19 +136,12 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 completionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                       bLangPackage.symbol.getName().getValue());
                 completionContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
-                this.resolveSymbols(completionContext, bLangPackage);
-                BLangNode symbolEnvNode = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
-                if (symbolEnvNode instanceof BLangPackage) {
-                    completions = CompletionItemResolver.getResolverByClass(TopLevelResolver.class)
-                            .resolveItems(completionContext);
-                } else {
-                    completions = CompletionItemResolver.getResolverByClass(symbolEnvNode.getClass())
-                            .resolveItems(completionContext);
-                }
-                this.fallbackBLangPackage = bLangPackage;
+                CompletionUtil.resolveSymbols(completionContext, bLangPackage);
             } catch (Exception | AssertionError e) {
-                completions = new ArrayList<>();
+                // Fallback procedure in an exception. Currently supports the match statement only
+                CompletionUtil.resolveSymbols(completionContext, null);
             } finally {
+                completions = CompletionUtil.getCompletionItems(completionContext);
                 lock.ifPresent(Lock::unlock);
             }
             return Either.forLeft(completions);
@@ -500,6 +492,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             balDiagnostics = balFile.getDiagnostics();
         }
         publishDiagnostics(balDiagnostics, path);
+        this.fillNewPackages(balFile.getBLangPackage());
     }
 
     private void publishDiagnostics(List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics, Path path) {
@@ -577,26 +570,32 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public void didSave(DidSaveTextDocumentParams params) {
     }
     
-    // Private Methods
-
-    /**
-     * Resolve the visible symbols from the given BLang Package and the current context.
-     * @param completionContext     Completion Service Context
-     * @param bLangPackage          BLang Package
-     */
-    private void resolveSymbols(LSServiceOperationContext completionContext, BLangPackage bLangPackage) {
-        // Visit the package to resolve the symbols
-        TreeVisitor treeVisitor = new TreeVisitor(completionContext);
-        if (completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY)
-                instanceof BallerinaParser.MatchStatementContext) {
-            this.fallbackBLangPackage.accept(treeVisitor);
-        } else {
-            bLangPackage.accept(treeVisitor);
+    // Private methods
+    
+    private void fillNewPackages(BLangPackage bLangPackage) {
+        if (bLangPackage == null) {
+            return;
         }
-        
-        if (completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY) == null) {
-            treeVisitor.populateSymbols(treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv()),
-                    treeVisitor.getSymbolEnv());
-        }
+        List<TopLevelNode> importPkgs = new ArrayList<>();
+        bLangPackage.getCompilationUnits().forEach(bLangCompilationUnit -> {
+            importPkgs.addAll(bLangCompilationUnit.getTopLevelNodes().stream()
+                    .filter(topLevelNode -> topLevelNode instanceof ImportPackageNode)
+                    .collect(Collectors.toList()));
+        });
+        List<BallerinaPackage> ballerinaPackages = new ArrayList<>();
+        Stream.of(LSPackageLoader.getSdkPackages(), LSPackageLoader.getHomeRepoPackages())
+                .forEach(ballerinaPackages::addAll);
+        importPkgs.forEach(bLangImportPackage -> {
+            if (bLangImportPackage instanceof BLangImportPackage) {
+                BLangImportPackage pkgNode = ((BLangImportPackage) bLangImportPackage);
+                if (pkgNode.symbol != null
+                        && !CommonUtil.listContainsPackage(pkgNode.symbol.pkgID.toString(), ballerinaPackages)) {
+                    LSPackageLoader.getHomeRepoPackages()
+                            .add(new BallerinaPackage(pkgNode.symbol.pkgID.getOrgName().getValue(),
+                                    pkgNode.symbol.pkgID.getName().getValue(),
+                                    pkgNode.symbol.pkgID.getPackageVersion().getValue()));
+                }
+            }
+        });
     }
 }

@@ -46,7 +46,7 @@ function verify() {
     var response = httpEndpoint -> get("/events");
     match response {
         http:Response resp =>  test:assertFail(msg = "Service stop has failed for: "+url2);
-        http:HttpConnectorError err => {
+        error err => {
             test:assertEquals(err.message, "Connection refused: /0.0.0.0:9090");
         }
     }
@@ -70,7 +70,7 @@ function testService () {
                     json expected = {"a":"b"};
                     test:assertEquals(jsonRes, expected);
                }
-               http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint: "+url2);
+               error err => test:assertFail(msg = "Failed to call the endpoint: "+url2);
     }
 
     test:stopServices("servicemocktest");

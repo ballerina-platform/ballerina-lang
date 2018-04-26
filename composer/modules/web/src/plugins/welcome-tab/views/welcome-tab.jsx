@@ -101,7 +101,7 @@ class WelcomeTab extends React.Component {
         });
         this.props.commandManager.dispatch(LAYOUT_COMMANDS.SHOW_VIEW, { id: WORKSPACE_VIEWS.EXPLORER });
         this.props.commandManager.dispatch(WORKSPACE_COMMANDS.OPEN_FILE, {
-            filePath: `${folderPath}${pathSeperator}${url}.bal`,
+            filePath: `${folderPath}${pathSeperator}${url.replace(/-/g, '_')}.bal`,
             ext: 'bal',
         });
     }
@@ -181,7 +181,7 @@ class WelcomeTab extends React.Component {
                                 className='btn-secondary'
                                 onClick={this.props.openFile}
                             >
-                                Create File
+                                Open File
                             </Button>
                         </Grid.Column>
                         {/* <Divider />
@@ -191,23 +191,23 @@ class WelcomeTab extends React.Component {
                             </Grid.Column>
                             <Grid.Column className='opened-wrapper'>
                                 <List.Item className='resentlyOpen'>
-                                    <i className='fw fw-folder-open'/> 
+                                    <i className='fw fw-folder-open'/>
                                     <span>serviceChaining</span>
                                 </List.Item>
                                 <List.Item className='resentlyOpen'>
-                                    <i className='fw fw-document'/> 
+                                    <i className='fw fw-document'/>
                                     <span>ATMLocatorService.bal</span>
                                 </List.Item>
                                 <List.Item className='resentlyOpen'>
-                                    <i className='fw fw-document'/> 
+                                    <i className='fw fw-document'/>
                                     <span>echoService.bal</span>
                                 </List.Item>
                                 <List.Item className='resentlyOpen'>
-                                    <i className='fw fw-folder-open'/> 
+                                    <i className='fw fw-folder-open'/>
                                     <span>serviceChaining</span>
                                 </List.Item>
                                 <List.Item className='resentlyOpen'>
-                                    <i className='fw fw-document'/> 
+                                    <i className='fw fw-document'/>
                                     <span>nyseStockQuoteService.bal</span>
                                 </List.Item>
                             </Grid.Column>

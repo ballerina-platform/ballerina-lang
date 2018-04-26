@@ -384,7 +384,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -399,7 +399,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -413,7 +413,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -433,13 +433,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitPublicObjectFields(BallerinaParser.PublicObjectFieldsContext ctx) {
         if (ctx.exception != null) {
-           return;
+            return;
         }
 
         this.pkgBuilder.addObjectFieldsBlock(getWS(ctx));
@@ -447,7 +447,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -461,7 +461,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -475,7 +475,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -492,7 +492,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -507,7 +507,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -533,7 +533,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -547,7 +547,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -563,7 +563,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -577,7 +577,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -591,7 +591,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -613,7 +613,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -756,7 +756,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -770,7 +770,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -1043,13 +1043,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitCompoundOperator(BallerinaParser.CompoundOperatorContext ctx) {
         if (ctx.exception != null) {
-           return;
+            return;
         }
 
         this.pkgBuilder.addCompoundOperator(getWS(ctx));
@@ -1635,7 +1635,21 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitTransactionClause(BallerinaParser.TransactionClauseContext ctx) {
-        this.pkgBuilder.addTransactionBlock(getCurrentPos(ctx));
+        this.pkgBuilder.addTransactionBlock(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitTransactionPropertyInitStatementList(
+            BallerinaParser.TransactionPropertyInitStatementListContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endTransactionPropertyInitStatementList(getWS(ctx));
+
     }
 
     /**
@@ -1730,7 +1744,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.addRetryCountExpression();
+        this.pkgBuilder.addRetryCountExpression(getWS(ctx));
     }
 
     /**
@@ -1741,7 +1755,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.addCommittedBlock();
+        this.pkgBuilder.addCommittedBlock(getWS(ctx));
     }
 
     /**
@@ -1752,7 +1766,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.addAbortedBlock();
+        this.pkgBuilder.addAbortedBlock(getWS(ctx));
     }
 
     /**
@@ -1947,7 +1961,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -2324,7 +2338,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startLimitClauseNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startLimitClauseNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -2345,7 +2359,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.startOrderByVariableNode(getCurrentPos(ctx));
     }
 
-    @Override public void exitOrderByVariable(BallerinaParser.OrderByVariableContext ctx) {
+    @Override
+    public void exitOrderByVariable(BallerinaParser.OrderByVariableContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -2682,6 +2697,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitJoinType(BallerinaParser.JoinTypeContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endJoinType(getWS(ctx));
+    }
+
     @Override
     public void enterOutputRateLimit(BallerinaParser.OutputRateLimitContext ctx) {
         if (ctx.exception != null) {
@@ -2734,7 +2761,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startTableQueryNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startTableQueryNode(getCurrentPos(ctx));
     }
 
     @Override

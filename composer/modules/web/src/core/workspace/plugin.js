@@ -39,6 +39,7 @@ import FileDeleteConfirmDialog from './dialogs/FileDeleteConfirmDialog';
 import { read } from './fs-util';
 import File from './model/file';
 import Folder from './model/folder';
+import CreateProjectDialog from './dialogs/CreateProjectDialog';
 
 // FIXME: Find a proper way of removing circular deps from serialization
 const skipEventAndCustomPropsSerialization = (key, value) => {
@@ -196,6 +197,10 @@ class WorkspacePlugin extends Plugin {
         return this.openedFolders.find((folder) => {
             return filePath.startsWith(folder.fullPath);
         }) !== undefined;
+    }
+
+    createNewProject() {
+        console.log('aaaa');
     }
 
     /**
@@ -430,6 +435,15 @@ class WorkspacePlugin extends Plugin {
                 {
                     id: DIALOG_IDS.DELETE_FILE_CONFIRM,
                     component: FileDeleteConfirmDialog,
+                    propsProvider: () => {
+                        return {
+                            workspaceManager: this,
+                        };
+                    },
+                },
+                {
+                    id: DIALOG_IDS.CREATE_PROJECT,
+                    component: CreateProjectDialog,
                     propsProvider: () => {
                         return {
                             workspaceManager: this,

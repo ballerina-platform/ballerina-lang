@@ -26,11 +26,14 @@ import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.filters.ConnectorInitExpressionItemFilter;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.TypeConstants;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
+import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -48,6 +51,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Interface for completion item resolvers.
@@ -288,6 +292,8 @@ public abstract class AbstractItemResolver {
      */
     protected boolean isInvocationOrFieldAccess(LSServiceOperationContext documentServiceContext) {
         ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(new String[]{";", "}", "{", "(", ")", "="}));
+        Position position = documentServiceContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        int cursorLine = position.getLine();
         TokenStream tokenStream = documentServiceContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         if (tokenStream == null) {
             return false;
@@ -307,14 +313,16 @@ public abstract class AbstractItemResolver {
                 documentServiceContext.put(CompletionKeys.INVOCATION_STATEMENT_KEY, false);
                 return false;
             }
-            String tokenString = tokenStream.get(searchTokenIndex).getText();
+            Token token = tokenStream.get(searchTokenIndex);
+            String tokenString = token.getText();
             if (terminalTokens.contains(tokenString)
                     && documentServiceContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY) <= searchTokenIndex) {
                 documentServiceContext.put(CompletionKeys.INVOCATION_STATEMENT_KEY, false);
                 return false;
-            } else if (UtilSymbolKeys.DOT_SYMBOL_KEY.equals(tokenString)
+            } else if ((UtilSymbolKeys.DOT_SYMBOL_KEY.equals(tokenString)
                     || UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(tokenString)
-                    || UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(tokenString)) {
+                    || UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(tokenString))
+                    && cursorLine == token.getLine() - 1) {
                 documentServiceContext.put(CompletionKeys.INVOCATION_STATEMENT_KEY, true);
                 return true;
             } else {
@@ -365,29 +373,6 @@ public abstract class AbstractItemResolver {
         }
     }
 
-    int findPreviousToken(LSServiceOperationContext documentServiceContext, String needle, int maxSteps) {
-        TokenStream tokenStream = documentServiceContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
-        if (tokenStream == null) {
-            return -1;
-        }
-        int searchIndex = documentServiceContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY) - 1;
-
-        while (maxSteps > 0) {
-            if (searchIndex < 0) {
-                return -1;
-            }
-            Token token = tokenStream.get(searchIndex);
-            if (token.getChannel() == 0) {
-                if (token.getText().equals(needle)) {
-                    return searchIndex;
-                }
-                maxSteps--;
-            }
-            searchIndex--;
-        }
-        return -1;
-    }
-
     /**
      * Populate a completion item with the given data and return it.
      * @param insertText insert text
@@ -434,5 +419,50 @@ public abstract class AbstractItemResolver {
         });
         
         return symbolInfoList;
+    }
+
+    /**
+     * Get variable definition context related completion items. This will extract the completion items analyzing the
+     * variable definition context properties.
+     * 
+     * @param completionContext     Completion context
+     * @return {@link List}         List of resolved completion items
+     */
+    protected List<CompletionItem> getVariableDefinitionCompletionItems(LSServiceOperationContext completionContext) {
+        ArrayList<CompletionItem> completionItems = new ArrayList<>();
+        ConnectorInitExpressionItemFilter connectorInitItemFilter = new ConnectorInitExpressionItemFilter();
+        // Fill completions if user is writing a connector init
+        List<SymbolInfo> filteredConnectorInitSuggestions = connectorInitItemFilter.filterItems(completionContext);
+        if (!filteredConnectorInitSuggestions.isEmpty()) {
+            populateCompletionItemList(filteredConnectorInitSuggestions, completionItems);
+        }
+
+        // Add the create keyword
+        CompletionItem createKeyword = new CompletionItem();
+        createKeyword.setInsertText(Snippet.CHECK_KEYWORD_SNIPPET.toString());
+        createKeyword.setLabel(ItemResolverConstants.CHECK_KEYWORD);
+        createKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
+
+        List<SymbolInfo> filteredList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
+                .stream()
+                .filter(symbolInfo -> {
+                    BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+                    SymbolKind symbolKind = bSymbol.kind;
+
+                    // Here we return false if the BType is not either a package symbol or ENUM
+                    return !((bSymbol instanceof BTypeSymbol) && !(bSymbol instanceof BPackageSymbol
+                            || SymbolKind.ENUM.equals(symbolKind)));
+                })
+                .collect(Collectors.toList());
+
+        // Remove the functions without a receiver symbol
+        filteredList.removeIf(symbolInfo -> {
+            BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+            return bSymbol instanceof BInvokableSymbol && ((BInvokableSymbol) bSymbol).receiverSymbol != null;
+        });
+        populateCompletionItemList(filteredList, completionItems);
+        completionItems.add(createKeyword);
+        
+        return completionItems;
     }
 }

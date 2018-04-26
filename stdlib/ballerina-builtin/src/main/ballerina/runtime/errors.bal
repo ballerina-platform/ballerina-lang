@@ -14,16 +14,36 @@
 // specific language governing permissions and limitations
 // under the License.
 
+documentation {
+    Representation of `NullReferenceException`
+
+    F{{message}} error message
+    F{{cause}} optional error cause
+}
 public type NullReferenceException {
     string message;
     error? cause;
 };
 
+documentation {
+    Representation of `IllegalStateException`
+
+    F{{message}} error message
+    F{{cause}} optional error cause
+}
 public type IllegalStateException {
     string message;
     error? cause;
 };
 
+documentation {
+    Representation of `CallStackElement`
+
+    F{{callableName}} Callable name
+    F{{packageName}} Package name
+    F{{fileName}} File name
+    F{{lineNumber}} Line number
+}
 public type CallStackElement {
     string callableName;
     string packageName;
@@ -31,10 +51,28 @@ public type CallStackElement {
     int lineNumber;
 };
 
+documentation {
+    Retrieves the Call Stack
+
+    R{{}} Array of `CallStackElement` elements
+}
 public native function getCallStack() returns (CallStackElement[]);
 
+documentation {
+    Retrieves the Call Stack Frame for a particular error
+
+    P{{e}} optional `error` instance
+    R{{}} `CallStackElement` instance
+}
 public native function getErrorCallStackFrame(error? e) returns (CallStackElement);
 
+documentation {
+    Representation of `CallFailedException`
+
+    F{{message}} Error message
+    F{{cause}} optional `error` instance
+    F{{causes}} optional array of `error` instances
+}
 public type CallFailedException {
     string message;
     error? cause;

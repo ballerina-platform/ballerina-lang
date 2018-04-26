@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.970.0-beta15-SNAPSHOT</version>
+        <version>0.970.0-beta20-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -94,7 +94,7 @@
                         </goals>
                         <configuration>
                             <skip>${skipBenchmarks}</skip>
-                            <executable>${project.basedir}/script</executable>
+                            <executable>${project.basedir}/executor</executable>
                             <arguments>
                                 <argument>${project.basedir}/target/ballerina-${project.version}</argument>
                                 <argument>${warmup.iterations}</argument>

@@ -23,6 +23,7 @@ import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.server.ServerAcl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -50,7 +51,7 @@ public class SQLDBUtils {
      * @param dbName      Name of the DB instance.
      * @param sqlFile     SQL statements for initialization.
      */
-    public static void initDatabase(String dbDirectory, String dbName, String sqlFile) {
+    public static SqlServer initDatabase(String dbDirectory, String dbName, String sqlFile) {
         Connection connection = null;
         Statement st = null;
         try {
@@ -75,13 +76,29 @@ public class SQLDBUtils {
             Server server = new Server();
             server.setProperties(p);
             server.start();
+            return new SqlServer(server);
         } catch (ClassNotFoundException | SQLException | ServerAcl.AclFormatException | IOException e) {
             LOG.error("Error ", e);
+            return new SqlServer(null);
         } finally {
             releaseResources(connection, st);
         }
     }
 
+    public static class SqlServer {
+
+        final Server server;
+
+        private SqlServer(Server server) {
+            this.server = server;
+        }
+
+        public void stop() {
+            if (server != null) {
+                server.stop();
+            }
+        }
+    }
 
     /**
      * Delete the given directory along with all files and sub directories.

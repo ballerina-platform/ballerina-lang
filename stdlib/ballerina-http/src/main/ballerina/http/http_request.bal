@@ -65,7 +65,7 @@ public type Request object {
     documentation {
         Gets the `Entity` associated with the request.
 
-        R{{}} The `Entity` of the request. `EntityError` will be returned if entity construction fails
+        R{{}} The `Entity` of the request. An `error` is returned, if entity construction fails
     }
     public native function getEntity() returns mime:Entity|error;
 
@@ -156,32 +156,33 @@ public type Request object {
     public function getContentType() returns string;
 
     documentation {
-        Gets the request payload as a `json`.
+        Extracts `json` payload from the request. If the content type is not JSON, an `error` is returned.
 
-        R{{}} The JSON representation of the message payload or `error` in case of errors
+        R{{}} The `json` payload or `error` in case of errors
     }
     public function getJsonPayload() returns json|error;
 
     documentation {
-        Gets the text payload from the request.
+        Extracts `xml` payload from the request. If the content type is not XML, an `error` is returned.
 
-        R{{}} The String representation of the message payload or `error` in case of errors
+        R{{}} The `xml` payload or `error` in case of errors
+    }
+    public function getXmlPayload() returns xml|error;
+
+    documentation {
+        Extracts `text` payload from the request. If the content type is not of type text, an `error` is returned.
+
+        R{{}} The `text` payload or `error` in case of errors
     }
     public function getTextPayload() returns string|error;
 
     documentation {
-        Gets the request payload as a `string`.
+        Gets the request payload as a `string`. Content type is not checked during payload construction which
+        makes this different from `getTextPayload()` function.
 
         R{{}} The string representation of the message payload or `error` in case of errors
     }
     public function getPayloadAsString() returns string|error;
-
-    documentation {
-        Gets the request payload as an `xml`.
-
-        R{{}} The XML representation of the message payload or `error` in case of errors
-    }
-    public function getXmlPayload() returns xml|error;
 
     documentation {
         Gets the request payload as a `ByteChannel` except in the case of multiparts. To retrieve multiparts, use
@@ -206,9 +207,10 @@ public type Request object {
     public function getFormParams() returns map<string>|error;
 
     documentation {
-        Get multiparts from request.
+        Extracts body parts from the request. If the content type is not a composite media type, an error
+        is returned.
 
-        R{{}} Returns the body parts as an array of entities or an `EntityError` if there were any errors in
+        R{{}} Returns the body parts as an array of entities or an `error` if there were any errors in
               constructing the body parts from the request
     }
     public function getBodyParts() returns mime:Entity[]|error;

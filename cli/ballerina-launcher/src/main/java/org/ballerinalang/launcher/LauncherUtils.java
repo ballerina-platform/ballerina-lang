@@ -120,6 +120,9 @@ public class LauncherUtils {
 
     public static void runMain(ProgramFile programFile, String[] args) {
         BLangProgramRunner.runMain(programFile, args);
+        if (programFile.isServiceEPAvailable()) {
+            return;
+        }
         try {
             ThreadPoolFactory.getInstance().getWorkerExecutor().shutdown();
             ThreadPoolFactory.getInstance().getWorkerExecutor().awaitTermination(10000, TimeUnit.MILLISECONDS);

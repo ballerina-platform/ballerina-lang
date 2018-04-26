@@ -15,12 +15,15 @@
 // under the License.
 
 documentation {
-    The algorithms which can be used in crypto functions.
+    The hashing algorithms supported by this package.
 }
 public type Algorithm "SHA1"|"SHA256"|"MD5";
 
+documentation { The `SHA1` hashing algorithm" }
 @final public Algorithm SHA1 = "SHA1";
+documentation { The `SHA256` hashing algorithm }
 @final public Algorithm SHA256 = "SHA256";
+documentation { The `MD5` hashing algorithm }
 @final public Algorithm MD5 = "MD5";
 
 documentation {
@@ -43,7 +46,7 @@ documentation {
 public native function hmac(string baseString, string keyString, Algorithm algorithm) returns (string);
 
 documentation {
-    Returns the CRC32 hash for the provided element. Currently supports strings and blobs.
+    Returns the CRC32 hash for the provided element. This accepts `string`, `blob`, `json` and `xml` content.
 
     P{{content}} The content to be hashed
     R{{}} The generated hash

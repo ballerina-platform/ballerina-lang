@@ -126,8 +126,8 @@ public type Cache object {
     }
 
     documentation {
-        Returns the cached value associated with the given key. If the provided cache key is not found, an error will
-        be thrown. So use the hasKey function to check for the existance of a particular key.
+        Returns the cached value associated with the given key. If the provided cache key is not found, ()
+        will be returned.
 
         R{{key}} key which is used to retrieve the cached value
         R{{}}The cached value associated with the given key

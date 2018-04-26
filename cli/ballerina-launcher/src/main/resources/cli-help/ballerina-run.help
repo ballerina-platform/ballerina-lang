@@ -3,7 +3,7 @@ NAME
     binaries, or packages
 
 SYNOPSIS
-     ballerina run [-s|--service] [-e] [--offline] [--observe] 
+     ballerina run [-e] [--offline] [--observe]
          [--sourceroot] [-c|--config] [-B] 
          <balfile | packagename | balxfile> [args...]  
 
@@ -19,25 +19,19 @@ DESCRIPTION
      The binary runs much faster than a source file, because the source 
      file run requires a compilation phase. 
 
-     By default, ballerina run executes the main function. 
-     If the main function is not present, run executes services. 
-     When both a main function and a service are present, you can use 
-     [-s|--service] option to run the service instead of the main function. 
-     You must have either a main function or a service in order to run 
-     a program or a package.
+     You must have either a main function or a service(s) or both in
+     order to run a program or a package. When both the main function
+     and services are present, run executes services first and then
+     executes the main function.
 
 OPTIONS
-     -s
-     --service
-         Runs services instead of main function (if available) in the 
-         given program or package. The default behavior is to run 
-         the main function (if available), else if there is only a
-         service defined, the service will be started. If both a 
-         main function and a service are available in the program or
-         package, this option allows you to start the service.  
-
-     -e <key1=value1, key2=value2, …>
-         Sets Ballerina environment parameters as key, value pairs.
+     -e <key=value>
+         Sets Ballerina environment parameters as key/value pairs.
+         If multiple parameters need to be provided, each parameter
+         has to be specified using its own -e flag. Details of the
+         environment parameters that the Ballerina standard library
+         packages support can be found in the relevant API
+         documentation.
 
      --offline
          In a package build, the dependencies are always checked from 
@@ -61,12 +55,20 @@ OPTIONS
 
      -c <config-file>
      --config <config-file>
-         Provides path to the Ballerina configuration file. 
+         Provides the path to a Ballerina configuration file.
+         The configuration file format is a subset of the TOML file
+         format. It supports key/value pairs, tables, comments, and
+         string, int, float and boolean value types. If a config
+         file is not specified using [-c|--config], Ballerina looks
+         for a default configuration file named `ballerina.conf`
+         in the directory the source file(s) reside in.
 
-     -B <option1, option2, …>
-         Provides a list of Ballerina VM options to be used by runtime 
-         when executing a Ballerina program or package. This accepts a 
-         comma-separated list of options.
+     -B <key=value>
+         Provides Ballerina VM options to be used by the runtime
+         when executing a Ballerina program or package. VM options
+         are key/value pairs. If multiple VM options need to be
+         provided, each option has to be specified using its
+         own -B flag.
 
      args... 
          The list of command line arguments for the Ballerina program 
