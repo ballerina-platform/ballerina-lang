@@ -50,7 +50,7 @@ public class WebSocketConstants {
 
     public static final String WEBSOCKET_MESSAGE = "WEBSOCKET_MESSAGE";
 
-    public static final String NATIVE_DATA_WEBSOCKET_CONNECTION = "NATIVE_DATA_WEBSOCKET_CONNECTION";
+    public static final String NATIVE_DATA_WEBSOCKET_CONNECTION_INFO = "NATIVE_DATA_WEBSOCKET_CONNECTION_INFO";
 
     public static final String NATIVE_DATA_QUERY_PARAMS = "NATIVE_DATA_QUERY_PARAMS";
 
@@ -62,5 +62,6 @@ public class WebSocketConstants {
     public static final String CLIENT_READY_ON_CONNECT = "readyOnConnect";
     public static final String CLIENT_CONNECTOR_CONFIGS = "clientEndpointConfigs";
     public static final String WEBSOCKET_UPGRADE_SERVICE_CONFIG = "upgradeService";
-    public static final String WEBSOCKET_CONNECTION_MANAGER = "WEBSOCKET_CONNECTION_MANAGER";
+
+    public static final int STATUS_CODE_ABNORMAL_CLOSURE = 1006;
 }
