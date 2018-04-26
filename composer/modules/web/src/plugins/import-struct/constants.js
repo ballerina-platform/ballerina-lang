@@ -29,7 +29,7 @@ export const MENUS = {
 };
 
 export const LABELS = {
-    IMPORT_STRUCT_MENU_TITLE: 'Import Struct',
+    IMPORT_STRUCT_MENU_TITLE: 'Import Record',
 };
 
 
