@@ -24,9 +24,6 @@ A `Service` represents a collection of network-accessible entry points and can b
 
 When a `Service` receives a request, it is dispatched to the best-matched resource.
 
-The `Listener` endpoint supports `filters` that are automatically invoked when a request is received by a `Service`. Filters are used for request validation such as authentication and authorization, which should happen before executing the actual service. When multiple filters are configured for a `Listener`, they are executed in the order specified in the listener. 
-
-See [Filters Example]().
 
 See [Listener Endpoint Example](https://ballerinalang.org/docs/by-example/http-data-binding), [HTTP CORS Example](https://ballerinalang.org/docs/by-example/http-cors), [HTTP Failover Example](https://ballerinalang.org/docs/by-example/http-failover), [HTTP Load Balancer Example](https://ballerinalang.org/docs/by-example/http-load-balancer)
 
