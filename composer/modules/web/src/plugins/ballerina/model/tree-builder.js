@@ -155,10 +155,6 @@ class TreeBuilder {
                 node.variable.endpoint = true;
                 node.endpoint = true;
             }
-
-            if (node.variable.typeNode.typeName && node.variable.typeNode.typeName.includes('$anonRecord$')) {
-                node.variable.isAnon = true;
-            }
         }
 
         if (node.kind === 'Variable') {
