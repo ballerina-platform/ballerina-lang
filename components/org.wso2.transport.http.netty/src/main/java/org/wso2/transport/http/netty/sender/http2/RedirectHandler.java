@@ -35,6 +35,8 @@ import org.wso2.transport.http.netty.sender.RedirectUtil;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * {@code RedirectHandler} is responsible for HTTP/2 redirection.
@@ -131,8 +133,9 @@ public class RedirectHandler implements Http2DataEventListener {
             HTTPCarbonMessage originalRequest = outboundMsgHolder.getRequest();
             String redirectionMethod = getRedirectionRequestMethod(statusCode, originalRequest);
             String redirectionURL = RedirectUtil.getResolvedRedirectURI(location, originalRequest);
-            HTTPCarbonMessage request =
-                    RedirectUtil.createRedirectCarbonRequest(redirectionURL, redirectionMethod, userAgent, ctx);
+            List<Map.Entry<String, String>> headers = originalRequest.getHeaders().entries();
+            HTTPCarbonMessage request = RedirectUtil
+                    .createRedirectCarbonRequest(redirectionURL, redirectionMethod, statusCode, ctx, headers);
             outboundMsgHolder.clearRedirectionState();
             http2ClientChannel.removeInFlightMessage(streamId);
             outboundMsgHolder.updateRequest(request);

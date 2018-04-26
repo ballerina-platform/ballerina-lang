@@ -251,6 +251,7 @@ public final class Constants {
             .valueOf("TARGET_CHANNEL_REFERENCE");
     public static final AttributeKey<DefaultHttpClientConnector> CLIENT_CONNECTOR = AttributeKey
             .valueOf("CLIENT_CONNECTOR");
+    public static final int REDIRECT_SEE_OTHER_303 = 303;
 
     public static final String UTF8 = "UTF-8";
     public static final String URL_AUTHORITY = "://";
