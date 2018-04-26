@@ -151,7 +151,7 @@ documentation {
     Provides configurations for controlling the endpoint's behaviour in response to HTTP redirect related responses.
 
     F{{enabled}} Enable/disable redirection
-    F{{maxCount}} Maximun number of redirects to follow
+    F{{maxCount}} Maximum number of redirects to follow
 }
 public type FollowRedirects {
     boolean enabled = false,

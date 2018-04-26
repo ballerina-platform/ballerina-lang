@@ -34,6 +34,8 @@ documentation {
     F{{callback}} The callback to use when registering, if unspecified host:port/path will be used
     F{{auth}} The auth configuration to use when subscribing at the hub
     F{{secureSocket}} The secure socket configuration to use when subscribing at the hub
+    F{{followRedirects}} The HTTP redirect related configuration specifying if subscription requests should be sent
+                            to redirected hubs/topics
 }
 public type SubscriberServiceConfiguration {
     Listener[] endpoints,
@@ -47,6 +49,7 @@ public type SubscriberServiceConfiguration {
     string callback,
     http:AuthConfig? auth,
     http:SecureSocket? secureSocket,
+    http:FollowRedirects? followRedirects,
 };
 
 documentation {
