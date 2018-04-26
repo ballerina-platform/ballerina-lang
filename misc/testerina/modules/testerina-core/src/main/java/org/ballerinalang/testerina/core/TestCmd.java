@@ -20,7 +20,6 @@ package org.ballerinalang.testerina.core;
 import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-import com.beust.jcommander.ParameterDescription;
 import com.beust.jcommander.Parameters;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.launcher.BLauncherCmd;
@@ -40,7 +39,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,9 +54,6 @@ public class TestCmd implements BLauncherCmd {
 
     private static final PrintStream errStream = System.err;
     private static final PrintStream outStream = System.out;
-
-
-    //private JCommander parentCmdParser;
 
     @Parameter(arity = 1, description = "ballerina package/files to be tested")
     private List<String> sourceFileList;
