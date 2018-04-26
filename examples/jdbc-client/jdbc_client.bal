@@ -111,10 +111,10 @@ function main(string... args) {
     io:println("\nThe call operation - With IN params");
     // Create the stored procedure
     ret = testDB->update("CREATE PROCEDURE INSERTDATA(IN pAge INT,
-                            IN pName VARCHAR(255))
+                       IN pName VARCHAR(255))
 	                   BEGIN
-					   INSERT INTO student(age, name) values (pAge, pName);
-					   END");
+                       INSERT INTO student(age, name) values (pAge, pName);
+                       END");
     handleUpdate(ret, "Stored procedure with IN param creation");
 
     // Invoke the stored procedure with IN type parameters.
