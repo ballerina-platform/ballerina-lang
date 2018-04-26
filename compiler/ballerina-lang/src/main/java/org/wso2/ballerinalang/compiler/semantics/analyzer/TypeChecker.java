@@ -1782,7 +1782,12 @@ public class TypeChecker extends BLangNodeVisitor {
             unionType.memberTypes.add(symTable.errStructType);
         }
 
-        if (!unionType.isNullable() && unionType.memberTypes.size() == 1) {
+        // If there's only one member, and the one an only member is:
+        //    a) nilType OR
+        //    b) not-nullable 
+        // then return that only member, as the return type.
+        if (unionType.memberTypes.size() == 1 &&
+                (!unionType.isNullable() || unionType.memberTypes.contains(symTable.nilType))) {
             return unionType.memberTypes.toArray(new BType[0])[0];
         }
 

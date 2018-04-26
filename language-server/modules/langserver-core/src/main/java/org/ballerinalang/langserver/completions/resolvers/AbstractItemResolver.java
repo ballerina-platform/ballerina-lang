@@ -33,6 +33,7 @@ import org.ballerinalang.model.types.TypeConstants;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
+import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -291,6 +292,8 @@ public abstract class AbstractItemResolver {
      */
     protected boolean isInvocationOrFieldAccess(LSServiceOperationContext documentServiceContext) {
         ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(new String[]{";", "}", "{", "(", ")", "="}));
+        Position position = documentServiceContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        int cursorLine = position.getLine();
         TokenStream tokenStream = documentServiceContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         if (tokenStream == null) {
             return false;
@@ -310,14 +313,16 @@ public abstract class AbstractItemResolver {
                 documentServiceContext.put(CompletionKeys.INVOCATION_STATEMENT_KEY, false);
                 return false;
             }
-            String tokenString = tokenStream.get(searchTokenIndex).getText();
+            Token token = tokenStream.get(searchTokenIndex);
+            String tokenString = token.getText();
             if (terminalTokens.contains(tokenString)
                     && documentServiceContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY) <= searchTokenIndex) {
                 documentServiceContext.put(CompletionKeys.INVOCATION_STATEMENT_KEY, false);
                 return false;
-            } else if (UtilSymbolKeys.DOT_SYMBOL_KEY.equals(tokenString)
+            } else if ((UtilSymbolKeys.DOT_SYMBOL_KEY.equals(tokenString)
                     || UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(tokenString)
-                    || UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(tokenString)) {
+                    || UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(tokenString))
+                    && cursorLine == token.getLine() - 1) {
                 documentServiceContext.put(CompletionKeys.INVOCATION_STATEMENT_KEY, true);
                 return true;
             } else {

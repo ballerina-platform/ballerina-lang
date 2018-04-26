@@ -53,23 +53,24 @@ function processJSONStruct(parent, literalExpr, removeDefaults) {
     parent.setFields([], true);
     literalExpr.keyValuePairs.every((keyValPair) => {
         let currentName;
-        if (TreeUtils.isLiteral(keyValPair.getKey())) {
-            currentName = keyValPair.getKey().getValue().replace(/"/g, '');
+        let key = keyValPair.key;
+        let val = keyValPair.value;
+        if (TreeUtils.isLiteral(key)) {
+            currentName = key.getValue().replace(/"/g, '');
         } else {
-            currentName = keyValPair.getKey().getVariableName().getValue();
+            currentName = key.getVariableName().getValue();
         }
-        if (TreeUtils.isRecordLiteralExpr(keyValPair.getValue())) {
+        if (TreeUtils.isRecordLiteralExpr(val)) {
             const parsedJson = FragmentUtils.parseFragment(
-                            FragmentUtils.createStatementFragment(`struct { } ${currentName};`));
+                            FragmentUtils.createTopLevelNodeFragment(`type { } ${currentName};`));
             const anonStruct = TreeBuilder.build(parsedJson);
-            success = this.processJSONStruct(anonStruct.getVariable().getTypeNode().anonStruct,
-                        keyValPair.getValue());
+            success = this.processJSONStruct(anonStruct.getVariable().getTypeNode().anonStruct, val);
             if (success) {
                 parent.addFields(anonStruct.getVariable());
             }
             return success;
-        } else if (TreeUtils.isLiteral(keyValPair.getValue())) {
-            currentValue = keyValPair.getValue().getValue();
+        } else if (TreeUtils.isLiteral(val)) {
+            currentValue = val.getValue();
             let currentType = 'string';
             let refExpr;
             if (isInt(currentValue)) {

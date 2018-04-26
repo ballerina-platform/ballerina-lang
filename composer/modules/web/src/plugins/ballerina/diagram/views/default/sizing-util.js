@@ -1686,8 +1686,8 @@ class SizingUtil {
                 viewState.displayText = displayText.text;
             }
             if (TreeUtil.isExpressionStatement(node)) {
-                const exp = node.getExpression();
-                const argExpSource = exp.getArgumentExpressions().map((arg) => {
+                const exp2 = node.getExpression();
+                const argExpSource = exp2.getArgumentExpressions().map((arg) => {
                     return arg.getSource(true, true);
                 }).join(', ');
                 const displayText = this.getTextWidth(argExpSource, 0,

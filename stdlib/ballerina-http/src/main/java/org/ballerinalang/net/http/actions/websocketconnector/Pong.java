@@ -26,8 +26,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.WebSocketConstants;
+import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
 import org.ballerinalang.net.http.WebSocketUtil;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 import java.nio.ByteBuffer;
 
@@ -50,10 +50,10 @@ public class Pong implements NativeCallableUnit {
     public void execute(Context context, CallableUnitCallback callback) {
         try {
             BStruct wsConnection = (BStruct) context.getRefArgument(0);
-            WebSocketConnection webSocketConnection = (WebSocketConnection) wsConnection
-                    .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION);
+            WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
+                    .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
             byte[] binaryData = context.getBlobArgument(0);
-            ChannelFuture future = webSocketConnection.pong(ByteBuffer.wrap(binaryData));
+            ChannelFuture future = connectionInfo.getWebSocketConnection().pong(ByteBuffer.wrap(binaryData));
             WebSocketUtil.handleWebSocketCallback(context, callback, future);
         } catch (Throwable throwable) {
             context.setReturnValues(WebSocketUtil.createWebSocketConnectorError(context, throwable.getMessage()));
