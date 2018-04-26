@@ -36,9 +36,11 @@ function initRealtimeProductionAlert() {
         from productionInputStream window time(10000) as p
         join rawMaterialStream window time(10000) as r
         on r.name == p.name
-        select r.name, sum(r.amount) as totalRawMaterial, sum(p.amount) as totalConsumption
+        select r.name, sum(r.amount) as totalRawMaterial,
+                sum(p.amount) as totalConsumption
         group by r.name
-        having ((totalRawMaterial - totalConsumption) * 100.0 / totalRawMaterial) > 5
+        having ((totalRawMaterial - totalConsumption) * 100.0 /
+                totalRawMaterial) > 5
         => (MaterialUsage[] materialUsages) {
         // The 'materialUsages' is the output that matches the defined streaming rules. It is published to `materialUsageStream` stream.
         // The selected clause should match the structure of the `MaterialUsage` type.
@@ -49,11 +51,13 @@ function initRealtimeProductionAlert() {
 
 function printMaterialUsageAlert(MaterialUsage materialUsage) {
 
-    float materialUsageDifference = (materialUsage.totalRawMaterial - materialUsage.totalConsumption) * 100.0 /
-        (materialUsage.totalRawMaterial);
+    float materialUsageDifference = (materialUsage.totalRawMaterial -
+            materialUsage.totalConsumption) * 100.0 /
+                (materialUsage.totalRawMaterial);
 
-    io:println("ALERT!! : Material usage is higher than the expected limit for material : " +
-            materialUsage.name + " , usage difference (%) : " + materialUsageDifference);
+    io:println("ALERT!! : Material usage is higher than the expected"
+            + " limit for material : " + materialUsage.name +
+            " , usage difference (%) : " + materialUsageDifference);
 }
 
 endpoint http:Listener productMaterialListener {
@@ -81,7 +85,8 @@ service productMaterialService bind productMaterialListener {
                 rawMaterialStream.publish(productMaterial);
 
                 http:Response res = new;
-                res.setJsonPayload({ "message": "Raw material request successfully received" });
+                res.setJsonPayload({"message": "Raw material request"
+                                        + " successfully received"});
                 _ = outboundEP->respond(res);
 
             }
@@ -98,7 +103,8 @@ service productMaterialService bind productMaterialListener {
         methods: ["POST"],
         path: "/productionmaterial"
     }
-    productionmaterialrequests(endpoint outboundEP, http:Request req) {
+    productionmaterialrequests(endpoint outboundEP,
+                               http:Request req) {
         var jsonMsg = req.getJsonPayload();
         match jsonMsg {
             json msg => {
@@ -106,7 +112,8 @@ service productMaterialService bind productMaterialListener {
                 productionInputStream.publish(productMaterial);
 
                 http:Response res = new;
-                res.setJsonPayload({ "message": "Production input request successfully received" });
+                res.setJsonPayload({"message": "Production input " +
+                                    "request successfully received"});
                 _ = outboundEP->respond(res);
 
             }

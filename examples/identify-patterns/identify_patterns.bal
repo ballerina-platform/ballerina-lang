@@ -3,7 +3,7 @@ import ballerina/runtime;
 
 int index;
 
-// Create an object type that represents the regulator state.
+// Create a record type that represents the regulator state.
 type RegulatorState {
     int deviceId;
     int roomNo;
@@ -11,7 +11,7 @@ type RegulatorState {
     string userAction;
 };
 
-// Create an object type that represents the user actions on the hotel key.
+// Create a record type that represents the user actions on the hotel key.
 type RoomKeyAction {
     int roomNo;
     string userAction;
@@ -29,10 +29,15 @@ stream<RoomKeyAction> regulatorActionStream;
 // room, the stop control action is called.
 function deployRegulatorActionDecisionRules() {
     forever {
-        from every regulatorStateChangeStream where userAction == "on" as e1
-        followed by roomKeyStream where e1.roomNo == roomNo && userAction == "removed" as e2
-        || regulatorStateChangeStream where e1.roomNo == roomNo && userAction == "off" as e3
-        select e1.roomNo as roomNo, e2 == null ? "none" : "stop" as userAction having userAction != "none"
+        from every regulatorStateChangeStream
+            where userAction == "on" as e1
+        followed by roomKeyStream
+            where e1.roomNo == roomNo && userAction == "removed" as e2
+        || regulatorStateChangeStream
+            where e1.roomNo == roomNo && userAction == "off" as e3
+        select e1.roomNo as roomNo,
+            e2 == null ? "none" : "stop" as userAction
+        having userAction != "none"
         => (RoomKeyAction[] keyAction) {
             regulatorActionStream.publish(keyAction);
         }
@@ -46,11 +51,14 @@ function main(string... args) {
     deployRegulatorActionDecisionRules();
 
     // Sample events that represents the different regulator states.
-    RegulatorState regulatorState1 = { deviceId: 1, roomNo: 2, tempSet: 23.56, userAction: "on" };
-    RegulatorState regulatorState2 = { deviceId: 1, roomNo: 2, tempSet: 23.56, userAction: "off" };
+    RegulatorState regulatorState1 = { deviceId: 1, roomNo: 2,
+        tempSet: 23.56, userAction: "on" };
+    RegulatorState regulatorState2 = { deviceId: 1, roomNo: 2,
+        tempSet: 23.56, userAction: "off" };
 
     // The sample event that represents the user action on the door of the room. 'removed' the owner has left the room.
-    RoomKeyAction roomKeyAction = { roomNo: 2, userAction: "removed" };
+    RoomKeyAction roomKeyAction = { roomNo: 2,
+                                        userAction: "removed" };
 
     // The `RegulatorActionStream` subscribes to the `alertRoomAction` function. Whenever the
     // 'RegulatorActionStream' stream receives a valid event, this function is called.
@@ -76,7 +84,8 @@ function main(string... args) {
 }
 
 function alertRoomAction(RoomKeyAction action) {
-    io:println("alertRoomAction function invoked for Room : " + action.roomNo + " and the action : " +
+    io:println("alertRoomAction function invoked for Room : " +
+            action.roomNo + " and the action : " +
             action.userAction);
     addToGlobalRoomActions(action);
 }
