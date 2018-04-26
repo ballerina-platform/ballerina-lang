@@ -79,6 +79,9 @@ public class BuildCommand implements BLauncherCmd {
             // ballerina build pkgName [-o outputFileName]
             String targetFileName;
             String pkgName = argList.get(0);
+            if (pkgName.endsWith("/")) {
+                pkgName = pkgName.substring(0, pkgName.length() - 1);
+            }
             if (outputFileName != null && !outputFileName.isEmpty()) {
                 targetFileName = outputFileName;
             } else {

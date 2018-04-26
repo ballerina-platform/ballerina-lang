@@ -133,8 +133,10 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
                                                params.get(WebSubSubscriberConstants.PARAM_HUB_TOPIC).stringValue());
                     intentVerificationRequestStruct.setStringField(2,
                                                params.get(WebSubSubscriberConstants.PARAM_HUB_CHALLENGE).stringValue());
-                    intentVerificationRequestStruct.setIntField(0, Integer.parseInt(
-                                       params.get(WebSubSubscriberConstants.PARAM_HUB_LEASE_SECONDS).stringValue()));
+                    if (params.hasKey(WebSubSubscriberConstants.PARAM_HUB_LEASE_SECONDS)) {
+                        intentVerificationRequestStruct.setIntField(0, Integer.parseInt(
+                                        params.get(WebSubSubscriberConstants.PARAM_HUB_LEASE_SECONDS).stringValue()));
+                    }
                 } catch (UnsupportedEncodingException e) {
                     throw new BallerinaException("Error populating query map for intent verification request received: "
                                                          + e.getMessage());
@@ -279,9 +281,13 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
                             challenge.getBytes(StandardCharsets.UTF_8))));
                     response.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), Constants.TEXT_PLAIN);
                     response.setProperty(HttpConstants.HTTP_STATUS_CODE, 202);
-                    console.println("ballerina: Intent Verification agreed - Mode [" + mode + "], Topic ["
-                                            + annotatedTopic + "], Lease Seconds ["
-                                            + params.get(WebSubSubscriberConstants.PARAM_HUB_LEASE_SECONDS) + "]");
+                    String intentVerificationMessage = "ballerina: Intent Verification agreed - Mode [" + mode
+                                                        + "], Topic [" + annotatedTopic + "]";
+                    if (params.hasKey(WebSubSubscriberConstants.PARAM_HUB_LEASE_SECONDS)) {
+                        intentVerificationMessage = intentVerificationMessage.concat(", Lease Seconds ["
+                                         + params.get(WebSubSubscriberConstants.PARAM_HUB_LEASE_SECONDS) + "]");
+                    }
+                    console.println(intentVerificationMessage);
                 } else {
                     console.println("ballerina: Intent Verification denied - Mode [" + mode + "], Topic ["
                                             + annotatedTopic + "]");

@@ -44,8 +44,8 @@ service<http:Service> update_token bind listener {
     }
     one_px_image (endpoint caller, http:Request request, string token) {
         http:Response response = new;
-        response.setHeader("Content-Type", "image/svg+xml");
         response.setPayload("<svg xmlns=\"http://www.w3.org/2000/svg\"/>");
+        response.setHeader("Content-Type", "image/svg+xml");
         var destinationChannel = openForWriting(system:getUserHome() + "/.ballerina/Settings.toml", "UTF-8");
         var result = destinationChannel.write("[central]\naccesstoken= \"" + token  + "\"", 0);
         io:println("Token updated");

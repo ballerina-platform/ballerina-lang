@@ -814,16 +814,6 @@ function testUpdateAttributeWithDifferentUri() returns (xml) {
     return x1;
 }
 
-//function testParseXMLElementWithXMLDeclrEntity() returns (xml) {
-//    var x = xml `<?xml version='1.0' encoding='UTF-8' standalone='no'?><root>hello world</root>`;
-//    return x;
-//}
-
-//function testParseXMLCommentWithXMLDeclrEntity() returns (xml, error) {
-//    var (x, e) = <xml> "<?xml version='1.0' encoding='UTF-8' standalone='no'?><!-- comment node-->";
-//    return (x, e);
-//}
-
 function testRemoveAttributeUsingStringName() returns (xml) {
   xmlns "http://ballerina.com/aaa" as ns0;
   xml x = xml `<root xmlns:ns1="http://ballerina.com/bbb" foo1="bar1" ns0:foo1="bar2" ns1:foo1="bar3" ns0:foo2="bar4"> hello world!</root>`;
