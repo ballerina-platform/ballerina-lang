@@ -116,8 +116,10 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws ServerConnectorException {
-        if (webSocketConnection != null) {
-            notifyCloseMessage(-1, null, ctx);
+        if (webSocketConnection != null
+                && !(webSocketConnection.closeFrameReceived() || webSocketConnection.closeFrameSent())) {
+            // Notify abnormal closure.
+            notifyCloseMessage(1006, null, ctx);
         }
     }
 
@@ -172,6 +174,7 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
         } else if (frame instanceof PingWebSocketFrame) {
             notifyPingMessage((PingWebSocketFrame) frame, ctx);
         } else if (frame instanceof CloseWebSocketFrame) {
+            webSocketConnection.setCloseFrameReceived(true);
             notifyCloseMessage((CloseWebSocketFrame) frame, ctx);
         } else if (frame instanceof ContinuationWebSocketFrame) {
             ContinuationWebSocketFrame conframe = (ContinuationWebSocketFrame) msg;

@@ -143,8 +143,9 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
             handlerExecutor = null;
         }
 
-        if (webSocketConnection != null) {
-            notifyCloseMessage(-1, null);
+        if (!(webSocketConnection.closeFrameReceived() || webSocketConnection.closeFrameSent())) {
+            // Notify abnormal closure.
+            notifyCloseMessage(1006, null);
         }
     }
 
@@ -171,6 +172,7 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
             }
             notifyBinaryMessage(binaryFrame, binaryFrame.content(), binaryFrame.isFinalFragment());
         } else if (msg instanceof CloseWebSocketFrame) {
+            webSocketConnection.setCloseFrameReceived(true);
             notifyCloseMessage((CloseWebSocketFrame) msg);
         } else if (msg instanceof PingWebSocketFrame) {
             notifyPingMessage((PingWebSocketFrame) msg);
