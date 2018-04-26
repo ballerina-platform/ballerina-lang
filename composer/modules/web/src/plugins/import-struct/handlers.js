@@ -45,9 +45,11 @@ function isFloat(val) {
  * process JSON and generate struct fields
  * @param  {object} parent      parent struct object
  * @param  {object} literalExpr JSON expression
+ * @param  {object} topLevelNodes top level nodes
+ * @param  {object} removeDefaults remove defaults
  * @return {boolean}             status
  */
-function processJSONStruct(parent, literalExpr, removeDefaults) {
+function processJSONStruct(parent, literalExpr, topLevelNodes, removeDefaults) {
     let currentValue;
     let success = true;
     parent.setFields([], true);
@@ -61,12 +63,15 @@ function processJSONStruct(parent, literalExpr, removeDefaults) {
             currentName = key.getVariableName().getValue();
         }
         if (TreeUtils.isRecordLiteralExpr(val)) {
-            const parsedJson = FragmentUtils.parseFragment(
-                FragmentUtils.createTopLevelNodeFragment(`type { } ${currentName};`));
-            const anonStruct = TreeBuilder.build(parsedJson);
-            success = this.processJSONStruct(anonStruct.getVariable().getTypeNode().anonStruct, val);
+            let struct = DefaultNodeFactory.createStruct(true);
+            if (currentName && currentName !== '') {
+                struct.getName().setValue(currentName, true);
+                struct.setName(struct.getName(), false);
+            }
+
+            success = processJSONStruct(struct, val, topLevelNodes, removeDefaults);
             if (success) {
-                parent.addFields(anonStruct.getVariable());
+                topLevelNodes.addTopLevelNodes(struct);
             }
             return success;
         } else if (TreeUtils.isLiteral(val)) {
@@ -82,11 +87,11 @@ function processJSONStruct(parent, literalExpr, removeDefaults) {
             }
             if (removeDefaults) {
                 refExpr = TreeBuilder.build(FragmentUtils.parseFragment(
-                    FragmentUtils.createFieldDefinitionListFragment(`\n${currentType} ${currentName};`)));
+                    FragmentUtils.createFieldDefinitionListFragment(`${currentType} ${currentName};`)));
             } else {
                 refExpr = TreeBuilder.build(FragmentUtils.parseFragment(
                     FragmentUtils
-                        .createFieldDefinitionListFragment(`\n${currentType} ${currentName} = ${currentValue};`)));
+                        .createFieldDefinitionListFragment(`${currentType} ${currentName} = ${currentValue};`)));
             }
             if (!refExpr.error) {
                 // Add ; white space for the field in to record.
@@ -134,7 +139,7 @@ export function getHandlerDefinitions(plugin) {
                         FragmentUtils.parseFragment(FragmentUtils.createExpressionFragment(json))
                     );
                     if (!refExpr.error) {
-                        success = processJSONStruct(structNode, refExpr.variable.initialExpression, removeDefaults);
+                        success = processJSONStruct(structNode, refExpr.variable.initialExpression, topLevelNodes, removeDefaults);
                         topLevelNodes.addTopLevelNodes(structNode);
                     } else {
                         success = false;

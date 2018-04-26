@@ -131,6 +131,19 @@ class FragmentUtils {
     }
 
     /**
+     * Create fragment for anon record.
+     *
+     * @param {string} sourceString - source fragment input.
+     * @return {object} fragment details to be sent to fragment parser.
+     * */
+    static createAnonRecordFragment(sourceString) {
+        return {
+            expectedNodeType: 'anon_Record',
+            source: sourceString,
+        };
+    }
+
+    /**
      * Create fragment for endpoint variable definition.
      *
      * @param {string} sourceString - source fragment input.

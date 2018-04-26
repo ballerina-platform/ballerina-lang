@@ -35,6 +35,8 @@ public class BLangFragmentParserConstants {
     public static final String VARIABLE_REFERENCE_LIST = "variable_reference_list";
     public static final String FIELD_DEFINITION_LIST = "field_definition_list";
     public static final String ENDPOINT_VAR_DEF = "endpoint_var_def";
+    public static final String ANON_RECORD = "anon_Record";
+
 
     // wrapper templates
     public static final String SERVICE_BODY_RESOURCE_WRAPPER = "service<http:Service> name bind ep{\n$FRAGMENT\n}";
@@ -50,5 +52,5 @@ public class BLangFragmentParserConstants {
             "function testFunction(){\ntransaction{\n}failed{\n$FRAGMENT\n}aborted{\n}committed{\n}\n}";
     public static final String VAR_REFERENCE_LIST_WRAPPER =
             "function testFunction(){\n$FRAGMENT=testFunction();\n}";
-    public static final String RECORD_BODY_WRAPPER = "type record1 {$FRAGMENT};";
+    public static final String RECORD_BODY_WRAPPER = "type record1 {\n$FRAGMENT\n};";
 }
