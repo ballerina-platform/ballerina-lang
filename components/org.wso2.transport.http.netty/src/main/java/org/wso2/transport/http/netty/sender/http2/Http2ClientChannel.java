@@ -56,6 +56,7 @@ public class Http2ClientChannel {
     private boolean upgradedToHttp2 = false;
     private int socketIdleTimeout = Constants.ENDPOINT_TIMEOUT;
     private Map<String, Http2DataEventListener> dataEventListeners;
+    private StreamCloseListener streamCloseListener;
 
     private static final Logger log = LoggerFactory.getLogger(Http2ClientChannel.class);
 
@@ -65,7 +66,8 @@ public class Http2ClientChannel {
         this.channel = channel;
         this.connection = connection;
         this.httpRoute = httpRoute;
-        this.connection.addListener(new StreamCloseListener(this));
+        streamCloseListener = new StreamCloseListener(this);
+        this.connection.addListener(streamCloseListener);
         dataEventListeners = new HashMap<>();
         inFlightMessages = new ConcurrentHashMap<>();
         promisedMessages = new ConcurrentHashMap<>();
@@ -252,6 +254,16 @@ public class Http2ClientChannel {
      */
     public void setSocketIdleTimeout(int socketIdleTimeout) {
         this.socketIdleTimeout = socketIdleTimeout;
+    }
+
+    /**
+     * Destroys the Http2 client channel.
+     */
+    public void destroy() {
+        this.connection.removeListener(streamCloseListener);
+        inFlightMessages.clear();
+        promisedMessages.clear();
+        http2ConnectionManager.removeClientChannel(httpRoute, this);
     }
 
     /**
