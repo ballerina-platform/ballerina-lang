@@ -6,6 +6,7 @@ endpoint http:Listener http2ServiceEP {
     port: 7090,
     // HTTP version is set to 2.0.
     httpVersion: "2.0"
+
 };
 
 @http:ServiceConfig {
@@ -21,17 +22,23 @@ service http2Service bind http2ServiceEP {
         // Send a Push Promise.
         http:PushPromise promise1 = new(path = "/resource1", method = "GET");
         caller->promise(promise1) but {
-            error e => log:printError("Error occurred while sending the promise1", err = e) };
+            error e => log:printError(
+                           "Error occurred while sending the promise1",
+                           err = e) };
 
         // Send another Push Promise.
         http:PushPromise promise2 = new(path = "/resource2", method = "GET");
         caller->promise(promise2) but {
-            error e => log:printError("Error occurred while sending the promise2", err = e) };
+            error e => log:printError(
+                           "Error occurred while sending the promise2",
+                           err = e) };
 
         // Send one more Push Promise.
         http:PushPromise promise3 = new(path = "/resource3", method = "GET");
         caller->promise(promise3) but {
-            error e => log:printError("Error occurred while sending the promise3", err = e) };
+            error e => log:printError(
+                           "Error occurred while sending the promise3",
+                           err = e) };
 
         // Construct the requested resource.
         http:Response response = new;
@@ -40,7 +47,9 @@ service http2Service bind http2ServiceEP {
 
         // Send the requested resource.
         caller->respond(response) but {
-            error e => log:printError("Error occurred while sending the response", err = e) };
+            error e => log:printError(
+                           "Error occurred while sending the response",
+                           err = e) };
 
         // Construct promised resource1.
         http:Response push1 = new;
@@ -49,7 +58,9 @@ service http2Service bind http2ServiceEP {
 
         // Push promised resource1.
         caller->pushPromisedResponse(promise1, push1) but {
-            error e => log:printError("Error occurred while sending the promised response1", err = e) };
+            error e => log:printError(
+                           "Error occurred while sending the promised response1",
+                           err = e) };
 
         // Construct promised resource2.
         http:Response push2 = new;
@@ -58,7 +69,9 @@ service http2Service bind http2ServiceEP {
 
         // Push promised resource2.
         caller->pushPromisedResponse(promise2, push2) but {
-            error e => log:printError("Error occurred while sending the promised response2", err = e) };
+            error e => log:printError(
+                           "Error occurred while sending the promised response2",
+                           err = e) };
 
         // Construct promised resource3.
         http:Response push3 = new;
@@ -67,6 +80,9 @@ service http2Service bind http2ServiceEP {
 
         // Push promised resource3.
         caller->pushPromisedResponse(promise3, push3) but {
-            error e => log:printError("Error occurred while sending the promised response3", err = e) };
+            error e => log:printError(
+                           "Error occurred while sending the promised response3",
+                           err = e) };
+
     }
 }

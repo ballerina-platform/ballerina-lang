@@ -13,6 +13,8 @@ import ballerina/log;
 }
 service<http:Service> crossOriginService bind { port: 9092 } {
 
+    string respErr = "Failed to respond to the caller";
+
     //Resource-level CORS headers override the service-level CORS headers.
     @http:ResourceConfig {
         methods: ["GET"],
@@ -27,7 +29,7 @@ service<http:Service> crossOriginService bind { port: 9092 } {
         http:Response res = new;
         json responseJson = { "type": "middleware" };
         res.setJsonPayload(responseJson);
-        caller->respond(res) but { error e => log:printError("Failed to respond to the caller", err = e) };
+        caller->respond(res) but { error e => log:printError(respErr, err = e) };
     }
 
     // Since there are no resource-level CORS headers defined here, the global service-level CORS headers are applied to this resource. 
@@ -39,6 +41,6 @@ service<http:Service> crossOriginService bind { port: 9092 } {
         http:Response res = new;
         json responseJson = { "lang": "Ballerina" };
         res.setJsonPayload(responseJson);
-        caller->respond(res) but { error e => log:printError("Failed to respond to the caller", err = e) };
+        caller->respond(res) but { error e => log:printError(respErr, err = e) };
     }
 }

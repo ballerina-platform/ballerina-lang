@@ -11,6 +11,8 @@ type Student {
 @http:ServiceConfig
 service<http:Service> hello bind { port: 9090 } {
 
+    string respErr = "Failed to respond to the caller";
+
     //The 'body' annotation represents the entity body of the inbound request.
     @http:ResourceConfig {
         methods: ["POST"],
@@ -22,7 +24,7 @@ service<http:Service> hello bind { port: 9090 } {
 
         http:Response res = new;
         res.setPayload(details);
-        caller->respond(res) but { error e => log:printError("Failed to respond to the caller", err = e) };
+        caller->respond(res) but { error e => log:printError(respErr, err = e) };
     }
 
     //Bind the XML payload of the inbound request to the `store` variable.
@@ -37,7 +39,7 @@ service<http:Service> hello bind { port: 9090 } {
 
         http:Response res = new;
         res.setPayload(city);
-        caller->respond(res) but { error e => log:printError("Failed to respond to the caller", err = e) };
+        caller->respond(res) but { error e => log:printError(respErr, err = e) };
     }
 
     //Bind the JSON payload to a custom struct. The payload's content should match the struct.
@@ -54,6 +56,6 @@ service<http:Service> hello bind { port: 9090 } {
 
         http:Response res = new;
         res.setPayload({ Name: name, Grade: grade });
-        caller->respond(res) but { error e => log:printError("Failed to respond to the caller", err = e) };
+        caller->respond(res) but { error e => log:printError(respErr, err = e) };
     }
 }
