@@ -1,4 +1,4 @@
-#Run the http_client.bal containing ballerina client.
+#Run the `http_client.bal` that contains ballerina client.
 $ ballerina run http_client.bal
 INFO  [] - Received a promise for /resource1
 INFO  [] - Received a promise for /resource2
