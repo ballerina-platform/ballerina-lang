@@ -25,6 +25,14 @@
     <link rel="stylesheet" href="docerina-theme/css/ballerina-io.css">
     <link rel="stylesheet" href="docerina-theme/css/ballerina-io-docs.css">
     <link rel="stylesheet" href="docerina-theme/css/ballerina-io-api.css">
+    <script type="text/javascript">
+        $(document).ready(function() {
+            if (typeof hljs === 'object') {
+                $('code.language-ballerina').addClass('ballerina');
+                hljs.initHighlighting();
+            }
+        });
+    </script>
     <script>
         var base_url = "";
     </script>
