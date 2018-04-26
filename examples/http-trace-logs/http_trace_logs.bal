@@ -20,6 +20,7 @@ service<http:Service> helloWorld bind { port: 9090 } {
                             but { error e =>
                                     log:printError(
                                         "Failed to respond to caller", err = e) };
+
             error e => log:printError("Faild to fulfill request", err = e);
         }
     }
