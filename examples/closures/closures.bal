@@ -16,8 +16,8 @@ function basicClosure() returns (function (int) returns int) {
     return foo;
 }
 
-// Example function with multiple level of lambda functions within, which the
-// inner most lambda has access to all of it outer scope variables.
+// Example function with multiple levels of lambda functions, which the
+// inner most lambda has access to all of its outer scope variables.
 function multilevelClosure() returns (function (int) returns int) {
     int a = 2;
     var func1 = (int x) => int {
