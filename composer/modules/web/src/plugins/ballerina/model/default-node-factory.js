@@ -102,10 +102,12 @@ function getNodeForFragment(fragment) {
     return node;
 }
 
-function getStaticDefaultNode(fragmentName) {
+function getStaticDefaultNode(fragmentName, keepWhiteSpace) {
     const parsedJson = _.cloneDeep(DefaultNodes[fragmentName]);
     const node = TreeBuilder.build(parsedJson);
-    node.clearWS();
+    if (!keepWhiteSpace) {
+        node.clearWS();
+    }
     return node;
 }
 
@@ -200,8 +202,8 @@ class DefaultNodeFactory {
         return getStaticDefaultNode('createJMSResource');
     }
 
-    createStruct() {
-        return getStaticDefaultNode('createStruct');
+    createStruct(keepWhiteSpace) {
+        return getStaticDefaultNode('createStruct', keepWhiteSpace);
     }
 
     createTransformer() {
@@ -356,6 +358,11 @@ class DefaultNodeFactory {
     }
 
     createEndpoint(args) {
+        if (!args.endpoint) {
+            return getNodeForFragment(FragmentUtils.createEndpointVarDefFragment(`
+                endpoint ${'http:' + "Client"} ${args.name} {};
+            `));
+        }
         const { endpoint, packageName, fullPackageName } = args;
         let endpointPackageAlias = (packageName !== 'Current Package' && packageName !== '' &&
             packageName !== 'builtin') ? (packageName + ':') : '';

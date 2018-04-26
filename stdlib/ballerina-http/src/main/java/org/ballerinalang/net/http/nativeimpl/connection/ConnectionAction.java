@@ -158,7 +158,7 @@ public abstract class ConnectionAction implements NativeCallableUnit {
         @Override
         public void onError(Throwable throwable) {
             BStruct httpConnectorError = BLangConnectorSPIUtil.createBStruct(this.dataContext.context,
-                                            HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.STRUCT_GENERIC_ERROR);
+                    HttpConstants.PACKAGE_BALLERINA_BUILTIN, HttpConstants.STRUCT_GENERIC_ERROR);
             if (outboundMsgDataStreamer != null) {
                 if (throwable instanceof IOException) {
                     this.outboundMsgDataStreamer.setIoException((IOException) throwable);

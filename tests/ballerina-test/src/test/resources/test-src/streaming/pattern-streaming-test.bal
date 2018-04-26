@@ -45,7 +45,7 @@ function testPatternQuery () {
 
     forever {
         from every regulatorStream as e1 followed by tempStream where e1.roomNo == roomNo [1..2] as e2
-        followed by regulatorStream where e1.roomNo == roomNo as e3
+        followed by regulatorStream where e1.roomNo == roomNo as e3 within "2 sec"
         select e1.roomNo, e2[1].temp - e2[0].temp as tempDifference
         => (TempDiffInfo[] emp) {
                 tempDiffStream.publish(emp);
@@ -329,4 +329,63 @@ function alertRoomAction4(RoomKeyAction action) {
 function addToGlobalRoomActions4(RoomKeyAction s) {
     roomActions4[index] = s;
     index = index + 1;
+}
+
+TempDiffInfo[] tempDiffInfoArray6 = [];
+int index6 = 0;
+stream<RoomTempInfo> tempStream6;
+stream<RegulatorInfo> regulatorStream6;
+stream<TempDiffInfo> tempDiffStream6;
+
+function testPatternQuery6 () {
+
+    forever {
+        from every regulatorStream6 as e1 followed by tempStream6 where e1.roomNo == roomNo [1..2] as e2
+        followed by regulatorStream6 where e1.roomNo == roomNo as e3 within "2 sec"
+        select e1.roomNo, e2[1].temp - e2[0].temp as tempDifference
+        => (TempDiffInfo[] emp) {
+            tempDiffStream6.publish(emp);
+        }
+    }
+}
+
+function printTempDifference6(TempDiffInfo tempDiff) {
+    addToGlobalTempDiffArray6(tempDiff);
+}
+
+function addToGlobalTempDiffArray6(TempDiffInfo s) {
+    tempDiffInfoArray6[index6] = s;
+    index6 = index6 + 1;
+}
+
+function runPatternQuery6() returns (TempDiffInfo[]) {
+
+    testPatternQuery6();
+
+    RoomTempInfo t1 = {deviceID:1, roomNo:23, temp:23.0};
+    RoomTempInfo t2 = {deviceID:8, roomNo:23, temp:30.0};
+
+    RegulatorInfo r1 = {deviceID:1, roomNo:23, tempSet:15.0, isOn:true};
+    RegulatorInfo r2 = {deviceID:3, roomNo:23, tempSet:25.0, isOn:true};
+
+
+    tempDiffStream6.subscribe(printTempDifference6);
+
+    regulatorStream6.publish(r1);
+    runtime:sleep(1000);
+
+    tempStream6.publish(t1);
+    tempStream6.publish(t2);
+    runtime:sleep(3000);
+
+    regulatorStream6.publish(r2);
+    int count = 0;
+    while(true) {
+        runtime:sleep(500);
+        count++;
+        if((lengthof tempDiffInfoArray6) > 0 || count == 10) {
+            break;
+        }
+    }
+    return tempDiffInfoArray6;
 }

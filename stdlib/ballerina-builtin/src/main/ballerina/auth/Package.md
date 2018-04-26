@@ -11,3 +11,17 @@ By default there are two implementations of that. They are, `auth:ConfigAuthProv
 When creating a new authentication provider, there are two functions that need to be implemented. 
 - `authenticate` : authenticate the user based on a credential, which can be username/password or a token such as JWT.
 - `getScopes` : provide the scopes associated with the user. Scopes are primarily permissions that are required to access a protected resource. 
+
+### Config Auth Provider
+
+`ConfigAuthProvider` is an implementation of the `AuthProvider` interface, which uses the Ballerina configuration file
+ to store usernames, passwords, scopes and the relevant associations.
+
+A user is denoted by a section in the configuration file. The password and the scopes assigned to the user are denoted
+ as keys under the relevant user section, as follows:
+
+ ```
+ [b7a.users.<username>]
+ password="<password>"
+ scopes="<comma_separated_scopes>"
+ ```
