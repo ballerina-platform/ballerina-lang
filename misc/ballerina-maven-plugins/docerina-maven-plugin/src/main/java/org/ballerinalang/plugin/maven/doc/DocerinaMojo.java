@@ -69,6 +69,12 @@ public class DocerinaMojo extends AbstractMojo {
      */
     @Parameter(property = "packageFilter", required = false)
     private String packageFilter;
+
+    /**
+     * Organization name.
+     */
+    @Parameter(property = "orgName", required = false)
+    private String orgName;
     
     /**
      * treat the source as native ballerina code.
@@ -94,6 +100,9 @@ public class DocerinaMojo extends AbstractMojo {
         }
         if (outputZip != null) {
             System.setProperty(BallerinaDocConstants.OUTPUT_ZIP_PATH, outputZip);
+        }
+        if (orgName != null) {
+            System.setProperty(BallerinaDocConstants.ORG_NAME, orgName);
         }
 
         Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
