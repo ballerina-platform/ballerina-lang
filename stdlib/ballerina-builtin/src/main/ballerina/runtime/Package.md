@@ -8,37 +8,52 @@ The Invocation Context is a data holder which is created per request, and preser
 The Invocation Context comprises of a unique id, UserPrincipal instance which includes user details and an AuthContext 
 instance which has the authentication related details if available.
 
+### Errors
+
+Error types NullReferenceException and IllegalStateException, which wraps the error type 
+defined in ballerina/builtin package, are included in the runtime package. Furthermore, there are utility methods to 
+retrieve the current call stack and the particular call stack frame for an error. 
+
+Additionally, the runtime package also contains util methods to halt a thread (sleep) for a given period of time and 
+to lookup properties from the runtime context.
+
 ### Samples
 
-The following sample shows how to access the Invocation Context and set data to it.
+The following sample shows how to access the Invocation Context, set data to it and access the same.
 ```ballerina
 import ballerina/runtime;
+import ballerina/io;
 
-// set date to the Invocation Context    
-// set the username ‘tom’ as the user id
+// set data to the Invocation Context
+// set the username ‘tom’ as the user name
 runtime:getInvocationContext().userPrincipal.username = "tom";
 // set claims
-map claims = {email:"tom@ballerina.com", org:"wso2"};
+map claims = { email: "tom@ballerina.com", org: "wso2" };
 runtime:getInvocationContext().userPrincipal.claims = claims;
 // set scopes
 string[] scopes = ["email", "profile"];
 runtime:getInvocationContext().userPrincipal.scopes = scopes;
 // set auth scheme
-runtime:getInvocationContext().authContext.scheme = “jwt”;
+runtime:getInvocationContext().authContext.scheme = "jwt";
 // set auth token
-runtime:getInvocationContext().authContext.authToken = “abc.pqr.xyz”;
+runtime:getInvocationContext().authContext.authToken = "abc.pqr.xyz";
 
 // retrieve data from the invocation context
 // retrieve user name
 string userName = runtime:getInvocationContext().userPrincipal.username;
+io:println(userName);
 // retrieve claims
-map claims = runtime:getInvocationContext().userPrincipal.claims;
+map retrievedClaims = <map>runtime:getInvocationContext().userPrincipal.claims;
+io:println(retrievedClaims);
 // retrieve scopes
-string[] scopes = runtime:getInvocationContext().userPrincipal.scopes;
+string[] retrievedScopes = runtime:getInvocationContext().userPrincipal.scopes;
+io:println(retrievedScopes);
 // retrieve auth scheme
 string authScheme = runtime:getInvocationContext().authContext.scheme;
+io:println(authScheme);
 // retrieve auth token
-string token =  runtime:getInvocationContext().authContext.authToken;
+string token = runtime:getInvocationContext().authContext.authToken;
+io:println(token);
 ```
 
 The following sample shows how to sleep a worker thread for a given time period.
@@ -71,13 +86,13 @@ function throwError1 () {
 
 function throwError2 () {
     // creates an error with a message
-    error e = {message:"error 2 occured"};
+    error e = { message: "error 2 occured" };
     throw e;
 }
 
 try {
     throwError1();
-    
+
 } catch (error e) {
     // prints the call stack frame for the error caught
     io:println(runtime:getErrorCallStackFrame(e));
