@@ -44,13 +44,24 @@ OPTIONS
 
      -c <path>
      --config <path>
-         Path to document generation configuration file. 
+         Provides the path to a Ballerina configuration file.
+         The configuration file format is a subset of the TOML file
+         format. It supports key/value pairs, tables, comments, and
+         string, int, float and boolean value types. If a config
+         file is not specified using [-c|--config], Ballerina looks
+         for a default configuration file named `ballerina.conf`
+         in the directory the source file(s) reside in.
 
      -v
      --verbose
          Prints debug level logs while generating documentation.
-     -e
-         Ballerina environment parameters.
+     -e <key=value>
+         Sets Ballerina environment parameters as key/value pairs.
+         If multiple parameters need to be provided, each parameter
+         has to be specified using its own -e flag. Details of the
+         environment parameters that the Ballerina standard library
+         packages support can be found in the relevant API
+         documentation.
 
 EXAMPLES
      Generate API documentation for current project 

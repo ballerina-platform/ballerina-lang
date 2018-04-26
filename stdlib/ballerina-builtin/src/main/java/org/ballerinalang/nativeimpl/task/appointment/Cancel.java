@@ -23,19 +23,19 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.task.TaskRegistry;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 /**
- * Native function ballerina.task:scheduleAppointment.
+ * Native function ballerina/task:Appointment.cancel.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "task",
-        functionName = "Appointment.cancel",
-        args = {@Argument(name = "app", type = TypeKind.STRUCT, structType = "Appointment",
-                structPackage = "ballerina.task")},
+        orgName = "ballerina",
+        packageName = "task",
+        functionName = "cancel",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Appointment", structPackage = "ballerina.task"),
         isPublic = true
 )
 public class Cancel extends BlockingNativeCallableUnit {
