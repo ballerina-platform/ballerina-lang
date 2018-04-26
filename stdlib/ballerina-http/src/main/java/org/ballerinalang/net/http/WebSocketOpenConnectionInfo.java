@@ -31,7 +31,6 @@ public class WebSocketOpenConnectionInfo {
     private final BStruct webSocketEndpoint;
     private final WebSocketConnection webSocketConnection;
     private int closeStatusCode = -1;
-    private boolean closeFrameSent = false;
 
     public WebSocketOpenConnectionInfo(WebSocketService webSocketService, WebSocketConnection webSocketConnection,
                                        BStruct webSocketEndpoint) {
@@ -58,10 +57,5 @@ public class WebSocketOpenConnectionInfo {
 
     public void setCloseStatusCode(int closeStatusCode) {
         this.closeStatusCode = closeStatusCode;
-        closeFrameSent = true;
-    }
-
-    public boolean isCloseFrameSent() {
-        return closeFrameSent;
     }
 }

@@ -62,4 +62,6 @@ public class WebSocketConstants {
     public static final String CLIENT_READY_ON_CONNECT = "readyOnConnect";
     public static final String CLIENT_CONNECTOR_CONFIGS = "clientEndpointConfigs";
     public static final String WEBSOCKET_UPGRADE_SERVICE_CONFIG = "upgradeService";
+
+    public static final int STATUS_CODE_ABNORMAL_CLOSURE = 1006;
 }

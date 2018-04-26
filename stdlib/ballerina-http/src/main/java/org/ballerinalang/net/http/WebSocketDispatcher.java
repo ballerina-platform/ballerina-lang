@@ -178,7 +178,7 @@ public class WebSocketDispatcher {
     public static void dispatchCloseMessage(WebSocketOpenConnectionInfo connectionInfo,
                                             WebSocketCloseMessage closeMessage) {
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
-        if (connectionInfo.isCloseFrameSent()) {
+        if (webSocketConnection.closeFrameSent()) {
             if (webSocketConnection.getSession().isOpen()) {
                 webSocketConnection.close().addListener(closeFuture -> {
                     connectionInfo.getWebSocketEndpoint().setBooleanField(0, 0);
@@ -195,13 +195,15 @@ public class WebSocketDispatcher {
         WebSocketService wsService = connectionInfo.getService();
         Resource onCloseResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_CLOSE);
         if (onCloseResource == null) {
-            webSocketConnection.close(closeMessage.getCloseCode(), null).addListener(future -> {
-                if (webSocketConnection.getSession().isOpen()) {
-                    webSocketConnection.close().addListener(closeFuture -> {
-                        connectionInfo.getWebSocketEndpoint().setBooleanField(0, 0);
-                    });
-                }
-            });
+            if (webSocketConnection.getSession().isOpen()) {
+                webSocketConnection.close(closeMessage.getCloseCode(), null).addListener(future -> {
+                    if (webSocketConnection.getSession().isOpen()) {
+                        webSocketConnection.close().addListener(closeFuture -> {
+                            connectionInfo.getWebSocketEndpoint().setBooleanField(0, 0);
+                        });
+                    }
+                });
+            }
             return;
         }
         List<ParamDetail> paramDetails = onCloseResource.getParamDetails();
@@ -214,13 +216,16 @@ public class WebSocketDispatcher {
             @Override
             public void notifySuccess() {
                 //TODO: Need to wait until the connection is closed from the other side
-                webSocketConnection.close(closeMessage.getCloseCode(), null).addListener(future -> {
-                    if (webSocketConnection.getSession().isOpen()) {
-                        webSocketConnection.close().addListener(closeFuture -> {
-                            connectionInfo.getWebSocketEndpoint().setBooleanField(0, 0);
-                        });
-                    }
-                });
+                if (closeMessage.getCloseCode() != WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE
+                        && webSocketConnection.getSession().isOpen()) {
+                    webSocketConnection.close(closeMessage.getCloseCode(), null).addListener(future -> {
+                        if (webSocketConnection.getSession().isOpen()) {
+                            webSocketConnection.close().addListener(closeFuture -> {
+                                connectionInfo.getWebSocketEndpoint().setBooleanField(0, 0);
+                            });
+                        }
+                    });
+                }
             }
 
             @Override

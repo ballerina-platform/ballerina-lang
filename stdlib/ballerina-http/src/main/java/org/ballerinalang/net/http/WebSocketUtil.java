@@ -98,8 +98,8 @@ public abstract class WebSocketUtil {
                 webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO,
                                                  connectionInfo);
                 if (context != null && callback != null) {
+                    webSocketEndpoint.setBooleanField(0, 1);
                     context.setReturnValues(webSocketEndpoint);
-                    webSocketConnector.setBooleanField(0, 1);
                     callback.notifySuccess();
                 } else {
                     Resource onOpenResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_OPEN);
