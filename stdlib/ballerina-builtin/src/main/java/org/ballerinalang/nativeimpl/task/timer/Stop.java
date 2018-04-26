@@ -24,6 +24,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.task.TaskRegistry;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
@@ -31,10 +32,10 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
  * Native function ballerina.task:scheduleTimer.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "task",
-        functionName = "Timer.stop",
-        args = {@Argument(name = "task", type = TypeKind.STRUCT, structType = "Timer",
-                structPackage = "ballerina.task")},
+        orgName = "ballerina",
+        packageName = "task",
+        functionName = "stop",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Timer", structPackage = "ballerina.task"),
         isPublic = true
 )
 public class Stop extends BlockingNativeCallableUnit {
