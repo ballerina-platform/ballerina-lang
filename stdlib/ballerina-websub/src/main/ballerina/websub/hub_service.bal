@@ -264,8 +264,11 @@ function verifyIntent(string callback, string topic, map params) {
 
     string queryParams = HUB_MODE + "=" + mode
         + "&" + HUB_TOPIC + "=" + topic
-        + "&" + HUB_CHALLENGE + "=" + challenge
-        + "&" + HUB_LEASE_SECONDS + "=" + leaseSeconds;
+        + "&" + HUB_CHALLENGE + "=" + challenge;
+
+    if (mode == MODE_SUBSCRIBE) {
+        queryParams = queryParams + "&" + HUB_LEASE_SECONDS + "=" + leaseSeconds;
+    }
 
     var subscriberResponse = callbackEp->get(untaint ("?" + queryParams), request = request);
 
@@ -278,9 +281,10 @@ function verifyIntent(string callback, string topic, map params) {
                         log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: ["
                                 + callback + "]: Challenge not echoed correctly.");
                     } else {
-                        SubscriptionDetails subscriptionDetails = {topic:topic, callback:callback,
-                            leaseSeconds:leaseSeconds, createdAt:createdAt};
+                        SubscriptionDetails subscriptionDetails = {topic:topic, callback:callback};
                         if (mode == MODE_SUBSCRIBE) {
+                            subscriptionDetails.leaseSeconds = leaseSeconds * 1000;
+                            subscriptionDetails.createdAt = createdAt;
                             if (params.hasKey(HUB_SECRET)) {
                                 string secret = <string>params[HUB_SECRET];
                                 subscriptionDetails.secret = secret;
