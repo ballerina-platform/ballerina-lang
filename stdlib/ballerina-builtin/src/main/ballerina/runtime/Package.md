@@ -4,18 +4,18 @@ This package includes functions to interact with the runtime, the invocation con
 
 ### Invocation Context
 
-The Invocation Context is a data holder which is created per request, and preserved for a single request-response flow. 
-The Invocation Context comprises of a unique id, UserPrincipal instance which includes user details and an AuthContext 
-instance which has the authentication related details if available.
+The Invocation Context is a data holder that is created per request and preserved for a single request-response flow.
+The Invocation Context comprises of a unique ID, a `UserPrincipal` instance that includes user details and an 
+ `AuthContext` instance that has the authentication related details if available.
 
 ### Errors
 
-Error types NullReferenceException and IllegalStateException, which wraps the error type 
-defined in ballerina/builtin package, are included in the runtime package. Furthermore, there are utility methods to 
+The runtime package includes the `NullReferenceException` and `IllegalStateException` error types. These two error 
+types wrap the `error` type defined in the `ballerina/builtin` package. Furthermore, there are utility methods to 
 retrieve the current call stack and the particular call stack frame for an error. 
 
-Additionally, the runtime package also contains util methods to halt a thread (sleep) for a given period of time and 
-to lookup properties from the runtime context.
+Additionally, the runtime package also contains utility methods to halt a `worker` (sleep) for a given period of time
+  and to look up properties from the runtime context.
 
 ### Samples
 
@@ -56,7 +56,7 @@ string token = runtime:getInvocationContext().authContext.authToken;
 io:println(token);
 ```
 
-The following sample shows how to sleep a worker thread for a given time period.
+The following sample shows how to halt the current `worker` for a given time period.
 ```ballerina
 import ballerina/runtime;
 
@@ -92,7 +92,6 @@ function throwError2 () {
 
 try {
     throwError1();
-
 } catch (error e) {
     // prints the call stack frame for the error caught
     io:println(runtime:getErrorCallStackFrame(e));
