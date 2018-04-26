@@ -58,7 +58,8 @@ function appointment1Cleanup() returns (error?) {
     app1Count = app1Count + 1;
     if (app1Count == 5) {
         log:printInfo("Stopping Appointment#1 cleanup task since it has run 5 times");
-        // This is how you stop a task.
+        
+        // This is how you cancel an appointment.
         appointment1.cancel();
     }
     return cleanup();
