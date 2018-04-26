@@ -30,7 +30,7 @@ function main(string... args) {
     io:println(f2.isCancelled());
 
     // async action call
-    future<http:Response|http:HttpConnectorError> f3 = start clientEndpoint->get("/get?test=123");
+    future<http:Response|error> f3 = start clientEndpoint->get("/get?test=123");
     io:println(sum(25, 75));
     io:println(f3.isDone());
     var response = await f3;
@@ -38,7 +38,7 @@ function main(string... args) {
         http:Response resp => {
             io:println("HTTP Response: ", untaint resp.getJsonPayload());
         }
-        http:HttpConnectorError err => { io:println(err.message); }
+        error err => { io:println(err.message); }
     }
     io:println(f3.isDone());
 }

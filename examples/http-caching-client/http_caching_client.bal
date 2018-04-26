@@ -29,7 +29,7 @@ service<http:Service> cachingProxy bind { port: 9090 } {
                 // In this example, the received response is forwarded to the client through the outbound endpoint.
                 caller->respond(res) but { error e => log:printError("Failed to respond to the caller", err = e) };
             }
-            http:HttpConnectorError err => {
+            error err => {
                 // For failed requests, a `500` response is sent back to the caller.
                 http:Response res = new;
                 res.statusCode = 500;

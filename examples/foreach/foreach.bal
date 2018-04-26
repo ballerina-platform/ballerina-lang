@@ -3,23 +3,23 @@ import ballerina/io;
 function main(string... args) {
     io:println("Iterating over a string array:-");
     string[] fruits = ["apple", "banana", "cherry"];
-    // For arrays: use one variable to get the values defined in the array.
-    // Use two variables as comma separated values to get the index and value. For example, `foreach i, v in fruits`.
+    // To fetch the values defined in the array, use one variable.
+    // To fetch the index and value, use two variables as comma separated values. e.g.,, `foreach i, v in fruits`.
     foreach v in fruits {
         io:println("fruit: " + v);
     }
 
     io:println("\nIterating over a map:-");
     map<string> words = { a: "apple", b: "banana", c: "cherry" };
-    // For maps: use 1 variable to get the values defined in the map. Use 2 variables to get both the key (string) and
-    // value.
+    // To fetch the values defined in the map, use one variable. To fetch both the key (string) and value, use two
+    // variables.
     foreach k, v in words {
         io:println("letter: ", k, ", word: ", v);
     }
 
     io:println("\nIterating over a json object:-");
     json apple = { name: "apple", colors: ["red", "green"], price: 5 };
-    // For json: use only a single json typed variable.
+    // To fetch a JSON value, use only a single `json` typed variable.
     foreach j in apple {
         match j {
             string js => {
@@ -32,7 +32,7 @@ function main(string... args) {
     }
 
     io:println("\nIterating over a json array:-");
-    // To Iterate over a JSON array, you need to first cast it into an array of json (json[]).
+    // To Iterate over a JSON array, you need to first cast it into an array of json (`json[]`).
     json[] colors = check <json[]>apple.colors;
     foreach i, j in colors {
         io:println("color ", i, ": ", j);
@@ -43,7 +43,7 @@ function main(string... args) {
                         <name>Sherlock Holmes</name>
                         <author>Sir Arthur Conan Doyle</author>
                     </book>`;
-    // For xml: use one variable to get the xml value. Use two variables to get both the index (int) and xml value.
+    // To fetch the XML value, use one variable. To get both the index (int) and XML value, use two variables.
     foreach i, x in book.*.elements(){
         io:println("xml at ", i, ": ", x);
     }

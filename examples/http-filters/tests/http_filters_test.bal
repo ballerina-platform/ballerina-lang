@@ -23,7 +23,7 @@ function testFunc() {
         http:Response resp => {
             test:assertEquals(resp.getHeader("filterName"), "RequestFilter-1");
         }
-        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
+        error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 }
 

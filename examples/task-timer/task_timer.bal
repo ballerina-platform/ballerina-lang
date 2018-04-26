@@ -18,7 +18,7 @@ function main(string... args) {
     // Schedule a timer task, which initially runs 500ms from now.
     //After that, it runs every 1000ms.
     timer = new task:Timer(onTriggerFunction, onErrorFunction, 1000, delay = 500);
-    _ = timer.start();
+    timer.start();
 
     runtime:sleep(30000); // Temporary workaround to stop the process from exiting.
 }
@@ -35,7 +35,7 @@ function cleanup() returns (error|()) {
         return e;
     }
     if (count >= 10) {
-        _ = timer.stop();
+        timer.stop();
         io:println("Stopped timer");
     }
     return ();

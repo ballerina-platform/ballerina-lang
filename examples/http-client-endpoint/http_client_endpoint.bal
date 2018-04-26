@@ -1,6 +1,5 @@
-import ballerina/io;
 import ballerina/http;
-import ballerina/mime;
+import ballerina/log;
 
 endpoint http:Client clientEndpoint {
     url: "https://postman-echo.com"
@@ -13,98 +12,98 @@ function main(string... args) {
     var response = clientEndpoint->get("/get?test=123");
     match response {
         http:Response resp => {
-            io:println("GET request:");
+            log:printInfo("GET request:");
             var msg = resp.getJsonPayload();
             match msg {
                 json jsonPayload => {
-                    io:println(jsonPayload);
+                    log:printInfo(jsonPayload.toString());
                 }
                 error err => {
-                    io:println(err.message);
+                    log:printError(err.message);
                 }
             }
         }
-        http:HttpConnectorError err => {io:println(err.message);}
+        error err => {log:printError(err.message);}
     }
     // Set a string payload to the message to be sent to the endpoint.
     req.setPayload("POST: Hello World");
+
     response = clientEndpoint->post("/post", request = req);
     match response {
         http:Response resp => {
-            io:println("\nPOST request:");
+            log:printInfo("\nPOST request:");
             var msg = resp.getJsonPayload();
             match msg {
                 json jsonPayload => {
-                    io:println(jsonPayload);
+                    log:printInfo(jsonPayload.toString());
                 }
                 error err => {
-                    io:println(err.message);
+                    log:printError(err.message);
                 }
             }
         }
-        http:HttpConnectorError err => {io:println(err.message);}
+        error err => {log:printError(err.message);}
 
     }
 
     // Set a JSON payload to the message to be sent to the endpoint.
     json jsonMsg = { method: "PUT", payload: "Hello World" };
     req.setJsonPayload(jsonMsg);
+
     response = clientEndpoint->put("/put", request = req);
     match response {
         http:Response resp => {
-            io:println("\nPUT request:");
+            log:printInfo("\nPUT request:");
             var msg = resp.getJsonPayload();
             match msg {
                 json jsonPayload => {
-                    io:println(jsonPayload);
+                    log:printInfo(jsonPayload.toString());
                 }
                 error err => {
-                    io:println(err.message);
+                    log:printError(err.message);
                 }
             }
         }
-        http:HttpConnectorError err => {io:println(err.message);}
+        error err => {log:printError(err.message);}
     }
 
     // Set an XML payload to the message to be sent to the endpoint.
     xml xmlMsg = xml `<request><method>PATCH</method><payload>Hello World!</payload></request>`;
     req.setXmlPayload(xmlMsg);
-    json j = {};
-    // Remove the json payload.
-    req.setJsonPayload(j);
+
     response = clientEndpoint->patch("/patch", request = req);
     match response {
         http:Response resp => {
-            io:println("\nPATCH request:");
+            log:printInfo("\nPATCH request:");
             var msg = resp.getJsonPayload();
             match msg {
                 json jsonPayload => {
-                    io:println(jsonPayload);
+                    log:printInfo(jsonPayload.toString());
                 }
                 error err => {
-                    io:println(err.message);
+                    log:printError(err.message);
                 }
             }
         }
-        http:HttpConnectorError err => {io:println(err.message);}
+        error err => {log:printError(err.message);}
     }
 
     req.setPayload("DELETE: Hello World");
     response = clientEndpoint->delete("/delete", request = req);
     match response {
         http:Response resp => {
-            io:println("\nDELETE request:");
+            log:printInfo("\nDELETE request:");
             var msg = resp.getJsonPayload();
             match msg {
                 json jsonPayload => {
-                    io:println(jsonPayload);
+                    log:printInfo(jsonPayload.toString());
                 }
                 error err => {
-                    io:println(err.message);
+                    log:printError(err.message);
                 }
             }
         }
-        http:HttpConnectorError err => {io:println(err.message);}
+        error err => {log:printError(err.message);}
     }
 
     req.setPayload("CUSTOM: Hello World");
@@ -117,12 +116,12 @@ function main(string... args) {
     match response {
         http:Response resp => {
             string contentType = resp.getHeader("Content-Type");
-            io:println("\nContent-Type: " + contentType);
+            log:printInfo("\nContent-Type: " + contentType);
 
             int statusCode = resp.statusCode;
-            io:println("Status code: " + statusCode);
+            log:printInfo("Status code: " + statusCode);
 
         }
-        http:HttpConnectorError err => {io:println(err.message);}
+        error err => {log:printError(err.message);}
     }
 }

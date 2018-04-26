@@ -1,1 +1,1 @@
-//Ballerina supports `lengthof` which returns the length of an array.
+// Ballerina supports the `lengthof` operator, which returns the length/size of the given value.

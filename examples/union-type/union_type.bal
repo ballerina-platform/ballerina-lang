@@ -1,6 +1,6 @@
 import ballerina/io;
 
-// This function expects the parameter `value` to be either a `string` or an `int`.
+// This function expects the `value` parameter to be either a `string` or an `int`.
 function println(string|int value) {
     io:println(value);
 }
@@ -23,10 +23,10 @@ function getValue(string key) returns string|KeyNotFoundError {
 }
 
 function main(string... args) {
-    // Here we are passing a string value.
+    // This passes a string value.
     println("This is a string");
 
-    // Here we are passing an int value.
+    // This passes an int value.
     println(101);
 
     // This function call returns a string value.
