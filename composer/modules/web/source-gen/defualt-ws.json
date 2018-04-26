@@ -269,6 +269,12 @@
     "before }": "",
     "after }": ""
   },
+  "Done": {
+    "before done": "",
+    "after done": "",
+    "before ;": "",
+    "after ;": ""
+  },
   "ElvisExpr": {
     "before leftExpression": "",
     "after leftExpression": "",
@@ -491,6 +497,12 @@
     "before functionNode": "",
     "after functionNode": ""
   },
+  "Limit": {
+    "before limit": " ",
+    "after limit": "",
+    "before limitValue": " ",
+    "after limitValue": ""
+  },
   "Literal": {
     "before unescapedValue": "",
     "after unescapedValue": "",
@@ -587,6 +599,16 @@
     "before }":"",
     "after }": ""
   },
+  "OrderBy": {
+    "before order": "",
+    "after order": "",
+    "before by":"",
+    "after by": ""
+  },
+  "OrderByVariable": {
+    "before orderByType": " ",
+    "after orderByType": ""
+  },
   "PostIncrement": {
     "before variable": "",
     "after variable": "",
@@ -646,8 +668,6 @@
   "Retry": {
     "before retry": "",
     "after retry": "",
-    "before count": " ",
-    "after count": "",
     "before ;": "",
     "after ;": ""
   },
@@ -726,6 +746,14 @@
   "Table": {
     "before table": "",
     "after table": ""
+  },
+  "TableQuery": {
+    "before from": "",
+    "after from": ""
+  },
+  "TableQueryExpression": {
+    "before tableQuery": "",
+    "after tableQuery": ""
   },
   "TernaryExpr": {
     "before condition": "",

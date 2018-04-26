@@ -19,7 +19,13 @@
 package org.ballerinalang.docgen.docs.utils;
 
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
+import org.commonmark.node.BlockQuote;
+import org.commonmark.node.FencedCodeBlock;
+import org.commonmark.node.Heading;
+import org.commonmark.node.HtmlBlock;
+import org.commonmark.node.ListBlock;
 import org.commonmark.node.Node;
+import org.commonmark.node.ThematicBreak;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 
@@ -41,7 +47,9 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -66,7 +74,8 @@ public class BallerinaDocUtils {
      * @return html representation
      */
     public static String mdToHtml(String mdContent) {
-        Parser parser = Parser.builder().build();
+        Parser parser = Parser.builder().enabledBlockTypes(new HashSet<>(Arrays.asList(Heading.class, HtmlBlock
+                .class, ThematicBreak.class, FencedCodeBlock.class, BlockQuote.class, ListBlock.class))).build();
         Node document = parser.parse(mdContent != null ? mdContent.trim() : "");
         HtmlRenderer renderer = HtmlRenderer.builder().build();
         return renderer.render(document);

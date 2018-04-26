@@ -1,62 +1,55 @@
 ## Package overview
-This package contains an implementation of the W3C [**WebSub**](https://www.w3.org/TR/websub/) recommendation which facilitates a push-based 
-content delivery/notification mechanism between publishers and subscribers.
+This package contains an implementation of the W3C [**WebSub**](https://www.w3.org/TR/websub/) recommendation, which facilitates a push-based content delivery/notification mechanism between publishers and subscribers.
 
-This implementation supports introducing all WebSub components, namely subscribers, publishers and hubs.
+This implementation supports introducing all WebSub components: subscribers, publishers, and hubs.
  
-- Subscriber - A party interested in receiving update notifications for particular topics
-- Publisher - A party which advertises topics for which interested parties need to subscribe to, to receive notifications
- on occurrence of events, and the hub(s) the publisher would notify on updates to the topics
-- Hub - A party which accepts subscription requests from subscribers and delivers content to the subscribers once the topic 
-is updated, on notification from the topic's publisher
+- Subscriber - A party interested in receiving update notifications for particular topics.
+- Publisher - A party that advertises topics to which interested parties subscribe in order to receive notifications
+ on occurrence of events.
+- Hub - A party that accepts subscription requests from subscribers and delivers content to the subscribers when the topic 
+is updated by the topic's publisher.
  
  
 #### Basic Flow with WebSub
-1. Subscriber discovers the topics it needs to subscribe to, to receive updates/content, and the hub(s) it can subscribe at
+1. Subscriber discovers the topics it needs to subscribe to in order to receive updates/content and discovers the hub(s) where it can subscribe.
 
 2. Subscriber sends a subscription request to a hub, specifying the topic it needs to receive notifications for along 
- with other subscription parameters such as:
-      - a callbak URL to which content is expected to be delivered
-      - (_optional_) a lease seconds value indicating how long it wishes the subscription to stay active
-      - (_optional_) a secret to use for [authenticated content distribution](https://www.w3.org/TR/websub/#signing-content)
+ with other subscription parameters, such as:
+      - The callback URL where content is expected to be delivered
+      - (Optional) A lease seconds value indicating how long the subscriber wants the subscription to stay active
+      - (Optional) A secret to use for [authenticated content distribution](https://www.w3.org/TR/websub/#signing-content)
   
 3. The hub sends an intent verification request to the specified callback URL, and if the response indicates verification
- (by echoing a challenge specified in the request), by the subscriber, the subscription is added for the topic, at the 
- hub
+ (by echoing a challenge specified in the request) by the subscriber, the subscription is added for the topic at the 
+ hub.
    
-4. Publisher notifies the hub on updates to the topic, and the content to deliver is identified
+4. Publisher notifies the hub of updates to the topic, and the content to deliver is identified.
 
-5. The hub delivers the identified content to the subscribers of the topic
+5. The hub delivers the identified content to the subscribers of the topic.
 
 #### Features
-This package allows introducing a WebSub Subscriber Service with two resources namely ```onIntentVerification```, 
-  which accepts HTTP GET requests for intent verification, and ```onNotification``` which accepts HTTP POST requests
-  for notifications. The WebSub Subscriber Service provides the following capabilities:
- - Subscription Requests are sent at service start time for the hub and topic specified as annotations, or discovered based 
-    on the resource URL specified as an annotation
- - Auto Intent Verification against the topic specified as an annotation or discovered based on the resource URL 
-    specified as an annotation, if the ```onIntentVerification ``` is not specified
- - Signature Validation for authenticated content distribution, if a secret is specified for the subscription
+This package allows introducing a WebSub Subscriber Service with `onIntentVerification`, which accepts HTTP GET requests for intent verification, and `onNotification`, which accepts HTTP POST requests for notifications. The WebSub Subscriber Service provides the following capabilities:
+ - Subscription Requests are sent at service start time for the hub and topic, which are either specified as annotations or discovered based on the resource URL specified as an annotation.
+ - Auto Intent Verification against the topic specified as an annotation, or discovered based on the resource URL specified as an annotation, if `onIntentVerification` is not specified.
+ - Signature Validation for authenticated content distribution if a secret is specified for the subscription.
   
-A WebSub compliant Hub, based on the Ballerina Message Broker, is also made available to be brought up either to use as 
-a remote Hub or to be used by publishers who wish to have their own internal Hub. Ballerina's WebSub Hub honours lease 
-periods specified and supports authenticated content distribution.
+A WebSub compliant hub based on the Ballerina Message Broker is also available for use as a remote hub or to be used by publishers who want to have their own internal hub. Ballerina's WebSub Hub honors specified lease periods and supports authenticated content distribution.
 
-Ballerina WebSub Publishers can make use of utility functions to add WebSub link headers indicating the hub and topic 
-URLs, to facilitate WebSub discovery.
+Ballerina WebSub publishers can use utility functions to add WebSub link headers indicating the hub and topic 
+URLs, which facilitates WebSub discovery.
 
-A Hub Client Endpoint is also made available to publishers and subscribers to perform the following:
+A hub client endpoint is also made available to publishers and subscribers to perform the following:
  1. Publishers
     - Register a topic at the Hub
     - Publish to the hub, indicating an update of the topic
  2. Subscribers
-    - Subscribe/Unsubscribe to topics at a Hub
+    - Subscribe/Unsubscribe to topics at a hub
 
 ## Samples
-This sample demonstrates a Subscriber Service with ```subscribeOnStartUp``` set to true, which will result in a
+This sample demonstrates a Subscriber Service with `subscribeOnStartUp` set to true, which will result in a
  subscription request being sent to the specified hub for the specified topic, with the specified lease seconds value 
  and the specified secret for authenticated content distribution.
-Since an ```onIntentVerification``` resource is not included, intent verification for subscription and unsubscription 
+Since an `onIntentVerification` resource is not included, intent verification for subscription and unsubscription 
 requests would happen automatically, if the topic specified in the request matches that specified as an annotation or 
 that discovered for the annotated resource URL.
  
@@ -87,7 +80,7 @@ service websubSubscriber bind websubEP {
 }
 ```
 
-Explicit intent verification could be done by introducing an ```onIntentVerification``` resource.
+Explicit intent verification can be done by introducing an ```onIntentVerification``` resource.
 ```ballerina
 import ballerina/log;
 import ballerina/mime;
@@ -123,7 +116,7 @@ service websubSubscriber bind websubEP {
 }
 ```
 
-Functions are made available on the websub:IntentVerificationRequest to build a subscription or unsubscription 
+Functions are made available on the `websub:IntentVerificationRequest` to build a subscription or unsubscription 
 verification response, specifying the topic to verify intent against:
 ```ballerina
 http:Response response = request.buildSubscriptionVerificationResponse(topic = <TOPIC_TO_VERIFY_FOR>);
@@ -132,7 +125,7 @@ http:Response response = request.buildSubscriptionVerificationResponse(topic = <
 http:Response response = request.buildUnsubscriptionVerificationResponse(topic = <TOPIC_TO_VERIFY_FOR>);
 ```
  
-The Ballerina WebSub Hub could be brought up by Publishers and publishing could be done directly on the Hub brought up.
+Ballerina publishers can start up and publish directly to the Ballerina WebSub hub.
 ```ballerina
 import ballerina/log;
 import ballerina/runtime;
@@ -165,8 +158,8 @@ function main(string... args) {
 }
 ```
 
-Ballerina Publishers could also use the Hub Client Endpoint, to register topics at Ballerina WebSub Hubs if required, 
-and publish/notify updates to the remote Hubs.
+Ballerina publishers can also use the hub client endpoint to register topics at Ballerina WebSub hubs 
+and publish/notify updates to the remote hubs.
 ```ballerina
 import ballerina/log;
 import ballerina/runtime;
@@ -198,7 +191,7 @@ function main(string... args) {
 }
 ```
 
-The Hub Client Endpoint could also be used by Subscribers to send subscription and unsubscription requests explicitly.
+The hub client endpoint can also be used by subscribers to send subscription and unsubscription requests explicitly.
 ```ballerina
 import ballerina/log;
 import ballerina/runtime;
