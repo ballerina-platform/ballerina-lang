@@ -22,7 +22,7 @@ endpoint http:SecureListener ep {
     basePath: "/hello",
     authConfig: {
         authentication: { enabled: true },
-        scopes: ["xxx"]
+        scopes: ["scope1"]
     }
 }
 // Auth configuration comprises of two parts - authentication & authorization.
