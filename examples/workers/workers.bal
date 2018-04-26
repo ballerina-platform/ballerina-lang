@@ -20,6 +20,7 @@ function main(string... args) {
         foreach i in [1..n] {
             sum += i * i;
         }
-        io:println("sum of squares of first ", n, " positive numbers = ", sum);
+        io:println("sum of squares of first ", n, 
+                   " positive numbers = ", sum);
     }
 }
