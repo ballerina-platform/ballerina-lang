@@ -55,8 +55,6 @@ that discovered for the annotated resource URL.
  
 ```ballerina
 import ballerina/log;
-import ballerina/mime;
-import ballerina/http;
 import ballerina/websub;
 
 endpoint websub:Listener websubEP {
@@ -66,10 +64,10 @@ endpoint websub:Listener websubEP {
 @websub:SubscriberServiceConfig {
     path: "/websub",
     subscribeOnStartUp: true,
-    topic: "http://www.websubpubtopic.com",
-    hub: "https://localhost:9191/websub/hub",
-    leaseSeconds: 3600000,
-    secret: "Kslk30SNF2AChs2"
+    topic: "<TOPIC_URL>",
+    hub: "<HUB_URL>",
+    leaseSeconds: 3600,
+    secret: "<SECRET>"
 }
 service websubSubscriber bind websubEP {
 
@@ -83,7 +81,6 @@ service websubSubscriber bind websubEP {
 Explicit intent verification can be done by introducing an ```onIntentVerification``` resource.
 ```ballerina
 import ballerina/log;
-import ballerina/mime;
 import ballerina/http;
 import ballerina/websub;
 
@@ -94,10 +91,10 @@ endpoint websub:Listener websubEP {
 @websub:SubscriberServiceConfig {
     path: "/websub",
     subscribeOnStartUp: true,
-    topic: "http://www.websubpubtopic.com",
-    hub: "https://localhost:9191/websub/hub",
-    leaseSeconds: 3600000,
-    secret: "Kslk30SNF2AChs2"
+    topic: "<TOPIC_URL>",
+    hub: "<HUB_URL>",
+    leaseSeconds: 3600,
+    secret: "<SECRET>"
 }
 service websubSubscriber bind websubEP {
 
@@ -119,10 +116,10 @@ service websubSubscriber bind websubEP {
 Functions are made available on the `websub:IntentVerificationRequest` to build a subscription or unsubscription 
 verification response, specifying the topic to verify intent against:
 ```ballerina
-http:Response response = request.buildSubscriptionVerificationResponse(topic = <TOPIC_TO_VERIFY_FOR>);
+http:Response response = request.buildSubscriptionVerificationResponse(topic = "<TOPIC_TO_VERIFY_FOR>");
 ```
 ```ballerina
-http:Response response = request.buildUnsubscriptionVerificationResponse(topic = <TOPIC_TO_VERIFY_FOR>);
+http:Response response = request.buildUnsubscriptionVerificationResponse(topic = "<TOPIC_TO_VERIFY_FOR>");
 ```
  
 Ballerina publishers can start up and publish directly to the Ballerina WebSub hub.
@@ -136,7 +133,7 @@ function main(string... args) {
     log:printInfo("Starting up the Ballerina Hub Service");
     websub:WebSubHub webSubHub = websub:startUpBallerinaHub(port = 9191);
 
-    var registrationResponse = webSubHub.registerTopic("http://www.websubpubtopic.com");
+    var registrationResponse = webSubHub.registerTopic("<TOPIC_URL>");
     match (registrationResponse) {
         error webSubError => log:printError("Error occurred registering topic: " + webSubError.message);
         () => log:printInfo("Topic registration successful!");
@@ -146,8 +143,7 @@ function main(string... args) {
     runtime:sleep(20000);
 
     log:printInfo("Publishing update to internal Hub");
-    var publishResponse = webSubHub.publishUpdate("http://www.websubpubtopic.com",
-                                                   {"action": "publish", "mode": "internal-hub"});
+    var publishResponse = webSubHub.publishUpdate("<TOPIC_URL>", {"action": "publish", "mode": "internal-hub"});
     match (publishResponse) {
         error webSubError => log:printError("Error notifying hub: " + webSubError.message);
         () => log:printInfo("Update notification successful!");
@@ -171,7 +167,7 @@ endpoint websub:Client websubHubClientEP {
 
 function main(string... args) {
 
-    var registrationResponse = websubHubClientEP->registerTopic("http://www.websubpubtopic.com");
+    var registrationResponse = websubHubClientEP->registerTopic("<TOPIC_URL>");
     match (registrationResponse) {
         error webSubError => log:printError("Error occurred registering topic: " + webSubError.message);
         () => log:printInfo("Topic registration successful!");
@@ -181,8 +177,7 @@ function main(string... args) {
     runtime:sleep(10000);
 
     log:printInfo("Publishing update to remote Hub");
-    var publishResponse = websubHubClientEP->publishUpdate("http://www.websubpubtopic.com",
-                                                            {"action": "publish", "mode": "remote-hub"});
+    var publishResponse = websubHubClientEP->publishUpdate("<TOPIC_URL>", {"action": "publish", "mode": "remote-hub"});
     match (publishResponse) {
         error webSubError => log:printError("Error notifying hub: " + webSubError.message);
         () => log:printInfo("Update notification successful!");
@@ -194,19 +189,18 @@ function main(string... args) {
 The hub client endpoint can also be used by subscribers to send subscription and unsubscription requests explicitly.
 ```ballerina
 import ballerina/log;
-import ballerina/runtime;
 import ballerina/websub;
 
 endpoint websub:Client websubHubClientEP {
-    url: "https://localhost:9191/websub/hub"
+    url: "<HUB_URL>"
 };
 
 function main(string... args) {
 
     // Send subscription request for a subscriber service.
-    websub:SubscriptionChangeRequest subscriptionRequest = { topic: "http://www.websubpubtopic.com", 
-                                                             callback: "http://localhost:8181/websub",
-                                                             secret: "Kslk30SNF2AChs2" };
+    websub:SubscriptionChangeRequest subscriptionRequest = { topic: "<TOPIC_URL>", 
+                                                             callback: "<CALLBACK_URL>",
+                                                             secret: "<SECRET>" };
 
     var response = websubHubClientEP->subscribe(subscriptionRequest);
     match (response) {
@@ -220,8 +214,8 @@ function main(string... args) {
     }
 
     // Send unsubscription request for the subscriber service.
-    websub:SubscriptionChangeRequest unsubscriptionRequest = { topic: "http://www.websubpubtopic.com",
-                                                               callback: "http://localhost:8181/websub" };
+    websub:SubscriptionChangeRequest unsubscriptionRequest = { topic: "<TOPIC_URL>",
+                                                               callback: "<CALLBACK_URL>" };
 
     response = websubHubClientEP->unsubscribe(unsubscriptionRequest);
     match (response) {
