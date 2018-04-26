@@ -58,7 +58,8 @@ class FunctionCtrl extends React.Component {
             });
         }
 
-        if (node.viewState.collapsed) {
+        if (node.viewState.collapsed
+            || (!node.viewState.collapsed && TreeUtil.isResource(node) && node.parent.viewState.collapsed)) {
             return null;
         }
         // Set the size of the connector declarations

@@ -150,9 +150,8 @@ export default {
     },
     createStruct: () => {
         return FragmentUtils.createTopLevelNodeFragment(`
-            struct struct1 {
-
-            }
+type record1 {
+};
         `);
     },
     /*createTransformer: () => {

@@ -57,6 +57,10 @@ class BlockCtrl extends React.Component {
                 break;
             }
         }
+        
+        if (!parentNode.viewState.collapsed && TreeUtil.isResource(parentNode)) {
+            parentNode = parentNode.parent;
+        }
         if (parentNode.viewState.collapsed || parentNode.lambda) {
             return null;
         }
