@@ -32,7 +32,7 @@ import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 /**
- * Native function ballerina.task:scheduleAppointment.
+ * Native function ballerina/task:Appointment.schedule.
  */
 @BallerinaFunction(
         orgName = "ballerina",

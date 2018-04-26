@@ -29,7 +29,7 @@ import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 /**
- * Native function ballerina.task:scheduleTimer.
+ * Native function ballerina/task:Timer.stop.
  */
 @BallerinaFunction(
         orgName = "ballerina",
