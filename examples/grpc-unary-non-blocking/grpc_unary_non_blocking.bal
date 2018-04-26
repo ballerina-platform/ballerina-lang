@@ -14,7 +14,8 @@ service HelloWorld bind ep {
         io:println("Received message from : " + name);
         string message = "Hello " + name; // response message
         error? err = caller->send(message);
-        io:println(err.message but { () => "Server send response : " + message });
+        io:println(err.message but { () => "Server send response : " +
+                                                                    message });
         _ = caller->complete();
     }
 }

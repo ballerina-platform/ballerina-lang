@@ -29,7 +29,8 @@ service<grpc:Service> HelloWorld bind ep {
         io:println("name: " + name);
         string message = "Hello " + name;
         error? err = caller->send(message);
-        io:println(err.message but { () => "Server send response : " + message });
+        io:println(err.message but { () => "Server send response : " +
+                                                                    message });
         _ = caller->complete();
     }
 }

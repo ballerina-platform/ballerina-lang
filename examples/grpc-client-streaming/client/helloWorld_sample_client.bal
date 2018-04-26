@@ -10,7 +10,8 @@ function main(string... args) {
 
     endpoint grpc:Client ep;
     // Executing unary non-blocking call registering server message listener.
-    var res = helloWorldEp->lotsOfGreetings(HelloWorldMessageListener);
+    var res = helloWorldEp->lotsOfGreetings
+                                        (HelloWorldMessageListener);
     match res {
         error err => {
             io:print("error");
@@ -26,7 +27,8 @@ function main(string... args) {
     var name = "John";
     foreach greet in greets {
         error? connErr = ep->send(greet + " " + name);
-        io:println(connErr.message but { () => "send greeting: " + greet + " " + name });
+        io:println(connErr.message but { () => "send greeting: " +
+                                                greet + " " + name });
     }
     _ = ep->complete();
 
