@@ -6,6 +6,7 @@ endpoint http:Client clientEP {
     url: "http://localhost:7090",
     // HTTP version is set to 2.0.
     httpVersion: "2.0"
+
 };
 
 function main(string... args) {
@@ -93,11 +94,11 @@ function main(string... args) {
                 return;
             }
         }
-
         var promisedPayload = promisedResponse.getJsonPayload();
         match promisedPayload {
             json promisedJsonPayload => log:printInfo("Promised resource : " + promisedJsonPayload.toString());
             error e => log:printError("Expected promised response payload not received", err = e);
         }
     }
+
 }

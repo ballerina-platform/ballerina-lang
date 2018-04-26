@@ -6,6 +6,7 @@ endpoint http:Listener http2ServiceEP {
     port: 7090,
     // HTTP version is set to 2.0.
     httpVersion: "2.0"
+
 };
 
 @http:ServiceConfig {
@@ -82,5 +83,6 @@ service http2Service bind http2ServiceEP {
             error e => log:printError(
                            "Error occurred while sending the promised response3",
                            err = e) };
+
     }
 }
