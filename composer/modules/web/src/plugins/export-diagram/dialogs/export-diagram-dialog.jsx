@@ -88,6 +88,12 @@ class ExportDiagramDialog extends React.Component {
             });
             return;
         }
+        if (fileType.trim() === '' && (!_.endsWith(fileName, '.svg') && !_.endsWith(fileName, '.png'))) {
+            this.setState({
+                error: 'Please select export file type',
+            });
+            return;
+        }
         const derivedFileType = !_.endsWith(fileName, '.svg') && !_.endsWith(fileName, '.png')
             ? (!_.isEmpty(fileType) ? fileType : 'SVG')
             : (_.endsWith(fileName, '.svg') ? 'SVG' : 'PNG');
@@ -168,7 +174,6 @@ class ExportDiagramDialog extends React.Component {
         let svg = `<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" 
                 style='fill:rgb(255,255,255);font-family:"Roboto",Arial,Helvetica,sans-serif;
                 font-size:14px;' width="${svgElement.width()}" height="${svgElement.height()}">
-
                 <style>
                 @font-face{
                 font-family: font-ballerina;
@@ -182,7 +187,6 @@ class ExportDiagramDialog extends React.Component {
                   font-style:normal;
                 }
                 </style>
-
                 <rect style="fill: rgb(255,255,255);fill-opacity: 1;" width="${svgElement.width()}"
                 height="${svgElement.height()}" x="0" y="0"></rect>`;
 
@@ -454,6 +458,11 @@ class ExportDiagramDialog extends React.Component {
                                 width={3}
                                 compact
                                 options={[{ text: 'SVG', value: 'SVG' }, { text: 'PNG', value: 'PNG' }]}
+                                onChange={(evt) => {
+                                    this.setState({
+                                         fileType: evt.target.innerText
+                                      });
+                                }}
                             />
 
                         </Form.Group>
