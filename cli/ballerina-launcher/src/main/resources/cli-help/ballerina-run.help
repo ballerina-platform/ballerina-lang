@@ -29,7 +29,7 @@ OPTIONS
          Sets Ballerina environment parameters as key/value pairs.
          If multiple parameters need to be provided, each parameter
          has to be specified using its own -e flag. Details of the
-         environment parameters the Ballerina standard library
+         environment parameters Ballerina standard library
          packages support can be found in the relevant API
          documentation.
 
