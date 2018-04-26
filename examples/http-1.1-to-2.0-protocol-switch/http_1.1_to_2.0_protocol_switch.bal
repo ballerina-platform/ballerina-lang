@@ -16,7 +16,7 @@ service<http:Service> http11Service bind { port: 9090 } {
         path: "/"
     }
     http11Resource(endpoint caller, http:Request clientRequest) {
-        // Forward the clientRequest to http2 service.
+        // Forward the `clientRequest` to the `http2` service.
         var clientResponse = http2serviceClientEP->forward("/http2service", clientRequest);
 
         http:Response response = new;
@@ -25,7 +25,7 @@ service<http:Service> http11Service bind { port: 9090 } {
                 response = resultantResponse;
             }
             error err => {
-                // Handle if there is an error returned from the forward function invocation.
+                // Handle the errors that are returned when invoking the `forward` function.
                 response.statusCode = 500;
                 response.setPayload(err.message);
 
