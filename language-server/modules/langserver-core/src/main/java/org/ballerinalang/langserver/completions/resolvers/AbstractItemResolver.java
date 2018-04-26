@@ -294,7 +294,6 @@ public abstract class AbstractItemResolver {
         ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(new String[]{";", "}", "{", "(", ")", "="}));
         Position position = documentServiceContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         int cursorLine = position.getLine();
-//        int cursorChar = position.getCharacter();
         TokenStream tokenStream = documentServiceContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         if (tokenStream == null) {
             return false;

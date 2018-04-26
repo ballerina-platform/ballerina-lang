@@ -121,7 +121,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<Either<List<CompletionItem>, CompletionList>>
     completion(TextDocumentPositionParams position) {
         return CompletableFuture.supplyAsync(() -> {
-                String fileUri = position.getTextDocument().getUri();
+            String fileUri = position.getTextDocument().getUri();
             List<CompletionItem> completions;
             LSServiceOperationContext completionContext = new LSServiceOperationContext();
             Path completionPath = CommonUtil.getPath(new LSDocument(fileUri));
