@@ -33,7 +33,7 @@ This client can be used in client applications to call the service defined in th
     [-s <servicename>|--service <servicename>]`
 
 Export the Ballerina service to a definition of OpenApi Specification 3.0.
-For the export to work properly, the input ballerina service should be defined using basic service and resource level HTTP annotations.
+For the export to work properly, the input Ballerina service should be defined using basic service and resource level HTTP annotations.
 
 ### Client Stub for Service
 Generates a Ballerina client stub to communicate with a Ballerina service.

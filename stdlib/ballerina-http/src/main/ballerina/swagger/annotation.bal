@@ -16,10 +16,10 @@
 
 
 documentation {
-    Model for additional swagger information of a ballerina service.
+    Model for additional Swagger information of a Ballerina service.
 
-    F{{title}} Title of the swagger definition
-    F{{serviceVersion}} Version of the swagger API
+    F{{title}} Title of the Swagger definition
+    F{{serviceVersion}} Version of the Swagger API
     F{{termsOfService}} Service usage terms and conditions
     F{{contact}} Contact information for the exposed API
     F{{license}} License information for the exposed API
@@ -75,7 +75,7 @@ public type DocumentationInformation {
 };
 
 documentation {
-    Model for swagger service tag definition.
+    Model for Swagger service tag definition.
 
     F{{name}} Tag name
     F{{description}} Tag decription
@@ -88,7 +88,7 @@ public type Tag {
 };
 
 documentation {
-    Model for security requirement definition. This is most likely the oauth scopes.
+    Model for security requirement definition. This is most likely the OAuth scopes.
 
     F{{name}} Security scheme name
     F{{requirements}} Array of security requirements
@@ -99,14 +99,14 @@ public type SecurityRequirement {
 };
 
 documentation {
-    Model for keeping swagger parameter information.
+    Model for keeping Swagger parameter information.
 
     F{{inInfo}} Where the parameter is located. Ex: query
     F{{name}} Parameter name
     F{{description}} Description of the parameter
     F{{required}} Is this parameter MUST be present in the request
     F{{discontinued}} Is this parameter deprecated
-    F{{allowEmptyValue}} Is empty values allowed for this parameter. Valid only for query parameters
+    F{{allowEmptyValue}} Is an empty value allowed for this parameter. Valid only for query parameters
     F{{schema}} Parameter data type
 }
 public type ParameterInformation {
@@ -120,7 +120,7 @@ public type ParameterInformation {
 };
 
 documentation {
-    Model for keeping additional swagger schema information.
+    Model for keeping additional Swagger schema information.
 
     F{{format}} Data format as specified by Swagger data type
     F{{isArray}} Is this an array type schema
@@ -133,7 +133,7 @@ public type Schema {
 };
 
 documentation {
-    Model for additional swagger resource definition.
+    Model for additional Swagger resource definition.
 
     F{{tags}} Tags attched to this resource
     F{{summary}} A short summary of what the operation does
@@ -150,13 +150,13 @@ public type ResourceInformation {
 };
 
 documentation {
-    Model for keeping swagger response information.
+    Model for keeping Swagger response information.
 
     F{{code}} Reponse code
     F{{description}} Response description
     F{{response}} Response content
     F{{headers}} Response headers
-    F{{examples}} Examples for this reponse
+    F{{examples}} Examples for this response
 }
 public type Response {
     string code,
@@ -167,7 +167,7 @@ public type Response {
 };
 
 documentation {
-    Model for keeping swagger Header definition information.
+    Model for keeping Swagger header definition information.
 
     F{{required}} Is this a required header
     F{{discontinued}} Is this header deprecated
@@ -180,7 +180,7 @@ public type Header {
 };
 
 documentation {
-    Model for keeping swagger Example information.
+    Model for keeping Swagger example information.
 
     F{{summary}} Short description for the example
     F{{description}} Long description for the example
@@ -195,7 +195,7 @@ public type Example {
 };
 
 documentation {
-    Model for additional swagger request body details.
+    Model for additional Swagger request body details.
 
     F{{description}} Brief description of the request body
     F{{required}} Determines if the request body is required in the request
@@ -214,7 +214,7 @@ public type requestBody {
 };
 
 documentation {
-    Model for additional swagger content type definition.
+    Model for additional Swagger content type definition.
 
     F{{headers}} Additional information to be provided as headers
     F{{contentType}} The Content-Type for encoding a specific property
@@ -250,11 +250,11 @@ documentation {
 public annotation <service> ClientConfig ClientInformation;
 
 documentation {
-    Annotation for additional swagger information of a ballerina service.
+    Annotation for additional Swagger information of a Ballerina service.
 }
 public annotation <service> ServiceInfo ServiceInformation;
 
 documentation {
-    Annotation for additional swagger information of a ballerina resource.
+    Annotation for additional Swagger information of a Ballerina resource.
 }
 public annotation <resource> ResourceInfo ResourceInformation;
