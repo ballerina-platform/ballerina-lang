@@ -29,6 +29,7 @@ import { DIALOGS } from 'core/workspace/constants';
 import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
 import ScrollBarsWithContextAPI from 'core/view/scroll-bars/ScrollBarsWithContextAPI';
 
+
 const FILE_TYPE = 'file';
 const HISTORY_LAST_ACTIVE_PATH = 'composer.history.workspace.export-diagram-dialog.last-active-path';
 
@@ -167,6 +168,21 @@ class ExportDiagramDialog extends React.Component {
         let svg = `<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" 
                 style='fill:rgb(255,255,255);font-family:"Roboto",Arial,Helvetica,sans-serif;
                 font-size:14px;' width="${svgElement.width()}" height="${svgElement.height()}">
+
+                <style>
+                @font-face{
+                font-family: font-ballerina;
+                   src: url(${require("font-ballerina/fonts/font-ballerina.eot")});
+                   src: url(${require("font-ballerina/fonts/font-ballerina.eot")}) format("embedded-opentype"),
+                        url(${require("font-ballerina/fonts/font-ballerina.woff2")}) format("woff2"),
+                        url(${require("font-ballerina/fonts/font-ballerina.woff")}) format("woff"),
+                        url(${require("font-ballerina/fonts/font-ballerina.ttf")}) format("truetype"),
+                        url(${require("font-ballerina/fonts/font-ballerina.svg")}) format("svg");
+                  font-weight:normal;
+                  font-style:normal;
+                }
+                </style>
+
                 <rect style="fill: rgb(255,255,255);fill-opacity: 1;" width="${svgElement.width()}"
                 height="${svgElement.height()}" x="0" y="0"></rect>`;
 
@@ -355,7 +371,7 @@ class ExportDiagramDialog extends React.Component {
     sendPayload(location, configName, fileType, callServer) {
         const svgContent = this.getSVG();
         if (fileType === 'SVG') {
-            callServer(btoa(svgContent));
+            callServer(btoa(unescape(encodeURIComponent(svgContent))));
         } else if (fileType === 'PNG') {
             const tab = $(('#bal-file-editor-' + this.props.file.id).replace(/(:|\.|\[|\]|\/|,|=)/g, '\\$1'));
             const svgElement = tab.find('.svg-container');
