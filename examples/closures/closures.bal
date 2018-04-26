@@ -2,7 +2,8 @@ import ballerina/io;
 
 int globalA = 5;
 
-// Basic example where a lambda with a 'if' block access its outer scope variables.
+// Basic example where a lambda with a 'if' block access its outer scope
+// variables.
 function basicClosure() returns (function (int) returns int) {
     int a = 3;
     var foo =  (int b) => int {
@@ -15,36 +16,38 @@ function basicClosure() returns (function (int) returns int) {
     return foo;
 }
 
-// Example function with multiple level of lambda functions within, which the inner most lambda has access to all of
-// it outer scope variables.
+// Example function with multiple levels of lambda functions, which the
+// inner most lambda has access to all of its outer scope variables.
 function multilevelClosure() returns (function (int) returns int) {
-    int methodInt1 = 2;
-    var addFunc1 = (int funcInt1) => int {
-        int methodInt2 = 23;
-        var addFunc2 = (int funcInt2) => int {
-            int methodInt3 = 7;
-            var addFunc3 = (int funcInt3) => int {
-                return funcInt3 + funcInt2 + funcInt1 + methodInt1 + methodInt2 + methodInt3;
+    int a = 2;
+    var func1 = (int x) => int {
+        int b = 23;
+        var func2 = (int y) => int {
+            int c = 7;
+            var func3 = (int z) => int {
+                return x + y + z + a + b + c;
             };
-            return addFunc3(8) + funcInt2 + funcInt1;
+            return func3(8) + y + x;
         };
-        return addFunc2(4) + funcInt1;
+        return func2(4) + x;
     };
-    return addFunc1;
+    return func1;
 }
 
-// Example which shows how function pointers are passes around with closures, where inner scope lambdas accessing its
-// outer scope variables.
-function functionPointers(int functionIntX) returns (function (int) returns (function (int) returns int)) {
-    return (int functionIntY) => (function (int) returns int) {
-        return (int functionIntZ) => int {
-            return functionIntX + functionIntY + functionIntZ;
+// Example which shows how function pointers are passes around with closures,
+// where inner scope lambdas accessing its outer scope variables.
+function functionPointers(int a) returns
+                    (function (int) returns (function (int) returns int)) {
+    return (int b) => (function (int) returns int) {
+        return (int c) => int {
+            return a + b + c;
         };
     };
 }
 
 
-// Example function where inner scope variables can shadow its outer scope variables along with closure support.
+// Example function where inner scope variables can shadow its outer scope
+// variables along with closure support.
 function variableShadow(int a) returns (function (float) returns string) {
     int b = 4;
     float f = 5.6;
@@ -70,18 +73,21 @@ function main(string... args) {
     int result1 = foo(3);
     io:println("Answer: " + result1);
 
-    // This function invocation shows how multiple level of lambda functions within with closure support.
+    // This function invocation shows how multiple level of lambda functions
+    // within with closure support.
     var bar = multilevelClosure();
     int result2 = bar(5);
     io:println("Answer: " + result2);
 
-    // This function invocation shows how function pointers with closures are passes around.
+    // This function invocation shows how function pointers with closures
+    // are passes around.
     var baz1 = functionPointers(7);
     var baz2 = baz1(5);
     int result3 = baz2(3);
     io:println("Answer: " + result3);
 
-    // This function invocation shows how variable shadows along with closures are supported.
+    // This function invocation shows how variable shadows along with
+    // closures are supported.
     var qux = variableShadow(9);
     string result4 = qux(3.4);
     io:println("Answer: " + result4);
