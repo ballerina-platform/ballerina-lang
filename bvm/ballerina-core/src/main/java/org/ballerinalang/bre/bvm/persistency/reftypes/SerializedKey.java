@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.bre.bvm.persistency.reftypes;
 
-import org.ballerinalang.bre.bvm.persistency.SerializableState;
-import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.util.codegen.ProgramFile;
+public class SerializedKey {
+    public String key;
 
-public interface SerializableRefType {
-    BRefType getBRefType(ProgramFile programFile, SerializableState state);
+    public SerializedKey(String key) {
+        this.key = key;
+    }
 }

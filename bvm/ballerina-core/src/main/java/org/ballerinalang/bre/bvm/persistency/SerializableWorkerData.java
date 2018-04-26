@@ -20,6 +20,8 @@ import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.persistency.reftypes.SerializableRefFields;
 import org.ballerinalang.util.codegen.ProgramFile;
 
+import java.util.ArrayList;
+
 public class SerializableWorkerData {
 
     public long[] longRegs;
@@ -32,7 +34,7 @@ public class SerializableWorkerData {
 
     public byte[][] byteRegs;
 
-    public SerializableRefFields refFields;
+    public ArrayList<Object> refFields;
 
     public SerializableWorkerData(WorkerData workerData, SerializableState state) {
         byteRegs = workerData.byteRegs;
@@ -40,10 +42,7 @@ public class SerializableWorkerData {
         intRegs = workerData.intRegs;
         longRegs = workerData.longRegs;
         stringRegs = workerData.stringRegs;
-
-        if (workerData.refRegs != null) {
-            refFields = new SerializableRefFields(workerData.refRegs, state);
-        }
+        refFields = state.serializeRefFields(workerData.refRegs);
     }
 
     public WorkerData getWorkerData(ProgramFile programFile, SerializableState state) {
@@ -53,9 +52,7 @@ public class SerializableWorkerData {
         workerData.stringRegs = stringRegs;
         workerData.intRegs = intRegs;
         workerData.byteRegs = byteRegs;
-        if (refFields != null) {
-            workerData.refRegs = refFields.getRefFeilds(programFile, state);
-        }
+        workerData.refRegs = state.deserializeRefFields(refFields, programFile);
         return workerData;
     }
 }

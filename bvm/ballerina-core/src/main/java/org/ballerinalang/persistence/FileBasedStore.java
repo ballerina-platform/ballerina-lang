@@ -20,17 +20,43 @@ package org.ballerinalang.persistence;
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.persistency.PersistenceUtils;
+import org.ballerinalang.bre.bvm.persistency.SerializableState;
 import org.ballerinalang.connector.api.Executor;
+import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.util.codegen.CallableUnitInfo;
+import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.program.BLangVMUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class FileBasedStore extends StateStore {
+
+    private String basePath = "states";
+
     @Override
     public void persistState(String instanceId, State state) {
 
+        SerializableState sState = new SerializableState(state.getContext());
+        sState.setInstanceId(instanceId);
+        String stateString = sState.serialize();
+
+        File baseDir = new File(basePath);
+        if (!baseDir.exists()) {
+            baseDir.mkdir();
+        }
+
+        File stateFile = new File(baseDir, instanceId + ".json");
+        try {
+            FileUtils.write(stateFile, stateString);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -49,8 +75,31 @@ public class FileBasedStore extends StateStore {
     }
 
     @Override
-    public List<State> getStates() {
-        return null;
+    public List<State> getStates(ProgramFile programFile) {
+        List<State> states = new ArrayList<>();
+        File baseDir = new File(basePath);
+        if (!baseDir.exists()) {
+            return states;
+        }
+
+        File[] stateFiles = baseDir.listFiles();
+        for (File stateFile : stateFiles) {
+            try {
+                String jsonState = FileUtils.readFileToString(stateFile);
+                SerializableState sState = SerializableState.deserialize(jsonState);
+                WorkerExecutionContext context = sState.getExecutionContext(programFile);
+                if (context.callableUnitInfo instanceof ResourceInfo) {
+                    ResourceInfo resourceInfo = (ResourceInfo) context.callableUnitInfo;
+                    BLangVMUtils.setServiceInfo(context, resourceInfo.getServiceInfo());
+                }
+                State state = new State(context);
+                state.setIp(context.ip);
+                states.add(state);
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+        }
+        return states;
     }
 
     @Override

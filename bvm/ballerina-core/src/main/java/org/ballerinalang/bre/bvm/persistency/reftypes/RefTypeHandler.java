@@ -21,6 +21,9 @@ import org.ballerinalang.bre.bvm.persistency.SerializableState;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.util.codegen.ProgramFile;
 
-public interface SerializableRefType {
-    BRefType getBRefType(ProgramFile programFile, SerializableState state);
+public interface RefTypeHandler<V extends SerializableRefType, U extends BRefType> {
+
+    V serialize(U refType, SerializableState state);
+
+    U deserialize(V serializableRefType, SerializableState state, ProgramFile programFile);
 }

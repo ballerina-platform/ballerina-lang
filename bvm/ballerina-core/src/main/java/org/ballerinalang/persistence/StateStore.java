@@ -19,6 +19,7 @@ package org.ballerinalang.persistence;
 
 import org.ballerinalang.bre.bvm.persistency.reftypes.DataMapper;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.util.HashMap;
 import java.util.List;
@@ -34,7 +35,7 @@ public abstract class StateStore {
 
     public static StateStore getInstance() {
         if (stateStore == null) {
-            stateStore = new InMemoryStore();
+            stateStore = new FileBasedStore();
         }
         return stateStore;
     }
@@ -47,7 +48,7 @@ public abstract class StateStore {
 
     public abstract void persistFaildState(String instanceId, State state);
 
-    public abstract List<State> getStates();
+    public abstract List<State> getStates(ProgramFile programFile);
 
     public abstract List<State> getStates(String instanceId);
 
