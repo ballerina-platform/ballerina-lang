@@ -23,19 +23,20 @@ endpoint jdbc:Client testDB2 {
 function main(string... args) {
 
     // Create the table named CUSTOMER in the first database.
-    var ret = testDB1->update("CREATE TABLE CUSTOMER (ID INTEGER AUTO_INCREMENT,
-                                    NAME VARCHAR(30))");
+    var ret = testDB1->update("CREATE TABLE CUSTOMER (ID INTEGER
+                    AUTO_INCREMENT, NAME VARCHAR(30))");
     handleUpdate(ret, "Create CUSTOMER table");
     // Create the table named SALARY in the second database.
     ret = testDB2->update("CREATE TABLE SALARY (ID INT, VALUE FLOAT)");
     handleUpdate(ret, "Create SALARY table");
 
     // Begins the transaction.
-    transaction with oncommit = onCommitFunction, onabort = onAbortFunction {
+    transaction with oncommit = onCommitFunction,
+                     onabort = onAbortFunction {
     // This is the first action participate in the transaction which insert customer
     // name to the first DB and get the generated key.
-        var retWithKey = testDB1->updateWithGeneratedKeys("INSERT INTO CUSTOMER(NAME)
-                                                           VALUES ('Anne')", ());
+        var retWithKey = testDB1->updateWithGeneratedKeys("INSERT INTO
+                                CUSTOMER(NAME) VALUES ('Anne')", ());
         string generatedKey;
         match retWithKey {
             (int, string[]) y => {
@@ -44,7 +45,8 @@ function main(string... args) {
                 io:println("Inserted row count: " + count);
                 io:println("Generated key: " + generatedKey);
             }
-            error err => io:println("Insert to student table failed: " + err.message);
+            error err => io:println("Insert to student table failed: "
+                                    + err.message);
         }
 
         //Converte the returned key into integer.
@@ -52,12 +54,14 @@ function main(string... args) {
         int key = -1;
         match ret {
             int retInt => key = retInt;
-            error err => io:println("Converting key to string failed: " + err.message);
+            error err => io:println("Converting key to string failed: "
+                                    + err.message);
         }
         io:println("Generated key for the inserted row: " + key);
         // This is the second action participate in the transaction which insert the
         // salary info to the second DB along with the key generated in the first DB.
-        ret = testDB2->update("INSERT INTO SALARY (ID, VALUE) VALUES (?, ?)", key, 2500);
+        ret = testDB2->update("INSERT INTO SALARY (ID, VALUE)
+                               VALUES (?, ?)", key, 2500);
         handleUpdate(ret, "Insert to SALARY table");
     } onretry {
         io:println("Retrying transaction");

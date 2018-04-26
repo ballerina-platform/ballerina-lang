@@ -14,24 +14,24 @@ function main(string... args) {
 
     // Creates a table using the update action.
     io:println("The update operation - Creating a table:");
-    var ret = testDB->update("CREATE TABLE STUDENT(ID INTEGER, AGE INTEGER,
-                                NAME VARCHAR(255), PRIMARY KEY (ID))");
+    var ret = testDB->update("CREATE TABLE STUDENT(ID INTEGER,
+                    AGE INTEGER, NAME VARCHAR(255), PRIMARY KEY (ID))");
     handleUpdate(ret, "Create student table");
 
     // Inserts data to the table using the update action.
     io:println("\nThe update operation - Inserting data to a table");
-    ret =
-      testDB->update("INSERT INTO student(id, age, name) values (1, 23, 'john')");
+    ret = testDB->update("INSERT INTO student(id, age, name)
+                          values (1, 23, 'john')");
     handleUpdate(ret, "Insert to student table with no parameters");
 
     // Select data using the `select` action.
-    io:println("\nThe select operation - Select data from a database table");
+    io:println("\nThe select operation - Select data from a table");
     var selectRet = testDB->select("SELECT * FROM student", ());
     table dt;
     match selectRet {
         table tableReturned => dt = tableReturned;
-        error err =>
-            io:println("Select data from student table failed: " + err.message);
+        error e => io:println("Select data from student table failed: "
+                              + e.message);
     }
     // Convert a table to JSON.
     io:println("\nConvert the table into json");
@@ -57,6 +57,6 @@ function main(string... args) {
 function handleUpdate(int|error returned, string message) {
     match returned {
         int retInt => io:println(message + " status: " + retInt);
-        error err => io:println(message + " failed: " + err.message);
+        error e => io:println(message + " failed: " + e.message);
     }
 }
