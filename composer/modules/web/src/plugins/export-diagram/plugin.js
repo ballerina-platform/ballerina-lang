@@ -44,7 +44,7 @@ class ExportDiagramPlugin extends Plugin {
         return {
             [COMMANDS]: getCommandDefinitions(this),
             [HANDLERS]: getHandlerDefinitions(this),
-            // [MENUS]: getMenuDefinitions(this),
+            [MENUS]: getMenuDefinitions(this),
             [DIALOGS]: [
                 {
                     id: DIALOG.EXPORT_DIAGRAM,
