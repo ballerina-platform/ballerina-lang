@@ -84,7 +84,7 @@ public class InitHandler {
      * @throws IOException If file write exception occurs.
      */
     private static void createPackageMd(Path projectPath, List<PackageMdFile> packageMdFileList) throws IOException {
-        if (null != packageMdFileList) {
+        if (null != packageMdFileList && packageMdFileList.size() > 0) {
             for (PackageMdFile packageMdFile : packageMdFileList) {
                 Path packagePath = projectPath.resolve(packageMdFile.getName());
 
