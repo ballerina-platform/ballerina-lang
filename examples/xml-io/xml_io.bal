@@ -5,8 +5,7 @@ function close(io:CharacterChannel characterChannel) {
     // Close the character channel when done
     characterChannel.close() but {
         error e =>
-        log:printError("Error occurred while closing character stream"
-            , err = e)
+        log:printError("Error occurred while closing character stream", err = e)
     };
 }
 
@@ -14,8 +13,7 @@ function write(xml content, string path) {
     // Create a byte channel from the given path
     io:ByteChannel byteChannel = io:openFile(path, io:WRITE);
     // Derive the character channel from the byte Channel
-    io:CharacterChannel ch = new io:CharacterChannel(byteChannel
-        , "UTF8");
+    io:CharacterChannel ch = new io:CharacterChannel(byteChannel, "UTF8");
     // This is how xml content is written via the character channel
     match ch.writeXml(content) {
         error err => {
@@ -33,8 +31,7 @@ function read(string path) returns xml {
     // Create a byte channel from the given path
     io:ByteChannel byteChannel = io:openFile(path, io:READ);
     // Derive the character channel from the byte Channel
-    io:CharacterChannel ch = new io:CharacterChannel(byteChannel
-        , "UTF8");
+    io:CharacterChannel ch = new io:CharacterChannel(byteChannel, "UTF8");
     // This is how xml content is read from the character channel
     match ch.readXml() {
         xml result => {
