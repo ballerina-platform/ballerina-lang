@@ -17,7 +17,8 @@ service<http:Service> http11Service bind { port: 9090 } {
     }
     http11Resource(endpoint caller, http:Request clientRequest) {
         // Forward the `clientRequest` to the `http2` service.
-        var clientResponse = http2serviceClientEP->forward("/http2service", clientRequest);
+        var clientResponse =
+            http2serviceClientEP->forward("/http2service", clientRequest);
 
         http:Response response = new;
         match clientResponse {
@@ -33,7 +34,9 @@ service<http:Service> http11Service bind { port: 9090 } {
         }
         // Send the response back to the caller.
         caller->respond(response) but {
-            error e => log:printError("Error occurred while sending the response", err = e) };
+            error e => log:printError(
+                           "Error occurred while sending the response",
+                           err = e) };
 
     }
 }
@@ -60,6 +63,8 @@ service http2service bind http2serviceEP {
 
         // Send the response back to the caller (http11Service).
         caller->respond(response) but {
-            error e => log:printError("Error occurred while sending the response", err = e) };
+            error e => log:printError(
+                           "Error occurred while sending the response",
+                           err = e) };
     }
 }
