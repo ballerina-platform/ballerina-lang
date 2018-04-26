@@ -5,7 +5,7 @@ import ballerina/http;
 boolean serviceStarted;
 
 function startService() {
-    serviceStarted = test:startServices("http_load_balancer");
+    serviceStarted = test:startServices("http-load-balancer");
 }
 
 @test:Config {
@@ -14,7 +14,7 @@ function startService() {
 }
 function testFunc() {
     // Invoking the main function
-    endpoint http:Client httpEndpoint {url: "http://localhost:9090"};
+    endpoint http:Client httpEndpoint { url: "http://localhost:9090" };
     // Chck whether the server is started
     test:assertTrue(serviceStarted, msg = "Unable to start the service");
 
@@ -25,7 +25,7 @@ function testFunc() {
             var res = check resp.getTextPayload();
             test:assertEquals(res, "Mock1 Resource is invoked.");
         }
-        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
+        error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 
     // Send a GET request to the specified endpoint
@@ -35,7 +35,7 @@ function testFunc() {
             var res = check resp.getTextPayload();
             test:assertEquals(res, "Mock2 Resource is Invoked.");
         }
-        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
+        error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 
     // Invoke the service for the third time
@@ -46,7 +46,7 @@ function testFunc() {
             var res = check resp.getTextPayload();
             test:assertEquals(res, "Mock3 Resource is Invoked.");
         }
-        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
+        error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 
     // Invoke the service for the third time
@@ -57,7 +57,7 @@ function testFunc() {
             var res = check resp.getTextPayload();
             test:assertEquals(res, "Mock1 Resource is invoked.");
         }
-        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
+        error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 }
 

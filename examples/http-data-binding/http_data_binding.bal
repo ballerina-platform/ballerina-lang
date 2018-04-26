@@ -1,5 +1,6 @@
 import ballerina/http;
 import ballerina/io;
+import ballerina/log;
 
 type Student {
     string Name;
@@ -7,14 +8,12 @@ type Student {
     map Marks;
 };
 
-endpoint http:Listener helloEP {
-    port: 9090
-};
-
 @http:ServiceConfig
-service<http:Service> hello bind helloEP {
+service<http:Service> hello bind { port: 9090 } {
 
-    @Description {value: "The 'body' annotation represents the entity body of the inbound request."}
+    string respErr = "Failed to respond to the caller";
+
+    //The 'body' annotation represents the entity body of the inbound request.
     @http:ResourceConfig {
         methods: ["POST"],
         body: "orderDetails"
@@ -22,14 +21,13 @@ service<http:Service> hello bind helloEP {
     bindJson(endpoint caller, http:Request req, json orderDetails) {
         //Access the JSON field values.
         json details = orderDetails.Details;
-        io:println(details);
 
         http:Response res = new;
-        res.setJsonPayload(details);
-        _ = caller->respond(res);
+        res.setPayload(details);
+        caller->respond(res) but { error e => log:printError(respErr, err = e) };
     }
 
-    @Description {value: "Bind the XML payload of the inbound request to variable store."}
+    //Bind the XML payload of the inbound request to the `store` variable.
     @http:ResourceConfig {
         methods: ["POST"],
         body: "store",
@@ -37,15 +35,14 @@ service<http:Service> hello bind helloEP {
     }
     bindXML(endpoint caller, http:Request req, xml store) {
         //Access the XML content.
-        xml city = store.selectDescendants("city");
-        io:println(city);
+        xml city = store.selectDescendants("{http://www.test.com}city");
 
         http:Response res = new;
-        res.setXmlPayload(city);
-        _ = caller->respond(res);
+        res.setPayload(city);
+        caller->respond(res) but { error e => log:printError(respErr, err = e) };
     }
 
-    @Description {value: "Bind the JSON payload to a custom struct. The payload's content should match the struct."}
+    //Bind the JSON payload to a custom struct. The payload's content should match the struct.
     @http:ResourceConfig {
         methods: ["POST"],
         body: "student",
@@ -54,16 +51,11 @@ service<http:Service> hello bind helloEP {
     bindStruct(endpoint caller, http:Request req, Student student) {
         //Access the fields of the struct 'Student'.
         string name = student.Name;
-        io:println(name);
 
         int grade = student.Grade;
-        io:println(grade);
-
-        map marks = student.Marks;
-        io:println(marks);
 
         http:Response res = new;
-        res.setJsonPayload({Name: name, Grade: grade});
-        _ = caller->respond(res);
+        res.setPayload({ Name: name, Grade: grade });
+        caller->respond(res) but { error e => log:printError(respErr, err = e) };
     }
 }

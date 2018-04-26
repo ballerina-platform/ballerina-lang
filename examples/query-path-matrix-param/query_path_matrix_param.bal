@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerina/log;
 
 @http:ServiceConfig
-service<http:Service> sample bind {port: 9090} {
+service<http:Service> sample bind { port: 9090 } {
 
     @http:ResourceConfig {
         methods: ["GET"],
@@ -23,10 +23,10 @@ service<http:Service> sample bind {port: 9090} {
         var x = <string>fooMParams.x;
         var y = <string>fooMParams.y;
         string fooMatrixStr = string `x={{x}}, y={{y}}`;
-        json matrixJson = {"path": pathMatrixStr, "foo": fooMatrixStr};
+        json matrixJson = { "path": pathMatrixStr, "foo": fooMatrixStr };
 
         // Create a JSON payload with the extracted values.
-        json responseJson = {"pathParam": foo, "queryParam": bar, "matrix": matrixJson};
+        json responseJson = { "pathParam": foo, "queryParam": bar, "matrix": matrixJson };
         http:Response res = new;
         // A util method to set the JSON payload to the response message.
         res.setJsonPayload(responseJson);

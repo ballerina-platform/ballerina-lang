@@ -25,9 +25,9 @@ function main(string... args) {
         // Get the values received from worker 'w1'.
         int iW1;
         string sW1;
-        (iW1, sW1) = check <(int, string)> results["w1"];
+        (iW1, sW1) = check <(int, string)>results["w1"];
         io:println("[join-block] iW1: ", iW1, " sW1: ", sW1);
-        float fW2 = check <float> results["w2"];
+        float fW2 = check <float>results["w2"];
         io:println("[join-block] fW2: ", fW2);
     }
 }

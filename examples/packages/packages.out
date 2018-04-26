@@ -1,0 +1,4 @@
+$ ballerina run global_variables.bal
+3.141592653589793
+
+

@@ -5,7 +5,8 @@ import ballerina/mime;
 
 int count;
 
-endpoint http:Client clientEndpoint {url: "https://postman-echo.com"};
+endpoint http:Client clientEndpoint { 
+    url: "https://postman-echo.com" };
 
 function main(string... args) {
     // Asynchronously call the function named 'sum'.
@@ -13,8 +14,7 @@ function main(string... args) {
     // You can pass around the value of the 'future' variable
     // and call its results later.
     int result = square_plus_cube(f1);
-    io:print("SQ + CB = ");
-    io:println(result);
+    io:println("SQ + CB = ", result);
 
     // Call the 'countInfinity' function, which runs forever in asynchronous mode.
     future f2 = start countInfinity();
@@ -26,30 +26,22 @@ function main(string... args) {
     // Cancel the asynchronous operation.
     boolean cancelled = f2.cancel();
     io:println(cancelled);
-    io:print("Counting done in one second: ");
-    io:println(count);
+    io:println("Counting done in one second: ", count);
     io:println(f2.isDone());
     io:println(f2.isCancelled());
 
     // async action call
-    future<http:Response|http:HttpConnectorError> f3 = start clientEndpoint->get("/get?test=123");
+    future<http:Response|error> f3 = start clientEndpoint->get(
+            "/get?test=123");
     io:println(sum(25, 75));
     io:println(f3.isDone());
     var response = await f3;
     match response {
         http:Response resp => {
-            io:println("HTTP Response: ");
-            var msg = resp.getJsonPayload();
-            match msg {
-                json jsonPayload1 => {
-                    io:println(jsonPayload1);
-                }
-                http:PayloadError payloadError1 => {
-                    io:println(payloadError1.message);
-                }
-            }
+            io:println("HTTP Response: ",
+                       untaint resp.getJsonPayload());
         }
-        http:HttpConnectorError err => { io:println(err.message); }
+        error err => { io:println(err.message); }
     }
     io:println(f3.isDone());
 }

@@ -1,2 +1,0 @@
-#Run ballerina tool, run following command in ballerina tool distribution
-$ ballerina grpc --input helloWorld.proto

@@ -27,43 +27,50 @@ function testFunc() {
 
 function testAuthSuccess() {
     // create client
-    endpoint http:Client httpEndpoint {url: "https://localhost:9090",
-        auth: {scheme: "basic", username: "tom", password: "password1"}};
+    endpoint http:Client httpEndpoint {
+        url: "https://localhost:9090",
+        auth: { scheme: "basic", username: "tom", password: "password1" }
+    };
     // Send a GET request to the specified endpoint
     var response = httpEndpoint->get("/hello/sayHello");
     match response {
         http:Response resp => {
-            test:assertEquals(resp.statusCode, 200, msg = "Expected status code 200 not received");
+            test:assertEquals(resp.statusCode, 200,
+                msg = "Expected status code 200 not received");
         }
-        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
+        error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 }
 
 function testAuthnFailure() {
     // create client
-    endpoint http:Client httpEndpoint {url: "https://localhost:9090",
-        auth: {scheme: "basic", username: "tom", password: "password"}};
+    endpoint http:Client httpEndpoint {
+        url: "https://localhost:9090",
+        auth: { scheme: "basic", username: "tom", password: "password" }
+    };
     // Send a GET request to the specified endpoint
     var response = httpEndpoint->get("/hello/sayHello");
     match response {
         http:Response resp => {
-            test:assertEquals(resp.statusCode, 401, msg = "Expected status code 401 not received");
+            test:assertEquals(resp.statusCode, 401,
+                msg = "Expected status code 401 not received");
         }
-        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
+        error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 }
 
 function testAuthzFailure() {
     // create client
-    endpoint http:Client httpEndpoint {url: "https://localhost:9090",
-        auth: {scheme: "basic", username: "dick", password: "password2"}};
+    endpoint http:Client httpEndpoint { url: "https://localhost:9090",
+        auth: { scheme: "basic", username: "dick", password: "password2" } };
     // Send a GET request to the specified endpoint
     var response = httpEndpoint->get("/hello/sayHello");
     match response {
         http:Response resp => {
-            test:assertEquals(resp.statusCode, 403, msg = "Expected status code 403 not received");
+            test:assertEquals(resp.statusCode, 403, msg =
+                "Expected status code 403 not received");
         }
-        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
+        error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 }
 

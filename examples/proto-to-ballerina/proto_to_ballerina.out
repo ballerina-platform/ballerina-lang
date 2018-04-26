@@ -1,0 +1,2 @@
+#To run the ballerina tool, issue this command from the ballerina tool distribution.
+$ ballerina grpc --input proto_to_ballerina.proto

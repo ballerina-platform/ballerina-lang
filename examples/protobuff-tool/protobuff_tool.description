@@ -1,6 +1,0 @@
-// The protobuff tool can be used to generate client and client stub using .proto definition using 3.4.0 protoc compiler.
-// This sample is to demonstrate how to run protobuff tool
-// Protobuff tool support following command line options
-// * --input : Path of the protofile. This is mandatory parameter.
-// * --output : File location that ballerina client and client stub to be generated. This is optional parameter and
-// default value is running location.

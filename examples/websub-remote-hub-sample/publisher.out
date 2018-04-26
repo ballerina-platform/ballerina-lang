@@ -1,0 +1,4 @@
+$ ballerina run publisher.bal
+2018-04-12 18:48:05,263 INFO  [] - Topic registration successful!
+2018-04-12 18:48:15,273 INFO  [] - Publishing update to remote Hub
+2018-04-12 18:48:15,462 INFO  [] - Update notification successful!

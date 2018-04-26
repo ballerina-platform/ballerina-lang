@@ -1,17 +1,18 @@
 import ballerina/http;
 import ballerina/io;
+import ballerina/log;
 
 endpoint http:Client clientEP {
     url: "http://httpstat.us"
 };
 
-@http:ServiceConfig {basePath:"/hello"}
-service<http:Service> helloWorld bind {port:9090} {
+@http:ServiceConfig { basePath: "/hello" }
+service<http:Service> helloWorld bind { port: 9090 } {
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/"
+        methods: ["GET"],
+        path: "/"
     }
-    sayHello (endpoint caller, http:Request req) {
+    sayHello(endpoint caller, http:Request req) {
         var resp = clientEP->forward("/200", req);
         match resp {
             http:Response response =>
@@ -19,8 +20,7 @@ service<http:Service> helloWorld bind {port:9090} {
                             but { error e =>
                                     log:printError(
                                         "Failed to respond to caller", err = e) };
-            http:HttpConnectorError
-                    e => log:printError("Faild to fulfill request", err = e);
+            error e => log:printError("Faild to fulfill request", err = e);
         }
     }
 }

@@ -1,0 +1,5 @@
+#Run service multipartResponseEncoder
+curl -X GET http://localhost:9092/multiparts/encode_out_response
+
+#Run service multipartResponseDecoder
+$ curl -X GET http://localhost:9090/multiparts/decode_in_response

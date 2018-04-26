@@ -14,7 +14,7 @@ function startService() {
 }
 function testFunc() {
     // Invoking the main function
-    endpoint http:Client httpEndpoint {url: "http://localhost:9090"};
+    endpoint http:Client httpEndpoint { url: "http://localhost:9090" };
     // Chck whether the server is started
     test:assertTrue(serviceStarted, msg = "Unable to start the service");
 
@@ -26,7 +26,7 @@ function testFunc() {
             string matchWith = "forwarded header value : for=127.0.0.1; by=127.0.0.1; proto=http";
             test:assertEquals(res, matchWith);
         }
-        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
+        error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 }
 

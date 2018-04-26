@@ -8,7 +8,7 @@ function testAssertIntEquals() {
     int a = 5;
     int b = 3;
     answer = intAdd(a, b);
-    test:assertEquals(answer, 8, msg = "intAdd function failed");
+    test:assertEquals(answer, 8, msg = "IntAdd function failed");
 }
 
 // Compare the values of type float.
@@ -17,7 +17,7 @@ function testAssertFloatEquals() {
     float a = 10.000;
     float b = 20.050;
     float answer = floatAdd(a, b);
-    test:assertEquals(answer, 30.050, msg = "floatAdd function failed");
+    test:assertEquals(answer, 30.050, msg = "FloatAdd function failed");
 }
 
 // Comparing strings.
@@ -26,16 +26,16 @@ function testAssertStringEquals() {
     string a = "John";
     string b = "Doe";
     string concatenated = stringConcat(a, b);
-    test:assertEquals(concatenated, "JohnDoe", msg = "string concatenation failed");
+    test:assertEquals(concatenated, "JohnDoe", msg = "String concat failed");
 }
 
 // Comparing JSON objects.
 @test:Config
 function testAssertJsonEquals() {
 
-    json a = {"name": "Ballerina"};
-    json b = {"name": "Ballerina"};
-    test:assertEquals(a, b, msg = "json assert equals failed");
+    json a = { "name": "Ballerina" };
+    json b = { "name": "Ballerina" };
+    test:assertEquals(a, b, msg = "JSON assert equals failed");
 }
 
 // Comparing boolean values.
@@ -44,7 +44,7 @@ function testAssertBooleanEquals() {
 
     boolean x = true;
     boolean y = true;
-    test:assertEquals(x, y, msg = "assertBooleanEquals failed");
+    test:assertEquals(x, y, msg = "AssertBooleanEquals failed");
 }
 
 // Comparing string arrays.
@@ -74,7 +74,7 @@ function testAssertFloatArrayEquals() {
     float[] x = [1.1, 2.2, 3.3];
     float[] y = [1.1, 2.2, 3.3];
 
-    test:assertEquals(x, y, msg = "failed");
+    test:assertEquals(x, y, msg = "Failed");
 }
 
 // Comparing distinct strings.
@@ -91,17 +91,17 @@ function testAssertNotEqualsString() {
 @test:Config
 function testAssertNotEqualsJson() {
 
-    json s1 = {"a": "b"};
-    json s2 = {"a": "c"};
+    json s1 = { "a": "b" };
+    json s2 = { "a": "c" };
 
-    test:assertNotEquals(s1, s2, msg = "Json are equal");
+    test:assertNotEquals(s1, s2, msg = "JSON are equal");
 }
 
 // Asserting true.
 @test:Config
 function testAssertTrue() {
     boolean value = true;
-    test:assertTrue(value, msg = "assertTrue failed");
+    test:assertTrue(value, msg = "AssertTrue failed");
 }
 
 // Asserting false.
@@ -109,7 +109,7 @@ function testAssertTrue() {
 function testAssertFalse() {
 
     boolean value = false;
-    test:assertFalse(value, msg = "assertFalse failed");
+    test:assertFalse(value, msg = "AssertFalse failed");
 }
 
 // Intentionally failing a test.
@@ -130,7 +130,7 @@ function testAssertFail2() {
     if (true) {
         return;
     }
-    test:assertFail(msg = "assertFailed");
+    test:assertFail(msg = "AssertFailed");
 }
 
 function intAdd(int a, int b) returns (int) {

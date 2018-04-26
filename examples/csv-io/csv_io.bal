@@ -10,13 +10,13 @@ function readNext(io:CSVChannel channel) returns string[] {
             throw err;
         }
         () => {
-            error e = {message: "Record channel not initialized properly"};
+            error e = { message: "Record channel not initialized properly" };
             throw e;
         }
     }
 }
 
-// This function read records one by one and print.
+// This function reads records one by one and prints the records.
 function process(io:CSVChannel channel) {
     try {
         // Read all the records from the provided file until there are no more records.

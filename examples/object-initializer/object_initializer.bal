@@ -13,7 +13,8 @@ type Person object {
         int[] marks,
     }
 
-    new(age, name = "John", string firstname, string lastname = "Doe", int... scores) {
+    new(age, name = "John", string firstname,
+        string lastname = "Doe", int... scores) {
         marks = scores;
     }
 };

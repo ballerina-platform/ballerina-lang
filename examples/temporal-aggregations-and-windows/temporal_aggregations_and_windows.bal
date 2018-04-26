@@ -41,7 +41,8 @@ function initRealtimeRequestCounter() {
 
 // Define the `printRequestCount` function.
 function printRequestCount(RequestCount reqCount) {
-    io:println("ALERT!! : Received more than 6 requests from the host within 5 seconds : " + reqCount.host);
+    io:println("ALERT!! : Received more than 6 requests from the " +
+                        "host within 5 seconds : " + reqCount.host);
 }
 
 endpoint http:Listener ep {
@@ -63,11 +64,12 @@ service requestService bind ep {
     }
     requests(endpoint conn, http:Request req) {
         string hostName = untaint req.getHeader("Host");
-        ClientRequest clientRequest = {host: hostName};
+        ClientRequest clientRequest = { host: hostName };
         requestStream.publish(clientRequest);
 
         http:Response res = new;
-        res.setJsonPayload("{'message' : 'request successfully received'}");
+        res.setJsonPayload("{'message' : 'request successfully " +
+                                "received'}");
         _ = conn->respond(res);
     }
 }

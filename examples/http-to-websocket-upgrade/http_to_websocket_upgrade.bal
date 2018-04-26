@@ -6,7 +6,7 @@ import ballerina/log;
 @http:ServiceConfig {
     basePath: "/hello"
 }
-service<http:Service> httpService bind {port: 9090} {
+service<http:Service> httpService bind { port: 9090 } {
 
     @http:ResourceConfig {
         path: "/world",
@@ -16,9 +16,9 @@ service<http:Service> httpService bind {port: 9090} {
         http:Response resp = new;
         var payload = req.getTextPayload();
         match payload {
-            http:PayloadError payloadError => {
-                log:printError("Error sending message", err = payloadError);
-                resp.setPayload(payloadError.message);
+            error err => {
+                log:printError("Error sending message", err = err);
+                resp.setPayload(err.message);
                 resp.statusCode = 500;
             }
             string val => {

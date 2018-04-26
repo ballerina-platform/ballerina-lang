@@ -4,41 +4,43 @@ import ballerina/log;
 function close(io:CharacterChannel characterChannel) {
     // Close the character channel when done
     characterChannel.close() but {
-        error e => log:printError("Error occurred while closing character stream", err = e)
+        error e =>
+          log:printError("Error occurred while closing character stream",
+                          err = e)
     };
 }
 
 function write(json content, string path) {
-    // From the given path a byte channel will be created
+    // Create a byte channel from the given path
     io:ByteChannel byteChannel = io:openFile(path, io:WRITE);
-    // Character channel will be derived from ByteChannel
-    io:CharacterChannel characterChannel = new io:CharacterChannel(byteChannel, "UTF8");
-    // This is how json content could be written via the character channel
-    match characterChannel.writeJson(content) {
+    // Derive the character channel from the byte channel
+    io:CharacterChannel ch = new io:CharacterChannel(byteChannel, "UTF8");
+    // This is how json content is written via the character channel
+    match ch.writeJson(content) {
         error err => {
-            close(characterChannel);
+            close(ch);
             throw err;
         }
         () => {
-            close(characterChannel);
+            close(ch);
             io:println("Content written successfully");
         }
     }
 }
 
 function read(string path) returns json {
-    // From the given path a byte channel will be created
+    // Create a byte channel from the given path
     io:ByteChannel byteChannel = io:openFile(path, io:READ);
-    // Character channel will be derived from ByteChannel
-    io:CharacterChannel characterChannel = new io:CharacterChannel(byteChannel, "UTF8");
-    // This is how json content could be read from the character channel
-    match characterChannel.readJson() {
+    // Derive the character channel from the byte channel
+    io:CharacterChannel ch = new io:CharacterChannel(byteChannel, "UTF8");
+    // This is how json content is read from the character channel
+    match ch.readJson() {
         json result => {
-            close(characterChannel);
+            close(ch);
             return result;
         }
         error err => {
-            close(characterChannel);
+            close(ch);
             throw err;
         }
     }
@@ -46,8 +48,8 @@ function read(string path) returns json {
 
 function main(string... args) {
     string filePath = "./files/sample.json";
-    // We create a json out of string
-    json j1 = {"Store": {
+    //Create json content from string
+    json j1 = { "Store": {
         "@id": "AST",
         "name": "Anne",
         "address": {
@@ -58,10 +60,10 @@ function main(string... args) {
     }
     };
     io:println("Preparing to write json file");
-    // Content will be written
+    // Write the content
     write(j1, filePath);
     io:println("Preparing to read the content written");
-    // Content will be read
+    // Read the content
     json content = read(filePath);
     io:println(content);
 }

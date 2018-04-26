@@ -1,7 +1,16 @@
-#At the command line, navigate to the directory that contains the 
-#`.bal` file and run the `ballerina run` command. 
+# At the command line, navigate to the directory that contains the
+# `.bal` file and run the `ballerina run` command.
 $ ballerina run mysql_client.bal
-Table creation status: 0
-Inserted row count: 1
-[{"ID":1,"AGE":8,"NAME":"Sam"}]
-Table drop status: 0
+The update operation - Creating a table:
+Create student table status: 0
+
+The update operation - Inserting data to a table
+Insert to student table with no parameters status: 1
+
+The select operation - Select data from a database table
+
+Convert the table into json
+JSON: [{"id":1,"age":23,"name":"john"}]
+
+The update operation - Drop student table
+Drop table student status: 0

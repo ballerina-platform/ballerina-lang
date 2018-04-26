@@ -15,9 +15,9 @@ function main(string... args) {
     employeeStream.subscribe(printEmployeeName);
 
     // Publish Employee events to the stream
-    Employee e1 = {id: 1, name: "Jane"};
-    Employee e2 = {id: 2, name: "Anne"};
-    Employee e3 = {id: 3, name: "John"};
+    Employee e1 = { id: 1, name: "Jane" };
+    Employee e2 = { id: 2, name: "Anne" };
+    Employee e3 = { id: 3, name: "John" };
 
     employeeStream.publish(e1);
     employeeStream.publish(e2);
@@ -28,7 +28,7 @@ function main(string... args) {
 
 
     // Declare a stream constrained by float values.
-        stream < float > temperatureStream;
+    stream<float> temperatureStream;
 
     // Subscribe to the temperature stream with a function accepting float events.
     temperatureStream.subscribe(printTemperature);
@@ -60,7 +60,8 @@ function main(string... args) {
 
 // Function used to subscribe to a stream accepting employee events.
 function printEmployeeName(Employee employee) {
-    io:println("Employee event received for Employee Name: " + employee.name);
+    io:println("Employee event received for Employee Name: "
+                    + employee.name);
 }
 
 // Function used to subscribe to a stream accepting float events.

@@ -1,11 +1,12 @@
 import ballerina/http;
 import ballerina/log;
 
-// Create a http client endpoint which can send HTTP/2 messages.
+// Create an HTTP client endpoint that can send HTTP/2 messages.
 endpoint http:Client clientEP {
     url: "http://localhost:7090",
     // HTTP version is set to 2.0.
     httpVersion: "2.0"
+
 };
 
 function main(string... args) {
@@ -20,14 +21,15 @@ function main(string... args) {
             httpFuture = resultantFuture;
         }
         error resultantErr => {
-            log:printError("Error occurred while submitting a request", err = resultantErr);
+            log:printError("Error occurred while submitting a request",
+                            err = resultantErr);
             return;
         }
     }
 
     http:PushPromise[] promises = [];
     int promiseCount = 0;
-    // Check whether promises exists.
+    // Check if promises exists.
     boolean hasPromise = clientEP->hasPromise(httpFuture);
 
     while (hasPromise) {
@@ -40,19 +42,21 @@ function main(string... args) {
                 pushPromise = resultantPushPromise;
             }
             error resultantErr => {
-                log:printError("Error occurred while fetching a push promise", err = resultantErr);
+                log:printError("Error occurred while fetching a push promise",
+                                err = resultantErr);
                 return;
             }
         }
         log:printInfo("Received a promise for " + pushPromise.path);
 
         if (pushPromise.path == "/resource2") {
-            // The client is not interested in receiving `/resource2` so, reject the promise.
+            // The client is not interested in receiving `/resource2`.
+            // Therefore, reject the promise.
             clientEP->rejectPromise(pushPromise);
 
             log:printInfo("Push promise for resource2 rejected");
         } else {
-            // Store required promises.
+            // Store the required promises.
             promises[promiseCount] = pushPromise;
 
             promiseCount = promiseCount + 1;
@@ -69,18 +73,21 @@ function main(string... args) {
             response = resultantResponse;
         }
         error resultantErr => {
-            log:printError("Error occurred while fetching response", err = resultantErr);
+            log:printError("Error occurred while fetching response",
+                            err = resultantErr);
             return;
         }
     }
 
     var responsePayload = response.getJsonPayload();
     match responsePayload {
-        json resultantJsonPayload => log:printInfo("Response : " + resultantJsonPayload.toString());
-        http:PayloadError e => log:printError("Expected response payload not received", err = e);
+        json resultantJsonPayload =>
+              log:printInfo("Response : " + resultantJsonPayload.toString());
+        error e =>
+              log:printError("Expected response payload not received", err = e);
     }
 
-    // Fetch required promised responses.
+    // Fetch required promise responses.
     foreach promise in promises {
         http:Response promisedResponse = new;
         var promisedResponseResult = clientEP->getPromisedResponse(promise);
@@ -89,15 +96,20 @@ function main(string... args) {
                 promisedResponse = resultantPromisedResponse;
             }
             error resultantErr => {
-                log:printError("Error occurred while fetching promised response", err = resultantErr);
+                log:printError("Error occurred while fetching promised response",
+                                err = resultantErr);
                 return;
             }
         }
-
         var promisedPayload = promisedResponse.getJsonPayload();
         match promisedPayload {
-            json promisedJsonPayload => log:printInfo("Promised resource : " + promisedJsonPayload.toString());
-            http:PayloadError e => log:printError("Expected promised response payload not received", err = e);
+            json promisedJsonPayload =>
+                       log:printInfo("Promised resource : " +
+                                      promisedJsonPayload.toString());
+            error e =>
+                  log:printError("Expected promised response payload not received",
+                                  err = e);
         }
     }
+
 }

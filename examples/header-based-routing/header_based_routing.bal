@@ -13,7 +13,7 @@ endpoint http:Client weatherEP {
 @http:ServiceConfig {
     basePath: "/hbr"
 }
-service<http:Service> headerBasedRouting bind {port: 9090} {
+service<http:Service> headerBasedRouting bind { port: 9090 } {
     //`http:resourceConfig{}` annotation with GET method declares the HTTP method.
     @http:ResourceConfig {
         methods: ["GET"],
@@ -26,7 +26,7 @@ service<http:Service> headerBasedRouting bind {port: 9090} {
         if (!req.hasHeader("x-type")) {
             http:Response errorResponse = new;
             errorResponse.statusCode = 500;
-            json errMsg = {"error": "'x-type' header is not found"};
+            json errMsg = { "error": "'x-type' header is not found" };
             errorResponse.setPayload(errMsg);
             caller->respond(errorResponse) but { error e => log:printError("Error sending response", err = e) };
             done;
@@ -34,7 +34,7 @@ service<http:Service> headerBasedRouting bind {port: 9090} {
         //`getHeader()` returns header value of a specified header name.
         string nameString = req.getHeader("x-type");
 
-        http:Response|http:HttpConnectorError response;
+        http:Response|error response;
         if (nameString == "location") {
             //`post()` represent the POST action of HTTP connector. Route payload to relevant service.
             response = locationEP->post("/v2/5adddd66300000bd2a4b2912", request = newRequest);
@@ -48,7 +48,7 @@ service<http:Service> headerBasedRouting bind {port: 9090} {
                 //`respond()` sends back the inbound clientResponse to the caller if no any error is found.
                 caller->respond(clientResponse) but { error e => log:printError("Error sending response", err = e) };
             }
-            http:HttpConnectorError err => {
+            error err => {
                 http:Response errorResponse = new;
                 errorResponse.statusCode = 500;
                 errorResponse.setPayload(err.message);

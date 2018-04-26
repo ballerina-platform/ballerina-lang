@@ -1,0 +1,5 @@
+# At the command line, navigate to the directory that contains the
+# `hello_world_streams.bal` file and run the `ballerina run` command.
+$ ballerina run hello_world_streams.bal
+Event received; status: single, total occurrences: 2
+

@@ -5,7 +5,7 @@ import ballerina/http;
 boolean serviceStarted;
 
 function startService() {
-    serviceStarted = test:startServices("http_circuit_breaker");
+    serviceStarted = test:startServices("http-circuit-breaker");
 }
 
 @test:Config {
@@ -14,7 +14,7 @@ function startService() {
 }
 function testFunc() {
     // Invoking the main function.
-    endpoint http:Client httpEndpoint {url: "http://localhost:9090"};
+    endpoint http:Client httpEndpoint { url: "http://localhost:9090" };
     // Check whether the server has started.
     test:assertTrue(serviceStarted, msg = "Unable to start the service");
 
@@ -26,7 +26,7 @@ function testFunc() {
             var res = check resp.getTextPayload();
             test:assertEquals(res, response1);
         }
-        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
+        error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 
     // Send a GET request to the specified endpoint.
@@ -36,7 +36,7 @@ function testFunc() {
             var res = check resp.getTextPayload();
             test:assertEquals(res, response1);
         }
-        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
+        error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 
     // Send a GET request to the specified endpoint.
@@ -46,7 +46,7 @@ function testFunc() {
             var res = check resp.getTextPayload();
             test:assertEquals(res, "Internal error occurred while processing the request.");
         }
-        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
+        error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 
     // Send a GET request to the specified endpoint.
@@ -55,7 +55,7 @@ function testFunc() {
         http:Response resp => {
             var res = check resp.getTextPayload();
         }
-        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
+        error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 
     // Send a GET request to the specified endpoint.
@@ -64,7 +64,7 @@ function testFunc() {
         http:Response resp => {
             var res = check resp.getTextPayload();
         }
-        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
+        error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 
     io:println("Reached");
@@ -75,7 +75,7 @@ function testFunc() {
         http:Response resp => {
             var res = check resp.getTextPayload();
         }
-        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
+        error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 }
 

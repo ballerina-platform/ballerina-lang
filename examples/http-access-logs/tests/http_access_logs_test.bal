@@ -14,7 +14,7 @@ function startService() {
 }
 function testFunc() {
     // Invoking the main function.
-    endpoint http:Client httpEndpoint {url: "http://localhost:9095"};
+    endpoint http:Client httpEndpoint { url: "http://localhost:9095" };
     // Check whether the server has started.
     test:assertTrue(serviceStarted, msg = "Unable to start the service");
 
@@ -27,7 +27,7 @@ function testFunc() {
             var res = check resp.getTextPayload();
             test:assertEquals(res, response1);
         }
-        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint:");
+        error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
 }
 
