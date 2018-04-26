@@ -23,10 +23,12 @@ function render (content, retries=0) {
         })
     })
     .then((body) => {
+        let stale = true;
         if (body.model) {
+            stale = false;
             jsonModel = body.model;
         }
-        return renderDiagram(jsonModel);
+        return renderDiagram(jsonModel, stale);
     })
     .catch((e) => {
         return new Promise((res, rej) => {
@@ -43,7 +45,7 @@ function render (content, retries=0) {
     });
 };
 
-function renderDiagram(jsonModelObj) {
+function renderDiagram(jsonModelObj, stale) {
     const jsonModel = JSON.stringify(jsonModelObj);
 
     const page = `
@@ -77,10 +79,26 @@ function renderDiagram(jsonModelObj) {
                 vertical-align: middle;
                 text-align: center;
             }
+            #warning {
+                position: absolute;
+                top: 15px;
+                position: absolute;
+                overflow: hidden;
+                height: 25px;
+                vertical-align: bottom;
+                text-align: center;
+                color: rgb(255, 90, 30);
+                width: 100%;
+            }
+            #warning p {
+                line-height: 25px;
+            }
         </style>
     </head>
 
     <body>
+    <div id="warning">
+    </div>
     <div class="ballerina-editor design-view-container" id="diagram">
     </div>
     </body>
@@ -88,6 +106,15 @@ function renderDiagram(jsonModelObj) {
     <script>
         (function() {
             const json = ${jsonModel};
+            const stale = ${JSON.stringify(stale)};
+
+            if (stale) {
+                showWarning('Cannot update design view due to syntax errors.')
+            }
+
+            if (!json) {
+                return;
+            }
 
             function drawDiagram() {
                 try {
@@ -103,8 +130,14 @@ function renderDiagram(jsonModelObj) {
             function drawError(message) {
                 document.getElementById("diagram").innerHTML = \`
                 <div id="errors">
-                    <span>\$\{message\}
+                    <span>\$\{message\}</span>
                 </div>
+                \`;
+            }
+
+            function showWarning(message) {
+                document.getElementById("warning").innerHTML = \`
+                    <p><span class="fw fw-warning"></span> \$\{message\}</p>
                 \`;
             }
             
