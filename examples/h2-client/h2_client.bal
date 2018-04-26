@@ -20,7 +20,8 @@ function main(string... args) {
 
     // Inserts data to the table using the update action.
     io:println("\nThe update operation - Inserting data to a table");
-    ret = testDB->update("INSERT INTO student(id, age, name) values (1, 23, 'john')");
+    ret =
+      testDB->update("INSERT INTO student(id, age, name) values (1, 23, 'john')");
     handleUpdate(ret, "Insert to student table with no parameters");
 
     // Select data using the `select` action.
@@ -29,7 +30,8 @@ function main(string... args) {
     table dt;
     match selectRet {
         table tableReturned => dt = tableReturned;
-        error err => io:println("Select data from student table failed: " + err.message);
+        error err =>
+            io:println("Select data from student table failed: " + err.message);
     }
     // Convert a table to JSON.
     io:println("\nConvert the table into json");
