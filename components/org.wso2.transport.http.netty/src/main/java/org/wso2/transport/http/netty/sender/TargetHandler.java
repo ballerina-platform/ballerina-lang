@@ -16,6 +16,7 @@ package org.wso2.transport.http.netty.sender;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.socket.ChannelInputShutdownReadComplete;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.DecoderResult;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
@@ -214,6 +215,8 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
             log.debug("Connection Preface and Settings frame written");
         } else if (evt instanceof SslCloseCompletionEvent) {
             log.debug("SSL close completion event received");
+        } else if (evt instanceof ChannelInputShutdownReadComplete) {
+            log.debug("Input side of the connection is already shutdown");
         } else {
             log.warn("Unexpected user event {} triggered", evt.toString());
         }
