@@ -26,7 +26,7 @@ function testAssertStringEquals() {
     string a = "John";
     string b = "Doe";
     string concatenated = stringConcat(a, b);
-    test:assertEquals(concatenated, "JohnDoe", msg = "string concatenation failed");
+    test:assertEquals(concatenated, "JohnDoe", msg = "string concat failed");
 }
 
 // Comparing JSON objects.

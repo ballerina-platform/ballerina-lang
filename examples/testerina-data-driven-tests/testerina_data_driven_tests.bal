@@ -12,8 +12,8 @@ function testAddingValues(string fValue, string sValue, string result) {
     int value1 = check <int>fValue;
     int value2 = check <int>sValue;
     int result1 = check <int>result;
-    io:println("Input params: [" + fValue + "," + sValue + "," + result + "]");
-    test:assertEquals(value1 + value2, result1, msg = "The sum is not correct");
+    io:println("Input : [" + fValue + "," + sValue + "," + result + "]");
+    test:assertEquals(value1 + value2, result1, msg = "TIncorrect Sum");
 }
 
 // The data provider function. In this scenario, it returns a string value-set. 
