@@ -102,10 +102,12 @@ function getNodeForFragment(fragment) {
     return node;
 }
 
-function getStaticDefaultNode(fragmentName) {
+function getStaticDefaultNode(fragmentName, keepWhiteSpace) {
     const parsedJson = _.cloneDeep(DefaultNodes[fragmentName]);
     const node = TreeBuilder.build(parsedJson);
-    node.clearWS();
+    if (!keepWhiteSpace) {
+        node.clearWS();
+    }
     return node;
 }
 
@@ -200,8 +202,8 @@ class DefaultNodeFactory {
         return getStaticDefaultNode('createJMSResource');
     }
 
-    createStruct() {
-        return getStaticDefaultNode('createStruct');
+    createStruct(keepWhiteSpace) {
+        return getStaticDefaultNode('createStruct', keepWhiteSpace);
     }
 
     createTransformer() {
