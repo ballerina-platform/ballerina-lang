@@ -204,9 +204,15 @@ class HttpClient extends React.Component {
         const newHeaders = this.state.requestHeaders.filter((header) => {
             return header.id !== id;
         });
-        this.setState({
-            requestHeaders: newHeaders,
-        });
+        if (newHeaders === undefined || newHeaders.length === 0) {
+            this.setState({
+                requestHeaders: [{ id: uuid(), key: '', value: '' }],
+            });
+        } else {
+            this.setState({
+                requestHeaders: newHeaders,
+            });
+        }
     }
 
     onChangeHeader(i, header) {
