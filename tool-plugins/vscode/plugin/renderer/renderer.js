@@ -46,8 +46,7 @@ function renderDiagram(modelJson) {
                 fill-opacity: 0;
             }
             #diagram {
-                overflow-x: hidden;
-                overflow-y: scroll;
+                overflow: scroll;
                 height : 100%;
             }
         </style>

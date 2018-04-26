@@ -31,9 +31,10 @@ public type CallerActions object {
 
     private {
         http:Client httpClientEndpoint;
+        http:FollowRedirects? followRedirects;
     }
 
-    new (hubUrl, httpClientEndpoint) {}
+    new (hubUrl, httpClientEndpoint, followRedirects) {}
 
     documentation {
         Sends a subscription request to a WebSub Hub.
@@ -104,7 +105,8 @@ public function CallerActions::subscribe(SubscriptionChangeRequest subscriptionR
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_SUBSCRIBE, subscriptionRequest);
     var response = httpClientEndpoint->post("", request = builtSubscriptionRequest);
-    return processHubResponse(self.hubUrl, MODE_SUBSCRIBE, subscriptionRequest, response, httpClientEndpoint);
+    return processHubResponse(self.hubUrl, MODE_SUBSCRIBE, subscriptionRequest, response, httpClientEndpoint,
+                              self.followRedirects);
 }
 
 public function CallerActions::unsubscribe(SubscriptionChangeRequest unsubscriptionRequest)
@@ -113,7 +115,8 @@ public function CallerActions::unsubscribe(SubscriptionChangeRequest unsubscript
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request builtUnsubscriptionRequest = buildSubscriptionChangeRequest(MODE_UNSUBSCRIBE, unsubscriptionRequest);
     var response = httpClientEndpoint->post("", request = builtUnsubscriptionRequest);
-    return processHubResponse(self.hubUrl, MODE_UNSUBSCRIBE, unsubscriptionRequest, response, httpClientEndpoint);
+    return processHubResponse(self.hubUrl, MODE_UNSUBSCRIBE, unsubscriptionRequest, response, httpClientEndpoint,
+                              self.followRedirects);
 }
 
 public function CallerActions::registerTopic(string topic, string? secret = ()) returns error? {
@@ -283,7 +286,8 @@ documentation {
 }
 function processHubResponse(@sensitive string hub, @sensitive string mode,
                             SubscriptionChangeRequest subscriptionChangeRequest,
-                            http:Response|error response, http:Client httpClientEndpoint)
+                            http:Response|error response, http:Client httpClientEndpoint,
+                            http:FollowRedirects? followRedirects)
     returns @tainted SubscriptionChangeResponse|error {
 
     string topic = subscriptionChangeRequest.topic;
@@ -296,10 +300,22 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
         }
         http:Response httpResponse => {
             int responseStatusCode = httpResponse.statusCode;
-            if (responseStatusCode == http:TEMPORARY_REDIRECT_307 || responseStatusCode == 308) {
-                string redirected_hub = httpResponse.getHeader("Location");
-                return invokeClientConnectorOnRedirection(redirected_hub, mode, subscriptionChangeRequest,
-                    httpClientEndpoint.config.auth);
+            if (responseStatusCode == http:TEMPORARY_REDIRECT_307
+                    || responseStatusCode == http:PERMANENT_REDIRECT_308) {
+                match (followRedirects) {
+                    http:FollowRedirects redirectionConfig => {
+                        if (redirectionConfig.enabled) {
+                            //TODO: Fix to honour redirect configs specified (maxCount)
+                            string redirected_hub = httpResponse.getHeader("Location");
+                            return invokeClientConnectorOnRedirection(redirected_hub, mode, subscriptionChangeRequest,
+                                httpClientEndpoint.config.auth);
+                        }
+                    }
+                    () => {}
+                }
+                error subscriptionError = { message: "Redirection response received for subscription change request at"
+                                        + "Hub [" + hub + "], for Topic [" + subscriptionChangeRequest.topic + "]" };
+                return subscriptionError;
             } else if (responseStatusCode != http:ACCEPTED_202) {
                 var responsePayload = httpResponse.getTextPayload();
                 string errorMessage = "Error in request: Mode[" + mode + "] at Hub[" + hub + "]";
