@@ -28,10 +28,10 @@ The full list of endpoint properties can be found listed under the `sql:PoolOpti
 
 ### Creating tables
 
-This sample creates a table with two columns. One field is of type `int` and the other of is of type `varchar`. The CREATE statement is executed via the `update` operation of the endpoint.
+This sample creates a table with two columns. One field is of type `int`, and the other is of type `varchar`. The CREATE statement is executed via the `update` operation of the endpoint.
 
 ```ballerina
-//Create the ‘Students’ table with fields ‘StudentID’ and ‘LastName’.
+// Create the ‘Students’ table with fields ‘StudentID’ and ‘LastName’.
 var ret = testDB->update("CREATE TABLE IF NOT EXISTS Students(StudentID int, LastName varchar(255))");
 match ret {
     int retInt => io:println("Students table create status in DB: " + retInt);
@@ -79,7 +79,7 @@ match ret3 {
 
 ### Inserting data with auto-generated keys
 
-This example demonstrates inserting data while returning the auto-generated keys by executing an INSERT statement that uses the `updateWithGeneratedKeys` operation.
+This example demonstrates inserting data while returning the auto-generated keys. It achieves this by using the `updateWithGeneratedKeys` operation to execute the INSERT statement.
 
 ```ballerina
 int age = 31;
@@ -100,13 +100,13 @@ match ret0 {
 This example demonstrates selecting data. First, a type is created to represent the returned result set. Next, the SELECT query is executed via the `select` operation of the endpoint by passing that result set type. Once the query is executed, each data record can be retrieved by looping the result set. The table returned by the select operation holds a pointer to the actual data in the database and it loads data from the table only when it is accessed. This table can be iterated only once. 
 
 ```ballerina
-//Define a type to represent the results set.
+// Define a type to represent the results set.
 type Student {
     int id,
     string name,
 };
 
-//Select the data from the table.
+// Select the data from the table.
 var selectRet = testDB->select("SELECT * FROM Students WHERE StudentID = 1", Student);
 table<Student> dt;
 match selectRet {
@@ -114,7 +114,7 @@ match selectRet {
     error err => io:println("Select data from Students table failed: " + err.message);
 }
 
-//Access the returned table. 
+// Access the returned table. 
 foreach record in dt {
     io:println("Student:Name:" + record.name);
 }
@@ -156,17 +156,17 @@ match ret4 {
 This example demonstrates how to insert multiple records with a single INSERT statement that is executed via the `batchUpdate` operation of the endpoint. This is done by first creating multiple parameter arrays, each representing a single record, and then passing those arrays to the `batchUpdate` operation. Similarly, multiple UPDATE statements can also be executed via `batchUpdate`.
 
 ```ballerina
-//Create the first batch of parameters.
+// Create the first batch of parameters.
 sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: 5 };
 sql:Parameter para2 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
 sql:Parameter[] parameters1 = [para1, para2];
 
-//Create the second batch of parameters.
+// Create the second batch of parameters.
 sql:Parameter para3 = { sqlType: sql:TYPE_INTEGER, value: 6 };
 sql:Parameter para4 = { sqlType: sql:TYPE_VARCHAR, value: "Peter" };
 sql:Parameter[] parameters2 = [para3, para4];
 
-//Do the batch update by passing the batches.
+// Do the batch update by passing the batches.
 var ret5 = testDB->batchUpdate("INSERT INTO Students(StudentID, LastName) values (?, ?)", parameters1, parameters2);
 match ret5 {
     int[] counts => {
@@ -179,11 +179,11 @@ match ret5 {
 
 ### Calling stored procedures
 
-The following examples demonstrate executing stored procedures via the  `call` operation of the endpoint. 
+The following examples demonstrate executing stored procedures via the `call` operation of the endpoint. 
 
 The first example shows how to create and call a simple stored procedure that inserts data.
 ```ballerina
-//Create the stored procedure.
+// Create the stored procedure.
 var ret6 = testDB->update("CREATE PROCEDURE INSERTDATA (IN pID INT, IN pName VARCHAR(255))
                            BEGIN
                               INSERT INTO Students(StudentID, LastName) values (pID, pName);
@@ -193,7 +193,7 @@ match ret6 {
     error err => io:println("Stored procedure creation failed: " + err.message);
 }
 
-//Call the stored procedure.
+// Call the stored procedure.
 var ret7 = testDB->call("{CALL INSERTDATA(?,?)}", (), 7, "George");
 match ret7 {
     ()|table[] => io:println("Call action successful");
@@ -203,7 +203,7 @@ match ret7 {
 This next example shows how to create and call a stored procedure that accepts `INOUT` and `OUT` parameters. 
 
 ```ballerina
-//Create the stored procedure.
+// Create the stored procedure.
 var ret8 = testDB->update("CREATE PROCEDURE GETCOUNT (INOUT pID INT, OUT pCount INT)
                            BEGIN
                                 SELECT COUNT(*) INTO pID FROM Students WHERE StudentID = pID;
@@ -214,7 +214,7 @@ match ret8 {
     error err => io:println("Stored procedure creation failed: " + err.message);
 }
 
-//Call the stored procedure.
+// Call the stored procedure.
 sql:Parameter param1 = { sqlType: sql:TYPE_INTEGER, value: 3, direction: sql:DIRECTION_INOUT };
 sql:Parameter param2 = { sqlType: sql:TYPE_INTEGER, direction: sql:DIRECTION_OUT };
 var ret9 = testDB->call("{CALL GETCOUNT(?,?)}", (), param1, param2);
