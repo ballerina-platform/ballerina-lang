@@ -17,13 +17,17 @@ function main(string... args) {
 
     // Schedule a timer task, which initially runs 500ms from now.
     //After that, it runs every 1000ms.
-    timer = new task:Timer(onTriggerFunction, onErrorFunction, 1000, delay = 500);
+    timer = new task:Timer(onTriggerFunction, 
+                           onErrorFunction, 
+                           1000, delay = 500);
+    
+    // Start the timer.
     timer.start();
 
     runtime:sleep(30000); // Temporary workaround to stop the process from exiting.
 }
 
-function cleanup() returns (error|()) {
+function cleanup() returns error? {
     count = count + 1;
     io:println("Cleaning up...");
     io:println(count);
@@ -34,6 +38,7 @@ function cleanup() returns (error|()) {
         error e = { message: "Cleanup error" };
         return e;
     }
+    
     if (count >= 10) {
         timer.stop();
         io:println("Stopped timer");
