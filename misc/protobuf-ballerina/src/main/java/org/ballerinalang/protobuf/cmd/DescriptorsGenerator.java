@@ -18,6 +18,7 @@
 package org.ballerinalang.protobuf.cmd;
 
 import com.google.protobuf.DescriptorProtos;
+import org.ballerinalang.net.grpc.exception.BalGenerationException;
 import org.ballerinalang.protobuf.BalGenerationConstants;
 import org.ballerinalang.protobuf.exception.BalGenToolException;
 import org.ballerinalang.protobuf.utils.ProtocCommandBuilder;
@@ -100,6 +101,11 @@ public class DescriptorsGenerator {
                         try (InputStream dependentStream = new FileInputStream(initialFile)) {
                             DescriptorProtos.FileDescriptorSet set = DescriptorProtos.FileDescriptorSet
                                     .parseFrom(dependentStream);
+                            byte[] dependentDesc = set.getFile(0).toByteArray();
+                            if (dependentDesc.length == 0) {
+                                throw new BalGenerationException("Error occurred at generating dependent proto " +
+                                        "descriptor for dependent proto '" + parentProtoPath + "'.");
+                            }
                             list.add(set.getFile(0).toByteArray());
                         } catch (IOException e) {
                             throw new BalGenToolException("Error reading dependent descriptor.", e);

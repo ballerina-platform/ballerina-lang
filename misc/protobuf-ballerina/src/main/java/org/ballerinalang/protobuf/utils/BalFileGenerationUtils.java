@@ -23,11 +23,13 @@ import org.ballerinalang.protobuf.exception.BalGenToolException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -89,6 +91,20 @@ public class BalFileGenerationUtils {
         } catch (InterruptedException e) {
             throw new BalGenToolException("Process not successfully completed. Process is interrupted while" +
                     " running the protoC executor.", e);
+        }
+        if (process.exitValue() != 0) {
+            try {
+                BufferedReader br = new BufferedReader(new
+                        InputStreamReader(process.getErrorStream()));
+                String err;
+                String errMsg = "";
+                while ((err = br.readLine()) != null) {
+                    errMsg = errMsg.concat(System.lineSeparator().concat(err));
+                }
+                throw new BalGenToolException(errMsg);
+            } catch (IOException e) {
+                throw new BalGenToolException("Invalid command syntax.", e);
+            }
         }
     }
     
