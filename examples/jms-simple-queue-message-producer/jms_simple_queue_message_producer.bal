@@ -3,10 +3,11 @@ import ballerina/log;
 
 // This creates a queue sender.
 endpoint jms:SimpleQueueSender queueSender {
-    initialContextFactory: "bmbInitialContextFactory",
-    providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'",
+    initialContextFactory:"bmbInitialContextFactory",
+    providerUrl:"amqp://admin:admin@carbon/carbon?"
+                + "brokerlist='tcp://localhost:5672'",
     acknowledgementMode: "AUTO_ACKNOWLEDGE",
-    queueName: "MyQueue"
+    queueName:"MyQueue"
 };
 
 function main(string... args) {
@@ -18,7 +19,10 @@ function main(string... args) {
 
         jms:Message msg => {
             // This sends the Ballerina message to the JMS provider.
-            queueSender->send(msg) but { error e => log:printError("Error occurred while sending message", err = e) };
+            queueSender->send(msg) but {
+                error e => log:printError("Error occurred while sending"
+                                          + "message", err = e)
+            };
         }
     }
 }
