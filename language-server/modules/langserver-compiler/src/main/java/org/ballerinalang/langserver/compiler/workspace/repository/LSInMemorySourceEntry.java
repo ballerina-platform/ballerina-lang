@@ -44,7 +44,7 @@ class LSInMemorySourceEntry extends FileSystemSourceInput {
         try {
             // TODO: Remove using completion context after introducing a proper fix for _=.... issue
             if (lsContext != null) {
-                return Pattern.compile("(\\s+_)").matcher(documentManager.getFileContent(this.getPath()))
+                return Pattern.compile("(/{2}.*\\s+_|\\s+_)").matcher(documentManager.getFileContent(this.getPath()))
                         .replaceAll(" var$1").getBytes("UTF-8");
             }
             

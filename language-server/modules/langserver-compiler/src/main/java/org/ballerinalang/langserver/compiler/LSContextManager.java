@@ -39,6 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nullable;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 
@@ -160,6 +161,7 @@ public class LSContextManager {
         options.put(PROJECT_DIR, "");
         options.put(COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
         options.put(PRESERVE_WHITESPACE, "false");
+        options.put(OFFLINE, Boolean.toString(true));
         context.put(SourceDirectory.class, new NullSourceDirectory());
         List<Diagnostic> balDiagnostics = new ArrayList<>();
         CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);

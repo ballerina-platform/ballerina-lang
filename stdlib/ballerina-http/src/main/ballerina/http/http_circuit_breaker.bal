@@ -270,7 +270,7 @@ public type CircuitBreakerClient object {
         R{{}} The HTTP Push Promise message
         R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
     }
-    public function getNextPromise(HttpFuture httpFuture) returns (PushPromise|error);
+    public function getNextPromise(HttpFuture httpFuture) returns PushPromise|error;
 
     documentation {
         Circuit breaking not supported. Defaults to the `getPromisedResponse()` function of the underlying HTTP
@@ -490,32 +490,28 @@ public function CircuitBreakerClient::forward(string path, Request request) retu
    }
 }
 
-public function CircuitBreakerClient::submit(string httpVerb, string path, Request request) returns HttpFuture|
-        error {
-   error err = {message:"Unsupported action for Circuit breaker"};
-   return err;
+public function CircuitBreakerClient::submit(string httpVerb, string path, Request request) returns HttpFuture|error {
+    return self.httpClient.submit(httpVerb, path, request);
 }
 
 public function CircuitBreakerClient::getResponse(HttpFuture httpFuture) returns Response|error {
-   error err = {message:"Unsupported action for Circuit breaker"};
-   return err;
+    return self.httpClient.getResponse(httpFuture);
 }
 
-public function CircuitBreakerClient::hasPromise (HttpFuture httpFuture) returns (boolean) {
-   return false;
+public function CircuitBreakerClient::hasPromise(HttpFuture httpFuture) returns boolean {
+    return self.httpClient.hasPromise(httpFuture);
 }
 
-public function CircuitBreakerClient::getNextPromise (HttpFuture httpFuture) returns (PushPromise | error) {
-   error err = {message:"Unsupported action for Circuit breaker"};
-   return err;
+public function CircuitBreakerClient::getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+    return self.httpClient.getNextPromise(httpFuture);
 }
 
 public function CircuitBreakerClient::getPromisedResponse(PushPromise promise) returns Response|error {
-    error err = {message:"Unsupported action for Circuit breaker"};
-    return err;
+    return self.httpClient.getPromisedResponse(promise);
 }
 
 public function CircuitBreakerClient::rejectPromise(PushPromise promise) {
+    return self.httpClient.rejectPromise(promise);
 }
 
 // TODO: make this private

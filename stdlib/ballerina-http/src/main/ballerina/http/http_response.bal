@@ -306,6 +306,11 @@ public function Response::getHeaders(string headerName) returns (string[]) {
 public function Response::setHeader(string headerName, string headerValue) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setHeader(headerName, headerValue);
+
+    // TODO: see if this can be handled in a better manner
+    if (SERVER.equalsIgnoreCase(headerName)) {
+        self.server = headerValue;
+    }
 }
 
 public function Response::removeHeader(string key) {

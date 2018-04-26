@@ -9,17 +9,17 @@ endpoint http:Listener passthroughEP {
 
 endpoint http:Client acceptEncodingAutoEP {
     url: "http://localhost:9090/hello",
-    acceptEncoding:http:ACCEPT_ENCODING_AUTO
+    compression:http:COMPRESSION_AUTO
 };
 
 endpoint http:Client acceptEncodingEnableEP {
     url: "http://localhost:9090/hello",
-    acceptEncoding:http:ACCEPT_ENCODING_ALWAYS
+    compression:http:COMPRESSION_ALWAYS
 };
 
 endpoint http:Client acceptEncodingDisableEP {
     url: "http://localhost:9090/hello",
-    acceptEncoding:http:ACCEPT_ENCODING_NEVER
+    compression:http:COMPRESSION_NEVER
 };
 
 service<http:Service> passthrough bind passthroughEP {

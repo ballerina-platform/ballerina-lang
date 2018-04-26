@@ -98,7 +98,7 @@ public class EntityBodyHandler {
      * @param numberOfBytesRead Number of bytes read
      */
     public static void setDiscreteMediaTypeBodyContent(BStruct entityStruct, InputStream inputStream,
-                                                       int numberOfBytesRead) {
+                                                       long numberOfBytesRead) {
         if (numberOfBytesRead > 0) {
             if (numberOfBytesRead < Constants.BYTE_LIMIT) {
                 entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(new EntityBodyChannel(inputStream)));
