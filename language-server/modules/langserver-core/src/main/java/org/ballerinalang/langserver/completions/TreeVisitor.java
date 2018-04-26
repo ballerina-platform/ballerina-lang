@@ -664,6 +664,9 @@ public class TreeVisitor extends LSNodeVisitor {
         BSymbol objectSymbol = objectNode.symbol;
         SymbolEnv objectEnv = SymbolEnv.createPkgLevelSymbolEnv(objectNode, objectSymbol.scope, symbolEnv);
         blockOwnerStack.push(objectNode);
+        if (objectNode.fields.isEmpty() && objectNode.functions.isEmpty()) {
+            this.isCursorWithinBlock(objectNode.getPosition(), objectEnv);
+        }
         objectNode.fields.forEach(field -> {
             this.cursorPositionResolver = ObjectTypeScopeResolver.class;
             acceptNode(field, objectEnv);

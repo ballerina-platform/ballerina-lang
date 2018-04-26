@@ -26,6 +26,8 @@ import { getHandlerDefinitions } from './handlers';
 import { getMenuDefinitions } from './menus';
 import WelcomeTab from './views/welcome-tab';
 import { LABELS, VIEWS as WELCOME_TAB_VIEWS, WELCOME_TAB_PLUGIN_ID, COMMANDS as COMMAND_IDS } from './constants';
+import allBBes from './sample-data/all-bbes.json';
+import builtBBes from './sample-data/built-bbes.json';
 
 /**
  * Plugin for Welcome tab.
@@ -81,6 +83,14 @@ class WelcomeTabPlugin extends Plugin {
      * @inheritdoc
      */
     getContributions() {
+        // remove unbuilt samples
+        const cleaned = allBBes.map((group) => {
+            group.samples = group.samples.filter((item) => {
+                return builtBBes.indexOf(item.url) > -1;
+            });
+            return group;
+        });
+
         const { COMMANDS, HANDLERS, MENUS, VIEWS } = CONTRIBUTIONS;
         return {
             [COMMANDS]: getCommandDefinitions(this),
@@ -98,7 +108,7 @@ class WelcomeTabPlugin extends Plugin {
                             openDirectory: this.openDirectoryHandler.bind(this),
                             userGuide: this.config.userGuide,
                             balHome: this.appContext.balHome,
-                            samples: this.config.samples,
+                            samples: cleaned,
                             commandManager: command,
                         };
                     },
