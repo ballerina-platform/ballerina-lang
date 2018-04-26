@@ -21,7 +21,6 @@
 documentation {
     Represents directory listener endpoint where used to listen to a directory in the local file system.
 
-    E{{}}
     F{{config}} Represents necessary configurations that need to configure
 }
 public type Listener object {
