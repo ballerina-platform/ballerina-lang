@@ -1,7 +1,7 @@
 import ballerina/http;
 import ballerina/log;
 
-// Create an endpoint with port 7090 which accepts HTTP requests.
+// Create an endpoint with port 7090 to accept HTTP requests.
 endpoint http:Listener http2ServiceEP {
     port: 7090,
     // HTTP version is set to 2.0.
@@ -33,7 +33,7 @@ service http2Service bind http2ServiceEP {
         caller->promise(promise3) but {
             error e => log:printError("Error occurred while sending the promise3", err = e) };
 
-        // Construct requested resource.
+        // Construct the requested resource.
         http:Response response = new;
         json msg = { "response": { "name": "main resource" } };
         response.setPayload(msg);
