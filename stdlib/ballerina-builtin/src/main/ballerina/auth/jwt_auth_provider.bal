@@ -96,8 +96,8 @@ public type JWTAuthProvider object {
         userPrincipal.claims = jwtPayload.customClaims;
         if (jwtPayload.customClaims.hasKey(SCOPES)) {
             match jwtPayload.customClaims[SCOPES] {
-                string scopeString => {
-                    userPrincipal.scopes = scopeString.split(" ");
+                string[] validatedScopes => {
+                    userPrincipal.scopes = validatedScopes;
                 }
                 any => {}
             }
@@ -117,7 +117,7 @@ public type JWTAuthProvider object {
 
 };
 
-@final string SCOPES = "scope";
+@final string SCOPES = "scopes";
 @final string GROUPS = "groups";
 @final string USERNAME = "name";
 @final string AUTH_TYPE_JWT = "jwt";
