@@ -39,9 +39,9 @@ public class SerializableContext {
 
     public WorkerState state = WorkerState.CREATED;
 
-    public Map<String, Object> globalProps = new HashMap<>();
+    public HashMap<String, Object> globalProps = new HashMap<>();
 
-    public Map<String, Object> localProps = new HashMap<>();
+    public HashMap<String, Object> localProps = new HashMap<>();
 
     public int ip;
 
@@ -67,26 +67,32 @@ public class SerializableContext {
         return serializableContext;
     }
 
-    private void populateGlobalProps(Map<String, Object> props) {
+    private void populateGlobalProps(Map<String, Object> props, SerializableState state) {
         if (props == null) {
             return;
         }
         for (String key : props.keySet()) {
             Object v = props.get(key);
-            if (PersistenceUtils.isSerializable(v)) {
-                globalProps.put(key, v);
+            if (v == null) {
+                globalProps.put(key, null);
             }
+            Object s = state.serialize(v);
+            globalProps.put(key, s);
         }
     }
 
-    private void populateLocalProps(Map<String, Object> props) {
+    private void populateLocalProps(Map<String, Object> props, SerializableState state) {
         if (props == null) {
             return;
         }
         for (String key : props.keySet()) {
             Object v = props.get(key);
-            if (PersistenceUtils.isSerializable(v)) {
-                localProps.put(key, v);
+            if (v == null) {
+                globalProps.put(key, null);
+            }
+            Object s = state.serialize(v);
+            if (s != null) {
+                globalProps.put(key, s);
             } else {
                 LocalPropKey localPropKey = new LocalPropKey(key, v.getClass().getName());
                 localProps.put(key, localPropKey);
@@ -95,15 +101,20 @@ public class SerializableContext {
     }
 
     private Map<String, Object> prepareLocalProps(
-            SerializableState state, WorkerExecutionContext context) {
+            SerializableState state, WorkerExecutionContext context, ProgramFile programFile) {
         Map<String, Object> props = new HashMap<>();
         if (localProps != null) {
             for (String key : localProps.keySet()) {
                 Object v = localProps.get(key);
+                if (v == null) {
+                    props.put(key, null);
+                    continue;
+                }
                 if (v instanceof LocalPropKey) {
                     StateStore.getDataMapper().
                             mapLocalProp(state.getSerializationId(), (LocalPropKey) v, context);
                 } else {
+                    Object u = state.deserialize(v, programFile);
                     props.put(key, v);
                 }
             }
@@ -111,10 +122,27 @@ public class SerializableContext {
         return props;
     }
 
+    private Map<String, Object> prepareGlobalProps(
+            SerializableState state, WorkerExecutionContext context, ProgramFile programFile) {
+        Map<String, Object> props = new HashMap<>();
+        if (globalProps != null) {
+            for (String key : globalProps.keySet()) {
+                Object v = globalProps.get(key);
+                if (v == null) {
+                    props.put(key, null);
+                    continue;
+                }
+                Object u = state.deserialize(v, programFile);
+                props.put(key, v);
+            }
+        }
+        return props;
+    }
+
     public SerializableContext(WorkerExecutionContext ctx, SerializableState state) {
         ip = ctx.ip;
-        populateGlobalProps(ctx.globalProps);
-        populateLocalProps(ctx.localProps);
+        populateGlobalProps(ctx.globalProps, state);
+        populateLocalProps(ctx.localProps, state);
         retRegIndexes = ctx.retRegIndexes;
         runInCaller = ctx.runInCaller;
 
@@ -182,10 +210,11 @@ public class SerializableContext {
         } else {
             WorkerExecutionContext parentCtx = state.getContext(parent, programFile);
             workerExecutionContext = new WorkerExecutionContext(
-                    parentCtx, null, callableUnitInfo, workerInfo, workerLocalData, workerResultData, retRegIndexes, runInCaller);
+                    parentCtx, new DummyResponseContext(), callableUnitInfo, workerInfo, workerLocalData, workerResultData, retRegIndexes, runInCaller);
         }
-        workerExecutionContext.globalProps = globalProps;
-        workerExecutionContext.localProps = prepareLocalProps(state, workerExecutionContext);
+        workerExecutionContext.globalProps = prepareGlobalProps(state, workerExecutionContext, programFile);
+        workerExecutionContext.localProps = prepareLocalProps(state, workerExecutionContext, programFile);
+        workerExecutionContext.ip = ip;
         return workerExecutionContext;
     }
 
@@ -214,7 +243,7 @@ public class SerializableContext {
         return localProps;
     }
 
-    public void setLocalProps(Map<String, Object> localProps) {
+    public void setLocalProps(HashMap<String, Object> localProps) {
         this.localProps = localProps;
     }
 

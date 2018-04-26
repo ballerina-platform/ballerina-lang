@@ -21,6 +21,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.ballerinalang.bre.bvm.persistency.PersistenceUtils;
 import org.ballerinalang.bre.bvm.persistency.SerializableState;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.persistence.StateStore;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -33,26 +34,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SerializableBStruct extends SerializableRefType {
+public class SerializableBStruct implements SerializableRefType {
 
     private String pkgPath;
     private String structName;
     private int flags;
 
-    private Map<String, Object> nativeData = new HashMap<>();
-    private List<NativeDataKey> nativeDataKeys = new ArrayList<>();
+    private HashMap<String, Object> nativeData = new HashMap<>();
 
     private long[] longFields;
     private double[] doubleFields;
     private String[] stringFields;
     private int[] intFields;
     private byte[][] byteFields;
+    private ArrayList<Object> refFields;
 
-    private SerializableRefFields refFields;
-
-    private RefTypeIndex[] refTypeIndices;
-    private SerializableBStruct[] bStructs;
-    private SerializableBString[] bStrings;
+    public SerializableBStruct() {}
 
     public SerializableBStruct(BStruct bStruct, SerializableState state) {
 
@@ -68,57 +65,25 @@ public class SerializableBStruct extends SerializableRefType {
 
         for (String key : bStruct.nativeData.keySet()) {
             Object o = bStruct.nativeData.get(key);
-            if (o != null) {
-                if (o instanceof BStruct) {
-                    String bKey = state.addBStruct((BStruct) o);
-                    nativeData.put(key, new SBStructKey(bKey));
-                } else if (PersistenceUtils.isSerializable(o)) {
-                    nativeData.put(key, o);
-                } else {
-                    NativeDataKey nativeDataKey =
-                            new NativeDataKey(pkgPath, structName, key, o.getClass().getName());
-                    nativeData.put(key, nativeDataKey);
-                }
-//                NativeDataKey nativeDataKey =
-//                        new NativeDataKey(pkgPath, structName, key, o.getClass().getName());
-//                nativeDataKeys.add(nativeDataKey);
+            if (o == null) {
+                nativeData.put(key, null);
+                continue;
+            }
+
+            Object s = state.serialize(o);
+            if (s != null) {
+                nativeData.put(key, s);
+            } else {
+                NativeDataKey nativeDataKey =
+                        new NativeDataKey(pkgPath, structName, key, o.getClass().getName());
+                nativeData.put(key, nativeDataKey);
             }
         }
-
-        if (bStruct.refFields != null) {
-            refFields = new SerializableRefFields(bStruct.refFields, state);
-        }
-
-//        if (bStruct.refFields != null) {
-//            for ()
-//        }
-
-//        refTypeIndices = new RefTypeIndex[bStruct.refFields.length];
-//        RefTypeCounter refTypeCounter = new RefTypeCounter(bStruct.refFields);
-//        bStructs = new SerializableBStruct[refTypeCounter.getbStructCount()];
-//        bStrings = new SerializableBString[refTypeCounter.getbStringCount()];
-//        int refTypeIndex = 0;
-//        int bStructIndex = 0;
-//        int bStringIndex = 0;
-//        for (int i = 0; i < bStruct.refFields.length; i++) {
-//            BRefType refType = bStruct.refFields[i];
-//            if (refType instanceof BStruct) {
-//                bStructs[bStructIndex] = new SerializableBStruct((BStruct) refType);
-//                refTypeIndices[refTypeIndex] =
-//                        new RefTypeIndex(i, bStructIndex, RefTypeIndex.RefTypeName.BStruct);
-//                bStructIndex++;
-//                refTypeIndex++;
-//            } else if (refType instanceof BString) {
-//                bStrings[bStringIndex++] = new SerializableBString((BString) refType);
-//                refTypeIndices[refTypeIndex++] =
-//                        new RefTypeIndex(i, bStringIndex, RefTypeIndex.RefTypeName.BString);
-//                bStringIndex++;
-//                refTypeIndex++;
-//            }
-//        }
+        refFields = state.serializeRefFields(bStruct.refFields);
     }
 
-    public BStruct getBSturct(ProgramFile programFile, SerializableState state) {
+    @Override
+    public BRefType getBRefType(ProgramFile programFile, SerializableState state) {
         PackageInfo packageInfo = programFile.getPackageInfo(pkgPath);
         if (packageInfo == null) {
             throw new BallerinaException(pkgPath + " not found in program file: " +
@@ -134,50 +99,26 @@ public class SerializableBStruct extends SerializableRefType {
         for (String key : nativeData.keySet()) {
             Object o = nativeData.get(key);
             if (o == null) {
+                bStruct.nativeData.put(key, null);
                 continue;
             }
-            if (o instanceof SBStructKey) {
-                BStruct nativeDataBStruct = state.getBStruct(((SBStructKey)o).key, programFile);
-                bStruct.nativeData.put(key, nativeDataBStruct);
-            } else if (o instanceof NativeDataKey) {
+
+            Object v = state.deserialize(o, programFile);
+            if (v instanceof NativeDataKey) {
                 StateStore.getDataMapper().
                         mapNativeData(state.getSerializationId(), (NativeDataKey) o, bStruct);
+                bStruct.nativeData.put(key, null);
             } else {
-                bStruct.nativeData.put(key, o);
+                bStruct.nativeData.put(key, v);
             }
         }
-
-//        for (NativeDataKey nativeDataKey : nativeDataKeys) {
-//            StateStore.getDataMapper().mapNativeData(state.getSerializationId(), nativeDataKey, bStruct);
-//        }
 
         bStruct.longFields = longFields;
         bStruct.doubleFields = doubleFields;
         bStruct.intFields = intFields;
         bStruct.stringFields = stringFields;
         bStruct.byteFields = byteFields;
-
-        if (refFields != null) {
-            bStruct.refFields = refFields.getRefFeilds(programFile, state);
-        }
-
-//        bStruct.refFields = new BRefType[refTypeIndices.length];
-//        for (int i = 0; i < refTypeIndices.length; i++) {
-//            RefTypeIndex refTypeIndex = refTypeIndices[i];
-//            switch (refTypeIndex.getRefTypeName()) {
-//                case BStruct:
-//                    BStruct childBStruct = bStructs[refTypeIndex.getSpecificTypeIndex()].
-//                            getBSturct(programFile);
-//                    bStruct.refFields[refTypeIndex.getRefTypeIndex()] = childBStruct;
-//                    break;
-//                case BString:
-//                    BString bString = bStrings[refTypeIndex.getSpecificTypeIndex()].getBString();
-//                    bStruct.refFields[refTypeIndex.getRefTypeIndex()] = bString;
-//                    break;
-//                default:
-//                    throw new BallerinaException("Unknown ref type encountered.");
-//            }
-//        }
+        bStruct.refFields = state.deserializeRefFields(refFields, programFile);
         return bStruct;
     }
 
@@ -190,13 +131,5 @@ public class SerializableBStruct extends SerializableRefType {
         Gson gson = new GsonBuilder().create();
         SerializableBStruct serializableBStruct = gson.fromJson(jsonString, SerializableBStruct.class);
         return serializableBStruct;
-    }
-
-    class SBStructKey {
-        public String key;
-
-        public SBStructKey(String key) {
-            this.key = key;
-        }
     }
 }

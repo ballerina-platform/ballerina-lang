@@ -31,53 +31,53 @@ public class SerializableRefFields {
     private SerializableBString[] bStrings;
     private String[] bStructKeys;
 
-    public SerializableRefFields(BRefType[] refFields, SerializableState state) {
-        refTypeIndices = new RefTypeIndex[refFields.length];
-        RefTypeCounter refTypeCounter = new RefTypeCounter(refFields);
-        bStructKeys = new String[refTypeCounter.getbStructCount()];
-        bStrings = new SerializableBString[refTypeCounter.getbStringCount()];
-        int refTypeIndex = 0;
-        int bStructIndex = 0;
-        int bStringIndex = 0;
-        for (int i = 0; i < refFields.length; i++) {
-            BRefType refType = refFields[i];
-            if (refType instanceof BStruct) {
-                bStructKeys[bStructIndex] = state.addBStruct((BStruct) refType);
-                refTypeIndices[refTypeIndex] =
-                        new RefTypeIndex(i, bStructIndex, RefTypeIndex.RefTypeName.BStruct);
-                bStructIndex++;
-                refTypeIndex++;
-            } else if (refType instanceof BString) {
-                bStrings[bStringIndex] = new SerializableBString((BString) refType);
-                refTypeIndices[refTypeIndex] =
-                        new RefTypeIndex(i, bStringIndex, RefTypeIndex.RefTypeName.BString);
-                bStringIndex++;
-                refTypeIndex++;
-            }
-        }
-    }
-
-    public BRefType[] getRefFeilds(ProgramFile programFile, SerializableState state) {
-        BRefType[] refFields = new BRefType[refTypeIndices.length];
-        for (int i = 0; i < refTypeIndices.length; i++) {
-            RefTypeIndex refTypeIndex = refTypeIndices[i];
-            if (refTypeIndex == null) {
-                continue;
-            }
-            switch (refTypeIndex.getRefTypeName()) {
-                case BStruct:
-                    String bStructKey = bStructKeys[refTypeIndex.getSpecificTypeIndex()];
-                    BStruct childBStruct = state.getBStruct(bStructKey, programFile);
-                    refFields[refTypeIndex.getRefTypeIndex()] = childBStruct;
-                    break;
-                case BString:
-                    BString bString = bStrings[refTypeIndex.getSpecificTypeIndex()].getBString();
-                    refFields[refTypeIndex.getRefTypeIndex()] = bString;
-                    break;
-                default:
-                    throw new BallerinaException("Unknown ref type encountered.");
-            }
-        }
-        return refFields;
-    }
+//    public SerializableRefFields(BRefType[] refFields, SerializableState state) {
+//        refTypeIndices = new RefTypeIndex[refFields.length];
+//        RefTypeCounter refTypeCounter = new RefTypeCounter(refFields);
+//        bStructKeys = new String[refTypeCounter.getbStructCount()];
+//        bStrings = new SerializableBString[refTypeCounter.getbStringCount()];
+//        int refTypeIndex = 0;
+//        int bStructIndex = 0;
+//        int bStringIndex = 0;
+//        for (int i = 0; i < refFields.length; i++) {
+//            BRefType refType = refFields[i];
+//            if (refType instanceof BStruct) {
+//                bStructKeys[bStructIndex] = state.addBStruct((BStruct) refType);
+//                refTypeIndices[refTypeIndex] =
+//                        new RefTypeIndex(i, bStructIndex, RefTypeIndex.RefTypeName.BStruct);
+//                bStructIndex++;
+//                refTypeIndex++;
+//            } else if (refType instanceof BString) {
+//                bStrings[bStringIndex] = new SerializableBString((BString) refType);
+//                refTypeIndices[refTypeIndex] =
+//                        new RefTypeIndex(i, bStringIndex, RefTypeIndex.RefTypeName.BString);
+//                bStringIndex++;
+//                refTypeIndex++;
+//            }
+//        }
+//    }
+//
+//    public BRefType[] getRefFeilds(ProgramFile programFile, SerializableState state) {
+//        BRefType[] refFields = new BRefType[refTypeIndices.length];
+//        for (int i = 0; i < refTypeIndices.length; i++) {
+//            RefTypeIndex refTypeIndex = refTypeIndices[i];
+//            if (refTypeIndex == null) {
+//                continue;
+//            }
+//            switch (refTypeIndex.getRefTypeName()) {
+//                case BStruct:
+//                    String bStructKey = bStructKeys[refTypeIndex.getSpecificTypeIndex()];
+//                    BStruct childBStruct = state.getBStruct(bStructKey, programFile);
+//                    refFields[refTypeIndex.getRefTypeIndex()] = childBStruct;
+//                    break;
+//                case BString:
+//                    BString bString = bStrings[refTypeIndex.getSpecificTypeIndex()].getBString();
+//                    refFields[refTypeIndex.getRefTypeIndex()] = bString;
+//                    break;
+//                default:
+//                    throw new BallerinaException("Unknown ref type encountered.");
+//            }
+//        }
+//        return refFields;
+//    }
 }

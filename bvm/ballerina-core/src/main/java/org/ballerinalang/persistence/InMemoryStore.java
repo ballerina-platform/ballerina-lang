@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.persistence;
 
+import org.ballerinalang.util.codegen.ProgramFile;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,7 +50,7 @@ public class InMemoryStore extends StateStore {
     }
 
     @Override
-    public List<State> getStates() {
+    public List<State> getStates(ProgramFile programFile) {
         return null;
     }
 

@@ -21,6 +21,7 @@ package org.ballerinalang.net.http.nativeimpl.connection;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.bre.bvm.persistency.ConnectionException;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
@@ -32,6 +33,7 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.util.CacheUtils;
 import org.ballerinalang.persistence.CorrelationUtil;
+import org.ballerinalang.persistence.FailedStates;
 import org.ballerinalang.persistence.State;
 import org.ballerinalang.persistence.StateStore;
 import org.ballerinalang.runtime.message.MessageDataSource;
@@ -58,6 +60,13 @@ public abstract class ConnectionAction extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStruct connectionStruct = (BStruct) context.getRefArgument(0);
         HTTPCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionStruct, null);
+        if (inboundRequestMsg == null) {
+            throw new ConnectionException("Incoming message is not set.");
+//            State state = new State(context.getParentWorkerExecutionContext());
+//            state.setIp(context.getParentWorkerExecutionContext().ip);
+//            FailedStates.add(CorrelationUtil.
+//                    getInstanceId(context.getParentWorkerExecutionContext()), state);
+        }
         HttpUtil.checkFunctionValidity(connectionStruct, inboundRequestMsg);
 
         BStruct outboundResponseStruct = (BStruct) context.getRefArgument(1);
@@ -135,11 +144,12 @@ public abstract class ConnectionAction extends BlockingNativeCallableUnit {
         Throwable cause = outboundResponseStatusFuture.getStatus().getCause();
         if (cause != null) {
             outboundResponseStatusFuture.resetStatus();
-            State state = new State(context.getParentWorkerExecutionContext());
-            state.setIp(context.getParentWorkerExecutionContext().ip);
-            StateStore.getInstance().persistFaildState(
-                    CorrelationUtil.getInstanceId(context.getParentWorkerExecutionContext()), state);
-            return new BValue[]{HttpUtil.getHttpConnectorError(context, cause)};
+//            State state = new State(context.getParentWorkerExecutionContext());
+//            state.setIp(context.getParentWorkerExecutionContext().ip);
+//            FailedStates.add(CorrelationUtil.
+//                    getInstanceId(context.getParentWorkerExecutionContext()), state);
+//            return new BValue[]{HttpUtil.getHttpConnectorError(context, cause)};
+            throw new ConnectionException("Incoming message is not available.");
         }
         return new BValue[0];
     }

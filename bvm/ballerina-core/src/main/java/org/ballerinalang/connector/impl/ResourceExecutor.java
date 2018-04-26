@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.ActiveStates;
+import org.ballerinalang.persistence.FailedStates;
 import org.ballerinalang.persistence.State;
 import org.ballerinalang.persistence.StateStore;
 import org.ballerinalang.runtime.Constants;
@@ -104,7 +105,7 @@ public class ResourceExecutor {
             return injectConnection(stateList.get(0), bValues);
         }
 
-        stateList = StateStore.getInstance().getFailedStates(instanceId);
+        stateList = FailedStates.get(instanceId);
         StateStore.getInstance().removeFailedStates(instanceId);
         if (stateList != null && !stateList.isEmpty()) {
             State state = stateList.get(0);
@@ -114,6 +115,7 @@ public class ResourceExecutor {
                 failedContext.ip = state.getIp() - 1;
                 failedContext.runInCaller = false;
                 BLangScheduler.schedule(failedContext);
+                FailedStates.remove(instanceId);
                 return true;
             }
         }
@@ -140,14 +142,14 @@ public class ResourceExecutor {
             for (BRefType refType : refRegs) {
                 if (refType instanceof BStruct) {
                     BStruct bStruct = (BStruct) refType;
-                    if (bStruct.getNativeData("transport_message") != null) {
+                    if (bStruct.nativeData.containsKey("transport_message")) {
                         bStruct.addNativeData("transport_message", transportMessage);
                         bStruct.addNativeData("message_correlated", "true");
                         correlated = true;
                     }
                     if ("ServiceEndpoint".equals(bStruct.getType().getName())) {
                         BStruct connStruct = (BStruct) bStruct.getRefField(0);
-                        if (connStruct.getNativeData("transport_message") != null) {
+                        if (connStruct.nativeData.containsKey("transport_message")) {
                             connStruct.addNativeData("transport_message", transportMessage);
                             connStruct.addNativeData("message_correlated", "true");
                             if (connStruct.getNativeData("isMethodAccessed") != null) {

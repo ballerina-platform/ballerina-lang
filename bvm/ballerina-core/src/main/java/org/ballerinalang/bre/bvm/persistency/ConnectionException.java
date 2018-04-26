@@ -15,12 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.bre.bvm.persistency.reftypes;
+package org.ballerinalang.bre.bvm.persistency;
 
-import org.ballerinalang.bre.bvm.persistency.SerializableState;
-import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.util.codegen.ProgramFile;
+public class ConnectionException extends RuntimeException {
+    public ConnectionException(String message) {
+        super(message);
+    }
 
-public interface SerializableRefType {
-    BRefType getBRefType(ProgramFile programFile, SerializableState state);
+    public ConnectionException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

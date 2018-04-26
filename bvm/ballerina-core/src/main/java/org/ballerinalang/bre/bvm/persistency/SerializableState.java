@@ -22,29 +22,40 @@ import com.google.gson.GsonBuilder;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.persistency.reftypes.SerializableBStruct;
 import org.ballerinalang.bre.bvm.persistency.reftypes.SerializableRefType;
+import org.ballerinalang.bre.bvm.persistency.reftypes.SerializedKey;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.persistence.StateStore;
 import org.ballerinalang.util.codegen.ProgramFile;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 public class SerializableState {
 
+    private String instanceId;
     private String serializationId;
     private String currentContextKey;
     private Map<String, SerializableContext> sContexts = new HashMap<>();
-    private Map<String, SerializableBStruct> sBStructs = new HashMap<>();
     private Map<String, SerializableRefType> sRefTypes = new HashMap<>();
+
+    public String getInstanceId() {
+        return instanceId;
+    }
+
+    public void setInstanceId(String instanceId) {
+        this.instanceId = instanceId;
+    }
 
     public String getSerializationId() {
         return serializationId;
     }
 
     public static SerializableState deserialize(String json) {
-        Gson gson = new GsonBuilder().create();
+        Gson gson = PersistenceUtils.getGson();
         SerializableState serializableState = gson.fromJson(json, SerializableState.class);
         return serializableState;
     }
@@ -60,15 +71,14 @@ public class SerializableState {
     }
 
     public String serialize() {
-        Gson gson = new GsonBuilder().create();
+        Gson gson = PersistenceUtils.getGson();
         return gson.toJson(this);
     }
 
     public WorkerExecutionContext getExecutionContext(ProgramFile programFile) {
-        StateStore.tempBStructs.put(serializationId, new HashMap<>());
         SerializableContext serializableContext = sContexts.get(currentContextKey);
         WorkerExecutionContext context = serializableContext.getWorkerExecutionContext(programFile, this);
-        StateStore.tempBStructs.remove(serializationId);
+        PersistenceUtils.clearTempRefTypes(serializationId);
         return context;
     }
 
@@ -85,6 +95,58 @@ public class SerializableState {
         return context;
     }
 
+    public ArrayList<Object> serializeRefFields(BRefType[] bRefFields) {
+        if (bRefFields == null) {
+            return null;
+        }
+        ArrayList<Object> refFields = new ArrayList<>(bRefFields.length);
+//        Object[] refFields = new Object[bRefFields.length];
+        for (int i = 0; i < bRefFields.length; i++) {
+            BRefType refType = bRefFields[i];
+            refFields.add(i, serialize(refType));
+        }
+        return refFields;
+    }
+
+    public BRefType[] deserializeRefFields(List<Object> sRefFields, ProgramFile programFile) {
+        if (sRefFields == null) {
+            return null;
+        }
+        BRefType[] bRefFields = new BRefType[sRefFields.size()];
+        for (int i = 0; i < sRefFields.size(); i++) {
+            Object s = sRefFields.get(i);
+            bRefFields[i] = (BRefType) deserialize(s, programFile);
+        }
+        return bRefFields;
+    }
+
+    public Object serialize(Object o) {
+        if (o == null || PersistenceUtils.isSerializable(o)) {
+            return o;
+        } else if (o instanceof BRefType) {
+            SerializedKey serializedKey = addRefType((BRefType) o);
+            return serializedKey;
+        } else {
+            return null;
+        }
+    }
+
+    public Object deserialize(Object o, ProgramFile programFile) {
+        if (o == null || !(o instanceof SerializedKey)) {
+            return o;
+        } else {
+            SerializedKey key = (SerializedKey) o;
+            if (PersistenceUtils.getTempRefType(serializationId, key.key) != null) {
+                return PersistenceUtils.getTempRefType(serializationId, key.key);
+            } else {
+                SerializableRefType sRefType = sRefTypes.get(key.key);
+                BRefType refType = sRefType.getBRefType(programFile, this);
+                PersistenceUtils.addTempRefType(serializationId, key.key, refType);
+                return refType;
+            }
+        }
+    }
+
     public SerializedKey addRefType(BRefType refType) {
         String refKey = serializationId + refType.hashCode();
         if (sRefTypes.containsKey(refKey)) {
@@ -98,33 +160,25 @@ public class SerializableState {
         return null;
     }
 
-    public String addBStruct(BStruct bStruct) {
-        String bStructKey = serializationId + bStruct.hashCode();
-        if (sBStructs.containsKey(bStructKey)) {
-            return bStructKey;
-        }
-        SerializableBStruct serializableBStruct = new SerializableBStruct(bStruct, this);
-        sBStructs.put(bStructKey, serializableBStruct);
-        return bStructKey;
-    }
-
-    public BStruct getBStruct(String bStructKey, ProgramFile programFile) {
-        Map<String, BStruct> bStructs = StateStore.tempBStructs.get(serializationId);
-        BStruct bStruct = bStructs.get(bStructKey);
-        if (bStruct != null) {
-            return bStruct;
-        }
-        SerializableBStruct serializableBStruct = sBStructs.get(bStructKey);
-        bStruct = serializableBStruct.getBSturct(programFile, this);
-        bStructs.put(bStructKey, bStruct);
-        return bStruct;
-    }
-
-    class SerializedKey {
-        public String key;
-
-        public SerializedKey(String key) {
-            this.key = key;
-        }
-    }
+//    public String addBStruct(BStruct bStruct) {
+//        String bStructKey = serializationId + bStruct.hashCode();
+//        if (sBStructs.containsKey(bStructKey)) {
+//            return bStructKey;
+//        }
+//        SerializableBStruct serializableBStruct = new SerializableBStruct(bStruct, this);
+//        sBStructs.put(bStructKey, serializableBStruct);
+//        return bStructKey;
+//    }
+//
+//    public BStruct getBStruct(String bStructKey, ProgramFile programFile) {
+//        Map<String, BStruct> bStructs = StateStore.tempBStructs.get(serializationId);
+//        BStruct bStruct = bStructs.get(bStructKey);
+//        if (bStruct != null) {
+//            return bStruct;
+//        }
+//        SerializableBStruct serializableBStruct = sBStructs.get(bStructKey);
+//        bStruct = (BStruct) serializableBStruct.getBRefType(programFile, this);
+//        bStructs.put(bStructKey, bStruct);
+//        return bStruct;
+//    }
 }

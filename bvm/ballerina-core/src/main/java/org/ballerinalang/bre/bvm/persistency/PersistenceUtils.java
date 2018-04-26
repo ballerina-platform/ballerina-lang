@@ -19,51 +19,103 @@ package org.ballerinalang.bre.bvm.persistency;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.bvm.persistency.adapters.ArrayListAdapter;
+import org.ballerinalang.bre.bvm.persistency.adapters.HashMapAdapter;
+import org.ballerinalang.bre.bvm.persistency.adapters.RefTypeAdaptor;
+import org.ballerinalang.bre.bvm.persistency.reftypes.GenericObjectAdaptor;
+import org.ballerinalang.bre.bvm.persistency.reftypes.SerializableBStruct;
 import org.ballerinalang.bre.bvm.persistency.reftypes.SerializableRefType;
-import org.ballerinalang.model.util.JSONUtils;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.siddhi.query.api.expression.condition.In;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.Inet4Address;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PersistenceUtils {
     public static boolean reloaded = false;
 
     private static boolean initialized = false;
 
-    private static List<Class> serializableClasses = new ArrayList<>();
+//    private static Map<String, RefTypeHandler> refTypeHandlers = new HashMap<>();
+
+    private static List<String> serializableClasses = new ArrayList<>();
+
+    public static Map<String, Map<String, BRefType>> tempRefTypes = new HashMap<>();
+
+    private static Gson gson;
+
+    public static void addTempRefType(String stateId, String key, BRefType refType) {
+        Map<String, BRefType> stateRefTypes = tempRefTypes.get(stateId);
+        if (stateRefTypes == null) {
+            stateRefTypes = new HashMap<>();
+            tempRefTypes.put(stateId, stateRefTypes);
+        }
+        stateRefTypes.put(key, refType);
+    }
+
+    public static BRefType getTempRefType(String stateId, String key) {
+        Map<String, BRefType> stateRefTypes = tempRefTypes.get(stateId);
+        if (stateRefTypes == null) {
+            return null;
+        }
+        else return stateRefTypes.get(key);
+    }
+
+    public static void clearTempRefTypes(String stateId) {
+        tempRefTypes.remove(stateId);
+    }
 
     public synchronized static void init() {
         if (initialized) {
             return;
         }
-        serializableClasses.add(String.class);
-        serializableClasses.add(Integer.class);
-        serializableClasses.add(Long.class);
-        serializableClasses.add(Double.class);
-        serializableClasses.add(Float.class);
-        serializableClasses.add(Boolean.class);
+        serializableClasses.add(String.class.getName());
+        serializableClasses.add(Integer.class.getName());
+        serializableClasses.add(Long.class.getName());
+        serializableClasses.add(Double.class.getName());
+        serializableClasses.add(Float.class.getName());
+        serializableClasses.add(Boolean.class.getName());
 
-        serializableClasses.add(InetSocketAddress.class);
+        serializableClasses.add(InetSocketAddress.class.getName());
+        serializableClasses.add(BString.class.getName());
+        serializableClasses.add(BInteger.class.getName());
+
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(SerializableRefType.class, new RefTypeAdaptor());
+        gsonBuilder.registerTypeAdapter(new HashMap<String, Object>().getClass(), new HashMapAdapter());
+        gsonBuilder.registerTypeAdapter(new ArrayList<Object>().getClass(), new ArrayListAdapter());
+        gson = gsonBuilder.create();
+
+//        refTypeHandlers.put(BStruct.class.getName(), new BStructHandler());
 
         initialized = true;
     }
+
+    public static Gson getGson() {
+        return gson;
+    }
+
+    //    public static RefTypeHandler getRefTypeHandler(BRefType refType) {
+//        if (refType == null) {
+//            return null;
+//        }
+//        RefTypeHandler refTypeHandler = refTypeHandlers.get(refType.getClass().getName());
+//        return refTypeHandler;
+//    }
 
     public static boolean isSerializable(Object o) {
         if (o == null) {
             return true;
         }
-        if (serializableClasses.contains(o.getClass())) {
+        if (serializableClasses.contains(o.getClass().getName())) {
             return true;
         }
         return false;
@@ -97,6 +149,10 @@ public class PersistenceUtils {
     }
 
     public static SerializableRefType serializeRefType(BRefType refType, SerializableState state) {
-        return null;
+        if (refType instanceof BStruct) {
+            return new SerializableBStruct((BStruct) refType, state);
+        } else {
+            return null;
+        }
     }
 }
