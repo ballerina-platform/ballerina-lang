@@ -105,6 +105,19 @@ class FragmentUtils {
     }
 
     /**
+     * Create fragment for field definition list.
+     *
+     * @param {string} sourceString - source fragment input.
+     * @return {object} fragment details to be sent to fragment parser.
+     * */
+    static createFieldDefinitionListFragment(sourceString) {
+        return {
+            expectedNodeType: 'field_definition_list',
+            source: sourceString,
+        }
+    }
+
+    /**
      * Create fragment for statement.
      *
      * @param {string} sourceString - source fragment input.

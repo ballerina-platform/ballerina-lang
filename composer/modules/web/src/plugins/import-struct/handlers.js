@@ -62,7 +62,7 @@ function processJSONStruct(parent, literalExpr, removeDefaults) {
         }
         if (TreeUtils.isRecordLiteralExpr(val)) {
             const parsedJson = FragmentUtils.parseFragment(
-                            FragmentUtils.createTopLevelNodeFragment(`type { } ${currentName};`));
+                FragmentUtils.createTopLevelNodeFragment(`type { } ${currentName};`));
             const anonStruct = TreeBuilder.build(parsedJson);
             success = this.processJSONStruct(anonStruct.getVariable().getTypeNode().anonStruct, val);
             if (success) {
@@ -80,15 +80,18 @@ function processJSONStruct(parent, literalExpr, removeDefaults) {
             } else if (currentValue === 'true' || currentValue === 'false') {
                 currentType = 'boolean';
             }
-            if (removeDefaults){
+            if (removeDefaults) {
                 refExpr = TreeBuilder.build(FragmentUtils.parseFragment(
-                    FragmentUtils.createStatementFragment(`${currentType} ${currentName};`)));
+                    FragmentUtils.createFieldDefinitionListFragment(`\n${currentType} ${currentName};`)));
             } else {
                 refExpr = TreeBuilder.build(FragmentUtils.parseFragment(
-                    FragmentUtils.createStatementFragment(`${currentType} ${currentName} = ${currentValue};`)));
+                    FragmentUtils
+                        .createFieldDefinitionListFragment(`\n${currentType} ${currentName} = ${currentValue};`)));
             }
             if (!refExpr.error) {
-                parent.addFields(refExpr.getVariable());
+                // Add ; white space for the field in to record.
+                parent.ws.splice(parent.ws.length - 2, 0, {ws: "", text: ";"})
+                parent.addFields(refExpr);
             } else {
                 success = false;
             }
@@ -112,14 +115,15 @@ export function getHandlerDefinitions(plugin) {
             cmdID: COMMANDS.SHOW_IMPORT_STRUCT_DIALOG,
             handler: () => {
                 const topLevelNodes = plugin.appContext.editor.getActiveEditor().getProperty('ast');
-                const structNode = DefaultNodeFactory.createStruct();
+                // Create record with available white spaces in default node.
+                const structNode = DefaultNodeFactory.createStruct(true);
 
                 const onImport = (json, structName, removeDefaults) => {
                     let success = true;
 
-                    if (structName && structName !== ''){
+                    if (structName && structName !== '') {
                         structNode.getName().setValue(structName, true);
-                        structNode.setName(structNode.getName(), false); 
+                        structNode.setName(structNode.getName(), false);
                     }
                     if (json === '') {
                         topLevelNodes.addTopLevelNodes(structNode);
@@ -141,7 +145,8 @@ export function getHandlerDefinitions(plugin) {
                 const { command: { dispatch } } = plugin.appContext;
                 const id = DIALOG.IMPORT_STRUCT;
 
-                dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, { id,
+                dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
+                    id,
                     additionalProps: {
                         onImport,
                     },

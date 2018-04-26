@@ -93,6 +93,10 @@ public class BLangFragmentParser {
                 fragmentNode = assignmentStmt.getAsJsonArray(BLangJSONModelConstants.CHILDREN)
                         .get(0).getAsJsonObject();
                 break;
+            case BLangFragmentParserConstants.FIELD_DEFINITION_LIST:
+                // 0th element in the fields property of the record is fieldVariable.
+                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.FIELDS).get(0).getAsJsonObject();
+                break;
             case BLangFragmentParserConstants.TRANSACTION_FAILED:
             case BLangFragmentParserConstants.EXPRESSION:
             case BLangFragmentParserConstants.STATEMENT:
@@ -175,6 +179,9 @@ public class BLangFragmentParser {
                 break;
             case BLangFragmentParserConstants.VARIABLE_REFERENCE_LIST:
                 parsableText = getFromTemplate(BLangFragmentParserConstants.VAR_REFERENCE_LIST_WRAPPER, source);
+                break;
+            case BLangFragmentParserConstants.FIELD_DEFINITION_LIST:
+                parsableText = getFromTemplate(BLangFragmentParserConstants.RECORD_BODY_WRAPPER, source);
                 break;
             default:
                 parsableText = "";
