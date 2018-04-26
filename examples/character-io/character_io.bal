@@ -66,10 +66,10 @@ function process(io:CharacterChannel sourceChannel,
 }
 
 function main(string... args) {
-    var sourceChannel =
-        getFileCharacterChannel("./files/sample.txt", io:READ, "UTF-8");
-    var destinationChannel =
-        getFileCharacterChannel("./files/sampleResponse.txt", io:WRITE, "UTF-8");
+    var sourceChannel = getFileCharacterChannel("./files/sample.txt",
+                                                io:READ, "UTF-8");
+    var destinationChannel = getFileCharacterChannel("./files/sampleResponse.txt",
+                                                     io:WRITE, "UTF-8");
     try {
         io:println("Started to process the file.");
         process(sourceChannel, destinationChannel);

@@ -3,16 +3,16 @@ import ballerina/io;
 // This function returns a ByteChannel from a given file location
 // according to the specified file permission (i.e., whether the file
 // should be opened for read or write).
-function getFileChannel(string filePath, io:Mode permission)
-    returns io:ByteChannel {
+function getFileChannel(string filePath,
+                        io:Mode permission) returns io:ByteChannel {
     // Here is how the ByteChannel is retrieved from the file.
     io:ByteChannel channel = io:openFile(filePath, permission);
     return channel;
 }
 
 // Reads a specified number of bytes from the given channel.
-function readBytes(io:ByteChannel channel, int numberOfBytes)
-    returns (blob, int) {
+function readBytes(io:ByteChannel channel,
+                   int numberOfBytes) returns (blob, int) {
     // Here is how the bytes are read from the channel.
     var result = channel.read(numberOfBytes);
     match result {
