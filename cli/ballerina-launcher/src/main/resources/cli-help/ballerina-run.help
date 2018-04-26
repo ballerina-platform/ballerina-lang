@@ -25,8 +25,10 @@ DESCRIPTION
      executes the main function.
 
 OPTIONS
-     -e <key1=value1, key2=value2, …>
-         Sets Ballerina environment parameters as key, value pairs.
+     -e <key=value>
+         Sets Ballerina environment parameters as key/value pairs.
+         If multiple parameters need to be provided, each of the
+         parameters has to be specified using the -e flag.
 
      --offline
          In a package build, the dependencies are always checked from 
@@ -50,12 +52,20 @@ OPTIONS
 
      -c <config-file>
      --config <config-file>
-         Provides path to the Ballerina configuration file. 
+         Provides the path to a Ballerina configuration file.
+         The configuration file format is a subset of the TOML file
+         format. It supports key/value pairs, string, int, float
+         and boolean value types, tables and comments. If a config
+         file is not specified using [-c|--config], Ballerina looks
+         for a default configuration file named ballerina.conf
+         in the directory the source file(s) reside in.
 
-     -B <option1, option2, …>
-         Provides a list of Ballerina VM options to be used by runtime 
-         when executing a Ballerina program or package. This accepts a 
-         comma-separated list of options.
+     -B <key=value>
+         Provides Ballerina VM options to be used by the runtime
+         when executing a Ballerina program or package. VM options
+         are key/value pairs. If multiple VM options need to be
+         provided, each of the parameters has to be specified
+         using the -B flag.
 
      args... 
          The list of command line arguments for the Ballerina program 

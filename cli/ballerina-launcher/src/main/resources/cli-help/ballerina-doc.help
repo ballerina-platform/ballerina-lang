@@ -50,7 +50,9 @@ OPTIONS
      --verbose
          Prints debug level logs while generating documentation.
      -e
-         Ballerina environment parameters.
+         Sets Ballerina environment parameters as key/value pairs.
+         If multiple parameters need to be provided, each of the
+         parameters has to be specified using the -e flag.
 
 EXAMPLES
      Generate API documentation for current project 
