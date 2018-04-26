@@ -25,8 +25,8 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.WebSocketConnectionManager;
 import org.ballerinalang.net.http.WebSocketConstants;
+import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
 import org.ballerinalang.net.http.WebSocketUtil;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
@@ -52,26 +52,23 @@ public class Close implements NativeCallableUnit {
             BStruct webSocketConnector = (BStruct) context.getRefArgument(0);
             int statusCode = (int) context.getIntArgument(0);
             String reason = context.getStringArgument(0);
-            WebSocketConnection webSocketConnection = (WebSocketConnection) webSocketConnector
-                    .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION);
-
+            WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) webSocketConnector
+                    .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
+            WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
             webSocketConnection.close(statusCode, reason).addListener((ChannelFutureListener) future -> {
                 Throwable cause = future.cause();
                 if (!future.isSuccess() && cause != null) {
                     context.setReturnValues(
                             WebSocketUtil.createWebSocketConnectorError(context, future.cause().getMessage()));
                 } else {
+                    if (connectionInfo.getWebSocketConnection().getSession().isOpen()) {
+                        webSocketConnection.close().sync();
+                    }
+                    connectionInfo.setCloseStatusCode(statusCode);
+                    connectionInfo.getWebSocketEndpoint().setBooleanField(0, 0);
                     context.setReturnValues();
                 }
                 callback.notifySuccess();
-
-                WebSocketConnectionManager connectionManager =
-                        (WebSocketConnectionManager) webSocketConnector
-                                .getNativeData(WebSocketConstants.WEBSOCKET_CONNECTION_MANAGER);
-                if (connectionManager != null) {
-                    connectionManager.removeConnectionInfo(webSocketConnection.getId());
-                }
-
             });
         } catch (Throwable throwable) {
             context.setReturnValues(WebSocketUtil.createWebSocketConnectorError(context, throwable.getMessage()));

@@ -119,10 +119,10 @@ public class Start extends BlockingNativeCallableUnit {
             BStruct webSocketConnector = BLangConnectorSPIUtil.createObject(
                     wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                     PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_CONNECTOR);
-            webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION, webSocketConnection);
+            WebSocketOpenConnectionInfo connectionInfo =
+                    new WebSocketOpenConnectionInfo(wsService, webSocketConnection, webSocketClientEndpoint);
+            webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO, connectionInfo);
             WebSocketUtil.populateEndpoint(webSocketConnection, webSocketClientEndpoint);
-            WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService,
-                                                                                         webSocketClientEndpoint);
             clientConnectorListener.setConnectionInfo(connectionInfo);
             webSocketClientEndpoint.setRefField(1, webSocketConnector);
             context.setReturnValues();

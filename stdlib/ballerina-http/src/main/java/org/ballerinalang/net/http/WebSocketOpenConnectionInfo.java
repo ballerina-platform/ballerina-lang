@@ -29,10 +29,13 @@ public class WebSocketOpenConnectionInfo {
 
     private final WebSocketService webSocketService;
     private final BStruct webSocketEndpoint;
-    private boolean readingStarted = false;
+    private final WebSocketConnection webSocketConnection;
+    private int closeStatusCode = -1;
 
-    public WebSocketOpenConnectionInfo(WebSocketService webSocketService, BStruct webSocketEndpoint) {
+    public WebSocketOpenConnectionInfo(WebSocketService webSocketService, WebSocketConnection webSocketConnection,
+                                       BStruct webSocketEndpoint) {
         this.webSocketService = webSocketService;
+        this.webSocketConnection = webSocketConnection;
         this.webSocketEndpoint = webSocketEndpoint;
     }
 
@@ -45,16 +48,14 @@ public class WebSocketOpenConnectionInfo {
     }
 
     public WebSocketConnection getWebSocketConnection() {
-        BStruct webSocketConnector = (BStruct) webSocketEndpoint.getRefField(1);
-        return (WebSocketConnection) webSocketConnector
-                .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION);
+        return webSocketConnection;
     }
 
-    public void setReadingStarted(boolean readingStarted) {
-        this.readingStarted = readingStarted;
+    public int getCloseStatusCode() {
+        return closeStatusCode;
     }
 
-    public boolean isReadingStarted() {
-        return readingStarted;
+    public void setCloseStatusCode(int closeStatusCode) {
+        this.closeStatusCode = closeStatusCode;
     }
 }

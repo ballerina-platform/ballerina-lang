@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.970.0-beta18-SNAPSHOT</version>
+        <version>0.970.0-beta19-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -80,6 +80,11 @@
         <dependency>
             <groupId>com.atlassian.commonmark</groupId>
             <artifactId>commonmark</artifactId>
+            <version>0.11.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.commonmark</groupId>
+            <artifactId>commonmark-ext-gfm-tables</artifactId>
             <version>0.11.0</version>
         </dependency>
         <dependency>
@@ -152,6 +157,7 @@
                         <includes>
                             <include>com.github.jknack:handlebars</include>
                             <include>com.atlassian.commonmark:commonmark</include>
+                            <include>com.atlassian.commonmark:commonmark-ext-gfm-tables</include>
                         </includes>
                     </artifactSet>
                     <filters>
