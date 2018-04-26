@@ -5,7 +5,7 @@ import ballerina/sql;
 // Create an endpoint for the first database named testdb1. Since this endpoint is
 // participated in a distributed transaction, the isXA property should be true.
 endpoint jdbc:Client testDB1 {
-    url: "jdbc:h2:file:/home/anupama/Anupama/h2/Testdb1",
+    url: "jdbc:h2:file:./database/Testdb1",
     username: "root",
     password: "root",
     poolOptions: { maximumPoolSize: 5, isXA: true }
@@ -14,7 +14,7 @@ endpoint jdbc:Client testDB1 {
 // Create an endpoint for the second database named testdb2. Since this endpoint is
 // participated in a distributed transaction, the isXA property should be true.
 endpoint jdbc:Client testDB2 {
-    url: "jdbc:h2:file:/home/anupama/Anupama/h2/Testdb2",
+    url: "jdbc:h2:file:./database/Testdb2",
     username: "root",
     password: "root",
     poolOptions: { maximumPoolSize: 5, isXA: true }
