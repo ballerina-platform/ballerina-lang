@@ -103,6 +103,10 @@ class AbstractTreeUtil {
         return node.kind === 'Struct';
     }
 
+    isObject(node) {
+        return node.kind === 'Object';
+    }
+
     isVariable(node) {
         return node.kind === 'Variable';
     }
