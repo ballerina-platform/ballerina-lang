@@ -147,13 +147,13 @@ password=”@encrypted:{JqlfWNWKM6gYiaGnS0Hse1J9F/v48gUR0Kxfa5gwjcM=}”
 ```
 ### Reading config files with encrypted values
 
-When trying to run a Ballerina program with a configuration file that contains encrypted values, the user is prompted to enter the secret, which was used to encrypt the values. Values are decrypted only on demand, when an encrypted value is looked up using the `getAsString()` function.
+When trying to run a Ballerina program with a configuration file or CLI parameters that contain encrypted values, Ballerina will first check to see if the `b7a.config.secret` configuration is set. This configuration is used to set the path to a file containing the secret required to decrypt the configurations. If it is set, the secret is read and the secret file is deleted.
+
+If a secret file is not provided, the user is prompted to enter the secret. Values are decrypted only on demand, when an encrypted value is looked up using the `getAsString()` function.
 
 ```
 $ ballerina run program.bal 
 ballerina: enter secret for config value decryption:
 ```
 
-**Note**: *The same config file cannot contain values that are encrypted using different secrets.* 
-
-
+**Note**: *The same config file cannot contain values that are encrypted using different secrets.*
