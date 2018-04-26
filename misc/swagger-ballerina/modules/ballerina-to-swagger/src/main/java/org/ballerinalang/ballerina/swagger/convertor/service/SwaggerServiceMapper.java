@@ -95,124 +95,11 @@ public class SwaggerServiceMapper {
         swagger.setBasePath('/' + service.getName().getValue());
         
         this.parseServiceInfoAnnotationAttachment(service, swagger);
-        // TODO: parseSwaggerAnnotationAttachment(service, swagger);
-        this.parseServiceConfigAnnotationAttachment(service, swagger);
         this.parseConfigAnnotationAttachment(service, swagger);
         
         SwaggerResourceMapper resourceMapper = new SwaggerResourceMapper(swagger, this.httpAlias, this.swaggerAlias);
         swagger.setPaths(resourceMapper.convertResourceToPath(service.getResources()));
         return swagger;
-    }
-    
-    /**
-     * Parses the 'ServiceConfig' annotation attachment.
-     * @param service The ballerina service which has that annotation attachment.
-     * @param swagger The swagger definition to build up.
-     */
-    private void parseServiceConfigAnnotationAttachment(ServiceNode service, Swagger swagger) {
-        Optional<? extends AnnotationAttachmentNode> swaggerConfigAnnotation = service.getAnnotationAttachments()
-                .stream()
-                .filter(a -> null != swaggerAlias && this.swaggerAlias.equals(a.getPackageAlias().getValue()) &&
-                             "ServiceConfig".equals(a.getAnnotationName().getValue()))
-                .findFirst();
-        
-        if (swaggerConfigAnnotation.isPresent()) {
-            Map<String, AnnotationAttachmentAttributeValueNode> serviceConfigAttributes =
-                    this.listToMap(swaggerConfigAnnotation.get());
-            if (serviceConfigAttributes.containsKey("host")) {
-                swagger.setHost(this.getStringLiteralValue(serviceConfigAttributes.get("host")));
-            }
-            if (serviceConfigAttributes.containsKey("schemes") &&
-                                                    serviceConfigAttributes.get("schemes").getValueArray().size() > 0) {
-                List<Scheme> schemes = new LinkedList<>();
-                for (AnnotationAttachmentAttributeValueNode schemesNodes : serviceConfigAttributes.get("schemes")
-                        .getValueArray()) {
-                    String schemeStringValue = this.getStringLiteralValue(schemesNodes);
-                    if (null != Scheme.forValue(schemeStringValue)) {
-                        schemes.add(Scheme.forValue(schemeStringValue));
-                    }
-                }
-                if (schemes.size() > 0) {
-                    schemes = Lists.reverse(schemes);
-                    swagger.setSchemes(schemes);
-                }
-            }
-            this.createSecurityDefinitionsModel(serviceConfigAttributes.get("authorizations"), swagger);
-        }
-    }
-    
-    /**
-     * Creates the security definition models for swagger definition.
-     * @param annotationAttributeValue The annotation attribute value for security definitions.
-     * @param swagger The swagger definition.
-     */
-    private void createSecurityDefinitionsModel(AnnotationAttachmentAttributeValueNode annotationAttributeValue,
-                                                                                                    Swagger swagger) {
-        if (null != annotationAttributeValue) {
-            Map<String, SecuritySchemeDefinition> securitySchemeDefinitionMap = new HashMap<>();
-            for (AnnotationAttachmentAttributeValueNode authorizationValues :
-                                                                            annotationAttributeValue.getValueArray()) {
-                if (authorizationValues instanceof AnnotationAttachmentNode) {
-                    AnnotationAttachmentNode authAnnotationAttachment = (AnnotationAttachmentNode) authorizationValues;
-                    Map<String, AnnotationAttachmentAttributeValueNode> authAttributes =
-                                                                            this.listToMap(authAnnotationAttachment);
-                    if (authAttributes.containsKey("name") && authAttributes.containsKey("authType")) {
-                        String name = this.getStringLiteralValue(authAttributes.get("name"));
-                        String type = this.getStringLiteralValue(authAttributes.get("authType"));
-                        String description = "";
-                        if (authAttributes.containsKey("description")) {
-                            description = this.getStringLiteralValue(authAttributes.get("description"));
-                        }
-                        if ("basic".equals(type)) {
-                            BasicAuthDefinition basicAuthDefinition = new BasicAuthDefinition();
-                            basicAuthDefinition.setDescription(description);
-                            securitySchemeDefinitionMap.put(name, basicAuthDefinition);
-                        } else if ("apiKey".equals(type)) {
-                            ApiKeyAuthDefinition apiKeyAuthDefinition = new ApiKeyAuthDefinition();
-                            apiKeyAuthDefinition.setName(this.getStringLiteralValue(authAttributes.get("apiName")));
-                            apiKeyAuthDefinition.setIn(In.forValue(this.getStringLiteralValue(authAttributes
-                                                                                                        .get("in"))));
-                            apiKeyAuthDefinition.setDescription(description);
-                            securitySchemeDefinitionMap.put(name, apiKeyAuthDefinition);
-                        } else if ("oauth2".equals(type)) {
-                            OAuth2Definition oAuth2Definition = new OAuth2Definition();
-                            oAuth2Definition.setFlow(this.getStringLiteralValue(authAttributes.get("flow")));
-                            oAuth2Definition.setAuthorizationUrl(this.getStringLiteralValue(authAttributes
-                                                                                            .get("authorizationUrl")));
-                            oAuth2Definition.setTokenUrl(this.getStringLiteralValue(authAttributes.get("tokenUrl")));
-    
-                            this.createSecurityDefinitionScopesModel(authAttributes.get("authorizationScopes"),
-                                                                                                    oAuth2Definition);
-    
-                            oAuth2Definition.setDescription(description);
-                            securitySchemeDefinitionMap.put(name, oAuth2Definition);
-                        }
-                    }
-                }
-            }
-            swagger.setSecurityDefinitions(securitySchemeDefinitionMap);
-        }
-    }
-    
-    /**
-     * Creates the security definition scopes for oAuth2.
-     * @param authorizationScopes The annotation attribute value of authorization scopes.
-     * @param oAuth2Definition The oAuth2 definition.
-     */
-    private void createSecurityDefinitionScopesModel(AnnotationAttachmentAttributeValueNode authorizationScopes,
-                                                     OAuth2Definition oAuth2Definition) {
-        Map<String, String> scopes = new HashMap<>();
-        for (AnnotationAttachmentAttributeValueNode authScopeValue : authorizationScopes.getValueArray()) {
-            if (authScopeValue instanceof AnnotationAttachmentNode) {
-                AnnotationAttachmentNode authScopeAnnotationAttachment = (AnnotationAttachmentNode) authScopeValue;
-                Map<String, AnnotationAttachmentAttributeValueNode> authScopeAttributes =
-                        this.listToMap(authScopeAnnotationAttachment);
-                String name = this.getStringLiteralValue(authScopeAttributes.get("name"));
-                String description = this.getStringLiteralValue(authScopeAttributes.get("description"));
-                scopes.put(name, description);
-            }
-        }
-        oAuth2Definition.setScopes(scopes);
     }
     
     /**
@@ -253,31 +140,6 @@ public class SwaggerServiceMapper {
             this.createDevelopersModel(attributes.get("developers"), info);
         }
         swagger.setInfo(info);
-    }
-    
-    /**
-     * Creates vendor extension for developers.
-     * @param annotationAttributeValue The annotation attribute value for developer vendor extension.
-     * @param info The info definition.
-     */
-    private void createDevelopersModel(AnnotationAttachmentAttributeValueNode annotationAttributeValue, Info info) {
-        if (null != annotationAttributeValue) {
-            List<Developer> developers = new LinkedList<>();
-            for (AnnotationAttachmentAttributeValueNode value : annotationAttributeValue.getValueArray()) {
-                AnnotationAttachmentNode developerAnnotation = (AnnotationAttachmentNode) value.getValue();
-                Map<String, AnnotationAttachmentAttributeValueNode> developerAttributes =
-                                                                                    this.listToMap(developerAnnotation);
-                Developer developer = new Developer();
-                if (developerAttributes.containsKey("name")) {
-                    developer.setName(this.getStringLiteralValue(developerAttributes.get("name")));
-                }
-                if (developerAttributes.containsKey("email")) {
-                    developer.setEmail(this.getStringLiteralValue(developerAttributes.get("email")));
-                }
-                developers.add(developer);
-            }
-            info.setVendorExtension("x-developers", Lists.reverse(developers));
-        }
     }
     
     /**
