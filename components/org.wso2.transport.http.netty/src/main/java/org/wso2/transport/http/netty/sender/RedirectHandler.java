@@ -288,7 +288,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 HTTPCarbonMessage httpCarbonRequest = RedirectUtil
                         .createRedirectCarbonRequest(redirectState.get(HttpHeaderNames.LOCATION.toString()),
                                 redirectState.get(Constants.HTTP_METHOD),
-                                Integer.parseInt(redirectState.get("status_code")), ctx, headers);
+                                Integer.parseInt(redirectState.get(Constants.HTTP_STATUS_CODE)), ctx, headers);
                 HttpRequest httpRequest = Util.createHttpRequest(httpCarbonRequest);
 
                 if (isCrossDoamin) {
@@ -450,7 +450,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
         Map<String, String> redirectState = new HashMap<String, String>();
         String originalRequestMethod =
                 originalRequest != null ? (String) originalRequest.getProperty(Constants.HTTP_METHOD) : null;
-        redirectState.put("status_code", String.valueOf(statusCode));
+        redirectState.put(Constants.HTTP_STATUS_CODE, String.valueOf(statusCode));
         switch (statusCode) {
             case 300:
             case 307:

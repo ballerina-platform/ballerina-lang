@@ -49,7 +49,7 @@ public class RedirectUtil {
      *
      * @param redirectionUrl to which the request is sent
      * @param redirectionMethod of the redirect request
-     * @param userAgent of the request
+     * @param statusCode of the request
      * @param ctx of the request
      * @return HTTPCarbonMessage with request properties
      * @throws MalformedURLException when the url is incorrect
@@ -66,8 +66,7 @@ public class RedirectUtil {
         HTTPCarbonMessage httpCarbonRequest = new HTTPCarbonMessage(
                 new DefaultHttpRequest(HttpVersion.HTTP_1_1, httpMethod, ""), new DefaultListener(ctx));
         httpCarbonRequest.setProperty(Constants.HTTP_PORT,
-                locationUrl.getPort() != -1 ? locationUrl.getPort() :
-                        getDefaultPort(locationUrl.getProtocol()));
+                locationUrl.getPort() != -1 ? locationUrl.getPort() : getDefaultPort(locationUrl.getProtocol()));
         httpCarbonRequest.setProperty(Constants.PROTOCOL, locationUrl.getProtocol());
         httpCarbonRequest.setProperty(Constants.HTTP_HOST, locationUrl.getHost());
         httpCarbonRequest.setProperty(Constants.HTTP_METHOD, redirectionMethod);
@@ -82,7 +81,7 @@ public class RedirectUtil {
         httpCarbonRequest.removeHeader(Constants.HTTP_METHOD);
 
         headers.stream().forEach((entry) -> httpCarbonRequest.setHeader(entry.getKey(), entry.getValue()));
-        if (statusCode == 303) {
+        if (statusCode == Constants.REDIRECT_SEE_OTHER_303) {
             httpCarbonRequest.removeHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
             httpCarbonRequest.removeHeader(HttpHeaderNames.TRANSFER_ENCODING.toString());
         }
