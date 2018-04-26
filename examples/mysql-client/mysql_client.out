@@ -7,7 +7,7 @@ Create student table status: 0
 The update operation - Inserting data to a table
 Insert to student table with no parameters status: 1
 
-The select operation - Select data from a database table
+The select operation - Select data from a table
 
 Convert the table into json
 JSON: [{"id":1,"age":23,"name":"john"}]

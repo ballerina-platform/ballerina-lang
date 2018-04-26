@@ -29,7 +29,7 @@ function main(string... args) {
         var ret = tb.add(e);
         match ret {
             () => io:println("Adding to table successful");
-            error err => io:println("Adding to table failed: " + err.message);
+            error e => io:println("Adding to table failed: " + e.message);
         }
     }
 
@@ -49,7 +49,8 @@ function main(string... args) {
         var ret = <Employee>tb.getNext();
         match ret {
             Employee e => io:println("Name: " + e.name);
-            error err => io:println("Error in retrieving employee from table: " + err.message);
+            error e => io:println("Error in get employee from table: "
+                                  + e.message);
         }
     }
 
@@ -69,7 +70,8 @@ function main(string... args) {
     var ret = tb.remove(isLowerSalary);
     match ret {
         int count => io:println("Deleted row count: " + count);
-        error err => io:println("Error in removing employees from table: " + err.message);
+        error e => io:println("Error in removing employees from table: "
+                               + e.message);
     }
     io:print("After Delete: ");
     io:println(tb);
