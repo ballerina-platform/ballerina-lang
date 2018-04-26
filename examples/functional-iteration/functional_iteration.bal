@@ -1,7 +1,8 @@
 import ballerina/io;
 
 function main(string... args) {
-    map words = { a: "ant", b: "bear", c: "cat", d: "dear", e: "elephant" };
+    map words = { a: "ant", b: "bear", c: "cat", d: "dear",
+                  e: "elephant" };
     // The count operation returns the number of elements in any collection type.
     io:println("Total words count: " + words.count());
 

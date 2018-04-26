@@ -10,6 +10,7 @@ function main(string... args) {
     http:Request req = new;
     // Send a GET request to the specified endpoint.
     var response = clientEndpoint->get("/get?test=123");
+
     match response {
         http:Response resp => {
             log:printInfo("GET request:");
@@ -19,11 +20,11 @@ function main(string... args) {
                     log:printInfo(jsonPayload.toString());
                 }
                 error err => {
-                    log:printError(err.message);
+                    log:printError(err.message, err = e);
                 }
             }
         }
-        error err => {log:printError(err.message);}
+        error err => { log:printError(err.message, err = e); }
     }
     // Set a string payload to the message to be sent to the endpoint.
     req.setPayload("POST: Hello World");
@@ -38,11 +39,11 @@ function main(string... args) {
                     log:printInfo(jsonPayload.toString());
                 }
                 error err => {
-                    log:printError(err.message);
+                    log:printError(err.message, err = e);
                 }
             }
         }
-        error err => {log:printError(err.message);}
+        error err => { log:printError(err.message, err = e); }
 
     }
 
@@ -60,15 +61,18 @@ function main(string... args) {
                     log:printInfo(jsonPayload.toString());
                 }
                 error err => {
-                    log:printError(err.message);
+                    log:printError(err.message, err = e);
                 }
             }
         }
-        error err => {log:printError(err.message);}
+        error err => { log:printError(err.message, err = e); }
     }
 
     // Set an XML payload to the message to be sent to the endpoint.
-    xml xmlMsg = xml `<request><method>PATCH</method><payload>Hello World!</payload></request>`;
+    xml xmlMsg = xml `<request>
+                        <method>PATCH</method>
+                        <payload>Hello World!</payload>
+                      </request>`;
     req.setXmlPayload(xmlMsg);
 
     response = clientEndpoint->patch("/patch", request = req);
@@ -81,11 +85,11 @@ function main(string... args) {
                     log:printInfo(jsonPayload.toString());
                 }
                 error err => {
-                    log:printError(err.message);
+                    log:printError(err.message, err = e);
                 }
             }
         }
-        error err => {log:printError(err.message);}
+        error err => { log:printError(err.message, err = e); }
     }
 
     req.setPayload("DELETE: Hello World");
@@ -99,11 +103,11 @@ function main(string... args) {
                     log:printInfo(jsonPayload.toString());
                 }
                 error err => {
-                    log:printError(err.message);
+                    log:printError(err.message, err = e);
                 }
             }
         }
-        error err => {log:printError(err.message);}
+        error err => { log:printError(err.message, err = e); }
     }
 
     req.setPayload("CUSTOM: Hello World");
@@ -122,6 +126,6 @@ function main(string... args) {
             log:printInfo("Status code: " + statusCode);
 
         }
-        error err => {log:printError(err.message);}
+        error err => { log:printError(err.message, err = e); }
     }
 }

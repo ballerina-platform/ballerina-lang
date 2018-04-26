@@ -35,7 +35,8 @@ function testAuthSuccess() {
     var response = httpEndpoint->get("/hello/sayHello");
     match response {
         http:Response resp => {
-            test:assertEquals(resp.statusCode, 200, msg = "Expected status code 200 not received");
+            test:assertEquals(resp.statusCode, 200,
+                msg = "Expected status code 200 not received");
         }
         error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
@@ -51,7 +52,8 @@ function testAuthnFailure() {
     var response = httpEndpoint->get("/hello/sayHello");
     match response {
         http:Response resp => {
-            test:assertEquals(resp.statusCode, 401, msg = "Expected status code 401 not received");
+            test:assertEquals(resp.statusCode, 401,
+                msg = "Expected status code 401 not received");
         }
         error err => test:assertFail(msg = "Failed to call the endpoint:");
     }
@@ -65,7 +67,8 @@ function testAuthzFailure() {
     var response = httpEndpoint->get("/hello/sayHello");
     match response {
         http:Response resp => {
-            test:assertEquals(resp.statusCode, 403, msg = "Expected status code 403 not received");
+            test:assertEquals(resp.statusCode, 403, msg =
+                "Expected status code 403 not received");
         }
         error err => test:assertFail(msg = "Failed to call the endpoint:");
     }

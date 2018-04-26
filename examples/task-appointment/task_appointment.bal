@@ -56,7 +56,8 @@ function main(string... args) {
                                        
         appointment5.schedule();
 
-        //job 6 runs every 30 seconds but only on weekdays (i.e., Monday through Friday).
+        //job 6 runs every 30 seconds but only on weekdays
+        // (i.e., Monday through Friday).
         onTriggerFunction = appointment6Cleanup;
         task:Appointment appointment6 = 
                   new task:Appointment(onTriggerFunction, 
@@ -65,7 +66,8 @@ function main(string... args) {
                                        
         appointment6.schedule();
 
-        //job 7 runs every 30 seconds but only on weekends (i.e., Saturday and Sunday).
+        //job 7 runs every 30 seconds but only on weekends
+        // (i.e., Saturday and Sunday).
         onTriggerFunction = appointment7Cleanup;
         task:Appointment appointment7 = 
                   new task:Appointment(onTriggerFunction, 
@@ -74,7 +76,7 @@ function main(string... args) {
         
         appointment7.schedule();
 
-        runtime:sleep(600000); // Temporary workaround to stop the process from exiting.
+        runtime:sleep(600000); // Temp workaround to stop the process from exiting.
     }
 }
 
@@ -82,7 +84,8 @@ function appointment1Cleanup() returns (error?) {
     log:printInfo("Appointment#1 cleanup running...");
     app1Count = app1Count + 1;
     if (app1Count == 5) {
-        log:printInfo("Stopping Appointment#1 cleanup task since it has run 5 times");
+        log:printInfo("Stopping Appointment#1 cleanup task since it
+                       has run 5 times");
         
         // This is how you cancel an appointment.
         appointment1.cancel();
