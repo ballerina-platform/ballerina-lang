@@ -127,6 +127,20 @@ public class Http2ConnectionManager {
     }
 
     /**
+     * Removes the {@code Http2ClientChannel} from pool.
+     *
+     * @param httpRoute          the http route
+     * @param http2ClientChannel the {@code Http2ClientChannel} to be removed
+     */
+    void removeClientChannel(HttpRoute httpRoute, Http2ClientChannel http2ClientChannel) {
+        String key = generateKey(httpRoute);
+        PerRouteConnectionPool perRouteConnectionPool = fetchConnectionPool(key);
+        if (perRouteConnectionPool != null) {
+            perRouteConnectionPool.removeChannel(http2ClientChannel);
+        }
+    }
+
+    /**
      * Entity which holds the pool of connections for a given http route.
      */
     private static class PerRouteConnectionPool {
