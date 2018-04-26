@@ -25,6 +25,8 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
     private final ChannelHandlerContext ctx;
     private final DefaultWebSocketSession session;
     private WebSocketFrameType continuationFrameType = null;
+    private boolean closeFrameSent = false;
+    private boolean closeFrameReceived = false;
 
     public DefaultWebSocketConnection(ChannelHandlerContext ctx, DefaultWebSocketSession session) {
         this.ctx = ctx;
@@ -66,6 +68,9 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
         if (continuationFrameType == WebSocketFrameType.BINARY) {
             throw new IllegalStateException("Cannot interrupt WebSocket binary frame continuation");
         }
+        if (closeFrameSent) {
+            throw new IllegalStateException("Already sent close frame. Cannot push text data!");
+        }
         if (continuationFrameType != null) {
             if (finalFrame) {
                 continuationFrameType = null;
@@ -88,6 +93,10 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
         if (continuationFrameType == WebSocketFrameType.TEXT) {
             throw new IllegalStateException("Cannot interrupt WebSocket text frame continuation");
         }
+        if (closeFrameSent) {
+            throw new IllegalStateException("Already sent close frame. Cannot push binary data!");
+        }
+
         if (continuationFrameType != null) {
             if (finalFrame) {
                 continuationFrameType = null;
@@ -112,12 +121,27 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
 
     @Override
     public ChannelFuture close(int statusCode, String reason) {
+        closeFrameSent = true;
         return ctx.writeAndFlush(new CloseWebSocketFrame(statusCode, reason));
     }
 
     @Override
     public ChannelFuture close() {
         return ctx.close();
+    }
+
+    @Override
+    public boolean closeFrameSent() {
+        return closeFrameSent;
+    }
+
+    @Override
+    public boolean closeFrameReceived() {
+        return closeFrameReceived;
+    }
+
+    public void setCloseFrameReceived(boolean closeFrameReceived) {
+        this.closeFrameReceived = closeFrameReceived;
     }
 
     @Deprecated
