@@ -64,7 +64,7 @@ public class InitHandlerTest {
 
         List<PackageMdFile> packageMdFiles = new ArrayList<>();
         PackageMdFile packageMdFileForService = new PackageMdFile("wso2_abc", FileType.SERVICE);
-        PackageMdFile packageMdFileForMain = new PackageMdFile("wso2_abc", FileType.MAIN);
+        PackageMdFile packageMdFileForMain = new PackageMdFile("main_runner", FileType.MAIN);
 
         packageMdFiles.add(packageMdFileForService);
         packageMdFiles.add(packageMdFileForMain);
