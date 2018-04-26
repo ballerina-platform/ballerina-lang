@@ -330,7 +330,7 @@ public class WebSocketClientTestCase {
 
         latch.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
         WebSocketCloseMessage closeMessage = connectorListener.getCloseMessage();
-        Assert.assertEquals(closeMessage.getCloseCode(), -1);
+        Assert.assertEquals(closeMessage.getCloseCode(), 1006);
         Assert.assertEquals(closeMessage.getCloseReason(), null);
         Assert.assertTrue(connectorListener.isClosed());
     }

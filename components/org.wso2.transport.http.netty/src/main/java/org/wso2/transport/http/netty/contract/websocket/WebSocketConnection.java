@@ -119,4 +119,18 @@ public interface WebSocketConnection {
      * @return Future to represent the completion of closure asynchronously.
      */
     ChannelFuture close();
+
+    /**
+     * Check whether a close frame is sent.
+     *
+     * @return true if close frame is sent.
+     */
+    boolean closeFrameSent();
+
+    /**
+     * Check whether a close frame is received.
+     *
+     * @return true if a close frame is received.
+     */
+    boolean closeFrameReceived();
 }
