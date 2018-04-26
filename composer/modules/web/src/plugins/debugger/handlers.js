@@ -99,26 +99,26 @@ export function getHandlerDefinitions(debuggerPlugin) {
         },
         {
             cmdID: COMMANDS.RESUME,
-            handler: () => {
-                DebugManager.resume();
+            handler: (threadId) => {
+                DebugManager.resume(threadId);
             },
         },
         {
             cmdID: COMMANDS.STEP_OVER,
-            handler: () => {
-                DebugManager.stepOver();
+            handler: (threadId) => {
+                DebugManager.stepOver(threadId);
             },
         },
         {
             cmdID: COMMANDS.STEP_IN,
-            handler: () => {
-                DebugManager.stepIn();
+            handler: (threadId) => {
+                DebugManager.stepIn(threadId);
             },
         },
         {
             cmdID: COMMANDS.STEP_OUT,
-            handler: () => {
-                DebugManager.stepOut();
+            handler: (threadId) => {
+                DebugManager.stepOut(threadId);
             },
         },
     ];
