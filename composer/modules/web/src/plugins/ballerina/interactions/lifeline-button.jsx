@@ -113,7 +113,7 @@ class LifelineButton extends React.Component {
 
     onSuggestionSelected(event, item) {
         if (item.suggestion.addNewValue) {
-            this.createEndpoint();
+            this.createEndpoint(item.suggestionValue);
         } else {
             const node = DefaultNodeFactory.createEndpoint(item.suggestion);
             this.props.model.acceptDrop(node);
@@ -160,22 +160,10 @@ class LifelineButton extends React.Component {
         this.setState({listEndpoints: false});
     }
 
-    createEndpoint() {
-        const endpointNode = DefaultNodeFactory.createEndpoint();
-        endpointNode.name.setValue(this.state.value);
-        const currentPackage = this.context.editor.environment.getCurrentPackage();
-
-        const node = DefaultNodeFactory.createEndpoint({
-            pkg: currentPackage,
-            endpoint: new Endpoint({
-                name: this.state.value, id: '', actions: [], fields: [],
-                packageName: currentPackage.name
-            }),
-            packageName: currentPackage.getName(),
-            fullPackageName: currentPackage.getName(),
-        });
-        this.props.model.acceptDrop(node);
-        this.props.model.getRoot().addTopLevelNodes(endpointNode);
+    createEndpoint(endpointName) {
+        const endpointNode = DefaultNodeFactory.createEndpoint({name:endpointName});
+        this.props.model.acceptDrop(endpointNode);
+        endpointNode.name.setValue(endpointName);
     }
 
     /**

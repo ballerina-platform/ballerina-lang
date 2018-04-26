@@ -1355,22 +1355,6 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), "<name xmlns:a=\"yyy\" a:text=\"hello\"/>");
     }
 
-    @Test(enabled = false)
-    public void testParseXMLElementWithXMLDeclrEntity() {
-        BValue[] returns = BRunUtil.invoke(result, "testParseXMLElementWithXMLDeclrEntity");
-        Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<root>hello world</root>");
-    }
-
-    @Test(enabled = false)
-    public void testParseXMLCommentWithXMLDeclrEntity() {
-        BValue[] returns = BRunUtil.invoke(result, "testParseXMLCommentWithXMLDeclrEntity");
-        Assert.assertEquals(returns[0], null);
-        Assert.assertTrue(returns[1].stringValue().startsWith("{message:\"failed to create xml: " +
-                "Unexpected EOF in prolog"));
-        Assert.assertTrue(returns[1].stringValue().endsWith("at [row,col {unknown-source}]: [1,74]\", cause:null}"));
-    }
-
     @Test
     public void testRemoveAttributeUsingStringName() {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveAttributeUsingStringName");
