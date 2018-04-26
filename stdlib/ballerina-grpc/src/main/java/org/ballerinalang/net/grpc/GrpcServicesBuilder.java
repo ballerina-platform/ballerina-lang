@@ -46,7 +46,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.ballerinalang.net.grpc.MessageUtils.setNestedMessages;
-import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.FILE_SEPARATOR;
 
 /**
  * This is the gRPC server implementation for registering service and start/stop server.
@@ -117,7 +116,7 @@ public class GrpcServicesBuilder {
         Builder serviceDefBuilder = ServerServiceDefinition.builder(serviceName);
         
         for (Descriptors.MethodDescriptor methodDescriptor : serviceDescriptor.getMethods()) {
-            final String methodName = serviceName + FILE_SEPARATOR + methodDescriptor.getName();
+            final String methodName = serviceName + "/" + methodDescriptor.getName();
             Descriptors.Descriptor requestDescriptor = serviceDescriptor.findMethodByName(methodDescriptor.getName())
                     .getInputType();
             Descriptors.Descriptor responseDescriptor = serviceDescriptor.findMethodByName(methodDescriptor.getName())
