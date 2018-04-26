@@ -170,6 +170,7 @@ public class TimeoutHandler  implements Http2DataEventListener {
                                     Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_WRITING_OUTBOUND_RESPONSE,
                                     HttpResponseStatus.GATEWAY_TIMEOUT.code()));
                 }
+                http2ClientChannel.removeInFlightMessage(streamId);
             } else {
                 // Write occurred before the timeout - set a new timeout with shorter delay.
                 timerTasks.put(streamId, schedule(ctx, this, nextDelay, TimeUnit.NANOSECONDS));
