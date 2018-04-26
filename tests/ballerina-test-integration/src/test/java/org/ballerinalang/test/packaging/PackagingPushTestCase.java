@@ -22,7 +22,8 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.ServerInstance;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.test.util.HttpClientRequest;
+import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -150,6 +151,13 @@ public class PackagingPushTestCase extends IntegrationTestCase {
         ballerinaClient.addLogLeecher(clientLeecher);
         ballerinaClient.runMain(clientArgs, getEnvVariables(), "push");
         clientLeecher.waitForText(5000);
+
+        // Check if package Exists
+        String stagingURL = "https://api.staging-central.ballerina.io/packages/";
+        HttpResponse response = HttpClientRequest.doGet(stagingURL + "IntegrationTest/" + packageName
+                                                                + "/1.0.0");
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+
     }
 
     /**
@@ -177,9 +185,9 @@ public class PackagingPushTestCase extends IntegrationTestCase {
     public String randomPackageName(int count) {
         String upperCaseAlpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         String lowerCaseAlpha = "abcdefghijklmnopqrstuvwxyz";
+        String alpha = upperCaseAlpha + lowerCaseAlpha;
         StringBuilder builder = new StringBuilder();
         while (count-- != 0) {
-            String alpha = upperCaseAlpha + lowerCaseAlpha;
             int character = (int) (Math.random() * alpha.length());
             builder.append(alpha.charAt(character));
         }
@@ -227,17 +235,16 @@ public class PackagingPushTestCase extends IntegrationTestCase {
      * Compresses files.
      *
      * @param outputStream outputstream
-     * @return outputstream of the compressed file
      * @throws IOException exception if an error occurrs when compressing
      */
-    static OutputStream compressFiles(Path dir, OutputStream outputStream) throws IOException {
+    private static void compressFiles(Path dir, OutputStream outputStream) throws IOException {
         ZipOutputStream zos = new ZipOutputStream(outputStream);
         if (Files.isRegularFile(dir)) {
             Path fileName = dir.getFileName();
             if (fileName != null) {
                 addEntry(zos, dir, fileName.toString());
             } else {
-                throw new BLangRuntimeException("Error occurred when compressing");
+                throw new RuntimeException("Error occurred when compressing");
             }
         } else {
             Stream<Path> list = Files.walk(dir);
@@ -249,13 +256,11 @@ public class PackagingPushTestCase extends IntegrationTestCase {
                 if (Files.isRegularFile(p)) {
                     try {
                         addEntry(zos, p, joiner.toString());
-                    } catch (IOException e) {
-                        throw new BLangRuntimeException("Error occurred when compressing");
+                    } catch (IOException ignore) {
                     }
                 }
             });
         }
         zos.close();
-        return outputStream;
     }
 }
