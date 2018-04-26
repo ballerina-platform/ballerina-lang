@@ -15,7 +15,7 @@ endpoint websub:Listener websubEP {
 // Also note the exclusion of the onIntentVerification resource which will result in auto intent-verification.
 @websub:SubscriberServiceConfig {
     path: "/websub",
-    topic: "http://www.websubpubtopic.com",
+    topic: "http://websubpubtopic.com",
     hub: "https://localhost:9191/websub/hub",
     secret: "Kslk30SNF2AChs2"
 }
@@ -23,6 +23,8 @@ service websubSubscriber bind websubEP {
 
     // Resource accepting content delivery requests.
     onNotification(websub:Notification notification) {
-        log:printInfo("WebSub Notification Received: " + notification.payload.toString());
+        log:printInfo("WebSub Notification Received: "
+                                            + notification.payload.toString());
     }
+
 }

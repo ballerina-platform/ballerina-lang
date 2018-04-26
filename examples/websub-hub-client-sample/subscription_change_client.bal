@@ -1,5 +1,5 @@
 // The Ballerina main program demonstrating usage of the Hub client endpoint to subscribe/unsubscribe to notifications.
-import ballerina/log;
+import ballerina/io;
 import ballerina/runtime;
 import ballerina/websub;
 
@@ -12,7 +12,7 @@ function main(string... args) {
 
     // Send the subscription request for the subscriber service.
     websub:SubscriptionChangeRequest subscriptionRequest = {
-        topic: "http://www.websubpubtopic.com",
+        topic: "http://websubpubtopic.com",
         callback: "http://localhost:8181/websub",
         secret: "Kslk30SNF2AChs2"
     };
@@ -21,11 +21,12 @@ function main(string... args) {
 
     match (response) {
         websub:SubscriptionChangeResponse subscriptionChangeResponse => {
-            log:printInfo("Subscription Request successful at Hub [" + subscriptionChangeResponse.hub + "] for Topic ["
+            io:println("Subscription Request successful at Hub ["
+                    + subscriptionChangeResponse.hub + "] for Topic ["
                     + subscriptionChangeResponse.topic + "]");
         }
         error e => {
-            log:printError("Error occurred with Subscription Request", err = e);
+            io:println("Error occurred with Subscription Request: ", e);
         }
     }
 
@@ -34,7 +35,7 @@ function main(string... args) {
 
     // Send unsubscription request for the subscriber service.
     websub:SubscriptionChangeRequest unsubscriptionRequest = {
-        topic: "http://www.websubpubtopic.com",
+        topic: "http://websubpubtopic.com",
         callback: "http://localhost:8181/websub"
     };
 
@@ -42,11 +43,12 @@ function main(string... args) {
 
     match (response) {
         websub:SubscriptionChangeResponse subscriptionChangeResponse => {
-            log:printInfo("Unsubscription Request successful at Hub [" + subscriptionChangeResponse.hub
+            io:println("Unsubscription Request successful at Hub ["
+                    + subscriptionChangeResponse.hub
                     + "] for Topic [" + subscriptionChangeResponse.topic + "]");
         }
         error e => {
-            log:printError("Error occurred with Unsubscription Request", err = e);
+            io:println("Error occurred with Unsubscription Request: ", e);
         }
     }
 
