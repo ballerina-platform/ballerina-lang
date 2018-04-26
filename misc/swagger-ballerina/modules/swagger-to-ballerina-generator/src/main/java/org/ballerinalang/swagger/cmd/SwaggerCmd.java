@@ -44,6 +44,7 @@ public class SwaggerCmd implements BLauncherCmd {
     private static final String client = "CLIENT";
     private static final String mock = "MOCK";
     private static final String export = "EXPORT";
+    private static final String CMD_NAME = "swagger";
 
     private static final PrintStream outStream = System.err;
 
@@ -73,7 +74,7 @@ public class SwaggerCmd implements BLauncherCmd {
     @Override
     public void execute() {
         if (helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo("swagger");
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(CMD_NAME);
             outStream.println(commandUsageInfo);
             return;
         }
@@ -108,7 +109,7 @@ public class SwaggerCmd implements BLauncherCmd {
 
     @Override
     public String getName() {
-        return "swagger";
+        return CMD_NAME;
     }
 
     @Override
