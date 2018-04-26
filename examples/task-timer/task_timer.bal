@@ -17,14 +17,13 @@ function main(string... args) {
 
     // Schedule a timer task, which initially runs 500ms from now.
     //After that, it runs every 1000ms.
-    timer = new task:Timer(onTriggerFunction, 
-                           onErrorFunction, 
+    timer = new task:Timer(onTriggerFunction, onErrorFunction,
                            1000, delay = 500);
     
     // Start the timer.
     timer.start();
 
-    runtime:sleep(30000); // Temporary workaround to stop the process from exiting.
+    runtime:sleep(30000); // Temp. workaround to stop the process from exiting.
 }
 
 function cleanup() returns error? {
@@ -32,8 +31,9 @@ function cleanup() returns error? {
     io:println("Cleaning up...");
     io:println(count);
 
-    // An error is randomly returned to demonstrate how the error is propagated to the
-    //'onError' function when an error occurs in the 'onTrigger' function.
+    // An error is randomly returned to demonstrate how the error is propagated
+    // to the 'onError' function when an error occurs in the 'onTrigger'
+    // function.
     if (math:randomInRange(0, 10) == 5) {
         error e = { message: "Cleanup error" };
         return e;
