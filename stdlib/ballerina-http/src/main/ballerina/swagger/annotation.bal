@@ -15,14 +15,18 @@
 // under the License.
 
 
-@Description {value: "Model for additional swagger information of a ballerina service"}
-@Field {value: "title: Title of the swagger definition"}
-@Field {value: "serviceVersion: Version of the swagger API"}
-@Field {value: "termsOfService: Service usage terms and conditions"}
-@Field {value: "contact: Contact information for the exposed API."}
-@Field {value: "license: License information for the exposed API."}
-@Field {value: "externalDoc: Additional external documentation."}
-@Field {value: "tags: A list of tags used by the specification with additional metadata"}
+documentation {
+    Model for additional Swagger information of a Ballerina service.
+
+    F{{title}} Title of the Swagger definition
+    F{{serviceVersion}} Version of the Swagger API
+    F{{termsOfService}} Service usage terms and conditions
+    F{{contact}} Contact information for the exposed API
+    F{{license}} License information for the exposed API
+    F{{externalDocs}} Additional external documentation
+    F{{tags}} A list of tags used by the specification with additional metadata
+    F{{security}} Security requirements for this service
+}
 public type ServiceInformation {
     string title,
     string serviceVersion,
@@ -35,58 +39,76 @@ public type ServiceInformation {
     SecurityRequirement[] security,
 };
 
-@Description {value: "Model for Swagger contact information"}
-@Field {value: "name: Contact name"}
-@Field {value: "email: Contact email"}
-@Field {value: "url: Contact web address/page"}
+documentation {
+    Model for Swagger contact information.
+
+    F{{name}} Contact name
+    F{{email}} Contact email
+    F{{url}} Contact web address/page
+}
 public type Contact {
     string name,
     string email,
     string url,
 };
 
-@Description {value: "Model for service licence information"}
-@Field {value: "name: License name"}
-@Field {value: "url: License url"}
+documentation {
+    Model for service licence information.
+
+    F{{name}} License name
+    F{{url}} License url
+}
 public type License {
     string name,
     string url,
 };
 
-@Description {value: "Model for service documentation definition"}
-@Field {value: "description: Documentation description"}
-@Field {value: "url: Documentation url"}
+documentation {
+    Model for service documentation definition.
+
+    F{{description}} Documentation description
+    F{{url}} External documentation url
+}
 public type DocumentationInformation {
     string description,
     string url,
 };
 
-@Description {value: "Model for swagger service tag definition"}
-@Field {value: "name: Tag name"}
-@Field {value: "description: Tag decription"}
-@Field {value: "externalDocs: Optional documentation on the tag"}
+documentation {
+    Model for Swagger service tag definition.
+
+    F{{name}} Tag name
+    F{{description}} Tag decription
+    F{{externalDocs}} Optional documentation on the tag
+}
 public type Tag {
     string name,
     string description,
     DocumentationInformation externalDocs,
 };
 
-@Description {value: "Model for security requirement definition. This is most likely the oauth scopes"}
-@Field {value: "name: Security scheme name"}
-@Field {value: "requirements: Array of security requirements"}
+documentation {
+    Model for security requirement definition. This is most likely the OAuth scopes.
+
+    F{{name}} Security scheme name
+    F{{requirements}} Array of security requirements
+}
 public type SecurityRequirement {
     string name,
     string[] requirements,
 };
 
-@Description {value: "Model for keeping swagger parameter information"}
-@Field {value: "inInfo: Where the parameter is located. Ex: query"}
-@Field {value: "name: parameter name"}
-@Field {value: "description: Description of the parameter"}
-@Field {value: "required: Is this paramter MUST be present in the request"}
-@Field {value: "discontinued: Is this parameter deprecated"}
-@Field {value: "allowEmptyValue: is empty values allowed for this parameter. Valid only for query parameters"}
-@Field {value: "schema: Parameter data type"}
+documentation {
+    Model for keeping Swagger parameter information.
+
+    F{{inInfo}} Where the parameter is located. Ex: query
+    F{{name}} Parameter name
+    F{{description}} Description of the parameter
+    F{{required}} Is this parameter MUST be present in the request
+    F{{discontinued}} Is this parameter deprecated
+    F{{allowEmptyValue}} Is an empty value allowed for this parameter. Valid only for query parameters
+    F{{schema}} Parameter data type
+}
 public type ParameterInformation {
     string inInfo,
     string name,
@@ -97,20 +119,28 @@ public type ParameterInformation {
     Schema schema,
 };
 
+documentation {
+    Model for keeping additional Swagger schema information.
+
+    F{{format}} Data format as specified by Swagger data type
+    F{{isArray}} Is this an array type schema
+    F{{ref}} Schema reference if this schema definition is a reference type definition
+}
 public type Schema {
-    string itemType,
     string format,
     boolean isArray,
     string ref,
-    string items,
 };
 
-@Description {value: "Model for additional swagger resource definition"}
-@Field {value: "tags: Tags attched to this resource"}
-@Field {value: "summary: A short summary of what the operation does."}
-@Field {value: "description: A verbose explanation of the operation behavior"}
-@Field {value: "externalDocs: Additional documentation for this operation"}
-@Field {value: "parameters: A list of parameters that are applicable for this operation"}
+documentation {
+    Model for additional Swagger resource definition.
+
+    F{{tags}} Tags attched to this resource
+    F{{summary}} A short summary of what the operation does
+    F{{description}} A verbose explanation of the operation behavior
+    F{{externalDocs}} Additional documentation for this operation
+    F{{parameters}} A list of parameters that are applicable for this operation
+}
 public type ResourceInformation {
     string[] tags,
     string summary,
@@ -119,6 +149,15 @@ public type ResourceInformation {
     ParameterInformation[] parameters,
 };
 
+documentation {
+    Model for keeping Swagger response information.
+
+    F{{code}} Reponse code
+    F{{description}} Response description
+    F{{response}} Response content
+    F{{headers}} Response headers
+    F{{examples}} Examples for this response
+}
 public type Response {
     string code,
     string description,
@@ -127,24 +166,44 @@ public type Response {
     Example[] examples,
 };
 
+documentation {
+    Model for keeping Swagger header definition information.
+
+    F{{required}} Is this a required header
+    F{{discontinued}} Is this header deprecated
+    F{{description}} Header description
+}
 public type Header {
-    string name,
+    boolean required,
+    boolean discontinued,
     string description,
-    string headerType,
 };
 
+documentation {
+    Model for keeping Swagger example information.
+
+    F{{summary}} Short description for the example
+    F{{description}} Long description for the example
+    F{{value}} Any example value
+    F{{externalValue}} A URL that points to the literal example
+}
 public type Example {
-    string exampleType,
-    string value,
+    string summary,
+    string description,
+    any value,
+    string externalValue,
 };
 
-@Description {value: "Model for additional swagger request body details"}
-@Field {value: "description: A brief description of the request body"}
-@Field {value: "required: Determines if the request body is required in the request"}
-@Field {value: "example: Example of the request body media type"}
-@Field {value: "examples: Examples of the media type"}
-@Field {value: "schema: The schema defining the type used for the request body"}
-@Field {value: "encoding: Encoding and content type details"}
+documentation {
+    Model for additional Swagger request body details.
+
+    F{{description}} Brief description of the request body
+    F{{required}} Determines if the request body is required in the request
+    F{{example}} Example of the request body media type
+    F{{examples}} Examples of the media type
+    F{{schema}} The schema defining the type used for the request body
+    F{{encoding}} Encoding and content type details
+}
 public type requestBody {
     string description,
     boolean required,
@@ -154,11 +213,15 @@ public type requestBody {
     Encoding[] encoding,
 };
 
-@Description {value: "Model for additional swagger content type definition"}
-@Field {value: "headers: Additional information to be provided as headers"}
-@Field {value: "contentType: The Content-Type for encoding a specific property"}
-@Field {value: "explode: Should property values of array or object generate separate parameters for each value of the array"}
-@Field {value: "allowReserved: Determines whether the parameter value SHOULD allow reserved characters"}
+documentation {
+    Model for additional Swagger content type definition.
+
+    F{{headers}} Additional information to be provided as headers
+    F{{contentType}} The Content-Type for encoding a specific property
+    F{{style}} Describes how a specific property value will be serialized depending on its type
+    F{{explode}} Should property values of array or object generate separate parameters for each value of the array
+    F{{allowReserved}} Determines whether the parameter value SHOULD allow reserved characters
+}
 public type Encoding {
     ParameterInformation[] headers,
     string contentType,
@@ -167,20 +230,31 @@ public type Encoding {
     boolean allowReserved,
 };
 
-@Description {value: "Configuration elements for client code generation"}
-@Field {value: "generate: generates client code if set to true"}
+documentation {
+    Configuration elements for client code generation.
+
+    F{{generate}} generates client code if set to true
+}
 public type ClientInformation {
     boolean generate = true,
 };
 
-@Description {value: "Presence of this annotation will mark this endpoint to be used as a service endpoint for client generation"}
+documentation {
+    Presence of this annotation will mark this endpoint to be used as a service endpoint for client generation
+}
 public annotation <endpoint> ClientEndpoint;
 
-@Description {value: "Annotation to configure client code generation"}
+documentation {
+    Annotation to configure client code generation.
+}
 public annotation <service> ClientConfig ClientInformation;
 
-@Description {value: "Annotation for additional swagger information of a ballerina service"}
+documentation {
+    Annotation for additional Swagger information of a Ballerina service.
+}
 public annotation <service> ServiceInfo ServiceInformation;
 
-@Description {value: "Annotation for additional swagger information of a ballerina resource"}
+documentation {
+    Annotation for additional Swagger information of a Ballerina resource.
+}
 public annotation <resource> ResourceInfo ResourceInformation;
