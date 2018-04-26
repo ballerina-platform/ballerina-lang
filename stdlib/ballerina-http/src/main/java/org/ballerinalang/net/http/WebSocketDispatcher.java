@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
@@ -25,6 +27,7 @@ import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
@@ -175,10 +178,32 @@ public class WebSocketDispatcher {
     public static void dispatchCloseMessage(WebSocketOpenConnectionInfo connectionInfo,
                                             WebSocketCloseMessage closeMessage) {
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
+        if (webSocketConnection.closeFrameSent()) {
+            if (webSocketConnection.getSession().isOpen()) {
+                webSocketConnection.close().addListener(closeFuture -> {
+                    connectionInfo.getWebSocketEndpoint().setBooleanField(0, 0);
+                });
+            }
+            if (closeMessage.getCloseCode() == connectionInfo.getCloseStatusCode()) {
+                String errorMsg = String.format("Illegal close status code received. Expected %d found %d !",
+                                                connectionInfo.getCloseStatusCode(), closeMessage.getCloseCode());
+                throw new BallerinaConnectorException(errorMsg);
+            }
+            return;
+        }
+
         WebSocketService wsService = connectionInfo.getService();
         Resource onCloseResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_CLOSE);
         if (onCloseResource == null) {
-            webSocketConnection.readNextFrame();
+            if (webSocketConnection.getSession().isOpen()) {
+                webSocketConnection.close(closeMessage.getCloseCode(), null).addListener(future -> {
+                    if (webSocketConnection.getSession().isOpen()) {
+                        webSocketConnection.close().addListener(closeFuture -> {
+                            connectionInfo.getWebSocketEndpoint().setBooleanField(0, 0);
+                        });
+                    }
+                });
+            }
             return;
         }
         List<ParamDetail> paramDetails = onCloseResource.getParamDetails();
@@ -187,8 +212,28 @@ public class WebSocketDispatcher {
         bValues[1] = new BInteger(closeMessage.getCloseCode());
         bValues[2] = new BString(closeMessage.getCloseReason());
         //TODO handle BallerinaConnectorException
-        Executor.submit(onCloseResource, new WebSocketResourceCallableUnitCallback(webSocketConnection), null,
-                        null, bValues);
+        CallableUnitCallback onCloseCallback = new CallableUnitCallback() {
+            @Override
+            public void notifySuccess() {
+                //TODO: Need to wait until the connection is closed from the other side
+                if (closeMessage.getCloseCode() != WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE
+                        && webSocketConnection.getSession().isOpen()) {
+                    webSocketConnection.close(closeMessage.getCloseCode(), null).addListener(future -> {
+                        if (webSocketConnection.getSession().isOpen()) {
+                            webSocketConnection.close().addListener(closeFuture -> {
+                                connectionInfo.getWebSocketEndpoint().setBooleanField(0, 0);
+                            });
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void notifyFailure(BStruct error) {
+                ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+            }
+        };
+        Executor.submit(onCloseResource, onCloseCallback, null, null, bValues);
     }
 
     public static void dispatchIdleTimeout(WebSocketOpenConnectionInfo connectionInfo,

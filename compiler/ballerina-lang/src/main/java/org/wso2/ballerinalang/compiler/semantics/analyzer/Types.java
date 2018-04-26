@@ -217,7 +217,7 @@ public class Types {
         }
 
         if (target.tag == TypeTags.STREAM && source.tag == TypeTags.STREAM) {
-            return true;
+            return isAssignable(((BStreamType) source).constraint, ((BStreamType) target).constraint);
         }
 
         BSymbol symbol = symResolver.resolveImplicitConversionOp(source, target);

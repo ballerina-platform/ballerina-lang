@@ -89,7 +89,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                     PROTOCOL_PACKAGE_HTTP, CONNECTION);
             httpConnection.addNativeData(WebSocketConstants.WEBSOCKET_MESSAGE, webSocketInitMessage);
             httpConnection.addNativeData(WebSocketConstants.WEBSOCKET_SERVICE, wsService);
-            httpConnection.addNativeData(WebSocketConstants.WEBSOCKET_CONNECTION_MANAGER, connectionManager);
+            httpConnection.addNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER, connectionManager);
             // TODO: Need to set remote, local and the protocol after the changes in transport is completed.
             httpServiceEndpoint.setRefField(SERVICE_ENDPOINT_CONNECTION_INDEX, httpConnection);
 

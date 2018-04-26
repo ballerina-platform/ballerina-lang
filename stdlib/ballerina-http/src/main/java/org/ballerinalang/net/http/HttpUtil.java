@@ -232,10 +232,10 @@ public class HttpUtil {
                 && context != null) {
             MultipartDecoder.parseBody(context, entity, contentType, httpMessageDataStreamer.getInputStream());
         } else {
-            int contentLength = NO_CONTENT_LENGTH_FOUND;
+            long contentLength = NO_CONTENT_LENGTH_FOUND;
             String lengthStr = httpCarbonMessage.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
             try {
-                contentLength = lengthStr != null ? Integer.parseInt(lengthStr) : contentLength;
+                contentLength = lengthStr != null ? Long.parseLong(lengthStr) : contentLength;
                 if (contentLength == NO_CONTENT_LENGTH_FOUND) {
                     contentLength = httpCarbonMessage.countMessageLengthTill(BYTE_LIMIT);
                 }
@@ -619,10 +619,10 @@ public class HttpUtil {
     private static void populateEntity(BStruct entity, BStruct mediaType, HTTPCarbonMessage cMsg) {
         String contentType = cMsg.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
         MimeUtil.setContentType(mediaType, entity, contentType);
-        int contentLength = -1;
+        long contentLength = -1;
         String lengthStr = cMsg.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
         try {
-            contentLength = lengthStr != null ? Integer.parseInt(lengthStr) : contentLength;
+            contentLength = lengthStr != null ? Long.parseLong(lengthStr) : contentLength;
             MimeUtil.setContentLength(entity, contentLength);
         } catch (NumberFormatException e) {
             throw new BallerinaException("Invalid content length");
