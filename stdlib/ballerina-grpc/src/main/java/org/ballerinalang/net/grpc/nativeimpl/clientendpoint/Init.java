@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.TypeKind;
@@ -33,9 +34,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.GrpcConstants;
-import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.ssl.SSLHandlerFactory;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 
@@ -48,6 +47,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.net.ssl.SSLException;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CHANNEL_KEY;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_TYPE;
@@ -76,7 +77,7 @@ public class Init extends BlockingNativeCallableUnit {
     
     @Override
     public void execute(Context context) {
-        try {
+
             Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
             // Creating client endpoint with channel as native data.
             BStruct endpointConfigStruct = (BStruct) context.getRefArgument(1);
@@ -87,7 +88,7 @@ public class Init extends BlockingNativeCallableUnit {
             try {
                 url = new URL(urlString);
             } catch (MalformedURLException e) {
-                throw new BallerinaException("Malformed URL: " + urlString);
+                throw new BallerinaConnectorException("Malformed URL: " + urlString);
             }
             scheme = url.getProtocol();
             SenderConfiguration configuration = populateSenderConfigurationOptions(endpointConfig, scheme);
@@ -97,21 +98,20 @@ public class Init extends BlockingNativeCallableUnit {
                         .usePlaintext(true)
                         .build();
             } else {
-                SslContext sslContext = new SSLHandlerFactory(configuration.getSSLConfig())
-                        .createHttp2TLSContextForClient();
-                channel = NettyChannelBuilder
-                        .forAddress(generateSocketAddress(url.getHost(), url.getPort()))
-                        .flowControlWindow(65 * 1024)
-                        .maxInboundMessageSize(MAX_MESSAGE_SIZE)
-                        .sslContext(sslContext).build();
+                try {
+                    SslContext sslContext = new SSLHandlerFactory(configuration.getSSLConfig())
+                            .createHttp2TLSContextForClient();
+                    channel = NettyChannelBuilder
+                            .forAddress(generateSocketAddress(url.getHost(), url.getPort()))
+                            .flowControlWindow(65 * 1024)
+                            .maxInboundMessageSize(MAX_MESSAGE_SIZE)
+                            .sslContext(sslContext).build();
+                } catch (SSLException e) {
+                    throw new BallerinaConnectorException("Error while generating SSL context. " + e.getMessage(), e);
+                }
             }
             clientEndpoint.addNativeData(CHANNEL_KEY, channel);
-            
-        } catch (Throwable throwable) {
-            BStruct errorStruct = MessageUtils.getConnectorError(context, throwable);
-            context.setError(errorStruct);
-        }
-        
+
     }
     
     /**
@@ -123,7 +123,7 @@ public class Init extends BlockingNativeCallableUnit {
             inetAddress = InetAddress.getByAddress(host, inetAddress.getAddress());
             return new InetSocketAddress(inetAddress, port);
         } catch (UnknownHostException e) {
-            throw new RuntimeException(e);
+            throw new BallerinaConnectorException(e.getMessage(), e);
         }
     }
     
@@ -209,7 +209,6 @@ public class Init extends BlockingNativeCallableUnit {
                 senderConfiguration.setParameters(clientParams);
             }
         }
-        // TODO: 4/20/18 Proxy support
         return senderConfiguration;
     }
     

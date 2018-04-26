@@ -62,7 +62,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttrib
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -331,6 +333,12 @@ public class Generator {
                 return BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_HREF + ".html#" + typeNode.type.tsymbol.getName()
                         .value;
             }
+        } else if (typeNode instanceof BLangUnionTypeNode) {
+            BLangUnionTypeNode union = (BLangUnionTypeNode) typeNode;
+            return union.memberTypeNodes.stream().map(member -> extractLink(member)).collect(Collectors.joining("|"));
+        } else if (typeNode instanceof BLangTupleTypeNode) {
+            BLangTupleTypeNode tuple = (BLangTupleTypeNode) typeNode;
+            return tuple.memberTypeNodes.stream().map(member -> extractLink(member)).collect(Collectors.joining(","));
         } else {
             // TODO
             return "";

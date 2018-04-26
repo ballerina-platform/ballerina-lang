@@ -105,7 +105,6 @@ public class HttpConstants {
     public static final String ANN_CONFIG_ATTR_CACHE_SIZE = "cacheSize";
     public static final String ANN_CONFIG_ATTR_CACHE_VALIDITY_PERIOD = "cacheValidityPeriod";
     public static final String ANN_CONFIG_ATTR_WEBSOCKET = "webSocket";
-    public static final String ANN_CONFIG_ATTR_TRANSFER_ENCODING = "transferEncoding";
     public static final String ANN_CONFIG_ATTR_MAXIMUM_URL_LENGTH = "maxUriLength";
     public static final String ANN_CONFIG_ATTR_MAXIMUM_HEADER_SIZE = "maxHeaderSize";
     public static final String ANN_CONFIG_ATTR_MAXIMUM_ENTITY_BODY_SIZE = "maxEntityBodySize";
@@ -276,7 +275,6 @@ public class HttpConstants {
 
     //Service Endpoint Config
     public static final String ENDPOINT_CONFIG_HOST = "host";
-    public static final String ENDPOINT_CONFIG_TRANSFER_ENCODING = "transferEncoding";
     public static final String ENDPOINT_CONFIG_PORT = "port";
     public static final String ENDPOINT_CONFIG_KEEP_ALIVE = "keepAlive";
     public static final String ENDPOINT_CONFIG_CHUNKING = "chunking";
@@ -314,7 +312,6 @@ public class HttpConstants {
 
     //Client Endpoint Config
     public static final String URI = "uri";
-    public static final String CLIENT_EP_TRNASFER_ENCODING = "transferEncoding";
     public static final String CLIENT_EP_CHUNKING = "chunking";
     public static final String CLIENT_EP_ENDPOINT_TIMEOUT = "timeoutMillis";
     public static final String CLIENT_EP_IS_KEEP_ALIVE = "keepAlive";
@@ -364,4 +361,7 @@ public class HttpConstants {
     public static final int LOCAL_STRUCT_INDEX = 3;
     public static final int LOCAL_HOST_INDEX = 0;
     public static final int LOCAL_PORT_INDEX = 0;
+
+    //WebSocket Related constants for WebSocket upgrade
+    public static final String NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER = "NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER";
 }

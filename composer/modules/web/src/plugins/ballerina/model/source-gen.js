@@ -277,6 +277,8 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'Deprecated':
             return dent() + w() + 'deprecated' + a(' ') + w() + '{' + indent() + w()
                  + node.documentationText + outdent() + w() + '}';
+        case 'Done':
+            return dent() + w() + 'done' + w() + ';';
         case 'ElvisExpr':
             return getSourceOf(node.leftExpression, pretty, l, replaceLambda) + w()
                  + '?:'
@@ -755,8 +757,26 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + node.name.valueWithBar + w() + '('
                  + join(node.argumentExpressions, pretty, replaceLambda, l, w, '', ',') + w() + ')';
             }
+        case 'JoinStreamingInput':
+            if (node.unidirectionalBeforeJoin && node.streamingInput
+                         && node.onExpression) {
+                return w() + 'unidirectional' + w() + 'join'
+                 + getSourceOf(node.streamingInput, pretty, l, replaceLambda) + w() + 'on'
+                 + getSourceOf(node.onExpression, pretty, l, replaceLambda);
+            } else if (node.unidirectionalAfterJoin && node.streamingInput
+                         && node.onExpression) {
+                return w() + 'join' + w() + 'unidirectional'
+                 + getSourceOf(node.streamingInput, pretty, l, replaceLambda) + w() + 'on'
+                 + getSourceOf(node.onExpression, pretty, l, replaceLambda);
+            } else {
+                return w() + 'join'
+                 + getSourceOf(node.streamingInput, pretty, l, replaceLambda) + w() + 'on'
+                 + getSourceOf(node.onExpression, pretty, l, replaceLambda);
+            }
         case 'Lambda':
             return getSourceOf(node.functionNode, pretty, l, replaceLambda);
+        case 'Limit':
+            return w(' ') + 'limit' + w(' ') + node.limitValue;
         case 'Literal':
             if (node.inTemplateLiteral && node.unescapedValue) {
                 return w() + node.unescapedValue;
@@ -849,15 +869,22 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + getSourceOf(node.initFunction, pretty, l, replaceLambda)
                  + join(node.functions, pretty, replaceLambda, l, w, '') + w() + '};';
             }
+        case 'OrderBy':
+            return w() + 'order' + w() + 'by'
+                 + join(node.variables, pretty, replaceLambda, l, w, '', ',');
+        case 'OrderByVariable':
+            return getSourceOf(node.variableReference, pretty, l, replaceLambda)
+                 + w(' ') + node.orderByType;
         case 'PostIncrement':
             return dent() + getSourceOf(node.variable, pretty, l, replaceLambda)
                  + w() + node.operator + w() + ';';
         case 'Record':
             return join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
-                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + dent() + w() + 'type' + w() + node.name.valueWithBar
-                 + w() + '{' + indent()
-                 + join(node.fields, pretty, replaceLambda, l, w, '', ';', true) + w() + '};';
+                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + dent() + (node.public ? w() + 'public' : '') + w()
+                 + 'type' + w() + node.name.valueWithBar + w() + '{' + indent()
+                 + join(node.fields, pretty, replaceLambda, l, w, '', ';', true) + w()
+                 + '};';
         case 'RecordLiteralExpr':
             if (node.keyValuePairs) {
                 return w() + '{'
@@ -879,6 +906,8 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'RestArgsExpr':
             return w() + '...'
                  + getSourceOf(node.expression, pretty, l, replaceLambda);
+        case 'Retry':
+            return dent() + w() + 'retry' + w() + ';';
         case 'Return':
             if (node.noExpressionAvailable) {
                 return dent() + w() + 'return' + a(' ') + w() + ';';
@@ -889,9 +918,34 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + getSourceOf(node.expression, pretty, l, replaceLambda) + w() + ';';
             }
         case 'SelectClause':
-            return w() + 'select'
+            if (node.selectAll && node.groupBy && node.having) {
+                return w() + 'select' + w() + '*'
+                 + getSourceOf(node.groupBy, pretty, l, replaceLambda)
+                 + getSourceOf(node.having, pretty, l, replaceLambda);
+            } else if (node.selectAll && node.groupBy) {
+                return w() + 'select' + w() + '*'
+                 + getSourceOf(node.groupBy, pretty, l, replaceLambda);
+            } else if (node.selectAll && node.having) {
+                return w() + 'select' + w() + '*'
+                 + getSourceOf(node.having, pretty, l, replaceLambda);
+            } else if (node.selectAll) {
+                return w() + 'select' + w() + '*';
+            } else if (node.selectExpressions && node.groupBy && node.having) {
+                return w() + 'select'
                  + join(node.selectExpressions, pretty, replaceLambda, l, w, '', ',')
                  + getSourceOf(node.groupBy, pretty, l, replaceLambda) + getSourceOf(node.having, pretty, l, replaceLambda);
+            } else if (node.selectExpressions && node.groupBy) {
+                return w() + 'select'
+                 + join(node.selectExpressions, pretty, replaceLambda, l, w, '', ',')
+                 + getSourceOf(node.groupBy, pretty, l, replaceLambda);
+            } else if (node.selectExpressions && node.having) {
+                return w() + 'select'
+                 + join(node.selectExpressions, pretty, replaceLambda, l, w, '', ',')
+                 + getSourceOf(node.having, pretty, l, replaceLambda);
+            } else {
+                return w() + 'select'
+                 + join(node.selectExpressions, pretty, replaceLambda, l, w, '', ',');
+            }
         case 'SelectExpression':
             if (node.identifierAvailable && node.expression && node.identifier) {
                 return getSourceOf(node.expression, pretty, l, replaceLambda) + w(' ')
@@ -940,20 +994,181 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'StreamAction':
             return getSourceOf(node.invokableBody, pretty, l, replaceLambda);
         case 'StreamingInput':
-            return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+            if (node.windowTraversedAfterWhere && node.streamReference
+                         && node.beforeStreamingCondition && node.windowClause
+                         && node.afterStreamingCondition && node.aliasAvailable && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda)
+                 + w() + 'as' + w() + node.alias;
+            } else if (node.windowTraversedAfterWhere && node.streamReference
+                         && node.beforeStreamingCondition && node.windowClause
+                         && node.afterStreamingCondition) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
                  + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
                  + getSourceOf(node.windowClause, pretty, l, replaceLambda)
                  + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda);
+            } else if (node.windowTraversedAfterWhere && node.streamReference
+                         && node.windowClause && node.afterStreamingCondition && node.aliasAvailable
+                         && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda) + w()
+                 + 'as' + w() + node.alias;
+            } else if (node.windowTraversedAfterWhere && node.streamReference
+                         && node.windowClause && node.afterStreamingCondition) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda);
+            } else if (node.windowTraversedAfterWhere && node.streamReference
+                         && node.windowClause && node.afterStreamingCondition && node.aliasAvailable
+                         && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda) + w()
+                 + 'as' + w() + node.alias;
+            } else if (node.windowTraversedAfterWhere && node.streamReference
+                         && node.windowClause && node.afterStreamingCondition) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda);
+            } else if (node.windowTraversedAfterWhere && node.streamReference
+                         && node.beforeStreamingCondition && node.windowClause
+                         && node.aliasAvailable && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + getSourceOf(node.windowClause, pretty, l, replaceLambda) + w()
+                 + 'as' + w() + node.alias;
+            } else if (node.windowTraversedAfterWhere && node.streamReference
+                         && node.beforeStreamingCondition && node.windowClause) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + getSourceOf(node.windowClause, pretty, l, replaceLambda);
+            } else if (node.streamReference && node.beforeStreamingCondition
+                         && node.afterStreamingCondition && node.aliasAvailable && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda) + w() + 'as' + w() + node.alias;
+            } else if (node.streamReference && node.beforeStreamingCondition
+                         && node.afterStreamingCondition) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda);
+            } else if (node.streamReference && node.beforeStreamingCondition
+                         && node.aliasAvailable && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + w() + 'as' + w() + node.alias;
+            } else if (node.streamReference && node.beforeStreamingCondition) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda);
+            } else if (node.streamReference && node.afterStreamingCondition
+                         && node.aliasAvailable && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda)
+                 + w() + 'as' + w() + node.alias;
+            } else if (node.streamReference && node.afterStreamingCondition) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda);
+            } else if (node.streamReference && node.aliasAvailable && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda) + w()
+                 + 'as' + w() + node.alias;
+            } else {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda);
+            }
         case 'StreamingQuery':
-            return w() + 'from'
+            if (node.streamingInput && node.joinStreamingInput
+                         && node.selectClause && node.orderbyClause && node.streamingAction) {
+                return w() + 'from'
+                 + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.joinStreamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.selectClause, pretty, l, replaceLambda) + getSourceOf(node.orderbyClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
+            } else if (node.streamingInput && node.selectClause && node.orderbyClause
+                         && node.streamingAction) {
+                return w() + 'from'
+                 + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.selectClause, pretty, l, replaceLambda) + getSourceOf(node.orderbyClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
+            } else if (node.streamingInput && node.joinStreamingInput
+                         && node.selectClause && node.streamingAction) {
+                return w() + 'from'
+                 + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.joinStreamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.selectClause, pretty, l, replaceLambda) + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
+            } else if (node.streamingInput && node.selectClause && node.streamingAction) {
+                return w() + 'from'
                  + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
                  + getSourceOf(node.selectClause, pretty, l, replaceLambda) + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
+            } else if (node.streamingInput && node.joinStreamingInput
+                         && node.selectClause && node.orderbyClause) {
+                return w() + 'from'
+                 + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.joinStreamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.selectClause, pretty, l, replaceLambda) + getSourceOf(node.orderbyClause, pretty, l, replaceLambda);
+            } else if (node.streamingInput && node.selectClause && node.orderbyClause) {
+                return w() + 'from'
+                 + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.selectClause, pretty, l, replaceLambda) + getSourceOf(node.orderbyClause, pretty, l, replaceLambda);
+            } else if (node.streamingInput && node.joinStreamingInput
+                         && node.selectClause) {
+                return w() + 'from'
+                 + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.joinStreamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.selectClause, pretty, l, replaceLambda);
+            } else {
+                return w() + 'from'
+                 + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.selectClause, pretty, l, replaceLambda);
+            }
         case 'StringTemplateLiteral':
             return w() + 'string\u0020`'
                  + join(node.expressions, pretty, replaceLambda, l, w, '') + w() + '`';
         case 'Table':
             return w() + 'table'
                  + getSourceOf(node.configurationExpression, pretty, l, replaceLambda);
+        case 'TableQueryExpression':
+            return getSourceOf(node.tableQuery, pretty, l, replaceLambda);
+        case 'TableQuery':
+            if (node.streamingInput && node.joinStreamingInput
+                         && node.selectClauseNode && node.orderByNode && node.limitClause) {
+                return w() + 'from'
+                 + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.joinStreamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.selectClauseNode, pretty, l, replaceLambda) + getSourceOf(node.orderByNode, pretty, l, replaceLambda)
+                 + getSourceOf(node.limitClause, pretty, l, replaceLambda);
+            } else if (node.streamingInput && node.selectClauseNode && node.orderByNode
+                         && node.limitClause) {
+                return w() + 'from'
+                 + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.selectClauseNode, pretty, l, replaceLambda) + getSourceOf(node.orderByNode, pretty, l, replaceLambda)
+                 + getSourceOf(node.limitClause, pretty, l, replaceLambda);
+            } else if (node.streamingInput && node.selectClauseNode && node.limitClause) {
+                return w() + 'from'
+                 + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.selectClauseNode, pretty, l, replaceLambda) + getSourceOf(node.limitClause, pretty, l, replaceLambda);
+            } else if (node.streamingInput && node.joinStreamingInput
+                         && node.selectClauseNode && node.limitClause) {
+                return w() + 'from'
+                 + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.joinStreamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.selectClauseNode, pretty, l, replaceLambda) + getSourceOf(node.limitClause, pretty, l, replaceLambda);
+            } else if (node.streamingInput && node.joinStreamingInput
+                         && node.selectClauseNode && node.orderByNode) {
+                return w() + 'from'
+                 + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.joinStreamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.selectClauseNode, pretty, l, replaceLambda) + getSourceOf(node.orderByNode, pretty, l, replaceLambda);
+            } else if (node.streamingInput && node.selectClauseNode && node.orderByNode) {
+                return w() + 'from'
+                 + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.selectClauseNode, pretty, l, replaceLambda) + getSourceOf(node.orderByNode, pretty, l, replaceLambda);
+            } else {
+                return w() + 'from'
+                 + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.selectClauseNode, pretty, l, replaceLambda);
+            }
         case 'TernaryExpr':
             return getSourceOf(node.condition, pretty, l, replaceLambda) + w() + '?'
                  + getSourceOf(node.thenExpression, pretty, l, replaceLambda)
@@ -981,11 +1196,10 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + a(' ') + w() + 'retries' + w() + '='
                  + getSourceOf(node.retryCount, pretty, l, replaceLambda) + w() + ',' + a(' ') + w()
                  + 'oncommit' + w() + '='
-                 + getSourceOf(node.onCommitFunction, pretty, l, replaceLambda) + w() + ',' + a(' ') + w() + '{' + indent()
-                 + getSourceOf(node.transactionBody, pretty, l, replaceLambda) + outdent()
-                 + w() + '}' + w() + 'onretry' + a(' ') + w() + '{' + indent()
-                 + getSourceOf(node.onRetryBody, pretty, l, replaceLambda)
-                 + outdent() + w() + '}';
+                 + getSourceOf(node.onCommitFunction, pretty, l, replaceLambda) + w() + '{' + indent()
+                 + getSourceOf(node.transactionBody, pretty, l, replaceLambda) + outdent() + w() + '}' + w()
+                 + 'onretry' + a(' ') + w() + '{' + indent()
+                 + getSourceOf(node.onRetryBody, pretty, l, replaceLambda) + outdent() + w() + '}';
             } else if (node.onCommitFunction && node.onAbortFunction
                          && node.transactionBody && node.onRetryBody) {
                 return dent() + dent() + w() + 'transaction' + a(' ') + w() + 'with'
@@ -1009,20 +1223,20 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             } else if (node.retryCount && node.transactionBody && node.onRetryBody) {
                 return dent() + dent() + w() + 'transaction' + a(' ') + w() + 'with'
                  + a(' ') + w() + 'retries' + w() + '='
-                 + getSourceOf(node.retryCount, pretty, l, replaceLambda) + w() + ',' + a(' ') + w() + '{'
-                 + indent()
-                 + getSourceOf(node.transactionBody, pretty, l, replaceLambda) + outdent() + w() + '}' + w() + 'onretry' + a(' ') + w()
-                 + '{' + indent()
-                 + getSourceOf(node.onRetryBody, pretty, l, replaceLambda) + outdent() + w() + '}';
+                 + getSourceOf(node.retryCount, pretty, l, replaceLambda) + w() + '{' + indent()
+                 + getSourceOf(node.transactionBody, pretty, l, replaceLambda) + outdent() + w()
+                 + '}' + w() + 'onretry' + a(' ') + w() + '{' + indent()
+                 + getSourceOf(node.onRetryBody, pretty, l, replaceLambda) + outdent()
+                 + w() + '}';
             } else if (node.onCommitFunction && node.transactionBody
                          && node.onRetryBody) {
                 return dent() + dent() + w() + 'transaction' + a(' ') + w() + 'with'
                  + a(' ') + w() + 'oncommit' + w() + '='
-                 + getSourceOf(node.onCommitFunction, pretty, l, replaceLambda) + w() + ',' + a(' ') + w()
-                 + '{' + indent()
-                 + getSourceOf(node.transactionBody, pretty, l, replaceLambda) + outdent() + w() + '}' + w() + 'onretry' + a(' ')
-                 + w() + '{' + indent()
-                 + getSourceOf(node.onRetryBody, pretty, l, replaceLambda) + outdent() + w() + '}';
+                 + getSourceOf(node.onCommitFunction, pretty, l, replaceLambda) + w() + '{' + indent()
+                 + getSourceOf(node.transactionBody, pretty, l, replaceLambda)
+                 + outdent() + w() + '}' + w() + 'onretry' + a(' ') + w() + '{' + indent()
+                 + getSourceOf(node.onRetryBody, pretty, l, replaceLambda)
+                 + outdent() + w() + '}';
             } else if (node.onAbortFunction && node.transactionBody && node.onRetryBody) {
                 return dent() + dent() + w() + 'transaction' + a(' ') + w() + 'with'
                  + a(' ') + w() + 'onabort' + w() + '='
@@ -1052,9 +1266,8 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + w() + 'retries' + w() + '='
                  + getSourceOf(node.retryCount, pretty, l, replaceLambda) + w() + ',' + a(' ') + w() + 'oncommit' + w()
                  + '='
-                 + getSourceOf(node.onCommitFunction, pretty, l, replaceLambda) + w() + ',' + a(' ') + w() + '{' + indent()
-                 + getSourceOf(node.transactionBody, pretty, l, replaceLambda) + outdent() + w()
-                 + '}';
+                 + getSourceOf(node.onCommitFunction, pretty, l, replaceLambda) + w() + '{' + indent()
+                 + getSourceOf(node.transactionBody, pretty, l, replaceLambda) + outdent() + w() + '}';
             } else if (node.retryCount && node.onAbortFunction && node.transactionBody) {
                 return dent() + w() + 'transaction' + a(' ') + w() + 'with' + a(' ')
                  + w() + 'retries' + w() + '='
@@ -1073,15 +1286,14 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             } else if (node.retryCount && node.transactionBody) {
                 return dent() + w() + 'transaction' + a(' ') + w() + 'with' + a(' ')
                  + w() + 'retries' + w() + '='
-                 + getSourceOf(node.retryCount, pretty, l, replaceLambda) + w() + ',' + a(' ') + w() + '{' + indent()
-                 + getSourceOf(node.transactionBody, pretty, l, replaceLambda)
-                 + outdent() + w() + '}';
+                 + getSourceOf(node.retryCount, pretty, l, replaceLambda) + w() + '{' + indent()
+                 + getSourceOf(node.transactionBody, pretty, l, replaceLambda) + outdent() + w() + '}';
             } else if (node.onCommitFunction && node.transactionBody) {
                 return dent() + w() + 'transaction' + a(' ') + w() + 'with' + a(' ')
                  + w() + 'oncommit' + w() + '='
-                 + getSourceOf(node.onCommitFunction, pretty, l, replaceLambda) + w() + ',' + a(' ') + w() + '{'
-                 + indent()
-                 + getSourceOf(node.transactionBody, pretty, l, replaceLambda) + outdent() + w() + '}';
+                 + getSourceOf(node.onCommitFunction, pretty, l, replaceLambda) + w() + '{' + indent()
+                 + getSourceOf(node.transactionBody, pretty, l, replaceLambda) + outdent() + w()
+                 + '}';
             } else if (node.onAbortFunction && node.transactionBody) {
                 return dent() + w() + 'transaction' + a(' ') + w() + 'with' + a(' ')
                  + w() + 'onabort' + w() + '='
@@ -1136,13 +1348,14 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             }
         case 'TupleDestructure':
             if (node.declaredWithVar && node.variableRefs
-                         && node.variableRefs.length) {
-                return w() + 'var' + w() + '('
-                 + join(node.variableRefs, pretty, replaceLambda, l, w, '', ',') + w() + ')' + w() + '=' + w()
-                 + '<expression.source>;';
+                         && node.variableRefs.length && node.expression) {
+                return dent() + w() + 'var' + w() + '('
+                 + join(node.variableRefs, pretty, replaceLambda, l, w, '', ',') + w() + ')' + w() + '='
+                 + getSourceOf(node.expression, pretty, l, replaceLambda) + w() + ';';
             } else {
-                return w() + '('
-                 + join(node.variableRefs, pretty, replaceLambda, l, w, '', ',') + w() + ')' + w() + '=' + w() + '<expression.source>;';
+                return dent() + w() + '('
+                 + join(node.variableRefs, pretty, replaceLambda, l, w, '', ',') + w() + ')' + w() + '='
+                 + getSourceOf(node.expression, pretty, l, replaceLambda) + w() + ';';
             }
         case 'TupleTypeNode':
             return w() + '('

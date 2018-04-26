@@ -153,6 +153,13 @@ public class H2ClientActionsTest {
         Assert.assertEquals(((BIntArray) returns[0]).get(1), 2);
     }
 
+    @Test
+    public void testH2MemDBUpdate() {
+        BValue[] returns = BRunUtil.invoke(result, "testH2MemDBUpdate");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(returns[1].stringValue(), "[{\"ID\":15,\"NAME\":\"Anne\"}]");
+    }
+
     @AfterSuite
     public void cleanup() {
         SQLDBUtils.deleteDirectory(new File(DB_DIRECTORY_H2));

@@ -286,4 +286,11 @@ public class SafeNavigationTest {
         BValue[] vals = { new BJSON("\"hello\"") };
         BRunUtil.invoke(result, "testCountOnNullJSON", vals);
     }
+
+    @Test
+    public void testFunctionInvocOnNullabeType() {
+        BValue[] returns = BRunUtil.invoke(result, "testFunctionInvocOnNullabeType");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 61);
+    }
 }

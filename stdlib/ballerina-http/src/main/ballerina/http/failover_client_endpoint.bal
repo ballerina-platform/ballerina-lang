@@ -58,7 +58,6 @@ documentation {
     F{{httpVersion}} The HTTP version supported by the endpoint
     F{{forwarded}} The choice of setting `forwarded`/`x-forwarded` header
     F{{keepAlive}} Specifies whether to reuse a connection for multiple requests
-    F{{transferEncoding}} The types of encoding applied to the request
     F{{chunking}} The chunking behaviour of the request
     F{{followRedirects}} Redirect related options
     F{{retryConfig}} Retry related options
@@ -66,7 +65,7 @@ documentation {
     F{{connectionThrottling}} The configurations for controlling the number of connections allowed concurrently
     F{{targets}} The upstream HTTP endpoints among which the incoming HTTP traffic load should be sent on failover
     F{{cache}} The configurations for controlling the caching behaviour
-    F{{acceptEncoding}} Specifies how the `accept-encoding` header should be handled
+    F{{compression}} Specifies the way of handling compression (`accept-encoding`) header
     F{{auth}} HTTP authentication releated configurations
     F{{failoverCodes}} Array of HTTP response status codes for which the failover behaviour should be triggered
     F{{intervalMillis}} Failover delay interval in milliseconds
@@ -77,7 +76,6 @@ public type FailoverClientEndpointConfiguration {
     string httpVersion = "1.1",
     string forwarded = "disable",
     KeepAlive keepAlive = KEEPALIVE_AUTO,
-    TransferEncoding transferEncoding = "CHUNKING",
     Chunking chunking = "AUTO",
     FollowRedirects? followRedirects,
     RetryConfig? retryConfig,
@@ -85,7 +83,7 @@ public type FailoverClientEndpointConfiguration {
     ConnectionThrottling? connectionThrottling,
     TargetService[] targets,
     CacheConfig cache = {},
-    AcceptEncoding acceptEncoding = ACCEPT_ENCODING_AUTO,
+    Compression compression = COMPRESSION_AUTO,
     AuthConfig? auth,
     int[] failoverCodes = [501, 502, 503, 504],
     int intervalMillis,
@@ -98,7 +96,6 @@ public function FailoverClient::init(FailoverClientEndpointConfiguration failove
     self.httpEP.config.httpVersion = failoverClientConfig.httpVersion;
     self.httpEP.config.forwarded = failoverClientConfig.forwarded;
     self.httpEP.config.keepAlive = failoverClientConfig.keepAlive;
-    self.httpEP.config.transferEncoding = failoverClientConfig.transferEncoding;
     self.httpEP.config.chunking = failoverClientConfig.chunking;
     self.httpEP.config.followRedirects = failoverClientConfig.followRedirects;
     self.httpEP.config.retryConfig = failoverClientConfig.retryConfig;
@@ -113,7 +110,6 @@ function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfigur
         circuitBreaker:foConfig.circuitBreaker,
         timeoutMillis:foConfig.timeoutMillis,
         keepAlive:foConfig.keepAlive,
-        transferEncoding:foConfig.transferEncoding,
         chunking:foConfig.chunking,
         httpVersion:foConfig.httpVersion,
         forwarded:foConfig.forwarded,
@@ -123,7 +119,7 @@ function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfigur
         connectionThrottling:foConfig.connectionThrottling,
         secureSocket:target.secureSocket,
         cache:foConfig.cache,
-        acceptEncoding:foConfig.acceptEncoding,
+        compression:foConfig.compression,
         auth:foConfig.auth
     };
     return clientEPConfig;

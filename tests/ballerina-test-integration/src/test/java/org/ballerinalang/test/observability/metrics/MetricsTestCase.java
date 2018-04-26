@@ -22,7 +22,7 @@ import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.SQLDBUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.BufferedReader;
@@ -44,19 +44,20 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 public class MetricsTestCase {
 
     private ServerInstance serverInstance;
+    private SQLDBUtils.SqlServer sqlServer;
     private static final String RESOURCE_LOCATION = "src" + File.separator + "test" + File.separator +
             "resources" + File.separator + "observability" + File.separator + "metrics" + File.separator;
     private static final String DB_NAME = "TEST_DB";
     private Map<String, Pattern> expectedMetrics = new HashMap<>();
 
-    @BeforeTest
+    @BeforeClass
     private void setup() throws Exception {
         serverInstance = ServerInstance.initBallerinaServer();
         Files.copy(new File(System.getProperty("hsqldb.jar")).toPath(), new File(serverInstance.getServerHome() +
-                File.separator + "bre" + File.separator + "lib" + File.separator + "hsqldb.jar").toPath(),
+                        File.separator + "bre" + File.separator + "lib" + File.separator + "hsqldb.jar").toPath(),
                 REPLACE_EXISTING);
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
-        SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "observability" +
+        sqlServer = SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "observability" +
                 File.separator + "metrics" + File.separator + "data.sql");
         String balFile = new File(RESOURCE_LOCATION + "metrics-test.bal").getAbsolutePath();
         serverInstance.setArguments(new String[]{balFile, "--observe"});
@@ -88,8 +89,11 @@ public class MetricsTestCase {
             int index = line.lastIndexOf(" ");
             String key = line.substring(0, index);
             String value = line.substring(index + 1);
-            Assert.assertTrue(expectedMetrics.get(key).matcher(value).find(),
-                    "metric " + key + " value is not as expected.");
+            Pattern pattern = expectedMetrics.get(key);
+            Assert.assertNotNull(pattern, "Unexpected metric for key " + key + ". Complete line: " + line);
+            Assert.assertTrue(pattern.matcher(value).find(),
+                    "Unexpected value found for metric " + key + ". Value: " + value + ", Pattern: "
+                            + pattern.pattern() + " Complete line: " + line);
         });
 
         reader.close();
@@ -98,84 +102,90 @@ public class MetricsTestCase {
     @AfterClass
     private void cleanup() throws Exception {
         serverInstance.stopServer();
+        sqlServer.stop();
     }
 
     private void addMetrics() {
-        final Pattern regex1 = Pattern.compile("^\\d+\\.\\d+$");
-        final Pattern regex2 = Pattern.compile("6.0");
-        expectedMetrics.put("http_inprogress_requests{resource=\"getProduct\",service=\"metricsTest\",}", regex1);
+        final Pattern regexNumber = Pattern.compile("[-+]?\\d*\\.?\\d+([eE][-+]?\\d+)?");
+        final Pattern regexValue = Pattern.compile("6.0");
+        // Startup Time
+        expectedMetrics.put("startup_time_milliseconds", regexNumber);
+        // HTTP Server connector metrics
+        expectedMetrics.put("http_requests_total{http_method=\"GET\",http_url=\"/test\",protocol=\"http\"," +
+                "resource=\"getProduct\",service=\"metricsTest\",}", regexValue);
+        expectedMetrics.put("http_inprogress_requests{resource=\"getProduct\",service=\"metricsTest\",}", regexNumber);
+        expectedMetrics.put("http_response_time_seconds{http_method=\"GET\",http_url=\"/test\",protocol=\"http\"," +
+                "resource=\"getProduct\",service=\"metricsTest\",quantile=\"0.5\",}", regexNumber);
+        expectedMetrics.put("http_response_time_seconds{http_method=\"GET\",http_url=\"/test\",protocol=\"http\"," +
+                "resource=\"getProduct\",service=\"metricsTest\",quantile=\"0.75\",}", regexNumber);
+        expectedMetrics.put("http_response_time_seconds{http_method=\"GET\",http_url=\"/test\",protocol=\"http\"," +
+                "resource=\"getProduct\",service=\"metricsTest\",quantile=\"0.98\",}", regexNumber);
+        expectedMetrics.put("http_response_time_seconds{http_method=\"GET\",http_url=\"/test\",protocol=\"http\"," +
+                "resource=\"getProduct\",service=\"metricsTest\",quantile=\"0.99\",}", regexNumber);
+        expectedMetrics.put("http_response_time_seconds{http_method=\"GET\",http_url=\"/test\",protocol=\"http\"," +
+                "resource=\"getProduct\",service=\"metricsTest\",quantile=\"0.999\",}", regexNumber);
+        expectedMetrics.put("http_response_time_seconds_count{http_method=\"GET\",http_url=\"/test\"," +
+                "protocol=\"http\",resource=\"getProduct\",service=\"metricsTest\",}", regexValue);
+        expectedMetrics.put("http_response_time_seconds_sum{http_method=\"GET\",http_url=\"/test\"," +
+                "protocol=\"http\",resource=\"getProduct\",service=\"metricsTest\",}", regexNumber);
+        expectedMetrics.put("http_response_time_seconds_max{http_method=\"GET\",http_url=\"/test\"," +
+                "protocol=\"http\",resource=\"getProduct\",service=\"metricsTest\",}", regexNumber);
+        // HTTP connection metrics
+        expectedMetrics.put("ballerina_http:Connection_requests_total{action=\"respond\",http_status_code=\"200\",}",
+                regexValue);
+        expectedMetrics.put("ballerina_http:Connection_2XX_requests_total{action=\"respond\",}", regexValue);
+        expectedMetrics.put("ballerina_http:Connection_inprogress_requests{action=\"respond\",}", regexNumber);
         expectedMetrics.put("ballerina_http:Connection_response_time_seconds{action=\"respond\"," +
-                "http_status_code=\"200\",quantile=\"0.5\",}", regex1);
+                "http_status_code=\"200\",quantile=\"0.5\",}", regexNumber);
         expectedMetrics.put("ballerina_http:Connection_response_time_seconds{action=\"respond\"," +
-                "http_status_code=\"200\",quantile=\"0.75\",}", regex1);
+                "http_status_code=\"200\",quantile=\"0.75\",}", regexNumber);
         expectedMetrics.put("ballerina_http:Connection_response_time_seconds{action=\"respond\"," +
-                "http_status_code=\"200\",quantile=\"0.98\",}", regex1);
+                "http_status_code=\"200\",quantile=\"0.98\",}", regexNumber);
         expectedMetrics.put("ballerina_http:Connection_response_time_seconds{action=\"respond\"," +
-                "http_status_code=\"200\",quantile=\"0.99\",}", regex1);
+                "http_status_code=\"200\",quantile=\"0.99\",}", regexNumber);
         expectedMetrics.put("ballerina_http:Connection_response_time_seconds{action=\"respond\"," +
-                "http_status_code=\"200\",quantile=\"0.999\",}", regex1);
+                "http_status_code=\"200\",quantile=\"0.999\",}", regexNumber);
         expectedMetrics.put("ballerina_http:Connection_response_time_seconds_count{action=\"respond\"," +
-                "http_status_code=\"200\",}", regex2);
+                "http_status_code=\"200\",}", regexValue);
         expectedMetrics.put("ballerina_http:Connection_response_time_seconds_sum{action=\"respond\"," +
-                "http_status_code=\"200\",}", regex1);
+                "http_status_code=\"200\",}", regexNumber);
         expectedMetrics.put("ballerina_http:Connection_response_time_seconds_max{action=\"respond\"," +
-                "http_status_code=\"200\",}", regex1);
-        expectedMetrics.put("ballerina_scheduler_paused_worker_count", regex1);
-        expectedMetrics.put("ballerina_sql:CallerActions_inprogress_requests{action=\"select\",}", regex1);
-        expectedMetrics.put("ballerina_scheduler_excepted_worker_count", regex1);
-        expectedMetrics.put("startup_time_milliseconds", regex1);
+                "http_status_code=\"200\",}", regexNumber);
+        // SQL connector metrics
+        expectedMetrics.put("ballerina_sql:CallerActions_inprogress_requests{action=\"select\",}", regexNumber);
         expectedMetrics.put("ballerina_sql:CallerActions_requests_total{action=\"select\",db_instance=\"\"," +
                 "db_statement=\"SELECT * FROM Products\",db_type=\"sql\"," +
-                "peer_address=\"jdbc:hsqldb:hsql://localhost:9001/TEST_DB\",}", regex2);
-        expectedMetrics.put("ballerina_sql:CallerActions_response_time_seconds_max{action=\"select\"," +
-                "db_instance=\"\",db_statement=\"SELECT * FROM Products\",db_type=\"sql\"," +
-                "peer_address=\"jdbc:hsqldb:hsql://localhost:9001/TEST_DB\",}", regex1);
+                "peer_address=\"jdbc:hsqldb:hsql://localhost:9001/TEST_DB\",}", regexValue);
         expectedMetrics.put("ballerina_sql:CallerActions_response_time_seconds{action=\"select\"," +
                 "db_instance=\"\",db_statement=\"SELECT * FROM Products\",db_type=\"sql\"," +
-                "peer_address=\"jdbc:hsqldb:hsql://localhost:9001/TEST_DB\",quantile=\"0.5\",}", regex1);
+                "peer_address=\"jdbc:hsqldb:hsql://localhost:9001/TEST_DB\",quantile=\"0.5\",}", regexNumber);
         expectedMetrics.put("ballerina_sql:CallerActions_response_time_seconds{action=\"select\"," +
                 "db_instance=\"\",db_statement=\"SELECT * FROM Products\",db_type=\"sql\"," +
-                "peer_address=\"jdbc:hsqldb:hsql://localhost:9001/TEST_DB\",quantile=\"0.75\",}", regex1);
+                "peer_address=\"jdbc:hsqldb:hsql://localhost:9001/TEST_DB\",quantile=\"0.75\",}", regexNumber);
         expectedMetrics.put("ballerina_sql:CallerActions_response_time_seconds{action=\"select\"," +
                 "db_instance=\"\",db_statement=\"SELECT * FROM Products\",db_type=\"sql\"," +
-                "peer_address=\"jdbc:hsqldb:hsql://localhost:9001/TEST_DB\",quantile=\"0.98\",}", regex1);
+                "peer_address=\"jdbc:hsqldb:hsql://localhost:9001/TEST_DB\",quantile=\"0.98\",}", regexNumber);
         expectedMetrics.put("ballerina_sql:CallerActions_response_time_seconds{action=\"select\"," +
                 "db_instance=\"\",db_statement=\"SELECT * FROM Products\",db_type=\"sql\"," +
-                "peer_address=\"jdbc:hsqldb:hsql://localhost:9001/TEST_DB\",quantile=\"0.99\",}", regex1);
+                "peer_address=\"jdbc:hsqldb:hsql://localhost:9001/TEST_DB\",quantile=\"0.99\",}", regexNumber);
         expectedMetrics.put("ballerina_sql:CallerActions_response_time_seconds{action=\"select\"," +
                 "db_instance=\"\",db_statement=\"SELECT * FROM Products\",db_type=\"sql\"," +
-                "peer_address=\"jdbc:hsqldb:hsql://localhost:9001/TEST_DB\",quantile=\"0.999\",}", regex1);
+                "peer_address=\"jdbc:hsqldb:hsql://localhost:9001/TEST_DB\",quantile=\"0.999\",}", regexNumber);
         expectedMetrics.put("ballerina_sql:CallerActions_response_time_seconds_count{action=\"select\"," +
                 "db_instance=\"\",db_statement=\"SELECT * FROM Products\",db_type=\"sql\"," +
-                "peer_address=\"jdbc:hsqldb:hsql://localhost:9001/TEST_DB\",}", regex2);
+                "peer_address=\"jdbc:hsqldb:hsql://localhost:9001/TEST_DB\",}", regexValue);
         expectedMetrics.put("ballerina_sql:CallerActions_response_time_seconds_sum{action=\"select\"," +
                 "db_instance=\"\",db_statement=\"SELECT * FROM Products\",db_type=\"sql\"," +
-                "peer_address=\"jdbc:hsqldb:hsql://localhost:9001/TEST_DB\",}", regex1);
-        expectedMetrics.put("http_response_time_seconds_max{http_method=\"GET\",http_url=\"/test\"," +
-                "protocol=\"http\",resource=\"getProduct\",service=\"metricsTest\",}", regex1);
-        expectedMetrics.put("http_response_time_seconds{http_method=\"GET\",http_url=\"/test\",protocol=\"http\"," +
-                "resource=\"getProduct\",service=\"metricsTest\",quantile=\"0.5\",}", regex1);
-        expectedMetrics.put("http_response_time_seconds{http_method=\"GET\",http_url=\"/test\",protocol=\"http\"," +
-                "resource=\"getProduct\",service=\"metricsTest\",quantile=\"0.75\",}", regex1);
-        expectedMetrics.put("http_response_time_seconds{http_method=\"GET\",http_url=\"/test\",protocol=\"http\"," +
-                "resource=\"getProduct\",service=\"metricsTest\",quantile=\"0.98\",}", regex1);
-        expectedMetrics.put("http_response_time_seconds{http_method=\"GET\",http_url=\"/test\",protocol=\"http\"," +
-                "resource=\"getProduct\",service=\"metricsTest\",quantile=\"0.99\",}", regex1);
-        expectedMetrics.put("http_response_time_seconds{http_method=\"GET\",http_url=\"/test\",protocol=\"http\"," +
-                "resource=\"getProduct\",service=\"metricsTest\",quantile=\"0.999\",}", regex1);
-        expectedMetrics.put("http_response_time_seconds_count{http_method=\"GET\",http_url=\"/test\"," +
-                "protocol=\"http\",resource=\"getProduct\",service=\"metricsTest\",}", regex2);
-        expectedMetrics.put("http_response_time_seconds_sum{http_method=\"GET\",http_url=\"/test\"," +
-                "protocol=\"http\",resource=\"getProduct\",service=\"metricsTest\",}", regex1);
-        expectedMetrics.put("http_requests_total{http_method=\"GET\",http_url=\"/test\",protocol=\"http\"," +
-                "resource=\"getProduct\",service=\"metricsTest\",}", regex2);
-        expectedMetrics.put("ballerina_http:Connection_inprogress_requests{action=\"respond\",}", regex1);
-        expectedMetrics.put("ballerina_scheduler_waiting_for_response_worker_count", regex1);
-        expectedMetrics.put("ballerina_scheduler_running_worker_count", regex1);
-        expectedMetrics.put("ballerina_scheduler_waiting_for_lock_worker_count", regex1);
-        expectedMetrics.put("ballerina_http:Connection_2XX_requests_total{action=\"respond\",}", regex2);
-        expectedMetrics.put("ballerina_scheduler_ready_worker_count", regex1);
-        expectedMetrics.put("ballerina_http:Connection_requests_total{action=\"respond\",http_status_code=\"200\",}",
-                regex2);
+                "peer_address=\"jdbc:hsqldb:hsql://localhost:9001/TEST_DB\",}", regexNumber);
+        expectedMetrics.put("ballerina_sql:CallerActions_response_time_seconds_max{action=\"select\"," +
+                "db_instance=\"\",db_statement=\"SELECT * FROM Products\",db_type=\"sql\"," +
+                "peer_address=\"jdbc:hsqldb:hsql://localhost:9001/TEST_DB\",}", regexNumber);
+        // Scheduler metrics
+        expectedMetrics.put("ballerina_scheduler_paused_worker_count", regexNumber);
+        expectedMetrics.put("ballerina_scheduler_waiting_for_response_worker_count", regexNumber);
+        expectedMetrics.put("ballerina_scheduler_running_worker_count", regexNumber);
+        expectedMetrics.put("ballerina_scheduler_waiting_for_lock_worker_count", regexNumber);
+        expectedMetrics.put("ballerina_scheduler_ready_worker_count", regexNumber);
+        expectedMetrics.put("ballerina_scheduler_excepted_worker_count", regexNumber);
     }
 }

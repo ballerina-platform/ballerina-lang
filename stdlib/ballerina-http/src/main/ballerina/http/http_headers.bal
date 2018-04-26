@@ -82,5 +82,10 @@ documentation {
 }
 @final public string PRAGMA = "pragma";
 
+documentation {
+    HTTP header key `server`. Specifies the details of the origin server.
+}
+@final public string SERVER = "server";
+
 documentation { HTTP header key `warning`. Specifies warnings generated when serving stale responses from HTTP caches. }
 @final public string WARNING = "warning";

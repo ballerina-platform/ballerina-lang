@@ -15,10 +15,8 @@
 // under the License.
 
 documentation {
-    `HttpFuture` represents a 'future' that returns as a result of an asynchronous HTTP invocation.
-     Mainly the `submit()` function gives out an `HttpFuture` as the result.
-	 This is used to do further interactions such as `getResponse()`, `getNextPromise()`, `getPromisedResponse()`
-	 with the endpoint.
+     Represents a 'future' that returns as a result of an asynchronous HTTP request submission.
+     This can be used as a reference to fetch the results of the submission.
 }
 public type HttpFuture object {
     private {

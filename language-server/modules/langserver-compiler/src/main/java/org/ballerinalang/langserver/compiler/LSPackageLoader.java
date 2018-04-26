@@ -39,9 +39,13 @@ public class LSPackageLoader {
     private static final String SOURCE_DIR = "src";
     private static final String BALLERINA_ORG = "ballerina";
     private static final String DOT = ".";
+    private static final String BALLERINA_HOME = "ballerina.home";
+    @Deprecated
     private static final String[] STATIC_PKG_NAMES = {"http", "swagger", "mime", "auth", "cache", "config", "sql",
             "file", "internal", "io", "log", "math", "system", "reflect", "runtime", "crypto", "task",
             "time", "transactions", "builtin"};
+    private static List<BallerinaPackage> sdkPackages = getSDKPackagesFromSrcDir();
+    private static List<BallerinaPackage> homeRepoPackages = getPackagesFromHomeRepo();
 
     /**
      * Get the Builtin Package.
@@ -87,6 +91,7 @@ public class LSPackageLoader {
      *
      * @return static packages list
      */
+    @Deprecated
     public static String[] getStaticPkgNames() {
         return STATIC_PKG_NAMES.clone();
     }
@@ -94,18 +99,20 @@ public class LSPackageLoader {
     /**
      * Get packages from the source directory.
      *
-     * @param ballerinaSDKHome ballerina sdk home
      * @return {@link List} array of package names available in SDK source directory
      */
-    public static List<BallerinaPackage> getSDKPackagesFromSrcDir(String ballerinaSDKHome) {
+    private static List<BallerinaPackage> getSDKPackagesFromSrcDir() {
         List<BallerinaPackage> ballerinaPackages = new ArrayList<>();
-        String ballerinaSDKSrcDir = Paths.get(ballerinaSDKHome, SOURCE_DIR).toString();
-        File projectDir = new File(ballerinaSDKSrcDir);
-        String[] packageNames = projectDir.list(((dir, name) -> !name.startsWith(DOT)));
-        if (packageNames != null) {
-            for (String name : packageNames) {
-                BallerinaPackage ballerinaPackage = new BallerinaPackage(BALLERINA_ORG, name, null);
-                ballerinaPackages.add(ballerinaPackage);
+        String ballerinaSDKHome = System.getProperty(BALLERINA_HOME);
+        if (ballerinaSDKHome != null) {
+            String ballerinaSDKSrcDir = Paths.get(ballerinaSDKHome, SOURCE_DIR).toString();
+            File projectDir = new File(ballerinaSDKSrcDir);
+            String[] packageNames = projectDir.list(((dir, name) -> !name.startsWith(DOT)));
+            if (packageNames != null) {
+                for (String name : packageNames) {
+                    BallerinaPackage ballerinaPackage = new BallerinaPackage(BALLERINA_ORG, name, null);
+                    ballerinaPackages.add(ballerinaPackage);
+                }
             }
         }
         return ballerinaPackages;
@@ -116,7 +123,7 @@ public class LSPackageLoader {
      *
      * @return {@link List} list of ballerina package details
      */
-    public static List<BallerinaPackage> getPackagesFromHomeRepo() {
+    private static List<BallerinaPackage> getPackagesFromHomeRepo() {
         List<BallerinaPackage> ballerinaPackages = new ArrayList<>();
         String homeRepoPath = Paths.get(RepoUtils.createAndGetHomeReposPath().toString(),
                 ProjectDirConstants.CACHES_DIR_NAME, ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME).toString();
@@ -149,5 +156,13 @@ public class LSPackageLoader {
             }
         }
         return ballerinaPackages;
+    }
+
+    public static List<BallerinaPackage> getSdkPackages() {
+        return sdkPackages;
+    }
+
+    public static List<BallerinaPackage> getHomeRepoPackages() {
+        return homeRepoPackages;
     }
 }
