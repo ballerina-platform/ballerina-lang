@@ -93,7 +93,7 @@ public class ListCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina list <balfile | packagename> \n");
+        out.append("  ballerina list <package-name> \n");
     }
 
     @Override
