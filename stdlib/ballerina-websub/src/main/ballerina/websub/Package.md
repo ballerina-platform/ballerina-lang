@@ -236,3 +236,16 @@ function main(string... args) {
 
 }
 ```
+
+## Configuration Parameters
+The Ballerina WebSub implementation allows specifying the following properties/parameters via the Ballerina Config API.
+
+
+| Configuration Key              | Default Value | Description                                                        |
+|--------------------------------| --------------|--------------------------------------------------------------------|
+| b7a.websub.hub.port            | 9292          | The port to start the WebSub Hub Service on                        | 
+| b7a.websub.hub.leasetime       | 86400         | The default lease period, if not specified in a request            |
+| b7a.websub.hub.signaturemethod | "SHA256"      | The signature method to use for authenticated content distribution |
+| b7a.websub.hub.remotepublish   | false         | Whether publishing updates against the topics in the hub could be done by remote publishers via HTTP requests with `hub.mode` set to `publish`  |
+| b7a.websub.hub.topicregistration | true      | Whether a topic needs to be registered at the hub for publishers to publish updates against the topic and for subscribers to send subscription requests for the topic |
+| b7a.websub.hub.enablessl | true      | Whether the Hub service should be exposed over HTTPS |
