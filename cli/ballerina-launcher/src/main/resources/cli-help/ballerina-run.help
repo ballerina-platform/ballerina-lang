@@ -29,7 +29,7 @@ OPTIONS
          Sets Ballerina environment parameters as key/value pairs.
          If multiple parameters need to be provided, each parameter
          has to be specified using its own -e flag. Details of the
-         environment parameters Ballerina standard library
+         environment parameters that the Ballerina standard library
          packages support can be found in the relevant API
          documentation.
 
@@ -57,10 +57,10 @@ OPTIONS
      --config <config-file>
          Provides the path to a Ballerina configuration file.
          The configuration file format is a subset of the TOML file
-         format. It supports key/value pairs, string, int, float
-         and boolean value types, tables and comments. If a config
+         format. It supports key/value pairs, tables, comments, and
+         string, int, float and boolean value types. If a config
          file is not specified using [-c|--config], Ballerina looks
-         for a default configuration file named ballerina.conf
+         for a default configuration file named `ballerina.conf`
          in the directory the source file(s) reside in.
 
      -B <key=value>
