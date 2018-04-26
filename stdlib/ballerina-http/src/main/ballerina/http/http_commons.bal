@@ -55,17 +55,6 @@ documentation {Never set accept-encoding header in outbound request/response.}
 @final public Compression COMPRESSION_NEVER = "NEVER";
 
 documentation {
-    Represent transfer encoding options.
-
-    `CHUNKING`: Payload is divided into chunks of data if payload is larger than 8KB
-}
-public type TransferEncoding "CHUNKING";
-
-
-documentation {Payload is divided into chunks of data if payload is larger than 8KB.}
-@final public TransferEncoding TRANSFERENCODE_CHUNKING = "CHUNKING";
-
-documentation {
     A record for providing trust store related configurations.
 
     F{{path}} Path to the trust store file
