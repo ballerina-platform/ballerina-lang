@@ -27,8 +27,11 @@ DESCRIPTION
 OPTIONS
      -e <key=value>
          Sets Ballerina environment parameters as key/value pairs.
-         If multiple parameters need to be provided, each of the
-         parameters has to be specified using the -e flag.
+         If multiple parameters need to be provided, each parameter
+         has to be specified using its own -e flag. Details of the
+         environment parameters the Ballerina standard library
+         packages support can be found in the relevant API
+         documentation.
 
      --offline
          In a package build, the dependencies are always checked from 
@@ -64,8 +67,8 @@ OPTIONS
          Provides Ballerina VM options to be used by the runtime
          when executing a Ballerina program or package. VM options
          are key/value pairs. If multiple VM options need to be
-         provided, each of the parameters has to be specified
-         using the -B flag.
+         provided, each option has to be specified using its
+         own -B flag.
 
      args... 
          The list of command line arguments for the Ballerina program 

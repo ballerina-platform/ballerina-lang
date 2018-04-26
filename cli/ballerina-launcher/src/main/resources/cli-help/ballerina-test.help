@@ -57,10 +57,13 @@ OPTIONS
          executions will be relative to the path provided for 
          sourceroot. 
 
-     -e                    
+     -e <key=value>
          Sets Ballerina environment parameters as key/value pairs.
-         If multiple parameters need to be provided, each of the
-         parameters has to be specified using the -e flag.
+         If multiple parameters need to be provided, each parameter
+         has to be specified using its own -e flag. Details of the
+         environment parameters the Ballerina standard library
+         packages support can be found in the relevant API
+         documentation.
 
      --debug <port>               
          Remote debug Ballerina tests over the port given.   
@@ -72,12 +75,12 @@ OPTIONS
          format. It supports key/value pairs, string, int, float
          and boolean value types, tables and comments.
 
-     -B 
+     -B <key=value>
          Provides Ballerina VM options to be used by the runtime
          when executing a Ballerina program or package. VM options
          are key/value pairs. If multiple VM options need to be
-         provided, each of the parameters has to be specified
-         using the -B flag.
+         provided, each option has to be specified using its
+         own -B flag.
 
 EXAMPLES
      Run all tests in the current project
