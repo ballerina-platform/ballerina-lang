@@ -70,19 +70,21 @@ public abstract class AbstractItemResolver {
         symbolInfoList.forEach(symbolInfo -> {
             CompletionItem completionItem = null;
             BSymbol bSymbol = symbolInfo.getScopeEntry() != null ? symbolInfo.getScopeEntry().symbol : null;
-            if ((bSymbol instanceof BInvokableSymbol
-                    && ((BInvokableSymbol) bSymbol).kind != null
-                    && !((BInvokableSymbol) bSymbol).kind.equals(SymbolKind.WORKER))
-                    || symbolInfo.isIterableOperation())  {
-                completionItem = this.populateBallerinaFunctionCompletionItem(symbolInfo);
-            } else if (!(bSymbol instanceof BInvokableSymbol)
-                    && bSymbol instanceof BVarSymbol && !"_".equals(bSymbol.name.getValue())) {
-                completionItem = this.populateVariableDefCompletionItem(symbolInfo);
-            } else if (bSymbol instanceof BTypeSymbol
-                    && !bSymbol.getName().getValue().equals(UtilSymbolKeys.NOT_FOUND_TYPE)
-                    && !(bSymbol instanceof BAnnotationSymbol)
-                    && !(bSymbol.getName().getValue().equals("runtime"))) {
-                completionItem = this.populateBTypeCompletionItem(symbolInfo);
+            if (!(bSymbol != null && bSymbol.getName().getValue().startsWith("$"))) {
+                if ((bSymbol instanceof BInvokableSymbol
+                        && ((BInvokableSymbol) bSymbol).kind != null
+                        && !((BInvokableSymbol) bSymbol).kind.equals(SymbolKind.WORKER))
+                        || symbolInfo.isIterableOperation()) {
+                    completionItem = this.populateBallerinaFunctionCompletionItem(symbolInfo);
+                } else if (!(bSymbol instanceof BInvokableSymbol)
+                        && bSymbol instanceof BVarSymbol && !"_".equals(bSymbol.name.getValue())) {
+                    completionItem = this.populateVariableDefCompletionItem(symbolInfo);
+                } else if (bSymbol instanceof BTypeSymbol
+                        && !bSymbol.getName().getValue().equals(UtilSymbolKeys.NOT_FOUND_TYPE)
+                        && !(bSymbol instanceof BAnnotationSymbol)
+                        && !(bSymbol.getName().getValue().equals("runtime"))) {
+                    completionItem = this.populateBTypeCompletionItem(symbolInfo);
+                }
             }
 
             if (completionItem != null) {
@@ -393,6 +395,8 @@ public abstract class AbstractItemResolver {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
             if (bSymbol instanceof BTypeSymbol
                     && !bSymbol.getName().getValue().equals(UtilSymbolKeys.NOT_FOUND_TYPE)
+                    && !bSymbol.getName().getValue().startsWith(UtilSymbolKeys.ANON_STRUCT_CHECKER)
+                    && !((bSymbol instanceof BPackageSymbol) && bSymbol.pkgID.getName().getValue().equals("runtime"))
                     && !(bSymbol instanceof BAnnotationSymbol)) {
                 completionItems.add(this.populateBTypeCompletionItem(symbolInfo));
             }
