@@ -42,7 +42,7 @@ public class UnarySecuredBlockingBasicTestCase extends IntegrationTestCase {
     
     private ServerInstance ballerinaServer;
     
-    @BeforeClass
+    @BeforeClass(enabled = false)
     private void setup() throws Exception {
         ballerinaServer = ServerInstance.initBallerinaServer(8085);
         System.setProperty("ballerina.home", ballerinaServer.getServerHome());
@@ -50,7 +50,7 @@ public class UnarySecuredBlockingBasicTestCase extends IntegrationTestCase {
         ballerinaServer.startBallerinaServer(serviceBalPath.toAbsolutePath().toString());
     }
     
-    @Test
+    @Test(enabled = false)
     public void testUnarySecuredBlocking() {
         
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpc_secured_unary_client.bal");
@@ -64,7 +64,7 @@ public class UnarySecuredBlockingBasicTestCase extends IntegrationTestCase {
         Assert.assertEquals(responseValues.stringValue(), serverMsg);
     }
     
-    @AfterClass
+    @AfterClass(enabled = false)
     private void cleanup() throws BallerinaTestException {
         ballerinaServer.stopServer();
     }
