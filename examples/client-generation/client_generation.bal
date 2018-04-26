@@ -25,6 +25,8 @@ service Hello bind helloEp {
     hello(endpoint caller, http:Request req) {
         http:Response res = new;
         res.setPayload("Hello");
-        caller->respond(res) but { error e => log:printError("Error when responding", err = e) };
+        caller->respond(res) but {
+            error e => log:printError("Error when responding", err = e)
+        };
     }
 }

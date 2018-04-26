@@ -26,6 +26,8 @@ service<http:Service> echo bind { port: 9090 } {
             }
         }
         // Reply to the client with the response.
-        caller->respond(res) but { error e => log:printError("Error in responding", err = e) };
+        caller->respond(res) but {
+            error e => log:printError("Error in responding", err = e)
+        };
     }
 }
