@@ -77,6 +77,7 @@ class Diagram extends React.Component {
             mode: this.props.mode,
             designer: getSizingUtil(this.props.mode),
             config: getConfig(this.props.mode),
+            fitToWidth: this.props.fitToWidth,
         };
     }
 
@@ -91,7 +92,7 @@ class Diagram extends React.Component {
 
         this.endpointAggregator.setAggregatorUtil(getEndpointAggregatorUtil(this.props.mode));
         this.props.model.accept(this.endpointAggregator);
-        
+
         // 2. We will visit the model tree and calculate width and height of all
         //    the elements. We will run the DimensionVisitor.
         this.dimentionVisitor.setSizingUtil(getSizingUtil(this.props.mode));
@@ -110,7 +111,7 @@ class Diagram extends React.Component {
             width: this.props.width - padding,
             height: this.props.height - padding,
         };
-        
+
         // 5. Now we will visit the model again and calculate position of each node
         //    in the tree. We will use PositionCalcVisitor for this.
         this.positionCalc.setPositioningUtil(getPositioningUtil(this.props.mode));
@@ -160,6 +161,7 @@ Diagram.propTypes = {
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
     disabled: PropTypes.bool.isRequired,
+    fitToWidth: PropTypes.bool,
 };
 
 Diagram.contextTypes = {
@@ -177,11 +179,13 @@ Diagram.childContextTypes = {
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
     designer: PropTypes.instanceOf(Object).isRequired,
     config: PropTypes.instanceOf(Object).isRequired,
+    fitToWidth: PropTypes.bool,
 };
 
 Diagram.defaultProps = {
     mode: 'default',
     disabled: false,
+    fitToWidth: true,
 };
 
 export default Diagram;
