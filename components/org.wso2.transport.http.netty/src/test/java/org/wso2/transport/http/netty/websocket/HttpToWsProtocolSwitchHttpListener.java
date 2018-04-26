@@ -44,7 +44,7 @@ public class HttpToWsProtocolSwitchHttpListener implements HttpConnectorListener
     public void onMessage(HTTPCarbonMessage httpRequest) {
         executor.execute(() -> {
             try {
-                int length = httpRequest.getFullMessageLength();
+                long length = httpRequest.getFullMessageLength();
                 HTTPCarbonMessage cMsg = httpRequest;
                 cMsg.setHeader(HttpHeaderNames.CONNECTION.toString(), HttpHeaderValues.KEEP_ALIVE.toString());
                 cMsg.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(length));

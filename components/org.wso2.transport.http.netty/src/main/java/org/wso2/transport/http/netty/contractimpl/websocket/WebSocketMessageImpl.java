@@ -19,11 +19,11 @@
 
 package org.wso2.transport.http.netty.contractimpl.websocket;
 
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 
 import java.util.HashMap;
 import java.util.Map;
-import javax.websocket.Session;
 
 /**
  * Implementation of {@link WebSocketMessage}.
@@ -36,7 +36,7 @@ public class WebSocketMessageImpl implements WebSocketMessage {
     protected String listenerInterface;
     protected boolean isConnectionSecured;
     protected boolean isServerMessage;
-    protected Session channelSession;
+    protected WebSocketConnection webSocketConnection;
     protected String sessionlID;
     protected Map<String, String> headers = new HashMap<>();
 
@@ -109,13 +109,13 @@ public class WebSocketMessageImpl implements WebSocketMessage {
         return isServerMessage;
     }
 
-    public void setChannelSession(Session channelSession) {
-        this.channelSession = channelSession;
+    public void setWebSocketConnection(WebSocketConnection webSocketConnection) {
+        this.webSocketConnection = webSocketConnection;
     }
 
     @Override
-    public Session getChannelSession() {
-        return channelSession;
+    public WebSocketConnection getWebSocketConnection() {
+        return webSocketConnection;
     }
 
     @Override

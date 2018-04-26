@@ -23,6 +23,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.EventLoop;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.DecoderResult;
@@ -33,6 +34,7 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpServerUpgradeHandler;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.ssl.SslCloseCompletionEvent;
 import io.netty.handler.timeout.IdleStateEvent;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
@@ -268,6 +270,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             log.warn("Idle timeout has reached hence closing the connection {}", ctx.channel().id().asShortText());
         } else if (evt instanceof HttpServerUpgradeHandler.UpgradeEvent) {
             log.debug("Server upgrade event received");
+        } else if (evt instanceof SslCloseCompletionEvent) {
+            log.debug("SSL close completion event received");
         } else {
             log.warn("Unexpected user event {} triggered", evt.toString());
         }
@@ -287,5 +291,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private boolean isDiffered(HTTPCarbonMessage sourceReqCmsg) {
         //Http resource stored in the HTTPCarbonMessage means execution waits till payload.
         return sourceReqCmsg.getProperty(Constants.HTTP_RESOURCE) != null;
+    }
+
+    public EventLoop getEventLoop() {
+        return this.ctx.channel().eventLoop();
     }
 }

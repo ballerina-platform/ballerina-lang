@@ -58,7 +58,7 @@ public class BadEchoServerInitializer extends HTTPServerInitializer {
         private HttpResponse httpResponse;
         private int responseStatusCode = 200;
         private boolean chunked = true;
-        private int contentLength = 0;
+        private long contentLength = 0;
         private boolean keepAlive = false;
         private BlockingQueue<HttpContent> content = new LinkedBlockingQueue<>();
 

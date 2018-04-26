@@ -38,11 +38,13 @@ public interface Observable {
 
     /**
      * Notify when content is added to message.
+     * @param content of the message
      */
     void notifyAddListener(HttpContent content);
 
     /**
      * Notify when content is removed from message.
+     * @param content of the message
      */
     void notifyGetListener(HttpContent content);
 }

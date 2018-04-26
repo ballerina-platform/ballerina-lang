@@ -50,8 +50,10 @@ import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.Map;
 
+import static io.netty.handler.codec.http2.Http2CodecUtil.getEmbeddedHttp2Exception;
 import static org.wso2.transport.http.netty.common.Util.safelyRemoveHandlers;
 
 /**
@@ -72,12 +74,16 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
     private ServerConnectorFuture serverConnectorFuture;
     private Http2Connection conn;
     private String serverName;
+    private HttpServerChannelInitializer serverChannelInitializer;
+    private String remoteAddress;
 
-    Http2SourceHandler(Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
+    Http2SourceHandler(HttpServerChannelInitializer serverChannelInitializer,
+                       Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
                        Http2Settings initialSettings,
                        String interfaceId, Http2Connection conn, ServerConnectorFuture serverConnectorFuture,
                        String serverName) {
         super(decoder, encoder, initialSettings);
+        this.serverChannelInitializer = serverChannelInitializer;
         http2FrameListener = new Http2FrameListener();
         this.interfaceId = interfaceId;
         this.serverConnectorFuture = serverConnectorFuture;
@@ -90,8 +96,16 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
         super.handlerAdded(ctx);
         // Remove unwanted handlers after upgrade
         safelyRemoveHandlers(ctx.pipeline(), Constants.HTTP2_TO_HTTP_FALLBACK_HANDLER, Constants.HTTP_COMPRESSOR,
-                                  Constants.HTTP_TRACE_LOG_HANDLER);
+                                  Constants.HTTP_TRACE_LOG_HANDLER, Constants.HTTP_ACCESS_LOG_HANDLER);
         this.ctx = ctx;
+        // Populate remote address
+        SocketAddress address = ctx.channel().remoteAddress();
+        if (address instanceof InetSocketAddress) {
+            remoteAddress = ((InetSocketAddress) address).getAddress().toString();
+            if (remoteAddress.startsWith("/")) {
+                remoteAddress = remoteAddress.substring(1);
+            }
+        }
     }
 
     @Override
@@ -133,6 +147,18 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
         }
     }
 
+    @Override
+    public void onError(ChannelHandlerContext ctx, Throwable cause) {
+        Http2Exception embedded = getEmbeddedHttp2Exception(cause);
+        if (embedded instanceof Http2Exception.ClosedStreamCreationException) {
+            // We will end up here if we try to write to a already rejected stream
+            log.warn("Stream creation failed, {}, {}",
+                     Constants.PROMISED_STREAM_REJECTED_ERROR, embedded.getMessage());
+        } else {
+            super.onError(ctx, cause);
+        }
+    }
+
     /**
      * Gets the listener which listen to the HTTP/2 frames.
      *
@@ -152,8 +178,9 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
         if (serverConnectorFuture != null) {
             try {
                 ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();
-                outboundRespFuture.setHttpConnectorListener(
-                        new Http2OutboundRespListener(httpRequestMsg, ctx, conn, encoder(), streamId, serverName));
+                outboundRespFuture.setHttpConnectorListener(new Http2OutboundRespListener(
+                        serverChannelInitializer, httpRequestMsg, ctx, conn, encoder(), streamId, serverName,
+                        remoteAddress));
                 serverConnectorFuture.notifyHttpListener(httpRequestMsg);
             } catch (Exception e) {
                 log.error("Error while notifying listeners", e);

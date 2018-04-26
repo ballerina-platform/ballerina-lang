@@ -22,6 +22,7 @@ package org.wso2.transport.http.netty.contractimpl.websocket.message;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
@@ -31,9 +32,9 @@ import io.netty.handler.timeout.IdleStateHandler;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
+import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnection;
 import org.wso2.transport.http.netty.contractimpl.websocket.HandshakeFutureImpl;
 import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
-import org.wso2.transport.http.netty.internal.websocket.WebSocketSessionImpl;
 import org.wso2.transport.http.netty.internal.websocket.WebSocketUtil;
 import org.wso2.transport.http.netty.listener.WebSocketSourceHandler;
 
@@ -46,13 +47,13 @@ import java.util.concurrent.TimeUnit;
 public class DefaultWebSocketInitMessage extends WebSocketMessageImpl implements WebSocketInitMessage {
 
     private final ChannelHandlerContext ctx;
-    private final HttpRequest httpRequest;
+    private final FullHttpRequest httpRequest;
     private final WebSocketSourceHandler webSocketSourceHandler;
     private boolean isCancelled = false;
     private boolean handshakeStarted = false;
     private HttpRequest request;
 
-    public DefaultWebSocketInitMessage(ChannelHandlerContext ctx, HttpRequest httpRequest,
+    public DefaultWebSocketInitMessage(ChannelHandlerContext ctx, FullHttpRequest httpRequest,
                                        WebSocketSourceHandler webSocketSourceHandler, Map<String, String> headers) {
         this.ctx = ctx;
         this.httpRequest = httpRequest;
@@ -98,6 +99,16 @@ public class DefaultWebSocketInitMessage extends WebSocketMessageImpl implements
     }
 
     @Override
+    public HandshakeFuture handshake(String[] subProtocols, boolean allowExtensions, int idleTimeout,
+                                     HttpHeaders responseHeaders, int maxFramePayloadLength) {
+        WebSocketServerHandshakerFactory wsFactory =
+                new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest), getSubProtocolsCSV(subProtocols),
+                                                     allowExtensions, maxFramePayloadLength);
+        WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(httpRequest);
+        return handleHandshake(handshaker, idleTimeout, responseHeaders);
+    }
+
+    @Override
     public void cancelHandShake(int closeCode, String closeReason) {
         try {
             WebSocketServerHandshakerFactory wsFactory =
@@ -132,16 +143,14 @@ public class DefaultWebSocketInitMessage extends WebSocketMessageImpl implements
         }
 
         try {
-            ChannelFuture future = handshaker.handshake(ctx.channel(), httpRequest, headers,
-                                                        ctx.channel().newPromise());
-            handshakeFuture.setChannelFuture(future);
-            future.addListener(future1 -> {
+            ChannelFuture channelFuture = handshaker.handshake(ctx.channel(), httpRequest, headers,
+                                                               ctx.channel().newPromise());
+            channelFuture.addListener(future -> {
                 String selectedSubProtocol = handshaker.selectedSubprotocol();
                 webSocketSourceHandler.setNegotiatedSubProtocol(selectedSubProtocol);
                 setSubProtocol(selectedSubProtocol);
-                WebSocketSessionImpl session = (WebSocketSessionImpl) getChannelSession();
-                session.setIsOpen(true);
-                session.setNegotiatedSubProtocol(selectedSubProtocol);
+                DefaultWebSocketConnection webSocketConnection = (DefaultWebSocketConnection) getWebSocketConnection();
+                webSocketConnection.getDefaultWebSocketSession().setNegotiatedSubProtocol(selectedSubProtocol);
 
                 //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline
                 ChannelPipeline pipeline = ctx.pipeline();
@@ -157,7 +166,7 @@ public class DefaultWebSocketInitMessage extends WebSocketMessageImpl implements
                 pipeline.remove(Constants.HTTP_SOURCE_HANDLER);
                 setProperty(Constants.SRC_HANDLER, webSocketSourceHandler);
                 pipeline.fireChannelActive();
-                handshakeFuture.notifySuccess(webSocketSourceHandler.getChannelSession());
+                handshakeFuture.notifySuccess(webSocketConnection);
             });
             handshakeStarted = true;
             return handshakeFuture;

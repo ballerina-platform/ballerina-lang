@@ -35,8 +35,10 @@ import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.websocket.WebSocketTestClient;
 import org.wso2.transport.http.netty.util.server.websocket.WebSocketRemoteServer;
 
+import java.io.IOException;
 import java.net.ProtocolException;
 import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLException;
@@ -77,6 +79,18 @@ public class WebSocketPassThroughTestCase {
         webSocketClient.sendText(text);
         latch.await(latchCountDownInSecs, TimeUnit.SECONDS);
         Assert.assertEquals(webSocketClient.getTextReceived(), text);
+    }
+
+    @Test
+    public void testBinaryPassThrough()
+            throws InterruptedException, IOException, URISyntaxException {
+        CountDownLatch latch = new CountDownLatch(1);
+        WebSocketTestClient webSocketClient = new WebSocketTestClient(latch);
+        webSocketClient.handhshake();
+        ByteBuffer sentBuffer = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
+        webSocketClient.sendBinary(sentBuffer);
+        latch.await(latchCountDownInSecs, TimeUnit.SECONDS);
+        Assert.assertEquals(webSocketClient.getBufferReceived(), sentBuffer);
     }
 
     @AfterClass

@@ -162,7 +162,7 @@ public class WebSocketServerTestCase {
         pongCheckClient.shutDown();
     }
 
-    @Test(enabled = false)
+    @Test(priority = 1)
     public void testIdleTimeout() throws InterruptedException, ProtocolException, SSLException, URISyntaxException {
         // TODO: Fix this. This fails intermittently. Issue #38
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();

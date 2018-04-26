@@ -130,7 +130,7 @@ public class Util {
         outboundNettyResponse.headers().add(outboundResponseMsg.getHeaders());
     }
 
-    private static HttpResponseStatus getHttpResponseStatus(HTTPCarbonMessage msg) {
+    public static HttpResponseStatus getHttpResponseStatus(HTTPCarbonMessage msg) {
         int statusCode = Util.getIntValue(msg, Constants.HTTP_STATUS_CODE, 200);
         String reasonPhrase = Util.getStringValue(msg, Constants.HTTP_REASON_PHRASE,
                 HttpResponseStatus.valueOf(statusCode).reasonPhrase());
@@ -216,7 +216,7 @@ public class Util {
         return httpRequest;
     }
 
-    public static void setupContentLengthRequest(HTTPCarbonMessage httpOutboundRequest, int contentLength) {
+    public static void setupContentLengthRequest(HTTPCarbonMessage httpOutboundRequest, long contentLength) {
         httpOutboundRequest.removeHeader(HttpHeaderNames.TRANSFER_ENCODING.toString());
         httpOutboundRequest.removeHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
         if (httpOutboundRequest.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString()) == null) {
@@ -232,7 +232,7 @@ public class Util {
 
     public static boolean isEntityBodyAllowed(String method) {
         return method.equals(Constants.HTTP_POST_METHOD) || method.equals(Constants.HTTP_PUT_METHOD)
-                || method.equals(Constants.HTTP_PATCH_METHOD);
+                || method.equals(Constants.HTTP_PATCH_METHOD) || method.equals(Constants.HTTP_DELETE_METHOD);
     }
 
     /**
@@ -629,8 +629,9 @@ public class Util {
     /**
      * Creates HTTP carbon message
      *
-     * @param httpMessage   HTTP message
-     * @param ctx           Channel handler context
+     * @param httpMessage HTTP message
+     * @param ctx Channel handler context
+     * @return HttpCarbonMessage
      */
     public static HTTPCarbonMessage createHTTPCarbonMessage(HttpMessage httpMessage, ChannelHandlerContext ctx) {
         Listener contentListener = new DefaultListener(ctx);

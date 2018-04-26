@@ -26,6 +26,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http2.Http2CodecUtil;
 import io.netty.handler.codec.http2.Http2ConnectionPrefaceAndSettingsFrameWrittenEvent;
+import io.netty.handler.ssl.SslCloseCompletionEvent;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
@@ -81,7 +82,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     @SuppressWarnings("unchecked")
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (targetChannel.isRequestWritten()) {
+        if (targetChannel.isRequestHeaderWritten()) {
             if (msg instanceof HttpResponse) {
                 HttpResponse httpInboundResponse = (HttpResponse) msg;
                 targetRespMsg = setUpCarbonMessage(ctx, msg);
@@ -171,7 +172,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     private void handleErrorCloseScenarios(String channelID) {
         if (!idleTimeoutTriggered) {
-            if (targetChannel.isRequestWritten()) {
+            if (targetChannel.isRequestHeaderWritten()) {
                 httpResponseFuture.notifyHttpListener(new ClientConnectorException(channelID,
                         Constants.REMOTE_SERVER_CLOSE_RESPONSE_CONNECTION_AFTER_REQUEST_READ));
             } else if (targetRespMsg != null) {
@@ -211,6 +212,8 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
             ctx.fireUserEventTriggered(evt);
         } else if (evt instanceof Http2ConnectionPrefaceAndSettingsFrameWrittenEvent) {
             log.debug("Connection Preface and Settings frame written");
+        } else if (evt instanceof SslCloseCompletionEvent) {
+            log.debug("SSL close completion event received");
         } else {
             log.warn("Unexpected user event {} triggered", evt.toString());
         }

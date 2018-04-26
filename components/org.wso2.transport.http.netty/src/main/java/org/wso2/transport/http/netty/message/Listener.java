@@ -27,11 +27,13 @@ public interface Listener {
 
     /**
      * Get notified when content are added to the message.
+     * @param httpContent of the message
      */
     void onAdd(HttpContent httpContent);
 
     /**
      * Get notified when content is removed from the the message.
+     * @param httpContent of the message
      */
     void onRemove(HttpContent httpContent);
 }

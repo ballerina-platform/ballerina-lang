@@ -33,8 +33,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnection;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketInitMessage;
-import org.wso2.transport.http.netty.internal.websocket.WebSocketSessionImpl;
 import org.wso2.transport.http.netty.internal.websocket.WebSocketUtil;
 
 import java.util.HashMap;
@@ -93,6 +93,7 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
                     }
                 });
                 decoderCtx.fireChannelRead(msg);
+                decoderCtx.channel().config().setAutoRead(false);
                 return;
             }
         }
@@ -123,36 +124,37 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
     /**
      * Handle the WebSocket handshake.
      *
-     * @param httpRequest {@link HttpRequest} of the request.
+     * @param fullHttpRequest {@link HttpRequest} of the request.
      */
-    private void handleWebSocketHandshake(HttpRequest httpRequest, ChannelHandlerContext ctx) throws Exception {
+    private void handleWebSocketHandshake(FullHttpRequest fullHttpRequest, ChannelHandlerContext ctx) throws Exception {
         boolean isSecured = false;
 
         if (ctx.channel().pipeline().get(Constants.SSL_HANDLER) != null) {
             isSecured = true;
         }
-        String uri = httpRequest.uri();
-        WebSocketSessionImpl channelSession = WebSocketUtil.getSession(ctx, isSecured, uri);
+        String uri = fullHttpRequest.uri();
+        DefaultWebSocketConnection webSocketConnection = WebSocketUtil.getWebSocketConnection(ctx, isSecured, uri);
 
         Map<String, String> headers = new HashMap<>();
-        httpRequest.headers().forEach(
+        fullHttpRequest.headers().forEach(
                 header -> headers.put(header.getKey(), header.getValue())
         );
         WebSocketSourceHandler webSocketSourceHandler =
-                new WebSocketSourceHandler(serverConnectorFuture, isSecured, channelSession, httpRequest,
+                new WebSocketSourceHandler(serverConnectorFuture, isSecured, webSocketConnection, fullHttpRequest,
                                            headers, ctx, interfaceId);
-        DefaultWebSocketInitMessage initMessage = new DefaultWebSocketInitMessage(ctx, httpRequest,
+        DefaultWebSocketInitMessage initMessage = new DefaultWebSocketInitMessage(ctx, fullHttpRequest,
                                                                                   webSocketSourceHandler, headers);
 
         // Setting common properties for init message
-        initMessage.setChannelSession(channelSession);
+        initMessage.setWebSocketConnection(webSocketConnection);
         initMessage.setIsServerMessage(true);
-        initMessage.setTarget(httpRequest.uri());
+        initMessage.setTarget(fullHttpRequest.uri());
         initMessage.setListenerInterface(interfaceId);
         initMessage.setProperty(Constants.SRC_HANDLER, webSocketSourceHandler);
         initMessage.setIsConnectionSecured(isSecured);
-        initMessage.setHttpRequest(httpRequest);
+        initMessage.setHttpRequest(fullHttpRequest);
 
+        ctx.channel().config().setAutoRead(false);
         serverConnectorFuture.notifyWSListener(initMessage);
     }
 }

@@ -125,6 +125,7 @@ public final class Constants {
     public static final String HTTP_HEAD_METHOD = "HEAD";
     public static final String HTTP_PUT_METHOD = "PUT";
     public static final String HTTP_PATCH_METHOD = "PATCH";
+    public static final String HTTP_DELETE_METHOD = "DELETE";
 
     //HTTP server connector creation parameters
     public static final String HTTP_HOST = "host";
@@ -186,6 +187,9 @@ public final class Constants {
     public static final String WEBSOCKET_TARGET = "WEBSOCKET_TARGET";
     public static final String WEBSOCKET_MESSAGE = "WEBSOCKET_MESSAGE";
     public static final String WEBSOCKET_HEADER_SUBPROTOCOL = "Sec-WebSocket-Protocol";
+
+    public static final int WEBSOCKET_STATUS_CODE_NORMAL_CLOSURE = 1000;
+    public static final int WEBSOCKET_STATUS_CODE_GOING_AWAY = 1001;
 
     // Callback related parameters
     public static final String HTTP_CONNECTION_CLOSE = "close";
@@ -263,6 +267,11 @@ public final class Constants {
     public static final String TRACE_LOG_UPSTREAM = "http.tracelog.upstream";
     public static final String TRACE_LOG_DOWNSTREAM = "http.tracelog.downstream";
 
+    // Access Logger related parameters
+    public static final String ACCESS_LOG = "http.accesslog";
+    public static final String ACCESS_LOG_FORMAT =
+            "%1$s - - [%2$td/%2$tb/%2$tY:%2$tT %2$tz] \"%3$s %4$s %5$s\" %6$d %7$d \"%8$s\" \"%9$s\"";
+
     public static final String LISTENER_PORT = "LISTENER_PORT";
 
     public static final String REQUEST_LINE_TOO_LONG = "An HTTP line is larger than";
@@ -294,6 +303,9 @@ public final class Constants {
 
     public static final String REMOTE_SERVER_CLOSE_RESPONSE_CONNECTION_AFTER_REQUEST_READ
             = "Remote host closed the connection without sending inbound response";
+
+    public static final String PROMISED_STREAM_REJECTED_ERROR
+            = "Promised stream is already rejected or stream is no longer valid";
 
     public static final String MAXIMUM_WAIT_TIME_EXCEED = "Could not obtain a connection within maximum wait time";
 

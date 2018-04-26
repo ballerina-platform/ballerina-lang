@@ -61,7 +61,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     private ChunkConfig chunkConfig;
     private KeepAliveConfig keepAliveConfig;
     private boolean headerWritten = false;
-    private int contentLength = 0;
+    private long contentLength = 0;
     private String serverName;
     private List<HttpContent> contentList = new ArrayList<>();
 
