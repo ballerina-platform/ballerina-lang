@@ -1,13 +1,11 @@
 ## Package overview
-This package provides the code generation capabilities to ballerina use cases. Following types of code generation can be performed with this package.
-1. Generate Ballerina code for a provided swagger definition.
-2. Generate client stub for existing Ballerina service at build time.
-3. Export the swagger definition of a Ballerina service.
+This package provides the following code generation capabilities to Ballerina:
+1. Generate the Ballerina code for a given Swagger definition.
+2. Generate the client stub for an existing Ballerina service at build time.
+3. Export the Swagger definition of a Ballerina service.
 
-Ballerina swagger command is used for Swagger to Ballerina and Ballerina to Swagger code generation.
-Ballerina to Swagger can generate two types of sources,
-* Mock service
-* Client stub
+The `swagger` command in Ballerina is used for Swagger to Ballerina and Ballerina to Swagger code generation.
+Code generation from Swagger to Ballerina can produce `mock services` and `client stubs`.
 
 For build time client stub generation, annotation support is provided.
 
@@ -16,57 +14,57 @@ For build time client stub generation, annotation support is provided.
     [-p packagename>|--package <packagename>] 
     [-o <path>|--output<path>]`
 
-Generates a ballerina service for the swagger file.
+Generates a Ballerina service for the Swagger file.
 
-This generated service can be used as a mock version of the actual service implementation. Generated sources will contain service definition in gen/ and resource implementation file in package root directory with suffix _impl. _impl file is not overwritten by code regeneration.
+This generated service is a mock version of the actual service. Generated sources contain the service definition in `gen/` and the resource implementation file in the package root directory with the suffix `_impl`. The `_impl` file is not overwritten by code regeneration.
 
 ### Client Stub from Swagger
 `ballerina swagger client <swaggerfile> 
     [-p packagename>|--package <packagename>] 
     [-o <path>|--output<path>]`
     
-Generates a ballerina client stub for the service defined in swagger file. 
+Generates a Ballerina client stub for the service defined in a Swagger file.
 
-This client can be used in client applications to call the service defined in swagger file.
+This client can be used in client applications to call the service defined in the Swagger file.
 
 ### Service to Swagger Export
 `ballerina swagger export <balfile> 
     [-o <path>|--output<path>]
     [-s <servicename>|--service <servicename>]`
 
-Export the ballerina service to a OpenApi Specification 3.0 definition. 
-For export to work properly input ballerina service must contain basic service and resource level http annotations defining the service.
+Export the Ballerina service to a definition of OpenApi Specification 3.0.
+For the export to work properly, the input ballerina service should be defined using basic service and resource level HTTP annotations.
 
 ### Client Stub for Service
 Generates a Ballerina client stub to communicate with a Ballerina service.
 
-`@swagger:ClientEndpoint` annotation is used to mark endpoint(s) to be used for client generation. Endpoints which are not marked with this annotation will not be picked up for client code generation. If required endpoints are not marked with this annotation it may cause errors during client stub generation.
-`@swagger:ClientConfig {generate: true}` annotation is used to enable client stub generation. This is a service level annotation and should be used for enable disable client code generation per service.
+All endpoint(s) that are used for client stub generation should be marked with the `@swagger:ClientEndpoint` annotation. If not, there might be errors during client stub generation. Endpoints that are not marked with this annotation are not picked for client stub generation.
+The `@swagger:ClientConfig {generate: true}` annotation is used to enable or disable client stub generation per service.
 
 ## Samples
-### Generating mock service from swagger
+### Mock Service From Swagger
 `ballerina swagger mock hello_service.yaml -p hello_service`
 
-### Generating client stub from swagger
+### Client Stub From Swagger
 `ballerina swagger client hello_service.yaml -p hello_client`
 
-### Export swagger of a service
+### Swagger From Service
 `ballerina swagger export hello_service.bal`
 
-### Generating Client stub for service
+### Client stub From Service
 ```ballerina
 import ballerina/io;
 import ballerina/http;
 import ballerina/swagger;
 import ballerina/log;
 
-// Defines this endpoint as a selected endpoint for client generation
+// Define this endpoint as a selected endpoint for client generation.
 @swagger:ClientEndpoint
 endpoint http:Listener helloEp {
     port: 9090
 };
 
-// Enable the client code generation for this service
+// Enable client code generation for this service.
 @swagger:ClientConfig {
     generate: true
 }
@@ -86,5 +84,3 @@ service Hello bind helloEp {
     }
 }
 ```
-
-## Package contents
