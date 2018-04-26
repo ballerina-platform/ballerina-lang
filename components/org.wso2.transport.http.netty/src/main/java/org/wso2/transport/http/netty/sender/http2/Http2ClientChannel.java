@@ -267,6 +267,7 @@ public class Http2ClientChannel {
 
         public void onStreamClosed(Http2Stream stream) {
             // Channel is no longer exhausted, so we can return it back to the pool
+            http2ClientChannel.removeInFlightMessage(stream.id());
             activeStreams.decrementAndGet();
             http2ClientChannel.getDataEventListeners().
                     forEach(dataEventListener -> dataEventListener.onStreamClose(stream.id()));
