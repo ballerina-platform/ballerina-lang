@@ -28,24 +28,30 @@ service<http:Service> loadBalancerDemoService bind { port: 9090 } {
     @http:ResourceConfig {
         path: "/"
     }
-    // Parameters include a reference to the caller endpoint and an object of the request data.
+    // Parameters include a reference to the
+    // caller endpoint and an object of the request data.
     invokeEndpoint(endpoint caller, http:Request req) {
         http:Request outRequest = new;
         json requestPayload = { "name": "Ballerina" };
         outRequest.setPayload(requestPayload);
         var response = lbBackendEP->post("/", request = outRequest);
         // `match` is used to handle union-type returns.
-        // If a response is returned, the normal process runs. If the service does not get the expected response,
+        // If a response is returned, the normal process runs.
+        // If the service does not get the expected response,
         // the error-handling logic is executed.
         match response {
             http:Response resp => {
-                caller->respond(resp) but { error e => log:printError("Error sending response", err = e) };
+                caller->respond(resp) but {
+                    error e => log:printError("Error sending response", err = e)
+                };
             }
             error responseError => {
                 http:Response outResponse = new;
                 outResponse.statusCode = 500;
                 outResponse.setPayload(responseError.message);
-                caller->respond(outResponse) but { error e => log:printError("Error sending response", err = e) };
+                caller->respond(outResponse) but {
+                    error e => log:printError("Error sending response", err = e)
+                };
             }
         }
     }
@@ -61,8 +67,9 @@ service mock1 bind backendEP {
         http:Response outResponse = new;
         outResponse.setPayload("Mock1 Resource is invoked.");
         caller->respond(outResponse) but {
-            error e => log:printError("Error sending response from mock service", err = e)
-        };
+                        error e => log:printError(
+                           "Error sending response from mock service", err = e)
+                        };
     }
 }
 
@@ -75,8 +82,9 @@ service mock2 bind backendEP {
         http:Response outResponse = new;
         outResponse.setPayload("Mock2 Resource is Invoked.");
         caller->respond(outResponse) but {
-            error e => log:printError("Error sending response from mock service", err = e)
-        };
+                        error e => log:printError(
+                           "Error sending response from mock service", err = e)
+                        };
     }
 }
 
@@ -89,7 +97,8 @@ service mock3 bind backendEP {
         http:Response outResponse = new;
         outResponse.setPayload("Mock3 Resource is Invoked.");
         caller->respond(outResponse) but {
-            error e => log:printError("Error sending response from mock service", err = e)
-        };
+                        error e => log:printError(
+                           "Error sending response from mock service", err = e)
+                        };
     }
 }

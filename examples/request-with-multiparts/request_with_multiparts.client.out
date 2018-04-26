@@ -1,8 +1,7 @@
 # Start multipartDemoService
-# To send a multipart request, execute following curl command.
-# Make sure to create file as required and provide correct file name according to the created files.
+# To decode a multipart request, execute following curl command.
 curl -F "part_one=@hello.xml" -F "part_two=@sample.json;type=application/json"
     http://localhost:9090/multiparts/decode -H "Content-Type: multipart/mixed" -H 'Expect:'
 
-# To receive multipart response from backend execute curl command
+# To encode body parts and send a multipart request via ballerina service execute curl command
 curl -v http://localhost:9090/multiparts/encode
