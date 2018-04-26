@@ -57,18 +57,30 @@ OPTIONS
          executions will be relative to the path provided for 
          sourceroot. 
 
-     -e                    
-         Ballerina environment parameters.
+     -e <key=value>
+         Sets Ballerina environment parameters as key/value pairs.
+         If multiple parameters need to be provided, each parameter
+         has to be specified using its own -e flag. Details of the
+         environment parameters that the Ballerina standard library
+         packages support can be found in the relevant API
+         documentation.
 
      --debug <port>               
          Remote debug Ballerina tests over the port given.   
 
      -c <config_file>
      --config <config_file>
-         Path to the test configuration file.
+         Provides the path to a Ballerina configuration file.
+         The configuration file format is a subset of the TOML file
+         format. It supports key/value pairs, tables, comments, and
+         string, int, float and boolean value types.
 
-     -B 
-         Ballerina VM options.
+     -B <key=value>
+         Provides Ballerina VM options to be used by the runtime
+         when executing a Ballerina program or package. VM options
+         are key/value pairs. If multiple VM options need to be
+         provided, each option has to be specified using its
+         own -B flag.
 
 EXAMPLES
      Run all tests in the current project
