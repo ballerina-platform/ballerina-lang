@@ -20,11 +20,11 @@ function main(string... args) {
                     log:printInfo(jsonPayload.toString());
                 }
                 error err => {
-                    log:printError(err.message, err = e);
+                    log:printError(err.message, err = err);
                 }
             }
         }
-        error err => { log:printError(err.message, err = e); }
+        error err => { log:printError(err.message, err = err); }
     }
     // Set a string payload to the message to be sent to the endpoint.
     req.setPayload("POST: Hello World");
@@ -39,11 +39,11 @@ function main(string... args) {
                     log:printInfo(jsonPayload.toString());
                 }
                 error err => {
-                    log:printError(err.message, err = e);
+                    log:printError(err.message, err = err);
                 }
             }
         }
-        error err => { log:printError(err.message, err = e); }
+        error err => { log:printError(err.message, err = err); }
 
     }
 
@@ -61,11 +61,11 @@ function main(string... args) {
                     log:printInfo(jsonPayload.toString());
                 }
                 error err => {
-                    log:printError(err.message, err = e);
+                    log:printError(err.message, err = err);
                 }
             }
         }
-        error err => { log:printError(err.message, err = e); }
+        error err => { log:printError(err.message, err = err); }
     }
 
     // Set an XML payload to the message to be sent to the endpoint.
@@ -85,11 +85,11 @@ function main(string... args) {
                     log:printInfo(jsonPayload.toString());
                 }
                 error err => {
-                    log:printError(err.message, err = e);
+                    log:printError(err.message, err = err);
                 }
             }
         }
-        error err => { log:printError(err.message, err = e); }
+        error err => { log:printError(err.message, err = err); }
     }
 
     req.setPayload("DELETE: Hello World");
@@ -103,11 +103,11 @@ function main(string... args) {
                     log:printInfo(jsonPayload.toString());
                 }
                 error err => {
-                    log:printError(err.message, err = e);
+                    log:printError(err.message, err = err);
                 }
             }
         }
-        error err => { log:printError(err.message, err = e); }
+        error err => { log:printError(err.message, err = err); }
     }
 
     req.setPayload("CUSTOM: Hello World");
@@ -126,6 +126,6 @@ function main(string... args) {
             log:printInfo("Status code: " + statusCode);
 
         }
-        error err => { log:printError(err.message, err = e); }
+        error err => { log:printError(err.message, err = err); }
     }
 }
