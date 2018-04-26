@@ -4,20 +4,21 @@ import ballerina/log;
 
 // Initialize a JMS connection with the provider.
 jms:Connection conn = new({
-        initialContextFactory: "bmbInitialContextFactory",
-        providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'"
-    });
+    initialContextFactory:"bmbInitialContextFactory",
+    providerUrl:"amqp://admin:admin@carbon/carbon"
+                + "?brokerlist='tcp://localhost:5672'"
+});
 
 // Initialize a JMS session on top of the created connection.
 jms:Session jmsSession = new(conn, {
-        // An optional property that defaults to `AUTO_ACKNOWLEDGE`.
-        acknowledgementMode: "AUTO_ACKNOWLEDGE"
-    });
+    // An optional property that defaults to `AUTO_ACKNOWLEDGE`.
+    acknowledgementMode:"AUTO_ACKNOWLEDGE"
+});
 
 // Initialize a queue receiver using the created session.
 endpoint jms:QueueReceiver consumer {
-    session: jmsSession,
-    queueName: "MyQueue"
+    session:jmsSession,
+    queueName:"MyQueue"
 };
 
 // Bind the created consumer to the listener service.
@@ -27,8 +28,9 @@ service<jms:Consumer> jmsListener bind consumer {
     onMessage(endpoint consumer, jms:Message message) {
         // Create a queue sender.
         endpoint jms:SimpleQueueSender queueSender {
-            initialContextFactory: "bmbInitialContextFactory",
-            providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'",
+            initialContextFactory:"bmbInitialContextFactory",
+            providerUrl:"amqp://admin:admin@carbon/carbon"
+                        + "?brokerlist='tcp://localhost:5672'",
             queueName: "RequestQueue"
         };
         string messageText = check message.getTextMessageContent();
@@ -51,12 +53,14 @@ service<jms:Consumer> jmsListener bind consumer {
             () => log:printInfo("Please provide the shoe size.");
         }
 
-        jms:Message outMessage = check queueSender.createTextMessage("Hello From Ballerina!");
+        jms:Message outMessage
+            = check queueSender.createTextMessage("Hello From Ballerina!");
         // Set JMS header, Correlation ID
         check outMessage.setCorrelationID("Msg:1");
 
         // Set a JMS string property property
-        check outMessage.setStringProperty("Instruction", "Do a perfect Pirouette");
+        check outMessage.setStringProperty("Instruction",
+                                           "Do a perfect Pirouette");
 
         check queueSender->send(outMessage);
     }

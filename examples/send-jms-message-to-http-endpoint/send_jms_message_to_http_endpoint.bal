@@ -4,10 +4,11 @@ import ballerina/log;
 
 // Create a simple queue receiver.
 endpoint jms:SimpleQueueReceiver consumer {
-    initialContextFactory: "bmbInitialContextFactory",
-    providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'",
-    acknowledgementMode: "AUTO_ACKNOWLEDGE",
-    queueName: "MyQueue"
+    initialContextFactory:"bmbInitialContextFactory",
+    providerUrl:"amqp://admin:admin@carbon/carbon"
+                + "?brokerlist='tcp://localhost:5672'",
+    acknowledgementMode:"AUTO_ACKNOWLEDGE",
+    queueName:"MyQueue"
 };
 
 // Bind the created JMS consumer to the listener service.
@@ -26,14 +27,15 @@ service<jms:Consumer> jmsListener bind consumer {
         // over using the HTTP client endpoint.
         http:Request req = new;
         req.setPayload(textContent);
-        http:Response response = check clientEP->post("/backend/jms", request = req);
+        http:Response response = check clientEP->post("/backend/jms",
+                                                      request=req);
 
         string responseMessage = check response.getTextPayload();
         log:printInfo("Response from backend service: " + responseMessage);
     }
 }
 
-@Description { value: "Backend service that receive the forwarded message from the broker." }
+// Backend service that receive the forwarded message from the broker.
 service<http:Service> backend bind { port: 9090 } {
 
     @http:ResourceConfig {
@@ -44,7 +46,8 @@ service<http:Service> backend bind { port: 9090 } {
         http:Response res = new;
 
         string stringPayload = check req.getTextPayload();
-        log:printInfo("Message received from backend service. Payload: " + stringPayload);
+        log:printInfo("Message received from backend service. Payload: "
+                      + stringPayload);
 
         // A util method that can be used to set string payload.
         res.setPayload("Message Received.");
