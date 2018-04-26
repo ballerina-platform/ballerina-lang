@@ -1,8 +1,9 @@
 import ballerina/http;
 import ballerina/log;
 
-// The Ballerina listener can be used to connect to a https client. To verify the server authenticity
-// when establishing the connection, provide a `keyStore filePath` and `keyStore password
+// An HTTP endpoint can be configured to communicate through HTTPS as well.
+// To secure an endpoint using HTTPS, the endpoint needs to be configured with
+// a keystore a certificate and private key for the endpoint.
 endpoint http:Listener helloWorldEP {
     port: 9095,
     secureSocket: {
@@ -14,7 +15,6 @@ endpoint http:Listener helloWorldEP {
 };
 
 @http:ServiceConfig {
-    endpoints: [helloWorldEP],
     basePath: "/hello"
 }
 service helloWorld bind helloWorldEP {
@@ -25,7 +25,8 @@ service helloWorld bind helloWorldEP {
 
     sayHello(endpoint caller, http:Request req) {
         http:Response res = new;
-        res.setPayload("Successful");
-        caller->respond(res) but { error e => log:printError("Error in responding ", err = e) };
+        res.setPayload("Hello World!");
+        caller->respond(res) but {
+                    error e => log:printError("Error in responding ", err = e) };
     }
 }
