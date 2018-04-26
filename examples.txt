@@ -16,7 +16,7 @@ Match Expression
 Elvis Operator
 Functions
 Functions With Defaultable Parameters
-Functions With Rest Parameters
+Functions With Rest Parameter
 Error Handling
 Check
 Var

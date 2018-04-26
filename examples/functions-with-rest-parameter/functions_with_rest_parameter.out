@@ -1,4 +1,4 @@
-$ ballerina run functions_with_rest_parameters.bal
+$ ballerina run functions_with_rest_parameter.bal
 Available Fruits: 
 Available Fruits: Apples
 Available Fruits: Apples, Oranges
