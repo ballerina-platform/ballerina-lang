@@ -4,7 +4,9 @@ import ballerina/log;
 function close(io:CharacterChannel characterChannel) {
     // Close the character channel when done
     characterChannel.close() but {
-        error e => log:printError("Error occurred while closing character stream", err = e)
+        error e =>
+        log:printError("Error occurred while closing character stream"
+            , err = e)
     };
 }
 
@@ -12,15 +14,16 @@ function write(json content, string path) {
     // Create a byte channel from the given path
     io:ByteChannel byteChannel = io:openFile(path, io:WRITE);
     // Derive the character channel from the byte channel
-    io:CharacterChannel characterChannel = new io:CharacterChannel(byteChannel, "UTF8");
+    io:CharacterChannel ch = new io:CharacterChannel(byteChannel
+        , "UTF8");
     // This is how json content is written via the character channel
-    match characterChannel.writeJson(content) {
+    match ch.writeJson(content) {
         error err => {
-            close(characterChannel);
+            close(ch);
             throw err;
         }
         () => {
-            close(characterChannel);
+            close(ch);
             io:println("Content written successfully");
         }
     }
@@ -30,15 +33,16 @@ function read(string path) returns json {
     // Create a byte channel from the given path
     io:ByteChannel byteChannel = io:openFile(path, io:READ);
     // Derive the character channel from the byte channel
-    io:CharacterChannel characterChannel = new io:CharacterChannel(byteChannel, "UTF8");
+    io:CharacterChannel ch = new io:CharacterChannel(byteChannel
+        , "UTF8");
     // This is how json content is read from the character channel
-    match characterChannel.readJson() {
+    match ch.readJson() {
         json result => {
-            close(characterChannel);
+            close(ch);
             return result;
         }
         error err => {
-            close(characterChannel);
+            close(ch);
             throw err;
         }
     }
