@@ -32,6 +32,19 @@ documentation {Constant for the HTTP HEAD method}
 @final public HttpOperation HTTP_HEAD = "HEAD";
 @final public HttpOperation HTTP_NONE = "NONE";
 
+documentation {
+    Defines the HTTP oprtations related to circuit breaker, failover and load balancer.
+
+    `FORWARD`: Forward the specified payload
+    `GET`: Request a resource
+    `POST`: Create a new resource
+    `DELETE`: Deletes the specified resource
+    `OPTIONS`: Request communication options available
+    `PUT`: Replace the target resource
+    `PATCH`: Apply partial modification to the resource
+    `HEAD`: Identical to `GET` but no resource body should be returned
+    `NONE`: No operation should be performed
+}
 public type HttpOperation "FORWARD" | "GET" | "POST" | "DELETE" | "OPTIONS" | "PUT" | "PATCH" | "HEAD" | "NONE";
 
 // makes the actual endpoints call according to the http operation passed in.
