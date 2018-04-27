@@ -47,7 +47,8 @@ class PositioningUtil extends DefaultPositioningUtil {
      *
      */
     positionExpressionStatementNode(node) {
-        if (TreeUtil.statementIsInvocation(node)) {
+        if (TreeUtil.statementIsInvocation(node) ||
+            TreeUtil.statementIsClientResponder(node)) {
             super.positionExpressionStatementNode(node);
         }
     }
@@ -79,7 +80,8 @@ class PositioningUtil extends DefaultPositioningUtil {
      *
      */
     positionVariableDefNode(node) {
-        if (TreeUtil.statementIsInvocation(node)) {
+        if (TreeUtil.statementIsInvocation(node) ||
+            TreeUtil.statementIsClientResponder(node)) {
             super.positionVariableDefNode(node);
         }
     }

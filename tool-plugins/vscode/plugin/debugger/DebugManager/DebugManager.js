@@ -61,8 +61,8 @@ class DebugManager extends EventEmitter {
      *
      * @memberof DebugManager
      */
-    stepIn() {
-        const message = { command: 'STEP_IN', threadId: this.currentThreadId };
+    stepIn(threadId) {
+        const message = { command: 'STEP_IN', threadId };
         this.channel.sendMessage(message);
     }
     /**
@@ -70,8 +70,8 @@ class DebugManager extends EventEmitter {
      *
      * @memberof DebugManager
      */
-    stepOut() {
-        const message = { command: 'STEP_OUT', threadId: this.currentThreadId };
+    stepOut(threadId) {
+        const message = { command: 'STEP_OUT', threadId };
         this.channel.sendMessage(message);
     }
     /**
@@ -88,8 +88,8 @@ class DebugManager extends EventEmitter {
      *
      * @memberof DebugManager
      */
-    stepOver() {
-        const message = { command: 'STEP_OVER', threadId: this.currentThreadId };
+    stepOver(threadId) {
+        const message = { command: 'STEP_OVER', threadId };
         this.channel.sendMessage(message);
     }
     /**
@@ -97,8 +97,8 @@ class DebugManager extends EventEmitter {
      *
      * @memberof DebugManager
      */
-    resume() {
-        const message = { command: 'RESUME', threadId: this.currentThreadId };
+    resume(threadId) {
+        const message = { command: 'RESUME', threadId };
         this.channel.sendMessage(message);
     }
     /**

@@ -617,6 +617,20 @@
     "before ;": "",
     "after ;": ""
   },
+  "Record": {
+    "before type": "",
+    "after type": " ",
+    "before name": "",
+    "after name": " ",
+    "before {": "",
+    "after {": "",
+    "before fields": "",
+    "after fields": "",
+    "before }": "",
+    "after }": "",
+    "before ;": "",
+    "after ;": ""
+  },
   "RecordLiteralExpr": {
     "before {": "",
     "after {": "",
@@ -965,9 +979,9 @@
   },
   "Variable": {
     "before typeNode": "",
-    "after typeNode": "",
-    "before name": " ",
-    "after name": "",
+    "after typeNode": " ",
+    "before name": "",
+    "after name": " ",
     "before {": "",
     "after {": "",
     "before initialExpression": "",

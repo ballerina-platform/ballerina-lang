@@ -659,6 +659,9 @@ public class HttpUtil {
             if (httpHeaders != null) {
                 transportHeaders.add(httpHeaders);
             }
+            //Once the headers are synced, set the entity headers to transport message headers so that they
+            //both refer the same header map for future operations
+            entityStruct.addNativeData(ENTITY_HEADERS, outboundMsg.getHeaders());
         }
     }
 
