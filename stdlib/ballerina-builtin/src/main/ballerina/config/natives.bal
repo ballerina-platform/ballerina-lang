@@ -23,6 +23,8 @@ type ValueType "STRING"|"INT"|"FLOAT"|"BOOLEAN"|"MAP"|"ARRAY";
 @final ValueType MAP = "MAP";
 @final ValueType ARRAY = "ARRAY";
 
+@final string ENV_VAR_ENTRY_REGEX = "@env:\\{([a-zA-Z_]+[a-zA-Z0-9_]*)\\}";
+
 documentation {
     Retrieves the specified configuration value as a string.
 
@@ -35,7 +37,14 @@ public function getAsString(@sensitive string key, string default = "") returns 
         var value = get(key, STRING);
 
         match value {
-            string strValue => return strValue;
+            string strValue => {
+                if (check strValue.matches(ENV_VAR_ENTRY_REGEX)) {
+                    return default;
+                }
+
+                return strValue;
+            }
+
             int|float|boolean|map|any[]|()|error=> {
                 error err = {message:"invalid value type"};
                 throw err;
