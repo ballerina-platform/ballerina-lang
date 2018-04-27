@@ -8,8 +8,7 @@ endpoint jdbc:Client testDB {
     url: "jdbc:mysql://localhost:3306/testdb",
     username: "root",
     password: "root",
-    poolOptions: { maximumPoolSize: 5 },
-    dbOptions: { useSSL: false }
+    poolOptions: { maximumPoolSize: 5 }
 };
 
 // This is the type created to represent data row.
