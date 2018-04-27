@@ -1,2 +1,2 @@
-// This sample demonstrates how to read json content from a file and how to write json content to file
+// This sample demonstrates how to read JSON content from a file and write JSON content to file
 // using character channel readJson() and writeJson() of the I/O API.
