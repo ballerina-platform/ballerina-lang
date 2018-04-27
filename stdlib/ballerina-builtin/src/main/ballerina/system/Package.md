@@ -19,5 +19,3 @@ string userHome = user:getUserHome();  //Eg. “/home/john”
 // Get the current directory path.
 string currentDir = user:getCurrentDirectory();  //Eg. “/home/john/work”
 ```
-
-## Package content

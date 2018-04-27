@@ -12,4 +12,3 @@ service fileSystem bind localFolder {
     }
 }
 ```
-## Package content
