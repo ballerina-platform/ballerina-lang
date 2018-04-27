@@ -36,6 +36,15 @@ public type RetryClient object {
         CallerActions httpClient;
     }
 
+    documentation {
+        Provides the HTTP actions for interacting with an HTTP endpoint. The RetryClient created by wrapping the HTTP client
+        to provide retrying over HTTP requests.
+
+        P{{serviceUri}} - Target service url
+        P{{config}}  - HTTP ClientEndpointConfig to be used for HTTP client invocation
+        P{{retryConfig}} - Configurations associated with Retry
+        P{{httpClient}}  - HTTP client for outbound HTTP requests
+    }
     public new(serviceUri, config, retryConfig, httpClient) {}
 
     documentation {
