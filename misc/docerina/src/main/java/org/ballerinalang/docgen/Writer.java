@@ -58,9 +58,12 @@ public class Writer {
     public static void writeHtmlDocument(Object object, String packageTemplateName, String filePath) {
         String templatesFolderPath = System.getProperty(BallerinaDocConstants.TEMPLATES_FOLDER_PATH_KEY, File
                 .separator + "docerina-templates" + File.separator + "html");
+
+        String templatesClassPath = System.getProperty(BallerinaDocConstants.TEMPLATES_FOLDER_PATH_KEY,
+                                                       "/docerina-templates/html");
         PrintWriter writer = null;
         try {
-            Handlebars handlebars = new Handlebars().with(new ClassPathTemplateLoader(templatesFolderPath), new
+            Handlebars handlebars = new Handlebars().with(new ClassPathTemplateLoader(templatesClassPath), new
                     FileTemplateLoader(templatesFolderPath));
             handlebars.registerHelpers(StringHelpers.class);
             handlebars.registerHelper("exists", new Helper<List<Documentable>>() {
