@@ -14,7 +14,8 @@ endpoint mysql:Client testDB {
 function main(string... args) {
 
     // Create the tables required for the transaction.
-    var ret = testDB->update("CREATE TABLE CUSTOMER (ID INT, NAME VARCHAR(30))");
+    var ret = testDB->update("CREATE TABLE CUSTOMER (ID INT, NAME
+                              VARCHAR(30))");
     handleUpdate(ret, "Create CUSTOMER table");
 
     ret = testDB->update("CREATE TABLE SALARY (ID INT, MON_SALARY FLOAT)");
@@ -30,11 +31,14 @@ function main(string... args) {
     // aborting. Only integer literals or constants are allowed for `retry count`.
     // Two functions can be registered with oncommit and onabort. Those functions will be
     // executed at the end when the transaction is either aborted or committed.
-    transaction with retries = 4, oncommit = onCommitFunction, onabort = onAbortFunction {
+    transaction with retries = 4, oncommit = onCommitFunction,
+                                  onabort = onAbortFunction {
     // This is the first action participant in the transaction.
-        var result = testDB->update("INSERT INTO CUSTOMER(ID,NAME) VALUES (1, 'Anne')");
+        var result = testDB->update("INSERT INTO CUSTOMER(ID,NAME)
+                                     VALUES (1, 'Anne')");
         // This is the second action participant in the transaction.
-        result = testDB->update("INSERT INTO SALARY (ID, MON_SALARY) VALUES (1, 2500)");
+        result = testDB->update("INSERT INTO SALARY (ID, MON_SALARY)
+                                 VALUES (1, 2500)");
         match result {
             int c => {
                 io:println("Inserted count: " + c);

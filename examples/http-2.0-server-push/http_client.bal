@@ -6,6 +6,7 @@ endpoint http:Client clientEP {
     url: "http://localhost:7090",
     // HTTP version is set to 2.0.
     httpVersion: "2.0"
+
 };
 
 function main(string... args) {
@@ -20,7 +21,8 @@ function main(string... args) {
             httpFuture = resultantFuture;
         }
         error resultantErr => {
-            log:printError("Error occurred while submitting a request", err = resultantErr);
+            log:printError("Error occurred while submitting a request",
+                            err = resultantErr);
             return;
         }
     }
@@ -40,14 +42,16 @@ function main(string... args) {
                 pushPromise = resultantPushPromise;
             }
             error resultantErr => {
-                log:printError("Error occurred while fetching a push promise", err = resultantErr);
+                log:printError("Error occurred while fetching a push promise",
+                                err = resultantErr);
                 return;
             }
         }
         log:printInfo("Received a promise for " + pushPromise.path);
 
         if (pushPromise.path == "/resource2") {
-            // The client is not interested in receiving `/resource2`. Therefore, reject the promise.
+            // The client is not interested in receiving `/resource2`.
+            // Therefore, reject the promise.
             clientEP->rejectPromise(pushPromise);
 
             log:printInfo("Push promise for resource2 rejected");
@@ -69,15 +73,18 @@ function main(string... args) {
             response = resultantResponse;
         }
         error resultantErr => {
-            log:printError("Error occurred while fetching response", err = resultantErr);
+            log:printError("Error occurred while fetching response",
+                            err = resultantErr);
             return;
         }
     }
 
     var responsePayload = response.getJsonPayload();
     match responsePayload {
-        json resultantJsonPayload => log:printInfo("Response : " + resultantJsonPayload.toString());
-        error e => log:printError("Expected response payload not received", err = e);
+        json resultantJsonPayload =>
+              log:printInfo("Response : " + resultantJsonPayload.toString());
+        error e =>
+              log:printError("Expected response payload not received", err = e);
     }
 
     // Fetch required promise responses.
@@ -89,15 +96,20 @@ function main(string... args) {
                 promisedResponse = resultantPromisedResponse;
             }
             error resultantErr => {
-                log:printError("Error occurred while fetching promised response", err = resultantErr);
+                log:printError("Error occurred while fetching promised response",
+                                err = resultantErr);
                 return;
             }
         }
-
         var promisedPayload = promisedResponse.getJsonPayload();
         match promisedPayload {
-            json promisedJsonPayload => log:printInfo("Promised resource : " + promisedJsonPayload.toString());
-            error e => log:printError("Expected promised response payload not received", err = e);
+            json promisedJsonPayload =>
+                       log:printInfo("Promised resource : " +
+                                      promisedJsonPayload.toString());
+            error e =>
+                  log:printError("Expected promised response payload not received",
+                                  err = e);
         }
     }
+
 }

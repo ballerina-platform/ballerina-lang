@@ -1,10 +1,24 @@
 import ballerina/http;
 
-// The endpoint used here is 'http:SecureListener', which by default tries to
-// authenticate and authorize each request. The developer has the option to
-// override the authentication and authorization at service and resource level.
+// Create an JWT authentication provider with the relevant configuration
+// parameters. 
+http:AuthProvider jwtAuthProvider = {
+    scheme:"jwt",
+    issuer:"ballerina",
+    audience: "ballerina.io",
+    certificateAlias: "ballerina",
+    trustStore: {
+        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+        password: "ballerina"
+    }
+};
+// The endpoint used here is 'http:SecureListener'. The JWT authentication
+// provider is set to this endpoint using authProviders attribute. The
+// developer has the option to override the authentication and authorization
+// at service and resource level.
 endpoint http:SecureListener ep {
     port: 9090,
+    authProviders:[jwtAuthProvider],
     // The secure hello world sample uses https.
     secureSocket: {
         keyStore: {
@@ -21,8 +35,7 @@ endpoint http:SecureListener ep {
 @http:ServiceConfig {
     basePath: "/hello",
     authConfig: {
-        authentication: { enabled: true },
-        scopes: ["scope1"]
+        authentication: { enabled: true }
     }
 }
 // Auth configuration comprises of two parts - authentication & authorization.
@@ -38,14 +51,13 @@ service<http:Service> echo bind ep {
         methods: ["GET"],
         path: "/sayHello",
         authConfig: {
-            scopes: ["scope2"]
+            scopes: ["hello"]
         }
     }
     // The authentication and authorization settings can be overridden at
     // resource level.
     // The hello resource would inherit the authentication:{enabled:true} flag
-    // from the service level, and override scope defined in service level
-    // (xxx) with scope2.
+    // from the service level, and define scope for the resource as 'hello'.
     hello(endpoint caller, http:Request req) {
         http:Response res = new;
         res.setPayload("Hello, World!!!");
