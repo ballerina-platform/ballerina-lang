@@ -12,6 +12,7 @@ function main(string... args) {
 
     // Send a GET request to the specified endpoint.
     var returnResult = clientEP->get("/redirect1");
+    
     match returnResult {
         error connectionErr => log:printError("Error in connection",
             err = connectionErr);
