@@ -130,7 +130,8 @@ service helloWorld bind helloWorldEP {
        // A util method that can be used to set string payload.
        res.setPayload("Hello, World! I’m " + name + “. “ + message);
        // Sends the response back to the client.
-       _ = caller->respond(res);
+       caller->respond(res) but { error e => 
+                            log:printError("Error sending response", err = e) };
    }
 }
 ```
