@@ -27,15 +27,13 @@ The `b7a.log.level` configuration key can be used to configure the log level for
 b7a.log.level="<LOG_LEVEL>"
 ```
 
-Log level can also be configured through a CLI parameter as follows:
+The log level can also be configured through a CLI parameter as follows:
 ```bash
 $ ballerina run program.bal -e b7a.log.level=<LOG_LEVEL>
 ```
 
-Log levels can be configured for packages either through a configuration file or through a CLI parameter as follows:
-```bash
-<PACKAGE_NAME>.loglevel=<LOG_LEVEL>
-```
+Log levels can be configured for packages either through a configuration file as `<PACKAGE_NAME>.loglevel="<LOG_LEVEL>"` or through a CLI parameter as `<PACKAGE_NAME>.loglevel=<LOG_LEVEL>`.
+
 ## Sample  
 
 The following code snippet depicts the usage of all the functions in the log API.
@@ -64,11 +62,11 @@ log:printTrace("trace log");
 Suppose that the above code snippet resides in a package named `foo`. We can set the log level of `foo` to `DEBUG` in a configuration file by placing the following entry in it:
 ```toml
 [foo]
-loglevel=DEBUG
+loglevel="DEBUG"
 
 OR
 
-foo.loglevel=DEBUG
+foo.loglevel="DEBUG"
 ```
 
 The log level of `foo` can also be configured through the CLI as follows:
