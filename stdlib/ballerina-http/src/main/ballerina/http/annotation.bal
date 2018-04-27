@@ -25,7 +25,9 @@ documentation {
     F{{endpoints}} An array of endpoints the service would be attached to
     F{{basePath}} Service base path
     F{{compression}} The status of compression
+    F{{chunking}} Configures the chunking behaviour for the service
     F{{cors}} The cross origin resource sharing configurations for the service
+    F{{versioning}} The version of the service to be used
     F{{authConfig}} Authentication configurations for securing the service
 }
 public type HttpServiceConfig {
@@ -132,6 +134,12 @@ public type HttpResourceConfig {
     ListenerAuthConfig? authConfig,
 };
 
+documentation {
+    Configures the HTTP to WebSocket upgrade.
+
+    F{{upgradePath}} Path which is used to upgrade from HTTP to WebSocket
+    F{{upgradeService}} WebSocket service which should be used after a successful upgrade
+}
 public type WebSocketUpgradeConfig {
     string upgradePath,
     typedesc upgradeService,

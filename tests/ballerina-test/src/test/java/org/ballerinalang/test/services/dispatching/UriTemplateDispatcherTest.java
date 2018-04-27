@@ -267,7 +267,7 @@ public class UriTemplateDispatcherTest {
 
     @Test(description = "Test dispatching with OPTIONS request with PUT method")
     public void testOPTIONSWithPUTMethods() {
-        String path = "/options/put";
+        String path = "/options/put/add";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS");
         HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
@@ -279,6 +279,22 @@ public class UriTemplateDispatcherTest {
 
         String allowHeader = response.getHeader(HttpHeaderNames.ALLOW.toString());
         Assert.assertEquals(allowHeader, "PUT, OPTIONS");
+    }
+
+    @Test(description = "Test dispatching with OPTIONS request with PATH params")
+    public void testOPTIONSWithPathParams() {
+        String path = "/options/put/xyz";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS");
+        HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()), "");
+        Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 200
+                , "Response code mismatch");
+
+        String allowHeader = response.getHeader(HttpHeaderNames.ALLOW.toString());
+        Assert.assertEquals(allowHeader, "DELETE, OPTIONS");
     }
 
     @Test(description = "Test dispatching with OPTIONS request multiple resources")
@@ -309,7 +325,7 @@ public class UriTemplateDispatcherTest {
                 , "Response code mismatch");
 
         String allowHeader = response.getHeader(HttpHeaderNames.ALLOW.toString());
-        Assert.assertEquals(allowHeader, "OPTIONS, POST, GET, UPDATE, PUT, HEAD");
+        Assert.assertEquals(allowHeader, "OPTIONS, POST, GET, UPDATE, PUT, DELETE, HEAD");
     }
 
     @Test(description = "Test dispatching with OPTIONS request wrong Root")

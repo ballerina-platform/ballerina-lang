@@ -213,6 +213,11 @@ public class NativeCallContext implements Context {
 
     @Override
     public BValue[] getReturnValues() {
+        if (this.returnValues == null || this.returnValues.length == 0) {
+            if (this.callableUnitInfo.hasReturnType()) {
+                this.returnValues = new BValue[] { null };
+            }
+        }
         return this.returnValues;
     }
 

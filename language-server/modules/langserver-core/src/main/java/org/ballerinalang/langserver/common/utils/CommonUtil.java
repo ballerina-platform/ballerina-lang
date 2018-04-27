@@ -595,7 +595,7 @@ public class CommonUtil {
      * @return {@link Boolean}  Check status of the package
      */
     public static boolean listContainsPackage(String pkg, List<BallerinaPackage> pkgList) {
-        return pkgList.stream().anyMatch(ballerinaPackage -> ballerinaPackage.toString().equals(pkg));
+        return pkgList.stream().anyMatch(ballerinaPackage -> ballerinaPackage.getFullPackageNameAlias().equals(pkg));
     }
 
     private static void populateIterableOperations(SymbolInfo variable, List<SymbolInfo> symbolInfoList) {
