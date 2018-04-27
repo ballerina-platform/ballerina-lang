@@ -284,11 +284,15 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + '?:'
                  + getSourceOf(node.rightExpression, pretty, l, replaceLambda);
         case 'Endpoint':
-            return dent()
+            if (node.skipSourceGen) {
+                return '';
+            } else {
+                return dent()
                  + join(node.annotationAttachments, pretty, replaceLambda, l, w, '') + w() + 'endpoint' + a(' ')
                  + getSourceOf(node.endPointType, pretty, l, replaceLambda) + w(' ') + node.name.valueWithBar
                  + b(' ')
                  + getSourceOf(node.configurationExpression, pretty, l, replaceLambda) + w() + ';';
+            }
         case 'EndpointType':
             return w() + '<'
                  + getSourceOf(node.constraint, pretty, l, replaceLambda) + w() + '>';
