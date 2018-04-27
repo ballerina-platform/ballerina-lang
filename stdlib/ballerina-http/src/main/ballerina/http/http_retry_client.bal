@@ -20,13 +20,13 @@ import ballerina/mime;
 import ballerina/runtime;
 
 documentation {
-    Provides the HTTP actions for interacting with an HTTP endpoint. The RetryClient created by wrapping the HTTP client
+    Provides the HTTP actions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client
     to provide retrying over HTTP requests.
 
-    F{{serviceUri}} - Target service url
-    F{{config}}  - HTTP ClientEndpointConfig to be used for HTTP client invocation
-    F{{retryConfig}} - Configurations associated with Retry
-    F{{httpClient}}  - HTTP client for outbound HTTP requests
+    F{{serviceUri}} Target service url
+    F{{config}}  HTTP ClientEndpointConfig to be used for HTTP client invocation
+    F{{retryConfig}} Configurations associated with retry
+    F{{httpClient}}  HTTP client for outbound HTTP requests
 }
 public type RetryClient object {
     public {
@@ -37,13 +37,13 @@ public type RetryClient object {
     }
 
     documentation {
-        Provides the HTTP actions for interacting with an HTTP endpoint. The RetryClient created by wrapping the HTTP client
+        Provides the HTTP actions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client
         to provide retrying over HTTP requests.
 
-        P{{serviceUri}} - Target service url
-        P{{config}}  - HTTP ClientEndpointConfig to be used for HTTP client invocation
-        P{{retryConfig}} - Configurations associated with Retry
-        P{{httpClient}}  - HTTP client for outbound HTTP requests
+        P{{serviceUri}} Target service url
+        P{{config}}  HTTP ClientEndpointConfig to be used for HTTP client invocation
+        P{{retryConfig}} Configurations associated with retry
+        P{{httpClient}}  HTTP client for outbound HTTP requests
     }
     public new(serviceUri, config, retryConfig, httpClient) {}
 
