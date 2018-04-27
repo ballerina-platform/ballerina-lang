@@ -132,6 +132,12 @@ public type HttpResourceConfig {
     ListenerAuthConfig? authConfig,
 };
 
+documentation {
+    Configures the HTTP to WebSocket upgrade.
+
+    F{{upgradePath}} Path which is used to upgrade from HTTP to WebSocket
+    F{{upgradeService}} WebSocket service which should be used after a successful upgrade
+}
 public type WebSocketUpgradeConfig {
     string upgradePath,
     typedesc upgradeService,
