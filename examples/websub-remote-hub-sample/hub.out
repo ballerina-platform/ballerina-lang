@@ -2,9 +2,9 @@
 # Subscriber Service needs to start after the publisher registers the topic at the hub.
 # If the port is not specified, the hub service starts on the default port.
 $ ballerina run hub.bal -e b7a.websub.hub.port=9191 -e b7a.websub.hub.remotepublish=true
-2018-04-12 18:48:00,530 INFO  [] - Starting up the Ballerina Hub Service
-ballerina: started HTTPS/WSS endpoint localhost:9191
+Starting up the Ballerina Hub Service
 ballerina: Default Ballerina WebSub Hub started up at https://localhost:9191/websub/hub
-2018-04-12 18:48:05,214 INFO  [ballerina.websub] - Topic registration successful at Hub, for topic[http://www.websubpubtopic.com]
-2018-04-12 18:48:06,808 INFO  [ballerina.websub] - Intent verification successful for mode: [subscribe], for callback URL: [http://0.0.0.0:8181/websub]
-2018-04-12 18:48:15,465 INFO  [ballerina.websub] - Event notification done for Topic [http://www.websubpubtopic.com]
+ballerina: started HTTPS/WSS endpoint 0.0.0.0:9191
+2018-04-26 22:20:43,096 INFO  [ballerina.websub] - Topic registration successful at Hub, for topic[http://websubpubtopic.com]
+2018-04-26 22:20:45,960 INFO  [ballerina.websub] - Intent verification successful for mode: [subscribe], for callback URL: [http://0.0.0.0:8181/websub]
+2018-04-26 22:20:53,377 INFO  [ballerina.websub] - Event notification done for Topic [http://websubpubtopic.com]
