@@ -1,5 +1,5 @@
 // Elvis operator is a conditional operator that can be used to handle null. It evaluates an expression
 // and if the value is null, executes the second expression.
 //
-// The ternary operator takes two operands and uses the '?:' symbol to form it. Syntax:
+// The elvis operator takes two operands and uses the '?:' symbol to form it. Syntax:
 //      expression ?: expressionIfNull
