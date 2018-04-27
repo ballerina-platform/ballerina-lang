@@ -40,7 +40,7 @@ The package also provides support for WebSockets. There are two types of WebSock
 There are also two types of services for WebSocket: `WebSocketService` and `WebSocketClientService`. The callback service for `WebSocketClient` is always a `WebSocketClientService`. The WebSocket services have a fixed set of resources that do not have a resource config. The incoming messages are passed to these resources.
 
 **WebSocket upgrade**: During a WebSocket upgrade, the initial message is an HTTP request. To intercept this request and make the upgrade explicitly with custom headers, the user must create an HTTP resource with WebSocket specific configurations as follows:
-```
+```ballerina
  @http:ResourceConfig {
         webSocketUpgrade: {
             upgradePath: "/{name}",

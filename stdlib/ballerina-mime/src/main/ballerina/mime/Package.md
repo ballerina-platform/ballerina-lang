@@ -1,5 +1,5 @@
 ## Package Overview
-This package provides functions to transmit and receive messages that have multiple parts, such as an attachment. The communication of such messages follow the MIME (Multipurpose Internet Mail Extensions) specification as specified in the RFC 2045 standard.
+This package provides functions to encapsulate multiple body parts, such as attachments in a single message. The communication of such messages follow the MIME (Multipurpose Internet Mail Extensions) specification as specified in the RFC 2045 standard.
 ### MIME Specific terms 
 The following terms are MIME specific and are extracted from the MIME specification.
 #### Entity
