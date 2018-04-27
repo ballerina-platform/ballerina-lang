@@ -1,8 +1,8 @@
-// This is an auto generated client stub which is used to communicate between gRPC client.
+// This is an auto generated client stub which is used to connect to gRPC server.
 import ballerina/grpc;
 import ballerina/io;
 
-// Non-blocking client
+// Non-blocking client.
 public type ChatStub object {
     public {
         grpc:Client clientEndpoint;
@@ -31,7 +31,7 @@ public type ChatStub object {
     }
 };
 
-// Non-blocking client endpoint
+// Non-blocking client endpoint.
 public type ChatClient object {
     public {
         grpc:Client client;
@@ -43,10 +43,12 @@ public type ChatClient object {
         grpc:Client client = new;
         client.init(config);
         self.client = client;
+
         // initialize service stub.
         ChatStub stub = new;
         stub.initStub(client);
         self.stub = stub;
+
     }
     public function getCallerActions() returns (ChatStub) {
         return self.stub;
@@ -58,7 +60,7 @@ type ChatMsg {
     string message;
 };
 
-//Meta data of the service definition
+// Service descriptor data.
 @final string DESCRIPTOR_KEY = "Chat.proto";
 map descriptorMap =
 {

@@ -1,7 +1,8 @@
-// This is server implementation for secured connection (HTTPS) scenario
+// This is server implementation for secured connection (HTTPS) scenario.
 import ballerina/io;
 
 function main(string... args) {
+    // Client endpoint configuration with SSL configurations.
     endpoint HelloWorldBlockingClient helloWorldBlockingEp {
         url: "https://localhost:9090",
         secureSocket: {
@@ -21,7 +22,9 @@ function main(string... args) {
         }
     };
 
+    // Executes unary blocking secured call.
     var unionResp = helloWorldBlockingEp->hello("WSO2");
+
     match unionResp {
         (string, grpc:Headers) payload => {
             string result;
