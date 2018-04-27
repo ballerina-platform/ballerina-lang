@@ -22,6 +22,8 @@ import ballerina/crypto;
 documentation {
     The HTTP based Caller actions for outbound WebSub Subscription, Unsubscription, Registration, Unregistration and
     Notification requests to a Hub.
+
+    F{{hubUrl}} The URL of the target Hub to which requests need to be sent
 }
 public type CallerActions object {
 
