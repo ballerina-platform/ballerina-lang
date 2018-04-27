@@ -48,7 +48,7 @@ export default {
         return FragmentUtils.createTopLevelNodeFragment(
             `
             @http:WebSocketServiceConfig {
-                basePath:"/basic/ws",
+                path:"/basic/ws",
                 subProtocols:["xml", "json"],
                 idleTimeoutInSeconds:120
             }
