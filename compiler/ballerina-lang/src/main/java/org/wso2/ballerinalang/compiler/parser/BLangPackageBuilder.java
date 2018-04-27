@@ -2328,8 +2328,9 @@ public class BLangPackageBuilder {
         });
     }
 
-    public void addAnonymousEndpointBind() {
+    public void addAnonymousEndpointBind(Set<Whitespace> ws) {
         BLangService serviceNode = (BLangService) serviceNodeStack.peek();
+        serviceNode.addWS(ws);
         serviceNode.addAnonymousEndpointBind((RecordLiteralNode) exprNodeStack.pop());
     }
 
