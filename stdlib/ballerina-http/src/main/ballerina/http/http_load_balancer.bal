@@ -38,6 +38,16 @@ public type LoadBalancer object {
        boolean failover;
    }
 
+   documentation {
+        Load Balancer adds an additional layer to the HTTP client to make network interactions more resilient.
+
+        P{{serviceUri}} The URL of the remote HTTP endpoint
+        P{{config}} The configurations of the client endpoint associated with this `LoadBalancer` instance
+        P{{loadBalanceClientsArray}} Array of HTTP clients for load balancing
+        P{{algorithm}} Load balancing algorithm
+        P{{nextIndex}} Index of the next load balancing client
+        P{{failover}} Whether to fail over in case of a failure
+   }
    public new (serviceUri, config, loadBalanceClientsArray, algorithm, nextIndex, failover) {}
 
     documentation {
@@ -313,6 +323,13 @@ function performLoadBalanceAction(LoadBalancer lb, string path, Request request,
 }
 
 // Round Robin Algorithm implementation with respect to load balancing endpoints.
+documentation {
+    Round Robin Algorithm implementation with respect to load balancing endpoints.
+
+    P{{lb}} `LoadBalancer` object
+    P{{loadBalanceConfigArray}} Array of HTTP Clients that needs to be load balanced
+    R{{}} HttpClient elected from the algorithm
+}
 public function roundRobin(LoadBalancer lb, CallerActions[] loadBalanceConfigArray) returns CallerActions {
     CallerActions httpClient = new;
 

@@ -291,11 +291,20 @@ documentation {
     Signature validation filter for WebSub services.
 }
 public type SignatureValidationFilter object {
+
+    documentation {
+        Represents the filtering function that will be invoked on WebSub notification requests.
+
+        P{{request}} The request being intercepted
+        P{{context}} The filter context
+        R{{}} `http:FilterResult` The result of the filter indicating whether or not proceeding can be allowed
+    }
     public function filterRequest(http:Request request, http:FilterContext context) returns http:FilterResult {
         return interceptWebSubRequest(request, context);
     }
 };
 
+//TODO: check if this can be not public
 documentation {
     The function called to validate signature for content received by WebSub services.
 

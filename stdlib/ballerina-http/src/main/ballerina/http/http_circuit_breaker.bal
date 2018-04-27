@@ -69,6 +69,7 @@ public type CircuitHealth {
 documentation {
     Provides a set of configurations for controlling the behaviour of the Circuit Breaker.
 
+    F{{rollingWindow}} `RollingWindow` options of the `CircuitBreaker`
     F{{failureThreshold}} The threshold for request failures. When this threshold exceeds, the circuit trips.
                           The threshold should be a value between 0 and 1.
     F{{resetTimeMillis}} The time period(in milliseconds) to wait before attempting to make another request to
@@ -97,13 +98,24 @@ documentation {
     Represents a discrete sub-part of the time window (Bucket).
 
     F{{successCount}} Number of successful requests during the sub-window time frame
-    F{{failureCount}} Number of failed requests during the sub-window time frame.
+    F{{failureCount}} Number of failed requests during the sub-window time frame
 }
 public type Bucket {
     int successCount,
     int failureCount,
 };
 
+documentation {
+    Derived set of configurations from the `CircuitBreakerConfig`.
+
+    F{{failureThreshold}} The threshold for request failures. When this threshold exceeds, the circuit trips.
+                          The threshold should be a value between 0 and 1
+    F{{resetTimeMillis}} The time period(in milliseconds) to wait before attempting to make another request to
+                         the upstream service
+    F{{statusCodes}} Array of HTTP response status codes which are considered as failures
+    F{{noOfBuckets}} Number of buckets derived from the `RollingWindow`
+    F{{rollingWindow}} `RollingWindow` options provided in the `CircuitBreakerConfig`
+}
 public type CircuitBreakerInferredConfig {
    float failureThreshold,
    int resetTimeMillis,
@@ -133,6 +145,15 @@ public type CircuitBreakerClient object {
         CircuitState currentCircuitState = CB_CLOSED_STATE;
     }
 
+    documentation {
+        A Circuit Breaker implementation which can be used to gracefully handle network failures.
+
+        P{{serviceUri}} The URL of the target service
+        P{{config}} The configurations of the client endpoint associated with this `CircuitBreaker` instance
+        P{{circuitBreakerInferredConfig}} Configurations derived from `CircuitBreakerConfig`
+        P{{httpClient}}  The underlying `HttpActions` instance which will be making the actual network calls
+        P{{circuitHealth}} The circuit health monitor
+    }
     public new (string serviceUri, ClientEndpointConfig config, CircuitBreakerInferredConfig circuitBreakerInferredConfig,
                                                                             CallerActions httpClient, CircuitHealth circuitHealth) {
         self.serviceUri = serviceUri;
@@ -510,6 +531,14 @@ public function CircuitBreakerClient::rejectPromise(PushPromise promise) {
     return self.httpClient.rejectPromise(promise);
 }
 
+documentation {
+    Update circuit state.
+
+    P{{circuitHealth}}  Circuit Breaker health status
+    P{{currentStateValue}}  Circuit Breaker current state value
+    P{{circuitBreakerInferredConfig}}   Configurations derived from `CircuitBreakerConfig`
+    R{{}} State of the circuit
+}
 // TODO: make this private
 public function updateCircuitState(CircuitHealth circuitHealth, CircuitState currentStateValue,
                                    CircuitBreakerInferredConfig circuitBreakerInferredConfig) returns (CircuitState) {
@@ -621,7 +650,8 @@ function validateCircuitBreakerConfiguration(CircuitBreakerConfig circuitBreaker
 documentation {
     Calculate Failure at a given point.
 
-    P{{circuitHealth}}  - Circuit Breaker health status.
+    P{{circuitHealth}}  Circuit Breaker health status
+    R{{}} Current failure ratio
 }
 // TODO: make this private
 public function getcurrentFailureRatio(CircuitHealth circuitHealth) returns float {

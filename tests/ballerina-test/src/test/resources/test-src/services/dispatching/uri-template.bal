@@ -181,11 +181,22 @@ service<http:Service> echo111 bind testEP {
 
     @http:ResourceConfig {
         methods:["PUT"],
-        path : "/put"
+        path : "/put/add"
     }
      productsPUT (endpoint caller, http:Request req) {
         http:Response res = new;
         json responseJson = {"echo":"put"};
+        res.setJsonPayload(responseJson);
+        _ = caller -> respond(res);
+    }
+
+    @http:ResourceConfig {
+        methods:["DELETE"],
+        path : "/put/{abc}"
+    }
+    productsDELETE (endpoint caller, http:Request req, string abc) {
+        http:Response res = new;
+        json responseJson = {"echo":"delete"};
         res.setJsonPayload(responseJson);
         _ = caller -> respond(res);
     }

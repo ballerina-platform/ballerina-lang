@@ -23,23 +23,23 @@ documentation {
     F{{autoCommit}} Auto-commit behavior of connections returned from the pool
     F{{isXA}} Whether Connections are used for a distributed transaction
     F{{maximumPoolSize}} Maximum size that the pool is allowed to reach, including both idle and in-use connections
-    F{{connectionTimeout}} Maximum number of milliseconds that a client will wait for a connection from the pool
-    F{{idleTimeout}} Maximum amount of time that a connection is allowed to sit idle in the pool
-    F{{minimumIdle}} Minimum number of idle connections that pool tries to maintain in the pool
-    F{{maxLifetime}} Maximum lifetime of a connection in the pool
-    F{{validationTimeout}} Maximum amount of time that a connection will be tested for aliveness
+    F{{connectionTimeout}} Maximum number of milliseconds that a client will wait for a connection from the pool. Default is 30 seconds
+    F{{idleTimeout}} Maximum amount of time that a connection is allowed to sit idle in the pool. Default is 10 minutes
+    F{{minimumIdle}} Minimum number of idle connections that pool tries to maintain in the pool. Default is same as maximumPoolSize
+    F{{maxLifetime}} Maximum lifetime of a connection in the pool. Default is 30 minutes
+    F{{validationTimeout}} Maximum amount of time that a connection will be tested for aliveness. Default 5 seconds
 }
 public type PoolOptions {
     string connectionInitSql,
     string dataSourceClassName,
     boolean autoCommit = true,
     boolean isXA = false,
-    int maximumPoolSize = -1,
-    int connectionTimeout = -1,
-    int idleTimeout = -1,
+    int maximumPoolSize = 10,
+    int connectionTimeout = 30000,
+    int idleTimeout = 600000,
     int minimumIdle = -1,
-    int maxLifetime = -1,
-    int validationTimeout = -1,
+    int maxLifetime = 1800000,
+    int validationTimeout = 5000,
 };
 
 documentation {
@@ -140,7 +140,6 @@ documentation {
     F{{recordType}} In case of OUT direction, if the sqlType is REFCURSOR, this represents the record type to map a
                       result row
 }
-
 public type Parameter {
     SQLType sqlType,
     any value,
@@ -148,4 +147,7 @@ public type Parameter {
     typedesc recordType,
 };
 
+documentation {
+    The parameter passed into the operations.
+}
 public type Param string|int|boolean|float|Parameter;
