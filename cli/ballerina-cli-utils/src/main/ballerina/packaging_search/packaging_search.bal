@@ -47,17 +47,17 @@ function search (string url, string querySearched) {
             
             printTitle("Ballerina Central");
 
-            printInCLI("NAME", 17);
-            printInCLI("DESCRIPTION", 30);
-            printInCLI("AUTHOR", 8);
+            printInCLI("NAME", 16);
+            printInCLI("DESCRIPTION", 25);
+            printInCLI("AUTHOR", 7);
             printInCLI("DATE", 15);
             printInCLI("VERSION", 8);
 
             io:println("");
 
-            printCharacter("-", 17, "-");
-            printCharacter("-", 30, "-");
-            printCharacter("-", 8, "-");
+            printCharacter("-", 16, "-");
+            printCharacter("-", 25, "-");
+            printCharacter("-", 7, "-");
             printCharacter("-", 15, "-");
             printCharacter("-", 8, "-");
 
@@ -68,10 +68,10 @@ function search (string url, string querySearched) {
                 json jsonElement = artifacts[i];
                 string orgName = jsonElement.orgName.toString();
                 string packageName = jsonElement.packageName.toString();
-                printInCLI(orgName + "/" + packageName, 17);
+                printInCLI(orgName + "/" + packageName, 16);
                 
                 string summary = jsonElement.summary.toString();
-                printInCLI(summary, 30);
+                printInCLI(summary, 25);
                 
                 string authors = "";
                 json authorsArr = jsonElement.authors;
@@ -82,7 +82,7 @@ function search (string url, string querySearched) {
                         authors = authors + " , " + authorsArr[authorIndex].toString();
                     }
                 }
-                printInCLI(authors, 8);
+                printInCLI(authors, 7);
 
                 json createTimeJson = <json> jsonElement.createdDate;
                 printInCLI(getDateCreated(createTimeJson), 15);
