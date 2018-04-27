@@ -978,11 +978,9 @@
     "after typeKind": ""
   },
   "Variable": {
-    "before typeNode": "",
-    "after typeNode": " ",
     "before endpoint": "",
-    "after endpoint": " ",
-    "before name": "",
+    "after endpoint": "",
+    "before name": " ",
     "after name": " ",
     "before {": "",
     "after {": "",
