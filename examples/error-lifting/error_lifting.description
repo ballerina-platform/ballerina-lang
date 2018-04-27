@@ -1,6 +1,6 @@
-// Error lifting operator allows to walk down a set of fields, without worrying whether 
-// there will be a null or error along the way. In an event of error (or null), it will stop 
-// the navigation and the value of the entire expression will be error.
+// The error lifting operator enables you to navigate through a set of fields without worrying about 
+// a null or error response along the way. In an event of an error (or null) response, the operator stops
+// the navigation and the value of the entire expression is changed to `error`.
 
 // Syntax:
 //     a!b!c
