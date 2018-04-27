@@ -69,7 +69,7 @@ public type Request object {
     }
     public native function getEntity() returns mime:Entity|error;
 
-    //Gets the `Entity` from the request without the body. This function is only for use within the package
+    //Gets the `Entity` from the request without the body. This function is exposed only to be used internally.
     native function getEntityWithoutBody() returns mime:Entity;
 
     documentation {

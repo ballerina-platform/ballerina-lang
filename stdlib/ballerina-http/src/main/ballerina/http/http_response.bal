@@ -54,11 +54,11 @@ public type Response object {
     public native function getEntity() returns mime:Entity|error;
 
     documentation {
-        Gets the `Entity` from the response without the entity body.
+        Gets the `Entity` from the response without the entity body. This function is exposed only to be used internally.
 
         R{{}} The `Entity` of the response
     }
-    public native function getEntityWithoutBody() returns mime:Entity;
+    native function getEntityWithoutBody() returns mime:Entity;
 
     documentation {
         Sets the provided `Entity` to the response.
