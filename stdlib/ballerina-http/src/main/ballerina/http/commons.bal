@@ -34,7 +34,7 @@ documentation {Constant for the HTTP HEAD method}
 @final public HttpOperation HTTP_NONE = "NONE";
 
 documentation {
-    Defines the HTTP oprtations related to circuit breaker, failover and load balancer.
+    Defines the HTTP operations related to circuit breaker, failover and load balancer.
 
     `FORWARD`: Forward the specified payload
     `GET`: Request a resource
