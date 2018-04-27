@@ -4,8 +4,8 @@ import ballerina/grpc;
 
 // The server endpoint configuration.
 endpoint grpc:Listener ep {
-    host: "localhost",
-    port: 9090
+    host:"localhost",
+    port:9090
 };
 
 service HelloWorld bind ep {
@@ -17,8 +17,9 @@ service HelloWorld bind ep {
         io:println(headers.get("Keep-Alive"));
         grpc:Headers resHeader = new;
         resHeader.setEntry("Host", "ballerina.io");
-        error? err = caller->send(message, headers = headers);
-        io:println(err.message but { () => "Server send response : " + message });
+        error? err = caller->send(message, headers = resHeader);
+        io:println(err.message but { () => "Server send response : " +
+                                                                    message });
         _ = caller->complete();
     }
 }

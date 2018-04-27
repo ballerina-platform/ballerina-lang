@@ -1,7 +1,8 @@
 import ballerina/http;
 import ballerina/log;
 
-// Create a new service endpoint to accept new connections that are secured via mutual SSL.
+// Create a new service endpoint to accept new connections
+//that are secured via mutual SSL.
 endpoint http:Listener helloWorldEP {
     port: 9095,
     secureSocket: {
@@ -40,14 +41,15 @@ service helloWorld bind helloWorldEP {
         // Set the response payload.
         res.setPayload("Successful");
         // Send response to client.
-        caller->respond(res) but { error e => log:printError("Error in responding ", err = e) };
+        caller->respond(res) but {
+            error e => log:printError("Error in responding", err = e) };
     }
 }
 
-// Create a new client endpoint to connect to the service endpoint you created above via mutual SSL.
-// The Ballerina client can be used to connect to the created HTTPS listener.
-// Provide the `keyStoreFile`, `keyStorePassword`, `trustStoreFile`,
-// and `trustStorePassword` in the client. 
+// Create a new client endpoint to connect to the service endpoint you created
+//above via mutual SSL. The Ballerina client can be used to connect to the
+//created HTTPS listener. Provide the `keyStoreFile`, `keyStorePassword`,
+//`trustStoreFile` and `trustStorePassword` in the client.
 endpoint http:Client clientEP {
     url: "https://localhost:9095",
     secureSocket: {
