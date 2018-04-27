@@ -297,7 +297,7 @@ public class MimeUtil {
      * @param entityStruct Represent 'Entity'
      * @param length       Size of the entity body
      */
-    public static void setContentLength(BStruct entityStruct, int length) {
+    public static void setContentLength(BStruct entityStruct, long length) {
         entityStruct.setIntField(SIZE_INDEX, length);
     }
 

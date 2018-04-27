@@ -327,6 +327,9 @@ class SizingUtil {
      * @param {object} node function node
      */
     sizeFunctionNode(node) {
+        if (!node.body) {
+            return; // This is to handle function pointers in objects.
+        }
         const viewState = node.viewState;
         const functionBodyViewState = node.body.viewState;
         const cmp = viewState.components;
@@ -1686,8 +1689,11 @@ class SizingUtil {
                 viewState.displayText = displayText.text;
             }
             if (TreeUtil.isExpressionStatement(node)) {
-                const exp = node.getExpression();
-                const argExpSource = exp.getArgumentExpressions().map((arg) => {
+                let exp2 = node.getExpression();
+                if (TreeUtil.isMatchExpression(exp2)) {
+                    exp2 = exp2.expression;
+                }
+                const argExpSource = exp2.argumentExpressions.map((arg) => {
                     return arg.getSource(true, true);
                 }).join(', ');
                 const displayText = this.getTextWidth(argExpSource, 0,

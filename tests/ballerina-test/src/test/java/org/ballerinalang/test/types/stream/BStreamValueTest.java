@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.test.types.stream;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -37,10 +38,33 @@ import java.util.Objects;
 public class BStreamValueTest {
 
     private CompileResult result;
+    private CompileResult failureResult;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/stream/stream-value.bal");
+        failureResult = BCompileUtil.compile("test-src/types/stream/stream-negative.bal");
+    }
+
+    @Test(description = "Test streams for invalid scenarios")
+    public void testConstrainedStreamNegative() {
+        Assert.assertEquals(failureResult.getErrorCount(), 8);
+        BAssertUtil.validateError(failureResult, 0, "incompatible types: expected 'stream<int>',"
+                                  + " found 'stream'", 14, 12);
+        BAssertUtil.validateError(failureResult, 1, "incompatible types: expected 'stream<int>',"
+                                  + " found 'stream<string>'", 19, 12);
+        BAssertUtil.validateError(failureResult, 2, "incompatible types: expected"
+                                  + " 'stream<Person>', found 'stream<Employee>'", 24, 37);
+        BAssertUtil.validateError(failureResult, 3, "incompatible types: expected"
+                                  + " 'stream<Person>', found 'stream'", 30, 37);
+        BAssertUtil.validateError(failureResult, 4, "incompatible types: 'stream<Employee>'"
+                                  + " cannot be converted to 'stream<Person>'", 41, 24);
+        BAssertUtil.validateError(failureResult, 5, "incompatible types: 'Employee' cannot be"
+                                  + " converted to 'stream<int>'", 48, 17);
+        BAssertUtil.validateError(failureResult, 6, "incompatible types: 'stream<Person>' cannot"
+                                  + " be converted to 'stream<Employee>'", 55, 26);
+        BAssertUtil.validateError(failureResult, 7, "incompatible types: 'any' cannot be"
+                                  + " converted to 'stream<Employee>'", 63, 18);
     }
 
     @Test(description = "Test publishing objects of invalid type to a stream",

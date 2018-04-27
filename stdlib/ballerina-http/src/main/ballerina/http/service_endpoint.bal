@@ -119,7 +119,6 @@ documentation {
     F{{port}} The port to which the endpoint should bind to
     F{{keepAlive}} Can be set to either `KEEPALIVE_AUTO`, which respects the `connection` header, or `KEEPALIVE_ALWAYS`,
                    which always keeps the connection alive, or `KEEPALIVE_NEVER`, which always closes the connection
-    F{{transferEncoding}} The types of encoding applied to the response
     F{{secureSocket}} The SSL configurations for the service endpoint. This needs to be configured in order to
                       communicate through HTTPS.
     F{{httpVersion}} Highest HTTP version supported by the endpoint
@@ -131,7 +130,6 @@ public type ServiceEndpointConfiguration {
     string host,
     int port,
     KeepAlive keepAlive = KEEPALIVE_AUTO,
-    TransferEncoding transferEncoding = TRANSFERENCODE_CHUNKING,
     ServiceSecureSocket? secureSocket,
     string httpVersion = "1.1",
     RequestLimits? requestLimits,

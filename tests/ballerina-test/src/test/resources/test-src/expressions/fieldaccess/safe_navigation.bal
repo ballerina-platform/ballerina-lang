@@ -238,3 +238,21 @@ function testCountOnNullJSON (json inputJson) {
     json j = {name:"John"};
     int count = j.foo.bar.count();
 }
+
+type Student object {
+    public {
+        string name;
+        int marks = 60;
+    }
+
+    function increaseMarks() {
+        marks = marks + 1;
+    }
+};
+
+function testFunctionInvocOnNullabeType() returns int {
+    Student s1 = new;
+    Student|() s2 = s1;
+    s2.increaseMarks();
+    return s2.marks ?: -1;
+}

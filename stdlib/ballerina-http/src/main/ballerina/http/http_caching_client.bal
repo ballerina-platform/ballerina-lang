@@ -205,7 +205,7 @@ public type HttpCachingClient object {
         Retrieves the `Response` for a previously submitted request.
 
         P{{httpFuture}} The `HttpFuture` related to a previous asynchronous invocation
-        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
+        R{{}} An HTTP response message, or an `error` if the invocation fails
     }
     public function getResponse(HttpFuture httpFuture) returns Response|error;
 

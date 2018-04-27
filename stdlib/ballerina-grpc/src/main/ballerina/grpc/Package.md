@@ -5,7 +5,7 @@ to support the RPC (Remote Procedure Call) protocol. The gRPC protocol is layere
 ### Protocol buffers
 This is a mechanism to serialize the structured data introduced by Google and used by the gRPC framework. Specify the
  structured data that needs to be serialized in the  `.proto` file. This package contains functions to automatically generate the `.proto` file based on the service definition of a gRPC service. A sample `.proto` file is shown below.
-```
+```ballerina
 syntax = "proto3";
 import "google/protobuf/wrappers.proto";
 service ServerStreaming {

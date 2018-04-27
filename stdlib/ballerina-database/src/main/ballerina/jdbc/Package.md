@@ -4,13 +4,14 @@ This package provides the functionality required to access and manipulate data s
 
 ### Endpoint 
 
-To access a database, you must first create an `endpoint`, which is a virtual representation of the physical endpoint that you are trying to connect to. Create an endpoint of the JDBC client type (i.e., `jdbc:Client`) and provide the necessary connection parameters. This will create a pool of connections to the specified database. A sample for creating an endpoint with the JDBC client can be found below. 
+To access a database, you must first create an `endpoint`, which is a virtual representation of the physical endpoint that you are trying to connect to. Create an endpoint of the JDBC client type (i.e., `jdbc:Client`) and provide the necessary connection parameters. This will create a pool of connections to the specified database. A sample for creating an endpoint with a JDBC client can be found below. 
 
-**NOTE**: Although the JDBC client type supports connecting to any type of relational database that is accessible via JDBC, if you are using a MySQL or H2 database, it is recommended to use endpoints that are created using the client types specific to them via the relevant Ballerina packages. 
+**NOTE**: Althought the JDBC client type supports connecting to any type of relational database that is accessible via JDBC, if you are using a MySQL or H2 database, it is recommended to use endpoints that are created using the client types specific to them via the relevant Ballerina packages. 
 
 ### Database operations
 
-Once the endpoint is created, database operations can be executed through that endpoint. This package provides support for creating tables and executing stored procedures. It also supports selecting, inserting, deleting, updating, and batch updating data. Samples for these operations can be found below. Details of the SQL data types and query parameters relevant to these database operations can be found in SQL package documentation. 
+Once the endpoint is created, database operations can be executed through that endpoint. This package provides support for creating tables and executing stored procedures. It also supports selecting, inserting, deleting, updating, and batch updating data. Samples for these operations can be found below. Details of the SQL data types and query parameters relevant for these database operations can be found in the documentation for the SQL package. 
+
 
 ## Samples
 
@@ -28,7 +29,7 @@ The full list of endpoint properties can be found listed under the `sql:PoolOpti
 
 ### Creating tables
 
-This sample creates a table with two columns. One field is of type `int`, and the other is of type `varchar`. The CREATE statement is executed via the `update` operation of the endpoint.
+This sample creates a table with two columns. One column is of type `int`, and the other is of type `varchar`. The CREATE statement is executed via the `update` operation of the endpoint.
 
 ```ballerina
 // Create the ‘Students’ table with fields ‘StudentID’ and ‘LastName’.
@@ -65,7 +66,7 @@ match ret2 {
 }
 ```
 
-In the third example, parameter values are passed as an `sql:Parameter` to the `update` operation. Use `sql:Parameter` when you need to provide more details such as the exact sql type of the parameter, the parameter direction, etc. The default parameter direction is "IN". For more details on parameters, see the `sql` package.
+In the third example, parameter values are passed as an `sql:Parameter` to the `update` operation. Use `sql:Parameter` when you need to provide more details such as the exact SQL type of the parameter, or the parameter direction. The default parameter direction is "IN". For more details on parameters, see the `sql` package.
 
 ```ballerina
 sql:Parameter p1 = { sqlType: sql:TYPE_INTEGER, value: 3 };
@@ -137,7 +138,6 @@ foreach record in dt {
     io:println("Student:" + record.id + "|" + record.name + "|" + record.age);
 }
 ````
-
 
 ### Updating data
 
@@ -264,6 +264,3 @@ match rmRet {
     error err => io:println("Removing from table failed: " + err.message);
 }
 ```
-
-
-

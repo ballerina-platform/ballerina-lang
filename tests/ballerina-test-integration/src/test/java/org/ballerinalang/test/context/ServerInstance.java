@@ -222,10 +222,20 @@ public class ServerInstance implements Server {
     }
 
     /**
+     * Run main with args.
+     *
+     * @param args string arguments
+     * @throws BallerinaTestException if the main could not be started
+     */
+    public void runMain(String[] args) throws BallerinaTestException {
+        runMain(args, null, "run");
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
-    public void runMain(String[] args) throws BallerinaTestException {
+    public void runMain(String[] args, String [] envVariables, String command) throws BallerinaTestException {
 
         initialize();
 
@@ -238,16 +248,16 @@ public class ServerInstance implements Server {
         try {
             if (Utils.getOSName().toLowerCase().contains("windows")) {
                 commandDir = new File(serverHome + File.separator + "bin");
-                cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat", "run"};
+                cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat", command};
                 String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
                         .toArray(String[]::new);
-                process = Runtime.getRuntime().exec(cmdArgs, null, commandDir);
+                process = Runtime.getRuntime().exec(cmdArgs, envVariables, commandDir);
 
             } else {
-                cmdArray = new String[]{"bash", "bin/" + scriptName, "run"};
+                cmdArray = new String[]{"bash", "bin/" + scriptName, command};
                 String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
                         .toArray(String[]::new);
-                process = Runtime.getRuntime().exec(cmdArgs, null, commandDir);
+                process = Runtime.getRuntime().exec(cmdArgs, envVariables, commandDir);
             }
             serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
             tmpLeechers.forEach(leacher -> serverInfoLogReader.addLeecher(leacher));

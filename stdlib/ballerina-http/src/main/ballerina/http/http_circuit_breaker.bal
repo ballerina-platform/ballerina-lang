@@ -236,11 +236,10 @@ public type CircuitBreakerClient object {
     documentation {
         Circuit breaking not supported. Defaults to the `submit()` function of the underlying HTTP actions provider.
 
-        P{{httpVerb}} The HTTP verb
+        P{{httpVerb}} The HTTP verb value
         P{{path}} The resource path
         P{{request}} An HTTP outbound request message
-        R{{}} The `Future` for further interactions
-        R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
+        R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
     }
     public function submit(string httpVerb, string path, Request request) returns HttpFuture|error;
 
@@ -248,17 +247,16 @@ public type CircuitBreakerClient object {
         Circuit breaking not supported. Defaults to the `getResponse()` function of the underlying HTTP
         actions provider.
 
-        P{{httpFuture}} The Future which relates to previous async invocation
-        R{{}} The HTTP response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
+        P{{httpFuture}} The `HttpFuture` related to a previous asynchronous invocation
+        R{{}} An HTTP response message, or an `error` if the invocation fails
     }
     public function getResponse(HttpFuture httpFuture) returns Response|error;
 
     documentation {
         Circuit breaking not supported. Defaults to the `hasPromise()` function of the underlying HTTP actions provider.
 
-        P{{httpFuture}} The Future which relates to previous async invocation
-        R{{}} Returns true if the `PushPromise` exists
+        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
+        R{{}} A `boolean` that represents whether a `PushPromise` exists
     }
     public function hasPromise(HttpFuture httpFuture) returns (boolean);
 
@@ -266,19 +264,17 @@ public type CircuitBreakerClient object {
         Circuit breaking not supported. Defaults to the `getNextPromise()` function of the underlying HTTP
         actions provider.
 
-        P{{httpFuture}} The Future which relates to previous async invocation
-        R{{}} The HTTP Push Promise message
-        R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
+        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
+        R{{}} An HTTP `PushPromise` message, or an `error` if the invocation fails
     }
-    public function getNextPromise(HttpFuture httpFuture) returns (PushPromise|error);
+    public function getNextPromise(HttpFuture httpFuture) returns PushPromise|error;
 
     documentation {
         Circuit breaking not supported. Defaults to the `getPromisedResponse()` function of the underlying HTTP
         actions provider.
 
-        P{{promise}} The related Push Promise message
-        R{{}} The Push Response message
-        R{{}} The error occurred while attempting to fulfill the HTTP request (if any)
+        P{{promise}} The related `PushPromise`
+        R{{}} A promised HTTP `Response` message, or an `error` if the invocation fails
     }
     public function getPromisedResponse(PushPromise promise) returns Response|error;
 
@@ -490,32 +486,28 @@ public function CircuitBreakerClient::forward(string path, Request request) retu
    }
 }
 
-public function CircuitBreakerClient::submit(string httpVerb, string path, Request request) returns HttpFuture|
-        error {
-   error err = {message:"Unsupported action for Circuit breaker"};
-   return err;
+public function CircuitBreakerClient::submit(string httpVerb, string path, Request request) returns HttpFuture|error {
+    return self.httpClient.submit(httpVerb, path, request);
 }
 
 public function CircuitBreakerClient::getResponse(HttpFuture httpFuture) returns Response|error {
-   error err = {message:"Unsupported action for Circuit breaker"};
-   return err;
+    return self.httpClient.getResponse(httpFuture);
 }
 
-public function CircuitBreakerClient::hasPromise (HttpFuture httpFuture) returns (boolean) {
-   return false;
+public function CircuitBreakerClient::hasPromise(HttpFuture httpFuture) returns boolean {
+    return self.httpClient.hasPromise(httpFuture);
 }
 
-public function CircuitBreakerClient::getNextPromise (HttpFuture httpFuture) returns (PushPromise | error) {
-   error err = {message:"Unsupported action for Circuit breaker"};
-   return err;
+public function CircuitBreakerClient::getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+    return self.httpClient.getNextPromise(httpFuture);
 }
 
 public function CircuitBreakerClient::getPromisedResponse(PushPromise promise) returns Response|error {
-    error err = {message:"Unsupported action for Circuit breaker"};
-    return err;
+    return self.httpClient.getPromisedResponse(promise);
 }
 
 public function CircuitBreakerClient::rejectPromise(PushPromise promise) {
+    return self.httpClient.rejectPromise(promise);
 }
 
 // TODO: make this private

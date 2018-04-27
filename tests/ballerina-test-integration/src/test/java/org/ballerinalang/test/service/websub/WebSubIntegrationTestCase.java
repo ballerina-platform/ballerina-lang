@@ -114,12 +114,12 @@ public class WebSubIntegrationTestCase extends IntegrationTestCase {
 
     @Test(dependsOnMethods = "testStartUpAndIntentVerification")
     public void testContentReceiptForDirectHubNotification() throws BallerinaTestException {
-        internalHubNotificationLogLeecher.waitForText(20000);
+        internalHubNotificationLogLeecher.waitForText(30000);
     }
 
     @Test(dependsOnMethods = "testStartUpAndIntentVerification")
     public void testContentReceiptForRemoteHubNotification() throws BallerinaTestException {
-        remoteHubNotificationLogLeecher.waitForText(20000);
+        remoteHubNotificationLogLeecher.waitForText(30000);
     }
 
     @AfterClass

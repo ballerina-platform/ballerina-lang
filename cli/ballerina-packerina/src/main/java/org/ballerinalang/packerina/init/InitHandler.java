@@ -18,6 +18,7 @@
 
 package org.ballerinalang.packerina.init;
 
+import org.ballerinalang.packerina.init.models.PackageMdFile;
 import org.ballerinalang.packerina.init.models.SrcFile;
 import org.ballerinalang.toml.model.Manifest;
 
@@ -45,9 +46,11 @@ public class InitHandler {
      * @param manifest    The manifest for Ballerina.toml.
      * @param srcFiles    The source files.
      */
-    public static void initialize(Path projectPath, Manifest manifest, List<SrcFile> srcFiles) throws IOException {
+    public static void initialize(Path projectPath, Manifest manifest, List<SrcFile> srcFiles,
+                                  List<PackageMdFile> packageMdFile) throws IOException {
         createBallerinaToml(projectPath, manifest);
         createBallerinaCacheFile(projectPath);
+        createPackageMd(projectPath, packageMdFile);
         createSrcFolder(projectPath, srcFiles);
 
         String ignoreFileContent = "target/\n";
@@ -69,6 +72,32 @@ public class InitHandler {
                 Files.createFile(tomlPath);
                 // Writing content.
                 writeContent(tomlPath, getManifestContent(manifest));
+            }
+        }
+    }
+
+    /**
+     * Create Package.md for a package.
+     *
+     * @param projectPath       The project path.
+     * @param packageMdFileList packageMD file list to be created.
+     * @throws IOException If file write exception occurs.
+     */
+    private static void createPackageMd(Path projectPath, List<PackageMdFile> packageMdFileList) throws IOException {
+        if (null != packageMdFileList && packageMdFileList.size() > 0) {
+            for (PackageMdFile packageMdFile : packageMdFileList) {
+                Path packagePath = projectPath.resolve(packageMdFile.getName());
+
+                if (!Files.exists(packagePath)) {
+                    Files.createDirectory(packagePath);
+                }
+
+                Path srcFilePath = packagePath.resolve("Package.md");
+
+                if (!Files.exists(srcFilePath)) {
+                    Files.createFile(srcFilePath);
+                    writeContent(srcFilePath, packageMdFile.getContent());
+                }
             }
         }
     }

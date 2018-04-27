@@ -43,7 +43,10 @@ public type Client object {
     }
     public function init(HubClientEndpointConfig config) {
         endpoint http:Client httpClientEndpoint {
-            url:config.url, secureSocket:config.secureSocket, auth:config.auth
+            url:config.url,
+            secureSocket:config.secureSocket,
+            auth:config.auth,
+            followRedirects:config.followRedirects
         };
 
         self.httpClientEndpoint = httpClientEndpoint;
@@ -57,7 +60,7 @@ public type Client object {
     }
     public function getCallerActions() returns (CallerActions) {
         //TODO: create a single object - move to init
-        CallerActions webSubHubClientConn = new CallerActions(config.url, httpClientEndpoint);
+        CallerActions webSubHubClientConn = new CallerActions(config.url, httpClientEndpoint, config.followRedirects);
         return webSubHubClientConn;
     }
 
@@ -69,9 +72,11 @@ documentation {
     F{{url}} The URL of the target Hub
     F{{secureSocket}} SSL/TLS related options for the underlying HTTP Client
     F{{auth}} Authentication mechanism for the underlying HTTP Client
+    F{{followRedirects}} HTTP redirect related configuration
 }
 public type HubClientEndpointConfig {
     string url,
     http:SecureSocket? secureSocket,
     http:AuthConfig? auth,
+    http:FollowRedirects? followRedirects,
 };

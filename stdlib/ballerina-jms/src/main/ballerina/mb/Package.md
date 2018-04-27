@@ -1,9 +1,9 @@
 ## Package overview
 
-This `ballerina/mb` package provides an API to connect to Ballerina Message Broker instance.
+The `ballerina/mb` package provides an API to connect to a Ballerina Message Broker instance.
 
 The package provides consumer and producer endpoint types for queues and topics. Following are the endpoint types
-supported by this package
+supported by this package:
 
 - SimpleQueueReceiver
 - SimpleTopicSubscriber
@@ -31,7 +31,7 @@ mb:SimpleQueueReceiver receiver {
 // Bind the receiver to the queue to get the messages.
 service<mb:Consumer> mbListener bind receiver {
 
-   // Receive the messages that comes to the queue.
+   // Receive the messages that come to the queue.
    onMessage(endpoint consumer, mb:Message message) {
        match (message.getTextMessageContent()) {
            string messageText => log:printInfo("Message : " + messageText);
@@ -57,7 +57,7 @@ endpoint mb:SimpleQueueSender queueSender {
 };
 
 function main (string... args) {
-   // Create a Text message.
+   // Create a text message.
    match (queueSender.createTextMessage("Hello from Ballerina")) {
        error e => {
            log:printError("Error occurred while creating message", err = e);
@@ -70,4 +70,3 @@ function main (string... args) {
    }
 }
 ```
-

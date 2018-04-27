@@ -1,5 +1,5 @@
 ## Package Overview
-This package provides functions to transmit and receive messages that have multiple parts, such as an attachment. The communication of such messages follow the MIME (Multipurpose Internet Mail Extensions) specification as specified in the RFC 2045 standard.
+This package provides functions to encapsulate multiple body parts, such as attachments in a single message. The communication of such messages follow the MIME (Multipurpose Internet Mail Extensions) specification as specified in the RFC 2045 standard.
 ### MIME Specific terms 
 The following terms are MIME specific and are extracted from the MIME specification.
 #### Entity
@@ -17,8 +17,8 @@ Content-Type: image/jpeg
 Content-Disposition: attachment; filename=genome.jpeg;
 Content-Description: a complete map of the human genome
 ```
-### Modify and retrieve the data in an `Entity`
-The package provides functions to set and get an entity body from different kinds of message types.  For example, XML, text, JSON, blob, and body parts. Headers can be modified through functions such as `addHeader()`, `setHeader()`, `removeHeader()`, etc. 
+### Modify and retrieve the data in an Entity
+The package provides functions to set and get an entity body from different kinds of message types, such as XML, text, JSON, blob, and body parts. Headers can be modified through functions such as `addHeader()`, `setHeader()`, `removeHeader()`, etc. 
 ## Samples
 ### Handle multipart request
 The sample service given below handles a multipart request. It gets the message from each part of the body, converts the messages to a `string`, and sends a response.
@@ -63,7 +63,7 @@ service<http:Service> test bind {port:9090} {
 
 // The function that handles the content based on the body part type.
 function handleContent(mime:Entity bodyPart) returns (string) {
-   // Getting the base type of the specific body part.
+   // Get the base type of the specific body part.
    string baseType = check mime:getMediaType(bodyPart.getContentType())!getBaseType();
 
    // If the base type is ‘application/xml’ or ‘text/xml’, get the XML content from body part.
@@ -93,12 +93,12 @@ The sample request that is sent to the above service is shown below.
 curl -v -F "request={\"param1\": \"value1\"};type=application/json" -F "language=ballerina;type=text/plain" -F "upload=@/home/path-to-file/encode.txt;type=application/octet-stream"  http://localhost:9090/test/multipleparts -H "Expect:"
 ```
 ### Create a multipart response
-The sample given below creates a multipart request. It includes ‘application/json’ and ‘text/xml’ type content.
+The sample given below creates a multipart request. It includes `application/json` and `text/xml` type content.
 
 ``` ballerina
 // Create a JSON body part.
 mime:Entity bodyPart1 = new;
-// Finally, set the JSON content.
+// Set the JSON content.
 bodyPart1.setJson({"bodyPart":"jsonPart"});
 
 // Create another body part using an XML file.

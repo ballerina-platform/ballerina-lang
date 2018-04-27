@@ -68,7 +68,8 @@ public type JWTAuthProvider object {
     function authenticateFromCache(string jwtToken) returns internal:JwtPayload|() {
         match <CachedJWTAuthContext>self.authCache.get(jwtToken) {
             CachedJWTAuthContext context => {
-                if (context.expiryTime > time:currentTime().time) {
+                // convert to current time and check the expiry time
+                if (context.expiryTime > (time:currentTime().time / 1000)) {
                     internal:JwtPayload payload = context.jwtPayload;
                     log:printDebug("Authenticate user :" + payload.sub + " from cache");
                     return payload;
@@ -92,31 +93,19 @@ public type JWTAuthProvider object {
         userPrincipal.userId = jwtPayload.sub;
         // By default set sub as username.
         userPrincipal.username = jwtPayload.sub;
+        userPrincipal.claims = jwtPayload.customClaims;
         if (jwtPayload.customClaims.hasKey(SCOPES)) {
             match jwtPayload.customClaims[SCOPES] {
                 string scopeString => {
                     userPrincipal.scopes = scopeString.split(" ");
-                    _ = jwtPayload.customClaims.remove(SCOPES);
                 }
                 any => {}
             }
         }
-
-        //if (jwtPayload.customClaims.hasKey(GROUPS)) {
-        //    match jwtPayload.customClaims[GROUPS] {
-        //        string[] userGroups => {
-        //            authContext.groups = userGroups;
-        //            _ = jwtPayload.customClaims.remove(GROUPS);
-        //        }
-        //        any => {}
-        //    }
-        //}
-
         if (jwtPayload.customClaims.hasKey(USERNAME)) {
             match jwtPayload.customClaims[USERNAME] {
                 string name => {
                     userPrincipal.username = name;
-                    _ = jwtPayload.customClaims.remove(USERNAME);
                 }
                 any => {}
             }

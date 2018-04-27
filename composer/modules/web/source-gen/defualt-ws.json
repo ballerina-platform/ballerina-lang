@@ -269,6 +269,12 @@
     "before }": "",
     "after }": ""
   },
+  "Done": {
+    "before done": "",
+    "after done": "",
+    "before ;": "",
+    "after ;": ""
+  },
   "ElvisExpr": {
     "before leftExpression": "",
     "after leftExpression": "",
@@ -491,6 +497,12 @@
     "before functionNode": "",
     "after functionNode": ""
   },
+  "Limit": {
+    "before limit": " ",
+    "after limit": "",
+    "before limitValue": " ",
+    "after limitValue": ""
+  },
   "Literal": {
     "before unescapedValue": "",
     "after unescapedValue": "",
@@ -530,8 +542,8 @@
     "after }": ""
   },
   "MatchExpression": {
-    "before expr":"",
-    "after expr": " ",
+    "before expression":"",
+    "after expression": " ",
     "before but": "",
     "after but": " ",
     "before {": "",
@@ -587,11 +599,35 @@
     "before }":"",
     "after }": ""
   },
+  "OrderBy": {
+    "before order": "",
+    "after order": "",
+    "before by":"",
+    "after by": ""
+  },
+  "OrderByVariable": {
+    "before orderByType": " ",
+    "after orderByType": ""
+  },
   "PostIncrement": {
     "before variable": "",
     "after variable": "",
     "before operator": "",
     "after operator": "",
+    "before ;": "",
+    "after ;": ""
+  },
+  "Record": {
+    "before type": "",
+    "after type": " ",
+    "before name": "",
+    "after name": " ",
+    "before {": "",
+    "after {": "",
+    "before fields": "",
+    "after fields": "",
+    "before }": "",
+    "after }": "",
     "before ;": "",
     "after ;": ""
   },
@@ -646,8 +682,6 @@
   "Retry": {
     "before retry": "",
     "after retry": "",
-    "before count": " ",
-    "after count": "",
     "before ;": "",
     "after ;": ""
   },
@@ -726,6 +760,14 @@
   "Table": {
     "before table": "",
     "after table": ""
+  },
+  "TableQuery": {
+    "before from": "",
+    "after from": ""
+  },
+  "TableQueryExpression": {
+    "before tableQuery": "",
+    "after tableQuery": ""
   },
   "TernaryExpr": {
     "before condition": "",
@@ -937,9 +979,9 @@
   },
   "Variable": {
     "before typeNode": "",
-    "after typeNode": "",
-    "before name": " ",
-    "after name": "",
+    "after typeNode": " ",
+    "before name": "",
+    "after name": " ",
     "before {": "",
     "after {": "",
     "before initialExpression": "",
