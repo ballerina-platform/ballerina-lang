@@ -40,24 +40,25 @@ class EndpointAggregatorUtil {
     aggregateResourceNode(node) {
         this.aggregateAllVisibleEndpoints(node);
     }
-    
+
     aggregateAllVisibleEndpoints(node) {
         const visibleOuterEndpoints = TreeUtil.getAllEndpoints(node.parent);
-        const invocationStmts = node.body ? _.filter(node.body.statements, function (statement) {
-            return (((TreeUtil.isExpressionStatement(statement) || TreeUtil.isAssignment(statement))
-            && TreeUtil.isInvocation(statement.expression)
-            && statement.expression.actionInvocation)
-            ||(TreeUtil.isVariableDef(statement) && statement.variable.initialExpression.actionInvocation));
+        const invocationStmts = node.body ? _.filter(node.body.statements, (statement) => {
+            return TreeUtil.getInvocation(statement);
         }) : [];
 
-        node.endpointNodes = _.filter(node.endpointNodes, function (endpoint) {
+        node.endpointNodes = _.filter(node.endpointNodes, (endpoint) => {
             return endpoint.id;
         });
-        _.forEach(visibleOuterEndpoints, function (ep) {
-            const invocationIndex = _.findIndex(invocationStmts, function (invocation) {
-                var refName;
+        _.forEach(visibleOuterEndpoints, (ep) => {
+            const invocationIndex = _.findIndex(invocationStmts, (invocation) => {
+                let refName;
                 if (TreeUtil.isVariableDef(invocation)) {
-                    refName = invocation.variable.initialExpression.expression.variableName.value;
+                    if (TreeUtil.isCheckExpr(invocation.variable.initialExpression)) {
+                        refName = invocation.variable.initialExpression.expression.expression.variableName.value;
+                    } else {
+                        refName = invocation.variable.initialExpression.expression.variableName.value;
+                    }
                 } else {
                     refName = invocation.expression.expression.variableName.value;
                 }
@@ -68,12 +69,12 @@ class EndpointAggregatorUtil {
                     name: ep.name,
                     viewState: {
                         alias: undefined,
-                        bBox: new SimpleBBox()
+                        bBox: new SimpleBBox(),
                     },
                     kind: ep.kind,
                     endPointType: ep.endPointType,
                     parent: ep.parent,
-                    skipSourceGen: true
+                    skipSourceGen: true,
                 };
                 node.endpointNodes.push(epClone);
             }
