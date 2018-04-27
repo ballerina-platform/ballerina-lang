@@ -51,7 +51,7 @@
       },
       {
         "name": "Rest Parameters",
-        "url": "functions-with-rest-parameters"
+        "url": "functions-with-rest-parameter"
       },
       {
         "name": "Documentation",
@@ -535,7 +535,7 @@
       },
       {
         "name": "Protobuff-tool",
-        "url": "protobuff-tool"
+        "url": "proto-to-ballerina"
       }
     ]
   },
@@ -648,7 +648,7 @@
         "url": "math-functions"
       },
       {
-        "name": "XML",
+        "name": "XML Functions",
         "url": "xml-functions"
       },
       {
