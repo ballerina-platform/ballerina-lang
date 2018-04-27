@@ -1,3 +1,5 @@
+#At the command line, navigate to the directory that contains the 
+#`.bal` file and run the `ballerina run` command. 
 $ ballerina run fork_join_variable_access.bal
 [default worker] before fork-join: value of name is [Abhaya] value of era is [Anuradhapura]
 [default worker] within join: value of integer variable from W1 is [23]
