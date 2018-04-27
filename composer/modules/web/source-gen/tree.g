@@ -119,7 +119,8 @@ ElvisExpr
    ;
 
 Endpoint
-   :  <annotationAttachments>* endpoint <endPointType.source> <name.value> <configurationExpression.source> ;
+   :  <skipSourceGen?>
+   |                   <annotationAttachments>* endpoint <endPointType.source> <name.value> <configurationExpression.source> ;
    ;
 
 EndpointType
