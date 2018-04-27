@@ -68,6 +68,8 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     private NativeCallableUnit nativeCallableUnit;
     
     private WorkerSet workerSet = new WorkerSet();
+    
+    private boolean hasReturnType;
 
     private WorkerDataIndex calculateWorkerDataIndex(BType[] retTypes) {
         WorkerDataIndex index = new WorkerDataIndex();
@@ -154,8 +156,13 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     public void setRetParamTypes(BType[] retParamType) {
         this.retParamTypes = retParamType;
         this.retWorkerIndex = this.calculateWorkerDataIndex(this.retParamTypes);
+        this.hasReturnType = this.retParamTypes != null && this.retParamTypes.length > 0;
     }
 
+    public boolean hasReturnType() {
+        return hasReturnType;
+    }
+    
     public String getSignature() {
         if (signature != null) {
             return signature;
