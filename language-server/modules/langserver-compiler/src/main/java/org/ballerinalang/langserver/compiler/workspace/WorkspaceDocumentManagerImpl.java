@@ -82,7 +82,8 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
 
     @Override
     public String getFileContent(Path filePath) {
-        return isFileOpen(filePath) ? documentList.get(filePath).getContent() : readFromFileSystem(filePath);
+        return (isFileOpen(filePath) && documentList.get(filePath) != null) ?
+                documentList.get(filePath).getContent() : readFromFileSystem(filePath);
     }
 
     @Override
