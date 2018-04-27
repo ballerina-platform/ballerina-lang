@@ -153,7 +153,7 @@ public class ConnectionManager {
                 }
                 pool.returnObject(targetChannel);
             } else {
-                log.warn("Channel {} is inactive hence not returning to connection pool", channelID);
+                log.debug("Channel {} is inactive hence not returning to connection pool", channelID);
             }
         } catch (Exception e) {
             throw new Exception("Couldn't return channel {} to pool", e);
