@@ -36,6 +36,11 @@
             <artifactId>ballerina</artifactId>
             <type>zip</type>
         </dependency>
+        <dependency>
+            <groupId>com.github.chewiebug</groupId>
+            <artifactId>gcviewer</artifactId>
+            <type>jar</type>
+        </dependency>
     </dependencies>
 
     <build>
@@ -60,6 +65,17 @@
                             <overWriteIfNewer>true</overWriteIfNewer>
                         </configuration>
                     </execution>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skipBenchmarks}</skip>
+                            <outputDirectory>target</outputDirectory>
+                            <includeArtifactIds>gcviewer</includeArtifactIds>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -75,7 +91,7 @@
                         <configuration>
                             <skip>${skipBenchmarks}</skip>
                             <target>
-                                <mkdir dir="${project.basedir}/.ballerina" />
+                                <mkdir dir="${project.basedir}/.ballerina"/>
                             </target>
                         </configuration>
                     </execution>
@@ -100,6 +116,8 @@
                                 <argument>${warmup.iterations}</argument>
                                 <argument>${benchmark.iterations}</argument>
                                 <argument>benchmark-ballerina_${project.version}</argument>
+                                <argument>${project.basedir}/target/</argument>
+                                <argument>${chewiebug.gcviewer.version}</argument>
                             </arguments>
                         </configuration>
                     </execution>
