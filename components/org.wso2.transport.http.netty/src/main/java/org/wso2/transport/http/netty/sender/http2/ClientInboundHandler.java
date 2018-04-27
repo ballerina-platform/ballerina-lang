@@ -197,6 +197,16 @@ public class ClientInboundHandler extends Http2EventAdapter {
         outboundMsgHolder.addPromise(pushPromise);
     }
 
+    @Override
+    public void onGoAwaySent(int lastStreamId, long errorCode, ByteBuf debugData) {
+        http2ClientChannel.destroy();
+    }
+
+    @Override
+    public void onGoAwayReceived(int lastStreamId, long errorCode, ByteBuf debugData) {
+        http2ClientChannel.destroy();
+    }
+
     /**
      * Sets the {@code TargetChannel} associated with the ClientInboundHandler.
      *

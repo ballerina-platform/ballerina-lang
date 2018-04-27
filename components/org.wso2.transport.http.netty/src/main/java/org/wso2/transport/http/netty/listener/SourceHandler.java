@@ -25,6 +25,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.EventLoop;
 import io.netty.channel.group.ChannelGroup;
+import io.netty.channel.socket.ChannelInputShutdownReadComplete;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.DecoderResult;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
@@ -267,11 +268,13 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             this.channelInactive(ctx);
             handleIdleErrorScenario();
 
-            log.warn("Idle timeout has reached hence closing the connection {}", ctx.channel().id().asShortText());
+            log.debug("Idle timeout has reached hence closing the connection {}", ctx.channel().id().asShortText());
         } else if (evt instanceof HttpServerUpgradeHandler.UpgradeEvent) {
             log.debug("Server upgrade event received");
         } else if (evt instanceof SslCloseCompletionEvent) {
             log.debug("SSL close completion event received");
+        } else if (evt instanceof ChannelInputShutdownReadComplete) {
+            log.debug("Input side of the connection is already shutdown");
         } else {
             log.warn("Unexpected user event {} triggered", evt.toString());
         }

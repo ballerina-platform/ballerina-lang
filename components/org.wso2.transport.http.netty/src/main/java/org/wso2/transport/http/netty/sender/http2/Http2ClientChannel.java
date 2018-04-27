@@ -56,6 +56,7 @@ public class Http2ClientChannel {
     private boolean upgradedToHttp2 = false;
     private int socketIdleTimeout = Constants.ENDPOINT_TIMEOUT;
     private Map<String, Http2DataEventListener> dataEventListeners;
+    private StreamCloseListener streamCloseListener;
 
     private static final Logger log = LoggerFactory.getLogger(Http2ClientChannel.class);
 
@@ -65,7 +66,8 @@ public class Http2ClientChannel {
         this.channel = channel;
         this.connection = connection;
         this.httpRoute = httpRoute;
-        this.connection.addListener(new StreamCloseListener(this));
+        streamCloseListener = new StreamCloseListener(this);
+        this.connection.addListener(streamCloseListener);
         dataEventListeners = new HashMap<>();
         inFlightMessages = new ConcurrentHashMap<>();
         promisedMessages = new ConcurrentHashMap<>();
@@ -255,6 +257,16 @@ public class Http2ClientChannel {
     }
 
     /**
+     * Destroys the Http2 client channel.
+     */
+    public void destroy() {
+        this.connection.removeListener(streamCloseListener);
+        inFlightMessages.clear();
+        promisedMessages.clear();
+        http2ConnectionManager.removeClientChannel(httpRoute, this);
+    }
+
+    /**
      * Listener which listen to the stream closure event.
      */
     private class StreamCloseListener extends Http2EventAdapter {
@@ -267,6 +279,7 @@ public class Http2ClientChannel {
 
         public void onStreamClosed(Http2Stream stream) {
             // Channel is no longer exhausted, so we can return it back to the pool
+            http2ClientChannel.removeInFlightMessage(stream.id());
             activeStreams.decrementAndGet();
             http2ClientChannel.getDataEventListeners().
                     forEach(dataEventListener -> dataEventListener.onStreamClose(stream.id()));

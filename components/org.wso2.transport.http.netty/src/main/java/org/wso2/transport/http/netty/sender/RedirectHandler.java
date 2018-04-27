@@ -48,6 +48,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -281,10 +282,13 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                     LOG.debug("Getting ready for actual redirection for channel " + ctx.channel().id());
                 }
                 URL locationUrl = new URL(redirectState.get(HttpHeaderNames.LOCATION.toString()));
-                HTTPCarbonMessage httpCarbonRequest = RedirectUtil.createRedirectCarbonRequest(
-                        redirectState.get(HttpHeaderNames.LOCATION.toString()),
-                        redirectState.get(Constants.HTTP_METHOD),
-                        redirectState.get(HttpHeaderNames.USER_AGENT.toString()), ctx);
+
+                List<Map.Entry<String, String>> headers = originalRequest.getHeaders().entries();
+
+                HTTPCarbonMessage httpCarbonRequest = RedirectUtil
+                        .createRedirectCarbonRequest(redirectState.get(HttpHeaderNames.LOCATION.toString()),
+                                redirectState.get(Constants.HTTP_METHOD),
+                                Integer.parseInt(redirectState.get(Constants.HTTP_STATUS_CODE)), ctx, headers);
                 HttpRequest httpRequest = Util.createHttpRequest(httpCarbonRequest);
 
                 if (isCrossDoamin) {
@@ -446,6 +450,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
         Map<String, String> redirectState = new HashMap<String, String>();
         String originalRequestMethod =
                 originalRequest != null ? (String) originalRequest.getProperty(Constants.HTTP_METHOD) : null;
+        redirectState.put(Constants.HTTP_STATUS_CODE, String.valueOf(statusCode));
         switch (statusCode) {
             case 300:
             case 307:
@@ -474,10 +479,6 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 break;
             default:
                 return null;
-        }
-        if (originalRequest != null && originalRequest.getHeader(HttpHeaderNames.USER_AGENT.toString()) != null) {
-            redirectState.put(HttpHeaderNames.USER_AGENT.toString(),
-                              originalRequest.getHeader(HttpHeaderNames.USER_AGENT.toString()));
         }
         return redirectState;
     }
