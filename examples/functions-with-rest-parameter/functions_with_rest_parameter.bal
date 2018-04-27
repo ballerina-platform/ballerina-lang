@@ -1,8 +1,8 @@
 import ballerina/io;
 
-// This function takes a one required parameter and a rest parameter of type 
-// string. A function can have only one rest parameter. But the rest parameter
-// can take any number of values, and is equivalent to an array of the same type. 
+// This function takes one required parameter and one rest parameter of type 
+// string. A function can have only one rest parameter.
+// A rest parameter can take any number of values, and is equivalent to an array of the same type. 
 function printFruits(string separator,
                      string title = "Fruits: ",
                      string... concatStrings) {
@@ -23,27 +23,27 @@ function main(string... args) {
     // Call the function by passing only the required parameter.
     printFruits(",");
 
-    // Call the function by passing the required parameter, and one value for 
-    // rest parameter.
+    // Call the function by passing the required parameter, and 
+    // a rest parameter that has one value.
     printFruits(",", "Apples");
 
     // Call the function by passing the required parameter, defaultable 
-    // parameter, and one value for rest parameter.
+    // parameter, and the rest parameter with one value.
     printFruits(",", title = "Available Fruits: ", "Apples");
 
-    // Call the function by passing the separator, and multiple values for rest
+    // Call the function by passing a separator, and multiple values for the rest
     // parameter.
     printFruits(",", "Apples", "Oranges");
     printFruits(",", title = "Available Fruits: ", "Apples", "Oranges",
                 "Grapes");
 
-    // The position of the defaultable parameters can be mixed with rest 
-    // parameters as well,
-    // when invoking.
+    // The placement of defaultable parameters can be mixed with rest 
+    // parameters 
+    // when invoking the function.
     printFruits(",", "Apples", "Oranges", title = "Available Fruits: ",
                 "Grapes");
 
-    // An array can be passed as the rest parameter, rather than calling the 
+    // Pass an array as the rest parameter instaed of calling the 
     // function by passing each value separately. 
     string[] fruits = ["Apples", "Oranges", "Grapes"];
     printFruits(",", title = "Available Fruits: ", ...fruits);
