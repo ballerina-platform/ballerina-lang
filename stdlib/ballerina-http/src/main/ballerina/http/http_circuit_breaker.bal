@@ -69,6 +69,7 @@ public type CircuitHealth {
 documentation {
     Provides a set of configurations for controlling the behaviour of the Circuit Breaker.
 
+    F{{rollingWindow}} `RollingWindow` options of the `CircuitBreaker`
     F{{failureThreshold}} The threshold for request failures. When this threshold exceeds, the circuit trips.
                           The threshold should be a value between 0 and 1.
     F{{resetTimeMillis}} The time period(in milliseconds) to wait before attempting to make another request to
@@ -97,13 +98,24 @@ documentation {
     Represents a discrete sub-part of the time window (Bucket).
 
     F{{successCount}} Number of successful requests during the sub-window time frame
-    F{{failureCount}} Number of failed requests during the sub-window time frame.
+    F{{failureCount}} Number of failed requests during the sub-window time frame
 }
 public type Bucket {
     int successCount,
     int failureCount,
 };
 
+documentation {
+    Derived set of configurations from the `CircuitBreakerConfig`.
+
+    F{{failureThreshold}} The threshold for request failures. When this threshold exceeds, the circuit trips.
+                          The threshold should be a value between 0 and 1
+    F{{resetTimeMillis}} The time period(in milliseconds) to wait before attempting to make another request to
+                         the upstream service
+    F{{statusCodes}} Array of HTTP response status codes which are considered as failures
+    F{{noOfBuckets}} Number of buckets derived from the `RollingWindow`
+    F{{rollingWindow}} `RollingWindow` options provided in the `CircuitBreakerConfig`
+}
 public type CircuitBreakerInferredConfig {
    float failureThreshold,
    int resetTimeMillis,

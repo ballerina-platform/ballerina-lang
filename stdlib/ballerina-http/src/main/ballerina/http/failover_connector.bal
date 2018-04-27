@@ -47,6 +47,13 @@ public type FailoverActionError {
 
 // TODO: This can be made package private
 // Represents inferred failover configurations passed to Failover connector.
+documentation {
+    Inferred failover configurations passed into the failover client.
+
+    F{{failoverClientsArray}} Array of HTTP Clients that needs to be Failover
+    F{{failoverCodesIndex}} An indexed array of HTTP response status codes for which the failover mechanism triggers
+    F{{failoverInterval}} Failover delay interval in milliseconds
+}
 public type FailoverInferredConfig {
     CallerActions[] failoverClientsArray,
     boolean[] failoverCodesIndex,
