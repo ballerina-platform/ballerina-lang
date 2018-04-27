@@ -18,20 +18,21 @@ service<http:Service> passthrough bind { port: 9090 } {
         // used to invoke the passthrough resource. The `forward()` function returns the response from the backend if
         // there are no errors.
         var clientResponse = clientEP->forward("/", req);
-
         // Since the `forward()` can return an error as well, a `match` is required to handle the respective scenarios.
         match clientResponse {
+            // If the request was successful, an HTTP response is returned.
+            // Here, the received response is forwarded to the client through the outbound endpoint.
             http:Response res => {
-                // If the request was successful, an HTTP response is returned.
-                // Here, the received response is forwarded to the client through the outbound endpoint.
-                caller->respond(res) but { error e => log:printError("Error sending response", err = e) };
+                caller->respond(res) but { error e =>
+                            log:printError("Error sending response", err = e) };
             }
+            // If there was an error, the 500 error response is constructed and sent back to the client.
             error err => {
-                // If there was an error, the 500 error response is constructed and sent back to the client.
                 http:Response res = new;
                 res.statusCode = 500;
                 res.setPayload(err.message);
-                caller->respond(res) but { error e => log:printError("Error sending response", err = e) };
+                caller->respond(res) but { error e =>
+                            log:printError("Error sending response", err = e) };
             }
         }
     }
@@ -39,8 +40,7 @@ service<http:Service> passthrough bind { port: 9090 } {
 
 //Sample hello world service.
 service<http:Service> hello bind { port: 9092 } {
-
-    @Description { value: "The helloResource only accepts requests made using the specified HTTP methods." }
+    //The helloResource only accepts requests made using the specified HTTP methods.
     @http:ResourceConfig {
         methods: ["POST", "PUT", "GET"],
         path: "/"
@@ -48,6 +48,7 @@ service<http:Service> hello bind { port: 9092 } {
     helloResource(endpoint caller, http:Request req) {
         http:Response res = new;
         res.setPayload("Hello World!");
-        caller->respond(res) but { error e => log:printError("Error sending response", err = e) };
+        caller->respond(res) but { error e =>
+                            log:printError("Error sending response", err = e) };
     }
 }
