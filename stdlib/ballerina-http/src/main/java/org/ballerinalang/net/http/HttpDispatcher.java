@@ -127,7 +127,7 @@ public class HttpDispatcher {
         String errorMsg = throwable.getMessage();
 
         // bre log should contain bre stack trace, not the ballerina stack trace
-        breLog.error("error: " + errorMsg, throwable);
+        breLog.error("error: " + errorMsg);
         try {
             HttpUtil.handleFailure(cMsg, new BallerinaConnectorException(errorMsg, throwable.getCause()));
         } catch (Exception e) {
