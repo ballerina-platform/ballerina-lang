@@ -15,6 +15,7 @@
 // under the License.
 
 // TODO: Document these. Should we make FORWARD a private constant?
+documentation {Constant for the HTTP FORWARD method}
 @final public HttpOperation HTTP_FORWARD = "FORWARD";
 documentation {Constant for the HTTP GET method}
 @final public HttpOperation HTTP_GET = "GET";

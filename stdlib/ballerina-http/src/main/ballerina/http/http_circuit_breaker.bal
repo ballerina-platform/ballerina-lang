@@ -514,6 +514,14 @@ public function CircuitBreakerClient::rejectPromise(PushPromise promise) {
     return self.httpClient.rejectPromise(promise);
 }
 
+documentation {
+    Update circuit state.
+
+    P{{circuitHealth}}  Circuit Breaker health status
+    P{{currentStateValue}}  Circuit Breaker current state value
+    P{{circuitBreakerInferredConfig}}   Configurations derived from `CircuitBreakerConfig`
+    R{{}} State of the circuit
+}
 // TODO: make this private
 public function updateCircuitState(CircuitHealth circuitHealth, CircuitState currentStateValue,
                                    CircuitBreakerInferredConfig circuitBreakerInferredConfig) returns (CircuitState) {
@@ -625,7 +633,8 @@ function validateCircuitBreakerConfiguration(CircuitBreakerConfig circuitBreaker
 documentation {
     Calculate Failure at a given point.
 
-    P{{circuitHealth}}  - Circuit Breaker health status.
+    P{{circuitHealth}}  Circuit Breaker health status
+    R{{}} Current failure ratio
 }
 // TODO: make this private
 public function getcurrentFailureRatio(CircuitHealth circuitHealth) returns float {
