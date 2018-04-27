@@ -108,7 +108,7 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
                                                 ProjectDirConstants.RESOURCE_DIR_NAME);
         String dirNameStr = dirName.toString();
         try {
-            return dirName.startsWith(".") || Files.isHidden(dirName) || ignoreDirs.contains(dirNameStr);
+            return dirNameStr.startsWith(".") || Files.isHidden(dirName) || ignoreDirs.contains(dirNameStr);
         } catch (IOException e) {
             throw new BLangCompilerException("error reading directory: " + dirNameStr);
         }
