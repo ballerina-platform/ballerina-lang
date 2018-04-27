@@ -6,7 +6,6 @@ import ballerina/runtime;
 boolean serviceStarted;
 
 function startService() {
-    config:setConfig("b7a.users.ballerina.scopes", "hello");
     serviceStarted = test:startServices("secured-service-with-jwt");
 }
 
@@ -23,8 +22,8 @@ function testFunc() {
     clearTokenFromAuthContext();
     testAuthnFailure();
     setJwtTokenWithNoScopesToAuthContext();
-    //testAuthzFailure();
-    //clearTokenFromAuthContext();
+    testAuthzFailure();
+    clearTokenFromAuthContext();
 }
 
 function testAuthSuccess() {
@@ -97,16 +96,15 @@ function clearTokenFromAuthContext () {
 }
 
 function setJwtTokenWithNoScopesToAuthContext () {
-    string token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiYWxsZX" +
-        "JpbmEiLCJpc3MiOiJiYWxsZXJpbmEiLCJleHAiOjI4MTg0MTUwMTksImlhdCI6MTUy" +
-        "NDU3NTAxOSwianRpIjoiZjVhZGVkNTA1ODVjNDZmMmI4Y2EyMzNkMGMyYTNjOWQiLCJ" +
-        "hdWQiOlsiYmFsbGVyaW5hIiwiYmFsbGVyaW5hLm9yZyIsImJhbGxlcmluYS5pbyJdf" +
-        "Q.X2mHWCr8A5UaJFvjSPUammACnTzFsTdre-P5yWQgrwLBmfcpr9JaUuq4sEwp6to3" +
-        "xSKN7u9QKqRLuWH1SlcphDQn6kdF1ZrCgXRQ0HQTilZQU1hllZ4c7yMNtMgMIaPgEB" +
-        "rStLX1Ufr6LpDkTA4VeaPCSqstHt9WbRzIoPQ1fCxjvHBP17ShiGPRza9p_Z4t897s" +
-        "40aQMKbKLqLQ8rEaYAcsoRBXYyUhb_PRS-YZtIdo7iVmkMVFjYjHvmYbpYhNo57Z1Y" +
-        "5dNa8h8-4ON4CXzcJ1RzuyuFVz1a3YL3gWTsiliVmno7vKyRo8utirDRIPi0dPJPuW" +
-        "i2uMtJkqdkpzJQ";
+    string token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiYWxsZXJp" +
+        "bmEuaW8iLCJpc3MiOiJiYWxsZXJpbmEiLCJleHAiOjI4MTg0MTUwMTksImlhdCI6MTUy" +
+        "NDU3NTAxOSwianRpIjoiZjVhZGVkNTA1ODVjNDZmMmI4Y2EyMzNkMGMyYTNjOWQiLCJh" +
+        "dWQiOlsiYmFsbGVyaW5hIiwiYmFsbGVyaW5hLm9yZyIsImJhbGxlcmluYS5pbyJdfQ.R" +
+        "y1ZJJzve3oTdF3PCvGDWXYWb4ab9CHzY6cghmqQ2h2epIuFVZOVsi1MqI_cqLa9ZJBZq3" +
+        "aMznSRjz6hkOldibxi46j_ebGIyoyABTLeBS1P67oCG790TxdS1tThYGJXvkCeECYVH_i" +
+        "NhJRyht0GSa59VhonCFIAL505_u5vfO4fhmCjslYCr6WcpYW1tLf-vDmRLIqshYX7RZkK" +
+        "Es2a1pfjg5XkJiJSxqQ_-lLzeQfb-eMmZzT5ob-cE9qpBhjrXoYpYLy371TtuOdREdhXh" +
+        "Ogu12RJMaCE1FlA1ZoyLrmzj2Mm3RHc_A88lKoGvaEBcGzJwllekuQeDUJ1P90SGA";
     runtime:getInvocationContext().authContext.scheme = "jwt";
     runtime:getInvocationContext().authContext.authToken = token;
 }
