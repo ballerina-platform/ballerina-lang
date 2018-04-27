@@ -25,4 +25,3 @@ A user is denoted by a section in the configuration file. The password and the s
  password="<password>"
  scopes="<comma_separated_scopes>"
  ```
-

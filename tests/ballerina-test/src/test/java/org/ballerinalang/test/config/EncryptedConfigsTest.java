@@ -56,7 +56,7 @@ public class EncryptedConfigsTest {
                   "Test reading an encrypted value from a config file, using an explicitly provided secret file path")
     public void testReadEncryptedFieldUsingExplicitlyProvidedSecretFile() throws IOException {
         copySecret("secret.txt", "secret-copy.txt");
-        registry.initRegistry(Collections.singletonMap("ballerina.config.secret",
+        registry.initRegistry(Collections.singletonMap("b7a.config.secret",
                                                        Paths.get(resourceRoot, "datafiles", "config", "secret-copy.txt")
                                                                .toString()),
                               confRoot.resolve("encrypted-configs.conf").toString(), null);
@@ -72,7 +72,7 @@ public class EncryptedConfigsTest {
     @Test(description = "Test reading an encrypted value from a config file, with a non-existent secret key file",
           expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = ".*file not found:.*")
     public void testReadEncryptedFieldWithMissingSecretFile() throws IOException {
-        registry.initRegistry(Collections.singletonMap("ballerina.config.secret",
+        registry.initRegistry(Collections.singletonMap("b7a.config.secret",
                                                        Paths.get(resourceRoot, "datafiles", "config", "secret-copy.txt")
                                                                .toString()),
                               confRoot.resolve("encrypted-configs.conf").toString(), null);
@@ -85,7 +85,7 @@ public class EncryptedConfigsTest {
           expectedExceptionsMessageRegExp = ".*failed to retrieve encrypted value.*")
     public void testReadEncryptedFieldWithInvalidSecret() throws IOException {
         copySecret("invalid-secret.txt", "invalid-secret-copy.txt");
-        registry.initRegistry(Collections.singletonMap("ballerina.config.secret",
+        registry.initRegistry(Collections.singletonMap("b7a.config.secret",
                                                        Paths.get(resourceRoot, "datafiles", "config",
                                                                  "invalid-secret-copy.txt").toString()),
                               confRoot.resolve("encrypted-configs.conf").toString(), null);
