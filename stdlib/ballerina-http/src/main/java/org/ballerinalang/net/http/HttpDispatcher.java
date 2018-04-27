@@ -160,7 +160,7 @@ public class HttpDispatcher {
             // Find the Resource
             resource = HttpResourceDispatcher.findResource(service, httpCarbonMessage);
         } catch (Throwable throwable) {
-            handleError(httpCarbonMessage, throwable);
+            throw new BallerinaConnectorException(throwable.getMessage());
         }
         return resource;
     }
