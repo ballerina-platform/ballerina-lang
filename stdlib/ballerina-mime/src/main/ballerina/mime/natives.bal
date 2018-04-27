@@ -426,7 +426,8 @@ public type Entity object {
         Gets all the header values associated with the given header name.
 
         P{{headerName}} The header name
-        R{{}} All the header values associated with the given header name as a `string[]`
+        R{{}} All the header values associated with the given header name as a `string[]`. An exception is thrown
+              if no header is found. Use `hasHeader()` beforehand to check the header existence.
     }
     public native function getHeaders(@sensitive string headerName) returns @tainted string[];
 

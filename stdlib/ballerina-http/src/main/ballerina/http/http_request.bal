@@ -86,7 +86,7 @@ public type Request object {
 
         P{{headerName}} The header name
         R{{}} The first header value for the specified header name. An exception is thrown if no header is found. Use
-              `hasHeader()` beforehand to check header existence.
+              `hasHeader()` beforehand to check the header existence.
     }
     public function getHeader(string headerName) returns string;
 
@@ -94,7 +94,8 @@ public type Request object {
         Gets all the header values to which the specified header key maps to.
 
         P{{headerName}} The header name
-        R{{}} The header values the specified header key maps to
+        R{{}} The header values the specified header key maps to. An exception is thrown if no header is found. Use
+              `hasHeader()` beforehand to check the header existence.
     }
     public function getHeaders(string headerName) returns (string[]);
 
