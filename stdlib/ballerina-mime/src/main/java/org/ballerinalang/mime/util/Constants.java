@@ -101,6 +101,8 @@ public class Constants {
     public static final String BODY_PARTS = "body_parts";
     public static final String ENTITY_HEADERS = "entity_headers";
 
+    public static final String CHARSET = "charset";
+
     //Native argument indexes
     public static final int FIRST_PARAMETER_INDEX = 0;
     public static final int SECOND_PARAMETER_INDEX = 1;
