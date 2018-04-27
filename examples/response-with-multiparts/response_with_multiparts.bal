@@ -31,21 +31,26 @@ service<http:Service> multipartResponseEncoder bind { port: 9092 } {
 
         // Create another child part with a file.
         mime:Entity childPart2 = new;
-        // This file path is relative to where the ballerina is running. If your file is located outside, please
-        // give the absolute file path instead.
-        childPart2.setFileAsEntityBody("./files/test.xml", contentType = mime:TEXT_XML);
+        // This file path is relative to where the ballerina is running.
+        //If your file is located outside, please give the
+        //absolute file path instead.
+        childPart2.setFileAsEntityBody("./files/test.xml",
+            contentType = mime:TEXT_XML);
         // Create an array to hold child parts.
         mime:Entity[] childParts = [childPart1, childPart2];
 
         // Set the child parts to the parent part.
-        parentPart.setBodyParts(childParts, contentType = mime:MULTIPART_MIXED);
+        parentPart.setBodyParts(childParts,
+            contentType = mime:MULTIPART_MIXED);
 
         // Create an array to hold the parent part and set it to response.
         mime:Entity[] immediatePartsToResponse = [parentPart];
         http:Response outResponse = new;
-        outResponse.setBodyParts(immediatePartsToResponse, contentType = mime:MULTIPART_FORM_DATA);
+        outResponse.setBodyParts(immediatePartsToResponse,
+            contentType = mime:MULTIPART_FORM_DATA);
 
-        caller->respond(outResponse) but { error e => log:printError("Error in responding ", err = e) };
+        caller->respond(outResponse) but {
+            error e => log:printError("Error in responding ", err = e) };
     }
 }
 
@@ -84,7 +89,8 @@ service multipartResponseDecoder bind multipartEP {
                 }
             }
         }
-        caller->respond(res) but { error e => log:printError("Error in responding ", err = e) };
+        caller->respond(res) but {
+            error e => log:printError("Error in responding ", err = e) };
     }
 }
 
@@ -107,47 +113,59 @@ function handleNestedParts(mime:Entity parentPart) {
     }
 }
 
-// The content logic that handles the body parts vary based on your requirement.
+// The content logic that handles the body parts
+//vary based on your requirement.
 function handleContent(mime:Entity bodyPart) {
-    mime:MediaType mediaType = check mime:getMediaType(bodyPart.getContentType());
+    mime:MediaType mediaType = check
+                        mime:getMediaType(bodyPart.getContentType());
     string baseType = mediaType.getBaseType();
     if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
         // Extract xml data from body part and print.
         var payload = bodyPart.getXml();
         match payload {
-            error err => log:printError("Error in getting xml payload :" + err.message);
+            error err =>
+                log:printError("Error in getting xml payload :" + err.message);
             xml xmlContent => log:printInfo(<string>xmlContent);
         }
     } else if (mime:APPLICATION_JSON == baseType) {
         // Extract json data from body part and print.
         var payload = bodyPart.getJson();
         match payload {
-            error err => log:printError("Error in getting json payload : " + err.message);
+            error err => log:printError("Error in getting json payload :"
+                        + err.message);
             json jsonContent => log:printInfo(jsonContent.toString());
         }
     } else if (mime:TEXT_PLAIN == baseType) {
         // Extract text data from body part and print.
         var payload = bodyPart.getText();
         match payload {
-            error err => log:printError("Error in getting string payload : " + err.message);
+            error err => log:printError("Error in getting string payload :"
+                        + err.message);
             string textContent => log:printInfo(textContent);
         }
     } else if (mime:APPLICATION_PDF == baseType) {
         var payload = bodyPart.getByteChannel();
         match payload {
-            error err => log:printError("Error in getting byte channel : " + err.message);
+            error err => log:printError("Error in getting byte channel :"
+                    + err.message);
             io:ByteChannel byteChannel => {
-                io:ByteChannel destinationChannel = getFileChannel("ReceivedFile.pdf", io:WRITE);
+                io:ByteChannel destinationChannel =
+                    getFileChannel("ReceivedFile.pdf", io:WRITE);
                 try {
                     copy(byteChannel, destinationChannel);
                     log:printInfo("File Received");
                 } catch (error err) {
-                    log:printError("error occurred while saving file : " + err.message);
+                    log:printError("error occurred while saving file : "
+                            + err.message);
                 } finally {
                     // Close the created connections.
-                    byteChannel.close() but { error e => log:printError("Error closing byteChannel ", err = e) };
-                    destinationChannel.close() but { error e => log:printError("Error closing destinationChannel",
-                        err = e)
+                    byteChannel.close() but {
+                        error e => log:printError("Error closing byteChannel ",
+                            err = e) };
+                    destinationChannel.close() but {
+                        error e =>
+                            log:printError("Error closing destinationChannel",
+                                err = e)
                     };
                 }
             }
@@ -155,16 +173,19 @@ function handleContent(mime:Entity bodyPart) {
     }
 }
 
-// This function returns a ByteChannel from a given file location according to the specified file permission
-// (i.e., whether the file should be opened for read or write)."}
-function getFileChannel(string filePath, io:Mode permission) returns (io:ByteChannel) {
+// This function returns a ByteChannel from a given file location according
+// to the specified file permission
+//(i.e., whether the file should be opened for read or write)."}
+function getFileChannel(string filePath, io:Mode permission)
+    returns (io:ByteChannel) {
     // Here is how the ByteChannel is retrieved from the file.
     io:ByteChannel channel = io:openFile(filePath, permission);
     return channel;
 }
 
 // This function reads a specified number of bytes from the given channel.
-function readBytes(io:ByteChannel channel, int numberOfBytes) returns (blob, int) {
+function readBytes(io:ByteChannel channel, int numberOfBytes)
+    returns (blob, int) {
 
     // Here is how the bytes are read from the channel.
     var result = channel.read(numberOfBytes);
@@ -179,7 +200,8 @@ function readBytes(io:ByteChannel channel, int numberOfBytes) returns (blob, int
 }
 
 // This function writes a byte content with the given offset to a channel.
-function writeBytes(io:ByteChannel channel, blob content, int startOffset = 0) returns (int) {
+function writeBytes(io:ByteChannel channel, blob content, int startOffset = 0)
+    returns (int) {
 
     // Here is how the bytes are written to the channel.
     var result = channel.write(content, startOffset);
@@ -193,9 +215,11 @@ function writeBytes(io:ByteChannel channel, blob content, int startOffset = 0) r
     }
 }
 
-// This function copies content from the source channel to a destination channel.
+// This function copies content from the source channel to a
+//destination channel.
 function copy(io:ByteChannel src, io:ByteChannel dst) {
-    // Specifies the number of bytes that should be read from a single read operation.
+    // Specifies the number of bytes that should be read from a
+    //single read operation.
     int bytesChunk = 10000;
     int numberOfBytesWritten = 0;
     int readCount = 0;
