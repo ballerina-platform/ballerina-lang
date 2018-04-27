@@ -51,13 +51,13 @@ service<http:Service> InitiatorService bind { port: 8080 } {
     }
 }
 
-// The initiator function which will get called when the distributed transaction
+// The initiator function that will get called when the distributed transaction
 // is aborted
 function printAbort(string transactionId) {
     log:printInfo("Initiated transaction: " + transactionId + " aborted");
 }
 
-// The initiator function which will get called when the distributed transaction
+// The initiator function that will get called when the distributed transaction
 // is committed
 function printCommit(string transactionId) {
     log:printInfo("Initiated transaction: " + transactionId + " committed");
