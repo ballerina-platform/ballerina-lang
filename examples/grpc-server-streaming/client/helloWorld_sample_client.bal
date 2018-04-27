@@ -8,7 +8,8 @@ function main(string... args) {
         url: "http://localhost:9090"
     };
     // Executing unary non-blocking call registering server message listener.
-    error? result = helloWorldEp->lotsOfReplies("Sam", HelloWorldMessageListener);
+    error? result = helloWorldEp->lotsOfReplies("Sam",
+                                                    HelloWorldMessageListener);
     match result {
         error err => {
             io:println("Error occured while sending event " + err.message);

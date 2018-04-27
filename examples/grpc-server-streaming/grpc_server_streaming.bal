@@ -16,7 +16,8 @@ service HelloWorld bind ep {
         string[] greets = ["Hi", "Hey", "GM"];
         foreach greet in greets {
             error? err = caller->send(greet + " " + name);
-            io:println(err.message but { () => "send reply: " + greet + " " + name });
+            io:println(err.message but { () => "send reply: " + greet + " " +
+                                                                        name });
         }
         // Once all messages are sent, server send complete message to notify the client, I’m done.
         _ = caller->complete();

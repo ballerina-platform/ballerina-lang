@@ -42,7 +42,8 @@ service<grpc:Service> Chat bind ep {
     //This resource is triggered when the server receives an error message from the caller.
     onError(endpoint caller, error err) {
         if (err != ()) {
-            io:println("Something unexpected happens at server : " + err.message);
+            io:println("Something unexpected happens at server : "
+                                                                + err.message);
         }
     }
 

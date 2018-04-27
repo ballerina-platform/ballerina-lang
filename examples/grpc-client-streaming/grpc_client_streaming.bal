@@ -27,7 +27,8 @@ service<grpc:Service> HelloWorld bind ep {
     //This resource is triggered when some error has been happen at server end
     onError(endpoint caller, error err) {
         if (err != ()) {
-            io:println("Something unexpected happens at server : " + err.message);
+            io:println("Something unexpected happens at server : "
+                                                                + err.message);
         }
     }
 
