@@ -1,6 +1,6 @@
 import ballerina/io;
 
-// The 'test' function acts a variable function pointer in the 'main' function
+// The 'test' function acts as a variable function pointer in the 'main' function
 function test(int x, string s) returns (float) {
     int y = check <int> s;
     float f = x * 1.0 * y;
