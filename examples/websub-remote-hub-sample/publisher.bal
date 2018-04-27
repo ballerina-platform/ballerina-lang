@@ -14,16 +14,16 @@ function main(string... args) {
     var registrationResponse =
                 websubHubClientEP->registerTopic("http://websubpubtopic.com");
     match (registrationResponse) {
-        error webSubError => io:println("Error occurred registering topic: " +
-                webSubError.message);
+        error webSubError => io:println("Error occurred registering topic: "
+                                        + webSubError.message);
         () => io:println("Topic registration successful!");
     }
 
     // Make the publisher wait until the subscriber subscribes at the hub.
     runtime:sleep(10000);
 
-    io:println("Publishing update to remote Hub");
     // Publish updates to the remote hub.
+    io:println("Publishing update to remote Hub");
     var publishResponse =
         websubHubClientEP->publishUpdate("http://websubpubtopic.com",
                                 { "action": "publish", "mode": "remote-hub" });

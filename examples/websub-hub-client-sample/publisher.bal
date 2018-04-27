@@ -15,7 +15,7 @@ function main(string... args) {
                                             "http://websubpubtopic.com");
     match (registrationResponse) {
         error webSubError => io:println("Error occurred registering topic: "
-                                                        + webSubError.message);
+                                        + webSubError.message);
         () => io:println("Topic registration successful!");
     }
 
@@ -27,7 +27,7 @@ function main(string... args) {
                             { "action": "publish", "mode": "internal-hub" });
     match (publishResponse) {
         error webSubError => io:println("Error notifying hub: "
-                                                        + webSubError.message);
+                                         + webSubError.message);
         () => io:println("Update notification successful!");
     }
 
@@ -39,7 +39,7 @@ function main(string... args) {
                             { "action": "publish", "mode": "internal-hub" });
     match (publishResponse) {
         error webSubError => io:println("Error notifying hub: "
-                                                        + webSubError.message);
+                                         + webSubError.message);
         () => io:println("Update notification successful!");
     }
 

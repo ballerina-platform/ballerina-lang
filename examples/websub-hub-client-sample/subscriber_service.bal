@@ -24,7 +24,7 @@ service websubSubscriber bind websubEP {
     // Resource accepting content delivery requests.
     onNotification(websub:Notification notification) {
         log:printInfo("WebSub Notification Received: "
-                                            + notification.payload.toString());
+                                    + notification.payload.toString());
     }
 
 }

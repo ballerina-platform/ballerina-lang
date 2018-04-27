@@ -34,8 +34,9 @@ service websubSubscriber bind websubEP {
             log:printWarn("Intent verification denied for subscription request");
         }
         caller->respond(response) but {
-            error e => log:printError("Error responding to intent verification request",
-                                        err = e)
+            error e =>
+                log:printError("Error responding to intent verification request",
+                               err = e)
         };
     }
 

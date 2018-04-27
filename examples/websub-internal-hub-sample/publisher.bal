@@ -10,9 +10,11 @@ function main(string... args) {
     websub:WebSubHub webSubHub = websub:startUpBallerinaHub(port = 9191);
 
     // Register a topic at the hub.
-    var registrationResponse = webSubHub.registerTopic("http://websubpubtopic.com");
+    var registrationResponse = webSubHub.registerTopic(
+                                            "http://websubpubtopic.com");
     match (registrationResponse) {
-        error webSubError => io:println("Error occurred registering topic: " + webSubError.message);
+        error webSubError => io:println("Error occurred registering topic: "
+                                        + webSubError.message);
         () => io:println("Topic registration successful!");
     }
 
@@ -24,7 +26,8 @@ function main(string... args) {
     var publishResponse = webSubHub.publishUpdate("http://websubpubtopic.com",
                             { "action": "publish", "mode": "internal-hub" });
     match (publishResponse) {
-        error webSubError => io:println("Error notifying hub: " + webSubError.message);
+        error webSubError => io:println("Error notifying hub: "
+                                        + webSubError.message);
         () => io:println("Update notification successful!");
     }
 
