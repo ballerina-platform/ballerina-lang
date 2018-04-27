@@ -1,5 +1,5 @@
 // The Ballerina WebSub Publisher, which registers a topic at the hub and publishes updates to the hub for the topic.
-import ballerina/log;
+import ballerina/io;
 import ballerina/runtime;
 import ballerina/websub;
 
@@ -11,26 +11,26 @@ endpoint websub:Client websubHubClientEP {
 function main(string... args) {
 
     // Register a topic at the hub.
-    var registrationResponse = websubHubClientEP->registerTopic("http://www.websubpubtopic.com");
+    var registrationResponse =
+                websubHubClientEP->registerTopic("http://websubpubtopic.com");
     match (registrationResponse) {
-        error webSubError => log:printError("Error occurred registering topic: " + webSubError.message);
-        () => log:printInfo("Topic registration successful!");
+        error webSubError => io:println("Error occurred registering topic: "
+                                        + webSubError.message);
+        () => io:println("Topic registration successful!");
     }
 
     // Make the publisher wait until the subscriber subscribes at the hub.
     runtime:sleep(10000);
 
-    log:printInfo("Publishing update to remote Hub");
     // Publish updates to the remote hub.
-    var publishResponse = websubHubClientEP->publishUpdate("http://www.websubpubtopic.com",
-        {
-            "action": "publish",
-            "mode": "remote-hub"
-        }
-    );
+    io:println("Publishing update to remote Hub");
+    var publishResponse =
+        websubHubClientEP->publishUpdate("http://websubpubtopic.com",
+                                { "action": "publish", "mode": "remote-hub" });
     match (publishResponse) {
-        error webSubError => log:printError("Error notifying hub: " + webSubError.message);
-        () => log:printInfo("Update notification successful!");
+        error webSubError => io:println("Error notifying hub: "
+                                                        + webSubError.message);
+        () => io:println("Update notification successful!");
     }
 
 }
