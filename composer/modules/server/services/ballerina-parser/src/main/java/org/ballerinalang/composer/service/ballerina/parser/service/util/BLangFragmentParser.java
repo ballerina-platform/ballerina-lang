@@ -93,6 +93,14 @@ public class BLangFragmentParser {
                 fragmentNode = assignmentStmt.getAsJsonArray(BLangJSONModelConstants.CHILDREN)
                         .get(0).getAsJsonObject();
                 break;
+            case BLangFragmentParserConstants.FIELD_DEFINITION_LIST:
+                // 0th element in the fields property of the record is fieldVariable.
+                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.FIELDS).get(0).getAsJsonObject();
+                break;
+            case BLangFragmentParserConstants.ANON_RECORD:
+                fragmentNode = jsonArray.get(1).getAsJsonObject().getAsJsonObject(BLangJSONModelConstants.BODY)
+                        .getAsJsonArray(BLangJSONModelConstants.STATEMENTS).get(0).getAsJsonObject();
+                break;
             case BLangFragmentParserConstants.TRANSACTION_FAILED:
             case BLangFragmentParserConstants.EXPRESSION:
             case BLangFragmentParserConstants.STATEMENT:
@@ -158,6 +166,7 @@ public class BLangFragmentParser {
             case BLangFragmentParserConstants.WORKER:
             case BLangFragmentParserConstants.ENDPOINT_VAR_DEF:
             case BLangFragmentParserConstants.STATEMENT:
+            case BLangFragmentParserConstants.ANON_RECORD:
                 parsableText = getFromTemplate(BLangFragmentParserConstants.FUNCTION_BODY_STMT_WRAPPER, source);
                 break;
             case BLangFragmentParserConstants.JOIN_CONDITION:
@@ -175,6 +184,9 @@ public class BLangFragmentParser {
                 break;
             case BLangFragmentParserConstants.VARIABLE_REFERENCE_LIST:
                 parsableText = getFromTemplate(BLangFragmentParserConstants.VAR_REFERENCE_LIST_WRAPPER, source);
+                break;
+            case BLangFragmentParserConstants.FIELD_DEFINITION_LIST:
+                parsableText = getFromTemplate(BLangFragmentParserConstants.RECORD_BODY_WRAPPER, source);
                 break;
             default:
                 parsableText = "";

@@ -38,6 +38,16 @@ public type LoadBalancer object {
        boolean failover;
    }
 
+   documentation {
+        Load Balancer adds an additional layer to the HTTP client to make network interactions more resilient.
+
+        P{{serviceUri}} The URL of the remote HTTP endpoint
+        P{{config}} The configurations of the client endpoint associated with this `LoadBalancer` instance
+        P{{loadBalanceClientsArray}} Array of HTTP clients for load balancing
+        P{{algorithm}} Load balancing algorithm
+        P{{nextIndex}} Index of the next load balancing client
+        P{{failover}} Whether to fail over in case of a failure
+   }
    public new (serviceUri, config, loadBalanceClientsArray, algorithm, nextIndex, failover) {}
 
     documentation {
@@ -127,41 +137,41 @@ public type LoadBalancer object {
         The submit implementation of the LoadBalancer Connector.
 
         P{{httpVerb}} The HTTP verb value
-        P{{path}} The Resource path
-        P{{request}} An HTTP request
-        R{{}} The Future for further interactions or an `error` if failed to fulfill the request
+        P{{path}} The resource path
+        P{{request}} An HTTP outbound request message
+        R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
     }
     public function submit(string httpVerb, string path, Request request) returns HttpFuture|error;
 
     documentation {
         The getResponse implementation of the LoadBalancer Connector.
 
-        P{{httpFuture}} The Future which relates to previous async invocation
-        R{{}} The response or an `error` if failed to get the response
+        P{{httpFuture}} The `HttpFuture` related to a previous asynchronous invocation
+        R{{}} An HTTP response message, or an `error` if the invocation fails
     }
     public function getResponse(HttpFuture httpFuture) returns Response|error;
 
     documentation {
         The hasPromise implementation of the LoadBalancer Connector.
 
-        P{{httpFuture}} The Future which relates to previous async invocation
-        R{{}} Returns true if the push promise exists
+        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
+        R{{}} A `boolean` that represents whether a `PushPromise` exists
     }
     public function hasPromise(HttpFuture httpFuture) returns boolean;
 
     documentation {
         The getNextPromise implementation of the LoadBalancer Connector.
 
-        P{{httpFuture}} The Future which relates to previous async invocation
-        R{{}} The HTTP Push Promise message or an `error` if failed to fulfill the request
+        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
+        R{{}} An HTTP Push Promise message, or an `error` if the invocation fails
     }
     public function getNextPromise(HttpFuture httpFuture) returns PushPromise|error;
 
     documentation {
         The getPromisedResponse implementation of the LoadBalancer Connector.
 
-        P{{promise}} The related Push Promise message
-        R{{}} The HTTP Push Response message or an `error` if failed to fulfill the request
+        P{{promise}} The related `PushPromise`
+        R{{}} A promised HTTP `Response` message, or an `error` if the invocation fails
     }
     public function getPromisedResponse(PushPromise promise) returns Response|error;
 
@@ -313,6 +323,13 @@ function performLoadBalanceAction(LoadBalancer lb, string path, Request request,
 }
 
 // Round Robin Algorithm implementation with respect to load balancing endpoints.
+documentation {
+    Round Robin Algorithm implementation with respect to load balancing endpoints.
+
+    P{{lb}} `LoadBalancer` object
+    P{{loadBalanceConfigArray}} Array of HTTP Clients that needs to be load balanced
+    R{{}} HttpClient elected from the algorithm
+}
 public function roundRobin(LoadBalancer lb, CallerActions[] loadBalanceConfigArray) returns CallerActions {
     CallerActions httpClient = new;
 

@@ -48,7 +48,7 @@ export default {
         return FragmentUtils.createTopLevelNodeFragment(
             `
             @http:WebSocketServiceConfig {
-                basePath:"/basic/ws",
+                path:"/basic/ws",
                 subProtocols:["xml", "json"],
                 idleTimeoutInSeconds:120
             }
@@ -150,9 +150,8 @@ export default {
     },
     createStruct: () => {
         return FragmentUtils.createTopLevelNodeFragment(`
-            struct struct1 {
-
-            }
+type record1 {
+};
         `);
     },
     /*createTransformer: () => {

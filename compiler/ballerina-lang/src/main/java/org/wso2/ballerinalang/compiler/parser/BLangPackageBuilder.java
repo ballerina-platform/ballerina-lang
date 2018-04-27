@@ -1052,6 +1052,7 @@ public class BLangPackageBuilder {
         BLangNameReference nameReference = nameReferenceStack.pop();
         invocationNode.name = (BLangIdentifier) nameReference.name;
         invocationNode.addWS(this.invocationWsStack.pop());
+        invocationNode.addWS(nameReference.ws);
         invocationNode.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
         addExpressionNode(invocationNode);
     }
@@ -2327,8 +2328,9 @@ public class BLangPackageBuilder {
         });
     }
 
-    public void addAnonymousEndpointBind() {
+    public void addAnonymousEndpointBind(Set<Whitespace> ws) {
         BLangService serviceNode = (BLangService) serviceNodeStack.peek();
+        serviceNode.addWS(ws);
         serviceNode.addAnonymousEndpointBind((RecordLiteralNode) exprNodeStack.pop());
     }
 
@@ -2381,7 +2383,7 @@ public class BLangPackageBuilder {
         }
         if (hasParameters) {
             BLangVariable firstParam = (BLangVariable) varListStack.peek().get(0);
-            if (firstParam.name.value.startsWith("$")) {
+            if (firstParam.name.value.startsWith("$") && varListStack.peek().size() > 1) {
                 // This is an endpoint variable
                 Set<Whitespace> wsBeforeComma = removeNthFromLast(firstParam.getWS(), 0);
                 resourceNode.addWS(wsBeforeComma);

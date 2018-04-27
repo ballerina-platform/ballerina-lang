@@ -276,6 +276,9 @@ class PositioningUtil {
      * @param {object} node Function object
      */
     positionFunctionNode(node) {
+        if (!node.body) {
+            return; // This is to handle function pointers in objects.
+        }
         const viewState = node.viewState;
         const functionBody = node.body;
         const funcBodyViewState = functionBody.viewState;

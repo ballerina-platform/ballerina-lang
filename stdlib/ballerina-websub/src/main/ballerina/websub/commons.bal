@@ -358,6 +358,8 @@ public function startUpBallerinaHub(int? port = ()) returns WebSubHub {
 
 documentation {
     Object representing a Ballerina WebSub Hub.
+
+    F{{hubUrl}} The URL of the started up Ballerina WebSub Hub
 }
 public type WebSubHub object {
 

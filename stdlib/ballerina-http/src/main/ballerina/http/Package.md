@@ -33,13 +33,14 @@ See [Mutual SSL Example](https://ballerinalang.org/docs/by-example/mutual-ssl).
 
 See [Caching Example](https://ballerinalang.org/docs/by-example/caching), [HTTP Disable Chunking Example](https://ballerinalang.org/docs/by-example/http-disable-chunking).
 
-###WebSockets
+### WebSockets
+
 The package also provides support for WebSockets. There are two types of WebSocket endpoints: `WebSocketClient` and `WebSocketListener`. Both endpoints support all WebSocket frames. The `WebSocketClient` has a callback service.
 
 There are also two types of services for WebSocket: `WebSocketService` and `WebSocketClientService`. The callback service for `WebSocketClient` is always a `WebSocketClientService`. The WebSocket services have a fixed set of resources that do not have a resource config. The incoming messages are passed to these resources.
 
 **WebSocket upgrade**: During a WebSocket upgrade, the initial message is an HTTP request. To intercept this request and make the upgrade explicitly with custom headers, the user must create an HTTP resource with WebSocket specific configurations as follows:
-```
+```ballerina
  @http:ResourceConfig {
         webSocketUpgrade: {
             upgradePath: "/{name}",
@@ -129,7 +130,8 @@ service helloWorld bind helloWorldEP {
        // A util method that can be used to set string payload.
        res.setPayload("Hello, World! I’m " + name + “. “ + message);
        // Sends the response back to the client.
-       _ = caller->respond(res);
+       caller->respond(res) but { error e => 
+                            log:printError("Error sending response", err = e) };
    }
 }
 ```

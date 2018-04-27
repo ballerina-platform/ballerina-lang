@@ -68,4 +68,4 @@ public type Client object {
     }
 };
 
-public native function createClient(ClientEndpointConfiguration config) returns sql:CallerActions;
+native function createClient(ClientEndpointConfiguration config) returns sql:CallerActions;
