@@ -21,6 +21,7 @@ import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
@@ -38,7 +39,6 @@ public class BeforeAfterTest {
     @Test
     public void tesDependsOnFunctions() {
 
-        cleanup();
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("before-after-func.bal")}, new
             ArrayList<>());
@@ -52,7 +52,6 @@ public class BeforeAfterTest {
                                           "for testerina function : \\[testFunc\\]")
     public void tesMissingBeforeFunction() {
 
-        cleanup();
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("before-func-negative.bal")}, new
             ArrayList<>());
@@ -63,14 +62,13 @@ public class BeforeAfterTest {
                                           "for testerina function : \\[testFunc\\]")
     public void tesMissingAfterFunction() {
 
-        cleanup();
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("after-func-negative.bal")}, new
             ArrayList<>());
     }
 
+    @BeforeMethod
     private void cleanup() {
-
         TesterinaRegistry.getInstance().setProgramFiles(new ArrayList<>());
         TesterinaRegistry.getInstance().setTestSuites(new HashMap<>());
     }
