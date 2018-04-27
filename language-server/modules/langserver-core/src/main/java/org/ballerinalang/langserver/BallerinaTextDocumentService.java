@@ -205,6 +205,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 bLangPackage.accept(signatureTreeVisitor);
                 signatureHelp = SignatureHelpUtil.getFunctionSignatureHelp(signatureContext);
                 return signatureHelp;
+            } catch (Exception | AssertionError e) {
+                return new SignatureHelp();
             } finally {
                 lock.ifPresent(Lock::unlock);
             }
