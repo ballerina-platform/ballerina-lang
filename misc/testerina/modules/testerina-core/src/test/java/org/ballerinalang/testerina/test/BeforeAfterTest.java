@@ -21,7 +21,7 @@ import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
@@ -38,7 +38,6 @@ public class BeforeAfterTest {
 
     @Test
     public void tesDependsOnFunctions() {
-
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("before-after-func.bal")}, new
             ArrayList<>());
@@ -51,7 +50,6 @@ public class BeforeAfterTest {
         expectedExceptionsMessageRegExp = ".*Cannot find the specified before function : \\[beforeFunc-nonExist\\] " +
                                           "for testerina function : \\[testFunc\\]")
     public void tesMissingBeforeFunction() {
-
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("before-func-negative.bal")}, new
             ArrayList<>());
@@ -61,13 +59,12 @@ public class BeforeAfterTest {
         expectedExceptionsMessageRegExp = ".*Cannot find the specified before function : \\[afterFunc-nonExist\\] " +
                                           "for testerina function : \\[testFunc\\]")
     public void tesMissingAfterFunction() {
-
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("after-func-negative.bal")}, new
             ArrayList<>());
     }
 
-    @BeforeMethod
+    @AfterMethod
     private void cleanup() {
         TesterinaRegistry.getInstance().setProgramFiles(new ArrayList<>());
         TesterinaRegistry.getInstance().setTestSuites(new HashMap<>());
