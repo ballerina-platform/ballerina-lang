@@ -22,16 +22,16 @@ stream<MaterialUsage> materialUsageStream;
 
 function initRealtimeProductionAlert() {
 
-    // Whenever the `materialUsageStream` stream receives an event from the streaming rules defined in the forever
+    // Whenever the `materialUsageStream` stream receives an event from the streaming rules defined in the `forever`
     // block, the `printMaterialUsageAlert` function is invoked.
     materialUsageStream.subscribe(printMaterialUsageAlert);
 
 
     // Gather events related to raw materials through the `rawMaterialStream` stream and production related events
-    // through the `productionInputStream. The raw materials usage and production outcome for the last
+    // through the `productionInputStream`. The raw materials usage and production outcome for the last
     // 10 seconds are calculated and an alert is triggered if the raw material usage is 5% higher than the
-    // production outcome. This forever block is executed once, when initializing the service. The processing happens
-    // asynchronously each time the requestStream or productionInputStream receives an event.
+    // production outcome. This `forever` block is executed once, when initializing the service. The processing happens
+    // asynchronously each time the `requestStream` or `productionInputStream` receives an event.
     forever {
         from productionInputStream window time(10000) as p
         join rawMaterialStream window time(10000) as r
@@ -42,7 +42,7 @@ function initRealtimeProductionAlert() {
         having ((totalRawMaterial - totalConsumption) * 100.0 /
                 totalRawMaterial) > 5
         => (MaterialUsage[] materialUsages) {
-        // The 'materialUsages' is the output that matches the defined streaming rules. It is published to `materialUsageStream` stream.
+        // `materialUsages` is the output that matches the defined streaming rules. It is published to the `materialUsageStream` stream.
         // The selected clause should match the structure of the `MaterialUsage` type.
             materialUsageStream.publish(materialUsages);
         }
