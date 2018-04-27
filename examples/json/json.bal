@@ -41,7 +41,7 @@ function main(string... args) {
     json firstName = p.fname;
     io:println(firstName);
 
-    // Array index notation allows you use any string valued expression as the index.
+    // Array index notation allows you to use any string valued expression as the index.
     json lastName = p["lname"];
     io:println(lastName);
 
