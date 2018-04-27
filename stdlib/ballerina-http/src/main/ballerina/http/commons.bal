@@ -35,6 +35,16 @@ documentation {Constant for the HTTP HEAD method}
 public type HttpOperation "FORWARD" | "GET" | "POST" | "DELETE" | "OPTIONS" | "PUT" | "PATCH" | "HEAD" | "NONE";
 
 // makes the actual endpoints call according to the http operation passed in.
+documentation {
+    The HEAD action implementation of the Circuit Breaker. This wraps the `head()` function of the underlying
+    HTTP actions provider.
+
+    P{{path}} Resource path
+    P{{outRequest}} A Request struct
+    P{{requestAction}} `HttpOperation` related to the request
+    P{{httpClient}} HTTP client which uses to call the relavant functions
+    R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
+}
 public function invokeEndpoint (string path, Request outRequest,
                                 HttpOperation requestAction, CallerActions httpClient) returns Response|error {
     if (HTTP_GET == requestAction) {

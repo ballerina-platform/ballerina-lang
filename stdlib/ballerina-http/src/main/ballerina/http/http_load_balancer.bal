@@ -313,6 +313,13 @@ function performLoadBalanceAction(LoadBalancer lb, string path, Request request,
 }
 
 // Round Robin Algorithm implementation with respect to load balancing endpoints.
+documentation {
+    Round Robin Algorithm implementation with respect to load balancing endpoints.
+
+    P{{lb}} `LoadBalancer` object
+    P{{loadBalanceConfigArray}} Array of HTTP Clients that needs to be load balanced
+    R{{}} HttpClient elected from the algorithm
+}
 public function roundRobin(LoadBalancer lb, CallerActions[] loadBalanceConfigArray) returns CallerActions {
     CallerActions httpClient = new;
 
