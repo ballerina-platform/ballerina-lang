@@ -1,10 +1,8 @@
 # To run the client and send request, create ballerina project and package
 # inside the project and include below files to package directory. Build the
 # project using build-in ballerina tool.
-
-# grpc_bidirectional_streaming_client.bal
-# grpc_bidirectional_streaming_pb.bal
-
+# * grpc_bidirectional_streaming_client.bal
+# * grpc_bidirectional_streaming_pb.bal
 # for example, if you create a package 'client', execute below command to build
 # the 'client' package.
 $ ballerina build client
