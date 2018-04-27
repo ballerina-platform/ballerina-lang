@@ -145,6 +145,15 @@ public type CircuitBreakerClient object {
         CircuitState currentCircuitState = CB_CLOSED_STATE;
     }
 
+    documentation {
+        A Circuit Breaker implementation which can be used to gracefully handle network failures.
+
+        P{{serviceUri}} The URL of the target service
+        P{{config}} The configurations of the client endpoint associated with this `CircuitBreaker` instance
+        P{{circuitBreakerInferredConfig}} Configurations derived from `CircuitBreakerConfig`
+        P{{httpClient}}  The underlying `HttpActions` instance which will be making the actual network calls
+        P{{circuitHealth}} The circuit health monitor
+    }
     public new (string serviceUri, ClientEndpointConfig config, CircuitBreakerInferredConfig circuitBreakerInferredConfig,
                                                                             CallerActions httpClient, CircuitHealth circuitHealth) {
         self.serviceUri = serviceUri;

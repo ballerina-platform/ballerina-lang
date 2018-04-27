@@ -74,7 +74,13 @@ public type Failover object {
         ClientEndpointConfig config;
         FailoverInferredConfig failoverInferredConfig;
     }
+    documentation {
+        Failover caller actions which provides failover capabilities to an HTTP client endpoint.
 
+        P{{serviceUri}} The URL of the remote HTTP endpoint
+        P{{config}} The configurations of the client endpoint associated with this `Failover` instance
+        P{{failoverInferredConfig}} Configurations derived from `FailoverConfig`
+    }
     public new (serviceUri, config, failoverInferredConfig) {}
 
     documentation {
