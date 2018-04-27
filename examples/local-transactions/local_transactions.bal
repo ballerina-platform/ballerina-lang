@@ -22,14 +22,14 @@ function main(string... args) {
     handleUpdate(ret, "Create SALARY table");
 
     // Here is the transaction block. Any transacted action within the transaction block
-    // may return errors like backend DB errors, connection pool errors, etc., User can
+    // may return errors like backend DB errors, connection pool errors, etc. User can
     // decide whether to abort or retry based on the error returned. If you do not
     // explicitly abort or retry on a returned error, transaction will be automatically
-    // retried  until the retry count is reached and aborted.
-    // The retry count which is given with `retries` is the number of times the transaction
+    // retried until the retry count is reached and aborted.
+    // The retry count that is given with `retries` is the number of times the transaction
     // is retried before aborting it. By default, a transaction is tried three times before
     // aborting. Only integer literals or constants are allowed for `retry count`.
-    // Two functions can be registered with oncommit and onabort. Those functions will be
+    // Two functions can be registered with `oncommit` and `onabort`. Those functions will be
     // executed at the end when the transaction is either aborted or committed.
     transaction with retries = 4, oncommit = onCommitFunction,
                                   onabort = onAbortFunction {
@@ -42,25 +42,25 @@ function main(string... args) {
         match result {
             int c => {
                 io:println("Inserted count: " + c);
-                // If the transaction is forced to abort, it will rollback the transaction
-                // and exits the transaction block without retrying.
+                // If the transaction is forced to abort, it will roll back the transaction
+                // and exit the transaction block without retrying.
                 if (c == 0) {
                     abort;
                 }
             }
             error err => {
-                // If the transaction is forced to retry, it will rollback the transaction,
-                // go to onretry block and and retry from the beginning until the defined
+                // If the transaction is forced to retry, it will roll back the transaction,
+                // go to the `onretry` block, and retry from the beginning until the defined
                 // retry count is reached.
                 retry;
             }
         }
-    // The end curly bracket marks the end of the transaction and the transaction will
+    // The end curly bracket marks the end of the transaction, and the transaction will
     // be committed or rolled back at this point.
     } onretry {
-        // The onretry block will be executed whenever the transaction is retried until it
-        // reaches the retry count. Transaction could be re-tried if it fails due to an
-        // exception, throw statement, or an explicit retry statement.
+        // The `onretry` block will be executed whenever the transaction is retried until it
+        // reaches the retry count. A transaction could be retried if it fails due to an
+        // exception or throw statement, or from an explicit retry statement.
         io:println("Retrying transaction");
     }
 
@@ -76,13 +76,13 @@ function main(string... args) {
 }
 
 // This is the function used as the commit handler of the transaction block. Any action
-// which needs to perform once the transaction is committed should go here.
+// that needs to perform once the transaction is committed should go here.
 function onCommitFunction(string transactionId) {
     io:println("Transaction: " + transactionId + " committed");
 }
 
 // This is the function used as the abort handler of the transaction block. Any action
-// which needs to perform if the transaction is aborted should go here.
+// that needs to perform if the transaction is aborted should go here.
 function onAbortFunction(string transactionId) {
     io:println("Transaction: " + transactionId + " aborted");
 }
