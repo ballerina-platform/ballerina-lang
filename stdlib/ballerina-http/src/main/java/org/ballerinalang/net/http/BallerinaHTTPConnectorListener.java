@@ -81,7 +81,9 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
                 inboundMessage.setProperty(HTTP_RESOURCE, httpResource);
                 return;
             }
-            extractPropertiesAndStartResourceExecution(inboundMessage, httpResource);
+            if (httpResource != null) {
+                extractPropertiesAndStartResourceExecution(inboundMessage, httpResource);
+            }
         } catch (BallerinaException ex) {
             HttpUtil.handleFailure(inboundMessage, new BallerinaConnectorException(ex.getMessage(), ex.getCause()));
         }
