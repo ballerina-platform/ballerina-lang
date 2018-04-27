@@ -11,7 +11,6 @@ endpoint grpc:Listener ep {
 service HelloWorld bind ep {
     // Annotation indicates the service resource operates as server streaming.
     @grpc:ResourceConfig { streaming: true }
-
     lotsOfReplies(endpoint caller, string name) {
         io:println("Server received hello from " + name);
         string[] greets = ["Hi", "Hey", "GM"];
