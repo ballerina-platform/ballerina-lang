@@ -2383,7 +2383,7 @@ public class BLangPackageBuilder {
         }
         if (hasParameters) {
             BLangVariable firstParam = (BLangVariable) varListStack.peek().get(0);
-            if (firstParam.name.value.startsWith("$")) {
+            if (firstParam.name.value.startsWith("$") && varListStack.peek().size() > 1) {
                 // This is an endpoint variable
                 Set<Whitespace> wsBeforeComma = removeNthFromLast(firstParam.getWS(), 0);
                 resourceNode.addWS(wsBeforeComma);
