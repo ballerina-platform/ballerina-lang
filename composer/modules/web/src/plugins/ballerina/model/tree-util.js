@@ -248,6 +248,22 @@ class TreeUtil extends AbstractTreeUtil {
         && invocationExpression.actionInvocation);
     }
 
+    getInvocation(node) {
+        let invocationExpression;
+        if (this.isAssignment(node) || this.isExpressionStatement(node)) {
+            invocationExpression = _.get(node, 'expression');
+        } else if (this.isVariableDef(node)) {
+            invocationExpression = _.get(node, 'variable.initialExpression');
+        }
+
+        if (invocationExpression && this.isCheckExpr(invocationExpression)) {
+            invocationExpression = invocationExpression.expression;
+        }
+        if (invocationExpression && this.isInvocation(invocationExpression)
+        && invocationExpression.actionInvocation) { return invocationExpression.actionInvocation; }
+        return undefined;
+    }
+
     /**
      * Check whether the node is an async invocation expression
      * @param {object} node - variable def node object

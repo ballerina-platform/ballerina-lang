@@ -70,7 +70,7 @@ public class ConfigRegistry {
         configEntries = resolvedConfigs.getConfigurations();
 
         if (resolvedConfigs.hasEncryptedValues()) {
-            String customSecretFilePath = runtimeParams != null ? runtimeParams.get("ballerina.config.secret") : null;
+            String customSecretFilePath = runtimeParams != null ? runtimeParams.get("b7a.config.secret") : null;
             Path userSecretFile = getUserSecretFile(customSecretFilePath);
 
             try {

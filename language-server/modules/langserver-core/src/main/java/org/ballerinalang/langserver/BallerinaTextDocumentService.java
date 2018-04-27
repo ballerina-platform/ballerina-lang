@@ -487,7 +487,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             compilationPath = LSCompiler.createAndGetTempFile(tempFileId);
         }
         balFile = LSCompiler.compileContent(content, compilationPath, CompilerPhase.TAINT_ANALYZE, documentManager,
-                                            false);
+                true);
         if (balFile.getDiagnostics() != null) {
             balDiagnostics = balFile.getDiagnostics();
         }
@@ -569,9 +569,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public void didSave(DidSaveTextDocumentParams params) {
     }
-    
+
     // Private methods
-    
+
     private void fillNewPackages(BLangPackage bLangPackage) {
         if (bLangPackage == null) {
             return;

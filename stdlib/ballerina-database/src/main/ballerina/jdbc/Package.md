@@ -264,6 +264,3 @@ match rmRet {
     error err => io:println("Removing from table failed: " + err.message);
 }
 ```
-
-
-
