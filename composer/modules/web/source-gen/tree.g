@@ -239,7 +239,7 @@ MatchPatternClause
    ;
 
 MatchExpression
-   : <expr> but { <patternClauses>* }
+   : <expression.source> but { <patternClauses>* }
    ;
 
 MatchExpressionPatternClause
