@@ -87,6 +87,6 @@ public type CallerActions object {
 documentation {
         An internal function used by clients to shutdown the connection pool.
 
-        P{{callerActions}} The CalledActions object which represents the connection pool.
+        P{{callerActions}} The CallerActions object which represents the connection pool.
 }
 public native function close(CallerActions callerActions);
