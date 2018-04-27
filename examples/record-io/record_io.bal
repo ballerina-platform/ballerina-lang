@@ -80,7 +80,7 @@ function main(string... args) {
         io:println("Processing completed. The processed file is located in ",
                    dstFileName);
     } catch (error e) {
-        log:printError("An error occurred while processing the records. ",
+        log:printError("An error occurred while processing the records: ",
                         err = e);
     } finally {
         //Close the text record channel.

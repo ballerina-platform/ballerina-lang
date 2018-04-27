@@ -43,7 +43,7 @@ function main(string... args) {
         process(csvChannel);
         io:println("Processing completed.");
     } catch (error e) {
-        log:printError("An error occurred while processing the records. ",
+        log:printError("An error occurred while processing the records: ",
                         err = e);
     } finally {
         //Close the text record channel.
