@@ -1,8 +1,8 @@
-// This is server implementation for client streaming scenario
+// This is server implementation for client streaming scenario.
 import ballerina/io;
 import ballerina/grpc;
 
-// Server endpoint configuration
+// The server endpoint configuration.
 endpoint grpc:Listener ep {
     host: "localhost",
     port: 9090
@@ -14,17 +14,17 @@ endpoint grpc:Listener ep {
 }
 service<grpc:Service> HelloWorld bind ep {
 
-    //This resource is triggered when a new service is initializing
+    //This resource is triggered when a new caller connection is initialized.
     onOpen(endpoint caller) {
         io:println("connected sucessfully.");
     }
 
-    //This resource is triggered when client need to send request to service
+    //This resource is triggered when the caller sends a request message to the service.
     onMessage(endpoint caller, string name) {
         io:println("greet received: " + name);
     }
 
-    //This resource is triggered when some error has been happen at server end
+    //This resource is triggered when the server receives an error message from the caller.
     onError(endpoint caller, error err) {
         if (err != ()) {
             io:println("Something unexpected happens at server : "
@@ -32,7 +32,7 @@ service<grpc:Service> HelloWorld bind ep {
         }
     }
 
-    //This resource is triggered when client notify service that it has finish send requests
+    //This resource is triggered when the caller sends a notification to the server to indicate that it has finished sending messages.
     onComplete(endpoint caller) {
         io:println("Server Response");
         error? err = caller->send("Ack");

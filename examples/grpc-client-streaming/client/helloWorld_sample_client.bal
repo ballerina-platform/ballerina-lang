@@ -1,4 +1,4 @@
-// This is client implementation for client streaming scenario
+// This is client implementation for client streaming scenario.
 import ballerina/io;
 
 int total = 0;
@@ -9,9 +9,10 @@ function main(string... args) {
     };
 
     endpoint grpc:Client ep;
-    // Executing unary non-blocking call registering server message listener.
+    // Executes unary non-blocking call registering server message listener.
     var res = helloWorldEp->lotsOfGreetings
                                         (HelloWorldMessageListener);
+
     match res {
         error err => {
             io:print("error");
@@ -23,6 +24,7 @@ function main(string... args) {
 
     io:print("Initialized connection sucessfully.");
 
+    // Sends multiple messages to the server.
     string[] greets = ["Hi", "Hey", "GM"];
     var name = "John";
     foreach greet in greets {
@@ -30,9 +32,10 @@ function main(string... args) {
         io:println(connErr.message but { () => "send greeting: " +
                                                 greet + " " + name });
     }
+
+    // Once all messages are sent, client send complete message to notify the server, I’m done.
     _ = ep->complete();
 
-    //to hold the programme
     while (total == 0) {}
     io:println("completed successfully");
 }

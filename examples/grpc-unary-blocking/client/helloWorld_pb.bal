@@ -2,7 +2,7 @@
 import ballerina/grpc;
 import ballerina/io;
 
-// Blocking client
+// Blocking client.
 public type HelloWorldBlockingStub object {
     public {
         grpc:Client clientEndpoint;
@@ -34,7 +34,7 @@ public type HelloWorldBlockingStub object {
     }
 };
 
-// Non-blocking client
+// Non-blocking client.
 public type HelloWorldStub object {
     public {
         grpc:Client clientEndpoint;
@@ -67,10 +67,12 @@ public type HelloWorldBlockingClient object {
         grpc:Client client = new;
         client.init(config);
         self.client = client;
+
         // initialize service stub.
         HelloWorldBlockingStub stub = new;
         stub.initStub(client);
         self.stub = stub;
+
     }
 
     public function getCallerActions() returns (HelloWorldBlockingStub) {
@@ -78,7 +80,7 @@ public type HelloWorldBlockingClient object {
     }
 };
 
-//Non-blocking endpoint
+// Non-blocking endpoint
 public type HelloWorldClient object {
     public {
         grpc:Client client;
@@ -90,10 +92,12 @@ public type HelloWorldClient object {
         grpc:Client client = new;
         client.init(config);
         self.client = client;
+
         // initialize service stub.
         HelloWorldStub stub = new;
         stub.initStub(client);
         self.stub = stub;
+
     }
 
     public function getCallerActions() returns (HelloWorldStub) {
@@ -101,7 +105,7 @@ public type HelloWorldClient object {
     }
 };
 
-//Service meta data
+// Service descriptor data.
 @final string DESCRIPTOR_KEY = "HelloWorld.proto";
 map descriptorMap =
 {

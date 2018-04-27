@@ -1,4 +1,4 @@
-// This is client implementation for unary blocking scenario
+// This is client implementation for unary blocking scenario.
 import ballerina/io;
 import ballerina/grpc;
 
@@ -8,12 +8,14 @@ function main(string... args) {
         url: "http://localhost:9090"
     };
 
-    //Working with custom headers
+    // Writes custom headers to request message.
     grpc:Headers headers = new;
     headers.setEntry("Keep-Alive", "300");
 
-    // Executing unary blocking call
+    // Executes unary blocking call with headers.
     var unionResp = helloWorldBlockingEp->hello("WSO2", headers = headers);
+
+    // Reads message and headers from response.
     match unionResp {
         (string, grpc:Headers) payload => {
             string result;

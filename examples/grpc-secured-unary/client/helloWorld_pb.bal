@@ -1,8 +1,8 @@
-// This is server implementation for secured connection (HTTPS) scenario
+// This is an auto generated client stub which is used to connect to gRPC server.
 import ballerina/grpc;
 import ballerina/io;
 
-// This is an auto generated client stub which is used to communicate between gRPC client.
+// Blocking client.
 public type HelloWorldBlockingStub object {
     public {
         grpc:Client clientEndpoint;
@@ -34,6 +34,7 @@ public type HelloWorldBlockingStub object {
     }
 };
 
+// Non-blocking client.
 public type HelloWorldStub object {
     public {
         grpc:Client clientEndpoint;
@@ -54,6 +55,7 @@ public type HelloWorldStub object {
     }
 };
 
+// Blocking endpoint.
 public type HelloWorldBlockingClient object {
     public {
         grpc:Client client;
@@ -65,6 +67,7 @@ public type HelloWorldBlockingClient object {
         grpc:Client client = new;
         client.init(config);
         self.client = client;
+
         // initialize service stub.
         HelloWorldBlockingStub stub = new;
         stub.initStub(client);
@@ -76,6 +79,7 @@ public type HelloWorldBlockingClient object {
     }
 };
 
+// Non-blocking client endpoint.
 public type HelloWorldClient object {
     public {
         grpc:Client client;
@@ -87,10 +91,12 @@ public type HelloWorldClient object {
         grpc:Client client = new;
         client.init(config);
         self.client = client;
+
         // initialize service stub.
         HelloWorldStub stub = new;
         stub.initStub(client);
         self.stub = stub;
+
     }
 
     public function getCallerActions() returns (HelloWorldStub) {
@@ -98,6 +104,7 @@ public type HelloWorldClient object {
     }
 };
 
+// Service descriptor data.
 @final string DESCRIPTOR_KEY = "HelloWorld.proto";
 map descriptorMap =
 {

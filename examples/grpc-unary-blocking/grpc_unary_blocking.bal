@@ -13,13 +13,19 @@ service HelloWorld bind ep {
     hello(endpoint caller, string name, grpc:Headers headers) {
         io:println("name: " + name);
         string message = "Hello " + name;
-        // Working with custom headers.
+        // Reads custom headers in request message.
         io:println(headers.get("Keep-Alive"));
+
+        // Writes custom headers to response message.
         grpc:Headers resHeader = new;
         resHeader.setEntry("Host", "ballerina.io");
+
+        // Sends response message with headers.
         error? err = caller->send(message, headers = resHeader);
         io:println(err.message but { () => "Server send response : " +
                                                                     message });
+
+        // Sends `completed` notification to caller.
         _ = caller->complete();
     }
 }
