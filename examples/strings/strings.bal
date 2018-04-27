@@ -11,7 +11,8 @@ function main(string... args) {
     io:println("ToLower: " + s2);
 
     //This compares two strings ignoring the case. It returns 'true' if the strings are equal, or 'false' if they are not equal.
-    boolean isEqual = statement.equalsIgnoreCase("lion in town. catch the lion ");
+    boolean isEqual =
+            statement.equalsIgnoreCase("lion in town. catch the lion");
     io:println("EqualsIgnoreCase: " + isEqual);
 
     //This returns a new string that is a substring of the specified string. You must provide the original string,
