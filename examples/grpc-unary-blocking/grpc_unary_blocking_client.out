@@ -1,0 +1,13 @@
+# To run the client and send request, create ballerina project and package
+# inside the project and include below files to package directory. Build the
+# project using build-in ballerina tool.
+
+# grpc_unary_blocking_client.bal
+# grpc_unary_blocking_pb.bal
+
+# for example, if you create a package 'client', execute below command to build
+# the 'client' package.
+$ ballerina build client
+
+# Then run client.balx using following command to run the client
+$ ballerina run client.balx
