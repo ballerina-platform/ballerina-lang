@@ -316,7 +316,7 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
                     () => {}
                 }
                 error subscriptionError = { message: "Redirection response received for subscription change request at"
-                                        + "Hub [" + hub + "], for Topic [" + subscriptionChangeRequest.topic + "]" };
+                                        + " Hub [" + hub + "], for Topic [" + subscriptionChangeRequest.topic + "]" };
                 return subscriptionError;
             } else if (responseStatusCode != http:ACCEPTED_202) {
                 var responsePayload = httpResponse.getTextPayload();
