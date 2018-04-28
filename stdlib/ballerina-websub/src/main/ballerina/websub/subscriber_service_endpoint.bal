@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/http;
+import ballerina/log;
 
 //////////////////////////////////////////
 /// WebSub Subscriber Service Endpoint ///
@@ -317,6 +318,7 @@ public function interceptWebSubRequest(http:Request request, http:FilterContext 
         var processedNotification = processWebSubNotification(request, context.serviceType);
         match (processedNotification) {
             error webSubError => {
+                log:printDebug("Signature Validation failed for Notification: " + webSubError.message);
                 http:FilterResult filterResult =
                 {canProceed:false, statusCode:404, message:"validation failed for notification"};
                 return filterResult;
