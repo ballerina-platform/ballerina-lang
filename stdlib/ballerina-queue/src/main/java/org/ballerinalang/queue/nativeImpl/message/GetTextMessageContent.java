@@ -16,8 +16,10 @@
 
 package org.ballerinalang.queue.nativeImpl.message;
 
+import io.ballerina.messaging.broker.core.ContentChunk;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.bre.bvm.persistency.ConnectionException;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -25,13 +27,16 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.jms.AbstractBlockinAction;
+import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.JMSUtils;
+import org.ballerinalang.queue.QueueConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import io.ballerina.messaging.broker.core.Message;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.TextMessage;
+
+//import javax.jms.JMSException;
+//import javax.jms.TextMessage;
 
 /**
  * Get text content of the JMS Message.
@@ -53,24 +58,20 @@ public class GetTextMessageContent extends AbstractBlockinAction {
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
 
         BStruct messageStruct  = ((BStruct) context.getRefArgument(0));
-        Message jmsMessage = JMSUtils.getJMSMessage(messageStruct);
-
-        String messageContent = null;
-
-        try {
-            if (jmsMessage instanceof TextMessage) {
-                messageContent = ((TextMessage) jmsMessage).getText();
-            } else {
-                log.error("JMSMessage is not a Text message. ");
-            }
-        } catch (JMSException e) {
-            log.error("Error when retrieving JMS message content :" + e.getLocalizedMessage());
+        Object messageObject = messageStruct.getNativeData(QueueConstants.QUEUE_MESSAGE_CONTENT);
+        if (messageObject == null || !(messageObject instanceof byte[])) {
+            throw new ConnectionException("Message is not available.");
         }
 
-        if (log.isDebugEnabled()) {
-            log.debug("Get content from the JMS message");
-        }
+        byte[] messageBytes = (byte[]) messageObject;
+        String messageString = new String(messageBytes);
 
-        context.setReturnValues(new BString(messageContent));
+//        String messageString = null;
+//        Message message = (Message) messageObject;
+//        if (message.getContentChunks() != null && !message.getContentChunks().isEmpty()) {
+//            ContentChunk chunk = message.getContentChunks().get(0);
+//            messageString = new String(chunk.getBytes());
+//        }
+        context.setReturnValues(new BString(messageString));
     }
 }

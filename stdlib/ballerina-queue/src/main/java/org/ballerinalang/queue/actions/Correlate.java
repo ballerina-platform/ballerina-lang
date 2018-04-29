@@ -19,6 +19,8 @@ package org.ballerinalang.queue.actions;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.bvm.persistency.PersistenceUtils;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.model.RecoverableNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BValue;
@@ -26,6 +28,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.queue.BrokerUtils;
+import org.ballerinalang.queue.WorkflowSubscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +53,7 @@ import java.io.File;
                                        structType = "Message")
                    }
 )
-public class Correlate extends Receive {
+public class Correlate implements RecoverableNativeCallableUnit {
     private static final Logger log = LoggerFactory.getLogger(Correlate.class);
 
     @Override
@@ -60,5 +64,24 @@ public class Correlate extends Receive {
         PersistenceUtils
                 .saveJsonFIle(PersistenceUtils.getJson(context.getParentWorkerExecutionContext()), new File(map));
         startSubscriber(context, callableUnitCallback, selector);
+    }
+
+    @Override
+    public boolean isBlocking() {
+        return false;
+    }
+
+    protected void startSubscriber(Context context, CallableUnitCallback callableUnitCallback, String selectorMessage){
+        // Extract argument values
+        String destination = BLangConnectorSPIUtil.getConnectorEndpointStruct(context).getStructField("config")
+                .getStringField("destination");
+        log.info("Starting subscription on the destination - " + destination);
+        if (selectorMessage == null) {
+            BrokerUtils.addSubscription(destination, new WorkflowSubscriber(destination, callableUnitCallback, context));
+        } else {
+            BrokerUtils.addSubscription(destination, new WorkflowSubscriber(destination, callableUnitCallback,
+                    context), selectorMessage);
+        }
+
     }
 }

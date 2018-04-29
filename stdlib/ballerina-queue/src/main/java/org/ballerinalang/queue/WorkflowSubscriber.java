@@ -18,12 +18,15 @@ package org.ballerinalang.queue;
 
 import io.ballerina.messaging.broker.core.BrokerException;
 import io.ballerina.messaging.broker.core.Consumer;
+import io.ballerina.messaging.broker.core.ContentChunk;
 import io.ballerina.messaging.broker.core.Message;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.jms.Constants;
+
+import java.io.ByteArrayOutputStream;
 
 public class WorkflowSubscriber extends Consumer {
 
@@ -43,8 +46,19 @@ public class WorkflowSubscriber extends Consumer {
         // Inject the Message (if received) into a JMSMessage struct.
         BStruct bStruct = BLangConnectorSPIUtil
                 .createBStruct(this.context, Constants.PROTOCOL_PACKAGE_QUEUE, Constants.JMS_MESSAGE_STRUCT_NAME);
-        bStruct.addNativeData(org.ballerinalang.net.jms.Constants.JMS_API_MESSAGE,
-                message);
+
+        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+        try {
+            for (ContentChunk chunk : message.getContentChunks()) {
+                byteStream.write(chunk.getBytes());
+            }
+        } catch (Exception e) {
+            throw new BrokerException("Error reading content from the correlated message.", e);
+        }
+        bStruct.addNativeData(QueueConstants.QUEUE_MESSAGE_CONTENT, byteStream.toByteArray());
+
+//        bStruct.addNativeData(org.ballerinalang.net.jms.Constants.JMS_API_MESSAGE,
+//                message);
         bStruct.addNativeData(Constants.INBOUND_REQUEST, Boolean.FALSE);
         BrokerUtils.removeSubscription(this);
 

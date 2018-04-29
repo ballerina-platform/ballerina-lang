@@ -93,6 +93,8 @@ public class FileBasedStore extends StateStore {
                     BLangVMUtils.setServiceInfo(context, resourceInfo.getServiceInfo());
                 }
                 State state = new State(context);
+                // have to decrement ip as CPU class increments it as soon as instruction is fetched
+                context.ip--;
                 state.setIp(context.ip);
                 states.add(state);
             } catch (Throwable e) {

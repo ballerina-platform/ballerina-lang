@@ -23,9 +23,11 @@ import org.ballerinalang.bre.bvm.persistency.adapters.ArrayListAdapter;
 import org.ballerinalang.bre.bvm.persistency.adapters.HashMapAdapter;
 import org.ballerinalang.bre.bvm.persistency.adapters.RefTypeAdaptor;
 import org.ballerinalang.bre.bvm.persistency.reftypes.GenericObjectAdaptor;
+import org.ballerinalang.bre.bvm.persistency.reftypes.SerializableBJSON;
 import org.ballerinalang.bre.bvm.persistency.reftypes.SerializableBStruct;
 import org.ballerinalang.bre.bvm.persistency.reftypes.SerializableRefType;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -83,6 +85,7 @@ public class PersistenceUtils {
         serializableClasses.add(Double.class.getName());
         serializableClasses.add(Float.class.getName());
         serializableClasses.add(Boolean.class.getName());
+        serializableClasses.add(byte[].class.getName());
 
         serializableClasses.add(InetSocketAddress.class.getName());
         serializableClasses.add(BString.class.getName());
@@ -151,6 +154,8 @@ public class PersistenceUtils {
     public static SerializableRefType serializeRefType(BRefType refType, SerializableState state) {
         if (refType instanceof BStruct) {
             return new SerializableBStruct((BStruct) refType, state);
+        } else if (refType instanceof BJSON) {
+            return new SerializableBJSON((BJSON) refType);
         } else {
             return null;
         }
