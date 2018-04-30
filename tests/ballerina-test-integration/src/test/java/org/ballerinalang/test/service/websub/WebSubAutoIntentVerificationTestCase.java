@@ -41,25 +41,33 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 /**
  * This class includes an integration scenario which covers the following:
  *  1. Bringing up the Ballerina Hub
- *  2. Sending the subscription request for WebSub Subscriber services on start up, and verifying intent to subscribe,
- *      when the hub sends an intent verification request
+ *  2. Sending the subscription request for WebSub Subscriber services on start up, and auto verifying intent to
+ *  subscribe, when the hub sends an intent verification request, since an onIntentVerification resource is not
+ *  specified
  *  3. Functions made available to the Publishers - publishing directly on to the Ballerina Hub or to a Hub by
  *      specifying the URL (usecase: remote hubs)
  *  4. Content Delivery process - by verifying content is delivered when update notification is done for a subscribed
  *      topic - both directly to the hub and specifying hub URL
- *  5. Signature Validation for authenticated content distribution
+ *  5. Subscription and content distribution when a secret is not specified
  */
-public class WebSubIntegrationTestCase extends IntegrationTestCase {
+public class WebSubAutoIntentVerificationTestCase extends IntegrationTestCase {
 
     private static String hubUrl = "https://localhost:9292/websub/hub";
-    private static final String INTENT_VERIFICATION_SUBSCRIBER_LOG = "\"Intent verified for subscription request\"";
+    private static final String INTENT_VERIFICATION_SUBSCRIBER_LOG = "ballerina: Intent Verification agreed - Mode "
+            + "[subscribe], Topic [http://www.websubpubtopic.com], Lease Seconds [86400]";
     private static final String INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_LOG =
             "WebSub Notification Received: {\"action\":\"publish\",\"mode\":\"internal-hub\"}";
     private static final String REMOTE_HUB_NOTIFICATION_SUBSCRIBER_LOG =
             "WebSub Notification Received: {\"action\":\"publish\",\"mode\":\"remote-hub\"}";
+    private static final String INTERNAL_HUB_NOTIFICATION_FROM_REQUEST_SUBSCRIBER_LOG =
+            "WebSub Notification from Request: {\"action\":\"publish\",\"mode\":\"internal-hub\"}";
+    private static final String REMOTE_HUB_NOTIFICATION_FROM_REQUEST_SUBSCRIBER_LOG =
+            "WebSub Notification from Request: {\"action\":\"publish\",\"mode\":\"remote-hub\"}";
 
     private LogLeecher internalHubNotificationLogLeecher;
     private LogLeecher remoteHubNotificationLogLeecher;
+    private LogLeecher internalHubNotificationFromRequestLogLeecher;
+    private LogLeecher remoteHubNotificationFromRequestLogLeecher;
 
     private ServerInstance ballerinaWebSubSubscriber;
     private ServerInstance ballerinaWebSubPublisher;
@@ -74,13 +82,19 @@ public class WebSubIntegrationTestCase extends IntegrationTestCase {
         LogLeecher intentVerificationLogLeecher = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_LOG);
         internalHubNotificationLogLeecher = new LogLeecher(INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_LOG);
         remoteHubNotificationLogLeecher = new LogLeecher(REMOTE_HUB_NOTIFICATION_SUBSCRIBER_LOG);
+        internalHubNotificationFromRequestLogLeecher =
+                new LogLeecher(INTERNAL_HUB_NOTIFICATION_FROM_REQUEST_SUBSCRIBER_LOG);
+        remoteHubNotificationFromRequestLogLeecher =
+                new LogLeecher(REMOTE_HUB_NOTIFICATION_FROM_REQUEST_SUBSCRIBER_LOG);
 
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
                         + File.separator + "websub" + File.separator + "websub_test_subscriber.bal").getAbsolutePath();
         ballerinaWebSubSubscriber = ServerInstance.initBallerinaServer(8181);
         ballerinaWebSubSubscriber.addLogLeecher(intentVerificationLogLeecher);
         ballerinaWebSubSubscriber.addLogLeecher(internalHubNotificationLogLeecher);
+        ballerinaWebSubSubscriber.addLogLeecher(internalHubNotificationFromRequestLogLeecher);
         ballerinaWebSubSubscriber.addLogLeecher(remoteHubNotificationLogLeecher);
+        ballerinaWebSubSubscriber.addLogLeecher(remoteHubNotificationFromRequestLogLeecher);
 
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
@@ -101,7 +115,6 @@ public class WebSubIntegrationTestCase extends IntegrationTestCase {
         //Allow to start up the subscriber service
         given().ignoreException(ConnectException.class).await().atMost(60, SECONDS).until(() -> {
             Map<String, String> headers = new HashMap<>();
-            headers.put("X-Hub-Signature", "SHA256=5262411828583e9dc7eaf63aede0abac8e15212e06320bb021c433a20f27d553");
             headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
             HttpResponse response = HttpClientRequest.doPost(
                     ballerinaWebSubSubscriber.getServiceURLHttp("websub"), "{\"dummy\":\"body\"}",
@@ -117,9 +130,19 @@ public class WebSubIntegrationTestCase extends IntegrationTestCase {
         internalHubNotificationLogLeecher.waitForText(30000);
     }
 
+    @Test(dependsOnMethods = "testContentReceiptForDirectHubNotification")
+    public void testContentReceiptAsRequestForDirectHubNotification() throws BallerinaTestException {
+        internalHubNotificationFromRequestLogLeecher.waitForText(30000);
+    }
+
     @Test(dependsOnMethods = "testStartUpAndIntentVerification")
     public void testContentReceiptForRemoteHubNotification() throws BallerinaTestException {
         remoteHubNotificationLogLeecher.waitForText(30000);
+    }
+
+    @Test(dependsOnMethods = "testStartUpAndIntentVerification")
+    public void testContentReceiptAsRequestForRemoteHubNotification() throws BallerinaTestException {
+        remoteHubNotificationFromRequestLogLeecher.waitForText(30000);
     }
 
     @AfterClass
