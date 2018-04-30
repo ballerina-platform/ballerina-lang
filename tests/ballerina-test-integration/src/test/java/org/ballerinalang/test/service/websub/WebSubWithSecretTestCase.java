@@ -26,10 +26,12 @@ import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.ballerinalang.test.util.TestConstant;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.ConnectException;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +49,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  *      specifying the URL (usecase: remote hubs)
  *  4. Content Delivery process - by verifying content is delivered when update notification is done for a subscribed
  *      topic - both directly to the hub and specifying hub URL
- *  5. Signature Validation for authenticated content distribution
+ *  5. Signature Validation for authenticated content distribution - both success and failure
  */
 public class WebSubWithSecretTestCase extends IntegrationTestCase {
 
@@ -143,6 +145,29 @@ public class WebSubWithSecretTestCase extends IntegrationTestCase {
     @Test(dependsOnMethods = "testStartUpAndIntentVerification")
     public void testContentReceiptAsRequestForRemoteHubNotification() throws BallerinaTestException {
         remoteHubNotificationFromRequestLogLeecher.waitForText(30000);
+    }
+
+    @Test(dependsOnMethods = "testStartUpAndIntentVerification")
+    public void testSignatureValidationFailure() throws BallerinaTestException, IOException {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("X-Hub-Signature", "SHA256=incorrect583e9dc7eaf63aede0abac8e15212e06320bb021c433a20f27d553");
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
+        HttpResponse response = HttpClientRequest.doPost(
+                ballerinaWebSubSubscriber.getServiceURLHttp("websub"), "{\"dummy\":\"body\"}",
+                headers);
+        Assert.assertEquals(response.getResponseCode(), 404);
+        Assert.assertEquals(response.getData(), "request failed: validation failed for notification");
+    }
+
+    @Test(dependsOnMethods = "testStartUpAndIntentVerification")
+    public void testRejectionIfNoSignature() throws BallerinaTestException, IOException {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
+        HttpResponse response = HttpClientRequest.doPost(
+                ballerinaWebSubSubscriber.getServiceURLHttp("websub"), "{\"dummy\":\"body\"}",
+                headers);
+        Assert.assertEquals(response.getResponseCode(), 404);
+        Assert.assertEquals(response.getData(), "request failed: validation failed for notification");
     }
 
     @AfterClass
