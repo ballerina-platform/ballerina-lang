@@ -8,15 +8,28 @@ import ballerina/runtime;
 // the backend until the `resetTime`.
 endpoint http:Client backendClientEP {
     url: "http://localhost:8080",
+    // Circuit breaker configuration options
     circuitBreaker: {
+        // Failure calculation window.
         rollingWindow: {
+            // Time period in milliseconds for which the failure threshold
+            // is calculated.
             timeWindowMillis: 10000,
+            // The granularity at which the time window slides.
+            // This is measured in milliseconds.
             bucketSizeMillis: 2000
         },
+        // The threshold for request failures.
+        // When this threshold exceeds, the circuit trips.
+        // This is the ratio between failures and total requests.
         failureThreshold: 0.2,
+        // The time period(in milliseconds) to wait before
+        // attempting to make another request to the upstream service.
         resetTimeMillis: 10000,
+        // HTTP response status codes which are considered as failures
         statusCodes: [400, 404, 500]
     },
+
     timeoutMillis: 2000
 };
 
