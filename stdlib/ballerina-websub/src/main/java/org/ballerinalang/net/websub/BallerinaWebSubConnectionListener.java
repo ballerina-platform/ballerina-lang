@@ -41,8 +41,8 @@ import org.ballerinalang.net.http.BallerinaHTTPConnectorListener;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
 import org.ballerinalang.net.uri.URIUtil;
+import org.ballerinalang.net.websub.util.WebSubUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -107,7 +107,8 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
         if (httpCarbonMessage.getProperty(WebSubSubscriberConstants.ENTITY_ACCESSED_REQUEST) != null) {
             httpRequest = (BValue) httpCarbonMessage.getProperty(WebSubSubscriberConstants.ENTITY_ACCESSED_REQUEST);
         } else {
-            httpRequest = getHttpRequest(httpResource, httpCarbonMessage);
+            httpRequest = WebSubUtils.getHttpRequest(httpResource.getBalResource().getResourceInfo().getServiceInfo()
+                                                             .getPackageInfo().getProgramFile(), httpCarbonMessage);
         }
 
         // invoke request path filters
@@ -192,36 +193,6 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
 
         subscriberServiceEndpoint.setRefField(1, serviceEndpoint);
         return subscriberServiceEndpoint;
-    }
-
-    /**
-     * Method to retrieve the struct representing the HTTP request received.
-     *
-     * @param httpResource      the resource receiving the request
-     * @param httpCarbonMessage the HTTP message representing the request received
-     * @return the struct representing the HTTP request received
-     */
-    private BStruct getHttpRequest(HttpResource httpResource, HTTPCarbonMessage httpCarbonMessage) {
-        BStruct httpRequest = createBStruct(
-                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.REQUEST);
-
-        BStruct inRequestEntity = createBStruct(
-                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME, Constants.ENTITY);
-
-        BStruct mediaType = createBStruct(
-                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME, Constants.MEDIA_TYPE);
-
-        BStruct cacheControlStruct = createBStruct(
-                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.REQUEST_CACHE_CONTROL);
-        RequestCacheControlStruct requestCacheControl = new RequestCacheControlStruct(cacheControlStruct);
-
-        HttpUtil.populateInboundRequest(httpRequest, inRequestEntity, mediaType, httpCarbonMessage,
-                                        requestCacheControl);
-        return httpRequest;
     }
 
     /**
