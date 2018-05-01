@@ -33,9 +33,10 @@ import org.ballerinalang.bre.bvm.SyncCallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
+import org.ballerinalang.bre.bvm.persistency.PendingCheckpoints;
 import org.ballerinalang.bre.bvm.persistency.PersistenceUtils;
 import org.ballerinalang.model.NativeCallableUnit;
-import org.ballerinalang.model.RecoverableNativeCallableUnit;
+import org.ballerinalang.model.InterruptibleNativeCallableUnit;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BCallableFuture;
@@ -263,11 +264,18 @@ public class BLangFunctions {
         WorkerExecutionContext resultCtx;
         if (callableUnitInfo.isNative()) {
             NativeCallableUnit nativeCallable = callableUnitInfo.getNativeCallableUnit();
-            if (nativeCallable instanceof RecoverableNativeCallableUnit) {
+            if (nativeCallable instanceof InterruptibleNativeCallableUnit) {
+                InterruptibleNativeCallableUnit interruptibleNativeCallableUnit = (InterruptibleNativeCallableUnit) nativeCallable;
                 Object o = parentCtx.globalProps.get("instance.id");
                 if (o != null && o instanceof String) {
                     String instanceId = (String) o;
-                    StateStore.getInstance().persistState(instanceId, new State(parentCtx));
+                    WorkerExecutionContext runnableContext = PersistenceUtils.getMainPackageContext(parentCtx);
+                    if (interruptibleNativeCallableUnit.persistBeforeOperation()) {
+                        StateStore.getInstance().persistState(instanceId, new State(runnableContext));
+                    }
+                    if (interruptibleNativeCallableUnit.persistAfterOperation()) {
+                        PendingCheckpoints.addCheckpoint(instanceId, (runnableContext.ip + 1));
+                    }
                 }
             }
             if (FunctionFlags.isAsync(flags)) {

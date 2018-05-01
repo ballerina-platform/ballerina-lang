@@ -80,12 +80,12 @@ public type ClientConnector object {
     @Description {value:"SEND action implementation of the JMS Connector"}
     @Param {value:"destinationName: Destination Name"}
     @Param {value:"message: Message"}
-    public native function send (string destinationName, Message m);
+    public native function send (Message m);
 
-    @Description {value:"POLL action implementation of the JMS Connector"}
-    @Param {value:"destinationName: Destination Name"}
-    @Param {value:"time: Timeout that needs to blocked on"}
-    public native function receive (string destinationName, int time) returns (Message);
+    //@Description {value:"POLL action implementation of the JMS Connector"}
+    //@Param {value:"destinationName: Destination Name"}
+    //@Param {value:"time: Timeout that needs to blocked on"}
+    //public native function receive (string destinationName, int time) returns (Message);
 
     @Description {value:"POLL action implementation with selector support of the JMS Connector"}
     @Param {value:"destinationName: Destination Name"}
@@ -96,7 +96,5 @@ public type ClientConnector object {
 
     @Description {value:"Receive message by correlating with given map"}
     @Param {value:"correlationMap: Correlation map"}
-    public native function correlate (json correlationMap)
-    returns (Message);
-
+    public native function receive (json correlationMap) returns (Message);
 };

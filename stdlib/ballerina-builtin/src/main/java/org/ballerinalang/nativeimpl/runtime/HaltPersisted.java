@@ -21,7 +21,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.persistency.SerializableState;
-import org.ballerinalang.model.RecoverableNativeCallableUnit;
+import org.ballerinalang.model.InterruptibleNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         args = {@Argument(name = "millis", type = TypeKind.INT)},
         isPublic = true
 )
-public class HaltPersisted implements RecoverableNativeCallableUnit {
+public class HaltPersisted implements InterruptibleNativeCallableUnit {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         long delayMillis = context.getIntArgument(0);
@@ -51,5 +51,15 @@ public class HaltPersisted implements RecoverableNativeCallableUnit {
     @Override
     public boolean isBlocking() {
         return false;
+    }
+
+    @Override
+    public boolean persistBeforeOperation() {
+        return true;
+    }
+
+    @Override
+    public boolean persistAfterOperation() {
+        return true;
     }
 }

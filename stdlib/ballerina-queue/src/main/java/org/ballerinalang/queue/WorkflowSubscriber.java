@@ -27,6 +27,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.jms.Constants;
 
 import java.io.ByteArrayOutputStream;
+import java.util.UUID;
 
 public class WorkflowSubscriber extends Consumer {
 
@@ -36,7 +37,7 @@ public class WorkflowSubscriber extends Consumer {
 
     public WorkflowSubscriber(String queueName, CallableUnitCallback callableUnitCallback, Context
             context) {
-        this.queueName = queueName;
+        this.queueName = queueName + UUID.randomUUID().toString();
         this.callableUnitCallback = callableUnitCallback;
         this.context = context;
     }
