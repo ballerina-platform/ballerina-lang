@@ -18,7 +18,7 @@ function startService() {
     after: "stopService"
 }
 function testFunc() {
-    // Chck whether the server is started
+    // Check whether the server has started.
     test:assertTrue(serviceStarted, msg = "Unable to start the service");
     testAuthSuccess();
     testAuthnFailure();
@@ -26,12 +26,12 @@ function testFunc() {
 }
 
 function testAuthSuccess() {
-    // create client
+    // Create client. 
     endpoint http:Client httpEndpoint {
         url: "https://localhost:9090",
         auth: { scheme: "basic", username: "tom", password: "password1" }
     };
-    // Send a GET request to the specified endpoint
+    // Send a `GET` request to the specified endpoint
     var response = httpEndpoint->get("/hello/sayHello");
     match response {
         http:Response resp => {
@@ -43,12 +43,12 @@ function testAuthSuccess() {
 }
 
 function testAuthnFailure() {
-    // create client
+    // Create client.
     endpoint http:Client httpEndpoint {
         url: "https://localhost:9090",
         auth: { scheme: "basic", username: "tom", password: "password" }
     };
-    // Send a GET request to the specified endpoint
+    // Send a `GET` request to the specified endpoint
     var response = httpEndpoint->get("/hello/sayHello");
     match response {
         http:Response resp => {
@@ -60,10 +60,10 @@ function testAuthnFailure() {
 }
 
 function testAuthzFailure() {
-    // create client
+    // Create client.
     endpoint http:Client httpEndpoint { url: "https://localhost:9090",
         auth: { scheme: "basic", username: "dick", password: "password2" } };
-    // Send a GET request to the specified endpoint
+    // Send a `GET` request to the specified endpoint
     var response = httpEndpoint->get("/hello/sayHello");
     match response {
         http:Response resp => {
