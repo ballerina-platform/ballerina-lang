@@ -71,14 +71,16 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
 
         io:ByteChannel sourceChannel = check (httpResponse.getByteChannel());
 
-        string rawPathVal;
-        if (httpResponse.hasHeader("raw-path")) {
-            rawPathVal = httpResponse.getHeader("raw-path");
-            string pkgVersion;
-            string [] pathArray = rawPathVal.split("/");
+        string resolvedURI = httpResponse.resolvedRequestedURI;
+        if (resolvedURI != "") {
+            
+            int indexOfURI = resolvedURI.indexOf("https://fileserver.central.ballerina.io");
+            resolvedURI = resolvedURI.substring(indexOfURI, resolvedURI.length());
+            string [] pathArray = resolvedURI.split("/");
             int sizeOfArray = lengthof pathArray;
+
             if (sizeOfArray > 3) {
-                pkgVersion = pathArray[sizeOfArray - 2];
+                string pkgVersion = pathArray[sizeOfArray - 2];
                 string pkgName = fullPkgPath.substring(fullPkgPath.lastIndexOf("/") + 1, fullPkgPath.length());
                 fullPkgPath = fullPkgPath + ":" + pkgVersion;
                 destDirPath = destDirPath + fileSeparator + pkgVersion;        
