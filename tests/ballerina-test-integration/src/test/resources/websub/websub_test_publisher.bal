@@ -1,9 +1,10 @@
+import ballerina/config;
 import ballerina/io;
 import ballerina/runtime;
 import ballerina/websub;
 
 endpoint websub:Client websubHubClientEP {
-    url: "https://localhost:9292/websub/hub"
+    url: config:getAsString("test.hub.url")
 };
 
 function main(string... args) {

@@ -52,7 +52,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public class WebSubSubscriptionChangeTestCase extends IntegrationTestCase {
 
-    private static String hubUrl = "https://localhost:9292/websub/hub";
+    private static String hubUrl = "https://localhost:9393/websub/hub";
     private static final String INTENT_VERIFICATION_SUBSCRIBER_LOG = "ballerina: Intent Verification agreed - Mode "
             + "[subscribe], Topic [http://www.websubpubtopic.com], Lease Seconds [86400]";
     private static final String INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_LOG =
@@ -66,7 +66,7 @@ public class WebSubSubscriptionChangeTestCase extends IntegrationTestCase {
 
     @Test
     public void testStartUpAndIntentVerification() throws BallerinaTestException, InterruptedException {
-        String[] clientArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
+        String[] publisherArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
                           + File.separator + "websub" + File.separator + "websub_test_periodic_publisher.bal")
                 .getAbsolutePath(), "-e b7a.websub.hub.remotepublish=true"};
         ballerinaWebSubPublisher = ServerInstance.initBallerinaServer();
@@ -84,7 +84,7 @@ public class WebSubSubscriptionChangeTestCase extends IntegrationTestCase {
 
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
-                ballerinaWebSubPublisher.runMain(clientArgs);
+                ballerinaWebSubPublisher.runMain(publisherArgs);
             } catch (BallerinaTestException e) {
                 //ignored since any errors here would be reflected as test failures
             }
@@ -96,7 +96,8 @@ public class WebSubSubscriptionChangeTestCase extends IntegrationTestCase {
             return response.getResponseCode() == 202;
         });
 
-        ballerinaWebSubSubscriber.startBallerinaServer(subscriberBal);
+        String[] subscriberArgs = {"-e test.hub.url=" + hubUrl};
+        ballerinaWebSubSubscriber.startBallerinaServer(subscriberBal, subscriberArgs);
 
         //Allow to start up the subscriber service
         given().ignoreException(ConnectException.class).await().atMost(60, SECONDS).until(() -> {

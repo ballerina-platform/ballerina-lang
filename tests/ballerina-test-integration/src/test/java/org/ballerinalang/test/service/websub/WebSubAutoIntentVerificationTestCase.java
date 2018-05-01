@@ -54,7 +54,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public class WebSubAutoIntentVerificationTestCase extends IntegrationTestCase {
 
-    private static String hubUrl = "https://localhost:9292/websub/hub";
+    private static String hubUrl = "https://localhost:9191/websub/hub";
     private static final String INTENT_VERIFICATION_SUBSCRIBER_LOG = "ballerina: Intent Verification agreed - Mode "
             + "[subscribe], Topic [http://www.websubpubtopic.com], Lease Seconds [86400]";
     private static final String INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_LOG =
@@ -79,9 +79,10 @@ public class WebSubAutoIntentVerificationTestCase extends IntegrationTestCase {
 
     @Test
     public void testStartUpAndIntentVerification() throws BallerinaTestException, InterruptedException {
-        String[] clientArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
+        String[] publisherArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
                           + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath(),
-                          "-e b7a.websub.hub.remotepublish=true"};
+                          "-e b7a.websub.hub.port=9191", "-e b7a.websub.hub.remotepublish=true",
+                          "-e test.hub.url=" + hubUrl};
         ballerinaWebSubPublisher = ServerInstance.initBallerinaServer();
 
         LogLeecher intentVerificationLogLeecher = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_LOG);
@@ -105,7 +106,7 @@ public class WebSubAutoIntentVerificationTestCase extends IntegrationTestCase {
 
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
-                ballerinaWebSubPublisher.runMain(clientArgs);
+                ballerinaWebSubPublisher.runMain(publisherArgs);
             } catch (BallerinaTestException e) {
                 //ignored since any errors here would be reflected as test failures
             }
@@ -117,7 +118,8 @@ public class WebSubAutoIntentVerificationTestCase extends IntegrationTestCase {
             return response.getResponseCode() == 202;
         });
 
-        ballerinaWebSubSubscriber.startBallerinaServer(subscriberBal);
+        String[] subscriberArgs = {"-e test.hub.url=" + hubUrl};
+        ballerinaWebSubSubscriber.startBallerinaServer(subscriberBal, subscriberArgs);
 
         //Allow to start up the subscriber service
         given().ignoreException(ConnectException.class).await().atMost(60, SECONDS).until(() -> {
@@ -142,12 +144,12 @@ public class WebSubAutoIntentVerificationTestCase extends IntegrationTestCase {
         internalHubNotificationFromRequestLogLeecher.waitForText(45000);
     }
 
-    @Test(dependsOnMethods = "testStartUpAndIntentVerification")
+    @Test(dependsOnMethods = "testContentReceiptAsRequestForDirectHubNotification")
     public void testContentReceiptForRemoteHubNotification() throws BallerinaTestException {
         remoteHubNotificationLogLeecher.waitForText(45000);
     }
 
-    @Test(dependsOnMethods = "testStartUpAndIntentVerification")
+    @Test(dependsOnMethods = "testContentReceiptForRemoteHubNotification")
     public void testContentReceiptAsRequestForRemoteHubNotification() throws BallerinaTestException {
         remoteHubNotificationFromRequestLogLeecher.waitForText(45000);
     }

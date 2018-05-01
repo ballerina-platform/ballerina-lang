@@ -1,3 +1,4 @@
+import ballerina/config;
 import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
@@ -11,7 +12,7 @@ endpoint websub:Listener websubEP {
     path:"/websub",
     subscribeOnStartUp:true,
     topic: "http://www.websubpubtopic.com",
-    hub: "https://localhost:9292/websub/hub"
+    hub: config:getAsString("test.hub.url")
 }
 service<websub:Service> websubSubscriber bind websubEP {
 

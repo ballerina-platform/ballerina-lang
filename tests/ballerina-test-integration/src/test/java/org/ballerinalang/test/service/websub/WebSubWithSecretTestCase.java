@@ -76,7 +76,7 @@ public class WebSubWithSecretTestCase extends IntegrationTestCase {
     public void testStartUpAndIntentVerification() throws BallerinaTestException, InterruptedException {
         String[] clientArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
                           + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath(),
-                          "-e b7a.websub.hub.remotepublish=true"};
+                          "-e b7a.websub.hub.remotepublish=true", "-e test.hub.url=" + hubUrl};
         ballerinaWebSubPublisher = ServerInstance.initBallerinaServer();
 
         LogLeecher intentVerificationLogLeecher = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_LOG);
