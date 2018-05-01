@@ -43,7 +43,7 @@ public class ServerLauncher {
     private static final String PROP_COMPOSER_PUBLIC_PATH = "composer.public.path";
     private static final String PROP_OPEN_BROWSER = "open.browser";
     private static final String PROP_MSF4J_HOST = "msf4j.host";
-    private static final String DEFAULT_INTERFACE = "127.0.0.1";
+    private static final String DEFAULT_INTERFACE = "0.0.0.0";
     private static final int DEFAULT_PORT = 9091;
 
     private static Logger logger;
