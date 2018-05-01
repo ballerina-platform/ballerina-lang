@@ -53,9 +53,9 @@ import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
-import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.mime.util.Constants.RESPONSE_ENTITY_INDEX;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
 
@@ -103,7 +103,7 @@ public class ResponseNativeFunctionSuccessTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
+        BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getRefField(RESPONSE_ENTITY_INDEX);
         HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
         Assert.assertEquals(returnHeaders.get(headerName), headerValue);
     }
@@ -130,7 +130,7 @@ public class ResponseNativeFunctionSuccessTest {
         String payload = "ballerina";
         MimeUtil.setContentType(mediaType, entity, OCTET_STREAM);
         entity.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getEntityWrapper(payload));
-        inResponse.addNativeData(MESSAGE_ENTITY, entity);
+        inResponse.setRefField(RESPONSE_ENTITY_INDEX, entity);
         inResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
         BValue[] inputArg = {inResponse};
@@ -233,7 +233,7 @@ public class ResponseNativeFunctionSuccessTest {
         String payload = "{'code':'123'}";
         MimeUtil.setContentType(mediaType, entity, APPLICATION_JSON);
         entity.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getEntityWrapper(payload));
-        inResponse.addNativeData(MESSAGE_ENTITY, entity);
+        inResponse.setRefField(RESPONSE_ENTITY_INDEX, entity);
         inResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
         BValue[] inputArg = {inResponse};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
@@ -264,7 +264,7 @@ public class ResponseNativeFunctionSuccessTest {
         String payload = "ballerina";
         MimeUtil.setContentType(mediaType, entity, TEXT_PLAIN);
         entity.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getEntityWrapper(payload));
-        inResponse.addNativeData(MESSAGE_ENTITY, entity);
+        inResponse.setRefField(RESPONSE_ENTITY_INDEX, entity);
         inResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
         BValue[] inputArg = {inResponse};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
@@ -295,7 +295,7 @@ public class ResponseNativeFunctionSuccessTest {
         String payload = "<name>ballerina</name>";
         MimeUtil.setContentType(mediaType, entity, APPLICATION_XML);
         entity.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getEntityWrapper(payload));
-        inResponse.addNativeData(MESSAGE_ENTITY, entity);
+        inResponse.setRefField(RESPONSE_ENTITY_INDEX, entity);
         inResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
         BValue[] inputArg = {inResponse};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
@@ -336,7 +336,7 @@ public class ResponseNativeFunctionSuccessTest {
         String payload = "{\"code\":\"123\"}";
         MimeUtil.setContentType(mediaType, entity, APPLICATION_JSON);
         entity.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getEntityWrapper(payload));
-        inResponse.addNativeData(MESSAGE_ENTITY, entity);
+        inResponse.setRefField(RESPONSE_ENTITY_INDEX, entity);
         inResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
         BValue[] inputArg = {inResponse};
@@ -364,7 +364,7 @@ public class ResponseNativeFunctionSuccessTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
+        BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getRefField(RESPONSE_ENTITY_INDEX);
         HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
         Assert.assertNull(returnHeaders.get("100-continue"));
     }
@@ -394,14 +394,14 @@ public class ResponseNativeFunctionSuccessTest {
         httpHeaders.add(expect, "bytes=500-999");
         entity.addNativeData(ENTITY_HEADERS, httpHeaders);
 
-        outResponse.addNativeData(MESSAGE_ENTITY, entity);
+        outResponse.setRefField(RESPONSE_ENTITY_INDEX, entity);
         BValue[] inputArg = {outResponse};
 
         BValue[] returnVals = BRunUtil.invoke(result, "testRemoveAllHeaders", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
+        BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getRefField(RESPONSE_ENTITY_INDEX);
         HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
         Assert.assertNull(returnHeaders.get(expect));
         Assert.assertNull(returnHeaders.get(range));
@@ -439,7 +439,7 @@ public class ResponseNativeFunctionSuccessTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
+        BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getRefField(RESPONSE_ENTITY_INDEX);
         HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
         Assert.assertEquals(returnHeaders.get(range), rangeValue);
     }
@@ -452,7 +452,7 @@ public class ResponseNativeFunctionSuccessTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
+        BStruct entity = (BStruct) ((BStruct) returnVals[0]).getRefField(RESPONSE_ENTITY_INDEX);
         BJSON bJson = (BJSON) EntityBodyHandler.getMessageDataSource(entity);
         Assert.assertEquals(bJson.value().get("name").asText(), "wso2", "Payload is not set properly");
     }
@@ -486,7 +486,7 @@ public class ResponseNativeFunctionSuccessTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
+        BStruct entity = (BStruct) ((BStruct) returnVals[0]).getRefField(RESPONSE_ENTITY_INDEX);
         String stringValue = EntityBodyHandler.getMessageDataSource(entity).getMessageAsString();
         Assert.assertEquals(stringValue, "Ballerina", "Payload is not set properly");
     }
@@ -499,7 +499,7 @@ public class ResponseNativeFunctionSuccessTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
+        BStruct entity = (BStruct) ((BStruct) returnVals[0]).getRefField(RESPONSE_ENTITY_INDEX);
         BXML xmlValue = (BXML) EntityBodyHandler.getMessageDataSource(entity);
         Assert.assertEquals(xmlValue.getTextValue().stringValue(), "Ballerina",
                 "Payload is not set properly");
