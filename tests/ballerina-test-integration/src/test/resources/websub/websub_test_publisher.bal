@@ -11,8 +11,8 @@ function main(string... args) {
     websub:WebSubHub webSubHub = websub:startUpBallerinaHub();
     //Register a topic at the hub
     _ = webSubHub.registerTopic("http://www.websubpubtopic.com");
-    //Register topic to test rejection of intent verification for invalid topic
-    _ = webSubHub.registerTopic("http://dummytopic.com");
+    //Register topic to test remote registration and rejection of intent verification for invalid topic
+    _ = websubHubClientEP->registerTopic("http://dummytopic.com");
 
     //Allow for subscriber service start up and subscription
     runtime:sleep(30000);

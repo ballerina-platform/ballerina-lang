@@ -134,33 +134,35 @@ public class WebSubAutoIntentVerificationTestCase extends IntegrationTestCase {
 
     @Test(dependsOnMethods = "testStartUpAndIntentVerification")
     public void testContentReceiptForDirectHubNotification() throws BallerinaTestException {
-        internalHubNotificationLogLeecher.waitForText(30000);
+        internalHubNotificationLogLeecher.waitForText(45000);
     }
 
     @Test(dependsOnMethods = "testContentReceiptForDirectHubNotification")
     public void testContentReceiptAsRequestForDirectHubNotification() throws BallerinaTestException {
-        internalHubNotificationFromRequestLogLeecher.waitForText(30000);
+        internalHubNotificationFromRequestLogLeecher.waitForText(45000);
     }
 
     @Test(dependsOnMethods = "testStartUpAndIntentVerification")
     public void testContentReceiptForRemoteHubNotification() throws BallerinaTestException {
-        remoteHubNotificationLogLeecher.waitForText(30000);
+        remoteHubNotificationLogLeecher.waitForText(45000);
     }
 
     @Test(dependsOnMethods = "testStartUpAndIntentVerification")
     public void testContentReceiptAsRequestForRemoteHubNotification() throws BallerinaTestException {
-        remoteHubNotificationFromRequestLogLeecher.waitForText(30000);
+        remoteHubNotificationFromRequestLogLeecher.waitForText(45000);
     }
 
     @Test(dependsOnMethods = "testStartUpAndIntentVerification")
-    public void testIntentVerificationRejectionForIncorrectTopic() throws BallerinaTestException, IOException {
+    public void testRemoteTopicRegistrationAndIntentVerificationRejectionForIncorrectTopic() throws
+            BallerinaTestException, IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_FORM_URL_ENCODED);
         HttpResponse response = HttpClientRequest.doPost(hubUrl,
      "hub.mode=subscribe&hub.topic=http://dummytopic.com&hub.callback=http://localhost:8181/websub",
                      headers);
-        Assert.assertEquals(response.getResponseCode(), 202);
-        intentVerificationDenialLogLeecher.waitForText(30000);
+        Assert.assertEquals(response.getResponseCode(), 202, "Remote topic registration unsuccessful "
+                + "to allow registering subscription");
+        intentVerificationDenialLogLeecher.waitForText(45000);
     }
 
     @AfterClass
