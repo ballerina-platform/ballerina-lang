@@ -126,13 +126,13 @@ public class WebSubSubscriptionChangeTestCase extends IntegrationTestCase {
             + File.separator + "websub" + File.separator + "websub_test_unsubscription_client.bal").getAbsolutePath()};
         ballerinaWebSubSubscriptionChangeClient.runMain(clientArgs);
         ballerinaWebSubSubscriptionChangeClient.addLogLeecher(logAbsenceTestLogLeecher);
-        logAbsenceTestLogLeecher.waitForText(15000);
+        logAbsenceTestLogLeecher.waitForText(10000);
     }
 
     @AfterClass
     private void cleanup() throws Exception {
-        ballerinaWebSubSubscriber.stopServer();
         ballerinaWebSubPublisher.stopServer();
+        ballerinaWebSubSubscriber.stopServer();
         ballerinaWebSubSubscriptionChangeClient.stopServer();
     }
 

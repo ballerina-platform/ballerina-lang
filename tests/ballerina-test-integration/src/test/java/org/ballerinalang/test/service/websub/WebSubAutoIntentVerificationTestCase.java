@@ -167,8 +167,8 @@ public class WebSubAutoIntentVerificationTestCase extends IntegrationTestCase {
 
     @AfterClass
     private void cleanup() throws Exception {
-        ballerinaWebSubSubscriber.stopServer();
         ballerinaWebSubPublisher.stopServer();
+        ballerinaWebSubSubscriber.stopServer();
     }
 
 }

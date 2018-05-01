@@ -172,8 +172,8 @@ public class WebSubWithSecretTestCase extends IntegrationTestCase {
 
     @AfterClass
     private void cleanup() throws Exception {
-        ballerinaWebSubSubscriber.stopServer();
         ballerinaWebSubPublisher.stopServer();
+        ballerinaWebSubSubscriber.stopServer();
     }
 
 }
