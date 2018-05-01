@@ -26,10 +26,12 @@ import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.ballerinalang.test.util.TestConstant;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.ConnectException;
 import java.util.HashMap;
 import java.util.Map;
@@ -63,11 +65,14 @@ public class WebSubAutoIntentVerificationTestCase extends IntegrationTestCase {
             "WebSub Notification from Request: {\"action\":\"publish\",\"mode\":\"internal-hub\"}";
     private static final String REMOTE_HUB_NOTIFICATION_FROM_REQUEST_SUBSCRIBER_LOG =
             "WebSub Notification from Request: {\"action\":\"publish\",\"mode\":\"remote-hub\"}";
+    private static final String INTENT_VERIFICATION_DENIAL_SUBSCRIBER_LOG = "ballerina: Intent Verification denied - "
+            + "Mode [subscribe], Topic [http://dummytopic.com]";
 
     private LogLeecher internalHubNotificationLogLeecher;
     private LogLeecher remoteHubNotificationLogLeecher;
     private LogLeecher internalHubNotificationFromRequestLogLeecher;
     private LogLeecher remoteHubNotificationFromRequestLogLeecher;
+    private LogLeecher intentVerificationDenialLogLeecher;
 
     private ServerInstance ballerinaWebSubSubscriber;
     private ServerInstance ballerinaWebSubPublisher;
@@ -86,6 +91,7 @@ public class WebSubAutoIntentVerificationTestCase extends IntegrationTestCase {
                 new LogLeecher(INTERNAL_HUB_NOTIFICATION_FROM_REQUEST_SUBSCRIBER_LOG);
         remoteHubNotificationFromRequestLogLeecher =
                 new LogLeecher(REMOTE_HUB_NOTIFICATION_FROM_REQUEST_SUBSCRIBER_LOG);
+        intentVerificationDenialLogLeecher = new LogLeecher(INTENT_VERIFICATION_DENIAL_SUBSCRIBER_LOG);
 
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
                         + File.separator + "websub" + File.separator + "websub_test_subscriber.bal").getAbsolutePath();
@@ -95,6 +101,7 @@ public class WebSubAutoIntentVerificationTestCase extends IntegrationTestCase {
         ballerinaWebSubSubscriber.addLogLeecher(internalHubNotificationFromRequestLogLeecher);
         ballerinaWebSubSubscriber.addLogLeecher(remoteHubNotificationLogLeecher);
         ballerinaWebSubSubscriber.addLogLeecher(remoteHubNotificationFromRequestLogLeecher);
+        ballerinaWebSubSubscriber.addLogLeecher(intentVerificationDenialLogLeecher);
 
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
@@ -143,6 +150,17 @@ public class WebSubAutoIntentVerificationTestCase extends IntegrationTestCase {
     @Test(dependsOnMethods = "testStartUpAndIntentVerification")
     public void testContentReceiptAsRequestForRemoteHubNotification() throws BallerinaTestException {
         remoteHubNotificationFromRequestLogLeecher.waitForText(30000);
+    }
+
+    @Test(dependsOnMethods = "testStartUpAndIntentVerification")
+    public void testIntentVerificationRejectionForIncorrectTopic() throws BallerinaTestException, IOException {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_FORM_URL_ENCODED);
+        HttpResponse response = HttpClientRequest.doPost(hubUrl,
+     "hub.mode=subscribe&hub.topic=http://dummytopic.com&hub.callback=http://localhost:8181/websub",
+                     headers);
+        Assert.assertEquals(response.getResponseCode(), 202);
+        intentVerificationDenialLogLeecher.waitForText(30000);
     }
 
     @AfterClass

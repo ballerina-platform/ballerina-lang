@@ -243,6 +243,15 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
                 response.waitAndReleaseAllEntities();
                 URIUtil.populateQueryParamMap(queryString, params);
                 String mode = params.get(WebSubSubscriberConstants.PARAM_HUB_MODE).stringValue();
+                if (!params.keySet().contains(WebSubSubscriberConstants.PARAM_HUB_MODE) ||
+                        !params.keySet().contains(WebSubSubscriberConstants.PARAM_HUB_TOPIC) ||
+                        !params.keySet().contains(WebSubSubscriberConstants.PARAM_HUB_CHALLENGE)) {
+                    response.setProperty(HttpConstants.HTTP_STATUS_CODE, 404);
+                    response.addHttpContent(new DefaultLastHttpContent());
+                    HttpUtil.sendOutboundResponse(httpCarbonMessage, response);
+                    console.println("ballerina: Error auto-responding to intent verification request: Mode, Topic "
+                                            + "and/or callback not specified");
+                }
                 if ((WebSubSubscriberConstants.SUBSCRIBE.equals(mode)
                              || WebSubSubscriberConstants.UNSUBSCRIBE.equals(mode))
                         && annotatedTopic.equals(params.get(WebSubSubscriberConstants.PARAM_HUB_TOPIC).stringValue())) {
@@ -261,7 +270,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
                     console.println(intentVerificationMessage);
                 } else {
                     console.println("ballerina: Intent Verification denied - Mode [" + mode + "], Topic ["
-                                            + annotatedTopic + "]");
+                                        + params.get(WebSubSubscriberConstants.PARAM_HUB_TOPIC).stringValue() + "]");
                     response.setProperty(HttpConstants.HTTP_STATUS_CODE, 404);
                     response.addHttpContent(new DefaultLastHttpContent());
                 }
