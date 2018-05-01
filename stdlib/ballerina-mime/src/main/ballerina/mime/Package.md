@@ -103,8 +103,7 @@ bodyPart1.setJson({"bodyPart":"jsonPart"});
 
 // Create another body part using an XML file.
 mime:Entity bodyPart2 = new;
-file:Path fileHandler = new("ballerina/mime/file.xml", mime:APPLICATION_XML);
-bodyPart2.setFileAsEntityBody(fileHandler);
+bodyPart2.setFileAsEntityBody(ballerina/mime/file.xml", contentType = mime:APPLICATION_XML);
 
 //Create an array to hold all the body parts.
 mime:Entity[] bodyParts = [bodyPart1, bodyPart2];
