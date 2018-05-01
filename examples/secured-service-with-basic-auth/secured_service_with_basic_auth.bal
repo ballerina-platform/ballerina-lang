@@ -1,6 +1,6 @@
 import ballerina/http;
 
-// The endpoint used here is 'http:SecureListener', which by default tries to
+// The endpoint used here is `http:SecureListener`, which by default tries to
 // authenticate and authorize each request. The developer has the option to
 // override the authentication and authorization at service and resource level.
 endpoint http:SecureListener ep {
@@ -26,13 +26,13 @@ endpoint http:SecureListener ep {
     }
 }
 // Auth configuration comprises of two parts - authentication & authorization.
-// Authentication can be enabled by setting 'authentication:{enabled:true}'
-// annotation attribute.
+// Authentication can be enabled by setting the `authentication:{enabled:true}`
+// annotation attribute. 
 // Authorization is based on scopes, where a scope maps to one or more groups.
 // For a user to access a resource, the user should be in the same groups as
 // the scope.
-// To specify one or more scope of a resource, the annotation attribute
-// 'scopes' can be used.
+// To specify one or more scope of a resource, the `scopes` annotation attribute
+// can be used.
 service<http:Service> echo bind ep {
     @http:ResourceConfig {
         methods: ["GET"],
@@ -43,8 +43,8 @@ service<http:Service> echo bind ep {
     }
     // The authentication and authorization settings can be overridden at
     // resource level.
-    // The hello resource would inherit the authentication:{enabled:true} flag
-    // from the service level, and override scope defined in service level
+    // The hello resource would inherit the `authentication:{enabled:true}` flag
+    // from the service level, and override the scope defined in service level
     // (xxx) with scope2.
     hello(endpoint caller, http:Request req) {
         http:Response res = new;
