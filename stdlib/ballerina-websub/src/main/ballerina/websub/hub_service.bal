@@ -246,7 +246,8 @@ function verifyIntent(string callback, string topic, map params) {
     int leaseSeconds;
 
     if (params.hasKey(HUB_LEASE_SECONDS)) {
-        match (<int>params[HUB_LEASE_SECONDS]) {
+        string strLeaseSeconds = <string>params[HUB_LEASE_SECONDS];
+        match (<int>strLeaseSeconds) {
             int extrLeaseSeconds => { leaseSeconds = extrLeaseSeconds; }
             error => { leaseSeconds = 0; }
         }
