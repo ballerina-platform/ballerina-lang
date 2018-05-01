@@ -1,9 +1,8 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License, 
- * Version 2.0 (the "License"); you may not use this file except 
- * in compliance with the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
@@ -14,16 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.ballerinalang.queue.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.bre.bvm.persistency.PersistenceUtils;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.model.RecoverableNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -33,10 +29,14 @@ import org.ballerinalang.queue.WorkflowSubscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 
+/**
+ * {@code ReceiveOld} is the poll action implementation of the JMS Client Connector.
+ *
+ * @since 0.95.2
+ */
 @BallerinaFunction(orgName = "ballerina", packageName = "queue",
-                   functionName = "correlate",
+                   functionName = "receiveOld",
                    receiver = @Receiver(type = TypeKind.STRUCT,
                                         structType = "ClientConnector",
                                         structPackage =
@@ -44,8 +44,10 @@ import java.io.File;
                    args = {
                            @Argument(name = "client",
                                      type = TypeKind.STRUCT),
-                           @Argument(name = "map",
-                                     type = TypeKind.JSON),
+                           @Argument(name = "destinationName",
+                                     type = TypeKind.STRING),
+                           @Argument(name = "timeout",
+                                     type = TypeKind.INT)
                    },
                    returnType = {
                            @ReturnType(type = TypeKind.STRUCT,
@@ -53,20 +55,15 @@ import java.io.File;
                                        structType = "Message")
                    }
 )
-public class Correlate implements RecoverableNativeCallableUnit {
-    private static final Logger log = LoggerFactory.getLogger(Correlate.class);
+public class ReceiveOld extends AbstractJMSAction {
+    private static final Logger log = LoggerFactory.getLogger(ReceiveOld.class);
 
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
-        BValue jsonMap = context.getRefArgument(1);
-        String map = ((BJSON) jsonMap).getMessageAsString();
-        String selector = "correlationId = '"+ map + "'";
-        PersistenceUtils
-                .saveJsonFIle(PersistenceUtils.getJson(context.getParentWorkerExecutionContext()), new File(map));
-        startSubscriber(context, callableUnitCallback, selector);
+        // pass selector as null, because this is invoked under non-selector poll
+        startSubscriber(context, callableUnitCallback, null);
     }
 
-    @Override
     public boolean isBlocking() {
         return false;
     }

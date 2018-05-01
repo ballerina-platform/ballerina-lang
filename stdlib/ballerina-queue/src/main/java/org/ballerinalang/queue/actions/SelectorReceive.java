@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@code Receive} is the poll action implementation of the JMS Client Connector.
+ * {@code ReceiveOld} is the poll action implementation of the JMS Client Connector.
  *
  * @since 0.95.5
  */
@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
                                        structType = "Message")
                    }
 )
-public class SelectorReceive extends Receive {
+public class SelectorReceive extends ReceiveOld {
     private static final Logger log = LoggerFactory.getLogger(SelectorReceive.class);
 
     @Override

@@ -29,6 +29,7 @@ import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
+import org.ballerinalang.model.InterruptibleNativeCallableUnit;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -73,7 +74,7 @@ import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
 /**
  * {@code AbstractHTTPAction} is the base class for all HTTP Connector Actions.
  */
-public abstract class AbstractHTTPAction implements NativeCallableUnit {
+public abstract class AbstractHTTPAction implements InterruptibleNativeCallableUnit {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractHTTPAction.class);
 
@@ -81,6 +82,16 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
 
     static {
         CACHE_BALLERINA_VERSION = System.getProperty(BALLERINA_VERSION);
+    }
+
+    @Override
+    public boolean persistBeforeOperation() {
+        return false;
+    }
+
+    @Override
+    public boolean persistAfterOperation() {
+        return false;
     }
 
     protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {

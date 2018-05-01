@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.model;
 
-public interface RecoverableNativeCallableUnit extends NativeCallableUnit {
+public interface InterruptibleNativeCallableUnit extends NativeCallableUnit {
 
+    boolean persistBeforeOperation();
+
+    boolean persistAfterOperation();
 }

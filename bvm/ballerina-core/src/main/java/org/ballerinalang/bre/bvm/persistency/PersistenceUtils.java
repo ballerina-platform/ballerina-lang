@@ -19,6 +19,7 @@ package org.ballerinalang.bre.bvm.persistency;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.bvm.WorkerResponseContext;
 import org.ballerinalang.bre.bvm.persistency.adapters.ArrayListAdapter;
 import org.ballerinalang.bre.bvm.persistency.adapters.HashMapAdapter;
 import org.ballerinalang.bre.bvm.persistency.adapters.RefTypeAdaptor;
@@ -138,6 +139,13 @@ public class PersistenceUtils {
 
     public static String getJson(WorkerExecutionContext ctx) {
         return "{}";
+    }
+
+    public static WorkerExecutionContext getMainPackageContext(WorkerExecutionContext context) {
+        if (context.callableUnitInfo.getPkgPath().equals(".")) {
+            return context;
+        }
+        return getMainPackageContext(context.parent);
     }
 
     public static void saveJsonFIle(String jsonStr, File file) {

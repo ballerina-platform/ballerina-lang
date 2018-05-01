@@ -40,8 +40,6 @@ import org.slf4j.LoggerFactory;
                                         structPackage =
                                                 "ballerina.queue"),
                    args = {
-                           @Argument(name = "client",
-                                     type = TypeKind.STRUCT),
                            @Argument(name = "message",
                                      type = TypeKind.STRUCT)
                    }
