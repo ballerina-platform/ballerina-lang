@@ -17,7 +17,7 @@ documentation {
     R{{}} CharacterChannel of the file after writing to the file
 }
 function openForWriting (string filePath, string encoding) returns io:CharacterChannel {
-    io:ByteChannel channel = io:openFile(filePath, "w");
+    io:ByteChannel channel = io:openFile(filePath, io:WRITE);
     io:CharacterChannel result = new io:CharacterChannel(channel, encoding);
     return result;
 }

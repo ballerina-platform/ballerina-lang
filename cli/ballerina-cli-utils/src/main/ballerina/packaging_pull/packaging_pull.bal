@@ -24,7 +24,8 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
             },
             verifyHostname: false,
             shareSession: true
-        }
+        },
+        followRedirects: { enabled: true, maxCount: 5 }
     };
     string fullPkgPath = pkgPath;
     string destDirPath = dirPath;
@@ -44,74 +45,68 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
 
     http:Response res = new;
     string statusCode = <string> httpResponse.statusCode;
-    if (statusCode == "302"){
-        string locationHeader;
-        if (httpResponse.hasHeader("Location")) {
-            locationHeader = httpResponse.getHeader("Location");
-            var resultFS = callFileServer(locationHeader);
-            match resultFS {
-                http:Response response => res = response;
-                () => return;
-            }
-            if (res.statusCode != 200) {
-                json jsonResponse = check (res.getJsonPayload());
-                string message = jsonResponse.message.toString();
+    if (statusCode.hasPrefix("5")) {
+        io:println("remote registry failed for url :" + url);
+    } else if (statusCode != "200") {
+        var jsonResponse = httpResponse.getJsonPayload();
+        match jsonResponse {
+            json resp => {
+                string message = resp.message.toString();
                 io:println(message);
+            }
+            error err => {
+                io:println("error occurred when pulling the package");
+            }
+        }
+    } else {
+        string contentLengthHeader;
+        int pkgSize = MAX_INT_VALUE;
+
+        if (httpResponse.hasHeader("content-length")) {
+            contentLengthHeader = httpResponse.getHeader("content-length");
+            pkgSize = check <int> contentLengthHeader;
+        } else {
+            io:println("warning: package size information is missing from the remote repository");
+        }
+
+        io:ByteChannel sourceChannel = check (httpResponse.getByteChannel());
+
+        string rawPathVal;
+        if (httpResponse.hasHeader("raw-path")) {
+            rawPathVal = httpResponse.getHeader("raw-path");
+            string pkgVersion;
+            string [] pathArray = rawPathVal.split("/");
+            int sizeOfArray = lengthof pathArray;
+            if (sizeOfArray > 3) {
+                pkgVersion = pathArray[sizeOfArray - 2];
+                string pkgName = fullPkgPath.substring(fullPkgPath.lastIndexOf("/") + 1, fullPkgPath.length());
+                fullPkgPath = fullPkgPath + ":" + pkgVersion;
+                destDirPath = destDirPath + fileSeparator + pkgVersion;        
+
+                string archiveFileName = pkgName + ".zip";
+                string destArchivePath = destDirPath  + fileSeparator + archiveFileName;
+
+                if (!createDirectories(destDirPath)) {
+                    internal:Path pkgArchivePath = new(destArchivePath);
+                    if (internal:pathExists(pkgArchivePath)){
+                        io:println("package already exists in the home repository");
+                        return;                              
+                    }        
+                }
+
+                io:ByteChannel destDirChannel = getFileChannel(destArchivePath, io:WRITE);
+                string toAndFrom = " [central.ballerina.io -> home repo]";
+
+                copy(pkgSize, sourceChannel, destDirChannel, fullPkgPath, toAndFrom);
+                            
+                closeChannel(destDirChannel);
+                closeChannel(sourceChannel);
             } else {
-                string contentLengthHeader;
-                int pkgSize = MAX_INT_VALUE;
-                if (res.hasHeader("content-length")) {
-                    contentLengthHeader = res.getHeader("content-length");
-                    pkgSize = check <int> contentLengthHeader;
-                } else {
-                    io:println("warning: package size information is missing from the remote repository");
-                }
-
-                io:ByteChannel sourceChannel = check (res.getByteChannel());
-
-                string rawPathVal;
-                if (res.hasHeader("raw-path")) {
-                    rawPathVal = res.getHeader("raw-path");
-                    string pkgVersion;
-                    string [] pathArray = rawPathVal.split("/");
-                    int sizeOfArray = lengthof pathArray;
-                    if (sizeOfArray > 3) {
-                        pkgVersion = pathArray[sizeOfArray - 2];
-                        string pkgName = fullPkgPath.substring(fullPkgPath.lastIndexOf("/") + 1, fullPkgPath.length());
-                        fullPkgPath = fullPkgPath + ":" + pkgVersion;
-                        destDirPath = destDirPath + fileSeparator + pkgVersion;        
-
-                        string archiveFileName = pkgName + ".zip";
-                        string destArchivePath = destDirPath  + fileSeparator + archiveFileName;
-
-                        if (!createDirectories(destDirPath)) {
-                            internal:Path pkgArchivePath = new(destArchivePath);
-                            if (internal:pathExists(pkgArchivePath)){
-                                io:println("package already exists in the home repository");
-                                return;                              
-                            }        
-                        }
-
-                        io:ByteChannel destDirChannel = getFileChannel(destArchivePath, "w");
-                        string toAndFrom = " [central.ballerina.io -> home repo]";
-
-                        copy(pkgSize, sourceChannel, destDirChannel, fullPkgPath, toAndFrom);
-                        _ = destDirChannel.close();
-                        _ = sourceChannel.close();
-                    } else {
-                        io:println("package version information is missing from the remote repository");
-                    }
-                } else {
-                    io:println("package version information is missing from the remote repository");
-                }
+                io:println("package version information is missing from the remote repository");
             }
         } else {
-            io:println("package location information is missing from the remote repository");
+            io:println("package version information is missing from the remote repository");
         }
-    } else if (statusCode.hasPrefix("5")) {
-        io:println("remote registry failed for url :" + url);
-    } else {
-       io:println("error occurred when pulling the package");
     }
 }
 
@@ -269,31 +264,15 @@ function createDirectories(string directoryPath) returns (boolean) {
 }
 
 documentation {
-    This function invokes the fileServer endpoint.
+    This function will close the byte channel.
 
-    P{{url}} Endpoint url to be invoked
-    R{{}} Response got after invoking the endpoint
+    P{{channel}} Byte channel to be closed
 }
-
-function callFileServer(string url) returns http:Response? {
-    endpoint http:Client httpEndpoint {
-        url: url,
-        secureSocket:{
-            trustStore:{
-                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                password: "ballerina"
-            },
-            verifyHostname: false,
-            shareSession: true
+function closeChannel(io:ByteChannel channel) {
+    match channel.close() {
+        error channelCloseError => {
+            io:println("Error occured while closing the channel: " + channelCloseError.message);
         }
-    };
-    http:Request req = new;
-    var result = httpEndpoint -> get("", request=req);
-    match result {
-        http:Response response => return response;
-        error e => {
-            io:println("Connection to the remote host failed : " + e.message);
-            return;
-        }
+        () => return;
     }
 }
