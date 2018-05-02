@@ -1221,11 +1221,6 @@
         </profile>
         <profile>
             <id>platform-windows</id>
-            <activation>
-                <os>
-                    <family>windows</family>
-                </os>
-            </activation>
             <properties>
                 <!-- Override the executable names for Windows -->
                 <npm.executable>npm.cmd</npm.executable>
