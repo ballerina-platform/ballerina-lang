@@ -117,7 +117,6 @@ public type HttpSecureClient object {
         R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
     }
     public function execute(string httpVerb, string path, Request request) returns (Response|error) {
-        var details = generateSecureRequest(request, config);
         check generateSecureRequest(request, config);
         Response response = check httpClient.execute(httpVerb, path, request);
         boolean isRetry = isRetryRequired(response, config);
@@ -337,9 +336,8 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
             if (refreshToken != EMPTY_STRING && clientId != EMPTY_STRING && clientSecret != EMPTY_STRING) {
                 return updateRequestAndConfig(req, config);
             } else {
-                error err = {};
-                err.message = "Valid accessToken or refreshToken is not available to process the request"
-                ;
+                error err;
+                err.message = "Valid accessToken or refreshToken is not available to process the request";
                 return err;
             }
         } else {
@@ -347,6 +345,11 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
         }
     } else if (scheme == JWT_SCHEME){
         string authToken = runtime:getInvocationContext().authContext.authToken;
+        if (authToken == EMPTY_STRING) {
+            error err;
+            err.message = "Authentication token is not set at invocation context";
+            return err;
+        }
         req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
     }
     return ();
@@ -397,7 +400,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     if (refreshTokenResponse.statusCode == OK_200) {
         return generatedToken.access_token.toString();
     } else {
-        error err = {};
+        error err;
         err.message = "Failed to generate new access token from the given refresh token";
         return err;
     }
