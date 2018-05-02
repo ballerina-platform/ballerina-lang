@@ -50,7 +50,7 @@ public class PackagingPullTestCase extends IntegrationTestCase {
         serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
     }
 
-    @Test(description = "Test pulling a package from central")
+    @Test(description = "Test pulling a package from central", enabled = false)
     public void testPull() throws Exception {
         String[] clientArgs = {"wso2/twitter:0.9.0"};
         ballerinaClient = new ServerInstance(serverZipPath);
