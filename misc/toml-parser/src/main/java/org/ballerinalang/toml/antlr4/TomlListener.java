@@ -328,26 +328,6 @@ public interface TomlListener extends ParseTreeListener {
 	 */
 	void exitMinus(TomlParser.MinusContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link TomlParser#hexPrefix}.
-	 * @param ctx the parse tree
-	 */
-	void enterHexPrefix(TomlParser.HexPrefixContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link TomlParser#hexPrefix}.
-	 * @param ctx the parse tree
-	 */
-	void exitHexPrefix(TomlParser.HexPrefixContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link TomlParser#octPrefix}.
-	 * @param ctx the parse tree
-	 */
-	void enterOctPrefix(TomlParser.OctPrefixContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link TomlParser#octPrefix}.
-	 * @param ctx the parse tree
-	 */
-	void exitOctPrefix(TomlParser.OctPrefixContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link TomlParser#decInt}.
 	 * @param ctx the parse tree
 	 */

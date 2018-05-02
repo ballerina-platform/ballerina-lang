@@ -182,7 +182,11 @@ public class SwaggerResourceMapper {
                     .description("Successful")
                     .example(MediaType.APPLICATION_JSON, "Ok");
             op.getOperation().response(200, response);
-            op.getOperation().setOperationId(resource.getName().getValue());
+
+            // Replacing all '_' with ' ' to keep the consistency with what we are doing in swagger -> bal
+            // @see BallerinaOperation#buildContext
+            String resName = resource.getName().getValue().replaceAll("_", " ");
+            op.getOperation().setOperationId(resName);
             op.getOperation().setParameters(null);
             // Parsing annotations.
             this.parseHttpResourceConfig(resource, op);
