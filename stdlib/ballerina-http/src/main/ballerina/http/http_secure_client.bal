@@ -61,9 +61,8 @@ public type HttpSecureClient object {
         Response response = check httpClient.post(path, request = req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
-            Request newOutRequest = check cloneRequest(req);
-            check updateRequestAndConfig(newOutRequest, config);
-            return httpClient.post(path, request = newOutRequest);
+            check updateRequestAndConfig(req, config);
+            return httpClient.post(path, request = req);
         }
         return response;
     }
@@ -82,9 +81,8 @@ public type HttpSecureClient object {
         Response response = check httpClient.head(path, request = req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
-            Request newOutRequest = check cloneRequest(req);
-            check updateRequestAndConfig(newOutRequest, config);
-            return httpClient.head(path, request = newOutRequest);
+            check updateRequestAndConfig(req, config);
+            return httpClient.head(path, request = req);
         }
         return response;
     }
@@ -103,9 +101,8 @@ public type HttpSecureClient object {
         Response response = check httpClient.put(path, request = req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
-            Request newOutRequest = check cloneRequest(req);
-            check updateRequestAndConfig(newOutRequest, config);
-            return httpClient.put(path, request = newOutRequest);
+            check updateRequestAndConfig(req, config);
+            return httpClient.put(path, request = req);
         }
         return response;
     }
@@ -125,9 +122,8 @@ public type HttpSecureClient object {
         Response response = check httpClient.execute(httpVerb, path, request);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
-            Request newOutRequest = check cloneRequest(request);
-            check updateRequestAndConfig(newOutRequest, config);
-            return httpClient.execute(httpVerb, path, newOutRequest);
+            check updateRequestAndConfig(request, config);
+            return httpClient.execute(httpVerb, path, request);
         }
         return response;
     }
@@ -146,9 +142,8 @@ public type HttpSecureClient object {
         Response response = check httpClient.patch(path, request = req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
-            Request newOutRequest = check cloneRequest(req);
-            check updateRequestAndConfig(newOutRequest, config);
-            return httpClient.patch(path, request = newOutRequest);
+            check updateRequestAndConfig(req, config);
+            return httpClient.patch(path, request = req);
         }
         return response;
     }
@@ -167,9 +162,8 @@ public type HttpSecureClient object {
         Response response = check httpClient.delete(path, request = req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
-            Request newOutRequest = check cloneRequest(req);
-            check updateRequestAndConfig(newOutRequest, config);
-            return httpClient.delete(path, request = newOutRequest);
+            check updateRequestAndConfig(req, config);
+            return httpClient.delete(path, request = req);
         }
         return response;
     }
@@ -188,9 +182,8 @@ public type HttpSecureClient object {
         Response response = check httpClient.get(path, request = req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
-            Request newOutRequest = check cloneRequest(req);
-            check updateRequestAndConfig(newOutRequest, config);
-            return httpClient.get(path, request = newOutRequest);
+            check updateRequestAndConfig(req, config);
+            return httpClient.get(path, request = req);
         }
         return response;
     }
@@ -209,9 +202,8 @@ public type HttpSecureClient object {
         Response response = check httpClient.options(path, request = req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
-            Request newOutRequest = check cloneRequest(req);
-            check updateRequestAndConfig(newOutRequest, config);
-            return httpClient.options(path, request = newOutRequest);
+            check updateRequestAndConfig(req, config);
+            return httpClient.options(path, request = req);
         }
         return response;
     }
@@ -229,9 +221,8 @@ public type HttpSecureClient object {
         Response response = check httpClient.forward(path, request);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
-            Request newOutRequest = check cloneRequest(request);
-            check updateRequestAndConfig(newOutRequest, config);
-            return httpClient.forward(path, newOutRequest);
+            check updateRequestAndConfig(request, config);
+            return httpClient.forward(path, request);
         }
         return response;
     }
@@ -410,19 +401,6 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
         err.message = "Failed to generate new access token from the given refresh token";
         return err;
     }
-}
-
-documentation {
-    Clone the given request into a new request with request entity.
-
-    P{{req}} `Request` object to be cloned
-    R{{}} New request object created or `error` if entity construction failed
-}
-function cloneRequest(Request req) returns (Request|error) {
-    mime:Entity mimeEntity = check req.getEntity();
-    Request newOutRequest = new;
-    newOutRequest.setEntity(mimeEntity);
-    return newOutRequest;
 }
 
 documentation {
