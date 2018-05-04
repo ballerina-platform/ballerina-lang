@@ -71,7 +71,7 @@ Building Ballerina requires a Java SE Development Kit (JDK) version 8 to be inst
 
 **Prerequisite 2** - Install Maven 3.3+ or later 
 
-Install maven 3.3 or a later version: [https://maven.apache.org/install.html](https://maven.apache.org/install.html)
+Install maven 3.5.3 or a later version: [https://maven.apache.org/install.html](https://maven.apache.org/install.html)
 
 Set the `MAVEN_OPTS` environment variable to avoid the `Maven OutOfMemoryError`.
 
