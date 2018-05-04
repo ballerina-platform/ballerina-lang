@@ -385,7 +385,14 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     string clientSecret = config.auth.clientSecret but { () => EMPTY_STRING };
     string refreshUrl = config.auth.refreshUrl but { () => EMPTY_STRING };
 
-    CallerActions refreshTokenClient = createHttpSecureClient(refreshUrl, {});
+    if (refreshToken == EMPTY_STRING || clientId == EMPTY_STRING || clientSecret == EMPTY_STRING || refreshUrl == EMPTY_STRING) {
+        error err;
+        err.message = "Failed to generate new access token since either one or more of refresh token, client id,
+         client secret, refresh url not provided";
+        return err;
+    }
+
+    CallerActions refreshTokenClient = createSimpleHttpClient(refreshUrl, {});
 
     string clientIdSecret = clientId + ":" + clientSecret;
     string base64ClientIdSecret = check clientIdSecret.base64Encode();
