@@ -122,7 +122,7 @@ Import any Ballerina project to IntelliJ IDEA similar to any other maven project
    * Set "Import Maven Projects Automatically" .
    * Set Project SDK as Java 1.8
 
-Optionally, you can use the following maven command to build an IDEA project.
+Optionally, you can use the following Maven command to build an IDEA project.
 
 ```
 mvn idea:idea
@@ -139,25 +139,26 @@ See [http://maven.apache.org/plugins/maven-idea-plugin/](http://maven.apache.org
 
 ##### Importing a Ballerina Project
 
-All Ballerina repositories are developed as maven projects. So you can import any Ballerina project to eclipse similar to any maven project. 
-Navigate to File → Import..
-Select “Existing Maven Projects” under “Maven”
-Upon next, browse the file system, and open the maven module.
+All Ballerina repositories are developed as maven projects. So you can import any Ballerina project to Eclipse similar to any maven project. 
+
+* Navigate to **File** → **Import..**
+* Select **Existing Maven Projects** under **Maven**
+* Next, browse the file system, and open the Maven module.
 
 ##### Installing ANTLR4 plugin
-If you are working with the grammar, it would be useful to have ANTLR 4 IDE plugin installed for eclipse. To install this using eclipse marketplace:
+If you are working with the grammar, it would be useful to have ANTLR 4 IDE plugin installed for Eclipse. To install this using Eclipse marketplace:
 
-1. Navigate to, Help → Eclipse Marketplace
+1. Navigate to **Help** → **Eclipse Marketplace**
 
-2. Search for “antlr4”
+2. Search for **antlr4**
 
 3. Install ANTLR 4 IDE plugin (which supports antlr 4.x version).
 
 To open the plugin views: 
 
-1. Navigate to: Window → Show View → Other. 
+1. Navigate to **Window** → **Show View** → **Other**. 
 
-2. Under “ANTLR4” section, select and enable “Parse Tree” view and “Syntax Diagram” views.
+2. Under **ANTLR4** section, select and enable **Parse Tree** view and **Syntax Diagram** views.
 
 ### Working With Ballerina Grammar
 
