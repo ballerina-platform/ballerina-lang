@@ -67,7 +67,7 @@ public class WebSubAutoIntentVerificationTestCase extends IntegrationTestCase {
     private static final String REMOTE_HUB_NOTIFICATION_FROM_REQUEST_SUBSCRIBER_LOG =
             "WebSub Notification from Request: {\"action\":\"publish\",\"mode\":\"remote-hub\"}";
     private static final String INTENT_VERIFICATION_DENIAL_SUBSCRIBER_LOG = "ballerina: Intent Verification denied - "
-            + "Mode [subscribe], Topic [http://dummytopic.com]";
+            + "Mode [subscribe], Topic [http://websubpubtopictwo.com]";
 
     private LogLeecher internalHubNotificationLogLeecher;
     private LogLeecher remoteHubNotificationLogLeecher;
@@ -163,8 +163,8 @@ public class WebSubAutoIntentVerificationTestCase extends IntegrationTestCase {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_FORM_URL_ENCODED);
         HttpResponse response = HttpClientRequest.doPost(hubUrl,
-            "hub.mode=subscribe&hub.topic=http://dummytopic.com&hub.callback=http://localhost:8181/websub",
-            headers);
+     "hub.mode=subscribe&hub.topic=http://websubpubtopictwo.com&hub.callback=http://localhost:8181/websub",
+                     headers);
         Assert.assertEquals(response.getResponseCode(), 202, "Remote topic registration unsuccessful "
                                                                                 + "to allow registering subscription");
         intentVerificationDenialLogLeecher.waitForText(45000);
