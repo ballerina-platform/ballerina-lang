@@ -50,37 +50,10 @@ public class BidirectionalStreamingListener extends MethodListener implements Se
     @Override
     public StreamObserver<Message> invoke(StreamObserver<Message> responseObserver) {
         Resource onOpen = resourceMap.get(GrpcConstants.ON_OPEN_RESOURCE);
-        CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, Boolean.FALSE);
+        CallableUnitCallback callback = new GrpcCallableUnitCallBack(null);
         Executor.submit(onOpen, callback, null, null, computeMessageParams
                 (onOpen, null, responseObserver));
         
-        return new StreamObserver<Message>() {
-            @Override
-            public void onNext(Message value) {
-                Resource onMessage = resourceMap.get(GrpcConstants.ON_MESSAGE_RESOURCE);
-                CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, isEmptyResponse());
-                Executor.submit(onMessage, callback, null, null, computeMessageParams
-                        (onMessage, value, responseObserver));
-            }
-            
-            @Override
-            public void onError(Throwable t) {
-                Resource onError = resourceMap.get(GrpcConstants.ON_ERROR_RESOURCE);
-                onErrorInvoke(onError, responseObserver, t);
-            }
-            
-            @Override
-            public void onCompleted() {
-                Resource onCompleted = resourceMap.get(GrpcConstants.ON_COMPLETE_RESOURCE);
-                if (onCompleted == null) {
-                    String message = "Error in listener service definition. onError resource does not exists";
-                    LOG.error(message);
-                    throw new RuntimeException(message);
-                }
-                CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, Boolean.FALSE);
-                Executor.submit(onCompleted, callback, null, null, computeMessageParams
-                        (onCompleted, null, responseObserver));
-            }
-        };
+        return new DefaultStreamObserver(resourceMap, responseObserver);
     }
 }
