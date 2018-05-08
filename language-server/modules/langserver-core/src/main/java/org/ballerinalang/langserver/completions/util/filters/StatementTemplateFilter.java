@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.util.filters;
 
-import org.ballerinalang.langserver.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
@@ -66,13 +66,6 @@ public class StatementTemplateFilter extends AbstractSymbolFilter {
         forEachItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         completionItems.add(forEachItem);
 
-        // Populate Bind Statement template
-        CompletionItem bindItem = new CompletionItem();
-        bindItem.setLabel(ItemResolverConstants.BIND);
-        bindItem.setInsertText(Snippet.BIND.toString());
-        bindItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
-        completionItems.add(bindItem);
-
         // Populate Fork Statement template
         // TODO: Should make this a snippet type and move to specific sorters
         CompletionItem forkItem = new CompletionItem();
@@ -108,6 +101,13 @@ public class StatementTemplateFilter extends AbstractSymbolFilter {
         workerReplyItem.setInsertText(Snippet.WORKER_REPLY.toString());
         workerReplyItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         completionItems.add(workerReplyItem);
+        
+        // Populate Match statement template
+        CompletionItem matchItem = new CompletionItem();
+        matchItem.setLabel(ItemResolverConstants.MATCH);
+        matchItem.setInsertText(Snippet.MATCH.toString());
+        matchItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
+        completionItems.add(matchItem);
         
         if (completionContext.get(CompletionKeys.LOOP_COUNT_KEY) > 0
                 && !completionContext.get(CompletionKeys.CURRENT_NODE_TRANSACTION_KEY)) {

@@ -34,7 +34,7 @@ public class BallerinaLanguageCodeStyleSettingsProvider extends LanguageCodeStyl
                     "\n" +
                     "import ballerina.lang.system;\n" +
                     "\n" +
-                    "function main(string[] args) {\n" +
+                    "function main(string... args) {\n" +
                     "\tsystem:println(\"Hello\");\n" +
                     "}";
 

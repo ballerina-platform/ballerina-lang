@@ -1,4 +1,4 @@
-public function main (string[] args) {
+function main (string... args) {
     string returnValue1;
     string returnValue2;
 

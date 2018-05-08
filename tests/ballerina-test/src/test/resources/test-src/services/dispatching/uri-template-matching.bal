@@ -59,9 +59,7 @@ service<http:Service> echo11 bind testEP {
         path:"/echo3/{abc}"
     }
     echo9 (endpoint conn, http:Request req, string abc) {
-        map params = req.getQueryParams();
-        string foo;
-        foo = <string>params.foo;
+        string foo = req.getQueryParams().foo;
         json responseJson = {"first":abc, "second":foo, "echo9":"echo9"};
 
         http:Response res = new;
@@ -74,9 +72,7 @@ service<http:Service> echo11 bind testEP {
         path:"/"
     }
     echo10 (endpoint conn, http:Request req) {
-        map params = req.getQueryParams();
-        string foo;
-        foo = <string>params.foo;
+        string foo = req.getQueryParams().foo;
         json responseJson = {"third":foo, "echo10":"echo10"};
 
         http:Response res = new;
@@ -85,9 +81,7 @@ service<http:Service> echo11 bind testEP {
     }
 
     echo11 (endpoint conn, http:Request req) {
-        map params = req.getQueryParams();
-        string foo;
-        foo = <string>params.foo;
+        string foo = req.getQueryParams().foo;
         json responseJson = {"third":foo, "echo11":"echo11"};
 
         http:Response res = new;
@@ -111,9 +105,7 @@ service<http:Service> echo11 bind testEP {
         path:"/echo125"
     }
     echo125 (endpoint conn, http:Request req) {
-        map params = req.getQueryParams();
-        string bar;
-        bar = <string>params.foo;
+        string bar = req.getQueryParams().foo;
         json responseJson = {"echo125":bar};
 
         http:Response res = new;
@@ -126,8 +118,8 @@ service<http:Service> echo11 bind testEP {
         path:"/paramNeg"
     }
     paramNeg (endpoint conn, http:Request req) {
-        map params = req.getQueryParams();
-        string bar = params.hasKey("foo") ? <string>params["foo"] : "";
+        map<string> params = req.getQueryParams();
+        string bar = params.hasKey("foo") ? params["foo"] : "";
         json responseJson = {"echo125":bar};
 
         http:Response res = new;
@@ -140,8 +132,7 @@ service<http:Service> echo11 bind testEP {
         path:"/echo13"
     }
     echo13 (endpoint conn, http:Request req) {
-        map params = req.getQueryParams();
-        string barStr = <string>params.foo;
+        string barStr = req.getQueryParams().foo;
         int bar = (<int> barStr) but {error => 0};
         json responseJson = {"echo13":bar};
 
@@ -155,8 +146,7 @@ service<http:Service> echo11 bind testEP {
         path:"/echo14"
     }
     echo14 (endpoint conn, http:Request req) {
-        map params = req.getQueryParams();
-        string barStr = <string>params.foo;
+        string barStr = req.getQueryParams().foo;
         float bar = (<float> barStr) but {error => 0.0};
         json responseJson = {"echo14":bar};
 
@@ -170,11 +160,8 @@ service<http:Service> echo11 bind testEP {
         path:"/echo15"
     }
     echo15 (endpoint conn, http:Request req) {
-        map params = req.getQueryParams();
-        string barStr;
-        boolean bar;
-        barStr = <string>params.foo;
-        bar = <boolean>barStr;
+        string barStr = req.getQueryParams().foo;
+        boolean bar = <boolean>barStr;
         json responseJson = {"echo15":bar};
 
         http:Response res = new;
@@ -234,9 +221,7 @@ service<http:Service> echo22 bind testEP {
 }
 service<http:Service> echo33 bind testEP {
     echo1 (endpoint conn, http:Request req) {
-        map params = req.getQueryParams();
-        string foo;
-        foo = <string>params.foo;
+        string foo = req.getQueryParams().foo;
         json responseJson = {"third":foo, "echo33":"echo1"};
 
         http:Response res = new;
@@ -258,9 +243,7 @@ service<http:Service> echo44 bind testEP {
     }
 
     echo1 (endpoint conn, http:Request req) {
-        map params = req.getQueryParams();
-        //string foo;
-        string foo = <string>params.foo;
+        string foo = req.getQueryParams().foo;
         json responseJson = {"first":foo, "echo44":"echo1"};
 
         http:Response res = new;
@@ -286,9 +269,7 @@ service<http:Service> echo55 bind testEP {
         path:"/foo/bar"
     }
     echo1 (endpoint conn, http:Request req) {
-        map params = req.getQueryParams();
-        string foo;
-        foo = <string>params.foo;
+        string foo = req.getQueryParams().foo;
         json responseJson = {"echo55":"echo55"};
 
         http:Response res = new;
@@ -310,8 +291,8 @@ service<http:Service> echo55 bind testEP {
         path:"/foo/*"
     }
     echo5 (endpoint conn, http:Request req) {
-        map params = req.getQueryParams();
-        string foo = params.hasKey("foo") ? <string>params["foo"] : "";
+        map<string> params = req.getQueryParams();
+        string foo = params.hasKey("foo") ? params["foo"] : "";
         json responseJson = {"echo55":"/foo/*"};
 
         http:Response res = new;

@@ -18,17 +18,22 @@ package org.ballerinalang.composer.service.ballerina.parser.service.util;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.composer.service.ballerina.parser.service.BLangFragmentParserConstants;
 import org.ballerinalang.composer.service.ballerina.parser.service.BLangJSONModelConstants;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BLangSourceFragment;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.LSParserUtils;
+import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
+import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 
 import java.io.IOException;
 import java.util.HashMap;
+
+import static org.ballerinalang.langserver.compiler.LSCompiler.UNTITLED_BAL;
 
 /**
  * Utility for parsing BLang source fragments.
@@ -40,10 +45,10 @@ public class BLangFragmentParser {
     public static final String SYNTAX_ERRORS = "syntax_errors";
     public static final String ERROR = "error";
 
-    public static String parseFragment(BLangSourceFragment sourceFragment) {
+    public static String parseFragment(WorkspaceDocumentManager docManager, BLangSourceFragment sourceFragment) {
         try {
             String parsableString = getParsableString(sourceFragment);
-            JsonElement jsonElement = getJsonModel(parsableString);
+            JsonElement jsonElement = getJsonModel(docManager, parsableString);
             if (jsonElement instanceof JsonObject) {
                 JsonObject jsonModel = (JsonObject) jsonElement;
                 if (jsonModel.getAsJsonArray(SYNTAX_ERRORS) != null) {
@@ -88,6 +93,14 @@ public class BLangFragmentParser {
                 fragmentNode = assignmentStmt.getAsJsonArray(BLangJSONModelConstants.CHILDREN)
                         .get(0).getAsJsonObject();
                 break;
+            case BLangFragmentParserConstants.FIELD_DEFINITION_LIST:
+                // 0th element in the fields property of the record is fieldVariable.
+                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.FIELDS).get(0).getAsJsonObject();
+                break;
+            case BLangFragmentParserConstants.ANON_RECORD:
+                fragmentNode = jsonArray.get(1).getAsJsonObject().getAsJsonObject(BLangJSONModelConstants.BODY)
+                        .getAsJsonArray(BLangJSONModelConstants.STATEMENTS).get(0).getAsJsonObject();
+                break;
             case BLangFragmentParserConstants.TRANSACTION_FAILED:
             case BLangFragmentParserConstants.EXPRESSION:
             case BLangFragmentParserConstants.STATEMENT:
@@ -122,9 +135,16 @@ public class BLangFragmentParser {
         return fragmentNode;
     }
 
-    protected static JsonElement getJsonModel(String source) throws IOException {
-        BLangCompilationUnit compilationUnit = LSParserUtils.compileFragment(source);
-        return CommonUtil.generateJSON(compilationUnit, new HashMap<>());
+    protected static JsonElement getJsonModel(WorkspaceDocumentManager documentManager, String source)
+            throws IOException {
+        BLangCompilationUnit compilationUnit = null;
+        java.nio.file.Path filePath = LSCompiler.createAndGetTempFile(UNTITLED_BAL);
+        BallerinaFile model = LSCompiler.compileContent(source, filePath, CompilerPhase.DEFINE, documentManager, true);
+        if (model.getBLangPackage() != null) {
+            compilationUnit = model.getBLangPackage().getCompilationUnits().stream().
+                    filter(compUnit -> UNTITLED_BAL.equals(compUnit.getName())).findFirst().get();
+        }
+        return TextDocumentFormatUtil.generateJSON(compilationUnit, new HashMap<>());
     }
 
     protected static String getParsableString(BLangSourceFragment sourceFragment) {
@@ -146,6 +166,7 @@ public class BLangFragmentParser {
             case BLangFragmentParserConstants.WORKER:
             case BLangFragmentParserConstants.ENDPOINT_VAR_DEF:
             case BLangFragmentParserConstants.STATEMENT:
+            case BLangFragmentParserConstants.ANON_RECORD:
                 parsableText = getFromTemplate(BLangFragmentParserConstants.FUNCTION_BODY_STMT_WRAPPER, source);
                 break;
             case BLangFragmentParserConstants.JOIN_CONDITION:
@@ -163,6 +184,9 @@ public class BLangFragmentParser {
                 break;
             case BLangFragmentParserConstants.VARIABLE_REFERENCE_LIST:
                 parsableText = getFromTemplate(BLangFragmentParserConstants.VAR_REFERENCE_LIST_WRAPPER, source);
+                break;
+            case BLangFragmentParserConstants.FIELD_DEFINITION_LIST:
+                parsableText = getFromTemplate(BLangFragmentParserConstants.RECORD_BODY_WRAPPER, source);
                 break;
             default:
                 parsableText = "";

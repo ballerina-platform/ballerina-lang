@@ -1,4 +1,3 @@
-package ballerina.io;
 
 @Description {value:"Ballerina ByteChannel represents a channel which will allow I/O operations to be done"}
 public struct ByteChannel{

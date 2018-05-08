@@ -76,11 +76,7 @@ class WorkerNode extends React.Component {
         const model = this.props.model;
         const blockNode = getComponentForNodeArray(model.body, this.context.mode);
         const title = model.name.value;
-        const classes = {
-            lineClass: 'worker-life-line',
-            polygonClass: 'worker-life-line-polygon',
-            textClass: 'default-worker-icon',
-        };
+
         // Set worker name editor option.
         const editorOptions = {
             propertyType: 'text',
@@ -97,7 +93,7 @@ class WorkerNode extends React.Component {
                     title={title}
                     bBox={model.viewState.components.lifeLine}
                     editorOptions={editorOptions}
-                    classes={classes}
+                    className='worker'
                     icon={ImageUtil.getCodePoint('worker')}
                     onDelete={this.onDelete}
                 />

@@ -37,7 +37,7 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "hasPromise",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.CALLER_ACTIONS,
                 structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "client", type = TypeKind.STRUCT),
@@ -61,7 +61,7 @@ public class HasPromise extends AbstractHTTPAction {
         }
         BStruct bConnector = (BStruct) context.getRefArgument(0);
         HttpClientConnector clientConnector =
-                (HttpClientConnector) bConnector.getNativeData(HttpConstants.HTTP_CLIENT);
+                (HttpClientConnector) bConnector.getNativeData(HttpConstants.CALLER_ACTIONS);
         clientConnector.hasPushPromise(responseHandle).
                 setPromiseAvailabilityListener(new PromiseAvailabilityCheckListener(context, callback));
     }

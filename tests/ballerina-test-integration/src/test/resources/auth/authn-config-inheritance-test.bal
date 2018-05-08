@@ -22,8 +22,8 @@ service<http:Service> echo bind listener {
             authentication:{enabled:true}
         }
     }
-    echo (endpoint client, http:Request req) {
+    echo (endpoint caller, http:Request req) {
         http:Response res = new;
-        _ = client -> respond(res);
+        _ = caller -> respond(res);
     }
 }

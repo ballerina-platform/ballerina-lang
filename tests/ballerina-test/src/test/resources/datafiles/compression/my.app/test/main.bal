@@ -1,3 +1,5 @@
-public function greet() returns (string){ 
-	return "hello";
+import ballerina.io;
+
+function printValue (string value) {
+    io:println(value);
 }

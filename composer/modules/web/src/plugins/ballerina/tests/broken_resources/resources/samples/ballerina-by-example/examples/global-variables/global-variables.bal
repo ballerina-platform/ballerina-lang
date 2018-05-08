@@ -5,7 +5,7 @@ int total = 98;
 
 string content = "";
 
-function main (string[] args) {
+function main (string... args) {
 
     //Accessing a global variable.
     system:println(total);

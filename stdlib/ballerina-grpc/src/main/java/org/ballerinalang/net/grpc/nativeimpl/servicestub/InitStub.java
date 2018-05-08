@@ -42,19 +42,19 @@ import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.net.grpc.EndpointConstants.CLIENT_END_POINT;
-import static org.ballerinalang.net.grpc.MessageConstants.BLOCKING_TYPE;
-import static org.ballerinalang.net.grpc.MessageConstants.CHANNEL_KEY;
-import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_ENDPOINT_REF_INDEX;
-import static org.ballerinalang.net.grpc.MessageConstants.DESCRIPTOR_KEY_STRING_INDEX;
-import static org.ballerinalang.net.grpc.MessageConstants.DESCRIPTOR_MAP_REF_INDEX;
-import static org.ballerinalang.net.grpc.MessageConstants.METHOD_DESCRIPTORS;
-import static org.ballerinalang.net.grpc.MessageConstants.NON_BLOCKING_TYPE;
-import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
-import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB;
-import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB_REF_INDEX;
-import static org.ballerinalang.net.grpc.MessageConstants.STUB_TYPE_STRING_INDEX;
+import static org.ballerinalang.net.grpc.GrpcConstants.BLOCKING_TYPE;
+import static org.ballerinalang.net.grpc.GrpcConstants.CHANNEL_KEY;
+import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_REF_INDEX;
+import static org.ballerinalang.net.grpc.GrpcConstants.DESCRIPTOR_KEY_STRING_INDEX;
+import static org.ballerinalang.net.grpc.GrpcConstants.DESCRIPTOR_MAP_REF_INDEX;
+import static org.ballerinalang.net.grpc.GrpcConstants.METHOD_DESCRIPTORS;
+import static org.ballerinalang.net.grpc.GrpcConstants.NON_BLOCKING_TYPE;
+import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB;
+import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB_REF_INDEX;
+import static org.ballerinalang.net.grpc.GrpcConstants.STUB_TYPE_STRING_INDEX;
 
 /**
  * {@code InitStub} is the InitStub function implementation of the gRPC service stub.
@@ -85,14 +85,14 @@ public class InitStub extends BlockingNativeCallableUnit {
         String stubType = context.getStringArgument(STUB_TYPE_STRING_INDEX);
         String descriptorKey = context.getStringArgument(DESCRIPTOR_KEY_STRING_INDEX);
         BMap<String, BValue> descriptorMap = (BMap<String, BValue>) context.getRefArgument(DESCRIPTOR_MAP_REF_INDEX);
-
+        
         if (stubType == null || descriptorKey == null || descriptorMap == null) {
             context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
                     .fromCode(Status.INTERNAL.getCode()).withDescription("Error while initializing connector. " +
                             "message descriptor keys not exist. Please check the generated sub file"))));
             return;
         }
-
+        
         try {
             // If there are more than one descriptors exist, other descriptors are considered as dependent
             // descriptors.  client supported only one depth descriptor dependency.
@@ -108,7 +108,7 @@ public class InitStub extends BlockingNativeCallableUnit {
                     dependentDescriptors.add(hexStringToByteArray(descriptorMap.get(key).stringValue()));
                 }
             }
-
+            
             if (fileDescriptor == null) {
                 context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
                         .fromCode(Status.INTERNAL.getCode()).withDescription("Error while establishing the connection" +
@@ -118,7 +118,7 @@ public class InitStub extends BlockingNativeCallableUnit {
             ServiceDefinition serviceDefinition = new ServiceDefinition(fileDescriptor, dependentDescriptors);
             Map<String, MethodDescriptor<Message, Message>> methodDescriptorMap = serviceDefinition
                     .getMethodDescriptors();
-
+            
             serviceStub.addNativeData(METHOD_DESCRIPTORS, methodDescriptorMap);
             if (BLOCKING_TYPE.equalsIgnoreCase(stubType)) {
                 GrpcBlockingStub grpcBlockingStub = new GrpcBlockingStub(channel);
@@ -137,8 +137,8 @@ public class InitStub extends BlockingNativeCallableUnit {
             context.setError(MessageUtils.getConnectorError(context, e));
         }
     }
-
-
+    
+    
     private static byte[] hexStringToByteArray(String s) {
         int len = s.length();
         byte[] data = new byte[len / 2];

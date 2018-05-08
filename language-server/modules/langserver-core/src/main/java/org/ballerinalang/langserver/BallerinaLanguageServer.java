@@ -16,8 +16,8 @@
 package org.ballerinalang.langserver;
 
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.ExecuteCommandOptions;
 import org.eclipse.lsp4j.InitializeParams;
@@ -30,7 +30,6 @@ import org.eclipse.lsp4j.services.LanguageClientAware;
 import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,12 +46,14 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
     private int shutdown = 1;
 
     public BallerinaLanguageServer() {
+        this(WorkspaceDocumentManagerImpl.getInstance());
+    }
+
+    public BallerinaLanguageServer(WorkspaceDocumentManager documentManager) {
         // TODO: Revisit the API for using the global completion context
         LSGlobalContext lsGlobalContext = new LSGlobalContext();
-        CompilerContext globalCompilationContext = CommonUtil.prepareTempCompilerContext();
-        lsGlobalContext.put(LSGlobalContextKeys.GLOBAL_COMPILATION_CONTEXT, globalCompilationContext);
         lsGlobalContext.put(LSGlobalContextKeys.LANGUAGE_SERVER_KEY, this);
-        lsGlobalContext.put(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY, WorkspaceDocumentManagerImpl.getInstance());
+        lsGlobalContext.put(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY, documentManager);
         LSAnnotationCache.initiate();
 
         textService = new BallerinaTextDocumentService(lsGlobalContext);

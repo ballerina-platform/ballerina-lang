@@ -273,11 +273,13 @@ public class Instruction {
     public static class InstructionLock extends Instruction {
 
         public BType[] types;
+        public int[] pkgRefs;
         public int[] varRegs;
 
-        InstructionLock(int opcode, BType[] types, int[] varRegs) {
+        InstructionLock(int opcode, BType[] types, int[] pkgRefs, int[] varRegs) {
             super(opcode);
             this.types = types;
+            this.pkgRefs = pkgRefs;
             this.varRegs = varRegs;
         }
 
@@ -286,6 +288,7 @@ public class Instruction {
             StringJoiner sj = new StringJoiner(" ");
             for (int i = 0; i < varRegs.length; i++) {
                 sj.add(types[i].toString());
+                sj.add(String.valueOf(pkgRefs[i]));
                 sj.add(String.valueOf(varRegs[i]));
             }
             return Mnemonics.getMnem(opcode) + " " + sj.toString();

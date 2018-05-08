@@ -27,9 +27,9 @@ import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.connector.impl.ValueImpl;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTypeDescValue;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -46,18 +46,19 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
+import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.net.grpc.EndpointConstants.CLIENT_END_POINT;
-import static org.ballerinalang.net.grpc.MessageConstants.CLIENT;
-import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_CONNECTION;
-import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
-import static org.ballerinalang.net.grpc.MessageConstants.METHOD_DESCRIPTORS;
-import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
-import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.MessageConstants.REQUEST_MESSAGE_DEFINITION;
-import static org.ballerinalang.net.grpc.MessageConstants.REQUEST_SENDER;
-import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB;
-import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB_REF_INDEX;
+import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT;
+import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_CLIENT;
+import static org.ballerinalang.net.grpc.GrpcConstants.METHOD_DESCRIPTORS;
+import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_MESSAGE_DEFINITION;
+import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
+import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB;
+import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB_REF_INDEX;
 import static org.ballerinalang.net.grpc.MessageUtils.getMessageHeaders;
 
 /**
@@ -74,13 +75,13 @@ import static org.ballerinalang.net.grpc.MessageUtils.getMessageHeaders;
         args = {
                 @Argument(name = "methodID", type = TypeKind.STRING),
                 @Argument(name = "listenerService", type = TypeKind.TYPEDESC),
-                @Argument(name = "headers", type = TypeKind.ARRAY)
+                @Argument(name = "headers", type = TypeKind.STRUCT, structType = "Headers",
+                        structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC)
         },
         returnType = {
                 @ReturnType(type = TypeKind.STRUCT, structType = CLIENT,
                         structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-                @ReturnType(type = TypeKind.STRUCT, structType = CONNECTOR_ERROR,
-                        structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
+                @ReturnType(type = TypeKind.STRUCT, structType = STRUCT_GENERIC_ERROR, structPackage = PACKAGE_BUILTIN),
         },
         isPublic = true
 )
@@ -127,7 +128,7 @@ public class StreamingExecute extends AbstractExecute {
         }
 
         // Update request headers when request headers exists in the context.
-        BRefValueArray headerValues = (BRefValueArray) context.getRefArgument(MESSAGE_HEADER_REF_INDEX);
+        BValue headerValues = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
         MessageHeaders headers = getMessageHeaders(headerValues);
 
         if (connectionStub instanceof GrpcNonBlockingStub) {
@@ -160,12 +161,12 @@ public class StreamingExecute extends AbstractExecute {
                             methodType.name() + " not supported");
                     return;
                 }
-                BStruct connStruct = createStruct(context, CLIENT_CONNECTION);
+                BStruct connStruct = createStruct(context, GRPC_CLIENT);
                 connStruct.addNativeData(REQUEST_SENDER, requestSender);
                 connStruct.addNativeData(REQUEST_MESSAGE_DEFINITION, methodDescriptor
                         .getInputType());
                 BStruct clientEndpoint = (BStruct) serviceStub.getNativeData(CLIENT_END_POINT);
-                clientEndpoint.addNativeData(CLIENT_CONNECTION, connStruct);
+                clientEndpoint.addNativeData(GRPC_CLIENT, connStruct);
                 context.setReturnValues(clientEndpoint);
             } catch (RuntimeException | GrpcClientException e) {
                 notifyErrorReply(context, "gRPC Client Connector Error :" + e.getMessage());

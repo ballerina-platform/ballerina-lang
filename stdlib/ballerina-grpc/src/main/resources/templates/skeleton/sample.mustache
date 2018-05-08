@@ -1,29 +1,28 @@
 import ballerina/io;
+import ballerina/grpc;
 
 function main (string[] args) {
 {{#nonBlockingEndpoint}}
      endpoint {{connectorId}}Client {{connectorId}}Ep {
-        host: "localhost",
-        port: 9090
+        url:"http://localhost:9090"
      };
 {{/nonBlockingEndpoint}}
 {{#blockingEndpoint}}
     endpoint {{connectorId}}BlockingClient {{connectorId}}BlockingEp {
-        host: "localhost",
-        port: 9090
+        url:"http://localhost:9090"
     };
 {{/blockingEndpoint}}
 }
 
 {{#messageListener}}
-service<grpc:Listener> {{connectorId}}MessageListener {
+service<grpc:Service> {{connectorId}}MessageListener {
 
     onMessage (string message) {
         io:println("Response received from server: " + message);
     }
 
-    onError (grpc:ServerError err) {
-        if (err != null) {
+    onError (error err) {
+        if (err != ()) {
             io:println("Error reported from server: " + err.message);
         }
     }

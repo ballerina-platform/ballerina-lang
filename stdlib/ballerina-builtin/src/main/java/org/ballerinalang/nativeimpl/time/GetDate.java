@@ -24,11 +24,13 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.Arrays;
+
+import static org.ballerinalang.nativeimpl.Utils.STRUCT_TYPE_TIME;
 
 /**
  * Get the year,month and date value for the given time.
@@ -37,9 +39,8 @@ import java.util.Arrays;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
-        functionName = "Time.getDate",
-        args = {@Argument(name = "time", type = TypeKind.STRUCT, structType = "Time",
-                          structPackage = "ballerina.time")},
+        functionName = "getDate",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = STRUCT_TYPE_TIME, structPackage = "ballerina.time"),
         returnType = {@ReturnType(type = TypeKind.INT),
                       @ReturnType(type = TypeKind.INT),
                       @ReturnType(type = TypeKind.INT)},

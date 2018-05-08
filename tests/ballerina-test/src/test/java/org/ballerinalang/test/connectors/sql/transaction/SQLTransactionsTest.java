@@ -40,8 +40,8 @@ public class SQLTransactionsTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/connectors/sql/transaction/sql-transactions.bal");
-        resultMirror = BCompileUtil.compile("test-src/connectors/sql/transaction/mirror-table-transaction-test.bal");
+        result = BCompileUtil.compile("test-src/connectors/sql/transaction/sql_transaction_test.bal");
+        resultMirror = BCompileUtil.compile("test-src/connectors/sql/transaction/mirror_table_transaction_test.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/SQLTableCreate.sql");
     }
@@ -141,7 +141,7 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
     }
 
-    @Test(groups = "TransactionTest", enabled = false)
+    @Test(groups = "TransactionTest", enabled = false) //Issue #7706
     public void testNestedThreeLevelTransactonFailed() {
         BValue[] returns = BRunUtil.invoke(result, "testNestedThreeLevelTransactonFailed");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), -1);
@@ -154,12 +154,6 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
         Assert.assertEquals(returns[2].stringValue(), "start txL1 txL2 txL3 txL3_Else txL3_Failed");
-    }
-
-    @Test(groups = "TransactionTest", enabled = false)
-    public void testTransactionWithWorkers() {
-        BValue[] returns = BRunUtil.invoke(result, "testTransactionWithWorkers");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
     }
 
     @Test(dependsOnGroups = "TransactionTest")
@@ -264,7 +258,7 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
     }
 
-    @Test(groups = "TransactionTest", enabled = false)
+    @Test(groups = "TransactionTest", enabled = false) //Issue #7706
     public void testNestedThreeLevelTransactonFailedMirrorTable() {
         BValue[] returns = BRunUtil.invoke(resultMirror, "testNestedThreeLevelTransactonFailed");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), -1);
@@ -277,12 +271,6 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
         Assert.assertEquals(returns[2].stringValue(), "start txL1 txL2 txL3 txL3_Else txL3_Failed");
-    }
-
-    @Test(groups = "TransactionTest", enabled = false)
-    public void testTransactionWithWorkersMirrorTable() {
-        BValue[] returns = BRunUtil.invoke(resultMirror, "testTransactionWithWorkers");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
     }
 
     @AfterSuite

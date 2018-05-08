@@ -1,7 +1,7 @@
 import ballerina/lang.system;
 import ballerina/data.sql;
 
-function main (string[] args) {
+function main (string... args) {
     //Create a SQL connector by providing the required database connection
     //pool properties.
     map props = {"jdbcUrl":"jdbc:mysql://localhost:3306/db",
@@ -41,8 +41,8 @@ function main (string[] args) {
     //names should be given as an array. The values of the auto incremented
     //column and the auto generated columns are returned as string array.
     //Similar to the update action inserted row count is also returned.
-    string[] keyColumns = [];
-    string[] ids;
+    string... keyColumns = [];
+    string... ids;
     ret, ids = sql:ClientConnector.updateWithGeneratedKeys
                (testDB, "Insert into Students (age,name) values (?,?)",
                 params, keyColumns);

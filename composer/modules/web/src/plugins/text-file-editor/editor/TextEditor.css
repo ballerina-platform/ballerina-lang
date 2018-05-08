@@ -1,0 +1,6 @@
+.text-editor {
+    background-color: black;
+}
+.text-editor .ui.inverted.dimmer {
+    background-color:  rgba(128, 128, 128, 0.30)
+}

@@ -18,10 +18,11 @@
 
 package org.ballerinalang.docgen.cmd;
 
+import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.launcher.BLauncherCmd;
@@ -29,9 +30,12 @@ import org.ballerinalang.launcher.LauncherUtils;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * doc command for ballerina which generates documentation for Ballerina packages.
@@ -39,7 +43,6 @@ import java.util.List;
 @Parameters(commandNames = "doc", commandDescription = "generate Ballerina API documentation")
 public class BallerinaDocCmd implements BLauncherCmd {
     private final PrintStream out = System.out;
-    private final PrintStream err = System.err;
 
     private JCommander parentCmdParser;
 
@@ -64,6 +67,12 @@ public class BallerinaDocCmd implements BLauncherCmd {
     @Parameter(names = { "--native", "-n" },
             description = "read the source as native ballerina code", hidden = false)
     private boolean nativeSource;
+
+    @DynamicParameter(names = "-e", description = "Ballerina environment parameters")
+    private Map<String, String> runtimeParams = new HashMap<>();
+
+    @Parameter(names = {"--config", "-c"}, description = "path to the docerina configuration file")
+    private String configFilePath;
 
     @Parameter(names = { "--verbose", "-v" },
             description = "enable debug level logs", hidden = false)
@@ -97,15 +106,15 @@ public class BallerinaDocCmd implements BLauncherCmd {
             System.setProperty(BallerinaDocConstants.TEMPLATES_FOLDER_PATH_KEY, templatesDir);
         }
 
+        try {
+            ConfigRegistry.getInstance().initRegistry(runtimeParams, configFilePath, null);
+        } catch (IOException e) {
+            throw new RuntimeException("failed to read the specified configuration file: " + configFilePath, e);
+        }
 
         String[] sources = argList.toArray(new String[argList.size()]);
-        try {
-            BallerinaDocGenerator.generateApiDocs(sourceRootPath.toString(), outputDir, packageFilter, nativeSource,
-                    sources);
-        } catch (Throwable e) {
-            err.println(ExceptionUtils.getStackTrace(e));
-            System.exit(1);
-        }
+        BallerinaDocGenerator.generateApiDocs(sourceRootPath.toString(), outputDir, packageFilter, nativeSource,
+                sources);
     }
 
     @Override

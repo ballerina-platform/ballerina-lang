@@ -1,20 +1,20 @@
 /*
-*   Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *   Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.ballerinalang.nativeimpl;
 
 import org.ballerinalang.bre.Context;
@@ -70,7 +70,7 @@ public class Utils {
             zoneIdName = zoneId.toString();
             //Get offset in seconds
             TimeZone tz = TimeZone.getTimeZone(zoneId);
-            int offsetInMills  = tz.getOffset(new Date().getTime());
+            int offsetInMills = tz.getOffset(new Date().getTime());
             int offset = offsetInMills / 1000;
             return BLangVMStructs.createBStruct(timezoneStructInfo, zoneIdName, offset);
         } catch (ZoneRulesException e) {
@@ -79,7 +79,7 @@ public class Utils {
     }
 
     public static BStruct createTimeStruct(StructInfo timezoneStructInfo, StructInfo timeStructInfo, long millis,
-            String zoneIdName) {
+                                           String zoneIdName) {
         BStruct timezone = Utils.createTimeZone(timezoneStructInfo, zoneIdName);
         return BLangVMStructs.createBStruct(timeStructInfo, millis, timezone);
     }
@@ -199,8 +199,7 @@ public class Utils {
      * @param charset           Represent the charset value to be used with string
      * @param isMimeSpecific    A boolean indicating whether the encoder should be mime specific or not
      */
-    private static void encodeString(Context context, String stringToBeEncoded, String charset,
-                                     boolean isMimeSpecific) {
+    public static void encodeString(Context context, String stringToBeEncoded, String charset, boolean isMimeSpecific) {
         try {
             byte[] encodedValue;
             if (isMimeSpecific) {
@@ -210,7 +209,7 @@ public class Utils {
             }
             context.setReturnValues(new BString(new String(encodedValue, StandardCharsets.ISO_8859_1)));
         } catch (UnsupportedEncodingException e) {
-            context.setReturnValues(Utils.createBase64Error(context, e.getMessage(), isMimeSpecific, true));
+            context.setReturnValues(BLangVMErrors.createError(context, -1, e.getMessage()));
         }
     }
 
@@ -240,13 +239,35 @@ public class Utils {
     }
 
     /**
+     * Decode a given encoded string using Base64 encoding scheme.
+     *
+     * @param context           Represent a ballerina context
+     * @param stringToBeDecoded Represent the string that needs to be decoded
+     * @param charset           Represent the charset value to be used with string
+     * @param isMimeSpecific    A boolean indicating whether the decoder should be mime specific or not
+     */
+    public static void decodeString(Context context, String stringToBeDecoded, String charset, boolean isMimeSpecific) {
+        try {
+            byte[] decodedValue;
+            if (isMimeSpecific) {
+                decodedValue = Base64.getMimeDecoder().decode(stringToBeDecoded.getBytes(StandardCharsets.ISO_8859_1));
+            } else {
+                decodedValue = Base64.getDecoder().decode(stringToBeDecoded.getBytes(StandardCharsets.ISO_8859_1));
+            }
+            context.setReturnValues(new BString(new String(decodedValue, charset)));
+        } catch (UnsupportedEncodingException e) {
+            context.setReturnValues(BLangVMErrors.createError(context, -1, e.getMessage()));
+        }
+    }
+
+    /**
      * Encode a given byte channel using Base64 encoding scheme.
      *
      * @param context        Represent a ballerina context
      * @param byteChannel    Represent the byte channel that needs to be encoded
      * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
      */
-    private static void encodeByteChannel(Context context, BStruct byteChannel, boolean isMimeSpecific) {
+    public static void encodeByteChannel(Context context, BStruct byteChannel, boolean isMimeSpecific) {
         Channel channel = (Channel) byteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
         BStruct byteChannelStruct;
         try {
@@ -277,7 +298,7 @@ public class Utils {
      * @param byteChannel    Represent the byte channel that needs to be decoded
      * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
      */
-    private static void decodeByteChannel(Context context, BStruct byteChannel, boolean isMimeSpecific) {
+    public static void decodeByteChannel(Context context, BStruct byteChannel, boolean isMimeSpecific) {
         if (STRUCT_TYPE.equals(byteChannel.getType().getName())) {
             Channel channel = (Channel) byteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             BStruct byteChannelStruct;
@@ -322,6 +343,23 @@ public class Utils {
     }
 
     /**
+     * Encode a given blob using Base64 encoding scheme.
+     *
+     * @param context        Represent a ballerina context
+     * @param bytes          Represent the blob that needs to be encoded
+     * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
+     */
+    public static void encodeBlob(Context context, byte[] bytes, boolean isMimeSpecific) {
+        byte[] encodedContent;
+        if (isMimeSpecific) {
+            encodedContent = Base64.getMimeEncoder().encode(bytes);
+        } else {
+            encodedContent = Base64.getEncoder().encode(bytes);
+        }
+        context.setReturnValues(new BBlob(encodedContent));
+    }
+
+    /**
      * Decode a given blob using Base64 encoding scheme.
      *
      * @param context        Represent a ballerina context
@@ -334,6 +372,23 @@ public class Utils {
             decodedContent = Base64.getMimeDecoder().decode(encodedContent.blobValue());
         } else {
             decodedContent = Base64.getDecoder().decode(encodedContent.blobValue());
+        }
+        context.setReturnValues(new BBlob(decodedContent));
+    }
+
+    /**
+     * Decode a given blob using Base64 encoding scheme.
+     *
+     * @param context        Represent a ballerina context
+     * @param encodedContent Represent the blob that needs to be decoded
+     * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
+     */
+    public static void decodeBlob(Context context, byte[] encodedContent, boolean isMimeSpecific) {
+        byte[] decodedContent;
+        if (isMimeSpecific) {
+            decodedContent = Base64.getMimeDecoder().decode(encodedContent);
+        } else {
+            decodedContent = Base64.getDecoder().decode(encodedContent);
         }
         context.setReturnValues(new BBlob(decodedContent));
     }

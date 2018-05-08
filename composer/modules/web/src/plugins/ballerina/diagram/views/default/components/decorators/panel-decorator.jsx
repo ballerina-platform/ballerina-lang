@@ -49,11 +49,7 @@ class PanelDecorator extends React.Component {
             showProtocolSelect: false,
         };
 
-        this.handleProtocolClick = this.handleProtocolClick.bind(this);
-        this.handleProtocolBlur = this.handleProtocolBlur.bind(this);
-        this.handleProtocolEnter = this.handleProtocolBlur.bind(this);
         this.togglePublicPrivateFlag = this.togglePublicPrivateFlag.bind(this);
-        this.toggleAnnotations = this.toggleAnnotations.bind(this);
     }
 
     onCollapseClick() {
@@ -165,7 +161,11 @@ class PanelDecorator extends React.Component {
             };
             return React.createElement(rightComponent.component, rightComponent.props, null);
         });
-        return [...staticButtons, ...dynamicButtons];
+        if (this.context.fitToWidth) {
+            return [];
+        } else {
+            return [...staticButtons, ...dynamicButtons];
+        }
     }
 
     getAnnotationComponents(annotationComponentData, bBox, titleHeight) {
@@ -222,21 +222,6 @@ class PanelDecorator extends React.Component {
             titleEditing: false,
             editingTitle: this.props.model.getName().value,
         });
-    }
-
-    handleProtocolClick() {
-        this.setState({ showProtocolSelect: true });
-    }
-
-    handleProtocolBlur(value) {
-        value = (typeof value === 'string') ? value : value.currentTarget.textContent;
-        value = (value === '') ? 'http' : value;
-        this.props.model.setProtocolPkgName(value);
-        this.setState({ showProtocolSelect: false });
-    }
-
-    handleProtocolEnter(value) {
-        this.setState({ showProtocolSelect: false });
     }
 
     togglePublicPrivateFlag() {
@@ -472,10 +457,12 @@ PanelDecorator.defaultProps = {
     receiver: undefined,
     headerComponent: undefined,
     packageIdentifier: undefined,
+    fitToWidth: true,
 };
 
 PanelDecorator.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
+    fitToWidth: PropTypes.bool,
 };
 
 export default PanelDecorator;

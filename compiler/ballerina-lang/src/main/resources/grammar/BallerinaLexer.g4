@@ -13,7 +13,6 @@ lexer grammar BallerinaLexer;
 
 // Reserved words
 
-PACKAGE     : 'package' ;
 IMPORT      : 'import' ;
 AS          : 'as' ;
 PUBLIC      : 'public' ;
@@ -75,6 +74,9 @@ DAY         : {inSiddhiTimeScaleQuery}? 'day' { inSiddhiTimeScaleQuery = false; 
 MONTH       : {inSiddhiTimeScaleQuery}? 'month' { inSiddhiTimeScaleQuery = false; } ;
 YEAR        : {inSiddhiTimeScaleQuery}? 'year' { inSiddhiTimeScaleQuery = false; } ;
 FOREVER     : 'forever' ;
+LIMIT       : 'limit' ;
+ASCENDING   : 'ascending' ;
+DESCENDING  : 'descending' ;
 
 TYPE_INT        : 'int' ;
 TYPE_FLOAT      : 'float' ;
@@ -112,7 +114,7 @@ THROW       : 'throw' ;
 RETURN      : 'return' ;
 TRANSACTION : 'transaction' ;
 ABORT       : 'abort' ;
-FAIL        : 'fail' ;
+RETRY        : 'retry' ;
 ONRETRY     : 'onretry' ;
 RETRIES     : 'retries' ;
 ONABORT     : 'onabort' ;

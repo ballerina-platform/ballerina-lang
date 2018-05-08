@@ -7,11 +7,11 @@ endpoint http:Listener serviceEP {
 };
 
 endpoint http:Client nasdaqEP {
-    targets:[{url:"http://localhost:9090/nasdaqStocks"}]
+    url:"http://localhost:9090/nasdaqStocks"
 };
 
 endpoint http:Client nyseEP {
-    targets:[{url:"http://localhost:9090/nyseStocks"}]
+    url:"http://localhost:9090/nyseStocks"
 };
 
 @http:ServiceConfig {basePath:"/cbr"}
@@ -26,7 +26,7 @@ service<http:Service> contentBasedRouting bind serviceEP{
         var jsonMsg = req.getJsonPayload();
         string nameString;
         match jsonMsg {
-            http:PayloadError payloadError => io:println("Error getting payload");
+            error payloadError => io:println("Error getting payload");
             json payload =>  {
                 nameString = extractFieldValue(payload.name);
             }
@@ -34,21 +34,21 @@ service<http:Service> contentBasedRouting bind serviceEP{
         http:Request clientRequest = new;
         http:Response clientResponse = new;
         if (nameString == nyseString) {
-            var result = nyseEP -> post("/stocks", clientRequest);
+            var result = nyseEP -> post("/stocks", request = clientRequest);
             match result {
-                http:HttpConnectorError err => {
+                error err => {
                     clientResponse.statusCode = 500;
-                    clientResponse.setStringPayload("Error sending request");
+                    clientResponse.setTextPayload("Error sending request");
                     _ = conn -> respond(clientResponse);
                 }
                 http:Response returnResponse => _ = conn -> respond(returnResponse);
             }
         } else {
-            var result = nasdaqEP -> post("/stocks", clientRequest);
+            var result = nasdaqEP -> post("/stocks", request = clientRequest);
             match result {
-                http:HttpConnectorError err => {
+                error err => {
                     clientResponse.statusCode = 500;
-                    clientResponse.setStringPayload("Error sending request");
+                    clientResponse.setTextPayload("Error sending request");
                     _ = conn -> respond(clientResponse);
                 }
                 http:Response returnResponse => _ = conn -> respond(returnResponse);
@@ -71,21 +71,21 @@ service<http:Service> headerBasedRouting bind serviceEP{
         http:Request clientRequest = new;
         http:Response clientResponse = new;
         if (nameString == nyseString) {
-            var result = nyseEP -> post("/stocks", clientRequest);
+            var result = nyseEP -> post("/stocks", request = clientRequest);
             match result {
-                http:HttpConnectorError err => {
+                error err => {
                     clientResponse.statusCode = 500;
-                    clientResponse.setStringPayload("Error sending request");
+                    clientResponse.setTextPayload("Error sending request");
                     _ = conn -> respond(clientResponse);
                 }
                 http:Response returnResponse => _ = conn -> respond(returnResponse);
             }
         } else {
-            var result = nasdaqEP -> post("/stocks", clientRequest);
+            var result = nasdaqEP -> post("/stocks", request = clientRequest);
             match result {
-                http:HttpConnectorError err => {
+                error err => {
                     clientResponse.statusCode = 500;
-                    clientResponse.setStringPayload("Error sending request");
+                    clientResponse.setTextPayload("Error sending request");
                     _ = conn -> respond(clientResponse);
                 }
                 http:Response returnResponse => _ = conn -> respond(returnResponse);

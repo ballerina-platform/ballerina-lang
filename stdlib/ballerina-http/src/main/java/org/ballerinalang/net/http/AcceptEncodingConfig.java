@@ -23,6 +23,6 @@ package org.ballerinalang.net.http;
  */
 public enum AcceptEncodingConfig {
     AUTO,
-    ENABLE,
-    DISABLE;
+    ALWAYS,
+    NEVER
 }

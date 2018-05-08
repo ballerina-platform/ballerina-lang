@@ -1,4 +1,3 @@
-package lang.jsontype.pkg.main;
 
 import lang.jsontype.pkg.structdef;
 

@@ -22,3 +22,29 @@ function testMatchExprWithUndefinedVar(string|int|float|error a) returns string 
                 };
     return x;
 }
+
+function testMatchExprWithNonMatchingPatterns(string|int|float|error a) returns string {
+    string x = foo(a) but { 
+                    int => "value1", 
+                    map => "value2", 
+                    string => "value3",
+                    json j => "value4"
+                };
+    return x;
+}
+
+function testMatchExprWithMissingPatterns(string|int|float|error|map a) returns string {
+    string x = a but { 
+                    int => "value1",
+                    map j => "value2"
+                };
+    return x;
+}
+
+
+function testIncompatibleTypesInPatterns(string|json a) returns string {
+    string x = a but { 
+                    json j => j + "value4"
+                };
+    return x;
+}

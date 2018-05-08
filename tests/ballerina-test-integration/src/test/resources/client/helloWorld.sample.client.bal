@@ -1,8 +1,7 @@
-package client;
 
 import ballerina/io;
 
-function main (string[] args) {
+function main (string... args) {
 
      endpoint helloWorldClient helloWorldEp {
         host: "localhost",

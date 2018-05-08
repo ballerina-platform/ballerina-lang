@@ -3,7 +3,7 @@ type Student {
     string address;
 };
 
-public function main (string[] args) {
+function main (string... args) {
     // untainted Json - untainted field - field access
     Student student = {name:"Ballerina", address:"Colombo"};
     secureFunction(student.name, student.name);

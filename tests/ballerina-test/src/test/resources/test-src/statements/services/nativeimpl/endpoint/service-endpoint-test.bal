@@ -11,23 +11,23 @@ service<http:Service> hello bind mockEP {
         path:"/protocol",
         methods:["GET"]
     }
-    protocol (endpoint outboundEP, http:Request req) {
+    protocol (endpoint caller, http:Request req) {
         http:Response res = {};
-        json connectionJson = {protocol:outboundEP.protocol};
+        json connectionJson = {protocol:caller.protocol};
         res.statusCode = 200;
         res.setJsonPayload(connectionJson);
-        _ = outboundEP -> respond(res);
+        _ = caller -> respond(res);
     }
 
     @http:ResourceConfig {
         path:"/local",
         methods:["GET"]
     }
-    local (endpoint outboundEP, http:Request req) {
+    local (endpoint caller, http:Request req) {
         http:Response res = {};
-        json connectionJson = {local:{host:outboundEP.local.host, port:outboundEP.local.port}};
+        json connectionJson = {local:{host:caller.local.host, port:caller.local.port}};
         res.statusCode = 200;
         res.setJsonPayload(connectionJson);
-        _ = outboundEP -> respond(res);
+        _ = caller -> respond(res);
     }
 }

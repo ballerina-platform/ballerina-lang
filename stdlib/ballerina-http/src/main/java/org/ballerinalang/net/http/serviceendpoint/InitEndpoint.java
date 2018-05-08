@@ -27,8 +27,6 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BFunctionPointer;
-import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -38,7 +36,6 @@ import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
-import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
@@ -47,12 +44,9 @@ import org.wso2.transport.http.netty.contract.ServerConnector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.net.http.HttpConstants.HTTP_DEFAULT_PORT;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 
 /**
@@ -111,59 +105,32 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             // no filters
             return;
         }
-        HashSet<FilterHolder> filterFunctionSet = new LinkedHashSet<>();
-        for (Value filterValue : filterValues) {
-            filterFunctionSet.add(new FilterHolder(extractFilterFunction(filterValue.getVMValue(), 0),
-                    extractFilterFunction(filterValue.getVMValue(), 1)));
-        }
-
-        serviceEndpoint.addNativeData(HttpConstants.FILTERS, filterFunctionSet);
-    }
-
-    private FunctionRefCPEntry extractFilterFunction(BValue functionValue, int refIndex) {
-        if (functionValue == null) {
-            return null;
-        }
-        BRefType bRefOnRequestFunction = ((BStruct) functionValue).getRefField(refIndex);
-        if (bRefOnRequestFunction == null) {
-            return null;
-        }
-        return ((BFunctionPointer) bRefOnRequestFunction).value();
+        serviceEndpoint.addNativeData(HttpConstants.FILTERS, filterValues);
     }
 
     private ListenerConfiguration getListenerConfig(Struct endpointConfig) {
         String host = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_HOST);
         long port = endpointConfig.getIntField(HttpConstants.ENDPOINT_CONFIG_PORT);
         String keepAlive = endpointConfig.getRefField(HttpConstants.ENDPOINT_CONFIG_KEEP_ALIVE).getStringValue();
-        String transferEncoding =
-                endpointConfig.getRefField(HttpConstants.ENDPOINT_CONFIG_TRANSFER_ENCODING).getStringValue();
         Struct sslConfig = endpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         String httpVersion = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_VERSION);
         Struct requestLimits = endpointConfig.getStructField(HttpConstants.ENDPOINT_REQUEST_LIMITS);
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
 
-        if (host == null || host.isEmpty()) {
+        if (host == null || host.trim().isEmpty()) {
             listenerConfiguration.setHost(
                     configRegistry.getConfigOrDefault("b7a.http.host", HttpConstants.HTTP_DEFAULT_HOST));
         } else {
             listenerConfiguration.setHost(host);
         }
 
-        if (port == HTTP_DEFAULT_PORT && configRegistry.contains("b7a.http.port")) {
-            port = Long.parseLong(configRegistry.getAsString("b7a.http.port"));
+        if (port == 0) {
+            throw new BallerinaConnectorException("Listener port is not defined!");
         }
         listenerConfiguration.setPort(Math.toIntExact(port));
 
         listenerConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAlive));
-
-        // For the moment we don't have to pass it down to transport as we only support
-        // chunking. Once we start supporting gzip, deflate, etc, we need to parse down the config.
-        if ((!transferEncoding.isEmpty()) && !HttpConstants.ANN_CONFIG_ATTR_CHUNKING
-                .equalsIgnoreCase(transferEncoding)) {
-            throw new BallerinaConnectorException("Unsupported configuration found for Transfer-Encoding : "
-                                                          + transferEncoding);
-        }
 
         // Set Request validation limits.
         if (requestLimits != null) {
@@ -210,7 +177,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
 
         if (maxEntityBodySize != -1) {
             if (maxEntityBodySize >= 0) {
-                requestSizeValidationConfig.setMaxEntityBodySize(Math.toIntExact(maxEntityBodySize));
+                requestSizeValidationConfig.setMaxEntityBodySize(maxEntityBodySize);
             } else {
                 throw new BallerinaConnectorException(
                         "Invalid configuration found for maxEntityBodySize : " + maxEntityBodySize);

@@ -1,6 +1,6 @@
 import ballerina/lang.system;
 
-function main (string[] args) {
+function main (string... args) {
 
     int i = 0;
     //This is a basic while loop.

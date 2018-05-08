@@ -23,10 +23,10 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
-import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_ENDPOINT_TYPE;
-import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
-import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_TYPE;
+import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 
 /**
  * Native function to start client instance.

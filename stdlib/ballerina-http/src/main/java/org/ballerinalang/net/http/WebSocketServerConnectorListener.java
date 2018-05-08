@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
@@ -45,6 +46,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.ballerinalang.net.http.HttpConstants.CONNECTION;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
@@ -87,7 +89,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                     PROTOCOL_PACKAGE_HTTP, CONNECTION);
             httpConnection.addNativeData(WebSocketConstants.WEBSOCKET_MESSAGE, webSocketInitMessage);
             httpConnection.addNativeData(WebSocketConstants.WEBSOCKET_SERVICE, wsService);
-            httpConnection.addNativeData(WebSocketConstants.WEBSOCKET_CONNECTION_MANAGER, connectionManager);
+            httpConnection.addNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER, connectionManager);
             // TODO: Need to set remote, local and the protocol after the changes in transport is completed.
             httpServiceEndpoint.setRefField(SERVICE_ENDPOINT_CONNECTION_INDEX, httpConnection);
 
@@ -116,10 +118,9 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
             WebSocketDispatcher.setPathParams(bValues, paramDetails, pathParams, 2);
 
             // TODO: Need to revisit this code of observation.
-            ObserverContext ctx = ObservabilityUtils.startServerObservation(SERVER_CONNECTOR_WEBSOCKET,
-                                                                            onUpgradeResource.getServiceName(),
-                                                                            onUpgradeResource.getName(), null);
-//            ctx.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
+            Optional<ObserverContext> observerContext = ObservabilityUtils.startServerObservation(
+                    SERVER_CONNECTOR_WEBSOCKET, onUpgradeResource.getServiceName(), onUpgradeResource.getName(),
+                    null);
 
             Executor.submit(onUpgradeResource, new CallableUnitCallback() {
                 @Override
@@ -127,17 +128,17 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                     if (!webSocketInitMessage.isCancelled() && !webSocketInitMessage.isHandshakeStarted()) {
                         WebSocketUtil.handleHandshake(wsService, connectionManager, null, webSocketInitMessage, null,
                                                       null);
+                        // TODO: Change this to readNextFrame
                     } else {
                         Resource onOpenResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_OPEN);
+                        WebSocketOpenConnectionInfo connectionInfo =
+                                connectionManager.getConnectionInfo(webSocketInitMessage.getSessionID());
+                        WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
                         if (onOpenResource != null) {
-                            List<ParamDetail> paramDetails =
-                                    onOpenResource.getParamDetails();
-                            BValue[] bValues = new BValue[paramDetails.size()];
-                            bValues[0] = connectionManager
-                                    .getConnectionInfo(webSocketInitMessage.getSessionID()).getWebSocketEndpoint();
-                            //TODO handle BallerinaConnectorException
-                            Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(), null, null,
-                                            bValues);
+                            BStruct webSocketEndpoint = connectionInfo.getWebSocketEndpoint();
+                            WebSocketUtil.executeOnOpenResource(onOpenResource, webSocketEndpoint, webSocketConnection);
+                        } else {
+                            connectionInfo.getWebSocketConnection().readNextFrame();
                         }
                     }
                 }
@@ -146,7 +147,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                 public void notifyFailure(BStruct error) {
                     ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
                 }
-            }, null, ctx, bValues);
+            }, null, observerContext.orElse(null), bValues);
 
         } else {
             WebSocketUtil.handleHandshake(wsService, connectionManager, null, webSocketInitMessage, null, null);

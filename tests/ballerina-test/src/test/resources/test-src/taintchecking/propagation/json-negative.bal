@@ -1,4 +1,4 @@
-public function main (string[] args) {
+function main (string... args) {
     // tainted Json - untainted field - field access.
     json student = {name:"Ballerina", address:args[0]};
     secureFunction(student.name, student.name);

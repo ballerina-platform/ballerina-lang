@@ -38,7 +38,7 @@ public class SQLConnectorInitTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/connectors/sql/sql-connector-init.bal");
+        result = BCompileUtil.compile("test-src/connectors/sql/sql_connector_init_test.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/SQLTableCreate.sql");
     }
@@ -57,14 +57,14 @@ public class SQLConnectorInitTest {
          Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testConnectorWithDataSourceClass() {
         BValue[] returns = BRunUtil.invoke(result, "testConnectorWithDataSourceClass");
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testConnectorWithDataSourceClassAndProps() {
         BValue[] returns = BRunUtil.invoke(result, "testConnectorWithDataSourceClassAndProps");
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";

@@ -1,7 +1,7 @@
 import ballerina/lang.system;
 import ballerina/lang.messages;
 
-function main (string[] args) {
+function main (string... args) {
           worker      sampleWorker         {
         message      m      ;
         int         a;

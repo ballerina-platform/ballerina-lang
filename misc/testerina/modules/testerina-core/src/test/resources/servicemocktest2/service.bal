@@ -1,5 +1,3 @@
-package servicemocktest2;
-
 import ballerina/http;
 import ballerina/io;
 
@@ -15,7 +13,7 @@ service PortalService bind portalEP {
     @http:ResourceConfig {
         path:"events"
     }
-    getEvents (endpoint client, http:Request req) {
-        _ = client -> respond(hadleGetEvents());
+    getEvents (endpoint caller, http:Request req) {
+        _ = caller -> respond(hadleGetEvents());
     }
 }

@@ -1,4 +1,3 @@
-package ballerina.test;
 
 @Description { value:"Configuration set for test functions."}
 @Field {value:"enable: Flag to enable/disable test functions"}

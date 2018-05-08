@@ -24,6 +24,8 @@ import org.ballerinalang.composer.server.spi.ServiceInfo;
 import org.ballerinalang.composer.server.spi.ServiceType;
 import org.ballerinalang.composer.service.ballerina.langserver.Constants;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
+import org.ballerinalang.langserver.compiler.workspace.ExtendedWorkspaceDocumentManagerImpl;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.jsonrpc.MessageConsumer;
 import org.eclipse.lsp4j.jsonrpc.MessageProducer;
@@ -67,7 +69,8 @@ public class BallerinaLangServerService implements ComposerService {
     private final List<TextMessageListener> textMessageListeners = new ArrayList<>();
     private final List<SocketCloseListener> socketCloseListeners = new ArrayList<>();
 
-    private final BallerinaLanguageServer server = new BallerinaLanguageServer();
+    private final WorkspaceDocumentManager documentManager = ExtendedWorkspaceDocumentManagerImpl.getInstance();
+    private final BallerinaLanguageServer server = new BallerinaLanguageServer(documentManager);
     private Launcher<LanguageClient> launcher;
 
     @OnOpen

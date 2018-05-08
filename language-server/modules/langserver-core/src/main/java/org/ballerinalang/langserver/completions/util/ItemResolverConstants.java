@@ -43,6 +43,7 @@ public class ItemResolverConstants {
     public static final String FOREACH = "foreach";
     public static final String PUBLIC = "public";
     public static final String PRIVATE = "private";
+    public static final String MATCH = "match";
 
     public static final String FUNCTION = "function";
     public static final String MAIN_FUNCTION = "main function";
@@ -80,7 +81,7 @@ public class ItemResolverConstants {
     
     // Keyword constants
     public static final String VAR_KEYWORD = "var";
-    public static final String CREATE_KEYWORD = "create";
+    public static final String CHECK_KEYWORD = "check";
     public static final String TRUE_KEYWORD = "true";
     public static final String FALSE_KEYWORD = "false";
     

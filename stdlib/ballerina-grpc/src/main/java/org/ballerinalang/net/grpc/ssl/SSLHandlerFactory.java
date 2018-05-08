@@ -28,6 +28,7 @@ import io.netty.handler.ssl.SupportedCipherSuiteFilter;
 import org.ballerinalang.net.grpc.exception.GrpcSSLValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 
 import java.io.File;
 import java.io.FileInputStream;

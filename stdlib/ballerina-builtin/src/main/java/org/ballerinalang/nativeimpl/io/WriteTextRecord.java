@@ -39,9 +39,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
-        functionName = "writeTextRecord",
+        functionName = "write",
         receiver = @Receiver(type = TypeKind.STRUCT,
-                structType = "DelimitedRecordChannel",
+                structType = "DelimitedTextRecordChannel",
                 structPackage = "ballerina.io"),
         args = {@Argument(name = "content", type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},

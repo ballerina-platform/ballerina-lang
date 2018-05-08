@@ -20,7 +20,7 @@ function func1 () {
     string name = person.name;
 }
 
-function main (string[] args) {
+function main (string... args) {
     func1();
 
     string[] fruits = ["apple", "banana", "cherry"];

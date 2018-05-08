@@ -80,6 +80,10 @@ Comment
    : <comment>
    ;
 
+CompoundAssignment
+   : <variable.source> += <expression.source> ;
+   ;
+
 Connector
    : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> connector <name.value> ( <parameters-joined-by,>* ) { <variableDefs>* <actions>* }
    | <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> connector <name.value> ( <parameters-joined-by,>* ) { <actions>* }
@@ -95,15 +99,28 @@ ConstrainedType
    ;
 
 Documentation
-   : documentation { <documentationText> }
+   : documentation { <documentationText> <attributes>* }
+   ;
+
+DocumentationAttribute
+   :  <paramType> {{ <documentationField.value> }} <documentationText>
    ;
 
 Deprecated
    : deprecated { <documentationText> }
    ;
 
+Done
+   : done ;
+   ;
+
+ElvisExpr
+   : <leftExpression.source> ?: <rightExpression.source>
+   ;
+
 Endpoint
-   :  <annotationAttachments>* endpoint <endPointType.source> <name.value> <configurationExpression.source> ;
+   :  <skipSourceGen?>
+   |                   <annotationAttachments>* endpoint <endPointType.source> <name.value> <configurationExpression.source> ;
    ;
 
 EndpointType
@@ -122,6 +139,10 @@ Foreach
    : foreach <variables-joined-by,>* in <collection.source> { <body.source> }
    ;
 
+Forever
+   : forever { <streamingQueryStatements>* }
+   ;
+
 ForkJoin
    : fork { <workers>* } join ( <joinType> <joinCount> <joinedWorkerIdentifiers-joined-by,>* ) ( <joinResultVar.source> ) { <joinBody.source> } timeout ( <timeOutExpression.source> ) ( <timeOutVariable.source> ) { <timeoutBody.source> }
    : fork { <workers>* } join ( <joinType> <joinCount> <joinedWorkerIdentifiers-joined-by,>* ) ( <joinResultVar.source> ) { <joinBody.source> }
@@ -132,17 +153,40 @@ ForkJoin
    ;
 
 Function
-   : <lambda?>     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* function                                                    ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <endpointNodes>* <body.source> <workers>* }
-   | <lambda?>     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* function                                                    ( <parameters-joined-by,>* )                                 { <endpointNodes>* <body.source> <workers>* }
-   | <hasReturns?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>* ) returns <returnTypeNode.source> { <endpointNodes>* <body.source> <workers>* }
-   | <hasReturns?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function                       <name.value> ( <parameters-joined-by,>* ) returns <returnTypeNode.source> { <endpointNodes>* <body.source> <workers>* }
-   |               <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>* )                                 { <endpointNodes>* <body.source> <workers>* }
-   |               <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function                       <name.value> ( <parameters-joined-by,>* )                                 { <endpointNodes>* <body.source> <workers>* }
+   : <defaultConstructor?>
+   | <isConstructor?>          <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                <name.value> ( <parameters-joined-by,>* <hasRestParams?,> <restParameters.source> )                                                                                      { <endpointNodes>* <body.source> <workers>* }
+   | <isConstructor?>          <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                <name.value> ( <parameters-joined-by,>*                                           )                                                                                      { <endpointNodes>* <body.source> <workers>* }
+   | <lambda?>                 <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <isStreamAction?> =>                                        ( <parameters-joined-by,>* <hasRestParams?,> <restParameters.source> )                                                                                      { <endpointNodes>* <body.source> <workers>* }
+   | <lambda?>                 <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <isStreamAction?> =>                                        ( <parameters-joined-by,>*                                           )                                                                                      { <endpointNodes>* <body.source> <workers>* }
+   | <lambda?>                 <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* function                                                    ( <parameters-joined-by,>* <hasRestParams?,> <restParameters.source> )                ( <returnParameters-joined-by,>+ )                                    { <endpointNodes>* <body.source> <workers>* }
+   | <lambda?>                 <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* function                                                    ( <parameters-joined-by,>*                                           )                ( <returnParameters-joined-by,>+ )                                    { <endpointNodes>* <body.source> <workers>* }
+   | <lambda?>                 <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* function                                                    ( <parameters-joined-by,>* <hasRestParams?,> <restParameters.source> )                                                                                      { <endpointNodes>* <body.source> <workers>* }
+   | <lambda?>                 <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* function                                                    ( <parameters-joined-by,>*                                           )                                                                                      { <endpointNodes>* <body.source> <workers>* }
+   | <noVisibleReceiver?>      <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function                       <name.value> ( <parameters-joined-by,>* <hasRestParams?,> <restParameters.source> ) <hasReturns?>  returns <returnTypeAnnotationAttachments>* <returnTypeNode.source>    { <endpointNodes>* <body.source> <workers>* }
+   | <noVisibleReceiver?>      <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function                       <name.value> ( <parameters-joined-by,>*                                           ) <hasReturns?>  returns <returnTypeAnnotationAttachments>* <returnTypeNode.source>    { <endpointNodes>* <body.source> <workers>* }
+   | <noVisibleReceiver?>      <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function                       <name.value> ( <parameters-joined-by,>* <hasRestParams?,> <restParameters.source> )                                                                                      { <endpointNodes>* <body.source> <workers>* }
+   | <noVisibleReceiver?>      <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function                       <name.value> ( <parameters-joined-by,>*                                           )                                                                                      { <endpointNodes>* <body.source> <workers>* }
+   | <hasReturns?>             <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>* <hasRestParams?,> <restParameters.source> )                returns <returnTypeAnnotationAttachments>* <returnTypeNode.source>    { <endpointNodes>* <body.source> <workers>* }
+   | <hasReturns?>             <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>*                                           )                returns <returnTypeAnnotationAttachments>* <returnTypeNode.source>    { <endpointNodes>* <body.source> <workers>* }
+   | <hasReturns?>             <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function                       <name.value> ( <parameters-joined-by,>* <hasRestParams?,> <restParameters.source> )                returns <returnTypeAnnotationAttachments>* <returnTypeNode.source>    { <endpointNodes>* <body.source> <workers>* }
+   | <hasReturns?>             <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function                       <name.value> ( <parameters-joined-by,>*                                           )                returns <returnTypeAnnotationAttachments>* <returnTypeNode.source>    { <endpointNodes>* <body.source> <workers>* }
+   |                           <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>* <hasRestParams?,> <restParameters.source> )                                                                                      { <endpointNodes>* <body.source> <workers>* }
+   |                           <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>*                                           )                                                                                      { <endpointNodes>* <body.source> <workers>* }
+   |                           <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function                       <name.value> ( <parameters-joined-by,>* <hasRestParams?,> <restParameters.source> )                                                                                      { <endpointNodes>* <body.source> <workers>* }
+   |                           <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function                       <name.value> ( <parameters-joined-by,>*                                           )                                                                                      { <endpointNodes>* <body.source> <workers>* }
    ;
 
 FunctionType
    : function ( <paramTypeNode-joined-by,>* ) <returnKeywordExists?returns> ( <returnParamTypeNode>+ )
    | function ( <paramTypeNode-joined-by,>* )
+   ;
+
+GroupBy
+   : group by <variables-joined-by,>*
+   ;
+
+Having
+   : having <expression.source>
    ;
 
 If
@@ -156,20 +200,34 @@ IndexBasedAccessExpr
    ;
 
 Invocation
-   : <actionInvocation?>      <async?async> <expression.source>  ->   <name.value> ( <argumentExpressions-joined-by,>* )
-   | <expression.source>  .   <async?async> <name.value> ( <argumentExpressions-joined-by,>* )
-   | <packageAlias.value> :   <async?async> <name.value> ( <argumentExpressions-joined-by,>* )
-   |                          <async?async> <name.value> ( <argumentExpressions-joined-by,>* )
+   : <actionInvocation?>      <async?start> <expression.source>  ->   <name.value> ( <argumentExpressions-joined-by,>* )
+   | <expression.source>  .   <async?start>                           <name.value> ( <argumentExpressions-joined-by,>* )
+   | <packageAlias.value> :   <async?start>                           <name.value> ( <argumentExpressions-joined-by,>* )
+   |                          <async?start>                           <name.value> ( <argumentExpressions-joined-by,>* )
+   ;
+
+JoinStreamingInput
+   : <unidirectionalBeforeJoin?> unidirectional join                <streamingInput.source> on <onExpression.source>
+   | <unidirectionalAfterJoin?>                 join unidirectional <streamingInput.source> on <onExpression.source>
+   |                                            join                <streamingInput.source> on <onExpression.source>
    ;
 
 Lambda
    : <functionNode.source>
    ;
 
+Limit
+   : limit <limitValue>
+   ;
+
 Literal
    : <inTemplateLiteral?> <unescapedValue>
    : <inTemplateLiteral?>
    | <value>
+   ;
+
+Lock
+   : lock { <body.source> }
    ;
 
 Match
@@ -182,11 +240,11 @@ MatchPatternClause
    ;
 
 MatchExpression
-   : <expr> but { <patternClauses>* }
+   : <expression.source> but { <patternClauses>* }
    ;
 
 MatchExpressionPatternClause
-   : <variable.source> => <statement.source>
+   : <variableNode.source> => <statement.source>
    ;
 
 NamedArgsExpr
@@ -198,14 +256,26 @@ Next
    ;
 
 Object
-   : <noFieldsAvailable?>        <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* type <name.value> object {                                                         <initFunction> <functions>* };
-   | <noPrivateFieldsAvailable?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* type <name.value> object { public { <publicFields>* }                              <initFunction> <functions>* };
-   | <noPublicFieldAvailable?>   <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* type <name.value> object {                            private { <privateFields>* } <initFunction> <functions>* };
-   |                             <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* type <name.value> object { public { <publicFields>* } private { <privateFields>* } <initFunction> <functions>* };
+   : <noFieldsAvailable?>        <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> object {                                                                                     <initFunction.source> <functions>* };
+   | <noPrivateFieldsAvailable?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> object { public { <publicFields-suffixed-by-;>* }                                            <initFunction.source> <functions>* };
+   | <noPublicFieldAvailable?>   <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> object {                                          private { <privateFields-suffixed-by-;>* } <initFunction.source> <functions>* };
+   |                             <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> object { public { <publicFields-suffixed-by-;>* } private { <privateFields-suffixed-by-;>* } <initFunction.source> <functions>* };
+   ;
+
+OrderBy
+   : order by <variables-joined-by,>*
+   ;
+
+OrderByVariable
+   : <variableReference.source> <orderByType>
+   ;
+
+PostIncrement
+   : <variable.source> <operator> ;
    ;
 
 Record
-   : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* type <name.value> { <fields-suffixed-by-;>* };
+   : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> { <fields-suffixed-by-;>* };
    ;
 
 RecordLiteralExpr
@@ -221,15 +291,41 @@ Resource
    : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <name.value> ( <parameters-joined-by,>* ) { <body.source> <workers>* }
    ;
 
+RestArgsExpr
+   : ... <expression.source>
+   ;
+
+Retry
+   : retry ;
+   ;
+
 Return
    : <noExpressionAvailable?> return                       ;
    | <emptyBrackets?>         return                     ();
    |                          return <expression.source>   ;
    ;
 
+SelectClause
+   : <selectAll?> select                               * <groupBy.source> <having.source>
+   : <selectAll?> select                               * <groupBy.source>
+   : <selectAll?> select                               *                  <having.source>
+   : <selectAll?> select                               *
+   :              select <selectExpressions-joined-by,>* <groupBy.source> <having.source>
+   :              select <selectExpressions-joined-by,>* <groupBy.source>
+   :              select <selectExpressions-joined-by,>* <having.source>
+   :              select <selectExpressions-joined-by,>*
+   ;
+
+SelectExpression
+   : <identifierAvailable?> <expression.source> as <identifier>
+   |                        <expression.source>
+   ;
+
 Service
-   : <isServiceTypeUnavailable?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service                                <name.value> bind <boundEndpoints-joined-by,>* { <variables>* <resources>* }
-   |                             <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service < <serviceTypeStruct.source> > <name.value> bind <boundEndpoints-joined-by,>* { <variables>* <resources>* }
+   : <isServiceTypeUnavailable?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service                                <name.value> bind <anonymousEndpointBind.source> <boundEndpoints-joined-by,>* { <variables>* <resources>* }
+   | <isServiceTypeUnavailable?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service                                <name.value> bind                                <boundEndpoints-joined-by,>* { <variables>* <resources>* }
+   |                             <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service < <serviceTypeStruct.source> > <name.value> bind <anonymousEndpointBind.source> <boundEndpoints-joined-by,>* { <variables>* <resources>* }
+   |                             <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service < <serviceTypeStruct.source> > <name.value> bind                                <boundEndpoints-joined-by,>* { <variables>* <resources>* }
    ;
 
 SimpleVariableRef
@@ -239,8 +335,60 @@ SimpleVariableRef
    |                                                <variableName.value>
    ;
 
+StreamAction
+   : <invokableBody.source>
+   ;
+
+StreamingInput
+   : <windowTraversedAfterWhere?> <streamReference.source> <beforeStreamingCondition.source> <windowClause.source> <afterStreamingCondition.source> <aliasAvailable?> as <alias>
+   | <windowTraversedAfterWhere?> <streamReference.source> <beforeStreamingCondition.source> <windowClause.source> <afterStreamingCondition.source>
+   | <windowTraversedAfterWhere?> <streamReference.source>                                   <windowClause.source> <afterStreamingCondition.source> <aliasAvailable?> as <alias>
+   | <windowTraversedAfterWhere?> <streamReference.source>                                   <windowClause.source> <afterStreamingCondition.source>
+   | <windowTraversedAfterWhere?> <streamReference.source>                                   <windowClause.source> <afterStreamingCondition.source> <aliasAvailable?> as <alias>
+   | <windowTraversedAfterWhere?> <streamReference.source>                                   <windowClause.source> <afterStreamingCondition.source>
+   | <windowTraversedAfterWhere?> <streamReference.source> <beforeStreamingCondition.source> <windowClause.source>                                  <aliasAvailable?> as <alias>
+   | <windowTraversedAfterWhere?> <streamReference.source> <beforeStreamingCondition.source> <windowClause.source>
+   |                              <streamReference.source> <beforeStreamingCondition.source>                       <afterStreamingCondition.source> <aliasAvailable?> as <alias>
+   |                              <streamReference.source> <beforeStreamingCondition.source>                       <afterStreamingCondition.source>
+   |                              <streamReference.source> <beforeStreamingCondition.source>                                                        <aliasAvailable?> as <alias>
+   |                              <streamReference.source> <beforeStreamingCondition.source>
+   |                              <streamReference.source>                                                         <afterStreamingCondition.source> <aliasAvailable?> as <alias>
+   |                              <streamReference.source>                                                         <afterStreamingCondition.source>
+   |                              <streamReference.source>                                                                                          <aliasAvailable?> as <alias>
+   |                              <streamReference.source>
+   ;
+
+StreamingQuery
+   : from <streamingInput.source> <joinStreamingInput.source> <selectClause.source> <orderbyClause.source> <streamingAction.source>
+   | from <streamingInput.source>                             <selectClause.source> <orderbyClause.source> <streamingAction.source>
+   | from <streamingInput.source> <joinStreamingInput.source> <selectClause.source>                        <streamingAction.source>
+   | from <streamingInput.source>                             <selectClause.source>                        <streamingAction.source>
+   | from <streamingInput.source> <joinStreamingInput.source> <selectClause.source> <orderbyClause.source>
+   | from <streamingInput.source>                             <selectClause.source> <orderbyClause.source>
+   | from <streamingInput.source> <joinStreamingInput.source> <selectClause.source>
+   | from <streamingInput.source>                             <selectClause.source>
+   ;
+
 StringTemplateLiteral
    : string\u0020` <expressions>* `
+   ;
+
+Table
+   : table <configurationExpression.source>
+   ;
+
+TableQueryExpression
+   : <tableQuery.source>
+   ;
+
+TableQuery
+   : from <streamingInput.source> <joinStreamingInput.source> <selectClauseNode.source> <orderByNode.source> <limitClause.source>
+   | from <streamingInput.source>                             <selectClauseNode.source> <orderByNode.source> <limitClause.source>
+   | from <streamingInput.source>                             <selectClauseNode.source>                      <limitClause.source>
+   | from <streamingInput.source> <joinStreamingInput.source> <selectClauseNode.source>                      <limitClause.source>
+   | from <streamingInput.source> <joinStreamingInput.source> <selectClauseNode.source> <orderByNode.source>
+   | from <streamingInput.source>                             <selectClauseNode.source> <orderByNode.source>
+   | from <streamingInput.source>                             <selectClauseNode.source>
    ;
 
 TernaryExpr
@@ -253,19 +401,19 @@ Throw
 
 Transaction
    : transaction with retries = <retryCount.source> , oncommit = <onCommitFunction.source> , onabort = <onAbortFunction.source> { <transactionBody.source> } onretry { <onRetryBody.source> }
-   : transaction with retries = <retryCount.source> , oncommit = <onCommitFunction.source> ,                                    { <transactionBody.source> } onretry { <onRetryBody.source> }
+   : transaction with retries = <retryCount.source> , oncommit = <onCommitFunction.source>                                      { <transactionBody.source> } onretry { <onRetryBody.source> }
    : transaction with                                 oncommit = <onCommitFunction.source> , onabort = <onAbortFunction.source> { <transactionBody.source> } onretry { <onRetryBody.source> }
    : transaction with retries = <retryCount.source> ,                                        onabort = <onAbortFunction.source> { <transactionBody.source> } onretry { <onRetryBody.source> }
-   : transaction with retries = <retryCount.source> ,                                                                           { <transactionBody.source> } onretry { <onRetryBody.source> }
-   : transaction with                                 oncommit = <onCommitFunction.source> ,                                    { <transactionBody.source> } onretry { <onRetryBody.source> }
+   : transaction with retries = <retryCount.source>                                                                             { <transactionBody.source> } onretry { <onRetryBody.source> }
+   : transaction with                                 oncommit = <onCommitFunction.source>                                      { <transactionBody.source> } onretry { <onRetryBody.source> }
    : transaction with                                                                        onabort = <onAbortFunction.source> { <transactionBody.source> } onretry { <onRetryBody.source> }
    : transaction                                                                                                                { <transactionBody.source> } onretry { <onRetryBody.source> }
    : transaction with retries = <retryCount.source> , oncommit = <onCommitFunction.source> , onabort = <onAbortFunction.source> { <transactionBody.source> }
-   : transaction with retries = <retryCount.source> , oncommit = <onCommitFunction.source> ,                                    { <transactionBody.source> }
+   : transaction with retries = <retryCount.source> , oncommit = <onCommitFunction.source>                                      { <transactionBody.source> }
    : transaction with retries = <retryCount.source> ,                                        onabort = <onAbortFunction.source> { <transactionBody.source> }
    : transaction with                                 oncommit = <onCommitFunction.source> , onabort = <onAbortFunction.source> { <transactionBody.source> }
-   : transaction with retries = <retryCount.source> ,                                                                           { <transactionBody.source> }
-   : transaction with                                 oncommit = <onCommitFunction.source> ,                                    { <transactionBody.source> }
+   : transaction with retries = <retryCount.source>                                                                             { <transactionBody.source> }
+   : transaction with                                 oncommit = <onCommitFunction.source>                                      { <transactionBody.source> }
    : transaction with                                                                        onabort = <onAbortFunction.source> { <transactionBody.source> }
    : transaction                                                                                                                { <transactionBody.source> }
    ;
@@ -286,8 +434,8 @@ Try
    ;
 
 TupleDestructure
-   : <declaredWithVar?> var ( <variableRefs-joined-by,>+ ) = <expression.source>;
-   |                        ( <variableRefs-joined-by,>+ ) = <expression.source>;
+   : <declaredWithVar?> var ( <variableRefs-joined-by,>+ ) = <expression.source> ;
+   |                        ( <variableRefs-joined-by,>+ ) = <expression.source> ;
    ;
 
 TupleTypeNode
@@ -303,11 +451,21 @@ TypeConversionExpr
    | < <typeNode.source> > <expression.source>
    ;
 
+TypeDefinition
+   : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> <typeNode.source> | <valueSet-joined-by|>* ;
+   | <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                     <valueSet-joined-by|>* ;
+   ;
+
+TypedescExpression
+   : <typeNode.source>
+   ;
+
 TypeofExpression
    : typeof <typeNode.source>
    ;
 
 TypeInitExpr
+   : <noExpressionAvailable?> new <hasParantheses?> (                           )
    : <noExpressionAvailable?> new
    | <noTypeAttached?>        new                   ( <expressions-joined-by,>* )
    |                          new <typeName.source> ( <expressions-joined-by,>* )
@@ -324,8 +482,10 @@ UnionTypeNode
 
 UserDefinedType
    : <anonStruct.source>
-   | <packageAlias.value> : <typeName.value>
-   | <typeName.value>
+   | <nullableOperatorAvailable?> <packageAlias.value> : <typeName.value> ?
+   | <nullableOperatorAvailable?>                        <typeName.value> ?
+   |                              <packageAlias.value> : <typeName.value>
+   |                                                     <typeName.value>
    |
    ;
 
@@ -343,7 +503,7 @@ Variable
    | <global?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                          <typeNode.source> <name.value>                               ;
    |                                                                                                                       <safeAssignment?>          <typeNode.source> <name.value> =? <initialExpression.source>
    |                                                                                                                                                  <typeNode.source> <name.value> =  <initialExpression.source>
-   |           <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                          <typeNode.source> <name.value>
+   |           <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                          <typeNode.source> <rest?...> <name.value>
    |                                                                                                                                                  <typeNode.source>
    ;
 
@@ -352,8 +512,16 @@ VariableDef
    : <variable.source> ;
    ;
 
+Where
+   : where <expression.source>
+   ;
+
 While
    : while ( <condition.source> ) { <body.source> }
+   ;
+
+WindowClause
+   : window <functionInvocation.source>
    ;
 
 Worker

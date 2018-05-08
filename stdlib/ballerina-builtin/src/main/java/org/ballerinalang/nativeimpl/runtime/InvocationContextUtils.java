@@ -39,7 +39,8 @@ public class InvocationContextUtils {
     public static final String INVOCATION_CONTEXT_PROPERTY = "InvocationContext";
     public static final String PACKAGE_RUNTIME = "ballerina.runtime";
     public static final String STRUCT_TYPE_INVOCATION_CONTEXT = "InvocationContext";
-    public static final String STRUCT_TYPE_AUTHENTICATION_CONTEXT = "AuthenticationContext";
+    public static final String STRUCT_TYPE_AUTH_CONTEXT = "AuthContext";
+    public static final String STRUCT_TYPE_USER_PRINCIPAL = "UserPrincipal";
 
     public static InvocationContext getInvocationContext(Context context) {
         InvocationContext invocationContext = (InvocationContext) context.getProperty(InvocationContextUtils
@@ -61,10 +62,13 @@ public class InvocationContextUtils {
     }
 
     private static InvocationContext initInvocationContext(Context context) {
+        BStruct userPrincipalStruct = createUserPrincipal(context);
+        UserPrincipal userPrincipal = new UserPrincipal(userPrincipalStruct);
         BStruct authContextStruct = createAuthContext(context);
-        AuthenticationContext authContext = new AuthenticationContext(authContextStruct);
-        BStruct invocationContextStruct = createInvocationContext(context, authContextStruct);
-        InvocationContext invocationContext = new InvocationContext(invocationContextStruct, authContext);
+        AuthContext authContext = new AuthContext(authContextStruct);
+        BStruct invocationContextStruct = createInvocationContext(context, userPrincipalStruct, authContextStruct);
+        InvocationContext invocationContext = new InvocationContext(
+                invocationContextStruct, userPrincipal, authContext);
         return invocationContext;
     }
 
@@ -76,22 +80,25 @@ public class InvocationContextUtils {
         return packageInfo.getStructInfo(structName);
     }
 
-    private static BStruct createInvocationContext(Context context, BStruct authContext) {
+    private static BStruct createInvocationContext(Context context, BStruct userPrincipal, BStruct authContext) {
         StructInfo invocationContextInfo = getStructInfo(context, PACKAGE_RUNTIME, STRUCT_TYPE_INVOCATION_CONTEXT);
         UUID invocationId = UUID.randomUUID();
-        return BLangVMStructs.createBStruct(invocationContextInfo, invocationId.toString(), authContext);
+        return BLangVMStructs.createBStruct(invocationContextInfo, invocationId.toString(), userPrincipal, authContext);
     }
 
     private static BStruct createAuthContext(Context context) {
-        StructInfo authContextInfo = getStructInfo(context, PACKAGE_RUNTIME, STRUCT_TYPE_AUTHENTICATION_CONTEXT);
+        StructInfo authContextInfo = getStructInfo(context, PACKAGE_RUNTIME, STRUCT_TYPE_AUTH_CONTEXT);
+        String scheme = "";
+        String authToken = "";
+        return BLangVMStructs.createBStruct(authContextInfo, scheme, authToken);
+    }
+
+    private static BStruct createUserPrincipal(Context context) {
+        StructInfo authContextInfo = getStructInfo(context, PACKAGE_RUNTIME, STRUCT_TYPE_USER_PRINCIPAL);
         String userId = "";
         String username = "";
-        BStringArray groups = new BStringArray();
         BMap<String, BString> claims = new BMap<>();
         BStringArray scopes = new BStringArray();
-        String authType = "";
-        String authToken = "";
-        return BLangVMStructs.createBStruct(authContextInfo, userId, username,
-                groups, claims, scopes, authType, authToken);
+        return BLangVMStructs.createBStruct(authContextInfo, userId, username, claims, scopes);
     }
 }

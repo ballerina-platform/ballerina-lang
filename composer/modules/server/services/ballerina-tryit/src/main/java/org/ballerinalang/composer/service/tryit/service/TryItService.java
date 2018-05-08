@@ -16,7 +16,9 @@
 
 package org.ballerinalang.composer.service.tryit.service;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.composer.server.core.ServerConfig;
 import org.ballerinalang.composer.server.core.ServerConstants;
@@ -27,6 +29,7 @@ import org.ballerinalang.composer.service.ballerina.launcher.service.LaunchManag
 import org.ballerinalang.composer.service.tryit.Constants;
 import org.wso2.msf4j.Request;
 
+import java.util.Set;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.OPTIONS;
@@ -70,8 +73,8 @@ public class TryItService implements ComposerService {
     public Response tryIt(@Context Request request, @PathParam("protocol") String protocol, String clientArgs) {
         try {
             String hostName = getHostName(request);
-            String hostAndPort = "".equals(LaunchManager.getInstance(serverConfig).getPort()) ? hostName :
-                    hostName + ":" + LaunchManager.getInstance(serverConfig).getPort();
+            String hostAndPort = new JsonParser().parse(clientArgs)
+                    .getAsJsonObject().get(TryItConstants.BASE_URL).getAsString();
             TryItClient tryItClient = tryItClientFactory.getClient(protocol, hostAndPort, clientArgs);
             String responseContent = tryItClient.execute();
             
@@ -104,10 +107,15 @@ public class TryItService implements ComposerService {
     public Response getUrl(@Context Request request) {
         try {
             String hostName = getHostName(request);
-            String hostAndPort = "".equals(LaunchManager.getInstance(serverConfig).getPort()) ? hostName :
-                                 hostName + ":" + LaunchManager.getInstance(serverConfig).getPort();
+            Set<String> ports = LaunchManager.getInstance(serverConfig).getPorts();
             JsonObject response = new JsonObject();
-            response.addProperty("url", hostAndPort);
+            JsonArray urls = new JsonArray();
+
+            ports.forEach(port -> {
+                urls.add(hostName + ':' + port);
+            });
+
+            response.add("urls", urls);
         
             return Response
                     .status(Response.Status.OK)

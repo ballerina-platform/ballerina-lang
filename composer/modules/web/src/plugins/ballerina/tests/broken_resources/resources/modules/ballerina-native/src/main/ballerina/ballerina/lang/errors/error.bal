@@ -1,4 +1,3 @@
-package ballerina.lang.errors;
 
 import ballerina/doc;
 

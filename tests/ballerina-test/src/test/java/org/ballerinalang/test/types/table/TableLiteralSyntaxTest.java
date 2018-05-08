@@ -35,7 +35,7 @@ public class TableLiteralSyntaxTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/types/table/table-literal-syntax.bal");
+        result = BCompileUtil.compile("test-src/types/table/table_literal_syntax.bal");
     }
 
     @Test
@@ -80,9 +80,9 @@ public class TableLiteralSyntaxTest {
         BRunUtil.invoke(result, "testTableAddOnConstrainedTableWithViolation");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*Unique index or primary key violation:.*")
+    @Test
     public void testTableAddOnConstrainedTableWithViolation2() {
-        BRunUtil.invoke(result, "testTableAddOnConstrainedTableWithViolation2");
+        BValue[] returns = BRunUtil.invoke(result, "testTableAddOnConstrainedTableWithViolation2");
+        Assert.assertTrue((returns[0]).stringValue().contains("Unique index or primary key violation:"));
     }
 }

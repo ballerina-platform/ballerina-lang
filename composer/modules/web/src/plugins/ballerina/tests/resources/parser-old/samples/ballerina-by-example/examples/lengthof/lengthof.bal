@@ -1,6 +1,6 @@
 import ballerina/lang.system;
 
-function main (string[] args) {
+function main (string... args) {
     //Here you create integer array with with several integer elements.
     int[] intArray = [1, 2, 3];
 

@@ -108,3 +108,13 @@ function testUnreachableThrow (int value) returns (string) {
     }
     return "done";
 }
+
+function testRedeclareFunctionArgument (int value) returns (string) {
+    int value = 11;
+    if (value > 10) {
+        testError tError = {message:"error", code:"test"};
+        return "unreachable throw";
+        throw tError;
+    }
+    return "done";
+}

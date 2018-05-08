@@ -2,13 +2,16 @@ package org.wso2.ballerinalang.compiler.packaging.converters;
 
 import com.sun.nio.zipfs.ZipFileSystem;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.repository.PackageSourceEntry;
+import org.ballerinalang.repository.CompilerInput;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Comparator;
 import java.util.stream.Stream;
 
 /**
@@ -22,7 +25,7 @@ public class PathConverter implements Converter<Path> {
         this.root = root;
     }
 
-    private static boolean isBal(Path path, BasicFileAttributes attributes) {
+    private static boolean isBalWithTest(Path path, BasicFileAttributes attributes) {
         Path fileName = path.getFileName();
         return attributes.isRegularFile() && fileName != null && fileName.toString().endsWith(".bal");
     }
@@ -33,10 +36,27 @@ public class PathConverter implements Converter<Path> {
     }
 
     @Override
-    public Stream<Path> expand(Path path) {
+    public Stream<Path> latest(Path path) {
         if (Files.isDirectory(path)) {
             try {
-                return Files.list(path);
+                return Files.list(path)
+                            .map(SortablePath::new)
+                            .filter(SortablePath::valid)
+                            .sorted(Comparator.reverseOrder())
+                            .limit(1)
+                            .map(SortablePath::getPath);
+
+            } catch (IOException ignore) {
+            }
+        }
+        return Stream.of();
+    }
+
+    @Override
+    public Stream<Path> expandBalWithTest(Path path) {
+        if (Files.isDirectory(path)) {
+            try {
+                return Files.find(path, Integer.MAX_VALUE, PathConverter::isBalWithTest).sorted();
             } catch (IOException ignore) {
             }
         }
@@ -47,7 +67,9 @@ public class PathConverter implements Converter<Path> {
     public Stream<Path> expandBal(Path path) {
         if (Files.isDirectory(path)) {
             try {
-                return Files.find(path, Integer.MAX_VALUE, PathConverter::isBal);
+                FilterSearch filterSearch = new FilterSearch(Paths.get(ProjectDirConstants.TEST_DIR_NAME));
+                Files.walkFileTree(path, filterSearch);
+                return filterSearch.getPathList().stream().sorted();
             } catch (IOException ignore) {
             }
         }
@@ -60,9 +82,9 @@ public class PathConverter implements Converter<Path> {
     }
 
     @Override
-    public Stream<PackageSourceEntry> finalize(Path path, PackageID id) {
+    public Stream<CompilerInput> finalize(Path path, PackageID id) {
         if (Files.isRegularFile(path)) {
-            return Stream.of(new FileSystemSourceEntry(path, id));
+            return Stream.of(new FileSystemSourceInput(path));
         } else {
             return Stream.of();
         }

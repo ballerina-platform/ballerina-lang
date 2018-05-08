@@ -28,6 +28,7 @@ public class TryItConstants {
     public static final String JMS_PROTOCOL = "jms";
     public static final String WS_PROTOCOL = "ws";
     public static final String FILE_PROTOCOL = "file";
+    public static final String BASE_URL = "baseUrl";
     
     // Constants for HTTP Client.
     public static final String HTTP_METHOD = "httpMethod";

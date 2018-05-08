@@ -1,4 +1,3 @@
-package ballerina.lang.blobs;
 
 import ballerina/doc;
 

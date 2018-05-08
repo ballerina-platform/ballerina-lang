@@ -3,12 +3,12 @@ import ballerina/io;
 
 // Create a queue sender
 endpoint jms:SimpleQueueSender queueSender {
-    initialContextFactory: "wso2mbInitialContextFactory",
+    initialContextFactory: "bmbInitialContextFactory",
     providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5772'",
     queueName: "testMbSimpleQueueReceiverProducer"
 };
 
-public function main (string[] args) {
+function main (string... args) {
     // Create a Text message.
     jms:Message m = check queueSender.createTextMessage("Test Text");
     // Send the Ballerina message to the JMS provider.

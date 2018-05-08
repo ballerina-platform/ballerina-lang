@@ -1,4 +1,3 @@
-package passthroughservice.samples;
 
 import ballerina/lang.messages;
 import ballerina/http;

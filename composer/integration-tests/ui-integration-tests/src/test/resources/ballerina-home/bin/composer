@@ -176,10 +176,7 @@ status=$START_EXIT_STATUS
 # Setting Classpath
 
 COMPOSER_CLASSPATH="$BAL_COMPOSER_HOME/resources/composer/services/*"
-for j in "$BAL_COMPOSER_HOME"/bre/lib/*.jar
-do
-    COMPOSER_CLASSPATH="$COMPOSER_CLASSPATH":$j
-done
+COMPOSER_CLASSPATH="$COMPOSER_CLASSPATH:$BAL_COMPOSER_HOME/bre/lib/*"
 
 #To monitor a Carbon server in remote JMX mode on linux host machines, set the below system property.
 #   -Djava.rmi.server.hostname="your.IP.goes.here"

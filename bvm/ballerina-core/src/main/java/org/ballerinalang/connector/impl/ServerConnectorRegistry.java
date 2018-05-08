@@ -18,11 +18,7 @@
 package org.ballerinalang.connector.impl;
 
 import org.ballerinalang.connector.api.BallerinaServerConnector;
-import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -66,20 +62,6 @@ public class ServerConnectorRegistry {
     }
 
     /**
-     * This method is used to register service to relevant server connector implementation.
-     *
-     * @param serviceInfo to be registered.
-     */
-    public void registerService(ServiceInfo serviceInfo) {
-        if (!serverConnectorMap.containsKey(serviceInfo.getEndpointName())) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_SERVICE_PROTOCOL,
-                    serviceInfo.getEndpointName());
-        }
-        Service service = buildService(serviceInfo);
-        serverConnectorMap.get(serviceInfo.getEndpointName()).serviceRegistered(service);
-    }
-
-    /**
      * This method is used to get {@code BallerinaServerConnector} instance for the given protocol package.
      *
      * @param protocolPkgPath of the server connector.
@@ -88,10 +70,5 @@ public class ServerConnectorRegistry {
     public BallerinaServerConnector getBallerinaServerConnector(String protocolPkgPath) {
         return serverConnectorMap.get(protocolPkgPath);
     }
-
-    private Service buildService(ServiceInfo serviceInfo) {
-        return null;
-    }
-
 
 }

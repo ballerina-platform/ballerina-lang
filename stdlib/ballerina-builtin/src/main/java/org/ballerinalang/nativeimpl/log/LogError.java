@@ -21,27 +21,29 @@ package org.ballerinalang.nativeimpl.log;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
  * Native function ballerina.log:printError.
  *
- * @since 0.89
+ * @since 0.95.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "log",
         functionName = "printError",
-        args = {@Argument(name = "msg", type = TypeKind.STRING)},
+        args = {@Argument(name = "msg", type = TypeKind.STRING), @Argument(name = "err", type = TypeKind.STRUCT)},
         isPublic = true
 )
 public class LogError extends AbstractLogFunction {
 
     public void execute(Context ctx) {
         String pkg = getPackagePath(ctx);
-
         if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.ERROR.value()) {
-            getLogger(pkg).error(getLogMessage(ctx, 0));
+            String msg = getLogMessage(ctx, 0);
+            BStruct err = (BStruct) ctx.getNullableRefArgument(0);
+            getLogger(pkg).error(msg + (err == null ? "" : " : " + err.stringValue()));
         }
         ctx.setReturnValues();
     }

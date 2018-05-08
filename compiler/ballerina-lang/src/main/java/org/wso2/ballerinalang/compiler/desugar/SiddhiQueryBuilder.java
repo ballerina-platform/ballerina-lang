@@ -85,7 +85,7 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
     private List<BLangExpression> outStreamRefs;
     private List<BLangExpression> outTableRefs;
 
-    private boolean isInPatternForClause = false;
+    private boolean isInPatternForOrWithinClause = false;
     private boolean isSequence = false;
 
     public static SiddhiQueryBuilder getInstance(CompilerContext context) {
@@ -304,6 +304,13 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
     }
 
     @Override
+    public void visit(BLangWithinClause withinClause) {
+        patternStreamingClause.append(" within ");
+        isInPatternForOrWithinClause = true;
+        addExprToClause((BLangExpression) withinClause.getWithinTimePeriod(), patternStreamingClause, null);
+    }
+
+    @Override
     public void visit(BLangSelectClause select) {
         super.visit(select);
         if (select.getGroupBy() != null) {
@@ -413,11 +420,11 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
     public void visit(BLangLiteral bLangLiteral) {
         String literal = String.valueOf(bLangLiteral.value);
         if (bLangLiteral.typeTag == TypeTags.STRING) {
-            if (!isInPatternForClause) {
+            if (!isInPatternForOrWithinClause) {
                 literal = String.format("'%s'", literal);
             } else {
                 literal = String.format("%s", literal);
-                isInPatternForClause = false;
+                isInPatternForOrWithinClause = false;
             }
         }
         exprStack.push(literal);
@@ -430,7 +437,7 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
                 patternStreamingEdgeInputs.get(0);
         patternStreamingEdgeInput.accept(this);
         patternStreamingClause.append(" for ");
-        isInPatternForClause = true;
+        isInPatternForOrWithinClause = true;
         addExprToClause((BLangExpression) patternStreamingInput.getTimeExpr(), patternStreamingClause, null);
     }
 

@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.util.HashSet;
 import javax.websocket.Session;
 
 /**
@@ -53,7 +54,7 @@ public class LaunchManager {
 
     private Command command;
 
-    private String port = StringUtils.EMPTY;
+    private HashSet<String> ports = new HashSet<String>();
 
     /**
      * Instantiates a new Debug manager.
@@ -165,7 +166,8 @@ public class LaunchManager {
                         && getServerStartedURL() == null) {
                     this.updatePort(line);
                     line = LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_LOCAL + " " +
-                            String.format(LauncherConstants.LOCAL_TRY_IT_URL, LauncherConstants.LOCALHOST, this.port);
+                            String.format(LauncherConstants.LOCAL_TRY_IT_URL,
+                                    LauncherConstants.LOCALHOST, getPort(line));
                     pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.DATA, line);
                 } else {
                     pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.DATA, line);
@@ -324,20 +326,25 @@ public class LaunchManager {
      * @param line The log line.
      */
     private void updatePort(String line) {
-        String hostPort = StringUtils.substringAfterLast(line,
-                LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_LOCAL).trim();
-        String port = StringUtils.substringAfterLast(hostPort, ":");
+        String port = this.getPort(line);
         if (StringUtils.isNotBlank(port)) {
-            this.port = port;
+            this.ports.add(port);
         }
     }
 
+    private String getPort(String line) {
+        String hostPort = StringUtils.substringAfterLast(line,
+                LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_LOCAL).trim();
+        String port = StringUtils.substringAfterLast(hostPort, ":");
+        return port;
+    }
+
     /**
-     * Getter for running port.
+     * Getter for running ports.
      *
-     * @return The port.
+     * @return ports.
      */
-    public String getPort() {
-        return this.port;
+    public HashSet<String> getPorts() {
+        return this.ports;
     }
 }

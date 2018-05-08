@@ -85,6 +85,7 @@ public class OpenTracerBallerinaWrapper {
     /**
      * Method to inject the span context of a span into a map carrier.
      *
+     * @param suffix trace header suffix to distinguish between OOTB headers and user defined headers.
      * @param spanId the span Id of the span to be injected
      * @return the map carrier holding the span context
      */
@@ -245,6 +246,7 @@ public class OpenTracerBallerinaWrapper {
      *
      * @param spanId     the id of the span
      * @param baggageKey the key of the baggage item. null of no baggage key or tracing disabled
+     * @return baggage item value
      */
     public String getBaggageItem(String spanId, String baggageKey) {
         String baggageValue = null;

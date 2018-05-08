@@ -48,6 +48,7 @@ public class BLangObject extends BLangNode implements ObjectNode {
     public List<BLangDocumentation> docAttachments;
     public List<BLangDeprecatedNode> deprecatedAttachments;
     public boolean isAnonymous;
+    public boolean isFieldAnalyseRequired;
 
     public BSymbol symbol;
 
@@ -83,6 +84,11 @@ public class BLangObject extends BLangNode implements ObjectNode {
     @Override
     public void addFunction(FunctionNode function) {
         this.functions.add((BLangFunction) function);
+    }
+
+    @Override
+    public FunctionNode getInitFunction() {
+        return initFunction;
     }
 
     @Override

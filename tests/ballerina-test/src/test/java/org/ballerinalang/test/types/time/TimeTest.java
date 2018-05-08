@@ -238,7 +238,7 @@ public class TimeTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*invalid pattern for formatting test.*")
+          expectedExceptionsMessageRegExp = ".*invalid pattern for formatting: test.*")
     public void testFormatTimeInvalidPattern() {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "testFormatTimeInvalidPattern", args);

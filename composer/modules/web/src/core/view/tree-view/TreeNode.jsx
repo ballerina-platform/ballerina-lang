@@ -123,7 +123,8 @@ class TreeNode extends React.Component {
         });
         const { parent, id, type } = this.props.node;
         let derrivedName = inputValue;
-        if (type === NODE_TYPES.FILE && !_.endsWith(derrivedName, EXT)) {
+        // FIXME: Remove redundant logic for adding bal extension implicitly
+        if (type === NODE_TYPES.FILE && derrivedName.indexOf('.') === -1 && !_.endsWith(derrivedName, EXT)) {
             derrivedName += EXT;
         }
         const newFullPath = parent + getPathSeperator() + derrivedName;
@@ -177,7 +178,10 @@ class TreeNode extends React.Component {
     onEditComplete() {
         const { node, node: { id, editType, parent, type }, onNodeDelete } = this.props;
         let newFullPath = parent + getPathSeperator() + this.state.inputValue;
-        if (type === NODE_TYPES.FILE && !_.endsWith(newFullPath, EXT)) {
+        // Disable adding bal ext automatically to newly created files from explorer
+        // if an ext is already given. TODO: Fix this properly by adding a submenu to new-file menu
+        // to display all possible file types
+        if (type === NODE_TYPES.FILE && newFullPath.indexOf('.') === -1 && !_.endsWith(newFullPath, EXT)) {
             newFullPath += EXT;
         }
         if (_.isEmpty(this.state.inputValue) && editType === EDIT_TYPES.NEW) {

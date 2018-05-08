@@ -18,8 +18,8 @@ service<http:Service> echo bind listener {
             scopes:["scope2"]
         }
     }
-    echo (endpoint client, http:Request req) {
+    echo (endpoint caller, http:Request req) {
         http:Response res = new;
-        _ = client -> respond(res);
+        _ = caller -> respond(res);
     }
 }

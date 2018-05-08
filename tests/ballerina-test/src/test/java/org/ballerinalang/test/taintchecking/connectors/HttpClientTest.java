@@ -39,8 +39,8 @@ public class HttpClientTest {
     public void testHttpClientNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/connectors/httpclient-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length == 3);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'headerName'", 15, 19);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'path'", 17, 42);
-        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'secureIn'", 23, 37);
+        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'headerName'", 13, 19);
+        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'path'", 15, 42);
+        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'secureIn'", 21, 37);
     }
 }

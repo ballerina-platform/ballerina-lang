@@ -1,5 +1,5 @@
 import ballerina/io;
-import ballerina/util;
+import ballerina/internal;
 
 function remove () returns (json) {
     json j = {"name":{"fname":"Jack", "lname":"Taylor"}, "state":"CA", "age":20};
@@ -12,7 +12,7 @@ function toString (json msg) returns (string?) {
 }
 
 function testParse (string jsonStr) returns (json | error) {
-    return util:parseJson(jsonStr);
+    return internal:parseJson(jsonStr);
 }
 
 function testGetKeys () returns (string[]?, string[]?, string[]?, string[]?) {
@@ -42,7 +42,7 @@ function testToXMLString (json msg) returns (string) {
     string retVal;
     match(x){
         error|() e => {}
-        xml xmlData => retVal = io:sprintf("%s", [xmlData]);
+        xml xmlData => retVal = io:sprintf("%s", xmlData);
     }
     return retVal;
 }
@@ -52,7 +52,7 @@ function testToXMLWithXMLSequence (json msg) returns (string) {
     string retVal;
     match(x){
         error|() e => {}
-        xml xmlData => retVal = io:sprintf("%s", [xmlData]);
+        xml xmlData => retVal = io:sprintf("%s", xmlData);
     }
     return retVal;
 }
@@ -63,7 +63,7 @@ function testToXMLWithOptions (json msg) returns (xml | error?) {
 
 function testStringToJSONConversion() returns (json | error) {
     string s = "{\"foo\": \"bar\"}";
-    return util:parseJson(s);
+    return internal:parseJson(s);
 }
 
 function testJSONArrayToJsonAssignment() returns (json) {

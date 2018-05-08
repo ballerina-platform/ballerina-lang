@@ -54,7 +54,12 @@ public class IOConstants {
     public static final String IO_PACKAGE = "ballerina.io";
 
     /**
+     * Specifies the io package information.
+     */
+    public static final String BALLERINA_BUILTIN = "ballerina.builtin";
+
+    /**
      * Struct which represents io error.
      */
-    public static final String IO_ERROR_STRUCT = "IOError";
+    public static final String IO_ERROR_STRUCT = "error";
 }

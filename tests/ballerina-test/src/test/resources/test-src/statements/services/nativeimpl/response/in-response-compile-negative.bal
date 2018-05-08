@@ -36,7 +36,7 @@ function testSetJsonPayload (http:Response res, json value) returns (http:Respon
 }
 
 function testSetStringPayload (http:Response res, string value) returns (http:Response) {
-    res.setStringPayload(value);
+    res.setTextPayload(value);
     return res;
 }
 

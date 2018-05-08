@@ -53,6 +53,7 @@ public class StartServices extends BlockingNativeCallableUnit {
     public void execute(Context ctx) {
         String packageName = ctx.getStringArgument(0);
 
+        packageName = Utils.getFullPackageName(packageName);
         for (ProgramFile programFile : TesterinaRegistry.getInstance().getProgramFiles()) {
             // Get the service package
             PackageInfo servicesPackage = programFile.getEntryPackage();

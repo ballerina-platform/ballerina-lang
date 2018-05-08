@@ -1,4 +1,4 @@
-function main (string[] args) {
+function main (string... args) {
     Con c = create Con();
     c.test(<caret>)
 }

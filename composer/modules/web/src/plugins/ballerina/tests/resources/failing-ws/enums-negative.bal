@@ -36,7 +36,7 @@ enum state {
     bar
 }
 
-function main(string[] arg) {
+function main(string... arg) {
     state x = state;
     print(x);
 }

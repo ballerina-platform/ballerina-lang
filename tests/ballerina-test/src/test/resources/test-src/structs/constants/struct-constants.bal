@@ -1,8 +1,7 @@
-package constants;
 
 @final Person p = 10;
 
-function main (string[] i) {
+function main (string... i) {
     return;
 }
 

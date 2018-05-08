@@ -31,7 +31,7 @@ import javax.naming.Context;
  */
 public class Constants {
     // Common fields
-    public static final String B_OBJECT_FIELD_CONNECTOR = "connector";
+    public static final String B_OBJECT_FIELD_PRODUCER_ACTIONS = "producerActions";
     public static final String B_OBJECT_FIELD_CONFIG = "config";
 
     // Connection fields
@@ -43,20 +43,19 @@ public class Constants {
     // Queue Sender fields
     public static final String QUEUE_SENDER_FIELD_CONFIG = B_OBJECT_FIELD_CONFIG;
     public static final String QUEUE_SENDER_FIELD_QUEUE_NAME = "queueName";
-    public static final String QUEUE_SENDER_FIELD_CONNECTOR = B_OBJECT_FIELD_CONNECTOR;
+    public static final String QUEUE_SENDER_FIELD_PRODUCER_ACTIONS = B_OBJECT_FIELD_PRODUCER_ACTIONS;
 
     // Topic publisher fields
     public static final String TOPIC_PUBLISHER_FIELD_CONFIG = B_OBJECT_FIELD_CONFIG;
     public static final String TOPIC_PUBLISHER_FIELD_TOPIC_PATTERN = "topicPattern";
-    public static final String TOPIC_PUBLISHER_FIELD_CONNECTOR = B_OBJECT_FIELD_CONNECTOR;
+    public static final String TOPIC_PUBLISHER_FIELD_PRODUCER_ACTIONS = B_OBJECT_FIELD_PRODUCER_ACTIONS;
 
     // Consumer fields
     public static final String CONSUMER_CONFIG = "config";
     public static final String QUEUE_NAME = "queueName";
     public static final String TOPIC_PATTERN = "topicPattern";
     public static final String CONSUMER_IDENTIFIER = "identifier";
-    public static final String CONSUMER_CONNECTOR = "connector";
-    public static final String QUEUE_CONSUMER_ENDPOINT = "QueueConsumer";
+    public static final String CONSUMER_ACTIONS = "consumerActions";
 
     // Native objects
     public static final String JMS_CONNECTION = "jms_connection_object";
@@ -100,10 +99,10 @@ public class Constants {
      * Alias for MB initial context factory name.
      */
     public static final String MB_ICF_ALIAS = "wso2mbInitialContextFactory";
+    public static final String BMB_ICF_ALIAS = "bmbInitialContextFactory";
 
     public static final String MB_ICF_NAME = "org.wso2.andes.jndi.PropertiesFileInitialContextFactory";
     public static final String MB_CF_NAME_PREFIX = "connectionfactory.";
-    public static final String ERROR_STRUCT = "Error";
 
     private static Map<String, String> mappingParameters;
 
@@ -113,14 +112,13 @@ public class Constants {
     public static final String PARAM_ACK_MODE = "transport.jms.SessionAcknowledgement";
     public static final String PARAM_DURABLE_SUB_ID = "transport.jms.DurableSubscriberName";
     public static final String PARAM_CLIENT_ID = "transport.jms.DurableSubscriberClientId";
-    public static final String PARAM_PROVIDER_URL = "java.naming.provider.url";
 
     static {
         mappingParameters = new HashMap<>();
         mappingParameters.put(ALIAS_INITIAL_CONTEXT_FACTORY, Context.INITIAL_CONTEXT_FACTORY);
         mappingParameters.put(ALIAS_CONNECTION_FACTORY_NAME, PARAM_CONNECTION_FACTORY_JNDI_NAME);
         mappingParameters.put(ALIAS_DESTINATION_TYPE, PARAM_CONNECTION_FACTORY_TYPE);
-        mappingParameters.put(ALIAS_PROVIDER_URL, PARAM_PROVIDER_URL);
+        mappingParameters.put(ALIAS_PROVIDER_URL, Context.PROVIDER_URL);
         mappingParameters.put(ALIAS_DESTINATION, PARAM_DESTINATION_NAME);
         mappingParameters.put(ALIAS_ACK_MODE, PARAM_ACK_MODE);
         mappingParameters.put(ALIAS_CLIENT_ID, PARAM_CLIENT_ID);

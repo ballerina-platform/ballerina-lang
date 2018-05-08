@@ -35,5 +35,7 @@ public interface ObjectNode extends AnnotatableNode, DocumentableNode, TopLevelN
     List<? extends FunctionNode> getFunctions();
 
     void addFunction(FunctionNode function);
-    
+
+    FunctionNode getInitFunction();
+
 }

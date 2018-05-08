@@ -41,9 +41,9 @@ public class SQLXATransactionsTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/connectors/sql/transaction/sql-xa-transactions.bal");
+        result = BCompileUtil.compile("test-src/connectors/sql/transaction/sql_xa_transaction_test.bal");
         resultMirror = BCompileUtil
-                .compile("test-src/connectors/sql/transaction/mirror-table-xa-transaction-test.bal");
+                .compile("test-src/connectors/sql/transaction/mirror_table_xa_transaction_test.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY_H2_1), DB_NAME1);
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY_H2_2), DB_NAME2);
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY_H2_1, DB_NAME1, "datafiles/sql/SQLH2CustomerTableCreate.sql");

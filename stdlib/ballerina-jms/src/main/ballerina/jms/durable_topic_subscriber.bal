@@ -1,14 +1,36 @@
-package ballerina.jms;
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
 
 import ballerina/log;
 
+documentation { Durable Topic Subscriber
+    E{{}}
+    F{{consumerActions}} Object that handles network operations related to the subscriber
+    F{{config}} Configurations related to the subscriber
+}
 public type DurableTopicSubscriber object {
 
     public {
-        DurableTopicSubscriberConnector connector;
+        DurableTopicSubscriberActions consumerActions;
         DurableTopicSubscriberEndpointConfiguration config;
     }
 
+    documentation { Initialize durable topic subscriber endpoint
+        P{{config}} Configurations for a durable topic subscriber
+    }
     public function init(DurableTopicSubscriberEndpointConfiguration config) {
         self.config = config;
         match (config.session) {
@@ -20,38 +42,63 @@ public type DurableTopicSubscriber object {
         }
     }
 
-    public function register (typedesc serviceType) {
-        self.registerListener(serviceType, connector);
+    documentation { Binds the durable topic subscriber endpoint to a service
+        P{{serviceType}} Type descriptor of the service
+    }
+    public function register(typedesc serviceType) {
+        self.registerListener(serviceType, consumerActions);
     }
 
-    native function registerListener(typedesc serviceType, DurableTopicSubscriberConnector connector);
+    native function registerListener(typedesc serviceType, DurableTopicSubscriberActions consumerActions);
 
-    native function createSubscriber (Session session, string messageSelector);
+    native function createSubscriber(Session session, string messageSelector);
 
-    public function start () {
+    documentation { Starts the endpoint. Function is ignored by the subscriber endpoint
+    }
+    public function start() {
     }
 
-    public function getClient () returns (DurableTopicSubscriberConnector) {
-        return connector;
+    documentation { Return the subscrber caller actions
+        R{{}} subscriber actions
+    }
+    public function getCallerActions() returns DurableTopicSubscriberActions {
+        return consumerActions;
     }
 
-    public function stop () {
-        self.closeSubscriber(connector);
+    documentation { Ends consuming messages from the durable topic subscriber endpoint
+    }
+    public function stop() {
+        self.closeSubscriber(consumerActions);
     }
 
-    native function closeSubscriber(DurableTopicSubscriberConnector connector);
+    native function closeSubscriber(DurableTopicSubscriberActions consumerActions);
 };
 
+documentation { Configurations related to the durable topic subscriber endpoint
+    F{{session}} JMS session object
+    F{{topicPattern}} Name or the pattern of the topic subscription
+    F{{messageSelector}} JMS selector statement
+    F{{identifier}} unique identifier for the subscription
+}
 public type DurableTopicSubscriberEndpointConfiguration {
     Session? session;
     string topicPattern;
     string messageSelector;
     string identifier;
-
 };
 
-public type DurableTopicSubscriberConnector object {
-    public native function acknowledge (Message message) returns (Error | ());
+documentation { Caller actions related to durable topic subscriber endpoint
+}
+public type DurableTopicSubscriberActions object {
 
-    public native function receive (int timeoutInMilliSeconds = 0) returns (Message | Error | ());
+    documentation { Acknowledges a received message
+        P{{message}} JMS message to be acknowledged
+    }
+    public native function acknowledge(Message message) returns error?;
+
+    documentation { Synchronously receive a message from the JMS provider
+        P{{timeoutInMilliSeconds}} time to wait until a message is received
+        R{{}} Returns a message or nill if the timeout exceededs. Returns an error on jms provider internal error.
+    }
+    public native function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
 };

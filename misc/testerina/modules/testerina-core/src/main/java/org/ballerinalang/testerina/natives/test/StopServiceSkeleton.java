@@ -17,22 +17,18 @@
 */
 package org.ballerinalang.testerina.natives.test;
 
-import org.apache.commons.io.FileUtils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.testerina.core.TesterinaConstants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
+import org.ballerinalang.testerina.util.Utils;
 import org.ballerinalang.util.program.BLangFunctions;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
     /**
@@ -55,35 +51,12 @@ public class StopServiceSkeleton extends BlockingNativeCallableUnit {
 
         TesterinaRegistry.getInstance().getSkeletonProgramFiles().forEach(skeletonProgramFile -> {
             if (skeletonProgramFile.getEntryPkgName().equals(packageName)) {
-                Path sourceRoot = skeletonProgramFile.getProgramFilePath();
-                Path projectRoot = Paths.get(sourceRoot.toString(), ".ballerina");
-                Path projectDir = Paths.get(sourceRoot.toString(), packageName);
-
                 // stop the service
                 BLangFunctions.invokeVMUtilFunction(skeletonProgramFile.getEntryPackage().getStopFunctionInfo());
-
-                try {
-                    // cleanup .ballerina folder
-                     File file = projectRoot.toFile();
-                     String[] fileList = file.list() != null ? file.list() : new String[]{};
-                    if ((fileList != null) && (fileList.length == 0)) {
-                        // delete iff empty
-                        Files.delete(projectRoot);
-                    }
-                } catch (IOException e) {
-                    throw new BallerinaIOException(String.format("Service skeleton cleanup failed. Failed to " +
-                            "delete [.ballerina] %s [cause] %s", projectRoot.toString(), e.getMessage()), e);
-                }
-
-                try {
-                    // cleanup service skeleton package
-                    FileUtils.deleteDirectory(projectDir.toFile());
-                } catch (IOException e) {
-                    throw new BallerinaIOException(String.format("Service skeleton cleanup failed. Failed to " +
-                            "delete [package] %s [cause] %s", projectDir.toString(), e.getMessage()), e);
-                }
+                // Clean up the package DIR
+                Utils.cleanUpDir(Paths.get(System.getProperty(TesterinaConstants.BALLERINA_SOURCE_ROOT),
+                    TesterinaConstants.TESTERINA_TEMP_DIR, packageName));
             }
         });
     }
-
 }

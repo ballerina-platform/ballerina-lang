@@ -1,0 +1,43 @@
+<!-- This is not a styled html. This html lists the ToC of a package.-->
+    <ul class="">
+        <li>
+            <!--Package Name-->
+            {{#if heading.isPackageName}}
+                <a class="cPackageList">{{heading.prefix}}<span class="bold">{{heading.suffix}}</a>
+            {{/if}} {{#if heading.isStaticCaption}}
+                <a>
+                    <span class="bold">{{heading.value}}</span>
+                </a>
+            {{/if}}
+                <div class="constructs-wrapper">
+                    <!--Construct of Package-->
+                    <ul class="constructs-ul">
+                        {{#each constructs}}
+                            <li>
+                                <a href="#{{name}}">
+                                    <div class="construct-icon">
+                                        <span class="{{icon}}"> </span>
+                                    </div>
+                                    <div class="construct-name">
+                                        {{name}}
+                                    </div>
+                                </a>
+                            </li>
+                            {{#each children}}
+                                <ul class="construct-inner-items-ul">
+                                    <li>
+                                        <a href="#{{../name}}-{{name}}">
+                                            <div class="construct-icon">
+                                                <span class="{{icon}}"> </span>
+                                            </div>
+                                            <div class="construct-name">
+                                                {{name}}
+                                            </div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            {{/each}} {{/each}}
+                    </ul>
+                </div>
+        </li>
+    </ul>

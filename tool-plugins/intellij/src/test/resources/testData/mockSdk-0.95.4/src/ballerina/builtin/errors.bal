@@ -1,4 +1,3 @@
-package ballerina.builtin;
 
 public struct NullReferenceException {
     string msg;

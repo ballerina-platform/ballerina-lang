@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langserver.symbols;
 
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -39,7 +39,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
@@ -182,10 +181,6 @@ public class SymbolFindingVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangImportPackage importNode) {
-        // ignore
-    }
-
-    public void visit(BLangPackageDeclaration packageDecNode) {
         // ignore
     }
 

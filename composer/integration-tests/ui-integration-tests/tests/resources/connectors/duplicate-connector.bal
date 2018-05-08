@@ -1,4 +1,3 @@
-package samples.connectors.test;
 
 connector TestConnector(string param1) {
 

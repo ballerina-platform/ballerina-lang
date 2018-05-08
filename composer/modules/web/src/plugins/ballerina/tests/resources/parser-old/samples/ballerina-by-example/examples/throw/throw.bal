@@ -35,7 +35,7 @@ function toUpperCase (string value) (string) {
 }
 
 
-function main (string[] args) {
+function main (string... args) {
     XManagementConnector conn = create XManagementConnector();
     conn.addRecord("tom", 100);
     conn.delete("tom");

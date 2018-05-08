@@ -31,7 +31,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.handler.ssl.SslContext;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.net.grpc.config.EndpointConfiguration;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.interceptor.ServerHeaderInterceptor;
 import org.ballerinalang.net.grpc.listener.BidirectionalStreamingListener;
@@ -40,12 +39,13 @@ import org.ballerinalang.net.grpc.listener.ServerStreamingListener;
 import org.ballerinalang.net.grpc.listener.UnaryMethodListener;
 import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
 import org.ballerinalang.net.grpc.proto.ServiceProtoUtils;
+import org.wso2.transport.http.netty.config.ListenerConfiguration;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.FILE_SEPARATOR;
+import static org.ballerinalang.net.grpc.MessageUtils.setNestedMessages;
 
 /**
  * This is the gRPC server implementation for registering service and start/stop server.
@@ -58,10 +58,10 @@ public class GrpcServicesBuilder {
      * Initializes and returns gRPC server builder instance for endpoint configuration.
      *
      * @param serviceEndpointConfig service endpoint configuration.
-     * @param sslContext SSL context, needed for setup secured connection.
+     * @param sslContext            SSL context, needed for setup secured connection.
      * @return gRPC server builder.
      */
-    public static io.grpc.ServerBuilder initService(EndpointConfiguration serviceEndpointConfig, SslContext
+    public static io.grpc.ServerBuilder initService(ListenerConfiguration serviceEndpointConfig, SslContext
             sslContext) {
         io.grpc.ServerBuilder serverBuilder;
         if (sslContext != null) {
@@ -84,8 +84,8 @@ public class GrpcServicesBuilder {
      * Register new service to the gRPC Server Builder.
      *
      * @param serverBuilder gRPC server Builder initiated when initializing service endpoint.
-     * @param service   Service to register.
-     * @throws GrpcServerException  Exception while registering the service.
+     * @param service       Service to register.
+     * @throws GrpcServerException Exception while registering the service.
      */
     public static void registerService(io.grpc.ServerBuilder serverBuilder, Service service) throws
             GrpcServerException {
@@ -99,11 +99,6 @@ public class GrpcServicesBuilder {
     
     private static ServerServiceDefinition getServiceDefinition(Service service) throws GrpcServerException {
         Descriptors.FileDescriptor fileDescriptor = ServiceProtoUtils.getDescriptor(service);
-        if (fileDescriptor == null) {
-            throw new GrpcServerException("Error while reading the service descriptor. Service file definition not " +
-                    "found");
-        }
-
         Descriptors.ServiceDescriptor serviceDescriptor = fileDescriptor.findServiceByName(service.getName());
         return getServiceDefinition(service, serviceDescriptor);
     }
@@ -121,19 +116,18 @@ public class GrpcServicesBuilder {
         Builder serviceDefBuilder = ServerServiceDefinition.builder(serviceName);
         
         for (Descriptors.MethodDescriptor methodDescriptor : serviceDescriptor.getMethods()) {
-            final String methodName = serviceName + FILE_SEPARATOR + methodDescriptor.getName();
+            final String methodName = serviceName + "/" + methodDescriptor.getName();
             Descriptors.Descriptor requestDescriptor = serviceDescriptor.findMethodByName(methodDescriptor.getName())
                     .getInputType();
             Descriptors.Descriptor responseDescriptor = serviceDescriptor.findMethodByName(methodDescriptor.getName())
                     .getOutputType();
-            MessageRegistry.getInstance().addMessageDescriptor(requestDescriptor.getName(), requestDescriptor);
-            for (Descriptors.Descriptor nestedType : requestDescriptor.getNestedTypes()) {
-                MessageRegistry.getInstance().addMessageDescriptor(nestedType.getName(), nestedType);
-            }
-            MessageRegistry.getInstance().addMessageDescriptor(responseDescriptor.getName(), responseDescriptor);
-            for (Descriptors.Descriptor nestedType : responseDescriptor.getNestedTypes()) {
-                MessageRegistry.getInstance().addMessageDescriptor(nestedType.getName(), nestedType);
-            }
+            MessageRegistry messageRegistry = MessageRegistry.getInstance();
+            // update request message descriptors.
+            messageRegistry.addMessageDescriptor(requestDescriptor.getName(), requestDescriptor);
+            setNestedMessages(requestDescriptor, messageRegistry);
+            // update response message descriptors.
+            messageRegistry.addMessageDescriptor(responseDescriptor.getName(), responseDescriptor);
+            setNestedMessages(responseDescriptor, messageRegistry);
 
             MethodDescriptor.Marshaller<Message> reqMarshaller = ProtoUtils.marshaller(Message.newBuilder
                     (requestDescriptor.getName()).build());
@@ -190,14 +184,15 @@ public class GrpcServicesBuilder {
             GrpcServerException {
 
         if (serverBuilder == null) {
-            throw new GrpcServerException("Error while starting gRPC server, client responder builder is null");
+            throw new GrpcServerException("Error occurred while starting gRPC server. Please check server " +
+                    "configurations");
         }
         Server server = serverBuilder.build();
         if (server != null) {
             try {
                 server.start();
             } catch (IOException e) {
-                throw new GrpcServerException(e);
+                throw new GrpcServerException("Failed to start gRPC server. " + e.getMessage(), e);
             }
         } else {
             throw new GrpcServerException("No gRPC service is registered to Start" +

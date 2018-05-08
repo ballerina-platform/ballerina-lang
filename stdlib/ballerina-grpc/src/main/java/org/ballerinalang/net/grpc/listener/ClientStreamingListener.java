@@ -22,8 +22,8 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.net.grpc.GrpcCallableUnitCallBack;
+import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
-import org.ballerinalang.net.grpc.MessageConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,37 +47,37 @@ public class ClientStreamingListener extends MethodListener implements ServerCal
     
     @Override
     public StreamObserver<Message> invoke(StreamObserver<Message> responseObserver) {
-        Resource onOpen = resourceMap.get(MessageConstants.ON_OPEN_RESOURCE);
+        Resource onOpen = resourceMap.get(GrpcConstants.ON_OPEN_RESOURCE);
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, Boolean.FALSE);
         Executor.submit(onOpen, callback, null, null, computeMessageParams
                 (onOpen, null, responseObserver));
-
+        
         return new StreamObserver<Message>() {
             @Override
             public void onNext(Message value) {
-                Resource onMessage = resourceMap.get(MessageConstants.ON_MESSAGE_RESOURCE);
+                Resource onMessage = resourceMap.get(GrpcConstants.ON_MESSAGE_RESOURCE);
                 CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, Boolean.FALSE);
-                Executor.submit(onMessage, callback,  null, null, computeMessageParams
+                Executor.submit(onMessage, callback, null, null, computeMessageParams
                         (onMessage, value, responseObserver));
             }
-
+            
             @Override
             public void onError(Throwable t) {
-                Resource onError = resourceMap.get(MessageConstants.ON_ERROR_RESOURCE);
+                Resource onError = resourceMap.get(GrpcConstants.ON_ERROR_RESOURCE);
                 onErrorInvoke(onError, responseObserver, t);
             }
-
+            
             @Override
             public void onCompleted() {
-                Resource onCompleted = resourceMap.get(MessageConstants.ON_COMPLETE_RESOURCE);
+                Resource onCompleted = resourceMap.get(GrpcConstants.ON_COMPLETE_RESOURCE);
                 if (onCompleted == null) {
                     String message = "Error in listener service definition. onError resource does not exists";
                     LOG.error(message);
                     throw new RuntimeException(message);
                 }
-
+                
                 CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, isEmptyResponse());
-                Executor.submit(onCompleted, callback,  null, null, computeMessageParams
+                Executor.submit(onCompleted, callback, null, null, computeMessageParams
                         (onCompleted, null, responseObserver));
             }
         };

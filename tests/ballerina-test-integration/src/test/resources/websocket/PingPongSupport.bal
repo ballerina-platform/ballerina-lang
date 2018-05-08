@@ -6,33 +6,22 @@ import ballerina/io;
 @final string data = "data";
 @final blob APPLICATION_DATA = data.toBlob("UTF-8");
 
-endpoint http:Listener ep {
+endpoint http:WebSocketListener ep {
     port:9090
 };
 
-service <http:Service> pingpong bind ep {
+@http:WebSocketServiceConfig {
+    path: "/pingpong/ws"
+}
+service <http:WebSocketService> PingPongTestService bind ep {
 
-    @http:ResourceConfig {
-        webSocketUpgrade: {
-            upgradePath: "/ws",
-            upgradeService: simplePingProxy
-        }
-    }
-    websocketProxy (endpoint httpEp, http:Request req) {
+    onOpen(endpoint wsEp) {
         endpoint http:WebSocketClient wsClientEp {
             url: REMOTE_BACKEND_URL,
             callbackService: clientCallbackService
         };
-        http:WebSocketListener wsServiceEp = httpEp -> acceptWebSocketUpgrade({"some-header":"some-header-value"});
-        wsServiceEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
-        wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsServiceEp;
-    }
-}
-
-service <http:WebSocketService> simplePingProxy {
-
-    onOpen(endpoint wsEp) {
-        wsEp -> pushText("send") but {error e => io:println("server text error")};
+        wsEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
+        wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsEp;
     }
 
     onText (endpoint wsEp, string text) {

@@ -1,4 +1,3 @@
-package pck1;
 
 import ballerina/test;
 import ballerina/io;

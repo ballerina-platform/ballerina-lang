@@ -51,7 +51,7 @@ public class TableJSONDataSource implements JSONDataSource {
         this(df, new DefaultJSONObjectGenerator(), isInTransaction);
     }
 
-    public TableJSONDataSource(BTable df, JSONObjectGenerator objGen, boolean isInTransaction) {
+    private TableJSONDataSource(BTable df, JSONObjectGenerator objGen, boolean isInTransaction) {
         this.df = df;
         this.objGen = objGen;
         this.isInTransaction = isInTransaction;
@@ -65,7 +65,6 @@ public class TableJSONDataSource implements JSONDataSource {
             this.objGen.transform(this.df).serialize(gen);
         }
         gen.writeEndArray();
-        this.df.close(this.isInTransaction);
     }
 
     /**

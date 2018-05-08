@@ -43,8 +43,10 @@ public enum DiagnosticCode {
     OBJECT_UN_INITIALIZABLE_FIELD("object.non.initialised.field"),
     CYCLIC_TYPE_REFERENCE("cyclic.type.reference"),
     ATTEMPT_REFER_NON_PUBLIC_SYMBOL("attempt.refer.non.public.symbol"),
+    ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL("attempt.expose.non.public.symbol"),
     UNDEFINED_PARAMETER("undefined.parameter"),
     CANNOT_FIND_MATCHING_FUNCTION("cannot.find.function.sig.for.function.in.object"),
+    CANNOT_ATTACH_FUNCTIONS_TO_RECORDS("cannot.attach.functions.to.records"),
     IMPLEMENTATION_ALREADY_EXIST("implementation.already.exist"),
     CANNOT_INITIALIZE_OBJECT("cannot.initialize.object"),
     CANNOT_FIND_MATCHING_INTERFACE("cannot.find.matching.interface.function"),
@@ -66,6 +68,7 @@ public enum DiagnosticCode {
     INVALID_MULTIPLE_FORK_JOIN_SEND("worker.multiple.fork.join.send"),
 
     INVOKABLE_MUST_RETURN("invokable.must.return"),
+    MAIN_CANNOT_BE_PUBLIC("main.cannot.be.public"),
     ATLEAST_ONE_WORKER_MUST_RETURN("atleast.one.worker.must.return"),
     FORK_JOIN_WORKER_CANNOT_RETURN("fork.join.worker.cannot.return"),
     FORK_JOIN_INVALID_WORKER_COUNT("fork.join.invalid.worker.count"),
@@ -151,6 +154,7 @@ public enum DiagnosticCode {
     INVALID_FUNCTION_INVOCATION("invalid.function.invocation"),
     INVALID_FUNCTION_INVOCATION_WITH_NAME("invalid.function.invocation.with.name"),
     DUPLICATE_NAMED_ARGS("duplicate.named.args"),
+    INVALID_DEFAULT_PARAM_VALUE("invalid.default.param.value"),
 
     DUPLICATED_ERROR_CATCH("duplicated.error.catch"),
 
@@ -186,6 +190,7 @@ public enum DiagnosticCode {
     CANNOT_GET_ALL_FIELDS("cannot.get.all.fields"),
 
     NO_SUCH_DOCUMENTABLE_ATTRIBUTE("no.such.documentable.attribute"),
+    INVALID_USE_OF_ENDPOINT_DOCUMENTATION_ATTRIBUTE("invalid.use.of.endpoint.documentation.attribute"),
     DUPLICATE_DOCUMENTED_ATTRIBUTE("duplicate.documented.attribute"),
     UNDEFINED_DOCUMENTATION_PUBLIC_FUNCTION("undefined.documentation.public.function"),
     USAGE_OF_DEPRECATED_FUNCTION("usage.of.deprecated.function"),

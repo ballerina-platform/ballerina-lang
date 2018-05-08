@@ -38,11 +38,14 @@ class ResourceNode extends AbstractResourceNode {
         let pathValue;
         this.getAnnotationAttachments().forEach((annotationNode) => {
             if (annotationNode.getPackageAlias().getValue() === httpPackageAlias &&
-                annotationNode.getAnnotationName().getValue() === 'resourceConfig') {
-                annotationNode.getAttributes().forEach((annotationAttribute) => {
-                    if (annotationAttribute.getName().getValue() === 'path') {
-                        const pathAnnotationAttributeValue = annotationAttribute.getValue();
-                        pathValue = pathAnnotationAttributeValue.getValue().getValue();
+                annotationNode.getAnnotationName().getValue() === 'ResourceConfig' &&
+                annotationNode.getExpression() &&
+                annotationNode.getExpression().keyValuePairs &&
+                annotationNode.getExpression().keyValuePairs[0]) {
+
+                annotationNode.getExpression().keyValuePairs.forEach((node)=>{
+                    if (node.value.kind === 'Literal') {
+                        pathValue = node.value.value;
                     }
                 });
             }
@@ -273,7 +276,6 @@ class ResourceNode extends AbstractResourceNode {
             if (lastIndexOfConnectors !== -1) {
                 index = lastIndexOfConnectors + 1;
             }
-            TreeUtil.generateEndpointName(this.getBody(), node);
             this.getBody().addStatements(node, index);
         }
     }

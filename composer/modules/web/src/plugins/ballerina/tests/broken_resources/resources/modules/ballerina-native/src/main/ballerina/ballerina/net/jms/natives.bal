@@ -1,4 +1,3 @@
-package ballerina.net.jms;
 
 import ballerina/doc;
 

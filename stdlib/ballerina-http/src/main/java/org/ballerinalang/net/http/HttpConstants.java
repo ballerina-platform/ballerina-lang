@@ -44,6 +44,7 @@ public class HttpConstants {
     public static final String PROTOCOL_HTTPS = "https";
     public static final String HTTP_METHOD = "HTTP_METHOD";
     public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
+    public static final String RESOLVED_REQUESTED_URI = "RESOLVED_REQUESTED_URI";
     public static final String HTTP_REASON_PHRASE = "HTTP_REASON_PHRASE";
     public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
     public static final String PROTOCOL = "PROTOCOL";
@@ -52,7 +53,6 @@ public class HttpConstants {
     public static final String HTTP_VERSION = "HTTP_VERSION";
     public static final String LISTENER_PORT = "LISTENER_PORT";
     public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
-    public static final int HTTP_DEFAULT_PORT = 9090;
     public static final String TLS_STORE_TYPE = "tlsStoreType";
     public static final String PKCS_STORE_TYPE = "PKCS12";
     public static final String AUTO = "AUTO";
@@ -65,6 +65,7 @@ public class HttpConstants {
 
     public static final String HTTP_PACKAGE_PATH = "ballerina.http";
 
+    public static final String HTTP_REQUEST_METHOD = "method";
     public static final String HTTP_METHOD_GET = "GET";
     public static final String HTTP_METHOD_POST = "POST";
     public static final String HTTP_METHOD_PUT = "PUT";
@@ -104,7 +105,6 @@ public class HttpConstants {
     public static final String ANN_CONFIG_ATTR_CACHE_SIZE = "cacheSize";
     public static final String ANN_CONFIG_ATTR_CACHE_VALIDITY_PERIOD = "cacheValidityPeriod";
     public static final String ANN_CONFIG_ATTR_WEBSOCKET = "webSocket";
-    public static final String ANN_CONFIG_ATTR_TRANSFER_ENCODING = "transferEncoding";
     public static final String ANN_CONFIG_ATTR_MAXIMUM_URL_LENGTH = "maxUriLength";
     public static final String ANN_CONFIG_ATTR_MAXIMUM_HEADER_SIZE = "maxHeaderSize";
     public static final String ANN_CONFIG_ATTR_MAXIMUM_ENTITY_BODY_SIZE = "maxEntityBodySize";
@@ -140,8 +140,9 @@ public class HttpConstants {
     public static final String PREFLIGHT_RESOURCES = "PREFLIGHT_RESOURCES";
     public static final String RESOURCES_CORS = "RESOURCES_CORS";
     public static final String LISTENER_INTERFACE_ID = "listener.interface.id";
+    public static final String PACKAGE_BALLERINA_BUILTIN = "ballerina.builtin";
 
-    public static final String HTTP_CLIENT = "HttpClient";
+    public static final String CALLER_ACTIONS = "CallerActions";
 
     public static final String REQUEST_URL = "REQUEST_URL";
     public static final String SRC_HANDLER = "SRC_HANDLER";
@@ -170,7 +171,7 @@ public class HttpConstants {
     public static final String ENTITY = "Entity";
     public static final String RESPONSE_CACHE_CONTROL = "ResponseCacheControl";
     public static final String REQUEST_CACHE_CONTROL = "RequestCacheControl";
-    public static final String HTTP_CONNECTOR_ERROR = "HttpConnectorError";
+    public static final String STRUCT_GENERIC_ERROR = "error";
     public static final String HTTP_TIMEOUT_ERROR = "HttpTimeoutError";
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
@@ -206,6 +207,7 @@ public class HttpConstants {
     public static final int RESPONSE_STATUS_CODE_INDEX = 0;
     public static final int RESPONSE_REASON_PHRASE_INDEX = 0;
     public static final int RESPONSE_SERVER_INDEX = 1;
+    public static final int RESOLVED_REQUESTED_URI_INDEX = 2;
     public static final int RESPONSE_CACHE_CONTROL_INDEX = 0;
     public static final int IN_RESPONSE_RECEIVED_TIME_INDEX = 1;
 
@@ -273,7 +275,6 @@ public class HttpConstants {
 
     //Service Endpoint Config
     public static final String ENDPOINT_CONFIG_HOST = "host";
-    public static final String ENDPOINT_CONFIG_TRANSFER_ENCODING = "transferEncoding";
     public static final String ENDPOINT_CONFIG_PORT = "port";
     public static final String ENDPOINT_CONFIG_KEEP_ALIVE = "keepAlive";
     public static final String ENDPOINT_CONFIG_CHUNKING = "chunking";
@@ -286,7 +287,7 @@ public class HttpConstants {
     public static final String ENDPOINT_CONFIG_SECURE_SOCKET = "secureSocket";
 
     public static final String ENDPOINT_CONFIG_TRUST_STORE = "trustStore";
-    public static final String FILE_PATH = "filePath";
+    public static final String FILE_PATH = "path";
     public static final String PASSWORD = "password";
     public static final String PROTOCOL_VERSION = "name";
     public static final String ENABLED_PROTOCOLS = "versions";
@@ -311,7 +312,6 @@ public class HttpConstants {
 
     //Client Endpoint Config
     public static final String URI = "uri";
-    public static final String CLIENT_EP_TRNASFER_ENCODING = "transferEncoding";
     public static final String CLIENT_EP_CHUNKING = "chunking";
     public static final String CLIENT_EP_ENDPOINT_TIMEOUT = "timeoutMillis";
     public static final String CLIENT_EP_IS_KEEP_ALIVE = "keepAlive";
@@ -324,6 +324,8 @@ public class HttpConstants {
     public static final String CONNECTION_THROTTLING_STRUCT_REFERENCE = "connectionThrottling";
     public static final String CONNECTION_THROTTLING_MAX_ACTIVE_CONNECTIONS = "maxActiveConnections";
     public static final String CONNECTION_THROTTLING_WAIT_TIME = "waitTime";
+    public static final String CONNECTION_THROTTLING_MAX_ACTIVE_STREAMS_PER_CONNECTION =
+            "maxActiveStreamsPerConnection";
 
     //FollowRedirect Indexes
     public static final String FOLLOW_REDIRECT_STRUCT_REFERENCE = "followRedirects";
@@ -341,6 +343,7 @@ public class HttpConstants {
     // Filter related
     public static final String ENDPOINT_CONFIG_FILTERS = "filters";
     public static final String FILTERS = "FILTERS";
+    public static final String HTTP_REQUEST_FILTER_FUNCTION_NAME = "filterRequest";
 
     // Retry Config
     public static final String CLIENT_EP_RETRY = "retry";
@@ -358,4 +361,7 @@ public class HttpConstants {
     public static final int LOCAL_STRUCT_INDEX = 3;
     public static final int LOCAL_HOST_INDEX = 0;
     public static final int LOCAL_PORT_INDEX = 0;
+
+    //WebSocket Related constants for WebSocket upgrade
+    public static final String NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER = "NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER";
 }

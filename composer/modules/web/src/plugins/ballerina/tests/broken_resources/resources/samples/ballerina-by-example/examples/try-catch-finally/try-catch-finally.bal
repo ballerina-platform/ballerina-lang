@@ -3,8 +3,8 @@ import ballerina/lang.files;
 import ballerina/lang.system;
 import ballerina/lang.strings;
 
-function main (string[] args) {
-    string[] data = null;
+function main (string... args) {
+    string... data = null;
     // Suppose we are creating a file, and writing some data.
     files:File target = {path:"/tmp/result.txt"};
     //Use a try block to surrounds a code segment that an error may occur.

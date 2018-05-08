@@ -10,7 +10,7 @@ struct Argument {
     int sentiment;
 }
 
-function main (string[] args) {
+function main (string... args) {
     Argument arg1 = {text:"arg1", argumentId:1, sentiment:1};
     testStruct(arg1);
 }

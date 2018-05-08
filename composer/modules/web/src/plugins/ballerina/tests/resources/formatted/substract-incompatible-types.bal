@@ -1,4 +1,4 @@
-function main (string[] s) {
+function main (string... s) {
     float f;
 
     // Following line is invalid.

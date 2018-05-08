@@ -73,7 +73,7 @@ function startPipelineQuery() returns (StatusCount[]) {
     teacherStream3.publish(t3);
     int count = 0;
     while(true) {
-        runtime:sleepCurrentWorker(500);
+        runtime:sleep(500);
         count++;
         if((lengthof globalStatusCountArray) > 0 || count == 10) {
             break;
@@ -83,7 +83,6 @@ function startPipelineQuery() returns (StatusCount[]) {
 }
 
 function printStatusCount(StatusCount s) {
-    io:println("printStatusCount function invoked for status:" + s.status + " and total count :" + s.totalCount);
     addToGlobalStatusCountArray(s);
 }
 

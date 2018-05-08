@@ -18,7 +18,7 @@ function getFirstName (string name) (string) {
     return names[0];
 }
 
-function main (string[] args) {
+function main (string... args) {
     Person p = {name:"John Allen", age:30, city:"London"};
     User u = {};
 

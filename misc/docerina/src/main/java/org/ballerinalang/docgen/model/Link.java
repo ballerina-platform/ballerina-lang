@@ -27,8 +27,10 @@ public class Link {
 
     /**
      * Constructor.
+     *
      * @param caption package name.
-     * @param active if package is active/inactive.
+     * @param href    url.
+     * @param active  if package is active/inactive.
      */
     public Link(Caption caption, String href, boolean active) {
         this.caption = caption;

@@ -50,10 +50,11 @@ public class ClientBuilder {
         stubFunctions.add(stubFunctionsObj);
     }
     
-    public void addStruct(String structId, String[] attributesNameArr, String[] attributesTypeArr) {
+    public void addStruct(String structId, String[] attributesNameArr, String[] attributesTypeArr,
+                          String[] attributesLabelArr) {
         Struct structObj = new Struct(structId);
         for (int i = 0; i < attributesNameArr.length; i++) {
-            structObj.addAttribute(attributesNameArr[i], attributesTypeArr[i]);
+            structObj.addAttribute(attributesNameArr[i], attributesTypeArr[i], attributesLabelArr[i]);
         }
         structs.add(structObj);
     }

@@ -1,4 +1,3 @@
-package sample.websocket.client;
 
 import ballerina/lang.system;
 import ballerina/net.ws;

@@ -1,4 +1,3 @@
-package ballerina/swagger;
 
 annotation ServiceInfo attach service {
     string title;

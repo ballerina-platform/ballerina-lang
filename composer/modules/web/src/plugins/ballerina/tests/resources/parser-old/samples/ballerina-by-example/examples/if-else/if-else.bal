@@ -1,6 +1,6 @@
 import ballerina/lang.system;
 
-function main (string[] args) {
+function main (string... args) {
     int a = 10;
     int b = 0;
 

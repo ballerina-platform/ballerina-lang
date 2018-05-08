@@ -69,6 +69,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         if (WebSocketConstants.WEBSOCKET_CLIENT_ENDPOINT_NAME.equals(service.getEndpointName())) {
             WebSocketService wsService = new WebSocketService(service);
             WsClientConnectorConfig clientConnectorConfig = new WsClientConnectorConfig(remoteUrl);
+            clientConnectorConfig.setAutoRead(false); // Frames are read sequentially in ballerina.
             Value[] subProtocolValues = clientEndpointConfig
                     .getArrayField(WebSocketConstants.CLIENT_SUBPROTOCOLS_CONFIG);
             if (subProtocolValues != null) {

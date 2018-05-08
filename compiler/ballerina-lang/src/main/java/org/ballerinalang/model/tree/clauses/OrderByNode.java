@@ -19,16 +19,15 @@
 package org.ballerinalang.model.tree.clauses;
 
 import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 import java.util.List;
 
 /**
  * @since 0.965.0
- *
+ * <p>
  * The interface with the APIs to implement the "order by" in ballerina streams/table SQLish syntax.
  * <pre> Grammar:
- *      GROUP BY variableReferenceList
+ *      ORDER BY variableReferenceList
  *
  * E.g
  *      order by age, rank;
@@ -36,7 +35,7 @@ import java.util.List;
  */
 public interface OrderByNode extends Node {
 
-    void addVariableReference(ExpressionNode varRef);
+    void addOrderByVariable(OrderByVariableNode orderByVariableNode);
 
-    List<? extends ExpressionNode> getVariables();
+    List<? extends OrderByVariableNode> getVariables();
 }

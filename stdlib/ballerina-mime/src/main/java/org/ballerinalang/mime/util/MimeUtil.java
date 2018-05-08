@@ -22,7 +22,9 @@ package org.ballerinalang.mime.util;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.util.internal.PlatformDependent;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
+import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -45,6 +47,7 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParameterList;
 import javax.activation.MimeTypeParseException;
 
+import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.mime.util.Constants.ASSIGNMENT;
 import static org.ballerinalang.mime.util.Constants.BODY_PARTS;
 import static org.ballerinalang.mime.util.Constants.BUILTIN_PACKAGE;
@@ -56,7 +59,6 @@ import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME_IND
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_PARA_MAP_INDEX;
 import static org.ballerinalang.mime.util.Constants.DISPOSITION_INDEX;
 import static org.ballerinalang.mime.util.Constants.DOUBLE_QUOTE;
-import static org.ballerinalang.mime.util.Constants.ENTITY_ERROR;
 import static org.ballerinalang.mime.util.Constants.FORM_DATA_PARAM;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE_INDEX;
@@ -65,7 +67,6 @@ import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_FORM_DATA;
 import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_INDEX;
 import static org.ballerinalang.mime.util.Constants.PRIMARY_TYPE_INDEX;
-import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.Constants.READABLE_BUFFER_SIZE;
 import static org.ballerinalang.mime.util.Constants.SEMICOLON;
 import static org.ballerinalang.mime.util.Constants.SIZE_INDEX;
@@ -109,14 +110,18 @@ public class MimeUtil {
             return HeaderUtil.getHeaderValue(entity, HttpHeaderNames.CONTENT_TYPE.toString());
         }
         BStruct mediaType = (BStruct) entity.getRefField(MEDIA_TYPE_INDEX);
-        String contentType = mediaType.getStringField(PRIMARY_TYPE_INDEX) + "/" +
-                mediaType.getStringField(SUBTYPE_INDEX);
-        if (mediaType.getRefField(PARAMETER_MAP_INDEX) != null) {
-            BMap map = mediaType.getRefField(PARAMETER_MAP_INDEX) != null ?
-                    (BMap) mediaType.getRefField(PARAMETER_MAP_INDEX) : null;
-            if (map != null && !map.isEmpty()) {
-                contentType = contentType + SEMICOLON;
-                return HeaderUtil.appendHeaderParams(new StringBuilder(contentType), map);
+        String primaryType = mediaType.getStringField(PRIMARY_TYPE_INDEX);
+        String subType = mediaType.getStringField(SUBTYPE_INDEX);
+        String contentType = null;
+        if ((primaryType != null && !primaryType.isEmpty()) && (subType != null && !subType.isEmpty())) {
+            contentType = primaryType + "/" + subType;
+            if (mediaType.getRefField(PARAMETER_MAP_INDEX) != null) {
+                BMap map = mediaType.getRefField(PARAMETER_MAP_INDEX) != null ?
+                        (BMap) mediaType.getRefField(PARAMETER_MAP_INDEX) : null;
+                if (map != null && !map.isEmpty()) {
+                    contentType = contentType + SEMICOLON;
+                    return HeaderUtil.appendHeaderParams(new StringBuilder(contentType), map);
+                }
             }
         }
         return contentType;
@@ -172,6 +177,13 @@ public class MimeUtil {
         return mediaType;
     }
 
+    public static void setMediaTypeToEntity(Context context, BStruct entityStruct, String contentType) {
+        BStruct mediaType = ConnectorUtils.createAndGetStruct(context, Constants.PROTOCOL_PACKAGE_MIME,
+                Constants.MEDIA_TYPE);
+        MimeUtil.setContentType(mediaType, entityStruct, contentType);
+        HeaderUtil.setHeaderToEntity(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
+    }
+
     /**
      * Populate ContentDisposition struct and set it to body part.
      *
@@ -181,6 +193,13 @@ public class MimeUtil {
      */
     public static void setContentDisposition(BStruct contentDisposition, BStruct bodyPart,
                                              String contentDispositionHeaderWithParams) {
+        populateContentDispositionObject(contentDisposition, contentDispositionHeaderWithParams);
+        bodyPart.setRefField(CONTENT_DISPOSITION_INDEX, contentDisposition);
+
+    }
+
+    public static void populateContentDispositionObject(BStruct contentDisposition,
+                                                        String contentDispositionHeaderWithParams) {
         String dispositionValue;
         if (isNotNullAndEmpty(contentDispositionHeaderWithParams)) {
             if (contentDispositionHeaderWithParams.contains(SEMICOLON)) {
@@ -210,7 +229,6 @@ public class MimeUtil {
                 paramMap.remove(CONTENT_DISPOSITION_NAME);
             }
             contentDisposition.setRefField(CONTENT_DISPOSITION_PARA_MAP_INDEX, paramMap);
-            bodyPart.setRefField(CONTENT_DISPOSITION_INDEX, contentDisposition);
         }
     }
 
@@ -235,27 +253,35 @@ public class MimeUtil {
                     dispositionBuilder.append(disposition);
                 }
                 if (!dispositionBuilder.toString().isEmpty()) {
-                    String name = contentDispositionStruct.getStringField(CONTENT_DISPOSITION_NAME_INDEX);
-                    String fileName = contentDispositionStruct.getStringField(CONTENT_DISPOSITION_FILENAME_INDEX);
-                    if (isNotNullAndEmpty(name)) {
-                        appendSemiColon(dispositionBuilder).append(CONTENT_DISPOSITION_NAME).append(ASSIGNMENT).append(
-                                includeQuotes(name)).append(SEMICOLON);
-                    }
-                    if (isNotNullAndEmpty(fileName)) {
-                        appendSemiColon(dispositionBuilder).append(CONTENT_DISPOSITION_FILE_NAME).append(ASSIGNMENT)
-                                .append(includeQuotes(fileName)).append(SEMICOLON);
-                    }
-                    if (contentDispositionStruct.getRefField(CONTENT_DISPOSITION_PARA_MAP_INDEX) != null) {
-                        BMap map = (BMap) contentDispositionStruct.getRefField(CONTENT_DISPOSITION_PARA_MAP_INDEX);
-                        HeaderUtil.appendHeaderParams(appendSemiColon(dispositionBuilder), map);
-                    }
-                }
-                if (dispositionBuilder.toString().endsWith(SEMICOLON)) {
-                    dispositionBuilder.setLength(dispositionBuilder.length() - 1);
+                    dispositionBuilder = convertDispositionObjectToString(dispositionBuilder, contentDispositionStruct);
                 }
             }
         }
         return dispositionBuilder.toString();
+    }
+
+    public static StringBuilder convertDispositionObjectToString(StringBuilder dispositionBuilder,
+                                                                 BStruct contentDispositionStruct) {
+
+        String name = contentDispositionStruct.getStringField(CONTENT_DISPOSITION_NAME_INDEX);
+        String fileName = contentDispositionStruct.getStringField(CONTENT_DISPOSITION_FILENAME_INDEX);
+        if (isNotNullAndEmpty(name)) {
+            appendSemiColon(dispositionBuilder).append(CONTENT_DISPOSITION_NAME).append(ASSIGNMENT).append(
+                    includeQuotes(name)).append(SEMICOLON);
+        }
+        if (isNotNullAndEmpty(fileName)) {
+            appendSemiColon(dispositionBuilder).append(CONTENT_DISPOSITION_FILE_NAME).append(ASSIGNMENT)
+                    .append(includeQuotes(fileName)).append(SEMICOLON);
+        }
+        if (contentDispositionStruct.getRefField(CONTENT_DISPOSITION_PARA_MAP_INDEX) != null) {
+            BMap map = (BMap) contentDispositionStruct.getRefField(CONTENT_DISPOSITION_PARA_MAP_INDEX);
+            HeaderUtil.appendHeaderParams(appendSemiColon(dispositionBuilder), map);
+        }
+
+        if (dispositionBuilder.toString().endsWith(SEMICOLON)) {
+            dispositionBuilder.setLength(dispositionBuilder.length() - 1);
+        }
+        return dispositionBuilder;
     }
 
     private static StringBuilder appendSemiColon(StringBuilder disposition) {
@@ -271,7 +297,7 @@ public class MimeUtil {
      * @param entityStruct Represent 'Entity'
      * @param length       Size of the entity body
      */
-    public static void setContentLength(BStruct entityStruct, int length) {
+    public static void setContentLength(BStruct entityStruct, long length) {
         entityStruct.setIntField(SIZE_INDEX, length);
     }
 
@@ -363,7 +389,7 @@ public class MimeUtil {
      * @param textValue Represent a text value
      * @return a String surrounded by quotes
      */
-    private static String includeQuotes(String textValue) {
+    public static String includeQuotes(String textValue) {
         if (!textValue.startsWith(DOUBLE_QUOTE)) {
             textValue = DOUBLE_QUOTE + textValue;
         }
@@ -418,8 +444,10 @@ public class MimeUtil {
      * @return Ballerina struct with entity error
      */
     public static BStruct createEntityError(Context context, String msg) {
-        PackageInfo filePkg = context.getProgramFile().getPackageInfo(PROTOCOL_PACKAGE_MIME);
-        StructInfo entityErrInfo = filePkg.getStructInfo(ENTITY_ERROR);
+        PackageInfo filePkg = context.getProgramFile().getPackageInfo(PACKAGE_BUILTIN);
+        StructInfo entityErrInfo = filePkg.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
+        BStruct genericError = new BStruct(entityErrInfo.getType());
+        genericError.setStringField(0, msg);
         return BLangVMStructs.createBStruct(entityErrInfo, msg);
     }
 

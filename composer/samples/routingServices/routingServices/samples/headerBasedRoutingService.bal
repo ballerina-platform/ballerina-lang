@@ -1,4 +1,3 @@
-package routingServices.samples;
 
 import ballerina/http;
 

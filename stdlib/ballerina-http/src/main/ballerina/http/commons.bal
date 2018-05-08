@@ -14,40 +14,69 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
-
 // TODO: Document these. Should we make FORWARD a private constant?
+documentation {Constant for the HTTP FORWARD method}
 @final public HttpOperation HTTP_FORWARD = "FORWARD";
+documentation {Constant for the HTTP GET method}
 @final public HttpOperation HTTP_GET = "GET";
+documentation {Constant for the HTTP POST method}
 @final public HttpOperation HTTP_POST = "POST";
+documentation {Constant for the HTTP DELETE method}
 @final public HttpOperation HTTP_DELETE = "DELETE";
+documentation {Constant for the HTTP OPTIONS method}
 @final public HttpOperation HTTP_OPTIONS = "OPTIONS";
+documentation {Constant for the HTTP PUT method}
 @final public HttpOperation HTTP_PUT = "PUT";
+documentation {Constant for the HTTP PATCH method}
 @final public HttpOperation HTTP_PATCH = "PATCH";
+documentation {Constant for the HTTP HEAD method}
 @final public HttpOperation HTTP_HEAD = "HEAD";
 @final public HttpOperation HTTP_NONE = "NONE";
 
+documentation {
+    Defines the HTTP operations related to circuit breaker, failover and load balancer.
+
+    `FORWARD`: Forward the specified payload
+    `GET`: Request a resource
+    `POST`: Create a new resource
+    `DELETE`: Deletes the specified resource
+    `OPTIONS`: Request communication options available
+    `PUT`: Replace the target resource
+    `PATCH`: Apply partial modification to the resource
+    `HEAD`: Identical to `GET` but no resource body should be returned
+    `NONE`: No operation should be performed
+}
 public type HttpOperation "FORWARD" | "GET" | "POST" | "DELETE" | "OPTIONS" | "PUT" | "PATCH" | "HEAD" | "NONE";
 
 // makes the actual endpoints call according to the http operation passed in.
+documentation {
+    The HEAD action implementation of the Circuit Breaker. This wraps the `head()` function of the underlying
+    HTTP actions provider.
+
+    P{{path}} Resource path
+    P{{outRequest}} A Request struct
+    P{{requestAction}} `HttpOperation` related to the request
+    P{{httpClient}} HTTP client which uses to call the relavant functions
+    R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
+}
 public function invokeEndpoint (string path, Request outRequest,
-                                HttpOperation requestAction, HttpClient httpClient) returns Response|HttpConnectorError {
+                                HttpOperation requestAction, CallerActions httpClient) returns Response|error {
     if (HTTP_GET == requestAction) {
-        return httpClient.get(path, outRequest);
+        return httpClient.get(path, request = outRequest);
     } else if (HTTP_POST == requestAction) {
-        return httpClient.post(path, outRequest);
+        return httpClient.post(path, request = outRequest);
     } else if (HTTP_OPTIONS == requestAction) {
-        return httpClient.options(path, outRequest);
+        return httpClient.options(path, request = outRequest);
     } else if (HTTP_PUT == requestAction) {
-        return httpClient.put(path, outRequest);
+        return httpClient.put(path, request = outRequest);
     } else if (HTTP_DELETE == requestAction) {
-        return httpClient.delete(path, outRequest);
+        return httpClient.delete(path, request = outRequest);
     } else if (HTTP_PATCH == requestAction) {
-        return httpClient.patch(path, outRequest);
+        return httpClient.patch(path, request = outRequest);
     } else if (HTTP_FORWARD == requestAction) {
         return httpClient.forward(path, outRequest);
     } else if (HTTP_HEAD == requestAction) {
-        return httpClient.head(path, outRequest);
+        return httpClient.head(path, request = outRequest);
     } else {
         return getError();
     }
@@ -86,57 +115,17 @@ function populateErrorCodeIndex (int[] errorCode) returns boolean[] {
     return result;
 }
 
-function createHttpClientArray (ClientEndpointConfig config) returns HttpClient[] {
-    HttpClient[] httpClients = [];
-    int i=0;
-    boolean httpClientRequired = false;
-    string uri = config.targets[0].url;
-    var cbConfig = config.circuitBreaker;
-    match cbConfig {
-        CircuitBreakerConfig cb => {
-            if (uri.hasSuffix("/")) {
-                int lastIndex = uri.length() - 1;
-                uri = uri.subString(0, lastIndex);
-            }
-            httpClientRequired = false;
-        }
-        () => {
-            httpClientRequired = true;
-        }
-    }
-
-    foreach target in config.targets {
-        uri = target.url;
-        if (uri.hasSuffix("/")) {
-            int lastIndex = uri.length() - 1;
-            uri = uri.subString(0, lastIndex);
-        } 
-        if (!httpClientRequired) {
-            httpClients[i] = createCircuitBreakerClient(uri, config);
-        } else {
-            var retryConfig = config.retry;
-            match retryConfig {
-                Retry retry => {
-                    httpClients[i] = createRetryClient(uri, config);
-                }
-                () => {
-                    if (config.cache.enabled) {
-                        httpClients[i] = createHttpCachingClient(uri, config, config.cache);
-                    } else {
-                        httpClients[i] = createHttpSecureClient(uri, config);
-                    }
-                }
-            }
-        }
-        httpClients[i].config = config;
-        i = i+1;
-    }
-    return httpClients;
+function getError() returns error {
+    error httpConnectorErr = {};
+    httpConnectorErr.message = "Unsupported connector action received.";
+    return httpConnectorErr;
 }
 
-function getError() returns HttpConnectorError {
-    HttpConnectorError httpConnectorError = {};
-    httpConnectorError.statusCode = 400;
-    httpConnectorError.message = "Unsupported connector action received.";
-    return httpConnectorError;
+function populateRequestFields (Request originalRequest, Request newRequest)  {
+    newRequest.rawPath = originalRequest.rawPath;
+    newRequest.method = originalRequest.method;
+    newRequest.httpVersion = originalRequest.httpVersion;
+    newRequest.cacheControl = originalRequest.cacheControl;
+    newRequest.userAgent = originalRequest.userAgent;
+    newRequest.extraPathInfo = originalRequest.extraPathInfo;
 }

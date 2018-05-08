@@ -16,8 +16,8 @@
 
 package org.ballerinalang.langserver.references.util;
 
-import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.references.ReferencesTreeVisitor;
 import org.eclipse.lsp4j.Location;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;

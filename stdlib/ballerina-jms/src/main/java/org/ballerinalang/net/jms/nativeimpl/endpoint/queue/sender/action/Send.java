@@ -35,7 +35,7 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SendActionHandler;
                    packageName = "jms",
                    functionName = "send",
                    receiver = @Receiver(type = TypeKind.STRUCT,
-                                        structType = "QueueSenderConnector",
+                                        structType = "QueueSenderActions",
                                         structPackage = "ballerina.jms"),
                    args = {
                            @Argument(name = "message", type = TypeKind.STRUCT)

@@ -18,6 +18,7 @@
 package org.ballerinalang.natives;
 
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -88,6 +89,9 @@ public class NativeElementRepository {
         }
 
         public String toBvmAlias() {
+            if (Names.ANON_ORG.getValue().equals(orgName)) {
+                return pkgName;
+            }
             // assume anon org can't expose natives
             return orgName + '.' + pkgName;
         }

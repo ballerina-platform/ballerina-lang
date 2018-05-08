@@ -22,9 +22,11 @@ import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.channels.base.readers.BlockingReader;
 import org.ballerinalang.nativeimpl.io.channels.base.writers.BlockingWriter;
+import org.ballerinalang.nativeimpl.socket.SocketByteChannel;
 
 import java.io.IOException;
 import java.nio.channels.ByteChannel;
+import java.nio.channels.SocketChannel;
 import java.nio.channels.WritableByteChannel;
 
 /**
@@ -34,8 +36,11 @@ import java.nio.channels.WritableByteChannel;
  */
 public class SocketIOChannel extends Channel {
 
+    private ByteChannel channel;
+
     public SocketIOChannel(ByteChannel channel, int size) throws IOException {
         super(channel, new BlockingReader(), new BlockingWriter(), size);
+        this.channel = channel;
     }
 
     /**
@@ -44,5 +49,35 @@ public class SocketIOChannel extends Channel {
     @Override
     public void transfer(int position, int count, WritableByteChannel dstChannel) throws IOException {
         throw new BallerinaIOException("Unsupported method");
+    }
+
+    /**
+     * Shutdown the connection for reading.
+     *
+     * @throws IOException If some other I/O error occurs.
+     */
+    public void shutdownInput() throws IOException {
+        if (channel instanceof SocketChannel) {
+            SocketChannel socketChannel = (SocketChannel) channel;
+            socketChannel.shutdownInput();
+        } else if (channel instanceof SocketByteChannel) {
+            SocketByteChannel socketByteChannel = (SocketByteChannel) channel;
+            socketByteChannel.shutdownInput();
+        }
+    }
+
+    /**
+     * Shutdown the connection for writing.
+     *
+     * @throws IOException If some other I/O error occurs.
+     */
+    public void shutdownOutput() throws IOException {
+        if (channel instanceof SocketChannel) {
+            SocketChannel socketChannel = (SocketChannel) channel;
+            socketChannel.shutdownOutput();
+        } else if (channel instanceof SocketByteChannel) {
+            SocketByteChannel socketByteChannel = (SocketByteChannel) channel;
+            socketByteChannel.shutdownOutput();
+        }
     }
 }

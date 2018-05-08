@@ -1,4 +1,3 @@
-package bal.test.intercept.simpleAuth;
 
 import ballerina/lang.messages;
 import ballerina/lang.system;
@@ -26,7 +25,7 @@ function requestInterceptor (message msg) (boolean, message) {
 }
 
 
-function main (string[] args) {
+function main (string... args) {
     system:println("this is simpleAuth interceptor");
 }
 

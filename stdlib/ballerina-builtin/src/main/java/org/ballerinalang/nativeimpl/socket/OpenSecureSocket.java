@@ -124,7 +124,7 @@ public class OpenSecureSocket extends BlockingNativeCallableUnit {
             log.debug("Start handshake!!!");
             sslSocket.startHandshake();
             log.debug("Secure handshake successful.");
-            channel = new SocketByteChannel(sslSocket.getInputStream(), sslSocket.getOutputStream());
+            channel = new SocketByteChannel(sslSocket);
             socketStruct = createReturnStruct(context, sslSocket, channel);
             context.setReturnValues(socketStruct);
         } catch (Throwable e) {

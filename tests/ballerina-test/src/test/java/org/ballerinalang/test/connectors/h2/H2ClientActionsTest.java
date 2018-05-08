@@ -46,11 +46,11 @@ public class H2ClientActionsTest {
 
     private CompileResult result;
     private static final String DB_NAME = "TestDBH2";
-    public static final String DB_DIRECTORY_H2 = "./target/H2Client/";
+    private static final String DB_DIRECTORY_H2 = "./target/H2Client/";
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/connectors/h2/h2-client-actions-test.bal");
+        result = BCompileUtil.compile("test-src/connectors/h2/h2_actions_test.bal");
         SQLDBUtils.deleteFiles(new File(DB_DIRECTORY_H2), DB_NAME);
         SQLDBUtils.initH2Database(DB_DIRECTORY_H2, DB_NAME, "datafiles/sql/H2ConnectorTableCreate.sql");
     }
@@ -151,6 +151,13 @@ public class H2ClientActionsTest {
         Assert.assertEquals(((BIntArray) returns[0]).size(), 2);
         Assert.assertEquals(((BIntArray) returns[0]).get(0), 1);
         Assert.assertEquals(((BIntArray) returns[0]).get(1), 2);
+    }
+
+    @Test
+    public void testH2MemDBUpdate() {
+        BValue[] returns = BRunUtil.invoke(result, "testH2MemDBUpdate");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(returns[1].stringValue(), "[{\"ID\":15,\"NAME\":\"Anne\"}]");
     }
 
     @AfterSuite

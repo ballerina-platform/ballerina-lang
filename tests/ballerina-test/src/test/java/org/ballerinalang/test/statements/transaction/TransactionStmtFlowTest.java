@@ -37,8 +37,8 @@ public class TransactionStmtFlowTest {
 
     @BeforeClass
     public void setup() {
-        programFile = BCompileUtil.compile("test-src/statements/transaction/transaction-stmt.bal");
-        resultNegative = BCompileUtil.compile("test-src/statements/transaction/transaction-stmt-negative.bal");
+        programFile = BCompileUtil.compile("test-src/statements/transaction/transaction_stmt.bal");
+        resultNegative = BCompileUtil.compile("test-src/statements/transaction/transaction_stmt_negative.bal");
     }
 
     @Test
@@ -140,7 +140,7 @@ public class TransactionStmtFlowTest {
         Assert.assertEquals(returns[0].stringValue(), "start inOuterTrx inInnerTrx abort endOuterTrx  end");
     }
 
-    @Test(enabled = false)
+    @Test(enabled = false) // Issue #7706
     public void testNestedTransaction3() {
         BValue[] args = {new BInteger(-1)};
         BValue[] returns = BRunUtil.invoke(programFile, "testNestedTransaction", args);
@@ -160,7 +160,7 @@ public class TransactionStmtFlowTest {
                 "start inOuterTrx inInnerTrx trxErr endInnerTrx endOuterTrx  end");
     }
 
-    @Test(enabled = false)
+    @Test(enabled = false) //Issue #7706
     public void testNestedTransactionWithFailed1() {
         BValue[] args = {new BInteger(-1)};
         BValue[] returns = BRunUtil.invoke(programFile, "testNestedTransactionWithFailed", args);
@@ -352,11 +352,11 @@ public class TransactionStmtFlowTest {
 
     @Test(description = "Test transaction statement with errors")
     public void testRetryNegativeCases() {
-        CompileResult res = BCompileUtil.compile("test-src/statements/transaction/transaction-retry-negative.bal");
+        CompileResult res = BCompileUtil.compile("test-src/statements/transaction/transaction_retry_negative.bal");
         Assert.assertEquals(res.getErrorCount(), 4);
-        BAssertUtil.validateError(res, 0, "invalid transaction retry count", 3, 30);
-        BAssertUtil.validateError(res, 1, "invalid transaction retry count", 16, 30);
-        BAssertUtil.validateError(res, 2, "incompatible types: expected 'int', found 'float'", 31, 30);
-        BAssertUtil.validateError(res, 3, "invalid transaction retry count", 31, 30);
+        BAssertUtil.validateError(res, 0, "invalid transaction retry count", 3, 32);
+        BAssertUtil.validateError(res, 1, "invalid transaction retry count", 16, 32);
+        BAssertUtil.validateError(res, 2, "incompatible types: expected 'int', found 'float'", 31, 32);
+        BAssertUtil.validateError(res, 3, "invalid transaction retry count", 31, 32);
     }
 }

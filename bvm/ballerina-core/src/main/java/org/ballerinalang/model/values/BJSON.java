@@ -352,4 +352,19 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
                 this.type = BTypes.typeJSON;
         }
     }
+    
+    public BRefType<?> getPrimitiveBoxedValue() {
+        if (this.value.isLong()) {
+            return new BInteger(this.value.longValue());
+        } else if (this.value.isDouble()) {
+            return new BFloat(this.value.doubleValue());
+        } else if (this.value.isString()) {
+            return new BString(this.value.stringValue());
+        } else if (this.value.isBoolean()) {
+            return new BBoolean(this.value.booleanValue());
+        } else {
+            return null;
+        }
+    }
+    
 }

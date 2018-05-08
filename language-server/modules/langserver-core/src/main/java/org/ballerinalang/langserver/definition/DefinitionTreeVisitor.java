@@ -16,10 +16,10 @@
 
 package org.ballerinalang.langserver.definition;
 
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;

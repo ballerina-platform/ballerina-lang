@@ -40,6 +40,7 @@ import org.wso2.transport.localfilesystem.server.connector.contract.LocalFileSys
 import org.wso2.transport.localfilesystem.server.connector.contract.LocalFileSystemServerConnector;
 import org.wso2.transport.localfilesystem.server.connector.contractimpl.LocalFileSystemConnectorFactoryImpl;
 import org.wso2.transport.localfilesystem.server.exception.LocalFileSystemServerConnectorException;
+import org.wso2.transport.localfilesystem.server.util.Constants;
 
 import java.util.HashMap;
 import java.util.List;
@@ -95,10 +96,10 @@ public class Register extends BlockingNativeCallableUnit {
                 .getBooleanField(DirectoryListenerConstants.ANNOTATION_DIRECTORY_RECURSIVE);
         Map<String, String> paramMap = new HashMap<>(3);
         if (path != null && !path.isEmpty()) {
-            paramMap.put(DirectoryListenerConstants.ANNOTATION_DIR_URI, path);
+            paramMap.put(Constants.TRANSPORT_FILE_FILE_URI, path);
         }
-        paramMap.put(DirectoryListenerConstants.ANNOTATION_EVENTS, events);
-        paramMap.put(DirectoryListenerConstants.ANNOTATION_DIRECTORY_RECURSIVE, String.valueOf(recursive));
+        paramMap.put(Constants.DIRECTORY_WATCH_EVENTS, events);
+        paramMap.put(Constants.DIRECTORY_WATCH_RECURSIVE, String.valueOf(recursive));
         return paramMap;
     }
 
@@ -127,7 +128,7 @@ public class Register extends BlockingNativeCallableUnit {
                     + DirectoryListenerConstants.RESOURCE_NAME_ON_CREATE + " ,"
                     + DirectoryListenerConstants.RESOURCE_NAME_ON_DELETE + " ,"
                     + DirectoryListenerConstants.RESOURCE_NAME_ON_MODIFY + ". " + "Parameter should be of type - "
-                    + FILE_PACKAGE + ":" + FILE_SYSTEM_EVENT;
+                    + "file:" + FILE_SYSTEM_EVENT;
             throw new BallerinaConnectorException(msg);
         }
         return registry;
@@ -136,14 +137,14 @@ public class Register extends BlockingNativeCallableUnit {
     private void validateParameter(Resource resource) {
         final List<ParamDetail> paramDetails = resource.getParamDetails();
         if (paramDetails.size() != 1) {
-            String msg = "Invalid resource signature in " + resource.getName() + ". A single " + FILE_PACKAGE + ":"
+            String msg = "Invalid resource signature in " + resource.getName() + ". A single file:"
                     + FILE_SYSTEM_EVENT + " parameter allow in the resource signature.";
             throw new BallerinaConnectorException(msg);
         }
         final ParamDetail paramDetail = paramDetails.get(0);
         final BType varType = paramDetail.getVarType();
         if (!FILE_PACKAGE.equals(varType.getPackagePath()) || !FILE_SYSTEM_EVENT.equals(varType.getName())) {
-            String msg = "Parameter should be of type - " + FILE_PACKAGE + ":" + FILE_SYSTEM_EVENT + " in " + resource
+            String msg = "Parameter should be of type - file:" + FILE_SYSTEM_EVENT + " in " + resource
                     .getName();
             throw new BallerinaConnectorException(msg);
         }

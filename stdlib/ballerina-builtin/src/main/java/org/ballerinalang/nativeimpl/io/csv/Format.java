@@ -23,13 +23,13 @@ package org.ballerinalang.nativeimpl.io.csv;
  */
 public enum Format {
     /**
-     * The format would be similar to RFC4180, however empty lines will be allowed.
+     * The format would default, however empty lines will be allowed.
      */
     DEFAULT(",", "\\r?\\n", ",", "\n", false),
     /**
      * CSV should conform with RFC4180 specification.
      */
-    RFC4180(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)", "\\r?\\n", ",", "\n", true),
+    CSV(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)", "\\r?\\n", ",", "\n", true),
     /**
      * Tab delimited records.
      */

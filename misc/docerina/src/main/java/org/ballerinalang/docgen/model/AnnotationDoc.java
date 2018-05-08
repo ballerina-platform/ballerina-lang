@@ -18,26 +18,30 @@
 package org.ballerinalang.docgen.model;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Documentable node for Annotations.
  */
 public class AnnotationDoc extends Documentable {
     public final boolean isAnnotation;
-    public final List<Variable> attributes;
+    public final String attachments;
+    public final String dataType;
+    public final String href;
 
     /**
      * Constructor.
-     * @param name annotation name.
+     *
+     * @param name        annotation name.
      * @param description description.
-     * @param children if there are any children.
-     * @param attributes annotation attributes.
+     * @param dataType    data type if any.
+     * @param href        link to data type.
+     * @param attachments attachment points of this annotation.
      */
-    public AnnotationDoc(String name, String description, ArrayList<Documentable> children,
-                         List<Variable> attributes) {
-        super(name, "fw-annotation", description, children);
-        this.attributes = attributes;
+    public AnnotationDoc(String name, String description, String dataType, String href, String attachments) {
+        super(name, "fw-annotation", description, new ArrayList<>());
+        this.dataType = dataType;
+        this.href = href;
+        this.attachments = attachments;
         isAnnotation = true;
     }
 }

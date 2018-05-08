@@ -3,7 +3,7 @@ import ballerina/doc;
 import ballerina/lang.jsons;
 
 @doc:Description {value:"Workers interact with each other by sending and receiving messages. Ballerina checks the send/receive signatures of every pair of workers and validate in order to avoid deadlocks."}
-function main (string[] args) {
+function main (string... args) {
     int i = 100;
     float k = 2.34;
     system:println("[default -> w1] i: " + i + " k: " + k);

@@ -19,6 +19,9 @@
 package org.ballerinalang.net.websub;
 
 import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpService;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
@@ -34,8 +37,87 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSubServicesRegistry.class);
 
+    private String topicIdentifier;
+    private String topicHeader;
+    private BStringArray topicPayloadKeys;
+    private BMap<String, BMap<String, BString>> topicResourceMap;
+
     public WebSubServicesRegistry(WebSocketServicesRegistry webSocketServicesRegistry) {
         super(webSocketServicesRegistry);
+    }
+
+    /**
+     * Method to retrieve the identifier for topics based on which dispatching would happen for custom subscriber
+     * services.
+     *
+     * @return the identifier for topics
+     */
+    String getTopicIdentifier() {
+        return topicIdentifier;
+    }
+
+    /**
+     * Method to set the identifier for topics based on which dispatching should happen for custom subscriber
+     * services.
+     *
+     * @param topicIdentifier the identifier for topics to set
+     */
+    public void setTopicIdentifier(String topicIdentifier) {
+        this.topicIdentifier = topicIdentifier;
+    }
+
+    /**
+     * Method to retrieve the topic header upon which routing would be based, if specified.
+     *
+     * @return the topic header to consider
+     */
+    String getTopicHeader() {
+        return topicHeader;
+    }
+
+    /**
+     * Method to set the topic header upon which routing should be based, if specified.
+     *
+     * @param topicHeader the topic header to consider
+     */
+    public void setTopicHeader(String topicHeader) {
+        this.topicHeader = topicHeader;
+    }
+
+    /**
+     * Method to retrieve the payload keys upon which routing would be based, if specified.
+     *
+     * @return the payload keys to consider
+     */
+    BStringArray getTopicPayloadKeys() {
+        return topicPayloadKeys;
+    }
+
+    /**
+     * Method to set the payload keys upon which routing should be based, if specified.
+     *
+     * @param topicPayloadKeys the payload keys to consider
+     */
+    public void setTopicPayloadKeys(BStringArray topicPayloadKeys) {
+        this.topicPayloadKeys = topicPayloadKeys;
+    }
+
+    /**
+     * Method to set the topic resource mapping if specified.
+     *
+     * @param topicResourceMap topic-resource map specified for the service
+     */
+    public void setTopicResourceMap(BMap<String, BMap<String, BString>> topicResourceMap) {
+        this.topicResourceMap = topicResourceMap;
+    }
+
+    /**
+     * Method to retrieve the topic resource mapping if specified.
+     *
+     * @return the topic-resource map specified for the service
+     */
+    BMap<String, BMap<String, BString>> getTopicResourceMap() {
+        return topicResourceMap;
     }
 
     /**
@@ -53,7 +135,7 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
         sortedServiceURIs.add(httpService.getBasePath());
         sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
 
-        WebSubSubscriberServiceValidator.validateResources(httpService);
+        WebSubSubscriberServiceValidator.validateResources(httpService, topicHeader, topicResourceMap);
     }
 
 }

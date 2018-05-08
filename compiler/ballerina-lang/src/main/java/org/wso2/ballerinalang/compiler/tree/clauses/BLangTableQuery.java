@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.clauses;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
+import org.ballerinalang.model.tree.clauses.LimitNode;
 import org.ballerinalang.model.tree.clauses.OrderByNode;
 import org.ballerinalang.model.tree.clauses.SelectClauseNode;
 import org.ballerinalang.model.tree.clauses.StreamingInput;
@@ -42,6 +43,7 @@ public class BLangTableQuery extends BLangNode implements TableQuery {
     private JoinStreamingInput joinStreamingInput;
     private SelectClauseNode selectClauseNode;
     private OrderByNode orderByNode;
+    private LimitNode limitNode;
 
     //This will be generated in desugar phase
     private String sqlQuery;
@@ -85,6 +87,16 @@ public class BLangTableQuery extends BLangNode implements TableQuery {
     @Override
     public OrderByNode getOrderByNode() {
         return this.orderByNode;
+    }
+
+    @Override
+    public void setLimitClause(LimitNode limitClause) {
+        this.limitNode = limitClause;
+    }
+
+    @Override
+    public LimitNode getLimitClause() {
+        return limitNode;
     }
 
     @Override

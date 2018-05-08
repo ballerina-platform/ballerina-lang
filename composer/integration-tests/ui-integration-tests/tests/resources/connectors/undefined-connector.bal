@@ -1,4 +1,3 @@
-package samples.connectors.test;
 
 function testUndefinedConnector() (boolean) {
     UndefinedConnector testConnector = create UndefinedConnector("MyParam1", "MyParam2", 5);

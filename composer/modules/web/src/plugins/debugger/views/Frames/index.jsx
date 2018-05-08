@@ -66,7 +66,8 @@ class Frames extends React.Component {
                     const label = <span className='node'><strong>{name}</strong>{` (${type})`}</span>;
                     if (type.toLowerCase().includes('json')
                         || type.toLowerCase().includes('struct')
-                        || type.toLowerCase().includes('map')) {
+                        || type.toLowerCase().includes('map')
+                        || variable.value.startsWith('struct')) {
                         return (
                             <TreeView key={name} nodeLabel={label} defaultCollapsed>
                                 <div className='node'>Value:</div>

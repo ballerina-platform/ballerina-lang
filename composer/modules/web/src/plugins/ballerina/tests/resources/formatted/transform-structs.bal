@@ -17,7 +17,7 @@ struct Person {
     string city;
 }
 
-function main (string[] args) {
+function main (string... args) {
     //Initialize Person variable person
     Person person = {first_name:"John", last_name:"Doe", age:30, city:"London"};
 

@@ -124,7 +124,7 @@ class ImportStructDialog extends React.Component {
         return (
             <Dialog
                 show={this.state.showDialog}
-                title='Create Struct'
+                title='Create Record'
                 titleIcon='fw fw-import'
                 closeDialog
                 actions={[
@@ -146,7 +146,7 @@ class ImportStructDialog extends React.Component {
                 >
                     <Form.Group controlId='structName' inline className='inverted'>
                         <Form.Field width={3} htmlFor='structName'>
-                            <label>Struct Name</label>
+                            <label>Record Name</label>
                         </Form.Field>
                         <Form.Field width={12} className='inverted'>
                             <Input
@@ -164,11 +164,11 @@ class ImportStructDialog extends React.Component {
                     <Accordion as={Form.Field} className='inverted'>
                         <Accordion.Title active={this.state.activeIndex === 0} index={0} onClick={this.handleAccordion}>
                             <Icon name='dropdown' />
-                            Create struct using JSON.
+                            Create record using JSON.
                         </Accordion.Title>
                         <Accordion.Content active={this.state.activeIndex === 0}>
                             <Form.Field>
-                                <p>Please enter a valid sample JSON to generate struct definition.</p>
+                                <p>Please enter a valid sample JSON to generate a record.</p>
                                 <MonacoEditor
                                     width='auto'
                                     height='300'

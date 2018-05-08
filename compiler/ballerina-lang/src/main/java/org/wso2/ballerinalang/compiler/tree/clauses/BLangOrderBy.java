@@ -20,7 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.clauses;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.clauses.OrderByNode;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.clauses.OrderByVariableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -28,22 +28,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * @see OrderByNode
  * @since 0.965.0
  *
  * Implementation of {@link OrderByNode}.
- * @see OrderByNode
  */
 public class BLangOrderBy extends BLangNode implements OrderByNode {
 
-    private List<ExpressionNode> varRefs = new ArrayList<>();
+    private List<OrderByVariableNode> varRefs = new ArrayList<>();
 
     @Override
-    public void addVariableReference(ExpressionNode varRef) {
+    public void addOrderByVariable(OrderByVariableNode varRef) {
         varRefs.add(varRef);
     }
 
     @Override
-    public List<? extends ExpressionNode> getVariables() {
+    public List<? extends OrderByVariableNode> getVariables() {
         return varRefs;
     }
 

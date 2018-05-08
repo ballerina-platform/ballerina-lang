@@ -1,4 +1,3 @@
-package lang.annotations.doc1;
 
 @Description{
     value:"Self annotating an annotation",

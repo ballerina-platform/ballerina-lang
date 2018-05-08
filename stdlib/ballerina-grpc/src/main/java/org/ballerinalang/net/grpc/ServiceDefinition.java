@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.grpc.MethodDescriptor.generateFullMethodName;
+import static org.ballerinalang.net.grpc.MessageUtils.setNestedMessages;
 
 /**
  * This class contains proto descriptors of the service.
@@ -120,15 +121,14 @@ public final class ServiceDefinition {
                             .build();
             descriptorMap.put(fullMethodName, descriptor);
             MessageRegistry messageRegistry = MessageRegistry.getInstance();
+            // update method descriptor
             messageRegistry.addMethodDescriptor(fullMethodName, methodDescriptor);
+            // update request message descriptors.
             messageRegistry.addMessageDescriptor(reqMessage.getName(), reqMessage);
-            for (Descriptors.Descriptor nestedType : reqMessage.getNestedTypes()) {
-                messageRegistry.addMessageDescriptor(nestedType.getName(), nestedType);
-            }
+            setNestedMessages(reqMessage, messageRegistry);
+            // update response message descriptors
             messageRegistry.addMessageDescriptor(resMessage.getName(), resMessage);
-            for (Descriptors.Descriptor nestedType : resMessage.getNestedTypes()) {
-                messageRegistry.addMessageDescriptor(nestedType.getName(), nestedType);
-            }
+            setNestedMessages(resMessage, messageRegistry);
         }
         return Collections.unmodifiableMap(descriptorMap);
     }

@@ -63,7 +63,11 @@ function testReturnAndThrowError() returns (string){
     try{
         checkAndThrow();
     }catch(error e){
-        error c = e.cause but { error s => s };
+        error c;
+        match e.cause { 
+            error s => c = s;
+            () => c = {}; 
+        }
         return c.message;
     }
     return "OK";

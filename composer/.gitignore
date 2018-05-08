@@ -196,7 +196,6 @@ dependency-reduced-pom.xml
 #################
 node_modules/
 dist
-dist-library
 npm-debug.log
 
 #################

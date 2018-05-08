@@ -126,7 +126,7 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
             formattedString =  dateTime.format(dateTimeFormatter);
         } catch (IllegalArgumentException e) {
-            throw new BallerinaException("invalid pattern for formatting " + pattern);
+            throw new BallerinaException("invalid pattern for formatting: " + pattern);
         }
         return formattedString;
     }

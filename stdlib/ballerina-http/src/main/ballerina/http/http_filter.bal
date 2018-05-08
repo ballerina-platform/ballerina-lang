@@ -14,46 +14,48 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
+documentation {
+   Representation of a HTTP Request Filter. This filter will be applied before the request is dispatched to the relevant resource. Any Filter implementation should be structurally similar to the Filter object.
 
-@Description {value:"Representation of a HTTP Request Filter. This filter will be applied before the request is
-dispatched to the relevant resource. Any Filter implementation should be struct-wise similar to the Filter struct."}
-@Field {value:"filterRequest: Request filter function pointer"}
-@Field {value:"filterResponse: Response filter function pointer"}
+}
 public type Filter object {
-    public {
-        function (Request request, FilterContext context) returns (FilterResult) filterRequest;
-        function (Response response, FilterContext context) returns (FilterResult) filterResponse;
-    }
+    documentation {
+        Request filter function.
 
-    public new (filterRequest, filterResponse) {
+        P{{request}} An inboud HTTP request message
+        P{{context}} A filter context
+        R{{}} The resulting object after filtering the request
     }
-
-    public function init ();
-    public function terminate ();
+    public function filterRequest(Request request, FilterContext context) returns FilterResult;
 };
 
-@Description {value:"Representation of filter Context."}
-@Field {value:"serviceType: Type of the service"}
-@Field {value:"serviceName: Name of the service"}
-@Field {value:"filterResponse: Name of the resource"}
+documentation {
+    Representation of filter Context.
+
+    F{{serviceType}} Type of the service
+    F{{serviceName}} Name of the service
+    F{{resourceName}} Name of the resource
+    F{{attributes}} Attributes to share between filters
+}
 public type FilterContext object {
-    // TODO should have a map of properties
     public {
         typedesc serviceType;
         string serviceName;
         string resourceName;
+        map attributes;
     }
-    new (serviceType){}
+    new(serviceType, serviceName, resourceName, attributes) {}
 };
 
-@Description {value:"Represents a filter result. This should be populated and returned by each request and response
-filter function"}
-@Field {value:"canProceed: Flag to check if the execution of the request should proceed or stopped"}
-@Field {value:"statusCode: Status code which will be returned to the request sender if the canProceed is set to false"}
-@Field {value:"message: Message which will be returned to the request sender if the canProceed is set to false"}
+documentation {
+    Represents a filter result. This should be populated and returned by each request and response filter function.
+
+    F{{canProceed}} Flag to check if the execution of the request should proceed or stop
+    F{{statusCode}} Status code which will be returned to the request sender if the canProceed is set to `false`
+    F{{message}} Message which will be returned to the request sender if the `canProceed` is set to `false`
+}
 public type FilterResult {
-    boolean canProceed;
-    int statusCode;
-    string message;
+    boolean canProceed,
+    int statusCode,
+    string message,
 };

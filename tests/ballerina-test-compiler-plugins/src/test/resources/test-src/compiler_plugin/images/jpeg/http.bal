@@ -1,4 +1,3 @@
-package images.jpeg;
 
 public annotation IConfig attach resource, function, action {
     string value;

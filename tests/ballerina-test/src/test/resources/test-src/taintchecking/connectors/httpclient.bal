@@ -1,12 +1,10 @@
 import ballerina/http;
 
 endpoint http:Client clientEndpoint {
-    targets: [{
-        url: "https://postman-echo.com"
-    }]
+    url: "https://postman-echo.com"
 };
 
-function main (string[] args) {
+function main (string... args) {
     string param = "staticValue";
     string headerName = "staticValue";
     string headerValue = "staticValue";
@@ -14,18 +12,18 @@ function main (string[] args) {
     http:Request req = new;
     req.setHeader(headerName, headerValue);
 
-    var response = clientEndpoint -> get("/get?test=" + param, req);
+    var response = clientEndpoint -> get("/get?test=" + param, request = req);
     match response {
         http:Response resp => {
-            var msg = resp.getStringPayload();
+            var msg = resp.getTextPayload();
             match msg {
                 string stringPayload => {
                     normalFunction (stringPayload);
                 }
-                http:PayloadError payloadError => return;
+                error payloadError => return;
             }
         }
-        http:HttpConnectorError err => return;
+        error err => return;
     }
 }
 

@@ -1,15 +1,15 @@
 import ballerina/runtime;
 import ballerina/time;
 
-function testSleepCurrentThread () {
-    runtime:sleepCurrentWorker(1000);
+function testSleep() {
+    runtime:sleep(1000);
 }
 
-function testConcurrentSleep () returns (int[]) {
+function testConcurrentSleep() returns (int[]) {
     worker w1 {
         int[] result = [];
         int startTime = time:currentTime().time;
-        runtime:sleepCurrentWorker(1000);
+        runtime:sleep(1000);
         int end = time:currentTime().time;
         result[0] = end - startTime;
         result -> w2;
@@ -18,7 +18,7 @@ function testConcurrentSleep () returns (int[]) {
     }
     worker w2 {
         int startTime = time:currentTime().time;
-        runtime:sleepCurrentWorker(1000);
+        runtime:sleep(1000);
         int end = time:currentTime().time;
         int[] result;
         result <- w1;
@@ -27,7 +27,7 @@ function testConcurrentSleep () returns (int[]) {
     }
     worker w3 {
         int startTime = time:currentTime().time;
-        runtime:sleepCurrentWorker(2000);
+        runtime:sleep(2000);
         int end = time:currentTime().time;
         int[] result;
         result <- w2;
@@ -36,7 +36,7 @@ function testConcurrentSleep () returns (int[]) {
     }
     worker w4 {
         int startTime = time:currentTime().time;
-        runtime:sleepCurrentWorker(2000);
+        runtime:sleep(2000);
         int end = time:currentTime().time;
         int[] result;
         result <- w3;
@@ -45,7 +45,7 @@ function testConcurrentSleep () returns (int[]) {
     }
     worker w5 {
         int startTime = time:currentTime().time;
-        runtime:sleepCurrentWorker(1000);
+        runtime:sleep(1000);
         int end = time:currentTime().time;
         int[] result;
         result <- w4;
@@ -54,22 +54,6 @@ function testConcurrentSleep () returns (int[]) {
     }
 }
 
-function testSetProperty (string name, string value) {
-    runtime:setProperty(name, value);
-}
-
-function testGetProperty (string name) returns (string) {
+function testGetProperty(string name) returns (string) {
     return runtime:getProperty(name);
-}
-
-function testGetProperties () returns (map) {
-    return runtime:getProperties();
-}
-
-function testGetCurrentDirectory () returns (string) {
-    return runtime:getCurrentDirectory();
-}
-
-function testGetFileEncoding () returns (string) {
-    return runtime:getFileEncoding();
 }

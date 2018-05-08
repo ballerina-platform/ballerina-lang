@@ -1,4 +1,3 @@
-package lang.globalvar.pkg.main;
 
 import ballerina/lang.messages;
 import ballerina/http;

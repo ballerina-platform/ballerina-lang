@@ -72,7 +72,7 @@ public class CreateSubscriber extends AbstractBlockinAction {
         try {
             Topic topic = JMSUtils.getTopic(session, topicPattern);
             MessageConsumer consumer = session.createConsumer(topic, messageSelector);
-            Struct consumerConnectorBObject = topicSubscriberBObject.getStructField(Constants.CONSUMER_CONNECTOR);
+            Struct consumerConnectorBObject = topicSubscriberBObject.getStructField(Constants.CONSUMER_ACTIONS);
             consumerConnectorBObject.addNativeData(Constants.JMS_CONSUMER_OBJECT, consumer);
             consumerConnectorBObject.addNativeData(Constants.SESSION_CONNECTOR_OBJECT, new SessionConnector(session));
         } catch (JMSException e) {

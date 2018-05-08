@@ -30,12 +30,14 @@ import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.ballerinalang.model.tree.statements.XMLNSDeclStatementNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
 import java.util.ArrayList;
@@ -61,6 +63,7 @@ public class BLangService extends BLangNode implements ServiceNode {
     public List<BLangSimpleVarRef> boundEndpoints;
     public BStructType endpointType, endpointClientType;
     public BLangRecordLiteral anonymousEndpointBind;
+    public List<BLangXMLNSStatement> nsDeclarations;
 
     public BSymbol symbol;
 
@@ -73,6 +76,7 @@ public class BLangService extends BLangNode implements ServiceNode {
         this.docAttachments = new ArrayList<>();
         this.deprecatedAttachments = new ArrayList<>();
         this.boundEndpoints = new ArrayList<>();
+        this.nsDeclarations = new ArrayList<>();
     }
 
     @Override
@@ -189,6 +193,16 @@ public class BLangService extends BLangNode implements ServiceNode {
     @Override
     public void addAnonymousEndpointBind(RecordLiteralNode recordLiteralNode) {
         this.anonymousEndpointBind = (BLangRecordLiteral) recordLiteralNode;
+    }
+
+    @Override
+    public List<BLangXMLNSStatement> getNamespaceDeclarations() {
+        return nsDeclarations;
+    }
+
+    @Override
+    public void addNamespaceDeclaration(XMLNSDeclStatementNode xmlns) {
+        this.nsDeclarations.add((BLangXMLNSStatement) xmlns);
     }
 
     @Override

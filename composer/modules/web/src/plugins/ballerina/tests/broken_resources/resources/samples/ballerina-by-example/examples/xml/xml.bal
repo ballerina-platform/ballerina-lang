@@ -1,6 +1,6 @@
 import ballerina/lang.system;
 
-function main (string[] args) {
+function main (string... args) {
 
 	// XML element. Can only have one root element.
     xml x1 = xml `<book>The Lost World</book>`;

@@ -1,4 +1,3 @@
-package abc.xyz;
 
 import ballerina/http;
 import ballerina/io;

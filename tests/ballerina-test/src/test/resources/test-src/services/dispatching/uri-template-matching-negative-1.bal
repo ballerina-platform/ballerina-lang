@@ -14,21 +14,21 @@ service<http:Service> negativeTemplateURI bind testEP {
         methods:["POST"],
         path:"/echo/{abc}/bar"
     }
-     echo1 (endpoint client, http:Request req, string abc) {
+     echo1 (endpoint caller, http:Request req, string abc) {
         http:Response res = new;
         json responseJson = {"first":abc, "echo":"echo"};
         res.setJsonPayload(responseJson);
-        _ = client -> respond(res);
+        _ = caller -> respond(res);
     }
 
     @http:ResourceConfig {
         methods:["POST"],
         path:"/echo/{xyz}/bar"
     }
-     echo2 (endpoint client, http:Request req, string xyz) {
+     echo2 (endpoint caller, http:Request req, string xyz) {
         http:Response res = new;
         json responseJson = {"first":xyz, "echo":"echo"};
         res.setJsonPayload(responseJson);
-        _ = client -> respond(res);
+        _ = caller -> respond(res);
     }
 }

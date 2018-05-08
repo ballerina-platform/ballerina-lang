@@ -1,4 +1,4 @@
-public function main (string[] args) {
+function main (string... args) {
     worker w1 {
         secureFunction(args[0], args[0]);
     }

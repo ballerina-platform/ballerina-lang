@@ -1,4 +1,4 @@
-public function main (string[] args) {
+function main (string... args) {
     secureFunction(untaintedReturn(args[0]), untaintedReturn(args[0]));
 }
 

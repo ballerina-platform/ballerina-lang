@@ -1,6 +1,6 @@
-function testCompareNullOfDifferentTypes () returns (int, xml|null, json) {
-    xml | null x = null;
-    json | null j = null;
+function testCompareNullOfDifferentTypes () returns (int, xml?, json) {
+    xml? x;
+    json j = null;
     int a = 0;
     if (x == j) {
         a = 11;
@@ -10,20 +10,21 @@ function testCompareNullOfDifferentTypes () returns (int, xml|null, json) {
 }
 
 function testInvalidFunctionCallWithNull() returns (any) {
-    return foo(null);
+    string? s;
+    return foo(s);
 }
 
-function foo(string s) returns (string){
+function foo(string? s) returns (string?){
     return s;
 }
 
 function testLogicalOperationOnNull1() returns (boolean) {
     xml x;
-    return (null > x);
+    return (() > x);
 }
 
 function testNullForValueType1() {
-    int | null a = null;
+    int a = ();
 }
 
 function testLogicalOperationOnNull2() returns (any) {
@@ -31,9 +32,9 @@ function testLogicalOperationOnNull2() returns (any) {
 }
 
 function testNullForValueType2() {
-    string s = (string) null;
+    string s = ();
 }
 
 function testNullForValueType3() {
-    json | null j = null;
+    json j = null;
 }

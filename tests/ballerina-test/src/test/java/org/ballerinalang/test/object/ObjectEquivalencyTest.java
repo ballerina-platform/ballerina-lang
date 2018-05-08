@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -116,5 +117,18 @@ public class ObjectEquivalencyTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructEquivalencyWithFunctionType");
         Assert.assertEquals(returns[0].stringValue(), "anyStruct{\"s\":\"sss\"}");
         Assert.assertEquals(returns[1].stringValue(), "someStruct{\"s\":\"sss\"}");
+    }
+    
+    @Test(description = "Test tuple equivalency with object equivalency ")
+    public void testTupleMatchWithObjectEquivalency() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTupleMatchWithObjectEquivalency");
+        Assert.assertEquals(returns[0].stringValue(), "SUCCESS");
+    }
+
+    @Test(description = "Test object equivalency negative",
+            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*'eq:BarObj' cannot be cast to 'eq2:FooObj'.*")
+    public void testObjectEqViewFromThirdPackageNegative() {
+        BRunUtil.invoke(compileResult, "testObjectEqViewFromThirdPackage");
     }
 }

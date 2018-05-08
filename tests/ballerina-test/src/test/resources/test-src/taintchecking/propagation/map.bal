@@ -1,4 +1,4 @@
-public function main (string[] args) {
+function main (string... args) {
     // untainted Json - untainted field - field access
     map student = {name:"Ballerina", address:"Colombo"};
     secureFunction(student.name, student.name);

@@ -19,13 +19,14 @@
 package org.ballerinalang.net.http.nativeimpl.connection;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpUtil;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -49,16 +50,16 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
 public class Promise extends ConnectionAction {
 
     @Override
-    public void execute(Context context) {
+    public void execute(Context context, CallableUnitCallback callback) {
         BStruct connectionStruct = (BStruct) context.getRefArgument(0);
         HTTPCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionStruct, null);
+        DataContext dataContext = new DataContext(context, callback, inboundRequestMsg);
         HttpUtil.serverConnectionStructCheck(inboundRequestMsg);
 
         BStruct pushPromiseStruct = (BStruct) context.getRefArgument(1);
         Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseStruct,
                                                                     HttpUtil.createHttpPushPromise(pushPromiseStruct));
         HttpResponseFuture outboundRespStatusFuture = HttpUtil.pushPromise(inboundRequestMsg, http2PushPromise);
-        BValue[] outboundResponseStatus = handleResponseStatus(context, outboundRespStatusFuture);
-        context.setReturnValues(outboundResponseStatus);
+        setResponseConnectorListener(dataContext, outboundRespStatusFuture);
     }
 }

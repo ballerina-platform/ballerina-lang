@@ -16,6 +16,7 @@
 
 package org.ballerinalang.swagger.model;
 
+import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.servers.ServerVariable;
 import io.swagger.v3.oas.models.servers.ServerVariables;
@@ -81,9 +82,14 @@ public class BallerinaServer implements BallerinaSwaggerObject<BallerinaServer, 
     }
 
     @Override
+    public BallerinaServer buildContext(Server server, OpenAPI openAPI) throws BallerinaOpenApiException {
+        return buildContext(server);
+    }
+
+    @Override
     public BallerinaServer getDefaultValue() {
-        this.host = "localhost";
-        this.port = 80;
+        this.host = null; // host not required for default binding
+        this.port = 9090;
         this.basePath = "/";
 
         return this;

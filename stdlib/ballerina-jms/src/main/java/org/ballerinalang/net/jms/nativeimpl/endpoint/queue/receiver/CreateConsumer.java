@@ -70,7 +70,7 @@ public class CreateConsumer implements NativeCallableUnit {
         try {
             Destination queue = session.createQueue(queueName);
             MessageConsumer consumer = session.createConsumer(queue, messageSelector);
-            Struct consumerConnectorBObject = queueConsumerBObject.getStructField(Constants.CONSUMER_CONNECTOR);
+            Struct consumerConnectorBObject = queueConsumerBObject.getStructField(Constants.CONSUMER_ACTIONS);
             consumerConnectorBObject.addNativeData(Constants.JMS_CONSUMER_OBJECT, consumer);
             consumerConnectorBObject.addNativeData(Constants.SESSION_CONNECTOR_OBJECT, new SessionConnector(session));
         } catch (JMSException e) {

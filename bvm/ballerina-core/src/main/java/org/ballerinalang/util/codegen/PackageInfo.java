@@ -43,6 +43,10 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     public String pkgVersion;
     private FunctionInfo initFunctionInfo, startFunctionInfo, stopFunctionInfo;
 
+    // TODO TEMP Design PackageContext concept
+    // This number is used as an index to the global memory area where package level variables are stored.
+    public int pkgIndex;
+
     private ConstantPoolEntry[] constPool;
     private List<ConstantPoolEntry> constantPoolEntries = new ArrayList<>();
 

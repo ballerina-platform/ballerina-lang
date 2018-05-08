@@ -16,11 +16,10 @@ node_modules
 hs_err_pid*
 
 server-build
+plugin/renderer/resources/
 
 .project
 .settings
 .vscode
 .idea/
 *.iml
-
-syntaxes/build/build.js

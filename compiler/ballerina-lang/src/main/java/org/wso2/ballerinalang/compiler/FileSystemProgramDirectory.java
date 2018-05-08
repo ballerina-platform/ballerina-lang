@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.repository.CompiledPackage;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.converters.PathConverter;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
@@ -107,7 +108,9 @@ public class FileSystemProgramDirectory implements SourceDirectory {
     }
 
     @Override
-    public void saveCompiledPackage(InputStream source, String fileName) {
+    public void saveCompiledPackage(CompiledPackage compiledPackage,
+                                    Path dirPath,
+                                    String fileName)  throws IOException {
 
     }
 

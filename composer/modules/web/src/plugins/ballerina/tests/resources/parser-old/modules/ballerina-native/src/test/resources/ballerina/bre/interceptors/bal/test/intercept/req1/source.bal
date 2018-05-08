@@ -1,4 +1,3 @@
-package bal.test.intercept.req1;
 
 import ballerina/lang.messages;
 import ballerina/lang.system;
@@ -9,6 +8,6 @@ function requestInterceptor (message msg) (boolean, message) {
     return true, msg;
 }
 
-function main (string[] args) {
+function main (string... args) {
     system:println("Hello, World!");
 }

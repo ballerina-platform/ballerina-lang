@@ -87,8 +87,8 @@ public class SymbolTable {
     public final BType jsonType = new BJSONType(TypeTags.JSON, noType, null);
     public final BType xmlType = new BXMLType(TypeTags.XML, null);
     public final BType tableType = new BTableType(TypeTags.TABLE, noType, null);
-    public final BType streamType = new BStreamType(TypeTags.STREAM, noType, null);
     public final BType anyType = new BAnyType(TypeTags.ANY, null);
+    public final BType streamType = new BStreamType(TypeTags.STREAM, anyType, null);
     public final BType mapType = new BMapType(TypeTags.MAP, anyType, null);
     public final BType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
     public final BType xmlAttributesType = new BXMLAttributesType(TypeTags.XML_ATTRIBUTES);
@@ -346,10 +346,10 @@ public class SymbolTable {
         defineConversionOperator(anyType, tableType, false, InstructionCodes.ANY2DT);
         defineConversionOperator(anyType, streamType, false, InstructionCodes.ANY2STM);
 
-        defineConversionOperator(jsonType, intType, false, InstructionCodes.JSON2I);
-        defineConversionOperator(jsonType, floatType, false, InstructionCodes.JSON2F);
-        defineConversionOperator(jsonType, stringType, false, InstructionCodes.JSON2S);
-        defineConversionOperator(jsonType, booleanType, false, InstructionCodes.JSON2B);
+        defineConversionOperator(jsonType, intType, false, InstructionCodes.CHECKCAST);
+        defineConversionOperator(jsonType, floatType, false, InstructionCodes.CHECKCAST);
+        defineConversionOperator(jsonType, stringType, false, InstructionCodes.CHECKCAST);
+        defineConversionOperator(jsonType, booleanType, false, InstructionCodes.CHECKCAST);
 
         // Define conversion operators
         defineConversionOperator(anyType, stringType, true, InstructionCodes.ANY2SCONV);

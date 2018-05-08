@@ -1,4 +1,3 @@
-package a.b;
 
 import ballerina/io;
 

@@ -1,4 +1,3 @@
-package lang.globalvar.pkg.main;
 
 import lang.globalvar.pkg.variable;
 

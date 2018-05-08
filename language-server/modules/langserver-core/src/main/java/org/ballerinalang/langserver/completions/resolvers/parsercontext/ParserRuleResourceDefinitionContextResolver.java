@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
-import org.ballerinalang.langserver.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;

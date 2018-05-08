@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.resolvers;
 
-import org.ballerinalang.langserver.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;

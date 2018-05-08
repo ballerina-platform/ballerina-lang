@@ -283,28 +283,28 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
 
     //    public void testInvokingFunctionInDifferentFile1() {
     //        myFixture.addFileToProject("file.bal", "function test(){}");
-    //        doCheckResult("test.bal", "function main(string[] args){ tes<caret> }",
-    //                "function main(string[] args){ test() }", null);
+    //        doCheckResult("test.bal", "function main(string... args){ tes<caret> }",
+    //                "function main(string... args){ test() }", null);
     //    }
     //
     //    public void testInvokingFunctionInDifferentFile2() {
     //        myFixture.addFileToProject("file.bal", "function test1(){} function test2(){}");
-    //        doTest("function main(string[] args){ tes<caret> }", "test1", "test2");
+    //        doTest("function main(string... args){ tes<caret> }", "test1", "test2");
     //    }
 
     public void testVariable1() {
-        doTest("function main(string[] args){ int <caret> }");
+        doTest("function main(string... args){ int <caret> }");
     }
 
     //    public void testVariable2() {
-    //        doTest("function main(string[] args){ int a = <caret> }", "args", "main", "create", "false", "null",
+    //        doTest("function main(string... args){ int a = <caret> }", "args", "main", "create", "false", "null",
     // "true",
     //                "lengthof", "typeof");
     //    }
 
     public void testCreateKeywordAutoCompletion() {
-        doCheckResult("test.bal", "function main(string[] args){ http:ClientConnector con = cr<caret> }",
-                "function main(string[] args){ http:ClientConnector con = create }", null);
+        doCheckResult("test.bal", "function main(string... args){ http:ClientConnector con = cr<caret> }",
+                "function main(string... args){ http:ClientConnector con = create }", null);
     }
 
     //    public void testInvocationInFunctionWithTraileringCode() {
@@ -320,225 +320,225 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     //        expectedLookups.add("args");
     //        expectedLookups.add("return");
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ <caret> \ntest:getA(); }",
+    //        doTest("import org.test; function main(string... args){ <caret> \ntest:getA(); }",
     //                expectedLookups.toArray(new String[expectedLookups.size()]));
     //    }
     //
     //    public void testPackageInvocationInFunction() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ test:<caret> }", "getA", "getB");
+    //        doTest("import org.test; function main(string... args){ test:<caret> }", "getA", "getB");
     //    }
     //
     //    public void testPackageInvocationInFunctionHasTraileringCode() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ test:<caret> \ntest:getA();}", "getA", "getB");
+    //        doTest("import org.test; function main(string... args){ test:<caret> \ntest:getA();}", "getA", "getB");
     //    }
     //
     //    public void testPackageInvocationInFunctionWithPartialIdentifier() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ test:g<caret> }", "getA", "getB");
+    //        doTest("import org.test; function main(string... args){ test:g<caret> }", "getA", "getB");
     //    }
     //
     //    public void testPackageInvocationInFunctionWithPartialIdentifierHasTraileringCode() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ test:g<caret> \ntest:getA(); }", "getA", "getB");
+    //        doTest("import org.test; function main(string... args){ test:g<caret> \ntest:getA(); }", "getA", "getB");
     //    }
     //
     //    public void testPackageInvocationAsParamInFunction() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ test(test:<caret>) } function test(string s){}",
+    //        doTest("import org.test; function main(string... args){ test(test:<caret>) } function test(string s){}",
     //                "getA", "getB");
     //    }
     //
     //    public void testPackageInvocationAsParamInFunctionWithTraileringCode() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ test(test:<caret>) \ntest:getA(); }" +
+    //        doTest("import org.test; function main(string... args){ test(test:<caret>) \ntest:getA(); }" +
     //                " function test(string s){}", "getA", "getB");
     //    }
     //
     //    public void testPackageInvocationAsParamWithTraileringCodeInFunction() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ test(test:<caret> test:getA()) }" +
+    //        doTest("import org.test; function main(string... args){ test(test:<caret> test:getA()) }" +
     //                " function test(string s){}", "getA", "getB");
     //    }
     //
     //    public void testPackageInvocationAsParamWithTraileringCodeInFunctionWithTraileringCode() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ test(test:<caret> test:getA()) \ntest:getA(); }" +
+    //        doTest("import org.test; function main(string... args){ test(test:<caret> test:getA()) \ntest:getA(); }" +
     //                " function test(string s){}", "getA", "getB");
     //    }
     //
     //    public void testPackageInvocationAsParamInFunctionWithPartialIdentifier() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ test(test:g<caret>) } function test(string s){}",
+    //        doTest("import org.test; function main(string... args){ test(test:g<caret>) } function test(string s){}",
     //                "getA", "getB");
     //    }
     //
     //    public void testPackageInvocationAsParamInFunctionWithPartialIdentifierWithTraileringCode() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ test(test:g<caret>) \ntest:getA();} " +
+    //        doTest("import org.test; function main(string... args){ test(test:g<caret>) \ntest:getA();} " +
     //                "function test(string s){}", "getA", "getB");
     //    }
     //
     //    public void testPackageInvocationAsParamWithTraileringCodeInFunctionWithPartialIdentifier() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ test(test:g<caret> test:getA()) } " +
+    //        doTest("import org.test; function main(string... args){ test(test:g<caret> test:getA()) } " +
     //                "function test(string s){}", "getA", "getB");
     //    }
     //
     //    public void testPackageInvocationAsParamWithTraileringCodeInFunctionWithPartialIdentifierWithTraileringCode
     // () {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ test(test:g<caret> test:getA()) \ntest:getA(); }
+    //        doTest("import org.test; function main(string... args){ test(test:g<caret> test:getA()) \ntest:getA(); }
     // " +
     //                "function test(string s){}", "getA", "getB");
     //    }
     //
     //    public void testFunctionFromPackageInvocation5() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ test(\"TEST\"+test:<caret>) } " +
+    //        doTest("import org.test; function main(string... args){ test(\"TEST\"+test:<caret>) } " +
     //                "function test(string s){}", "getA", "getB");
     //    }
     //
     //    public void testFunctionFromPackageInvocation6() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ test(\"TEST\"+test:g<caret>) } " +
+    //        doTest("import org.test; function main(string... args){ test(\"TEST\"+test:g<caret>) } " +
     //                "function test(string s){}", "getA", "getB");
     //    }
     //
     //    public void testFunctionFromPackageInvocation7() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ test(\"TEST\" + test:<caret>) } " +
+    //        doTest("import org.test; function main(string... args){ test(\"TEST\" + test:<caret>) } " +
     //                "function test(string s){}", "getA", "getB");
     //    }
     //
     //    public void testFunctionFromPackageInvocation8() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ test(\"TEST\" + test:g<caret>) } " +
+    //        doTest("import org.test; function main(string... args){ test(\"TEST\" + test:g<caret>) } " +
     //                "function test(string s){}", "getA", "getB");
     //    }
     //
     //    public void testFunctionFromPackageInvocation9() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ test(\"TEST\"+test:<caret>+\"TEST\") } " +
+    //        doTest("import org.test; function main(string... args){ test(\"TEST\"+test:<caret>+\"TEST\") } " +
     //                "function test(string s){}", "getA", "getB");
     //    }
     //
     //    public void testFunctionFromPackageInvocation10() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ test(\"TEST\"+test:g<caret>+\"TEST\") } " +
+    //        doTest("import org.test; function main(string... args){ test(\"TEST\"+test:g<caret>+\"TEST\") } " +
     //                "function test(string s){}", "getA", "getB");
     //    }
     //
     //    public void testFunctionFromPackageInvocation11() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ test(\"TEST\"+test:<caret> +\"TEST\") } " +
+    //        doTest("import org.test; function main(string... args){ test(\"TEST\"+test:<caret> +\"TEST\") } " +
     //                "function test(string s){}", "getA", "getB");
     //    }
     //
     //    public void testFunctionFromPackageInvocation12() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ test(\"TEST\"+test:g<caret> +\"TEST\") }",
+    //        doTest("import org.test; function main(string... args){ test(\"TEST\"+test:g<caret> +\"TEST\") }",
     //                "getA", "getB");
     //    }
     //
     //    public void testFunctionFromPackageInvocation13() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ string s =test:<caret> }",
+    //        doTest("import org.test; function main(string... args){ string s =test:<caret> }",
     //                "getA", "getB");
     //    }
     //
     //    public void testFunctionFromPackageInvocation14() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ string s =test:g<caret> }",
+    //        doTest("import org.test; function main(string... args){ string s =test:g<caret> }",
     //                "getA", "getB");
     //    }
     //
     //    public void testFunctionFromPackageInvocation15() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ string s = test:<caret> }",
+    //        doTest("import org.test; function main(string... args){ string s = test:<caret> }",
     //                "getA", "getB");
     //    }
     //
     //    public void testFunctionFromPackageInvocation16() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ string s = test:g<caret> }",
+    //        doTest("import org.test; function main(string... args){ string s = test:g<caret> }",
     //                "getA", "getB");
     //    }
     //
     //    public void testFunctionFromPackageInvocation17() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ string s = test:<caret>+\"TEST\"; }",
+    //        doTest("import org.test; function main(string... args){ string s = test:<caret>+\"TEST\"; }",
     //                "getA", "getB");
     //    }
     //
     //    public void testFunctionFromPackageInvocation18() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ string s = test:g<caret>+\"TEST\"; }",
+    //        doTest("import org.test; function main(string... args){ string s = test:g<caret>+\"TEST\"; }",
     //                "getA", "getB");
     //    }
     //
     //    public void testFunctionFromPackageInvocation19() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ string s = \"TEST\"+test:<caret>; }",
+    //        doTest("import org.test; function main(string... args){ string s = \"TEST\"+test:<caret>; }",
     //                "getA", "getB");
     //    }
     //
     //    public void testFunctionFromPackageInvocation20() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ string s = \"TEST\"+test:g<caret>; }",
+    //        doTest("import org.test; function main(string... args){ string s = \"TEST\"+test:g<caret>; }",
     //                "getA", "getB");
     //    }
     //
     //    public void testFunctionFromPackageInvocation21() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ string s = test:getA()+test:<caret> \"TEST\"; }",
+    //        doTest("import org.test; function main(string... args){ string s = test:getA()+test:<caret> \"TEST\"; }",
     //                "getA", "getB");
     //    }
     //
     //    public void testFunctionFromPackageInvocation22() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ string s = test:getA()+test:g<caret> \"TEST\"; }",
+    //        doTest("import org.test; function main(string... args){ string s = test:getA()+test:g<caret> \"TEST\"; }",
     //                "getA", "getB");
     //    }
     //
     //    public void testFunctionFromPackageInvocation23() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ string s = test:getA()+<caret> \"TEST\"; }",
+    //        doTest("import org.test; function main(string... args){ string s = test:getA()+<caret> \"TEST\"; }",
     //                "args", "main", "test", "true", "false", "null");
     //    }
 
     public void testFunctionFromPackageInvocation24() {
         myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-        doTest("import org.test; function main(string[] args){ string s = test:getA()+g<caret> \"TEST\"; }",
+        doTest("import org.test; function main(string... args){ string s = test:getA()+g<caret> \"TEST\"; }",
                 "args");
     }
 
     //    public void testFunctionFromPackageInvocation25() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ test:<caret> \ntest:geA();}", "getA", "getB");
+    //        doTest("import org.test; function main(string... args){ test:<caret> \ntest:geA();}", "getA", "getB");
     //    }
     //
     //    public void testFunctionFromPackageInvocation26() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ test:g<caret> \ntest:getA();}", "getA", "getB");
+    //        doTest("import org.test; function main(string... args){ test:g<caret> \ntest:getA();}", "getA", "getB");
     //    }
     //
     //    public void testVarDefinition() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ string s = <caret> }",
+    //        doTest("import org.test; function main(string... args){ string s = <caret> }",
     //                "args", "main", "test", "create", "false", "null", "true", "lengthof", "typeof");
     //    }
     //
     //    public void testVarDefinitionWithTraileringCode() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ string s = \"TEST\" + <caret> }",
+    //        doTest("import org.test; function main(string... args){ string s = \"TEST\" + <caret> }",
     //                "args", "main", "test", "true", "false", "null");
     //    }
     //
     //    public void testVarDefinitionWithLeadingCode() {
     //        myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
-    //        doTest("import org.test; function main(string[] args){ string s = <caret> + \"TEST\" }",
+    //        doTest("import org.test; function main(string... args){ string s = <caret> + \"TEST\" }",
     //                "args", "main", "test", "create", "lengthof", "typeof", "true", "false", "null");
     //    }
 

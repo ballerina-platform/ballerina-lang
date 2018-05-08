@@ -1,4 +1,3 @@
-package lang.expressions.btype.cast.foo;
 
 import lang.expressions.btype.cast.foo.bar;
 

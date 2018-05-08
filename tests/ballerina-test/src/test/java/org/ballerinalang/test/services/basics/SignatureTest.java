@@ -34,6 +34,7 @@ public class SignatureTest {
 
     private CompileResult compileResult;
 
+    @Test()
     public void testSignatureWithSingleParam() {
         compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
                 "test-src/services/signature/no-request-param.bal").getPath());
@@ -43,6 +44,7 @@ public class SignatureTest {
                             "resource signature parameter count should be >= 2");
     }
 
+    @Test()
     public void testSignatureWithoutConnectionParam() {
         compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
                 "test-src/services/signature/no-con-param.bal").getPath());
@@ -52,6 +54,7 @@ public class SignatureTest {
                             "first parameter should be of type ballerina.http:Listener");
     }
 
+    @Test()
     public void testSignatureWithResponseParam() {
         compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
                 "test-src/services/signature/with-res-param.bal").getPath());
@@ -61,6 +64,7 @@ public class SignatureTest {
                             "second parameter should be of type ballerina.http:Request");
     }
 
+    @Test()
     public void testSignatureWithIntParamAsSecondParam() {
         compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
                 "test-src/services/signature/int-param.bal").getPath());
@@ -70,6 +74,7 @@ public class SignatureTest {
                             "second parameter should be of type ballerina.http:Request");
     }
 
+    @Test()
     public void testSignatureWithBooleanParamAsThirdParam() {
         compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
                 "test-src/services/signature/boolean-param.bal").getPath());

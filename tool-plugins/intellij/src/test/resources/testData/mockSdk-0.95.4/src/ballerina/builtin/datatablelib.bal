@@ -1,4 +1,3 @@
-package ballerina.builtin;
 
 @Description { value:"Releases the database connection."}
 @Param { value:"dt: The datatable object" }

@@ -26,7 +26,6 @@ import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.connector.impl.ValueImpl;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
@@ -47,13 +46,14 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
-import static org.ballerinalang.net.grpc.MessageConstants.METHOD_DESCRIPTORS;
-import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
-import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB;
-import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB_REF_INDEX;
+import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
+import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
+import static org.ballerinalang.net.grpc.GrpcConstants.METHOD_DESCRIPTORS;
+import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB;
+import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB_REF_INDEX;
 import static org.ballerinalang.net.grpc.MessageUtils.getMessageHeaders;
 
 /**
@@ -71,12 +71,12 @@ import static org.ballerinalang.net.grpc.MessageUtils.getMessageHeaders;
                 @Argument(name = "methodID", type = TypeKind.STRING),
                 @Argument(name = "payload", type = TypeKind.ANY),
                 @Argument(name = "listenerService", type = TypeKind.TYPEDESC),
-                @Argument(name = "headers", type = TypeKind.ARRAY)
+                @Argument(name = "headers", type = TypeKind.STRUCT, structType = "Headers",
+                        structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC)
         },
         returnType = {
                 @ReturnType(type = TypeKind.ANY),
-                @ReturnType(type = TypeKind.STRUCT, structType = CONNECTOR_ERROR,
-                        structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
+                @ReturnType(type = TypeKind.STRUCT, structType = STRUCT_GENERIC_ERROR, structPackage = PACKAGE_BUILTIN),
         },
         isPublic = true
 )
@@ -123,7 +123,7 @@ public class NonBlockingExecute extends AbstractExecute {
 
 
         // Update request headers when request headers exists in the context.
-        BRefValueArray headerValues = (BRefValueArray) context.getRefArgument(MESSAGE_HEADER_REF_INDEX);
+        BValue headerValues = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
         MessageHeaders headers = getMessageHeaders(headerValues);
 
         if (connectionStub instanceof GrpcNonBlockingStub) {

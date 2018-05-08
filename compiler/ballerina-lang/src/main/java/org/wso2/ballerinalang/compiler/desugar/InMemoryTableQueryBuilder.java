@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimit;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
@@ -51,6 +52,8 @@ public class InMemoryTableQueryBuilder extends SqlQueryBuilder {
 
     private List<BLangExpression> joinOnExprParams = new ArrayList<>();
 
+    private StringBuilder limitClause;
+
     //Keep temporary parametrized sql strings and  temporary parameters for "?"
     private List<BLangExpression> exprParams = new ArrayList<>();
     private List<BLangExpression> whereExprParams = new ArrayList<>();
@@ -78,6 +81,7 @@ public class InMemoryTableQueryBuilder extends SqlQueryBuilder {
         selectExpr = null;
         groupByClause = null;
         havingClause = null;
+        limitClause = null;
 
         selectExprParams = new ArrayList<>();
         havingExprParams = new ArrayList<>();
@@ -99,6 +103,7 @@ public class InMemoryTableQueryBuilder extends SqlQueryBuilder {
         BLangStreamingInput streamingInput = (BLangStreamingInput) tableQuery.getStreamingInput();
         BLangJoinStreamingInput joinStreamingInput = (BLangJoinStreamingInput) tableQuery.getJoinStreamingInput();
         BLangOrderBy orderBy = (BLangOrderBy) tableQuery.getOrderByNode();
+        BLangLimit limit = (BLangLimit) tableQuery.getLimitClause();
         StringBuilder sqlTableQuery = new StringBuilder();
 
         /*Add each clause to the sqlQuery and add the params to TableQuery object*/
@@ -108,6 +113,7 @@ public class InMemoryTableQueryBuilder extends SqlQueryBuilder {
         addGroupByClause(selectClause, sqlTableQuery);
         addHavingClauseAndParams(tableQuery, selectClause, sqlTableQuery);
         addOrderByClause(orderBy, sqlTableQuery);
+        addLimitClause(limit, sqlTableQuery);
 
         tableQuery.setSqlQuery(sqlTableQuery.toString());
     }
@@ -124,6 +130,13 @@ public class InMemoryTableQueryBuilder extends SqlQueryBuilder {
         if (orderBy != null) {
             orderBy.accept(this);
             sqlTableQuery.append(" ").append(orderByClause);
+        }
+    }
+
+    private void addLimitClause(BLangLimit limit, StringBuilder sqlTableQuery) {
+        if (limit != null) {
+            limit.accept(this);
+            sqlTableQuery.append(" ").append(limitClause);
         }
     }
 
@@ -212,6 +225,12 @@ public class InMemoryTableQueryBuilder extends SqlQueryBuilder {
         BLangSimpleVarRef expr = (BLangSimpleVarRef) fieldAccessExpr.expr;
         String sqlExpr = expr.variableName.value + "." + fieldAccessExpr.field.value;
         exprStack.push(sqlExpr);
+    }
+
+    @Override
+    public void visit(BLangLimit limit) {
+        limitClause = new StringBuilder("limit");
+        limitClause.append(" ").append(limit.getLimitValue());
     }
 
     /**

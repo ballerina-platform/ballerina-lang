@@ -29,6 +29,7 @@ public class Page {
     public final Caption heading;
     public final List<Documentable> constructs;
     public final List<Link> links;
+    public final List<Link> primitives;
 
     /**
      *
@@ -41,18 +42,22 @@ public class Page {
         this.constructs = constructs;
         this.links = links;
         this.description = null;
+        this.primitives = new ArrayList<>();
     }
 
     /**
-     *
-     * @param heading name of the bal package.
+     * @param description description of the package.
+     * @param heading    name of the bal package.
      * @param constructs constructs in the package.
-     * @param links links to the other packages.
+     * @param links      links to the other packages.
+     * @param primitives links to the primitives.
      */
-    public Page(String description, Caption heading, ArrayList<Documentable> constructs, List<Link> links) {
+    public Page(String description, Caption heading, ArrayList<Documentable> constructs, List<Link> links, List<Link>
+            primitives) {
         this.description = description;
         this.heading = heading;
         this.constructs = constructs;
         this.links = links;
+        this.primitives = primitives;
     }
 }

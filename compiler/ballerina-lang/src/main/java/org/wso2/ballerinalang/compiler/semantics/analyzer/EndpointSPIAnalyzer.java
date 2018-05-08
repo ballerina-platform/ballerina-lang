@@ -35,7 +35,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.wso2.ballerinalang.compiler.util.Names.EP_SPI_GET_CLIENT;
+import static org.wso2.ballerinalang.compiler.util.Names.EP_SPI_GET_CALLER_ACTIONS;
 import static org.wso2.ballerinalang.compiler.util.Names.EP_SPI_INIT;
 import static org.wso2.ballerinalang.compiler.util.Names.EP_SPI_REGISTER;
 import static org.wso2.ballerinalang.compiler.util.Names.EP_SPI_START;
@@ -151,8 +151,8 @@ public class EndpointSPIAnalyzer {
         for (BStructSymbol.BAttachedFunction attachedFunc : ep.structSymbol.attachedFuncs) {
             if (Names.EP_SPI_INIT.equals(attachedFunc.funcName)) {
                 ep.attachedFunctionMap.put(Names.EP_SPI_INIT, attachedFunc);
-            } else if (Names.EP_SPI_GET_CLIENT.equals(attachedFunc.funcName)) {
-                ep.attachedFunctionMap.put(Names.EP_SPI_GET_CLIENT, attachedFunc);
+            } else if (Names.EP_SPI_GET_CALLER_ACTIONS.equals(attachedFunc.funcName)) {
+                ep.attachedFunctionMap.put(Names.EP_SPI_GET_CALLER_ACTIONS, attachedFunc);
             } else if (Names.EP_SPI_START.equals(attachedFunc.funcName)) {
                 ep.attachedFunctionMap.put(Names.EP_SPI_START, attachedFunc);
             } else if (Names.EP_SPI_STOP.equals(attachedFunc.funcName)) {
@@ -193,14 +193,15 @@ public class EndpointSPIAnalyzer {
     }
 
     private void checkValidInteractableEndpoint(Endpoint ep) {
-        if (!ep.attachedFunctionMap.containsKey(Names.EP_SPI_GET_CLIENT)) {
+        if (!ep.attachedFunctionMap.containsKey(Names.EP_SPI_GET_CALLER_ACTIONS)) {
             return;
         }
         // validate getClient function
-        final BStructSymbol.BAttachedFunction getClient = ep.attachedFunctionMap.get(EP_SPI_GET_CLIENT);
+        final BStructSymbol.BAttachedFunction getClient = ep.attachedFunctionMap.get(EP_SPI_GET_CALLER_ACTIONS);
         if (getClient.type.getParameterTypes().size() != 0
                 || getClient.type.retType.tag != TypeTags.STRUCT) {
-            dlog.error(ep.pos, DiagnosticCode.ENDPOINT_SPI_INVALID_FUNCTION, ep.structSymbol, EP_SPI_GET_CLIENT);
+            dlog.error(ep.pos, DiagnosticCode.ENDPOINT_SPI_INVALID_FUNCTION, ep.structSymbol,
+                    EP_SPI_GET_CALLER_ACTIONS);
             invalidSPIs.putIfAbsent(ep.structSymbol, ep);
             return;
         }

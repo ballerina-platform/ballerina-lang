@@ -43,6 +43,6 @@ public class Subscribe extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStream stream = (BStream) context.getRefArgument(0);
         BFunctionPointer functionPointer = (BFunctionPointer) context.getRefArgument(1);
-        stream.subscribe(context, functionPointer);
+        stream.subscribe(functionPointer);
     }
 }

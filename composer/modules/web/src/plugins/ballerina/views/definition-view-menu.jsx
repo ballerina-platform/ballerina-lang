@@ -66,7 +66,7 @@ class DefinitionViewMenu extends React.Component {
         let endpoints = [];
 
         if (this.props.model) {
-            structs = this.props.model.topLevelNodes.filter((node) => { return TreeUtil.isStruct(node); });
+            structs = this.props.model.topLevelNodes.filter((node) => { return TreeUtil.isObject(node); });
             endpoints = this.props.model.topLevelNodes.filter((node) => { return TreeUtil.isEndpoint(node); });
         }
         return (

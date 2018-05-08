@@ -49,4 +49,8 @@ public interface TableQuery extends Node {
     void setOrderByClause(OrderByNode orderByClause);
 
     OrderByNode getOrderByNode();
+
+    void setLimitClause(LimitNode limitClause);
+
+    LimitNode getLimitClause();
 }

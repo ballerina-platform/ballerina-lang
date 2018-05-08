@@ -1,4 +1,4 @@
-function main (string[] args) {
+function main (string... args) {
     worker w1 {
         string data = "string";
         args[0] -> w2;

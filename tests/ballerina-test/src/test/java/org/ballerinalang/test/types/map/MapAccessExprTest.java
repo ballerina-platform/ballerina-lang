@@ -141,8 +141,7 @@ public class MapAccessExprTest {
         Assert.assertEquals(((BBoolean) returns[0]).value(), new Boolean(false));
     }
 
-    // Failing because json to primitives not working due to reg-index incorrect assignment in safe assignment stmt
-    @Test(description = "Test get map values.", enabled = false)
+    @Test(description = "Test get map values.")
     public void testGetMapValues() {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetMapValues", args);
@@ -195,6 +194,17 @@ public class MapAccessExprTest {
         Assert.assertEquals(((BBoolean) returns[0]).value(), new Boolean(false));
         Assert.assertEquals(((BBoolean) returns[1]).value(), new Boolean(false));
         Assert.assertEquals(((BBoolean) returns[2]).value(), new Boolean(false));
+    }
+    
+    @Test(description = "Test concurrent map access.")
+    public void testMapConcurrentAccess() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMapConcurrentAccess", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).value(), new Long(1));
     }
 
 }

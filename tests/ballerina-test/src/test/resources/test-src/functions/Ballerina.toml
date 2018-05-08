@@ -1,5 +1,3 @@
 [project]
 # Name of the package
-org-name = "a.b"
-org-name = "c.d"
-org-name = "foo.bar"
+org-name = "testorg"

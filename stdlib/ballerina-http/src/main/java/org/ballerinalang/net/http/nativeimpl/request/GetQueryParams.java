@@ -20,6 +20,8 @@ package org.ballerinalang.net.http.nativeimpl.request;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.model.types.BMapType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -52,14 +54,14 @@ public class GetQueryParams extends BlockingNativeCallableUnit {
             BStruct requestStruct  = ((BStruct) context.getRefArgument(0));
             HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
                     .getNativeData(HttpConstants.TRANSPORT_MESSAGE);
-
+            BMapType mapType = new BMapType(BTypes.typeString);
             if (httpCarbonMessage.getProperty(HttpConstants.QUERY_STR) != null) {
                 String queryString = (String) httpCarbonMessage.getProperty(HttpConstants.QUERY_STR);
-                BMap<String, BString> params = new BMap<>();
+                BMap<String, BString> params = new BMap<>(mapType);
                 URIUtil.populateQueryParamMap(queryString, params);
                 context.setReturnValues(params);
             } else {
-                context.setReturnValues(new BMap<>());
+                context.setReturnValues(new BMap<>(mapType));
             }
         } catch (Throwable e) {
             throw new BallerinaException("Error while retrieving query param from message: " + e.getMessage());

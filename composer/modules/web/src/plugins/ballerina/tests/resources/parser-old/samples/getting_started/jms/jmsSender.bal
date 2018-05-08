@@ -1,7 +1,7 @@
 import ballerina/net.jms;
 import ballerina/lang.messages;
 
-function main (string[] args) {
+function main (string... args) {
     jmsSender();
 
 }

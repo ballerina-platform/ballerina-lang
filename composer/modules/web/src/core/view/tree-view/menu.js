@@ -256,7 +256,7 @@ export function getContextMenuItems(node, parentNode, command,
         case 'root': {
             menu.push({
                 icon: '',
-                label: 'Remove Program Directory',
+                label: 'Remove Project Directory',
                 handler: () => {
                     dispatch(WORKSPACE_CMDS.REMOVE_FOLDER, { folderPath: node.id });
                 },

@@ -71,7 +71,7 @@ public class TypeUnificationTest {
         Assert.assertEquals(address.get("country").stringValue(), "SriLanka");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testAccessJsonInStruct() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAccessJsonInStruct");
 

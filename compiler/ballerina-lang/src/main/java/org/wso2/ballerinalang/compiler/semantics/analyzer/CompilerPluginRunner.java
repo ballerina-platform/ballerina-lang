@@ -43,7 +43,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -87,9 +86,11 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     private BLangDiagnosticLog dlog;
 
     private DiagnosticPos defaultPos;
+    private CompilerContext context;
     private List<CompilerPlugin> pluginList;
     private Map<DefinitionID, List<CompilerPlugin>> processorMap;
     private Map<DefinitionID, List<CompilerPlugin>> endpointProcessorMap;
+    private boolean pluginLoaded = false;
 
 
     public static CompilerPluginRunner getInstance(CompilerContext context) {
@@ -109,6 +110,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.names = Names.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.context = context;
 
         this.pluginList = new ArrayList<>();
         this.processorMap = new HashMap<>();
@@ -128,9 +130,6 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         }
 
         pluginList.forEach(plugin -> plugin.process(pkgNode));
-
-        // Visit all the imported packages
-        pkgNode.imports.forEach(importPkg -> importPkg.accept(this));
 
         // Then visit each top-level element sorted using the compilation unit
         pkgNode.topLevelNodes.forEach(topLevelNode -> ((BLangNode) topLevelNode).accept(this));
@@ -169,9 +168,6 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         }
 
         pkgEnv.node.accept(this);
-    }
-
-    public void visit(BLangPackageDeclaration pkgDclNode) {
     }
 
     public void visit(BLangService serviceNode) {
@@ -241,8 +237,12 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     // private methods
 
     private void loadPlugins() {
+        if (pluginLoaded) {
+            return;
+        }
         ServiceLoader<CompilerPlugin> pluginLoader = ServiceLoader.load(CompilerPlugin.class);
         pluginLoader.forEach(this::initPlugin);
+        pluginLoaded = true;
     }
 
     private void initPlugin(CompilerPlugin plugin) {
@@ -251,7 +251,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
 
         handleAnnotationProcesses(plugin);
         handleEndpointProcesses(plugin);
-
+        plugin.setCompilerContext(context);
         plugin.init(dlog);
     }
 

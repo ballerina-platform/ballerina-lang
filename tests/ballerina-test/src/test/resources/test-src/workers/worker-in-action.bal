@@ -1,69 +1,73 @@
-connector TestConnector (string param1, string param2, int param3) {
+type ClientEndpointConfiguration {
 
-    boolean action2Invoked;
+};
 
-    action action1 (string msg) (string) {
+public type ABCClient object {
+
+    public function testAction1() returns string;
+    public function testAction2() returns string;
+
+};
+
+public function ABCClient::testAction1() returns string {
         worker default {
-            msg -> sampleWorker;
+            "xxx" -> sampleWorker;
             string result;
             result <- sampleWorker;
             return result;
         }
-
         worker sampleWorker {
             string m;
             m <- default;
             string v = "result from sampleWorker";
             v -> default;
-        }
-    }
+        } 
+}
 
-    action action2 (string msg) (string) {
+public function ABCClient::testAction2() returns string {
         worker default {
             string result;
             result <- sampleWorker;
             return result;
         }
         worker sampleWorker {
-              msg -> default;
+              "request" -> default;
         }
+}
+
+public type Client object {
+    public {
+        ABCClient abcClient;
     }
 
-}
+    public function init(ClientEndpointConfiguration config);
 
-function testAction1 () (string) {
-    endpoint<TestConnector> testConnector {
-        create TestConnector("MyParam1", "MyParam2", 5);
+    public function register(typedesc serviceType) {
     }
-    string request = "request";
-    string value = testConnector.action1(request);
-    return value;
-}
 
-function testAction2 () (string) {
-    endpoint<TestConnector> testConnector {
-        create TestConnector("MyParam1", "MyParam2", 5);
+    public function start() {
     }
-    string request = "request";
-    string value = testConnector.action2(request);
-    return value;
+
+    public function getCallerActions() returns ABCClient {
+        return self.abcClient;
+    }
+
+    public function stop() {
+    }
+};
+
+public function Client::init(ClientEndpointConfiguration config) {
+    self.abcClient = new;
 }
 
-struct testEP {
+function testAction1() returns string {
+   endpoint Client ep1 { };
+   string x = ep1->testAction1();
+   return x;
 }
 
-function <testEP ep> init(string name, struct {} config) {
-}
-
-function <testEP ep> start() {
-}
-
-function <testEP ep> stop() {
-}
-
-function <testEP ep> register(type t) {
-}
-
-function <testEP ep> getConnector() (TestConnector) {
-    return null;
+function testAction2() returns string {
+   endpoint Client ep1 { };
+   string x = ep1->testAction2();
+   return x;
 }

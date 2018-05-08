@@ -22,7 +22,7 @@ endpoint http:Listener participant1EP {
 };
 
 endpoint http:Client participant2EP {
-    targets:[{url: "http://localhost:8890"}]
+    url: "http://localhost:8890"
 };
 
 State state = new();
@@ -34,7 +34,7 @@ service<http:Service> participant1 bind participant1EP {
 
     getState(endpoint ep, http:Request req) {
         http:Response res = new;
-        res.setStringPayload(state.toString());
+        res.setTextPayload(state.toString());
         state.reset();
         _ = ep -> respond(res);
     }
@@ -72,7 +72,7 @@ service<http:Service> participant1 bind participant1EP {
             }
         }
         http:Response res = new;  res.statusCode = 200;
-        res.setStringPayload("Non infectable resource call successful");
+        res.setTextPayload("Non infectable resource call successful");
         _ = ep -> respond(res);
     }
 
@@ -100,15 +100,15 @@ service<http:Service> participant1 bind participant1EP {
         transaction {
             var forwardResult = participant2EP -> forward("/task1", req);
             match forwardResult {
-                http:HttpConnectorError err => {
+                error err => {
                     io:print("Participant1 could not send get request to participant2/task1. Error:");
                     sendErrorResponseToInitiator(conn);
                     abort;
                 }
                 http:Response forwardRes => {
-                    var getResult = participant2EP -> get("/task2", newReq);
+                    var getResult = participant2EP -> get("/task2", request = newReq);
                     match getResult {
-                        http:HttpConnectorError err => {
+                        error err => {
                             io:print("Participant1 could not send get request to participant2/task2. Error:");
                             sendErrorResponseToInitiator(conn);
                             abort;
@@ -116,7 +116,7 @@ service<http:Service> participant1 bind participant1EP {
                         http:Response getRes => {
                             var forwardRes2 = conn -> respond(getRes);
                             match forwardRes2 {
-                                http:HttpConnectorError err => {
+                                error err => {
                                     io:print("Participant1 could not forward response from participant2 to initiator. Error:");
                                     io:println(err);
                                 }
@@ -134,7 +134,7 @@ service<http:Service> participant1 bind participant1EP {
     testSaveToDatabaseSuccessfulInParticipant(endpoint ep, http:Request req) {
         http:Response res = new;  res.statusCode = 500;
         http:Request newReq = new;
-        var result = participant2EP -> get("/testSaveToDatabaseSuccessfulInParticipant", newReq);
+        var result = participant2EP -> get("/testSaveToDatabaseSuccessfulInParticipant", request = newReq);
         match result {
             http:Response participant1Res => {
                 res = participant1Res;
@@ -152,7 +152,7 @@ service<http:Service> participant1 bind participant1EP {
             transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort {
             }
             http:Request newReq = new;
-            var result = participant2EP -> get("/testSaveToDatabaseFailedInParticipant", newReq);
+            var result = participant2EP -> get("/testSaveToDatabaseFailedInParticipant", request = newReq);
             match result {
                 http:Response participant1Res => {
                     res = participant1Res;
@@ -171,7 +171,7 @@ function sendErrorResponseToInitiator(http:Listener conn) {
     http:Response errRes = new; errRes.statusCode = 500;
     var respondResult = conn2 -> respond(errRes);
     match respondResult {
-        http:HttpConnectorError respondErr => {
+        error respondErr => {
             io:print("Participant1 could not send error response to initiator. Error:");
             io:println(respondErr);
         }
@@ -215,7 +215,7 @@ type State object {
     function toString() returns string {
         return io:sprintf("abortedByParticipant=%b,abortedFunctionCalled=%b,committedFunctionCalled=%s," +
                             "localParticipantAbortedFunctionCalled=%s,localParticipantCommittedFunctionCalled=%s",
-                            [abortedByParticipant, abortedFunctionCalled, committedFunctionCalled,
-                            localParticipantAbortedFunctionCalled, localParticipantCommittedFunctionCalled]);
+                            abortedByParticipant, abortedFunctionCalled, committedFunctionCalled,
+                            localParticipantAbortedFunctionCalled, localParticipantCommittedFunctionCalled);
     }
 };

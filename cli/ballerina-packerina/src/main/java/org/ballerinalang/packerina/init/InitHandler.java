@@ -18,6 +18,7 @@
 
 package org.ballerinalang.packerina.init;
 
+import org.ballerinalang.packerina.init.models.PackageMdFile;
 import org.ballerinalang.packerina.init.models.SrcFile;
 import org.ballerinalang.toml.model.Manifest;
 
@@ -40,21 +41,27 @@ import static java.nio.file.StandardOpenOption.CREATE;
 public class InitHandler {
     /**
      * Creates the project files.
+     *
      * @param projectPath The output path.
-     * @param manifest The manifest for Ballerina.toml.
-     * @param srcFiles The source files.
+     * @param manifest    The manifest for Ballerina.toml.
+     * @param srcFiles    The source files.
      */
-    public static void initialize(Path projectPath, Manifest manifest, List<SrcFile> srcFiles) throws IOException {
+    public static void initialize(Path projectPath, Manifest manifest, List<SrcFile> srcFiles,
+                                  List<PackageMdFile> packageMdFile) throws IOException {
         createBallerinaToml(projectPath, manifest);
         createBallerinaCacheFile(projectPath);
+        createPackageMd(projectPath, packageMdFile);
         createSrcFolder(projectPath, srcFiles);
-        createIgnoreFiles(projectPath);
+
+        String ignoreFileContent = "target/\n";
+        createIgnoreFiles(projectPath, ignoreFileContent);
     }
-    
+
     /**
      * Create the Ballerina.toml manifest file.
+     *
      * @param projectPath The output path.
-     * @param manifest The manifest for the file.
+     * @param manifest    The manifest for the file.
      * @throws IOException If file write exception occurs.
      */
     private static void createBallerinaToml(Path projectPath, Manifest manifest) throws IOException {
@@ -68,9 +75,36 @@ public class InitHandler {
             }
         }
     }
-    
+
+    /**
+     * Create Package.md for a package.
+     *
+     * @param projectPath       The project path.
+     * @param packageMdFileList packageMD file list to be created.
+     * @throws IOException If file write exception occurs.
+     */
+    private static void createPackageMd(Path projectPath, List<PackageMdFile> packageMdFileList) throws IOException {
+        if (null != packageMdFileList && packageMdFileList.size() > 0) {
+            for (PackageMdFile packageMdFile : packageMdFileList) {
+                Path packagePath = projectPath.resolve(packageMdFile.getName());
+
+                if (!Files.exists(packagePath)) {
+                    Files.createDirectory(packagePath);
+                }
+
+                Path srcFilePath = packagePath.resolve("Package.md");
+
+                if (!Files.exists(srcFilePath)) {
+                    Files.createFile(srcFilePath);
+                    writeContent(srcFilePath, packageMdFile.getContent());
+                }
+            }
+        }
+    }
+
     /**
      * Create the .ballerina/ cache folder.
+     *
      * @param projectPath The output path.
      * @throws IOException If file write exception occurs.
      */
@@ -80,12 +114,15 @@ public class InitHandler {
             // Creating main function file.
             Files.createDirectory(cacheFolder);
         }
+        String ignoreFileContent = "*\n!.gitignore\n";
+        createIgnoreFiles(cacheFolder, ignoreFileContent);
     }
-    
+
     /**
      * Create src/ folder.
+     *
      * @param projectPath The output path.
-     * @param srcFiles The source files to be created.
+     * @param srcFiles    The source files to be created.
      * @throws IOException If file write exception occurs.
      */
     private static void createSrcFolder(Path projectPath, List<SrcFile> srcFiles) throws IOException {
@@ -117,32 +154,30 @@ public class InitHandler {
     
     /**
      * Creates the .gitignore file.
-     * @param projectPath The output path.
+     *
+     * @param projectPath       The output path.
+     * @param ignoreFileContent content to be ignored
      * @throws IOException If file write exception occurs.
      */
-    private static void createIgnoreFiles(Path projectPath) throws IOException {
+    private static void createIgnoreFiles(Path projectPath, String ignoreFileContent) throws IOException {
         Path gitIgnorePath = projectPath.resolve(".gitignore");
-        Path svnIgnorePath = projectPath.resolve(".svnignore");
         if (Files.exists(gitIgnorePath)) {
-            writeIgnoreFileContent(gitIgnorePath);
-        } else if (Files.exists(svnIgnorePath)) {
-            writeIgnoreFileContent(svnIgnorePath);
+            writeIgnoreFileContent(gitIgnorePath, ignoreFileContent);
         } else {
             // Creating ignore files.
             Files.createFile(gitIgnorePath);
-            Files.createFile(svnIgnorePath);
-            writeIgnoreFileContent(gitIgnorePath);
-            writeIgnoreFileContent(svnIgnorePath);
+            writeIgnoreFileContent(gitIgnorePath, ignoreFileContent);
         }
     }
     
     /**
      * Add ignore content to file.
-     * @param ignoreFile The ignore file path.
+     *
+     * @param ignoreFile        The ignore file path.
+     * @param ignoreFileContent content to be ignored
      * @throws IOException If file write exception occurs.
      */
-    private static void writeIgnoreFileContent(Path ignoreFile) throws IOException {
-        String ignoreFileContent = ".ballerina/\ntarget/\n";
+    private static void writeIgnoreFileContent(Path ignoreFile, String ignoreFileContent) throws IOException {
         String content = new String(Files.readAllBytes(ignoreFile), Charset.defaultCharset());
         if (!content.contains(ignoreFileContent)) {
             // Writing content.
@@ -152,7 +187,8 @@ public class InitHandler {
     
     /**
      * Write content to a file.
-     * @param file The file.
+     *
+     * @param file    The file.
      * @param content The content.
      * @throws IOException If file write exception occurs.
      */
@@ -165,6 +201,7 @@ public class InitHandler {
     
     /**
      * Generate the manifest file content for Ballerina.toml.
+     *
      * @param manifest The manifest model.
      * @return Manifest content.
      */

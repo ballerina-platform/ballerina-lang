@@ -19,8 +19,22 @@
 package org.ballerinalang.docgen.docs.utils;
 
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
+import org.commonmark.Extension;
+import org.commonmark.ext.gfm.tables.TablesExtension;
+import org.commonmark.node.BlockQuote;
+import org.commonmark.node.FencedCodeBlock;
+import org.commonmark.node.Heading;
+import org.commonmark.node.HtmlBlock;
+import org.commonmark.node.ListBlock;
+import org.commonmark.node.Node;
+import org.commonmark.node.ThematicBreak;
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlRenderer;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -34,8 +48,15 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -47,6 +68,60 @@ public class BallerinaDocUtils {
     private static final boolean debugEnabled = "true".equals(System.getProperty(
             BallerinaDocConstants.ENABLE_DEBUG_LOGS));
     private static final PrintStream out = System.out;
+
+    /**
+     * Convert a given md to a html.
+     *
+     * @param mdContent content
+     * @return html representation
+     */
+    public static String mdToHtml(String mdContent) {
+        List<Extension> extensions = Arrays.asList(TablesExtension.create());
+        Parser parser = Parser.builder().extensions(extensions).enabledBlockTypes(new HashSet<>(Arrays.asList(Heading
+                .class, HtmlBlock.class, ThematicBreak.class, FencedCodeBlock.class, BlockQuote.class, ListBlock
+                .class))).build();
+        Node document = parser.parse(mdContent != null ? mdContent.trim() : "");
+        HtmlRenderer renderer = HtmlRenderer.builder().extensions(extensions).build();
+        return renderer.render(document);
+    }
+
+    /**
+     * Load primitive types of Ballerina.
+     *
+     * @return a lit of primitive types and their corresponding descriptions.
+     */
+    public static List<String> loadPrimitivesDescriptions(boolean filterDescription) {
+        List<String> list = new ArrayList<>();
+        String filename = "/primitives-descriptions.properties";
+
+        InputStream inputStream = BallerinaDocUtils.class.getResourceAsStream(filename);
+
+        try (Stream<String> stream = readFromInputStream(inputStream).stream()) {
+            list = stream.map(line -> {
+                if (filterDescription) {
+                    return line.split("=")[0];
+                }
+                return line;
+            }).collect(Collectors.toList());
+
+        } catch (IOException | FileSystemNotFoundException e) {
+            // TODO handle
+            return list;
+        }
+
+        return list;
+    }
+
+    private static List<String> readFromInputStream(InputStream inputStream) throws IOException {
+        List<String> lines = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                lines.add(line);
+            }
+        }
+        return lines;
+    }
 
     public static void packageToZipFile(String sourceDirPath, String zipFilePath) throws IOException {
         Path p = Files.createFile(Paths.get(zipFilePath));
@@ -98,6 +173,13 @@ public class BallerinaDocUtils {
     
     public static boolean isDebugEnabled() {
         return debugEnabled;
+    }
+
+    public static String getPrimitiveDescription(List<String> descriptions, String type) {
+        // name=description
+        Optional<String> desc = descriptions.stream().filter(description -> description.startsWith(type)).map
+                (description -> description.split("=")[1]).findFirst();
+        return desc.isPresent() ? desc.get() : "";
     }
 
     /**

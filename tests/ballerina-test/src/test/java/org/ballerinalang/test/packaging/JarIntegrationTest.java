@@ -1,6 +1,6 @@
 package org.ballerinalang.test.packaging;
 
-import org.ballerinalang.repository.PackageSourceEntry;
+import org.ballerinalang.repository.CompilerInput;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -47,8 +47,8 @@ public class JarIntegrationTest {
         JarRepo repo = new JarRepo(tempJar.toUri());
         Converter<Path> subject = repo.getConverterInstance();
 
-        List<PackageSourceEntry> sources = balPatten.convertToSources(subject, null)
-                                                    .collect(Collectors.toList());
+        List<CompilerInput> sources = balPatten.convertToSources(subject, null)
+                                               .collect(Collectors.toList());
 
         Assert.assertEquals(sources.size(), 1);
         Assert.assertEquals(sources.get(0).getCode(), BAL_CONTENT);

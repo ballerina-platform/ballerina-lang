@@ -183,11 +183,11 @@ public class VarDeclaredAssignmentStmtTest {
         BAssertUtil.validateError(res, 0, "redeclared symbol 'age'", 2, 15);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testVarDeclarationWithArrayInit() {
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-declaration-with-array-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "array literal not allowed here", 2, 17);
+        BAssertUtil.validateError(res, 0, "invalid variable definition; can not infer the assignment type.", 2, 17);
     }
 
     @Test

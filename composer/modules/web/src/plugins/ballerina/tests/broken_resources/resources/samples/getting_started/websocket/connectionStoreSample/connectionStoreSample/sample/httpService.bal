@@ -1,4 +1,3 @@
-package connectionStoreSample.sample;
 
 import ballerina/lang.messages;
 import ballerina/http;

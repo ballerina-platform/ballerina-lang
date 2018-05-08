@@ -1,4 +1,3 @@
-package lang.constant.main;
 
 import lang.constant.variable;
 

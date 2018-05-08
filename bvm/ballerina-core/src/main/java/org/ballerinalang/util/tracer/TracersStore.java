@@ -22,6 +22,7 @@ import io.opentracing.Tracer;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.util.tracer.exception.InvalidConfigurationException;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,8 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 
-import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TABLE_TRACING;
-import static org.ballerinalang.util.tracer.TraceConstants.ENABLED_CONFIG;
+import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 import static org.ballerinalang.util.tracer.TraceConstants.JAEGER;
 import static org.ballerinalang.util.tracer.TraceConstants.TRACER_NAME_CONFIG;
 
@@ -41,8 +41,7 @@ class TracersStore {
 
     private List<TracerGenerator> tracers;
     private Map<String, Map<String, Tracer>> tracerStore;
-    private Map<String, String> tracingConfigs;
-
+    private static final PrintStream consoleError = System.err;
     private static TracersStore instance = new TracersStore();
 
     public static TracersStore getInstance() {
@@ -50,25 +49,32 @@ class TracersStore {
     }
 
     private TracersStore() {
-        tracingConfigs = ConfigRegistry.getInstance().getConfigTable(CONFIG_TABLE_TRACING);
     }
 
     public void loadTracers() {
-        if (Boolean.parseBoolean(tracingConfigs.get(ENABLED_CONFIG))) {
+        ConfigRegistry configRegistry = ConfigRegistry.getInstance();
+        if (configRegistry.getAsBoolean(CONFIG_TRACING_ENABLED)) {
 
             this.tracers = new ArrayList<>();
             this.tracerStore = new HashMap<>();
 
             ServiceLoader<OpenTracer> openTracers = ServiceLoader.load(OpenTracer.class);
             HashMap<String, OpenTracer> tracerMap = new HashMap<>();
-            openTracers.forEach(t -> tracerMap.put(t.getName(), t));
+            openTracers.forEach(t -> tracerMap.put(t.getName().toLowerCase(), t));
 
-            String tracerName = tracingConfigs.getOrDefault(TRACER_NAME_CONFIG, JAEGER);
+            String tracerName = configRegistry.getConfigOrDefault(TRACER_NAME_CONFIG, JAEGER);
 
-            OpenTracer tracer = tracerMap.get(tracerName);
+            OpenTracer tracer = tracerMap.get(tracerName.toLowerCase());
             if (tracer != null) {
-                tracer.init(tracingConfigs);
-                this.tracers.add(new TracerGenerator(tracer.getName(), tracer, tracingConfigs));
+                try {
+                    tracer.init();
+                    this.tracers.add(new TracerGenerator(tracer.getName(), tracer));
+                } catch (InvalidConfigurationException e) {
+                    consoleError.println("ballerina: error in observability tracing configurations: " + e.getMessage());
+                }
+            } else {
+                consoleError.println(
+                        "ballerina: observability enabled but no tracing extension found for name " + tracerName);
             }
         } else {
             this.tracers = Collections.emptyList();
@@ -91,9 +97,9 @@ class TracersStore {
                 try {
                     Tracer tracer = tracerGenerator.generate(serviceName);
                     tracerMap.put(tracerGenerator.name, tracer);
-                } catch (Throwable ignored) {
-                    //Tracers will get added only of there's no errors.
-                    //If tracers contains errors, tracer will be ignored.
+                } catch (Throwable e) {
+                    consoleError.println("ballerina: error getting tracer for "
+                            + tracerGenerator.name + ". " + e.getMessage());
                 }
             }
             tracerStore.put(serviceName, tracerMap);
@@ -107,15 +113,13 @@ class TracersStore {
     private static class TracerGenerator {
         String name;
         OpenTracer tracer;
-        Map<String, String> properties;
 
-        TracerGenerator(String name, OpenTracer tracer, Map<String, String> properties) {
+        TracerGenerator(String name, OpenTracer tracer) {
             this.name = name;
             this.tracer = tracer;
-            this.properties = properties;
         }
 
-        Tracer generate(String serviceName) throws InvalidConfigurationException {
+        Tracer generate(String serviceName) {
             return tracer.getTracer(name, serviceName);
         }
     }

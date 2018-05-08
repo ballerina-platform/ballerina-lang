@@ -18,7 +18,9 @@
 package org.ballerinalang.langserver.workspace;
 
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
+import org.ballerinalang.langserver.compiler.workspace.repository.WorkspacePackageRepository;
 import org.ballerinalang.repository.PackageRepository;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;

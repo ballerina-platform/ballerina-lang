@@ -18,11 +18,10 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.mime.util.EntityBodyHandler;
-import org.ballerinalang.mime.util.HeaderUtil;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BStruct;
@@ -30,7 +29,6 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
-import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.Constants.SECOND_PARAMETER_INDEX;
 
@@ -42,7 +40,8 @@ import static org.ballerinalang.mime.util.Constants.SECOND_PARAMETER_INDEX;
 @BallerinaFunction(orgName = "ballerina", packageName = "mime",
         functionName = "setJson",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
-        args = {@Argument(name = "jsonContent", type = TypeKind.JSON)},
+        args = {@Argument(name = "jsonContent", type = TypeKind.JSON), @Argument(name = "contentType",
+                type = TypeKind.STRING)},
         isPublic = true
 )
 public class SetJson extends BlockingNativeCallableUnit {
@@ -50,10 +49,9 @@ public class SetJson extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
         BJSON jsonContent = (BJSON) context.getRefArgument(SECOND_PARAMETER_INDEX);
+        String contentType = context.getStringArgument(FIRST_PARAMETER_INDEX);
         EntityBodyHandler.addMessageDataSource(entityStruct, jsonContent);
-        if (HeaderUtil.getHeaderValue(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString()) == null) {
-            HeaderUtil.setHeaderToEntity(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_JSON);
-        }
+        MimeUtil.setMediaTypeToEntity(context, entityStruct, contentType);
         context.setReturnValues();
     }
 }

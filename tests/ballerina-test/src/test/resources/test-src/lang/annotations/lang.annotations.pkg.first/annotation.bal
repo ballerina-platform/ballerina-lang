@@ -1,4 +1,3 @@
-package lang.annotations.pkg.first;
 
 import lang.annotations.pkg.second;
 

@@ -18,7 +18,7 @@ function getIt () (function (int, string) returns (float) f) {
     return;
 }
 
-function main (string[] args) {
+function main (string... args) {
     // value 'test' will serve as a pointer to 'test' function.
     system:println("Answer: " + foo(10, test));
     system:println("Answer: " + foo(10, getIt()));

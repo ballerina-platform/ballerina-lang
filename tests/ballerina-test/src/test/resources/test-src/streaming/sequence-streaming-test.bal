@@ -57,25 +57,25 @@ function runSequenceQuery1() returns(TempDiffInfo[]) {
     DeviceTempInfo t6 = {deviceID:1, roomNo:23, temp:23.9};
 
     tempStream.publish(t1);
-    runtime:sleepCurrentWorker(200);
+    runtime:sleep(200);
 
     tempStream.publish(t2);
-    runtime:sleepCurrentWorker(200);
+    runtime:sleep(200);
 
     tempStream.publish(t3);
-    runtime:sleepCurrentWorker(200);
+    runtime:sleep(200);
 
     tempStream.publish(t4);
-    runtime:sleepCurrentWorker(200);
+    runtime:sleep(200);
 
     tempStream.publish(t5);
-    runtime:sleepCurrentWorker(200);
+    runtime:sleep(200);
 
     tempStream.publish(t6);
 
     int count = 0;
     while(true) {
-        runtime:sleepCurrentWorker(500);
+        runtime:sleep(500);
         count++;
         if((lengthof tempDiffInfoArray) > 1 || count == 10) {
             break;
@@ -85,8 +85,6 @@ function runSequenceQuery1() returns(TempDiffInfo[]) {
 }
 
 function printInitalAndPeakTemp(TempDiffInfo tempDiff) {
-    io:println("printInitalAndPeakTemp InitialTemp:" + tempDiff.initialTemp + " and Peak temp :" +
-            + tempDiff.peakTemp);
     addToGlobalTempDiffArray(tempDiff);
 }
 

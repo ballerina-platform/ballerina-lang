@@ -52,9 +52,9 @@ public class SQLActionsTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/connectors/sql/sql-actions-test.bal");
-        resultNegative = BCompileUtil.compile("test-src/connectors/sql/sql-actions-negative.bal");
-        resultMirror = BCompileUtil.compile("test-src/connectors/sql/sql-mirror-table-test.bal");
+        result = BCompileUtil.compile("test-src/connectors/sql/sql_actions_test.bal");
+        resultNegative = BCompileUtil.compile("test-src/connectors/sql/sql_actions_negative_test.bal");
+        resultMirror = BCompileUtil.compile("test-src/connectors/sql/sql_mirror_table_test.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/SQLConnectorDataFile.sql");
     }
@@ -103,7 +103,7 @@ public class SQLActionsTest {
     }
 
     @Test(groups = "ConnectorTest for int float types")
-    public   void testSelectIntFloatData() {
+    public void testSelectIntFloatData() {
         BValue[] returns = BRunUtil.invoke(result, "testSelectIntFloatData");
         Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -130,6 +130,7 @@ public class SQLActionsTest {
         BString retValue = (BString) returns[0];
         final String expected = "James";
         Assert.assertEquals(retValue.stringValue(), expected);
+        Assert.assertEquals(returns[1].stringValue(), "nil");
     }
 
     @Test(groups = "ConnectorTest")
@@ -148,8 +149,35 @@ public class SQLActionsTest {
         final String expected = "Peter";
         BString retValue2 = (BString) returns[1];
         final String expected2 = "John";
+        BString retValue3 = (BString) returns[2];
+        final String expected3 = "Watson";
         Assert.assertEquals(retValue.stringValue(), expected);
         Assert.assertEquals(retValue2.stringValue(), expected2);
+        Assert.assertEquals(retValue3.stringValue(), expected3);
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testCallProcedureWithMultipleResultSetsAndLowerConstraintCount() {
+        BValue[] returns = BRunUtil
+                .invoke(resultNegative, "testCallProcedureWithMultipleResultSetsAndLowerConstraintCount");
+        Assert.assertTrue(returns[0].stringValue().contains("message:\"execute stored procedure failed: Mismatching "
+                + "record type count: 1 and returned result set count: 2 from the stored procedure\""));
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testCallProcedureWithMultipleResultSetsAndNilConstraintCount() {
+        BValue[] returns = BRunUtil
+                .invoke(resultNegative, "testCallProcedureWithMultipleResultSetsAndNilConstraintCount");
+        Assert.assertTrue(returns[0].stringValue().contains("message:\"execute stored procedure failed: Mismatching "
+                + "record type count: 0 and returned result set count: 2 from the stored procedure\""));
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testCallProcedureWithMultipleResultSetsAndHigherConstraintCount() {
+        BValue[] returns = BRunUtil
+                .invoke(resultNegative, "testCallProcedureWithMultipleResultSetsAndHigherConstraintCount");
+        Assert.assertTrue(returns[0].stringValue().contains("message:\"execute stored procedure failed: Mismatching "
+                + "record type count: 3 and returned result set count: 2 from the stored procedure\""));
     }
 
     @Test(groups = "ConnectorTest")
@@ -175,9 +203,16 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = "ConnectorTest", enabled = false)
+    @Test(groups = "ConnectorTest")
     public void testInsertTableDataWithParameters2() {
         BValue[] returns = BRunUtil.invoke(result, "testInsertTableDataWithParameters2");
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 1);
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testInsertTableDataWithParameters3() {
+        BValue[] returns = BRunUtil.invoke(result, "testInsertTableDataWithParameters3");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
@@ -242,6 +277,19 @@ public class SQLActionsTest {
         BValue[] returns = BRunUtil.invoke(result, "testINParameters");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testINParameters2() {
+        BValue[] returns = BRunUtil.invoke(result, "testINParameters2");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D);
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 2139095039.1D);
+        Assert.assertEquals(returns[5].stringValue(), "Hello");
+        Assert.assertEquals(((BFloat) returns[6]).floatValue(), 1234.567D);
+        Assert.assertEquals(((BFloat) returns[7]).floatValue(), 1234.567D);
+        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567D);
     }
 
     @Test(groups = "ConnectorTest")
@@ -454,8 +502,7 @@ public class SQLActionsTest {
         Assert.assertNull(returns[3].stringValue());
     }
 
-
-    @Test(groups = "ConnectorTest", enabled = false)
+    @Test(groups = "ConnectorTest")
     public void testStructOutParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testStructOutParameters");
         BString retValue = (BString) returns[0];
@@ -528,8 +575,7 @@ public class SQLActionsTest {
                 .contains("execute query failed: unsupported array type for parameter index 0"));
     }
 
-    @Test(groups = "ConnectorTest",
-          description = "Test failure scenario in adding data to mirrored table")
+    @Test(groups = "ConnectorTest", description = "Test failure scenario in adding data to mirrored table")
     public void testAddToMirrorTableNegative() throws Exception {
         BValue[] returns = BRunUtil.invoke(resultMirror, "testAddToMirrorTableNegative");
         Assert.assertNotNull(returns);
@@ -538,8 +584,7 @@ public class SQLActionsTest {
                 + "cause:null}");
     }
 
-    @Test(groups = "ConnectorTest",
-          description = "Test adding data to mirrored table")
+    @Test(groups = "ConnectorTest", description = "Test adding data to mirrored table")
     public void testAddToMirrorTable() throws Exception {
         BValue[] returns = BRunUtil.invoke(resultMirror, "testAddToMirrorTable");
         Assert.assertNotNull(returns);
@@ -547,8 +592,7 @@ public class SQLActionsTest {
         Assert.assertEquals(returns[1].stringValue(), "{id:2, name:\"Devni\", address:\"Sri Lanka\"}");
     }
 
-    @Test(groups = "ConnectorTest",
-          description = "Test deleting data from mirrored table")
+    @Test(groups = "ConnectorTest", description = "Test deleting data from mirrored table")
     public void testDeleteFromMirrorTable() throws Exception {
         BValue[] returns = BRunUtil.invoke(resultMirror, "testDeleteFromMirrorTable");
         Assert.assertNotNull(returns);
@@ -556,8 +600,7 @@ public class SQLActionsTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
 
-    @Test(groups = "ConnectorTest",
-          description = "Test iterating data of a mirrored table multiple times")
+    @Test(groups = "ConnectorTest", description = "Test iterating data of a mirrored table multiple times")
     public void testIterateMirrorTable() throws Exception {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invokeFunction(resultMirror, "testIterateMirrorTable", args);
@@ -566,6 +609,42 @@ public class SQLActionsTest {
                 + "name:\"Devni\", address:\"Sri Lanka\"}, {id:3, name:\"Thurani\", address:\"Sri Lanka\"}], [{id:1, "
                 + "name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, name:\"Devni\", address:\"Sri Lanka\"}, {id:3, "
                 + "name:\"Thurani\", address:\"Sri Lanka\"}]]");
+    }
+
+    @Test(groups = "ConnectorTest", description = "Test iterating data of a mirrored table after closing")
+    public void testIterateMirrorTableAfterClose() throws Exception {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invokeFunction(resultMirror, "testIterateMirrorTableAfterClose", args);
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns[0].stringValue(), "[[{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, "
+                + "name:\"Devni\", address:\"Sri Lanka\"}, {id:3, name:\"Thurani\", address:\"Sri Lanka\"}], [{id:1, "
+                + "name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, name:\"Devni\", address:\"Sri Lanka\"}, {id:3, "
+                + "name:\"Thurani\", address:\"Sri Lanka\"}], {message:\"Trying to perform hasNext operation over a "
+                + "closed table\", cause:null}]");
+    }
+
+    @Test(groups = "ConnectorTest", description = "Test iterating data of a table loaded to memory multiple times")
+    public void testSelectLoadToMemory() throws Exception {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invokeFunction(result, "testSelectLoadToMemory", args);
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns[0].stringValue(), "[[{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, "
+                + "name:\"Devni\", address:\"Sri Lanka\"}, {id:3, name:\"Thurani\", address:\"Sri Lanka\"}], [{id:1, "
+                + "name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, name:\"Devni\", address:\"Sri Lanka\"}, {id:3, "
+                + "name:\"Thurani\", address:\"Sri Lanka\"}], [{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2,"
+                + " name:\"Devni\", address:\"Sri Lanka\"}, {id:3, name:\"Thurani\", address:\"Sri Lanka\"}]]");
+    }
+
+    @Test(groups = "ConnectorTest", description = "Test iterating data of a table loaded to memory after closing")
+    public void testLoadToMemorySelectAfterTableClose() throws Exception {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invokeFunction(result, "testLoadToMemorySelectAfterTableClose", args);
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns[0].stringValue(), "[[{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, "
+                + "name:\"Devni\", address:\"Sri Lanka\"}, {id:3, name:\"Thurani\", address:\"Sri Lanka\"}], [{id:1, "
+                + "name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, name:\"Devni\", address:\"Sri Lanka\"}, {id:3, "
+                + "name:\"Thurani\", address:\"Sri Lanka\"}], {message:\"Trying to perform hasNext operation over a "
+                + "closed table\", cause:null}]");
     }
 
     @AfterSuite

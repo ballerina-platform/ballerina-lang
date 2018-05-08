@@ -1,4 +1,3 @@
-package req2;
 
 public type userPB {
     int age;

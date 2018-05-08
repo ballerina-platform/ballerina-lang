@@ -72,5 +72,5 @@ function createBasicAuthnHandler () returns (http:HttpAuthnHandler) {
     auth:ConfigAuthProvider configAuthProvider = new;
     auth:AuthProvider authProvider = <auth:AuthProvider> configAuthProvider;
     http:HttpBasicAuthnHandler basicAuthnHandler = new(authProvider);
-    return check <http:HttpAuthnHandler> basicAuthnHandler;
+    return <http:HttpAuthnHandler> basicAuthnHandler;
 }

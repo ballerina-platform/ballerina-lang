@@ -1,4 +1,4 @@
-public function main (string[] args) {
+function main (string... args) {
     string staticValue = "test";
     staticValue = staticValue.trim();
     secureFunction(staticValue, staticValue);

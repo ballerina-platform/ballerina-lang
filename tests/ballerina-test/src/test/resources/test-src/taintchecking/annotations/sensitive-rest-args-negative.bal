@@ -1,4 +1,4 @@
-public function main (string[] args) {
+function main (string... args) {
     secureFunction("static", ...args);
     secureFunction(args[0], ...args);
 }

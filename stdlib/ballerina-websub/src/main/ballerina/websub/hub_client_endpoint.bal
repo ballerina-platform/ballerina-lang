@@ -13,7 +13,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-package ballerina.websub;
 
 import ballerina/http;
 
@@ -21,59 +20,63 @@ import ballerina/http;
 /////// WebSub Hub Client Endpoint ///////
 //////////////////////////////////////////
 
-@Description {value:"Object representing the WebSub Hub Client Endpoint"}
-@Field {value:"config: The configuration for the endpoint"}
-@Field {value:"httpClientEndpoint: The underlying HTTP client endpoint"}
+documentation {
+    Object representing the WebSub Hub Client Endpoint.
+
+    E{{}}
+    F{{config}} The configuration for the endpoint
+}
 public type Client object {
 
     public {
-        HubClientEndpointConfiguration config;
+        HubClientEndpointConfig config;
     }
 
     private {
         http:Client httpClientEndpoint;
     }
 
-    @Description {value:"Gets called when the endpoint is being initialized during package init"}
-    @Param {value:"ep: The endpoint to be initialized"}
-    @Param {value:"config: The configuration for the endpoint"}
-    public function init (HubClientEndpointConfiguration config) {
-        endpoint http:Client httpClientEndpoint {targets:[{url:config.url, secureSocket:config.secureSocket}]};
+    documentation {
+        Called when the endpoint is being initialized during package initialization.
+
+        P{{config}} The configuration for the endpoint
+    }
+    public function init(HubClientEndpointConfig config) {
+        endpoint http:Client httpClientEndpoint {
+            url:config.url,
+            secureSocket:config.secureSocket,
+            auth:config.auth,
+            followRedirects:config.followRedirects
+        };
+
         self.httpClientEndpoint = httpClientEndpoint;
         self.config = config;
     }
 
-    @Description {value:"Gets called whenever a service attaches itself to this endpoint and during package init"}
-    @Param {value:"serviceType: The service attached"}
-    public function register (typedesc serviceType) {
-        httpClientEndpoint.register(serviceType);
-    }
+    documentation {
+        Retrieves the caller actions client code uses.
 
-    @Description {value:"Starts the registered service"}
-    public function start () {
-        httpClientEndpoint.start();
+        R{{}} `CallerActions` The caller actions available for clients
     }
-
-    @Description {value:"Returns the connector that client code uses"}
-    @Return {value:"The connector that client code uses"}
-    public function getClient () returns (HubClientConnector) {
+    public function getCallerActions() returns (CallerActions) {
         //TODO: create a single object - move to init
-        HubClientConnector webSubHubClientConn = new HubClientConnector(config.url, httpClientEndpoint);
+        CallerActions webSubHubClientConn = new CallerActions(config.url, httpClientEndpoint, config.followRedirects);
         return webSubHubClientConn;
-    }
-
-    @Description {value:"Stops the registered service"}
-    @Return {value:"Error occured during registration"}
-    public function stop () {
-        httpClientEndpoint.stop();
     }
 
 };
 
-@Description {value:"Object representing the WebSub Hub Client Endpoint configuration"}
-@Field {value:"url: The URL of the target Hub"}
-@Field {value:"secureSocket: SSL/TLS related options"}
-public type HubClientEndpointConfiguration {
+documentation {
+    Record representing the configuration parameters for the WebSub Hub Client Endpoint.
+
+    F{{url}} The URL of the target Hub
+    F{{secureSocket}} SSL/TLS related options for the underlying HTTP Client
+    F{{auth}} Authentication mechanism for the underlying HTTP Client
+    F{{followRedirects}} HTTP redirect related configuration
+}
+public type HubClientEndpointConfig {
     string url,
     http:SecureSocket? secureSocket,
+    http:AuthConfig? auth,
+    http:FollowRedirects? followRedirects,
 };

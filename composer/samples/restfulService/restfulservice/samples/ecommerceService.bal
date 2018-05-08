@@ -1,4 +1,3 @@
-package restfulservice.samples;
 
 import ballerina/http;
 
@@ -31,7 +30,7 @@ service<http> Ecommerce {
         if (payloadError == null) {
             clientRequest.setJsonPayload(jsonReq);
         } else {
-            clientRequest.setStringPayload(payloadError.message);
+            clientRequest.setTextPayload(payloadError.message);
         }
 
         var clientResponse, _ = productsService.post("/productsservice", clientRequest);

@@ -18,9 +18,9 @@
 package org.ballerinalang.docgen.docs.utils;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.PackageEntity;
 import org.ballerinalang.repository.PackageSource;
-import org.ballerinalang.repository.PackageSourceEntry;
 import org.ballerinalang.repository.fs.GeneralFSPackageRepository;
 
 import java.nio.file.Paths;
@@ -88,7 +88,7 @@ public class InMemoryPackageRepository extends GeneralFSPackageRepository {
         }
 
         @Override
-        public List<PackageSourceEntry> getPackageSourceEntries() {
+        public List<CompilerInput> getPackageSourceEntries() {
             return Stream.of(new InMemoryPackageRepository.InMemoryPackageSource.InMemorySourceEntry(name, code))
                     .collect(Collectors.toList());
         }
@@ -101,7 +101,7 @@ public class InMemoryPackageRepository extends GeneralFSPackageRepository {
         /**
          * InMemorySourceEntry.
          */
-        public class InMemorySourceEntry implements PackageSourceEntry {
+        public class InMemorySourceEntry implements CompilerInput {
 
             private String name;
             private byte[] code;
@@ -109,11 +109,6 @@ public class InMemoryPackageRepository extends GeneralFSPackageRepository {
             public InMemorySourceEntry(String name, byte[] code) {
                 this.name = name;
                 this.code = code.clone();
-            }
-
-            @Override
-            public PackageID getPackageID() {
-                return pkgID;
             }
 
             @Override

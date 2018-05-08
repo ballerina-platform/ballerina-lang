@@ -1,6 +1,6 @@
 import ballerina/net.jms;
 
-function main (string[] args) {
+function main (string... args) {
     jmsTransactedSender();
 }
 

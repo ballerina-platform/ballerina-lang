@@ -22,6 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -37,8 +38,6 @@ import org.ballerinalang.net.http.WebSocketServicesRegistry;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-
-import java.util.HashSet;
 
 /**
  * Get the ID of the connection.
@@ -84,7 +83,7 @@ public class Register extends AbstractHttpNativeFunction {
                                       WebSocketServicesRegistry webSocketServicesRegistry) {
         ServerConnector serverConnector = getServerConnector(serviceEndpoint);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
-        HashSet<FilterHolder> filterHolder = getFilters(serviceEndpoint);
+        Value[] filterHolder = getFilters(serviceEndpoint);
         serverConnectorFuture.setHttpConnectorListener(new BallerinaHTTPConnectorListener(httpServicesRegistry,
                 filterHolder));
         serverConnectorFuture

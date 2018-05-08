@@ -158,7 +158,7 @@ class ServiceNode extends AbstractServiceNode {
             pkg = endpoint.endPointType.packageAlias.value;
             name = endpoint.endPointType.typeName.value;
         }
-        return pkg;
+        return `${pkg}:${name}`;
     }
 
 }

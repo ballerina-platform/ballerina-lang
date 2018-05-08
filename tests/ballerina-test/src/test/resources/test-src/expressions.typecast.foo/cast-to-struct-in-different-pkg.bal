@@ -1,4 +1,3 @@
-package expressions.typecast.foo;
 
 import expressions.typecast.foo.bar;
 

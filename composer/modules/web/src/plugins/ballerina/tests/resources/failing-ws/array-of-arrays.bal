@@ -1,6 +1,6 @@
 import ballerina/lang.system;
 
-function main (string[] args) {
+function main (string... args) {
     //Here is how you can initialize an array of int arrays.
     int[][] xx = [[1, 2, 3], [10, 20, 30], [5, 6, 7]];
     system:println(lengthof xx);

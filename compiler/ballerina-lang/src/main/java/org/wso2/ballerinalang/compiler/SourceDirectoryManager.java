@@ -66,7 +66,7 @@ public class SourceDirectoryManager {
         List<String> packageNames = this.sourceDirectory.getSourcePackageNames();
         Manifest manifest = getManifest();
         return Stream.concat(sourceFileNames.stream().map(PackageID::new),
-                             packageNames.stream().map(name -> new PackageID(Names.ANON_ORG,
+                             packageNames.stream().map(name -> new PackageID(getOrgName(manifest),
                                                                              names.fromString(name),
                                                                              new Name(manifest.getVersion()))));
     }
@@ -99,12 +99,12 @@ public class SourceDirectoryManager {
         List<String> packageNames = this.sourceDirectory.getSourcePackageNames();
         if (packageNames.contains(sourcePackage)) {
             Manifest manifest = getManifest();
-            return new PackageID(Names.ANON_ORG, names.fromString(sourcePackage), new Name(manifest.getVersion()));
+            return new PackageID(getOrgName(manifest), names.fromString(sourcePackage),
+                    new Name(manifest.getVersion()));
         }
 
         return null;
     }
-
 
     // private methods
 
@@ -131,5 +131,10 @@ public class SourceDirectoryManager {
 
         context.put(SourceDirectory.class, srcDirectory);
         return srcDirectory;
+    }
+
+    private Name getOrgName(Manifest manifest) {
+        return manifest.getName() == null || manifest.getName().isEmpty() ?
+                Names.ANON_ORG : names.fromString(manifest.getName());
     }
 }

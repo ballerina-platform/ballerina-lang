@@ -13,8 +13,9 @@ function tableReturnTestAsAny() returns (any) {
     return abc;
 }
 
-function inputAnyAsTableTest() returns (table) | error {
-    return anyToTableCastFunction(tableReturnFunction());
+function inputAnyAsTableTest() returns (json) | error {
+    table t = check anyToTableCastFunction(tableReturnFunction());
+    return <json> t;
 }
 
 function anyToTableCastFunction (any aTable) returns (table) | error {

@@ -45,7 +45,8 @@ public class TracingTestCase {
     private void setup() throws Exception {
         serverInstance = ServerInstance.initBallerinaServer();
         String balFile = new File(RESOURCE_LOCATION + "trace-test.bal").getAbsolutePath();
-        serverInstance.setArguments(new String[]{balFile, "--observe", "-t", "name=BMockTracer"});
+        serverInstance.setArguments(
+                new String[]{balFile, "--observe", "-e", "b7a.observability.tracing.name=BMockTracer"});
 
         copyFile(new File(System.getProperty(TEST_NATIVES_JAR)), new File(serverInstance.getServerHome()
                 + DEST_FUNCTIONS_JAR));
@@ -58,7 +59,7 @@ public class TracingTestCase {
         HttpClientRequest.doGet("http://localhost:9090/echoService/resourceOne");
         Thread.sleep(1000);
         Assert.assertEquals(HttpClientRequest.doGet(
-                "http://localhost:9090/echoService/getFinishedSpansCount").getData(), "8");
+                "http://localhost:9090/echoService/getFinishedSpansCount").getData(), "5");
     }
 
     private static void copyFile(File source, File dest) throws IOException {

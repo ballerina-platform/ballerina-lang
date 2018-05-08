@@ -1,4 +1,4 @@
-public function main (string[] args) {
+function main (string... args) {
     // tainted array - untainted field.
     string[] data = ["Ballerina", args[0]];
     secureFunction(data[0], data[0]);

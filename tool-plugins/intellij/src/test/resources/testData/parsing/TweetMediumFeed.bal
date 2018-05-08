@@ -7,7 +7,7 @@ import ballerina/utils;
 import ballerina/http.request;
 import ballerina/http.response;
 
-function main (string[] args) {
+function main (string... args) {
 
     http:ClientConnector tweeterEP = create http:ClientConnector("https://api.twitter.com");
     http:ClientConnector mediumEP = create http:ClientConnector("https://medium.com");

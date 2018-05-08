@@ -18,8 +18,8 @@
 package org.ballerinalang.langserver.completions.util.sorters;
 
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;

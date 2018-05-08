@@ -18,7 +18,11 @@
 package org.ballerinalang.docgen.model;
 
 
+import org.apache.commons.lang3.EnumUtils;
+import org.wso2.ballerinalang.compiler.tree.BLangObject;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Documentable node for Connectors.
@@ -26,18 +30,25 @@ import java.util.List;
 public class ConnectorDoc extends Documentable {
     public final boolean isConnector;
     public final boolean isObject;
-    public final List<Variable> parameters;
+    public final boolean hasConstructor;
+    public final List<Field> fields;
+    private BLangObject object;
+
+    private enum FilteredFunctions { init, register, start, stop, getCallerActions }
 
     /**
      * Constructor.
-     * @param name connector name.
-     * @param description description.
-     * @param children connector actions.
-     * @param parameters parameters of the connector.
+     *
+     * @param name           connector name.
+     * @param description    description.
+     * @param children       connector actions.
+     * @param fields         fields of the connector.
+     * @param isConnector    whether a connector or an object.
+     * @param hasConstructor indicates whether this object has a constructor or not.
      */
-    public ConnectorDoc(String name, String description, List<Documentable> children, List<Variable> parameters,
-                        boolean isConnector) {
-        super(name, "fw-connector", description, children);
+    public ConnectorDoc(String name, String description, List<Documentable> children, List<Field> fields,
+                        List<Documentable> utilityFunctions, boolean isConnector, boolean hasConstructor) {
+        super(name, "fw-endpoint", description, children);
         if (!isConnector) {
             super.icon = "fw-struct";
         }
@@ -46,8 +57,37 @@ public class ConnectorDoc extends Documentable {
                 doc.icon = "fw-action";
             }
         }
-        this.parameters = parameters;
+        children.addAll(utilityFunctions);
+        this.fields = fields;
         this.isConnector = isConnector;
         this.isObject = !isConnector;
+        this.hasConstructor = hasConstructor;
+
+        // filter internal functions
+        List<Documentable> filteredChildren = children.stream().filter(f -> {
+            if (f instanceof FunctionDoc) {
+                FunctionDoc functionDoc = (FunctionDoc) f;
+                return isNotAFilteredFunction(functionDoc.name);
+            }
+            return true;
+        }).collect(Collectors.toList());
+
+        children.clear();
+        children.addAll(filteredChildren);
+    }
+
+    public BLangObject getObject() {
+        return object;
+    }
+
+    public void setObject(BLangObject object) {
+        this.object = object;
+    }
+
+    private boolean isNotAFilteredFunction(String name) {
+        if (EnumUtils.isValidEnum(FilteredFunctions.class, name)) {
+            return false;
+        }
+        return true;
     }
 }

@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.builtin;
-
 public type error {
     string message;
     error? cause;

@@ -17,9 +17,9 @@
 */
 package org.ballerinalang.langserver.rename;
 
-import org.ballerinalang.langserver.common.LSDocument;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.compiler.common.LSDocument;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;

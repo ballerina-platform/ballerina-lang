@@ -1,4 +1,4 @@
-public function main (string[] args) {
+function main (string... args) {
     any anyExample = "staticValue";
     var stringValue = <string> anyExample;
     secureFunction(stringValue, stringValue);

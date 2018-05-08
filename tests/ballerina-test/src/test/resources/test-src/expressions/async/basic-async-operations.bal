@@ -13,7 +13,7 @@ function testAsyncNonNativeBasic2() returns int {
   future<int> f1 = start add(5, 2);
   int result = await f1;
   future<int> f2 = start add(10, 2);
-  runtime:sleepCurrentWorker(100);
+  runtime:sleep(100);
   result = result + await f2;
   return result;
 }
@@ -48,7 +48,7 @@ function testAsyncNonNativeBasic6() returns boolean {
   boolean d = f2.cancel();
   future f3 = start io:println("NATIVE ASYNC BLOCKING");
   boolean e = f3.cancel();
-  future f4 = start runtime:sleepCurrentWorker(100);
+  future f4 = start runtime:sleep(100);
   boolean f = f4.cancel();
   return !a && v1 == 10.0 && b && !c && d && !e && !f;
 }
@@ -62,12 +62,12 @@ function addGlobal(int a, int b) {
 }
 
 function addSlow(float a, float b) returns float {
-  runtime:sleepCurrentWorker(200);
+  runtime:sleep(200);
   return a + b;
 }
 
 function addSlower(float a, float b) returns float {
-  runtime:sleepCurrentWorker(1200);
+  runtime:sleep(1200);
   return a + b;
 }
 

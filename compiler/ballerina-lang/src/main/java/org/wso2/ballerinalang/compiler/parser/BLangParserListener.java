@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTempl
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -54,13 +53,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     private List<String> pkgNameComps;
     private String pkgVersion;
-    private boolean distributedTransactionEnabled;
 
     BLangParserListener(CompilerContext context, CompilationUnitNode compUnit,
                         BDiagnosticSource diagnosticSource) {
         this.pkgBuilder = new BLangPackageBuilder(context, compUnit);
         this.diagnosticSrc = diagnosticSource;
-        this.distributedTransactionEnabled = CompilerUtils.isDistributedTransactionsEnabled();
     }
 
     @Override
@@ -148,18 +145,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void exitPackageDeclaration(BallerinaParser.PackageDeclarationContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.setPackageDeclaration(getCurrentPos(ctx), getWS(ctx), this.pkgNameComps, this.pkgVersion);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitPackageName(BallerinaParser.PackageNameContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -219,7 +204,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         if (ctx.recordLiteral() != null) {
-            this.pkgBuilder.addAnonymousEndpointBind();
+            this.pkgBuilder.addAnonymousEndpointBind(getWS(ctx));
             return;
         }
         this.pkgBuilder.addServiceEndpointAttachments(ctx.nameReference().size(), getWS(ctx));
@@ -399,7 +384,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -414,7 +399,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -428,7 +413,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -438,13 +423,45 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         if (!(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext)) {
-            this.pkgBuilder.addAnonObjectType(getCurrentPos(ctx), getWS(ctx));
+            // check whether this anon object is defined as a global var or as as function return param
+            boolean isFieldAnalyseRequired =
+                    (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
+                            ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext);
+            this.pkgBuilder.addAnonObjectType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired);
         }
     }
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override
+    public void exitPublicObjectFields(BallerinaParser.PublicObjectFieldsContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addObjectFieldsBlock(getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override
+    public void exitPrivateObjectFields(BallerinaParser.PrivateObjectFieldsContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addObjectFieldsBlock(getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -458,7 +475,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -467,7 +484,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean publicFunc = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
+        boolean publicFunc = ctx.PUBLIC() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
         this.pkgBuilder.endObjectInitFunctionDef(getCurrentPos(ctx), getWS(ctx), ctx.NEW().getText(),
                 publicFunc, bodyExists);
@@ -475,7 +492,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -490,7 +507,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -516,7 +533,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -530,7 +547,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -546,7 +563,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -560,7 +577,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -574,7 +591,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -596,7 +613,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -739,7 +756,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -753,7 +770,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -763,7 +780,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         if (!(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext)) {
-            this.pkgBuilder.addAnonRecordType(getCurrentPos(ctx), getWS(ctx));
+            // check whether this anon object is defined as a global var or as as function return param
+            boolean isFieldAnalyseRequired =
+                    (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
+                            ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext);
+            this.pkgBuilder.addAnonRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired);
         }
     }
 
@@ -1022,6 +1043,20 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
+     * <p>
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override
+    public void exitCompoundOperator(BallerinaParser.CompoundOperatorContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addCompoundOperator(getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
      */
     @Override
     public void exitPostIncrementStatement(BallerinaParser.PostIncrementStatementContext ctx) {
@@ -1141,7 +1176,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.createMatchNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.createMatchNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -1592,7 +1627,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.endTransactionStmt(getCurrentPos(ctx), getWS(ctx), this.distributedTransactionEnabled);
+        this.pkgBuilder.endTransactionStmt(getCurrentPos(ctx), getWS(ctx));
     }
 
     /**
@@ -1600,7 +1635,21 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitTransactionClause(BallerinaParser.TransactionClauseContext ctx) {
-        this.pkgBuilder.addTransactionBlock(getCurrentPos(ctx));
+        this.pkgBuilder.addTransactionBlock(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitTransactionPropertyInitStatementList(
+            BallerinaParser.TransactionPropertyInitStatementListContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endTransactionPropertyInitStatementList(getWS(ctx));
+
     }
 
     /**
@@ -1679,12 +1728,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void exitFailStatement(BallerinaParser.FailStatementContext ctx) {
+    public void exitRetryStatement(BallerinaParser.RetryStatementContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
-        this.pkgBuilder.addFailStatement(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.addRetryStatement(getCurrentPos(ctx), getWS(ctx));
     }
 
     /**
@@ -1695,7 +1744,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.addRetryCountExpression();
+        this.pkgBuilder.addRetryCountExpression(getWS(ctx));
     }
 
     /**
@@ -1706,7 +1755,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.addCommittedBlock();
+        this.pkgBuilder.addCommittedBlock(getWS(ctx));
     }
 
     /**
@@ -1717,7 +1766,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.addAbortedBlock();
+        this.pkgBuilder.addAbortedBlock(getWS(ctx));
     }
 
     /**
@@ -1912,7 +1961,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -2271,7 +2320,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startOrderByClauseNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startOrderByClauseNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -2284,12 +2333,51 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void enterLimitClause(BallerinaParser.LimitClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startLimitClauseNode(getCurrentPos(ctx));
+    }
+
+    @Override
+    public void exitLimitClause(BallerinaParser.LimitClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endLimitClauseNode(getCurrentPos(ctx), getWS(ctx), ctx.DecimalIntegerLiteral().getText());
+    }
+
+    @Override
+    public void enterOrderByVariable(BallerinaParser.OrderByVariableContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startOrderByVariableNode(getCurrentPos(ctx));
+    }
+
+    @Override
+    public void exitOrderByVariable(BallerinaParser.OrderByVariableContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        boolean isAscending = ctx.orderByType() != null && ctx.orderByType().ASCENDING() != null;
+        boolean isDescending = ctx.orderByType() != null && ctx.orderByType().DESCENDING() != null;
+
+        this.pkgBuilder.endOrderByVariableNode(getCurrentPos(ctx), getWS(ctx), isAscending, isDescending);
+    }
+
+    @Override
     public void enterGroupByClause(BallerinaParser.GroupByClauseContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
-        this.pkgBuilder.startGroupByClauseNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startGroupByClauseNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -2307,7 +2395,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startHavingClauseNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startHavingClauseNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -2325,7 +2413,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startSelectExpressionNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startSelectExpressionNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -2344,7 +2432,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startSelectClauseNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startSelectClauseNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -2384,7 +2472,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startWhereClauseNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startWhereClauseNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -2438,7 +2526,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startStreamActionNode(getCurrentPos(ctx), getWS(ctx), diagnosticSrc.pkgID);
+        this.pkgBuilder.startStreamActionNode(getCurrentPos(ctx), diagnosticSrc.pkgID);
     }
 
     @Override
@@ -2455,7 +2543,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startPatternStreamingEdgeInputNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startPatternStreamingEdgeInputNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -2474,7 +2562,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startWindowClauseNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startWindowClauseNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -2492,7 +2580,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startWithinClause(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startWithinClause(getCurrentPos(ctx));
     }
 
     @Override
@@ -2510,7 +2598,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startPatternClause(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startPatternClause(getCurrentPos(ctx));
     }
 
     @Override
@@ -2531,7 +2619,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startPatternStreamingInputNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startPatternStreamingInputNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -2558,7 +2646,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startStreamingInputNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startStreamingInputNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -2581,7 +2669,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startJoinStreamingInputNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startJoinStreamingInputNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -2609,13 +2697,25 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitJoinType(BallerinaParser.JoinTypeContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endJoinType(getWS(ctx));
+    }
+
     @Override
     public void enterOutputRateLimit(BallerinaParser.OutputRateLimitContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
-        this.pkgBuilder.startOutputRateLimitNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startOutputRateLimitNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -2661,7 +2761,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startTableQueryNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startTableQueryNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -2672,8 +2772,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isSelectClauseAvailable = ctx.selectClause() != null;
         boolean isOrderByClauseAvailable = ctx.orderByClause() != null;
         boolean isJoinClauseAvailable = ctx.joinStreamingInput() != null;
+        boolean isLimitClauseAvailable = ctx.limitClause() != null;
         this.pkgBuilder.endTableQueryNode(isJoinClauseAvailable, isSelectClauseAvailable, isOrderByClauseAvailable,
-                getCurrentPos(ctx), getWS(ctx));
+                isLimitClauseAvailable, getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
@@ -2682,7 +2783,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startStreamingQueryStatementNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startStreamingQueryStatementNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -2700,7 +2801,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startForeverNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startForeverNode(getCurrentPos(ctx));
     }
 
     @Override

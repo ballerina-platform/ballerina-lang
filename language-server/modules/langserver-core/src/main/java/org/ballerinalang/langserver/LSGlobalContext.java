@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.langserver;
 
+import org.ballerinalang.langserver.compiler.LSContext;
+
 import java.util.HashMap;
 import java.util.Map;
 

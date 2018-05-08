@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.util.filters;
 
-import org.ballerinalang.langserver.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 
 import java.util.ArrayList;
 import java.util.List;

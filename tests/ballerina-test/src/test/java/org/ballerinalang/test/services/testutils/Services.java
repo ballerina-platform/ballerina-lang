@@ -19,6 +19,7 @@
 package org.ballerinalang.test.services.testutils;
 
 
+import io.netty.handler.codec.http.HttpContent;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -28,10 +29,12 @@ import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpDispatcher;
 import org.ballerinalang.net.http.HttpResource;
+import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.Map;
 
 /**
@@ -71,6 +74,17 @@ public class Services {
         callback.setRequestStruct(signatureParams[0]);
         Executor.submit(resource.getBalResource(), callback, properties, null, signatureParams);
         callback.sync();
+
+        HTTPCarbonMessage originalMsg = callback.getResponseMsg();
+        LinkedList<HttpContent> list = new LinkedList<>();
+        while (!originalMsg.isEmpty()) {
+            HttpContent httpContent = originalMsg.getHttpContent();
+            list.add(httpContent);
+        }
+        while (!list.isEmpty()) {
+            originalMsg.addHttpContent(list.pop());
+        }
+        request.getTestHttpResponseStatusFuture().notifyHttpListener(HttpUtil.createHttpCarbonMessage(false));
         return callback.getResponseMsg();
     }
 }

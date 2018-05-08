@@ -1,4 +1,3 @@
-package pkg.ab;
 
 public int lockInt1 = 0;
 

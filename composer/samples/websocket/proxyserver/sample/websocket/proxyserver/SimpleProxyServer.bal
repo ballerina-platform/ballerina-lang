@@ -1,4 +1,3 @@
-package sample.websocket.proxyserver;
 
 import ballerina/io;
 import ballerina/net.ws;

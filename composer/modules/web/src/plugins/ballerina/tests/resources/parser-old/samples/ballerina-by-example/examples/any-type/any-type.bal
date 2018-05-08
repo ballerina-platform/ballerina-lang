@@ -7,7 +7,7 @@ function getValue () (any) {
     return name;
 }
 
-function main (string[] args) {
+function main (string... args) {
     //'any' typed variable 'a' holds a value of type int.
     any a = 5;
     system:println(a);

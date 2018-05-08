@@ -1,4 +1,4 @@
-function main (string[] args) {
+function main (string... args) {
     test t = create test(<caret>);
 }
 

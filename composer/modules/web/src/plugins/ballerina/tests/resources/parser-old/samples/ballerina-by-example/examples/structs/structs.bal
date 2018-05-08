@@ -9,7 +9,7 @@ struct Person {
     string status;
 }
 
-function main (string[] args) {
+function main (string... args) {
     //Create a person with default values.
     Person p1 = {};
     system:println(p1);

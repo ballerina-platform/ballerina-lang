@@ -50,6 +50,7 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
         super(flags, name, pkgID, type, owner);
         this.tag = tag;
         this.params = new ArrayList<>();
+        this.defaultableParams = new ArrayList<>();
     }
 
     @Override

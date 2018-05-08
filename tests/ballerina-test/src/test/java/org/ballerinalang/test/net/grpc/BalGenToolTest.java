@@ -52,7 +52,7 @@ public class BalGenToolTest {
         grpcCmd1.setBalOutPath(sourceRoot.toString());
         grpcCmd1.setProtoPath(protoRoot.toString());
         grpcCmd1.execute();
-        Path sourceFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorld.pb.bal"));
+        Path sourceFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorld_pb.bal"));
         CompileResult compileResult = BCompileUtil.compile(sourceFileRoot.toString());
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
                         .getStructInfo("helloWorldClient"), "Connector not found.");
@@ -82,7 +82,7 @@ public class BalGenToolTest {
         grpcCmd1.setBalOutPath(sourceRoot.toString());
         grpcCmd1.setProtoPath(protoRoot.toString());
         grpcCmd1.execute();
-        Path sourceFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorldClientStreaming.pb.bal"));
+        Path sourceFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorldClientStreaming_pb.bal"));
         CompileResult compileResult = BCompileUtil.compile(sourceFileRoot.toString());
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
                         .getStructInfo("helloWorldClientStreamingClient"), "Connector not found.");
@@ -105,7 +105,7 @@ public class BalGenToolTest {
         grpcCmd1.setBalOutPath(sourceRoot.toString());
         grpcCmd1.setProtoPath(protoRoot.toString());
         grpcCmd1.execute();
-        Path sourceFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorldServerStreaming.pb.bal"));
+        Path sourceFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorldServerStreaming_pb.bal"));
         CompileResult compileResult = BCompileUtil.compile(sourceFileRoot.toString());
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
                         .getStructInfo("helloWorldServerStreamingClient"), "Connector not found.");
@@ -128,7 +128,7 @@ public class BalGenToolTest {
         grpcCmd1.setBalOutPath(sourceRoot.toString());
         grpcCmd1.setProtoPath(protoRoot.toString());
         grpcCmd1.execute();
-        Path sourceFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorld.pb.bal"));
+        Path sourceFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorld_pb.bal"));
         CompileResult compileResult = BCompileUtil.compile(sourceFileRoot.toString());
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
                         .getStructInfo("helloWorldClient"), "Connector not found.");

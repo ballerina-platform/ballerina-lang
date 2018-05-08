@@ -28,7 +28,6 @@ import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ObjectNode;
-import org.ballerinalang.model.tree.PackageDeclarationNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.RecordNode;
 import org.ballerinalang.model.tree.ServiceNode;
@@ -39,11 +38,12 @@ import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 import org.ballerinalang.repository.PackageRepository;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnostic;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -54,7 +54,6 @@ import java.util.Set;
  */
 public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangCompilationUnit> compUnits;
-    public BLangPackageDeclaration pkgDecl;
     public List<BLangImportPackage> imports;
     public List<BLangXMLNS> xmlnsList;
     public List<BLangEndpoint> globalEndpoints;
@@ -79,8 +78,8 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public PackageRepository packageRepository;
 
     // TODO Revisit these instance variables
-    public Path loadedFilePath;
-    public boolean loadedFromProjectDir;
+    public BDiagnosticCollector diagCollector;
+
     public RepoHierarchy repos;
 
     public BLangPackage() {
@@ -103,6 +102,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.objAttachedFunctions = new ArrayList<>();
         this.topLevelNodes = new ArrayList<>();
         this.completedPhases = EnumSet.noneOf(CompilerPhase.class);
+        this.diagCollector = new BDiagnosticCollector();
     }
 
     @Override
@@ -268,17 +268,32 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
-    public void setPackageDeclaration(PackageDeclarationNode pkgDecl) {
-        this.pkgDecl = (BLangPackageDeclaration) pkgDecl;
-    }
-
-    @Override
-    public PackageDeclarationNode getPackageDeclaration() {
-        return pkgDecl;
-    }
-
-    @Override
     public NodeKind getKind() {
         return NodeKind.PACKAGE;
+    }
+
+    /**
+     * This class collect diagnostics.
+     *
+     * @since 0.970.0
+     */
+    public static class BDiagnosticCollector {
+        private int errorCount;
+        private List<BDiagnostic> diagnostics;
+
+        public BDiagnosticCollector() {
+            this.diagnostics = new ArrayList<>();
+        }
+
+        public void addDiagnostic(BDiagnostic diagnostic) {
+            this.diagnostics.add(diagnostic);
+            if (diagnostic.getKind() == Diagnostic.Kind.ERROR) {
+                this.errorCount++;
+            }
+        }
+
+        public boolean hasErrors() {
+            return this.errorCount > 0;
+        }
     }
 }

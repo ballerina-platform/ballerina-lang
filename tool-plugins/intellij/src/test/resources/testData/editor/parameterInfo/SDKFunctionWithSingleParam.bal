@@ -1,5 +1,5 @@
 import ballerina/log;
 
-function main (string[] args) {
+function main (string... args) {
     log:printDebug(<caret>)
 }
