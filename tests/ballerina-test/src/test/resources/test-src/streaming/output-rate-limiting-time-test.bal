@@ -42,7 +42,7 @@ function testOutputRateLimitQuery() {
     forever {
         from teacherStream9
         select name, age, status
-        output first every 3 second
+        output first every 3 seconds
         => (Employee[] emp) {
             employeeStream8.publish(emp);
         }
