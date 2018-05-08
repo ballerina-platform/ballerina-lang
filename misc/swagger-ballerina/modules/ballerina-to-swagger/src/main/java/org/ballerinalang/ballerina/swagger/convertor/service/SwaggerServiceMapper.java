@@ -53,10 +53,11 @@ public class SwaggerServiceMapper {
     private String httpAlias;
     private String swaggerAlias;
     private ObjectMapper objectMapper;
-    
+
     /**
      * Initializes a service parser for swagger.
-     * @param httpAlias The alias for ballerina/http package.
+     *
+     * @param httpAlias    The alias for ballerina/http package.
      * @param swaggerAlias The alias for ballerina.swagger package.
      */
     public SwaggerServiceMapper(String httpAlias, String swaggerAlias) {
@@ -67,6 +68,8 @@ public class SwaggerServiceMapper {
     }
 
     /**
+     * Retrieves the String definition of a Swagger object.
+     *
      * @param swagger Swagger definition
      * @return String representation of current service object.
      */
@@ -107,9 +110,10 @@ public class SwaggerServiceMapper {
         swagger.setPaths(resourceMapper.convertResourceToPath(service.getResources()));
         return swagger;
     }
-    
+
     /**
      * Parses the 'ServiceInfo' annotation and build the swagger definition for it.
+     *
      * @param service The ballerina service which has the 'ServiceInfo' annotation attachment.
      * @param swagger The swagger definition to be built up.
      */
@@ -145,11 +149,12 @@ public class SwaggerServiceMapper {
         }
         swagger.setInfo(info);
     }
-    
+
     /**
      * Creates vendor extension for organization.
+     *
      * @param annotationExpression The annotation attribute value for organization vendor extension.
-     * @param info The info definition.
+     * @param info                 The info definition.
      */
     private void createOrganizationModel(BLangExpression annotationExpression, Info info) {
         if (null != annotationExpression) {
@@ -167,17 +172,19 @@ public class SwaggerServiceMapper {
             info.setVendorExtension("x-organization", organization);
         }
     }
-    
+
     /**
      * Creates tag swagger definition.
+     *
      * @param annotationExpression The ballerina annotation attribute value for tag.
-     * @param swagger The swagger definition which the tags needs to be build on.
+     * @param swagger              The swagger definition which the tags needs to be build on.
      */
     private void createTagModel(BLangExpression annotationExpression, Swagger swagger) {
         if (null != annotationExpression) {
             List<Tag> tags = new LinkedList<>();
-            List<? extends ExpressionNode> tagExprs = ((BLangArrayLiteral) annotationExpression).getExpressions();
-            for (ExpressionNode expr : tagExprs) {
+            BLangArrayLiteral tagArray = (BLangArrayLiteral) annotationExpression;
+
+            for (ExpressionNode expr : tagArray.getExpressions()) {
                 List<BLangRecordKeyValue> tagList = ((BLangRecordLiteral) expr).getKeyValuePairs();
                 Map<String, BLangExpression> tagAttributes = ConverterUtils.listToMap(tagList);
                 Tag tag = new Tag();
@@ -195,11 +202,12 @@ public class SwaggerServiceMapper {
             swagger.setTags(Lists.reverse(tags));
         }
     }
-    
+
     /**
      * Creates external docs swagger definition.
+     *
      * @param annotationExpression The ballerina annotation attribute value for external docs.
-     * @param swagger The swagger definition which the external docs needs to be build on.
+     * @param swagger              The swagger definition which the external docs needs to be build on.
      */
     private void createExternalDocModel(BLangExpression annotationExpression, Swagger swagger) {
         if (null != annotationExpression) {
@@ -246,11 +254,12 @@ public class SwaggerServiceMapper {
             info.setContact(contact);
         }
     }
-    
+
     /**
      * Creates the license swagger definition.
+     *
      * @param annotationExpression The ballerina annotation attribute value for license.
-     * @param info The info definition which the license needs to be build on.
+     * @param info                 The info definition which the license needs to be build on.
      */
     private void createLicenseModel(BLangExpression annotationExpression, Info info) {
         if (null != annotationExpression) {

@@ -71,11 +71,12 @@ public class SwaggerResourceMapper {
     private final String httpAlias;
     private final String swaggerAlias;
     private final Swagger swaggerDefinition;
-    
+
     /**
      * Initializes a resource parser for swagger.
-     * @param swagger The swagger definition.
-     * @param httpAlias The alias for ballerina/http package.
+     *
+     * @param swagger      The swagger definition.
+     * @param httpAlias    The alias for ballerina/http package.
      * @param swaggerAlias The alias for ballerina.swagger package.
      */
     SwaggerResourceMapper(Swagger swagger, String httpAlias, String swaggerAlias) {
@@ -102,10 +103,11 @@ public class SwaggerResourceMapper {
         }
         return pathMap;
     }
-    
+
     /**
      * Resource mapper when a resource has more than 1 http method.
-     * @param pathMap The map with paths that should be updated.
+     *
+     * @param pathMap  The map with paths that should be updated.
      * @param resource The ballerina resource.
      */
     private void useMultiResourceMapper(Map<String, Path> pathMap, ResourceNode resource) {
@@ -121,10 +123,11 @@ public class SwaggerResourceMapper {
         pathObject.setVendorExtension(X_MULTI_OPERATIONS, operation);
         pathMap.put(path, pathObject);
     }
-    
+
     /**
      * Resource mapper when a resource has only one http method.
-     * @param pathMap The map with paths that should be updated.
+     *
+     * @param pathMap  The map with paths that should be updated.
      * @param resource The ballerina resource.
      */
     private void useDefaultResourceMapper(Map<String, Path> pathMap, ResourceNode resource) {
@@ -164,8 +167,7 @@ public class SwaggerResourceMapper {
                 break;
         }
     }
-    
-    
+
     /**
      * This method will convert ballerina @Resource to ballerina @OperationAdaptor.
      *
@@ -253,11 +255,12 @@ public class SwaggerResourceMapper {
             }
         }
     }
-    
+
     /**
      * Parses the 'Responses' annotation attachment and build swagger operation.
+     *
      * @param resource The ballerina resource definition.
-     * @param op The swagger operation.
+     * @param op       The swagger operation.
      */
     private void parseResponsesAnnotationAttachment(ResourceNode resource, Operation op) {
         Optional<? extends AnnotationAttachmentNode> responsesAnnotation = resource.getAnnotationAttachments().stream()
@@ -339,10 +342,11 @@ public class SwaggerResourceMapper {
             }
         }
     }
-    
+
     /**
      * Creates parameters in the swagger operation using the parameters in the ballerina resource definition.
-     * @param resource The ballerina resource definition.
+     *
+     * @param resource         The ballerina resource definition.
      * @param operationAdaptor The swagger operation.
      */
     private void addResourceParameters(ResourceNode resource, OperationAdaptor operationAdaptor) {
@@ -464,10 +468,11 @@ public class SwaggerResourceMapper {
             }
         }
     }
-    
+
     /**
      * Parses the 'ResourceInfo' annotation and builds swagger operation.
-     * @param resource The resource definition.
+     *
+     * @param resource  The resource definition.
      * @param operation The swagger operation.
      */
     private void parseResourceInfoAnnotationAttachment(ResourceNode resource, Operation operation) {
@@ -538,7 +543,8 @@ public class SwaggerResourceMapper {
     
     /**
      * Parse 'ResourceConfig' annotation attachment and build a resource operation.
-     * @param resource The ballerina resource definition.
+     *
+     * @param resource  The ballerina resource definition.
      * @param operation The swagger operation.
      */
     private void parseResourceConfigAnnotationAttachment(ResourceNode resource, Operation operation) {
@@ -610,6 +616,7 @@ public class SwaggerResourceMapper {
 
     /**
      * Gets the path value of the @http:resourceConfig.
+     *
      * @param resource The ballerina resource.
      * @return The path value.
      */
