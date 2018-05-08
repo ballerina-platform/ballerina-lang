@@ -340,6 +340,10 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
             return err;
         }
         req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
+    } else {
+        error err;
+        err.message = "Invalid authentication scheme. It should be basic, oauth or jwt";
+        return err;
     }
     return ();
 }
