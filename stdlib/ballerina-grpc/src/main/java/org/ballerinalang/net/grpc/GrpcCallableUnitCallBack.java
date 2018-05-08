@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.net.grpc;
 
+import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.values.BStruct;
@@ -43,12 +44,26 @@ public class GrpcCallableUnitCallBack implements CallableUnitCallback {
     
     @Override
     public void notifySuccess() {
+        // check whether connection is closed.
+        if (requestSender instanceof ServerCallStreamObserver) {
+            ServerCallStreamObserver serverCallStreamObserver = (ServerCallStreamObserver) requestSender;
+            if (!serverCallStreamObserver.isReady()) {
+                return;
+            }
+            if (serverCallStreamObserver.isCancelled()) {
+                return;
+            }
+        }
+        if (requestSender == null) {
+            return;
+        }
         // notify success only if response message is empty. Service impl doesn't send empty message. Empty response
         // scenarios handles here.
-        if (emptyResponse && requestSender != null) {
+        if (emptyResponse) {
             requestSender.onNext(Message.newBuilder("Empty").build());
-            requestSender.onCompleted();
         }
+        // Notify complete if service impl doesn't call caller->complete();
+        requestSender.onCompleted();
     }
     
     @Override

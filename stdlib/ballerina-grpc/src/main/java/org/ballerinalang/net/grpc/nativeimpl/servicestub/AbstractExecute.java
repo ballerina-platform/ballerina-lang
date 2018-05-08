@@ -92,6 +92,6 @@ abstract class AbstractExecute extends BlockingNativeCallableUnit {
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
         BStruct outboundError = new BStruct(errorStructInfo.getType());
         outboundError.setStringField(0, errorMessage);
-        context.setError(outboundError);
+        context.setReturnValues(outboundError);
     }
 }
