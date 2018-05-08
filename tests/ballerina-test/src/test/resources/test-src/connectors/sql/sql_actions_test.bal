@@ -57,6 +57,7 @@ type ResultBalTypes {
     float NUMERIC_TYPE,
     float DECIMAL_TYPE,
     float REAL_TYPE,
+    blob BLOB_TYPE,
 };
 
 type Employee {
@@ -581,19 +582,28 @@ function testINParameters() returns (int) {
     return insertCount;
 }
 
-function testINParameters2() returns (int, int, float, float, boolean, string, float, float, float) {
+function testINParametersWithDirectValues() returns (int, int, float, float, boolean, string, float, float, float, blob,
+        blob) {
     endpoint jdbc:Client testDB {
         url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
         poolOptions: { maximumPoolSize: 1 }
     };
 
+    table dt1 = check testDB->select("SELECT blob_type from DataTypeTable where row_id = 1", ResultBlob);
+
+    blob blobInsert;
+    while (dt1.hasNext()) {
+        ResultBlob rs = check <ResultBlob>dt1.getNext();
+        blobInsert = rs.BLOB_TYPE;
+    }
+
     int insertCount = check testDB->update("INSERT INTO DataTypeTable (row_id, int_type, long_type,
-            float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type)
-            VALUES (?,?,?,?,?,?,?,?,?,?)", 25, 1, 9223372036854774807, 123.34, 2139095039.1, true,
-        "Hello", 1234.567, 1234.567, 1234.567);
+            float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, blob_type)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?)", 25, 1, 9223372036854774807, 123.34, 2139095039.1, true,
+        "Hello", 1234.567, 1234.567, 1234.567, blobInsert);
     table dt = check testDB->select("SELECT int_type, long_type,
-            float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type from
+            float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type,blob_type from
             DataTypeTable where row_id = 25", ResultBalTypes);
     int i;
     int l;
@@ -604,6 +614,7 @@ function testINParameters2() returns (int, int, float, float, boolean, string, f
     float n;
     float dec;
     float real;
+    blob blobReturn;
 
     while (dt.hasNext()) {
         var rs = check <ResultBalTypes>dt.getNext();
@@ -615,9 +626,10 @@ function testINParameters2() returns (int, int, float, float, boolean, string, f
         n = rs.NUMERIC_TYPE;
         dec = rs.DECIMAL_TYPE;
         real = rs.REAL_TYPE;
+        blobReturn = rs.BLOB_TYPE;
     }
     testDB.stop();
-    return (i, l, f, d, b, s, n, dec, real);
+    return (i, l, f, d, b, s, n, dec, real, blobInsert, blobReturn);
 }
 
 function testNullINParameterValues() returns (int) {
