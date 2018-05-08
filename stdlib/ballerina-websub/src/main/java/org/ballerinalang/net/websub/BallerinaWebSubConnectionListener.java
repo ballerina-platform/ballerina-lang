@@ -65,7 +65,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBS
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_NOTIFICATION_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SUBSCRIBE;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.UNSUBSCRIBE;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
 
 /**
  * HTTP Connection Listener for Ballerina WebSub services.
@@ -210,7 +210,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
      */
     private BStruct createSubscriberServiceEndpointStruct(Resource resource) {
         return createBStruct(resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                                                    WEBSUB_PACKAGE_PATH, SERVICE_ENDPOINT);
+                             WEBSUB_PACKAGE, SERVICE_ENDPOINT);
     }
 
     /**
@@ -219,7 +219,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
      */
     private BStruct createIntentVerificationRequestStruct(Resource resource) {
         return createBStruct(resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                                                   WEBSUB_PACKAGE_PATH, STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST);
+                             WEBSUB_PACKAGE, STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST);
     }
 
     /**
@@ -227,7 +227,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
      */
     private BStruct createNotificationRequestStruct(Resource resource) {
         return createBStruct(resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                                                    WEBSUB_PACKAGE_PATH, STRUCT_WEBSUB_NOTIFICATION_REQUEST);
+                             WEBSUB_PACKAGE, STRUCT_WEBSUB_NOTIFICATION_REQUEST);
     }
 
     private BStruct createBStruct(ProgramFile programFile, String packagePath, String structName) {

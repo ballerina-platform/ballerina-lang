@@ -47,7 +47,7 @@ public class WebSubHttpService extends HttpService {
     }
 
     private static Annotation getWebSubSubscriberServiceConfigAnnotation(Service service) {
-        return getServiceConfigAnnotation(service, WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH,
+        return getServiceConfigAnnotation(service, WebSubSubscriberConstants.WEBSUB_PACKAGE,
                                           WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG);
     }
 
