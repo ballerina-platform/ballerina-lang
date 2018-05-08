@@ -328,18 +328,7 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
     } else if (scheme == OAUTH_SCHEME) {
         string accessToken = config.auth.accessToken but { () => EMPTY_STRING };
         if (accessToken == EMPTY_STRING) {
-            string refreshToken = config.auth.refreshToken but { () => EMPTY_STRING };
-            string clientId = config.auth.clientId but { () => EMPTY_STRING };
-            string clientSecret = config.auth.clientSecret but { () => EMPTY_STRING };
-            string refreshUrl = config.auth.refreshUrl but { () => EMPTY_STRING };
-
-            if (refreshToken != EMPTY_STRING && clientId != EMPTY_STRING && clientSecret != EMPTY_STRING) {
-                return updateRequestAndConfig(req, config);
-            } else {
-                error err;
-                err.message = "Valid accessToken or refreshToken is not available to process the request";
-                return err;
-            }
+            return updateRequestAndConfig(req, config);
         } else {
             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
         }
@@ -387,8 +376,8 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
 
     if (refreshToken == EMPTY_STRING || clientId == EMPTY_STRING || clientSecret == EMPTY_STRING || refreshUrl == EMPTY_STRING) {
         error err;
-        err.message = "Failed to generate new access token since either one or more of refresh token, client id,
-         client secret, refresh url not provided";
+        err.message = "Failed to generate new access token since one or more of refresh token, client id, client secret,
+        refresh url are not provided";
         return err;
     }
 
