@@ -20,7 +20,6 @@ package org.ballerinalang.swagger.cmd;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.ballerinalang.ballerina.swagger.convertor.service.SwaggerConverterUtils;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
@@ -127,15 +126,9 @@ public class SwaggerCmd implements BLauncherCmd {
         try {
             generator.generate(GenType.valueOf(targetLanguage), argList.get(1), output);
         } catch (Exception e) {
-            String causeMessage = "";
-            Throwable rootCause = ExceptionUtils.getRootCause(e);
-
-            if (rootCause != null) {
-                causeMessage = rootCause.getMessage();
-            }
             throw LauncherUtils.createUsageException(
                     "Error occurred when generating " + targetLanguage + " for " + "swagger file at " + argList.get(1)
-                            + ". " + e.getMessage() + ". " + causeMessage);
+                            + ". " + e.getMessage() + ".");
         }
     }
 
@@ -146,15 +139,9 @@ public class SwaggerCmd implements BLauncherCmd {
         try {
             SwaggerConverterUtils.generateOAS3Definitions(servicePath, outPath, serviceName);
         } catch (Exception e) {
-            String causeMessage = "";
-            Throwable rootCause = ExceptionUtils.getRootCause(e);
-
-            if (rootCause != null) {
-                causeMessage = rootCause.getMessage();
-            }
             throw LauncherUtils.createUsageException(
                     "Error occurred when exporting swagger file for service file at " + argList.get(1)
-                            + ". " + e.getMessage() + ". " + causeMessage);
+                            + ". " + e.getMessage() + ".");
         }
     }
 
