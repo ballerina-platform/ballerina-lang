@@ -603,7 +603,7 @@ function testINParametersWithDirectValues() returns (int, int, float, float, boo
             VALUES (?,?,?,?,?,?,?,?,?,?,?)", 25, 1, 9223372036854774807, 123.34, 2139095039.1, true,
         "Hello", 1234.567, 1234.567, 1234.567, blobInsert);
     table dt = check testDB->select("SELECT int_type, long_type,
-            float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type,blob_type from
+            float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, blob_type from
             DataTypeTable where row_id = 25", ResultBalTypes);
     int i;
     int l;
