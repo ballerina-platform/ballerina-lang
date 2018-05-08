@@ -25,3 +25,26 @@ function testForkJoinAll() returns int[] {
         }
         return results;
 }
+
+function testForkJoinAllAddTest() returns int[] {
+    testForkJoinAll1();
+    int[] p;
+    p[0] = 234;
+    p[1] = 500;
+    return p;
+}
+function testForkJoinAll1() {
+    fork {
+        worker worker1 {
+            7 -> fork;
+        }
+        worker worker2 {
+            6 -> fork;
+        }
+    }join (all)(map results) {
+        //int abc = check <int> results["worker1"];
+        //int[] results = [];
+        //results[0] = abc;
+    }timeout(100)(map results1) {
+    }
+}
