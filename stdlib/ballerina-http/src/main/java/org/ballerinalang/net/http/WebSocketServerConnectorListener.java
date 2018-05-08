@@ -27,7 +27,6 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.mime.util.Constants;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.observability.ObservabilityUtils;
 import org.ballerinalang.util.observability.ObserverContext;
@@ -50,7 +49,6 @@ import java.util.Optional;
 
 import static org.ballerinalang.net.http.HttpConstants.CONNECTION;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
-import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_INDEX;
 import static org.ballerinalang.util.observability.ObservabilityConstants.SERVER_CONNECTOR_WEBSOCKET;
@@ -104,12 +102,8 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                     WebSocketUtil.getProgramFile(wsService.getResources()[0]),
                     org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME, Constants.MEDIA_TYPE);
 
-            BStruct cacheControlStruct = BLangConnectorSPIUtil.createBStruct(
-                    WebSocketUtil.getProgramFile(wsService.getResources()[0]),
-                    PROTOCOL_PACKAGE_HTTP, REQUEST_CACHE_CONTROL);
-            RequestCacheControlStruct requestCacheControl = new RequestCacheControlStruct(cacheControlStruct);
-
-            HttpUtil.populateInboundRequest(inRequest, inRequestEntity, mediaType, msg, requestCacheControl);
+            HttpUtil.populateInboundRequest(inRequest, inRequestEntity, mediaType, msg,
+                                            WebSocketUtil.getProgramFile(wsService.getResources()[0]));
 
             List<ParamDetail> paramDetails = onUpgradeResource.getParamDetails();
             BValue[] bValues = new BValue[paramDetails.size()];

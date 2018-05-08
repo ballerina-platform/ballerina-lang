@@ -32,7 +32,6 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpService;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
@@ -239,12 +238,8 @@ class WebSubResourceDispatcher {
         BStruct mediaType = createBStruct(programFile,
                                           org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
                                           org.ballerinalang.mime.util.Constants.MEDIA_TYPE);
-        BStruct cacheControlStruct = createBStruct(programFile,
-                                                   HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                                                   HttpConstants.REQUEST_CACHE_CONTROL);
-        RequestCacheControlStruct requestCacheControl = new RequestCacheControlStruct(cacheControlStruct);
-        HttpUtil.populateInboundRequest(httpRequest, inRequestEntity, mediaType, httpCarbonMessage,
-                                        requestCacheControl);
+
+        HttpUtil.populateInboundRequest(httpRequest, inRequestEntity, mediaType, httpCarbonMessage, programFile);
         HttpUtil.populateEntityBody(null, httpRequest, inRequestEntity, true);
         EntityBodyHandler.addMessageDataSource(inRequestEntity,
                                                EntityBodyHandler.constructJsonDataSource(inRequestEntity));

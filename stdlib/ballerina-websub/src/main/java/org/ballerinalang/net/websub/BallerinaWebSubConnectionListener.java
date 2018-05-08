@@ -41,7 +41,6 @@ import org.ballerinalang.net.http.BallerinaHTTPConnectorListener;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
 import org.ballerinalang.net.uri.URIUtil;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -51,6 +50,12 @@ import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+
+import static org.ballerinalang.mime.util.Constants.ENTITY;
+import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
+import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 
 /**
  * HTTP Connection Listener for Ballerina WebSub services.
@@ -180,11 +185,11 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
         BStruct subscriberServiceEndpoint = createSubscriberServiceEndpointStruct(httpResource.getBalResource());
         BStruct serviceEndpoint = BLangConnectorSPIUtil.createBStruct(
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.SERVICE_ENDPOINT);
+                PROTOCOL_PACKAGE_HTTP, HttpConstants.SERVICE_ENDPOINT);
 
         BStruct connection = BLangConnectorSPIUtil.createBStruct(
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.CONNECTION);
+                PROTOCOL_PACKAGE_HTTP, HttpConstants.CONNECTION);
 
         HttpUtil.enrichServiceEndpointInfo(serviceEndpoint, httpCarbonMessage, httpResource);
         HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage);
@@ -202,25 +207,14 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
      * @return the struct representing the HTTP request received
      */
     private BStruct getHttpRequest(HttpResource httpResource, HTTPCarbonMessage httpCarbonMessage) {
-        BStruct httpRequest = createBStruct(
-                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.REQUEST);
+        ProgramFile programFile =
+                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
 
-        BStruct inRequestEntity = createBStruct(
-                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME, Constants.ENTITY);
+        BStruct httpRequest = createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, REQUEST);
+        BStruct inRequestEntity = createBStruct(programFile, PROTOCOL_PACKAGE_MIME, ENTITY);
+        BStruct mediaType = createBStruct(programFile, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
 
-        BStruct mediaType = createBStruct(
-                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME, Constants.MEDIA_TYPE);
-
-        BStruct cacheControlStruct = createBStruct(
-                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.REQUEST_CACHE_CONTROL);
-        RequestCacheControlStruct requestCacheControl = new RequestCacheControlStruct(cacheControlStruct);
-
-        HttpUtil.populateInboundRequest(httpRequest, inRequestEntity, mediaType, httpCarbonMessage,
-                                        requestCacheControl);
+        HttpUtil.populateInboundRequest(httpRequest, inRequestEntity, mediaType, httpCarbonMessage, programFile);
         return httpRequest;
     }
 
