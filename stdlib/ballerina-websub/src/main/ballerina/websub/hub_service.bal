@@ -50,24 +50,24 @@ service<http:Service> hubService {
         string mode;
         string topic;
 
-        map params;
+        map<string> params;
         match (request.getFormParams()) {
             map<string> reqFormParamMap => { params = reqFormParamMap; }
             error => {}
         }
 
         if (params.hasKey(HUB_MODE)) {
-            mode = <string>params[HUB_MODE];
+            mode = params[HUB_MODE];
         }
 
         if (params.hasKey(HUB_TOPIC)) {
-            string topicFromParams = <string>params[HUB_TOPIC];
+            string topicFromParams = params[HUB_TOPIC];
             topic = http:decode(topicFromParams, "UTF-8") but { error => topicFromParams };
         }
 
         if (mode == MODE_SUBSCRIBE || mode == MODE_UNSUBSCRIBE) {
             boolean validSubscriptionRequest = false;
-            string callbackFromParams = <string>params[HUB_CALLBACK];
+            string callbackFromParams = params[HUB_CALLBACK];
             string callback = http:decode(callbackFromParams, "UTF-8") but { error => callbackFromParams };
             match (validateSubscriptionChangeRequest(mode, topic, callback)) {
                 error err => {
@@ -95,7 +95,7 @@ service<http:Service> hubService {
 
             string secret = "";
             if (params.hasKey(PUBLISHER_SECRET)) {
-                secret = <string>params[PUBLISHER_SECRET];
+                secret = params[PUBLISHER_SECRET];
             }
             string errorMessage = registerTopicAtHub(topic, secret);
             if (errorMessage != "") {
@@ -118,7 +118,7 @@ service<http:Service> hubService {
 
             string secret = "";
             if (params.hasKey(PUBLISHER_SECRET)) {
-                secret = <string>params[PUBLISHER_SECRET];
+                secret = params[PUBLISHER_SECRET];
             }
             string errorMessage = unregisterTopicAtHub(topic, secret);
             if (errorMessage != "") {
@@ -133,8 +133,8 @@ service<http:Service> hubService {
         } else {
             if (mode != MODE_PUBLISH) {
                 params = request.getQueryParams();
-                mode = <string>params[HUB_MODE];
-                string topicFromParams = <string>params[HUB_TOPIC];
+                mode = params[HUB_MODE];
+                string topicFromParams = params[HUB_TOPIC];
                 topic = http:decode(topicFromParams, "UTF-8") but { error => topicFromParams };
             }
 
@@ -236,17 +236,17 @@ documentation {
     P{{topic}} The topic specified in the new subscription/unsubscription request
     P{{params}} Parameters specified in the new subscription/unsubscription request
 }
-function verifyIntent(string callback, string topic, map params) {
+function verifyIntent(string callback, string topic, map<string> params) {
     endpoint http:Client callbackEp {
         url:callback,
         secureSocket:secureSocket
     };
 
-    string mode = <string>params[HUB_MODE];
+    string mode = params[HUB_MODE];
     int leaseSeconds;
 
     if (params.hasKey(HUB_LEASE_SECONDS)) {
-        string strLeaseSeconds = <string>params[HUB_LEASE_SECONDS];
+        string strLeaseSeconds = params[HUB_LEASE_SECONDS];
         match (<int>strLeaseSeconds) {
             int extrLeaseSeconds => { leaseSeconds = extrLeaseSeconds; }
             error => { leaseSeconds = 0; }
@@ -287,8 +287,7 @@ function verifyIntent(string callback, string topic, map params) {
                             subscriptionDetails.leaseSeconds = leaseSeconds * 1000;
                             subscriptionDetails.createdAt = createdAt;
                             if (params.hasKey(HUB_SECRET)) {
-                                string secret = <string>params[HUB_SECRET];
-                                subscriptionDetails.secret = secret;
+                                subscriptionDetails.secret = params[HUB_SECRET];
                             }
                             addSubscription(subscriptionDetails);
                         } else {
