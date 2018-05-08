@@ -65,6 +65,7 @@ public class TestUtil {
         Set<OpenOption> opts = new HashSet<>();
         opts.add(StandardOpenOption.CREATE);
         opts.add(StandardOpenOption.WRITE);
+        opts.add(StandardOpenOption.READ);
         Path path = Paths.get(filePath);
         return Files.newByteChannel(path, opts);
     }
