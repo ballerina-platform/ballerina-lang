@@ -24,26 +24,30 @@ import io.swagger.models.Operation;
 import io.swagger.models.Path;
 import io.swagger.models.RefModel;
 import io.swagger.models.Response;
-import io.swagger.models.Scheme;
 import io.swagger.models.Swagger;
 import io.swagger.models.parameters.BodyParameter;
+import io.swagger.models.parameters.CookieParameter;
+import io.swagger.models.parameters.FormParameter;
+import io.swagger.models.parameters.HeaderParameter;
 import io.swagger.models.parameters.Parameter;
 import io.swagger.models.parameters.PathParameter;
+import io.swagger.models.parameters.QueryParameter;
 import io.swagger.models.properties.ArrayProperty;
 import io.swagger.models.properties.BooleanProperty;
 import io.swagger.models.properties.IntegerProperty;
+import io.swagger.models.properties.ObjectProperty;
 import io.swagger.models.properties.Property;
 import io.swagger.models.properties.StringProperty;
+import org.ballerinalang.ballerina.swagger.convertor.ConverterUtils;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.VariableNode;
-import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
-import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
-import org.ballerinalang.model.tree.expressions.LiteralNode;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.util.ArrayList;
@@ -55,11 +59,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-
 import javax.ws.rs.core.MediaType;
+
+import static org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 
 /**
  * This class will do resource mapping from ballerina to swagger.
@@ -191,69 +194,18 @@ public class SwaggerResourceMapper {
             op.getOperation().setOperationId(resName);
             op.getOperation().setParameters(null);
             // Parsing annotations.
-            this.parseHttpResourceConfig(resource, op);
+            this.parseResourceConfigAnnotationAttachment(resource, op);
             if (null != httpMethod) {
                 op.setHttpOperation(httpMethod);
             }
 
-            this.parseResourceConfigAnnotationAttachment(resource, op.getOperation());
             this.parseResourceInfoAnnotationAttachment(resource, op.getOperation());
             this.addResourceParameters(resource, op);
-            this.parseParametersInfoAnnotationAttachment(resource, op.getOperation());
             this.parseResponsesAnnotationAttachment(resource, op.getOperation());
             
         }
-        return op;
 
-    }
-    
-    /**
-     * Parses the 'http:resourceConfig' annotation attachment and build swagger operation.
-     * @param resource The ballerina resource definition.
-     * @param operationAdaptor The operation adaptor..
-     */
-    private void parseHttpResourceConfig(ResourceNode resource, OperationAdaptor operationAdaptor) {
-        Optional<? extends AnnotationAttachmentNode> responsesAnnotation = resource.getAnnotationAttachments().stream()
-                .filter(a -> null != this.httpAlias && this.httpAlias.equals(a.getPackageAlias().getValue()) &&
-                             "resourceConfig".equals(a.getAnnotationName().getValue()))
-                .findFirst();
-        if (responsesAnnotation.isPresent()) {
-            Map<String, AnnotationAttachmentAttributeValueNode> configAttributes =
-                    this.listToMap(responsesAnnotation.get());
-            if (configAttributes.containsKey("methods") && configAttributes.get("methods").getValueArray().size() > 0) {
-                List<? extends  AnnotationAttachmentAttributeValueNode> methodsValues =
-                        configAttributes.get("methods").getValueArray();
-                // Since there is only one http method.
-                operationAdaptor.setHttpOperation(this.getStringLiteralValue(methodsValues.get(0)));
-            }
-            
-            if (configAttributes.containsKey("path")) {
-                operationAdaptor.setPath(this.getStringLiteralValue(configAttributes.get("path")));
-            }
-            
-            if (configAttributes.containsKey("produces") &&
-                                                        configAttributes.get("produces").getValueArray().size() > 0) {
-                List<String> produces = new LinkedList<>();
-                List<? extends  AnnotationAttachmentAttributeValueNode> producesValues =
-                        configAttributes.get("produces").getValueArray();
-                for (AnnotationAttachmentAttributeValueNode producesValue : producesValues) {
-                    produces.add(this.getStringLiteralValue(producesValue));
-                }
-                operationAdaptor.getOperation().setProduces(produces);
-            }
-            
-            if (configAttributes.containsKey("consumes") &&
-                                                        configAttributes.get("consumes").getValueArray().size() > 0) {
-                List<String> consumes = new LinkedList<>();
-                List<? extends  AnnotationAttachmentAttributeValueNode> consumesValues =
-                        configAttributes.get("consumes").getValueArray();
-                for (AnnotationAttachmentAttributeValueNode consumesValue : consumesValues) {
-                    consumes.add(this.getStringLiteralValue(consumesValue));
-                }
-                
-                operationAdaptor.getOperation().setConsumes(consumes);
-            }
-        }
+        return op;
     }
 
     /**
@@ -263,33 +215,35 @@ public class SwaggerResourceMapper {
      * @param op       The swagger operation.
      */
     private void parseResponsesAnnotationAttachment(ResourceNode resource, Operation op) {
-        Optional<? extends AnnotationAttachmentNode> responsesAnnotation = resource.getAnnotationAttachments().stream()
-                .filter(a -> null != swaggerAlias && this.swaggerAlias.equals(a.getPackageAlias().getValue()) &&
-                             "Responses".equals(a.getAnnotationName().getValue()))
-                .findFirst();
-        if (responsesAnnotation.isPresent()) {
-            Map<String, AnnotationAttachmentAttributeValueNode> responsesAttributes =
-                    this.listToMap(responsesAnnotation.get());
-            if (responsesAttributes.containsKey("value")) {
-                List<? extends  AnnotationAttachmentAttributeValueNode> responsesValues =
-                                                                    responsesAttributes.get("value").getValueArray();
-                if (responsesValues.size() > 0) {
+        AnnotationAttachmentNode annotation = ConverterUtils.getAnnotationFromList("Responses", swaggerAlias,
+                resource.getAnnotationAttachments());
+
+        if (annotation != null) {
+
+            BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
+                    .getExpression());
+            List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
+            Map<String, BLangExpression> attributes = ConverterUtils.listToMap(list);
+
+            if (attributes.containsKey("value")) {
+                BLangArrayLiteral valueArray = (BLangArrayLiteral) attributes.get("value");
+
+                if (valueArray.getExpressions().size() > 0) {
                     Map<String, Response> responses = new HashMap<>();
-                    for (AnnotationAttachmentAttributeValueNode responsesValue : responsesValues) {
-                        AnnotationAttachmentNode responseAnnotationAttachment = (AnnotationAttachmentNode)
-                                responsesValue.getValue();
-                        Map<String, AnnotationAttachmentAttributeValueNode>
-                                responseAttributes = this.listToMap
-                                (responseAnnotationAttachment);
-                        if (responseAttributes.containsKey("code")) {
-                            String code = this.getStringLiteralValue(responseAttributes.get("code"));
+
+                    for (ExpressionNode expr : valueArray.getExpressions()) {
+                        List<BLangRecordKeyValue> resList = ((BLangRecordLiteral) expr).getKeyValuePairs();
+                        Map<String, BLangExpression> resAttributes = ConverterUtils.listToMap(resList);
+
+                        if (resAttributes.containsKey("code")) {
+                            String code = ConverterUtils.getStringLiteralValue(resAttributes.get("code"));
                             Response response = new Response();
-                            if (responseAttributes.containsKey("description")) {
+                            if (resAttributes.containsKey("description")) {
                                 response.setDescription(
-                                                    this.getStringLiteralValue(responseAttributes.get("description")));
+                                        ConverterUtils.getStringLiteralValue(resAttributes.get("description")));
                             }
                             // TODO: Parse 'response' attribute for $.paths./resource-path.responses[*]["code"].schema
-                            this.createHeadersModel(responseAttributes.get("headers"), response);
+                            this.createHeadersModel(resAttributes.get("headers"), response);
                             responses.put(code, response);
                         }
                     }
@@ -298,47 +252,34 @@ public class SwaggerResourceMapper {
             }
         }
     }
-    
+
     /**
      * Creates headers definitions for swagger response.
-     * @param annotationAttributeValue The annotation attribute value which has the headers.
-     * @param response The swagger response.
+     *
+     * @param annotationExpression The annotation attribute value which has the headers.
+     * @param response             The swagger response.
      */
-    private void createHeadersModel(AnnotationAttachmentAttributeValueNode annotationAttributeValue,
-                                    Response response) {
-        if (null != annotationAttributeValue) {
-            List<? extends  AnnotationAttachmentAttributeValueNode> headersValueArray =
-                                                                            annotationAttributeValue.getValueArray();
-            for (AnnotationAttachmentAttributeValueNode headersValue : headersValueArray) {
-                if (headersValue instanceof AnnotationAttachmentNode) {
-                    AnnotationAttachmentNode headerAnnotationAttachment = (AnnotationAttachmentNode) headersValue;
-                    Map<String, Property> headers = new HashMap<>();
-                    Map<String, AnnotationAttachmentAttributeValueNode> headersAttributes =
-                            this.listToMap(headerAnnotationAttachment);
-                    if (headersAttributes.containsKey("name") && headersAttributes.containsKey("headerType")) {
-                        String headerName = this.getStringLiteralValue(headersAttributes.get("name"));
-                        String type = this.getStringLiteralValue(headersAttributes.get("headerType"));
-                        Property property = null;
-                        if ("string".equals(type)) {
-                            property = new StringProperty();
-                        } else if ("number".equals(type) || "integer".equals(type)) {
-                            property = new IntegerProperty();
-                        } else if ("boolean".equals(type)) {
-                            property = new BooleanProperty();
-                        } else if ("array".equals(type)) {
-                            property = new ArrayProperty();
-                        }
-                        if (null != property) {
-                            if (headersAttributes.containsKey("description")) {
-                                property.setDescription(
-                                        this.getStringLiteralValue(headersAttributes.get("description"))
-                                );
-                            }
-                            headers.put(headerName, property);
-                        }
+    private void createHeadersModel(BLangExpression annotationExpression, Response response) {
+        if (null != annotationExpression) {
+            BLangArrayLiteral headerArray = (BLangArrayLiteral) annotationExpression;
+
+            for (ExpressionNode headersValue : headerArray.getExpressions()) {
+                List<BLangRecordKeyValue> headerList = ((BLangRecordLiteral) headersValue).getKeyValuePairs();
+                Map<String, BLangExpression> headersAttributes = ConverterUtils.listToMap(headerList);
+                Map<String, Property> headers = new HashMap<>();
+
+                if (headersAttributes.containsKey("name") && headersAttributes.containsKey("headerType")) {
+                    String headerName = ConverterUtils.getStringLiteralValue(headersAttributes.get("name"));
+                    String type = ConverterUtils.getStringLiteralValue(headersAttributes.get("headerType"));
+                    Property property = getSwaggerProperty(type);
+
+                    if (headersAttributes.containsKey("description")) {
+                        property.setDescription(
+                                ConverterUtils.getStringLiteralValue(headersAttributes.get("description")));
                     }
-                    response.setHeaders(headers);
+                    headers.put(headerName, property);
                 }
+                response.setHeaders(headers);
             }
         }
     }
@@ -351,16 +292,16 @@ public class SwaggerResourceMapper {
      */
     private void addResourceParameters(ResourceNode resource, OperationAdaptor operationAdaptor) {
         //Set Path
-        Optional<? extends AnnotationAttachmentNode> responsesAnnotationAttachment =
-                resource.getAnnotationAttachments().stream()
-                        .filter(a ->
-                                "ResourceConfig".equals(a.getAnnotationName().getValue()))
-                        .findFirst();
-        if (responsesAnnotationAttachment.isPresent()) {
-            List<BLangRecordLiteral.BLangRecordKeyValue> recordKeyValues =
-                    ((BLangRecordLiteral) ((BLangAnnotationAttachment) responsesAnnotationAttachment.get()).
-                            getExpression()).getKeyValuePairs();
-            Map<String, BLangExpression> recordsMap = listToMapBLangRecords(recordKeyValues);
+        AnnotationAttachmentNode annotation = ConverterUtils.getAnnotationFromList("ResourceConfig", httpAlias,
+                resource.getAnnotationAttachments());
+
+
+        if (annotation != null) {
+            BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
+                    .getExpression());
+            List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
+            Map<String, BLangExpression> recordsMap = ConverterUtils.listToMap(list);
+
             if (recordsMap.containsKey("path") && recordsMap.get("path") != null) {
                 String path =  recordsMap.get("path").toString().trim();
                 operationAdaptor.setPath(path);
@@ -428,44 +369,51 @@ public class SwaggerResourceMapper {
             operationAdaptor.getOperation().addParameter(pathParameter);
         }
     }
-    
+
     /**
-     * Parses the 'ParametersInfo' annotation and build swagger operation.
-     * @param resource The ballerina resource definition.
+     * Create {@code Parameters} model for swagger operation.
+     *
+     * @param annotationExpression  The annotation attribute value for resource parameters
      * @param operation The swagger operation.
      */
-    private void parseParametersInfoAnnotationAttachment(ResourceNode resource, Operation operation) {
-        Optional<? extends AnnotationAttachmentNode> parametersInfoAnnotation = resource.getAnnotationAttachments()
-                .stream()
-                .filter(a -> null != swaggerAlias && this.swaggerAlias.equals(a.getPackageAlias().getValue()) &&
-                             "ParametersInfo".equals(a.getAnnotationName().getValue()))
-                .findFirst();
-        if (parametersInfoAnnotation.isPresent()) {
-            Map<String, AnnotationAttachmentAttributeValueNode> infoAttributes =
-                    this.listToMap(parametersInfoAnnotation.get());
-            if (infoAttributes.containsKey("value")) {
-                List<? extends  AnnotationAttachmentAttributeValueNode> parametersInfoValues =
-                        infoAttributes.get("value").getValueArray();
-                for (AnnotationAttachmentAttributeValueNode parametersInfoValue : parametersInfoValues) {
-                    AnnotationAttachmentNode parameterInfoAnnotation =
-                                                            (AnnotationAttachmentNode) parametersInfoValue.getValue();
-                    Map<String, AnnotationAttachmentAttributeValueNode>
-                            parameterAttributes = this.listToMap(parameterInfoAnnotation);
-                    if (parameterAttributes.containsKey("name")) {
-                        if (null != operation.getParameters()) {
-                            for (Parameter parameter : operation.getParameters()) {
-                                if (parameter.getName().equals(
-                                        this.getStringLiteralValue(parameterAttributes.get("name")))) {
-                                    if (parameterAttributes.containsKey("description")) {
-                                        parameter.setDescription(
-                                                this.getStringLiteralValue(parameterAttributes.get("description")));
-                                    }
-                                }
-                            }
-                        }
-                    }
+    private void createParametersModel(BLangExpression annotationExpression, Operation operation) {
+        if (annotationExpression != null) {
+            List<Parameter> parameters = new LinkedList<>();
+            List<? extends ExpressionNode> paramExprs = ((BLangArrayLiteral) annotationExpression).getExpressions();
+
+            for (ExpressionNode expr : paramExprs) {
+                List<BLangRecordKeyValue> paramList = ((BLangRecordLiteral) expr).getKeyValuePairs();
+                Map<String, BLangExpression> paramAttributes = ConverterUtils.listToMap(paramList);
+                String in;
+
+                if (paramAttributes.containsKey("inInfo")) {
+                    in = ConverterUtils.getStringLiteralValue(paramAttributes.get("inInfo"));
+                } else {
+                    // If parameter location is not provided. Place it as path param by default
+                    in = "path";
                 }
+
+                Parameter pram = buildParameter(in);
+                if (paramAttributes.containsKey("name")) {
+                    pram.setName(ConverterUtils.getStringLiteralValue(paramAttributes.get("name")));
+                }
+                if (paramAttributes.containsKey("description")) {
+                    pram.setDescription(ConverterUtils.getStringLiteralValue(paramAttributes.get("description")));
+                }
+                if (paramAttributes.containsKey("required")) {
+                    pram.setRequired(Boolean.parseBoolean(
+                            ConverterUtils.getStringLiteralValue(paramAttributes.get("required"))));
+                }
+                if (paramAttributes.containsKey("allowEmptyValue")) {
+                    pram.setAllowEmptyValue(Boolean.parseBoolean(
+                            ConverterUtils.getStringLiteralValue(paramAttributes.get("allowEmptyValue"))));
+                }
+                // TODO: 5/2/18 Set Param Schema Details
+
+                parameters.add(pram);
             }
+
+            operation.setParameters(parameters);
         }
     }
 
@@ -476,68 +424,74 @@ public class SwaggerResourceMapper {
      * @param operation The swagger operation.
      */
     private void parseResourceInfoAnnotationAttachment(ResourceNode resource, Operation operation) {
-        Optional<? extends AnnotationAttachmentNode> resourceConfigAnnotation = resource.getAnnotationAttachments()
-                .stream()
-                .filter(a -> null != swaggerAlias && this.swaggerAlias.equals(a.getPackageAlias().getValue()) &&
-                             "ResourceInfo".equals(a.getAnnotationName().getValue()))
-                .findFirst();
-        if (resourceConfigAnnotation.isPresent()) {
-            Map<String, AnnotationAttachmentAttributeValueNode> infoAttributes =
-                    this.listToMap(resourceConfigAnnotation.get());
-            this.createTagModel(infoAttributes.get("tag"), operation);
+        AnnotationAttachmentNode annotation = ConverterUtils.getAnnotationFromList("ResourceInfo", swaggerAlias,
+                resource.getAnnotationAttachments());
+
+        if (annotation != null) {
+            BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
+                    .getExpression());
+            List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
+            Map<String, BLangExpression> attributes = ConverterUtils.listToMap(list);
+            this.createTagModel(attributes.get("tags"), operation);
             
-            if (infoAttributes.containsKey("summary")) {
-                operation.setSummary(this.getStringLiteralValue(infoAttributes.get("summary")));
+            if (attributes.containsKey("summary")) {
+                operation.setSummary(ConverterUtils.getStringLiteralValue(attributes.get("summary")));
             }
-            if (infoAttributes.containsKey("description")) {
-                operation.setDescription(this.getStringLiteralValue(infoAttributes.get("description")));
+            if (attributes.containsKey("description")) {
+                operation.setDescription(ConverterUtils.getStringLiteralValue(attributes.get("description")));
             }
-            this.createExternalDocsModel(infoAttributes.get("externalDoc"), operation);
+            if (attributes.containsKey("parameters")) {
+                this.createParametersModel(attributes.get("parameters"), operation);
+            }
+
+            this.createExternalDocsModel(attributes.get("externalDoc"), operation);
         }
     }
-    
+
     /**
      * Creates external docs swagger definitions.
-     * @param annotationAttributeValue The annotation attribute value for external docs.
-     * @param operation The swagger operation.
+     *
+     * @param annotationExpression The annotation attribute value for external docs.
+     * @param operation                The swagger operation.
      */
-    private void createExternalDocsModel(AnnotationAttachmentAttributeValueNode annotationAttributeValue,
-                                         Operation operation) {
-        if (null != annotationAttributeValue) {
-            if (annotationAttributeValue instanceof AnnotationAttachmentNode) {
-                AnnotationAttachmentNode externalDocAnnotationAttachment =
-                                                                    (AnnotationAttachmentNode) annotationAttributeValue;
+    private void createExternalDocsModel(BLangExpression annotationExpression, Operation operation) {
+        if (null != annotationExpression) {
+            if (annotationExpression instanceof BLangRecordLiteral) {
+                BLangRecordLiteral docAnnotation = (BLangRecordLiteral) annotationExpression;
+                Map<String, BLangExpression> docAttrs =
+                        ConverterUtils.listToMap(docAnnotation.getKeyValuePairs());
                 ExternalDocs externalDocs = new ExternalDocs();
-        
-                Map<String, AnnotationAttachmentAttributeValueNode> externalDocAttributes =
-                        this.listToMap(externalDocAnnotationAttachment);
-                if (externalDocAttributes.containsKey("description")) {
-                    externalDocs.setDescription(this.getStringLiteralValue(externalDocAttributes.get("description")));
+
+                if (docAttrs.containsKey("description")) {
+                    externalDocs.setDescription(ConverterUtils.getStringLiteralValue(docAttrs.get("description")));
                 }
-                if (externalDocAttributes.containsKey("url")) {
-                    externalDocs.setUrl(this.getStringLiteralValue(externalDocAttributes.get("url")));
+                if (docAttrs.containsKey("url")) {
+                    externalDocs.setUrl(ConverterUtils.getStringLiteralValue(docAttrs.get("url")));
                 }
         
                 operation.setExternalDocs(externalDocs);
             }
         }
     }
-    
+
     /**
      * Creates tag model for swagger operation.
-     * @param annotationAttributeValue The annotation attribute value which has tags.
-     * @param operation The swagger operation.
+     *
+     * @param annotationExpression The annotation expression value which has tags.
+     * @param operation            The swagger operation.
      */
-    private void createTagModel(AnnotationAttachmentAttributeValueNode annotationAttributeValue, Operation operation) {
-        if (null != annotationAttributeValue) {
-            if (annotationAttributeValue.getValueArray().size() > 0) {
-                List<String> tags = new LinkedList<>();
-                for (AnnotationAttachmentAttributeValueNode tagAttributeValue :
-                                                                            annotationAttributeValue.getValueArray()) {
-                    tags.add(this.getStringLiteralValue(tagAttributeValue));
+    private void createTagModel(BLangExpression annotationExpression, Operation operation) {
+        if (null != annotationExpression) {
+            List<? extends ExpressionNode> tagExprs = ((BLangArrayLiteral) annotationExpression).getExpressions();
+            List<String> tags = new LinkedList<>();
+            for (ExpressionNode expr : tagExprs) {
+                if (expr instanceof BLangLiteral) {
+                    BLangLiteral tagLit = (BLangLiteral) expr;
+                    tags.add(ConverterUtils.getStringLiteralValue(tagLit));
                 }
-                operation.setTags(tags);
             }
+
+            operation.setTags(tags);
         }
     }
     
@@ -547,25 +501,67 @@ public class SwaggerResourceMapper {
      * @param resource  The ballerina resource definition.
      * @param operation The swagger operation.
      */
-    private void parseResourceConfigAnnotationAttachment(ResourceNode resource, Operation operation) {
-        Optional<? extends AnnotationAttachmentNode> resourceConfigAnnotation = resource.getAnnotationAttachments()
-                .stream()
-                .filter(a -> null != swaggerAlias && this.swaggerAlias.equals(a.getPackageAlias().getValue()) &&
-                             "ResourceConfig".equals(a.getAnnotationName().getValue()))
-                .findFirst();
+    private void parseResourceConfigAnnotationAttachment(ResourceNode resource, OperationAdaptor operation) {
+        AnnotationAttachmentNode annotation = ConverterUtils.getAnnotationFromList("ResourceConfig", httpAlias,
+                resource.getAnnotationAttachments());
 
-        if (resourceConfigAnnotation.isPresent()) {
-            Map<String, AnnotationAttachmentAttributeValueNode> configAttributes =
-                    this.listToMap(resourceConfigAnnotation.get());
-            if (configAttributes.containsKey("schemes")) {
-                List<Scheme> schemes = new LinkedList<>();
-                for (AnnotationAttachmentAttributeValueNode schemesValue :
-                                                                    configAttributes.get("schemes").getValueArray()) {
-                    if (null != Scheme.forValue(this.getStringLiteralValue(schemesValue))) {
-                        schemes.add(Scheme.forValue(this.getStringLiteralValue(schemesValue)));
+        if (annotation != null) {
+            BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
+                    .getExpression());
+            List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
+            Map<String, BLangExpression> attributes = ConverterUtils.listToMap(list);
+
+            if (attributes.containsKey("methods")) {
+
+                // Setting default value is safe since empty 'methods' is handled separately by X-METHODS extension
+                String method = "GET";
+                BLangArrayLiteral methodsArray = (BLangArrayLiteral) attributes.get("methods");
+
+                if (methodsArray.getExpressions().size() > 0) {
+                    // Only one method is expected in this execution path
+                    ExpressionNode expr = methodsArray.getExpressions().get(0);
+                    BLangLiteral methodLit = (BLangLiteral) expr;
+
+                    if (ConverterUtils.getStringLiteralValue(methodLit) != null) {
+                        method = ConverterUtils.getStringLiteralValue(methodLit);
                     }
                 }
-                operation.setSchemes(schemes);
+
+                operation.setHttpOperation(method);
+            }
+
+            if (attributes.containsKey("path")) {
+                operation.setPath(ConverterUtils.getStringLiteralValue(attributes.get("path")));
+            }
+
+            if (attributes.containsKey("consumes")) {
+                List<String> consumes = new LinkedList<>();
+                BLangArrayLiteral consumesArray = (BLangArrayLiteral) attributes.get("consumes");
+
+                for (ExpressionNode expr : consumesArray.getExpressions()) {
+                    BLangLiteral consumesLit = (BLangLiteral) expr;
+                    String consumesVal = ConverterUtils.getStringLiteralValue(consumesLit);
+
+                    if (consumesVal != null) {
+                        consumes.add(consumesVal);
+                    }
+                }
+                operation.getOperation().setConsumes(consumes);
+            }
+
+            if (attributes.containsKey("produces")) {
+                List<String> produces = new LinkedList<>();
+                BLangArrayLiteral producesArray = (BLangArrayLiteral) attributes.get("produces");
+
+                for (ExpressionNode expr : producesArray.getExpressions()) {
+                    BLangLiteral producesLit = (BLangLiteral) expr;
+                    String producesVal = ConverterUtils.getStringLiteralValue(producesLit);
+
+                    if (producesVal != null) {
+                        produces.add(producesVal);
+                    }
+                }
+                operation.getOperation().setProduces(produces);
             }
             // TODO: Implement security definitions.
             //this.createSecurityDefinitions(resourceConfigAnnotation.get().getAttributeNameValuePairs()
@@ -581,22 +577,19 @@ public class SwaggerResourceMapper {
      * @return A list of http methods.
      */
     private List<String> getHttpMethods(ResourceNode resource, boolean useDefaults) {
-        Optional<? extends AnnotationAttachmentNode> responsesAnnotationAttachment =
-                resource.getAnnotationAttachments().stream()
-                        .filter(a ->
-                                "ResourceConfig".equals(a.getAnnotationName().getValue()))
-                        .findFirst();
+        AnnotationAttachmentNode annotation = ConverterUtils.getAnnotationFromList("ResourceConfig", httpAlias,
+                resource.getAnnotationAttachments());
         Set<String> httpMethods = new LinkedHashSet<>();
-        if (responsesAnnotationAttachment.isPresent()) {
-            List<BLangRecordLiteral.BLangRecordKeyValue> recordKeyValues =
-                    ((BLangRecordLiteral) ((BLangAnnotationAttachment) responsesAnnotationAttachment.get()).
-                            getExpression()).getKeyValuePairs();
-            Map<String, BLangExpression> recordsMap = listToMapBLangRecords(recordKeyValues);
+        if (annotation != null) {
+            BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
+                    .getExpression());
+            List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
+            Map<String, BLangExpression> recordsMap = ConverterUtils.listToMap(list);
             if (recordsMap.containsKey("methods") && recordsMap.get("methods") != null) {
-                BLangExpression methodsValue = ((BLangArrayLiteral) recordsMap.get("methods")).exprs.get(0);
-                if (methodsValue != null) {
-                    String[] values = methodsValue.toString().split(",");
-                    httpMethods = new HashSet<String>(Arrays.asList(values));
+                List<? extends ExpressionNode> methodsValue = ((BLangArrayLiteral) recordsMap.get("methods"))
+                        .getExpressions();
+                for (ExpressionNode expr : methodsValue) {
+                    httpMethods.add(ConverterUtils.getStringLiteralValue((BLangLiteral) expr));
                 }
 
             }
@@ -622,57 +615,84 @@ public class SwaggerResourceMapper {
      */
     private String getPath(ResourceNode resource) {
         String path = "/" + resource.getName();
-        Optional<? extends AnnotationAttachmentNode> responsesAnnotationAttachment =
-                                                                        resource.getAnnotationAttachments().stream()
-                .filter(a -> null != this.httpAlias && this.httpAlias.equals(a.getPackageAlias().getValue()) &&
-                             "resourceConfig".equals(a.getAnnotationName().getValue()))
-                .findFirst();
-        if (responsesAnnotationAttachment.isPresent()) {
-            Map<String, AnnotationAttachmentAttributeValueNode> configAttributes =
-                    this.listToMap(responsesAnnotationAttachment.get());
-            if (configAttributes.containsKey("path")) {
-                path = this.getStringLiteralValue(configAttributes.get("path"));
+        AnnotationAttachmentNode annotation = ConverterUtils.getAnnotationFromList("ResourceConfig", httpAlias,
+                resource.getAnnotationAttachments());
+
+        if (annotation != null) {
+            BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
+                    .getExpression());
+            List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
+            Map<String, BLangExpression> attributes = ConverterUtils.listToMap(list);
+
+            if (attributes.containsKey("path")) {
+                path = ConverterUtils.getStringLiteralValue(attributes.get("path"));
             }
         }
         
         return path;
     }
-    
-    /**
-     * Converts the attributes of an annotation to a map of key being attribute key and value being an annotation
-     * attachment value.
-     * @param annotation The annotation attachment node.
-     * @return A map of attributes.
-     */
-    private Map<String, AnnotationAttachmentAttributeValueNode> listToMap(AnnotationAttachmentNode annotation) {
-        return annotation.getAttributes().stream().collect(
-                Collectors.toMap(attribute -> attribute.getName().getValue(), AnnotationAttachmentAttributeNode
-                        ::getValue));
-    }
-
 
     /**
-     * Convert BLangRecordKeyValue to Map which contains  BLangExpression
+     * Builds a Swagger {@link Parameter} for provided parameter location.
      *
-     * @param recordKeyValues BLangRecordKeyValue list which contains multiple record values
-     * @return Map which contains BLangExpression generated from passed list.
+     * @param in location of the parameter in the request definition
+     * @return Swagger {@link Parameter} for parameter location {@code in}
      */
-    private Map<String, BLangExpression> listToMapBLangRecords
-    (List<BLangRecordLiteral.BLangRecordKeyValue> recordKeyValues) {
-        Map<String, BLangExpression> map = new HashMap<>();
-        for (BLangRecordLiteral.BLangRecordKeyValue attribute : recordKeyValues) {
-            map.put(attribute.getKey().toString(), attribute.getValue());
+    private Parameter buildParameter(String in) {
+        Parameter param;
+
+        switch (in) {
+            case "body":
+                param = new BodyParameter();
+                break;
+            case "query":
+                param = new QueryParameter();
+                break;
+            case "header":
+                param = new HeaderParameter();
+                break;
+            case "cookie":
+                param = new CookieParameter();
+                break;
+            case "form":
+                param = new FormParameter();
+                break;
+            case "path":
+            default:
+                param = new PathParameter();
         }
-        return map;
+
+        return param;
     }
 
-    
     /**
-     * Coverts the string value of an annotation attachment to a string.
-     * @param valueNode The annotation attachment.
-     * @return The string value.
+     * Retrieves a matching Swagger {@link Property} for a provided ballerina type.
+     *
+     * @param type ballerina type name as a String
+     * @return Swagger {@link Property} for type defined by {@code type}
      */
-    private String getStringLiteralValue(AnnotationAttachmentAttributeValueNode valueNode) {
-        return ((LiteralNode) valueNode.getValue()).getValue().toString();
+    private Property getSwaggerProperty(String type) {
+        Property property;
+
+        switch (type) {
+            case "string":
+                property = new StringProperty();
+                break;
+            case "boolean":
+                property = new BooleanProperty();
+                break;
+            case "array":
+                property = new ArrayProperty();
+                break;
+            case "number":
+            case "integer":
+                property = new IntegerProperty();
+                break;
+            default:
+                property = new ObjectProperty();
+                break;
+        }
+
+        return property;
     }
 }
