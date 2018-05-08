@@ -33,6 +33,9 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Test cases for service level authorization.
+ */
 public class ServiceLevelAuthnTest extends IntegrationTestCase {
     private ServerInstance ballerinaServer;
 

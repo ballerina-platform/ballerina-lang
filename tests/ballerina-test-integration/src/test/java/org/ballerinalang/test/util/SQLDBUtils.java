@@ -85,6 +85,9 @@ public class SQLDBUtils {
         }
     }
 
+    /**
+     * Wrapper class for HSQL server.
+     */
     public static class SqlServer {
 
         final Server server;
