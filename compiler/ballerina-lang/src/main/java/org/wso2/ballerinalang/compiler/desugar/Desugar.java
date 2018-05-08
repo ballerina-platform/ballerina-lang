@@ -271,12 +271,16 @@ public class Desugar extends BLangNodeVisitor {
         annotationDesugar.rewritePackageAnnotations(pkgNode);
 
         //Adding object functions to package level.
-        pkgNode.objects.forEach(o -> o.functions.forEach(f -> {
-            if (!pkgNode.objAttachedFunctions.contains(f.symbol)) {
-                pkgNode.functions.add(f);
-                pkgNode.topLevelNodes.add(f);
-            }
-        }));
+        pkgNode.objects.forEach(o -> {
+            pkgNode.functions.add(o.initFunction);
+            pkgNode.topLevelNodes.add(o.initFunction);
+            o.functions.forEach(f -> {
+                if (!pkgNode.objAttachedFunctions.contains(f.symbol)) {
+                    pkgNode.functions.add(f);
+                    pkgNode.topLevelNodes.add(f);
+                }
+            });
+        });
         //Rewriting Object to struct
         pkgNode.objects.forEach(o -> pkgNode.structs.add(rewriteObjectToStruct(o, env)));
 
