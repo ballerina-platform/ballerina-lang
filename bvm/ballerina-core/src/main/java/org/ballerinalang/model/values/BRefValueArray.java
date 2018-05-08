@@ -17,8 +17,8 @@
 */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.TypeTags;
 
 import java.util.Arrays;
 import java.util.StringJoiner;
@@ -78,7 +78,7 @@ public class BRefValueArray extends BNewArray {
     @Override
     public String stringValue() {
         StringJoiner sj;
-        if (arrayType instanceof BTupleType) {
+        if (arrayType.getTag() == TypeTags.TUPLE_TAG) {
             sj = new StringJoiner(", ", "(", ")");
         } else {
             sj = new StringJoiner(", ", "[", "]");
