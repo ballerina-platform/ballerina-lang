@@ -56,4 +56,10 @@ public class FunctionSignatureNegativeTest {
         CompileResult result = BCompileUtil.compile("test-src/functions/function-with-two-rest-params.bal");
         BAssertUtil.validateError(result, 0, "mismatched input ','. expecting ')'", 1, 52);
     }
+
+    @Test
+    public void testFuncWithWorngOrderedParams() {
+        CompileResult result = BCompileUtil.compile("test-src/functions/incorrect-function-params-order-negative.bal");
+        BAssertUtil.validateError(result, 0, "mismatched input ')'. expecting '='", 1, 39);
+    }
 }
