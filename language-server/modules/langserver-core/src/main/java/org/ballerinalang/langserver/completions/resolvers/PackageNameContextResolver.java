@@ -23,17 +23,18 @@ import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContextManager;
-import org.ballerinalang.langserver.compiler.LSPackageCache;
+import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
-import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Completion Item Resolver for the Package name context.
@@ -43,12 +44,15 @@ public class PackageNameContextResolver extends AbstractItemResolver {
     @Override
     public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
+        List<BallerinaPackage> packagesList = new ArrayList<>();
+        Stream.of(LSPackageLoader.getSdkPackages(), LSPackageLoader.getHomeRepoPackages())
+                .forEach(packagesList::addAll);
         TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         int currentIndex = completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
         if (tokenStream.get(currentIndex).getText().equals(UtilSymbolKeys.IMPORT_KEYWORD_KEY)) {
-            completionItems.addAll(this.getOrgNameCompletionItems());
+            completionItems.addAll(this.getOrgNameCompletionItems(packagesList));
         } else {
-            StringBuilder orgNameComponent = new StringBuilder();
+            StringBuilder orgNameComponentReversed = new StringBuilder();
             while (true) {
                 if (currentIndex < 0) {
                     return new ArrayList<>();
@@ -57,30 +61,30 @@ public class PackageNameContextResolver extends AbstractItemResolver {
                 if (token.getText().equals(UtilSymbolKeys.IMPORT_KEYWORD_KEY)) {
                     break;
                 }
-                orgNameComponent.append(token.getText());
+                orgNameComponentReversed.append(token.getText());
                 currentIndex = token.getTokenIndex();
             }
-
-            if (orgNameComponent.toString().contains("/")) {
-                String orgName = orgNameComponent.toString().replace("/", "").trim();
-                completionItems.addAll(this.getPackageNameCompletions(orgName));
+            
+            List<String> pkgNameComps = Arrays.asList(orgNameComponentReversed.toString().split("/"));
+            Collections.reverse(pkgNameComps);
+            if (orgNameComponentReversed.toString().contains("/")) {
+                String orgName = pkgNameComps.get(0);
+                completionItems.addAll(this.getPackageNameCompletions(orgName, packagesList));
             } else {
-                completionItems.addAll(this.getOrgNameCompletionItems());
+                completionItems.addAll(this.getOrgNameCompletionItems(packagesList));
             }
         }
 
         return completionItems;
     }
 
-    private ArrayList<CompletionItem> getOrgNameCompletionItems() {
+    private ArrayList<CompletionItem> getOrgNameCompletionItems(List<BallerinaPackage> packagesList) {
         List<String> orgNames = new ArrayList<>();
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        CompilerContext context = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
-        LSPackageCache.getInstance(context).getPackageMap().entrySet().forEach(pkgEntry -> {
-            if (!orgNames.contains(pkgEntry.getValue().packageID.getOrgName().toString())) {
-                orgNames.add(pkgEntry.getValue().packageID.getOrgName().toString());
-            }
-        });
+
+        packagesList.stream()
+                .filter(ballerinaPackage -> !orgNames.contains(ballerinaPackage.getOrgName()))
+                .forEach(ballerinaPackage -> orgNames.add(ballerinaPackage.getOrgName()));
 
         orgNames.forEach(orgName -> {
             String insertText = orgName + "/";
@@ -90,13 +94,12 @@ public class PackageNameContextResolver extends AbstractItemResolver {
         return completionItems;
     }
 
-    private ArrayList<CompletionItem> getPackageNameCompletions(String orgName) {
+    private ArrayList<CompletionItem> getPackageNameCompletions(String orgName, List<BallerinaPackage> packagesList) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        CompilerContext context = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
-        LSPackageCache.getInstance(context).getPackageMap().entrySet().forEach(pkgEntry -> {
-            PackageID packageID = pkgEntry.getValue().packageID;
-            if (orgName.equals(packageID.orgName.getValue())) {
-                String label = packageID.getName().getValue();
+        
+        packagesList.forEach(ballerinaPackage -> {
+            if (orgName.equals(ballerinaPackage.getOrgName())) {
+                String label = ballerinaPackage.getPackageName();
                 String insertText = label + ";";
                 fillImportCompletion(label, insertText, completionItems);
             }

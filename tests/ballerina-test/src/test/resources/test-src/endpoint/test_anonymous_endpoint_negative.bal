@@ -60,7 +60,7 @@ function test1 () returns (string) {
 }
 
 service<DummyServiceType> foo bind  { confX : "test1"} {
-    getAction (endpoint client, string x, float y){
-        client -> invoke1("t", 1);
+    getAction (endpoint caller, string x, float y){
+        caller -> invoke1("t", 1);
     }
 }

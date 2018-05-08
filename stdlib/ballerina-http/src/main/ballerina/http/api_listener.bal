@@ -15,42 +15,71 @@
 // under the License.
 
 
-@Description {value:"Representation of an API Listener"}
-@Field {value:"config: SecureEndpointConfiguration instance"}
-@Field {value:"secureListener: Secure HTTP Listener instance"}
+documentation {
+    Representation of an API Listener.
+
+    E{{}}
+    F{{config}} SecureEndpointConfiguration instance
+    F{{secureListener}} Secure HTTP Listener instance
+}
 public type APIListener object {
     public {
         SecureEndpointConfiguration config;
         SecureListener secureListener;
     }
 
-    new () {
+    new() {
         secureListener = new;
     }
 
-    public function init (SecureEndpointConfiguration config);
-    public function register (typedesc serviceType);
-    public function start ();
-    public function getCallerActions () returns (Connection);
-    public function stop ();
+    documentation {
+        Gets called when the endpoint is being initialize during package init time.
+
+        P{{config}} The `SecureEndpointConfiguration` of the endpoint
+    }
+    public function init(SecureEndpointConfiguration config);
+
+    documentation {
+        Gets called every time a service attaches itself to this endpoint. Also happens at package initialization.
+
+        P{{serviceType}} The type of the service to be registered
+    }
+    public function register(typedesc serviceType);
+
+    documentation {
+        Starts the registered service.
+    }
+    public function start();
+
+    documentation {
+        Returns the connector that client code uses.
+
+        R{{}} The connector that client code uses
+    }
+    public function getCallerActions() returns (Connection);
+
+    documentation {
+        Stops the registered service.
+    }
+    public function stop();
 };
 
-public function APIListener::init (SecureEndpointConfiguration config) {
+public function APIListener::init(SecureEndpointConfiguration config) {
     self.secureListener.init(config);
 }
 
-public function APIListener::register (typedesc serviceType) {
+public function APIListener::register(typedesc serviceType) {
     self.secureListener.register(serviceType);
 }
 
-public function APIListener::start () {
+public function APIListener::start() {
     self.secureListener.start();
 }
 
-public function APIListener::getCallerActions () returns (Connection) {
+public function APIListener::getCallerActions() returns (Connection) {
     return self.secureListener.getCallerActions();
 }
 
-public function APIListener::stop () {
+public function APIListener::stop() {
     self.secureListener.stop();
 }

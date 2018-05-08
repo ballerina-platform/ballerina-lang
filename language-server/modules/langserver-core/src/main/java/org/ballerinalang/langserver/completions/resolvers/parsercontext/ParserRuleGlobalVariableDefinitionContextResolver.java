@@ -18,9 +18,12 @@
 
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
 
@@ -32,6 +35,10 @@ public class ParserRuleGlobalVariableDefinitionContextResolver extends AbstractI
     public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         // currently we are returning a empty List
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
+        ParserRuleContext parserRuleContext = completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY);
+        if (parserRuleContext instanceof BallerinaParser.ExpressionContext) {
+            completionItems.addAll(this.getVariableDefinitionCompletionItems(completionContext));
+        }
         return completionItems;
     }
 }

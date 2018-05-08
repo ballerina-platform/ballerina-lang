@@ -19,8 +19,11 @@ package org.ballerinalang.langserver.completions.resolvers;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
-import org.ballerinalang.langserver.completions.resolvers.parsercontext
-        .ParserRuleGlobalVariableDefinitionContextResolver;
+import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleEndpointTypeContext;
+import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleExpressionContextResolver;
+import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleGlobalVariableDefinitionContextResolver;
+import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleServiceEndpointAttachmentContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleTypeNameContextResolver;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
@@ -54,20 +57,25 @@ public class TopLevelResolver extends AbstractItemResolver {
         }
 
         boolean isAnnotation = this.isAnnotationContext(completionContext);
-        if (isAnnotation) {
+        // Annotations should be evaluated only if the parser rule context is Compilation unit context
+        if (parserRuleContext instanceof BallerinaParser.CompilationUnitContext && isAnnotation) {
             completionItems.addAll(CompletionItemResolver
                     .getResolverByClass(AnnotationAttachmentResolver.class).resolveItems(completionContext));
         } else {
             if (errorContextResolver == null || errorContextResolver == this) {
                 addTopLevelItems(completionItems);
+                this.populateBasicTypes(completionItems, completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
             }
-            if (errorContextResolver instanceof PackageNameContextResolver) {
+            if (errorContextResolver instanceof PackageNameContextResolver
+                    || errorContextResolver instanceof ParserRuleServiceEndpointAttachmentContextResolver
+                    || errorContextResolver instanceof ParserRuleEndpointTypeContext) {
                 completionItems.addAll(errorContextResolver.resolveItems(completionContext));
-            } else if (errorContextResolver instanceof ParserRuleGlobalVariableDefinitionContextResolver) {
+            } else if (errorContextResolver instanceof ParserRuleGlobalVariableDefinitionContextResolver
+                    || errorContextResolver instanceof ParserRuleTypeNameContextResolver) {
                 addTopLevelItems(completionItems);
+                this.populateBasicTypes(completionItems, completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
                 completionItems.addAll(errorContextResolver.resolveItems(completionContext));
-            } else if (errorContextResolver instanceof ParserRuleTypeNameContextResolver) {
-                addTopLevelItems(completionItems);
+            } else if (errorContextResolver instanceof ParserRuleExpressionContextResolver) {
                 completionItems.addAll(errorContextResolver.resolveItems(completionContext));
             }
         }

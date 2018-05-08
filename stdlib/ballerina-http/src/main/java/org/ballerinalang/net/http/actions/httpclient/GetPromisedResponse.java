@@ -28,7 +28,6 @@ import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpClientConnectorListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -41,7 +40,7 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "getPromisedResponse",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.CALLER_ACTIONS,
                 structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "client", type = TypeKind.STRUCT),
@@ -59,7 +58,7 @@ public class GetPromisedResponse extends AbstractHTTPAction {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
 
-        DataContext dataContext = new DataContext(context, callback);
+        DataContext dataContext = new DataContext(context, callback, null);
         BStruct pushPromiseStruct = (BStruct) context.getRefArgument(1);
         Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseStruct, null);
         if (http2PushPromise == null) {
@@ -67,7 +66,7 @@ public class GetPromisedResponse extends AbstractHTTPAction {
         }
         BStruct bConnector = (BStruct) context.getRefArgument(0);
         HttpClientConnector clientConnector =
-                (HttpClientConnector) bConnector.getNativeData(HttpConstants.HTTP_CLIENT);
+                (HttpClientConnector) bConnector.getNativeData(HttpConstants.CALLER_ACTIONS);
         clientConnector.getPushResponse(http2PushPromise).
                 setPushResponseListener(new PushResponseListener(dataContext), http2PushPromise.getPromisedStreamId());
     }
@@ -89,12 +88,8 @@ public class GetPromisedResponse extends AbstractHTTPAction {
         @Override
         public void onError(Throwable throwable) {
             BStruct httpConnectorError = createStruct(
-                    dataContext.context, HttpConstants.HTTP_CONNECTOR_ERROR, HttpConstants.PROTOCOL_PACKAGE_HTTP);
+                    dataContext.context, HttpConstants.STRUCT_GENERIC_ERROR, HttpConstants.PACKAGE_BALLERINA_BUILTIN);
             httpConnectorError.setStringField(0, throwable.getMessage());
-            if (throwable instanceof ClientConnectorException) {
-                ClientConnectorException clientConnectorException = (ClientConnectorException) throwable;
-                httpConnectorError.setIntField(0, clientConnectorException.getHttpStatusCode());
-            }
             dataContext.notifyReply(null, httpConnectorError);
         }
     }

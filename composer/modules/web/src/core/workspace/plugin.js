@@ -39,6 +39,7 @@ import FileDeleteConfirmDialog from './dialogs/FileDeleteConfirmDialog';
 import { read } from './fs-util';
 import File from './model/file';
 import Folder from './model/folder';
+import CreateProjectDialog from './dialogs/CreateProjectDialog';
 
 // FIXME: Find a proper way of removing circular deps from serialization
 const skipEventAndCustomPropsSerialization = (key, value) => {
@@ -198,6 +199,10 @@ class WorkspacePlugin extends Plugin {
         }) !== undefined;
     }
 
+    createNewProject() {
+        console.log('aaaa');
+    }
+
     /**
      * Create a new file and opens it in a new tab
      */
@@ -206,10 +211,13 @@ class WorkspacePlugin extends Plugin {
         const supportedExts = editor.getSupportedExtensions();
         let extension;
         if (supportedExts.length === 1) {
-            extension = supportedExts[0];
+            extension = 'bal';
         } else {
-            // provide user a choice on which type of file to create
-            // TODO
+            // Right now, when the createNewFile is cmd is invoked through shortcut
+            // or top menu, we create a bal file
+            // creating custom file types are only supported through right click menu of explorer
+            // TODO: provide user a choice on which type of file to create
+            extension = 'bal';
         }
         const content = editor.getDefaultContent('temp.' + extension);
         const newFile = new File({ extension, content });
@@ -427,6 +435,15 @@ class WorkspacePlugin extends Plugin {
                 {
                     id: DIALOG_IDS.DELETE_FILE_CONFIRM,
                     component: FileDeleteConfirmDialog,
+                    propsProvider: () => {
+                        return {
+                            workspaceManager: this,
+                        };
+                    },
+                },
+                {
+                    id: DIALOG_IDS.CREATE_PROJECT,
+                    component: CreateProjectDialog,
                     propsProvider: () => {
                         return {
                             workspaceManager: this,

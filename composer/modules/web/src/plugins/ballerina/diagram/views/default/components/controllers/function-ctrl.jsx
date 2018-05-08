@@ -52,7 +52,15 @@ class FunctionCtrl extends React.Component {
                 this.context.config.lifeLine.gutter.h;
         }
 
-        if (node.viewState.collapsed) {
+        if (node.endpointNodes.length > 0) {
+            node.endpointNodes.forEach((endpointNode) => {
+                x += endpointNode.viewState.bBox.w + this.context.config.lifeLine.gutter.h;
+            });
+        }
+
+        if (node.viewState.collapsed
+            || (!node.viewState.collapsed && TreeUtil.isResource(node) && node.parent.viewState.collapsed)
+            || (TreeUtil.isFunction(node) && node.getName().getValue() === 'new')) {
             return null;
         }
         // Set the size of the connector declarations

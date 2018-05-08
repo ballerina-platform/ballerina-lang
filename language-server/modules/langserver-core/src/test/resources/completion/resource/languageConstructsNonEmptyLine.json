@@ -44,7 +44,7 @@
       "label":"transaction",
       "detail":"Statement",
       "sortText":"200",
-      "insertText":"transaction with retries(${1}), oncommit(${2:foo}), onabort(${3:bar}) {\n\t${4}\n} onretry {\n\t${5}\n}",
+      "insertText":"transaction with retries \u003d ${1:1}, oncommit \u003d ${2:onCommitFunction}, onabort \u003d ${3:onAbortFunction} {\n\t${4}\n} onretry {\n\t${5}\n}",
       "insertTextFormat":"Snippet"
     },
     {

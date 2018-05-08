@@ -50,7 +50,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
         functionName = "send",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = GrpcConstants.GRPC_CLIENT,
                 structPackage = GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC),
-        args = {@Argument(name = "response", type = TypeKind.STRING)},
+        args = {@Argument(name = "res", type = TypeKind.ANY)},
         returnType = @ReturnType(type = TypeKind.STRUCT, structType = STRUCT_GENERIC_ERROR, structPackage =
                 PACKAGE_BUILTIN),
         isPublic = true
@@ -75,7 +75,7 @@ public class Send extends BlockingNativeCallableUnit {
                 Message requestMessage = MessageUtils.generateProtoMessage(responseValue, inputType);
                 requestSender.onNext(requestMessage);
             } catch (Throwable e) {
-                LOG.error("Error while sending client response.", e);
+                LOG.error("Error while sending request message to server.", e);
                 context.setError(MessageUtils.getConnectorError(context, e));
             }
         }

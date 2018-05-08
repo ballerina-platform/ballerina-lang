@@ -21,12 +21,15 @@ import ballerina/http;
 //////////////////////////////////////////
 
 documentation {
-    Object representing the WebSub Hub Client Endpoint
+    Object representing the WebSub Hub Client Endpoint.
+
+    E{{}}
+    F{{config}} The configuration for the endpoint
 }
 public type Client object {
 
     public {
-        HubClientEndpointConfiguration config;
+        HubClientEndpointConfig config;
     }
 
     private {
@@ -34,61 +37,46 @@ public type Client object {
     }
 
     documentation {
-        Gets called when the endpoint is being initialized during package init.
+        Called when the endpoint is being initialized during package initialization.
 
-        P{{config}} The configuration for the endpoint.
+        P{{config}} The configuration for the endpoint
     }
-    public function init (HubClientEndpointConfiguration config) {
-        endpoint http:Client httpClientEndpoint {url:config.url, secureSocket:config.secureSocket,
-                                                    auth:config.auth};
+    public function init(HubClientEndpointConfig config) {
+        endpoint http:Client httpClientEndpoint {
+            url:config.url,
+            secureSocket:config.secureSocket,
+            auth:config.auth,
+            followRedirects:config.followRedirects
+        };
+
         self.httpClientEndpoint = httpClientEndpoint;
         self.config = config;
     }
 
     documentation {
-        Gets called whenever a service attaches itself to this endpoint and during package init.
+        Retrieves the caller actions client code uses.
 
-        P{{serviceType}} The service attached.
+        R{{}} `CallerActions` The caller actions available for clients
     }
-    public function register (typedesc serviceType) {
-        httpClientEndpoint.register(serviceType);
-    }
-
-    documentation {
-        Starts the registered service.
-    }
-    public function start () {
-        httpClientEndpoint.start();
-    }
-
-    documentation {
-        Returns the connector that client code uses.
-
-        R{{}} `CallerActions` The caller actions available for clients.
-    }
-    public function getCallerActions () returns (CallerActions) {
+    public function getCallerActions() returns (CallerActions) {
         //TODO: create a single object - move to init
-        CallerActions webSubHubClientConn = new CallerActions(config.url, httpClientEndpoint);
+        CallerActions webSubHubClientConn = new CallerActions(config.url, httpClientEndpoint, config.followRedirects);
         return webSubHubClientConn;
-    }
-
-    documentation {
-        Stops the registered service.
-    }
-    public function stop () {
-        httpClientEndpoint.stop();
     }
 
 };
 
 documentation {
-    Object representing the WebSub Hub Client Endpoint configuration.
+    Record representing the configuration parameters for the WebSub Hub Client Endpoint.
 
-    F{{url}} The URL of the target Hub.
-    F{{secureSocket}} SSL/TLS related options.
+    F{{url}} The URL of the target Hub
+    F{{secureSocket}} SSL/TLS related options for the underlying HTTP Client
+    F{{auth}} Authentication mechanism for the underlying HTTP Client
+    F{{followRedirects}} HTTP redirect related configuration
 }
-public type HubClientEndpointConfiguration {
+public type HubClientEndpointConfig {
     string url,
     http:SecureSocket? secureSocket,
     http:AuthConfig? auth,
+    http:FollowRedirects? followRedirects,
 };

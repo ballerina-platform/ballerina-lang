@@ -61,7 +61,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.StringJoiner;
 
 /**
@@ -74,8 +73,7 @@ public class BallerinaDocGenerator {
 
     private static final String BSOURCE_FILE_EXT = ".bal";
     private static final String PACKAGE_CONTENT_FILE = "Package.md";
-    private static final Path BAL_BUILTIN = Paths.get("ballerina/builtin");
-    private static final Path BAL_BUILTIN_CORE = Paths.get("ballerina/builtin/core");
+    private static final Path BAL_BUILTIN = Paths.get("ballerina", "builtin");
     private static final String HTML = ".html";
 
     /**
@@ -257,7 +255,8 @@ public class BallerinaDocGenerator {
     protected static Map<String, PackageDoc> generatePackageDocsFromBallerina(
         String sourceRoot, Path packagePath, String packageFilter, boolean isNative) throws IOException {
         Path packageMd;
-        Optional<Path> o = Files.find(Paths.get(sourceRoot).resolve(packagePath), 1, (path, attr) -> {
+        Path absolutePkgPath = Paths.get(sourceRoot).resolve(packagePath);
+        Optional<Path> o = Files.find(absolutePkgPath, 1, (path, attr) -> {
             Path fileName = path.getFileName();
             if (fileName != null) {
                 return fileName.toString().equals(PACKAGE_CONTENT_FILE);
@@ -277,14 +276,14 @@ public class BallerinaDocGenerator {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(CompilerOptionName.PROJECT_DIR, sourceRoot);
-        options.put(CompilerOptionName.COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
+        options.put(CompilerOptionName.COMPILER_PHASE, CompilerPhase.TYPE_CHECK.toString());
         options.put(CompilerOptionName.PRESERVE_WHITESPACE, "false");
         context.put(SourceDirectory.class, new FileSystemProjectDirectory(Paths.get(sourceRoot)));
 
         Compiler compiler = Compiler.getInstance(context);
 
         // TODO: Remove this and the related constants once these are properly handled in the core
-        if (BAL_BUILTIN.equals(packagePath) || BAL_BUILTIN_CORE.equals(packagePath)) {
+        if (absolutePkgPath.endsWith(BAL_BUILTIN.toString())) {
             bLangPackage = loadBuiltInPackage(context);
         } else {
             // compile the given package
@@ -308,7 +307,7 @@ public class BallerinaDocGenerator {
     }
 
     private static String packageNameToString(PackageID pkgId) {
-        return pkgId.toString().split(":")[0];
+        return pkgId.getName().getValue();
     }
 
     private static boolean isFilteredPackage(String packageName, String packageFilter) {
@@ -345,10 +344,9 @@ public class BallerinaDocGenerator {
     }
 
     private static List<Link> primitives() {
-        Properties primitives = BallerinaDocUtils.loadPrimitivesDescriptions();
+        List<String> primitives = BallerinaDocUtils.loadPrimitivesDescriptions(true);
         List<Link> primitiveLinks = new ArrayList<>();
-        for (Object primitive : primitives.keySet()) {
-            String type = (String) primitive;
+        for (String type : primitives) {
             primitiveLinks.add(new Link(new Caption(type), BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_HREF.concat(""
                     + ".html#" + type), true));
         }

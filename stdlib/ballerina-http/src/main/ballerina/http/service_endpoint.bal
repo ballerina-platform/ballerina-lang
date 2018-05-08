@@ -14,56 +14,71 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 /////////////////////////////
 /// HTTP Service Endpoint ///
 /////////////////////////////
 documentation {
-    Represents service endpoint where one or more services can be registered. so that ballerina program can offer service through this endpoint.
+    This is used for creating HTTP service endpoints. An HTTP service endpoint is capable of responding to
+    remote callers. The `Listener` is responsible for initializing the endpoint using the provided configurations and
+    providing the actions for communicating with the caller.
 
-    F{{conn}}  - Service endpoint connection.
-    F{{config}} - ServiceEndpointConfiguration configurations.
-    F{{remote}}  - The details of remote address.
-    F{{local}} - The details of local address.
-    F{{protocol}}  - The protocol associate with the service endpoint.
+    E{{}}
+    F{{remote}} The remote address
+    F{{local}} The local address
+    F{{protocol}} The protocol associated with the service endpoint
 }
 public type Listener object {
+
     public {
         @readonly Remote remote;
         @readonly Local local;
         @readonly string protocol;
     }
+
     private {
         Connection conn;
         ServiceEndpointConfiguration config;
     }
+
+    documentation {
+        Gets invoked during package initialization to initialize the endpoint.
+
+        R{{}} Error occurred during initialization
+    }
     public function init(ServiceEndpointConfiguration config);
 
-    @Description {value:"Gets called when the endpoint is being initialize during package init time"}
-    @Return {value:"Error occured during initialization"}
-    public native function initEndpoint() returns (error);
+    public native function initEndpoint() returns error;
 
-    @Description {value:"Gets called every time a service attaches itself to this endpoint. Also happens at package initialization."}
-    @Param {value:"ep: The endpoint to which the service should be registered to"}
-    @Param {value:"serviceType: The type of the service to be registered"}
+    documentation {
+        Gets invoked when binding a service to the endpoint.
+
+        P{{serviceType}} The type of the service to be registered
+    }
     public native function register(typedesc serviceType);
 
-    @Description {value:"Starts the registered service"}
+    documentation {
+        Starts the registered service.
+    }
     public native function start();
 
-    @Description {value:"Returns the connector that client code uses"}
-    @Return {value:"The connector that client code uses"}
+    documentation {
+        Returns the connector that client code uses.
+
+        R{{}} The connector that client code uses
+    }
     public native function getCallerActions() returns (Connection);
 
-    @Description {value:"Stops the registered service"}
+    documentation {
+        Stops the registered service.
+    }
     public native function stop();
 };
 
 documentation {
-    Represents the details of remote address.
+    Presents a read-only view of the remote address.
 
-    F{{host}}  - The remote server host.
-    F{{port}} - The remote server port.
+    F{{host}} The remote host name/IP
+    F{{port}} The remote port
 }
 public type Remote {
     @readonly string host;
@@ -71,57 +86,69 @@ public type Remote {
 };
 
 documentation {
-    Represents the details of local address.
+    Presents a read-only view of the local address.
 
-    F{{host}}  - The local server host.
-    F{{port}} - The local server port.
+    F{{host}} The local host name/IP
+    F{{port}} The local port
 }
 public type Local {
     @readonly string host;
     @readonly int port;
 };
 
-@Description {value:"Request validation limits configuration for HTTP service endpoint"}
-@Field {value:"maxUriLength: Maximum length allowed in the URL"}
-@Field {value:"maxHeaderSize: Maximum size allowed in the headers"}
-@Field {value:"maxEntityBodySize: Maximum size allowed in the entity body"}
+documentation {
+    Configures limits for requests. If these limits are violated, the request is rejected.
+
+    F{{maxUriLength}} Maximum allowed length for a URI. Exceeding this limit will result in a
+                      `414 - URI Too Long` response.
+    F{{maxHeaderSize}} Maximum allowed size for headers. Exceeding this limit will result in a
+                       `413 - Payload Too Large` response.
+    F{{maxEntityBodySize}} Maximum allowed size for the entity body. Exceeding this limit will result in a
+                           `413 - Payload Too Large` response.
+}
 public type RequestLimits {
     int maxUriLength = -1;
     int maxHeaderSize = -1;
     int maxEntityBodySize = -1;
 };
 
-@Description {value:"Configuration for HTTP service endpoint"}
-@Field {value:"host: Host of the service"}
-@Field {value:"port: Port number of the service"}
-@Field {value:"exposeHeaders: The array of allowed headers which are exposed to the client"}
-@Field {value:"keepAlive: The keepAlive behaviour of the connection for a particular port"}
-@Field {value:"transferEncoding: The types of encoding applied to the response"}
-@Field {value:"chunking: The chunking behaviour of the response"}
-@Field {value:"secureSocket: The SSL configurations for the service endpoint"}
-@Field {value:"httpVersion: Highest HTTP version supported"}
-@Field {value:"requestLimits: Request validation limits configuration"}
-@Field {value:"filters: Filters to be applied to the request before dispatched to the actual resource"}
+documentation {
+    Provides a set of configurations for HTTP service endpoints.
+
+    F{{host}} The host name/IP of the endpoint
+    F{{port}} The port to which the endpoint should bind to
+    F{{keepAlive}} Can be set to either `KEEPALIVE_AUTO`, which respects the `connection` header, or `KEEPALIVE_ALWAYS`,
+                   which always keeps the connection alive, or `KEEPALIVE_NEVER`, which always closes the connection
+    F{{secureSocket}} The SSL configurations for the service endpoint. This needs to be configured in order to
+                      communicate through HTTPS.
+    F{{httpVersion}} Highest HTTP version supported by the endpoint
+    F{{requestLimits}} Configures the parameters for request validation
+    F{{filters}} If any pre-processing needs to be done to the request before dispatching the request to the
+                 resource, filters can applied
+}
 public type ServiceEndpointConfiguration {
     string host,
-    int port = 9090,
+    int port,
     KeepAlive keepAlive = KEEPALIVE_AUTO,
-    TransferEncoding transferEncoding = TRANSFERENCODE_CHUNKING,
     ServiceSecureSocket? secureSocket,
     string httpVersion = "1.1",
     RequestLimits? requestLimits,
     Filter[] filters,
 };
 
-@Description {value:"SecureSocket struct represents SSL/TLS options to be used for HTTP service"}
-@Field {value:"trustStore: TrustStore related options"}
-@Field {value:"keyStore: KeyStore related options"}
-@Field {value:"protocols: SSL/TLS protocol related options"}
-@Field {value:"certValidation: Certificate validation against CRL or OCSP related options"}
-@Field {value:"ciphers: List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"}
-@Field {value:"sslVerifyClient: The type of client certificate verification"}
-@Field {value:"shareSession: Enable/disable new ssl session creation"}
-@Field {value:"ocspStapling: Enable/disable ocsp stapling"}
+documentation {
+    Configures the SSL/TLS options to be used for HTTP service.
+
+    F{{trustStore}} Configures the trust store to be used
+    F{{keyStore}} Configures the key store to be used
+    F{{protocol}} SSL/TLS protocol related options
+    F{{certValidation}} Certificate validation against CRL or OCSP related options
+    F{{ciphers}} List of ciphers to be used (e.g.: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+                 TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA)
+    F{{sslVerifyClient}} The type of client certificate verification
+    F{{shareSession}} Enable/disable new SSL session creation
+    F{{ocspStapling}} Enable/disable OCSP stapling
+}
 public type ServiceSecureSocket {
     TrustStore? trustStore,
     KeyStore? keyStore,
@@ -133,16 +160,18 @@ public type ServiceSecureSocket {
     ServiceOcspStapling? ocspStapling,
 };
 
+documentation {
+    Defines the possible values for the keep-alive configuration in service and client endpoints.
+}
 public type KeepAlive "AUTO"|"ALWAYS"|"NEVER";
 
-@final KeepAlive KEEPALIVE_AUTO = "AUTO";
-@final KeepAlive KEEPALIVE_ALWAYS = "ALWAYS";
-@final KeepAlive KEEPALIVE_NEVER = "NEVER";
+documentation { Decides to keep the connection alive or not based on the `connection` header of the client request }
+@final public KeepAlive KEEPALIVE_AUTO = "AUTO";
+documentation { Keeps the connection alive irrespective of the `connection` header value }
+@final public KeepAlive KEEPALIVE_ALWAYS = "ALWAYS";
+documentation { Closes the connection irrespective of the `connection` header value }
+@final public KeepAlive KEEPALIVE_NEVER = "NEVER";
 
-@Description { value:"Gets called when the endpoint is being initialized during the package initialization."}
-@Param { value:"epName: The endpoint name" }
-@Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
-@Return { value:"Error occured during initialization" }
 public function Listener::init (ServiceEndpointConfiguration config) {
     self.config = config;
     var err = self.initEndpoint();
@@ -154,13 +183,22 @@ public function Listener::init (ServiceEndpointConfiguration config) {
 //////////////////////////////////
 /// WebSocket Service Endpoint ///
 //////////////////////////////////
+documentation {
+    Represents a WebSocket service endpoint.
+
+    F{{id}} The connection ID
+    F{{negotiatedSubProtocol}} The subprotocols negotiated with the client
+    F{{isSecure}} `true` if the connection is secure
+    F{{isOpen}} `true` if the connection is open
+    F{{attributes}} A `map` to store connection related attributes
+}
 public type WebSocketListener object {
     public {
-        string id;
-        string negotiatedSubProtocol;
-        boolean isSecure;
-        boolean isOpen;
-        map attributes;
+        @readonly string id;
+        @readonly string negotiatedSubProtocol;
+        @readonly boolean isSecure;
+        @readonly boolean isOpen;
+        @readonly map attributes;
     }
 
     private {
@@ -169,41 +207,47 @@ public type WebSocketListener object {
         Listener httpEndpoint;
     }
 
-    public new () {
+    public new() {
     }
 
-    @Description {value:"Gets called when the endpoint is being initialize during package init time"}
-    @Param {value:"epName: The endpoint name"}
-    @Param {value:"config: The ServiceEndpointConfiguration of the endpoint"}
-    @Return {value:"Error occured during initialization"}
+    documentation {
+        Gets invoked during package initialization to initialize the endpoint.
+
+        P{{config}} The `ServiceEndpointConfiguration` of the endpoint
+    }
     public function init(ServiceEndpointConfiguration config) {
         self.config = config;
         httpEndpoint.init(config);
     }
 
-    @Description {value:"gets called every time a service attaches itself to this endpoint - also happens at package init time"}
-    @Param {value:"conn: The server connector connection"}
-    @Param {value:"res: The outbound response message"}
-    @Return {value:"Error occured during registration"}
+    documentation {
+        Gets invoked when binding a service to the endpoint.
+
+        P{{serviceType}} The service type
+    }
     public function register(typedesc serviceType) {
         httpEndpoint.register(serviceType);
     }
 
-    @Description {value:"Starts the registered service"}
-    @Return {value:"Error occured during registration"}
+    documentation {
+        Starts the registered service.
+    }
     public function start() {
         httpEndpoint.start();
     }
 
-    @Description {value:"Returns the connector that client code uses"}
-    @Return {value:"The connector that client code uses"}
-    @Return {value:"Error occured during registration"}
+    documentation {
+        Returns a WebSocket actions provider which can be used to communicate with the remote host.
+
+        R{{}} The connector that listener endpoint uses
+    }
     public function getCallerActions() returns (WebSocketConnector) {
         return conn;
     }
 
-    @Description {value:"Stops the registered service"}
-    @Return {value:"Error occured during registration"}
+    documentation {
+        Stops the registered service.
+    }
     public function stop() {
         httpEndpoint.stop();
     }

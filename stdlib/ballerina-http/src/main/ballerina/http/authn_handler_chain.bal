@@ -18,20 +18,36 @@
 import ballerina/log;
 import ballerina/auth;
 
-@Description {value:"Representation of Authentication handler chain"}
+documentation {
+    Representation of Authentication handler chain
+
+    F{{authHandlerRegistry}} `AuthHandlerRegistry` instance
+}
 public type AuthnHandlerChain object {
     private {
         AuthHandlerRegistry authHandlerRegistry;
     }
-    new (authHandlerRegistry) {
+    public new (authHandlerRegistry) {
+    }
+
+    documentation {
+        Tries to authenticate against any one of the available authentication handlers
+
+        P{{req}} `Request` instance
+        R{{}} true if authenticated successfully, else false
     }
     public function handle (Request req) returns (boolean);
+
+    documentation {
+        Tries to authenticate against a specifc sub set of the authentication handlers, using the given array of auth provider ids
+
+        P{{authProviderIds}} array of auth provider ids
+        P{{req}} `Request` instance
+        R{{}} true if authenticated successfully, else false
+    }
     public function handleWithSpecificAuthnHandlers (string[] authProviderIds, Request req) returns (boolean);
 };
 
-@Description {value:"Tries to authenticate against any one of the available authentication handlers"}
-@Param {value:"req: Request object"}
-@Return {value:"boolean: true if authenticated successfully, else false"}
 public function AuthnHandlerChain::handle (Request req) returns (boolean) {
     foreach currentAuthProviderType, currentAuthHandler in self.authHandlerRegistry.getAll() {
         var authnHandler = <HttpAuthnHandler> currentAuthHandler;
@@ -43,11 +59,6 @@ public function AuthnHandlerChain::handle (Request req) returns (boolean) {
     return false;
 }
 
-@Description {value:"Tries to authenticate against a specifc sub set of the authentication handlers, using the given 
-array of auth provider ids"}
-@Param {value:"authProviderIds: array of auth provider ids"}
-@Param {value:"req: Request object"}
-@Return {value:"boolean: true if authenticated successfully, else false"}
 public function AuthnHandlerChain::handleWithSpecificAuthnHandlers (string[] authProviderIds, Request req)
                                                                                                     returns (boolean) {
     foreach authProviderId in authProviderIds {

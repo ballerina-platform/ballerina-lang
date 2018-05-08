@@ -88,6 +88,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         }
         return '';
     }
+
     /* eslint-enable no-unused-vars */
 
     if (replaceLambda && node.kind === 'Lambda') {
@@ -102,9 +103,12 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'CompilationUnit':
             return join(node.topLevelNodes, pretty, replaceLambda, l, w) + w();
         case 'ArrayType':
-            return getSourceOf(node.elementType, pretty, l, replaceLambda) +
-                times(node.dimensions, () => w() + '[' + w() + ']');
-
+            if (node.isRestParam) {
+                return getSourceOf(node.elementType, pretty, l, replaceLambda);
+            } else {
+                return getSourceOf(node.elementType, pretty, l, replaceLambda) +
+                    times(node.dimensions, () => w() + '[' + w() + ']');
+            }
         /* eslint-disable max-len */
         // auto gen start
 // auto-gen-code

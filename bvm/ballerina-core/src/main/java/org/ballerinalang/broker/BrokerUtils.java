@@ -105,6 +105,23 @@ public class BrokerUtils {
     }
 
     /**
+     * Method to publish to a topic in the broker operating in in-memory mode, specifying the ByteBuf to publish.
+     *
+     * @param topic     the topic for which the subscription is registered
+     * @param payload   the ByteBuf representing the payload to publish (message content)
+     */
+    public static void publish(String topic, ByteBuf payload) {
+        Message message = new Message(Broker.getNextMessageId(),
+                                      new Metadata(topic, "amq.topic", payload.array().length));
+        message.addChunk(new ContentChunk(0, payload));
+        try {
+            broker.publish(message);
+        } catch (BrokerException e) {
+            logger.error("Error publishing to topic: ", e);
+        }
+    }
+
+    /**
      * Method to start up the Ballerina Broker. TODO: change
      */
     private static BrokerImpl startupBroker() throws Exception {
@@ -113,7 +130,6 @@ public class BrokerUtils {
         brokerCommonConfiguration.setEnableInMemoryMode(true);
         configProvider.registerConfigurationObject(BrokerCommonConfiguration.NAMESPACE, brokerCommonConfiguration);
         BrokerCoreConfiguration brokerCoreConfiguration = new BrokerCoreConfiguration();
-        brokerCoreConfiguration.setDurableQueueInMemoryCacheLimit("1000");
         configProvider.registerConfigurationObject(BrokerCoreConfiguration.NAMESPACE, brokerCoreConfiguration);
         StartupContext startupContext = new StartupContext();
         startupContext.registerService(BrokerConfigProvider.class, configProvider);

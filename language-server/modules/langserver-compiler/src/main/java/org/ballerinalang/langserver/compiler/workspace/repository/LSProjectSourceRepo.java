@@ -28,10 +28,10 @@ import java.nio.file.Path;
  */
 class LSProjectSourceRepo extends ProjectSourceRepo {
     private LSProjectSourceRepo(PathConverter converter) {
-        super(converter);
+        super(converter, true);
     }
 
     LSProjectSourceRepo(Path projectRoot, WorkspaceDocumentManager documentManager) {
-        this(new LSPathConverter(projectRoot, documentManager));
+        this(new LSPathConverter(projectRoot, documentManager, null));
     }
 }

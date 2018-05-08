@@ -51,7 +51,7 @@
       "label":"type \u003cObjectName\u003e object",
       "detail":"Snippet",
       "sortText":"190",
-      "insertText":"type ${1:ObjectName} object {\n\t${2}\n}",
+      "insertText":"type ${1:ObjectName} object {\n\t${2}\n};",
       "insertTextFormat":"Snippet"
     },
     {
@@ -74,6 +74,108 @@
       "sortText":"210",
       "insertText":"type ",
       "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"xml",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"xml"
+    },
+    {
+      "label":"TableConfig",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"TableConfig"
+    },
+    {
+      "label":"stream",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"stream"
+    },
+    {
+      "label":"map",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"map"
+    },
+    {
+      "label":"table",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"table"
+    },
+    {
+      "label":"future",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"future"
+    },
+    {
+      "label":"typedesc",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"typedesc"
+    },
+    {
+      "label":"float",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"float"
+    },
+    {
+      "label":"blob",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"blob"
+    },
+    {
+      "label":"null",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"null"
+    },
+    {
+      "label":"string",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"string"
+    },
+    {
+      "label":"error",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"error"
+    },
+    {
+      "label":"json",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"json"
+    },
+    {
+      "label":"any",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"any"
+    },
+    {
+      "label":"int",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"int"
+    },
+    {
+      "label":"docData",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"docData"
+    },
+    {
+      "label":"boolean",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"boolean"
     }
   ]
 }

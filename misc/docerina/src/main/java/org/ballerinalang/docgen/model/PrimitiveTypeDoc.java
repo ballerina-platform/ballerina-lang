@@ -32,7 +32,7 @@ public class PrimitiveTypeDoc extends Documentable {
      * @param children children of the node if any.
      */
     public PrimitiveTypeDoc(String name, String description, List<Documentable> children) {
-        super(name, "fw-variable", description, children);
+        super(name, "fw-primitive", description, children);
         this.isPrimitiveType = true;
     }
 }

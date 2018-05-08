@@ -14,21 +14,26 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
-@Description {value:"Represents the InvocationContext"}
+documentation {
+    Represents the InvocationContext.
+}
 public type InvocationContext {
     string id;
     UserPrincipal userPrincipal;
     AuthContext authContext;
 };
 
-@Description { value:"Represents the AuthenticationContext, populated with authenticated information"}
+documentation {
+    Represents the AuthenticationContext, populated with authenticated information.
+}
 public type AuthContext {
     string scheme;
     string authToken;
 };
 
-@Description { value:"Represents the UserPrincipal, populated with authenticated user information"}
+documentation {
+    Represents the UserPrincipal, populated with authenticated user information.
+}
 public type UserPrincipal {
     string userId;
     string username;
@@ -36,6 +41,9 @@ public type UserPrincipal {
     string[] scopes;
 };
 
-@Description {value:"Creates a InvocationContext instance"}
-@Return {value:"InvocationContext instance"}
+documentation {
+    Creates a InvocationContext instance.
+
+    R{{}} InvocationContext instance
+}
 public native function getInvocationContext() returns (InvocationContext);

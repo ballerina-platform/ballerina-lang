@@ -27,7 +27,6 @@ import java.util.Set;
  */
 public interface FiniteType extends ReferenceType {
 
-    Set<? extends Type> getMemberTypes();
-
     Set<? extends ExpressionNode> getValueSpace();
+
 }

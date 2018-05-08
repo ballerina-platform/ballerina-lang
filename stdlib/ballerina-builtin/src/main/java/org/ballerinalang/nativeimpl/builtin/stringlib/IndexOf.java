@@ -34,8 +34,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "builtin",
         functionName = "string.indexOf",
-        args = {@Argument(name = "mainString", type = TypeKind.STRING),
-                @Argument(name = "subString", type = TypeKind.STRING)},
+        args = {@Argument(name = "s", type = TypeKind.STRING),
+                @Argument(name = "substring", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )

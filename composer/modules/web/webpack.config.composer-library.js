@@ -170,8 +170,8 @@ const config = [{
                 codepoints[obj.name] = obj.unicode;
             },
             dest: {
-                fontsDir: path.resolve(__dirname, './font/dist/font-ballerina/fonts'),
-                stylesDir: path.resolve(__dirname, './font/dist/font-ballerina/css'),
+                fontsDir: path.join(__dirname, 'library/dist/font-ballerina/fonts'),
+                stylesDir: path.join(__dirname, 'library/dist/font-ballerina/css'),
                 outputFilename: 'font-ballerina.css',
             },
             hash: new Date().getTime(),
@@ -179,7 +179,7 @@ const config = [{
             apply: function(compiler) {
                 compiler.plugin('compile', function(compilation, callback) {
                     fs.writeFile(
-                        path.resolve(__dirname, './font/dist/font-ballerina/codepoints.json'),
+                        path.join(__dirname, 'library/dist/font-ballerina/codepoints.json'),
                         JSON.stringify(codepoints),
                         'utf8',
                         callback
@@ -208,7 +208,7 @@ const config = [{
     devtool: 'source-map',
     resolve: {
         extensions: ['.js', '.json', '.jsx'],
-        modules: ['src', 'public/lib', 'font/dist', 'node_modules', path.resolve(__dirname)],
+        modules: ['src', 'public/lib', 'library/dist', 'node_modules', path.resolve(__dirname)],
         alias: {
             // ///////////////////////
             // third party modules //

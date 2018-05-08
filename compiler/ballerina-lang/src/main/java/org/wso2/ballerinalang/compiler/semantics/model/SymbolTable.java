@@ -87,8 +87,8 @@ public class SymbolTable {
     public final BType jsonType = new BJSONType(TypeTags.JSON, noType, null);
     public final BType xmlType = new BXMLType(TypeTags.XML, null);
     public final BType tableType = new BTableType(TypeTags.TABLE, noType, null);
-    public final BType streamType = new BStreamType(TypeTags.STREAM, noType, null);
     public final BType anyType = new BAnyType(TypeTags.ANY, null);
+    public final BType streamType = new BStreamType(TypeTags.STREAM, anyType, null);
     public final BType mapType = new BMapType(TypeTags.MAP, anyType, null);
     public final BType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
     public final BType xmlAttributesType = new BXMLAttributesType(TypeTags.XML_ATTRIBUTES);

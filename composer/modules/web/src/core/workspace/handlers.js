@@ -38,6 +38,12 @@ export function getHandlerDefinitions(workspaceManager) {
             },
         },
         {
+            cmdID: COMMANDS.CREATE_PROJECT,
+            handler: () => {
+                workspaceManager.createNewProject();
+            },
+        },
+        {
             cmdID: COMMANDS.OPEN_FILE,
             handler: ({ filePath, ext, activate = true }) => {
                 workspaceManager.openFile(filePath, ext, activate);
@@ -125,6 +131,14 @@ export function getHandlerDefinitions(workspaceManager) {
             handler: () => {
                 const { command: { dispatch } } = workspaceManager.appContext;
                 const id = DIALOGS.OPEN_FOLDER;
+                dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, { id });
+            },
+        },
+        {
+            cmdID: COMMANDS.SHOW_CREATE_PROJECT_WIZARD,
+            handler: () => {
+                const { command: { dispatch } } = workspaceManager.appContext;
+                const id = DIALOGS.CREATE_PROJECT;
                 dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, { id });
             },
         },

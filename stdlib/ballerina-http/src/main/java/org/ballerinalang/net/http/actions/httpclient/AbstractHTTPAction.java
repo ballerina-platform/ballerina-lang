@@ -63,6 +63,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Optional;
 
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
@@ -112,16 +113,16 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         return requestMsg;
     }
 
-    private String getAcceptEncodingConfigFromEndpointConfig(BStruct httpClientStruct) {
+    protected String getAcceptEncodingConfigFromEndpointConfig(BStruct httpClientStruct) {
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(httpClientStruct);
         Struct epConfig = (Struct) clientEndpointConfig.getNativeData(HttpConstants.CLIENT_ENDPOINT_CONFIG);
         if (epConfig == null) {
             return HttpConstants.AUTO;
         }
-        return epConfig.getRefField(HttpConstants.CLIENT_EP_ACCEPT_ENCODING).getStringValue();
+        return epConfig.getRefField(HttpConstants.ANN_CONFIG_ATTR_COMPRESSION).getStringValue();
     }
 
-    private static AcceptEncodingConfig getAcceptEncodingConfig(String acceptEncodingConfig) {
+    protected static AcceptEncodingConfig getAcceptEncodingConfig(String acceptEncodingConfig) {
         if (HttpConstants.AUTO.equalsIgnoreCase(acceptEncodingConfig)) {
             return AcceptEncodingConfig.AUTO;
         } else if (HttpConstants.ALWAYS.equalsIgnoreCase(acceptEncodingConfig)) {
@@ -134,7 +135,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         }
     }
 
-    private void handleAcceptEncodingHeader(HTTPCarbonMessage outboundRequest,
+    protected void handleAcceptEncodingHeader(HTTPCarbonMessage outboundRequest,
             AcceptEncodingConfig acceptEncodingConfig) {
         if (acceptEncodingConfig == AcceptEncodingConfig.ALWAYS && (
                 outboundRequest.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString()) == null)) {
@@ -241,13 +242,14 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         }
     }
 
-    protected void executeNonBlockingAction(DataContext dataContext, HTTPCarbonMessage outboundRequestMsg)
+    protected void executeNonBlockingAction(DataContext dataContext)
             throws ClientConnectorException {
-        executeNonBlockingAction(dataContext, outboundRequestMsg, false);
+        executeNonBlockingAction(dataContext, false);
     }
 
-    protected void executeNonBlockingAction(DataContext dataContext, HTTPCarbonMessage outboundRequestMsg,
+    protected void executeNonBlockingAction(DataContext dataContext,
                                             boolean async) throws ClientConnectorException {
+        HTTPCarbonMessage outboundRequestMsg = dataContext.getOutboundRequest();
         Object sourceHandler = outboundRequestMsg.getProperty(HttpConstants.SRC_HANDLER);
         if (sourceHandler == null) {
             outboundRequestMsg.setProperty(HttpConstants.SRC_HANDLER,
@@ -295,7 +297,8 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
     private void send(DataContext dataContext, HTTPCarbonMessage outboundRequestMsg, boolean async) throws Exception {
         BStruct bConnector = (BStruct) dataContext.context.getRefArgument(0);
         Struct httpClient = BLangConnectorSPIUtil.toStruct(bConnector);
-        HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.HTTP_CLIENT);
+        HttpClientConnector clientConnector = (HttpClientConnector)
+                httpClient.getNativeData(HttpConstants.CALLER_ACTIONS);
         String contentType = HttpUtil.getContentTypeFromTransportMessage(outboundRequestMsg);
         String boundaryString = null;
 
@@ -396,11 +399,13 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
             if (messageDataSource != null) {
                 messageDataSource.serializeData(messageOutputStream);
                 HttpUtil.closeMessageOutputStream(messageOutputStream);
-            } else { //When the entity body is a byte channel
-                try {
-                    EntityBodyHandler.writeByteChannelToOutputStream(entityStruct, messageOutputStream);
-                } finally {
-                    HttpUtil.closeMessageOutputStream(messageOutputStream);
+            } else { //When the entity body is a byte channel and when it is not null
+                if (EntityBodyHandler.getByteChannel(entityStruct) != null) {
+                    try {
+                        EntityBodyHandler.writeByteChannelToOutputStream(entityStruct, messageOutputStream);
+                    } finally {
+                        HttpUtil.closeMessageOutputStream(messageOutputStream);
+                    }
                 }
             }
         }
@@ -424,8 +429,8 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
 
         @Override
         public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
-            this.dataContext.notifyReply(createResponseStruct(
-                    this.dataContext.context, httpCarbonMessage), null);
+            this.outboundMsgDataStreamer.setIoException(new IOException("Response message already received"));
+            this.dataContext.notifyReply(createResponseStruct(this.dataContext.context, httpCarbonMessage), null);
         }
 
         @Override
@@ -444,19 +449,12 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
                         HttpConstants.PROTOCOL_PACKAGE_HTTP);
             } else if (throwable instanceof IOException) {
                 this.outboundMsgDataStreamer.setIoException((IOException) throwable);
-                httpConnectorError = createStruct(this.dataContext.context, HttpConstants.HTTP_CONNECTOR_ERROR,
-                        HttpConstants.PROTOCOL_PACKAGE_HTTP);
+                httpConnectorError = HttpUtil.getHttpConnectorError(this.dataContext.context, throwable);
             } else {
                 this.outboundMsgDataStreamer.setIoException(new IOException(throwable.getMessage()));
-                httpConnectorError = createStruct(this.dataContext.context, HttpConstants.HTTP_CONNECTOR_ERROR,
-                        HttpConstants.PROTOCOL_PACKAGE_HTTP);
+                httpConnectorError = HttpUtil.getHttpConnectorError(this.dataContext.context, throwable);
             }
-
             httpConnectorError.setStringField(0, throwable.getMessage());
-            if (throwable instanceof ClientConnectorException) {
-                ClientConnectorException clientConnectorException = (ClientConnectorException) throwable;
-                httpConnectorError.setIntField(0, clientConnectorException.getHttpStatusCode());
-            }
             this.dataContext.notifyReply(null, httpConnectorError);
         }
     }
@@ -491,8 +489,9 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         }
 
         private void addHttpStatusCode(int statusCode) {
-            ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
-            observerContext.addTag(ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE, String.valueOf(statusCode));
+            Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
+            observerContext.ifPresent(ctx -> ctx.addTag(ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE,
+                    String.valueOf(statusCode)));
         }
     }
 

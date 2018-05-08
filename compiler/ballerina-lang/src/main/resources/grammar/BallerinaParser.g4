@@ -49,7 +49,7 @@ serviceEndpointAttachments
     ;
 
 serviceBody
-    :   LEFT_BRACE endpointDeclaration* variableDefinitionStatement* resourceDefinition* RIGHT_BRACE
+    :   LEFT_BRACE endpointDeclaration* (variableDefinitionStatement | namespaceDeclarationStatement)* resourceDefinition* RIGHT_BRACE
     ;
 
 resourceDefinition
@@ -97,7 +97,7 @@ privateObjectFields
     ;
 
 objectInitializer
-    :   annotationAttachment* documentationAttachment? (PUBLIC)? (NATIVE)? NEW objectInitializerParameterList callableUnitBody
+    :   annotationAttachment* documentationAttachment? (PUBLIC)? NEW objectInitializerParameterList callableUnitBody
     ;
 
 objectInitializerParameterList
@@ -240,7 +240,7 @@ builtInReferenceTypeName
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
     |   TYPE_JSON (LT nameReference GT)?
     |   TYPE_TABLE (LT nameReference GT)?
-    |   TYPE_STREAM (LT nameReference GT)?
+    |   TYPE_STREAM (LT typeName GT)?
     |   functionTypeName
     ;
 

@@ -69,7 +69,7 @@ public class TrustStoreHolder {
             trustStorePassword) throws BallerinaException {
         Certificate certificate = getTrustedCertificate(certificateAlia, trustStoreFilePath, trustStorePassword);
         if (certificate == null) {
-            return null;
+            throw new BallerinaException("Failed to load trusted key: " + certificateAlia);
         }
         return certificate.getPublicKey();
     }

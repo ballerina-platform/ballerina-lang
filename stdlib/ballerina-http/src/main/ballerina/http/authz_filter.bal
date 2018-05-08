@@ -19,22 +19,28 @@ import ballerina/auth;
 import ballerina/cache;
 import ballerina/reflect;
 
-@Description {value:"Representation of the Authorization filter"}
-@Field {value:"filterRequest: request filter method which attempts to authorize the request"}
-@Field {value:"filterRequest: response filter method (not used this scenario)"}
+documentation {
+    Representation of the Authorization filter
+
+    F{{authzHandler}} `HttpAuthzHandler` instance for handling authorization
+}
 public type AuthzFilter object {
 
     public {
         HttpAuthzHandler authzHandler;
     }
 
-    new (authzHandler) {
+    public new (authzHandler) {
     }
-    
-    @Description {value:"Filter function implementation which tries to authorize the request"}
-	@Param {value:"request: Request instance"}
-	@Param {value:"context: FilterContext instance"}
-	@Return {value:"FilterResult: Authorization result to indicate if the request can proceed or not"}
+
+    documentation {
+        Filter function implementation which tries to authorize the request
+
+        P{{request}} `Request` instance
+        P{{context}} `FilterContext` instance
+        R{{}} `FilterResult` instance populated with a flag to indicate if the request flow should be continued or
+        aborted, a code and a message
+    }
     public function filterRequest (Request request, FilterContext context) returns FilterResult {
 		// first check if the resource is marked to be authenticated. If not, no need to authorize.
         ListenerAuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, RESOURCE_ANN_NAME,
@@ -66,9 +72,13 @@ public type AuthzFilter object {
     }
 };
 
-@Description {value:"Creates an instance of FilterResult"}
-@Param {value:"authorized: authorization status for the request"}
-@Return {value:"FilterResult: Authorization result to indicate if the request can proceed or not"}
+documentation {
+        Creates an instance of `FilterResult`
+
+        P{{authorized}} flag to indicate if authorization is successful or not
+        R{{}} `FilterResult` instance populated with a flag to indicate if the request flow should be continued or
+        aborted, a code and a message
+}
 function createAuthzResult (boolean authorized) returns (FilterResult) {
     FilterResult requestFilterResult = {};
     if (authorized) {
@@ -79,10 +89,13 @@ function createAuthzResult (boolean authorized) returns (FilterResult) {
     return requestFilterResult;
 }
 
-@Description {value:"Retrieves the scope for the resource, if any"}
-@Param {value:"resourceLevelAuthAnn: Resource level auth annotation"}
-@Param {value:"serviceLevelAuthAnn: service level auth annotation"}
-@Return {value:"string: Scope name if defined, else nil"}
+documentation {
+        Retrieves the scope for the resource, if any
+
+        P{{resourceLevelAuthAnn}} `ListenerAuthConfig` instance denoting resource level auth annotation details
+        P{{serviceLevelAuthAnn}} `ListenerAuthConfig` instance denoting service level auth annotation details
+        R{{}} Array of scopes for the given resource or nil of no scopes are defined
+}
 function getScopesForResource (ListenerAuthConfig? resourceLevelAuthAnn, ListenerAuthConfig? serviceLevelAuthAnn)
                                                                                             returns (string[]|()) {
     match resourceLevelAuthAnn.scopes {

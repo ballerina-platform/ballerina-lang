@@ -22,7 +22,7 @@ service<http:Service> ATMLocator bind serviceEnpoint {
     @http:ResourceConfig {
         methods:["POST"]
     }
-    locator (endpoint outboundEP, http:Request req) {
+    locator (endpoint caller, http:Request req) {
 
         http:Request backendServiceReq = new;
         var jsonLocatorReq = req.getJsonPayload();
@@ -35,7 +35,7 @@ service<http:Service> ATMLocator bind serviceEnpoint {
                 branchLocatorReq.BranchLocator.ZipCode = zipCode;
                 backendServiceReq.setJsonPayload(branchLocatorReq);
             }
-            http:PayloadError err => {
+            error err => {
                 io:println("Error occurred while reading ATM locator request");
             }
         }
@@ -46,7 +46,7 @@ service<http:Service> ATMLocator bind serviceEnpoint {
             http:Response locRes => {
                 locatorResponse = locRes;
             }
-            http:HttpConnectorError err => {
+            error err => {
                 io:println("Error occurred while reading locator response");
             }
         }
@@ -61,7 +61,7 @@ service<http:Service> ATMLocator bind serviceEnpoint {
                 bankInfoReq.BranchInfo.BranchCode = branchCode;
                 backendServiceReq.setJsonPayload(bankInfoReq);
             }
-            http:PayloadError err => {
+            error err => {
                 io:println("Error occurred while reading branch locator response");
             }
         }
@@ -72,11 +72,11 @@ service<http:Service> ATMLocator bind serviceEnpoint {
             http:Response res => {
                 infomationResponse = res;
             }
-            http:HttpConnectorError err => {
+            error err => {
                 io:println("Error occurred while writing info response");
             }
         }
-        _ = outboundEP -> respond(infomationResponse);
+        _ = caller -> respond(infomationResponse);
     }
 }
 
@@ -89,7 +89,7 @@ service<http:Service> Bankinfo bind serviceEnpoint {
     @http:ResourceConfig {
         methods:["POST"]
     }
-    product (endpoint outboundEP, http:Request req) {
+    product (endpoint caller, http:Request req) {
         http:Response res = new;
         var jsonRequest = req.getJsonPayload();
         match jsonRequest {
@@ -105,12 +105,12 @@ service<http:Service> Bankinfo bind serviceEnpoint {
 
                 res.setJsonPayload(payload);
             }
-            http:PayloadError err => {
+            error err => {
                 io:println("Error occurred while reading bank info request");
             }
         }
 
-        _ = outboundEP -> respond(res);
+        _ = caller -> respond(res);
     }
 }
 
@@ -123,7 +123,7 @@ service<http:Service> Banklocator bind serviceEnpoint {
     @http:ResourceConfig {
         methods:["POST"]
     }
-    product (endpoint outboundEP, http:Request req) {
+    product (endpoint caller, http:Request req) {
         http:Response res = new;
         var jsonRequest = req.getJsonPayload();
         match jsonRequest {
@@ -138,12 +138,12 @@ service<http:Service> Banklocator bind serviceEnpoint {
                 }
                 res.setJsonPayload(payload);
             }
-            http:PayloadError err => {
+            error err => {
                 io:println("Error occurred while reading bank locator request");
             }
         }
 
-        _ = outboundEP -> respond(res);
+        _ = caller -> respond(res);
     }
 }
 

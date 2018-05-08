@@ -205,7 +205,7 @@ class ExplorerItem extends React.Component {
                             />
                             <i
                                 className='fw fw-close action'
-                                title='Remove Program Directory'
+                                title='Remove Project Directory'
                                 onClick={this.onRemoveProjectFolderClick}
                             />
                         </span>

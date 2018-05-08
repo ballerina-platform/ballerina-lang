@@ -30,7 +30,7 @@ export default {
             service<http:Service> serviceName bind endpointName {
                 getAction (endpoint client){
                     http:Response res = new;
-                    res.setStringPayload("Successful");
+                    res.setPayload("Successful");
                     _ = client -> respond(res);
                 }
             }
@@ -48,7 +48,7 @@ export default {
         return FragmentUtils.createTopLevelNodeFragment(
             `
             @http:WebSocketServiceConfig {
-                basePath:"/basic/ws",
+                path:"/basic/ws",
                 subProtocols:["xml", "json"],
                 idleTimeoutInSeconds:120
             }
@@ -150,9 +150,8 @@ export default {
     },
     createStruct: () => {
         return FragmentUtils.createTopLevelNodeFragment(`
-            struct struct1 {
-
-            }
+type record1 {
+};
         `);
     },
     /*createTransformer: () => {

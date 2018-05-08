@@ -180,6 +180,16 @@
     "after comment": "",
     "dent": true
   },
+  "CompoundAssignment": {
+    "before variable": "",
+    "after variable": " ",
+    "before +=": "",
+    "after +=": " ",
+    "before expression": "",
+    "after expression": "",
+    "before ;": "",
+    "after ;": ""
+  },
   "Connector": {
     "before annotationAttachments": "",
     "after annotationAttachments": "",
@@ -259,6 +269,20 @@
     "before }": "",
     "after }": ""
   },
+  "Done": {
+    "before done": "",
+    "after done": "",
+    "before ;": "",
+    "after ;": ""
+  },
+  "ElvisExpr": {
+    "before leftExpression": "",
+    "after leftExpression": "",
+    "before ?:": "",
+    "after ?:": "",
+    "before rightExpression": "",
+    "after rightExpression": ""
+  },
   "Endpoint": {
     "before annotationAttachments": "",
     "after annotationAttachments": "",
@@ -310,6 +334,14 @@
     "after {": "",
     "before body": "",
     "after body": "",
+    "before }": "",
+    "after }": ""
+  },
+  "Forever": {
+    "before forever": "",
+    "after forever": "",
+    "before {":"",
+    "after {": "",
     "before }": "",
     "after }": ""
   },
@@ -399,6 +431,18 @@
     "before returnParamTypeNode": "",
     "after returnParamTypeNode": ""
   },
+  "GroupBy": {
+    "before group": "",
+    "after group": "",
+    "before by": "",
+    "after by": "",
+    "before variables": "",
+    "after variables": ""
+  },
+  "Having": {
+    "before having": "",
+    "after having": ""
+  },
   "If": {
     "before if": "",
     "after if": "",
@@ -430,8 +474,8 @@
     "after ]": ""
   },
   "Invocation": {
-    "before async": "",
-    "after async": " ",
+    "before start": "",
+    "after start": " ",
     "before expression": "",
     "after expression": "",
     "before .": "",
@@ -453,11 +497,25 @@
     "before functionNode": "",
     "after functionNode": ""
   },
+  "Limit": {
+    "before limit": " ",
+    "after limit": "",
+    "before limitValue": " ",
+    "after limitValue": ""
+  },
   "Literal": {
     "before unescapedValue": "",
     "after unescapedValue": "",
     "before value": "",
     "after value": ""
+  },
+  "Lock": {
+    "before lock": "",
+    "after lock": "",
+    "before {": "",
+    "after {": "",
+    "before }": "",
+    "after }": ""
   },
   "Match": {
     "before match": "",
@@ -484,8 +542,8 @@
     "after }": ""
   },
   "MatchExpression": {
-    "before expr":"",
-    "after expr": " ",
+    "before expression":"",
+    "after expression": " ",
     "before but": "",
     "after but": " ",
     "before {": "",
@@ -541,6 +599,38 @@
     "before }":"",
     "after }": ""
   },
+  "OrderBy": {
+    "before order": "",
+    "after order": "",
+    "before by":"",
+    "after by": ""
+  },
+  "OrderByVariable": {
+    "before orderByType": " ",
+    "after orderByType": ""
+  },
+  "PostIncrement": {
+    "before variable": "",
+    "after variable": "",
+    "before operator": "",
+    "after operator": "",
+    "before ;": "",
+    "after ;": ""
+  },
+  "Record": {
+    "before type": "",
+    "after type": " ",
+    "before name": "",
+    "after name": " ",
+    "before {": "",
+    "after {": "",
+    "before fields": "",
+    "after fields": "",
+    "before }": "",
+    "after }": "",
+    "before ;": "",
+    "after ;": ""
+  },
   "RecordLiteralExpr": {
     "before {": "",
     "after {": "",
@@ -583,11 +673,15 @@
     "before }": "",
     "after }": ""
   },
+  "RestArgsExpr": {
+    "before ...": "",
+    "after ...": "",
+    "before expression": "",
+    "after expression": ""
+  },
   "Retry": {
     "before retry": "",
     "after retry": "",
-    "before count": " ",
-    "after count": "",
     "before ;": "",
     "after ;": ""
   },
@@ -598,6 +692,16 @@
     "after expressions": "",
     "before ;": "",
     "after ;": ""
+  },
+  "SelectClause": {
+    "before select": "",
+    "after select": ""
+  },
+  "SelectExpression": {
+    "before as": " ",
+    "after as": "",
+    "before identifier": " ",
+    "after identifier": ""
   },
   "Service": {
     "before annotationAttachments": "",
@@ -641,6 +745,10 @@
     "before }}": "",
     "after }}": ""
   },
+  "StreamingQuery": {
+    "before from": "",
+    "after from": ""
+  },
   "StringTemplateLiteral": {
     "before string\\u0020`": "",
     "after string\\u0020`": "",
@@ -648,6 +756,18 @@
     "after expressions": "",
     "before `": "",
     "after `": ""
+  },
+  "Table": {
+    "before table": "",
+    "after table": ""
+  },
+  "TableQuery": {
+    "before from": "",
+    "after from": ""
+  },
+  "TableQueryExpression": {
+    "before tableQuery": "",
+    "after tableQuery": ""
   },
   "TernaryExpr": {
     "before condition": "",
@@ -801,6 +921,16 @@
     "before expression": "",
     "after expression": ""
   },
+  "TypeDefinition": {
+    "before type":"",
+    "after type":" ",
+    "before name":"",
+    "after name":" "
+  },
+  "TypedescExpression": {
+    "before typeNode": "",
+    "after typeNode": ""
+  },
   "TypeofExpression": {
     "before typeof": "",
     "after typeof": "",
@@ -848,10 +978,10 @@
     "after typeKind": ""
   },
   "Variable": {
-    "before typeNode": "",
-    "after typeNode": "",
+    "before endpoint": "",
+    "after endpoint": "",
     "before name": " ",
-    "after name": "",
+    "after name": " ",
     "before {": "",
     "after {": "",
     "before initialExpression": "",
@@ -877,6 +1007,10 @@
     "before ;": "",
     "after ;": ""
   },
+  "Where": {
+    "before where": "",
+    "after where": ""
+  },
   "While": {
     "before while": "",
     "after while": "",
@@ -892,6 +1026,10 @@
     "after body": "",
     "before }": "",
     "after }": ""
+  },
+  "WindowClause": {
+    "before window": "",
+    "after window": ""
   },
   "Worker": {
     "before worker": "",

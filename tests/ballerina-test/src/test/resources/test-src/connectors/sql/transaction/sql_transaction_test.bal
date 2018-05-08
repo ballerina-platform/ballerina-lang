@@ -1,4 +1,4 @@
-import ballerina/sql;
+import ballerina/jdbc;
 import ballerina/io;
 import ballerina/runtime;
 
@@ -7,10 +7,10 @@ type ResultCount {
 };
 
 function testLocalTransacton() returns (int, int) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+    endpoint jdbc:Client  testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     int returnVal = 0;
@@ -24,21 +24,21 @@ function testLocalTransacton() returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    var temp = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 200", ResultCount);
-    table dt = check temp;
+    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 200", ResultCount
+    );
     while (dt.hasNext()) {
         var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB->close();
+    testDB.stop();
     return (returnVal, count);
 }
 
 function testTransactonRollback() returns (int, int) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+    endpoint jdbc:Client  testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     int returnVal = 0;
@@ -56,22 +56,22 @@ function testTransactonRollback() returns (int, int) {
 
 
     //check whether update action is performed
-    var temp = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 210", ResultCount);
-    table dt = check temp;
+    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 210", ResultCount
+    );
 
     while (dt.hasNext()) {
         var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB->close();
+    testDB.stop();
     return (returnVal, count);
 }
 
 function testTransactonAbort() returns (int, int) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+    endpoint jdbc:Client  testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     int returnVal = -1;
@@ -91,21 +91,21 @@ function testTransactonAbort() returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    var temp = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 220", ResultCount);
-    var dt = check temp;
+    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 220", ResultCount
+    );
     while (dt.hasNext()) {
         var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB->close();
+    testDB.stop();
     return (returnVal, count);
 }
 
 function testTransactonErrorThrow() returns (int, int, int) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+    endpoint jdbc:Client  testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     int returnVal = 0;
@@ -117,7 +117,7 @@ function testTransactonErrorThrow() returns (int, int, int) {
                       registrationID,creditLimit,country) values ('James', 'Clerk', 260, 5000.75, 'USA')");
             int i = 0;
             if (i == 0) {
-                error err = {message:"error"};
+                error err = { message: "error" };
                 throw err;
             }
         } onretry {
@@ -127,21 +127,21 @@ function testTransactonErrorThrow() returns (int, int, int) {
         catchValue = -1;
     }
     //check whether update action is performed
-    var temp = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 260", ResultCount);
-    table dt = check temp;
+    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 260", ResultCount
+    );
     while (dt.hasNext()) {
         var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB->close();
+    testDB.stop();
     return (returnVal, catchValue, count);
 }
 
 function testTransactionErrorThrowAndCatch() returns (int, int, int) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+    endpoint jdbc:Client  testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     int returnVal = 0;
@@ -153,7 +153,7 @@ function testTransactionErrorThrowAndCatch() returns (int, int, int) {
         int i = 0;
         try {
             if (i == 0) {
-                error err = {message:"error"};
+                error err = { message: "error" };
                 throw err;
             }
         } catch (error err) {
@@ -163,21 +163,21 @@ function testTransactionErrorThrowAndCatch() returns (int, int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    var temp = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 250", ResultCount);
-    table dt = check temp;
+    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 250", ResultCount
+    );
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB->close();
+    testDB.stop();
     return (returnVal, catchValue, count);
 }
 
 function testTransactonCommitted() returns (int, int) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+    endpoint jdbc:Client  testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     int returnVal = 1;
@@ -191,21 +191,21 @@ function testTransactonCommitted() returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    var temp = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 300", ResultCount);
-    table dt = check temp;
+    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 300", ResultCount
+    );
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB->close();
+    testDB.stop();
     return (returnVal, count);
 }
 
 function testTwoTransactons() returns (int, int, int) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+    endpoint jdbc:Client  testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     int returnVal1 = 1;
@@ -229,21 +229,21 @@ function testTwoTransactons() returns (int, int, int) {
         returnVal2 = 0;
     }
     //check whether update action is performed
-    var temp = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 400", ResultCount);
-    table dt = check temp;
+    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 400", ResultCount
+    );
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB->close();
+    testDB.stop();
     return (returnVal1, returnVal2, count);
 }
 
 function testTransactonWithoutHandlers() returns (int) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+    endpoint jdbc:Client  testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     transaction {
@@ -255,22 +255,21 @@ function testTransactonWithoutHandlers() returns (int) {
 
     int count;
     //check whether update action is performed
-    var temp = testDB->select("Select COUNT(*) as countval from Customers where
-                                      registrationID = 350", ResultCount);
-    table dt = check temp;
+    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 350", ResultCount
+    );
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB->close();
+    testDB.stop();
     return count;
 }
 
 function testLocalTransactionFailed() returns (string, int) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+    endpoint jdbc:Client  testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     string a = "beforetx";
@@ -291,21 +290,21 @@ function testLocalTransactionFailed() returns (string, int) {
 
     }
     a = a + " afterTrx";
-    var temp = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 111", ResultCount);
-    table dt = check temp;
+    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 111", ResultCount
+    );
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB->close();
+    testDB.stop();
     return (a, count);
 }
 
 function testLocalTransactonSuccessWithFailed() returns (string, int) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+    endpoint jdbc:Client  testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     string a = "beforetx";
@@ -331,27 +330,27 @@ function testLocalTransactonSuccessWithFailed() returns (string, int) {
         a = a + " inCatch";
     }
     a = a + " afterTrx";
-    var temp = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 222", ResultCount);
-    table dt = check temp;
+    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 222", ResultCount
+    );
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB->close();
+    testDB.stop();
     return (a, count);
 }
 
 function testLocalTransactonFailedWithNextupdate() returns (int) {
-    endpoint sql:Client testDB1 {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+    endpoint jdbc:Client  testDB1 {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
-    endpoint sql:Client testDB2 {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+    endpoint jdbc:Client  testDB2 {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     int i = 0;
@@ -366,23 +365,23 @@ function testLocalTransactonFailedWithNextupdate() returns (int) {
     _ = testDB1->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 12343, 5000.75, 'USA')");
 
-    _ = testDB1->close();
+    testDB1.stop();
 
-    var temp = testDB2->select("Select COUNT(*) as countval from Customers where registrationID = 12343", ResultCount);
-    table dt = check temp;
+    table dt = check testDB2->select("Select COUNT(*) as countval from Customers where registrationID = 12343",
+        ResultCount);
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
         i = rs.COUNTVAL;
     }
-    _ = testDB2->close();
+    testDB2.stop();
     return i;
 }
 
 function testNestedTwoLevelTransactonSuccess() returns (int, int) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+    endpoint jdbc:Client  testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     int returnVal = 0;
@@ -398,21 +397,21 @@ function testNestedTwoLevelTransactonSuccess() returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    var temp = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 333", ResultCount);
-    table dt = check temp;
+    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 333", ResultCount
+    );
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB->close();
+    testDB.stop();
     return (returnVal, count);
 }
 
 function testNestedThreeLevelTransactonSuccess() returns (int, int) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+    endpoint jdbc:Client  testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     int returnVal = 0;
@@ -432,21 +431,21 @@ function testNestedThreeLevelTransactonSuccess() returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    var temp = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 444", ResultCount);
-    table dt = check temp;
+    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 444", ResultCount
+    );
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB->close();
+    testDB.stop();
     return (returnVal, count);
 }
 
 function testNestedThreeLevelTransactonFailed() returns (int, int) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+    endpoint jdbc:Client  testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     int returnVal = 0;
@@ -470,21 +469,21 @@ function testNestedThreeLevelTransactonFailed() returns (int, int) {
         // ignore.
     }
     //check whether update action is performed
-    var temp = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 555", ResultCount);
-    table dt = check temp;
+    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 555", ResultCount
+    );
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB->close();
+    testDB.stop();
     return (returnVal, count);
 }
 
 function testNestedThreeLevelTransactonFailedWithRetrySuccess() returns (int, int, string) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+    endpoint jdbc:Client  testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     int returnVal = 0;
@@ -524,70 +523,29 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess() returns (int, in
         // ignore.
     }
     //check whether update action is performed
-    var temp = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 666", ResultCount);
-    table dt = check temp;
+    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 666", ResultCount
+    );
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB->close();
+    testDB.stop();
     return (returnVal, count, a);
 }
 
-function testTransactionWithWorkers() returns (int) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username:"SA",
-        poolOptions:{maximumPoolSize:2}
-    };
-
-    transaction {
-        invokeWorkers(testDB);
-    }
-
-    //check whether update action is performed
-    int count;
-    var temp = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 834", ResultCount);
-    table dt = check temp;
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count = rs.COUNTVAL;
-    }
-    _ = testDB->close();
-    return count;
-}
-
-function invokeWorkers(sql:Client testDBClient) {
-    endpoint sql:Client testDB = testDBClient;
-
-
-    worker w1 {
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                            values ('Anne', 'Clerk', 834, 5000.75, 'USA')");
-    }
-
-    worker w2 {
-        runtime:sleep(5000);
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                            values ('James', 'Clerk', 834, 5000.75, 'USA')");
-    }
-
-}
-
 function testCloseConnectionPool() returns (int) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+    endpoint jdbc:Client  testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     int count;
-    var temp = testDB->select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", ResultCount);
-    table dt = check temp;
+    table dt = check testDB->select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", ResultCount);
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB->close();
+    testDB.stop();
     return count;
 }

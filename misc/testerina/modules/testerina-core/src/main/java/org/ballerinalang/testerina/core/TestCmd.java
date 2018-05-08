@@ -20,22 +20,25 @@ package org.ballerinalang.testerina.core;
 import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-import com.beust.jcommander.ParameterDescription;
 import com.beust.jcommander.Parameters;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.testerina.util.Utils;
+import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.parser.ManifestProcessor;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.VMOptions;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,10 +55,7 @@ public class TestCmd implements BLauncherCmd {
     private static final PrintStream errStream = System.err;
     private static final PrintStream outStream = System.out;
 
-
-    private JCommander parentCmdParser;
-
-    @Parameter(arity = 1, description = "ballerina package/s to be tested")
+    @Parameter(arity = 1, description = "ballerina package/files to be tested")
     private List<String> sourceFileList;
 
     @Parameter(names = { "--help", "-h" }, hidden = true)
@@ -88,14 +88,35 @@ public class TestCmd implements BLauncherCmd {
 
     public void execute() {
         if (helpFlag) {
-            printCommandUsageInfo(parentCmdParser, "test");
+            outStream.println(BLauncherCmd.getCommandUsageInfo("test"));
             return;
         }
 
+        if (sourceFileList != null && sourceFileList.size() > 1) {
+            throw LauncherUtils.createUsageException("Too many arguments. You can only provide a single package or a" +
+                                                     " single file to test command");
+        }
+
+        Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
+        SourceDirectory srcDirectory = null;
         if (sourceFileList == null || sourceFileList.isEmpty()) {
-            Path userDir = Paths.get(System.getProperty("user.dir"));
-            SourceDirectory srcDirectory = new FileSystemProjectDirectory(userDir);
+            srcDirectory = new FileSystemProjectDirectory(sourceRootPath);
             sourceFileList = srcDirectory.getSourcePackageNames();
+        } else if (sourceFileList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+            Path sourceFilePath = Paths.get(sourceFileList.get(0));
+            if (sourceFilePath.isAbsolute()) {
+                sourceRootPath = sourceFilePath.getParent();
+            } else {
+                sourceRootPath = sourceRootPath.resolve(sourceFilePath).getParent();
+            }
+            Path fileName = sourceFilePath.getFileName();
+            if (fileName == null) {
+                throw new BallerinaIOException("Provided ballerina file doesn't exist!");
+            }
+            sourceFileList.clear();
+            sourceFileList.add(fileName.toString());
+        } else {
+            srcDirectory = new FileSystemProjectDirectory(sourceRootPath);
         }
 
         if (groupList != null && disableGroupList != null) {
@@ -110,7 +131,6 @@ public class TestCmd implements BLauncherCmd {
         // Setting the vm options
         VMOptions.getInstance().addOptions(vmOptions);
 
-        Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
         // Setting the source root so it can be accessed from anywhere
         System.setProperty(TesterinaConstants.BALLERINA_SOURCE_ROOT, sourceRootPath.toString());
         try {
@@ -122,6 +142,11 @@ public class TestCmd implements BLauncherCmd {
 
         Path[] paths = sourceFileList.stream().map(Paths::get).toArray(Path[]::new);
 
+        if (srcDirectory != null) {
+            Manifest manifest = readManifestConfigurations();
+            String orgName = manifest.getName();
+            TesterinaRegistry.getInstance().setOrgName(orgName);
+        }
         BTestRunner testRunner = new BTestRunner();
         if (listGroups) {
             testRunner.listGroups(sourceRootPath.toString(), paths);
@@ -147,109 +172,34 @@ public class TestCmd implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Complies and Run Ballerina test sources (*_test.bal) and prints " + System.lineSeparator());
-        out.append("a summary of test results" + System.lineSeparator() + System.lineSeparator());
     }
 
     @Override
     public void printUsage(StringBuilder stringBuilder) {
-        stringBuilder.append("ballerina test <filename>" + System.lineSeparator());
-        stringBuilder.append("ballerina test command will have -mock flag enabled by default" + System.lineSeparator());
-        stringBuilder.append(System.lineSeparator());
-    }
-
-    private static void printCommandUsageInfo(JCommander cmdParser, String commandName) {
-        StringBuilder out = new StringBuilder();
-        JCommander jCommander = cmdParser.getCommands().get(commandName);
-        BLauncherCmd bLauncherCmd = (BLauncherCmd) jCommander.getObjects().get(0);
-
-        out.append(cmdParser.getCommandDescription(commandName)).append("\n");
-        out.append("\n");
-        out.append("Usage:\n");
-        bLauncherCmd.printUsage(out);
-        out.append("\n");
-
-        if (jCommander.getCommands().values().size() != 0) {
-            out.append("Available Commands:\n");
-            printCommandList(jCommander, out);
-            out.append("\n");
-        }
-
-        printFlags(jCommander.getParameters(), out);
-        errStream.println(out.toString());
-    }
-
-    private static void printCommandList(JCommander cmdParser, StringBuilder out) {
-        int longestNameLen = 0;
-        for (JCommander commander : cmdParser.getCommands().values()) {
-            BLauncherCmd cmd = (BLauncherCmd) commander.getObjects().get(0);
-            if (cmd.getName().equals("default-cmd") || cmd.getName().equals("help")) {
-                continue;
-            }
-
-            int length = cmd.getName().length() + 2;
-            if (length > longestNameLen) {
-                longestNameLen = length;
-            }
-        }
-
-        for (JCommander commander : cmdParser.getCommands().values()) {
-            BLauncherCmd cmd = (BLauncherCmd) commander.getObjects().get(0);
-            if (cmd.getName().equals("default-cmd") || cmd.getName().equals("help")) {
-                continue;
-            }
-
-            String cmdName = cmd.getName();
-            String cmdDesc = cmdParser.getCommandDescription(cmdName);
-
-            int noOfSpaces = longestNameLen - (cmd.getName().length() + 2);
-            char[] charArray = new char[noOfSpaces + 4];
-            Arrays.fill(charArray, ' ');
-            out.append("  ").append(cmdName).append(new String(charArray)).append(cmdDesc).append("\n");
-        }
-    }
-
-    private static void printFlags(List<ParameterDescription> paramDescs, StringBuilder out) {
-        int longestNameLen = 0;
-        int count = 0;
-        for (ParameterDescription parameterDesc : paramDescs) {
-            if (parameterDesc.getParameter().hidden()) {
-                continue;
-            }
-
-            String names = parameterDesc.getNames();
-            int length = names.length() + 2;
-            if (length > longestNameLen) {
-                longestNameLen = length;
-            }
-            count++;
-        }
-
-        if (count == 0) {
-            return;
-        }
-        out.append("Flags:\n");
-        for (ParameterDescription parameterDesc : paramDescs) {
-            if (parameterDesc.getParameter().hidden()) {
-                continue;
-            }
-            String names = parameterDesc.getNames();
-            String desc = parameterDesc.getDescription();
-            int noOfSpaces = longestNameLen - (names.length() + 2);
-            char[] charArray = new char[noOfSpaces + 4];
-            Arrays.fill(charArray, ' ');
-            out.append("  ").append(names).append(new String(charArray)).append(desc).append("\n");
-        }
     }
 
     @Override
     public void setParentCmdParser(JCommander parentCmdParser) {
-        this.parentCmdParser = parentCmdParser;
     }
 
     @Override
     public void setSelfCmdParser(JCommander selfCmdParser) {
         // ignore
 
+    }
+
+    /**
+     * Read the manifest.
+     *
+     * @return manifest configuration object
+     */
+    private static Manifest readManifestConfigurations() {
+        String tomlFilePath = Paths.get(".").toAbsolutePath().normalize().resolve
+            (ProjectDirConstants.MANIFEST_FILE_NAME).toString();
+        try {
+            return ManifestProcessor.parseTomlContentFromFile(tomlFilePath);
+        } catch (IOException e) {
+            return new Manifest();
+        }
     }
 }

@@ -208,10 +208,8 @@ public class ServiceTest {
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        Assert.assertNotNull(bJson);
-        Assert.assertEquals(bJson.value().get("Name").stringValue(), "");
-        Assert.assertEquals(bJson.value().get("Team").stringValue(), "");
+        Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), "Error occurred while retrieving " +
+                "text data from entity : String payload is null");
     }
 
     @Test(description = "Test GetFormParams with unsupported media type")

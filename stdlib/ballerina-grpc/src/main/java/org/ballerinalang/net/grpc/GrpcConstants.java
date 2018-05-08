@@ -49,7 +49,6 @@ public class GrpcConstants {
     public static final String GRPC_SERVER = "SERVER";
     public static final String SERVICE_ENDPOINT_TYPE = "Listener";
     public static final String CALLER_ACTION = "CallerAction";
-    public static final String MESSAGE_CONTEXT = "MessageHeaders";
     public static final String RESPONSE_OBSERVER = "RESPONSE_OBSERVER";
     public static final String RESPONSE_MESSAGE_DEFINITION = "RESPONSE_DEFINITION";
     public static final int CLIENT_RESPONDER_REF_INDEX = 0;
@@ -74,7 +73,7 @@ public class GrpcConstants {
     public static final String REQUEST_MESSAGE_DEFINITION = "REQUEST_DEFINITION";
 
     public static final String CLIENT = "Client";
-    public static final String ANN_RESOURCE_CONFIG = "resourceConfig";
+    public static final String ANN_RESOURCE_CONFIG = "ResourceConfig";
     public static final String EMPTY_STRING = "";
     public static final String TRUST_FILE = "trustStoreFile";
     public static final String KEY_FILE = "keyStoreFile";
@@ -150,8 +149,7 @@ public class GrpcConstants {
     public static final String TARGET_SERVICES = "targets";
     public static final String SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
     public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
-    public static final int GRPC_DEFAULT_PORT = 9090;
-    
+
     public static final String ENDPOINT_CONFIG_TRUST_STORE = "trustStore";
     public static final String FILE_PATH = "path";
     public static final String PASSWORD = "password";

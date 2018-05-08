@@ -64,8 +64,8 @@ function testBasicArray1 (string[] values) returns string {
 }
 
 function mapString (string x) returns (string, string) {
-    string up = x.toUpperCase();
-    string lower = x.toLowerCase();
+    string up = x.toUpper();
+    string lower = x.toLower();
     return (up, lower);
 }
 
@@ -90,7 +90,7 @@ function testBasicMap1 () returns (int, string[]) {
     map<string> m = {a:"A", b:"B", c:"C", d:"D", e:"E"};
     int count = m.count();
     string[] values = m.map((string value) => (string) {
-                                return value.toLowerCase();
+                                return value.toLower();
                             })
                       .filter((string v) => (boolean) {
                                   if (v == "a" || v == "e") {
@@ -122,31 +122,32 @@ function concatString ((string, string) v) returns (string) {
     var (v1, v2) = v;
     return v1 + v2;
 }
-//
-//json j1 = {name:"bob", age:10, pass:true, subjects:[{subject:"maths", marks:75}, {subject:"English", marks:85}]};
-//function jsonTest () returns (string, string[], int, int, string[]) {
-//    output = "";
-//    j1.foreach((json j) => {
-//                   output = output + (j.toString() but { () => "" });
-//               });
-//
-//    string[] sa = j1.map((json j) => (string) {
-//                             return (j.toString() but { () => "" });
-//                         })
-//                  .filter((string s) => (boolean) {
-//                              return s == "bob";
-//                          });
-//
-//    int i1 = j1.count();
-//
-//    var ja = check <json[]>j1.subjects;
-//    string[] result = ja.map(((int, json) tuple) => (string) {
-//                                 var (i, j) = tuple;
-//                                 return  i + "->" + (j.toString() but { () => "" });
-//                             });
-//
-//    return (output, sa, i1, j1.count(), result);
-//}
+
+json j1 = {name:"bob", age:10, pass:true, subjects:[{subject:"maths", marks:75}, {subject:"English", marks:85}]};
+
+function jsonTest () returns (string, string[], int, int, string[]) {
+    output = "";
+    j1.foreach((json j) => {
+                   output = output + j.toString();
+               });
+
+    string[] sa = j1.map((json j) => (string) {
+                             return j.toString();
+                         })
+                  .filter((string s) => (boolean) {
+                              return s == "bob";
+                          });
+
+    int i1 = j1.count();
+
+    var ja = check <json[]>j1.subjects;
+    string[] result = ja.map(((int, json) tuple) => (string) {
+                                 var (i, j) = tuple;
+                                 return  i + "->" + j.toString();
+                             });
+
+    return (output, sa, i1, j1.count(), result);
+}
 
 function xmlTest() returns (int, int, map) {
     xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">

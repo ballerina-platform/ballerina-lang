@@ -15,43 +15,47 @@
 // under the License.
 
 documentation {
-    Represents the gRPC client endpoint
+    The gRPC client endpoint provides the capability for initiating contact with a remote gRPC service. The API it
+    provides includes functions to send request/error messages.
 }
 public type Client object {
 
     documentation {
-        Gets called when the endpoint is being initialize during package init time
+        Gets invoked to initialize the endpoint. During initialization, configurations provided through the `config`
+        record is used for endpoint initialization.
 
         P{{config}} - The ClientEndpointConfig of the endpoint.
     }
     public native function init(ClientEndpointConfig config);
 
     documentation {
-        Gets called every time a service attaches itself to this endpoint - also happens at package
-    init time. not supported in client connector
+        Gets called every time a service attaches itself to this endpoint - also happens at package init time.
+        Not supported in client endpoint.
 
         P{{serviceType}} - The type of the service to be registered.
     }
     public native function register(typedesc serviceType);
 
     documentation {
-        Starts the registered service
+        Starts the registered service. Not supported in client endpoint.
     }
     public native function start();
 
     documentation {
-        Stops the registered service
+        Stops the registered. Not supported in client endpoint.
     }
     public native function stop();
 
     documentation {
-        Returns the client connection that servicestub code uses
+        Returns the client connection which is used to send message to server.
+
+        R{{}} - Client connection.
     }
-    public native function getCallerActions() returns (GrpcClient);
+    public native function getCallerActions() returns GrpcClient;
 };
 
 documentation {
-    Represents the gRPC client endpoint configuration
+    Represents client endpoint configuration.
 
     F{{url}} - The server url.
     F{{secureSocket}} - The SSL configurations for the client endpoint.
@@ -62,13 +66,14 @@ public type ClientEndpointConfig {
 };
 
 documentation {
-    SecureSocket struct represents SSL/TLS options to be used for gRPC client invocation
+    SecureSocket struct represents SSL/TLS options to be used for gRPC client invocation.
 
     F{{trustStore}} - TrustStore related options.
     F{{keyStore}} - KeyStore related options.
-    F{{protocols}} - SSL/TLS protocol related options.
+    F{{protocol}} - SSL/TLS protocol related options.
     F{{certValidation}} - Certificate validation against CRL or OCSP related options.
-    F{{ciphers}} - List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA.
+    F{{ciphers}} - List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+                   TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA.
     F{{verifyHostname}} - Enable/disable host name verification.
     F{{shareSession}} - Enable/disable new ssl session creation.
     F{{ocspStapling}} - Enable/disable ocsp stapling.

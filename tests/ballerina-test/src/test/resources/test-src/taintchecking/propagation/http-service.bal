@@ -9,7 +9,7 @@ service<http:Service> sample bind helloWorldEP {
         methods:["GET"],
         path:"/path/{foo}"
     }
-    params (endpoint outboundEP, http:Request req, string foo) {
+    params (endpoint caller, http:Request req, string foo) {
         map paramsMap = req.getQueryParams();
         var bar = paramsMap.bar;
 

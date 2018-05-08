@@ -68,21 +68,28 @@ public class MatchExpressionTest {
     }
 
     @Test
-    public void testMatchExprWithImplicitDefault() {
-        BValue[] results =
-                BRunUtil.invoke(compileResult, "testMatchExprWithImplicitDefault", new BValue[] { new BInteger(20) });
+    public void testMatchExprWithImplicitDefault_1() {
+        BValue[] results = BRunUtil.invoke(compileResult, "testMatchExprWithImplicitDefault_1",
+                new BValue[] { new BInteger(20) });
         Assert.assertEquals(results[0].stringValue(), "value1");
 
-        results = BRunUtil.invoke(compileResult, "testMatchExprWithImplicitDefault", new BValue[] { new BFloat(3.4) });
+        results =
+                BRunUtil.invoke(compileResult, "testMatchExprWithImplicitDefault_1", new BValue[] { new BFloat(3.4) });
         Assert.assertEquals(results[0].stringValue(), "value2");
 
         results = BRunUtil.invoke(compileResult, "getError");
-        results = BRunUtil.invoke(compileResult, "testMatchExprWithImplicitDefault", results);
+        results = BRunUtil.invoke(compileResult, "testMatchExprWithImplicitDefault_1", results);
         Assert.assertEquals(results[0].stringValue(), "value3");
 
-        results = BRunUtil.invoke(compileResult, "testMatchExprWithImplicitDefault",
+        results = BRunUtil.invoke(compileResult, "testMatchExprWithImplicitDefault_1",
                 new BValue[] { new BString("John") });
         Assert.assertEquals(results[0].stringValue(), "John");
+    }
+
+    @Test
+    public void testMatchExprWithImplicitDefault_2() {
+        BValue[] results = BRunUtil.invoke(compileResult, "testMatchExprWithImplicitDefault_2");
+        Assert.assertEquals(results[0].stringValue(), "{\"name\":\"John\"}");
     }
 
     @Test
@@ -184,11 +191,11 @@ public class MatchExpressionTest {
         BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'string', found 'int'", 8, 36);
         BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'string', found 'float'", 9, 38);
         BAssertUtil.validateError(negativeResult, 2, "undefined symbol 's'", 21, 31);
-        BAssertUtil.validateError(negativeResult, 3, "A matching pattern cannot be guaranteed for types '[error]'", 27,
+        BAssertUtil.validateError(negativeResult, 3, "incompatible types: expected 'string', found 'string|error'", 27,
                 23);
         BAssertUtil.validateError(negativeResult, 4, "pattern will not be matched", 29, 21);
         BAssertUtil.validateError(negativeResult, 5,
-                "A matching pattern cannot be guaranteed for types '[float, error]'", 37, 18);
+                "incompatible types: expected 'string', found 'string|float|error'", 37, 18);
         BAssertUtil.validateError(negativeResult, 6, "operator '+' not defined for 'json' and 'string'", 47, 31);
     }
 }

@@ -47,7 +47,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.net.http.HttpConstants.HTTP_DEFAULT_PORT;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 
 /**
@@ -113,8 +112,6 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         String host = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_HOST);
         long port = endpointConfig.getIntField(HttpConstants.ENDPOINT_CONFIG_PORT);
         String keepAlive = endpointConfig.getRefField(HttpConstants.ENDPOINT_CONFIG_KEEP_ALIVE).getStringValue();
-        String transferEncoding =
-                endpointConfig.getRefField(HttpConstants.ENDPOINT_CONFIG_TRANSFER_ENCODING).getStringValue();
         Struct sslConfig = endpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         String httpVersion = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_VERSION);
         Struct requestLimits = endpointConfig.getStructField(HttpConstants.ENDPOINT_REQUEST_LIMITS);
@@ -128,20 +125,12 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             listenerConfiguration.setHost(host);
         }
 
-        if (port == HTTP_DEFAULT_PORT && configRegistry.contains("b7a.http.port")) {
-            port = Long.parseLong(configRegistry.getAsString("b7a.http.port"));
+        if (port == 0) {
+            throw new BallerinaConnectorException("Listener port is not defined!");
         }
         listenerConfiguration.setPort(Math.toIntExact(port));
 
         listenerConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAlive));
-
-        // For the moment we don't have to pass it down to transport as we only support
-        // chunking. Once we start supporting gzip, deflate, etc, we need to parse down the config.
-        if ((!transferEncoding.isEmpty()) && !HttpConstants.ANN_CONFIG_ATTR_CHUNKING
-                .equalsIgnoreCase(transferEncoding)) {
-            throw new BallerinaConnectorException("Unsupported configuration found for Transfer-Encoding : "
-                                                          + transferEncoding);
-        }
 
         // Set Request validation limits.
         if (requestLimits != null) {
@@ -188,7 +177,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
 
         if (maxEntityBodySize != -1) {
             if (maxEntityBodySize >= 0) {
-                requestSizeValidationConfig.setMaxEntityBodySize(Math.toIntExact(maxEntityBodySize));
+                requestSizeValidationConfig.setMaxEntityBodySize(maxEntityBodySize);
             } else {
                 throw new BallerinaConnectorException(
                         "Invalid configuration found for maxEntityBodySize : " + maxEntityBodySize);

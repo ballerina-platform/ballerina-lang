@@ -327,6 +327,9 @@ class SizingUtil {
      * @param {object} node function node
      */
     sizeFunctionNode(node) {
+        if (!node.body) {
+            return; // This is to handle function pointers in objects.
+        }
         const viewState = node.viewState;
         const functionBodyViewState = node.body.viewState;
         const cmp = viewState.components;
@@ -1094,6 +1097,7 @@ class SizingUtil {
         this.adjustToLambdaSize(node, viewState);
         this.sizeActionInvocationStatement(node);
         this.sizeClientResponderStatement(node);
+        this.sizeAwaitResponseStatement(node);
     }
 
     /**
@@ -1627,6 +1631,25 @@ class SizingUtil {
             viewState.bBox.h = this.config.actionInvocationStatement.height;
             viewState.components['statement-box'].h = this.config.actionInvocationStatement.height;
             viewState.alias = 'InvocationNode';
+            // Check if action invocation is async call.
+            if (TreeUtil.statementIsASync(node)) {
+                viewState.async = true;
+            }
+        }
+    }
+
+    /**
+     * Size statements containing await response invocation statements
+     * @param {node} node node to size
+     */
+    sizeAwaitResponseStatement(node) {
+        // This function gets called by statements containing action invocation expressions
+        if (TreeUtil.statementIsAwaitResponse(node) && TreeUtil.findCompatibleStart(node)) {
+            const viewState = node.viewState;
+            viewState.bBox.h = this.config.statement.height;
+            viewState.components['statement-box'].h = this.config.actionInvocationStatement.height;
+            viewState.alias = 'AwaitResponseNode';
+            viewState.expression = (TreeUtil.isAssignment(node)) ? node.variable.variableName.value : '';
         }
     }
 
@@ -1666,8 +1689,11 @@ class SizingUtil {
                 viewState.displayText = displayText.text;
             }
             if (TreeUtil.isExpressionStatement(node)) {
-                const exp = node.getExpression();
-                const argExpSource = exp.getArgumentExpressions().map((arg) => {
+                let exp2 = node.getExpression();
+                if (TreeUtil.isMatchExpression(exp2)) {
+                    exp2 = exp2.expression;
+                }
+                const argExpSource = exp2.argumentExpressions.map((arg) => {
                     return arg.getSource(true, true);
                 }).join(', ');
                 const displayText = this.getTextWidth(argExpSource, 0,
@@ -1853,6 +1879,16 @@ class SizingUtil {
      *
      */
     sizeValueTypeNode(node) {
+        // Not implemented.
+    }
+
+    /**
+     * Calculate dimention of AwaitExprNode nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeAwaitExprNode(node) {
         // Not implemented.
     }
 

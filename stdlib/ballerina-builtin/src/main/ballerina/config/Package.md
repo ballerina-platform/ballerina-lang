@@ -1,6 +1,6 @@
 ## Package overview
 
-The `ballerina/config` package provides the Config API to read configurations from environment variables, files in the TOML format, and command-line parameters and build a consolidated set of configurations. 
+The `ballerina/config` package provides the Config API to read configurations from environment variables, files in the TOML format, and command-line parameters, and build a consolidated set of configurations. 
 
 The precedence order for configuration lookup is as follows: 
 1. CLI parameters (used with the -e flag)
@@ -9,23 +9,23 @@ The precedence order for configuration lookup is as follows:
 
 If a configuration is defined in both a configuration file and as an environment variable, the environment variable takes precedence. Similarly, if the same is set as a CLI parameter, it replaces the value of the environment variable. This configuration resolution happens at the start of the program execution. Configurations can be set programmatically as well. 
 
-The Config API provides the capability to feed sensitive data (e.g., passwords) to Ballerina programs securely, by encrypting them. 
+The Config API provides the capability to feed sensitive data (e.g., passwords) to Ballerina programs securely by encrypting them. 
 
 
 ## Samples
 
 ### Setting configurations
 
-To explicitly specify a configuration file, the `--config` or `-c` flag can be used. If this flag is not set, when running a project, Ballerina looks for a `ballerina.conf` file in project root. When running a single file or a balx, it's picked from the same dir as balx or the source. The path to the configuration file can either be an absolute or a relative path. 
+To explicitly specify a configuration file, the `--config` or `-c` flag can be used. If this flag is not set when running a project, Ballerina looks for a `ballerina.conf` file in project root. When running a single file or a `.balx`, it's picked from the same directory as the `.balx` or source. The path to the configuration file can either be an absolute or a relative path. 
 
 ```sh
 ballerina run my-program.bal --config /path/to/conf/file/custom-config-file-name.conf
 ```
 
-A configuration file should conform to the TOML format. Ballerina only supports the following features of TOML: value types (string, int, float and boolean), tables and nested tables. 
+A configuration file should conform to the TOML format. Ballerina only supports the following features of TOML: value types (string, int, float and boolean), tables, and nested tables. 
 Given below is a sample:
 
-```
+```toml
 [b7a.http.tracelog]
 console=true
 path="./trace.log"
@@ -40,14 +40,14 @@ The following types can be given through a configuration file: `string`, `int`, 
 
 The same configs can be set using CLI parameters as follows.
 
-```
+```bash
 ballerina run my-program.bal -e b7a.http.tracelog.console=true -e b7a.http.tracelog.path=./trace.log 
   -e b7a.http.accesslog.console=true -e b7a.http.accesslog.path=./access.log
 ```
 
 Configurations in a file can be overridden by environment variables. To override a particular configuration, an environment variable that matches the configuration key must be set. As periods are not allowed in environment variables, periods in a configuration key should be replaced by underscores.
 
-```
+```bash
 // In Linux and Mac.
 $ export b7a_http_tracelog_path=”./trace.log”
 $ export b7a_http_accesslog_path=”./access.log”
@@ -57,7 +57,7 @@ $ set(x) b7a_http_tracelog_path=”./trace.log”
 $ set(x) b7a_http_accesslog_path=”./access.log”
 ```
 
-If the configurations need to be shared during runtime, they can be set using the `setConfig()` function. Such configs, too, are accessible to the entire BVM (Ballerina Virtual Machine). 
+If the configurations need to be shared during runtime, they can be set using the `setConfig()` function. Such configs are also available to the entire Ballerina Virtual Machine (BVM). 
 
 ```ballerina
 config:setConfig("john.country", "USA");
@@ -119,7 +119,7 @@ map serverAlphaMap  = config:getAsMap("b7a.http.tracelog"); // here, the map’s
 // represent config key-value pairs
 ```
 
-In the above configuration file, the `host` is specified as `@env:{TRACE_LOG_READER_HOST}`. When resolving the configurations, Ballerina looks for a variable named `TRACE_LOG_READER_HOST` in environment variables and maps `b7a.http.tracelog.host` to its value. 
+In the above configuration file, the `host` is specified as `@env:{TRACE_LOG_READER_HOST}`. When resolving the configurations, Ballerina looks for a variable named `TRACE_LOG_READER_HOST` in the environment variables and maps `b7a.http.tracelog.host` to its value. 
 
 ### Securing configuration values
 
@@ -141,20 +141,19 @@ Or add the following to the runtime command-line:
 ```
 This encrypted value can then be placed in a configuration file or provided as a CLI parameter.
 
-```
+```bash
 [admin]
 password=”@encrypted:{JqlfWNWKM6gYiaGnS0Hse1J9F/v48gUR0Kxfa5gwjcM=}”
 ```
 ### Reading config files with encrypted values
 
-When trying to run a Ballerina program with a configuration file that contains encrypted values, the user is prompted to enter the secret, which was used to encrypt the values. Values are decrypted only on demand, when an encrypted value is looked up using the `getAsString()` function.
+When trying to run a Ballerina program with a configuration file or CLI parameters that contain encrypted values, Ballerina will first check to see if the `b7a.config.secret` configuration is set. This configuration is used to set the path to a file containing the secret required to decrypt the configurations. If it is set, the secret is read, and the secret file is deleted.
 
-```
+If a secret file is not provided, the user is prompted to enter the secret. Values are decrypted only on demand when an encrypted value is looked up using the `getAsString()` function.
+
+```bash
 $ ballerina run program.bal 
 ballerina: enter secret for config value decryption:
 ```
 
-**Note**: *The same config file cannot contain values that are encrypted using different secrets.* 
-
-## Package contents
-
+**Note**: *The same config file cannot contain values that are encrypted using different secrets.*

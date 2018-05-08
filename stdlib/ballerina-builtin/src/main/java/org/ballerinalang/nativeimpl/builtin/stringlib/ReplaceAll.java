@@ -34,8 +34,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "builtin",
         functionName = "string.replaceAll",
-        args = {@Argument(name = "mainString", type = TypeKind.STRING),
-                @Argument(name = "replacePattern", type = TypeKind.STRING),
+        args = {@Argument(name = "s", type = TypeKind.STRING),
+                @Argument(name = "regex", type = TypeKind.STRING),
                 @Argument(name = "replaceWith", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
@@ -44,11 +44,11 @@ public class ReplaceAll extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        String mainString = context.getStringArgument(0);
-        String replacePattern = context.getStringArgument(1);
+        String s = context.getStringArgument(0);
+        String regex = context.getStringArgument(1);
         String replaceWith = context.getStringArgument(2);
 
-        String replacedString = mainString.replaceAll(replacePattern, replaceWith);
+        String replacedString = s.replaceAll(regex, replaceWith);
         context.setReturnValues(new BString(replacedString));
     }
 }

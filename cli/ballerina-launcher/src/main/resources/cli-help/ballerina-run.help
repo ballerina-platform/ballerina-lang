@@ -1,0 +1,94 @@
+NAME
+    Ballerina help run - Run Ballerina program source files, 
+    binaries, or packages
+
+SYNOPSIS
+     ballerina run [-e] [--offline] [--observe]
+         [--sourceroot] [-c|--config] [-B] 
+         <balfile | packagename | balxfile> [args...]  
+
+DESCRIPTION
+     Run command executes the given program or package. 
+
+     If a Ballerina source file (.bal file) or a source package is 
+     given, the run command compiles and runs it. The compilation 
+     is done internally and does not generate a binary file. 
+ 
+     You may use the Ballerina build command to compile a source and 
+     provide the generated binary file (.balx file) to the run command. 
+     The binary runs much faster than a source file, because the source 
+     file run requires a compilation phase. 
+
+     You must have either a main function or a service(s) or both in
+     order to run a program or a package. When both the main function
+     and services are present, run executes services first and then
+     executes the main function.
+
+OPTIONS
+     -e <key=value>
+         Sets Ballerina environment parameters as key/value pairs.
+         If multiple parameters need to be provided, each parameter
+         has to be specified using its own -e flag. Details of the
+         environment parameters that the Ballerina standard library
+         packages support can be found in the relevant API
+         documentation.
+
+     --offline
+         In a package build, the dependencies are always checked from 
+         the remote repository (Ballerina Central) to check for latest 
+         artifacts. If --offline is given, this remote check is not 
+         done and the local artifacts will be used instead. 
+
+     --observe
+         Enables observability for the Ballerina program and lets
+         users observe it through Jaeger (tracing) and Prometheus
+         (metrics) by default. If --observe is given, it will display
+         a log mentioning push/pull endpoints that will be used for
+         Jaeger and Prometheus. Moreover, default configurations of
+         Jaeger and Prometheus can be overridden using environment
+         parameters or by defining them in ballerina.conf.
+
+     --sourceroot <path>
+         Provides the path to be taken as the root of the source. 
+         Source will be looked up relative to the given source root 
+         path.
+
+     -c <config-file>
+     --config <config-file>
+         Provides the path to a Ballerina configuration file.
+         The configuration file format is a subset of the TOML file
+         format. It supports key/value pairs, tables, comments, and
+         string, int, float and boolean value types. If a config
+         file is not specified using [-c|--config], Ballerina looks
+         for a default configuration file named `ballerina.conf`
+         in the directory the source file(s) reside in.
+
+     -B <key=value>
+         Provides Ballerina VM options to be used by the runtime
+         when executing a Ballerina program or package. VM options
+         are key/value pairs. If multiple VM options need to be
+         provided, each option has to be specified using its
+         own -B flag.
+
+     args... 
+         The list of command line arguments for the Ballerina program 
+         being run. The semantics of these arguments are defined by 
+         the program design. 
+
+DEFAULT BEHAVIOR
+     Runs the main function in the given program or package.
+     If no main function is defined, it will look for a service. 
+     If no main function or service is present, the run command will fail.   
+
+EXAMPLES
+     Run hello source program  
+     $ ballerina run hello.bal
+
+     Run hello binary program  
+     $ ballerina run hello.balx
+
+     Run hello package  
+     $ ballerina run hello
+
+     Run math package with three program args: add, 10, and 5
+     $ ballerina run math add 10 5

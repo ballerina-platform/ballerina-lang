@@ -18,24 +18,38 @@
 import ballerina/log;
 import ballerina/auth;
 
-@Description {value:"Representation of JWT Auth handler for HTTP traffic"}
-@Field {value:"jwtAuthenticator: JWTAuthenticator instance"}
-@Field {value:"name: Authentication handler name"}
+documentation {
+    Representation of JWT Auth handler for HTTP traffic
+
+    F{{name}} Name of the auth handler
+    F{{jwtAuthenticator}} `JWTAuthenticator` instance
+}
 public type HttpJwtAuthnHandler object {
     public {
         string name;
         auth:JWTAuthProvider jwtAuthenticator;
     }
-    new (jwtAuthenticator) {
+    public new (jwtAuthenticator) {
         name = "jwt";
     }
+
+    documentation {
+        Checks if the request can be authenticated with JWT
+
+        P{{req}} `Request` instance
+        R{{}} true if can be authenticated, else false
+    }
     public function canHandle (Request req) returns (boolean);
+
+    documentation {
+        Authenticates the incoming request using JWT authentication
+
+        P{{req}} `Request` instance
+        R{{}} true if authenticated successfully, else false
+    }
     public function handle (Request req) returns (boolean);
 };
 
-@Description {value:"Intercepts a HTTP request for authentication"}
-@Param {value:"req: Request object"}
-@Return {value:"boolean: true if authentication is a success, else false"}
 public function HttpJwtAuthnHandler::canHandle (Request req) returns (boolean) {
     string authHeader;
     try {
@@ -56,9 +70,6 @@ public function HttpJwtAuthnHandler::canHandle (Request req) returns (boolean) {
     return false;
 }
 
-@Description {value:"Checks if the provided HTTP request can be authenticated with JWT authentication"}
-@Param {value:"req: Request object"}
-@Return {value:"boolean: true if its possible to authenticate with JWT auth, else false"}
 public function HttpJwtAuthnHandler::handle (Request req) returns (boolean) {
     string jwtToken = extractJWTToken(req);
     var isAuthenticated = self.jwtAuthenticator.authenticate(jwtToken);
@@ -67,12 +78,18 @@ public function HttpJwtAuthnHandler::handle (Request req) returns (boolean) {
             return authenticated;
         }
         error err => {
-            log:printErrorCause("Error while validating JWT token ", err);
+            log:printError("Error while validating JWT token ", err = err);
             return false;
         }
     }
 }
 
+documentation {
+        Extracts the JWT from the incoming request
+
+        P{{req}} `Request` instance
+        R{{}} Extracted JWT string
+    }
 function extractJWTToken (Request req) returns (string) {
     string authHeader = req.getHeader(AUTH_HEADER);
     string[] authHeaderComponents = authHeader.split(" ");

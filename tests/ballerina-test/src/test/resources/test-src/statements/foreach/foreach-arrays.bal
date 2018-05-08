@@ -289,7 +289,7 @@ function testEmptyStringCallee () {
     sArray[1] = "d1";
     sArray[3] = "d3";
     foreach i, v in sArray {
-        concatString(i, v.toUpperCase());
+        concatString(i, v.toUpper());
     }
 }
 

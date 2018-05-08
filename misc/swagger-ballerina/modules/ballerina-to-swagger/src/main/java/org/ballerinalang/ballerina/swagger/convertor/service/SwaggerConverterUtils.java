@@ -17,20 +17,25 @@
 package org.ballerinalang.ballerina.swagger.convertor.service;
 
 import io.swagger.models.Swagger;
+import io.swagger.parser.SwaggerParser;
+import io.swagger.parser.util.SwaggerDeserializationResult;
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.parser.converter.SwaggerConverter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.ballerina.swagger.convertor.Constants;
+import org.ballerinalang.ballerina.swagger.convertor.SwaggerConverterException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BFile;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
+import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -40,6 +45,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -65,32 +72,39 @@ public class SwaggerConverterUtils {
         BFile balFile = new BFile();
         balFile.setContent(ballerinaSource);
         //Create empty swagger object.
-        Swagger swaggerDefinition = new Swagger();
+        Swagger swagger = new Swagger();
         BallerinaFile ballerinaFile = lsCompiler.compileContent(balFile.getContent(), CompilerPhase.DEFINE);
         BLangCompilationUnit topCompilationUnit  = ballerinaFile.getBLangPackage().getCompilationUnits().get(0);
         String httpAlias = getAlias(topCompilationUnit, Constants.BALLERINA_HTTP_PACKAGE_NAME);
         String swaggerAlias = getAlias(topCompilationUnit, Constants.SWAGGER_PACKAGE_NAME);
         SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper(httpAlias, swaggerAlias);
-        String swaggerSource = StringUtils.EMPTY;
+        List<EndpointNode> endpoints = new ArrayList<>();
+
         for (TopLevelNode topLevelNode : topCompilationUnit.getTopLevelNodes()) {
+            if (topLevelNode instanceof BLangEndpoint) {
+                endpoints.add((EndpointNode) topLevelNode);
+            }
+
             if (topLevelNode instanceof BLangService) {
                 ServiceNode serviceDefinition = (ServiceNode) topLevelNode;
+                swagger = new SwaggerEndpointMapper()
+                        .convertBoundEndpointsToSwagger(endpoints, serviceDefinition, swagger);
                 // Generate swagger string for the mentioned service name.
                 if (StringUtils.isNotBlank(serviceName)) {
                     if (serviceDefinition.getName().getValue().equals(serviceName)) {
-                        swaggerDefinition = swaggerServiceMapper.convertServiceToSwagger(serviceDefinition);
+                        swagger = swaggerServiceMapper.convertServiceToSwagger(serviceDefinition, swagger);
                         break;
                     }
                 } else {
                     // If no service name mentioned, then generate swagger definition for the first service.
-                    swaggerDefinition = swaggerServiceMapper.convertServiceToSwagger(serviceDefinition);
+                    swagger = swaggerServiceMapper.convertServiceToSwagger(serviceDefinition, swagger);
                     break;
                 }
             }
         }
-        return swaggerServiceMapper.generateSwaggerString(swaggerDefinition);
-    }
 
+        return swaggerServiceMapper.generateSwaggerString(swagger);
+    }
 
     /**
      * This method will generate open API 3.X specification for given ballerina service. Since we will need to
@@ -100,39 +114,56 @@ public class SwaggerConverterUtils {
      * @param ballerinaSource ballerina source to be converted to swagger/OAS definition
      * @param serviceName specific service name within ballerina source that need to map OAS
      * @return Generated OAS3 string output.
-     * @throws IOException When error occurs while converting, parsing input source.
+     * @throws IOException when error occurs while converting, parsing input source.
+     * @throws SwaggerConverterException when error occurs while converting, parsing generated swagger source.
      */
-    public static String generateOAS3Definitions(String ballerinaSource, String serviceName) throws IOException {
+    public static String generateOAS3Definitions(String ballerinaSource, String serviceName)
+            throws IOException, SwaggerConverterException {
         // Get the ballerina model using the ballerina source code.
         BFile balFile = new BFile();
         balFile.setContent(ballerinaSource);
         //Create empty swagger object.
-        Swagger swaggerDefinition = new Swagger();
+        Swagger swagger = new Swagger();
+        String swaggerSource;
         BallerinaFile ballerinaFile = lsCompiler.compileContent(balFile.getContent(), CompilerPhase.DEFINE);
-        BLangCompilationUnit topCompilationUnit  = ballerinaFile.getBLangPackage().getCompilationUnits().get(0);
+        BLangCompilationUnit topCompilationUnit = ballerinaFile.getBLangPackage().getCompilationUnits().get(0);
         String httpAlias = getAlias(topCompilationUnit, Constants.BALLERINA_HTTP_PACKAGE_NAME);
         String swaggerAlias = getAlias(topCompilationUnit, Constants.SWAGGER_PACKAGE_NAME);
         SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper(httpAlias, swaggerAlias);
-        String swaggerSource = StringUtils.EMPTY;
+        List<EndpointNode> endpoints = new ArrayList<>();
+
         for (TopLevelNode topLevelNode : topCompilationUnit.getTopLevelNodes()) {
+            if (topLevelNode instanceof BLangEndpoint) {
+                endpoints.add((EndpointNode) topLevelNode);
+            }
+
             if (topLevelNode instanceof BLangService) {
                 ServiceNode serviceDefinition = (ServiceNode) topLevelNode;
+                swagger = new SwaggerEndpointMapper()
+                        .convertBoundEndpointsToSwagger(endpoints, serviceDefinition, swagger);
+
                 // Generate swagger string for the mentioned service name.
                 if (StringUtils.isNotBlank(serviceName)) {
                     if (serviceDefinition.getName().getValue().equals(serviceName)) {
-                        swaggerDefinition = swaggerServiceMapper.convertServiceToSwagger(serviceDefinition);
+                        swagger = swaggerServiceMapper.convertServiceToSwagger(serviceDefinition, swagger);
                         break;
                     }
                 } else {
                     // If no service name mentioned, then generate swagger definition for the first service.
-                    swaggerDefinition = swaggerServiceMapper.convertServiceToSwagger(serviceDefinition);
+                    swagger = swaggerServiceMapper.convertServiceToSwagger(serviceDefinition, swagger);
                     break;
                 }
             }
         }
-        swaggerSource = swaggerServiceMapper.generateSwaggerString(swaggerDefinition);
+        swaggerSource = swaggerServiceMapper.generateSwaggerString(swagger);
         SwaggerConverter converter = new SwaggerConverter();
-        return Yaml.pretty(converter.readContents(swaggerSource, null, null).getOpenAPI());
+        SwaggerDeserializationResult result = new SwaggerParser().readWithInfo(swaggerSource);
+
+        if (result.getMessages().size() > 0) {
+            throw new SwaggerConverterException("Please check if input source is valid and complete");
+        }
+
+        return Yaml.pretty(converter.convert(result).getOpenAPI());
     }
 
     /**
@@ -144,8 +175,10 @@ public class SwaggerConverterUtils {
      * @param outPath output path to write generated swagger file
      * @param serviceName if bal file contain multiple services, name of a specific service to build
      * @throws IOException when file operations fail
+     * @throws SwaggerConverterException when converting swagger definition fails
      */
-    public static void generateOAS3Definitions(Path servicePath, Path outPath, String serviceName) throws IOException {
+    public static void generateOAS3Definitions(Path servicePath, Path outPath, String serviceName)
+            throws IOException, SwaggerConverterException {
         String balSource = readFromFile(servicePath);
         String swaggerName = getSwaggerFileName(servicePath, serviceName);
 
@@ -218,12 +251,13 @@ public class SwaggerConverterUtils {
                 BLangImportPackage importPackage = (BLangImportPackage) topLevelNode;
                 String packagePath = importPackage.getPackageName().stream().map(BLangIdentifier::getValue).collect
                         (Collectors.joining("."));
+                packagePath = importPackage.getOrgName().toString() + '/' + packagePath;
                 if (packageName.equals(packagePath)) {
                     return importPackage.getAlias().getValue();
                 }
             }
         }
-        
+
         return null;
     }
 }

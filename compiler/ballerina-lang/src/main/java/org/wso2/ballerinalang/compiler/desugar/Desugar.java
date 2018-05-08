@@ -393,6 +393,8 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangService serviceNode) {
         SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.symbol.scope, env);
         serviceNode.resources = rewrite(serviceNode.resources, serviceEnv);
+        
+        serviceNode.nsDeclarations.forEach(xmlns -> serviceNode.initFunction.body.stmts.add(xmlns));
         serviceNode.vars.forEach(v -> {
             BLangAssignment assignment = (BLangAssignment) createAssignmentStmt(v.var);
             if (assignment.expr == null) {
@@ -402,6 +404,7 @@ public class Desugar extends BLangNodeVisitor {
                 serviceNode.initFunction.body.stmts.add(assignment);
             }
         });
+
         serviceNode.vars = rewrite(serviceNode.vars, serviceEnv);
         serviceNode.endpoints = rewrite(serviceNode.endpoints, serviceEnv);
         BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(serviceNode.pos, symTable.nilType);
@@ -768,7 +771,8 @@ public class Desugar extends BLangNodeVisitor {
         BSymbol ownerSymbol = xmlnsNode.symbol.owner;
 
         // Local namespace declaration in a function/resource/action/worker
-        if ((ownerSymbol.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+        if ((ownerSymbol.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE ||
+                (ownerSymbol.tag & SymTag.SERVICE) == SymTag.SERVICE) {
             generatedXMLNSNode = new BLangLocalXMLNS();
         } else {
             generatedXMLNSNode = new BLangPackageXMLNS();
@@ -1355,8 +1359,13 @@ public class Desugar extends BLangNodeVisitor {
                 continue;
             }
 
-            // Create local namepace declaration for all in-line namespace declarations
-            BLangLocalXMLNS xmlns = new BLangLocalXMLNS();
+            // Create namepace declaration for all in-line namespace declarations
+            BLangXMLNS xmlns;
+            if ((xmlElementLiteral.scope.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE) {
+                xmlns = new BLangPackageXMLNS();
+            } else {
+                xmlns = new BLangLocalXMLNS();
+            }
             xmlns.namespaceURI = attribute.value.concatExpr;
             xmlns.prefix = ((BLangXMLQName) attribute.name).localname;
             xmlns.symbol = (BXMLNSSymbol) attribute.symbol;
@@ -2442,7 +2451,7 @@ public class Desugar extends BLangNodeVisitor {
             return false;
         }
 
-        if (accessExpr.safeNavigate || isNullable(accessExpr.expr.type)) {
+        if (accessExpr.safeNavigate || safeNavigateType(accessExpr.expr.type)) {
             return true;
         }
 
@@ -2456,7 +2465,14 @@ public class Desugar extends BLangNodeVisitor {
         return false;
     }
 
-    private boolean isNullable(BType type) {
+    private boolean safeNavigateType(BType type) {
+        // Do not add safe navigation checks for JSON. Because null is a valid value for json,
+        // we handle it at runtime. This is also required to make function on json such as
+        // j.toString(), j.keys() to work.
+        if (type.tag == TypeTags.JSON) {
+            return false;
+        }
+
         if (type.isNullable()) {
             return true;
         }

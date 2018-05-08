@@ -34,12 +34,13 @@ public class HttpCallableUnitCallback implements CallableUnitCallback {
 
     @Override
     public void notifySuccess() {
-        //nothing to do, this will get invoked once resource finished execution
+        requestMessage.waitAndReleaseAllEntities();
     }
 
     @Override
     public void notifyFailure(BStruct error) {
         HttpUtil.handleFailure(requestMessage, error);
+        requestMessage.waitAndReleaseAllEntities();
     }
 
 }

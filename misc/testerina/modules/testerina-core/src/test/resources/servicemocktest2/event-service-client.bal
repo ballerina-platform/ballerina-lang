@@ -1,4 +1,3 @@
-
 import ballerina/http;
 import ballerina/io;
 import ballerina/mime;
@@ -10,18 +9,17 @@ public function getEvents () returns (json) {
     endpoint http:Client httpEndpoint {
         url:eventServiceEP
     };
-    http:Request req = new;
-    var response = httpEndpoint -> get("/", req);
+    var response = httpEndpoint -> get("/");
 
     match response {
                    http:Response resp => {
                         var jsonRes = resp.getJsonPayload();
                         match jsonRes {
                             json payload => return payload;
-                            mime:EntityError err => io:println(err);
+                            error err => io:println(err);
                         }
                    }
-                   http:HttpConnectorError err => io:println(err);
+                   error err => io:println(err);
     }
 
     return {};

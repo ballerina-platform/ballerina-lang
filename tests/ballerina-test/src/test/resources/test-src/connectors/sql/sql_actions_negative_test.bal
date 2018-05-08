@@ -1,4 +1,5 @@
 import ballerina/sql;
+import ballerina/jdbc;
 import ballerina/io;
 
 type ResultCustomers {
@@ -16,14 +17,14 @@ type ResultCustomers2 {
 };
 
 function testSelectData() returns (string) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
     string returnData;
     try {
-        var x = testDB->select("SELECT Name from Customers where registrationID = 1", (), ());
+        var x = testDB->select("SELECT Name from Customers where registrationID = 1", ());
 
         match x {
             table dt => {
@@ -36,16 +37,16 @@ function testSelectData() returns (string) {
         }
 
     } finally {
-        _ = testDB->close();
+        testDB.stop();
     }
     return returnData;
 }
 
 function testGeneratedKeyOnInsert() returns (string) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     string id = "";
@@ -56,7 +57,7 @@ function testGeneratedKeyOnInsert() returns (string) {
                              registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')", ());
 
         match x {
-            (int, string[])=> {
+            (int, string[]) => {
                 id = generatedID[0];
             }
             error err1 => {
@@ -65,59 +66,60 @@ function testGeneratedKeyOnInsert() returns (string) {
         }
 
     } finally {
-        _ = testDB->close();
+        testDB.stop();
     }
     return id;
 }
 
 function testCallProcedure() returns (string) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
     string returnData;
     try {
-        var x = testDB->call("{call InsertPersonDataInfo(100,'James')}", (), ());
+        var x = testDB->call("{call InsertPersonDataInfo(100,'James')}", ());
         match x {
             table[] dt => {
                 var j = check <json>dt[0];
                 returnData = io:sprintf("%j", j);
             }
+            () => returnData = "";
             error err1 => {
                 returnData = err1.message;
             }
         }
     } finally {
-        _ = testDB->close();
+        testDB.stop();
     }
     return returnData;
 }
 
 function testBatchUpdate() returns (string) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     int[] updateCount;
     string returnVal;
     try {
         //Batch 1
-        sql:Parameter para1 = (sql:TYPE_VARCHAR, "Alex");
-        sql:Parameter para2 = (sql:TYPE_VARCHAR, "Smith");
-        sql:Parameter para3 = (sql:TYPE_INTEGER, 20);
-        sql:Parameter para4 = (sql:TYPE_DOUBLE, 3400.5);
-        sql:Parameter para5 = (sql:TYPE_VARCHAR, "Colombo");
+        sql:Parameter para1 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
+        sql:Parameter para2 = { sqlType: sql:TYPE_VARCHAR, value: "Smith" };
+        sql:Parameter para3 = { sqlType: sql:TYPE_INTEGER, value: 20 };
+        sql:Parameter para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
+        sql:Parameter para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
         sql:Parameter[] parameters1 = [para1, para2, para3, para4, para5];
 
         //Batch 2
-        para1 = (sql:TYPE_VARCHAR, "Alex");
-        para2 = (sql:TYPE_VARCHAR, "Smith");
-        para3 = (sql:TYPE_INTEGER, 20);
-        para4 = (sql:TYPE_DOUBLE, 3400.5);
-        para5 = (sql:TYPE_VARCHAR, "Colombo");
+        para1 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
+        para2 = { sqlType: sql:TYPE_VARCHAR, value: "Smith" };
+        para3 = { sqlType: sql:TYPE_INTEGER, value: 20 };
+        para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
+        para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
         sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
 
         var x = testDB->batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
@@ -132,16 +134,16 @@ function testBatchUpdate() returns (string) {
             }
         }
     } finally {
-        _ = testDB->close();
+        testDB.stop();
     }
     return returnVal;
 }
 
 function testInvalidArrayofQueryParameters() returns (string) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     string returnData;
@@ -149,7 +151,7 @@ function testInvalidArrayofQueryParameters() returns (string) {
         xml x1 = xml `<book>The Lost World</book>`;
         xml x2 = xml `<book>The Lost World2</book>`;
         xml[] xmlDataArray = [x1, x2];
-        sql:Parameter para0 = (sql:TYPE_INTEGER, xmlDataArray);
+        sql:Parameter para0 = { sqlType: sql:TYPE_INTEGER, value: xmlDataArray };
         var x = testDB->select("SELECT FirstName from Customers where registrationID in (?)", (), para0);
 
         match x {
@@ -163,16 +165,16 @@ function testInvalidArrayofQueryParameters() returns (string) {
         }
 
     } finally {
-        _ = testDB->close();
+        testDB.stop();
     }
     return returnData;
 }
 
 function testCallProcedureWithMultipleResultSetsAndLowerConstraintCount() returns ((string, string)|error) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     var dtsRet = testDB->call("{call SelectPersonDataMultiple()}", [ResultCustomers]);
@@ -192,21 +194,22 @@ function testCallProcedureWithMultipleResultSetsAndLowerConstraintCount() return
                 firstName2 = rs.FIRSTNAME;
             }
 
-            _ = testDB->close();
+            testDB.stop();
             return (firstName1, firstName2);
         }
+        () => return ("", "");
         error e => {
-            _ = testDB->close();
+            testDB.stop();
             return e;
         }
     }
 }
 
 function testCallProcedureWithMultipleResultSetsAndHigherConstraintCount() returns ((string, string)|error) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     var dtsRet = testDB->call("{call SelectPersonDataMultiple()}", [ResultCustomers, ResultCustomers2, Person]);
@@ -226,21 +229,22 @@ function testCallProcedureWithMultipleResultSetsAndHigherConstraintCount() retur
                 firstName2 = rs.FIRSTNAME;
             }
 
-            _ = testDB->close();
+            testDB.stop();
             return (firstName1, firstName2);
         }
+        () => return ("", "");
         error e => {
-            _ = testDB->close();
+            testDB.stop();
             return e;
         }
     }
 }
 
 function testCallProcedureWithMultipleResultSetsAndNilConstraintCount() returns ((string, string)|error) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username:"SA",
-        poolOptions:{maximumPoolSize:1}
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
     };
 
     var dtsRet = testDB->call("{call SelectPersonDataMultiple()}", ());
@@ -262,8 +266,9 @@ function testCallProcedureWithMultipleResultSetsAndNilConstraintCount() returns 
 
             return (firstName1, firstName2);
         }
+        () => return ("", "");
         error e => {
-            _ = testDB->close();
+            testDB.stop();
             return e;
         }
     }

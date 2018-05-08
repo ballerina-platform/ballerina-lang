@@ -40,6 +40,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
@@ -67,22 +68,24 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
     }
 
     @Override
-    public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
+    public void onMessage(HTTPCarbonMessage inboundMessage) {
         try {
             HttpResource httpResource;
-            if (accessed(httpCarbonMessage)) {
-                httpResource = (HttpResource) httpCarbonMessage.getProperty(HTTP_RESOURCE);
-                extractPropertiesAndStartResourceExecution(httpCarbonMessage, httpResource);
+            if (accessed(inboundMessage)) {
+                httpResource = (HttpResource) inboundMessage.getProperty(HTTP_RESOURCE);
+                extractPropertiesAndStartResourceExecution(inboundMessage, httpResource);
                 return;
             }
-            httpResource = HttpDispatcher.findResource(httpServicesRegistry, httpCarbonMessage);
+            httpResource = HttpDispatcher.findResource(httpServicesRegistry, inboundMessage);
             if (HttpDispatcher.shouldDiffer(httpResource, hasFilters())) {
-                httpCarbonMessage.setProperty(HTTP_RESOURCE, httpResource);
+                inboundMessage.setProperty(HTTP_RESOURCE, httpResource);
                 return;
             }
-            extractPropertiesAndStartResourceExecution(httpCarbonMessage, httpResource);
+            if (httpResource != null) {
+                extractPropertiesAndStartResourceExecution(inboundMessage, httpResource);
+            }
         } catch (BallerinaException ex) {
-            HttpUtil.handleFailure(httpCarbonMessage, new BallerinaConnectorException(ex.getMessage(), ex.getCause()));
+            HttpUtil.handleFailure(inboundMessage, new BallerinaConnectorException(ex.getMessage(), ex.getCause()));
         }
     }
 
@@ -91,36 +94,32 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         log.error("Error in http server connector" + throwable.getMessage(), throwable);
     }
 
-    protected void extractPropertiesAndStartResourceExecution(HTTPCarbonMessage httpCarbonMessage,
+    protected void extractPropertiesAndStartResourceExecution(HTTPCarbonMessage inboundMessage,
                                                               HttpResource httpResource) {
         boolean isTransactionInfectable = httpResource.isTransactionInfectable();
-        Map<String, Object> properties = collectRequestProperties(httpCarbonMessage, isTransactionInfectable);
-        BValue[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);
+        Map<String, Object> properties = collectRequestProperties(inboundMessage, isTransactionInfectable);
+        BValue[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, inboundMessage);
         // invoke the request path filters
         WorkerExecutionContext parentCtx = new WorkerExecutionContext(
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile());
-        invokeRequestFilters(httpCarbonMessage, signatureParams[1], getRequestFilterContext(httpResource), parentCtx);
+        invokeRequestFilters(inboundMessage, signatureParams[1], getRequestFilterContext(httpResource), parentCtx);
 
         Resource balResource = httpResource.getBalResource();
 
-        ObserverContext ctx = null;
-        if (ObservabilityUtils.isObservabilityEnabled()) {
-            ctx = ObservabilityUtils.startServerObservation(SERVER_CONNECTOR_HTTP,
-                    balResource.getServiceName(),
-                    balResource.getName(), null);
+        Optional<ObserverContext> observerContext = ObservabilityUtils.startServerObservation(SERVER_CONNECTOR_HTTP,
+                balResource.getServiceName(), balResource.getName(), null);
+        observerContext.ifPresent(ctx -> {
             Map<String, String> httpHeaders = new HashMap<>();
-            httpCarbonMessage.getHeaders().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
-            if (ctx != null) {
-                ctx.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
-                ctx.addTag(TAG_KEY_HTTP_METHOD, (String) httpCarbonMessage.getProperty(HttpConstants.HTTP_METHOD));
-                ctx.addTag(TAG_KEY_PROTOCOL, (String) httpCarbonMessage.getProperty(HttpConstants.PROTOCOL));
-                ctx.addTag(TAG_KEY_HTTP_URL, (String) httpCarbonMessage.getProperty(HttpConstants.REQUEST_URL));
-            }
-        }
+            inboundMessage.getHeaders().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
+            ctx.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
+            ctx.addTag(TAG_KEY_HTTP_METHOD, (String) inboundMessage.getProperty(HttpConstants.HTTP_METHOD));
+            ctx.addTag(TAG_KEY_PROTOCOL, (String) inboundMessage.getProperty(HttpConstants.PROTOCOL));
+            ctx.addTag(TAG_KEY_HTTP_URL, (String) inboundMessage.getProperty(HttpConstants.REQUEST_URL));
+        });
 
-        CallableUnitCallback callback = new HttpCallableUnitCallback(httpCarbonMessage);
+        CallableUnitCallback callback = new HttpCallableUnitCallback(inboundMessage);
         //TODO handle BallerinaConnectorException
-        Executor.submit(balResource, callback, properties, ctx, parentCtx, signatureParams);
+        Executor.submit(balResource, callback, properties, observerContext.orElse(null), parentCtx, signatureParams);
     }
 
     protected BValue getRequestFilterContext(HttpResource httpResource) {
@@ -139,14 +138,14 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         return httpCarbonMessage.getProperty(HTTP_RESOURCE) != null;
     }
 
-    private Map<String, Object> collectRequestProperties(HTTPCarbonMessage httpCarbonMessage, boolean isInfectable) {
+    private Map<String, Object> collectRequestProperties(HTTPCarbonMessage inboundMessage, boolean isInfectable) {
         Map<String, Object> properties = new HashMap<>();
-        if (httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER) != null) {
-            Object srcHandler = httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER);
+        if (inboundMessage.getProperty(HttpConstants.SRC_HANDLER) != null) {
+            Object srcHandler = inboundMessage.getProperty(HttpConstants.SRC_HANDLER);
             properties.put(HttpConstants.SRC_HANDLER, srcHandler);
         }
-        String txnId = httpCarbonMessage.getHeader(HttpConstants.HEADER_X_XID);
-        String registerAtUrl = httpCarbonMessage.getHeader(HttpConstants.HEADER_X_REGISTER_AT_URL);
+        String txnId = inboundMessage.getHeader(HttpConstants.HEADER_X_XID);
+        String registerAtUrl = inboundMessage.getHeader(HttpConstants.HEADER_X_REGISTER_AT_URL);
         //Return 500 if txn context is received when transactionInfectable=false
         if (!isInfectable && txnId != null) {
             throw new BallerinaConnectorException("Cannot create transaction context: " +
@@ -157,10 +156,10 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             properties.put(Constants.TRANSACTION_URL, registerAtUrl);
             return properties;
         }
-        properties.put(HttpConstants.REMOTE_ADDRESS, httpCarbonMessage.getProperty(HttpConstants.REMOTE_ADDRESS));
-        properties.put(HttpConstants.ORIGIN_HOST, httpCarbonMessage.getHeader(HttpConstants.ORIGIN_HOST));
+        properties.put(HttpConstants.REMOTE_ADDRESS, inboundMessage.getProperty(HttpConstants.REMOTE_ADDRESS));
+        properties.put(HttpConstants.ORIGIN_HOST, inboundMessage.getHeader(HttpConstants.ORIGIN_HOST));
         properties.put(HttpConstants.POOLED_BYTE_BUFFER_FACTORY,
-                       httpCarbonMessage.getHeader(HttpConstants.POOLED_BYTE_BUFFER_FACTORY));
+                       inboundMessage.getHeader(HttpConstants.POOLED_BYTE_BUFFER_FACTORY));
         return properties;
     }
 
@@ -168,13 +167,13 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
      * Invokes the set of filters for the request path. If one filter fails, the execution would stop and the relevant
      * error message given from the filter will be returned to the user.
      *
-     * @param httpCarbonMessage {@link HTTPCarbonMessage} instance
+     * @param inboundMessage {@link HTTPCarbonMessage} instance
      * @param requestObject     Representation of ballerina.net.Request struct
      * @param filterCtxt        filtering criteria
      * @param parentCtx         WorkerExecutionContext instance, which corresponds to the current worker execution
      *                          context
      */
-    protected void invokeRequestFilters(HTTPCarbonMessage httpCarbonMessage, BValue requestObject, BValue filterCtxt,
+    protected void invokeRequestFilters(HTTPCarbonMessage inboundMessage, BValue requestObject, BValue filterCtxt,
                                         WorkerExecutionContext parentCtx) {
 
         if (!hasFilters()) {
@@ -196,7 +195,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
                 int filterStatusCode = Math.toIntExact(filterResultStruct.getIntField(0));
                 // if the status code returned by filter result is 4xx, use it, else use the code 400
                 int responseStatusCode = filterStatusCode >= 400 && filterStatusCode < 500 ? filterStatusCode : 400;
-                httpCarbonMessage.setProperty(HttpConstants.HTTP_STATUS_CODE, responseStatusCode);
+                inboundMessage.setProperty(HttpConstants.HTTP_STATUS_CODE, responseStatusCode);
                 throw new BallerinaException("Request failed: " + filterResultStruct.getStringField(0));
             }
             // filter has returned true, can continue

@@ -1,7 +1,10 @@
-import ballerina/io;
-
 function foo(string|int|float|error a) returns (string|int|float|error) {
     return a;
+}
+
+function getJson() returns json|error  {
+    json j = {name:"John"};
+    return j;
 }
 
 function getError() returns error {
@@ -17,12 +20,17 @@ function testMatchExpr(string|int|float|error a) returns string {
     return x;
 }
 
-function testMatchExprWithImplicitDefault(string|int|float|error a) returns string {
+function testMatchExprWithImplicitDefault_1(string|int|float|error a) returns string {
     string x = foo(a) but { int => "value1", 
                             float => "value2", 
                             error => "value3" 
                 };
     return x;
+}
+
+function testMatchExprWithImplicitDefault_2() returns json {
+    json j = getJson() but { error => null };
+    return j;
 }
 
 function testMatchExprInUnaryOperator(string|int|float|error a) returns string {

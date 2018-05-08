@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 //JOSH header parameters
 @final string ALG = "alg";
 @final string TYP = "typ";
@@ -30,7 +29,9 @@
 @final string NBF = "nbf";
 @final string IAT = "iat";
 
-@Description {value:"Represents a JWT header"}
+documentation {
+    Represents a JWT header.
+}
 public type JwtHeader {
     string alg;
     string typ;
@@ -39,7 +40,9 @@ public type JwtHeader {
     map customClaims;
 };
 
-@Description {value:"Represents a JWT payload"}
+documentation {
+    Represents a JWT payload.
+}
 public type JwtPayload {
     string iss;
     string sub;

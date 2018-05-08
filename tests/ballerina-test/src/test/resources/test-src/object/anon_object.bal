@@ -137,3 +137,13 @@ function testObjectWithAnonRecordLiteral() returns (int, string) {
 
     return (value.details.age, value.getName());
 }
+
+function testObjectWithSelfReference() returns (int, string) {
+    object {public{int age, string name,}new () {self.age = 88;self.name = "Tyler ";}function test(int age, string name) {
+        self.age = self.age + age;
+        self.name = self.name + name;
+    }} sample;
+
+    sample.test(10, "Jewell");
+    return (sample.age, sample. name);
+}

@@ -4,7 +4,7 @@ import ballerina/auth;
 
 function testCanHandleHttpBasicAuthWithoutHeader () returns (boolean) {
     auth:ConfigAuthProvider configAuthProvider = new;
-    auth:AuthProvider authProvider = check <auth:AuthProvider> configAuthProvider;
+    auth:AuthProvider authProvider = <auth:AuthProvider> configAuthProvider;
     http:HttpBasicAuthnHandler handler = new(authProvider);
     http:Request inRequest = createRequest();
     string basicAutheaderValue = "123Basic xxxxxx";
@@ -16,7 +16,7 @@ function testCanHandleHttpBasicAuthWithoutHeader () returns (boolean) {
 
 function testCanHandleHttpBasicAuth () returns (boolean) {
     auth:ConfigAuthProvider configAuthProvider = new;
-    auth:AuthProvider authProvider = check <auth:AuthProvider> configAuthProvider;
+    auth:AuthProvider authProvider = <auth:AuthProvider> configAuthProvider;
     http:HttpBasicAuthnHandler handler = new(authProvider);
     http:Request inRequest = createRequest();
     string basicAutheaderValue = "Basic xxxxxx";
@@ -28,7 +28,7 @@ function testCanHandleHttpBasicAuth () returns (boolean) {
 
 function testHandleHttpBasicAuthFailure () returns (boolean) {
     auth:ConfigAuthProvider configAuthProvider = new;
-    auth:AuthProvider authProvider = check <auth:AuthProvider> configAuthProvider;
+    auth:AuthProvider authProvider = <auth:AuthProvider> configAuthProvider;
     http:HttpBasicAuthnHandler handler = new(authProvider);
     http:Request inRequest = createRequest();
     string basicAutheaderValue = "Basic YW1pbGE6cHFy";
@@ -40,7 +40,7 @@ function testHandleHttpBasicAuthFailure () returns (boolean) {
 
 function testHandleHttpBasicAuth () returns (boolean) {
     auth:ConfigAuthProvider configAuthProvider = new;
-    auth:AuthProvider authProvider = check <auth:AuthProvider> configAuthProvider;
+    auth:AuthProvider authProvider = <auth:AuthProvider> configAuthProvider;
     http:HttpBasicAuthnHandler handler = new(authProvider);
     http:Request inRequest = createRequest();
     string basicAutheaderValue = "Basic aXN1cnU6eHh4";

@@ -85,8 +85,6 @@ function runSequenceQuery1() returns(TempDiffInfo[]) {
 }
 
 function printInitalAndPeakTemp(TempDiffInfo tempDiff) {
-    io:println("printInitalAndPeakTemp InitialTemp:" + tempDiff.initialTemp + " and Peak temp :" +
-            + tempDiff.peakTemp);
     addToGlobalTempDiffArray(tempDiff);
 }
 

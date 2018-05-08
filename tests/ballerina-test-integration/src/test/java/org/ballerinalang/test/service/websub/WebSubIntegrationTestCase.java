@@ -68,7 +68,7 @@ public class WebSubIntegrationTestCase extends IntegrationTestCase {
     public void testStartUpAndIntentVerification() throws BallerinaTestException, InterruptedException {
         String[] clientArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
                           + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath(),
-                          "-ehub.remote_publishing.enabled=true"};
+                          "-e b7a.websub.hub.remotepublish=true"};
         ballerinaWebSubPublisher = ServerInstance.initBallerinaServer();
 
         LogLeecher intentVerificationLogLeecher = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_LOG);
@@ -114,12 +114,12 @@ public class WebSubIntegrationTestCase extends IntegrationTestCase {
 
     @Test(dependsOnMethods = "testStartUpAndIntentVerification")
     public void testContentReceiptForDirectHubNotification() throws BallerinaTestException {
-        internalHubNotificationLogLeecher.waitForText(20000);
+        internalHubNotificationLogLeecher.waitForText(30000);
     }
 
     @Test(dependsOnMethods = "testStartUpAndIntentVerification")
     public void testContentReceiptForRemoteHubNotification() throws BallerinaTestException {
-        remoteHubNotificationLogLeecher.waitForText(20000);
+        remoteHubNotificationLogLeecher.waitForText(30000);
     }
 
     @AfterClass

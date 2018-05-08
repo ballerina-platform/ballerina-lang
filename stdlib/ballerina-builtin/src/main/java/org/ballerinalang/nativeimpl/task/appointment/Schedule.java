@@ -24,20 +24,20 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.task.SchedulingException;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 /**
- * Native function ballerina.task:scheduleAppointment.
+ * Native function ballerina/task:Appointment.schedule.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "task",
-        functionName = "Appointment.schedule",
-        args = {@Argument(name = "app", type = TypeKind.STRUCT, structType = "Appointment",
-                structPackage = "ballerina.task")},
+        orgName = "ballerina",
+        packageName = "task",
+        functionName = "schedule",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Appointment", structPackage = "ballerina.task"),
         isPublic = true
 )
 public class Schedule extends BlockingNativeCallableUnit {

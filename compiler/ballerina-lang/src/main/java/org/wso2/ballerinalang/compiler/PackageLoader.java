@@ -77,6 +77,7 @@ import java.util.stream.StreamSupport;
 
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 import static org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder.node;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.PACKAGE_MD_FILE_NAME;
@@ -93,6 +94,7 @@ public class PackageLoader {
             new CompilerContext.Key<>();
     private final RepoHierarchy repos;
     private final boolean offline;
+    private final boolean testEnabled;
     private final Manifest manifest;
 
     private final CompilerOptions options;
@@ -130,8 +132,9 @@ public class PackageLoader {
         this.names = Names.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.offline = Boolean.parseBoolean(options.get(OFFLINE));
+        this.testEnabled = Boolean.parseBoolean(options.get(TEST_ENABLED));
         this.repos = genRepoHierarchy(Paths.get(options.get(PROJECT_DIR)));
-        this.manifest = ManifestProcessor.parseTomlContentAsStream(sourceDirectory.getManifestContent());
+        this.manifest = ManifestProcessor.getInstance(context).getManifest();
     }
 
     private RepoHierarchy genRepoHierarchy(Path sourceRoot) {
@@ -140,7 +143,7 @@ public class PackageLoader {
         RepoHierarchyBuilder.RepoNode[] systemArr = loadSystemRepos();
         Converter<Path> converter = sourceDirectory.getConverter();
 
-        Repo remote = new RemoteRepo(URI.create("https://api.central.ballerina.io/packages/"));
+        Repo remote = new RemoteRepo(URI.create(RepoUtils.getRemoteRepoURL()));
         Repo homeCacheRepo = new CacheRepo(balHomeDir, ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME);
         Repo homeRepo = shouldReadBalo ? new BinaryRepo(balHomeDir) : new ZipRepo(balHomeDir);
         Repo projectCacheRepo = new CacheRepo(projectHiddenDir, ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME);
@@ -160,7 +163,7 @@ public class PackageLoader {
         RepoHierarchyBuilder.RepoNode fullRepoGraph;
         if (converter != null) {
             Repo programingSource = new ProgramingSourceRepo(converter);
-            Repo projectSource = new ProjectSourceRepo(converter);
+            Repo projectSource = new ProjectSourceRepo(converter, testEnabled);
             fullRepoGraph = node(programingSource,
                                  node(projectSource,
                                       nonLocalRepos));
@@ -384,24 +387,26 @@ public class PackageLoader {
 
         // Get the list of source entries.
         Path projectPath = this.sourceDirectory.getPath();
-        ProjectSourceRepo projectSourceRepo = new ProjectSourceRepo(projectPath);
+        ProjectSourceRepo projectSourceRepo = new ProjectSourceRepo(projectPath, testEnabled);
         Patten packageIDPattern = projectSourceRepo.calculate(packageID);
-        Stream<Path> srcPathStream = packageIDPattern.convert(projectSourceRepo.getConverterInstance());
-        compiledPackage.srcEntries = srcPathStream
-                .filter(path -> Files.exists(path, LinkOption.NOFOLLOW_LINKS))
-                .map(projectPath::relativize)
-                .map(path -> new PathBasedCompiledPackageEntry(path, CompilerOutputEntry.Kind.SRC))
-                .collect(Collectors.toList());
+        if (packageIDPattern != Patten.NULL) {
+            Stream<Path> srcPathStream = packageIDPattern.convert(projectSourceRepo.getConverterInstance());
+            compiledPackage.srcEntries = srcPathStream
+                    .filter(path -> Files.exists(path, LinkOption.NOFOLLOW_LINKS))
+                    .map(projectPath::relativize)
+                    .map(path -> new PathBasedCompiledPackageEntry(path, CompilerOutputEntry.Kind.SRC))
+                    .collect(Collectors.toList());
 
-        // Get the Package.md file
-        Patten pkgMDPattern = packageIDPattern.sibling(path(PACKAGE_MD_FILE_NAME));
-        pkgMDPattern.convert(projectSourceRepo.getConverterInstance())
-                .filter(pkgMDPath -> Files.exists(pkgMDPath, LinkOption.NOFOLLOW_LINKS))
-                .map(projectPath::relativize)
-                .map(pkgMDPath -> new PathBasedCompiledPackageEntry(pkgMDPath,
-                        CompilerOutputEntry.Kind.ROOT))
-                .findAny()
-                .ifPresent(pkgEntry -> compiledPackage.pkgMDEntry = pkgEntry);
+            // Get the Package.md file
+            Patten pkgMDPattern = packageIDPattern.sibling(path(PACKAGE_MD_FILE_NAME));
+            pkgMDPattern.convert(projectSourceRepo.getConverterInstance())
+                    .filter(pkgMDPath -> Files.exists(pkgMDPath, LinkOption.NOFOLLOW_LINKS))
+                    .map(projectPath::relativize)
+                    .map(pkgMDPath -> new PathBasedCompiledPackageEntry(pkgMDPath,
+                            CompilerOutputEntry.Kind.ROOT))
+                    .findAny()
+                    .ifPresent(pkgEntry -> compiledPackage.pkgMDEntry = pkgEntry);
+        }
         return compiledPackage;
     }
 }

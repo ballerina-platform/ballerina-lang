@@ -107,7 +107,7 @@ function testReturnNullLiteral () returns (any) {
     return null;
 }
 
-function testNullInWorker () returns (any) {
+function testNullInWorker1 () returns (any) {
 
     worker worker1 {
         json request;
@@ -126,7 +126,26 @@ function testNullInWorker () returns (any) {
     }
 }
 
-function testNullInForkJoin () returns (json, json) {
+function testNullInWorker2 () returns (any) {
+
+    worker worker1 {
+        string? request;
+        request -> worker2;
+
+        string? result;
+        result <- worker2;
+
+        return result;
+    }
+
+    worker worker2 {
+        string? resp;
+        resp <- worker1;
+        resp -> worker1;
+    }
+}
+
+function testNullInForkJoin1 () returns (any?, any?) {
     json m = null;
     fork {
         worker foo {
@@ -135,20 +154,26 @@ function testNullInForkJoin () returns (json, json) {
         }
     
         worker bar {
-            json resp2 = {};
+            json? resp2;
             resp2 -> fork;
         }
     } join (all) (map allReplies) {
-        any[] temp;
-        temp = check <any[]>allReplies["foo"];
-        json m1;
-        m1 = check <json>temp[0];
-        temp = check <any[]>allReplies["bar"];
-        json m2;
-        m2 = check <json>temp[0];
-        return (m1, m2);
-    } timeout (30000) (map msgs) {
-        return (null, null);
+        return (allReplies["foo"], allReplies["bar"]);
+    }
+}
+
+function testNullInForkJoin2 () returns (any, any) {
+    fork {
+        worker foo {
+            string? resp1;
+            resp1 -> fork;
+        }
+        worker bar {
+            int? resp2;
+            resp2 -> fork;
+        }
+    } join (all) (map resp) {
+        return (resp["foo"], resp["bar"]);
     }
 }
 

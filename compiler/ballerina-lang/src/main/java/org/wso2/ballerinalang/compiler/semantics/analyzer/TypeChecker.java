@@ -82,6 +82,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
@@ -126,6 +127,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 /**
@@ -226,30 +228,23 @@ public class TypeChecker extends BLangNodeVisitor {
         BType literalType = symTable.getTypeFromTag(literalExpr.typeTag);
         if (this.expType.tag == TypeTags.FINITE) {
             BFiniteType expType = (BFiniteType) this.expType;
-            boolean foundMember = expType.valueSpace
-                    .stream()
-                    .map(memberLiteral -> {
-                        if (((BLangLiteral) memberLiteral).value == null) {
-                            return literalExpr.value == null;
-                        } else {
-                            return ((BLangLiteral) memberLiteral).value.equals(literalExpr.value);
-                        }
-                    })
-                    .anyMatch(found -> found);
-
-            boolean foundMemberType = expType.memberTypes
-                    .stream()
-                    .map(memberType -> types.isAssignable(literalType, memberType))
-                    .anyMatch(foundType -> foundType);
-
-            if (foundMember || foundMemberType) {
-                types.setImplicitCastExpr(literalExpr, literalType, symTable.anyType);
+            boolean foundMember = types.isAssignableToFiniteType(expType, literalExpr);
+            if (foundMember) {
+                types.setImplicitCastExpr(literalExpr, literalType, this.expType);
                 resultType = literalType;
-            } else {
-                dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, literalType);
-                resultType = symTable.errType;
+                return;
             }
-            return;
+        } else if (this.expType.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) this.expType;
+            boolean foundMember = unionType.memberTypes
+                    .stream()
+                    .map(memberType -> types.isAssignableToFiniteType(memberType, literalExpr))
+                    .anyMatch(foundType -> foundType);
+            if (foundMember) {
+                types.setImplicitCastExpr(literalExpr, literalType, this.expType);
+                resultType = literalType;
+                return;
+            }
         }
         resultType = types.checkType(literalExpr, literalType, expType);
     }
@@ -622,6 +617,12 @@ public class TypeChecker extends BLangNodeVisitor {
         // Look up operator symbol if both rhs and lhs types are error types
         if (lhsType != symTable.errType && rhsType != symTable.errType) {
             BSymbol opSymbol = symResolver.resolveBinaryOperator(binaryExpr.opKind, lhsType, rhsType);
+
+            if (opSymbol == symTable.notFoundSymbol) {
+                opSymbol = getBinaryEqualityForTypeSets(binaryExpr.opKind, lhsType, rhsType,
+                        binaryExpr);
+            }
+
             if (opSymbol == symTable.notFoundSymbol) {
                 dlog.error(binaryExpr.pos, DiagnosticCode.BINARY_OP_INCOMPATIBLE_TYPES,
                         binaryExpr.opKind, lhsType, rhsType);
@@ -632,6 +633,25 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(binaryExpr, actualType, expType);
+    }
+
+    private BSymbol getBinaryEqualityForTypeSets(OperatorKind opKind, BType lhsType,
+                                                 BType rhsType, BLangBinaryExpr binaryExpr) {
+        if (opKind != OperatorKind.EQUAL && opKind != OperatorKind.NOT_EQUAL) {
+            return symTable.notFoundSymbol;
+        }
+        if (types.isIntersectionExist(lhsType, rhsType)) {
+            if ((!types.isValueType(lhsType) && !types.isValueType(rhsType)) ||
+                    (types.isValueType(lhsType) && types.isValueType(rhsType))) {
+                return symResolver.createReferenceEqualityOperator(opKind, lhsType, rhsType);
+            } else {
+                types.setImplicitCastExpr(binaryExpr.rhsExpr, rhsType, symTable.anyType);
+                types.setImplicitCastExpr(binaryExpr.lhsExpr, lhsType, symTable.anyType);
+                return symResolver.createReferenceEqualityOperator(opKind, symTable.anyType, symTable.anyType);
+            }
+        } else {
+            return symTable.notFoundSymbol;
+        }
     }
 
     public void visit(BLangElvisExpr elvisExpr) {
@@ -1047,15 +1067,17 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangMatchExpression bLangMatchExpression) {
         SymbolEnv matchExprEnv = SymbolEnv.createBlockEnv((BLangBlockStmt) TreeBuilder.createBlockNode(), env);
         checkExpr(bLangMatchExpression.expr, matchExprEnv);
-        Set<BType> matchExprTypes = new LinkedHashSet<>();
+
+        // Type check and resolve patterns and their expressions
         bLangMatchExpression.patternClauses.forEach(pattern -> {
             if (!pattern.variable.name.value.endsWith(Names.IGNORE.value)) {
                 symbolEnter.defineNode(pattern.variable, matchExprEnv);
             }
             checkExpr(pattern.expr, matchExprEnv, expType);
             pattern.variable.type = symResolver.resolveTypeNode(pattern.variable.typeNode, matchExprEnv);
-            matchExprTypes.add(getActualType(pattern.expr));
         });
+
+        Set<BType> matchExprTypes = getMatchExpressionTypes(bLangMatchExpression);
 
         BType actualType;
         if (matchExprTypes.contains(symTable.errType)) {
@@ -1244,8 +1266,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {
         BType actualType = checkInvocationParam(iExpr);
-        // if this is a function invocation on json, then do not add nil to the return types.
-        if (iExpr.expr != null && iExpr.expr.type.tag != TypeTags.JSON) {
+        if (iExpr.expr != null) {
             actualType = getAccessExprFinalType(iExpr, actualType);
         }
 
@@ -1761,7 +1782,12 @@ public class TypeChecker extends BLangNodeVisitor {
             unionType.memberTypes.add(symTable.errStructType);
         }
 
-        if (!unionType.isNullable() && unionType.memberTypes.size() == 1) {
+        // If there's only one member, and the one an only member is:
+        //    a) nilType OR
+        //    b) not-nullable 
+        // then return that only member, as the return type.
+        if (unionType.memberTypes.size() == 1 &&
+                (!unionType.isNullable() || unionType.memberTypes.contains(symTable.nilType))) {
             return unionType.memberTypes.toArray(new BType[0])[0];
         }
 
@@ -1770,7 +1796,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private boolean isNilable(BLangAccessExpression accessExpr, BType actualType) {
         BType parentType = accessExpr.expr.type;
-        if (parentType.isNullable() && actualType.tag != TypeTags.JSON) {
+        if (parentType.isNullable() && parentType.tag != TypeTags.JSON) {
             return true;
         }
 
@@ -1955,8 +1981,43 @@ public class TypeChecker extends BLangNodeVisitor {
         return new BUnionType(null, new LinkedHashSet<>(lhsTypes), false);
     }
 
-    private BType getActualType(BLangExpression expr) {
-        return expr.impConversionExpr == null ? expr.type : getActualType(expr.impConversionExpr);
+    private List<BType> getTypesList(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) type;
+            return new ArrayList<>(unionType.memberTypes);
+        } else {
+            return Lists.of(type);
+        }
     }
 
+    private Set<BType> getMatchExpressionTypes(BLangMatchExpression bLangMatchExpression) {
+        List<BType> exprTypes = getTypesList(bLangMatchExpression.expr.type);
+        Set<BType> matchExprTypes = new LinkedHashSet<>();
+        for (BType type : exprTypes) {
+            boolean assignable = false;
+            for (BLangMatchExprPatternClause pattern : bLangMatchExpression.patternClauses) {
+                BType patternExprType = pattern.expr.type;
+
+                // Type of the pattern expression, becomes one of the types of the whole but expression
+                matchExprTypes.addAll(getTypesList(patternExprType));
+
+                if (type.tag == TypeTags.ERROR || patternExprType.tag == TypeTags.ERROR) {
+                    return new HashSet<>(Lists.of(symTable.errType));
+                }
+
+                assignable = this.types.isAssignable(type, pattern.variable.type);
+                if (assignable) {
+                    break;
+                }
+            }
+
+            // If the matching expr type is not matching to any pattern, it becomes one of the types
+            // returned by the whole but expression
+            if (!assignable) {
+                matchExprTypes.add(type);
+            }
+        }
+
+        return matchExprTypes;
+    }
 }

@@ -5,6 +5,10 @@ public type ParentFoo object {
         ChildFoo c;
     }
 
+    private {
+        string s;
+    }
+
     new (i, c){}
 };
 

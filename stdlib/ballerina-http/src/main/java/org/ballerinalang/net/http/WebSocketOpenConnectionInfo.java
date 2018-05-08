@@ -19,6 +19,7 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.model.values.BStruct;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 /**
  * This class represent already opened WebSocket connection. Which include all necessary details needed after for
@@ -28,9 +29,13 @@ public class WebSocketOpenConnectionInfo {
 
     private final WebSocketService webSocketService;
     private final BStruct webSocketEndpoint;
+    private final WebSocketConnection webSocketConnection;
+    private int closeStatusCode = -1;
 
-    public WebSocketOpenConnectionInfo(WebSocketService webSocketService, BStruct webSocketEndpoint) {
+    public WebSocketOpenConnectionInfo(WebSocketService webSocketService, WebSocketConnection webSocketConnection,
+                                       BStruct webSocketEndpoint) {
         this.webSocketService = webSocketService;
+        this.webSocketConnection = webSocketConnection;
         this.webSocketEndpoint = webSocketEndpoint;
     }
 
@@ -40,5 +45,17 @@ public class WebSocketOpenConnectionInfo {
 
     public BStruct getWebSocketEndpoint() {
         return webSocketEndpoint;
+    }
+
+    public WebSocketConnection getWebSocketConnection() {
+        return webSocketConnection;
+    }
+
+    public int getCloseStatusCode() {
+        return closeStatusCode;
+    }
+
+    public void setCloseStatusCode(int closeStatusCode) {
+        this.closeStatusCode = closeStatusCode;
     }
 }

@@ -14,34 +14,44 @@
 // specific language governing permissions and limitations
 // under the License.
 
+documentation {
+   Representation of a HTTP Request Filter. This filter will be applied before the request is dispatched to the relevant resource. Any Filter implementation should be structurally similar to the Filter object.
 
-@Description {value:"Representation of a HTTP Request Filter. This filter will be applied before the request is
-dispatched to the relevant resource. Any Filter implementation should be struct-wise similar to the Filter struct."}
-@Field {value:"filterRequest: Request filter function"}
-@Field {value:"filterResponse: Response filter function"}
+}
 public type Filter object {
-    @Description {value:"filterRequest: Request filter function"}
-    public function filterRequest (Request request, FilterContext context) returns FilterResult;
+    documentation {
+        Request filter function.
+
+        P{{request}} An inboud HTTP request message
+        P{{context}} A filter context
+        R{{}} The resulting object after filtering the request
+    }
+    public function filterRequest(Request request, FilterContext context) returns FilterResult;
 };
 
-@Description {value:"Representation of filter Context."}
-@Field {value:"serviceType: Type of the service"}
-@Field {value:"serviceName: Name of the service"}
-@Field {value:"filterResponse: Name of the resource"}
+documentation {
+    Representation of filter Context.
+
+    F{{serviceType}} Type of the service
+    F{{serviceName}} Name of the service
+    F{{resourceName}} Name of the resource
+}
 public type FilterContext object {
     public {
         typedesc serviceType;
         string serviceName;
         string resourceName;
     }
-    new (serviceType, serviceName, resourceName){}
+    new(serviceType, serviceName, resourceName) {}
 };
 
-@Description {value:"Represents a filter result. This should be populated and returned by each request and response
-filter function"}
-@Field {value:"canProceed: Flag to check if the execution of the request should proceed or stopped"}
-@Field {value:"statusCode: Status code which will be returned to the request sender if the canProceed is set to false"}
-@Field {value:"message: Message which will be returned to the request sender if the canProceed is set to false"}
+documentation {
+    Represents a filter result. This should be populated and returned by each request and response filter function.
+
+    F{{canProceed}} Flag to check if the execution of the request should proceed or stop
+    F{{statusCode}} Status code which will be returned to the request sender if the canProceed is set to `false`
+    F{{message}} Message which will be returned to the request sender if the `canProceed` is set to `false`
+}
 public type FilterResult {
     boolean canProceed,
     int statusCode,

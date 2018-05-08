@@ -27,7 +27,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -39,7 +38,7 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "getResponse",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.CALLER_ACTIONS,
                 structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "client", type = TypeKind.STRUCT),
@@ -57,7 +56,7 @@ public class GetResponse extends AbstractHTTPAction {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
 
-        DataContext dataContext = new DataContext(context, callback);
+        DataContext dataContext = new DataContext(context, callback, null);
         BStruct handleStruct = ((BStruct) context.getRefArgument(1));
 
         ResponseHandle responseHandle = (ResponseHandle) handleStruct.getNativeData(HttpConstants.TRANSPORT_HANDLE);
@@ -66,7 +65,7 @@ public class GetResponse extends AbstractHTTPAction {
         }
         BStruct bConnector = (BStruct) context.getRefArgument(0);
         HttpClientConnector clientConnector =
-                (HttpClientConnector) bConnector.getNativeData(HttpConstants.HTTP_CLIENT);
+                (HttpClientConnector) bConnector.getNativeData(HttpConstants.CALLER_ACTIONS);
         clientConnector.getResponse(responseHandle).
                 setHttpConnectorListener(new ResponseListener(dataContext));
     }
@@ -87,12 +86,8 @@ public class GetResponse extends AbstractHTTPAction {
 
         public void onError(Throwable throwable) {
             BStruct httpConnectorError = createStruct(
-                    dataContext.context, HttpConstants.HTTP_CONNECTOR_ERROR, HttpConstants.PROTOCOL_PACKAGE_HTTP);
+                    dataContext.context, HttpConstants.STRUCT_GENERIC_ERROR, HttpConstants.PACKAGE_BALLERINA_BUILTIN);
             httpConnectorError.setStringField(0, throwable.getMessage());
-            if (throwable instanceof ClientConnectorException) {
-                ClientConnectorException clientConnectorException = (ClientConnectorException) throwable;
-                httpConnectorError.setIntField(0, clientConnectorException.getHttpStatusCode());
-            }
             dataContext.notifyReply(null, httpConnectorError);
         }
     }

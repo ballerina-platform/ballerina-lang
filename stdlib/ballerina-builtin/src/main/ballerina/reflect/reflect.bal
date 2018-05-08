@@ -14,18 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
+documentation {
+    Check whether 2 values are deeply equal. Supports string, int, float, boolean, type, structs, maps, arrays, any,
+    JSON. Any other type returns FALSE.
 
-@Description {value:"Check whether 2 values are deeply equal. Supports string, int, float, boolean, type, structs, maps,
- arrays, any, JSON. Any other type returns FALSE."}
-@Param {value:"value1: The first value for equality."}
-@Param {value:"value2: The second value for equality."}
-@Return {value:"TRUE if values are deeply equal, else FALSE."}
+    P{{value1}} The first value for equality.
+    P{{value2}} The second value for equality.
+    R{{}} TRUE if values are deeply equal, else FALSE.
+}
 public native function equals(any value1, any value2) returns (boolean);
-
-//  Warning..!!!
-//
-//  ballerina.reflect package defines Internal APIs exposed by Ballerina Virtual Machine (BVM).
-//  They are subject to change in a undocumented or unsupported way, use with caution.
 
 public type anyStruct {};
 

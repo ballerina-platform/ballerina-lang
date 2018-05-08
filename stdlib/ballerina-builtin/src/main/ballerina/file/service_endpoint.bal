@@ -21,7 +21,7 @@
 documentation {
     Represents directory listener endpoint where used to listen to a directory in the local file system.
 
-    F{{config}} - ListenerEndpointConfiguration configurations.
+    F{{config}} Represents necessary configurations that need to configure
 }
 public type Listener object {
     private {
@@ -43,12 +43,12 @@ public type Listener object {
 };
 
 documentation {
-    Configuration for direcotry listener endpoint.
+    Represents configurations that required for directory listener.
 
-    F{{path}} - Directory path which need to listern.
-    F{{recursive}} - Recursively monitor all sub folders or not in the given direcotry path.
+    F{{path}}  Directory path which need to listen
+    F{{recursive}} Recursively monitor all sub folders or not in the given direcotry path
 }
 public type ListenerEndpointConfiguration {
     string path,
-    boolean recursive,
+    boolean recursive = false,
 };

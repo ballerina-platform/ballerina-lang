@@ -23,8 +23,6 @@ package org.ballerinalang.packerina.init.models;
  */
 public class SrcFile {
 
-    private static final String PACKAGE_TEMPLATE = "package %s;%n%n";
-
     private static final String SERVICE_CONTENT = "// A system package containing protocol access constructs\n" +
                                                   "// Package objects referenced with 'http:' in code\n" +
                                                   "import ballerina/http;\n" +
@@ -48,7 +46,7 @@ public class SrcFile {
                                                   "        http:Response response = new;\n" +
                                                   "\n" +
                                                   "        // Objects and structs can have function calls\n" +
-                                                  "        response.setStringPayload(\"Hello Ballerina!\\n\");\n" +
+                                                  "        response.setTextPayload(\"Hello Ballerina!\\n\");\n" +
                                                   "\n" +
                                                   "        // Send a response back to caller\n" +
                                                   "        // Errors are ignored with '_'\n" +
@@ -121,31 +119,30 @@ public class SrcFile {
                                                        "    test:stopServices(\"%1$s\");%n" +
                                                        "}";
 
-    private SrcFileType srcFileType;
+    private FileType srcFileType;
     private String content;
     private String testFileContent;
     private String name;
     private String testFileName;
-    public SrcFile(String name, SrcFileType fileType) {
+    public SrcFile(String name, FileType fileType) {
         this.srcFileType = fileType;
         this.name = name;
-        content = this.name.isEmpty() ? "" : String.format(PACKAGE_TEMPLATE, this.name);
         switch (fileType) {
             case SERVICE:
-                content += SERVICE_CONTENT;
+                content = SERVICE_CONTENT;
                 testFileContent = String.format(SERVICE_TEST_CONTENT, this.name.isEmpty() ? "." : this.name);
                 testFileName = "hello_service_test.bal";
                 break;
             case MAIN:
             default:
-                content += MAIN_FUNCTION_CONTENT;
+                content = MAIN_FUNCTION_CONTENT;
                 testFileContent = MAIN_FUNCTION_TEST_CONTENT;
                 testFileName = "main_test.bal";
                 break;
         }
     }
     
-    public SrcFileType getSrcFileType() {
+    public FileType getSrcFileType() {
         return srcFileType;
     }
     
@@ -159,24 +156,6 @@ public class SrcFile {
     
     public String getName() {
         return name;
-    }
-    
-    /**
-     * Enum for the source file type.
-     */
-    public enum SrcFileType {
-        SERVICE("hello_service.bal"),
-        MAIN("main.bal");
-
-        private final String fileName;
-
-        SrcFileType(String fileName) {
-            this.fileName = fileName;
-        }
-
-        public String getFileName() {
-            return fileName;
-        }
     }
 
     /**

@@ -35,6 +35,7 @@ import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.St
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.StructField;
 import org.ballerinalang.langserver.compiler.LSContextManager;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
+import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.EnumNode;
@@ -81,6 +82,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * Parser Utils.
@@ -153,12 +155,24 @@ public class ParserUtils {
             for (BLangPackage bLangPackage : builtInPackages) {
                 loadPackageMap(bLangPackage.packageID.getName().getValue(), bLangPackage, modelPackage);
             }
-
-            for (String packageName : LSPackageLoader.getStaticPkgNames()) {
-                PackageID packageID = new PackageID(new Name("ballerina"),
-                        new Name(packageName), new Name("0.0.0"));
-                BLangPackage bLangPackage = LSPackageLoader.getPackageById(context, packageID);
-                loadPackageMap(bLangPackage.packageID.getName().getValue(), bLangPackage, modelPackage);
+            List<BallerinaPackage> ballerinaPackages = new ArrayList<>();
+            ballerinaPackages.addAll(LSPackageLoader.getSdkPackages());
+            if (LSPackageLoader.getSdkPackages().isEmpty()) {
+                for (String packageName : LSPackageLoader.getStaticPkgNames()) {
+                    PackageID packageID = new PackageID(new Name("ballerina"),
+                            new Name(packageName), new Name("0.0.0"));
+                    BLangPackage bLangPackage = LSPackageLoader.getPackageById(context, packageID);
+                    loadPackageMap(bLangPackage.packageID.getName().getValue(), bLangPackage, modelPackage);
+                }
+            } else {
+                Stream.of(LSPackageLoader.getSdkPackages(), LSPackageLoader.getHomeRepoPackages())
+                        .forEach(ballerinaPackages::addAll);
+                for (BallerinaPackage ballerinaPackage : ballerinaPackages) {
+                    PackageID packageID = new PackageID(new Name(ballerinaPackage.getOrgName()),
+                            new Name(ballerinaPackage.getPackageName()), new Name(ballerinaPackage.getVersion()));
+                    BLangPackage bLangPackage = LSPackageLoader.getPackageById(context, packageID);
+                    loadPackageMap(bLangPackage.packageID.getName().getValue(), bLangPackage, modelPackage);
+                }
             }
         } catch (Exception e) {
             // Above catch is to fail safe composer front end due to core errors.
@@ -249,7 +263,7 @@ public class ParserUtils {
             pkg.getEnums().forEach((enumerator) -> extractEnums(packages, packageName, enumerator));
             pkg.objects.forEach((object) -> extractObjects(packages, packageName, object));
             pkg.records.forEach((record) -> extractRecords(packages, packageName, record));
-            extractEndpoints(packages, packageName, pkg.structs, pkg.functions);
+            extractEndpoints(packages, packageName, pkg.objects, pkg.functions);
         }
     }
 
@@ -464,23 +478,23 @@ public class ParserUtils {
     }
 
     private static void extractEndpoints(Map<String, ModelPackage> packages, String packagePath,
-                                         List<BLangStruct> structs, List<BLangFunction> functions) {
+                                         List<BLangObject> objects, List<BLangFunction> functions) {
         functions.forEach((function) -> {
             if (function.getName().getValue().equals("register") && function.receiver != null &&
                     function.receiver.getTypeNode() instanceof UserDefinedTypeNode) {
-                String structName = function.receiver.getTypeNode().type.tsymbol.name.getValue();
-                structs.forEach((struct) -> {
-                    if (struct.name.getValue().equals(structName)) {
-                        String fileName = struct.getPosition().getSource().getCompilationUnitName();
+                String objectName = function.receiver.getTypeNode().type.tsymbol.name.getValue();
+                objects.forEach((object) -> {
+                    if (object.name.getValue().equals(objectName)) {
+                        String fileName = object.getPosition().getSource().getCompilationUnitName();
                         if (packages.containsKey(packagePath)) {
                             ModelPackage modelPackage = packages.get(packagePath);
-                            modelPackage.addEndpointItem(createNewEndpoint(struct.name.getValue(),
-                                    new ArrayList<>(), struct.fields, packagePath, fileName));
+                            modelPackage.addEndpointItem(createNewEndpoint(object.name.getValue(),
+                                    new ArrayList<>(), object.fields, packagePath, fileName));
                         } else {
                             ModelPackage modelPackage = new ModelPackage();
                             modelPackage.setName(packagePath);
-                            modelPackage.addEndpointItem(createNewEndpoint(struct.name.getValue(), new ArrayList<>(),
-                                    struct.fields, packagePath, fileName));
+                            modelPackage.addEndpointItem(createNewEndpoint(object.name.getValue(), new ArrayList<>(),
+                                    object.fields, packagePath, fileName));
                             packages.put(packagePath, modelPackage);
                         }
                     }

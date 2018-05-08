@@ -34,7 +34,7 @@ service<http:Service> InitiatorService bind initiatorEP {
 
     getState(endpoint ep, http:Request req) {
         http:Response res = new;
-        res.setStringPayload(state.toString());
+        res.setTextPayload(state.toString());
         state.reset();
         _ = ep -> respond(res);
     }
@@ -150,7 +150,7 @@ service<http:Service> InitiatorService bind initiatorEP {
         transaction {
             var getResult = participant1EP -> get("/");
             match getResult {
-                http:HttpConnectorError err => {
+                error err => {
                     io:print("Initiator could not send get request to participant. Error:");
                     sendErrorResponseToCaller(conn);
                     abort;
@@ -158,7 +158,7 @@ service<http:Service> InitiatorService bind initiatorEP {
                 http:Response participant1Res => {
                     var fwdResult = conn -> respond(participant1Res);
                     match fwdResult {
-                        http:HttpConnectorError err => {
+                        error err => {
                             io:print("Initiator could not forward response from participant 1 to originating client. Error:");
                             io:print(err);
                         }
@@ -221,7 +221,7 @@ function sendErrorResponseToCaller(http:Listener conn) {
     http:Response errRes = new; errRes.statusCode = 500;
     var respondResult = conn2 -> respond(errRes);
     match respondResult {
-        http:HttpConnectorError respondErr => {
+        error respondErr => {
             io:print("Initiator could not send error response to originating client. Error:");
             io:println(respondErr);
         }

@@ -103,6 +103,10 @@ class AbstractTreeUtil {
         return node.kind === 'Struct';
     }
 
+    isObject(node) {
+        return node.kind === 'Object';
+    }
+
     isVariable(node) {
         return node.kind === 'Variable';
     }
@@ -283,6 +287,10 @@ class AbstractTreeUtil {
         return node.kind === 'Match';
     }
 
+    isMatchExpression(node) {
+        return node.kind === 'MatchExpression';
+    }
+
     isMatchPatternClause(node) {
         return node.kind === 'MatchPatternClause';
     }
@@ -401,6 +409,10 @@ class AbstractTreeUtil {
 
     isCheckExpr(node) {
         return node.kind === 'CheckExpr';
+    }
+
+    isAwaitExpr(node) {
+        return node.kind === 'AwaitExpr';
     }
 }
 

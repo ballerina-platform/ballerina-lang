@@ -20,29 +20,57 @@ import ballerina/runtime;
 import ballerina/log;
 import ballerina/io;
 
-@Description {value:"Representation of AuthzHandler"}
-@Field {value:"authzCache: authorization cache instance"}
-type HttpAuthzHandler object {
+documentation {
+    Representation of Authorization Handler for HTTP
+
+    F{{authProvider}} `AuthProvider` instance
+    F{{authzCache}} `Cache` instance, which is optional
+}
+public type HttpAuthzHandler object {
     public {
         auth:AuthProvider authProvider;
         cache:Cache? authzCache;
     }
-    new (authProvider, authzCache) {
+    public new (authProvider, authzCache) {
+    }
+
+    documentation {
+        Checks if the request can be authorized
+
+        P{{req}} `Request` instance
+        R{{}} true if can be authorized, else false
     }
     function canHandle(Request req) returns (boolean);
+
+    documentation {
+        Tries to authorize the request
+
+        P{{username}} User name
+        P{{serviceName}} `Service` name
+        P{{resourceName}} `Resource` name
+        P{{method}} HTTP method name
+        P{{scopes}} Array of scopes
+        R{{}} true if authorization check is a success, else false
+    }
     function handle(string username, string serviceName, string resourceName, string method,
                                                                                     string[] scopes) returns (boolean);
+    documentation {
+        Tries to retrieve authorization decision from the cached information, if any
+
+        P{{authzCacheKey}} Cache key
+        R{{}} true or false in case of a cache hit, nil in case of a cache miss
+    }
     function authorizeFromCache(string authzCacheKey) returns (boolean|());
+
+    documentation {
+        Cached the authorization result
+
+        P{{authzCacheKey}} Cache key
+        P{{isAuthorized}} boolean flag to indicate the authorization decision
+    }
     function cacheAuthzResult (string authzCacheKey, boolean isAuthorized);
 };
 
-@Description {value:"Performs a authorization check, by comparing the groups of the user and the groups of the scope"}
-@Param {value:"username: user name"}
-@Param {value:"serviceName: service name"}
-@Param {value:"resourceName: resource name"}
-@Param {value:"method: method names"}
-@Param {value:"scopes: array of scope names"}
-@Return {value:"boolean: true if authorization check is a success, else false"}
 function HttpAuthzHandler::handle (string username, string serviceName, string resourceName, string method,
                                                                                     string[] scopes) returns (boolean) {
     // first, check in the cache. cache key is <username>-<resource>-<http method>,
@@ -80,6 +108,15 @@ function HttpAuthzHandler::handle (string username, string serviceName, string r
     }
 }
 
+documentation {
+        Check whether the scopes of the user and scopes of resource matches.
+
+        P{{resourceScopes}} Scopes of resource
+        P{{userScopes}} Scopes of user
+        P{{resourceName}} Name of the `resource`
+        P{{method}} HTTP method name
+        R{{}} true if there is a match between resource and user scopes, else false
+}
 function checkForScopeMatch (string[] resourceScopes, string[] userScopes, string resourceName, string method)
                                                                                                     returns boolean {
     boolean authorized = matchScopes(resourceScopes, userScopes);
@@ -92,9 +129,6 @@ function checkForScopeMatch (string[] resourceScopes, string[] userScopes, strin
     return authorized;
 }
 
-@Description {value:"Retrieves the cached authorization result if any, for the given basic auth header value"}
-@Param {value:"authzCacheKey: cache key - <username>-<resource>"}
-@Return {value:"boolean|(): cached entry, or nill in a cache miss"}
 function HttpAuthzHandler::authorizeFromCache(string authzCacheKey) returns (boolean|()) {
     try {
         match self.authzCache {
@@ -111,9 +145,6 @@ function HttpAuthzHandler::authorizeFromCache(string authzCacheKey) returns (boo
     return ();
 }
 
-@Description {value:"Caches the authorization result"}
-@Param {value:"authzCacheKey: cache key - <username>-<resource>"}
-@Param {value:"isAuthorized: authorization decision"}
 function HttpAuthzHandler::cacheAuthzResult (string authzCacheKey, boolean isAuthorized) {
     match self.authzCache {
         cache:Cache cache => {
@@ -125,10 +156,13 @@ function HttpAuthzHandler::cacheAuthzResult (string authzCacheKey, boolean isAut
     }
 }
 
-@Description {value:"Matches the scopes"}
-@Param {value:"scopesOfResource: array of scopes for the resource"}
-@Param {value:"scopesForRequest: array of scopes relevant to this request"}
-@Return {value:"boolean: true if two arrays have at least one match"}
+documentation {
+        Tries to find a match between the two scope arrays
+
+        P{{scopesOfResource}} Scopes of resource
+        P{{scopesForRequest}} Scopes of the user
+        R{{}} true if there is a match, else false
+}
 function matchScopes (string[] scopesOfResource, string[] scopesForRequest) returns (boolean) {
     foreach scopeForRequest in scopesForRequest {
         foreach scopeOfResource in scopesOfResource {
@@ -141,10 +175,6 @@ function matchScopes (string[] scopesOfResource, string[] scopesForRequest) retu
     return false;
 }
 
-@Description {value:"Checks if the provided request can be authorized. This method will validate if the username is
-already set in the authentication context. If not, the flow cannot continue."}
-@Param {value:"req: Request object"}
-@Return {value:"boolean: true if its possible authorize, else false"}
 function HttpAuthzHandler::canHandle (Request req) returns (boolean) {
     if (runtime:getInvocationContext().userPrincipal.username.length() == 0) {
         log:printError("Username not set in auth context. Unable to authorize");

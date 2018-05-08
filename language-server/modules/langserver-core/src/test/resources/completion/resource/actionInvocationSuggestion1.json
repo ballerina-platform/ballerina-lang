@@ -14,15 +14,15 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"respond(http:Response res)(ballerina.http:HttpConnectorError?)",
+      "label":"respond(http:Response response)(error?)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"respond(${1:res})",
+      "insertText":"respond(${1:response})",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"promise(http:PushPromise promise)(ballerina.http:HttpConnectorError?)",
+      "label":"promise(http:PushPromise promise)(error?)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -30,11 +30,11 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"pushPromisedResponse(http:PushPromise promise, http:Response res)(ballerina.http:HttpConnectorError?)",
+      "label":"pushPromisedResponse(http:PushPromise promise, http:Response response)(error?)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"pushPromisedResponse(${1:promise}, ${2:res})",
+      "insertText":"pushPromisedResponse(${1:promise}, ${2:response})",
       "insertTextFormat":"Snippet"
     },
     {
@@ -54,7 +54,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"continue()(ballerina.http:HttpConnectorError?)",
+      "label":"continue()(error?)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -62,7 +62,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"redirect(http:Response response, http:RedirectCode code, string locations)(ballerina.http:HttpConnectorError?)",
+      "label":"redirect(http:Response response, http:RedirectCode code, string locations)(error?)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
