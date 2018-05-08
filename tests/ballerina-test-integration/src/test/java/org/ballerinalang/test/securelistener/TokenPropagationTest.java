@@ -32,6 +32,9 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Test cases for verifying token propagation scenario.
+ */
 public class TokenPropagationTest extends IntegrationTestCase {
 
     private ServerInstance ballerinaServer;

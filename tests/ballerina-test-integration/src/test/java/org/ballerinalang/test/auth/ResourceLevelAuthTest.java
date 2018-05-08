@@ -31,6 +31,9 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Test cases for resource level authorization.
+ */
 public class ResourceLevelAuthTest extends IntegrationTestCase {
     private ServerInstance ballerinaServer;
 
