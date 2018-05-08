@@ -358,20 +358,26 @@ public class HttpUtil {
     }
 
     public static void handleFailure(HTTPCarbonMessage requestMessage, BallerinaConnectorException ex) {
-        Object carbonStatusCode = requestMessage.getProperty(HTTP_STATUS_CODE);
-        int statusCode = (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString());
         String errorMsg = ex.getMessage();
-        log.error(errorMsg, ex);
+        int statusCode = getStatusCode(requestMessage, errorMsg);
         sendOutboundResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
     }
 
     public static void handleFailure(HTTPCarbonMessage requestMessage, BStruct error) {
-        Object carbonStatusCode = requestMessage.getProperty(HttpConstants.HTTP_STATUS_CODE);
-        int statusCode = (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString());
         String errorMsg = error.getStringField(0);
-        log.error(errorMsg);
+        int statusCode = getStatusCode(requestMessage, errorMsg);
         ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
         sendOutboundResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
+    }
+
+    private static int getStatusCode(HTTPCarbonMessage requestMessage, String errorMsg) {
+        Object carbonStatusCode = requestMessage.getProperty(HttpConstants.HTTP_STATUS_CODE);
+        if (carbonStatusCode == null) {
+            //log only the internal server errors
+            log.error(errorMsg);
+            return HttpResponseStatus.INTERNAL_SERVER_ERROR.code();
+        }
+        return Integer.parseInt(carbonStatusCode.toString());
     }
 
     public static HTTPCarbonMessage createErrorMessage(String payload, int statusCode) {

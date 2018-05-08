@@ -21,6 +21,7 @@ package org.ballerinalang.test.services.testutils;
 
 import io.netty.handler.codec.http.HttpContent;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BStruct;
@@ -31,6 +32,7 @@ import org.ballerinalang.net.http.HttpDispatcher;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Collections;
@@ -59,7 +61,12 @@ public class Services {
                 (HTTPServicesRegistry) connectorEndpoint.getNativeData("HTTP_SERVICE_REGISTRY");
         TestCallableUnitCallback callback = new TestCallableUnitCallback(request);
         request.setCallback(callback);
-        HttpResource resource = HttpDispatcher.findResource(httpServicesRegistry, request);
+        HttpResource resource = null;
+        try {
+            resource = HttpDispatcher.findResource(httpServicesRegistry, request);
+        } catch (BallerinaException ex) {
+            HttpUtil.handleFailure(request, new BallerinaConnectorException(ex.getMessage()));
+        }
         if (resource == null) {
             return callback.getResponseMsg();
         }
