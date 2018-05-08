@@ -1627,6 +1627,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 if (handlerType.paramTypes.get(0).tag != TypeTags.STRING) {
                     dlog.error(transactionHanlder.pos, DiagnosticCode.INVALID_TRANSACTION_HANDLER_ARGS);
                 }
+                if (handlerType.retType.tag != TypeTags.NIL) {
+                    dlog.error(transactionHanlder.pos, DiagnosticCode.INVALID_TRANSACTION_HANDLER_SIGNATURE);
+                }
             } else {
                 dlog.error(transactionHanlder.pos, DiagnosticCode.LAMBDA_REQUIRED_FOR_TRANSACTION_HANDLER);
             }

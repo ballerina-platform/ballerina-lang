@@ -82,6 +82,7 @@ public enum DiagnosticCode {
     DONE_CANNOT_BE_USED_TO_EXIT_TRANSACTION("done.statement.cannot.be.used.to.exit.from.a.transaction"),
     INVALID_RETRY_COUNT("invalid.retry.count"),
     INVALID_TRANSACTION_HANDLER_ARGS("invalid.transaction.handler.args"),
+    INVALID_TRANSACTION_HANDLER_SIGNATURE("invalid.transaction.handler.signature"),
     LAMBDA_REQUIRED_FOR_TRANSACTION_HANDLER("lambda.required.for.transaction.handler"),
 
     // Service, endpoint related errors codes
