@@ -9,10 +9,8 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URI;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
@@ -27,21 +25,6 @@ public class URIConverter implements Converter<URI> {
 
     public URIConverter(URI base) {
         this.base = base;
-    }
-
-    /**
-     * Create the dir path provided.
-     *
-     * @param dirPath destination dir path
-     */
-    public void createDirectory(Path dirPath) {
-        if (!Files.exists(dirPath)) {
-            try {
-                Files.createDirectories(dirPath);
-            } catch (IOException e) {
-                throw new RuntimeException("Error occured when creating the directory path " + dirPath);
-            }
-        }
     }
 
     @Override
@@ -77,7 +60,6 @@ public class URIConverter implements Converter<URI> {
                                                                                    ProjectDirConstants
                                                                                            .BALLERINA_CENTRAL_DIR_NAME,
                                                                                    orgName, pkgName));
-        createDirectory(destDirPath);
         try {
             String fullPkgPath = orgName + "/" + pkgName;
             EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
