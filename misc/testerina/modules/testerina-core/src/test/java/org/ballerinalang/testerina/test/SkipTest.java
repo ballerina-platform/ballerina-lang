@@ -20,6 +20,7 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
@@ -36,7 +37,6 @@ public class SkipTest {
 
     @Test
     public void tesSkipWhenDependsOnFunctionFails() {
-        cleanup();
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("dependson-skip-test.bal")}, new
             ArrayList<>());
@@ -47,7 +47,6 @@ public class SkipTest {
 
     @Test
     public void testSkipWhenBeforeFails() {
-        cleanup();
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("skip-when-before-fails.bal")}, new
             ArrayList<>());
@@ -58,7 +57,6 @@ public class SkipTest {
 
     @Test
     public void testSkipDependentsWhenBeforeFails() {
-        cleanup();
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("skip-dependents-when-before-fails.bal")}, new
             ArrayList<>());
@@ -69,7 +67,6 @@ public class SkipTest {
 
     @Test
     public void testSkipWhenBeforeSuiteFails() {
-        cleanup();
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("skip-when-beforeSuite-fails.bal")}, new
             ArrayList<>());
@@ -78,6 +75,7 @@ public class SkipTest {
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "failed"), 0);
     }
 
+    @AfterMethod
     private void cleanup() {
         TesterinaRegistry.getInstance().setProgramFiles(new ArrayList<>());
         TesterinaRegistry.getInstance().setTestSuites(new HashMap<>());

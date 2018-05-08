@@ -21,6 +21,7 @@ import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
@@ -37,8 +38,6 @@ public class DependsOnTest {
 
     @Test
     public void tesDependsOnFunctions() {
-
-        cleanup();
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("depends-on.bal")}, new
             ArrayList<>());
@@ -49,8 +48,6 @@ public class DependsOnTest {
 
     @Test
     public void tesDependsOnFunctionsWithBefore() {
-
-        cleanup();
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("depends-on-with-before.bal")}, new
             ArrayList<>());
@@ -62,15 +59,13 @@ public class DependsOnTest {
     @Test(expectedExceptions = BallerinaException.class,
         expectedExceptionsMessageRegExp = ".*Cannot find the specified dependsOn function : non-existing")
     public void tesDependsOnFunctionsMissingFunction() {
-
-        cleanup();
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("depends-on-negative.bal")}, new
             ArrayList<>());
     }
 
+    @AfterMethod
     private void cleanup() {
-
         TesterinaRegistry.getInstance().setProgramFiles(new ArrayList<>());
         TesterinaRegistry.getInstance().setTestSuites(new HashMap<>());
     }
