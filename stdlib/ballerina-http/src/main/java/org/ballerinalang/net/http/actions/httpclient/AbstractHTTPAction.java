@@ -369,8 +369,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
 
     private BStruct getEntityStruct(Context context) {
         BStruct requestStruct = ((BStruct) context.getRefArgument(1));
-        return requestStruct.getRefField(REQUEST_ENTITY_INDEX) != null ?
-                               (BStruct) requestStruct.getRefField(REQUEST_ENTITY_INDEX) : null;
+        return (BStruct) requestStruct.getRefField(REQUEST_ENTITY_INDEX);
     }
 
     /**
