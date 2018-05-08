@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 
 import java.util.Arrays;
@@ -76,7 +77,12 @@ public class BRefValueArray extends BNewArray {
     
     @Override
     public String stringValue() {
-        StringJoiner sj = new StringJoiner(", ", "[", "]");
+        StringJoiner sj;
+        if (arrayType instanceof BTupleType) {
+            sj = new StringJoiner(", ", "(", ")");
+        } else {
+            sj = new StringJoiner(", ", "[", "]");
+        }
         for (int i = 0; i < size; i++) {
             sj.add(values[i] == null ? "null" : values[i].stringValue());
         }
