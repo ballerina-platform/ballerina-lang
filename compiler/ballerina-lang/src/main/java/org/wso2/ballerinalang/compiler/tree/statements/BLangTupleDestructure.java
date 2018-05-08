@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implementation of {@link TupleDestructureNode}
+ * Implementation of {@link TupleDestructureNode}.
  *
  * @since 0.966.0
  */
