@@ -910,7 +910,8 @@ public class SQLDatasourceUtils {
         case TypeTags.BLOB_TAG:
             return Constants.SQLDataTypes.BLOB;
         default:
-            throw new BallerinaException("unsupported data type for struct parameter: " + value.getName());
+            throw new BallerinaException(
+                    "unsupported data type as direct value for sql operation, use sql:Parameter: " + value.getName());
         }
     }
 

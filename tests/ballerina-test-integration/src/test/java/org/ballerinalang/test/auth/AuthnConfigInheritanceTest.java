@@ -31,6 +31,9 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Test cases for authorization config inheritance scenarios.
+ */
 public class AuthnConfigInheritanceTest extends IntegrationTestCase {
     private ServerInstance ballerinaServer;
 

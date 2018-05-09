@@ -150,4 +150,4 @@ public type Parameter {
 documentation {
     The parameter passed into the operations.
 }
-public type Param string|int|boolean|float|Parameter;
+public type Param string|int|boolean|float|blob|Parameter;

@@ -35,14 +35,16 @@ documentation {
     F{{serviceType}} Type of the service
     F{{serviceName}} Name of the service
     F{{resourceName}} Name of the resource
+    F{{attributes}} Attributes to share between filters
 }
 public type FilterContext object {
     public {
         typedesc serviceType;
         string serviceName;
         string resourceName;
+        map attributes;
     }
-    new(serviceType, serviceName, resourceName) {}
+    new(serviceType, serviceName, resourceName, attributes) {}
 };
 
 documentation {
