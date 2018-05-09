@@ -129,3 +129,37 @@ function populateRequestFields (Request originalRequest, Request newRequest)  {
     newRequest.userAgent = originalRequest.userAgent;
     newRequest.extraPathInfo = originalRequest.extraPathInfo;
 }
+
+function populateMultipartRequest(Request inRequest) returns Request {
+    string reqContentType;
+    mime:Entity[] reqBodyParts;
+    if (isMultipartRequest(inRequest)) {
+        mime:MediaType mediaType = check mime:getMediaType(inRequest.getContentType());
+        reqContentType = mediaType.primaryType + "/" + mediaType.subType;
+        mime:Entity[] bodyParts = check inRequest.getBodyParts();
+        int i = 0;
+        while (i < lengthof bodyParts) {
+            mime:Entity part = bodyParts[i];
+            var payload = part.getBlob();
+            i = i + 1;
+        }
+        reqBodyParts = bodyParts;
+        inRequest.setBodyParts(reqBodyParts, contentType = reqContentType);
+    }
+    return inRequest;
+}
+
+function isMultipartRequest(Request request) returns boolean {
+    return request.hasHeader("Content-Type") && request.getHeader("Content-Type").hasPrefix("multipart/");
+}
+
+function createFailoverRequest(Request request, mime:Entity requestEntity) returns Request {
+    if (isMultipartRequest(request)) {
+        return populateMultipartRequest(request);
+    } else {
+        Request newOutRequest = new;
+        populateRequestFields(request, newOutRequest);
+        newOutRequest.setEntity(requestEntity);
+        return newOutRequest;
+    }
+}

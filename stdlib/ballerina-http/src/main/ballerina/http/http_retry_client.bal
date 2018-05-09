@@ -290,6 +290,7 @@ function performRetryAction(@sensitive string path, Request request, HttpOperati
     var binaryPayload = check inRequest.getBinaryPayload();
 
     while (currentRetryCount < (retryCount + 1)) {
+        inRequest = populateMultipartRequest(inRequest);
         var invokedEndpoint = invokeEndpoint(path, inRequest, requestAction, httpClient);
         match invokedEndpoint {
             Response backendResponse => {
