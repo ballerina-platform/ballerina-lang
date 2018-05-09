@@ -217,11 +217,9 @@ public class SwaggerResourceMapper {
                 resource.getAnnotationAttachments());
 
         if (annotation != null) {
-
             BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
                     .getExpression());
-            List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
-            Map<String, BLangExpression> attrs = ConverterUtils.listToMap(list);
+            Map<String, BLangExpression> attrs = ConverterUtils.listToMap(bLiteral.getKeyValuePairs());
 
             if (attrs.containsKey(ConverterConstants.ATTR_VALUE)) {
                 BLangArrayLiteral valueArr = (BLangArrayLiteral) attrs.get(ConverterConstants.ATTR_VALUE);
@@ -242,7 +240,7 @@ public class SwaggerResourceMapper {
                                         .getStringLiteralValue(attributes.get(ConverterConstants.ATTR_DESCRIPTION)));
                             }
                             // TODO: Parse 'response' attribute for $.paths./resource-path.responses[*]["code"].schema
-                            this.createHeadersModel(attributes.get("headers"), response);
+                            this.createHeadersModel(attributes.get(ConverterConstants.ATTR_HEADERS), response);
                             responses.put(code, response);
                         }
                     }
@@ -438,7 +436,7 @@ public class SwaggerResourceMapper {
                     .getExpression());
             List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
             Map<String, BLangExpression> attributes = ConverterUtils.listToMap(list);
-            this.createTagModel(attributes.get("tags"), operation);
+            this.createTagModel(attributes.get(ConverterConstants.ATTR_TAGS), operation);
 
             if (attributes.containsKey(ConverterConstants.ATTR_SUMMARY)) {
                 operation.setSummary(
@@ -452,7 +450,7 @@ public class SwaggerResourceMapper {
                 this.createParametersModel(attributes.get(ConverterConstants.ATTR_PARAM), operation);
             }
 
-            this.createExternalDocsModel(attributes.get("externalDoc"), operation);
+            this.createExternalDocsModel(attributes.get(ConverterConstants.ATTR_EXT_DOC), operation);
         }
     }
 
@@ -522,9 +520,8 @@ public class SwaggerResourceMapper {
             Map<String, BLangExpression> attributes = ConverterUtils.listToMap(list);
 
             if (attributes.containsKey(HttpConstants.ANN_RESOURCE_ATTR_METHODS)) {
-
                 // Setting default value is safe since empty 'methods' is handled separately by X-METHODS extension
-                String method = "GET";
+                String method = HttpConstants.HTTP_METHOD_GET;
                 BLangArrayLiteral methodsArray = (BLangArrayLiteral) attributes
                         .get(HttpConstants.ANN_RESOURCE_ATTR_METHODS);
 
@@ -595,6 +592,7 @@ public class SwaggerResourceMapper {
                 .getAnnotationFromList(HttpConstants.ANN_NAME_RESOURCE_CONFIG, httpAlias,
                         resource.getAnnotationAttachments());
         Set<String> httpMethods = new LinkedHashSet<>();
+
         if (annotation != null) {
             BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
                     .getExpression());
@@ -607,7 +605,6 @@ public class SwaggerResourceMapper {
                 for (ExpressionNode expr : methodsValue) {
                     httpMethods.add(ConverterUtils.getStringLiteralValue((BLangLiteral) expr));
                 }
-
             }
         }
         if (httpMethods.isEmpty() && useDefaults) {

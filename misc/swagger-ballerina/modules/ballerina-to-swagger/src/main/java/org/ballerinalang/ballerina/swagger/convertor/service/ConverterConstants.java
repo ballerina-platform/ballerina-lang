@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,8 +39,10 @@ public class ConverterConstants {
     public static final String ATTR_TERMS = "termsOfService";
     public static final String ATTR_TITLE = "title";
     public static final String ATTR_SERVICE_VERSION = "serviceVersion";
+    public static final String ATTR_HEADERS = "headers";
+    public static final String ATTR_TAGS = "tags";
+    public static final String ATTR_EXT_DOC = "externalDoc";
 
     // annotation keys
     public static final String ANNON_RES_INFO = "ResourceInfo";
-
 }
