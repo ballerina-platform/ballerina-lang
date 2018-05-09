@@ -63,7 +63,7 @@ public class AuthnHandlerChainTest {
 
         // load configs
         ConfigRegistry registry = ConfigRegistry.getInstance();
-        registry.initRegistry(Collections.singletonMap("ballerina.config.secret", secretCopyPath.toString()),
+        registry.initRegistry(Collections.singletonMap("b7a.config.secret", secretCopyPath.toString()),
                 ballerinaConfPath.toString(), null);
     }
 

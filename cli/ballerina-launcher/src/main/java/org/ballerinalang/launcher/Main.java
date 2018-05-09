@@ -24,15 +24,16 @@ import com.beust.jcommander.MissingCommandException;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.config.cipher.AESCipherTool;
 import org.ballerinalang.config.cipher.AESCipherToolException;
+import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.util.VMOptions;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.util.exceptions.ParserException;
-import org.ballerinalang.util.exceptions.SemanticException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -63,21 +64,18 @@ public class Main {
         try {
             Optional<BLauncherCmd> optionalInvokedCmd = getInvokedCmd(args);
             optionalInvokedCmd.ifPresent(BLauncherCmd::execute);
-        } catch (ParserException | SemanticException | BLangRuntimeException e) {
+        } catch (BLangRuntimeException e) {
             outStream.println(e.getMessage());
+            Runtime.getRuntime().exit(1);
+        } catch (BLangCompilerException e) {
+            outStream.println(prepareCompilerErrorMessage(e.getMessage()));
             Runtime.getRuntime().exit(1);
         } catch (BLauncherException e) {
             LauncherUtils.printLauncherException(e, outStream);
             Runtime.getRuntime().exit(1);
         } catch (Throwable e) {
-            String msg = e.getMessage();
-            if (msg == null) {
-                msg = "ballerina: internal error occurred";
-            } else {
-                msg = "ballerina: " + LauncherUtils.makeFirstLetterLowerCase(msg);
-            }
-            outStream.println(msg);
-            breLog.error(msg, e);
+            outStream.println(getMessageForInternalErrors());
+            breLog.error(e.getMessage(), e);
             Runtime.getRuntime().exit(1);
         }
     }
@@ -172,6 +170,20 @@ public class Main {
             // Exception is ignored
             throw LauncherUtils.createUsageException("version info not available");
         }
+    }
+
+    private static String getMessageForInternalErrors() {
+        String errorMsg;
+        try {
+            errorMsg = BCompileUtil.readFileAsString("cli-help/internal-error-message.txt");
+        } catch (IOException e) {
+            errorMsg = "ballerina: internal error occurred";
+        }
+        return errorMsg;
+    }
+
+    private static String prepareCompilerErrorMessage(String message) {
+        return "ballerina: " + LauncherUtils.makeFirstLetterLowerCase(message);
     }
 
     /**

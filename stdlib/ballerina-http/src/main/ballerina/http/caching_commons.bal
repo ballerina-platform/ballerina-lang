@@ -115,6 +115,8 @@ public type RequestCacheControl object {
 
     documentation {
         Builds the cache control directives string from the current `RequestCacheControl` configurations.
+
+        R{{}} The cache control directives string to be used in the `cache-control` header
     }
     public function buildCacheControlDirectives () returns string {
         string[] directives = [];
@@ -194,6 +196,8 @@ public type ResponseCacheControl object {
 
     documentation {
         Builds the cache control directives string from the current `ResponseCacheControl` configurations.
+
+        R{{}} The cache control directives string to be used in the `cache-control` header
     }
     public function buildCacheControlDirectives () returns string {
         string[] directives = [];

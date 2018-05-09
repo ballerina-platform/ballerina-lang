@@ -88,18 +88,6 @@
       "insertText":"TableConfig"
     },
     {
-      "label":"$anonRecord$builtin$1",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"$anonRecord$builtin$1"
-    },
-    {
-      "label":"$anonRecord$builtin$0",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"$anonRecord$builtin$0"
-    },
-    {
       "label":"stream",
       "detail":"BType",
       "sortText":"170",

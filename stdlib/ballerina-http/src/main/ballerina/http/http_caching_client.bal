@@ -95,6 +95,15 @@ public type HttpCachingClient object {
         CacheConfig cacheConfig;
     }
 
+    documentation {
+        Takes a service URL, a `CliendEndpointConfig` and a `CacheConfig` and builds an HTTP client capable of
+        caching responses. The `CacheConfig` instance is used for initializing a new HTTP cache for the client and
+        the `ClientEndpointConfig` is used for creating the underlying HTTP client.
+
+        P{{serviceUri}} The URL of the HTTP endpoint to connect to
+        P{{config}} The configurations for the client endpoint associated with the caching client
+        P{{cacheConfig}} The configurations for the HTTP cache to be used with the caching client
+    }
     public new(serviceUri, config, cacheConfig) {
         self.httpClient = createHttpSecureClient(serviceUri, config);
         self.cache = createHttpCache("http-cache", cacheConfig);
@@ -205,7 +214,7 @@ public type HttpCachingClient object {
         Retrieves the `Response` for a previously submitted request.
 
         P{{httpFuture}} The `HttpFuture` related to a previous asynchronous invocation
-        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
+        R{{}} An HTTP response message, or an `error` if the invocation fails
     }
     public function getResponse(HttpFuture httpFuture) returns Response|error;
 
@@ -244,6 +253,11 @@ public type HttpCachingClient object {
 
 documentation {
     Creates an HTTP client capable of caching HTTP responses.
+
+    P{{url}} The URL of the HTTP endpoint to connect to
+    P{{config}} The configurations for the client endpoint associated with the caching client
+    P{{cacheConfig}} The configurations for the HTTP cache to be used with the caching client
+    R{{}} An `HttpCachingClient` instance which wraps the base `CallerActions` with a caching layer
 }
 public function createHttpCachingClient(string url, ClientEndpointConfig config, CacheConfig cacheConfig)
                                                                                                 returns CallerActions {

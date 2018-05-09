@@ -23,6 +23,7 @@ import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.testerina.util.Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -42,9 +43,7 @@ public class TesterinaSamplesTest {
 
     @BeforeClass
     public void setUserDir() throws IOException {
-        // This is comming from the pom
         testerinaRoot = System.getProperty("user.dir") + "/../../samples";
-        // TODO : Done as a workaround to create the .ballerina directory
         Path filePath = Paths.get(testerinaRoot + "/.ballerina");
         Utils.cleanUpDir(filePath);
         Files.createDirectory(filePath);
@@ -54,18 +53,15 @@ public class TesterinaSamplesTest {
     @Test
     public void functionTestSampleTest() {
         TesterinaRegistry.getInstance().setOrgName("$anon");
-        cleanup();
         BTestRunner runner = new BTestRunner();
         runner.runTest(testerinaRoot, new Path[] { Paths.get("functionTest") }, new ArrayList<>());
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary("functionTest", "passed"), 6);
         // Reset the org name
-        TesterinaRegistry.getInstance().setOrgName(null);
     }
 
     // /samples/features/assertions.bal
     @Test
     public void assertSampleTest() {
-        cleanup();
         BTestRunner runner = new BTestRunner();
         runner.runTest(testerinaRoot + "/features/", new Path[]{Paths.get("assertions.bal")}, new ArrayList<>());
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 14);
@@ -74,21 +70,22 @@ public class TesterinaSamplesTest {
     // /samples/features/assertions.bal
     @Test
     public void dataProviderSampleTest() {
-        cleanup();
         BTestRunner runner = new BTestRunner();
         runner.runTest(testerinaRoot + "/features/", new Path[]{Paths.get("data-providers.bal")}, new ArrayList<>());
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 4);
     }
 
-    // TODO : Added as a temporary solution to cleanup .ballerina directory
+    @AfterMethod
+    private void cleanup() {
+        TesterinaRegistry.getInstance().setOrgName(null);
+        TesterinaRegistry.getInstance().setProgramFiles(new ArrayList<>());
+        TesterinaRegistry.getInstance().setTestSuites(new HashMap<>());
+        TesterinaRegistry.getInstance().getInitializedPackages().clear();
+    }
+
     @AfterClass
     public void cleanDirectory() throws IOException {
         Utils.cleanUpDir(Paths.get(testerinaRoot,  ".ballerina"));
     }
 
-    private void cleanup() {
-        TesterinaRegistry.getInstance().setProgramFiles(new ArrayList<>());
-        TesterinaRegistry.getInstance().setTestSuites(new HashMap<>());
-        TesterinaRegistry.getInstance().getInitializedPackages().clear();
-    }
 }

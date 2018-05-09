@@ -23,6 +23,8 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.packerina.init.InitHandler;
+import org.ballerinalang.packerina.init.models.FileType;
+import org.ballerinalang.packerina.init.models.PackageMdFile;
 import org.ballerinalang.packerina.init.models.SrcFile;
 import org.ballerinalang.toml.model.Manifest;
 
@@ -46,8 +48,8 @@ import java.util.regex.Pattern;
 @Parameters(commandNames = "init", commandDescription = "initialize ballerina project")
 public class InitCommand implements BLauncherCmd {
 
-    private static final String USER_DIR = "user.dir";
     public static final String DEFAULT_VERSION = "0.0.1";
+    private static final String USER_DIR = "user.dir";
     private static final PrintStream outStream = System.err;
     private JCommander parentCmdParser;
 
@@ -56,6 +58,12 @@ public class InitCommand implements BLauncherCmd {
 
     @Parameter(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
+
+    private static boolean isDirEmpty(final Path directory) throws IOException {
+        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(directory)) {
+            return !dirStream.iterator().hasNext();
+        }
+    }
 
     @Override
     public void execute() {
@@ -74,6 +82,7 @@ public class InitCommand implements BLauncherCmd {
             }
 
             List<SrcFile> sourceFiles = new ArrayList<>();
+            List<PackageMdFile> packageMdFiles = new ArrayList<>();
             if (interactiveFlag) {
 
                 // Check if Ballerina.toml file needs to be created.
@@ -103,7 +112,7 @@ public class InitCommand implements BLauncherCmd {
                 String srcInput;
                 boolean validInput = false;
                 boolean first = true;
-                do  {
+                do {
                     if (first) {
                         out.print("Ballerina source [service/s, main/m]: (s) ");
                     } else {
@@ -112,12 +121,24 @@ public class InitCommand implements BLauncherCmd {
                     srcInput = scanner.nextLine().trim();
 
                     if (srcInput.equalsIgnoreCase("service") || srcInput.equalsIgnoreCase("s") ||
-                        (first && srcInput.isEmpty())) {
-                        SrcFile srcFile = new SrcFile("", SrcFile.SrcFileType.SERVICE);
+                            (first && srcInput.isEmpty())) {
+                        out.print("Package for the service : (no package) ");
+                        String packageName = scanner.nextLine().trim();
+                        SrcFile srcFile = new SrcFile(packageName, FileType.SERVICE);
                         sourceFiles.add(srcFile);
+                        if (!packageName.isEmpty()) {
+                            PackageMdFile packageMdFile = new PackageMdFile(packageName, FileType.SERVICE);
+                            packageMdFiles.add(packageMdFile);
+                        }
                     } else if (srcInput.equalsIgnoreCase("main") || srcInput.equalsIgnoreCase("m")) {
-                        SrcFile srcFile = new SrcFile("", SrcFile.SrcFileType.MAIN);
+                        out.print("Package for the main : (no package) ");
+                        String packageName = scanner.nextLine().trim();
+                        SrcFile srcFile = new SrcFile(packageName, FileType.MAIN);
                         sourceFiles.add(srcFile);
+                        if (!packageName.isEmpty()) {
+                            PackageMdFile packageMdFile = new PackageMdFile(packageName, FileType.MAIN);
+                            packageMdFiles.add(packageMdFile);
+                        }
                     } else if (srcInput.isEmpty() || srcInput.equalsIgnoreCase("f")) {
                         validInput = true;
                     } else {
@@ -130,12 +151,12 @@ public class InitCommand implements BLauncherCmd {
                 out.print("\n");
             } else {
                 if (isDirEmpty(projectPath)) {
-                    SrcFile srcFile = new SrcFile("", SrcFile.SrcFileType.SERVICE);
+                    SrcFile srcFile = new SrcFile("", FileType.SERVICE);
                     sourceFiles.add(srcFile);
                 }
             }
 
-            InitHandler.initialize(projectPath, manifest, sourceFiles);
+            InitHandler.initialize(projectPath, manifest, sourceFiles, packageMdFiles);
             out.println("Ballerina project initialized");
 
         } catch (IOException e) {
@@ -187,6 +208,7 @@ public class InitCommand implements BLauncherCmd {
 
     /**
      * Validates the version is a semver version.
+     *
      * @param versionAsString The version.
      * @return True if valid version, else false.
      */
@@ -202,12 +224,6 @@ public class InitCommand implements BLauncherCmd {
             out.println("--Invalid version: \"" + versionAsString + "\"");
         }
         return count == 1;
-    }
-
-    private static boolean isDirEmpty(final Path directory) throws IOException {
-        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(directory)) {
-            return !dirStream.iterator().hasNext();
-        }
     }
 
     private String guessOrgName() {

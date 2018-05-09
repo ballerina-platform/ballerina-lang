@@ -44,12 +44,21 @@ function search (string url, string querySearched) {
         json[] artifacts = check <json[]> jsonResponse.artifacts;
         if (artifacts == null || lengthof artifacts > 0) {
             int artifactsLength = lengthof artifacts;
-            io:println("Ballerina Central");
-            printInCLI("NAME", 30);
-            printInCLI("DESCRIPTION", 40);
-            printInCLI("AUTHOR", 40);
-            printInCLI("DATE", 20);
-            printInCLI("VERSION", 15);
+            
+            printTitle("Ballerina Central");
+
+            printInCLI("|NAME", 18);
+            printInCLI("DESCRIPTION", 32);
+            printInCLI("DATE", 15);
+            printInCLI("VERSION", 8);
+
+            io:println("");
+
+            printCharacter("|-", 18, "-");
+            printCharacter("-", 32, "-");
+            printCharacter("-", 15, "-");
+            printCharacter("-", 8, "-");
+
             io:println("");
 
             int i = 0;
@@ -57,30 +66,20 @@ function search (string url, string querySearched) {
                 json jsonElement = artifacts[i];
                 string orgName = jsonElement.orgName.toString();
                 string packageName = jsonElement.packageName.toString();
-                printInCLI(orgName + "/" + packageName, 30);
+                printInCLI("|"+ orgName + "/" + packageName, 18);
                 
                 string summary = jsonElement.summary.toString();
-                printInCLI(summary, 40);
-                
-                string authors = "";
-                json authorsArr = jsonElement.authors;
-                foreach authorIndex in [0..lengthof authorsArr - 1] {
-                    if (authorIndex == lengthof authorsArr - 1) {
-                        authors = authors + authorsArr[authorIndex].toString();
-                    } else {
-                        authors = authors + " , " + authorsArr[authorIndex].toString();
-                    }
-                }
-                printInCLI(authors, 40);
+                printInCLI(summary, 32);
 
                 json createTimeJson = <json> jsonElement.createdDate;
-                printInCLI(getDateCreated(createTimeJson), 20);
+                printInCLI(getDateCreated(createTimeJson), 15);
                 
                 string packageVersion = jsonElement.packageVersion.toString();
-                printInCLI(packageVersion, 15);               
+                printInCLI(packageVersion, 8);
                 i = i + 1;
                 io:println("");
             }
+            io:println("");
         } else {
             io:println("no packages found");
         }
@@ -99,14 +98,38 @@ function printInCLI(string element, int charactersAllowed) {
         string trimmedElement = element.substring(0, charactersAllowed - 3) + "...";
         io:print(trimmedElement + "| ");
     } else {
-        io:print(element);
-        int i = 0;
-        while(i < charactersAllowed - lengthOfElement) {
-            io:print(" ");
-            i = i + 1;
-        }
-        io:print("| ");
+        printCharacter(element, charactersAllowed, " ");
     }
+}
+
+documentation {
+    This function prints any given character the specified number of times.
+
+    P{{element}} Characters to be printed
+    P{{charactersAllowed}} Maximum number of characters to be printed
+    P{{separator}} Character to be used as the separator
+}
+function printCharacter(string element, int charactersAllowed, string separator) {
+    int lengthOfElement = element.length();
+    string print = element;
+    int i = 0;
+    while(i < charactersAllowed - lengthOfElement) {
+        print = print + separator;
+        i = i + 1;
+    }
+    io:print(print + "| ");
+}
+
+documentation {
+    This function prints the title along with a horizontal separation.
+
+    P{{title}} Title to be printed
+}
+function printTitle(string title) {
+    io:println("");
+    io:println(title);
+    io:println("=================");
+    io:println("");
 }
 
 documentation {

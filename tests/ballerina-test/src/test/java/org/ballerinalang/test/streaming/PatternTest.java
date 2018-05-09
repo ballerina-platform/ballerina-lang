@@ -89,5 +89,12 @@ public class PatternTest {
         BStruct tempDifference = (BStruct) roomActions[0];
         Assert.assertEquals(tempDifference.getStringField(0), "CloseRoomAfter2Sec");
     }
-}
 
+    @Test(description = "Test pattern streaming query with within clause")
+    public void testPatternQuery6() {
+        BValue[] tempDifferences = BRunUtil.invoke(result, "runPatternQuery6");
+
+        Assert.assertNotNull(tempDifferences);
+        Assert.assertEquals(0, tempDifferences.length);
+    }
+}

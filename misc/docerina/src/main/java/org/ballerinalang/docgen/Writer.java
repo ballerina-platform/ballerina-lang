@@ -58,9 +58,12 @@ public class Writer {
     public static void writeHtmlDocument(Object object, String packageTemplateName, String filePath) {
         String templatesFolderPath = System.getProperty(BallerinaDocConstants.TEMPLATES_FOLDER_PATH_KEY, File
                 .separator + "docerina-templates" + File.separator + "html");
+
+        String templatesClassPath = System.getProperty(BallerinaDocConstants.TEMPLATES_FOLDER_PATH_KEY,
+                                                       "/docerina-templates/html");
         PrintWriter writer = null;
         try {
-            Handlebars handlebars = new Handlebars().with(new ClassPathTemplateLoader(templatesFolderPath), new
+            Handlebars handlebars = new Handlebars().with(new ClassPathTemplateLoader(templatesClassPath), new
                     FileTemplateLoader(templatesFolderPath));
             handlebars.registerHelpers(StringHelpers.class);
             handlebars.registerHelper("exists", new Helper<List<Documentable>>() {
@@ -110,6 +113,38 @@ public class Writer {
                     return false;
                 }
             });
+            handlebars.registerHelper("dataTypeLink", new Helper<String>() {
+                @Override
+                public Object apply(String dataType, Options options) throws IOException {
+                    String href = options.param(0);
+                    String[] types, hrefs;
+                    String tupleDelimiter = ",";
+                    String unionDelimiter = "|";
+                    String delimiter;
+                    StringBuilder linkHtmlBuilder = new StringBuilder();
+                    if (dataType.contains(tupleDelimiter)) {
+                        delimiter = tupleDelimiter;
+                    } else if (dataType.contains(unionDelimiter)) {
+                        delimiter = "\\|";
+                    } else {
+                        delimiter = "NULL_DELIMITER";
+                    }
+                    types = dataType.split(delimiter);
+                    hrefs = href.split(delimiter);
+
+                    for (int i = 0; i < types.length; i++) {
+                        if (i > 0) {
+                            linkHtmlBuilder.append(delimiter.contains("|") ? "|" : delimiter);
+                        }
+                        if (i >= hrefs.length) {
+                            linkHtmlBuilder.append(getHtmlLink(types[i], "#" + types[i]));
+                        } else {
+                            linkHtmlBuilder.append(getHtmlLink(types[i], hrefs[i]));
+                        }
+                    }
+                    return linkHtmlBuilder.toString();
+                }
+            });
             Template template = handlebars.compile(packageTemplateName);
 
             writer = new PrintWriter(filePath, "UTF-8");
@@ -124,5 +159,9 @@ public class Writer {
                 writer.close();
             }
         }
+    }
+
+    private static String getHtmlLink(String value, String href) {
+        return "<a href=\"" + href + "\">" + value + "</a>";
     }
 }

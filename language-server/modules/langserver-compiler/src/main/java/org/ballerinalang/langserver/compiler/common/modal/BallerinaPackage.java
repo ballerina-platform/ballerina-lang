@@ -75,4 +75,17 @@ public class BallerinaPackage {
 
         return orgName + this.packageName + ":" + this.version;
     }
+
+    /**
+     * Get the full package name alias without the package version appended.
+     * @return {@link String}   Package name alias
+     */
+    public String getFullPackageNameAlias() {
+        String orgName = "";
+        if (this.orgName != null && !this.orgName.equals(Names.ANON_ORG.getValue())) {
+            orgName = this.orgName + "/";
+        }
+
+        return orgName + this.packageName;
+    }
 }
