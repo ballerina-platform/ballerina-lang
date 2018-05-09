@@ -63,15 +63,14 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
 
         string resolvedURI = httpResponse.resolvedRequestedURI;
         if (resolvedURI != "") {
+            string pkgName = fullPkgPath.substring(fullPkgPath.lastIndexOf("/") + 1, fullPkgPath.length());
+            string archiveFileName = pkgName + ".zip";
             
-            int indexOfURI = resolvedURI.indexOf("https://fileserver.central.ballerina.io");
-            resolvedURI = resolvedURI.substring(indexOfURI, resolvedURI.length());
-            string [] pathArray = resolvedURI.split("/");
-            int sizeOfArray = lengthof pathArray;
-
-            if (sizeOfArray > 3) {
-                string pkgVersion = pathArray[sizeOfArray - 2];
-                string pkgName = fullPkgPath.substring(fullPkgPath.lastIndexOf("/") + 1, fullPkgPath.length());
+            int indexOfPkgName = resolvedURI.indexOf(pkgName + "/");
+            int indexOfPkgArchive = resolvedURI.indexOf("/" + archiveFileName);
+            
+            if (indexOfPkgName != 1 && indexOfPkgArchive != -1) {
+                string pkgVersion = resolvedURI.substring(indexOfPkgName + pkgName.length() + 1, indexOfPkgArchive);  
                 fullPkgPath = fullPkgPath + ":" + pkgVersion;
                 destDirPath = destDirPath + fileSeparator + pkgVersion;        
 
