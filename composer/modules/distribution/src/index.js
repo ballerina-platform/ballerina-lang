@@ -16,25 +16,21 @@
  * under the License.
  *
  */
-
-const {app} = require('electron');
+const { app } = require('electron');
 const path = require('path');
 const process = require('process');
 const fs = require('fs');
 const log = require('log');
-const {spawn} = require('child_process');
-const {createWindow} = require('./src/app');
-const {createErrorWindow} = require('./src/error-window');
-const {ErrorCodes} = require('./src/error-codes');
+const { spawn } = require('child_process');
+const { createWindow } = require('./app');
+const { createErrorWindow } = require('./error-window');
+const { ErrorCodes } = require('./error-codes');
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
 let win,
-    serviceProcess,
+    serverProcess,
     logger = new log('info'),
     appDir = app.getAppPath(),
-    logsDir = path.join(appDir, '..', '..', 'logs'),
-    ballerinaHome = path.join(__dirname, 'bre');
+    logsDir = path.join(appDir, '..', '..', 'logs');
 
 function createLogger(){
     if (!fs.existsSync(logsDir)){
@@ -48,36 +44,33 @@ function createLogger(){
     }
 }
 
-function createService(){
-    let logsDirSysProp = '-DlogsDirectory=' + logsDir;
-    let log4jConfPath = path.join(appDir, 'conf', 'log4j.properties')
-                          .replace('app.asar', 'app.asar.unpacked');
-    let log4jConfProp = '-Dlog4j.configuration=' + 'file:' + log4jConfPath;
-    let balHomeProp = '-Dballerina.home=' + path.join(appDir.replace('app.asar', 'app.asar.unpacked'), 'bre');
-    let debugArgs='-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=6006';
+function startServer(){
     let errorWin;
-
-    serviceProcess = spawn('java', [log4jConfProp, logsDirSysProp, balHomeProp,
-        '-jar', path.join(appDir, 'composer-server-distribution.jar')
-                    .replace('app.asar', 'app.asar.unpacked')]);
+    const composerExec = path.join(appDir, 'resources', 'ballerina-tools', 'bin', 'composer')
+                    .replace('app.asar', 'app.asar.unpacked');
+    logger.info('Starting composer exec at ' + composerExec);
+    serverProcess = spawn('sh', 
+                        [
+                            composerExec,
+                            '--openInBrowser',
+                            'false'
+                        ]
+                    );
     logger.info('Verifying whether the backend server is started successfully');
-    serviceProcess.stdout.on('data', function(data) {
-        // IMPORTANT: Wait till workspace-service is started to create window
-        if (data.includes('Microservices server started')) {
-            logger.info('Backend services are properly started, starting composer GUI');
+    serverProcess.stdout.on('data', function(data) {
+        // IMPORTANT: Wait till backend server is started to create window
+        if (data.includes('Composer started successfully')) {
+            logger.info('Backend server is properly started, starting composer UI');
             if (win === undefined) {
                 win = createWindow();
                 win.on('closed', () => {
-                    // Dereference the window object, usually you would store windows
-                    // in an array if your app supports multi windows, this is the time
-                    // when you should delete the corresponding element.
                     win = null;
                 });
             }
         }
     });
 
-    serviceProcess.stderr.on('data', function(data){
+    serverProcess.stderr.on('data', function(data){
         let errorWindowLoaded = false,
             logsBuffer = [];
         if (!errorWin) {
@@ -95,11 +88,11 @@ function createService(){
         } else {
             errorWin.webContents.send('error-log', data);
         }
-        logger.error('Failed to start backend services: ' + data);
+        logger.error('Failed to start backend server: ' + data);
     });
 
-    serviceProcess.on('close', function(code){
-        logger.info('Services are shutdown. Exit code: ' + code);
+    serverProcess.on('close', function(code){
+        logger.info('Server was shutdown. Exit code: ' + code);
     });
 }
 
@@ -129,7 +122,7 @@ app.on('ready', () => {
     checkJava((error, message) => {
         if (!error) {
             logger.info('Starting composer backend services');
-            createService();
+            startServer();
         } else {
             logger.error('Failed verifying availability of java runtime in path');
             logger.error('Error: ' + message);
@@ -146,8 +139,8 @@ app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit();
     }
-    if(serviceProcess !== undefined) {
-        serviceProcess.kill();
+    if(serverProcess !== undefined) {
+        serverProcess.kill();
     }
 });
 

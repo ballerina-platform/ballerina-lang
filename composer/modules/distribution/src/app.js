@@ -16,8 +16,7 @@
  * under the License.
  *
  */
-
-const {BrowserWindow} = require('electron');
+const { BrowserWindow } = require('electron');
 const registerMenuLoader = require('./menu.js');
 const setupNativeWizards = require('./workspace.js');
 
