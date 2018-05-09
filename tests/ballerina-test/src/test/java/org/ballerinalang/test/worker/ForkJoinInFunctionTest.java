@@ -45,6 +45,18 @@ public class ForkJoinInFunctionTest {
         Assert.assertEquals(((BIntArray) returns[0]).get(1), 500);
     }
 
+    @Test(description = "Test Fork Join with empty timeout block")
+    public void testForkJoinWithEmptyTimeoutBlock() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/fork-join-in-all.bal");
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "testForkJoinWithEmptyTimeoutBlock", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BIntArray);
+        Assert.assertEquals(((BIntArray) returns[0]).size(), 2);
+        Assert.assertEquals(((BIntArray) returns[0]).get(0), 234);
+        Assert.assertEquals(((BIntArray) returns[0]).get(1), 500);
+    }
+
     @Test(description = "Test Fork Join Any")
     public void testForkJoinAny() {
         CompileResult result = BCompileUtil.compile("test-src/workers/fork-join-some.bal");
