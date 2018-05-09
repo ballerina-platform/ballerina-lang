@@ -18,6 +18,7 @@
 package org.ballerinalang.test.service.websub;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
+import org.awaitility.Duration;
 import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
@@ -103,7 +104,8 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends IntegrationT
         });
 
         //Allow to bring up the hub
-        given().ignoreException(ConnectException.class).await().atMost(60, SECONDS).until(() -> {
+        given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
+                .with().pollDelay(Duration.TEN_SECONDS).await().atMost(60, SECONDS).until(() -> {
             HttpResponse response = HttpsClientRequest.doGet(hubUrl, ballerinaWebSubPublisher.getServerHome());
             return response.getResponseCode() == 202;
         });
@@ -112,7 +114,8 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends IntegrationT
         ballerinaWebSubSubscriber.startBallerinaServer(subscriberBal, subscriberArgs);
 
         //Allow to start up the subscriber service
-        given().ignoreException(ConnectException.class).await().atMost(60, SECONDS).until(() -> {
+        given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
+                .with().pollDelay(Duration.TEN_SECONDS).await().atMost(60, SECONDS).until(() -> {
             Map<String, String> headers = new HashMap<>();
             headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
             headers.put("X-Hub-Signature", "SHA256=5262411828583e9dc7eaf63aede0abac8e15212e06320bb021c433a20f27d553");
