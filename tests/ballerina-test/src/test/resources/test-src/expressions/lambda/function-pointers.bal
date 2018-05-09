@@ -76,3 +76,17 @@ function testFuncWithArrayParams () returns (int){
 function funcWithArrayParams (string[] a) returns (int) {
     return 0;
 }
+
+public function getCount(function (int , int ) returns (int) sumFunction, string first, string last) returns string {
+    return first + ": " + sumFunction(4, 2) + " " + last;
+}
+
+function testFunctionPointerAsFuncParam() returns (int, string) {
+    function (int , int ) returns (int) sumFunction = (int a, int b) => (int) {
+                               int value =  a + b;
+                               return value;
+                           };
+
+    string s = getCount(sumFunction, "Total", "USD");
+    return (sumFunction(5, 8), s);
+}

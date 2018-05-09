@@ -784,13 +784,36 @@ public class ProgramFileReader {
     }
 
     private BFunctionType getFunctionType(String sig, PackageInfo packageInfo) {
-        int indexOfSep = sig.indexOf(")(");
-        String paramSig = sig.substring(1, indexOfSep);
-        String retParamSig = sig.substring(indexOfSep + 2, sig.length() - 1);
+        char[] chars = sig.toCharArray();
+        Stack<BType> typeStack = new Stack<>();
+        createFunctionType(chars, 0, typeStack, packageInfo);
+        return (BFunctionType) typeStack.pop();
+    }
 
-        BType[] paramTypes = getParamTypes(paramSig, packageInfo);
-        BType[] retParamTypes = getParamTypes(retParamSig, packageInfo);
-        return new BFunctionType(paramTypes, retParamTypes);
+    private int createFunctionType(char[] chars, int index, Stack<BType> typeStack, PackageInfo packageInfo) {
+        // Skip the first parenthesis
+        index++;
+
+        // Read function parameters
+        Stack<BType> funcParamsStack = new Stack<>();
+        while (chars[index] != ')' || chars[index + 1] != '(') {
+            index = createBTypeFromSig(chars, index, funcParamsStack, packageInfo);
+        }
+        BType[] paramTypes = funcParamsStack.toArray(new BType[funcParamsStack.size()]);
+
+        // Read function return type.
+        // Skip the two parenthesis ')(', which separate params and return params
+        index += 2;
+        BType[] retType;
+        if (chars[index] == ')') {
+            retType = new BType[] {};
+        } else {
+            index = createBTypeFromSig(chars, index, funcParamsStack, packageInfo);
+            retType = new BType[] { funcParamsStack.pop() };
+        }
+
+        typeStack.push(new BFunctionType(paramTypes, retType));
+        return index;
     }
 
     private BType[] getParamTypes(String signature, PackageInfo packageInfo) {
@@ -914,8 +937,8 @@ public class ProgramFileReader {
                 typeStack.push(new BStreamType(streamConstraintType));
                 return index;
             case 'U':
-                // TODO : Fix this for type casting.
-                typeStack.push(new BFunctionType());
+                index++;
+                index = createFunctionType(chars, index, typeStack, packageInfo);
                 return index + 1;
             case 'O':
             case 'P':
@@ -1011,8 +1034,6 @@ public class ProgramFileReader {
                 BType elemType = getBTypeFromDescriptor(desc.substring(1));
                 return new BArrayType(elemType);
             case 'U':
-                // TODO : Fix this for type casting.
-                return new BFunctionType();
             case 'O':
             case 'P':
                 Stack<BType> typeStack = new Stack<BType>();

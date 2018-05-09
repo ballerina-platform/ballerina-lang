@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -225,4 +226,13 @@ public class FunctionPointersTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
+    @Test
+    public void testFunctionPointerAsFuncParam() {
+        BValue[] returns = BRunUtil.invoke(fpProgram, "testFunctionPointerAsFuncParam");
+        Assert.assertNotNull(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 13);
+
+        Assert.assertNotNull(returns[1] instanceof BString);
+        Assert.assertEquals(returns[1].stringValue(), "Total: 6 USD");
+    }
 }
