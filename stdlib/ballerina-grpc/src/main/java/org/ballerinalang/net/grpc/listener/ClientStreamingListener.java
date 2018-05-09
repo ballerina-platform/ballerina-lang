@@ -24,8 +24,6 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.net.grpc.GrpcCallableUnitCallBack;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -38,8 +36,7 @@ public class ClientStreamingListener extends MethodListener implements ServerCal
         .ClientStreamingMethod<Message, Message> {
     
     private final Map<String, Resource> resourceMap;
-    private static final Logger LOG = LoggerFactory.getLogger(ClientStreamingListener.class);
-    
+
     public ClientStreamingListener(Descriptors.MethodDescriptor methodDescriptor, Map<String, Resource> resourceMap) {
         super(methodDescriptor);
         this.resourceMap = resourceMap;

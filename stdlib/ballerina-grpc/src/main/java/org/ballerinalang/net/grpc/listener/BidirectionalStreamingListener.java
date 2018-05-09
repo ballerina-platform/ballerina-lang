@@ -24,8 +24,6 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.net.grpc.GrpcCallableUnitCallBack;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -39,8 +37,7 @@ public class BidirectionalStreamingListener extends MethodListener implements Se
         .BidiStreamingMethod<Message, Message> {
     
     private final Map<String, Resource> resourceMap;
-    private static final Logger LOG = LoggerFactory.getLogger(BidirectionalStreamingListener.class);
-    
+
     public BidirectionalStreamingListener(Descriptors.MethodDescriptor methodDescriptor, Map<String, Resource>
             resourceMap) {
         super(methodDescriptor);

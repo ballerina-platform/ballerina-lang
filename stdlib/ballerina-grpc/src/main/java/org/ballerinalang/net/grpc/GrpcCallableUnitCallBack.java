@@ -44,6 +44,10 @@ public class GrpcCallableUnitCallBack implements CallableUnitCallback {
     
     @Override
     public void notifySuccess() {
+        //check whether sender object is null
+        if (requestSender == null) {
+            return;
+        }
         // check whether connection is closed.
         if (requestSender instanceof ServerCallStreamObserver) {
             ServerCallStreamObserver serverCallStreamObserver = (ServerCallStreamObserver) requestSender;
@@ -53,9 +57,6 @@ public class GrpcCallableUnitCallBack implements CallableUnitCallback {
             if (serverCallStreamObserver.isCancelled()) {
                 return;
             }
-        }
-        if (requestSender == null) {
-            return;
         }
         // notify success only if response message is empty. Service impl doesn't send empty message. Empty response
         // scenarios handles here.
