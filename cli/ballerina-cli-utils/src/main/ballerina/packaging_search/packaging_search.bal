@@ -195,9 +195,12 @@ function main (string... args) {
         try {
             httpEndpoint = defineEndpointWithProxy(args[0], host, port, args[4], args[5]);
         } catch (error err) {
-            io:println("Failed to resolve host : " + host + " with port " + port);
+            io:println("failed to resolve host : " + host + " with port " + port);
             return;
         }
+    } else  if (host != "" || port != "") {
+        io:println("both host and port should be provided to enable proxy");     
+        return;   
     } else {
         httpEndpoint = defineEndpointWithoutProxy(args[0]);
     }        

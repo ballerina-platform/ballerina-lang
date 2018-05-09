@@ -5,6 +5,7 @@ import ballerina/mime;
 import ballerina/http;
 
 @final int MAX_INT_VALUE = 2147483647;
+@final string VERSION_REGEX = "(\\d+\\.)(\\d+\\.)(\\d+)";
 
 documentation {
     This function pulls a package from ballerina central.
@@ -28,7 +29,7 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
     match result {
         http:Response response => httpResponse = response;
         error e => {
-            io:println("Connection to the remote host failed : " + e.message);
+            io:println("connection to the remote host failed : " + e.message);
             return;
         }
     }
@@ -62,41 +63,39 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
         io:ByteChannel sourceChannel = check (httpResponse.getByteChannel());
 
         string resolvedURI = httpResponse.resolvedRequestedURI;
-        if (resolvedURI != "") {
+        if (resolvedURI == "") {
+            resolvedURI = url;
+        }
+        
+        string [] uriParts = resolvedURI.split("/");
+        string pkgVersion = uriParts[lengthof uriParts - 2];
+        boolean valid = check pkgVersion.matches(VERSION_REGEX);
+
+        if (valid) { 
             string pkgName = fullPkgPath.substring(fullPkgPath.lastIndexOf("/") + 1, fullPkgPath.length());
             string archiveFileName = pkgName + ".zip";
-            
-            int indexOfPkgName = resolvedURI.indexOf(pkgName + "/");
-            int indexOfPkgArchive = resolvedURI.indexOf("/" + archiveFileName);
-            
-            if (indexOfPkgName != 1 && indexOfPkgArchive != -1) {
-                string pkgVersion = resolvedURI.substring(indexOfPkgName + pkgName.length() + 1, indexOfPkgArchive);  
-                fullPkgPath = fullPkgPath + ":" + pkgVersion;
-                destDirPath = destDirPath + fileSeparator + pkgVersion;        
 
-                string archiveFileName = pkgName + ".zip";
-                string destArchivePath = destDirPath  + fileSeparator + archiveFileName;
+            fullPkgPath = fullPkgPath + ":" + pkgVersion;
+            destDirPath = destDirPath + fileSeparator + pkgVersion;        
+            string destArchivePath = destDirPath  + fileSeparator + archiveFileName;
 
-                if (!createDirectories(destDirPath)) {
-                    internal:Path pkgArchivePath = new(destArchivePath);
-                    if (internal:pathExists(pkgArchivePath)){
-                        io:println("package already exists in the home repository");
-                        return;                              
-                    }        
-                }
-
-                io:ByteChannel destDirChannel = getFileChannel(destArchivePath, io:WRITE);
-                string toAndFrom = " [central.ballerina.io -> home repo]";
-
-                copy(pkgSize, sourceChannel, destDirChannel, fullPkgPath, toAndFrom);
-                            
-                closeChannel(destDirChannel);
-                closeChannel(sourceChannel);
-            } else {
-                io:println("package version information is missing from the remote repository");
+            if (!createDirectories(destDirPath)) {
+                internal:Path pkgArchivePath = new(destArchivePath);
+                if (internal:pathExists(pkgArchivePath)){
+                    io:println("package already exists in the home repository");
+                    return;                              
+                }        
             }
+
+            io:ByteChannel destDirChannel = getFileChannel(destArchivePath, io:WRITE);
+            string toAndFrom = " [central.ballerina.io -> home repo]";
+
+            copy(pkgSize, sourceChannel, destDirChannel, fullPkgPath, toAndFrom);
+                                
+            closeChannel(destDirChannel);
+            closeChannel(sourceChannel);
         } else {
-            io:println("package version information is missing from the remote repository");
+            io:println("package version could not be detected");
         }
     }
 }
@@ -112,9 +111,12 @@ function main(string... args){
         try {
           httpEndpoint = defineEndpointWithProxy(args[0], host, port, args[6], args[7]);
         } catch (error err) {
-          io:println("Failed to resolve host : " + host + " with port " + port);
+          io:println("failed to resolve host : " + host + " with port " + port);
           return;
         }
+    } else  if (host != "" || port != "") {
+        io:println("both host and port should be provided to enable proxy");     
+        return;   
     } else {
         httpEndpoint = defineEndpointWithoutProxy(args[0]);
     }
