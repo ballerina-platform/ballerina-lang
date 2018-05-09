@@ -199,6 +199,13 @@ IndexBasedAccessExpr
    : <expression.source> [ <index.source> ]
    ;
 
+IntRangeExpr
+   : <isWrappedWithParenthesis?> ( <startExpression.source> .. <endExpression.source> )
+   | <isWrappedWithParenthesis?> ( <startExpression.source> ..                        )
+   | <isWrappedWithBracket?>     [ <startExpression.source> .. <endExpression.source> ]
+   | <isWrappedWithBracket?>     [ <startExpression.source> ..                        ]
+   ;
+
 Invocation
    : <actionInvocation?>      <async?start> <expression.source>  ->   <name.value> ( <argumentExpressions-joined-by,>* )
    | <expression.source>  .   <async?start>                           <name.value> ( <argumentExpressions-joined-by,>* )

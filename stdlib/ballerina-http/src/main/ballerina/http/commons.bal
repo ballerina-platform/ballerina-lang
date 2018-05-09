@@ -137,11 +137,10 @@ function populateMultipartRequest(Request inRequest) returns Request {
         mime:MediaType mediaType = check mime:getMediaType(inRequest.getContentType());
         reqContentType = mediaType.primaryType + "/" + mediaType.subType;
         mime:Entity[] bodyParts = check inRequest.getBodyParts();
-        int i = 0;
-        while (i < lengthof bodyParts) {
-            mime:Entity part = bodyParts[i];
-            var payload = part.getBlob();
-            i = i + 1;
+        foreach bodyPart in bodyParts {
+            // When performing passthrough scenarios, message needs to be built before invoking the endpoint to create
+            // a message datasource.
+            var payload = bodyPart.getBlob();
         }
         reqBodyParts = bodyParts;
         inRequest.setBodyParts(reqBodyParts, contentType = reqContentType);

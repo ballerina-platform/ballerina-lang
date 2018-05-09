@@ -42,7 +42,6 @@ service<http:Service> retryDemoService bind serviceEndpoint {
                 caller->respond(response) but {
                     error e => log:printError("Error sending response", err = e)
                 };
-
             }
             error responseError => {
                 // Create a new HTTP response by looking at the error message.
@@ -95,11 +94,8 @@ service<http:Service> mockHelloService bind serviceEndpoint {
                     }
                     // Iterate through the body parts.
                     mime:Entity[] bodyParts => {
-                        int i = 0;
-                        while (i < lengthof bodyParts) {
-                            mime:Entity part = bodyParts[i];
-                            var payload = part.getBlob();
-                            i = i + 1;
+                        foreach bodyPart in bodyParts {
+                            var payload = bodyPart.getBlob();
                         }
                         response.setBodyParts(bodyParts);
                     }

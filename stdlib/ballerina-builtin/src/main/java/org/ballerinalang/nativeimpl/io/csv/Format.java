@@ -25,15 +25,15 @@ public enum Format {
     /**
      * The format would default, however empty lines will be allowed.
      */
-    DEFAULT(",", "\\r?\\n", ",", "\n", false),
+    DEFAULT(",", "\\r?\\n", ",", "\n", false, false),
     /**
      * CSV should conform with RFC4180 specification.
      */
-    CSV(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)", "\\r?\\n", ",", "\n", true),
+    CSV("\"|,(?=([^\"]*\"[^\"]*\")*[^\"]*$)", "\\r?\\n", ",", "\n", true, true),
     /**
      * Tab delimited records.
      */
-    TDF("\\t", "\\r?\\n", "\t", "\n", true);
+    TDF("\\t", "\\r?\\n", "\t", "\n", true, false);
 
     /**
      * Defines the record separator for the format.
@@ -55,13 +55,18 @@ public enum Format {
      * Specifies whether white spaces should be ignored.
      */
     private boolean ignoreSpaces;
+    /**
+     * Specifies whether to ignore blanks.
+     */
+    private boolean ignoreBlanks;
 
-    Format(String rfs, String rrs, String wfs, String wrs, boolean ignoreSpaces) {
+    Format(String rfs, String rrs, String wfs, String wrs, boolean ignoreSpaces, boolean ignoreBlank) {
         this.readFieldSeparator = rfs;
         this.readRecSeparator = rrs;
         this.writeFieldSeparator = wfs;
         this.writeRecSeparator = wrs;
         this.ignoreSpaces = ignoreSpaces;
+        this.ignoreBlanks = ignoreBlank;
     }
 
     public String getReadRecSeparator() {
@@ -80,7 +85,11 @@ public enum Format {
         return writeFieldSeparator;
     }
 
-    public boolean isIgnoreSpaces() {
+    public boolean shouldIgnoreSpaces() {
         return ignoreSpaces;
+    }
+
+    public boolean shouldIgnoreBlanks() {
+        return ignoreBlanks;
     }
 }

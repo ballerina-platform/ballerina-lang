@@ -137,7 +137,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                                                                        false, completionContext).get(0);
                 completionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                       bLangPackage.symbol.getName().getValue());
-                completionContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
                 CompletionUtil.resolveSymbols(completionContext, bLangPackage);
             } catch (Exception | AssertionError e) {
                 // Fallback procedure in an exception. Currently supports the match statement only
