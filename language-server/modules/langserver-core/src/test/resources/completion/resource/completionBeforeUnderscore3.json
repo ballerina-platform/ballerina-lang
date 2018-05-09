@@ -116,29 +116,10 @@
       "insertText":"TableConfig"
     },
     {
-      "label":"$annotation_data",
-      "kind":"Unit",
-      "detail":"map",
-      "sortText":"110",
-      "insertText":"$annotation_data"
-    },
-    {
-      "label":"$anonRecord$builtin$1",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"$anonRecord$builtin$1"
-    },
-    {
       "label":"hello",
       "detail":"BType",
       "sortText":"170",
       "insertText":"hello"
-    },
-    {
-      "label":"$anonRecord$builtin$0",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"$anonRecord$builtin$0"
     },
     {
       "label":"queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters, any retType)(table)",
@@ -173,13 +154,6 @@
       "detail":"BType",
       "sortText":"170",
       "insertText":"table"
-    },
-    {
-      "label":"$caller",
-      "kind":"Unit",
-      "detail":"other",
-      "sortText":"110",
-      "insertText":"$caller"
     },
     {
       "label":"future",

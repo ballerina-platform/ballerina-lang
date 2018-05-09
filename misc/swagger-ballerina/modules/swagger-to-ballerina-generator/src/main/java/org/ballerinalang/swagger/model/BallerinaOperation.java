@@ -67,13 +67,17 @@ public class BallerinaOperation implements BallerinaSwaggerObject<BallerinaOpera
         if (operation == null) {
             return getDefaultValue();
         }
+
+        // OperationId with spaces will cause trouble in ballerina code.
+        // Replacing it with '_' so that we can identify there was a ' ' when doing bal -> swagger
+        this.operationId = getTrimmedOperationId(operation.getOperationId());
         this.tags = operation.getTags();
         this.summary = operation.getSummary();
         this.description = operation.getDescription();
         this.externalDocs = operation.getExternalDocs();
         this.requestBody = operation.getRequestBody();
         this.security = operation.getSecurity();
-        this.operationId = operation.getOperationId();
+
         this.parameters = new ArrayList<>();
         this.methods = null;
 
@@ -117,7 +121,9 @@ public class BallerinaOperation implements BallerinaSwaggerObject<BallerinaOpera
         this.parameters = new ArrayList<>();
 
         if (operationId != null) {
-            this.operationId = operationId.toString();
+            // OperationId with spaces will cause trouble in ballerina code.
+            // Replacing it with '_' so that we can identify there was a ' ' when doing bal -> swagger
+            this.operationId = getTrimmedOperationId(operationId.toString());
         }
         if (tags != null && tags instanceof ArrayList) {
             this.tags = (ArrayList<String>) tags;
@@ -133,6 +139,14 @@ public class BallerinaOperation implements BallerinaSwaggerObject<BallerinaOpera
         }
 
         return this;
+    }
+
+    private String getTrimmedOperationId (String operationId) {
+        if (operationId == null) {
+            return null;
+        }
+
+        return operationId.replaceAll(" ", "_");
     }
 
     @Override

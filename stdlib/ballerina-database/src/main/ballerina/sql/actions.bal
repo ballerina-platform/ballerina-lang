@@ -78,12 +78,15 @@ public type CallerActions object {
 
         P{{tableName}} The name of the table to be retrieved
         P{{recordType}} The record type of the returned table
+        R{{}} A `table` returned by the sql query statement else `error` will be returned if there is any error
 
     }
     public native function getProxyTable(@sensitive string tableName, typedesc recordType) returns @tainted table|error;
 };
 
 documentation {
-        The close action implementation for SQL connector to shutdown the connection pool.
+        An internal function used by clients to shutdown the connection pool.
+
+        P{{callerActions}} The CallerActions object which represents the connection pool.
 }
 public native function close(CallerActions callerActions);

@@ -1,5 +1,5 @@
 ## Package Overview
-This package provides functions to transmit and receive messages that have multiple parts, such as an attachment. The communication of such messages follow the MIME (Multipurpose Internet Mail Extensions) specification as specified in the RFC 2045 standard.
+This package provides functions to encapsulate multiple body parts, such as attachments in a single message. The communication of such messages follow the MIME (Multipurpose Internet Mail Extensions) specification as specified in the RFC 2045 standard.
 ### MIME Specific terms 
 The following terms are MIME specific and are extracted from the MIME specification.
 #### Entity
@@ -103,8 +103,7 @@ bodyPart1.setJson({"bodyPart":"jsonPart"});
 
 // Create another body part using an XML file.
 mime:Entity bodyPart2 = new;
-file:Path fileHandler = new("ballerina/mime/file.xml", mime:APPLICATION_XML);
-bodyPart2.setFileAsEntityBody(fileHandler);
+bodyPart2.setFileAsEntityBody("ballerina/mime/file.xml", contentType = mime:APPLICATION_XML);
 
 //Create an array to hold all the body parts.
 mime:Entity[] bodyParts = [bodyPart1, bodyPart2];

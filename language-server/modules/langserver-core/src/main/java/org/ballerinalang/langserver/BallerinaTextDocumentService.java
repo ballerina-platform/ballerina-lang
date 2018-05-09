@@ -34,6 +34,7 @@ import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.CompletionCustomErrorStrategy;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.definition.util.DefinitionUtil;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
@@ -129,6 +130,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 completionContext.put(DocumentServiceKeys.POSITION_KEY, position);
                 completionContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
+                completionContext.put(CompletionKeys.DOC_MANAGER_KEY, documentManager);
                 // TODO: Remove passing completion context after introducing a proper fix for _=.... issue
                 BLangPackage bLangPackage = LSCompiler.getBLangPackage(completionContext, documentManager, false,
                                                                        CompletionCustomErrorStrategy.class,
@@ -141,8 +143,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 // Fallback procedure in an exception. Currently supports the match statement only
                 CompletionUtil.resolveSymbols(completionContext, null);
             } finally {
-                completions = CompletionUtil.getCompletionItems(completionContext);
                 lock.ifPresent(Lock::unlock);
+                completions = CompletionUtil.getCompletionItems(completionContext);
             }
             return Either.forLeft(completions);
         });
@@ -205,6 +207,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 bLangPackage.accept(signatureTreeVisitor);
                 signatureHelp = SignatureHelpUtil.getFunctionSignatureHelp(signatureContext);
                 return signatureHelp;
+            } catch (Exception | AssertionError e) {
+                return new SignatureHelp();
             } finally {
                 lock.ifPresent(Lock::unlock);
             }
@@ -487,7 +491,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             compilationPath = LSCompiler.createAndGetTempFile(tempFileId);
         }
         balFile = LSCompiler.compileContent(content, compilationPath, CompilerPhase.TAINT_ANALYZE, documentManager,
-                                            false);
+                true);
         if (balFile.getDiagnostics() != null) {
             balDiagnostics = balFile.getDiagnostics();
         }
@@ -569,9 +573,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public void didSave(DidSaveTextDocumentParams params) {
     }
-    
+
     // Private methods
-    
+
     private void fillNewPackages(BLangPackage bLangPackage) {
         if (bLangPackage == null) {
             return;

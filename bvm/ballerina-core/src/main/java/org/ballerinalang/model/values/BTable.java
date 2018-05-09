@@ -142,7 +142,11 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
     private String createStringValueEntry(String key, BStringArray contents) {
-        return key + ": " + contents.stringValue();
+        String stringValue = "[]";
+        if (contents != null) {
+            stringValue = contents.stringValue();
+        }
+        return key + ": " + stringValue;
     }
 
     private String createStringValueDataEntry() {

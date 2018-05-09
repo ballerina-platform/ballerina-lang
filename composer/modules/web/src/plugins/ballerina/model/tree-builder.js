@@ -150,9 +150,11 @@ class TreeBuilder {
             node.global = true;
         }
 
-        if (node.kind === 'VariableDef' && node.variable.typeNode && node.variable.typeNode.kind === 'EndpointType') {
-            node.variable.endpoint = true;
-            node.endpoint = true;
+        if (node.kind === 'VariableDef' && node.variable.typeNode) {
+            if (node.variable.typeNode.kind === 'EndpointType') {
+                node.variable.endpoint = true;
+                node.endpoint = true;
+            }
         }
 
         if (node.kind === 'Variable') {

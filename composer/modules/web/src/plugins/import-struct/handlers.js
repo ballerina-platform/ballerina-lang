@@ -45,9 +45,11 @@ function isFloat(val) {
  * process JSON and generate struct fields
  * @param  {object} parent      parent struct object
  * @param  {object} literalExpr JSON expression
+ * @param  {object} topLevelNodes top level nodes
+ * @param  {object} removeDefaults remove defaults
  * @return {boolean}             status
  */
-function processJSONStruct(parent, literalExpr, removeDefaults) {
+function processJSONStruct(parent, literalExpr, topLevelNodes, removeDefaults) {
     let currentValue;
     let success = true;
     parent.setFields([], true);
@@ -61,12 +63,15 @@ function processJSONStruct(parent, literalExpr, removeDefaults) {
             currentName = key.getVariableName().getValue();
         }
         if (TreeUtils.isRecordLiteralExpr(val)) {
-            const parsedJson = FragmentUtils.parseFragment(
-                            FragmentUtils.createTopLevelNodeFragment(`type { } ${currentName};`));
-            const anonStruct = TreeBuilder.build(parsedJson);
-            success = this.processJSONStruct(anonStruct.getVariable().getTypeNode().anonStruct, val);
+            let struct = DefaultNodeFactory.createStruct(true);
+            if (currentName && currentName !== '') {
+                struct.getName().setValue(currentName, true);
+                struct.setName(struct.getName(), false);
+            }
+
+            success = processJSONStruct(struct, val, topLevelNodes, removeDefaults);
             if (success) {
-                parent.addFields(anonStruct.getVariable());
+                topLevelNodes.addTopLevelNodes(struct);
             }
             return success;
         } else if (TreeUtils.isLiteral(val)) {
@@ -80,15 +85,18 @@ function processJSONStruct(parent, literalExpr, removeDefaults) {
             } else if (currentValue === 'true' || currentValue === 'false') {
                 currentType = 'boolean';
             }
-            if (removeDefaults){
+            if (removeDefaults) {
                 refExpr = TreeBuilder.build(FragmentUtils.parseFragment(
-                    FragmentUtils.createStatementFragment(`${currentType} ${currentName};`)));
+                    FragmentUtils.createFieldDefinitionListFragment(`${currentType} ${currentName};`)));
             } else {
                 refExpr = TreeBuilder.build(FragmentUtils.parseFragment(
-                    FragmentUtils.createStatementFragment(`${currentType} ${currentName} = ${currentValue};`)));
+                    FragmentUtils
+                        .createFieldDefinitionListFragment(`${currentType} ${currentName} = ${currentValue};`)));
             }
             if (!refExpr.error) {
-                parent.addFields(refExpr.getVariable());
+                // Add ; white space for the field in to record.
+                parent.ws.splice(parent.ws.length - 2, 0, {ws: "", text: ";"})
+                parent.addFields(refExpr);
             } else {
                 success = false;
             }
@@ -112,14 +120,15 @@ export function getHandlerDefinitions(plugin) {
             cmdID: COMMANDS.SHOW_IMPORT_STRUCT_DIALOG,
             handler: () => {
                 const topLevelNodes = plugin.appContext.editor.getActiveEditor().getProperty('ast');
-                const structNode = DefaultNodeFactory.createStruct();
+                // Create record with available white spaces in default node.
+                const structNode = DefaultNodeFactory.createStruct(true);
 
                 const onImport = (json, structName, removeDefaults) => {
                     let success = true;
 
-                    if (structName && structName !== ''){
+                    if (structName && structName !== '') {
                         structNode.getName().setValue(structName, true);
-                        structNode.setName(structNode.getName(), false); 
+                        structNode.setName(structNode.getName(), false);
                     }
                     if (json === '') {
                         topLevelNodes.addTopLevelNodes(structNode);
@@ -130,7 +139,7 @@ export function getHandlerDefinitions(plugin) {
                         FragmentUtils.parseFragment(FragmentUtils.createExpressionFragment(json))
                     );
                     if (!refExpr.error) {
-                        success = processJSONStruct(structNode, refExpr.variable.initialExpression, removeDefaults);
+                        success = processJSONStruct(structNode, refExpr.variable.initialExpression, topLevelNodes, removeDefaults);
                         topLevelNodes.addTopLevelNodes(structNode);
                     } else {
                         success = false;
@@ -141,7 +150,8 @@ export function getHandlerDefinitions(plugin) {
                 const { command: { dispatch } } = plugin.appContext;
                 const id = DIALOG.IMPORT_STRUCT;
 
-                dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, { id,
+                dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
+                    id,
                     additionalProps: {
                         onImport,
                     },

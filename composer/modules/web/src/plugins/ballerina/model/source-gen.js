@@ -284,11 +284,15 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + '?:'
                  + getSourceOf(node.rightExpression, pretty, l, replaceLambda);
         case 'Endpoint':
-            return dent()
+            if (node.skipSourceGen) {
+                return '';
+            } else {
+                return dent()
                  + join(node.annotationAttachments, pretty, replaceLambda, l, w, '') + w() + 'endpoint' + a(' ')
                  + getSourceOf(node.endPointType, pretty, l, replaceLambda) + w(' ') + node.name.valueWithBar
                  + b(' ')
                  + getSourceOf(node.configurationExpression, pretty, l, replaceLambda) + w() + ';';
+            }
         case 'EndpointType':
             return w() + '<'
                  + getSourceOf(node.constraint, pretty, l, replaceLambda) + w() + '>';
@@ -804,12 +808,12 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + getSourceOf(node.statement, pretty, l, replaceLambda) + outdent() + w() + '}';
             }
         case 'MatchExpression':
-            return dent() + w() + node.expr + a(' ') + w() + 'but' + a(' ') + w()
-                 + '{' + indent()
+            return dent() + getSourceOf(node.expression, pretty, l, replaceLambda)
+                 + w() + 'but' + a(' ') + w() + '{' + indent()
                  + join(node.patternClauses, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
         case 'MatchExpressionPatternClause':
-            return getSourceOf(node.variable, pretty, l, replaceLambda) + w() + '=>'
-                 + a(' ')
+            return getSourceOf(node.variableNode, pretty, l, replaceLambda) + w()
+                 + '=>' + a(' ')
                  + getSourceOf(node.statement, pretty, l, replaceLambda);
         case 'NamedArgsExpr':
             return w() + node.name.valueWithBar + w(' ') + '=' + a(' ')
@@ -882,9 +886,9 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             return join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + dent() + (node.public ? w() + 'public' : '') + w()
-                 + 'type' + w() + node.name.valueWithBar + w() + '{' + indent()
-                 + join(node.fields, pretty, replaceLambda, l, w, '', ';', true) + w()
-                 + '};';
+                 + 'type' + a(' ') + w() + node.name.valueWithBar + a(' ') + w()
+                 + '{' + indent()
+                 + join(node.fields, pretty, replaceLambda, l, w, '', ';', true) + w() + '};';
         case 'RecordLiteralExpr':
             if (node.keyValuePairs) {
                 return w() + '{'
@@ -956,6 +960,20 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'Service':
             if (node.isServiceTypeUnavailable && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments
+                         && node.name.valueWithBar && node.anonymousEndpointBind
+                         && node.boundEndpoints && node.variables && node.resources) {
+                return dent()
+                 + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + w() + 'service' + a(' ') + w(' ')
+                 + node.name.valueWithBar + a(' ') + w() + 'bind' + a(' ')
+                 + getSourceOf(node.anonymousEndpointBind, pretty, l, replaceLambda)
+                 + join(node.boundEndpoints, pretty, replaceLambda, l, w, '', ',') + w(' ')
+                 + '{' + indent()
+                 + join(node.variables, pretty, replaceLambda, l, w, '') + join(node.resources, pretty, replaceLambda, l, w, '')
+                 + outdent() + w() + '}';
+            } else if (node.isServiceTypeUnavailable && node.annotationAttachments
+                         && node.documentationAttachments && node.deprecatedAttachments
                          && node.name.valueWithBar && node.boundEndpoints && node.variables
                          && node.resources) {
                 return dent()
@@ -967,6 +985,20 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + indent() + join(node.variables, pretty, replaceLambda, l, w, '')
                  + join(node.resources, pretty, replaceLambda, l, w, '')
                  + outdent() + w() + '}';
+            } else if (node.annotationAttachments && node.documentationAttachments
+                         && node.deprecatedAttachments && node.serviceTypeStruct
+                         && node.name.valueWithBar && node.anonymousEndpointBind && node.boundEndpoints
+                         && node.variables && node.resources) {
+                return join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + dent() + w() + 'service' + a(' ') + w() + '<'
+                 + getSourceOf(node.serviceTypeStruct, pretty, l, replaceLambda) + w()
+                 + '>' + w(' ') + node.name.valueWithBar + a(' ') + w() + 'bind'
+                 + a(' ')
+                 + getSourceOf(node.anonymousEndpointBind, pretty, l, replaceLambda)
+                 + join(node.boundEndpoints, pretty, replaceLambda, l, w, '', ',') + w(' ') + '{' + indent()
+                 + join(node.variables, pretty, replaceLambda, l, w, '')
+                 + join(node.resources, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
             } else {
                 return join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
@@ -1447,15 +1479,15 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             if (node.endpoint && node.typeNode && node.name.valueWithBar
                          && node.initialExpression) {
                 return dent() + dent() + w() + 'endpoint'
-                 + getSourceOf(node.typeNode, pretty, l, replaceLambda) + w(' ') + node.name.valueWithBar + w()
-                 + '{' + indent()
+                 + getSourceOf(node.typeNode, pretty, l, replaceLambda) + w(' ') + node.name.valueWithBar
+                 + a(' ') + w() + '{' + indent()
                  + getSourceOf(node.initialExpression, pretty, l, replaceLambda) + w() + ';' + outdent() + w() + '}';
             } else if (node.endpoint && node.typeNode && node.name.valueWithBar) {
                 return dent() + w() + 'endpoint'
-                 + getSourceOf(node.typeNode, pretty, l, replaceLambda) + w(' ') + node.name.valueWithBar + w() + '{'
-                 + indent() + outdent() + w() + '}';
+                 + getSourceOf(node.typeNode, pretty, l, replaceLambda) + w(' ') + node.name.valueWithBar + a(' ') + w()
+                 + '{' + indent() + outdent() + w() + '}';
             } else if (node.serviceEndpoint && node.name.valueWithBar) {
-                return w() + 'endpoint' + w(' ') + node.name.valueWithBar;
+                return w() + 'endpoint' + w(' ') + node.name.valueWithBar + a(' ');
             } else if (node.global && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments && node.safeAssignment
                          && node.typeNode && node.name.valueWithBar
@@ -1466,7 +1498,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + (node.public ? w() + 'public' + a(' ') : '')
                  + (node.const ? w() + 'const' + a(' ') : '')
                  + getSourceOf(node.typeNode, pretty, l, replaceLambda) + w(' ')
-                 + node.name.valueWithBar + w() + '=?'
+                 + node.name.valueWithBar + a(' ') + w() + '=?'
                  + getSourceOf(node.initialExpression, pretty, l, replaceLambda) + w() + ';';
             } else if (node.global && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments && node.typeNode
@@ -1477,7 +1509,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + (node.public ? w() + 'public' + a(' ') : '')
                  + (node.const ? w() + 'const' + a(' ') : '')
                  + getSourceOf(node.typeNode, pretty, l, replaceLambda) + w(' ')
-                 + node.name.valueWithBar + w(' ') + '=' + a(' ')
+                 + node.name.valueWithBar + a(' ') + w(' ') + '=' + a(' ')
                  + getSourceOf(node.initialExpression, pretty, l, replaceLambda) + w() + ';';
             } else if (node.global && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments && node.typeNode
@@ -1486,16 +1518,16 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '')
-                 + getSourceOf(node.typeNode, pretty, l, replaceLambda) + w(' ') + node.name.valueWithBar + w() + ';';
+                 + getSourceOf(node.typeNode, pretty, l, replaceLambda) + w(' ') + node.name.valueWithBar + a(' ') + w() + ';';
             } else if (node.safeAssignment && node.typeNode && node.name.valueWithBar
                          && node.initialExpression) {
                 return getSourceOf(node.typeNode, pretty, l, replaceLambda) + w(' ')
-                 + node.name.valueWithBar + w() + '=?'
+                 + node.name.valueWithBar + a(' ') + w() + '=?'
                  + getSourceOf(node.initialExpression, pretty, l, replaceLambda);
             } else if (node.typeNode && node.name.valueWithBar
                          && node.initialExpression) {
                 return getSourceOf(node.typeNode, pretty, l, replaceLambda) + w(' ')
-                 + node.name.valueWithBar + w(' ') + '=' + a(' ')
+                 + node.name.valueWithBar + a(' ') + w(' ') + '=' + a(' ')
                  + getSourceOf(node.initialExpression, pretty, l, replaceLambda);
             } else if (node.annotationAttachments && node.documentationAttachments
                          && node.deprecatedAttachments && node.typeNode
@@ -1504,7 +1536,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + getSourceOf(node.typeNode, pretty, l, replaceLambda)
                  + (node.rest ? w() + '...' : '') + w(' ')
-                 + node.name.valueWithBar;
+                 + node.name.valueWithBar + a(' ');
             } else {
                 return getSourceOf(node.typeNode, pretty, l, replaceLambda);
             }

@@ -417,7 +417,8 @@ public type Entity object {
 
         P{{headerName}} Represents header name
         R{{}} Header value associated with the given header name as a `string`. If multiple header values are
-              present, then the first value is returned.
+              present, then the first value is returned. An exception is thrown if no header is found. Use
+              `hasHeader()` beforehand to check the existence of header.
     }
     public native function getHeader(@sensitive string headerName) returns @tainted string;
 
@@ -425,7 +426,8 @@ public type Entity object {
         Gets all the header values associated with the given header name.
 
         P{{headerName}} The header name
-        R{{}} All the header values associated with the given header name as a `string[]`
+        R{{}} All the header values associated with the given header name as a `string[]`. An exception is thrown
+              if no header is found. Use `hasHeader()` beforehand to check the existence of header.
     }
     public native function getHeaders(@sensitive string headerName) returns @tainted string[];
 

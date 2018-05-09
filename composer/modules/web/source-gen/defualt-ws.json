@@ -542,8 +542,8 @@
     "after }": ""
   },
   "MatchExpression": {
-    "before expr":"",
-    "after expr": " ",
+    "before expression":"",
+    "after expression": " ",
     "before but": "",
     "after but": " ",
     "before {": "",
@@ -614,6 +614,20 @@
     "after variable": "",
     "before operator": "",
     "after operator": "",
+    "before ;": "",
+    "after ;": ""
+  },
+  "Record": {
+    "before type": "",
+    "after type": " ",
+    "before name": "",
+    "after name": " ",
+    "before {": "",
+    "after {": "",
+    "before fields": "",
+    "after fields": "",
+    "before }": "",
+    "after }": "",
     "before ;": "",
     "after ;": ""
   },
@@ -964,10 +978,10 @@
     "after typeKind": ""
   },
   "Variable": {
-    "before typeNode": "",
-    "after typeNode": "",
+    "before endpoint": "",
+    "after endpoint": "",
     "before name": " ",
-    "after name": "",
+    "after name": " ",
     "before {": "",
     "after {": "",
     "before initialExpression": "",

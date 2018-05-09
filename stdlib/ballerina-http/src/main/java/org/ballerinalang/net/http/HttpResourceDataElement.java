@@ -86,7 +86,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
             }
             HttpResource resource = validateHTTPMethod(this.resource, carbonMessage);
             if (resource == null) {
-                return false;
+                return isOptionsRequest(carbonMessage);
             }
             validateConsumes(resource, carbonMessage);
             validateProduces(resource, carbonMessage);
@@ -96,6 +96,15 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
             dataReturnAgent.setError(e);
             return false;
         }
+    }
+
+    private boolean isOptionsRequest(HTTPCarbonMessage inboundMessage) {
+        //Return true to break the resource searching loop, only if the ALLOW header is set in message for
+        //OPTIONS request.
+        if (inboundMessage.getHeader(HttpHeaderNames.ALLOW.toString()) != null) {
+            return true;
+        }
+        return false;
     }
 
     private HttpResource validateHTTPMethod(List<HttpResource> resources, HTTPCarbonMessage carbonMessage) {

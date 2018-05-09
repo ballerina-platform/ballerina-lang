@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.ConnectorInitExpressionItemFilter;
@@ -70,19 +71,21 @@ public abstract class AbstractItemResolver {
         symbolInfoList.forEach(symbolInfo -> {
             CompletionItem completionItem = null;
             BSymbol bSymbol = symbolInfo.getScopeEntry() != null ? symbolInfo.getScopeEntry().symbol : null;
-            if ((bSymbol instanceof BInvokableSymbol
-                    && ((BInvokableSymbol) bSymbol).kind != null
-                    && !((BInvokableSymbol) bSymbol).kind.equals(SymbolKind.WORKER))
-                    || symbolInfo.isIterableOperation())  {
-                completionItem = this.populateBallerinaFunctionCompletionItem(symbolInfo);
-            } else if (!(bSymbol instanceof BInvokableSymbol)
-                    && bSymbol instanceof BVarSymbol && !"_".equals(bSymbol.name.getValue())) {
-                completionItem = this.populateVariableDefCompletionItem(symbolInfo);
-            } else if (bSymbol instanceof BTypeSymbol
-                    && !bSymbol.getName().getValue().equals(UtilSymbolKeys.NOT_FOUND_TYPE)
-                    && !(bSymbol instanceof BAnnotationSymbol)
-                    && !(bSymbol.getName().getValue().equals("runtime"))) {
-                completionItem = this.populateBTypeCompletionItem(symbolInfo);
+            if (!(bSymbol != null && bSymbol.getName().getValue().startsWith("$"))) {
+                if ((bSymbol instanceof BInvokableSymbol
+                        && ((BInvokableSymbol) bSymbol).kind != null
+                        && !((BInvokableSymbol) bSymbol).kind.equals(SymbolKind.WORKER))
+                        || symbolInfo.isIterableOperation()) {
+                    completionItem = this.populateBallerinaFunctionCompletionItem(symbolInfo);
+                } else if (!(bSymbol instanceof BInvokableSymbol)
+                        && bSymbol instanceof BVarSymbol && !"_".equals(bSymbol.name.getValue())) {
+                    completionItem = this.populateVariableDefCompletionItem(symbolInfo);
+                } else if (bSymbol instanceof BTypeSymbol
+                        && !bSymbol.getName().getValue().equals(UtilSymbolKeys.NOT_FOUND_TYPE)
+                        && !(bSymbol instanceof BAnnotationSymbol)
+                        && !(bSymbol.getName().getValue().equals("runtime"))) {
+                    completionItem = this.populateBTypeCompletionItem(symbolInfo);
+                }
             }
 
             if (completionItem != null) {
@@ -296,7 +299,11 @@ public abstract class AbstractItemResolver {
         int cursorLine = position.getLine();
         TokenStream tokenStream = documentServiceContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         if (tokenStream == null) {
-            return false;
+            String lineSegment = documentServiceContext.get(CompletionKeys.CURRENT_LINE_SEGMENT_KEY);
+            String tokenString = CompletionUtil.getDelimiterTokenFromLineSegment(documentServiceContext, lineSegment);
+            return (UtilSymbolKeys.DOT_SYMBOL_KEY.equals(tokenString)
+                    || UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(tokenString)
+                    || UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(tokenString));
         }
         int searchTokenIndex = documentServiceContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
         
@@ -393,6 +400,8 @@ public abstract class AbstractItemResolver {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
             if (bSymbol instanceof BTypeSymbol
                     && !bSymbol.getName().getValue().equals(UtilSymbolKeys.NOT_FOUND_TYPE)
+                    && !bSymbol.getName().getValue().startsWith(UtilSymbolKeys.ANON_STRUCT_CHECKER)
+                    && !((bSymbol instanceof BPackageSymbol) && bSymbol.pkgID.getName().getValue().equals("runtime"))
                     && !(bSymbol instanceof BAnnotationSymbol)) {
                 completionItems.add(this.populateBTypeCompletionItem(symbolInfo));
             }

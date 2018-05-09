@@ -12,3 +12,25 @@
         }
     }
 }
+
+.debugger-threads{
+    padding: 10px;
+
+    .debug-threads-header {
+        border-bottom: 1px solid #9a9a9a
+    }
+    ul {
+        padding: 0;
+        margin: 0;
+        margin-top: 5px;
+        li {
+            list-style: none;
+            padding: 5px;
+            cursor: pointer;
+        }
+        li.active {
+            background-color: #6b6b6b;
+        }
+    }
+
+}
