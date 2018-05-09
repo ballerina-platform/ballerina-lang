@@ -51,9 +51,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -223,27 +221,28 @@ public class SwaggerResourceMapper {
             BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
                     .getExpression());
             List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
-            Map<String, BLangExpression> attributes = ConverterUtils.listToMap(list);
+            Map<String, BLangExpression> attrs = ConverterUtils.listToMap(list);
 
-            if (attributes.containsKey("value")) {
-                BLangArrayLiteral valueArray = (BLangArrayLiteral) attributes.get("value");
+            if (attrs.containsKey(ConverterConstants.ATTR_VALUE)) {
+                BLangArrayLiteral valueArr = (BLangArrayLiteral) attrs.get(ConverterConstants.ATTR_VALUE);
 
-                if (valueArray.getExpressions().size() > 0) {
+                if (valueArr.getExpressions().size() > 0) {
                     Map<String, Response> responses = new HashMap<>();
 
-                    for (ExpressionNode expr : valueArray.getExpressions()) {
+                    for (ExpressionNode expr : valueArr.getExpressions()) {
                         List<BLangRecordKeyValue> resList = ((BLangRecordLiteral) expr).getKeyValuePairs();
-                        Map<String, BLangExpression> resAttributes = ConverterUtils.listToMap(resList);
+                        Map<String, BLangExpression> attributes = ConverterUtils.listToMap(resList);
 
-                        if (resAttributes.containsKey("code")) {
-                            String code = ConverterUtils.getStringLiteralValue(resAttributes.get("code"));
+                        if (attributes.containsKey(ConverterConstants.ATTR_CODE)) {
+                            String code = ConverterUtils
+                                    .getStringLiteralValue(attributes.get(ConverterConstants.ATTR_CODE));
                             Response response = new Response();
-                            if (resAttributes.containsKey("description")) {
-                                response.setDescription(
-                                        ConverterUtils.getStringLiteralValue(resAttributes.get("description")));
+                            if (attributes.containsKey(ConverterConstants.ATTR_DESCRIPTION)) {
+                                response.setDescription(ConverterUtils
+                                        .getStringLiteralValue(attributes.get(ConverterConstants.ATTR_DESCRIPTION)));
                             }
                             // TODO: Parse 'response' attribute for $.paths./resource-path.responses[*]["code"].schema
-                            this.createHeadersModel(resAttributes.get("headers"), response);
+                            this.createHeadersModel(attributes.get("headers"), response);
                             responses.put(code, response);
                         }
                     }
@@ -268,14 +267,17 @@ public class SwaggerResourceMapper {
                 Map<String, BLangExpression> headersAttributes = ConverterUtils.listToMap(headerList);
                 Map<String, Property> headers = new HashMap<>();
 
-                if (headersAttributes.containsKey("name") && headersAttributes.containsKey("headerType")) {
-                    String headerName = ConverterUtils.getStringLiteralValue(headersAttributes.get("name"));
-                    String type = ConverterUtils.getStringLiteralValue(headersAttributes.get("headerType"));
+                if (headersAttributes.containsKey(ConverterConstants.ATTR_NAME) && headersAttributes
+                        .containsKey(ConverterConstants.ATTR_HEADER_TYPE)) {
+                    String headerName = ConverterUtils
+                            .getStringLiteralValue(headersAttributes.get(ConverterConstants.ATTR_NAME));
+                    String type = ConverterUtils
+                            .getStringLiteralValue(headersAttributes.get(ConverterConstants.ATTR_HEADER_TYPE));
                     Property property = getSwaggerProperty(type);
 
-                    if (headersAttributes.containsKey("description")) {
-                        property.setDescription(
-                                ConverterUtils.getStringLiteralValue(headersAttributes.get("description")));
+                    if (headersAttributes.containsKey(ConverterConstants.ATTR_DESCRIPTION)) {
+                        property.setDescription(ConverterUtils
+                                .getStringLiteralValue(headersAttributes.get(ConverterConstants.ATTR_DESCRIPTION)));
                     }
                     headers.put(headerName, property);
                 }
@@ -292,9 +294,9 @@ public class SwaggerResourceMapper {
      */
     private void addResourceParameters(ResourceNode resource, OperationAdaptor operationAdaptor) {
         //Set Path
-        AnnotationAttachmentNode annotation = ConverterUtils.getAnnotationFromList("ResourceConfig", httpAlias,
+        AnnotationAttachmentNode annotation = ConverterUtils
+                .getAnnotationFromList(HttpConstants.ANN_NAME_RESOURCE_CONFIG, httpAlias,
                 resource.getAnnotationAttachments());
-
 
         if (annotation != null) {
             BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
@@ -302,8 +304,9 @@ public class SwaggerResourceMapper {
             List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
             Map<String, BLangExpression> recordsMap = ConverterUtils.listToMap(list);
 
-            if (recordsMap.containsKey("path") && recordsMap.get("path") != null) {
-                String path =  recordsMap.get("path").toString().trim();
+            if (recordsMap.containsKey(HttpConstants.ANN_RESOURCE_ATTR_PATH)
+                    && recordsMap.get(HttpConstants.ANN_RESOURCE_ATTR_PATH) != null) {
+                String path = recordsMap.get(HttpConstants.ANN_RESOURCE_ATTR_PATH).toString().trim();
                 operationAdaptor.setPath(path);
             } else {
                 operationAdaptor.setPath("/");
@@ -316,8 +319,8 @@ public class SwaggerResourceMapper {
             ModelImpl messageModel = new ModelImpl();
             messageModel.setType("object");
             Map<String, Model> definitions = new HashMap<>();
-            if (!definitions.containsKey("Request")) {
-                definitions.put("Request", messageModel);
+            if (!definitions.containsKey(ConverterConstants.ATTR_REQUEST)) {
+                definitions.put(ConverterConstants.ATTR_REQUEST, messageModel);
                 this.swaggerDefinition.setDefinitions(definitions);
             }
         
@@ -325,7 +328,7 @@ public class SwaggerResourceMapper {
             BodyParameter messageParameter = new BodyParameter();
             messageParameter.setName(resource.getParameters().get(0).getName().getValue());
             RefModel refModel = new RefModel();
-            refModel.setReference("Request");
+            refModel.setReference(ConverterConstants.ATTR_REQUEST);
             messageParameter.setSchema(refModel);
             //Adding conditional check for http delete operation as it cannot have body parameter.
             if (!operationAdaptor.getHttpOperation().equalsIgnoreCase("delete")) {
@@ -386,27 +389,29 @@ public class SwaggerResourceMapper {
                 Map<String, BLangExpression> paramAttributes = ConverterUtils.listToMap(paramList);
                 String in;
 
-                if (paramAttributes.containsKey("inInfo")) {
-                    in = ConverterUtils.getStringLiteralValue(paramAttributes.get("inInfo"));
+                if (paramAttributes.containsKey(ConverterConstants.ATTR_IN)) {
+                    in = ConverterUtils.getStringLiteralValue(paramAttributes.get(ConverterConstants.ATTR_IN));
                 } else {
                     // If parameter location is not provided. Place it as path param by default
                     in = "path";
                 }
 
                 Parameter pram = buildParameter(in);
-                if (paramAttributes.containsKey("name")) {
-                    pram.setName(ConverterUtils.getStringLiteralValue(paramAttributes.get("name")));
+                if (paramAttributes.containsKey(ConverterConstants.ATTR_NAME)) {
+                    pram.setName(
+                            ConverterUtils.getStringLiteralValue(paramAttributes.get(ConverterConstants.ATTR_NAME)));
                 }
-                if (paramAttributes.containsKey("description")) {
-                    pram.setDescription(ConverterUtils.getStringLiteralValue(paramAttributes.get("description")));
+                if (paramAttributes.containsKey(ConverterConstants.ATTR_DESCRIPTION)) {
+                    pram.setDescription(ConverterUtils
+                            .getStringLiteralValue(paramAttributes.get(ConverterConstants.ATTR_DESCRIPTION)));
                 }
-                if (paramAttributes.containsKey("required")) {
-                    pram.setRequired(Boolean.parseBoolean(
-                            ConverterUtils.getStringLiteralValue(paramAttributes.get("required"))));
+                if (paramAttributes.containsKey(ConverterConstants.ATTR_REQUIRED)) {
+                    pram.setRequired(Boolean.parseBoolean(ConverterUtils
+                            .getStringLiteralValue(paramAttributes.get(ConverterConstants.ATTR_REQUIRED))));
                 }
-                if (paramAttributes.containsKey("allowEmptyValue")) {
-                    pram.setAllowEmptyValue(Boolean.parseBoolean(
-                            ConverterUtils.getStringLiteralValue(paramAttributes.get("allowEmptyValue"))));
+                if (paramAttributes.containsKey(ConverterConstants.ATTR_ALLOW_EMPTY)) {
+                    pram.setAllowEmptyValue(Boolean.parseBoolean(ConverterUtils
+                            .getStringLiteralValue(paramAttributes.get(ConverterConstants.ATTR_ALLOW_EMPTY))));
                 }
                 // TODO: 5/2/18 Set Param Schema Details
 
@@ -424,8 +429,9 @@ public class SwaggerResourceMapper {
      * @param operation The swagger operation.
      */
     private void parseResourceInfoAnnotationAttachment(ResourceNode resource, Operation operation) {
-        AnnotationAttachmentNode annotation = ConverterUtils.getAnnotationFromList("ResourceInfo", swaggerAlias,
-                resource.getAnnotationAttachments());
+        AnnotationAttachmentNode annotation = ConverterUtils
+                .getAnnotationFromList(ConverterConstants.ANNON_RES_INFO, swaggerAlias,
+                        resource.getAnnotationAttachments());
 
         if (annotation != null) {
             BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
@@ -433,15 +439,17 @@ public class SwaggerResourceMapper {
             List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
             Map<String, BLangExpression> attributes = ConverterUtils.listToMap(list);
             this.createTagModel(attributes.get("tags"), operation);
-            
-            if (attributes.containsKey("summary")) {
-                operation.setSummary(ConverterUtils.getStringLiteralValue(attributes.get("summary")));
+
+            if (attributes.containsKey(ConverterConstants.ATTR_SUMMARY)) {
+                operation.setSummary(
+                        ConverterUtils.getStringLiteralValue(attributes.get(ConverterConstants.ATTR_SUMMARY)));
             }
-            if (attributes.containsKey("description")) {
-                operation.setDescription(ConverterUtils.getStringLiteralValue(attributes.get("description")));
+            if (attributes.containsKey(ConverterConstants.ATTR_DESCRIPTION)) {
+                operation.setDescription(
+                        ConverterUtils.getStringLiteralValue(attributes.get(ConverterConstants.ATTR_DESCRIPTION)));
             }
-            if (attributes.containsKey("parameters")) {
-                this.createParametersModel(attributes.get("parameters"), operation);
+            if (attributes.containsKey(ConverterConstants.ATTR_PARAM)) {
+                this.createParametersModel(attributes.get(ConverterConstants.ATTR_PARAM), operation);
             }
 
             this.createExternalDocsModel(attributes.get("externalDoc"), operation);
@@ -458,17 +466,18 @@ public class SwaggerResourceMapper {
         if (null != annotationExpression) {
             if (annotationExpression instanceof BLangRecordLiteral) {
                 BLangRecordLiteral docAnnotation = (BLangRecordLiteral) annotationExpression;
-                Map<String, BLangExpression> docAttrs =
-                        ConverterUtils.listToMap(docAnnotation.getKeyValuePairs());
+                Map<String, BLangExpression> docAttrs = ConverterUtils.listToMap(docAnnotation.getKeyValuePairs());
                 ExternalDocs externalDocs = new ExternalDocs();
 
-                if (docAttrs.containsKey("description")) {
-                    externalDocs.setDescription(ConverterUtils.getStringLiteralValue(docAttrs.get("description")));
+                if (docAttrs.containsKey(ConverterConstants.ATTR_DESCRIPTION)) {
+                    externalDocs.setDescription(
+                            ConverterUtils.getStringLiteralValue(docAttrs.get(ConverterConstants.ATTR_DESCRIPTION)));
                 }
-                if (docAttrs.containsKey("url")) {
-                    externalDocs.setUrl(ConverterUtils.getStringLiteralValue(docAttrs.get("url")));
+                if (docAttrs.containsKey(ConverterConstants.ATTR_URL)) {
+                    externalDocs
+                            .setUrl(ConverterUtils.getStringLiteralValue(docAttrs.get(ConverterConstants.ATTR_URL)));
                 }
-        
+
                 operation.setExternalDocs(externalDocs);
             }
         }
@@ -502,8 +511,9 @@ public class SwaggerResourceMapper {
      * @param operation The swagger operation.
      */
     private void parseResourceConfigAnnotationAttachment(ResourceNode resource, OperationAdaptor operation) {
-        AnnotationAttachmentNode annotation = ConverterUtils.getAnnotationFromList("ResourceConfig", httpAlias,
-                resource.getAnnotationAttachments());
+        AnnotationAttachmentNode annotation = ConverterUtils
+                .getAnnotationFromList(HttpConstants.ANN_NAME_RESOURCE_CONFIG, httpAlias,
+                        resource.getAnnotationAttachments());
 
         if (annotation != null) {
             BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
@@ -511,11 +521,12 @@ public class SwaggerResourceMapper {
             List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
             Map<String, BLangExpression> attributes = ConverterUtils.listToMap(list);
 
-            if (attributes.containsKey("methods")) {
+            if (attributes.containsKey(HttpConstants.ANN_RESOURCE_ATTR_METHODS)) {
 
                 // Setting default value is safe since empty 'methods' is handled separately by X-METHODS extension
                 String method = "GET";
-                BLangArrayLiteral methodsArray = (BLangArrayLiteral) attributes.get("methods");
+                BLangArrayLiteral methodsArray = (BLangArrayLiteral) attributes
+                        .get(HttpConstants.ANN_RESOURCE_ATTR_METHODS);
 
                 if (methodsArray.getExpressions().size() > 0) {
                     // Only one method is expected in this execution path
@@ -530,13 +541,15 @@ public class SwaggerResourceMapper {
                 operation.setHttpOperation(method);
             }
 
-            if (attributes.containsKey("path")) {
-                operation.setPath(ConverterUtils.getStringLiteralValue(attributes.get("path")));
+            if (attributes.containsKey(HttpConstants.ANN_RESOURCE_ATTR_PATH)) {
+                operation.setPath(
+                        ConverterUtils.getStringLiteralValue(attributes.get(HttpConstants.ANN_RESOURCE_ATTR_PATH)));
             }
 
-            if (attributes.containsKey("consumes")) {
+            if (attributes.containsKey(HttpConstants.ANN_RESOURCE_ATTR_CONSUMES)) {
                 List<String> consumes = new LinkedList<>();
-                BLangArrayLiteral consumesArray = (BLangArrayLiteral) attributes.get("consumes");
+                BLangArrayLiteral consumesArray = (BLangArrayLiteral) attributes
+                        .get(HttpConstants.ANN_RESOURCE_ATTR_CONSUMES);
 
                 for (ExpressionNode expr : consumesArray.getExpressions()) {
                     BLangLiteral consumesLit = (BLangLiteral) expr;
@@ -549,9 +562,10 @@ public class SwaggerResourceMapper {
                 operation.getOperation().setConsumes(consumes);
             }
 
-            if (attributes.containsKey("produces")) {
+            if (attributes.containsKey(HttpConstants.ANN_RESOURCE_ATTR_PRODUCES)) {
                 List<String> produces = new LinkedList<>();
-                BLangArrayLiteral producesArray = (BLangArrayLiteral) attributes.get("produces");
+                BLangArrayLiteral producesArray = (BLangArrayLiteral) attributes
+                        .get(HttpConstants.ANN_RESOURCE_ATTR_PRODUCES);
 
                 for (ExpressionNode expr : producesArray.getExpressions()) {
                     BLangLiteral producesLit = (BLangLiteral) expr;
@@ -577,17 +591,19 @@ public class SwaggerResourceMapper {
      * @return A list of http methods.
      */
     private List<String> getHttpMethods(ResourceNode resource, boolean useDefaults) {
-        AnnotationAttachmentNode annotation = ConverterUtils.getAnnotationFromList("ResourceConfig", httpAlias,
-                resource.getAnnotationAttachments());
+        AnnotationAttachmentNode annotation = ConverterUtils
+                .getAnnotationFromList(HttpConstants.ANN_NAME_RESOURCE_CONFIG, httpAlias,
+                        resource.getAnnotationAttachments());
         Set<String> httpMethods = new LinkedHashSet<>();
         if (annotation != null) {
             BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
                     .getExpression());
             List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
             Map<String, BLangExpression> recordsMap = ConverterUtils.listToMap(list);
-            if (recordsMap.containsKey("methods") && recordsMap.get("methods") != null) {
-                List<? extends ExpressionNode> methodsValue = ((BLangArrayLiteral) recordsMap.get("methods"))
-                        .getExpressions();
+            if (recordsMap.containsKey(HttpConstants.ANN_RESOURCE_ATTR_METHODS)
+                    && recordsMap.get(HttpConstants.ANN_RESOURCE_ATTR_METHODS) != null) {
+                List<? extends ExpressionNode> methodsValue = ((BLangArrayLiteral) recordsMap
+                        .get(HttpConstants.ANN_RESOURCE_ATTR_METHODS)).getExpressions();
                 for (ExpressionNode expr : methodsValue) {
                     httpMethods.add(ConverterUtils.getStringLiteralValue((BLangLiteral) expr));
                 }
@@ -615,8 +631,9 @@ public class SwaggerResourceMapper {
      */
     private String getPath(ResourceNode resource) {
         String path = "/" + resource.getName();
-        AnnotationAttachmentNode annotation = ConverterUtils.getAnnotationFromList("ResourceConfig", httpAlias,
-                resource.getAnnotationAttachments());
+        AnnotationAttachmentNode annotation = ConverterUtils
+                .getAnnotationFromList(HttpConstants.ANN_NAME_RESOURCE_CONFIG, httpAlias,
+                        resource.getAnnotationAttachments());
 
         if (annotation != null) {
             BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
@@ -624,11 +641,11 @@ public class SwaggerResourceMapper {
             List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
             Map<String, BLangExpression> attributes = ConverterUtils.listToMap(list);
 
-            if (attributes.containsKey("path")) {
-                path = ConverterUtils.getStringLiteralValue(attributes.get("path"));
+            if (attributes.containsKey(HttpConstants.ANN_RESOURCE_ATTR_PATH)) {
+                path = ConverterUtils.getStringLiteralValue(attributes.get(HttpConstants.ANN_RESOURCE_ATTR_PATH));
             }
         }
-        
+
         return path;
     }
 
