@@ -18,6 +18,7 @@
 package org.ballerinalang.test.service.websub;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
+import org.awaitility.Duration;
 import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
@@ -91,7 +92,8 @@ public class WebSubSubscriptionChangeTestCase extends IntegrationTestCase {
         });
 
         //Allow to bring up the hub
-        given().ignoreException(ConnectException.class).await().atMost(60, SECONDS).until(() -> {
+        given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
+                .with().pollDelay(Duration.TEN_SECONDS).await().atMost(60, SECONDS).until(() -> {
             HttpResponse response = HttpsClientRequest.doGet(hubUrl, ballerinaWebSubPublisher.getServerHome());
             return response.getResponseCode() == 202;
         });
@@ -100,7 +102,8 @@ public class WebSubSubscriptionChangeTestCase extends IntegrationTestCase {
         ballerinaWebSubSubscriber.startBallerinaServer(subscriberBal, subscriberArgs);
 
         //Allow to start up the subscriber service
-        given().ignoreException(ConnectException.class).await().atMost(60, SECONDS).until(() -> {
+        given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
+                .with().pollDelay(Duration.TEN_SECONDS).await().atMost(60, SECONDS).until(() -> {
             Map<String, String> headers = new HashMap<>();
             headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
             HttpResponse response = HttpClientRequest.doPost(
