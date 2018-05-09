@@ -117,6 +117,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     private void writeOutboundResponse(HTTPCarbonMessage outboundResponseMsg, boolean keepAlive,
             HttpContent httpContent) {
         ChannelFuture outboundChannelFuture;
+        HttpResponseFuture outboundRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
         ChunkConfig responseChunkConfig = outboundResponseMsg.getProperty(CHUNKING_CONFIG) != null ?
                 (ChunkConfig) outboundResponseMsg.getProperty(CHUNKING_CONFIG) : null;
         if (responseChunkConfig != null) {
@@ -129,8 +130,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                         Util.isVersionCompatibleForChunking(requestDataHolder.getHttpVersion()) || Util
                                 .shouldEnforceChunkingforHttpOneZero(chunkConfig,
                                         requestDataHolder.getHttpVersion()))) {
-                    Util.setupChunkedRequest(outboundResponseMsg);
-                    writeOutboundResponseHeaders(outboundResponseMsg, keepAlive);
+                    writeHeaders(outboundResponseMsg, keepAlive, outboundRespStatusFuture);
                     outboundChannelFuture = writeOutboundResponseBody(httpContent);
                 } else {
                     contentLength += httpContent.content().readableBytes();
@@ -154,11 +154,8 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                     Util.isVersionCompatibleForChunking(requestDataHolder.getHttpVersion()) || Util
                             .shouldEnforceChunkingforHttpOneZero(chunkConfig, requestDataHolder.getHttpVersion()))) {
                 if (!headerWritten) {
-                    Util.setupChunkedRequest(outboundResponseMsg);
-                    writeOutboundResponseHeaders(outboundResponseMsg, keepAlive);
+                    writeHeaders(outboundResponseMsg, keepAlive, outboundRespStatusFuture);
                 }
-                HttpResponseFuture outboundRespStatusFuture =
-                        inboundRequestMsg.getHttpOutboundRespStatusFuture();
                 ChannelFuture outboundResponseChannelFuture = sourceContext.writeAndFlush(httpContent);
                 Util.addResponseWriteFailureListener(outboundRespStatusFuture, outboundResponseChannelFuture);
             } else {
@@ -195,6 +192,13 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         return outboundChannelFuture;
     }
 
+    private void writeHeaders(HTTPCarbonMessage outboundResponseMsg, boolean keepAlive,
+                              HttpResponseFuture outboundRespStatusFuture) {
+        Util.setupChunkedRequest(outboundResponseMsg);
+        ChannelFuture outboundHeaderChannelFuture = writeOutboundResponseHeaders(outboundResponseMsg, keepAlive);
+        Util.addResponseWriteFailureListener(outboundRespStatusFuture, outboundHeaderChannelFuture);
+    }
+
     private void resetState(HTTPCarbonMessage outboundResponseMsg) {
         outboundResponseMsg.removeHttpContentAsyncFuture();
         contentList.clear();
@@ -218,11 +222,11 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         }
     }
 
-    private void writeOutboundResponseHeaders(HTTPCarbonMessage outboundResponseMsg, boolean keepAlive) {
+    private ChannelFuture writeOutboundResponseHeaders(HTTPCarbonMessage outboundResponseMsg, boolean keepAlive) {
         HttpResponse response = Util.createHttpResponse(outboundResponseMsg, requestDataHolder.getHttpVersion(),
                 serverName, keepAlive);
         headerWritten = true;
-        sourceContext.write(response);
+        return sourceContext.write(response);
     }
 
     @Override
