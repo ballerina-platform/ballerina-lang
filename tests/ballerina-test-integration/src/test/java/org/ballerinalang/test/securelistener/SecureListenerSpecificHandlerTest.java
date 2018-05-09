@@ -33,6 +33,9 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Test cases for verifying specific auth handler with secured listener.
+ */
 public class SecureListenerSpecificHandlerTest extends IntegrationTestCase {
     private ServerInstance ballerinaServer;
 

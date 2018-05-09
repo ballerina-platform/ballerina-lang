@@ -110,7 +110,7 @@ public class Utils {
      * Check whether given port is in use or not.
      *
      * @param port - port number
-     * @throws Exception if port is already in use
+     * @throws BallerinaTestException if port is already in use
      */
     public static void checkPortAvailability(int port) throws BallerinaTestException {
 
