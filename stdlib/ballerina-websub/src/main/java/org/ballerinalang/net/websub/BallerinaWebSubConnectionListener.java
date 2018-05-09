@@ -75,8 +75,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
             HttpResource httpResource;
             if (accessed(inboundMessage)) {
                 if (inboundMessage.getProperty(HTTP_RESOURCE) instanceof String) {
-                    if (inboundMessage.getProperty(HTTP_RESOURCE).equals(
-                                                                        WebSubSubscriberConstants.ANNOTATED_TOPIC)) {
+                    if (inboundMessage.getProperty(HTTP_RESOURCE).equals(WebSubSubscriberConstants.ANNOTATED_TOPIC)) {
                         autoRespondToIntentVerification(inboundMessage);
                         return;
                     } else {

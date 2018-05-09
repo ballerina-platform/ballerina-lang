@@ -130,7 +130,6 @@ public class HttpDispatcher {
      * @return matching resource.
      */
     public static HttpResource findResource(HTTPServicesRegistry servicesRegistry, HTTPCarbonMessage inboundMessage) {
-        HttpResource resource;
         String protocol = (String) inboundMessage.getProperty(HttpConstants.PROTOCOL);
         if (protocol == null) {
             throw new BallerinaConnectorException("protocol not defined in the incoming request");
@@ -145,11 +144,10 @@ public class HttpDispatcher {
             }
 
             // Find the Resource
-            resource = HttpResourceDispatcher.findResource(service, inboundMessage);
+            return HttpResourceDispatcher.findResource(service, inboundMessage);
         } catch (Throwable throwable) {
             throw new BallerinaConnectorException(throwable.getMessage());
         }
-        return resource;
     }
 
     public static BValue[] getSignatureParameters(HttpResource httpResource, HTTPCarbonMessage httpCarbonMessage) {
