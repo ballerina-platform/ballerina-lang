@@ -163,10 +163,10 @@ public class WebSubAutoIntentVerificationTestCase extends IntegrationTestCase {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_FORM_URL_ENCODED);
         HttpResponse response = HttpClientRequest.doPost(hubUrl,
-     "hub.mode=subscribe&hub.topic=http://dummytopic.com&hub.callback=http://localhost:8181/websub",
-                     headers);
+            "hub.mode=subscribe&hub.topic=http://dummytopic.com&hub.callback=http://localhost:8181/websub",
+            headers);
         Assert.assertEquals(response.getResponseCode(), 202, "Remote topic registration unsuccessful "
-                + "to allow registering subscription");
+                                                                                + "to allow registering subscription");
         intentVerificationDenialLogLeecher.waitForText(45000);
     }
 
@@ -175,5 +175,4 @@ public class WebSubAutoIntentVerificationTestCase extends IntegrationTestCase {
         ballerinaWebSubPublisher.stopServer();
         ballerinaWebSubSubscriber.stopServer();
     }
-
 }

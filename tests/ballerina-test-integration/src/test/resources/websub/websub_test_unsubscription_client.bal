@@ -31,4 +31,3 @@ function main(string... args) {
     // Confirm unsubscription - no notifications should be received.
     runtime:sleep(5000);
 }
-

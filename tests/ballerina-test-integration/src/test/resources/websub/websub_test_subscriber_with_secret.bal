@@ -16,7 +16,6 @@ endpoint websub:Listener websubEP {
     secret: "Kslk30SNF2AChs2"
 }
 service<websub:Service> websubSubscriber bind websubEP {
-
     onIntentVerification (endpoint caller, websub:IntentVerificationRequest request) {
         http:Response response = request.buildSubscriptionVerificationResponse();
         if (response.statusCode == 202) {
@@ -32,6 +31,4 @@ service<websub:Service> websubSubscriber bind websubEP {
         json jsonPayload = check notification.request.getJsonPayload();
         io:println("WebSub Notification from Request: " + jsonPayload.toString());
     }
-
 }
-

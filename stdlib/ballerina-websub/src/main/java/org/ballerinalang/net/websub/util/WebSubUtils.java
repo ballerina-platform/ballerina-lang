@@ -57,5 +57,4 @@ public class WebSubUtils {
     private static BStruct createBStruct(ProgramFile programFile, String packagePath, String structName) {
         return BLangConnectorSPIUtil.createBStruct(programFile, packagePath, structName);
     }
-
 }

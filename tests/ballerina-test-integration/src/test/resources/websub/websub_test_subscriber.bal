@@ -15,12 +15,10 @@ endpoint websub:Listener websubEP {
     hub: config:getAsString("test.hub.url")
 }
 service<websub:Service> websubSubscriber bind websubEP {
-
     onNotification (websub:Notification notification) {
         io:println("WebSub Notification Received: " + notification.payload.toString());
         json jsonPayload = check notification.request.getJsonPayload();
         io:println("WebSub Notification from Request: " + jsonPayload.toString());
     }
-
 }
 

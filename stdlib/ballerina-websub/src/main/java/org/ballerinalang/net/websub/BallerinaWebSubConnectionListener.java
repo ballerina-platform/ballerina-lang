@@ -143,8 +143,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
                     URIUtil.populateQueryParamMap(queryString, params);
                     intentVerificationRequestStruct.setStringField(0, params.get(PARAM_HUB_MODE).stringValue());
                     intentVerificationRequestStruct.setStringField(1, params.get(PARAM_HUB_TOPIC).stringValue());
-                    intentVerificationRequestStruct.setStringField(2,
-                                                                   params.get(PARAM_HUB_CHALLENGE).stringValue());
+                    intentVerificationRequestStruct.setStringField(2, params.get(PARAM_HUB_CHALLENGE).stringValue());
                     if (params.hasKey(PARAM_HUB_LEASE_SECONDS)) {
                         intentVerificationRequestStruct.setIntField(0, Integer.parseInt(
                                         params.get(PARAM_HUB_LEASE_SECONDS).stringValue()));
