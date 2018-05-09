@@ -21,6 +21,7 @@ package org.ballerinalang.net.websub;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
@@ -74,8 +75,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
     private WebSubServicesRegistry webSubServicesRegistry;
     private PrintStream console = System.out;
 
-    public BallerinaWebSubConnectionListener(WebSubServicesRegistry webSubServicesRegistry,
-                                             Value[] filterHolders) {
+    public BallerinaWebSubConnectionListener(WebSubServicesRegistry webSubServicesRegistry, Value[] filterHolders) {
         super(webSubServicesRegistry, filterHolders);
         this.webSubServicesRegistry = webSubServicesRegistry;
     }
@@ -158,7 +158,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
         } else { //Notification Resource
             HTTPCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
             response.waitAndReleaseAllEntities();
-            response.setProperty(HttpConstants.HTTP_STATUS_CODE, 202);
+            response.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpResponseStatus.ACCEPTED.code());
             response.addHttpContent(new DefaultLastHttpContent());
             HttpUtil.sendOutboundResponse(httpCarbonMessage, response);
             BStruct notificationRequestStruct = createNotificationRequestStruct(balResource);
@@ -250,10 +250,9 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
                 response.waitAndReleaseAllEntities();
                 URIUtil.populateQueryParamMap(queryString, params);
                 String mode = params.get(PARAM_HUB_MODE).stringValue();
-                if (!params.keySet().contains(PARAM_HUB_MODE) ||
-                        !params.keySet().contains(PARAM_HUB_TOPIC) ||
-                        !params.keySet().contains(PARAM_HUB_CHALLENGE)) {
-                    response.setProperty(HttpConstants.HTTP_STATUS_CODE, 404);
+                if (!params.keySet().contains(PARAM_HUB_MODE) || !params.keySet().contains(PARAM_HUB_TOPIC)
+                        || !params.keySet().contains(PARAM_HUB_CHALLENGE)) {
+                    response.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpResponseStatus.NOT_FOUND.code());
                     response.addHttpContent(new DefaultLastHttpContent());
                     HttpUtil.sendOutboundResponse(httpCarbonMessage, response);
                     console.println("ballerina: Error auto-responding to intent verification request: Mode, Topic "
@@ -265,7 +264,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
                     response.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(
                             challenge.getBytes(StandardCharsets.UTF_8))));
                     response.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), Constants.TEXT_PLAIN);
-                    response.setProperty(HttpConstants.HTTP_STATUS_CODE, 202);
+                    response.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpResponseStatus.ACCEPTED.code());
                     String intentVerificationMessage = "ballerina: Intent Verification agreed - Mode [" + mode
                                                         + "], Topic [" + annotatedTopic + "]";
                     if (params.hasKey(PARAM_HUB_LEASE_SECONDS)) {
@@ -276,7 +275,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
                 } else {
                     console.println("ballerina: Intent Verification denied - Mode [" + mode + "], Topic ["
                                         + params.get(PARAM_HUB_TOPIC).stringValue() + "]");
-                    response.setProperty(HttpConstants.HTTP_STATUS_CODE, 404);
+                    response.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpResponseStatus.NOT_FOUND.code());
                     response.addHttpContent(new DefaultLastHttpContent());
                 }
                 HttpUtil.sendOutboundResponse(httpCarbonMessage, response);
