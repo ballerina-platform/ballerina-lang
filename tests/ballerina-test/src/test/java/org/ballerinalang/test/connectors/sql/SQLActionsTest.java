@@ -280,8 +280,8 @@ public class SQLActionsTest {
     }
 
     @Test(groups = "ConnectorTest")
-    public void testINParameters2() {
-        BValue[] returns = BRunUtil.invoke(result, "testINParameters2");
+    public void testINParametersWithDirectValues() {
+        BValue[] returns = BRunUtil.invoke(result, "testINParametersWithDirectValues");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
         Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D);
@@ -290,6 +290,7 @@ public class SQLActionsTest {
         Assert.assertEquals(((BFloat) returns[6]).floatValue(), 1234.567D);
         Assert.assertEquals(((BFloat) returns[7]).floatValue(), 1234.567D);
         Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567D);
+        Assert.assertTrue(returns[9].stringValue().equals(returns[10].stringValue()));
     }
 
     @Test(groups = "ConnectorTest")
