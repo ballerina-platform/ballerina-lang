@@ -33,6 +33,9 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Test cases for verifying wrong auth provider for a service.
+ */
 public class SecureClientWrongAuthProviderTest extends IntegrationTestCase {
 
     private ServerInstance ballerinaServer;

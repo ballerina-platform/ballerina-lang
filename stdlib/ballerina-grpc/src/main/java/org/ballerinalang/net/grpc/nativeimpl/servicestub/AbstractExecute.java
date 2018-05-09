@@ -65,7 +65,6 @@ abstract class AbstractExecute extends BlockingNativeCallableUnit {
         } else if (protoType.equalsIgnoreCase("BytesValue")) {
             return BTypes.typeBlob;
         } else {
-            // TODO: 2/22/18 enum
             return context.getProgramFile().getEntryPackage().getStructInfo(protoType).getType();
         }
     }

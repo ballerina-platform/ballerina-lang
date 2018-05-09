@@ -30,7 +30,7 @@ import java.util.List;
 public interface MatchNode {
 
     /**
-     * {@code MatchStatementPatternNode} represents a pattern inside a type switch statement
+     * {@code MatchStatementPatternNode} represents a pattern inside a type switch statement.
      *
      * @since 0.966.0
      */

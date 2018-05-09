@@ -62,7 +62,7 @@ public class BLangMatchExpression extends BLangExpression implements MatchExpres
     }
 
     /**
-     * {@code BLangMatchExprPatternClause} represents a pattern inside a type switch expression
+     * {@code BLangMatchExprPatternClause} represents a pattern inside a type switch expression.
      *
      * @since 0.970.0
      */

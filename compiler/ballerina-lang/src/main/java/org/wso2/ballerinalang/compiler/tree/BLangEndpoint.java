@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Implementation of {@link EndpointNode}
+ * Implementation of {@link EndpointNode}.
  *
  * @since 0.965.0
  */
