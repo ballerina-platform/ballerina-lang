@@ -22,9 +22,9 @@ const fs = require('fs'),
     decompress = require('decompress'),
     path = require('path'),
     webModuleBuild = path.join(__dirname, '..', 'web', 'target',
-                  'ballerina-composer-web-*.zip'),
-    serviceBuild = path.join(__dirname, '..', 'services',
-                  'workspace-service', 'target', 'workspace-service-*.jar');
+                  'ballerina-composer-web-0.970.0-beta6-SNAPSHOT.zip'),
+    serverBuild = path.join(__dirname, '..', 'server',
+                  'distribution', 'target', 'composer-server-distribution-*.jar');
 
 // copy resources from web module
 function prepareWebModule() {
@@ -40,17 +40,17 @@ function prepareWebModule() {
     });
 }
 
-// copy micro service
-function prepareService() {
-    // search for service jar
-    let foundFiles = glob.sync(serviceBuild);
+// copy server
+function prepareServer() {
+    // search for server jar
+    let foundFiles = glob.sync(serverBuild);
 
     if(foundFiles.length !== 1) {
-        console.error('Error while searching for service build file.');
+        console.error('Error while searching for server build file.');
     }
 
-    fs.createReadStream(foundFiles[0]).pipe(fs.createWriteStream(path.join(__dirname, 'workspace-service.jar')));
+    fs.createReadStream(foundFiles[0]).pipe(fs.createWriteStream(path.join(__dirname, 'composer-server-distribution.jar')));
 }
 
 prepareWebModule();
-prepareService();
+prepareServer();

@@ -1,6 +1,6 @@
 {
-  "name": "BallerinaComposer",
-  "version": "0.9.0",
+  "name": "ballerina-composer",
+  "version": "0.970.1",
   "description": "Electron based standalone distribution of Ballerina Composer",
   "main": "index.js",
   "scripts": {
@@ -15,7 +15,11 @@
   "build": {
     "appId": "org.ballerinalang.composer",
     "asar": true,
-    "asarUnpack": ["**/*.jar", "conf/", "resources/"],
+    "asarUnpack": [
+      "**/*.jar",
+      "conf/",
+      "resources/"
+    ],
     "mac": {
       "category": "public.app-category.productivity",
       "target": "zip"
@@ -33,7 +37,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ballerinalang/composer.git"
+    "url": "git+https://github.com/ballerina-platform/ballerina.git"
   },
   "keywords": [
     "Ballerina",

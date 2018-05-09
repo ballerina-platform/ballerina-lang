@@ -53,14 +53,14 @@ function createService(){
     let log4jConfPath = path.join(appDir, 'conf', 'log4j.properties')
                           .replace('app.asar', 'app.asar.unpacked');
     let log4jConfProp = '-Dlog4j.configuration=' + 'file:' + log4jConfPath;
-    let balComposerHomeProp = '-Dbal.composer.home=' + appDir.replace('app.asar', 'app.asar.unpacked');
+    let balHomeProp = '-Dballerina.home=' + path.join(appDir.replace('app.asar', 'app.asar.unpacked'), 'bre');
     let debugArgs='-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=6006';
     let errorWin;
 
-    serviceProcess = spawn('java', [log4jConfProp, logsDirSysProp, balComposerHomeProp,
-        '-jar', path.join(appDir, 'workspace-service.jar')
+    serviceProcess = spawn('java', [log4jConfProp, logsDirSysProp, balHomeProp,
+        '-jar', path.join(appDir, 'composer-server-distribution.jar')
                     .replace('app.asar', 'app.asar.unpacked')]);
-    logger.info('Verifying whether the backend services are started successfully');
+    logger.info('Verifying whether the backend server is started successfully');
     serviceProcess.stdout.on('data', function(data) {
         // IMPORTANT: Wait till workspace-service is started to create window
         if (data.includes('Microservices server started')) {
