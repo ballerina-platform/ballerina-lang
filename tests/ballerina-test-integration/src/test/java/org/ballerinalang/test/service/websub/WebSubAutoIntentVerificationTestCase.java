@@ -29,6 +29,7 @@ import org.ballerinalang.test.util.HttpsClientRequest;
 import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -69,6 +70,7 @@ public class WebSubAutoIntentVerificationTestCase extends IntegrationTestCase {
     private static final String INTENT_VERIFICATION_DENIAL_SUBSCRIBER_LOG = "ballerina: Intent Verification denied - "
             + "Mode [subscribe], Topic [http://websubpubtopictwo.com]";
 
+    private LogLeecher intentVerificationLogLeecher;
     private LogLeecher internalHubNotificationLogLeecher;
     private LogLeecher remoteHubNotificationLogLeecher;
     private LogLeecher internalHubNotificationFromRequestLogLeecher;
@@ -78,15 +80,14 @@ public class WebSubAutoIntentVerificationTestCase extends IntegrationTestCase {
     private ServerInstance ballerinaWebSubSubscriber;
     private ServerInstance ballerinaWebSubPublisher;
 
-    @Test
-    public void testStartUpAndIntentVerification() throws BallerinaTestException, InterruptedException {
+    @BeforeClass
+    public void setup() throws BallerinaTestException, InterruptedException {
         String[] publisherArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
-                          + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath(),
-                          "-e b7a.websub.hub.port=9191", "-e b7a.websub.hub.remotepublish=true",
-                          "-e test.hub.url=" + hubUrl};
+            + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath(),
+            "-e b7a.websub.hub.port=9191", "-e b7a.websub.hub.remotepublish=true", "-e test.hub.url=" + hubUrl};
         ballerinaWebSubPublisher = ServerInstance.initBallerinaServer();
 
-        LogLeecher intentVerificationLogLeecher = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_LOG);
+        intentVerificationLogLeecher = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_LOG);
         internalHubNotificationLogLeecher = new LogLeecher(INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_LOG);
         remoteHubNotificationLogLeecher = new LogLeecher(REMOTE_HUB_NOTIFICATION_SUBSCRIBER_LOG);
         internalHubNotificationFromRequestLogLeecher =
@@ -133,7 +134,10 @@ public class WebSubAutoIntentVerificationTestCase extends IntegrationTestCase {
                     headers);
             return response.getResponseCode() == 202;
         });
+    }
 
+    @Test
+    public void testStartUpAndIntentVerification() throws BallerinaTestException, InterruptedException {
         intentVerificationLogLeecher.waitForText(10000);
     }
 

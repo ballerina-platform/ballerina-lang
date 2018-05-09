@@ -28,6 +28,7 @@ import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.ballerinalang.test.util.TestConstant;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -59,21 +60,22 @@ public class WebSubSubscriptionChangeTestCase extends IntegrationTestCase {
     private static final String INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_LOG =
             "WebSub Notification Received: {\"action\":\"publish\",\"mode\":\"internal-hub\"}";
 
+    private LogLeecher intentVerificationLogLeecher;
     private LogLeecher internalHubNotificationLogLeecher;
 
     private ServerInstance ballerinaWebSubSubscriber;
     private ServerInstance ballerinaWebSubPublisher;
     private ServerInstance ballerinaWebSubSubscriptionChangeClient;
 
-    @Test
-    public void testStartUpAndIntentVerification() throws BallerinaTestException, InterruptedException {
+    @BeforeClass
+    public void setup() throws BallerinaTestException, InterruptedException {
         String[] publisherArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
-                          + File.separator + "websub" + File.separator + "websub_test_periodic_publisher.bal")
-                .getAbsolutePath(), "-e b7a.websub.hub.remotepublish=true"};
+                + File.separator + "websub" + File.separator + "websub_test_periodic_publisher.bal").getAbsolutePath(),
+                "-e b7a.websub.hub.remotepublish=true"};
         ballerinaWebSubPublisher = ServerInstance.initBallerinaServer();
         ballerinaWebSubSubscriptionChangeClient = ServerInstance.initBallerinaServer();
 
-        LogLeecher intentVerificationLogLeecher = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_LOG);
+        intentVerificationLogLeecher = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_LOG);
         internalHubNotificationLogLeecher = new LogLeecher(INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_LOG);
 
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
@@ -111,7 +113,10 @@ public class WebSubSubscriptionChangeTestCase extends IntegrationTestCase {
                     headers);
             return response.getResponseCode() == 202;
         });
+    }
 
+    @Test
+    public void testStartUpAndIntentVerification() throws BallerinaTestException, InterruptedException {
         intentVerificationLogLeecher.waitForText(10000);
     }
 

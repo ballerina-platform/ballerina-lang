@@ -29,6 +29,7 @@ import org.ballerinalang.test.util.HttpsClientRequest;
 import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -65,6 +66,7 @@ public class WebSubWithSecretTestCase extends IntegrationTestCase {
     private static final String REMOTE_HUB_NOTIFICATION_FROM_REQUEST_SUBSCRIBER_LOG =
             "WebSub Notification from Request: {\"action\":\"publish\",\"mode\":\"remote-hub\"}";
 
+    private LogLeecher intentVerificationLogLeecher;
     private LogLeecher internalHubNotificationLogLeecher;
     private LogLeecher remoteHubNotificationLogLeecher;
     private LogLeecher internalHubNotificationFromRequestLogLeecher;
@@ -73,14 +75,14 @@ public class WebSubWithSecretTestCase extends IntegrationTestCase {
     private ServerInstance ballerinaWebSubSubscriber;
     private ServerInstance ballerinaWebSubPublisher;
 
-    @Test
-    public void testStartUpAndIntentVerification() throws BallerinaTestException, InterruptedException {
+    @BeforeClass
+    public void setup() throws BallerinaTestException, InterruptedException {
         String[] clientArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
-                          + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath(),
-                          "-e b7a.websub.hub.remotepublish=true", "-e test.hub.url=" + hubUrl};
+                + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath(),
+                "-e b7a.websub.hub.remotepublish=true", "-e test.hub.url=" + hubUrl};
         ballerinaWebSubPublisher = ServerInstance.initBallerinaServer();
 
-        LogLeecher intentVerificationLogLeecher = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_LOG);
+        intentVerificationLogLeecher = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_LOG);
         internalHubNotificationLogLeecher = new LogLeecher(INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_LOG);
         remoteHubNotificationLogLeecher = new LogLeecher(REMOTE_HUB_NOTIFICATION_SUBSCRIBER_LOG);
         internalHubNotificationFromRequestLogLeecher =
@@ -89,8 +91,7 @@ public class WebSubWithSecretTestCase extends IntegrationTestCase {
                 new LogLeecher(REMOTE_HUB_NOTIFICATION_FROM_REQUEST_SUBSCRIBER_LOG);
 
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
-                        + File.separator + "websub" + File.separator + "websub_test_subscriber_with_secret.bal")
-                .getAbsolutePath();
+            + File.separator + "websub" + File.separator + "websub_test_subscriber_with_secret.bal").getAbsolutePath();
         ballerinaWebSubSubscriber = ServerInstance.initBallerinaServer(8181);
         ballerinaWebSubSubscriber.addLogLeecher(intentVerificationLogLeecher);
         ballerinaWebSubSubscriber.addLogLeecher(internalHubNotificationLogLeecher);
@@ -126,7 +127,10 @@ public class WebSubWithSecretTestCase extends IntegrationTestCase {
                     headers);
             return response.getResponseCode() == 202;
         });
+    }
 
+    @Test
+    public void testStartUpAndIntentVerification() throws BallerinaTestException, InterruptedException {
         intentVerificationLogLeecher.waitForText(10000);
     }
 
