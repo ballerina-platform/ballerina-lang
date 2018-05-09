@@ -481,8 +481,7 @@ public class HttpUtil {
     }
 
     public static void populateInboundRequest(BStruct inboundRequestStruct, BStruct entity, BStruct mediaType,
-                                              HTTPCarbonMessage inboundRequestMsg,
-                                              ProgramFile programFile) {
+                                              HTTPCarbonMessage inboundRequestMsg, ProgramFile programFile) {
         inboundRequestStruct.addNativeData(TRANSPORT_MESSAGE, inboundRequestMsg);
         inboundRequestStruct.addNativeData(REQUEST, true);
 
@@ -608,9 +607,8 @@ public class HttpUtil {
         String cacheControlHeader = inboundResponseMsg.getHeader(CACHE_CONTROL.toString());
         if (cacheControlHeader != null) {
             ResponseCacheControlStruct responseCacheControl
-                    = new ResponseCacheControlStruct(programFile
-                                                             .getPackageInfo(PROTOCOL_PACKAGE_HTTP)
-                                                             .getStructInfo(RESPONSE_CACHE_CONTROL));
+                    = new ResponseCacheControlStruct(
+                            programFile.getPackageInfo(PROTOCOL_PACKAGE_HTTP).getStructInfo(RESPONSE_CACHE_CONTROL));
             responseCacheControl.populateStruct(cacheControlHeader);
             inboundResponse.setRefField(RESPONSE_CACHE_CONTROL_INDEX, responseCacheControl.getStruct());
         }

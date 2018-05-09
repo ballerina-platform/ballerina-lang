@@ -54,8 +54,11 @@ import java.util.List;
 import static org.ballerinalang.mime.util.Constants.ENTITY;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.net.http.HttpConstants.CONNECTION;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
+import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_INDEX;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SERVICE_ENDPOINT;
 
 /**
  * HTTP Connection Listener for Ballerina WebSub services.
@@ -185,15 +188,15 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
         BStruct subscriberServiceEndpoint = createSubscriberServiceEndpointStruct(httpResource.getBalResource());
         BStruct serviceEndpoint = BLangConnectorSPIUtil.createBStruct(
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                PROTOCOL_PACKAGE_HTTP, HttpConstants.SERVICE_ENDPOINT);
+                PROTOCOL_PACKAGE_HTTP, SERVICE_ENDPOINT);
 
         BStruct connection = BLangConnectorSPIUtil.createBStruct(
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                PROTOCOL_PACKAGE_HTTP, HttpConstants.CONNECTION);
+                PROTOCOL_PACKAGE_HTTP, CONNECTION);
 
         HttpUtil.enrichServiceEndpointInfo(serviceEndpoint, httpCarbonMessage, httpResource);
         HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage);
-        serviceEndpoint.setRefField(HttpConstants.SERVICE_ENDPOINT_CONNECTION_INDEX, connection);
+        serviceEndpoint.setRefField(SERVICE_ENDPOINT_CONNECTION_INDEX, connection);
 
         subscriberServiceEndpoint.setRefField(1, serviceEndpoint);
         return subscriberServiceEndpoint;
@@ -224,7 +227,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
     private BStruct createSubscriberServiceEndpointStruct(Resource resource) {
         return createBStruct(resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                                                     WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH,
-                                                    WebSubSubscriberConstants.SERVICE_ENDPOINT);
+                                                    SERVICE_ENDPOINT);
     }
 
     /**
