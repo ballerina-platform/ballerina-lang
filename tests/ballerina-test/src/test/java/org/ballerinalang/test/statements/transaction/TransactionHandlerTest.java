@@ -163,7 +163,7 @@ public class TransactionHandlerTest {
     @Test(description = "Test transaction handler function with invalid argument")
     public void testInvalidHandlers() {
         CompileResult res = BCompileUtil.compile("test-src/statements/transaction/transaction_handler_negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 10);
+        Assert.assertEquals(res.getErrorCount(), 12);
         BAssertUtil.validateError(res, 0,
                 "transaction handler function required single string parameter which is transaction id", 4, 50);
         BAssertUtil.validateError(res, 1,
@@ -186,5 +186,7 @@ public class TransactionHandlerTest {
         BAssertUtil
                 .validateError(res, 9, "lambda function with string input parameter is required as transaction handler",
                         71, 63);
+        BAssertUtil.validateError(res, 10, "transaction handler function cannot have a return type", 86, 50);
+        BAssertUtil.validateError(res, 11, "transaction handler function cannot have a return type", 86, 77);
     }
 }

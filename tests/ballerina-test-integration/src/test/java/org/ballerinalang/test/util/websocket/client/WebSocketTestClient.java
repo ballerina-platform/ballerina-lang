@@ -50,7 +50,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * WebSocket client class for test
+ * WebSocket client class for test.
  */
 public class WebSocketTestClient {
 
@@ -82,7 +82,6 @@ public class WebSocketTestClient {
     /**
      * Handshake with the remote server.
      *
-     * @return true if the handshake is done properly.
      */
     public void handshake() throws InterruptedException {
         group = new NioEventLoopGroup();
