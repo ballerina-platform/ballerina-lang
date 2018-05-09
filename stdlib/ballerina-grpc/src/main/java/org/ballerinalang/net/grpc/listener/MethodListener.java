@@ -194,7 +194,7 @@ abstract class MethodListener {
                 throw new RuntimeException(message);
             }
 
-            CallableUnitCallback callback = new GrpcCallableUnitCallBack(null);
+            CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, Boolean.FALSE);
             Executor.submit(onCompleted, callback, null, null, computeMessageParams
                     (onCompleted, null, responseObserver));
         }
