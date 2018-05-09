@@ -21,7 +21,6 @@ package org.wso2.transport.http.netty.listener;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
@@ -43,6 +42,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketFrameType;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnection;
+import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketInboundFrameHandler;
 import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.WebSocketCloseMessageImpl;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.WebSocketControlMessageImpl;
@@ -53,44 +53,73 @@ import org.wso2.transport.http.netty.internal.websocket.WebSocketUtil;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * This class handles all kinds of WebSocketFrames
  * after connection is upgraded from HTTP to WebSocket.
  */
-public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
+public class WebSocketSourceHandler extends WebSocketInboundFrameHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketSourceHandler.class);
     private final String target;
     private final ChannelHandlerContext ctx;
     private final boolean isSecured;
     private final ServerConnectorFuture connectorFuture;
-    private final DefaultWebSocketConnection webSocketConnection;
     private final Map<String, String> headers;
     private final String interfaceId;
     private String subProtocol = null;
     private HandlerExecutor handlerExecutor;
     private WebSocketFrameType continuationFrameType;
+    private CountDownLatch closeCountDownLatch = null;
+    private DefaultWebSocketConnection webSocketConnection;
+    private boolean closeFrameReceived = false;
 
     /**
      * @param connectorFuture {@link ServerConnectorFuture} to notify messages to application.
      * @param isSecured       indication of whether the connection is secured or not.
-     * @param webSocketConnection  connection relates to the channel.
      * @param httpRequest     {@link FullHttpRequest} which contains the details of WebSocket Upgrade.
      * @param headers         Headers obtained from HTTP WebSocket upgrade request.
      * @param ctx             {@link ChannelHandlerContext} of WebSocket connection.
      * @param interfaceId     given ID for the socket interface.
      */
-    public WebSocketSourceHandler(ServerConnectorFuture connectorFuture, boolean isSecured,
-                                  DefaultWebSocketConnection webSocketConnection, FullHttpRequest httpRequest,
+    public WebSocketSourceHandler(ServerConnectorFuture connectorFuture, boolean isSecured, FullHttpRequest httpRequest,
                                   Map<String, String> headers, ChannelHandlerContext ctx, String interfaceId) {
         this.connectorFuture = connectorFuture;
         this.isSecured = isSecured;
-        this.webSocketConnection = webSocketConnection;
         this.ctx = ctx;
         this.interfaceId = interfaceId;
         this.target = httpRequest.uri();
         this.headers = headers;
+    }
+
+    /**
+     * Set if there is any negotiated sub protocol.
+     *
+     * @param negotiatedSubProtocol negotiated sub protocol for a given connection.
+     */
+    public void setNegotiatedSubProtocol(String negotiatedSubProtocol) {
+        this.subProtocol = negotiatedSubProtocol;
+    }
+
+    @Override
+    public DefaultWebSocketConnection getWebSocketConnection() {
+        return webSocketConnection;
+    }
+
+    @Override
+    public boolean isCloseFrameReceived() {
+        return closeFrameReceived;
+    }
+
+    @Override
+    public void setCloseCountDownLatch(CountDownLatch closeCountDownLatch) {
+        this.closeCountDownLatch = closeCountDownLatch;
+    }
+
+    @Override
+    public ChannelHandlerContext getCtx() {
+        return this.ctx;
     }
 
     @Override
@@ -105,24 +134,7 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
         if (this.handlerExecutor != null) {
             this.handlerExecutor.executeAtSourceConnectionInitiation(Integer.toString(ctx.hashCode()));
         }
-    }
-
-    /**
-     * Retrieve server session of this source handler.
-     *
-     * @return the server session of this source handler.
-     */
-    public DefaultWebSocketConnection getWebSocketConnection() {
-        return webSocketConnection;
-    }
-
-    /**
-     * Set if there is any negotiated sub protocol.
-     *
-     * @param negotiatedSubProtocol negotiated sub protocol for a given connection.
-     */
-    public void setNegotiatedSubProtocol(String negotiatedSubProtocol) {
-        this.subProtocol = negotiatedSubProtocol;
+        webSocketConnection = WebSocketUtil.getWebSocketConnection(this, isSecured, target);
     }
 
     @Override
@@ -143,9 +155,12 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
             handlerExecutor = null;
         }
 
-        if (!(webSocketConnection.closeFrameReceived() || webSocketConnection.closeFrameSent())) {
+        if (!(this.closeFrameReceived || webSocketConnection.closeFrameSent())) {
             // Notify abnormal closure.
-            notifyCloseMessage(1006, null);
+            WebSocketMessageImpl webSocketCloseMessage =
+                    new WebSocketCloseMessageImpl(1006, null);
+            setupCommonProperties(webSocketCloseMessage);
+            connectorFuture.notifyWSListener((WebSocketCloseMessage) webSocketCloseMessage);
         }
     }
 
@@ -208,17 +223,18 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
     private void notifyCloseMessage(CloseWebSocketFrame closeWebSocketFrame) throws ServerConnectorException {
         String reasonText = closeWebSocketFrame.reasonText();
         int statusCode = closeWebSocketFrame.statusCode();
-        WebSocketMessageImpl webSocketCloseMessage = new WebSocketCloseMessageImpl(statusCode, reasonText);
-        closeWebSocketFrame.release();
-        setupCommonProperties(webSocketCloseMessage);
-        connectorFuture.notifyWSListener((WebSocketCloseMessage) webSocketCloseMessage);
-    }
 
-    private void notifyCloseMessage(int statusCode, String reasonText) throws ServerConnectorException {
-        WebSocketMessageImpl webSocketCloseMessage =
-                new WebSocketCloseMessageImpl(statusCode, reasonText);
-        setupCommonProperties(webSocketCloseMessage);
-        connectorFuture.notifyWSListener((WebSocketCloseMessage) webSocketCloseMessage);
+        // closeCountDownLatch == null means that WebSocketConnection has not yet initiated a connection closure.
+        if (closeCountDownLatch == null) {
+            WebSocketMessageImpl webSocketCloseMessage = new WebSocketCloseMessageImpl(statusCode, reasonText);
+            setupCommonProperties(webSocketCloseMessage);
+            connectorFuture.notifyWSListener((WebSocketCloseMessage) webSocketCloseMessage);
+            closeFrameReceived = true;
+        } else {
+            ctx.writeAndFlush(new CloseWebSocketFrame(statusCode, reasonText)).addListener(
+                    future -> closeCountDownLatch.countDown());
+        }
+        closeWebSocketFrame.release();
     }
 
     private void notifyPingMessage(PingWebSocketFrame pingWebSocketFrame) throws ServerConnectorException {

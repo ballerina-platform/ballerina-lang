@@ -19,7 +19,6 @@
 
 package org.wso2.transport.http.netty.websocket;
 
-import io.netty.handler.codec.http.HttpResponseStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
