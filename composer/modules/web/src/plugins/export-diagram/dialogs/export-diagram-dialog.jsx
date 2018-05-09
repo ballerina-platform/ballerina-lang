@@ -131,7 +131,7 @@ class ExportDiagramDialog extends React.Component {
                     this.props.command.dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
                         id: DIALOGS.REPLACE_FILE_CONFIRM,
                         additionalProps: {
-                            filePath: derivedFilePath + derivedFileName,
+                            target: derivedFilePath + derivedFileName,
                             onConfirm: () => {
                                 this.sendPayload(derivedFilePath, derivedFileName, derivedFileType, saveFile);
                             },
