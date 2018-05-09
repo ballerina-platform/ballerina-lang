@@ -142,7 +142,7 @@ public class ServerLauncher {
             String uRL = "http://" + config.getHost() + ":" + config.getPort();
             PrintStream out = System.out;
             out.println("Composer started successfully at " + uRL);
-            if (System.getProperty(PROP_OPEN_BROWSER).equals("true")) {
+            if (System.getProperty(PROP_OPEN_BROWSER).equals("true") && cmdLineArgs.openInBrowser) {
                 BrowserLauncher.startInDefaultBrowser(uRL);
             }
         } catch (Exception e) {
