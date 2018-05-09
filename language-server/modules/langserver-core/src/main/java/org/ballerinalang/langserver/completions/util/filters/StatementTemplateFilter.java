@@ -147,6 +147,13 @@ public class StatementTemplateFilter extends AbstractSymbolFilter {
             completionItems.add(abortItem);
         }
 
+        // Populate Throw Statement template
+        CompletionItem throwItem = new CompletionItem();
+        throwItem.setLabel(ItemResolverConstants.THROW);
+        throwItem.setInsertText(Snippet.THROW.toString());
+        throwItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
+        completionItems.add(throwItem);
+
         completionItems.sort(Comparator.comparing(CompletionItem::getLabel));
 
         // Set the insert text format to be snippet supported format
