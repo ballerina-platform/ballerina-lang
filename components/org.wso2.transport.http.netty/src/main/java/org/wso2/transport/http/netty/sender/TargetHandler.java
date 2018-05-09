@@ -47,8 +47,8 @@ import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
-import org.wso2.transport.http.netty.sender.http2.ClientOutboundHandler;
 import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
+import org.wso2.transport.http.netty.sender.http2.Http2TargetHandler;
 import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
 import org.wso2.transport.http.netty.sender.http2.TimeoutHandler;
 
@@ -64,7 +64,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     private HTTPCarbonMessage targetRespMsg;
     private ConnectionManager connectionManager;
     private TargetChannel targetChannel;
-    private ClientOutboundHandler http2ClientOutboundHandler;
+    private Http2TargetHandler http2TargetHandler;
     private HTTPCarbonMessage incomingMsg;
     private HandlerExecutor handlerExecutor;
     private KeepAliveConfig keepAliveConfig;
@@ -91,7 +91,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 if (handlerExecutor != null) {
                     handlerExecutor.executeAtTargetResponseReceiving(targetRespMsg);
                 }
-                OutboundMsgHolder msgHolder = http2ClientOutboundHandler.
+                OutboundMsgHolder msgHolder = http2TargetHandler.
                         getHttp2ClientChannel().getInFlightMessage(Http2CodecUtil.HTTP_UPGRADE_STREAM_ID);
                 if (msgHolder != null) {
                     // Response received over HTTP/1.x connection, so mark no push promises available in the channel
@@ -224,9 +224,9 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     private void executePostUpgradeActions(ChannelHandlerContext ctx) {
         ctx.pipeline().remove(this);
-        ctx.pipeline().addLast(Constants.OUTBOUND_HANDLER, http2ClientOutboundHandler);
+        ctx.pipeline().addLast(Constants.HTTP2_TARGET_HANDLER, http2TargetHandler);
 
-        Http2ClientChannel http2ClientChannel = http2ClientOutboundHandler.getHttp2ClientChannel();
+        Http2ClientChannel http2ClientChannel = http2TargetHandler.getHttp2ClientChannel();
         http2ClientChannel.setUpgradedToHttp2(true);
 
         // Remove Http specific handlers
@@ -306,8 +306,8 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         return httpResponseFuture;
     }
 
-    void setHttp2ClientOutboundHandler(ClientOutboundHandler http2ClientOutboundHandler) {
-        this.http2ClientOutboundHandler = http2ClientOutboundHandler;
+    void setHttp2TargetHandler(Http2TargetHandler http2TargetHandler) {
+        this.http2TargetHandler = http2TargetHandler;
     }
 
     private boolean isKeepAlive(KeepAliveConfig keepAliveConfig) {

@@ -46,11 +46,9 @@ public class Http2PushPromise {
      * Constructor to create {@code Http2PushPromise} with initial {@code HttpRequest} and {@link OutboundMsgHolder}.
      *
      * @param httpRequest   the HttpRequest
-     * @param outboundMsgHolder the outbound message holder which related to this Http2PushPromise
      */
-    public Http2PushPromise(HttpRequest httpRequest, OutboundMsgHolder outboundMsgHolder) {
+    public Http2PushPromise(HttpRequest httpRequest) {
         this.httpRequest = httpRequest;
-        this.outboundMsgHolder = outboundMsgHolder;
     }
 
     /**
@@ -206,9 +204,18 @@ public class Http2PushPromise {
     /**
      * Gets the {@code OutboundMsgHolder} associated with this {@code Http2PushPromise}.
      *
-     * @return the {@code OutboundMsgHolder} associated with this {@code Http2PushPromise}.
+     * @return the {@code OutboundMsgHolder} associated with this {@code Http2PushPromise}
      */
     public OutboundMsgHolder getOutboundMsgHolder() {
         return outboundMsgHolder;
+    }
+
+    /**
+     * Sets the {@code OutboundMsgHolder} associated with {@code Http2PushPromise}.
+     *
+     * @param outboundMsgHolder the {@code OutboundMsgHolder} associated with this {@code Http2PushPromise}
+     */
+    public void setOutboundMsgHolder(OutboundMsgHolder outboundMsgHolder) {
+        this.outboundMsgHolder = outboundMsgHolder;
     }
 }
