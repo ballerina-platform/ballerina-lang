@@ -169,24 +169,24 @@ public class TransactionHandlerTest {
         BAssertUtil.validateError(res, 1,
                 "transaction handler function required single string parameter which is transaction id", 4, 76);
         BAssertUtil.validateError(res, 2,
-                "transaction handler function required single string parameter which is transaction id", 29, 50);
+                "transaction handler function required single string parameter which is transaction id", 27, 50);
         BAssertUtil.validateError(res, 3,
-                "transaction handler function required single string parameter which is transaction id", 29, 77);
-        BAssertUtil.validateError(res, 4, "undefined symbol 'commitFunction3'", 54, 50);
+                "transaction handler function required single string parameter which is transaction id", 27, 77);
+        BAssertUtil.validateError(res, 4, "undefined symbol 'commitFunction3'", 49, 50);
         BAssertUtil
                 .validateError(res, 5, "lambda function with string input parameter is required as transaction handler",
-                        54, 50);
-        BAssertUtil.validateError(res, 6, "undefined symbol 'abortFunction3'", 54, 77);
+                        49, 50);
+        BAssertUtil.validateError(res, 6, "undefined symbol 'abortFunction3'", 49, 77);
         BAssertUtil
                 .validateError(res, 7, "lambda function with string input parameter is required as transaction handler",
-                        54, 77);
+                        49, 77);
         BAssertUtil
                 .validateError(res, 8, "lambda function with string input parameter is required as transaction handler",
-                        71, 50);
+                        65, 50);
         BAssertUtil
                 .validateError(res, 9, "lambda function with string input parameter is required as transaction handler",
-                        71, 63);
-        BAssertUtil.validateError(res, 10, "transaction handler function cannot have a return type", 86, 50);
-        BAssertUtil.validateError(res, 11, "transaction handler function cannot have a return type", 86, 77);
+                        65, 63);
+        BAssertUtil.validateError(res, 10, "transaction handler function cannot have a return type", 79, 50);
+        BAssertUtil.validateError(res, 11, "transaction handler function cannot have a return type", 79, 77);
     }
 }

@@ -5,7 +5,6 @@ function testTransactionHandlers() {
             i = 2;
         } onretry {
             i = i + 1;
-
         }
     } catch (error err) {
         i = -1;
@@ -22,7 +21,6 @@ function abortFunction(int transactionid) {
     int j = 0;
 }
 
-
 function testTransactionHandlers2() {
     int i = 0;
     try {
@@ -30,7 +28,6 @@ function testTransactionHandlers2() {
             i = 2;
         } onretry {
             i = i + 1;
-
         }
     } catch (error err) {
         i = -1;
@@ -42,11 +39,9 @@ function commitFunction2(string transactionid, string x) {
     int k = 0;
 }
 
-
 function abortFunction2(string transactionid, string x) {
     int j = 0;
 }
-
 
 function testTransactionHandlers3() {
     int i = 0;
@@ -55,7 +50,6 @@ function testTransactionHandlers3() {
             i = 2;
         } onretry {
             i = i + 1;
-
         }
     } catch (error err) {
         i = -1;
@@ -72,7 +66,6 @@ function testTransactionHandlers4() {
             i = 2;
         } onretry {
             i = i + 1;
-
         }
     } catch (error err) {
         i = -1;
@@ -87,7 +80,6 @@ function testTransactionHandlers5() {
             i = 2;
         } onretry {
             i = i + 1;
-
         }
     } catch (error err) {
         i = -1;
@@ -99,7 +91,6 @@ function commitFunction5(string transactionid) returns int {
     int k = 0;
     return k;
 }
-
 
 function abortFunction5(string transactionid) returns int {
     int j = 0;

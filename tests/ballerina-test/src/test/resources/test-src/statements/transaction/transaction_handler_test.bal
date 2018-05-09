@@ -90,7 +90,6 @@ function testTransactionAbortStmtWithNoAbortHandler() returns (string) {
     return a;
 }
 
-
 function testTransactionAbortStmtWithCommitHandler() returns (string) {
     a = "";
     a = a + "start";
@@ -252,7 +251,6 @@ function testMultipleTransactionsFailedWithAllHandlers() returns (string) {
     return a;
 }
 
-
 function testMultipleTransactionsWithAllHandlersWithID() returns (string, string, string, string, string) {
     a = "";
     a = a + "start";
@@ -315,7 +313,6 @@ function testMultipleTransactionsFailedWithAllHandlersWithID() returns (string, 
     return (a, id1WithinTx, idAfterHandler, id2WithinTx, idWithinHandler);
 }
 
-
 function commitFunction(string transactionid) {
     idWithinHandler = transactionid;
     a = a + " incommitFunction";
@@ -330,7 +327,6 @@ function commitFunctionSecond(string transactionid) {
     idWithinHandler = transactionid;
     a = a + " incommitFunctionSecond";
 }
-
 
 function abortFunctionSecond(string transactionid) {
     idWithinHandler = transactionid;
