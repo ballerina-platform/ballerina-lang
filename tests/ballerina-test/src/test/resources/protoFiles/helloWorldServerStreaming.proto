@@ -16,7 +16,6 @@
  *  under the License.
  */
 syntax = "proto3";
-
 service helloWorldServerStreaming {
 		rpc lotsOfReplies(HelloRequest) returns (stream HelloResponse);
 }
