@@ -473,6 +473,18 @@
     "before ]": "",
     "after ]": ""
   },
+  "IntRangeExpr": {
+    "before [": " ",
+    "after [": "",
+    "before (": "",
+    "after (": "",
+    "before ..": "",
+    "after ..": "",
+    "before )": "",
+    "after )": "",
+    "before ]": "",
+    "after ]": ""
+  },
   "Invocation": {
     "before start": "",
     "after start": " ",

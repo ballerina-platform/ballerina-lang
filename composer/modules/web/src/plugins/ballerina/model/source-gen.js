@@ -737,6 +737,24 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             return getSourceOf(node.expression, pretty, l, replaceLambda) + w()
                  + '[' + getSourceOf(node.index, pretty, l, replaceLambda) + w()
                  + ']';
+        case 'IntRangeExpr':
+            if (node.isWrappedWithParenthesis && node.startExpression
+                         && node.endExpression) {
+                return w() + '('
+                 + getSourceOf(node.startExpression, pretty, l, replaceLambda) + w() + '..'
+                 + getSourceOf(node.endExpression, pretty, l, replaceLambda) + w() + ')';
+            } else if (node.isWrappedWithParenthesis && node.startExpression) {
+                return w() + '('
+                 + getSourceOf(node.startExpression, pretty, l, replaceLambda) + w() + '..' + w() + ')';
+            } else if (node.isWrappedWithBracket && node.startExpression
+                         && node.endExpression) {
+                return w(' ') + '['
+                 + getSourceOf(node.startExpression, pretty, l, replaceLambda) + w() + '..'
+                 + getSourceOf(node.endExpression, pretty, l, replaceLambda) + w() + ']';
+            } else {
+                return w(' ') + '['
+                 + getSourceOf(node.startExpression, pretty, l, replaceLambda) + w() + '..' + w() + ']';
+            }
         case 'Invocation':
             if (node.actionInvocation && node.expression
                          && node.name.valueWithBar && node.argumentExpressions) {
