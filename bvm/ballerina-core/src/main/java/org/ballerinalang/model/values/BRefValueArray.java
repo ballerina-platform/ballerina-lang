@@ -78,7 +78,7 @@ public class BRefValueArray extends BNewArray {
     @Override
     public String stringValue() {
         StringJoiner sj;
-        if (arrayType.getTag() == TypeTags.TUPLE_TAG) {
+        if (arrayType != null && (arrayType.getTag() == TypeTags.TUPLE_TAG)) {
             sj = new StringJoiner(", ", "(", ")");
         } else {
             sj = new StringJoiner(", ", "[", "]");
