@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.service.websocket.sample;
+package org.ballerinalang.test.service.websocket;
 
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 
