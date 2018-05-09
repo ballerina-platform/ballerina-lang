@@ -105,6 +105,7 @@ Command | Description
 --- | ---
 `mvn clean install` | Build and install the artifacts into the local repository.
 `mvn clean install -Dmaven.test.skip=true` | Build and install the artifacts into the local repository, without running any of the unit tests.
+`mvn clean install -P ballerina` | The `ballerina` profile is used to build only the modules necessary for the runtime distribution (i.e., excluding the tools, etc.)
 
 Extract the Ballerina distribution created at `distribution/zip/ballerina/target/ballerina-<version>-SNAPSHOT.zip`.
 
