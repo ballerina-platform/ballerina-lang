@@ -19,12 +19,17 @@
 
 package org.wso2.transport.http.netty.contractimpl.websocket.message;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
@@ -38,6 +43,7 @@ import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl
 import org.wso2.transport.http.netty.internal.websocket.WebSocketUtil;
 import org.wso2.transport.http.netty.listener.WebSocketSourceHandler;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -109,14 +115,22 @@ public class DefaultWebSocketInitMessage extends WebSocketMessageImpl implements
     }
 
     @Override
-    public void cancelHandShake(int closeCode, String closeReason) {
+    public void cancelHandShake(int statusCode, String closeReason) {
         try {
-            WebSocketServerHandshakerFactory wsFactory =
-                    new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest), getSubProtocol(), true);
-            WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(httpRequest);
-            ChannelFuture channelFuture =
-                    handshaker.close(ctx.channel(), new CloseWebSocketFrame(closeCode, closeReason));
-            channelFuture.channel().close();
+            ChannelFuture responseFuture;
+            if (closeReason != null) {
+                ByteBuf content = Unpooled.wrappedBuffer(closeReason.getBytes(StandardCharsets.UTF_8));
+                responseFuture = ctx.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
+                                                                      HttpResponseStatus.valueOf(statusCode), content));
+            } else {
+                responseFuture = ctx.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
+                                                                               HttpResponseStatus.valueOf(statusCode)));
+            }
+            responseFuture.addListener(future -> {
+                if (ctx.channel().isOpen()) {
+                    ctx.channel().close();
+                }
+            });
         } finally {
             isCancelled = true;
         }
