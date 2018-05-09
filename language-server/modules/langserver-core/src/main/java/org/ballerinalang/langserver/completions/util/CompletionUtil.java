@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -54,17 +55,16 @@ public class CompletionUtil {
     public static void resolveSymbols(LSServiceOperationContext completionContext, BLangPackage bLangPackage) {
         // Visit the package to resolve the symbols
         TreeVisitor treeVisitor = new TreeVisitor(completionContext);
-        if (completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY) != null
-                && (completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY)
-                instanceof BallerinaParser.MatchStatementContext
-                || completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY).getParent()
-                instanceof BallerinaParser.MatchStatementContext)) {
+        ParserRuleContext parserRuleContext = completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY);
+        if (isFallbackProcess(parserRuleContext, bLangPackage)) {
             fallbackBLangPackage.accept(treeVisitor);
+            completionContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, fallbackBLangPackage);
         } else if (bLangPackage == null) {
             return;
         } else {
             fallbackBLangPackage = bLangPackage;
             bLangPackage.accept(treeVisitor);
+            completionContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
         }
 
         if (completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY) == null) {
@@ -179,5 +179,11 @@ public class CompletionUtil {
         token.reverse();
         
         return token.toString();
+    }
+    
+    private static boolean isFallbackProcess(ParserRuleContext parserRuleContext, BLangPackage bLangPackage) {
+        return (parserRuleContext != null && (parserRuleContext instanceof BallerinaParser.MatchStatementContext 
+                || parserRuleContext.getParent() instanceof BallerinaParser.MatchStatementContext))
+                || (parserRuleContext instanceof BallerinaParser.ServiceBodyContext && bLangPackage == null);
     }
 }
