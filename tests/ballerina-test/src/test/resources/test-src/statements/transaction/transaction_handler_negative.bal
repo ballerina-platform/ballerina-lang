@@ -96,3 +96,31 @@ function abortFunction5(string transactionid) returns int {
     int j = 0;
     return j;
 }
+
+function testTransactionHandlers6() {
+    int i = 0;
+    try {
+        transaction with retries = 4, oncommit = commitFunction6, onabort = abortFunction6 {
+            i = 2;
+        } onretry {
+            i = i + 1;
+        }
+    } catch (error err) {
+        i = -1;
+    }
+    i = 2;
+}
+
+function commitFunction6(string transactionid) {
+    int k = 0;
+    transaction {
+        int i = 0;
+    }
+}
+
+function abortFunction6(string transactionid) {
+    int j = 0;
+    transaction {
+        int i = 0;
+    }
+}

@@ -163,7 +163,7 @@ public class TransactionHandlerTest {
     @Test(description = "Test transaction handler function with invalid argument")
     public void testInvalidHandlers() {
         CompileResult res = BCompileUtil.compile("test-src/statements/transaction/transaction_handler_negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 12);
+        Assert.assertEquals(res.getErrorCount(), 14);
         BAssertUtil.validateError(res, 0,
                 "transaction handler function required single string parameter which is transaction id", 4, 50);
         BAssertUtil.validateError(res, 1,
@@ -188,5 +188,9 @@ public class TransactionHandlerTest {
                         65, 63);
         BAssertUtil.validateError(res, 10, "transaction handler function cannot have a return type", 79, 50);
         BAssertUtil.validateError(res, 11, "transaction handler function cannot have a return type", 79, 77);
+        BAssertUtil.validateError(res, 12, "transaction statement cannot be used within a transaction handler function",
+                116, 5);
+        BAssertUtil.validateError(res, 13, "transaction statement cannot be used within a transaction handler function",
+                123, 5);
     }
 }
