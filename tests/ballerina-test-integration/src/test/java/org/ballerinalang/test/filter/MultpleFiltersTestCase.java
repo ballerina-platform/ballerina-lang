@@ -30,6 +30,9 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Test cases for verifying multiple http filters for a service.
+ */
 public class MultpleFiltersTestCase extends IntegrationTestCase {
 
     private ServerInstance ballerinaServer;

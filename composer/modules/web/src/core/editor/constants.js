@@ -41,6 +41,7 @@ export const VIEWS = {
 export const DIALOGS = {
     DIRTY_CLOSE_CONFIRM: 'composer.dialog.editor.dirty-file-close-confirm',
     OPENED_FILE_DELETE_CONFIRM: 'composer.dialog.editor.opened-file-delete-confirm',
+    NON_EXISTENT_FILE_OPEN_CONFIRM: 'composer.dialog.editor.non-existent-file-open-confirm',
 };
 
 export const MENUS = {

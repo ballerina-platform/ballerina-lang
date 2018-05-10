@@ -22,7 +22,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 
 /**
- * x += 1; === x = x + 1;
+ * x += 1; === x = x + 1;.
  *
  * @since 0.965.0
  */

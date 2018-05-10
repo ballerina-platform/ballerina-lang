@@ -2229,6 +2229,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         RegIndex timeoutRegIndex = new RegIndex(-1, TypeTags.INT);
         addToRegIndexList(timeoutRegIndex);
+
         if (forkJoin.timeoutExpression != null) {
             forkjoinInfo.setTimeoutAvailable(true);
             this.genNode(forkJoin.timeoutExpression, forkJoinEnv);
@@ -2243,7 +2244,17 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.emit(InstructionCodes.FORKJOIN, forkJoinCPIndex, timeoutRegIndex,
                 joinVarRegIndex, joinBlockAddr, timeoutVarRegIndex, timeoutBlockAddr);
 
+        VariableIndex lvIndexesCopy = copyVarIndex(this.lvIndexes);
+        VariableIndex regIndexesCopy = this.regIndexes;
+        VariableIndex maxRegIndexesCopy = this.maxRegIndexes;
+        List<RegIndex> regIndexListCopy = this.regIndexList;
+
         this.processJoinWorkers(forkJoin, forkjoinInfo, forkJoinEnv);
+
+        this.lvIndexes = lvIndexesCopy;
+        this.regIndexes = regIndexesCopy;
+        this.maxRegIndexes = maxRegIndexesCopy;
+        this.regIndexList = regIndexListCopy;
 
         int i = 0;
         int[] joinWrkrNameCPIndexes = new int[forkJoin.joinedWorkers.size()];

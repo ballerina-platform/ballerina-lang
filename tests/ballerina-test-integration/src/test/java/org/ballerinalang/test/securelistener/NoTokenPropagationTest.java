@@ -32,6 +32,9 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Test cases for verifying no token propagation scenario.
+ */
 public class NoTokenPropagationTest extends IntegrationTestCase {
 
     private ServerInstance ballerinaServer;
