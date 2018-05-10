@@ -23,7 +23,6 @@ import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -41,11 +40,7 @@ public class WebSubUtils {
         BStruct httpRequest = createBStruct(programFile, HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.REQUEST);
         BStruct inRequestEntity = createBStruct(programFile, PROTOCOL_PACKAGE_MIME, ENTITY);
         BStruct mediaType = createBStruct(programFile, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
-        BStruct cacheControlStruct = createBStruct(programFile, HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                                                   HttpConstants.REQUEST_CACHE_CONTROL);
-        RequestCacheControlStruct requestCacheControl = new RequestCacheControlStruct(cacheControlStruct);
-        HttpUtil.populateInboundRequest(httpRequest, inRequestEntity, mediaType, httpCarbonMessage,
-                                        requestCacheControl);
+        HttpUtil.populateInboundRequest(httpRequest, inRequestEntity, mediaType, httpCarbonMessage, programFile);
         HttpUtil.populateEntityBody(null, httpRequest, inRequestEntity, true);
         EntityBodyHandler.addMessageDataSource(inRequestEntity,
                                                EntityBodyHandler.constructJsonDataSource(inRequestEntity));
