@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.docgen.model;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Documentable node for enums.
+ * Documentable node for type definitions.
  */
-public class EnumDoc extends Documentable {
+public class TypeDefinitionDoc extends Documentable {
     public final boolean isType;
     public final String valueSet;
     /**
@@ -32,7 +32,7 @@ public class EnumDoc extends Documentable {
      * @param children children if any.
      * @param valueSet values of the type.
      */
-    public EnumDoc(String name, String description, ArrayList<Documentable> children, String valueSet) {
+    public TypeDefinitionDoc(String name, String description, List<Documentable> children, String valueSet) {
         super(name, "fw-type", description, children);
         this.valueSet = valueSet;
         isType = true;

@@ -25,9 +25,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Documentable node for Connectors.
+ * Documentable node for Endpoints and Objects.
  */
-public class ConnectorDoc extends Documentable {
+public class EndpointDoc extends Documentable {
     public final boolean isConnector;
     public final boolean isObject;
     public final boolean hasConstructor;
@@ -39,28 +39,28 @@ public class ConnectorDoc extends Documentable {
     /**
      * Constructor.
      *
-     * @param name           connector name.
+     * @param name           endpoint/object name.
      * @param description    description.
-     * @param children       connector actions.
-     * @param fields         fields of the connector.
-     * @param isConnector    whether a connector or an object.
+     * @param children       endpoint's actions/ object's functions.
+     * @param fields         fields of the object.
+     * @param isEndpoint    whether an endpoint or an object.
      * @param hasConstructor indicates whether this object has a constructor or not.
      */
-    public ConnectorDoc(String name, String description, List<Documentable> children, List<Field> fields,
-                        List<Documentable> utilityFunctions, boolean isConnector, boolean hasConstructor) {
+    public EndpointDoc(String name, String description, List<Documentable> children, List<Field> fields,
+                       List<Documentable> utilityFunctions, boolean isEndpoint, boolean hasConstructor) {
         super(name, "fw-endpoint", description, children);
-        if (!isConnector) {
+        if (!isEndpoint) {
             super.icon = "fw-struct";
         }
-        if (isConnector) {
+        if (isEndpoint) {
             for (Documentable doc : children) {
                 doc.icon = "fw-action";
             }
         }
         children.addAll(utilityFunctions);
         this.fields = fields;
-        this.isConnector = isConnector;
-        this.isObject = !isConnector;
+        this.isConnector = isEndpoint;
+        this.isObject = !isEndpoint;
         this.hasConstructor = hasConstructor;
 
         // filter internal functions

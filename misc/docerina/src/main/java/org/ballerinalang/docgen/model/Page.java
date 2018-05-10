@@ -37,7 +37,7 @@ public class Page {
      * @param constructs constructs in the package.
      * @param links links to the other packages.
      */
-    public Page(Caption heading, ArrayList<Documentable> constructs, List<Link> links) {
+    public Page(Caption heading, List<Documentable> constructs, List<Link> links) {
         this.heading = heading;
         this.constructs = constructs;
         this.links = links;
@@ -52,7 +52,7 @@ public class Page {
      * @param links      links to the other packages.
      * @param primitives links to the primitives.
      */
-    public Page(String description, Caption heading, ArrayList<Documentable> constructs, List<Link> links, List<Link>
+    public Page(String description, Caption heading, List<Documentable> constructs, List<Link> links, List<Link>
             primitives) {
         this.description = description;
         this.heading = heading;
