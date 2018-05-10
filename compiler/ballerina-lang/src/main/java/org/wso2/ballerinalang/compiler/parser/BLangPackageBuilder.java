@@ -3276,14 +3276,13 @@ public class BLangPackageBuilder {
     }
 
     public void endOutputRateLimitNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isSnapshotOutputRateLimit,
-                                       boolean isEventBasedOutputRateLimit, boolean isFirst, boolean isLast,
-                                       boolean isAll, String timeScale, String rateLimitValue) {
+                                       boolean isFirst, boolean isLast, boolean isAll, String timeScale,
+                                       String rateLimitValue) {
         OutputRateLimitNode outputRateLimit = this.outputRateLimitStack.peek();
         ((BLangOutputRateLimit) outputRateLimit).pos = pos;
         outputRateLimit.addWS(ws);
 
         outputRateLimit.setSnapshot(isSnapshotOutputRateLimit);
-        outputRateLimit.setEventBasedRateLimit(isEventBasedOutputRateLimit);
         outputRateLimit.setOutputRateType(isFirst, isLast, isAll);
         outputRateLimit.setTimeScale(timeScale);
         outputRateLimit.setRateLimitValue(rateLimitValue);

@@ -34,7 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Testing the passthrough service for HTTP methods
+ * Testing the passthrough service for HTTP methods.
  */
 public class HTTPVerbsPassthruTestCases extends IntegrationTestCase {
     private ServerInstance ballerinaServer;

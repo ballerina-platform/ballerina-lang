@@ -54,11 +54,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.StringJoiner;
 
 /**
  * Main class to generate a ballerina documentation.
@@ -369,7 +367,9 @@ public class BallerinaDocGenerator {
             bLangPackage = loadBuiltInPackage(context);
         } else {
             // compile the given package
-            bLangPackage = compiler.compile(getPackageNameFromPath(packagePath));
+            Path fileOrPackageName = packagePath.getFileName();
+            bLangPackage = compiler.compile(fileOrPackageName == null ? packagePath.toString() : fileOrPackageName
+                    .toString());
         }
 
         if (bLangPackage == null) {
@@ -389,7 +389,8 @@ public class BallerinaDocGenerator {
     }
 
     private static String packageNameToString(PackageID pkgId) {
-        return pkgId.getName().getValue();
+        String pkgName = pkgId.getName().getValue();
+        return ".".equals(pkgName) ? pkgId.sourceFileName.getValue() : pkgName;
     }
 
     private static boolean isFilteredPackage(String packageName, String packageFilter) {
@@ -398,15 +399,6 @@ public class BallerinaDocGenerator {
                     .filter(e -> packageName.startsWith(e.replace(".*", ""))).findAny().isPresent();
         }
         return false;
-    }
-
-    private static String getPackageNameFromPath(Path path) {
-        StringJoiner sj = new StringJoiner(".");
-        Iterator<Path> pathItr = path.iterator();
-        while (pathItr.hasNext()) {
-            sj.add(pathItr.next().toString());
-        }
-        return sj.toString();
     }
 
     private static BLangPackage loadBuiltInPackage(CompilerContext context) {
@@ -441,7 +433,7 @@ public class BallerinaDocGenerator {
         }
 
         if (bLangPackage.getPosition().getSource().getPackageName().equals(".")) {
-            return bLangPackage.getPosition().getSource().getCompilationUnitName();
+            return bLangPackage.getPosition().getSource().pkgID.sourceFileName.getValue();
         }
         return bLangPackage.packageID.getName().getValue();
     }

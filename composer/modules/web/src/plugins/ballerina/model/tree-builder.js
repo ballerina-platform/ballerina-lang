@@ -383,6 +383,16 @@ class TreeBuilder {
         if (node.kind === 'StreamingInput' && node.alias) {
             node.aliasAvailable = true;
         }
+
+        if (node.kind === 'IntRangeExpr') {
+            if (node.ws && node.ws.length > 0) {
+                if (node.ws[0].text === '[') {
+                    node.isWrappedWithBracket = true;
+                } else if (node.ws[0].text === '(') {
+                    node.isWrappedWithParenthesis = true;
+                }
+            }
+        }
     }
 
     static modify(tree, parentKind = null) {

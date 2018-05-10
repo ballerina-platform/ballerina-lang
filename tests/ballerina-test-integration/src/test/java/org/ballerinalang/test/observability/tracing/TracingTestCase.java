@@ -31,6 +31,9 @@ import java.nio.file.Files;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
+/**
+ * Test cases for observability tracing.
+ */
 public class TracingTestCase {
 
     private ServerInstance serverInstance;
