@@ -2725,7 +2725,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean isSnapshotOutputRateLimit = false;
-        boolean isEventBasedOutputRateLimit = false;
         boolean isFirst = false;
         boolean isLast = false;
         boolean isAll = false;
@@ -2733,26 +2732,22 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.SNAPSHOT() != null) {
             isSnapshotOutputRateLimit = true;
         } else {
-            if (ctx.EVENTS() != null) {
-                isEventBasedOutputRateLimit = true;
-
-                if (ctx.LAST() != null) {
-                    isLast = true;
-                } else if (ctx.FIRST() != null) {
-                    isFirst = true;
-                } else if (ctx.LAST() != null) {
-                    isAll = true;
-                }
+            if (ctx.LAST() != null) {
+                isLast = true;
+            } else if (ctx.FIRST() != null) {
+                isFirst = true;
+            } else if (ctx.LAST() != null) {
+                isAll = true;
             }
         }
 
         String timescale = null;
         if (ctx.timeScale() != null) {
-            timescale = ctx.FIRST().getText();
+            timescale = ctx.timeScale().getText();
         }
 
         this.pkgBuilder.endOutputRateLimitNode(getCurrentPos(ctx), getWS(ctx), isSnapshotOutputRateLimit,
-                isEventBasedOutputRateLimit, isFirst, isLast, isAll, timescale, ctx.DecimalIntegerLiteral().getText());
+                isFirst, isLast, isAll, timescale, ctx.DecimalIntegerLiteral().getText());
     }
 
     @Override

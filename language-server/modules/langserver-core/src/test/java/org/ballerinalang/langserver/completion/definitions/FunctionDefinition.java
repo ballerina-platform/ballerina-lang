@@ -45,6 +45,7 @@ public class FunctionDefinition extends CompletionTest {
                 {"variableBoundItemSuggestions2.json", "function"},
                 {"variableBoundItemSuggestions3.json", "function"},
                 {"variableBoundItemSuggestions4.json", "function"},
+                {"throwStatementErrorSuggestions.json", "function"},
 //                {"enumSuggestAssignment1.json", "function"},
 //                {"enumSuggestAssignment2.json", "function"},
 //                {"enumSuggestVarDef1.json", "function"},

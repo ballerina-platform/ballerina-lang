@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.completions;
 
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
@@ -47,6 +48,10 @@ public class CompletionKeys {
     public static final LSContext.Key<Boolean> INVOCATION_STATEMENT_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<String> ATTACHMENT_POINT_NODE_TYPE_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<WorkspaceDocumentManager> DOC_MANAGER_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<String> CURRENT_LINE_SEGMENT_KEY
             = new LSContext.Key<>();
     
     // Meta context Keys

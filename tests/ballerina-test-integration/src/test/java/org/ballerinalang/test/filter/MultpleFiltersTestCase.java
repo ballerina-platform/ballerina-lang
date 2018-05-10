@@ -30,6 +30,9 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Test cases for verifying multiple http filters for a service.
+ */
 public class MultpleFiltersTestCase extends IntegrationTestCase {
 
     private ServerInstance ballerinaServer;
@@ -83,6 +86,24 @@ public class MultpleFiltersTestCase extends IntegrationTestCase {
                     .getServiceURLHttp("echo/test"), headers);
             Assert.assertNotNull(response);
             Assert.assertEquals(response.getResponseCode(), 405, "Response code mismatched");
+        } finally {
+            ballerinaServer.stopServer();
+        }
+    }
+
+    @Test(description = "Multiple filter attribute sharing test")
+    public void testMultipleFiltersContextSharingTest() throws Exception {
+        try {
+            String relativePath = new File("src" + File.separator + "test" + File.separator + "resources" + File
+                    .separator + "filter" + File.separator + "multiple-filters-attribute-share-test.bal")
+                    .getAbsolutePath();
+            startServer(relativePath);
+            Map<String, String> headers = new HashMap<>();
+            headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
+            HttpResponse response = HttpClientRequest.doGet(ballerinaServer
+                    .getServiceURLHttp("echo/test"), headers);
+            Assert.assertNotNull(response);
+            Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         } finally {
             ballerinaServer.stopServer();
         }
