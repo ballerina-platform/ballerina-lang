@@ -1,4 +1,4 @@
-// The Ballerina main program demonstrating usage of the Hub client endpoint to subscribe/unsubscribe to notifications.
+// The Ballerina main program that demonstrates the usage of the Hub client endpoint to subscribe/unsubscribe to notifications.
 import ballerina/io;
 import ballerina/runtime;
 import ballerina/websub;
