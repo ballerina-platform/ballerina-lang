@@ -412,12 +412,10 @@ public class IOTest {
     }
 
     @Test(description = "Test function to wrap and read json string")
-    public void testStringChannel() throws URISyntaxException{
+    public void testStringChannel() throws URISyntaxException {
         String content = "{\n" +
                 "  \"test\": { \"name\": \"Foo\" }\n" +
                 "}";
-
-        //Will initialize the channel
         BValue[] args = {new BString(content), new BString("UTF-8")};
         BValue[] result = BRunUtil.invokeStateful(stringInputOutputProgramFile, "getJson", args);
         Assert.assertTrue(((BJSON) result[0]).getMessageAsString().contains("Foo"));

@@ -29,7 +29,7 @@ public class BlobChannel implements ByteChannel {
 
     private ReadableByteChannel channel;
 
-    public BlobChannel(ReadableByteChannel channel){
+    public BlobChannel(ReadableByteChannel channel) {
         this.channel = channel;
     }
 

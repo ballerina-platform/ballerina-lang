@@ -28,7 +28,7 @@ import java.nio.channels.WritableByteChannel;
 /**
  * Creates a blob channel to perform I/O operations.
  */
-public class BlobIOChannel extends Channel{
+public class BlobIOChannel extends Channel {
 
     public BlobIOChannel(BlobChannel channel) throws BallerinaIOException {
         super(channel, new AsyncReader(), new AsyncWriter());
