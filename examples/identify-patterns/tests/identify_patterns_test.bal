@@ -4,7 +4,7 @@ import ballerina/io;
 any[] outputs = [];
 int counter = 0;
 
-// This is the mock function which will replace the real function
+// This is the mock function that replaces the real function. 
 @test:Mock {
     packageName: "ballerina.io",
     functionName: "println"
@@ -16,7 +16,7 @@ public function mockPrint(any... s) {
 
 @test:Config
 function testFunc() {
-    // Invoking the main function
+    // Invoke the main function. 
     main();
     string out1 = "alertRoomAction function invoked for Room : 2 and the action : stop";
     string out2 = "alertRoomAction function invoked for Room : 2 and the action : stop";
