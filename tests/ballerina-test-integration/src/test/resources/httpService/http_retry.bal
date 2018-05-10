@@ -2,9 +2,10 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
 import ballerina/runtime;
+import ballerina/io;
 
 endpoint http:Listener serviceEndpoint {
-    port:9090
+    port: 9090
 };
 
 // Define the end point to the call the `mockHelloService`.
@@ -84,7 +85,8 @@ service<http:Service> mockHelloService bind serviceEndpoint {
         } else {
             log:printInfo("Request received from the client to healthy service.");
             http:Response response = new;
-            if (req.hasHeader("Content-Type") && req.getHeader("Content-Type").hasPrefix("multipart/")) {
+            if (req.hasHeader(mime:CONTENT_TYPE)
+                && req.getHeader(mime:CONTENT_TYPE).hasPrefix(http:MULTIPART_AS_PRIMARY_TYPE)) {
                 match req.getBodyParts() {
                     // Setting the error response in case of an error
                     error err => {
@@ -95,9 +97,21 @@ service<http:Service> mockHelloService bind serviceEndpoint {
                     // Iterate through the body parts.
                     mime:Entity[] bodyParts => {
                         foreach bodyPart in bodyParts {
-                            var payload = bodyPart.getBlob();
+                            if (bodyPart.hasHeader(mime:CONTENT_TYPE)
+                                && bodyPart.getHeader(mime:CONTENT_TYPE).hasPrefix(http:MULTIPART_AS_PRIMARY_TYPE)) {
+                                mime:Entity[] childParts = check bodyPart.getBodyParts();
+                                foreach childPart in childParts {
+                                    // When performing passthrough scenarios, message needs to be built before
+                                    // invoking the endpoint to create a message datasource.
+                                    var childBlobContent = childPart.getBlob();
+                                }
+                                io:println(bodyPart.getContentType());
+                                bodyPart.setBodyParts(childParts, contentType = bodyPart.getContentType());
+                            } else {
+                                var bodyPartBlobContent = bodyPart.getBlob();
+                            }
                         }
-                        response.setBodyParts(bodyParts);
+                        response.setBodyParts(bodyParts, contentType = req.getContentType());
                     }
                 }
             } else {

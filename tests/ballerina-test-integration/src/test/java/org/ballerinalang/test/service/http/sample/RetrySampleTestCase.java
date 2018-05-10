@@ -87,13 +87,63 @@ public class RetrySampleTestCase extends IntegrationTestCase {
                 , multipartBody, headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertTrue(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
-                .contains("multipart/form-data"), "Response is not form of multipart");
+                        .contains("multipart/form-data;boundary=" + multipartDataBoundary),
+                "Response is not form of multipart");
         Assert.assertTrue(response.getData().contains("form-data;name=\"foo\"content-id: 0Part1")
                 , "Message content mismatched");
         Assert.assertTrue(response.getData().
                         contains("form-data;name=\"filepart\";filename=\"file-01.txt\"content-id: 1Part2")
                 , "Message content mismatched");
+    }
 
+    @Test(description = "Test retry functionality when request has nested body parts")
+    public void testNestedMultiPart() throws IOException {
+        String multipartDataBoundary = Long.toHexString(PlatformDependent.threadLocalRandom().nextLong());
+        String multipartMixedBoundary = Long.toHexString(PlatformDependent.threadLocalRandom().nextLong());
+        String nestedMultipartBody = "--" + multipartDataBoundary + "\r\n" +
+                "Content-Disposition: form-data; name=\"parent1\"" + "\r\n" +
+                "Content-Type: text/plain; charset=UTF-8" + "\r\n" +
+                "\r\n" +
+                "Parent Part" + "\r\n" +
+                "--" + multipartDataBoundary + "\r\n" +
+                "Content-Disposition: form-data; name=\"parent2\"" + "\r\n" +
+                "Content-Type: multipart/mixed; boundary=" + multipartMixedBoundary + "\r\n" +
+                "\r\n" +
+                "--" + multipartMixedBoundary + "\r\n" +
+                "Content-Disposition: attachment; filename=\"file-02.txt\"" + "\r\n" +
+                "Content-Type: text/plain" + "\r\n" +
+                "Content-Transfer-Encoding: binary" + "\r\n" +
+                "\r\n" +
+                "Child Part 1" + StringUtil.NEWLINE +
+                "\r\n" +
+                "--" + multipartMixedBoundary + "\r\n" +
+                "Content-Disposition: attachment; filename=\"file-02.txt\"" + "\r\n" +
+                "Content-Type: text/plain" + "\r\n" +
+                "Content-Transfer-Encoding: binary" + "\r\n" +
+                "\r\n" +
+                "Child Part 2" + StringUtil.NEWLINE +
+                "\r\n" +
+                "--" + multipartMixedBoundary + "--" + "\r\n" +
+                "--" + multipartDataBoundary + "--" + "\r\n";
+        String expectedChildPart1 =
+                "Content-Transfer-Encoding: binary" +
+                        "content-type: text/plain" +
+                        "content-disposition: attachment;filename=\"file-02.txt\"content-id: 0" +
+                        "Child Part 1";
+        String expectedChildPart2 = "Content-Transfer-Encoding: binary" +
+                "content-type: text/plain" +
+                "content-disposition: attachment;filename=\"file-02.txt\"content-id: 1" +
+                "Child Part 2";
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), "multipart/form-data; boundary=" + multipartDataBoundary);
+        HttpResponse response = HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp("retry")
+                , nestedMultipartBody, headers);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertTrue(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
+                        .contains("multipart/form-data;boundary=" + multipartDataBoundary),
+                "Response is not form of multipart");
+        Assert.assertTrue(response.getData().contains(expectedChildPart1), "Message content mismatched");
+        Assert.assertTrue(response.getData().contains(expectedChildPart2), "Message content mismatched");
     }
 
     @AfterClass

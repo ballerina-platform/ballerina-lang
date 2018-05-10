@@ -14,6 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+
+documentation {Represents multipart primary type}
+@final public string MULTIPART_AS_PRIMARY_TYPE = "multipart/";
 // TODO: Document these. Should we make FORWARD a private constant?
 documentation {Constant for the HTTP FORWARD method}
 @final public HttpOperation HTTP_FORWARD = "FORWARD";
@@ -131,25 +134,34 @@ function populateRequestFields (Request originalRequest, Request newRequest)  {
 }
 
 function populateMultipartRequest(Request inRequest) returns Request {
-    string reqContentType;
-    mime:Entity[] reqBodyParts;
     if (isMultipartRequest(inRequest)) {
-        mime:MediaType mediaType = check mime:getMediaType(inRequest.getContentType());
-        reqContentType = mediaType.primaryType + "/" + mediaType.subType;
         mime:Entity[] bodyParts = check inRequest.getBodyParts();
         foreach bodyPart in bodyParts {
-            // When performing passthrough scenarios, message needs to be built before invoking the endpoint to create
-            // a message datasource.
-            var payload = bodyPart.getBlob();
+            if (isNestedEntity(bodyPart)) {
+                mime:Entity[] childParts = check bodyPart.getBodyParts();
+                foreach childPart in childParts {
+                    // When performing passthrough scenarios, message needs to be built before
+                    // invoking the endpoint to create a message datasource.
+                    var childBlobContent = childPart.getBlob();
+                }
+                bodyPart.setBodyParts(childParts, contentType = bodyPart.getContentType());
+            } else {
+                var bodyPartBlobContent = bodyPart.getBlob();
+            }
         }
-        reqBodyParts = bodyParts;
-        inRequest.setBodyParts(reqBodyParts, contentType = reqContentType);
+        inRequest.setBodyParts(bodyParts, contentType = inRequest.getContentType());
     }
     return inRequest;
 }
 
 function isMultipartRequest(Request request) returns boolean {
-    return request.hasHeader("Content-Type") && request.getHeader("Content-Type").hasPrefix("multipart/");
+    return request.hasHeader(mime:CONTENT_TYPE) &&
+        request.getHeader(mime:CONTENT_TYPE).hasPrefix(MULTIPART_AS_PRIMARY_TYPE);
+}
+
+function isNestedEntity(mime:Entity entity) returns boolean {
+    return entity.hasHeader(mime:CONTENT_TYPE) &&
+        entity.getHeader(mime:CONTENT_TYPE).hasPrefix(MULTIPART_AS_PRIMARY_TYPE);
 }
 
 function createFailoverRequest(Request request, mime:Entity requestEntity) returns Request {
