@@ -41,12 +41,12 @@ public type FailoverClient object {
     public function init(FailoverClientEndpointConfiguration failoverClientConfig);
 
     documentation {
-        Returns the HTTP actions associated with the endpoint.
+        Returns the HTTP failover actions associated with the endpoint.
 
-        R{{}} The HTTP caller actions provider of the endpoint
+        R{{}} The HTTP failover actions associated with the endpoint
     }
-    public function getCallerActions() returns CallerActions {
-        return httpEP.httpClient;
+    public function getCallerActions() returns FailoverActions {
+        return check <FailoverActions>httpEP.httpClient;
     }
 };
 
@@ -137,7 +137,7 @@ function createFailOverClient(FailoverClientEndpointConfiguration failoverClient
         failoverCodesIndex:failoverCodes,
         failoverInterval:failoverClientConfig.intervalMillis
     };
-    return new Failover(config.url, config, failoverInferredConfig);
+    return new FailoverActions(config.url, config, failoverInferredConfig);
 }
 
 function createFailoverHttpClientArray(FailoverClientEndpointConfiguration failoverClientConfig) returns CallerActions[] {
