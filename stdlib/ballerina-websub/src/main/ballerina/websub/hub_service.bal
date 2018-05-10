@@ -247,10 +247,7 @@ function verifyIntent(string callback, string topic, map<string> params) {
 
     if (params.hasKey(HUB_LEASE_SECONDS)) {
         string strLeaseSeconds = params[HUB_LEASE_SECONDS];
-        match (<int>strLeaseSeconds) {
-            int extrLeaseSeconds => { leaseSeconds = extrLeaseSeconds; }
-            error => { leaseSeconds = 0; }
-        }
+        leaseSeconds = <int>strLeaseSeconds but {error => 0};
     }
 
     //measured from the time the verification request was made from the hub to the subscriber from the recommendation
