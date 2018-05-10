@@ -131,6 +131,8 @@ import org.ballerinalang.model.tree.types.ArrayTypeNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
 import org.ballerinalang.model.tree.types.ConstrainedTypeNode;
 import org.ballerinalang.model.tree.types.FunctionTypeNode;
+import org.ballerinalang.model.tree.types.ObjectTypeNode;
+import org.ballerinalang.model.tree.types.RecordTypeNode;
 import org.ballerinalang.model.tree.types.TupleTypeNode;
 import org.ballerinalang.model.tree.types.UnionTypeNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
@@ -253,6 +255,8 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -385,6 +389,10 @@ public class TreeBuilder {
         return new BLangRecord();
     }
 
+    public static RecordTypeNode createRecordTypeNode() {
+        return new BLangRecordTypeNode();
+    }
+
     public static SimpleVariableReferenceNode createSimpleVariableReferenceNode() {
         return new BLangSimpleVarRef();
     }
@@ -455,6 +463,10 @@ public class TreeBuilder {
 
     public static ObjectNode createObjectNode() {
         return new BLangObject();
+    }
+
+    public static ObjectTypeNode createObjectTypeNode() {
+        return new BLangObjectTypeNode();
     }
 
     public static TypeDefinition createTypeDefinition() {

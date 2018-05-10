@@ -44,8 +44,6 @@ public enum NodeKind {
     SERVICE,
     STRUCT,
     TYPE_DEFINITION,
-    RECORD,
-    OBJECT,
     TABLE,
     VARIABLE,
     WORKER,
@@ -138,6 +136,8 @@ public enum NodeKind {
     USER_DEFINED_TYPE,
     ENDPOINT_TYPE,
     VALUE_TYPE,
+    RECORD_TYPE,
+    OBJECT_TYPE,
 
     /* Clauses */
     ORDER_BY,

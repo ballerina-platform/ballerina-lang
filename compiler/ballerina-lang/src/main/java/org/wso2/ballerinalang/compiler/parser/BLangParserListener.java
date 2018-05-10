@@ -393,7 +393,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean publicObject = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
+        boolean publicObject = ctx.PUBLIC() != null;
         this.pkgBuilder.endTypeDefinition(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), publicObject);
     }
 
@@ -408,7 +408,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startObjectDef();
+        this.pkgBuilder.startVarList();
+        this.pkgBuilder.startObjFunctionList();
     }
 
     /**
@@ -422,42 +423,42 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        if (!(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext)) {
-            // check whether this anon object is defined as a global var or as as function return param
-            boolean isFieldAnalyseRequired =
-                    (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
-                            ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext);
-            this.pkgBuilder.addAnonObjectType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired);
-        }
+        boolean isAnonymous = !(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext);
+
+        boolean isFieldAnalyseRequired =
+                (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
+                        ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext);
+        this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous);
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override
-    public void exitPublicObjectFields(BallerinaParser.PublicObjectFieldsContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addObjectFieldsBlock(getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override
-    public void exitPrivateObjectFields(BallerinaParser.PrivateObjectFieldsContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addObjectFieldsBlock(getWS(ctx));
-    }
+// TODO fix this later - talk with marcus
+//    /**
+//     * {@inheritDoc}
+//     * <p>
+//     * <p>The default implementation does nothing.</p>
+//     */
+//    @Override
+//    public void exitPublicObjectFields(BallerinaParser.PublicObjectFieldsContext ctx) {
+//        if (ctx.exception != null) {
+//            return;
+//        }
+//
+//        this.pkgBuilder.addObjectFieldsBlock(getWS(ctx));
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     * <p>
+//     * <p>The default implementation does nothing.</p>
+//     */
+//    @Override
+//    public void exitPrivateObjectFields(BallerinaParser.PrivateObjectFieldsContext ctx) {
+//        if (ctx.exception != null) {
+//            return;
+//        }
+//
+//        this.pkgBuilder.addObjectFieldsBlock(getWS(ctx));
+//    }
 
     /**
      * {@inheritDoc}
@@ -520,15 +521,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         Set<Whitespace> ws = getWS(ctx);
         String name = ctx.Identifier().getText();
         boolean exprAvailable = ctx.expression() != null;
-        if (ctx.parent instanceof BallerinaParser.PublicObjectFieldsContext) {
-            this.pkgBuilder.addFieldToObject(currentPos, ws, name,
-                    exprAvailable, ctx.annotationAttachment().size(), false);
-        } else if (ctx.parent instanceof BallerinaParser.PrivateObjectFieldsContext) {
-            this.pkgBuilder.addFieldToObject(currentPos, ws, name,
-                    exprAvailable, ctx.annotationAttachment().size(), true);
-        } else if (ctx.parent instanceof BallerinaParser.FieldDefinitionListContext) {
-            this.pkgBuilder.addFieldToRecord(currentPos, ws, name, exprAvailable, ctx.annotationAttachment().size());
+        if (ctx.parent instanceof BallerinaParser.PrivateObjectFieldsContext) {
+            this.pkgBuilder.addFieldVariable(currentPos, ws, name, exprAvailable,
+                    ctx.annotationAttachment().size(), true);
         }
+        this.pkgBuilder.addFieldVariable(currentPos, ws, name, exprAvailable,
+                ctx.annotationAttachment().size(), false);
     }
 
     /**
@@ -765,7 +763,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startRecordDef();
+        this.pkgBuilder.startVarList();
     }
 
     /**
@@ -779,13 +777,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        if (!(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext)) {
-            // check whether this anon object is defined as a global var or as as function return param
-            boolean isFieldAnalyseRequired =
-                    (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
-                            ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext);
-            this.pkgBuilder.addAnonRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired);
-        }
+        boolean isAnonymous = !(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext);
+
+        boolean isFieldAnalyseRequired =
+                (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
+                        ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext);
+        this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous);
     }
 
     @Override

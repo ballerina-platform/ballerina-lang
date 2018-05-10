@@ -39,9 +39,7 @@ import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.InvokableNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.ObjectNode;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.model.tree.RecordNode;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.StructNode;
@@ -99,8 +97,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
-import org.wso2.ballerinalang.compiler.tree.BLangObject;
-import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
@@ -201,6 +197,8 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -249,6 +247,8 @@ public class BLangPackageBuilder {
 
     private Stack<InvokableNode> invokableNodeStack = new Stack<>();
 
+    private Stack<List<BLangFunction>> objFunctionListStack = new Stack<>();
+
     private Stack<ExpressionNode> exprNodeStack = new Stack<>();
 
     private Stack<List<ExpressionNode>> exprNodeListStack = new Stack<>();
@@ -262,10 +262,6 @@ public class BLangPackageBuilder {
     private Stack<BLangTryCatchFinally> tryCatchFinallyNodesStack = new Stack<>();
 
     private Stack<StructNode> structStack = new Stack<>();
-
-    private Stack<RecordNode> recordStack = new Stack<>();
-
-    private Stack<ObjectNode> objectStack = new Stack<>();
 
     private Stack<EnumNode> enumStack = new Stack<>();
 
@@ -434,64 +430,33 @@ public class BLangPackageBuilder {
         this.typeNodeStack.push(tupleTypeNode);
     }
 
-    void startRecordDef() {
-        RecordNode recordNode = TreeBuilder.createRecordNode();
-        attachAnnotations(recordNode);
-        attachDocumentations(recordNode);
-        attachDeprecatedNode(recordNode);
-        this.recordStack.add(recordNode);
-        startVarList();
-    }
-
-    private void endRecordDef(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean publicRecord) {
-        BLangRecord recordNode = populateRecordNode(pos, ws, createIdentifier(identifier), false);
-        recordNode.setName(this.createIdentifier(identifier));
-        if (publicRecord) {
-            recordNode.flagSet.add(Flag.PUBLIC);
-            recordNode.isFieldAnalyseRequired = true;
-        }
-
-        this.compUnit.addTopLevelNode(recordNode);
-    }
-
-    void addAnonRecordType(DiagnosticPos pos, Set<Whitespace> ws, boolean isFieldAnalyseRequired) {
-        // Generate a name for the anonymous record
-        String genName = anonymousModelHelper.getNextAnonymousRecordKey(pos.src.pkgID);
-        IdentifierNode anonRecordGenName = createIdentifier(genName);
-
+    void addRecordType(DiagnosticPos pos, Set<Whitespace> ws, boolean isFieldAnalyseRequired, boolean isAnonymous) {
         // Create an anonymous record and add it to the list of records in the current package.
-        BLangRecord recordNode = populateRecordNode(pos, ws, anonRecordGenName, true);
-        recordNode.addFlag(Flag.PUBLIC);
-        recordNode.isFieldAnalyseRequired = isFieldAnalyseRequired;
-        this.compUnit.addTopLevelNode(recordNode);
+        BLangRecordTypeNode recordTypeNode = populateRecordTypeNode(pos, ws, isAnonymous);
+        recordTypeNode.isFieldAnalyseRequired = isFieldAnalyseRequired;
 
-        addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), recordNode.name));
-
+        addType(recordTypeNode);
     }
 
-    private BLangRecord populateRecordNode(DiagnosticPos pos, Set<Whitespace> ws,
-                                           IdentifierNode name, boolean isAnonymous) {
-        BLangRecord recordNode = (BLangRecord) this.recordStack.pop();
-        recordNode.pos = pos;
-        recordNode.addWS(ws);
-        recordNode.name = (BLangIdentifier) name;
-        recordNode.isAnonymous = isAnonymous;
+    private BLangRecordTypeNode populateRecordTypeNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isAnonymous) {
+        BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) TreeBuilder.createRecordTypeNode();
+        recordTypeNode.pos = pos;
+        recordTypeNode.addWS(ws);
+        recordTypeNode.isAnonymous = isAnonymous;
         this.varListStack.pop().forEach(variableNode -> {
             ((BLangVariable) variableNode).docTag = DocTag.FIELD;
-            recordNode.addField(variableNode);
+            recordTypeNode.addField(variableNode);
         });
-        return recordNode;
+        return recordTypeNode;
     }
 
-    void addFieldToRecord(DiagnosticPos pos, Set<Whitespace> ws,
-                          String identifier, boolean exprAvailable, int annotCount) {
-
-        Set<Whitespace> wsForSemiColon = removeNthFromLast(ws, 0);
-        BLangRecord recordNode = (BLangRecord) this.recordStack.peek();
-        recordNode.addWS(wsForSemiColon);
+    void addFieldVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+                          boolean exprAvailable, int annotCount, boolean isPrivate) {
         BLangVariable field = addVar(pos, ws, identifier, exprAvailable, annotCount);
 
-        field.flagSet.add(Flag.PUBLIC);
+        if (!isPrivate) {
+            field.flagSet.add(Flag.PUBLIC);
+        }
     }
 
     public void addArrayType(DiagnosticPos pos, Set<Whitespace> ws, int dimensions) {
@@ -633,6 +598,10 @@ public class BLangPackageBuilder {
 
     public void startVarList() {
         this.varListStack.push(new ArrayList<>());
+    }
+
+    public void startObjFunctionList() {
+        this.objFunctionListStack.push(new ArrayList<>());
     }
 
     public void startFunctionDef() {
@@ -1405,138 +1374,75 @@ public class BLangPackageBuilder {
         this.compUnit.addTopLevelNode(var);
     }
 
-    public void addConstVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
-                                 boolean publicVar, boolean safeAssignment) {
-        BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, true);
-        var.flagSet.add(Flag.FINAL);
-        if (publicVar) {
-            var.flagSet.add(Flag.PUBLIC);
-        }
-        var.docTag = DocTag.VARIABLE;
-        var.safeAssignment = safeAssignment;
-
-        attachAnnotations(var);
-        attachDocumentations(var);
-        attachDeprecatedNode(var);
-        this.compUnit.addTopLevelNode(var);
+    void addObjectType(DiagnosticPos pos, Set<Whitespace> ws, boolean isFieldAnalyseRequired, boolean isAnonymous) {
+        BLangObjectTypeNode objectTypeNode = populateObjectTypeNode(pos, ws, isAnonymous);
+        objectTypeNode.isFieldAnalyseRequired = isFieldAnalyseRequired;
+        objFunctionListStack.pop().forEach(f -> {
+            if (f.objInitFunction) {
+                objectTypeNode.initFunction = f;
+            } else {
+                objectTypeNode.functions.add(f);
+            }
+        });
+        objectTypeNode.functions = objFunctionListStack.pop();
+        addType(objectTypeNode);
     }
 
-    public void startStructDef() {
-        StructNode structNode = TreeBuilder.createStructNode();
-        attachAnnotations(structNode);
-        attachDocumentations(structNode);
-        attachDeprecatedNode(structNode);
-        this.structStack.add(structNode);
-    }
-
-    public void endStructDef(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean publicStruct) {
-        BLangStruct structNode = populateStructNode(pos, ws, createIdentifier(identifier), false);
-        structNode.setName(this.createIdentifier(identifier));
-        if (publicStruct) {
-            structNode.flagSet.add(Flag.PUBLIC);
-        }
-
-        this.compUnit.addTopLevelNode(structNode);
-    }
-
-    void startObjectDef() {
-        ObjectNode objectNode = TreeBuilder.createObjectNode();
-        attachAnnotations(objectNode);
-        attachDocumentations(objectNode);
-        attachDeprecatedNode(objectNode);
-        this.objectStack.add(objectNode);
-        startVarList();
-    }
-
-    private void endObjectDef(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean publicRecord) {
-        BLangObject objectNode = populateObjectNode(pos, ws, createIdentifier(identifier), false);
-        objectNode.setName(this.createIdentifier(identifier));
-        if (publicRecord) {
-            objectNode.flagSet.add(Flag.PUBLIC);
-            objectNode.isFieldAnalyseRequired = true;
-        }
-
-        this.compUnit.addTopLevelNode(objectNode);
-    }
-
-    void addAnonObjectType(DiagnosticPos pos, Set<Whitespace> ws, boolean isFieldAnalyseRequired) {
-        // Generate a name for the anonymous object
-        String genName = anonymousModelHelper.getNextAnonymousObjectKey(pos.src.pkgID);
-        IdentifierNode anonObjectGenName = createIdentifier(genName);
-
-        // Create an anonymous object and add it to the list of objects in the current package.
-        BLangObject objectNode = populateObjectNode(pos, ws, anonObjectGenName, true);
-        objectNode.addFlag(Flag.PUBLIC);
-        objectNode.isFieldAnalyseRequired = isFieldAnalyseRequired;
-        this.compUnit.addTopLevelNode(objectNode);
-
-        addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), objectNode.name));
-
-    }
-
-    void addObjectFieldsBlock (Set<Whitespace> ws) {
-        BLangObject objectNode = (BLangObject) this.objectStack.peek();
-        objectNode.addWS(ws);
-    }
-
-    private BLangObject populateObjectNode(DiagnosticPos pos, Set<Whitespace> ws,
-                                           IdentifierNode name, boolean isAnonymous) {
-        BLangObject objectNode = (BLangObject) this.objectStack.pop();
-        objectNode.pos = pos;
-        objectNode.addWS(ws);
-        objectNode.name = (BLangIdentifier) name;
-        objectNode.isAnonymous = isAnonymous;
+    private BLangObjectTypeNode populateObjectTypeNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isAnonymous) {
+        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) TreeBuilder.createObjectTypeNode();
+        objectTypeNode.pos = pos;
+        objectTypeNode.addWS(ws);
+        objectTypeNode.isAnonymous = isAnonymous;
         this.varListStack.pop().forEach(variableNode -> {
             ((BLangVariable) variableNode).docTag = DocTag.FIELD;
-            objectNode.addField(variableNode);
+            objectTypeNode.addField(variableNode);
         });
-        return objectNode;
+        return objectTypeNode;
     }
 
-    void endTypeDefinition(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean publicStruct) {
-        //TODO only adding object type for now
-        if (!this.objectStack.isEmpty()) {
-            endObjectDef(pos, ws, identifier, publicStruct);
-        } else if (!this.recordStack.isEmpty()) {
-            endRecordDef(pos, ws, identifier, publicStruct);
-        } else {
-            BLangTypeDefinition typeDefinition = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
-            typeDefinition.setName(this.createIdentifier(identifier));
+    //TODO fix this - talk with marcus
+//    void addObjectFieldsBlock (Set<Whitespace> ws) {
+//        BLangObject objectNode = (BLangObject) this.objectStack.peek();
+//        objectNode.addWS(ws);
+//    }
 
-            if (publicStruct) {
-                typeDefinition.flagSet.add(Flag.PUBLIC);
-            }
+    void endTypeDefinition(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean publicType) {
+        BLangTypeDefinition typeDefinition = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+        typeDefinition.setName(this.createIdentifier(identifier));
 
-            BLangUnionTypeNode members = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
-            while (!typeNodeStack.isEmpty()) {
-                BLangType memberType = (BLangType) typeNodeStack.pop();
-                if (memberType.getKind() == NodeKind.UNION_TYPE_NODE) {
-                    members.memberTypeNodes.addAll(((BLangUnionTypeNode) memberType).memberTypeNodes);
-                } else {
-                    members.memberTypeNodes.add(memberType);
-                }
-            }
-
-            if (members.memberTypeNodes.isEmpty()) {
-                typeDefinition.typeNode = null;
-            } else if (members.memberTypeNodes.size() == 1) {
-                BLangType[] memberArray = new BLangType[1];
-                members.memberTypeNodes.toArray(memberArray);
-                typeDefinition.typeNode = memberArray[0];
-            } else {
-                typeDefinition.typeNode = members;
-            }
-
-            while (!exprNodeStack.isEmpty()) {
-                typeDefinition.valueSpace.add((BLangExpression) exprNodeStack.pop());
-            }
-
-            typeDefinition.pos = pos;
-            typeDefinition.addWS(ws);
-            attachDocumentations(typeDefinition);
-            attachDeprecatedNode(typeDefinition);
-            this.compUnit.addTopLevelNode(typeDefinition);
+        if (publicType) {
+            typeDefinition.flagSet.add(Flag.PUBLIC);
         }
+
+        BLangUnionTypeNode members = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
+        while (!typeNodeStack.isEmpty()) {
+            BLangType memberType = (BLangType) typeNodeStack.pop();
+            if (memberType.getKind() == NodeKind.UNION_TYPE_NODE) {
+                members.memberTypeNodes.addAll(((BLangUnionTypeNode) memberType).memberTypeNodes);
+            } else {
+                members.memberTypeNodes.add(memberType);
+            }
+        }
+
+        if (members.memberTypeNodes.isEmpty()) {
+            typeDefinition.typeNode = null;
+        } else if (members.memberTypeNodes.size() == 1) {
+            BLangType[] memberArray = new BLangType[1];
+            members.memberTypeNodes.toArray(memberArray);
+            typeDefinition.typeNode = memberArray[0];
+        } else {
+            typeDefinition.typeNode = members;
+        }
+
+        while (!exprNodeStack.isEmpty()) {
+            typeDefinition.valueSpace.add((BLangExpression) exprNodeStack.pop());
+        }
+
+        typeDefinition.pos = pos;
+        typeDefinition.addWS(ws);
+        attachDocumentations(typeDefinition);
+        attachDeprecatedNode(typeDefinition);
+        this.compUnit.addTopLevelNode(typeDefinition);
     }
 
     void endObjectInitParamList(Set<Whitespace> ws, boolean paramsAvail, boolean restParamAvail) {
@@ -1590,7 +1496,9 @@ public class BLangPackageBuilder {
         attachDocumentations(function);
         attachDeprecatedNode(function);
 
-        ((BLangObject) this.objectStack.peek()).initFunction = function;
+        function.objInitFunction = true;
+
+        this.objFunctionListStack.peek().add(function);
     }
 
     void endObjectAttachedFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc,
@@ -1625,7 +1533,7 @@ public class BLangPackageBuilder {
             function.flagSet.add(Flag.DEPRECATED);
         }
 
-        this.objectStack.peek().addFunction(function);
+        this.objFunctionListStack.peek().add(function);
     }
 
     void endObjectOuterFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean nativeFunc,
@@ -1704,19 +1612,6 @@ public class BLangPackageBuilder {
             var.setInitialExpression(this.exprNodeStack.pop());
         }
         return var;
-    }
-
-    void addFieldToObject(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
-                          boolean exprAvailable, int annotCount, boolean isPrivate) {
-
-        Set<Whitespace> wsForSemiColon = removeNthFromLast(ws, 0);
-        BLangObject objectNode = (BLangObject) this.objectStack.peek();
-        objectNode.addWS(wsForSemiColon);
-        BLangVariable field = addVar(pos, ws, identifier, exprAvailable, annotCount);
-
-        if (!isPrivate) {
-            field.flagSet.add(Flag.PUBLIC);
-        }
     }
 
     public void startEnumDef(DiagnosticPos pos) {
