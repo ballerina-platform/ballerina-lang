@@ -59,6 +59,7 @@ public class IOTest {
     private CompileResult bytesInputOutputProgramFile;
     private CompileResult characterInputOutputProgramFile;
     private CompileResult recordsInputOutputProgramFile;
+    private CompileResult stringInputOutputProgramFile;
     private String currentDirectoryPath = "/tmp";
 
     @BeforeClass
@@ -66,6 +67,7 @@ public class IOTest {
         bytesInputOutputProgramFile = BCompileUtil.compileAndSetup("test-src/io/bytes_io.bal");
         characterInputOutputProgramFile = BCompileUtil.compileAndSetup("test-src/io/char_io.bal");
         recordsInputOutputProgramFile = BCompileUtil.compileAndSetup("test-src/io/record_io.bal");
+        stringInputOutputProgramFile = BCompileUtil.compileAndSetup("test-src/io/string_io.bal");
         currentDirectoryPath = System.getProperty("user.dir") + "/target";
     }
 
@@ -407,6 +409,18 @@ public class IOTest {
         Assert.assertEquals(readJson.getMessageAsString(), readFileContent(resourceToRead), "XML content mismatch.");
 
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "close");
+    }
+
+    @Test(description = "Test function to wrap and read json string")
+    public void testStringChannel() throws URISyntaxException{
+        String content = "{\n" +
+                "  \"test\": { \"name\": \"Foo\" }\n" +
+                "}";
+
+        //Will initialize the channel
+        BValue[] args = {new BString(content), new BString("UTF-8")};
+        BValue[] result = BRunUtil.invokeStateful(stringInputOutputProgramFile, "getJson", args);
+        Assert.assertTrue(((BJSON) result[0]).getMessageAsString().contains("Foo"));
     }
 
     private String readFileContent(String filePath) throws URISyntaxException {
