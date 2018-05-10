@@ -18,8 +18,9 @@
  */
 const { app } = require('electron');
 const path = require('path');
+const os = require('os');
 const process = require('process');
-const fs = require('fs');
+const fs = require('fs-extra');
 const log = require('log');
 const { spawn } = require('child_process');
 const { createWindow } = require('./app');
@@ -30,12 +31,10 @@ let win,
     serverProcess,
     logger = new log('info'),
     appDir = app.getAppPath(),
-    logsDir = path.join(appDir, 'logs');
+    logsDir = path.join(os.homedir(),'.composer', 'logs');
 
 function createLogger(){
-    if (!fs.existsSync(logsDir)){
-        fs.mkdirSync(logsDir);
-    }
+    fs.ensureDirSync(logsDir);
     let accessError = fs.accessSync(logsDir, fs.W_OK);
     if(accessError) {
         logger.error('cannot write to log folder.');
@@ -45,18 +44,34 @@ function createLogger(){
 }
 
 function startServer(){
-    let errorWin;
-    const composerExec = path.join(appDir, 'resources', 'ballerina-tools', 'bin', 'composer')
-                    .replace('app.asar', 'app.asar.unpacked');
-    logger.info('Starting composer exec at ' + composerExec);
-    serverProcess = spawn('sh', 
-                        [
-                            composerExec,
-                            '--openInBrowser',
-                            'false'
-                        ],
-                        { detached: true } // we are starting server in detached mode
-                    );
+    let composerBin = path.join(appDir, 'resources', 'ballerina-tools', 'bin')
+                    .replace('app.asar', 'app.asar.unpacked'),
+        executable,
+        args = [],
+        errorWin,
+        composerExec = 'composer'
+        options = {};
+    if (process.platform === 'win32') {
+        executable = 'cmd.exe';
+        composerExec = composerExec + '.bat';
+        options.windowsHide = true;
+        args.push('/c');
+    } else {
+        executable = 'sh';
+        options.detached = true;
+    }
+    // common args
+    args.push(composerExec);
+    args.push('--openInBrowser');
+    args.push('false');
+    // common options
+    options.cwd = composerBin;
+
+    logger.info('Starting composer from ' + composerExec);
+
+    // starting backend server
+    serverProcess = spawn(executable, args, options);
+
     logger.info('Verifying whether the backend server is started successfully');
     serverProcess.stdout.on('data', function(data) {
         // IMPORTANT: Wait till backend server is started to create window
@@ -68,6 +83,8 @@ function startServer(){
                     win = null;
                 });
             }
+        } else {
+            logger.info('Server Log: ' + data);
         }
     });
 
@@ -147,6 +164,7 @@ app.on('before-quit', () => {
     logger.info('Quitting composer app');
     if (serverProcess !== undefined) {
         logger.info('kill server process with pid ' + serverProcess.pid);
+    
         // important - pass - before pid to kill all child processes spawned by server
         process.kill(-serverProcess.pid);
     }

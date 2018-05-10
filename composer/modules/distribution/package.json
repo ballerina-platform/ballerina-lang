@@ -6,6 +6,7 @@
   "scripts": {
     "postinstall": "install-app-deps",
     "build-pack": "build --dir",
+    "build-pack-win": "build --dir --win",
     "build-dist": "build",
     "build-dist-all": "build --mac --win --linux",
     "start": "cross-env NODE_ENV=electron-dev electron .",
@@ -55,6 +56,7 @@
     "glob": "^7.1.1"
   },
   "dependencies": {
+    "fs-extra": "^6.0.1",
     "log": "^1.4.0"
   }
 }
