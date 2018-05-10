@@ -31,7 +31,7 @@ function testAuthSuccess() {
         url: "https://localhost:9090",
         auth: { scheme: "basic", username: "tom", password: "password1" }
     };
-    // Send a `GET` request to the specified endpoint
+    // Send a `GET` request to the specified endpoint.
     var response = httpEndpoint->get("/hello/sayHello");
     match response {
         http:Response resp => {
@@ -48,7 +48,7 @@ function testAuthnFailure() {
         url: "https://localhost:9090",
         auth: { scheme: "basic", username: "tom", password: "password" }
     };
-    // Send a `GET` request to the specified endpoint
+    // Send a `GET` request to the specified endpoint.
     var response = httpEndpoint->get("/hello/sayHello");
     match response {
         http:Response resp => {
