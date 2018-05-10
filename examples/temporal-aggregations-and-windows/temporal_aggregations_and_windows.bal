@@ -21,7 +21,7 @@ function initRealtimeRequestCounter() {
     // the `printRequestCount` function is invoked.
     requestCountStream.subscribe(printRequestCount);
 
-    // Gather all the events that are coming to requestStream for five seconds, group them by the host, count the number
+    // Gather all the events coming in to the `requestStream` for five seconds, group them by the host, count the number
     // of requests per host, and check if the count is more than six. If yes, publish the output (host and the count) to
     // the `requestCountStream` stream as an alert. This `forever` block is executed once, when initializing the service.
     // The processing happens asynchronously each time the `requestStream` receives an event.
@@ -32,8 +32,8 @@ function initRealtimeRequestCounter() {
         group by host
         having count > 6
         => (RequestCount[] counts) {
-        // The 'counts' is the output of the streaming rules and is published to the `requestCountStream`.
-        // The `select` clause should match the structure of the 'RequestCount' struct.
+        // `counts` is the output of the streaming rules and is published to the `requestCountStream`.
+        // The `select` clause should match the structure of the `RequestCount` struct.
             requestCountStream.publish(counts);
         }
     }
@@ -52,7 +52,7 @@ endpoint http:Listener ep {
 @http:ServiceConfig {
     basePath: "/"
 }
-// The host header is extracted from the requests that come to the service using the ` /requests` context. Using this
+// The host header is extracted from the requests that come to the service using the `/requests` context. Using this
 // information, the `clientRequest` object is created and published to the `requestStream`.
 service requestService bind ep {
 
