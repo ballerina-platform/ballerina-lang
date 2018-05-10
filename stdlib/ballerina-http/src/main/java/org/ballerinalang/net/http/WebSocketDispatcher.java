@@ -178,39 +178,21 @@ public class WebSocketDispatcher {
     public static void dispatchCloseMessage(WebSocketOpenConnectionInfo connectionInfo,
                                             WebSocketCloseMessage closeMessage) {
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
-        if (webSocketConnection.closeFrameSent()) {
-            if (webSocketConnection.getSession().isOpen()) {
-                webSocketConnection.close().addListener(closeFuture -> {
-                    connectionInfo.getWebSocketEndpoint().setBooleanField(0, 0);
-                });
-            }
-            if (closeMessage.getCloseCode() == connectionInfo.getCloseStatusCode()) {
-                String errorMsg = String.format("Illegal close status code received. Expected %d found %d !",
-                                                connectionInfo.getCloseStatusCode(), closeMessage.getCloseCode());
-                throw new BallerinaConnectorException(errorMsg);
-            }
-            return;
-        }
-
         WebSocketService wsService = connectionInfo.getService();
         Resource onCloseResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_CLOSE);
+        int closeCode = closeMessage.getCloseCode();
+        String closeReason = closeMessage.getCloseReason();
         if (onCloseResource == null) {
             if (webSocketConnection.getSession().isOpen()) {
-                webSocketConnection.close(closeMessage.getCloseCode(), null).addListener(future -> {
-                    if (webSocketConnection.getSession().isOpen()) {
-                        webSocketConnection.close().addListener(closeFuture -> {
-                            connectionInfo.getWebSocketEndpoint().setBooleanField(0, 0);
-                        });
-                    }
-                });
+                webSocketConnection.finishConnectionClosure(closeCode, null);
             }
             return;
         }
         List<ParamDetail> paramDetails = onCloseResource.getParamDetails();
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
-        bValues[1] = new BInteger(closeMessage.getCloseCode());
-        bValues[2] = new BString(closeMessage.getCloseReason());
+        bValues[1] = new BInteger(closeCode);
+        bValues[2] = new BString(closeReason);
         //TODO handle BallerinaConnectorException
         CallableUnitCallback onCloseCallback = new CallableUnitCallback() {
             @Override
@@ -218,13 +200,8 @@ public class WebSocketDispatcher {
                 //TODO: Need to wait until the connection is closed from the other side
                 if (closeMessage.getCloseCode() != WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE
                         && webSocketConnection.getSession().isOpen()) {
-                    webSocketConnection.close(closeMessage.getCloseCode(), null).addListener(future -> {
-                        if (webSocketConnection.getSession().isOpen()) {
-                            webSocketConnection.close().addListener(closeFuture -> {
-                                connectionInfo.getWebSocketEndpoint().setBooleanField(0, 0);
-                            });
-                        }
-                    });
+                    webSocketConnection.finishConnectionClosure(closeCode, null).addListener(
+                            closeFuture -> connectionInfo.getWebSocketEndpoint().setBooleanField(0, 0));
                 }
             }
 

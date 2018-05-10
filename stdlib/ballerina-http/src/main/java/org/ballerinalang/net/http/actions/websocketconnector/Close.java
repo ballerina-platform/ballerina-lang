@@ -41,7 +41,8 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
         args = {
                 @Argument(name = "wsConnector", type = TypeKind.STRUCT),
                 @Argument(name = "statusCode", type = TypeKind.INT),
-                @Argument(name = "reason", type = TypeKind.STRING)
+                @Argument(name = "reason", type = TypeKind.STRING),
+                @Argument(name = "timeoutInSec", type = TypeKind.INT)
         }
 )
 public class Close implements NativeCallableUnit {
@@ -52,18 +53,17 @@ public class Close implements NativeCallableUnit {
             BStruct webSocketConnector = (BStruct) context.getRefArgument(0);
             int statusCode = (int) context.getIntArgument(0);
             String reason = context.getStringArgument(0);
+            int timeoutInSec = (int) context.getIntArgument(1);
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) webSocketConnector
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
             WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
-            webSocketConnection.close(statusCode, reason).addListener((ChannelFutureListener) future -> {
+            webSocketConnection.initiateConnectionClosure(statusCode, reason, timeoutInSec)
+                    .addListener((ChannelFutureListener) future -> {
                 Throwable cause = future.cause();
                 if (!future.isSuccess() && cause != null) {
                     context.setReturnValues(
                             WebSocketUtil.createWebSocketConnectorError(context, future.cause().getMessage()));
                 } else {
-                    if (connectionInfo.getWebSocketConnection().getSession().isOpen()) {
-                        webSocketConnection.close().sync();
-                    }
                     connectionInfo.setCloseStatusCode(statusCode);
                     connectionInfo.getWebSocketEndpoint().setBooleanField(0, 0);
                     context.setReturnValues();
