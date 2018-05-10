@@ -38,7 +38,6 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
@@ -203,8 +202,7 @@ public class RequestNativeFunctionSuccessTest {
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
         BStruct cacheControl = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
                                                                reqCacheControlStruct);
-        RequestCacheControlStruct cacheControlStruct = new RequestCacheControlStruct(cacheControl);
-        HttpUtil.populateInboundRequest(inRequest, entity, mediaType, inRequestMsg, cacheControlStruct);
+        HttpUtil.populateInboundRequest(inRequest, entity, mediaType, inRequestMsg, result.getProgFile());
 
         BString key = new BString(HttpHeaderNames.CONTENT_TYPE.toString());
         BValue[] inputArg = {inRequest, key};
@@ -238,8 +236,7 @@ public class RequestNativeFunctionSuccessTest {
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
         BStruct cacheControl = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
                                                                reqCacheControlStruct);
-        RequestCacheControlStruct cacheControlStruct = new RequestCacheControlStruct(cacheControl);
-        HttpUtil.populateInboundRequest(inRequest, entity, mediaType, inRequestMsg, cacheControlStruct);
+        HttpUtil.populateInboundRequest(inRequest, entity, mediaType, inRequestMsg, result.getProgFile());
 
         BString key = new BString("test-header");
         BValue[] inputArg = {inRequest, key};
