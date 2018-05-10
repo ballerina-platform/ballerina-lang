@@ -197,7 +197,7 @@ public class EntityBodyHandler {
             if (contentTypeValue != null && !contentTypeValue.isEmpty()) {
                 String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
                 if (charsetValue != null && !charsetValue.isEmpty()) {
-                    jsonData = new BJSON(byteChannel.getInputStream(), charsetValue);
+                    jsonData = new BJSON(byteChannel.getInputStream(), null, charsetValue);
                 } else {
                     jsonData = new BJSON(byteChannel.getInputStream());
                 }
@@ -224,8 +224,7 @@ public class EntityBodyHandler {
             if (byteChannel == null) {
                 throw new BallerinaIOException("Empty xml payload");
             }
-            String contentTypeValue = HeaderUtil.getHeaderValue(entityStruct,
-                    HttpHeaderNames.CONTENT_TYPE.toString());
+            String contentTypeValue = HeaderUtil.getHeaderValue(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString());
             if (contentTypeValue != null && !contentTypeValue.isEmpty()) {
                 String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
                 if (charsetValue != null && !charsetValue.isEmpty()) {
@@ -256,8 +255,7 @@ public class EntityBodyHandler {
             if (byteChannel == null) {
                 throw new BallerinaIOException("String payload is null");
             }
-            String contentTypeValue = HeaderUtil.getHeaderValue(entityStruct,
-                    HttpHeaderNames.CONTENT_TYPE.toString());
+            String contentTypeValue = HeaderUtil.getHeaderValue(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString());
             if (contentTypeValue != null && !contentTypeValue.isEmpty()) {
                 String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
                 if (charsetValue != null && !charsetValue.isEmpty()) {

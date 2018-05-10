@@ -46,7 +46,6 @@ import java.util.List;
  * @since 0.970.0
  */
 public class EntityBodyWithCharsetTest {
-    private static final Logger log = LoggerFactory.getLogger(EntityBodyWithCharsetTest.class);
 
     private CompileResult compileResult, serviceResult;
 
@@ -235,8 +234,7 @@ public class EntityBodyWithCharsetTest {
         String path = "/test/jsonTest";
         List<Header> headers = new ArrayList<>();
         headers.add(new Header("content-type", "application/json"));
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST",
-                headers, "{\"test\":\"菜鸟驿站\"}");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", headers, "{\"test\":\"菜鸟驿站\"}");
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, "mockEP", cMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(new BJSON(new HttpMessageDataStreamer(response).getInputStream()).stringValue(),

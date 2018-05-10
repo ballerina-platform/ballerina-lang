@@ -19,7 +19,6 @@ package org.ballerinalang.model.util;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -80,13 +79,13 @@ public class StringUtils {
 
     public static String getStringFromInputStream(InputStream inputStream, String charset) {
         StringBuilder textBuilder = new StringBuilder();
-        try (Reader reader = new BufferedReader(new InputStreamReader(inputStream, Charset.forName(charset)))) {
+        try (Reader reader = new InputStreamReader(inputStream, Charset.forName(charset))) {
             int c;
             while ((c = reader.read()) != -1) {
                 textBuilder.append((char) c);
             }
         } catch (IOException e) {
-            throw new BallerinaException("Error occurred when reading input stream with a given charset", e);
+            throw new BallerinaException("Error occurred when reading input stream with the charset" + charset, e);
         }
         return textBuilder.toString();
     }
