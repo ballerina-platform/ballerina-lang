@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.service.websocket.sample;
+package org.ballerinalang.test.service.websocket;
 
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.ServerInstance;
@@ -43,17 +43,17 @@ public class WebSocketSimpleProxyTestCase extends WebSocketIntegrationTest {
     private ServerInstance ballerinaServerInstance;
     private static final String URL = "ws://localhost:9090/proxy/ws";
 
-    @BeforeClass
+    @BeforeClass(description = "Initializes Ballerina")
     public void setup() throws InterruptedException, BallerinaTestException {
         remoteServer = new WebSocketRemoteServer(REMOTE_SERVER_PORT);
         remoteServer.run();
 
-        String balPath = new File("src/test/resources/websocket/SimpleProxyServer.bal").getAbsolutePath();
+        String balPath = new File("src/test/resources/websocket/simple_proxy_server.bal").getAbsolutePath();
         ballerinaServerInstance = ServerInstance.initBallerinaServer();
         ballerinaServerInstance.startBallerinaServer(balPath);
     }
 
-    @Test(priority = 1)
+    @Test(priority = 1, description = "Tests sending and receiving of text frames in WebSockets")
     public void testSendText() throws URISyntaxException, InterruptedException {
         WebSocketTestClient client = new WebSocketTestClient(URL);
         client.handshake();
@@ -66,7 +66,7 @@ public class WebSocketSimpleProxyTestCase extends WebSocketIntegrationTest {
         client.shutDown();
     }
 
-    @Test(priority = 2)
+    @Test(priority = 2, description = "Tests sending and receiving of binary frames in WebSockets")
     public void testSendBinary() throws URISyntaxException, InterruptedException, IOException {
         WebSocketTestClient client = new WebSocketTestClient(URL);
         client.handshake();
@@ -79,7 +79,7 @@ public class WebSocketSimpleProxyTestCase extends WebSocketIntegrationTest {
         client.shutDown();
     }
 
-    @AfterClass
+    @AfterClass(description = "Stops Ballerina")
     public void cleanup() throws BallerinaTestException {
         ballerinaServerInstance.stopServer();
         remoteServer.stop();

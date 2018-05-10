@@ -35,7 +35,7 @@ import java.util.Map;
  * Test cases for doc generation for enums.
  */
 @Test(groups = "broken")
-public class BallerinaEnumDocGenTest {
+public class BallerinaTypeDefinitionDocGenTest {
     private String sourceRoot;
     
     @BeforeClass()

@@ -53,7 +53,9 @@ public class Method {
      * MethodDefinition.Builder
      */
     public static class Builder {
-
+        
+        private DescriptorProtos.MethodDescriptorProto.Builder methodBuilder;
+        
         public Method build() {
             return new Method(methodBuilder.build());
         }
@@ -82,7 +84,5 @@ public class Method {
             methodBuilder = DescriptorProtos.MethodDescriptorProto.newBuilder();
             methodBuilder.setName(methodName);
         }
-
-        private DescriptorProtos.MethodDescriptorProto.Builder methodBuilder;
     }
 }

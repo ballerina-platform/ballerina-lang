@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.service.websocket.sample;
+package org.ballerinalang.test.service.websocket;
 
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.ServerInstance;
@@ -38,15 +38,15 @@ public class WebSocketQueryAndPathParamSupportTestCase extends WebSocketIntegrat
 
     private ServerInstance ballerinaServerInstance;
 
-    @BeforeClass
-    public void setup() throws InterruptedException, BallerinaTestException {
+    @BeforeClass(description = "Initializes Ballerina")
+    public void setup() throws BallerinaTestException {
 
-        String balPath = new File("src/test/resources/websocket/QueryAndPathParamSupport.bal").getAbsolutePath();
+        String balPath = new File("src/test/resources/websocket/query_and_path_param_support.bal").getAbsolutePath();
         ballerinaServerInstance = ServerInstance.initBallerinaServer();
         ballerinaServerInstance.startBallerinaServer(balPath);
     }
 
-    @Test
+    @Test(description = "Tests path and query parameters support for WebSockets in Ballerina")
     public void testPathAndQueryParams() throws URISyntaxException, InterruptedException {
         String path1 = "path1";
         String path2 = "path2";
@@ -64,7 +64,7 @@ public class WebSocketQueryAndPathParamSupportTestCase extends WebSocketIntegrat
         client.shutDown();
     }
 
-    @AfterClass
+    @AfterClass(description = "Stops Ballerina")
     public void cleanup() throws BallerinaTestException {
         ballerinaServerInstance.stopServer();
     }

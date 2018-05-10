@@ -34,7 +34,7 @@ import java.util.Map;
  * Tests for connector doc generation.
  */
 @Test(groups = "broken")
-public class BallerinaConnectorDocGenTest {
+public class BallerinaEndpointDocGenTest {
 
     private String sourceRoot;
 
