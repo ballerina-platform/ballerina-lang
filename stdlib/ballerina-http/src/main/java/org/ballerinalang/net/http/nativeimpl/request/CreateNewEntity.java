@@ -31,7 +31,7 @@ import org.ballerinalang.net.http.HttpUtil;
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 
 /**
- * Create a new entity and associate it with the request
+ * Create a new entity and associate it with the request.
  *
  * @since 0.970.0
  */
