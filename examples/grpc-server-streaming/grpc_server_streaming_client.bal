@@ -1,14 +1,14 @@
-// This is client implementation for server streaming scenario
+// This is the client implementation for the server streaming scenario.
 import ballerina/io;
 
 int total = 0;
 function main(string... args) {
-    // Client endpoint configuration
+    // Client endpoint configuration.
     endpoint HelloWorldClient helloWorldEp {
         url: "http://localhost:9090"
     };
 
-    // Executes unary non-blocking call registering server message listener.
+    // Execute the unary non-blocking call that registers the server message listener.
     error? result = helloWorldEp->lotsOfReplies("Sam",
                                                     HelloWorldMessageListener);
 
@@ -40,7 +40,7 @@ service<grpc:Service> HelloWorldMessageListener {
         }
     }
 
-    // Resource registered to receive server completed message.
+    // Resource registered to receive server completed messages.
     onComplete() {
         total = 1;
         io:println("Server Complete Sending Responses.");
