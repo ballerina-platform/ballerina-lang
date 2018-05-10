@@ -55,6 +55,7 @@ public enum Snippet {
     NEW_OBJECT_CONSTRUCTOR("new (${1:args}) {\n\t${2}\n}"),
     PUBLIC_BLOCK("public {\n\t${1}\n}"),
     PRIVATE_BLOCK("private {\n\t${1}\n}"),
+    THROW("throw "),
     
     // Constants for the Iterable operators
     ITR_FOREACH("foreach(function (%params%) {\n\t${1}\n});"),

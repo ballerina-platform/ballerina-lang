@@ -38,11 +38,11 @@ class SpanStore {
         this.spanContexts = new HashMap<>();
     }
 
-    Map<String, Span> getSpan(String spanId) {
+    Map<String, Span> getSpanMap(String spanId) {
         return spans.get(spanId);
     }
 
-    Map<String, SpanContext> getSpanContext(String spanId) {
+    Map<String, SpanContext> getSpanContextMap(String spanId) {
         return spanContexts.get(spanId);
     }
 
@@ -50,7 +50,7 @@ class SpanStore {
         return (spanContexts.get(spanId) == null) ? spans.get(spanId) : spanContexts.get(spanId);
     }
 
-    void addSpan(String spanId, Map<String, Span> spanMap) {
+    void addSpanMap(String spanId, Map<String, Span> spanMap) {
         spans.put(spanId, spanMap);
     }
 
@@ -59,7 +59,7 @@ class SpanStore {
         return spans.remove(spanId);
     }
 
-    public void addSpanContext(String spanId, Map<String, SpanContext> spanContextMap) {
+    public void addSpanContextMap(String spanId, Map<String, SpanContext> spanContextMap) {
         spanContexts.put(spanId, spanContextMap);
     }
 }

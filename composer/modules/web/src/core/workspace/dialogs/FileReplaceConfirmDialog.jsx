@@ -77,12 +77,8 @@ class FileReplaceConfirmDialog extends React.Component {
                 error={this.state.error}
             >
                 <h4>
-                    {`A file named "${this.props.target}" already exists. Do you want to replace it?`}
+                    {`A file already exists in "${this.props.target}" . Do you want to replace it?`}
                 </h4>
-                <p>
-                    {`The file already exists in "${this.props.parent}". 
-                    Replacing it will overwrite its contents.`}
-                </p>
             </Dialog>
         );
     }

@@ -51,7 +51,7 @@ public class BallerinaDocGenForCurrentPackageTest {
             Assert.assertNotNull(docsMap);
             Assert.assertEquals(docsMap.size(), 1);
 
-            BLangPackage balPackage = docsMap.get(".").bLangPackage;
+            BLangPackage balPackage = docsMap.get("balFileInCurrentPackage.bal").bLangPackage;
             List<BLangFunction> functions = balPackage.getFunctions();
 
             Assert.assertEquals(functions.size(), 1);

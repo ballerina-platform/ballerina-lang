@@ -92,7 +92,7 @@ public class OpenTracerBallerinaWrapper {
     public Map<String, String> inject(String suffix, String spanId) {
         if (enabled) {
             Map<String, String> carrierMap = new HashMap<>();
-            Map<String, Span> activeSpanMap = spanStore.getSpan(spanId);
+            Map<String, Span> activeSpanMap = spanStore.getSpanMap(spanId);
             for (Map.Entry<String, Span> activeSpanEntry : activeSpanMap.entrySet()) {
                 Map<String, Tracer> tracers = tracerStore.getTracers(DEFAULT_TRACER);
                 Tracer tracer = tracers.get(activeSpanEntry.getKey());
@@ -123,7 +123,7 @@ public class OpenTracerBallerinaWrapper {
     public String startSpan(String serviceName, String spanName, Map<String, String> tags, ReferenceType referenceType,
                             String parentSpanId) {
         if (enabled) {
-            return startSpan(serviceName, spanName, tags, referenceType, spanStore.getSpanContext(parentSpanId));
+            return startSpan(serviceName, spanName, tags, referenceType, spanStore.getSpanContextMap(parentSpanId));
         } else {
             return null;
         }
@@ -162,8 +162,8 @@ public class OpenTracerBallerinaWrapper {
             });
 
             String spanId = UUID.randomUUID().toString();
-            spanStore.addSpan(spanId, spanMap);
-            spanStore.addSpanContext(spanId, spanContextMap);
+            spanStore.addSpanMap(spanId, spanMap);
+            spanStore.addSpanContextMap(spanId, spanContextMap);
             return spanId;
         } else {
             return null;
@@ -207,7 +207,7 @@ public class OpenTracerBallerinaWrapper {
      */
     public void addTags(String spanId, String tagKey, String tagValue) {
         if (enabled) {
-            Map<String, Span> spanList = spanStore.getSpan(spanId);
+            Map<String, Span> spanList = spanStore.getSpanMap(spanId);
             if (spanList != null) {
                 spanList.forEach((tracerName, span) -> span.setTag(tagKey, tagValue));
             }
@@ -222,7 +222,7 @@ public class OpenTracerBallerinaWrapper {
      */
     public void log(String spanId, Map<String, String> logs) {
         if (enabled) {
-            Map<String, Span> spanList = spanStore.getSpan(spanId);
+            Map<String, Span> spanList = spanStore.getSpanMap(spanId);
             spanList.forEach((tracerName, span) -> span.log(logs));
         }
     }
@@ -236,7 +236,7 @@ public class OpenTracerBallerinaWrapper {
      */
     public void setBaggageItem(String spanId, String baggageKey, String baggageValue) {
         if (enabled) {
-            Map<String, Span> spanList = spanStore.getSpan(spanId);
+            Map<String, Span> spanList = spanStore.getSpanMap(spanId);
             spanList.forEach((tracerName, span) -> span.setBaggageItem(baggageKey, baggageValue));
         }
     }
@@ -251,7 +251,7 @@ public class OpenTracerBallerinaWrapper {
     public String getBaggageItem(String spanId, String baggageKey) {
         String baggageValue = null;
         if (enabled) {
-            Map<String, Span> spanMap = spanStore.getSpan(spanId);
+            Map<String, Span> spanMap = spanStore.getSpanMap(spanId);
             for (Map.Entry<String, Span> spanEntry : spanMap.entrySet()) {
                 baggageValue = spanEntry.getValue().getBaggageItem(baggageKey);
                 if (baggageValue != null) {
