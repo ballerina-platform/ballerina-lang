@@ -16,14 +16,13 @@
  * under the License.
  *
  */
-const terminate = require('terminate');
 const { app } = require('electron');
 const path = require('path');
 const os = require('os');
 const process = require('process');
 const fs = require('fs-extra');
 const log = require('log');
-const { spawn } = require('child_process');
+const { spawn, exec } = require('child_process');
 const { createWindow } = require('./app');
 const { createErrorWindow } = require('./error-window');
 const { ErrorCodes } = require('./error-codes');
@@ -45,41 +44,43 @@ function createLogger(){
 }
 
 function startServer(){
-    let composerBin = path.join(appDir, 'resources', 'ballerina-tools', 'bin')
+    const balHome = path.join(appDir, 'resources', 'ballerina-tools')
                     .replace('app.asar', 'app.asar.unpacked'),
-        executable,
+        composerHome = path.join(balHome, 'lib', 'resources', 'composer');
+    let executable = 'java',
         args = [],
         errorWin,
-        composerExec = 'composer'
-        options = {};
+        options = {},
+        classpath = '';
     if (process.platform === 'win32') {
-        executable = 'cmd.exe';
-        composerExec = composerExec + '.bat';
         options.windowsHide = true;
-        args.push('/c');
     } else {
-        executable = 'sh';
         options.detached = true;
     }
+    classpath = path.join(composerHome, 'services', '*');
+    classpath = classpath  + path.delimiter + path.join(balHome, 'bre', 'lib', '*');
     // common args
-    args.push(composerExec);
-    args.push('--openInBrowser');
-    args.push('false');
-    // common options
-    options.cwd = composerBin;
+    args.push('-classpath')
+    args.push(classpath);
+    args.push('-Dballerina.home=' + balHome);
+    args.push('-Dcomposer.public.path=' + path.join(composerHome, 'web', 'public'));
+    args.push('-Dopen.browser=false');
+    args.push('org.ballerinalang.composer.server.launcher.ServerLauncher');
 
-    logger.info('Starting composer from ' + composerExec);
+    logger.info('Starting composer from ' + balHome);
 
     // starting backend server
     serverProcess = spawn(executable, args, options);
 
     logger.info('Verifying whether the backend server is started successfully');
+    const sucessMsgPrefix = 'Composer started successfully at ';
     serverProcess.stdout.on('data', function(data) {
         // IMPORTANT: Wait till backend server is started to create window
-        if (data.includes('Composer started successfully')) {
-            logger.info('Backend server is properly started, starting composer UI');
+        if (data.includes(sucessMsgPrefix)) {
+            const pageURL = (data + '').substring(sucessMsgPrefix.length - 1);
+            logger.info('Backend server is properly started at ' + pageURL + ', starting composer UI');
             if (win === undefined) {
-                win = createWindow();
+                win = createWindow(pageURL);
                 win.on('closed', () => {
                     win = null;
                 });
@@ -169,16 +170,9 @@ app.on('before-quit', () => {
             // important - pass - before pid to kill all child processes spawned by server
             process.kill(-serverProcess.pid);
         } else {
-            // const taskKillProcess = spawn("taskkill", ['/pid', serverProcess.pid, '/f', '/t']);
-            // taskKillProcess.stderr.on('data', (data) => {
-            //     logger.error('Error while killing server ' +  data);
-            // });
-            logger.info('Shutting down server on windows');
-            terminate(serverProcess.pid, (err) => { 
-                if (err) {
-                    logger.info('Error while shutting down server' + err);
-                } else {
-                    logger.info('Server was shutdown successfully');
+            exec('taskkill /PID ' + serverProcess.pid + ' /T /F', function (error) {
+                if(error !== null) {
+                    logger.error('Error while killing the server: ' + error);
                 }
             });
         }

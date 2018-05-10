@@ -85,7 +85,6 @@
   },
   "dependencies": {
     "fs-extra": "^6.0.1",
-    "log": "^1.4.0",
-    "terminate": "^2.1.0"
+    "log": "^1.4.0"
   }
 }

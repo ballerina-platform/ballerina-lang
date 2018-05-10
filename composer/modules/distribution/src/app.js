@@ -24,7 +24,7 @@ const setupNativeWizards = require('./workspace.js');
 
 let win;
 
-function createWindow () {
+function createWindow (pageURL) {
     // Create the browser window.
     win = new BrowserWindow({
         width: 1024, 
@@ -39,13 +39,7 @@ function createWindow () {
     registerMenuLoader();
     setupNativeWizards(win);
 
-    let windowUrl = 'http://localhost:9091';
-
-    if (process.env.NODE_ENV === 'electron-dev') {
-        windowUrl = 'http://localhost:9091';
-    }
-
-    win.loadURL(windowUrl);
+    win.loadURL(pageURL);
 
     if (process.env.NODE_ENV === 'electron-dev') {
         win.webContents.openDevTools();
