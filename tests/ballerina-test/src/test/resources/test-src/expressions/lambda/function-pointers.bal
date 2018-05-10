@@ -76,3 +76,71 @@ function testFuncWithArrayParams () returns (int){
 function funcWithArrayParams (string[] a) returns (int) {
     return 0;
 }
+
+public function getCount(function (int , int ) returns (int) sumFunction, string first, string last) returns string {
+    return first + ": " + sumFunction(4, 2) + " " + last;
+}
+
+function testFunctionPointerAsFuncParam() returns (int, string) {
+    function (int , int ) returns (int) sumFunction = (int a, int b) => (int) {
+                               int value =  a + b;
+                               return value;
+                           };
+
+    string s = getCount(sumFunction, "Total", "USD");
+    return (sumFunction(5, 8), s);
+}
+
+function testAnyToFuncPointerConversion_1() returns (int) {
+    any anyFunc = (int a, int b) => (int) {
+                int value =  a + b;
+                return value;
+            };
+
+    function (int , int ) returns (int) sumFunction = check <function (int , int ) returns (int)> anyFunc;
+    return sumFunction(3, 2);
+}
+
+type Person object {
+    private {
+        int age;
+    }
+
+    new (age) {
+    }
+
+    function getAge() returns (int) {
+        return age;
+    }
+};
+
+type Student object {
+    private {
+        int age;
+        int marks;
+    }
+
+    function getAge() returns (int) {
+        return age;
+    }
+};
+
+function testFuncPointerConversion() returns (int) {
+    function (Student) returns (int) studentFunc = (Student s) => (int) {
+                return s.getAge();
+            };
+
+    function (Person) returns (int) personFunc = studentFunc;
+    Person p = new Person(20);
+    return personFunc(p);
+}
+
+function testAnyToFuncPointerConversion_2() returns (int) {
+    any anyFunc =  (Student s) => (int) {
+                        return s.getAge();
+                    };
+
+    function (Person) returns (int) personFunc = check <function (Person) returns (int)> anyFunc;
+    Person p = new Person(23);
+    return personFunc(p);
+}
