@@ -507,7 +507,7 @@ public class TableTest {
                 + "<result><ID>3</ID><TINYINTDATA>0</TINYINTDATA><SMALLINTDATA>0</SMALLINTDATA><INTDATA>0</INTDATA>"
                 + "<BIGINTDATA>0</BIGINTDATA></result></results>");
         Assert.assertEquals((returns[5]).stringValue(), "1|127|32767|2147483647|9223372036854775807#2|-128|-32768|"
-                + "-2147483648|-9223372036854775808#3|0|0|0|0#");
+                + "-2147483648|-9223372036854775808#3|-1|-1|-1|-1#");
     }
 
     @Test(groups = "TableTest", description = "Check blob binary and clob types types.")
@@ -527,7 +527,7 @@ public class TableTest {
                 + "<CLOB_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>"
                 + "<BINARY_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>"
                 + "</result></results>");
-        Assert.assertEquals((returns[4]).stringValue(), "100|Sample Text|Sample Text|200||null|");
+        Assert.assertEquals((returns[4]).stringValue(), "100|Sample Text|Sample Text|200|nil|nil|");
     }
 
     @Test(groups = "TableTest", description = "Check result sets with same column name or complex name.")
