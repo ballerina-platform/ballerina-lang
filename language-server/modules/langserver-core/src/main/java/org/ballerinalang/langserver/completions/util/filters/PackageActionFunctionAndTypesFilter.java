@@ -25,7 +25,7 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -34,7 +34,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Filter the actions and the functions in a package.
@@ -45,8 +44,17 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
     public List<SymbolInfo> filterItems(LSServiceOperationContext completionContext) {
 
         TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
-        int delimiterIndex = this.getPackageDelimiterTokenIndex(completionContext);
-        String delimiter = tokenStream.get(delimiterIndex).getText();
+        int delimiterIndex;
+        String delimiter;
+        if (tokenStream == null) {
+            String lineSegment = completionContext.get(CompletionKeys.CURRENT_LINE_SEGMENT_KEY);
+            delimiterIndex = CompletionUtil.getDelimiterTokenIndexFromLineSegment(completionContext, lineSegment);
+            delimiter = CompletionUtil.getDelimiterTokenFromLineSegment(completionContext, lineSegment);
+        } else {
+            delimiterIndex = this.getPackageDelimiterTokenIndex(completionContext);
+            delimiter = tokenStream.get(delimiterIndex).getText();
+        }
+        
         ArrayList<SymbolInfo> returnSymbolsInfoList = new ArrayList<>();
 
         if (UtilSymbolKeys.DOT_SYMBOL_KEY.equals(delimiter)
@@ -57,50 +65,10 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
         } else if (UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(delimiter)) {
             // We are filtering the package functions, actions and the types
             ArrayList<SymbolInfo> filteredList = this.getActionsFunctionsAndTypes(completionContext, delimiterIndex);
-
-            // If this is a connector init
-            if (isConnectorInit(delimiterIndex, completionContext)) {
-                List<SymbolInfo> connectorKindList = filteredList
-                        .stream()
-                        .filter(item ->
-                                item.getScopeEntry().symbol.kind.toString().equals(SymbolKind.CONNECTOR.toString())
-                        ).collect(Collectors.toList());
-                returnSymbolsInfoList.addAll(connectorKindList);
-            } else {
-                returnSymbolsInfoList.addAll(filteredList);
-            }
+            returnSymbolsInfoList.addAll(filteredList);
         }
 
         return returnSymbolsInfoList;
-    }
-
-    /**
-     * Check whether the statement being writing is a connector init by analyzing the tokens.
-     * @param startIndex    Search start index
-     * @param context       Document service context
-     * @return {@link Boolean} connector init or not
-     */
-    private boolean isConnectorInit(int startIndex, LSServiceOperationContext context) {
-        int nonHiddenTokenCount = 0;
-        int counter = startIndex - 1;
-        TokenStream tokenStream = context.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
-
-        while (true) {
-            Token token = tokenStream.get(counter);
-            if (nonHiddenTokenCount == 2
-                    && tokenStream.get(counter + 1).getText().equals(UtilSymbolKeys.CREATE_KEYWORD_KEY)) {
-                return true;
-            } else if (nonHiddenTokenCount == 2) {
-                break;
-            }
-
-            if (token.getChannel() == Token.DEFAULT_CHANNEL) {
-                nonHiddenTokenCount++;
-            }
-            counter--;
-        }
-
-        return false;
     }
 
     /**
@@ -111,10 +79,17 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
      */
     private ArrayList<SymbolInfo> getActionsFunctionsAndTypes(LSServiceOperationContext completionContext,
                                                               int delimiterIndex) {
+        String packageName;
+        String lineSegment = completionContext.get(CompletionKeys.CURRENT_LINE_SEGMENT_KEY);
         ArrayList<SymbolInfo> actionFunctionList = new ArrayList<>();
         TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         List<SymbolInfo> symbols = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
-        String packageName = tokenStream.get(delimiterIndex - 1).getText();
+        
+        if (tokenStream == null) {
+            packageName = CompletionUtil.getPreviousTokenFromLineSegment(lineSegment, delimiterIndex);
+        } else {
+            packageName = tokenStream.get(delimiterIndex - 1).getText();
+        }
 
         // Extract the package symbol
         SymbolInfo packageSymbolInfo = symbols.stream().filter(item -> {

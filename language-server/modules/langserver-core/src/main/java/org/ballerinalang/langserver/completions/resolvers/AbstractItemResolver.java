@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.ConnectorInitExpressionItemFilter;
@@ -37,6 +38,7 @@ import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -72,8 +74,7 @@ public abstract class AbstractItemResolver {
             BSymbol bSymbol = symbolInfo.getScopeEntry() != null ? symbolInfo.getScopeEntry().symbol : null;
             if (!(bSymbol != null && bSymbol.getName().getValue().startsWith("$"))) {
                 if ((bSymbol instanceof BInvokableSymbol
-                        && ((BInvokableSymbol) bSymbol).kind != null
-                        && !((BInvokableSymbol) bSymbol).kind.equals(SymbolKind.WORKER))
+                        && SymbolKind.FUNCTION.equals(((BInvokableSymbol) bSymbol).kind))
                         || symbolInfo.isIterableOperation()) {
                     completionItem = this.populateBallerinaFunctionCompletionItem(symbolInfo);
                 } else if (!(bSymbol instanceof BInvokableSymbol)
@@ -82,7 +83,8 @@ public abstract class AbstractItemResolver {
                 } else if (bSymbol instanceof BTypeSymbol
                         && !bSymbol.getName().getValue().equals(UtilSymbolKeys.NOT_FOUND_TYPE)
                         && !(bSymbol instanceof BAnnotationSymbol)
-                        && !(bSymbol.getName().getValue().equals("runtime"))) {
+                        && !(bSymbol.getName().getValue().equals("runtime"))
+                        && !(bSymbol instanceof BServiceSymbol)) {
                     completionItem = this.populateBTypeCompletionItem(symbolInfo);
                 }
             }
@@ -298,7 +300,11 @@ public abstract class AbstractItemResolver {
         int cursorLine = position.getLine();
         TokenStream tokenStream = documentServiceContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         if (tokenStream == null) {
-            return false;
+            String lineSegment = documentServiceContext.get(CompletionKeys.CURRENT_LINE_SEGMENT_KEY);
+            String tokenString = CompletionUtil.getDelimiterTokenFromLineSegment(documentServiceContext, lineSegment);
+            return (UtilSymbolKeys.DOT_SYMBOL_KEY.equals(tokenString)
+                    || UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(tokenString)
+                    || UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(tokenString));
         }
         int searchTokenIndex = documentServiceContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
         
@@ -397,7 +403,8 @@ public abstract class AbstractItemResolver {
                     && !bSymbol.getName().getValue().equals(UtilSymbolKeys.NOT_FOUND_TYPE)
                     && !bSymbol.getName().getValue().startsWith(UtilSymbolKeys.ANON_STRUCT_CHECKER)
                     && !((bSymbol instanceof BPackageSymbol) && bSymbol.pkgID.getName().getValue().equals("runtime"))
-                    && !(bSymbol instanceof BAnnotationSymbol)) {
+                    && !(bSymbol instanceof BAnnotationSymbol)
+                    && !(bSymbol instanceof BServiceSymbol)) {
                 completionItems.add(this.populateBTypeCompletionItem(symbolInfo));
             }
         });

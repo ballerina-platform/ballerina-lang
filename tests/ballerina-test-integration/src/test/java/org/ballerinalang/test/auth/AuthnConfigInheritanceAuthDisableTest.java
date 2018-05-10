@@ -31,6 +31,11 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Test cases for disabling authorization scenarios.
+ *
+ * @since 0.970.0
+ */
 public class AuthnConfigInheritanceAuthDisableTest extends IntegrationTestCase {
 
     private ServerInstance ballerinaServer;

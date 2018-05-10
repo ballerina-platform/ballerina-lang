@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.service.websocket.sample;
+package org.ballerinalang.test.service.websocket;
 
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.ServerInstance;
@@ -34,7 +34,6 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import javax.net.ssl.SSLException;
 
 /**
  * This Class tests ping pong support of WebSocket client and server.
@@ -48,12 +47,12 @@ public class PingPongSupportTestCase extends WebSocketIntegrationTest {
     private static final ByteBuffer SENDING_BYTE_BUFFER = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
     private static final ByteBuffer RECEIVING_BYTE_BUFFER = ByteBuffer.wrap("data".getBytes(StandardCharsets.UTF_8));
 
-    @BeforeClass
-    public void setup() throws InterruptedException, BallerinaTestException, URISyntaxException, SSLException {
+    @BeforeClass(description = "Initializes the Ballerina server with the ping_pong_support.bal file")
+    public void setup() throws InterruptedException, BallerinaTestException, URISyntaxException {
         remoteServer = new WebSocketRemoteServer(REMOTE_SERVER_PORT);
         remoteServer.run();
 
-        String balPath = new File("src/test/resources/websocket/PingPongSupport.bal").getAbsolutePath();
+        String balPath = new File("src/test/resources/websocket/ping_pong_support.bal").getAbsolutePath();
         ballerinaServerInstance = ServerInstance.initBallerinaServer();
         ballerinaServerInstance.startBallerinaServer(balPath);
 
@@ -61,7 +60,7 @@ public class PingPongSupportTestCase extends WebSocketIntegrationTest {
         client.handshake();
     }
 
-    @Test
+    @Test(description = "Tests ping to Ballerina WebSocket server")
     public void testPingToBallerinaServer() throws IOException, InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
@@ -71,8 +70,8 @@ public class PingPongSupportTestCase extends WebSocketIntegrationTest {
         Assert.assertTrue(client.isPong());
     }
 
-    @Test
-    public void testPingFromBallerinaServer() throws IOException, InterruptedException {
+    @Test(description = "Tests ping from Ballerina WebSocket server")
+    public void testPingFromBallerinaServer() throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
         client.sendText("ping-me");
@@ -81,8 +80,8 @@ public class PingPongSupportTestCase extends WebSocketIntegrationTest {
         Assert.assertTrue(client.isPing());
     }
 
-    @Test
-    public void testPingFromBallerinaClientToRemoteServer() throws IOException, InterruptedException {
+    @Test(description = "Tests ping from Ballerina client to the remote server")
+    public void testPingFromBallerinaClientToRemoteServer() throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
         client.sendText("ping-remote-server");
@@ -90,8 +89,8 @@ public class PingPongSupportTestCase extends WebSocketIntegrationTest {
         Assert.assertEquals(client.getTextReceived(), "pong-from-remote-server-received");
     }
 
-    @Test
-    public void testPingFromRemoteServerToBallerinaClient() throws IOException, InterruptedException {
+    @Test(description = "Tests ping to Ballerina WebSocket server")
+    public void testPingFromRemoteServerToBallerinaClient() throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
         client.sendText("tell-remote-server-to-ping");
@@ -99,7 +98,7 @@ public class PingPongSupportTestCase extends WebSocketIntegrationTest {
         Assert.assertEquals(client.getTextReceived(), "ping-from-remote-server-received");
     }
 
-    @AfterClass
+    @AfterClass(description = "Stops the Ballerina server")
     public void cleanup() throws BallerinaTestException, InterruptedException {
         client.shutDown();
         ballerinaServerInstance.stopServer();

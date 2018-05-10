@@ -18,9 +18,7 @@
 
 package org.ballerinalang.net.websub;
 
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
@@ -31,7 +29,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpService;
-import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.net.websub.util.WebSubUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
@@ -141,7 +139,7 @@ class WebSubResourceDispatcher {
     private static String retrieveResourceName(ProgramFile programFile, HTTPCarbonMessage inboundRequest,
                    String topicHeader, BStringArray payloadKeys, BMap<String, BMap<String, BString>> topicResourceMap) {
         String topicHeaderPrefix = topicHeader + "::";
-        BValue httpRequest = getHttpRequest(programFile, inboundRequest);
+        BValue httpRequest = WebSubUtils.getHttpRequest(programFile, inboundRequest);
         BJSON jsonBody = retrieveJsonBody(httpRequest);
         inboundRequest.setProperty(WebSubSubscriberConstants.ENTITY_ACCESSED_REQUEST, httpRequest);
         for (String key : payloadKeys.getStringArray()) {
@@ -178,7 +176,7 @@ class WebSubResourceDispatcher {
      */
     private static String retrieveResourceName(ProgramFile programFile, HTTPCarbonMessage inboundRequest,
                                        BStringArray payloadKeys, BMap<String, BMap<String, BString>> topicResourceMap) {
-        BValue httpRequest = getHttpRequest(programFile, inboundRequest);
+        BValue httpRequest = WebSubUtils.getHttpRequest(programFile, inboundRequest);
         BJSON jsonBody = retrieveJsonBody(httpRequest);
         inboundRequest.setProperty(WebSubSubscriberConstants.ENTITY_ACCESSED_REQUEST, httpRequest);
         for (String key : payloadKeys.getStringArray()) {
@@ -228,28 +226,6 @@ class WebSubResourceDispatcher {
         } else {
             throw new BallerinaConnectorException("resource not specified for topic : " + topic);
         }
-    }
-
-    private static BStruct getHttpRequest(ProgramFile programFile, HTTPCarbonMessage httpCarbonMessage) {
-        BStruct httpRequest = createBStruct(programFile, HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.REQUEST);
-        BStruct inRequestEntity = createBStruct(programFile,
-                                                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
-                                                org.ballerinalang.mime.util.Constants.ENTITY);
-        BStruct mediaType = createBStruct(programFile,
-                                          org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
-                                          org.ballerinalang.mime.util.Constants.MEDIA_TYPE);
-
-        HttpUtil.populateInboundRequest(httpRequest, inRequestEntity, mediaType, httpCarbonMessage, programFile);
-        HttpUtil.populateEntityBody(null, httpRequest, inRequestEntity, true);
-        EntityBodyHandler.addMessageDataSource(inRequestEntity,
-                                               EntityBodyHandler.constructJsonDataSource(inRequestEntity));
-        //Set byte channel to null, once the message data source has been constructed
-        inRequestEntity.addNativeData(org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL, null);
-        return httpRequest;
-    }
-
-    private static BStruct createBStruct(ProgramFile programFile, String packagePath, String structName) {
-        return BLangConnectorSPIUtil.createBStruct(programFile, packagePath, structName);
     }
 
 }

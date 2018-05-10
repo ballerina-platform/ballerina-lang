@@ -21,17 +21,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Documentable node for Structs.
+ * Documentable node for Records.
  */
 public class RecordDoc extends Documentable {
     public final List<Field> fields;
     public final boolean isRecord;
     /**
      * Constructor.
-     * @param name struct name.
+     * @param name record name.
      * @param description description.
      * @param children children if any.
-     * @param fields struct fields.
+     * @param fields record's fields.
      */
     public RecordDoc(String name, String description, ArrayList<Documentable> children, List<Field> fields) {
         super(name, "fw-record", description, children);

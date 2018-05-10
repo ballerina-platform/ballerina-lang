@@ -195,7 +195,7 @@ public class HttpsClientRequest {
     }
 
     /**
-     * Helper method to set the SSL context
+     * Helper method to set the SSL context.
      * @param serverHome
      */
     private static void setSSlSystemProperties(String serverHome) {
