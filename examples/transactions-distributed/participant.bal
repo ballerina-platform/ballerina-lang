@@ -61,13 +61,13 @@ service<http:Service> ParticipantService bind { port: 8889 } {
     }
 }
 
-// The participant function which will get called when the distributed
+// The participant function that will get called when the distributed
 // transaction is aborted
 function printParticipantAbort(string transactionId) {
     log:printInfo("Participated transaction: " + transactionId + " aborted");
 }
 
-// The participant function which will get called when the distributed
+// The participant function that will get called when the distributed
 // transaction is committed
 function printParticipantCommit(string transactionId) {
     log:printInfo("Participated transaction: " + transactionId + " committed");

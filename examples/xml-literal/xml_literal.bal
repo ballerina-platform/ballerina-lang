@@ -2,7 +2,7 @@ import ballerina/io;
 
 function main(string... args) {
 
-    // A complex XML defined using the literal syntax, containing nested elements of different types.
+    // A complex XML defined using the literal syntax and containing nested elements of different types.
     xml x1 = xml `<book>
                     <name>Sherlock Holmes</name>
                     <author>Sir Arthur Conan Doyle</author>
@@ -14,7 +14,7 @@ function main(string... args) {
     xmlns "http://ballerina.com/";
     xmlns "http://ballerina.com/aa" as ns0;
 
-    // Create an XML element. Previously defined namespaces will get added to the element. 
+    // Create an XML element. Previously defined namespaces will be added to the element. 
     // The defined prefixes can be applied to elements and attributes inside the element. 
     xml x2 = xml `<book ns0:status="available">
                     <ns0:name>Sherlock Holmes</ns0:name>
