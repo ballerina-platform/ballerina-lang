@@ -1,5 +1,6 @@
 package org.wso2.ballerinalang.compiler.packaging.converters;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.spi.EmbeddedExecutor;
@@ -73,6 +74,11 @@ public class URIConverter implements Converter<URI> {
 
     public Stream<CompilerInput> finalize(URI u, PackageID packageID) {
         String orgName = packageID.getOrgName().getValue();
+        if (orgName.equals("ballerina")) {
+            throw new BLangCompilerException("`Ballerina` is the builtin organization and its packages are included " +
+                                                     "in the runtime.");
+        }
+
         String pkgName = packageID.getName().getValue();
         Path destDirPath = RepoUtils.createAndGetHomeReposPath().resolve(Paths.get(ProjectDirConstants.CACHES_DIR_NAME,
                                                                                    ProjectDirConstants
