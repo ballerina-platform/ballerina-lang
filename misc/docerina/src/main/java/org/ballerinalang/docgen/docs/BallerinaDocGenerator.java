@@ -47,12 +47,9 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -90,113 +87,198 @@ public class BallerinaDocGenerator {
                                        String... sources) {
         out.println("docerina: API documentation generation for sources - " + Arrays.toString(sources));
         List<Link> primitives = primitives();
-        for (String source : sources) {
-            source = source.trim();
+
+        // generate package docs
+        Map<String, PackageDoc> docsMap = generatePackageDocsMap(sourceRoot, packageFilter, isNative, sources);
+
+        if (docsMap.size() == 0) {
+            out.println("docerina: no package definitions found!");
+            return;
+        }
+
+        if (BallerinaDocUtils.isDebugEnabled()) {
+            out.println("docerina: generating HTML API documentation...");
+        }
+
+        // validate output path
+        String userDir = System.getProperty("user.dir");
+        // If output directory is empty
+        if (output == null) {
+            output = System.getProperty(BallerinaDocConstants.HTML_OUTPUT_PATH_KEY, userDir + File.separator +
+                    "api-docs" + File.separator + "html");
+        }
+
+        if (BallerinaDocUtils.isDebugEnabled()) {
+            out.println("docerina: creating output directory: " + output);
+        }
+
+        try {
+            // Create output directory
+            Files.createDirectories(Paths.get(output));
+        } catch (IOException e) {
+            out.println(String.format("docerina: API documentation generation failed. Couldn't create the [output " +
+                    "directory] %s. Cause: %s", output, e.getMessage()));
+            log.error(String.format("API documentation generation failed. Couldn't create the [output directory] %s. " +
+                    "" + "" + "Cause: %s", output, e.getMessage()), e);
+            return;
+        }
+
+        if (BallerinaDocUtils.isDebugEnabled()) {
+            out.println("docerina: successfully created the output directory: " + output);
+        }
+
+        // Sort packages by package path
+        List<PackageDoc> packageList = new ArrayList<>(docsMap.values());
+        packageList.sort(Comparator.comparing(pkg -> pkg.bLangPackage.packageID.toString()));
+
+        // Sort the package names
+        List<String> packageNames = new ArrayList<>(docsMap.keySet());
+        Collections.sort(packageNames);
+
+        List<Link> packageNameList = PackageName.convertList(packageNames);
+
+        String packageTemplateName = System.getProperty(BallerinaDocConstants.PACKAGE_TEMPLATE_NAME_KEY, "page");
+        String packageToCTemplateName = System.getProperty(BallerinaDocConstants.PACKAGE_TOC_TEMPLATE_NAME_KEY, "toc");
+
+        //Iterate over the packages to generate the pages
+        for (PackageDoc packageDoc : packageList) {
+
             try {
-                Map<String, PackageDoc> docsMap = generatePackageDocsFromBallerina(sourceRoot, source, packageFilter,
-                        isNative);
-                if (docsMap.size() == 0) {
-                    out.println("docerina: no package definitions found!");
-                    return;
+                BLangPackage bLangPackage = packageDoc.bLangPackage;
+                String pkgDescription = packageDoc.description;
+
+                // Sort functions, connectors, structs, type mappers and annotationDefs
+                sortPackageConstructs(bLangPackage);
+
+                String packagePath = refinePackagePath(bLangPackage);
+                if (BallerinaDocUtils.isDebugEnabled()) {
+                    out.println("docerina: starting to generate docs for package: " + packagePath);
+                }
+
+                // other normal packages
+                Page page = Generator.generatePage(bLangPackage, packageNameList, pkgDescription, primitives);
+                String filePath = output + File.separator + packagePath + HTML;
+                Writer.writeHtmlDocument(page, packageTemplateName, filePath);
+
+                if (ConfigRegistry.getInstance().getAsBoolean(BallerinaDocConstants.GENERATE_TOC)) {
+                    // generates ToC into a separate HTML - requirement of Central
+                    String tocFilePath = output + File.separator + packagePath + "-toc" + HTML;
+                    Writer.writeHtmlDocument(page, packageToCTemplateName, tocFilePath);
+                }
+
+                if (Names.BUILTIN_PACKAGE.getValue().equals(packagePath)) {
+                    // primitives are in builtin package
+                    Page primitivesPage = Generator.generatePageForPrimitives(bLangPackage, packageNameList,
+                            primitives);
+                    String primitivesFilePath = output + File.separator + "primitive-types" + HTML;
+                    Writer.writeHtmlDocument(primitivesPage, packageTemplateName, primitivesFilePath);
                 }
 
                 if (BallerinaDocUtils.isDebugEnabled()) {
-                    out.println("Generating HTML API documentation...");
+                    out.println("docerina: generated docs for package: " + packagePath);
                 }
-
-                String userDir = System.getProperty("user.dir");
-                // If output directory is empty
-                if (output == null) {
-                    output = System.getProperty(BallerinaDocConstants.HTML_OUTPUT_PATH_KEY, userDir + File.separator
-                            + "api-docs" + File.separator + "html");
-                }
-
-                // Create output directories
-                Files.createDirectories(Paths.get(output));
-
-                // Sort packages by package path
-                List<PackageDoc> packageList = new ArrayList<>(docsMap.values());
-                packageList.sort(Comparator.comparing(pkg -> pkg.bLangPackage.packageID.toString()));
-
-                //Iterate over the packages to generate the pages
-                List<String> packageNames = new ArrayList<>(docsMap.keySet());
-                // Sort the package names
-                Collections.sort(packageNames);
-
-                List<Link> packageNameList = PackageName.convertList(packageNames);
-
-                //Generate pages for the packages
-                String packageTemplateName = System.getProperty(BallerinaDocConstants.PACKAGE_TEMPLATE_NAME_KEY,
-                        "page");
-                String packageToCTemplateName = System.getProperty(BallerinaDocConstants
-                        .PACKAGE_TOC_TEMPLATE_NAME_KEY, "toc");
-                for (PackageDoc packageDoc : packageList) {
-                    BLangPackage bLangPackage = packageDoc.bLangPackage;
-                    String pkgDescription = packageDoc.description;
-
-                    // Sort functions, connectors, structs, type mappers and annotationDefs
-                    bLangPackage.getFunctions().sort(Comparator.comparing(f -> (f.getReceiver() == null ? "" : f
-                            .getReceiver().getName()) + f.getName().getValue()));
-                    bLangPackage.getObjects().sort(Comparator.comparing(c -> c.getName().getValue()));
-                    bLangPackage.getAnnotations().sort(Comparator.comparing(a -> a.getName().getValue()));
-                    bLangPackage.getTypeDefinitions().sort(Comparator.comparing(a -> a.getName().getValue()));
-                    bLangPackage.getRecords().sort(Comparator.comparing(a -> a.getName().getValue()));
-                    bLangPackage.getGlobalVariables().sort(Comparator.comparing(a -> a.getName().getValue()));
-
-                    // Sort connector actions
-//                    if ((bLangPackage.getConnectors() != null) && (bLangPackage.getConnectors().size() > 0)) {
-//                        bLangPackage.getConnectors().forEach(connector -> connector.getActions().sort(Comparator
-//                                .comparing(a -> a.getName().getValue())));
-//                    }
-
-                    String packagePath = refinePackagePath(bLangPackage);
-
-                    Page page = Generator.generatePage(bLangPackage, packageNameList, pkgDescription, primitives);
-                    String filePath = output + File.separator + packagePath + HTML;
-                    Writer.writeHtmlDocument(page, packageTemplateName, filePath);
-
-                    if (ConfigRegistry.getInstance().getAsBoolean(BallerinaDocConstants.GENERATE_TOC)) {
-                        String tocFilePath = output + File.separator + packagePath + "-toc" + HTML;
-                        Writer.writeHtmlDocument(page, packageToCTemplateName, tocFilePath);
-                    }
-
-                    if ("builtin".equals(packagePath)) {
-                        Page primitivesPage = Generator.generatePageForPrimitives(bLangPackage, packageNameList,
-                                primitives);
-                        String primitivesFilePath = output + File.separator + "primitive-types" + HTML;
-                        Writer.writeHtmlDocument(primitivesPage, packageTemplateName, primitivesFilePath);
-                    }
-                }
-                //Generate the index file with the list of all packages
-                String indexTemplateName = System.getProperty(BallerinaDocConstants.PACKAGE_TEMPLATE_NAME_KEY, "index");
-                String indexFilePath = output + File.separator + "index" + HTML;
-                Writer.writeHtmlDocument(packageNameList, indexTemplateName, indexFilePath);
-
-                String pkgListTemplateName = System.getProperty(BallerinaDocConstants.PACKAGE_LIST_TEMPLATE_NAME_KEY,
-                        "package-list");
-                String pkgListFilePath = output + File.separator + "package-list" + HTML;
-                Writer.writeHtmlDocument(packageNameList, pkgListTemplateName, pkgListFilePath);
-
-                if (BallerinaDocUtils.isDebugEnabled()) {
-                    out.println("Copying HTML theme...");
-                }
-                BallerinaDocUtils.copyResources("docerina-theme", output);
             } catch (IOException e) {
-                out.println(String.format("docerina: API documentation generation failed for %s: %s", source, e
-                        .getMessage()));
-                log.error(String.format("API documentation generation failed for %s", source), e);
+                out.println(String.format("docerina: API documentation generation failed for Package %s: %s",
+                        packageDoc.bLangPackage.packageID.toString(), e.getMessage()));
+                log.error(String.format("API documentation generation failed for %s", packageDoc.bLangPackage
+                        .packageID.toString()), e);
             }
         }
+
+        if (BallerinaDocUtils.isDebugEnabled()) {
+            out.println("docerina: copying HTML theme into " + output);
+        }
+        try {
+            BallerinaDocUtils.copyResources("docerina-theme", output);
+        } catch (IOException e) {
+            out.println(String.format("docerina: failed to copy the docerina-theme resource. Cause: %s", e.getMessage
+                    ()));
+            log.error("Failed to copy the docerina-theme resource.", e);
+        }
+        if (BallerinaDocUtils.isDebugEnabled()) {
+            out.println("docerina: successfully copied HTML theme into " + output);
+            out.println("docerina: generating the index HTML file.");
+        }
+
+        try {
+            //Generate the index file with the list of all packages
+            String indexTemplateName = System.getProperty(BallerinaDocConstants.PACKAGE_TEMPLATE_NAME_KEY, "index");
+            String indexFilePath = output + File.separator + "index" + HTML;
+            Writer.writeHtmlDocument(packageNameList, indexTemplateName, indexFilePath);
+        } catch (IOException e) {
+            out.println(String.format("docerina: failed to create the index.html. Cause: %s", e.getMessage()));
+            log.error("Failed to create the index.html file.", e);
+        }
+
+        if (BallerinaDocUtils.isDebugEnabled()) {
+            out.println("docerina: successfully generated the index HTML file.");
+            out.println("docerina: generating the package-list HTML file.");
+        }
+
+        try {
+            // Generate package-list.html file which prints the list of processed packages
+            String pkgListTemplateName = System.getProperty(BallerinaDocConstants.PACKAGE_LIST_TEMPLATE_NAME_KEY,
+                    "package-list");
+
+            String pkgListFilePath = output + File.separator + "package-list" + HTML;
+            Writer.writeHtmlDocument(packageNameList, pkgListTemplateName, pkgListFilePath);
+        } catch (IOException e) {
+            out.println(String.format("docerina: failed to create the package-list.html. Cause: %s", e.getMessage()));
+            log.error("Failed to create the package-list.html file.", e);
+        }
+
+        if (BallerinaDocUtils.isDebugEnabled()) {
+            out.println("docerina: successfully generated the package-list HTML file.");
+        }
+
         try {
             String zipPath = System.getProperty(BallerinaDocConstants.OUTPUT_ZIP_PATH);
             if (zipPath != null) {
+                if (BallerinaDocUtils.isDebugEnabled()) {
+                    out.println("docerina: generating the documentation zip file.");
+                }
                 BallerinaDocUtils.packageToZipFile(output, zipPath);
+                if (BallerinaDocUtils.isDebugEnabled()) {
+                    out.println("docerina: successfully generated the documentation zip file.");
+                }
             }
         } catch (IOException e) {
             out.println(String.format("docerina: API documentation zip packaging failed for %s: %s", output, e
                     .getMessage()));
             log.error(String.format("API documentation zip packaging failed for %s", output), e);
         }
+
+        if (BallerinaDocUtils.isDebugEnabled()) {
+            out.println("docerina: documentation generation is done.");
+        }
+    }
+
+    private static void sortPackageConstructs(BLangPackage bLangPackage) {
+        bLangPackage.getFunctions().sort(Comparator.comparing(f -> (f.getReceiver() == null ? "" : f
+                .getReceiver().getName()) + f.getName().getValue()));
+        bLangPackage.getObjects().sort(Comparator.comparing(c -> c.getName().getValue()));
+        bLangPackage.getAnnotations().sort(Comparator.comparing(a -> a.getName().getValue()));
+        bLangPackage.getTypeDefinitions().sort(Comparator.comparing(a -> a.getName().getValue()));
+        bLangPackage.getRecords().sort(Comparator.comparing(a -> a.getName().getValue()));
+        bLangPackage.getGlobalVariables().sort(Comparator.comparing(a -> a.getName().getValue()));
+    }
+
+    private static Map<String, PackageDoc> generatePackageDocsMap(String sourceRoot, String packageFilter, boolean
+            isNative, String[] sources) {
+        for (String source : sources) {
+            source = source.trim();
+            try {
+                generatePackageDocsFromBallerina(sourceRoot, source, packageFilter, isNative);
+
+            } catch (IOException e) {
+                out.println(String.format("docerina: API documentation generation failed for %s: %s", source, e
+                        .getMessage()));
+                log.error(String.format("API documentation generation failed for %s", source), e);
+                // we continue, as there may be other valid packages.
+                continue;
+            }
+        }
+        return BallerinaDocDataHolder.getInstance().getPackageMap();
     }
 
     /**
@@ -296,7 +378,7 @@ public class BallerinaDocGenerator {
             String packageName = packageNameToString(bLangPackage.packageID);
             if (isFilteredPackage(packageName, packageFilter)) {
                 if (BallerinaDocUtils.isDebugEnabled()) {
-                    out.println("Package " + packageName + " excluded");
+                    out.println("docerina: package " + packageName + " excluded");
                 }
             } else {
                 dataHolder.getPackageMap().put(packageName, new PackageDoc(packageMd == null ? null : packageMd
@@ -364,44 +446,4 @@ public class BallerinaDocGenerator {
         return bLangPackage.packageID.getName().getValue();
     }
 
-    /**
-     * Visits sub folders of a ballerina package.
-     */
-    static class BallerinaSubPackageVisitor extends SimpleFileVisitor<Path> {
-        private List<Path> subPackages;
-        private Map<String, Path> packageMdsMap;
-
-        public BallerinaSubPackageVisitor(List<Path> aList, Map<String, Path> map) {
-            this.subPackages = aList;
-            this.packageMdsMap = map;
-        }
-
-        @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            if (file.toString().endsWith(BSOURCE_FILE_EXT)) {
-                Path relativePath = file.getParent();
-                if (!subPackages.contains(relativePath)) {
-                    subPackages.add(relativePath);
-                }
-            } else if (file.toString().endsWith(PACKAGE_CONTENT_FILE)) {
-                Path parent = file.getParent();
-                if (parent != null) {
-                    Path filePath = parent.getFileName();
-                    if (filePath != null) {
-                        packageMdsMap.putIfAbsent(filePath.toString(), file);
-                    }
-                }
-            }
-            return FileVisitResult.CONTINUE;
-        }
-
-        public List<Path> getSubPackages() {
-            return subPackages;
-        }
-    }
 }
