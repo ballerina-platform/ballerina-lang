@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/system;
+
 type ValueType "STRING"|"INT"|"FLOAT"|"BOOLEAN"|"MAP"|"ARRAY";
 
 @final ValueType STRING = "STRING";
@@ -43,7 +45,7 @@ public function getAsString(@sensitive string key, string default = "") returns 
         }
     }
 
-    string envVar = system:getEnv(key);
+    string envVar = lookupEnvVar(key);
     return envVar == "" ? default : envVar;
 }
 
@@ -67,7 +69,7 @@ public function getAsInt(@sensitive string key, int default = 0) returns int {
         }
     }
 
-    string strVal = system:getEnv(key);
+    string strVal = lookupEnvVar(key);
     if (strVal == "") {
         return default;
     }
@@ -99,7 +101,7 @@ public function getAsFloat(@sensitive string key, float default = 0.0) returns f
         }
     }
 
-    string strVal = system:getEnv(key);
+    string strVal = lookupEnvVar(key);
     if (strVal == "") {
         return default;
     }
@@ -131,16 +133,12 @@ public function getAsBoolean(@sensitive string key, boolean default = false) ret
         }
     }
 
-    string strVal = system:getEnv(key);
+    string strVal = lookupEnvVar(key);
     if (strVal == "") {
         return default;
     }
 
-    var envVar = <boolean> strVal;
-    match envVar {
-        boolean booleanVal => return booleanVal;
-        error err => throw err;
-    }
+    return <boolean> strVal;
 }
 
 documentation {
@@ -159,4 +157,9 @@ public function getAsMap(@sensitive string key) returns map {
             throw err;
         }
     }
+}
+
+function lookupEnvVar(string key) returns string {
+    string convertedKey = key.replace(".", "_");
+    return system:getEnv(convertedKey);
 }
