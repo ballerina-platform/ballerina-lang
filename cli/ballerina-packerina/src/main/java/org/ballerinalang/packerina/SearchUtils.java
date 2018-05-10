@@ -37,7 +37,7 @@ public class SearchUtils {
     public static void searchInCentral(String argument) {
         String query = "?q=" + argument;
         EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
-        Proxy proxy = CliUtils.readProxyConfigurations();
+        Proxy proxy = RepoUtils.readSettings().getProxy();
         executor.execute("packaging_search/packaging_search.balx", true, RepoUtils.getRemoteRepoURL(), query,
                          proxy.getHost(), proxy.getPort(), proxy.getUserName(), proxy.getPassword());
     }

@@ -4,8 +4,6 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.toml.model.Proxy;
-import org.ballerinalang.toml.model.Settings;
-import org.ballerinalang.toml.parser.SettingsProcessor;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -83,7 +81,7 @@ public class URIConverter implements Converter<URI> {
         createDirectory(destDirPath);
         try {
             String fullPkgPath = orgName + "/" + pkgName;
-            Proxy proxy = readProxyConfigurations();
+            Proxy proxy = RepoUtils.readSettings().getProxy();
 
             EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
             executor.execute("packaging_pull/packaging_pull.balx", true, u.toString(), destDirPath.toString(),
@@ -98,31 +96,6 @@ public class URIConverter implements Converter<URI> {
             outStream.println("Error occurred when pulling the remote artifact");
         }
         return Stream.of();
-    }
-
-    /**
-     * Read Settings.toml to populate the configurations.
-     *
-     * @return settings object
-     */
-    private Settings readSettings() {
-        String tomlFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.SETTINGS_FILE_NAME)
-                                       .toString();
-        try {
-            return SettingsProcessor.parseTomlContentFromFile(tomlFilePath);
-        } catch (IOException e) {
-            return new Settings();
-        }
-    }
-
-    /**
-     * Read proxy configurations from the SettingHeaders.toml file.
-     *
-     * @return array with proxy configurations
-     */
-    private Proxy readProxyConfigurations() {
-        Settings settings = readSettings();
-        return settings.getProxy();
     }
 
     @Override

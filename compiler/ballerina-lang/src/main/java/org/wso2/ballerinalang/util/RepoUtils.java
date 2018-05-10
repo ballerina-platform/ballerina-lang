@@ -1,8 +1,11 @@
 package org.wso2.ballerinalang.util;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.toml.model.Settings;
+import org.ballerinalang.toml.parser.SettingsProcessor;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -67,4 +70,20 @@ public class RepoUtils {
         }
         return PRODUCTION_URL;
     }
+
+    /**
+     * Read Settings.toml to populate the configurations.
+     *
+     * @return settings object
+     */
+    public static Settings readSettings() {
+        String tomlFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.SETTINGS_FILE_NAME)
+                                       .toString();
+        try {
+            return SettingsProcessor.parseTomlContentFromFile(tomlFilePath);
+        } catch (IOException e) {
+            return new Settings();
+        }
+    }
+
 }
