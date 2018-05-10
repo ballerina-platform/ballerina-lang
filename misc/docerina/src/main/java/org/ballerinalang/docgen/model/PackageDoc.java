@@ -35,7 +35,7 @@ public class PackageDoc {
     /**
      * Constructor.
      *
-     * @param descriptionPath description of the package.
+     * @param descriptionPath description of the package in markdown format.
      * @param bLangPackage    package object.
      * @throws IOException on error.
      */

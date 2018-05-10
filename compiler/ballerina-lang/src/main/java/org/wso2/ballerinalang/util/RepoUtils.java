@@ -1,8 +1,11 @@
 package org.wso2.ballerinalang.util;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.toml.model.Settings;
+import org.ballerinalang.toml.parser.SettingsProcessor;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -17,6 +20,7 @@ public class RepoUtils {
     private static final String STAGING_URL = "https://api.staging-central.ballerina.io/packages/";
     private static final boolean BALLERINA_DEV_STAGE_CENTRAL = Boolean.parseBoolean(
             System.getenv("BALLERINA_DEV_STAGE_CENTRAL"));
+    private static Settings settings = null;
 
     /**
      * Create and get the home repository path.
@@ -66,5 +70,23 @@ public class RepoUtils {
             return STAGING_URL;
         }
         return PRODUCTION_URL;
+    }
+
+    /**
+     * Read Settings.toml to populate the configurations.
+     *
+     * @return settings object
+     */
+    public static Settings readSettings() {
+        if (settings == null) {
+            String tomlFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.SETTINGS_FILE_NAME)
+                                           .toString();
+            try {
+                settings = SettingsProcessor.parseTomlContentFromFile(tomlFilePath);
+            } catch (IOException e) {
+                settings = new Settings();
+            }
+        }
+        return settings;
     }
 }

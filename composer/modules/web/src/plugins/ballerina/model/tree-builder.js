@@ -219,6 +219,10 @@ class TreeBuilder {
             if (node.ws && node.ws.length > 2) {
                 node.withParantheses = true;
             }
+
+            if (node.typeKind && node.typeKind === 'nil' && node.ws) {
+                node.emptyParantheses=true;
+            }
         }
 
         if (node.kind === 'UnionTypeNode') {
@@ -391,6 +395,12 @@ class TreeBuilder {
                 } else if (node.ws[0].text === '(') {
                     node.isWrappedWithParenthesis = true;
                 }
+            }
+        }
+
+        if (node.kind === 'FunctionType') {
+            if (node.returnTypeNode && node.returnTypeNode.ws) {
+                node.hasReturn = true;
             }
         }
     }
