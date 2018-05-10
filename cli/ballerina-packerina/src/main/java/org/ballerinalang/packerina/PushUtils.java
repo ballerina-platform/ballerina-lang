@@ -63,7 +63,6 @@ public class PushUtils {
     private static final Path SETTINGS_TOML_FILE_PATH = BALLERINA_HOME_PATH.resolve(
             ProjectDirConstants.SETTINGS_FILE_NAME);
     private static PrintStream outStream = System.err;
-    private static Settings settings = RepoUtils.readSettings();
     private static EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
 
     /**
@@ -120,7 +119,7 @@ public class PushUtils {
             // Push package to central
             String resourcePath = resolvePkgPathInRemoteRepo(packageID);
             String msg = orgName + "/" + packageName + ":" + version + " [project repo -> central]";
-            Proxy proxy = settings.getProxy();
+            Proxy proxy = RepoUtils.readSettings().getProxy();
 
             executor.execute("packaging_push/packaging_push.balx", true, accessToken, mdFileContent,
                              description, homepageURL, repositoryURL, apiDocURL, authors, keywords, license,
@@ -273,6 +272,7 @@ public class PushUtils {
      * @return access token for generated for the CLI
      */
     private static String getAccessTokenOfCLI() {
+        Settings settings = RepoUtils.readSettings();
         if (settings.getCentral() != null) {
             return settings.getCentral().getAccessToken();
         }
