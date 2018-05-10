@@ -43,6 +43,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.File;
 import java.io.IOException;
@@ -103,7 +104,7 @@ public class BallerinaDocGenerator {
         // If output directory is empty
         if (output == null) {
             output = System.getProperty(BallerinaDocConstants.HTML_OUTPUT_PATH_KEY, userDir + File.separator +
-                    "api-docs" + File.separator + "html");
+                    ProjectDirConstants.TARGET_DIR_NAME + File.separator + "api-docs");
         }
 
         if (BallerinaDocUtils.isDebugEnabled()) {
