@@ -1,15 +1,15 @@
 // A service can be secured using JWT and optionally, by enforcing
 // authorization. The JWT auth provider verifies the signature of the JWT
 // token sent in the Authorization header. For this, Ballerina should trust the
-// JWT issuer (must have the certificate of the JWT issuer in the Ballerina
+// JWT issuer (the certificate of the JWT issuer must be present in the Ballerina
 // certificate truststore).
 // Ballerina uses the concept of scopes for authorization. A resource
-// declared in a Service can be bound to one/more scope(s). In the config
+// declared in a service can be bound to one/more scope(s). In the config
 // auth provider, scopes are mapped to users.
-// In the authorization phase, the scopes of the resource is compared against
+// In the authorization phase, the scopes of the resource are compared against
 // the scopes mapped to the user for at least one match between the two sets.
-// Here, scope can be included in the JWT, via an attribute named 'scope',
-// or the scopes for a user can be set in a sample-users.toml file as below:
+// The scope can be included in the JWT using the `scope` attribute,
+// or the scopes for a user can be set in a Ballerina configuration file (e.g., sample-users.toml).
 //
 //      ["b7a.users"]
 //
@@ -19,4 +19,4 @@
 //      ["b7a.users.dick"]
 //      scopes="scope1"
 //
-// Here, tom is assigned scope2 and scope3, while dick is assigned scope1.
+// Tom is assigned "scope2" and "scope3", while Dick is assigned "scope1".
