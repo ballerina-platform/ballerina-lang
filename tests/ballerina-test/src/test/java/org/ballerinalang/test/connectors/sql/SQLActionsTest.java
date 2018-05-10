@@ -29,6 +29,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.SQLDBUtils;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
@@ -49,6 +50,11 @@ public class SQLActionsTest {
     private CompileResult resultNegative;
     private CompileResult resultMirror;
     private static final String DB_NAME = "TEST_SQL_CONNECTOR";
+    private static final String TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD = "Trying to assign a Nil value to a "
+            + "non-nillable field";
+    private static final String INVALID_UNION_FIELD_ASSIGNMENT = "Union type contains more than 2 members or the "
+            + "members do not result in an assignable nillable type";
+    private static final String TRYING_TO_ASSIGN_TO_A_MISMATCHING_FIELD = "Trying to assign to a mismatching field";
 
     @BeforeClass
     public void setup() {
@@ -645,6 +651,416 @@ public class SQLActionsTest {
                 + "name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, name:\"Devni\", address:\"Sri Lanka\"}, {id:3, "
                 + "name:\"Thurani\", address:\"Sri Lanka\"}], {message:\"Trying to perform hasNext operation over a "
                 + "closed table\", cause:null}]");
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test mapping to nillable type fields")
+    public void testMappingToNillableTypeFields() {
+        BValue[] returns = BRunUtil.invoke(result, "testMappingToNillableTypeFields");
+        Assert.assertNotNull(returns);
+
+        long intExpected = 10;
+        long longExpected = 9223372036854774807L;
+        double floatExpected = 123.34;
+        double doubleExpected = 2139095039;
+        boolean booleanExpected = true;
+        String stringExpected = "Hello";
+        double numericExpected = 1234.567;
+        double decimalExpected = 1234.567;
+        double realExpected = 1234.567;
+        long tinyIntExpected = 1;
+        long smallIntExpected = 5555;
+        String clobExpected = "very long text";
+        String blobExpected = "wso2 ballerina blob test.";
+        String binaryExpected = "wso2 ballerina binary test.";
+        String dateExpected = "{time:1486060200000, zone:{zoneId:\"UTC\", zoneOffset:0}}";
+        String dateTimeExpected = "{time:41745000, zone:{zoneId:\"UTC\", zoneOffset:0}}";
+        String timeExpected = "{time:1486122780000, zone:{zoneId:\"UTC\", zoneOffset:0}}";
+        String timeStampExpected = "{time:1486122780000, zone:{zoneId:\"UTC\", zoneOffset:0}}";
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), intExpected);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), longExpected);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), floatExpected);
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), doubleExpected);
+        Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), booleanExpected);
+        Assert.assertEquals(returns[5].stringValue(), stringExpected);
+        Assert.assertEquals(((BFloat) returns[6]).floatValue(), numericExpected);
+        Assert.assertEquals(((BFloat) returns[7]).floatValue(), decimalExpected);
+        Assert.assertEquals(((BFloat) returns[8]).floatValue(), realExpected);
+        Assert.assertEquals(((BInteger) returns[9]).intValue(), tinyIntExpected);
+        Assert.assertEquals(((BInteger) returns[10]).intValue(), smallIntExpected);
+        Assert.assertEquals(returns[11].stringValue(), clobExpected);
+        Assert.assertEquals(returns[12].stringValue(), blobExpected);
+        Assert.assertEquals(returns[13].stringValue(), binaryExpected);
+        Assert.assertEquals(returns[14].stringValue(), dateExpected);
+        Assert.assertEquals(returns[15].stringValue(), dateTimeExpected);
+        Assert.assertEquals(returns[16].stringValue(), timeExpected);
+        Assert.assertEquals(returns[17].stringValue(), timeStampExpected);
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test mapping to nillable type fields")
+    public void testMappingDatesToTimeType() {
+        BValue[] returns = BRunUtil.invoke(result, "testMappingDatesToTimeType");
+        Assert.assertNotNull(returns);
+
+        String dateExpected = "{time:1486060200000, zone:{zoneId:\"UTC\", zoneOffset:0}}";
+        String dateTimeExpected = "{time:41745000, zone:{zoneId:\"UTC\", zoneOffset:0}}";
+        String timeExpected = "{time:1486122780000, zone:{zoneId:\"UTC\", zoneOffset:0}}";
+        String timeStampExpected = "{time:1486122780000, zone:{zoneId:\"UTC\", zoneOffset:0}}";
+
+        Assert.assertEquals(returns[0].stringValue(), dateExpected);
+        Assert.assertEquals(returns[1].stringValue(), dateTimeExpected);
+        Assert.assertEquals(returns[2].stringValue(), timeExpected);
+        Assert.assertEquals(returns[3].stringValue(), timeStampExpected);
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test mapping to nillable type fields")
+    public void testMappingDatesToIntType() {
+        BValue[] returns = BRunUtil.invoke(result, "testMappingDatesToIntType");
+        Assert.assertNotNull(returns);
+
+        long dateExpected = 1486060200000L;
+        long dateTimeExpected = 41745000L;
+        long timeExpected = 1486122780000L;
+        long timeStampExpected = 1486122780000L;
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), dateExpected);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), dateTimeExpected);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), timeExpected);
+        Assert.assertEquals(((BInteger) returns[3]).intValue(), timeStampExpected);
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test mapping to nillable type fields")
+    public void testMappingDatesToNillableIntType() {
+        BValue[] returns = BRunUtil.invoke(result, "testMappingDatesToNillableIntType");
+        Assert.assertNotNull(returns);
+
+        long dateExpected = 1486060200000L;
+        long dateTimeExpected = 41745000L;
+        long timeExpected = 1486122780000L;
+        long timeStampExpected = 1486122780000L;
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), dateExpected);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), dateTimeExpected);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), timeExpected);
+        Assert.assertEquals(((BInteger) returns[3]).intValue(), timeStampExpected);
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test mapping to nillable type fields")
+    public void testMappingDatesToNillableStringType() {
+        BValue[] returns = BRunUtil.invoke(result, "testMappingDatesToNillableStringType");
+        Assert.assertNotNull(returns);
+
+        String dateExpected = "2017-02-03+05:30";
+        String dateTimeExpected = "17:05:45.000+05:30";
+        String timeExpected = "2017-02-03T17:23:00.000+05:30";
+        String timeStampExpected = "2017-02-03T17:23:00.000+05:30";
+
+        Assert.assertEquals(returns[0].stringValue(), dateExpected);
+        Assert.assertEquals(returns[1].stringValue(), dateTimeExpected);
+        Assert.assertEquals(returns[2].stringValue(), timeExpected);
+        Assert.assertEquals(returns[3].stringValue(), timeStampExpected);
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test mapping to nillable type fields")
+    public void testMappingNullToNillableTypes() {
+        BValue[] returns = BRunUtil.invoke(result, "testMappingNullToNillableTypes");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 18);
+        Assert.assertNull(returns[0]);
+        Assert.assertNull(returns[1]);
+        ;
+        Assert.assertNull(returns[2]);
+        Assert.assertNull(returns[3]);
+        Assert.assertNull(returns[4]);
+        Assert.assertNull(returns[5]);
+        Assert.assertNull(returns[6]);
+        Assert.assertNull(returns[7]);
+        Assert.assertNull(returns[8]);
+        Assert.assertNull(returns[9]);
+        Assert.assertNull(returns[10]);
+        Assert.assertNull(returns[11]);
+        Assert.assertNull(returns[12]);
+        Assert.assertNull(returns[13]);
+        Assert.assertNull(returns[14]);
+        Assert.assertNull(returns[15]);
+        Assert.assertNull(returns[16]);
+        Assert.assertNull(returns[17]);
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test mapping nil to non-nillable int field",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD + ".*")
+    public void testAssignNilToNonNillableInt() {
+        BRunUtil.invoke(resultNegative, "testAssignNilToNonNillableInt");
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test mapping nil to non-nillable long field",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD + ".*")
+    public void testAssignNilToNonNillableLong() {
+        BRunUtil.invoke(resultNegative, "testAssignNilToNonNillableLong");
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test mapping nil to non-nillable float field",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD + ".*")
+    public void testAssignNilToNonNillableFloat() {
+        BRunUtil.invoke(resultNegative, "testAssignNilToNonNillableFloat");
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test mapping nil to non-nillable double field",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD + ".*")
+    public void testAssignNilToNonNillableDouble() {
+        BRunUtil.invoke(resultNegative, "testAssignNilToNonNillableDouble");
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test mapping nil to non-nillable boolean field",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD + ".*")
+    public void testAssignNilToNonNillableBoolean() {
+        BRunUtil.invoke(resultNegative, "testAssignNilToNonNillableBoolean");
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test mapping nil to non-nillable string field",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD + ".*")
+    public void testAssignNilToNonNillableString() {
+        BRunUtil.invoke(resultNegative, "testAssignNilToNonNillableString");
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test mapping nil to non-nillable numeric field",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD + ".*")
+    public void testAssignNilToNonNillableNumeric() {
+        BRunUtil.invoke(resultNegative, "testAssignNilToNonNillableNumeric");
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test mapping nil to non-nillable small-int field",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD + ".*")
+    public void testAssignNilToNonNillableSmallint() {
+        BRunUtil.invoke(resultNegative, "testAssignNilToNonNillableSmallint");
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test mapping nil to non-nillable tiny-int field",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD + ".*")
+    public void testAssignNilToNonNillableTinyInt() {
+        BRunUtil.invoke(resultNegative, "testAssignNilToNonNillableTinyInt");
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test mapping nil to non-nillable decimal field",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD + ".*")
+    public void testAssignNilToNonNillableDecimal() {
+        BRunUtil.invoke(resultNegative, "testAssignNilToNonNillableDecimal");
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test mapping nil to non-nillable real field",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD + ".*")
+    public void testAssignNilToNonNillableReal() {
+        BRunUtil.invoke(resultNegative, "testAssignNilToNonNillableReal");
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test mapping nil to non-nillable clob field",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD + ".*")
+    public void testAssignNilToNonNillableClob() {
+        BRunUtil.invoke(resultNegative, "testAssignNilToNonNillableClob");
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test mapping nil to non-nillable blob field",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD + ".*")
+    public void testAssignNilToNonNillableBlob() {
+        BRunUtil.invoke(resultNegative, "testAssignNilToNonNillableBlob");
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test mapping nil to non-nillable binary field",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD + ".*")
+    public void testAssignNilToNonNillableBinary() {
+        BRunUtil.invoke(resultNegative, "testAssignNilToNonNillableBinary");
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test mapping nil to non-nillable date field",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD + ".*")
+    public void testAssignNilToNonNillableDate() {
+        BRunUtil.invoke(resultNegative, "testAssignNilToNonNillableDate");
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test mapping nil to non-nillable time field",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD + ".*")
+    public void testAssignNilToNonNillableTime() {
+        BRunUtil.invoke(resultNegative, "testAssignNilToNonNillableTime");
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test mapping nil to non-nillable datetime field",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD + ".*")
+    public void testAssignNilToNonNillableDateTime() {
+        BRunUtil.invoke(resultNegative, "testAssignNilToNonNillableDateTime");
+    }
+
+    @Test(groups = "ConnectorTest",
+          description = "Test mapping nil to non-nillable timestamp field",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD + ".*")
+    public void testAssignNilToNonNillableTimeStamp() {
+        BRunUtil.invoke(resultNegative, "testAssignNilToNonNillableTimeStamp");
+    }
+
+    @Test(groups = "ConnectorTest",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + INVALID_UNION_FIELD_ASSIGNMENT + ".*")
+    public void testAssignToInvalidUnionInt() {
+        BRunUtil.invoke(resultNegative, "testAssignToInvalidUnionInt");
+    }
+
+    @Test(groups = "ConnectorTest",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + INVALID_UNION_FIELD_ASSIGNMENT + ".*")
+    public void testAssignToInvalidUnionLong() {
+        BRunUtil.invoke(resultNegative, "testAssignToInvalidUnionLong");
+    }
+
+    @Test(groups = "ConnectorTest",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + INVALID_UNION_FIELD_ASSIGNMENT + ".*")
+    public void testAssignToInvalidUnionFloat() {
+        BRunUtil.invoke(resultNegative, "testAssignToInvalidUnionFloat");
+    }
+
+    @Test(groups = "ConnectorTest",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + INVALID_UNION_FIELD_ASSIGNMENT + ".*")
+    public void testAssignToInvalidUnionDouble() {
+        BRunUtil.invoke(resultNegative, "testAssignToInvalidUnionDouble");
+    }
+
+    @Test(groups = "ConnectorTest",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + INVALID_UNION_FIELD_ASSIGNMENT + ".*")
+    public void testAssignToInvalidUnionBoolean() {
+        BRunUtil.invoke(resultNegative, "testAssignToInvalidUnionBoolean");
+    }
+
+    @Test(groups = "ConnectorTest",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + INVALID_UNION_FIELD_ASSIGNMENT + ".*")
+    public void testAssignToInvalidUnionString() {
+        BRunUtil.invoke(resultNegative, "testAssignToInvalidUnionString");
+    }
+
+    @Test(groups = "ConnectorTest",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + INVALID_UNION_FIELD_ASSIGNMENT + ".*")
+    public void testAssignToInvalidUnionNumeric() {
+        BRunUtil.invoke(resultNegative, "testAssignToInvalidUnionNumeric");
+    }
+
+    @Test(groups = "ConnectorTest",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + INVALID_UNION_FIELD_ASSIGNMENT + ".*")
+    public void testAssignToInvalidUnionSmallint() {
+        BRunUtil.invoke(resultNegative, "testAssignToInvalidUnionSmallint");
+    }
+
+    @Test(groups = "ConnectorTest",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + INVALID_UNION_FIELD_ASSIGNMENT + ".*")
+    public void testAssignToInvalidUnionTinyInt() {
+        BRunUtil.invoke(resultNegative, "testAssignToInvalidUnionTinyInt");
+    }
+
+    @Test(groups = "ConnectorTest",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + INVALID_UNION_FIELD_ASSIGNMENT + ".*")
+    public void testAssignToInvalidUnionDecimal() {
+        BRunUtil.invoke(resultNegative, "testAssignToInvalidUnionDecimal");
+    }
+
+    @Test(groups = "ConnectorTest",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + INVALID_UNION_FIELD_ASSIGNMENT + ".*")
+    public void testAssignToInvalidUnionReal() {
+        BRunUtil.invoke(resultNegative, "testAssignToInvalidUnionReal");
+    }
+
+    @Test(groups = "ConnectorTest",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + INVALID_UNION_FIELD_ASSIGNMENT + ".*")
+    public void testAssignToInvalidUnionClob() {
+        BRunUtil.invoke(resultNegative, "testAssignToInvalidUnionClob");
+    }
+
+    @Test(groups = "ConnectorTest",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + INVALID_UNION_FIELD_ASSIGNMENT + ".*")
+    public void testAssignToInvalidUnionBlob() {
+        BRunUtil.invoke(resultNegative, "testAssignToInvalidUnionBlob");
+    }
+
+    @Test(groups = "ConnectorTest",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + INVALID_UNION_FIELD_ASSIGNMENT + ".*")
+    public void testAssignToInvalidUnionBinary() {
+        BRunUtil.invoke(resultNegative, "testAssignToInvalidUnionBinary");
+    }
+
+    @Test(groups = "ConnectorTest",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + TRYING_TO_ASSIGN_TO_A_MISMATCHING_FIELD + ".*")
+    public void testAssignToInvalidUnionDate() {
+        BRunUtil.invoke(resultNegative, "testAssignToInvalidUnionDate");
+    }
+
+    @Test(groups = "ConnectorTest",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + TRYING_TO_ASSIGN_TO_A_MISMATCHING_FIELD + ".*")
+    public void testAssignToInvalidUnionTime() {
+        BRunUtil.invoke(resultNegative, "testAssignToInvalidUnionTime");
+    }
+
+    @Test(groups = "ConnectorTest",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + TRYING_TO_ASSIGN_TO_A_MISMATCHING_FIELD + ".*")
+    public void testAssignToInvalidUnionDateTime() {
+        BRunUtil.invoke(resultNegative, "testAssignToInvalidUnionDateTime");
+    }
+
+    @Test(groups = "ConnectorTest",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*" + TRYING_TO_ASSIGN_TO_A_MISMATCHING_FIELD + ".*")
+    public void testAssignToInvalidUnionTimeStamp() {
+        BRunUtil.invoke(resultNegative, "testAssignToInvalidUnionTimeStamp");
     }
 
     @AfterSuite
