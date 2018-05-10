@@ -2,7 +2,7 @@ import ballerina/io;
 
 // This function takes one required parameter and one rest parameter of type 
 // string. A function can have only one rest parameter.
-// A rest parameter can take any number of values, and is equivalent to an array of the same type. 
+// The rest parameter can take any number of values, and is equivalent to an array of the same type. 
 function printFruits(string separator,
                      string title = "Fruits: ",
                      string... concatStrings) {
@@ -24,11 +24,11 @@ function main(string... args) {
     printFruits(",");
 
     // Call the function by passing the required parameter, and 
-    // a rest parameter that has one value.
+    // one value for the rest parameter.
     printFruits(",", "Apples");
 
     // Call the function by passing the required parameter, defaultable 
-    // parameter, and the rest parameter with one value.
+    // parameter, and one value for the rest parameter.
     printFruits(",", title = "Available Fruits: ", "Apples");
 
     // Call the function by passing a separator, and multiple values for the rest
