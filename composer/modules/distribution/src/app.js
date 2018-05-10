@@ -16,15 +16,22 @@
  * under the License.
  *
  */
+const path = require('path');
 const { BrowserWindow } = require('electron');
 const registerMenuLoader = require('./menu.js');
 const setupNativeWizards = require('./workspace.js');
+
 
 let win;
 
 function createWindow () {
     // Create the browser window.
-    win = new BrowserWindow({width: 1024, height: 768, frame: true});
+    win = new BrowserWindow({
+        width: 1024, 
+        height: 768, 
+        frame: true,
+        icon: path.join(__dirname, '../icons/png/64x64.png') 
+    });
 
     // maximize the window
     win.maximize();
@@ -35,7 +42,7 @@ function createWindow () {
     let windowUrl = 'http://localhost:9091';
 
     if (process.env.NODE_ENV === 'electron-dev') {
-        windowUrl = 'http://localhost:8080';
+        windowUrl = 'http://localhost:9091';
     }
 
     win.loadURL(windowUrl);

@@ -30,7 +30,7 @@ let win,
     serverProcess,
     logger = new log('info'),
     appDir = app.getAppPath(),
-    logsDir = path.join(appDir, '..', '..', 'logs');
+    logsDir = path.join(appDir, 'logs');
 
 function createLogger(){
     if (!fs.existsSync(logsDir)){
@@ -54,7 +54,8 @@ function startServer(){
                             composerExec,
                             '--openInBrowser',
                             'false'
-                        ]
+                        ],
+                        { detached: true } // we are starting server in detached mode
                     );
     logger.info('Verifying whether the backend server is started successfully');
     serverProcess.stdout.on('data', function(data) {
@@ -139,8 +140,15 @@ app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit();
     }
-    if(serverProcess !== undefined) {
-        serverProcess.kill();
+});
+
+// kill server before quitting
+app.on('before-quit', () => {
+    logger.info('Quitting composer app');
+    if (serverProcess !== undefined) {
+        logger.info('kill server process with pid ' + serverProcess.pid);
+        // important - pass - before pid to kill all child processes spawned by server
+        process.kill(-serverProcess.pid);
     }
 });
 

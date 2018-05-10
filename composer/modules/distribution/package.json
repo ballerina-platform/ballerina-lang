@@ -20,7 +20,11 @@
       "resources/"
     ],
     "mac": {
-      "category": "public.app-category.productivity"
+      "category": "public.app-category.productivity",
+      "icon": "icons/mac/app.icns"
+    },
+    "win": {
+      "icon": "icons/win/app.ico"
     }
   },
   "repository": {
@@ -45,8 +49,9 @@
   "devDependencies": {
     "cross-env": "^3.2.3",
     "decompress": "^4.0.0",
-    "electron": "^1.6.2",
-    "electron-builder": "^16.4.2",
+    "electron": "^2.0.0",
+    "electron-builder": "^20.13.3",
+    "electron-icon-generator": "^1.0.2",
     "glob": "^7.1.1"
   },
   "dependencies": {
