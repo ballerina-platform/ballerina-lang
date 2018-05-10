@@ -7,9 +7,9 @@
 // declared in a service can be bound to one/more scope(s). In the config
 // auth provider, scopes are mapped to users.
 // In the authorization phase, the scopes of the resource are compared against
-// the scopes mapped to the user for atleast one match between the two sets.
+// the scopes mapped to the user for at least one match between the two sets.
 // The scope can be included in the JWT using the `scope` attribute,
-// or the scopes for a user can be set in a `sample-users.toml` file as below:
+// or the scopes for a user can be set in a Ballerina configuration file (e.g., sample-users.toml).
 //
 //      ["b7a.users"]
 //
