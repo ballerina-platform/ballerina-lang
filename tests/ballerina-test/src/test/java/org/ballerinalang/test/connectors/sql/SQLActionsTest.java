@@ -426,7 +426,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.get(1), 1);
     }
 
-    @Test(groups = "ConnectorTest")
+    @Test(groups = "ConnectorTest", description = "Test batch update operation with variable parameters")
     public void testBatchUpdateWithVariables() {
         BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateWithVariables");
         BIntArray retValue = (BIntArray) returns[0];

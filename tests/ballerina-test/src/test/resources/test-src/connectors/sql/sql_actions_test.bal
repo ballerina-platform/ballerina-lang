@@ -818,7 +818,7 @@ function testBatchUpdate() returns (int[]) {
 
 type myBatchType string|int|float;
 
-function testBatchUpdateWithValues() returns (int[]) {
+function testBatchUpdateWithValues() returns int[] {
     endpoint jdbc:Client testDB {
         url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
@@ -837,7 +837,7 @@ function testBatchUpdateWithValues() returns (int[]) {
     return updateCount;
 }
 
-function testBatchUpdateWithVariables() returns (int[]) {
+function testBatchUpdateWithVariables() returns int[] {
     endpoint jdbc:Client testDB {
         url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",

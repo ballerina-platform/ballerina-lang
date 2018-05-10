@@ -77,7 +77,7 @@ function testUnionTypeArrays() returns int {
 }
 
 
-function testUnionTypeArrays2() returns int {
+function testUnionTypeArrayWithValueTypeArrayAssignment() returns int {
     int[] intArray = [10, 20, 30];
     GlobalParam[] globalParamArray = intArray;
     return lengthof globalParamArray;

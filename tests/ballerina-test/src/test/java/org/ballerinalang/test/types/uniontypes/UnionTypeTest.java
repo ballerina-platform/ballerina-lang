@@ -80,8 +80,8 @@ public class UnionTypeTest {
     }
 
     @Test(description = "Test union type arrays")
-    public void testUnionTypeArrays2() {
-        BValue[] returns = BRunUtil.invoke(result, "testUnionTypeArrays2");
+    public void testUnionTypeArrayWithValueTypeArrayAssignment() {
+        BValue[] returns = BRunUtil.invoke(result, "testUnionTypeArrayWithValueTypeArrayAssignment");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
     }
