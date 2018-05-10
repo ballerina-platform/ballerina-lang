@@ -105,6 +105,24 @@ public class CompletionTestUtil {
     }
 
     /**
+     * Check whether list2 does not contains all the elements in list1.
+     *
+     * @param list1 - negative completion item list being checked
+     * @param list2 - completion item list being checked against
+     * @return whether list1 is a subset of list2
+     */
+    public static boolean containsAtLeastOne(List<CompletionItem> list1, List<CompletionItem> list2) {
+        List<String> pivotList = getStringListForEvaluation(list2);
+        for (String negativeItem : getStringListForEvaluation(list1)) {
+            if (pivotList.contains(negativeItem)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Get the completions list.
      *
      * @param documentManager Document manager instance
