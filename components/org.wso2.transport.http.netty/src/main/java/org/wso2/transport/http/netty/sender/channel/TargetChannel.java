@@ -292,7 +292,8 @@ public class TargetChannel {
         this.setHttpVersionProperty(httpOutboundRequest);
         HttpRequest httpRequest = Util.createHttpRequest(httpOutboundRequest);
         this.setRequestHeaderWritten(true);
-        this.getChannel().write(httpRequest);
+        ChannelFuture outboundHeaderFuture = this.getChannel().write(httpRequest);
+        notifyIfFailure(outboundHeaderFuture);
     }
 
     private void setHttpVersionProperty(HTTPCarbonMessage httpOutboundRequest) {
