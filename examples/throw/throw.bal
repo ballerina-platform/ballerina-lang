@@ -5,7 +5,7 @@ type Record {
     string name;
 };
 
-// This example demonstrates throwing an error. The next example demonstrates how to catch the thrown errors
+// This example demonstrates throwing an error. The next example demonstrates how to catch the thrown errors.
 function readRecord(Record|() value) {
     match value {
         Record rec => {
