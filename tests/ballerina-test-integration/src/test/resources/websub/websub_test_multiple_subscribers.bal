@@ -17,11 +17,9 @@ endpoint websub:Listener websubEP {
     secret: "Kslk30SNF2AChs2"
 }
 service<websub:Service> websubSubscriber bind websubEP {
-
     onNotification (websub:Notification notification) {
         io:println("WebSub Notification Received: " + notification.payload.toString());
     }
-
 }
 
 @websub:SubscriberServiceConfig {
@@ -32,10 +30,7 @@ service<websub:Service> websubSubscriber bind websubEP {
     secret: "SwklSSf42DLA"
 }
 service<websub:Service> websubSubscriberTwo bind websubEP {
-
     onNotification (websub:Notification notification) {
         io:println("WebSub Notification Received: " + notification.payload.toString());
     }
-
 }
-

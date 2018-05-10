@@ -127,14 +127,13 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends IntegrationT
     }
 
     @Test
-    public void testDiscoveryAndIntentVerificationForMultipleSubscribers() throws BallerinaTestException,
-            InterruptedException {
+    public void testDiscoveryAndIntentVerification() throws BallerinaTestException, InterruptedException {
         intentVerificationLogLeecherOne.waitForText(10000);
         intentVerificationLogLeecherTwo.waitForText(10000);
     }
 
-    @Test(dependsOnMethods = "testDiscoveryAndIntentVerificationForMultipleSubscribers")
-    public void testContentReceiptForMultipleSubscribers() throws BallerinaTestException {
+    @Test(dependsOnMethods = "testDiscoveryAndIntentVerification")
+    public void testContentReceipt() throws BallerinaTestException {
         internalHubNotificationLogLeecherOne.waitForText(45000);
         internalHubNotificationLogLeecherTwo.waitForText(45000);
     }

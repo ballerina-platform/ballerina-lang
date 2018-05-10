@@ -19,6 +19,7 @@
 package org.ballerinalang.net.websub.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
@@ -32,12 +33,13 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.serviceendpoint.AbstractHttpNativeFunction;
 import org.ballerinalang.net.websub.WebSubHttpService;
 import org.ballerinalang.net.websub.WebSubServicesRegistry;
+import org.wso2.transport.http.netty.contract.ServerConnector;
 
 import java.util.List;
 
+import static org.ballerinalang.net.http.HttpConstants.HTTP_SERVER_CONNECTOR;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_AUTH_CONFIG;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_CALLBACK;
@@ -70,7 +72,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERV
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener", structPackage = WEBSUB_PACKAGE),
         returnType = {@ReturnType(type = TypeKind.ARRAY)}
 )
-public class RetrieveSubscriptionParameters extends AbstractHttpNativeFunction {
+public class RetrieveSubscriptionParameters extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
@@ -149,7 +151,8 @@ public class RetrieveSubscriptionParameters extends AbstractHttpNativeFunction {
                     callback = serviceEndpointConfig.getStringField(ENDPOINT_CONFIG_HOST) + ":"
                                 + serviceEndpointConfig.getIntField(ENDPOINT_CONFIG_PORT) + callback;
                 } else {
-                    callback = getServerConnector(serviceEndpoint).getConnectorID() + callback;
+                    callback = ((ServerConnector) serviceEndpoint.getNativeData(HTTP_SERVER_CONNECTOR))
+                            .getConnectorID() + callback;
                 }
                 if (!callback.contains("://")) {
                     if (serviceEndpointConfig.getRefField(ENDPOINT_CONFIG_SECURE_SOCKET_CONFIG) != null) {
