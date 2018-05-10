@@ -8,6 +8,8 @@
     "build-pack": "build --dir",
     "build-pack-win": "build --dir --win",
     "build-dist": "build",
+    "build-dist-win": "build --win",
+    "build-dist-linux": "build --linux",
     "build-dist-all": "build --mac --win --linux",
     "start": "cross-env NODE_ENV=electron-dev electron .",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -22,10 +24,36 @@
     ],
     "mac": {
       "category": "public.app-category.productivity",
-      "icon": "icons/mac/app.icns"
+      "icon": "icons/mac/app.icns",
+      "target": [
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
     },
     "win": {
-      "icon": "icons/win/app.ico"
+      "icon": "icons/win/app.ico",
+      "target": [
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
     }
   },
   "repository": {
@@ -57,6 +85,7 @@
   },
   "dependencies": {
     "fs-extra": "^6.0.1",
-    "log": "^1.4.0"
+    "log": "^1.4.0",
+    "terminate": "^2.1.0"
   }
 }

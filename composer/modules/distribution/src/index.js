@@ -16,6 +16,7 @@
  * under the License.
  *
  */
+const terminate = require('terminate');
 const { app } = require('electron');
 const path = require('path');
 const os = require('os');
@@ -164,9 +165,23 @@ app.on('before-quit', () => {
     logger.info('Quitting composer app');
     if (serverProcess !== undefined) {
         logger.info('kill server process with pid ' + serverProcess.pid);
-    
-        // important - pass - before pid to kill all child processes spawned by server
-        process.kill(-serverProcess.pid);
+        if (process.platform !== 'win32') {
+            // important - pass - before pid to kill all child processes spawned by server
+            process.kill(-serverProcess.pid);
+        } else {
+            // const taskKillProcess = spawn("taskkill", ['/pid', serverProcess.pid, '/f', '/t']);
+            // taskKillProcess.stderr.on('data', (data) => {
+            //     logger.error('Error while killing server ' +  data);
+            // });
+            logger.info('Shutting down server on windows');
+            terminate(serverProcess.pid, (err) => { 
+                if (err) {
+                    logger.info('Error while shutting down server' + err);
+                } else {
+                    logger.info('Server was shutdown successfully');
+                }
+            });
+        }
     }
 });
 
