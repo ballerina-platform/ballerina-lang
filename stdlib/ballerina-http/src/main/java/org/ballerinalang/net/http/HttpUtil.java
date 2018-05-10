@@ -48,6 +48,7 @@ import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.observability.ObservabilityUtils;
@@ -99,9 +100,11 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
+import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.RESOLVED_REQUESTED_URI;
 import static org.ballerinalang.net.http.HttpConstants.RESOLVED_REQUESTED_URI_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_REASON_PHRASE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_INDEX;
@@ -478,8 +481,7 @@ public class HttpUtil {
     }
 
     public static void populateInboundRequest(BStruct inboundRequestStruct, BStruct entity, BStruct mediaType,
-                                              HTTPCarbonMessage inboundRequestMsg,
-                                              RequestCacheControlStruct requestCacheControl) {
+                                              HTTPCarbonMessage inboundRequestMsg, ProgramFile programFile) {
         inboundRequestStruct.addNativeData(TRANSPORT_MESSAGE, inboundRequestMsg);
         inboundRequestStruct.addNativeData(REQUEST, true);
 
@@ -490,10 +492,14 @@ public class HttpUtil {
         inboundRequestStruct.addNativeData(MESSAGE_ENTITY, entity);
         inboundRequestStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
 
-        if (inboundRequestMsg.getHeader(CACHE_CONTROL.toString()) != null) {
-            requestCacheControl.populateStruct(inboundRequestMsg.getHeader(CACHE_CONTROL.toString()));
+        String cacheControlHeader = inboundRequestMsg.getHeader(CACHE_CONTROL.toString());
+        if (cacheControlHeader != null) {
+            BStruct cacheControlStruct = BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP,
+                                                                             REQUEST_CACHE_CONTROL);
+            RequestCacheControlStruct requestCacheControl = new RequestCacheControlStruct(cacheControlStruct);
+            requestCacheControl.populateStruct(cacheControlHeader);
+            inboundRequestStruct.setRefField(REQUEST_CACHE_CONTROL_INDEX, requestCacheControl.getStruct());
         }
-        inboundRequestStruct.setRefField(REQUEST_CACHE_CONTROL_INDEX, requestCacheControl.getStruct());
     }
 
     private static void enrichWithInboundRequestHeaders(BStruct inboundRequestStruct,
@@ -575,13 +581,12 @@ public class HttpUtil {
      * @param inboundResponse  Ballerina struct to represent response
      * @param entity    Entity of the response
      * @param mediaType Content type of the response
-     * @param responseCacheControl  Cache control struct which holds the cache control directives related to the
-     *                              response
+     * @param programFile  Cache control struct which holds the cache control directives related to the
+*                              response
      * @param inboundResponseMsg      Represent carbon message.
      */
     public static void populateInboundResponse(BStruct inboundResponse, BStruct entity, BStruct mediaType,
-                                               ResponseCacheControlStruct responseCacheControl,
-                                               HTTPCarbonMessage inboundResponseMsg) {
+                                               ProgramFile programFile, HTTPCarbonMessage inboundResponseMsg) {
         inboundResponse.addNativeData(TRANSPORT_MESSAGE, inboundResponseMsg);
         int statusCode = (Integer) inboundResponseMsg.getProperty(HTTP_STATUS_CODE);
         inboundResponse.setIntField(RESPONSE_STATUS_CODE_INDEX, statusCode);
@@ -599,10 +604,14 @@ public class HttpUtil {
                     inboundResponseMsg.getProperty(RESOLVED_REQUESTED_URI).toString());
         }
 
-        if (inboundResponseMsg.getHeader(CACHE_CONTROL.toString()) != null) {
-            responseCacheControl.populateStruct(inboundResponseMsg.getHeader(CACHE_CONTROL.toString()));
+        String cacheControlHeader = inboundResponseMsg.getHeader(CACHE_CONTROL.toString());
+        if (cacheControlHeader != null) {
+            ResponseCacheControlStruct responseCacheControl
+                    = new ResponseCacheControlStruct(
+                            programFile.getPackageInfo(PROTOCOL_PACKAGE_HTTP).getStructInfo(RESPONSE_CACHE_CONTROL));
+            responseCacheControl.populateStruct(cacheControlHeader);
+            inboundResponse.setRefField(RESPONSE_CACHE_CONTROL_INDEX, responseCacheControl.getStruct());
         }
-        inboundResponse.setRefField(RESPONSE_CACHE_CONTROL_INDEX, responseCacheControl.getStruct());
 
         populateEntity(entity, mediaType, inboundResponseMsg);
         inboundResponse.addNativeData(MESSAGE_ENTITY, entity);
