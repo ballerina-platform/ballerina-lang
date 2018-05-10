@@ -654,7 +654,8 @@ restParameter
     ;
 
 formalParameterList
-    :   (parameter | defaultableParameter) (COMMA (parameter | defaultableParameter))* (COMMA restParameter)?
+    :   parameter (COMMA parameter)* (COMMA defaultableParameter)* (COMMA restParameter)?
+    |   defaultableParameter (COMMA defaultableParameter)* (COMMA restParameter)?
     |   restParameter
     ;
 
