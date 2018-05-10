@@ -74,7 +74,7 @@ public class PackagingPushTestCase extends IntegrationTestCase {
 
         Path generatedPackagePath = Paths.get(ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
                                               ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME,
-                                              "IntegrationTest",
+                                              "integrationtests",
                                               packageName,
                                               "1.0.0");
         Files.createDirectories(projectPath.resolve(generatedPackagePath));
@@ -90,7 +90,7 @@ public class PackagingPushTestCase extends IntegrationTestCase {
      */
     private void createBallerinaToml() throws IOException {
         Path ballerinaToml = projectPath.resolve("Ballerina.toml");
-        String ballerinaTomlContent = "[project]\n org-name = \"IntegrationTest\"\n version = \"1.0.0\"";
+        String ballerinaTomlContent = "[project]\n org-name = \"integrationtests\"\n version = \"1.0.0\"";
         Files.write(ballerinaToml, ballerinaTomlContent.getBytes(), StandardOpenOption.CREATE);
     }
 
@@ -145,7 +145,7 @@ public class PackagingPushTestCase extends IntegrationTestCase {
         String sourceRootPath = projectPath.toString();
         String[] clientArgs = {"--sourceroot", sourceRootPath, packageName};
 
-        String msg = "IntegrationTest/" + packageName + ":1.0.0 [project repo -> central]";
+        String msg = "integrationtests/" + packageName + ":1.0.0 [project repo -> central]";
 
         LogLeecher clientLeecher = new LogLeecher(msg);
         ballerinaClient.addLogLeecher(clientLeecher);
@@ -154,7 +154,7 @@ public class PackagingPushTestCase extends IntegrationTestCase {
 
         // Check if package Exists
         String stagingURL = "https://api.staging-central.ballerina.io/packages/";
-        HttpResponse response = HttpClientRequest.doGet(stagingURL + "IntegrationTest/" + packageName
+        HttpResponse response = HttpClientRequest.doGet(stagingURL + "integrationtests/" + packageName
                                                                 + "/1.0.0");
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
 

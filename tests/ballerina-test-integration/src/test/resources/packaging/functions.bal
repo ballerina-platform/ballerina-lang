@@ -4,8 +4,10 @@ function printValue(string value) {
 }
 function add(int a, int b) returns (int) {
     return a + b;
-}function main(string... args) {
-    printValue("This is a sample text");
-    int result = add(5, 6);
-    io:println(result);
+}
+
+function main(string... args) {
+   printValue("This is a sample text");
+   int result = add(5, 6);
+   io:println(result);
 }

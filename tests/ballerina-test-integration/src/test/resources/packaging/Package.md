@@ -7,10 +7,7 @@ sodales ut euismod non, adipiscing vitae orci. Mauris ut placerat justo. Mauris 
 nulla ultrices egestas quis ut quam. Donec sollicitudin lectus a mauris pulvinar id aliquam urna cursus. Cras quis ligula sem, 
 vel elementum mi. Phasellus non ullamcorper urna.
 
-Aliquam ut massa in turpis dapibus convallis. Praesent elit lacus, vestibulum at malesuada et, ornare et est. Ut augue nunc, 
-sodales ut euismod non, adipiscing vitae orci. Mauris ut placerat justo. Mauris in ultricies enim. Quisque nec est eleifend 
-nulla ultrices egestas quis ut quam. Donec sollicitudin lectus a mauris pulvinar id aliquam urna cursus. Cras quis ligula sem, 
-vel elementum mi. Phasellus non ullamcorper urna.
+
 ## Compatibility
 
 | Ballerina Language Version  | Test Basic API Version | Test Authy API Version |
@@ -21,14 +18,7 @@ vel elementum mi. Phasellus non ullamcorper urna.
 
 1.  Refer the [Getting Started](https://ballerina.io/learn/getting-started/) guide to download and install Ballerina.
 
-2.  To use Test endpoint, you need to provide the following:
-
-       - Account SId
-       - Test API Key
-
-       *Please note that, providing Test API Key is required only if you are going to use Test related APIs*
-
-3. Create a new Ballerina project by executing the following command.
+2. Create a new Ballerina project by executing the following command.
 
 	```shell
 	   <PROJECT_ROOT_DIRECTORY>$ ballerina init
@@ -38,17 +28,10 @@ vel elementum mi. Phasellus non ullamcorper urna.
 
 	```ballerina
 	   import IntegrationTest/test;
+       import ballerina/io;
 
 	   function main (string... args) {
-		endpoint test:Client testClient {
-		     accountSid:config:getAsString(ACCOUNT_SID),
-		     xAuthyKey:config:getAsString(AUTHY_API_KEY)
-		};
-
-		var details = testClient -> getAccountDetails();
-		match details {
-		    Account account => io:println(account);
-		    TestError testError => test:assertFail(msg = testError.message);
-		}
+         int result = test:add(5, 6);
+         io:println(result);
 	   }
 	```
