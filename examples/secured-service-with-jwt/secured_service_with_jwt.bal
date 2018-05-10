@@ -39,7 +39,7 @@ endpoint http:SecureListener ep {
     }
 }
 // Auth configuration comprises of two parts - authentication & authorization.
-// Authentication can be enabled by setting `authentication:{enabled:true}`
+// Authentication can be enabled by setting the `authentication:{enabled:true}`
 // flag.
 // Authorization is based on scopes, where a scope maps to one or more groups.
 // For a user to access a resource, the user should be in the same groups as
