@@ -1391,15 +1391,17 @@ public class ProgramFileReader {
                     break;
 
                 case InstructionCodes.FPLOAD: {
+                    h = codeStream.readInt();
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
-                    int[] operands = new int[3 + (k * 2)];
-                    operands[0] = i;
-                    operands[1] = j;
-                    operands[2] = k;
+                    int[] operands = new int[4 + (k * 2)];
+                    operands[0] = h;
+                    operands[1] = i;
+                    operands[2] = j;
+                    operands[3] = k;
                     for (int x = 0; x < (k * 2); x++) {
-                        operands[x + 3] = codeStream.readInt();
+                        operands[x + 4] = codeStream.readInt();
                     }
                     packageInfo.addInstruction(InstructionFactory.get(opcode, operands));
                     break;

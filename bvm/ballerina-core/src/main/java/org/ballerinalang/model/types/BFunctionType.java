@@ -127,6 +127,11 @@ public class BFunctionType extends BType {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return getTypeName(paramTypes, retParamTypes);
+    }
+
     /* Utility methods for Composer. */
 
     public boolean hasReturnsKeyword() {

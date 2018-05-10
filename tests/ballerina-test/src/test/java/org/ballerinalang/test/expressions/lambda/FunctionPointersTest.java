@@ -235,4 +235,25 @@ public class FunctionPointersTest {
         Assert.assertNotNull(returns[1] instanceof BString);
         Assert.assertEquals(returns[1].stringValue(), "Total: 6 USD");
     }
+
+    @Test
+    public void testAnyToFuncPointerConversion_1() {
+        BValue[] returns = BRunUtil.invoke(fpProgram, "testAnyToFuncPointerConversion_1");
+        Assert.assertNotNull(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+    }
+
+    @Test
+    public void testFuncPointerConversion() {
+        BValue[] returns = BRunUtil.invoke(fpProgram, "testFuncPointerConversion");
+        Assert.assertNotNull(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 20);
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = ".*error: error, message: 'function \\(Student\\) returns \\(int\\)' " +
+                    "cannot be cast to 'function \\(Person\\) returns \\(int\\)'.*")
+    public void testAnyToFuncPointerConversion_2() {
+        BRunUtil.invoke(fpProgram, "testAnyToFuncPointerConversion_2");
+    }
 }
