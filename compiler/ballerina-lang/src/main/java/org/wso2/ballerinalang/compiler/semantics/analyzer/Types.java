@@ -873,6 +873,12 @@ public class Types {
 
         @Override
         public BSymbol visit(BInvokableType t, BType s) {
+            if (s == symTable.anyType) {
+                return createConversionOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
+            } else if (s.tag == TypeTags.INVOKABLE && checkFunctionTypeEquality((BInvokableType) s, t)) {
+                return createConversionOperatorSymbol(s, t, true, InstructionCodes.NOP);
+            }
+
             return symTable.notFoundSymbol;
         }
 

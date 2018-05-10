@@ -596,24 +596,36 @@ public class CompiledPackageSymbolEnter {
     }
 
     private BInvokableType createInvokableType(String sig) {
-        int indexOfSep = sig.indexOf(")(");
-        String paramSig = sig.substring(1, indexOfSep);
-        String retParamSig = sig.substring(indexOfSep + 2, sig.length() - 1);
-        BType[] paramTypes = getParamTypes(paramSig);
-        BType[] retParamTypes = getParamTypes(retParamSig);
-        BType retType = retParamTypes.length != 0 ? retParamTypes[0] : this.symTable.nilType;
-        return new BInvokableType(Arrays.asList(paramTypes), retType, null);
+        char[] chars = sig.toCharArray();
+        Stack<BType> typeStack = new Stack<>();
+        createInvokableType(chars, 0, typeStack);
+        return (BInvokableType) typeStack.pop();
     }
 
-    private BType[] getParamTypes(String signature) {
-        int index = 0;
-        Stack<BType> typeStack = new Stack<>();
-        char[] chars = signature.toCharArray();
-        while (index < chars.length) {
-            index = createBTypeFromSig(chars, index, typeStack);
+    private int createInvokableType(char[] chars, int index, Stack<BType> typeStack) {
+        // Skip the first parenthesis
+        index++;
+
+        // Read function parameters
+        Stack<BType> funcParamsStack = new Stack<>();
+        while (chars[index] != ')' || chars[index + 1] != '(') {
+            index = createBTypeFromSig(chars, index, funcParamsStack);
+        }
+        BType[] paramTypes = funcParamsStack.toArray(new BType[funcParamsStack.size()]);
+
+        // Read function return type.
+        // Skip the two parenthesis ')(', which separate params and return params
+        index += 2;
+        BType retType;
+        if (chars[index] == ')') {
+            retType = this.symTable.nilType;
+        } else {
+            index = createBTypeFromSig(chars, index, funcParamsStack);
+            retType = funcParamsStack.pop();
         }
 
-        return typeStack.toArray(new BType[0]);
+        typeStack.push(new BInvokableType(Arrays.asList(paramTypes), retType, null));
+        return index;
     }
 
     private int createBTypeFromSig(char[] chars, int index, Stack<BType> typeStack) {
@@ -721,8 +733,8 @@ public class CompiledPackageSymbolEnter {
                 typeStack.push(mapType);
                 return index;
             case 'U':
-                // TODO : Fix this for type casting.
-//                typeStack.push(new BFunctBionType());
+                index++;
+                index = createInvokableType(chars, index, typeStack);
                 return index + 1;
             case 'O':
             case 'P':
@@ -819,8 +831,6 @@ public class CompiledPackageSymbolEnter {
                 BType elemType = getBTypeFromDescriptor(sig.substring(1));
                 return new BArrayType(elemType);
             case 'U':
-                // TODO : Fix this for type casting.
-                return null;
             case 'O':
             case 'P':
                 Stack<BType> typeStack = new Stack<BType>();
