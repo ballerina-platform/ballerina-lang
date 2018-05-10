@@ -123,7 +123,6 @@ public class BLangStreamingInput extends BLangNode implements StreamingInput {
         return this.postInvocations;
     }
 
-
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);

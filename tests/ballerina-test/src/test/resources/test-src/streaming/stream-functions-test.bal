@@ -40,12 +40,12 @@ stream<Teacher> teacherStream1;
 function deployStreamingRules() {
     forever {
         from teacherStream1 log() log("test message") log(false) log("test message", false)
-    where age > 30
-    select name, age, status
-    => (Employee[] emp) {
-    employeeStream.publish(emp);
-}
-}
+        where age > 30
+        select name, age, status
+        => (Employee[] emp) {
+            employeeStream.publish(emp);
+        }
+    }
 }
 
 
