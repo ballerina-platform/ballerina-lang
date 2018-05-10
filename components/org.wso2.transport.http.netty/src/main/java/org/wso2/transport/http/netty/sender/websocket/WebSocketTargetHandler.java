@@ -77,7 +77,7 @@ public class WebSocketTargetHandler extends WebSocketInboundFrameHandler {
     private ChannelPromise handshakeFuture;
     private ChannelHandlerContext ctx;
     private WebSocketFrameType continuationFrameType;
-    private boolean closeFrameReceived = false;
+    private boolean closeFrameReceived;
     private CountDownLatch closeCountDownLatch = null;
 
     public WebSocketTargetHandler(WebSocketClientHandshaker handshaker, boolean isSecure, String requestedUri,
@@ -98,7 +98,7 @@ public class WebSocketTargetHandler extends WebSocketInboundFrameHandler {
     }
 
     @Override
-    public ChannelHandlerContext getCtx() {
+    public ChannelHandlerContext getChannelHandlerContext() {
         return this.ctx;
     }
 
@@ -134,7 +134,10 @@ public class WebSocketTargetHandler extends WebSocketInboundFrameHandler {
         if (webSocketConnection != null
                 && !(webSocketConnection.closeFrameReceived() || webSocketConnection.closeFrameSent())) {
             // Notify abnormal closure.
-            notifyCloseMessage(1006, null, ctx);
+            WebSocketMessageImpl webSocketCloseMessage =
+                    new WebSocketCloseMessageImpl(Constants.WEBSOCKET_STATUS_CODE_ABNORMAL_CLOSURE);
+            setupCommonProperties(webSocketCloseMessage, ctx);
+            connectorListener.onMessage((WebSocketCloseMessage) webSocketCloseMessage);
         }
     }
 
@@ -238,16 +241,6 @@ public class WebSocketTargetHandler extends WebSocketInboundFrameHandler {
                     future -> closeCountDownLatch.countDown());
         }
         closeWebSocketFrame.release();
-    }
-
-    private void notifyCloseMessage(int statusCode, String reasonText, ChannelHandlerContext ctx)
-            throws ServerConnectorException {
-        if (webSocketConnection == null) {
-            throw new ServerConnectorException("Cannot find initialized channel session");
-        }
-        WebSocketMessageImpl webSocketCloseMessage = new WebSocketCloseMessageImpl(statusCode, reasonText);
-        setupCommonProperties(webSocketCloseMessage, ctx);
-        connectorListener.onMessage((WebSocketCloseMessage) webSocketCloseMessage);
     }
 
     private void notifyPingMessage(PingWebSocketFrame pingWebSocketFrame, ChannelHandlerContext ctx)

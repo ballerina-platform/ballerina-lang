@@ -33,7 +33,7 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
 
     public DefaultWebSocketConnection(WebSocketInboundFrameHandler frameHandler, DefaultWebSocketSession session) {
         this.frameHandler = frameHandler;
-        this.ctx = frameHandler.getCtx();
+        this.ctx = frameHandler.getChannelHandlerContext();
         this.session = session;
     }
 

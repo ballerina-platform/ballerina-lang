@@ -46,7 +46,7 @@ public class WebSocketUtil {
     public static DefaultWebSocketConnection getWebSocketConnection(WebSocketInboundFrameHandler frameHandler,
                                                                     boolean isSecured,
                                                                     String uri) throws URISyntaxException {
-        ChannelHandlerContext ctx = frameHandler.getCtx();
+        ChannelHandlerContext ctx = frameHandler.getChannelHandlerContext();
         DefaultWebSocketSession session = new DefaultWebSocketSession(ctx, isSecured, uri, getSessionID(ctx));
         return new DefaultWebSocketConnection(frameHandler, session);
     }

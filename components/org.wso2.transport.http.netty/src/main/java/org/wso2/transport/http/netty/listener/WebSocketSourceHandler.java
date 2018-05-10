@@ -73,7 +73,7 @@ public class WebSocketSourceHandler extends WebSocketInboundFrameHandler {
     private WebSocketFrameType continuationFrameType;
     private CountDownLatch closeCountDownLatch = null;
     private DefaultWebSocketConnection webSocketConnection;
-    private boolean closeFrameReceived = false;
+    private boolean closeFrameReceived;
 
     /**
      * @param connectorFuture {@link ServerConnectorFuture} to notify messages to application.
@@ -118,7 +118,7 @@ public class WebSocketSourceHandler extends WebSocketInboundFrameHandler {
     }
 
     @Override
-    public ChannelHandlerContext getCtx() {
+    public ChannelHandlerContext getChannelHandlerContext() {
         return this.ctx;
     }
 
@@ -158,7 +158,7 @@ public class WebSocketSourceHandler extends WebSocketInboundFrameHandler {
         if (!(this.closeFrameReceived || webSocketConnection.closeFrameSent())) {
             // Notify abnormal closure.
             WebSocketMessageImpl webSocketCloseMessage =
-                    new WebSocketCloseMessageImpl(1006, null);
+                    new WebSocketCloseMessageImpl(Constants.WEBSOCKET_STATUS_CODE_ABNORMAL_CLOSURE);
             setupCommonProperties(webSocketCloseMessage);
             connectorFuture.notifyWSListener((WebSocketCloseMessage) webSocketCloseMessage);
         }
