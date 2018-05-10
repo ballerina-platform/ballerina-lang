@@ -733,7 +733,7 @@ public class SQLActionsTest {
     }
 
     @Test(groups = "ConnectorTest",
-          description = "Test mapping to nillable type fields")
+          description = "Test mapping date to nillable int field")
     public void testMappingDatesToNillableIntType() {
         BValue[] returns = BRunUtil.invoke(result, "testMappingDatesToNillableIntType");
         Assert.assertNotNull(returns);
@@ -750,7 +750,7 @@ public class SQLActionsTest {
     }
 
     @Test(groups = "ConnectorTest",
-          description = "Test mapping to nillable type fields")
+          description = "Test mapping date to nillable string field")
     public void testMappingDatesToNillableStringType() {
         BValue[] returns = BRunUtil.invoke(result, "testMappingDatesToNillableStringType");
         Assert.assertNotNull(returns);
