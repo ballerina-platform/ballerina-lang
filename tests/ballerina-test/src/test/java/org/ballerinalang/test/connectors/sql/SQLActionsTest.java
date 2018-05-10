@@ -419,6 +419,22 @@ public class SQLActionsTest {
     }
 
     @Test(groups = "ConnectorTest")
+    public void testBatchUpdateWithValues() {
+        BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateWithValues");
+        BIntArray retValue = (BIntArray) returns[0];
+        Assert.assertEquals(retValue.get(0), 1);
+        Assert.assertEquals(retValue.get(1), 1);
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testBatchUpdateWithVariables() {
+        BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateWithVariables");
+        BIntArray retValue = (BIntArray) returns[0];
+        Assert.assertEquals(retValue.get(0), 1);
+        Assert.assertEquals(retValue.get(1), 1);
+    }
+
+    @Test(groups = "ConnectorTest")
     public void testBatchUpdateWithFailure() {
         BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateWithFailure");
         BIntArray retValue = (BIntArray) returns[0];
