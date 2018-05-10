@@ -25,6 +25,7 @@ import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
@@ -135,6 +136,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
                                                                 .getType()));
         filterCtxtStruct.setStringField(0, httpResource.getParentService().getName());
         filterCtxtStruct.setStringField(1, httpResource.getName());
+        filterCtxtStruct.setRefField(1, new BMap());
         return filterCtxtStruct;
     }
 

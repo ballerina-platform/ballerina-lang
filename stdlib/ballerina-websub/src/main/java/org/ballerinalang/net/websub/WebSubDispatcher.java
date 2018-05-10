@@ -39,26 +39,20 @@ class WebSubDispatcher extends HttpDispatcher {
      * @param inboundMessage incoming message.
      * @return matching resource.
      */
-     static HttpResource findResource(WebSubServicesRegistry servicesRegistry,
-                                            HTTPCarbonMessage inboundMessage) {
-        HttpResource resource;
+     static HttpResource findResource(WebSubServicesRegistry servicesRegistry, HTTPCarbonMessage inboundMessage) {
         String protocol = (String) inboundMessage.getProperty(HttpConstants.PROTOCOL);
         if (protocol == null) {
             throw new BallerinaConnectorException("protocol not defined in the incoming request");
         }
-
         try {
             HttpService service = HttpDispatcher.findService(servicesRegistry, inboundMessage);
             if (service == null) {
                 throw new BallerinaConnectorException("no service found to handle the service request");
                 // Finer details of the errors are thrown from the dispatcher itself, ideally we shouldn't get here.
             }
-
-            resource = WebSubResourceDispatcher.findResource(service, inboundMessage, servicesRegistry);
+            return WebSubResourceDispatcher.findResource(service, inboundMessage, servicesRegistry);
         } catch (Throwable throwable) {
             throw new BallerinaConnectorException(throwable.getMessage());
         }
-        return resource;
     }
-
 }

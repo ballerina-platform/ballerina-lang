@@ -31,6 +31,10 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Test cases for verifying single http filter for a service.
+ */
+
 public class SingleFilterTestCase extends IntegrationTestCase {
     private ServerInstance ballerinaServer;
 
