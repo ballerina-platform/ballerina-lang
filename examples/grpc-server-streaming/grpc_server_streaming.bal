@@ -1,4 +1,4 @@
-// This is server implementation for server streaming scenario
+// This is the server implementation for the server streaming scenario.
 import ballerina/io;
 import ballerina/grpc;
 
@@ -9,20 +9,20 @@ endpoint grpc:Listener ep {
 };
 
 service HelloWorld bind ep {
-    // Annotation indicates the service resource operates as server streaming.
+    // The annotation indicates how the service resource operates as server streaming.
     @grpc:ResourceConfig { streaming: true }
     lotsOfReplies(endpoint caller, string name) {
         io:println("Server received hello from " + name);
         string[] greets = ["Hi", "Hey", "GM"];
 
-        // Sends multiple messages to the caller.
+        // Send multiple messages to the caller.
         foreach greet in greets {
             error? err = caller->send(greet + " " + name);
             io:println(err.message but { () => "send reply: " + greet + " " +
                                                                         name });
         }
 
-        // Once all messages are sent, server send complete message to notify the caller, I’m done.
+        // Once all the messages are sent, the server notifies the caller with a `complete` message.
         _ = caller->complete();
 
         io:println("send all responses sucessfully.");
