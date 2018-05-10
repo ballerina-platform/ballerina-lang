@@ -1,17 +1,18 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  */
 
 package org.ballerinalang.plugins.idea.debugger;
@@ -122,16 +123,16 @@ public class BallerinaStackFrame extends XStackFrame {
      */
     @Override
     public void computeChildren(@NotNull XCompositeNode node) {
-        // We categorize variables according to the scope. But we get all the variables in the stack. So we need to
-        // distinguish values in each scope. In this Map, key will be the scope name. Value will be the list of
-        // variables in that scope.
+        // We categorize variables according to the scopeprocessors. But we get all the variables in the stack.
+        // So we need to distinguish values in each scopeprocessors. In this Map, key will be the scopeprocessors
+        // name. Value will be the list of variables in that scopeprocessors.
         Map<String, List<Variable>> scopeMap = new HashMap<>();
         // Iterate through each variable.
         List<Variable> variables = myFrame.getVariables();
         for (Variable variable : variables) {
-            // Get the scope.
+            // Get the scopeprocessors.
             String scopeName = variable.getScope();
-            // Check whether the scope is already available in the map.
+            // Check whether the scopeprocessors is already available in the map.
             if (scopeMap.containsKey(scopeName)) {
                 // If it is already in the map, add the variable to the corresponding list.
                 List<Variable> list = scopeMap.get(scopeName);
@@ -144,11 +145,11 @@ public class BallerinaStackFrame extends XStackFrame {
             }
         }
 
-        // Iterate through each scope in the map.
+        // Iterate through each scopeprocessors in the map.
         scopeMap.forEach((scopeName, variableList) -> {
             // Create a new XValueChildrenList to hold the XValues.
             XValueChildrenList xValueChildrenList = new XValueChildrenList();
-            // Create a new variable to represent the scope.
+            // Create a new variable to represent the scopeprocessors.
             Variable scopeVariable = new Variable();
             // Set the variable name.
             scopeVariable.setName(scopeName);

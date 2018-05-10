@@ -267,8 +267,12 @@ function buildSubscriptionChangeRequest(@sensitive string mode,
         + "&" + HUB_TOPIC + "=" + subscriptionChangeRequest.topic
         + "&" + HUB_CALLBACK + "=" + subscriptionChangeRequest.callback;
     if (mode == MODE_SUBSCRIBE) {
-        body = body + "&" + HUB_SECRET + "=" + subscriptionChangeRequest.secret + "&" + HUB_LEASE_SECONDS + "="
-            + subscriptionChangeRequest.leaseSeconds;
+        if (subscriptionChangeRequest.secret.trim() != "") {
+            body = body + "&" + HUB_SECRET + "=" + subscriptionChangeRequest.secret;
+        }
+        if (subscriptionChangeRequest.leaseSeconds != 0) {
+            body = body + "&" + HUB_LEASE_SECONDS + "=" + subscriptionChangeRequest.leaseSeconds;
+        }
     }
     request.setTextPayload(body);
     request.setHeader(CONTENT_TYPE, mime:APPLICATION_FORM_URLENCODED);
@@ -316,7 +320,7 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
                     () => {}
                 }
                 error subscriptionError = { message: "Redirection response received for subscription change request at"
-                                        + "Hub [" + hub + "], for Topic [" + subscriptionChangeRequest.topic + "]" };
+                                        + " Hub [" + hub + "], for Topic [" + subscriptionChangeRequest.topic + "]" };
                 return subscriptionError;
             } else if (responseStatusCode != http:ACCEPTED_202) {
                 var responsePayload = httpResponse.getTextPayload();

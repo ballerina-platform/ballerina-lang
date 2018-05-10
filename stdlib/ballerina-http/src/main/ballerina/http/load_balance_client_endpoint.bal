@@ -39,10 +39,12 @@ public type LoadBalanceClient object {
     public function init(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig);
 
     documentation {
-        Returns the backing HTTP client used by the load balance client endpoint.
+        Returns the HTTP LoadBalancer actions associated with the endpoint.
+
+        R{{}} The HTTP LoadBalancer actions associated with the endpoint
     }
-    public function getCallerActions() returns CallerActions {
-        return httpEP.httpClient;
+    public function getCallerActions() returns LoadBalancerActions {
+        return check <LoadBalancerActions> httpEP.httpClient;
     }
 };
 
@@ -126,7 +128,7 @@ function createLoadBalancerClient(LoadBalanceClientEndpointConfiguration loadBal
     ClientEndpointConfig config = createClientEPConfigFromLoalBalanceEPConfig(loadBalanceClientConfig,
                                                                             loadBalanceClientConfig.targets[0]);
     CallerActions[] lbClients = createLoadBalanceHttpClientArray(loadBalanceClientConfig);
-    return new LoadBalancer(loadBalanceClientConfig.targets[0].url, config, lbClients,
+    return new LoadBalancerActions(loadBalanceClientConfig.targets[0].url, config, lbClients,
                                             loadBalanceClientConfig.algorithm, 0, loadBalanceClientConfig.failover);
 }
 

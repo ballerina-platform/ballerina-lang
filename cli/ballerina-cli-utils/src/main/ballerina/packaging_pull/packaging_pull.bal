@@ -5,27 +5,19 @@ import ballerina/mime;
 import ballerina/http;
 
 @final int MAX_INT_VALUE = 2147483647;
+@final string VERSION_REGEX = "(\\d+\\.)(\\d+\\.)(\\d+)";
 
 documentation {
     This function pulls a package from ballerina central.
 
-    P{{url}} Endpoint url to be invoked
+    P{{definedEndpoint}} Endpoint defined with the proxy configurations
+    P{{url}} url to be invoked
     P{{dirPath}} Path of the directory to save the pulled package
-    P{{pkgPath}} Package path.
-    P{{fileSeparator}} File separator based on the operating system.
+    P{{pkgPath}} Package path
+    P{{fileSeparator}} File separator based on the operating system
 }
-function pullPackage (string url, string dirPath, string pkgPath, string fileSeparator) {
-    endpoint http:Client httpEndpoint {
-        url: url,
-        secureSocket:{
-            trustStore:{
-                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                password: "ballerina"
-            },
-            verifyHostname: false,
-            shareSession: true
-        }
-    };
+function pullPackage (http:Client definedEndpoint, string url, string dirPath, string pkgPath, string fileSeparator) {
+    endpoint http:Client httpEndpoint = definedEndpoint;
     string fullPkgPath = pkgPath;
     string destDirPath = dirPath;
     http:Request req = new;
@@ -37,81 +29,74 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
     match result {
         http:Response response => httpResponse = response;
         error e => {
-            io:println("Connection to the remote host failed : " + e.message);
+            io:println("connection to the remote host failed : " + e.message);
             return;
         }
     }
 
     http:Response res = new;
     string statusCode = <string> httpResponse.statusCode;
-    if (statusCode == "302"){
-        string locationHeader;
-        if (httpResponse.hasHeader("Location")) {
-            locationHeader = httpResponse.getHeader("Location");
-            var resultFS = callFileServer(locationHeader);
-            match resultFS {
-                http:Response response => res = response;
-                () => return;
-            }
-            if (res.statusCode != 200) {
-                json jsonResponse = check (res.getJsonPayload());
-                string message = jsonResponse.message.toString();
-                io:println(message);
-            } else {
-                string contentLengthHeader;
-                int pkgSize = MAX_INT_VALUE;
-                if (res.hasHeader("content-length")) {
-                    contentLengthHeader = res.getHeader("content-length");
-                    pkgSize = check <int> contentLengthHeader;
-                } else {
-                    io:println("warning: package size information is missing from the remote repository");
-                }
-
-                io:ByteChannel sourceChannel = check (res.getByteChannel());
-
-                string rawPathVal;
-                if (res.hasHeader("raw-path")) {
-                    rawPathVal = res.getHeader("raw-path");
-                    string pkgVersion;
-                    string [] pathArray = rawPathVal.split("/");
-                    int sizeOfArray = lengthof pathArray;
-                    if (sizeOfArray > 3) {
-                        pkgVersion = pathArray[sizeOfArray - 2];
-                        string pkgName = fullPkgPath.substring(fullPkgPath.lastIndexOf("/") + 1, fullPkgPath.length());
-                        fullPkgPath = fullPkgPath + ":" + pkgVersion;
-                        destDirPath = destDirPath + fileSeparator + pkgVersion;        
-
-                        string archiveFileName = pkgName + ".zip";
-                        string destArchivePath = destDirPath  + fileSeparator + archiveFileName;
-
-                        if (!createDirectories(destDirPath)) {
-                            internal:Path pkgArchivePath = new(destArchivePath);
-                            if (internal:pathExists(pkgArchivePath)){
-                                io:println("package already exists in the home repository");
-                                return;                              
-                            }        
-                        }
-
-                        io:ByteChannel destDirChannel = getFileChannel(destArchivePath, "w");
-                        string toAndFrom = " [central.ballerina.io -> home repo]";
-
-                        copy(pkgSize, sourceChannel, destDirChannel, fullPkgPath, toAndFrom);
-                        _ = destDirChannel.close();
-                        _ = sourceChannel.close();
-                    } else {
-                        io:println("package version information is missing from the remote repository");
-                    }
-                } else {
-                    io:println("package version information is missing from the remote repository");
-                }
-            }
-        } else {
-            io:println("package location information is missing from the remote repository");
-        }
-    } else if (statusCode.hasPrefix("5")) {
+    if (statusCode.hasPrefix("5")) {
         io:println("remote registry failed for url :" + url);
+    } else if (statusCode != "200") {
+        var jsonResponse = httpResponse.getJsonPayload();
+        match jsonResponse {
+            json resp => {
+                string message = resp.message.toString();
+                io:println(message);
+            }
+            error err => {
+                io:println("error occurred when pulling the package");
+            }
+        }
     } else {
-       io:println("error occurred when pulling the package");
+        string contentLengthHeader;
+        int pkgSize = MAX_INT_VALUE;
+
+        if (httpResponse.hasHeader("content-length")) {
+            contentLengthHeader = httpResponse.getHeader("content-length");
+            pkgSize = check <int> contentLengthHeader;
+        } else {
+            io:println("warning: package size information is missing from the remote repository");
+        }
+
+        io:ByteChannel sourceChannel = check (httpResponse.getByteChannel());
+
+        string resolvedURI = httpResponse.resolvedRequestedURI;
+        if (resolvedURI == "") {
+            resolvedURI = url;
+        }
+        
+        string [] uriParts = resolvedURI.split("/");
+        string pkgVersion = uriParts[lengthof uriParts - 2];
+        boolean valid = check pkgVersion.matches(VERSION_REGEX);
+
+        if (valid) { 
+            string pkgName = fullPkgPath.substring(fullPkgPath.lastIndexOf("/") + 1, fullPkgPath.length());
+            string archiveFileName = pkgName + ".zip";
+
+            fullPkgPath = fullPkgPath + ":" + pkgVersion;
+            destDirPath = destDirPath + fileSeparator + pkgVersion;        
+            string destArchivePath = destDirPath  + fileSeparator + archiveFileName;
+
+            if (!createDirectories(destDirPath)) {
+                internal:Path pkgArchivePath = new(destArchivePath);
+                if (internal:pathExists(pkgArchivePath)){
+                    io:println("package already exists in the home repository");
+                    return;                              
+                }        
+            }
+
+            io:ByteChannel destDirChannel = getFileChannel(destArchivePath, io:WRITE);
+            string toAndFrom = " [central.ballerina.io -> home repo]";
+
+            copy(pkgSize, sourceChannel, destDirChannel, fullPkgPath, toAndFrom);
+                                
+            closeChannel(destDirChannel);
+            closeChannel(sourceChannel);
+        } else {
+            io:println("package version could not be detected");
+        }
     }
 }
 
@@ -119,7 +104,72 @@ documentation {
     This function will invoke the method to pull the package.
 }
 function main(string... args){
-    pullPackage(args[0], args[1], args[2], args[3]);
+    http:Client httpEndpoint;
+    string host = args[4];
+    string port = args[5];
+    if (host != "" && port != "") {
+        try {
+          httpEndpoint = defineEndpointWithProxy(args[0], host, port, args[6], args[7]);
+        } catch (error err) {
+          io:println("failed to resolve host : " + host + " with port " + port);
+          return;
+        }
+    } else  if (host != "" || port != "") {
+        io:println("both host and port should be provided to enable proxy");     
+        return;   
+    } else {
+        httpEndpoint = defineEndpointWithoutProxy(args[0]);
+    }
+    pullPackage(httpEndpoint, args[0], args[1], args[2], args[3]);
+}
+
+documentation {
+    This function defines an endpoint with proxy configurations.
+
+    P{{url}} URL to be invoked
+    P{{hostname}} Host name of the proxy
+    P{{port}} Port of the proxy
+    P{{username}} Username of the proxy
+    P{{password}} Password of the proxy
+    R{{}} Endpoint defined
+}
+function defineEndpointWithProxy (string url, string hostname, string port, string username, string password) returns http:Client{
+    endpoint http:Client httpEndpoint {
+        url: url,
+        secureSocket:{
+            trustStore:{
+                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                password: "ballerina"
+            },
+            verifyHostname: false,
+            shareSession: true
+        },
+        followRedirects: { enabled: true, maxCount: 5 },
+        proxy : getProxyConfigurations(hostname, port, username, password)
+    };
+    return httpEndpoint;
+}
+
+documentation {
+    This function defines an endpoint without proxy configurations.
+
+    P{{url}} URL to be invoked
+    R{{}} Endpoint defined
+}
+function defineEndpointWithoutProxy (string url) returns http:Client{
+    endpoint http:Client httpEndpoint {
+        url: url,
+        secureSocket:{
+            trustStore:{
+                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                password: "ballerina"
+            },
+            verifyHostname: false,
+            shareSession: true
+        },
+        followRedirects: { enabled: true, maxCount: 5 }
+    };
+    return httpEndpoint;
 }
 
 documentation {
@@ -269,31 +319,30 @@ function createDirectories(string directoryPath) returns (boolean) {
 }
 
 documentation {
-    This function invokes the fileServer endpoint.
+    This function will close the byte channel.
 
-    P{{url}} Endpoint url to be invoked
-    R{{}} Response got after invoking the endpoint
+    P{{channel}} Byte channel to be closed
+}
+function closeChannel(io:ByteChannel channel) {
+    match channel.close() {
+        error channelCloseError => {
+            io:println("Error occured while closing the channel: " + channelCloseError.message);
+        }
+        () => return;
+    }
 }
 
-function callFileServer(string url) returns http:Response? {
-    endpoint http:Client httpEndpoint {
-        url: url,
-        secureSocket:{
-            trustStore:{
-                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                password: "ballerina"
-            },
-            verifyHostname: false,
-            shareSession: true
-        }
-    };
-    http:Request req = new;
-    var result = httpEndpoint -> get("", request=req);
-    match result {
-        http:Response response => return response;
-        error e => {
-            io:println("Connection to the remote host failed : " + e.message);
-            return;
-        }
-    }
+documentation {
+    This function sets the proxy configurations for the endpoint.
+
+    P{{hostName}} Host name of the proxy
+    P{{port}} Port of the proxy
+    P{{username}} Username of the proxy
+    P{{password}} Password of the proxy
+    R{{}} Proxy configurations for the endpoint
+}
+function getProxyConfigurations(string hostName, string port, string username, string password) returns http:ProxyConfig {
+    int portInt = check <int> port;
+    http:ProxyConfig proxy = { host : hostName, port : portInt , userName: username, password : password };
+    return proxy;
 }
