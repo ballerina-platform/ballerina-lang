@@ -1,2 +1,2 @@
-// Ballerina Client endpoints can be used to connect to and interact with HTTP endpoints. By default Ballerina will
-// create an HTTP/1.1 client.
+// Ballerina client endpoints can be used to connect to and interact with HTTP endpoints. Ballerina 
+// creates an HTTP/1.1 client by default.
