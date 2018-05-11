@@ -1,4 +1,4 @@
-// This is server implementation for client streaming scenario.
+// This is the server implementation for the client streaming scenario.
 import ballerina/io;
 import ballerina/grpc;
 

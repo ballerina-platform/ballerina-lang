@@ -1,7 +1,7 @@
 import ballerina/io;
 
 // Workers interact with each other by sending and receiving messages. 
-// Ballerina validates every send/receive worker interactions, in order to avoid deadlocks.
+// Ballerina validates every send/receive worker interaction in order to avoid deadlocks.
 function main(string... args) {
     worker w1 {
         int i = 100;
@@ -9,7 +9,7 @@ function main(string... args) {
         io:println("[w1 -> w2] i: ", i, " k: ", k);
         // Send messages to worker `w2`. This message contains a tuple value with member types of `int` and `float`.
         (i, k) -> w2;
-        // Receive a message from worker `w2`. This message contains a `JSON` typed value.
+        // Receive a message from worker `w2`. This message contains a `JSON` type value.
         json j;
         j <- w2;
         string jStr = j.toString();

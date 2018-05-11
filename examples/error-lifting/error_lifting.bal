@@ -13,19 +13,19 @@ function main(string... args) {
     error e = { message: "response error" };
     Response|error firstResponse = e;
 
-    // This is how you can navigate the fields, by lifting the error. 
-    // Using '!' operator will stop the navigation if the value is error, and 
-    // will assign that to the 'code'.
+    // Navigate the fields, by lifting the error. 
+    // Using the `!` operator stops the navigation if the value returned is `error`, and then
+    // assigns that to the `code` variable.
     int|error statusCode1 = firstResponse!status!code;
     io:println("The status code: ", statusCode1);
 
 
-    // Consider a scenario where the 'secondResponse' is nil.
+    // Consider a scenario where the `secondResponse` is null.
     Response|error|() secondResponse = ();
 
-    // Error lifting operator also lifts nil by default. If the 'secondResponse'
-    // is nil, then it will stop navigating the rest of the field, and the value
-    // of the expression 'secondResponse!status!code' will evaluate to nil.
+    // The error lifting operator lifts null by default. If the `secondResponse`
+    // is null, it stops navigating the rest of the fields and the value
+    // of the `secondResponse!status!code` expression evaluates to null.
     int|error|() statusCode2 = secondResponse!status!code;
     io:println("The status code: ", statusCode2);
 }

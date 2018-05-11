@@ -1,8 +1,8 @@
-// This is an auto generated client stub which is used to connect to gRPC server.
+// This is an auto generated client stub, which is used to connect to the gRPC server.
 import ballerina/grpc;
 import ballerina/io;
 
-// Blocking client
+// Blocking client.
 public type HelloWorldBlockingStub object {
     public {
         grpc:Client clientEndpoint;
@@ -31,7 +31,7 @@ public type HelloWorldBlockingStub object {
 };
 
 
-// Non-Blocking client
+// Non-Blocking client.
 public type HelloWorldStub object {
     public {
         grpc:Client clientEndpoint;

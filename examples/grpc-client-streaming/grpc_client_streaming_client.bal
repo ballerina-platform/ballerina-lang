@@ -1,15 +1,15 @@
-// This is client implementation for client streaming scenario.
+// This is the client implementation for the client streaming scenario.
 import ballerina/io;
 
 int total = 0;
 function main(string... args) {
-    // Client endpoint configuration
+    // Client endpoint configuration.
     endpoint HelloWorldClient helloWorldEp {
         url: "http://localhost:9090"
     };
 
     endpoint grpc:Client ep;
-    // Executes unary non-blocking call registering server message listener.
+    // Execute the unary non-blocking call that registers a server message listener.
     var res = helloWorldEp->lotsOfGreetings
                                         (HelloWorldMessageListener);
 
@@ -24,7 +24,7 @@ function main(string... args) {
 
     io:print("Initialized connection sucessfully.");
 
-    // Sends multiple messages to the server.
+    // Send multiple messages to the server.
     string[] greets = ["Hi", "Hey", "GM"];
     var name = "John";
     foreach greet in greets {
@@ -33,7 +33,7 @@ function main(string... args) {
                                                 greet + " " + name });
     }
 
-    // Once all messages are sent, client send complete message to notify the server, I’m done.
+    // Once all the messages are sent, the server notifies the caller with a `complete` message.
     _ = ep->complete();
 
     while (total == 0) {}
@@ -43,20 +43,20 @@ function main(string... args) {
 // Server Message Listener.
 service<grpc:Service> HelloWorldMessageListener {
 
-    // Resource registered to receive server messages
+    // Resource registered to receive server messages.
     onMessage(string message) {
         total = 1;
         io:println("Response received from server: " + message);
     }
 
-    // Resource registered to receive server error messages
+    // Resource registered to receive server error messages.
     onError(error err) {
         if (err != ()) {
             io:println("Error reported from server: " + err.message);
         }
     }
 
-    // Resource registered to receive server completed message.
+    // Resource registered to receive server completed messages.
     onComplete() {
         total = 1;
         io:println("Server Complete Sending Responses.");

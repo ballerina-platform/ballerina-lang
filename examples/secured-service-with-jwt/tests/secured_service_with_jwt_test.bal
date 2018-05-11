@@ -15,7 +15,7 @@ function startService() {
     after: "stopService"
 }
 function testFunc() {
-    // Chck whether the server is started
+    // Check whether the server has started. 
     test:assertTrue(serviceStarted, msg = "Unable to start the service");
     setJwtTokenToAuthContext();
     testAuthSuccess();
@@ -44,12 +44,12 @@ function testAuthSuccess() {
 }
 
 function testAuthnFailure() {
-    // create client
+    // Create a client.
     endpoint http:Client httpEndpoint {
         url: "https://localhost:9090",
         auth: { scheme: "jwt" }
     };
-    // Send a GET request to the specified endpoint
+    // Send a `GET` request to the specified endpoint
     var response = httpEndpoint->get("/hello/sayHello");
     match response {
         http:Response resp => {
@@ -61,10 +61,10 @@ function testAuthnFailure() {
 }
 
 function testAuthzFailure() {
-    // create client
+    // Create a client.
     endpoint http:Client httpEndpoint { url: "https://localhost:9090",
         auth: { scheme: "jwt" } };
-    // Send a GET request to the specified endpoint
+    // Send a `GET` request to the specified endpoint
     var response = httpEndpoint->get("/hello/sayHello");
     match response {
         http:Response resp => {

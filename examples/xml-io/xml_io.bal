@@ -15,7 +15,7 @@ function write(xml content, string path) {
     io:ByteChannel byteChannel = io:openFile(path, io:WRITE);
     // Derive the character channel from the byte Channel
     io:CharacterChannel ch = new io:CharacterChannel(byteChannel, "UTF8");
-    // This is how xml content is written via the character channel
+    // This is how XML content is written via the character channel
     match ch.writeXml(content) {
         error err => {
             close(ch);
@@ -33,7 +33,7 @@ function read(string path) returns xml {
     io:ByteChannel byteChannel = io:openFile(path, io:READ);
     // Derive the character channel from the byte Channel
     io:CharacterChannel ch = new io:CharacterChannel(byteChannel, "UTF8");
-    // This is how xml content is read from the character channel
+    // This is how XML content is read from the character channel
     match ch.readXml() {
         xml result => {
             close(ch);
@@ -48,7 +48,7 @@ function read(string path) returns xml {
 
 function main(string... args) {
     string filePath = "./files/sample.xml";
-    // Create xml content from the string
+    // Create XML content from the string
     xml x1 = xml `<book>The Lost World</book>`;
     io:println("Preparing to write xml file");
     // Write the content
