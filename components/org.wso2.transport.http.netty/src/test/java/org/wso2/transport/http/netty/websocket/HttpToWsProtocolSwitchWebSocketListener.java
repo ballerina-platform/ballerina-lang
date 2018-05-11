@@ -40,7 +40,7 @@ public class HttpToWsProtocolSwitchWebSocketListener implements WebSocketConnect
         if ("handshake".equals(initMessage.getHeader("Command"))) {
             initMessage.handshake();
         } else if ("fail".equals(initMessage.getHeader("Command"))) {
-            initMessage.cancelHandShake(404, "Not Found");
+            initMessage.cancelHandshake(404, "Not Found");
         }
     }
 
