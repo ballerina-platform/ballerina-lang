@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
@@ -55,6 +56,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
@@ -86,6 +88,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangEndpointTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
 import java.util.Stack;
@@ -227,6 +230,23 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangVariable varNode) {
         setPreviousNode(varNode);
+        if (varNode.symbol != null) {
+            CommonUtil.calculateEndColumnOfGivenName(varNode.getPosition(), varNode.symbol.name.getValue(), "");
+            DiagnosticPos identifierPos = HoverUtil.getIdentifierPosition(varNode);
+            if (HoverUtil.isMatchingPosition(identifierPos, this.position)) {
+                this.context.put(NodeContextKeys.NODE_KEY, varNode);
+                this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
+                this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, varNode.symbol.name.getValue());
+                this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, varNode.symbol.pkgID);
+                this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, ContextConstants.ENDPOINT);
+                this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, ContextConstants.ENDPOINT);
+                this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, varNode.symbol.name.getValue());
+                this.context.put(NodeContextKeys.NODE_OWNER_KEY, varNode.symbol.owner.name.getValue());
+                this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, varNode.symbol.owner.pkgID);
+                setTerminateVisitor(true);
+            }
+        }
+
         if (varNode.expr != null) {
             this.acceptNode(varNode.expr);
         }
@@ -295,6 +315,17 @@ public class PositionTreeVisitor extends LSNodeVisitor {
                 this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, varRefExpr.variableName.getValue());
             }
             setTerminateVisitor(true);
+        } else if (HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position) && varRefExpr.symbol != null) {
+            this.context.put(NodeContextKeys.NODE_KEY, varRefExpr);
+            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
+            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, varRefExpr.symbol.name.getValue());
+            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, varRefExpr.symbol.pkgID);
+            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, ContextConstants.VARIABLE);
+            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, ContextConstants.VARIABLE);
+            this.context.put(NodeContextKeys.NODE_OWNER_KEY, varRefExpr.symbol.owner.name.getValue());
+            this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, varRefExpr.symbol.owner.pkgID);
+            this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, varRefExpr.variableName.getValue());
+            setTerminateVisitor(true);
         }
     }
 
@@ -341,6 +372,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         setPreviousNode(assignNode);
         if (assignNode.expr != null && assignNode.getPosition().sLine <= this.position.getLine()
                 && assignNode.getPosition().eLine >= this.position.getLine()) {
+            this.acceptNode(assignNode.varRef);
             this.acceptNode(assignNode.expr);
         }
     }
@@ -930,6 +962,20 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             typeDefinition.valueSpace.forEach(this::acceptNode);
         }
 
+    }
+
+    @Override
+    public void visit(BLangCheckedExpr checkedExpr) {
+        setPreviousNode(checkedExpr);
+
+        if (checkedExpr.expr != null) {
+            this.acceptNode(checkedExpr.expr);
+        }
+    }
+
+    public void visit(BLangIdentifier identifier) {
+        setPreviousNode(identifier);
+        int a = 10;
     }
 
     /**
