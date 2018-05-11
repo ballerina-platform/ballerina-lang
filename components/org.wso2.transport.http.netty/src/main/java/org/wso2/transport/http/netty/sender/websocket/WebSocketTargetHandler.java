@@ -23,7 +23,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
@@ -48,6 +47,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketFrameType;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnection;
+import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketInboundFrameHandler;
 import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.WebSocketCloseMessageImpl;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.WebSocketControlMessageImpl;
@@ -56,6 +56,7 @@ import org.wso2.transport.http.netty.internal.websocket.WebSocketUtil;
 
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * WebSocket Client Handler. This class responsible for handling the inbound messages for the WebSocket Client.
@@ -63,7 +64,7 @@ import java.net.URISyntaxException;
  * <b>{@link Constants}.IS_WEBSOCKET_SERVER</b> property to identify whether the message is coming from the client
  * or the server in the application level.</i>
  */
-public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
+public class WebSocketTargetHandler extends WebSocketInboundFrameHandler {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketClient.class);
 
@@ -76,6 +77,8 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
     private ChannelPromise handshakeFuture;
     private ChannelHandlerContext ctx;
     private WebSocketFrameType continuationFrameType;
+    private boolean closeFrameReceived;
+    private CountDownLatch closeCountDownLatch = null;
 
     public WebSocketTargetHandler(WebSocketClientHandshaker handshaker, boolean isSecure, String requestedUri,
                                   WebSocketConnectorListener webSocketConnectorListener) {
@@ -90,16 +93,28 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
         return handshakeFuture;
     }
 
-    public DefaultWebSocketConnection getWebSocketConnection() {
-        return webSocketConnection;
-    }
-
     public void setActualSubProtocol(String actualSubProtocol) {
         this.actualSubProtocol = actualSubProtocol;
     }
 
-    public ChannelHandlerContext getCtx() {
+    @Override
+    public ChannelHandlerContext getChannelHandlerContext() {
         return this.ctx;
+    }
+
+    @Override
+    public DefaultWebSocketConnection getWebSocketConnection() {
+        return webSocketConnection;
+    }
+
+    @Override
+    public boolean isCloseFrameReceived() {
+        return closeFrameReceived;
+    }
+
+    @Override
+    public void setCloseCountDownLatch(CountDownLatch closeCountDownLatch) {
+        this.closeCountDownLatch = closeCountDownLatch;
     }
 
     @Override
@@ -111,7 +126,7 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
     public void channelActive(ChannelHandlerContext ctx) throws URISyntaxException {
         this.ctx = ctx;
         handshaker.handshake(ctx.channel());
-        webSocketConnection = WebSocketUtil.getWebSocketConnection(ctx, isSecure, requestedUri);
+        webSocketConnection = WebSocketUtil.getWebSocketConnection(this, isSecure, requestedUri);
     }
 
     @Override
@@ -119,7 +134,10 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
         if (webSocketConnection != null
                 && !(webSocketConnection.closeFrameReceived() || webSocketConnection.closeFrameSent())) {
             // Notify abnormal closure.
-            notifyCloseMessage(1006, null, ctx);
+            WebSocketMessageImpl webSocketCloseMessage =
+                    new WebSocketCloseMessageImpl(Constants.WEBSOCKET_STATUS_CODE_ABNORMAL_CLOSURE);
+            setupCommonProperties(webSocketCloseMessage, ctx);
+            connectorListener.onMessage((WebSocketCloseMessage) webSocketCloseMessage);
         }
     }
 
@@ -143,7 +161,7 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
             log.debug("WebSocket Client connected!");
             handshakeFuture.setSuccess();
             fullHttpResponse.release();
-            webSocketConnection = WebSocketUtil.getWebSocketConnection(ctx, isSecure, requestedUri);
+            webSocketConnection = WebSocketUtil.getWebSocketConnection(this, isSecure, requestedUri);
             return;
         }
 
@@ -213,20 +231,16 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
         if (webSocketConnection == null) {
             throw new ServerConnectorException("Cannot find initialized channel session");
         }
-        WebSocketMessageImpl webSocketCloseMessage = new WebSocketCloseMessageImpl(statusCode, reasonText);
-        closeWebSocketFrame.release();
-        setupCommonProperties(webSocketCloseMessage, ctx);
-        connectorListener.onMessage((WebSocketCloseMessage) webSocketCloseMessage);
-    }
-
-    private void notifyCloseMessage(int statusCode, String reasonText, ChannelHandlerContext ctx)
-            throws ServerConnectorException {
-        if (webSocketConnection == null) {
-            throw new ServerConnectorException("Cannot find initialized channel session");
+        if (closeCountDownLatch == null) {
+            WebSocketMessageImpl webSocketCloseMessage = new WebSocketCloseMessageImpl(statusCode, reasonText);
+            setupCommonProperties(webSocketCloseMessage, ctx);
+            connectorListener.onMessage((WebSocketCloseMessage) webSocketCloseMessage);
+            closeFrameReceived = true;
+        } else {
+            ctx.writeAndFlush(new CloseWebSocketFrame(statusCode, reasonText)).addListener(
+                    future -> closeCountDownLatch.countDown());
         }
-        WebSocketMessageImpl webSocketCloseMessage = new WebSocketCloseMessageImpl(statusCode, reasonText);
-        setupCommonProperties(webSocketCloseMessage, ctx);
-        connectorListener.onMessage((WebSocketCloseMessage) webSocketCloseMessage);
+        closeWebSocketFrame.release();
     }
 
     private void notifyPingMessage(PingWebSocketFrame pingWebSocketFrame, ChannelHandlerContext ctx)

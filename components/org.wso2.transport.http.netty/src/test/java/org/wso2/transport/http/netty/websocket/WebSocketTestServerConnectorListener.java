@@ -129,7 +129,7 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
         this.isIdleTimeout = true;
         WebSocketConnection webSocketConnection = controlMessage.getWebSocketConnection();
-        webSocketConnection.close(1001, "Connection timeout").addListener(future -> {
+        webSocketConnection.initiateConnectionClosure(1001, "Connection timeout", -1).addListener(future -> {
            if (!future.isSuccess()) {
                log.error("Error occurred while closing the connection: " + future.cause().getMessage());
            }

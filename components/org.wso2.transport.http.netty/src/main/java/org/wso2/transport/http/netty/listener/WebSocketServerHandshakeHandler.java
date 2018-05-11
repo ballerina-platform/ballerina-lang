@@ -133,15 +133,16 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
             isSecured = true;
         }
         String uri = fullHttpRequest.uri();
-        DefaultWebSocketConnection webSocketConnection = WebSocketUtil.getWebSocketConnection(ctx, isSecured, uri);
 
         Map<String, String> headers = new HashMap<>();
         fullHttpRequest.headers().forEach(
                 header -> headers.put(header.getKey(), header.getValue())
         );
         WebSocketSourceHandler webSocketSourceHandler =
-                new WebSocketSourceHandler(serverConnectorFuture, isSecured, webSocketConnection, fullHttpRequest,
+                new WebSocketSourceHandler(serverConnectorFuture, isSecured, fullHttpRequest,
                                            headers, ctx, interfaceId);
+        DefaultWebSocketConnection webSocketConnection = WebSocketUtil.getWebSocketConnection(webSocketSourceHandler,
+                                                                                              isSecured, uri);
         DefaultWebSocketInitMessage initMessage = new DefaultWebSocketInitMessage(ctx, fullHttpRequest,
                                                                                   webSocketSourceHandler, headers);
 
