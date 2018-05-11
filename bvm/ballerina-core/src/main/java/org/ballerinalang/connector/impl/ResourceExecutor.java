@@ -36,8 +36,6 @@ import org.ballerinalang.util.program.BLangFunctions;
 import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.program.CompensationTable;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
-import org.w3c.dom.html.HTMLParagraphElement;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.List;
 import java.util.Map;
