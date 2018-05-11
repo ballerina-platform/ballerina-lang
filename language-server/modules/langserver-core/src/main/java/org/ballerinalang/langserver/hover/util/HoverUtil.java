@@ -454,6 +454,11 @@ public class HoverUtil {
                 : getAnnotationContent(annotationDocs);
     }
 
+    /**
+     * Calculate and returns identifier position of this BlangVariable
+     * @param varNode BLangVariable
+     * @return position
+     */
     public static DiagnosticPos getIdentifierPosition(BLangVariable varNode) {
         DiagnosticPos position = varNode.getPosition();
         Set<Whitespace> wsSet = varNode.getWS();
