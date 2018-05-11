@@ -30,12 +30,8 @@ public class ServerCommand {
     @Parameter(names = "--host", description = "Specify a custom interface to bind the server.")
     public String host;
 
-    @Parameter(names = "--publicPath", description = "Specify a custom path to server the public content from.",
-            hidden = true)
+    @Parameter(names = "--publicPath", description = "Specify a custom path to server the public content from.")
     public String publicPath;
-
-    @Parameter(names = "--openInBrowser", hidden = true, arity = 1)
-    public boolean openInBrowser = true;
 
     @Parameter(names = "--debug", hidden = true)
     private String debugPort;
