@@ -973,11 +973,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         }
     }
 
-    public void visit(BLangIdentifier identifier) {
-        setPreviousNode(identifier);
-        int a = 10;
-    }
-
     /**
      * Accept node to visit.
      *
