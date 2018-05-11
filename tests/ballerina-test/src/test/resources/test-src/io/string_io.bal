@@ -1,8 +1,8 @@
 import ballerina/io;
 
-function getJson(string content,string encoding) returns json{
-    io:CharacterChannel channel = io:newStringRef(content,encoding = encoding);
-    json result =check channel.readJson();
-    var closeResult = channel.close();
+function getJson(string content, string encoding) returns json {
+    io:StringReader reader = new io:StringReader(content, encoding = encoding);
+    json result = check reader.readJson();
+    var closeResult = reader.close();
     return result;
 }
