@@ -36,6 +36,7 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
     public BVarSymbol restParam;
     public BType retType;
     public Map<Integer, TaintRecord> taintTable;
+    public boolean isTransactionHandler;
 
     // This field is only applicable for functions at the moment.
     public BVarSymbol receiverSymbol;

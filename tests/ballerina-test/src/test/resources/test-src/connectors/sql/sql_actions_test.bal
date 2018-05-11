@@ -632,6 +632,67 @@ function testINParametersWithDirectValues() returns (int, int, float, float, boo
     return (i, l, f, d, b, s, n, dec, real, blobInsert, blobReturn);
 }
 
+function testINParametersWithDirectVariables() returns (int, int, float, float, boolean, string, float, float, float,
+        blob, blob) {
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    table dt1 = check testDB->select("SELECT blob_type from DataTypeTable where row_id = 1", ResultBlob);
+
+    blob blobInsert;
+    while (dt1.hasNext()) {
+        ResultBlob rs = check <ResultBlob>dt1.getNext();
+        blobInsert = rs.BLOB_TYPE;
+    }
+
+    int rowid = 26;
+    int intType = 1;
+    int longType = 9223372036854774807;
+    float floatType = 123.34;
+    float doubleType = 2139095039.1;
+    boolean boolType = true;
+    string stringType = "Hello";
+    float numericType = 1234.567;
+    float decimalType = 1234.567;
+    float realType = 1234.567;
+
+    int insertCount = check testDB->update("INSERT INTO DataTypeTable (row_id, int_type, long_type,
+            float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, blob_type)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?)", rowid, intType, longType, floatType, doubleType, boolType,
+        stringType, numericType, decimalType, realType, blobInsert);
+    table dt = check testDB->select("SELECT int_type, long_type,
+            float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, blob_type from
+            DataTypeTable where row_id = 26", ResultBalTypes);
+    int i;
+    int l;
+    float f;
+    float d;
+    boolean b;
+    string s;
+    float n;
+    float dec;
+    float real;
+    blob blobReturn;
+
+    while (dt.hasNext()) {
+        var rs = check <ResultBalTypes>dt.getNext();
+        i = rs.INT_TYPE;
+        l = rs.LONG_TYPE;
+        f = rs.FLOAT_TYPE;
+        d = rs.DOUBLE_TYPE;
+        s = rs.STRING_TYPE;
+        n = rs.NUMERIC_TYPE;
+        dec = rs.DECIMAL_TYPE;
+        real = rs.REAL_TYPE;
+        blobReturn = rs.BLOB_TYPE;
+    }
+    testDB.stop();
+    return (i, l, f, d, b, s, n, dec, real, blobInsert, blobReturn);
+}
+
 function testNullINParameterValues() returns (int) {
     endpoint jdbc:Client testDB {
         url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
@@ -812,6 +873,52 @@ function testBatchUpdate() returns (int[]) {
 
     int[] updateCount = check testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", parameters1, parameters2);
+    testDB.stop();
+    return updateCount;
+}
+
+type myBatchType string|int|float;
+
+function testBatchUpdateWithValues() returns int[] {
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    //Batch 1
+    myBatchType[] parameters1 = ["Alex", "Smith", 20, 3400.5, "Colombo"];
+
+    //Batch 2
+    myBatchType[] parameters2 = ["John", "Gates", 45, 2400.5, "NY"];
+
+    int[] updateCount = check testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,
+                            creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
+    testDB.stop();
+    return updateCount;
+}
+
+function testBatchUpdateWithVariables() returns int[] {
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    //Batch 1
+    string firstName1 = "Alex";
+    string lastName1 = "Smith";
+    int id = 20;
+    float creditlimit = 3400.5;
+    string city = "Colombo";
+
+    myBatchType[] parameters1 = [firstName1, lastName1, id, creditlimit, city];
+
+    //Batch 2
+    myBatchType[] parameters2 = ["John", "Gates", 45, 2400.5, "NY"];
+
+    int[] updateCount = check testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,
+                            creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
     testDB.stop();
     return updateCount;
 }

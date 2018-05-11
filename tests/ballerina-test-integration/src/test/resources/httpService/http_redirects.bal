@@ -26,11 +26,12 @@ service<http:Service> testRedirect bind serviceEndpoint {
     redirectClient (endpoint client, http:Request req) {
         http:Request clientRequest = new;
         var response = endPoint -> get("/redirect1");
+        http:Response finalResponse = new;
         match response {
             error connectorErr => {io:println("Connector error!");}
             http:Response httpResponse => {
-                    httpResponse.setPayload(httpResponse.resolvedRequestedURI);
-                  _ = client -> respond(httpResponse);
+                  finalResponse.setPayload(httpResponse.resolvedRequestedURI);
+                  _ = client -> respond(finalResponse);
             }
         }
     }

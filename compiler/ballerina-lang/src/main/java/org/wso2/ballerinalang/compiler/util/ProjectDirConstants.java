@@ -45,6 +45,4 @@ public class ProjectDirConstants {
     public static final String HOME_REPO_ENV_KEY = "BALLERINA_HOME_DIR";
     public static final String HOME_REPO_DEFAULT_DIRNAME = ".ballerina";
     public static final String SETTINGS_FILE_NAME = "Settings.toml";
-    //TODO: remove after moving this dir into ./target
-    public static final String API_DOCS_DIR_NAME = "api-docs";
 }

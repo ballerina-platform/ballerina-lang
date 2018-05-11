@@ -1,17 +1,18 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  */
 
 package org.ballerinalang.plugins.idea;
@@ -36,8 +37,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.PathUtil;
-import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
-import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.jetbrains.annotations.NotNull;
@@ -46,7 +46,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -55,10 +54,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * An external annotator is an object that analyzes code in a document
- * and annotates the PSI elements with errors or warnings. Because such
- * analysis can be expensive, we don't want it in the GUI event loop. Jetbrains
- * provides this external annotator mechanism to run these analyzers out of band.
+ * External annotator is used to get diagnostics from an external tool and annotate the code. These operations can be
+ * time consuming. So this is executed after all the pending tasks are completed.
  */
 public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExternalAnnotator.Data, List<Diagnostic>> {
 
@@ -69,7 +66,7 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
     private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaExternalAnnotator.class);
 
     /**
-     * Called first.
+     * This is called first to collect information.
      */
     @Override
     @Nullable
@@ -117,7 +114,7 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
     }
 
     /**
-     * Called 2nd. Look for trouble in file and return list of issues.
+     * This is called 2nd. This will retrieve diagnostics from the external tool.
      */
     @Nullable
     @Override
@@ -149,7 +146,7 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
             try {
                 // Get the list of diagnostics.
                 return (List<Diagnostic>) method.invoke(null, urlClassLoader, sourceRoot, fileName);
-            } catch (IllegalAccessException | InvocationTargetException e) {
+            } catch (Exception e) {
                 LOGGER.debug(e.getMessage(), e);
             }
         }
@@ -167,57 +164,26 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
      * @param file a psi file
      * @return package name correspond to the provided file
      */
+    @NotNull
     private String getPackageName(PsiFile file) {
-        // Get the package name specified in the file.
-        PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.findChildOfType(file, PackageDeclarationNode.class);
-        if (packageDeclarationNode == null) {
-            return null;
-        }
-        FullyQualifiedPackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(packageDeclarationNode,
-                FullyQualifiedPackageNameNode.class);
-        if (packageNameNode == null) {
-            return null;
-        }
-        String packageNameInFile = packageNameNode.getText();
+        PsiDirectory parent = file.getParent();
 
-        // Get the parent directory.
-        PsiDirectory psiDirectory = file.getParent();
-        if (psiDirectory == null) {
-            return packageNameInFile;
+        if (BallerinaPsiImplUtil.isAContentRoot(parent)) {
+            return file.getName();
+        }
+        while (parent != null && parent.getParent() != null &&
+                !BallerinaPsiImplUtil.isAContentRoot(parent.getParent())) {
+            parent = parent.getParent();
         }
 
-        // Package declaration might have an incorrect package declaration. So need to validate against directory name.
-        if (packageNameInFile.endsWith(psiDirectory.getName())) {
-            return packageNameInFile;
+        if (parent != null) {
+            return parent.getName();
         }
-
-        // Get the current module.
-        Module module = ModuleUtilCore.findModuleForPsiElement(file);
-        // Calculate the source root. This is used to get the relative directory path.
-        String sourceRoot = file.getProject().getBasePath();
-        if (module != null && FileUtil.exists(module.getModuleFilePath())) {
-            sourceRoot = StringUtil.trimEnd(PathUtil.getParentPath(module.getModuleFilePath()),
-                    BallerinaConstants.IDEA_CONFIG_DIRECTORY);
-        }
-
-        // Get the package according to the directory structure.
-        String directoryPath = psiDirectory.getVirtualFile().getPath();
-        if (sourceRoot == null) {
-            return packageNameInFile;
-        }
-        String packageName = directoryPath.replace(sourceRoot, "").replaceAll("[/\\\\]", "\\.");
-
-        // If the package name is empty, that means the file is in the project root.
-        if (packageName.isEmpty()) {
-            return null;
-        }
-
-        // Otherwise return the calculated package path.
-        return packageName;
+        return ".";
     }
 
     /**
-     * Called 3rd to actually annotate the editor window.
+     * This is called 3rd to annotate the code in editor.
      */
     @Override
     public void apply(@NotNull PsiFile file, List<Diagnostic> diagnostics, @NotNull AnnotationHolder holder) {
@@ -227,7 +193,8 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
         try {
             for (Diagnostic diagnostic : diagnostics) {
                 // Validate the package name.
-                if (packageName != null && !diagnostic.getSource().getPackageName().equals(packageName)) {
+                String sourcePackageName = diagnostic.getSource().getPackageName();
+                if (!sourcePackageName.equals(".") && !sourcePackageName.equals(packageName)) {
                     continue;
                 }
                 // Validate the file name since diagnostics are sent for all files in the package.
@@ -292,13 +259,13 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
     /**
      * Helper class which contains data.
      */
-    public static class Data {
+    static class Data {
 
         Editor editor;
         PsiFile psiFile;
         String packageNameNode;
 
-        public Data(@NotNull Editor editor, @NotNull PsiFile psiFile, @Nullable String packageNameNode) {
+        Data(@NotNull Editor editor, @NotNull PsiFile psiFile, @Nullable String packageNameNode) {
             this.editor = editor;
             this.psiFile = psiFile;
             this.packageNameNode = packageNameNode;

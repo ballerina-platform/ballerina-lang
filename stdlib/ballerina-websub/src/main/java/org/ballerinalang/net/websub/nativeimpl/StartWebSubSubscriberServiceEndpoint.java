@@ -22,9 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
-import org.ballerinalang.connector.impl.ConnectorSPIModelHelper;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConnectorPortBindingListener;
@@ -34,6 +32,8 @@ import org.ballerinalang.net.websub.WebSubServicesRegistry;
 import org.ballerinalang.net.websub.WebSubSubscriberConstants;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_HTTP_ENDPOINT;
 
 /**
  * Set WebSub connection listener on startup.
@@ -45,7 +45,7 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
         orgName = "ballerina", packageName = "websub",
         functionName = "startWebSubSubscriberServiceEndpoint",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener",
-                structPackage = WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH),
+                structPackage = WebSubSubscriberConstants.WEBSUB_PACKAGE),
         isPublic = true
 )
 public class StartWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunction {
@@ -53,10 +53,10 @@ public class StartWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunc
     @Override
     public void execute(Context context) {
         Struct subscriberServiceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        Struct serviceEndpoint = ConnectorSPIModelHelper.createStruct(
-                (BStruct) ((BStruct) (subscriberServiceEndpoint.getVMValue())).getRefField(1));
+        Struct serviceEndpoint = ((subscriberServiceEndpoint).getRefField(WEBSUB_HTTP_ENDPOINT).getStructValue());
 
         ServerConnector serverConnector = getServerConnector(serviceEndpoint);
+        //TODO: check if isStarted check is required
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
         WebSubServicesRegistry webSubServicesRegistry = (WebSubServicesRegistry) serviceEndpoint.getNativeData(
                                                                 WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY);

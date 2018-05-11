@@ -1,17 +1,18 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  */
 
 package org.ballerinalang.plugins.idea.runconfig;
@@ -31,10 +32,9 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
-import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
-import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
-import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.BallerinaFunctionDefinition;
+import org.ballerinalang.plugins.idea.psi.BallerinaServiceDefinition;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.ballerinalang.plugins.idea.runconfig.application.BallerinaApplicationConfiguration;
 import org.ballerinalang.plugins.idea.runconfig.test.BallerinaTestConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -65,71 +65,84 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
         // Get the element. This will be an identifier element.
         PsiElement element = sourceElement.get();
         // Get the FunctionDefinitionNode parent from element (if exists).
-        FunctionDefinitionNode functionNode = PsiTreeUtil.getParentOfType(element, FunctionDefinitionNode.class);
+        BallerinaFunctionDefinition functionNode = PsiTreeUtil.getParentOfType(element,
+                BallerinaFunctionDefinition.class);
         // Get the ServiceDefinitionNode parent from element (if exists).
-        ServiceDefinitionNode serviceDefinitionNode = PsiTreeUtil.getParentOfType(element, ServiceDefinitionNode.class);
+        BallerinaServiceDefinition serviceDefinitionNode = PsiTreeUtil.getParentOfType(element,
+                BallerinaServiceDefinition.class);
 
         // Setup configuration for Ballerina test files.
-        if (file.getName().endsWith(BallerinaConstants.BALLERINA_TEST_FILE_SUFFIX) && functionNode != null &&
-                BallerinaRunUtil.isTestFunction(functionNode)) {
-            if (!(configuration instanceof BallerinaTestConfiguration)) {
-                return false;
-            }
-            PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.findChildOfType(file,
-                    PackageDeclarationNode.class);
-            // Get the package path node. We need this to get the package path of the file.
-            FullyQualifiedPackageNameNode fullyQualifiedPackageNameNode = PsiTreeUtil.findChildOfType
-                    (packageDeclarationNode, FullyQualifiedPackageNameNode.class);
-            String packageInFile = "";
-            if (fullyQualifiedPackageNameNode != null) {
-                // Regardless of the OS, separator character will be "/".
-                packageInFile = fullyQualifiedPackageNameNode.getText().replaceAll("\\.", "/");
-            }
-
-            RunnerAndConfigurationSettings existingConfigurations = context.findExisting();
-            if (existingConfigurations != null) {
-                // Get the RunConfiguration.
-                RunConfiguration existingConfiguration = existingConfigurations.getConfiguration();
-                // Run configuration might be an application configuration. So we need to check the type.
-                if (existingConfiguration instanceof BallerinaTestConfiguration) {
-                    // Set other configurations.
-                    setTestConfigurations((BallerinaTestConfiguration) existingConfiguration, file, packageInFile);
-                    return true;
-                }
-                return false;
-            } else {
-                // If an existing configuration is not found and the configuration provided is of correct type.
-                String configName = getConfigurationName(file);
-                // Set the config name. This will be the file name.
-                configuration.setName(configName);
-                // Set the file path.
-                configuration.setFilePath(file.getVirtualFile().getPath());
-                // Set the module.
-                Module module = context.getModule();
-                if (module != null) {
-                    configuration.setModule(module);
-                }
-                // Set other configurations.
-                setTestConfigurations((BallerinaTestConfiguration) configuration, file, packageInFile);
-                return true;
-            }
-        }
+        //        if (file.getName().endsWith(BallerinaConstants.BALLERINA_TEST_FILE_SUFFIX) && functionNode != null &&
+        //                BallerinaRunUtil.isTestFunction(functionNode)) {
+        //            if (!(configuration instanceof BallerinaTestConfiguration)) {
+        //                return false;
+        //            }
+        //            // Todo - update
+        //            BallerinaPackageDeclaration packageDeclarationNode = PsiTreeUtil.findChildOfType(file,
+        //                    BallerinaPackageDeclaration.class);
+        //            // Get the package path node. We need this to get the package path of the file.
+        //            BallerinaCompletePackageName fullyQualifiedPackageNameNode = PsiTreeUtil.findChildOfType
+        //                    (packageDeclarationNode, BallerinaCompletePackageName.class);
+        //            String packageInFile = "";
+        //            if (fullyQualifiedPackageNameNode != null) {
+        //                // Regardless of the OS, separator character will be "/".
+        //                packageInFile = fullyQualifiedPackageNameNode.getText().replaceAll("\\.", "/");
+        //            }
+        //
+        //            RunnerAndConfigurationSettings existingConfigurations = context.findExisting();
+        //            if (existingConfigurations != null) {
+        //                // Get the RunConfiguration.
+        //                RunConfiguration existingConfiguration = existingConfigurations.getConfiguration();
+        //                // Run configuration might be an application configuration. So we need to check the type.
+        //                if (existingConfiguration instanceof BallerinaTestConfiguration) {
+        //                    // Set other configurations.
+        //                    setTestConfigurations((BallerinaTestConfiguration) existingConfiguration, file,
+        // packageInFile);
+        //                    return true;
+        //                }
+        //                return false;
+        //            } else {
+        //                // If an existing configuration is not found and the configuration provided is of correct
+        // type.
+        //                String configName = getConfigurationName(file);
+        //                // Set the config name. This will be the file name.
+        //                configuration.setName(configName);
+        //                // Set the file path.
+        //                configuration.setFilePath(file.getVirtualFile().getPath());
+        //                // Set the module.
+        //                Module module = context.getModule();
+        //                if (module != null) {
+        //                    configuration.setModule(module);
+        //                }
+        //                // Set other configurations.
+        //                setTestConfigurations((BallerinaTestConfiguration) configuration, file, packageInFile);
+        //                return true;
+        //            }
+        //        }
 
         // Get the declared package in the file if available.
-        String packageInFile = "";
+        //        String packageInFile = "";
         boolean isPackageDeclared = false;
         // Get the PackageDeclarationNode if available.
-        PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.findChildOfType(file, PackageDeclarationNode.class);
-        if (packageDeclarationNode != null) {
+        //        BallerinaPackageDeclaration packageDeclarationNode = PsiTreeUtil.findChildOfType(file,
+        //                BallerinaPackageDeclaration.class);
+        //        if (packageDeclarationNode != null) {
+        //            isPackageDeclared = true;
+        //        }
+
+        String filePackage = BallerinaPsiImplUtil.getPackage(file);
+        if (!filePackage.isEmpty()) {
             isPackageDeclared = true;
         }
+
+
         // Get the package path node. We need this to get the package path of the file.
-        FullyQualifiedPackageNameNode fullyQualifiedPackageNameNode = PsiTreeUtil.findChildOfType
-                (packageDeclarationNode, FullyQualifiedPackageNameNode.class);
-        if (fullyQualifiedPackageNameNode != null) {
-            // Regardless of the OS, separator character will be "/".
-            packageInFile = fullyQualifiedPackageNameNode.getText().replaceAll("\\.", "/");
-        }
+        //        BallerinaCompletePackageName fullyQualifiedPackageNameNode = PsiTreeUtil.findChildOfType
+        //                (packageDeclarationNode, BallerinaCompletePackageName.class);
+        //        if (fullyQualifiedPackageNameNode != null) {
+        //            // Regardless of the OS, separator character will be "/".
+        //            packageInFile = fullyQualifiedPackageNameNode.getText().replaceAll("\\.", "/");
+        //        }
 
         // Get existing configuration if available.
         RunnerAndConfigurationSettings existingConfigurations = context.findExisting();
@@ -140,7 +153,7 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
             if (existingConfiguration instanceof BallerinaApplicationConfiguration) {
                 // Set other configurations.
                 setConfigurations((BallerinaApplicationConfiguration) existingConfiguration, file, functionNode,
-                        serviceDefinitionNode, packageInFile, isPackageDeclared);
+                        serviceDefinitionNode, filePackage, isPackageDeclared);
                 return true;
             }
         } else if (configuration instanceof BallerinaApplicationConfiguration) {
@@ -157,7 +170,7 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
             }
             // Set other configurations.
             setConfigurations((BallerinaApplicationConfiguration) configuration, file, functionNode,
-                    serviceDefinitionNode, packageInFile, isPackageDeclared);
+                    serviceDefinitionNode, filePackage, isPackageDeclared);
             return true;
         }
         // Return false if the provided configuration type cannot be applied.
@@ -165,8 +178,8 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
     }
 
     private void setConfigurations(@NotNull BallerinaApplicationConfiguration configuration, @NotNull PsiFile file,
-                                   @Nullable FunctionDefinitionNode functionNode,
-                                   @Nullable ServiceDefinitionNode serviceDefinitionNode,
+                                   @Nullable BallerinaFunctionDefinition functionNode,
+                                   @Nullable BallerinaServiceDefinition serviceDefinitionNode,
                                    @NotNull String packageInFile, boolean isPackageDeclared) {
         // Set the run kind.
         if (BallerinaRunUtil.hasMainFunction(file) && functionNode != null) {
