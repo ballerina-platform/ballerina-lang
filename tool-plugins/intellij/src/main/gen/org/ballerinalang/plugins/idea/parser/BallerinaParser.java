@@ -800,13 +800,14 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   public static boolean AnnotationAttachment(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "AnnotationAttachment")) return false;
     if (!nextTokenIs(b, AT)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, ANNOTATION_ATTACHMENT, null);
     r = consumeToken(b, AT);
-    r = r && NameReference(b, l + 1);
-    r = r && AnnotationAttachment_2(b, l + 1);
-    exit_section_(b, m, ANNOTATION_ATTACHMENT, r);
-    return r;
+    p = r; // pin = 1
+    r = r && report_error_(b, NameReference(b, l + 1));
+    r = p && AnnotationAttachment_2(b, l + 1) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // RecordLiteral?
