@@ -26,6 +26,7 @@ const { spawn, exec } = require('child_process');
 const { createWindow, createSplashWindow } = require('./app');
 const { createErrorWindow } = require('./error-window');
 const { ErrorCodes } = require('./error-codes');
+const registerMenuLoader = require('./menu.js');
 
 let win,
     splashWin,
@@ -82,9 +83,9 @@ function startServer(){
         if (data.includes(sucessMsgPrefix)) {
             pageURL = (data + '').substring(sucessMsgPrefix.length - 1);
             logger.info('Backend server is properly started at ' + pageURL + ', starting composer UI');
-            win = createWindow(pageURL);
+            win = createWindow(pageURL, false);
             win.once('ready-to-show', () => {
-                splashWin.close();
+                splashWin.destroy();
                 win.show();
             });
             win.on('closed', () => {
@@ -142,7 +143,11 @@ function checkJava(callback) {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
-    splashWin = createSplashWindow();
+    registerMenuLoader();
+    splashWin = createSplashWindow(false);
+    splashWin.once('ready-to-show', () => {
+        splashWin.show();
+    });
     splashWin.on('closed', () => {
         splashWin = null;
     });
@@ -192,6 +197,9 @@ app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (win === null) {
-        createWindow(pageURL);
+        win = createWindow(pageURL);
+        win.on('closed', () => {
+            win = null;
+        });
     }
 });

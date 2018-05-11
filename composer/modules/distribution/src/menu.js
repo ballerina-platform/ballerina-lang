@@ -17,7 +17,7 @@
  *
  */
 
-const {ipcMain, Menu} = require('electron');
+const { ipcMain, Menu } = require('electron');
 
 function registerMenuLoader() {
     // remove the stock menu

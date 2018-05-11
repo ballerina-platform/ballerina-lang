@@ -19,17 +19,13 @@
 const url = require('url');
 const path = require('path');
 const electron = require('electron');
-const registerMenuLoader = require('./menu.js');
 const setupNativeWizards = require('./workspace.js');
-
-
-let win;
 
 function createWindow (pageURL, show = true) {
 
     const { width, height } = electron.screen.getPrimaryDisplay().workAreaSize;
     // Create the browser window.
-    win = new electron.BrowserWindow({
+    const win = new electron.BrowserWindow({
         width, 
         height, 
         frame: true,
@@ -37,7 +33,6 @@ function createWindow (pageURL, show = true) {
         show
     });
 
-    //registerMenuLoader();
     //setupNativeWizards(win);
 
     win.loadURL(pageURL);
@@ -49,22 +44,22 @@ function createWindow (pageURL, show = true) {
     return win;
 }
 
-function createSplashWindow() {
+function createSplashWindow(show = true) {
     // Create the browser window.
-    win = new electron.BrowserWindow({
-        width: 1280, 
-        height: 800, 
+    const splash = new electron.BrowserWindow({
+        width: 768, 
+        height: 480,
         frame: false,
         icon: path.join(__dirname, '../icons/png/64x64.png'),
-        show: true
+        show,
     });
     const splashScreenUrl = url.format({
         pathname: path.join(__dirname, '..', 'pages', 'loading.html'),
         protocol: 'file:',
         slashes: true
     });
-    win.loadURL(splashScreenUrl);
-    return win;
+    splash.loadURL(splashScreenUrl);
+    return splash;
 }
 
 module.exports = {
