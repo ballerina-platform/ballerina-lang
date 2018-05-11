@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
@@ -299,7 +300,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
         if (assignNode.varRef != null) {
             this.acceptNode(assignNode.varRef);
         }
-
         if (assignNode.expr != null) {
             this.acceptNode(assignNode.expr);
         }
@@ -805,6 +805,14 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
             typeDefinition.valueSpace.forEach(this::acceptNode);
         }
 
+    }
+
+
+    @Override
+    public void visit(BLangCheckedExpr checkedExpr) {
+        if (checkedExpr.expr != null) {
+            this.acceptNode(checkedExpr.expr);
+        }
     }
 
     /**

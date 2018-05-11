@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.model.Whitespace;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.Position;
@@ -49,6 +50,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Utility class for Hover functionality of language server.
@@ -450,5 +452,34 @@ public class HoverUtil {
                                                     List<BLangAnnotationAttachment> annotationDocs) {
         return (mdDocs.size() > 0) ? getDocumentationContent(mdDocs)
                 : getAnnotationContent(annotationDocs);
+    }
+
+    /**
+     * Calculate and returns identifier position of this BlangVariable.
+     *
+     * @param varNode BLangVariable
+     * @return position
+     */
+    public static DiagnosticPos getIdentifierPosition(BLangVariable varNode) {
+        DiagnosticPos position = varNode.getPosition();
+        Set<Whitespace> wsSet = varNode.getWS();
+        if (wsSet != null && wsSet.size() > 0) {
+            Whitespace[] ws = new Whitespace[wsSet.size()];
+            wsSet.toArray(ws);
+
+            Whitespace sWhitespace = ws[0];
+            int sIndex = sWhitespace.getIndex();
+            for (Whitespace whitespace : wsSet) {
+                if (sIndex > whitespace.getIndex()) {
+                    sIndex = whitespace.getIndex();
+                    sWhitespace = whitespace;
+                }
+            }
+            if (varNode.symbol.type != null && varNode.symbol.type.tsymbol != null) {
+                position.sCol += varNode.symbol.type.tsymbol.name.value.length() + sWhitespace.getWs().length();
+            }
+            position.eCol = position.sCol + varNode.symbol.name.value.length();
+        }
+        return position;
     }
 }
