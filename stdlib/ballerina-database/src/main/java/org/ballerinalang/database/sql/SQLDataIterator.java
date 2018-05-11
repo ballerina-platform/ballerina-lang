@@ -137,14 +137,14 @@ public class SQLDataIterator extends TableIterator {
                     int sqlType = def.getSqlType();
                     BStructType.StructField[] structFields = this.type.getStructFields();
                     ++index;
-                    int fieldTypeTag = this.type.getStructFields()[index - 1].getFieldType().getTag();
-                    boolean isOriginalValueNull = false;
+                    int fieldTypeTag = structFields[index - 1].getFieldType().getTag();
+                    boolean isOriginalValueNull;
                     switch (sqlType) {
                     case Types.ARRAY:
                         Array dataArray = rs.getArray(index);
                         if (fieldTypeTag == TypeTags.UNION_TAG) {
-                            handleUnionTypeStructField(bStruct, structFields, index, ++refRegIndex,
-                                    getDataArray(dataArray), TypeTags.ARRAY_TAG);
+                            validateAndSetRefRecordField(bStruct, ++refRegIndex, TypeTags.ARRAY_TAG,
+                                    retrieveType(structFields, index - 1), getDataArray(dataArray));
                         } else {
                             bStruct.setRefField(++refRegIndex, getDataArray(dataArray));
                         }
@@ -158,8 +158,8 @@ public class SQLDataIterator extends TableIterator {
                         String sValue = rs.getString(index);
                         if (fieldTypeTag == TypeTags.UNION_TAG) {
                             BRefType refValue = sValue == null ? null : new BString(sValue);
-                            handleUnionTypeStructField(bStruct, structFields, index, ++refRegIndex, refValue,
-                                    TypeTags.STRING_TAG);
+                            validateAndSetRefRecordField(bStruct, ++refRegIndex, TypeTags.STRING_TAG,
+                                    retrieveType(structFields, index - 1), refValue);
                         } else {
                             if (sValue != null) {
                                 bStruct.setStringField(++stringRegIndex, sValue);
@@ -174,10 +174,11 @@ public class SQLDataIterator extends TableIterator {
                     case Types.LONGVARBINARY:
                         Blob blobValue = rs.getBlob(index);
                         if (fieldTypeTag == TypeTags.UNION_TAG) {
-                            BRefType refValue = blobValue == null ? null :
+                            BRefType refValue = blobValue == null ?
+                                    null :
                                     new BBlob(blobValue.getBytes(1L, (int) blobValue.length()));
-                            handleUnionTypeStructField(bStruct, structFields, index, ++refRegIndex, refValue,
-                                    TypeTags.BLOB_TAG);
+                            validateAndSetRefRecordField(bStruct, ++refRegIndex, TypeTags.BLOB_TAG,
+                                    retrieveType(structFields, index - 1), refValue);
                         } else {
                             if (blobValue != null) {
                                 bStruct.setBlobField(++blobRegIndex, blobValue.getBytes(1L, (int) blobValue.length()));
@@ -190,8 +191,8 @@ public class SQLDataIterator extends TableIterator {
                         String clobValue = SQLDatasourceUtils.getString((rs.getClob(index)));
                         if (fieldTypeTag == TypeTags.UNION_TAG) {
                             BRefType refValue = clobValue == null ? null : new BString(clobValue);
-                            handleUnionTypeStructField(bStruct, structFields, index, ++refRegIndex, refValue,
-                                    TypeTags.STRING_TAG);
+                            validateAndSetRefRecordField(bStruct, ++refRegIndex, TypeTags.STRING_TAG,
+                                    retrieveType(structFields, index - 1), refValue);
                         } else {
                             if (clobValue != null) {
                                 bStruct.setStringField(++stringRegIndex, clobValue);
@@ -204,8 +205,8 @@ public class SQLDataIterator extends TableIterator {
                         String nClobValue = SQLDatasourceUtils.getString((rs.getClob(index)));
                         if (fieldTypeTag == TypeTags.UNION_TAG) {
                             BRefType refValue = nClobValue == null ? null : new BString(nClobValue);
-                            handleUnionTypeStructField(bStruct, structFields, index, ++refRegIndex, refValue,
-                                    TypeTags.STRING_TAG);
+                            validateAndSetRefRecordField(bStruct, ++refRegIndex, TypeTags.STRING_TAG,
+                                    retrieveType(structFields, index - 1), refValue);
                         } else {
                             if (nClobValue != null) {
                                 bStruct.setStringField(++stringRegIndex, nClobValue);
@@ -217,27 +218,38 @@ public class SQLDataIterator extends TableIterator {
                     case Types.DATE:
                         Date date = rs.getDate(index);
                         if (fieldTypeTag == TypeTags.UNION_TAG) {
-                            if (isNillableType(structFields, index - 1, TypeTags.STRING_TAG)) {
+                            int type = retrieveType(structFields, index - 1);
+                            switch (type) {
+                            case TypeTags.STRING_TAG:
                                 String dateValue = SQLDatasourceUtils.getString(date);
                                 bStruct.setRefField(++stringRegIndex,
                                         dateValue != null ? new BString(dateValue) : null);
-                            } else if (isNillableType(structFields, index - 1, TypeTags.STRUCT_TAG)) {
+                                break;
+                            case TypeTags.STRUCT_TAG:
                                 bStruct.setRefField(++refRegIndex,
                                         date != null ? createTimeStruct(date.getTime()) : null);
-                            } else if (isNillableType(structFields, index - 1, TypeTags.INT_TAG)) {
+                                break;
+                            case TypeTags.INT_TAG:
                                 bStruct.setRefField(++longRegIndex, date != null ? new BInteger(date.getTime()) : null);
-                            } else {
+                                break;
+                            default:
                                 handleMismatchingFieldAssignment();
                             }
                         } else {
                             if (date != null) {
-                                if (fieldTypeTag == TypeTags.STRING_TAG) {
+                                switch (fieldTypeTag) {
+                                case TypeTags.STRING_TAG:
                                     String dateValue = SQLDatasourceUtils.getString(date);
                                     bStruct.setStringField(++stringRegIndex, dateValue);
-                                } else if (fieldTypeTag == TypeTags.STRUCT_TAG) {
+                                    break;
+                                case TypeTags.STRUCT_TAG:
                                     bStruct.setRefField(++refRegIndex, createTimeStruct(date.getTime()));
-                                } else if (fieldTypeTag == TypeTags.INT_TAG) {
+                                    break;
+                                case TypeTags.INT_TAG:
                                     bStruct.setIntField(++longRegIndex, date.getTime());
+                                    break;
+                                default:
+                                    handleMismatchingFieldAssignment();
                                 }
                             } else {
                                 handleNilToNonNilableFieldAssignment();
@@ -248,29 +260,39 @@ public class SQLDataIterator extends TableIterator {
                     case Types.TIME_WITH_TIMEZONE:
                         Time time = rs.getTime(index, utcCalendar);
                         if (fieldTypeTag == TypeTags.UNION_TAG) {
-                            if (isNillableType(structFields, index - 1, TypeTags.STRING_TAG)) {
+                            int type = retrieveType(structFields, index - 1);
+                            switch (type) {
+                            case TypeTags.STRING_TAG:
                                 String timeValue = SQLDatasourceUtils.getString(time);
                                 bStruct.setRefField(++stringRegIndex,
                                         timeValue != null ? new BString(timeValue) : null);
-                            } else if (isNillableType(structFields, index - 1, TypeTags.STRUCT_TAG)) {
+                                break;
+                            case TypeTags.STRUCT_TAG:
                                 bStruct.setRefField(++refRegIndex,
                                         time != null ? createTimeStruct(time.getTime()) : null);
-                            } else if (isNillableType(structFields, index - 1, TypeTags.INT_TAG)) {
+                                break;
+                            case TypeTags.INT_TAG:
                                 bStruct.setRefField(++longRegIndex, time != null ? new BInteger(time.getTime()) : null);
-                            } else {
+                                break;
+                            default:
                                 handleMismatchingFieldAssignment();
                             }
                         } else {
                             if (time != null) {
-                                if (fieldTypeTag == TypeTags.STRING_TAG) {
+                                switch (fieldTypeTag) {
+                                case TypeTags.STRING_TAG:
                                     String timeValue = SQLDatasourceUtils.getString(time);
                                     bStruct.setStringField(++stringRegIndex, timeValue);
-                                } else if (fieldTypeTag == TypeTags.STRUCT_TAG) {
+                                    break;
+                                case TypeTags.STRUCT_TAG:
                                     bStruct.setRefField(++refRegIndex, createTimeStruct(time.getTime()));
-                                } else if (fieldTypeTag == TypeTags.INT_TAG) {
+                                    break;
+                                case TypeTags.INT_TAG:
                                     bStruct.setIntField(++longRegIndex, time.getTime());
-                                } else {
+                                    break;
+                                default:
                                     handleMismatchingFieldAssignment();
+
                                 }
                             } else {
                                 handleNilToNonNilableFieldAssignment();
@@ -281,28 +303,40 @@ public class SQLDataIterator extends TableIterator {
                     case Types.TIMESTAMP_WITH_TIMEZONE:
                         Timestamp timestamp = rs.getTimestamp(index, utcCalendar);
                         if (fieldTypeTag == TypeTags.UNION_TAG) {
-                            if (isNillableType(structFields, index - 1, TypeTags.STRING_TAG)) {
+                            int type = retrieveType(structFields, index - 1);
+                            switch (type) {
+                            case TypeTags.STRING_TAG:
                                 String timestampValue = SQLDatasourceUtils.getString(timestamp);
                                 bStruct.setRefField(++stringRegIndex,
                                         timestampValue != null ? new BString(timestampValue) : null);
-                            } else if (isNillableType(structFields, index - 1, TypeTags.STRUCT_TAG)) {
+                                break;
+                            case TypeTags.STRUCT_TAG:
                                 bStruct.setRefField(++refRegIndex,
                                         timestamp != null ? createTimeStruct(timestamp.getTime()) : null);
-                            } else if (isNillableType(structFields, index - 1, TypeTags.INT_TAG)) {
+                                break;
+                            case TypeTags.INT_TAG:
                                 bStruct.setRefField(++longRegIndex,
                                         timestamp != null ? new BInteger(timestamp.getTime()) : null);
-                            } else {
+                                break;
+                            default:
                                 handleMismatchingFieldAssignment();
+
                             }
                         } else {
                             if (timestamp != null) {
-                                if (fieldTypeTag == TypeTags.STRING_TAG) {
+                                switch (fieldTypeTag) {
+                                case TypeTags.STRING_TAG:
                                     String timestmpValue = SQLDatasourceUtils.getString(timestamp);
                                     bStruct.setStringField(++stringRegIndex, timestmpValue);
-                                } else if (fieldTypeTag == TypeTags.STRUCT_TAG) {
+                                    break;
+                                case TypeTags.STRUCT_TAG:
                                     bStruct.setRefField(++refRegIndex, createTimeStruct(timestamp.getTime()));
-                                } else if (fieldTypeTag == TypeTags.INT_TAG) {
+                                    break;
+                                case TypeTags.INT_TAG:
                                     bStruct.setIntField(++longRegIndex, timestamp.getTime());
+                                    break;
+                                default:
+                                    handleMismatchingFieldAssignment();
                                 }
                             } else {
                                 handleNilToNonNilableFieldAssignment();
@@ -313,8 +347,8 @@ public class SQLDataIterator extends TableIterator {
                         sValue = new String(rs.getRowId(index).getBytes(), "UTF-8");
                         if (fieldTypeTag == TypeTags.UNION_TAG) {
                             BRefType refValue = new BString(sValue);
-                            handleUnionTypeStructField(bStruct, structFields, index, ++refRegIndex, refValue,
-                                    TypeTags.STRING_TAG);
+                            validateAndSetRefRecordField(bStruct, ++refRegIndex, TypeTags.STRING_TAG,
+                                    retrieveType(structFields, index - 1), refValue);
                         } else {
                             bStruct.setStringField(++stringRegIndex, sValue);
                         }
@@ -325,13 +359,13 @@ public class SQLDataIterator extends TableIterator {
                         isOriginalValueNull = rs.wasNull();
                         if (fieldTypeTag == TypeTags.UNION_TAG) {
                             BRefType refValue = isOriginalValueNull ? null : new BInteger(iValue);
-                            handleUnionTypeStructField(bStruct, structFields, index, ++refRegIndex, refValue,
-                                    TypeTags.INT_TAG);
+                            validateAndSetRefRecordField(bStruct, ++refRegIndex, TypeTags.INT_TAG,
+                                    retrieveType(structFields, index - 1), refValue);
                         } else {
-                            if (!isOriginalValueNull) {
-                                bStruct.setIntField(++longRegIndex, iValue);
-                            } else {
+                            if (isOriginalValueNull) {
                                 handleNilToNonNilableFieldAssignment();
+                            } else {
+                                bStruct.setIntField(++longRegIndex, iValue);
                             }
                         }
                         break;
@@ -341,13 +375,13 @@ public class SQLDataIterator extends TableIterator {
                         isOriginalValueNull = rs.wasNull();
                         if (fieldTypeTag == TypeTags.UNION_TAG) {
                             BRefType refValue = isOriginalValueNull ? null : new BInteger(lValue);
-                            handleUnionTypeStructField(bStruct, structFields, index, ++refRegIndex, refValue,
-                                    TypeTags.INT_TAG);
+                            validateAndSetRefRecordField(bStruct, ++refRegIndex, TypeTags.INT_TAG,
+                                    retrieveType(structFields, index - 1), refValue);
                         } else {
-                            if (!isOriginalValueNull) {
-                                bStruct.setIntField(++longRegIndex, lValue);
-                            } else {
+                            if (isOriginalValueNull) {
                                 handleNilToNonNilableFieldAssignment();
+                            } else {
+                                bStruct.setIntField(++longRegIndex, lValue);
                             }
                         }
                         break;
@@ -357,13 +391,13 @@ public class SQLDataIterator extends TableIterator {
                         isOriginalValueNull = rs.wasNull();
                         if (fieldTypeTag == TypeTags.UNION_TAG) {
                             BRefType refValue = isOriginalValueNull ? null : new BFloat(fValue);
-                            handleUnionTypeStructField(bStruct, structFields, index, ++refRegIndex, refValue,
-                                    TypeTags.FLOAT_TAG);
+                            validateAndSetRefRecordField(bStruct, ++refRegIndex, TypeTags.FLOAT_TAG,
+                                    retrieveType(structFields, index - 1), refValue);
                         } else {
-                            if (!isOriginalValueNull) {
-                                bStruct.setFloatField(++doubleRegIndex, fValue);
-                            } else {
+                            if (isOriginalValueNull) {
                                 handleNilToNonNilableFieldAssignment();
+                            } else {
+                                bStruct.setFloatField(++doubleRegIndex, fValue);
                             }
                         }
                         break;
@@ -372,13 +406,13 @@ public class SQLDataIterator extends TableIterator {
                         isOriginalValueNull = rs.wasNull();
                         if (fieldTypeTag == TypeTags.UNION_TAG) {
                             BRefType refValue = isOriginalValueNull ? null : new BFloat(dValue);
-                            handleUnionTypeStructField(bStruct, structFields, index, ++refRegIndex, refValue,
-                                    TypeTags.FLOAT_TAG);
+                            validateAndSetRefRecordField(bStruct, ++refRegIndex, TypeTags.FLOAT_TAG,
+                                    retrieveType(structFields, index - 1), refValue);
                         } else {
-                            if (!isOriginalValueNull) {
-                                bStruct.setFloatField(++doubleRegIndex, dValue);
-                            } else {
+                            if (isOriginalValueNull) {
                                 handleNilToNonNilableFieldAssignment();
+                            } else {
+                                bStruct.setFloatField(++doubleRegIndex, dValue);
                             }
                         }
                         break;
@@ -392,13 +426,13 @@ public class SQLDataIterator extends TableIterator {
                         }
                         if (fieldTypeTag == TypeTags.UNION_TAG) {
                             BRefType refValue = isOriginalValueNull ? null : new BFloat(decimalValue);
-                            handleUnionTypeStructField(bStruct, structFields, index, ++refRegIndex, refValue,
-                                    TypeTags.FLOAT_TAG);
+                            validateAndSetRefRecordField(bStruct, ++refRegIndex, TypeTags.FLOAT_TAG,
+                                    retrieveType(structFields, index - 1), refValue);
                         } else {
-                            if (!isOriginalValueNull) {
-                                bStruct.setFloatField(++doubleRegIndex, decimalValue);
-                            } else {
+                            if (isOriginalValueNull) {
                                 handleNilToNonNilableFieldAssignment();
+                            } else {
+                                bStruct.setFloatField(++doubleRegIndex, decimalValue);
                             }
                         }
                         break;
@@ -408,13 +442,13 @@ public class SQLDataIterator extends TableIterator {
                         isOriginalValueNull = rs.wasNull();
                         if (fieldTypeTag == TypeTags.UNION_TAG) {
                             BRefType refValue = isOriginalValueNull ? null : new BBoolean(boolValue);
-                            handleUnionTypeStructField(bStruct, structFields, index, ++refRegIndex, refValue,
-                                    TypeTags.BOOLEAN_TAG);
+                            validateAndSetRefRecordField(bStruct, ++refRegIndex, TypeTags.BOOLEAN_TAG,
+                                    retrieveType(structFields, index - 1), refValue);
                         } else {
-                            if (!isOriginalValueNull) {
-                                bStruct.setBooleanField(++booleanRegIndex, boolValue ? 1 : 0);
-                            } else {
+                            if (isOriginalValueNull) {
                                 handleNilToNonNilableFieldAssignment();
+                            } else {
+                                bStruct.setBooleanField(++booleanRegIndex, boolValue ? 1 : 0);
                             }
                         }
                         break;
@@ -422,9 +456,9 @@ public class SQLDataIterator extends TableIterator {
                         Struct structdata = (Struct) rs.getObject(index);
                         BType structFieldType = this.type.getStructFields()[index - 1].getFieldType();
                         if (fieldTypeTag == TypeTags.UNION_TAG) {
-                            handleUnionTypeStructField(bStruct, structFields, index, ++refRegIndex,
-                                    createUserDefinedType(structdata, (BStructType) structFieldType),
-                                    TypeTags.STRUCT_TAG);
+                            validateAndSetRefRecordField(bStruct, ++refRegIndex, TypeTags.STRUCT_TAG,
+                                    retrieveType(structFields, index - 1),
+                                    createUserDefinedType(structdata, (BStructType) structFieldType));
                         } else if (fieldTypeTag == TypeTags.STRUCT_TAG) {
                             bStruct.setRefField(++refRegIndex,
                                     createUserDefinedType(structdata, (BStructType) structFieldType));
@@ -445,13 +479,12 @@ public class SQLDataIterator extends TableIterator {
         return bStruct;
     }
 
-    private void handleUnionTypeStructField(BStruct bStruct, BStructType.StructField[] structFields, int index,
-            int refRegIndex, BRefType value, int refType) {
-        if (isNillableType(structFields, index - 1, refType)) {
+    private void validateAndSetRefRecordField(BStruct bStruct, int refRegIndex, int expectedTypeTag, int actualTypeTag,
+            BRefType value) {
+        if (expectedTypeTag == actualTypeTag) {
             bStruct.setRefField(refRegIndex, value);
         } else {
-            throw new BallerinaException("Union type contains more than 2 members or the members do not result in "
-                    + "an assignable nillable type");
+            throw new BallerinaException("Corresponding Union type in the record is not an assignable nillable type");
         }
     }
 
@@ -463,26 +496,18 @@ public class SQLDataIterator extends TableIterator {
         throw new BallerinaException("Trying to assign to a mismatching field");
     }
 
-    private boolean isNillableType(BStructType.StructField[] structFields, int index, int typeTag) {
-        List<BType> memberTypes = ((BUnionType) structFields[index].getFieldType())
-                .getMemberTypes();
-        if (memberTypes.size() != 2) {
-            return false;
+    private int retrieveType(BStructType.StructField[] structFields, int index) {
+        List<BType> members = ((BUnionType) structFields[index].getFieldType()).getMemberTypes();
+        if (members.size() != 2) {
+            throw new BallerinaException("Corresponding Union type in the record is not an assignable nillable type");
         }
-        boolean containsType = false;
-        boolean containsNil = false;
-        for (BType memberType : memberTypes) {
-            if (memberType.getTag() == TypeTags.UNION_TAG) {
-                return false;
-            }
-            if (memberType.getTag() == typeTag) {
-                containsType = true;
-            }
-            if (memberType.getTag() == TypeTags.NULL_TAG) {
-                containsNil = true;
-            }
+        if (members.get(0).getTag() == TypeTags.NULL_TAG) {
+            return members.get(1).getTag();
+        } else if (members.get(1).getTag() == TypeTags.NULL_TAG) {
+            return members.get(0).getTag();
+        } else {
+            throw new BallerinaException("Corresponding Union type in the record is not an assignable nillable type");
         }
-        return containsType && containsNil;
     }
 
     private BStruct createTimeStruct(long millis) {

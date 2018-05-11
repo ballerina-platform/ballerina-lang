@@ -513,7 +513,6 @@ function testAssignToInvalidUnionTimeStamp() {
     testAssignToInvalidUnionField("timestamp_type");
 }
 
-
 function testAssignToInvalidUnionField(string field) {
     endpoint jdbc:Client testDB {
         url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
@@ -531,4 +530,3 @@ function testAssignToInvalidUnionField(string field) {
         testDB.stop();
     }
 }
-
