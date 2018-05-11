@@ -1,9 +1,7 @@
 # Create a file named `secured_service_with_basic_auth.bal`, copy the code
 # into it, and use the `ballerina run` command to start the service.
-# Make sure the `sample-users.toml` file is populated correctly with user
-# information and located in the same directory as the
-# `secured_service_with_basic_auth.bal` file. Else, the `sample-users.toml`
-# file can be provided as a runtime parameter using the `--config` option.
+# Ensure that the `sample-users.toml` file is populated correctly with user
+# information and specify it as the configuration file using the `--config` flag.
 $ ballerina run secured_service_with_basic_auth.bal
 ballerina: initiating service(s) in 'secured_service_with_basic_auth.bal'
 ballerina: started HTTPS/WSS endpoint 0.0.0.0:9090
