@@ -5,7 +5,7 @@ function main(string... args) {
 
     string matchExprOutput;
 
-    // If you need to get the string value of x, and if the value of x is null, you may want
+    // If you need to get the string value of x, and if the value of x is `null`, you may want
     // to assign a known value. This is how you can do it via Match
     // Expression.
     matchExprOutput = x but {
