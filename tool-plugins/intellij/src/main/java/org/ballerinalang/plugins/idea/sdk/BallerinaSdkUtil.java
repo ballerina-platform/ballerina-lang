@@ -205,6 +205,7 @@ public class BallerinaSdkUtil {
 
     @NotNull
     public static Collection<VirtualFile> getBallerinaPathsRootsFromEnvironment() {
+
         return BallerinaPathModificationTracker.getBallerinaEnvironmentPathRoots();
     }
 

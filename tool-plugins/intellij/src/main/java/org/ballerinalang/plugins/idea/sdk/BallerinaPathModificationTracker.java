@@ -30,11 +30,20 @@ import com.intellij.util.SystemProperties;
 import com.intellij.util.containers.ContainerUtil;
 import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * Tracks Ballerina path modifications.
@@ -43,6 +52,10 @@ public class BallerinaPathModificationTracker {
 
     private final Set<String> pathsToTrack = ContainerUtil.newHashSet();
     private final Collection<VirtualFile> ballerinaPathRoots = ContainerUtil.newLinkedHashSet();
+
+    private final List<VirtualFile> orgNames = ContainerUtil.newArrayList();
+
+    private final Map<String, List<VirtualFile>> packageMap = ContainerUtil.newHashMap();
 
     public BallerinaPathModificationTracker() {
         String ballerinaRepository = BallerinaEnvironmentUtil.retrieveRepositoryPathFromEnvironment();
@@ -59,6 +72,9 @@ public class BallerinaPathModificationTracker {
                 }
                 pathsToTrack.add(s);
             }
+        } else {
+            Path caches = Paths.get(SystemProperties.getUserHome(), ".ballerina", "caches", "central.ballerina.io");
+            pathsToTrack.add(caches.toString());
         }
         recalculateFiles();
 
@@ -94,9 +110,106 @@ public class BallerinaPathModificationTracker {
     private void recalculateFiles() {
         Collection<VirtualFile> result = ContainerUtil.newLinkedHashSet();
         for (String path : pathsToTrack) {
-            ContainerUtil.addIfNotNull(result, LocalFileSystem.getInstance().findFileByPath(path));
+
+            VirtualFile fileByPath = LocalFileSystem.getInstance().findFileByPath(path);
+            if (fileByPath != null) {
+
+                VirtualFile[] children = fileByPath.getChildren();
+                for (VirtualFile organization : children) {
+                    String organizationName = organization.getName();
+                    if (!organization.isDirectory() || "$anon".equals(organizationName)) {
+                        continue;
+                    }
+
+                    orgNames.add(organization);
+
+                    VirtualFile[] packages = organization.getChildren();
+
+                    List<VirtualFile> packageNames = ContainerUtil.newArrayList();
+
+                    for (VirtualFile aPackage : packages) {
+
+                        if (!aPackage.isDirectory()) {
+                            continue;
+                        }
+                        String packageName = aPackage.getName();
+                        packageNames.add(aPackage);
+
+                        VirtualFile[] versions = aPackage.getChildren();
+                        int versionCount = versions.length;
+
+                        if (versionCount == 0) {
+                            continue;
+                        }
+
+                        // Todo - Get the correct version
+                        VirtualFile latestVersion = versions[0];
+
+                        VirtualFile[] files = latestVersion.getChildren();
+
+                        for (VirtualFile file : files) {
+
+                            if (file.getName().equals(packageName + ".zip")) {
+                                try {
+                                    String destinationDirectory = latestVersion.getPath() + File.separator +
+                                            packageName;
+                                    unzip(file.getPath(), destinationDirectory);
+                                    // String srcPath = destinationDirectory + File.separator + "src";
+                                    // VirtualFile srcDirectory = LocalFileSystem.getInstance().findFileByPath(srcPath);
+                                    // ContainerUtil.addIfNotNull(result, srcDirectory);
+                                    // ContainerUtil.addIfNotNull(result, aPackage);
+                                } catch (IOException e) {
+
+                                }
+                            }
+                        }
+                    }
+                    packageMap.put(organizationName, packageNames);
+                    ContainerUtil.addIfNotNull(result, organization);
+                }
+            }
         }
         updateBallerinaPathRoots(result);
+    }
+
+    private void unzip(String fileZipPath, String destinationDirectory) throws IOException {
+
+        byte[] buffer = new byte[1024 * 4];
+
+        //get the zip file content
+        ZipInputStream zis =
+                new ZipInputStream(new FileInputStream(fileZipPath));
+        //get the zipped file list entry
+        ZipEntry ze = zis.getNextEntry();
+
+        while (ze != null) {
+
+            String fileName = ze.getName();
+            File newFile = new File(destinationDirectory + File.separator + fileName);
+
+            if (ze.isDirectory()) {
+                newFile.mkdir();
+                ze = zis.getNextEntry();
+                continue;
+            }
+
+            //create all non exists folders
+            //else you will hit FileNotFoundException for compressed folder
+            new File(newFile.getParent()).mkdirs();
+
+            FileOutputStream fos = new FileOutputStream(newFile);
+
+            int len;
+            while ((len = zis.read(buffer)) > 0) {
+                fos.write(buffer, 0, len);
+            }
+
+            fos.close();
+            ze = zis.getNextEntry();
+        }
+
+        zis.closeEntry();
+        zis.close();
     }
 
     private synchronized void updateBallerinaPathRoots(Collection<VirtualFile> newRoots) {
@@ -108,7 +221,37 @@ public class BallerinaPathModificationTracker {
         return ballerinaPathRoots;
     }
 
+    private synchronized List<VirtualFile> getAllOrganizations() {
+        return orgNames;
+    }
+
+    private synchronized List<VirtualFile> getAllPackages(String organization) {
+        return packageMap.get(organization);
+    }
+
     public static Collection<VirtualFile> getBallerinaEnvironmentPathRoots() {
         return ServiceManager.getService(BallerinaPathModificationTracker.class).getBallerinaPathRoots();
+    }
+
+    public static List<VirtualFile> getAllOrganizationsInUserRepo() {
+        return ServiceManager.getService(BallerinaPathModificationTracker.class).getAllOrganizations();
+    }
+
+    @Nullable
+    public static VirtualFile getOrganizationInUserRepo(String organizationName) {
+        List<VirtualFile> organizations = ServiceManager.getService(BallerinaPathModificationTracker.class)
+                .getAllOrganizations();
+        for (VirtualFile virtualFile : organizations) {
+            if (virtualFile.getName().equals(organizationName)) {
+                return virtualFile;
+            }
+        }
+        return null;
+    }
+
+    public static List<VirtualFile> getPackagesFromOrganization(String orgName) {
+        List<VirtualFile> allPackages =
+                ServiceManager.getService(BallerinaPathModificationTracker.class).getAllPackages(orgName);
+        return ContainerUtil.notNullize(allPackages);
     }
 }
