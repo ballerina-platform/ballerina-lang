@@ -31,7 +31,8 @@ let win,
     serverProcess,
     logger = new log('info'),
     appDir = app.getAppPath(),
-    logsDir = path.join(os.homedir(),'.composer', 'logs');
+    logsDir = path.join(os.homedir(),'.composer', 'logs'),
+    pageURL = 'http://localhost:9091';
 
 function createLogger(){
     fs.ensureDirSync(logsDir);
@@ -77,7 +78,7 @@ function startServer(){
     serverProcess.stdout.on('data', function(data) {
         // IMPORTANT: Wait till backend server is started to create window
         if (data.includes(sucessMsgPrefix)) {
-            const pageURL = (data + '').substring(sucessMsgPrefix.length - 1);
+            pageURL = (data + '').substring(sucessMsgPrefix.length - 1);
             logger.info('Backend server is properly started at ' + pageURL + ', starting composer UI');
             if (win === undefined) {
                 win = createWindow(pageURL);
@@ -183,6 +184,6 @@ app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (win === null) {
-        createWindow();
+        createWindow(pageURL);
     }
 });
