@@ -186,7 +186,7 @@ public class HoverUtil {
      */
     public static boolean isMatchingPosition(DiagnosticPos nodePosition, Position textPosition) {
         boolean isCorrectPosition = false;
-        if (nodePosition.sLine <= textPosition.getLine()
+        if (nodePosition.sLine == textPosition.getLine()
                 && nodePosition.eLine >= textPosition.getLine()
                 && nodePosition.sCol <= textPosition.getCharacter()
                 && nodePosition.eCol >= textPosition.getCharacter()) {
