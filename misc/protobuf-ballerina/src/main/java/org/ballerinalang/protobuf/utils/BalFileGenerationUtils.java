@@ -98,9 +98,9 @@ public class BalFileGenerationUtils {
                 br = new BufferedReader(new
                         InputStreamReader(process.getErrorStream(), "UTF-8"));
                 String err;
-                StringBuilder errMsg = new StringBuilder(EMPTY_STRING);
+                StringBuilder errMsg = new StringBuilder();
                 while ((err = br.readLine()) != null) {
-                   errMsg.append(System.lineSeparator().concat(err));
+                    errMsg.append(System.lineSeparator()).append(err);
                 }
                 throw new BalGenToolException(errMsg.toString());
             } catch (IOException e) {
