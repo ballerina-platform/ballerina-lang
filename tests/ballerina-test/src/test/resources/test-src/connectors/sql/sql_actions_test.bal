@@ -816,6 +816,52 @@ function testBatchUpdate() returns (int[]) {
     return updateCount;
 }
 
+type myBatchType string|int|float;
+
+function testBatchUpdateWithValues() returns int[] {
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    //Batch 1
+    myBatchType[] parameters1 = ["Alex", "Smith", 20, 3400.5, "Colombo"];
+
+    //Batch 2
+    myBatchType[] parameters2 = ["John", "Gates", 45, 2400.5, "NY"];
+
+    int[] updateCount = check testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,
+                            creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
+    testDB.stop();
+    return updateCount;
+}
+
+function testBatchUpdateWithVariables() returns int[] {
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    //Batch 1
+    string firstName1 = "Alex";
+    string lastName1 = "Smith";
+    int id = 20;
+    float creditlimit = 3400.5;
+    string city = "Colombo";
+
+    myBatchType[] parameters1 = [firstName1, lastName1, id, creditlimit, city];
+
+    //Batch 2
+    myBatchType[] parameters2 = ["John", "Gates", 45, 2400.5, "NY"];
+
+    int[] updateCount = check testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,
+                            creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
+    testDB.stop();
+    return updateCount;
+}
+
 function testBatchUpdateWithFailure() returns (int[], int) {
     endpoint jdbc:Client testDB {
         url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
