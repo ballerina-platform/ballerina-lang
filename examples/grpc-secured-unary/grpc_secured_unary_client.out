@@ -1,3 +1,6 @@
+# Create a Ballerina project and a package inside it. 
+# Add the following files inside the package directory and
+# build the project.
 # To run the client and send request, create ballerina project and package
 # inside the project and include below files to package directory. Build the
 # project using build-in ballerina tool.
