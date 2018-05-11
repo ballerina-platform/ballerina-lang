@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 /**
  * This contains methods to test boolean type conversion of Ballerina Streaming.
  *
- * @since 0.965.0
+ * @since 0.970.1
  */
 public class BooleanTypeTest {
 
