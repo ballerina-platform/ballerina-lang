@@ -49,8 +49,6 @@ public class UtilSymbolKeys {
     
     public static final String ANON_STRUCT_CHECKER = "$anon";
 
-    public static final String CREATE_KEYWORD_KEY = "create";
-
     public static final String ENDPOINT_KEYWORD_KEY = "endpoint";
 
     public static final String FUNCTION_KEYWORD_KEY = "function";
@@ -59,15 +57,9 @@ public class UtilSymbolKeys {
 
     public static final String SERVICE_KEYWORD_KEY = "service";
 
-    public static final String CONNECTOR_KEYWORD_KEY = "connector";
-
-    public static final String ACTION_KEYWORD_KEY = "action";
-
-    public static final String ENUM_KEYWORD_KEY = "enum";
-
-    public static final String TRANSFORMER_KEYWORD_KEY = "transformer";
-
     public static final String STRUCT_KEYWORD_KEY = "struct";
+
+    public static final String TYPE_KEYWORD_KEY = "type";
 
     public static final String MATCH_KEYWORD_KEY = "match";
     

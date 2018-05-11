@@ -284,11 +284,10 @@ public class CommonUtil {
     public static String topLevelNodeTypeInLine(TextDocumentIdentifier identifier, Position startPosition,
                                                 WorkspaceDocumentManager docManager) {
         // TODO: Need to support service and resources as well.
-        List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "struct", "enum",
-                                                      "transformer", "object");
+        List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "endpoint", "type");
         LSDocument document = new LSDocument(identifier.getUri());
         String fileContent = docManager.getFileContent(getPath(document));
-        String[] splitedFileContent = fileContent.split("\\n|\\r\\n|\\r");
+        String[] splitedFileContent = fileContent.split(LINE_SEPARATOR);
         if ((splitedFileContent.length - 1) >= startPosition.getLine()) {
             String lineContent = splitedFileContent[startPosition.getLine()];
             List<String> alphaNumericTokens = new ArrayList<>(Arrays.asList(lineContent.split("[^\\w']+")));
