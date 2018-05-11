@@ -98,11 +98,11 @@ public class BalFileGenerationUtils {
                 br = new BufferedReader(new
                         InputStreamReader(process.getErrorStream(), "UTF-8"));
                 String err;
-                String errMsg = "";
+                StringBuilder errMsg = new StringBuilder(EMPTY_STRING);
                 while ((err = br.readLine()) != null) {
-                    errMsg = errMsg.concat(System.lineSeparator().concat(err));
+                   errMsg.append(System.lineSeparator().concat(err));
                 }
-                throw new BalGenToolException(errMsg);
+                throw new BalGenToolException(errMsg.toString());
             } catch (IOException e) {
                 throw new BalGenToolException("Invalid command syntax.", e);
             } finally {

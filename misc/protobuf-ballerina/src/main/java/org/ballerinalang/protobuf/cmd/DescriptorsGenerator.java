@@ -34,8 +34,11 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.protobuf.BalGenerationConstants.DESC_SUFFIX;
+import static org.ballerinalang.protobuf.BalGenerationConstants.EMPTY_STRING;
 import static org.ballerinalang.protobuf.BalGenerationConstants.GOOGLE_STANDARD_LIB;
 import static org.ballerinalang.protobuf.BalGenerationConstants.META_LOCATION;
+import static org.ballerinalang.protobuf.BalGenerationConstants.PROTO_SUFFIX;
 import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.createMetaFolder;
 import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.generateDescriptor;
 import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.getDescriptorPath;
@@ -47,7 +50,7 @@ import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.resolvePro
 public class DescriptorsGenerator {
     private static final Logger LOG = LoggerFactory.getLogger(DescriptorsGenerator.class);
     
-    public static List<byte[]> generatedependentDescriptor(String parentDescPath, String parentProtoPath,
+    public static List<byte[]> generateDependentDescriptor(String parentDescPath, String parentProtoPath,
                                                            List<byte[]> list,
                                                            String exePath, ClassLoader classLoader) {
         File initialFile = new File(parentDescPath);
@@ -56,7 +59,7 @@ public class DescriptorsGenerator {
             for (String depPath : descSet.getFile(0).getDependencyList()) {
                 String path = BalGenerationConstants.META_DEPENDENCY_LOCATION + depPath.substring(
                         depPath.lastIndexOf(BalGenerationConstants.FILE_SEPARATOR)
-                        , depPath.length()).replace(".proto", "") + ".desc";
+                        , depPath.length()).replace(PROTO_SUFFIX, EMPTY_STRING) + DESC_SUFFIX;
                 createMetaFolder(path);
                 String protoPath;
                 if (!depPath.contains(GOOGLE_STANDARD_LIB)) {
@@ -94,7 +97,7 @@ public class DescriptorsGenerator {
                             .parseFrom(childStream);
                     if (childDescSet.getFile(0).getDependencyCount() != 0) {
                         List<byte[]> newList = new ArrayList<>();
-                        generatedependentDescriptor(path, protoPath, newList,
+                        generateDependentDescriptor(path, protoPath, newList,
                                 exePath, classLoader);
                     } else {
                         initialFile = new File(path);
@@ -106,7 +109,7 @@ public class DescriptorsGenerator {
                                 throw new BalGenerationException("Error occurred at generating dependent proto " +
                                         "descriptor for dependent proto '" + parentProtoPath + "'.");
                             }
-                            list.add(set.getFile(0).toByteArray());
+                            list.add(dependentDesc);
                         } catch (IOException e) {
                             throw new BalGenToolException("Error reading dependent descriptor.", e);
                         }

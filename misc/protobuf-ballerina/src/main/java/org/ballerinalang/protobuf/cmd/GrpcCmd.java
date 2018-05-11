@@ -140,7 +140,7 @@ public class GrpcCmd implements BLauncherCmd {
             throw new BalGenerationException("Error occurred at generating proto descriptor.");
         }
         LOG.debug("Successfully generated root descriptor.");
-        List<byte[]> dependant = DescriptorsGenerator.generatedependentDescriptor
+        List<byte[]> dependant = DescriptorsGenerator.generateDependentDescriptor
                 (descriptorPath, this.protoPath, new ArrayList<>(), exePath, classLoader);
         LOG.debug("Successfully generated dependent descriptor.");
         //Path balPath = Paths.get(balOutPath);
