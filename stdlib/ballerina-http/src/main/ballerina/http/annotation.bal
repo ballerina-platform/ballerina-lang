@@ -29,6 +29,8 @@ documentation {
     F{{cors}} The cross origin resource sharing configurations for the service
     F{{versioning}} The version of the service to be used
     F{{authConfig}} Authentication configurations for securing the service
+    F{{overflowConfig}} Payload overflow configuration to control payload location(memory/temp file) based on a given
+                        threshold
 }
 public type HttpServiceConfig {
     Listener[] endpoints,
@@ -38,6 +40,18 @@ public type HttpServiceConfig {
     CorsConfig cors,
     Versioning versioning,
     ListenerAuthConfig? authConfig,
+    PayloadOverflowConfig overflowConfig,
+};
+
+documentation {
+    Configuration to control payload location(memory/temp file) based on a given threshold value.
+
+    F{{memoryThreshold}} Maximum size of the payload to be kept in memory
+    F{{tempLocation}} Temporary directory to store large payloads
+}
+public type PayloadOverflowConfig {
+    int memoryThresholdInMB = 2,
+    string tempLocation,
 };
 
 documentation {
