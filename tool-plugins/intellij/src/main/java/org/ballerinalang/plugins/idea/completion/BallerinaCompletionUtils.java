@@ -514,6 +514,7 @@ public class BallerinaCompletionUtils {
     public static LookupElement createTypeLookupElement(@NotNull BallerinaTopLevelDefinition definition) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(definition.getIdentifier()
                 .getText(), definition)
+                .withInsertHandler(AddSpaceInsertHandler.INSTANCE)
                 .withTypeText("Type").withIcon(definition.getIcon(Iconable.ICON_FLAG_VISIBILITY)).bold();
         // Todo - Add tail text
         //                .withTailText(BallerinaDocumentationProvider.getParametersAndReturnTypes(element
@@ -577,9 +578,10 @@ public class BallerinaCompletionUtils {
     public static LookupElement createFieldLookupElement(@NotNull PsiElement fieldName,
                                                          @NotNull PsiElement ownerName,
                                                          @NotNull String type, @Nullable String defaultValue,
+                                                         @Nullable InsertHandler<LookupElement> insertHandler,
                                                          boolean isPublic) {
         LookupElementBuilder lookupElementBuilder = LookupElementBuilder.createWithSmartPointer(fieldName.getText(),
-                fieldName).withTypeText(type).bold();
+                fieldName).withInsertHandler(insertHandler).withTypeText(type).bold();
 
         if (defaultValue == null || defaultValue.isEmpty()) {
             lookupElementBuilder = lookupElementBuilder.withTailText(" -> " + ownerName.getText(), true);
