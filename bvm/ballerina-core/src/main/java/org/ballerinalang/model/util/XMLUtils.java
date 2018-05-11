@@ -155,9 +155,9 @@ public class XMLUtils {
         try {
             doc = OMXMLBuilderFactory.createOMBuilder(xmlStream, charset).getDocument();
             Iterator<OMNode> docChildItr = doc.getChildren();
-            int i = 0;
+            int index = 0;
             while (docChildItr.hasNext()) {
-                elementsSeq.add(i++, new BXMLItem(docChildItr.next()));
+                elementsSeq.add(index++, new BXMLItem(docChildItr.next()));
             }
         } catch (DeferredParsingException e) {
             throw new BallerinaException(e.getCause().getMessage());

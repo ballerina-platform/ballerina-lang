@@ -80,9 +80,9 @@ public class StringUtils {
     public static String getStringFromInputStream(InputStream inputStream, String charset) {
         StringBuilder textBuilder = new StringBuilder();
         try (Reader reader = new InputStreamReader(inputStream, Charset.forName(charset))) {
-            int c;
-            while ((c = reader.read()) != -1) {
-                textBuilder.append((char) c);
+            int character;
+            while ((character = reader.read()) != -1) {
+                textBuilder.append((char) character);
             }
         } catch (IOException e) {
             throw new BallerinaException("Error occurred when reading input stream with the charset" + charset, e);
