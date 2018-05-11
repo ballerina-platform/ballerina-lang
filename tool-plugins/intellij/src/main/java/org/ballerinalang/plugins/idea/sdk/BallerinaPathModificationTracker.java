@@ -100,8 +100,10 @@ public class BallerinaPathModificationTracker {
             }
 
             private void handleEvent(VirtualFileEvent event) {
-                if (pathsToTrack.contains(event.getFile().getPath())) {
-                    recalculateFiles();
+                for (String path : pathsToTrack) {
+                    if (event.getFile().getPath().startsWith(path)) {
+                        recalculateFiles();
+                    }
                 }
             }
         });
