@@ -181,24 +181,24 @@ public class TransactionHandlerTest {
                 .validateError(res, 7, "lambda function with string input parameter is required as transaction handler",
                         49, 77);
         BAssertUtil
-                .validateError(res, 8, "invalid function pointer assignment for the transaction handler function",
-                        65, 50);
+                .validateError(res, 8, "invalid function pointer assignment for the transaction handler function", 65,
+                        50);
         BAssertUtil
                 .validateError(res, 9, "lambda function with string input parameter is required as transaction handler",
                         65, 50);
         BAssertUtil
-                .validateError(res, 10, "invalid function pointer assignment for the transaction handler function",
-                        65, 63);
-        BAssertUtil
-                .validateError(res, 11, "lambda function with string input parameter is required as transaction handler",
-                        65, 63);
+                .validateError(res, 10, "invalid function pointer assignment for the transaction handler function", 65,
+                        63);
+        BAssertUtil.validateError(res, 11,
+                "lambda function with string input parameter is required as transaction handler", 65, 63);
         BAssertUtil.validateError(res, 12, "transaction handler function cannot have a return type", 79, 50);
         BAssertUtil.validateError(res, 13, "transaction handler function cannot have a return type", 79, 77);
         BAssertUtil.validateError(res, 14, "transaction statement cannot be used within a transaction handler function",
                 116, 5);
         BAssertUtil.validateError(res, 15, "transaction statement cannot be used within a transaction handler function",
                 123, 5);
-        BAssertUtil.validateError(res, 16, "invalid function pointer assignment for the transaction handler function",
-                133, 50);
+        BAssertUtil
+                .validateError(res, 16, "invalid function pointer assignment for the transaction handler function", 133,
+                        50);
     }
 }
