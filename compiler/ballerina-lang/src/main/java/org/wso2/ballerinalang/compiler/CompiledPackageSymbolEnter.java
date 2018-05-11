@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
+import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo.Kind;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPoolEntry;
@@ -421,13 +422,33 @@ public class CompiledPackageSymbolEnter {
     }
 
     private void definePackageLevelVariables(DataInputStream dataInStream) throws IOException {
-        String name = getUTF8CPEntryValue(dataInStream);
+        String varName = getUTF8CPEntryValue(dataInStream);
         String typeSig = getUTF8CPEntryValue(dataInStream);
+        int flags = dataInStream.readInt();
         int memIndex = dataInStream.readInt();
 
         readAttributes(dataInStream);
-    }
 
+        // Create variable symbol
+        BType varType = getBTypeFromDescriptor(typeSig);
+        Scope enclScope = this.env.pkgSymbol.scope;
+        BVarSymbol varSymbol;
+
+        if (varType.tag == TypeTags.INVOKABLE) {
+            // Here we don't set the required-params, defaultable params and the rest param of
+            // the symbol. Because, for the function pointers we directly read the param types
+            // from the varType (i.e: from InvokableType), and assumes it can have only required
+            // params.
+            varSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, names.fromString(varName),
+                    this.env.pkgSymbol.pkgID, varType, enclScope.owner);
+        } else {
+            varSymbol = new BVarSymbol(flags, names.fromString(varName), this.env.pkgSymbol.pkgID, varType,
+                    enclScope.owner);
+        }
+
+        varSymbol.varIndex = new RegIndex(memIndex, varType.tag);
+        enclScope.define(varSymbol.name, varSymbol);
+    }
 
     private Map<AttributeInfo.Kind, byte[]> readAttributes(DataInputStream dataInStream) throws IOException {
         int attributesCount = dataInStream.readShort();
