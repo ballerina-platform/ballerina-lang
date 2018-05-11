@@ -283,21 +283,19 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             this.context.put(NodeContextKeys.NODE_KEY, varRefExpr);
             this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
             this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, varRefExpr.type.tsymbol.name.getValue());
-            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, varRefExpr.type.tsymbol.pkgID);
             this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, varRefExpr.type.tsymbol.kind.name());
-            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, ContextConstants.VARIABLE);
             this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, varRefExpr.variableName.getValue());
 
             if (varRefExpr.symbol != null) {
+                this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, varRefExpr.symbol.pkgID);
                 this.context.put(NodeContextKeys.NODE_OWNER_KEY, varRefExpr.symbol.owner.name.getValue());
-                this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY,
-                        varRefExpr.symbol.owner.pkgID);
                 this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, ContextConstants.VARIABLE);
+                this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, varRefExpr.symbol.owner.pkgID);
             } else {
-                this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, varRefExpr.type.tsymbol.kind.name());
+                this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, varRefExpr.type.tsymbol.pkgID);
                 this.context.put(NodeContextKeys.NODE_OWNER_KEY, varRefExpr.type.tsymbol.owner.name.getValue());
-                this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY,
-                        varRefExpr.type.tsymbol.owner.pkgID);
+                this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, varRefExpr.type.tsymbol.kind.name());
+                this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, varRefExpr.type.tsymbol.owner.pkgID);
             }
             setTerminateVisitor(true);
         } else if (varRefExpr.pkgSymbol != null
@@ -370,9 +368,10 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangAssignment assignNode) {
         setPreviousNode(assignNode);
-        if (assignNode.expr != null && assignNode.getPosition().sLine <= this.position.getLine()
-                && assignNode.getPosition().eLine >= this.position.getLine()) {
+        if (assignNode.varRef != null) {
             this.acceptNode(assignNode.varRef);
+        }
+        if (assignNode.expr != null) {
             this.acceptNode(assignNode.expr);
         }
     }
