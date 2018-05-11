@@ -178,14 +178,8 @@ function Listener::sendSubscriptionRequests() {
                 match (retrieveHubAndTopicUrl(resourceUrl, auth, secureSocket, followRedirects)) {
                     (string, string) discoveredDetails => {
                         var (retHub, retTopic) = discoveredDetails;
-                        match (http:decode(retHub, "UTF-8")) {
-                            string decodedHub => retHub = decodedHub;
-                            error => {}
-                        }
-                        match (http:decode(retTopic, "UTF-8")) {
-                            string decodedTopic => retTopic = decodedTopic;
-                            error => {}
-                        }
+                        retHub = check http:decode(retHub, "UTF-8");
+                        retTopic = check http:decode(retTopic, "UTF-8");
                         subscriptionDetails["hub"] = retHub;
                         hub = retHub;
                         subscriptionDetails["topic"] = retTopic;

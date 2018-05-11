@@ -167,22 +167,14 @@ public type IntentVerificationRequest object {
 public function IntentVerificationRequest::buildSubscriptionVerificationResponse(string? topic = ())
     returns http:Response {
 
-    string intendedTopic;
-    match (topic) {
-        string specifiedTopic => { intendedTopic = specifiedTopic; }
-        () => { intendedTopic = retrieveIntendedTopic(); }
-    }
+    string intendedTopic = topic but {() => retrieveIntendedTopic()};
     return buildIntentVerificationResponse(self, MODE_SUBSCRIBE, intendedTopic);
 }
 
 public function IntentVerificationRequest::buildUnsubscriptionVerificationResponse(string? topic = ())
     returns http:Response {
 
-    string intendedTopic;
-    match (topic) {
-        string specifiedTopic => { intendedTopic = specifiedTopic; }
-        () => { intendedTopic = retrieveIntendedTopic(); }
-    }
+    string intendedTopic = topic but {() => retrieveIntendedTopic()};
     return buildIntentVerificationResponse(self, MODE_UNSUBSCRIBE, intendedTopic);
 }
 
@@ -199,19 +191,14 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
     returns http:Response {
 
     http:Response response = new;
+    string reqTopic = check http:decode(intentVerificationRequest.topic, "UTF-8");
     if (topic == "") {
         response.statusCode = http:NOT_FOUND_404;
-        log:printError("Intent Verification denied - Mode [" + mode + "], Topic [" + topic +
+        log:printError("Intent Verification denied - Mode [" + mode + "], Topic [" + reqTopic +
                 "], since topic unavailable as an annotation or unspecified as a parameter");
     } else {
         string reqMode = intentVerificationRequest.mode;
         string challenge = intentVerificationRequest.challenge;
-        string reqTopic = intentVerificationRequest.topic;
-
-        match (http:decode(reqTopic, "UTF-8")) {
-            string decodedTopic => reqTopic = decodedTopic;
-            error => {}
-        }
 
         string reqLeaseSeconds = <string>intentVerificationRequest.leaseSeconds;
 
@@ -222,7 +209,7 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
                     + reqLeaseSeconds + "]");
         } else {
             response.statusCode = http:NOT_FOUND_404;
-            log:printWarn("Intent Verification denied - Mode [" + mode + "], Topic [" + topic + "]");
+            log:printWarn("Intent Verification denied - Mode [" + mode + "], Topic [" + reqTopic + "]");
         }
     }
     return response;
@@ -239,7 +226,7 @@ function processWebSubNotification(http:Request request, typedesc serviceType) r
     string secret;
     match (retrieveSubscriberServiceAnnotations(serviceType)) {
         SubscriberServiceConfiguration subscriberServiceAnnotation => { secret = subscriberServiceAnnotation.secret; }
-        () => {}
+        () => { log:printDebug("WebSub notification received for subscription with no secret specified"); }
     }
 
     string xHubSignature;

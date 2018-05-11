@@ -88,9 +88,10 @@ public class InitWebSubSubscriberServiceEndpoint extends BlockingNativeCallableU
                                                                   + " by Topic Header and Payload Key");
                 }
             }
-            if (!((BMap<String, BMap<String, BString>>) config.getRefField(4)).isEmpty()) {
-                webSubServicesRegistry.setTopicResourceMap(
-                                                    (BMap<String, BMap<String, BString>>) config.getRefField(4));
+            BMap<String, BMap<String, BString>> topicResourceMap =
+                                                    (BMap<String, BMap<String, BString>>) config.getRefField(4);
+            if (!(topicResourceMap).isEmpty()) {
+                webSubServicesRegistry.setTopicResourceMap(topicResourceMap);
             } else {
                 throw new BallerinaConnectorException("Topic-Resource Map not specified to dispatch by "
                                                      + stringTopicIdentifier);
