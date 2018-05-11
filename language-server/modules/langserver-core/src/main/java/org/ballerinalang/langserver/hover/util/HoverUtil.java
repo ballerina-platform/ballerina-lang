@@ -475,10 +475,8 @@ public class HoverUtil {
                     sWhitespace = whitespace;
                 }
             }
-            if (varNode.symbol.type != null) {
-                if (varNode.symbol.type.tsymbol != null) {
-                    position.sCol += varNode.symbol.type.tsymbol.name.value.length() + sWhitespace.getWs().length();
-                }
+            if (varNode.symbol.type != null && varNode.symbol.type.tsymbol != null) {
+                position.sCol += varNode.symbol.type.tsymbol.name.value.length() + sWhitespace.getWs().length();
             }
             position.eCol = position.sCol + varNode.symbol.name.value.length();
         }
