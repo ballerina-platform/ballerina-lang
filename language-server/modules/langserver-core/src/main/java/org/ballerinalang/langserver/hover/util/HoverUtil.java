@@ -455,7 +455,8 @@ public class HoverUtil {
     }
 
     /**
-     * Calculate and returns identifier position of this BlangVariable
+     * Calculate and returns identifier position of this BlangVariable.
+     *
      * @param varNode BLangVariable
      * @return position
      */
@@ -474,7 +475,11 @@ public class HoverUtil {
                     sWhitespace = whitespace;
                 }
             }
-            position.sCol += varNode.type.tsymbol.name.value.length() + sWhitespace.getWs().length();
+            if (varNode.symbol.type != null) {
+                if (varNode.symbol.type.tsymbol != null) {
+                    position.sCol += varNode.symbol.type.tsymbol.name.value.length() + sWhitespace.getWs().length();
+                }
+            }
             position.eCol = position.sCol + varNode.symbol.name.value.length();
         }
         return position;
