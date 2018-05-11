@@ -16,28 +16,29 @@
  * under the License.
  *
  */
+const url = require('url');
 const path = require('path');
-const { BrowserWindow } = require('electron');
+const electron = require('electron');
 const registerMenuLoader = require('./menu.js');
 const setupNativeWizards = require('./workspace.js');
 
 
 let win;
 
-function createWindow (pageURL) {
+function createWindow (pageURL, show = true) {
+
+    const { width, height } = electron.screen.getPrimaryDisplay().workAreaSize;
     // Create the browser window.
-    win = new BrowserWindow({
-        width: 1024, 
-        height: 768, 
+    win = new electron.BrowserWindow({
+        width, 
+        height, 
         frame: true,
-        icon: path.join(__dirname, '../icons/png/64x64.png') 
+        icon: path.join(__dirname, '../icons/png/64x64.png'),
+        show
     });
 
-    // maximize the window
-    win.maximize();
-
-    registerMenuLoader();
-    setupNativeWizards(win);
+    //registerMenuLoader();
+    //setupNativeWizards(win);
 
     win.loadURL(pageURL);
 
@@ -48,6 +49,25 @@ function createWindow (pageURL) {
     return win;
 }
 
+function createSplashWindow() {
+    // Create the browser window.
+    win = new electron.BrowserWindow({
+        width: 1280, 
+        height: 800, 
+        frame: false,
+        icon: path.join(__dirname, '../icons/png/64x64.png'),
+        show: true
+    });
+    const splashScreenUrl = url.format({
+        pathname: path.join(__dirname, '..', 'pages', 'loading.html'),
+        protocol: 'file:',
+        slashes: true
+    });
+    win.loadURL(splashScreenUrl);
+    return win;
+}
+
 module.exports = {
     createWindow,
+    createSplashWindow,
 };

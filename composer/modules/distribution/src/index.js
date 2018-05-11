@@ -23,16 +23,21 @@ const process = require('process');
 const fs = require('fs-extra');
 const log = require('log');
 const { spawn, exec } = require('child_process');
-const { createWindow } = require('./app');
+const { createWindow, createSplashWindow } = require('./app');
 const { createErrorWindow } = require('./error-window');
 const { ErrorCodes } = require('./error-codes');
 
 let win,
+    splashWin,
     serverProcess,
     logger = new log('info'),
     appDir = app.getAppPath(),
     logsDir = path.join(os.homedir(),'.composer', 'logs'),
-    pageURL = 'http://localhost:9091';
+    balHome = path.join(appDir, 'resources', 'ballerina-tools')
+                    .replace('app.asar', 'app.asar.unpacked'),
+    composerHome = path.join(balHome, 'lib', 'resources', 'composer')
+    composerPublicPath = path.join(composerHome, 'web', 'public'),
+    pageURL = `file://${composerPublicPath}/index.html`;
 
 function createLogger(){
     fs.ensureDirSync(logsDir);
@@ -45,9 +50,6 @@ function createLogger(){
 }
 
 function startServer(){
-    const balHome = path.join(appDir, 'resources', 'ballerina-tools')
-                    .replace('app.asar', 'app.asar.unpacked'),
-        composerHome = path.join(balHome, 'lib', 'resources', 'composer');
     let executable = 'java',
         args = [],
         errorWin,
@@ -64,7 +66,7 @@ function startServer(){
     args.push('-classpath')
     args.push(classpath);
     args.push('-Dballerina.home=' + balHome);
-    args.push('-Dcomposer.public.path=' + path.join(composerHome, 'web', 'public'));
+    args.push('-Dcomposer.public.path=' + composerPublicPath);
     args.push('-Dopen.browser=false');
     args.push('org.ballerinalang.composer.server.launcher.ServerLauncher');
 
@@ -80,12 +82,14 @@ function startServer(){
         if (data.includes(sucessMsgPrefix)) {
             pageURL = (data + '').substring(sucessMsgPrefix.length - 1);
             logger.info('Backend server is properly started at ' + pageURL + ', starting composer UI');
-            if (win === undefined) {
-                win = createWindow(pageURL);
-                win.on('closed', () => {
-                    win = null;
-                });
-            }
+            win = createWindow(pageURL);
+            win.once('ready-to-show', () => {
+                splashWin.close();
+                win.show();
+            });
+            win.on('closed', () => {
+                win = null;
+            });
         } else {
             logger.info('Server Log: ' + data);
         }
@@ -138,6 +142,10 @@ function checkJava(callback) {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
+    splashWin = createSplashWindow();
+    splashWin.on('closed', () => {
+        splashWin = null;
+    });
     createLogger();
     logger.info('verifying availability of java runtime in path');
     checkJava((error, message) => {
