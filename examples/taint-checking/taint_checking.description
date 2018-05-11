@@ -4,4 +4,4 @@
 //
 // A taint analysis mechanism is used to achieve this. As a result of the taint analysis mechanism, the Ballerina compiler
 // identifies untrusted (tainted) data by observing how tainted data propagates through the program. If untrusted data
-// is passed to a security sensitive parameter, a compiler error will be generated.
+// is passed to a security sensitive parameter, a compiler error is generated.
