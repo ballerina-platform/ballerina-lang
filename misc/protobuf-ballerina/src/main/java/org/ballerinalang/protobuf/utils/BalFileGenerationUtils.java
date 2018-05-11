@@ -93,10 +93,8 @@ public class BalFileGenerationUtils {
                     " running the protoC executor.", e);
         }
         if (process.exitValue() != 0) {
-            BufferedReader bufferedReader = null;
-            try {
-                bufferedReader = new BufferedReader(new
-                        InputStreamReader(process.getErrorStream(), "UTF-8"));
+            try (BufferedReader bufferedReader = new BufferedReader(new
+                    InputStreamReader(process.getErrorStream(), "UTF-8"))) {
                 String err;
                 StringBuilder errMsg = new StringBuilder();
                 while ((err = bufferedReader.readLine()) != null) {
@@ -105,14 +103,6 @@ public class BalFileGenerationUtils {
                 throw new BalGenToolException(errMsg.toString());
             } catch (IOException e) {
                 throw new BalGenToolException("Invalid command syntax.", e);
-            } finally {
-                if (bufferedReader != null) {
-                    try {
-                        bufferedReader.close();
-                    } catch (IOException e) {
-                        //ignore
-                    }
-                }
             }
         }
     }
