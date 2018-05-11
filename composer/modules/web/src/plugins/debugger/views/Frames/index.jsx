@@ -39,7 +39,7 @@ class Frames extends React.Component {
      */
     getObject(str = '') {
         const unescaped = str.replace(/\\"/g, '"');
-        return JSON5.parse((unescaped.substring(str.indexOf('{'), unescaped.lastIndexOf('}') + 1)));
+        return JSON5.parse(unescaped);
     }
     /**
      * @description Parse string to JSON
