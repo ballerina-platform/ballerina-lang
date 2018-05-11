@@ -3149,7 +3149,8 @@ public class BLangPackageBuilder {
     public void endPatternStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isFollowedBy,
                                              boolean enclosedInParenthesis, boolean andWithNotAvailable,
                                              boolean forWithNotAvailable, boolean onlyAndAvailable,
-                                             boolean onlyOrAvailable, boolean commaSeparated) {
+                                             boolean onlyOrAvailable, boolean commaSeparated,
+                                             String timeDurationValue, String timeScale) {
         if (!this.patternStreamingInputStack.empty()) {
             PatternStreamingInputNode patternStreamingInputNode = this.patternStreamingInputStack.pop();
 
@@ -3177,7 +3178,7 @@ public class BLangPackageBuilder {
             }
 
             if (forWithNotAvailable) {
-                processNegationPatternWithTimeDuration(patternStreamingInputNode);
+                processNegationPatternWithTimeDuration(patternStreamingInputNode, timeDurationValue, timeScale);
             }
 
             if (commaSeparated) {
@@ -3204,10 +3205,12 @@ public class BLangPackageBuilder {
         this.recentStreamingPatternInputNode = patternStreamingInputNode;
     }
 
-    private void processNegationPatternWithTimeDuration(PatternStreamingInputNode patternStreamingInputNode) {
+    private void processNegationPatternWithTimeDuration(PatternStreamingInputNode patternStreamingInputNode,
+                                                        String timeDurationValue, String timeScale) {
         patternStreamingInputNode.setForWithNot(true);
         patternStreamingInputNode.addPatternStreamingEdgeInput(this.patternStreamingEdgeInputStack.pop());
-        patternStreamingInputNode.setTimeExpr(this.exprNodeStack.pop());
+        patternStreamingInputNode.setTimeDurationValue(timeDurationValue);
+        patternStreamingInputNode.setTimeScale(timeScale);
         this.recentStreamingPatternInputNode = patternStreamingInputNode;
     }
 
@@ -3307,11 +3310,12 @@ public class BLangPackageBuilder {
         this.withinClauseStack.push(withinClause);
     }
 
-    public void endWithinClause(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void endWithinClause(DiagnosticPos pos, Set<Whitespace> ws, String timeDurationValue, String timeScale) {
         WithinClause withinClause = this.withinClauseStack.peek();
         ((BLangWithinClause) withinClause).pos = pos;
         withinClause.addWS(ws);
-        withinClause.setWithinTimePeriod(exprNodeStack.pop());
+        withinClause.setTimeDurationValue(timeDurationValue);
+        withinClause.setTimeScale(timeScale);
     }
 
     public void startPatternClause(DiagnosticPos pos) {

@@ -2589,7 +2589,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.endWithinClause(getCurrentPos(ctx), getWS(ctx));
+        String timeScale = null;
+        String timeDurationValue = null;
+        if (ctx.timeScale() != null) {
+            timeScale = ctx.timeScale().getText();
+            timeDurationValue = ctx.DecimalIntegerLiteral().getText();
+        }
+
+        this.pkgBuilder.endWithinClause(getCurrentPos(ctx), getWS(ctx), timeDurationValue, timeScale);
     }
 
     @Override
@@ -2631,13 +2638,21 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean followedByAvailable = ctx.FOLLOWED() != null && ctx.BY() != null;
         boolean enclosedInParenthesis = ctx.LEFT_PARENTHESIS() != null && ctx.RIGHT_PARENTHESIS() != null;
         boolean andWithNotAvailable = ctx.NOT() != null && ctx.AND() != null;
-        boolean forWithNotAvailable = ctx.simpleLiteral() != null;
+        boolean forWithNotAvailable = ctx.timeScale() != null;
         boolean onlyAndAvailable = ctx.AND() != null && ctx.NOT() == null && ctx.FOR() == null;
         boolean onlyOrAvailable = ctx.OR() != null && ctx.NOT() == null && ctx.FOR() == null;
         boolean commaSeparated = ctx.COMMA() != null;
+
+        String timeScale = null;
+        String timeDurationValue = null;
+        if (ctx.timeScale() != null) {
+            timeScale = ctx.timeScale().getText();
+            timeDurationValue = ctx.DecimalIntegerLiteral().getText();
+        }
+
         this.pkgBuilder.endPatternStreamingInputNode(getCurrentPos(ctx), getWS(ctx), followedByAvailable,
                 enclosedInParenthesis, andWithNotAvailable, forWithNotAvailable, onlyAndAvailable,
-                onlyOrAvailable, commaSeparated);
+                onlyOrAvailable, commaSeparated, timeDurationValue, timeScale);
     }
 
     @Override
@@ -2741,13 +2756,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             }
         }
 
-        String timescale = null;
+        String timeScale = null;
         if (ctx.timeScale() != null) {
-            timescale = ctx.timeScale().getText();
+            timeScale = ctx.timeScale().getText();
         }
 
         this.pkgBuilder.endOutputRateLimitNode(getCurrentPos(ctx), getWS(ctx), isSnapshotOutputRateLimit,
-                isFirst, isLast, isAll, timescale, ctx.DecimalIntegerLiteral().getText());
+                isFirst, isLast, isAll, timeScale, ctx.DecimalIntegerLiteral().getText());
     }
 
     @Override
