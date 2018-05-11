@@ -168,8 +168,7 @@ public abstract class WebSocketUtil {
     }
 
     public static void handleWebSocketCallback(Context context, CallableUnitCallback callback,
-                                               ChannelFuture webSocketChannelFuture)
-            throws InterruptedException {
+                                               ChannelFuture webSocketChannelFuture) {
         webSocketChannelFuture.addListener((ChannelFutureListener) future -> {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {

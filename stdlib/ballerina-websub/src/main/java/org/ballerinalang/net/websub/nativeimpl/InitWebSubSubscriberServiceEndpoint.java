@@ -19,10 +19,10 @@
 package org.ballerinalang.net.websub.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.connector.impl.ConnectorSPIModelHelper;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -31,9 +31,13 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
-import org.ballerinalang.net.http.serviceendpoint.AbstractHttpNativeFunction;
 import org.ballerinalang.net.websub.WebSubServicesRegistry;
-import org.ballerinalang.net.websub.WebSubSubscriberConstants;
+
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.TOPIC_ID_HEADER;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.TOPIC_ID_PAYLOAD_KEY;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_HTTP_ENDPOINT;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY;
 
 /**
  * Initialize the WebSub subscriber endpoint.
@@ -44,31 +48,29 @@ import org.ballerinalang.net.websub.WebSubSubscriberConstants;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
         functionName = "initWebSubSubscriberServiceEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener",
-                structPackage = WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH)
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener", structPackage = WEBSUB_PACKAGE)
 )
-public class InitWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunction {
+public class InitWebSubSubscriberServiceEndpoint extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
 
         Struct subscriberServiceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        Struct serviceEndpoint = ConnectorSPIModelHelper.createStruct(
-                (BStruct) ((BStruct) (subscriberServiceEndpoint.getVMValue())).getRefField(1));
+        Struct serviceEndpoint = ((subscriberServiceEndpoint).getRefField(WEBSUB_HTTP_ENDPOINT).getStructValue());
         BStruct config = (BStruct) ((BStruct) context.getRefArgument(0)).getRefField(0);
         WebSubServicesRegistry webSubServicesRegistry = new WebSubServicesRegistry(new WebSocketServicesRegistry());
         BString topicIdentifier = (BString) config.getRefField(1);
         if (topicIdentifier != null) {
             String stringTopicIdentifier = topicIdentifier.stringValue();
             webSubServicesRegistry.setTopicIdentifier(stringTopicIdentifier);
-            if (WebSubSubscriberConstants.TOPIC_ID_HEADER.equals(stringTopicIdentifier)) {
+            if (TOPIC_ID_HEADER.equals(stringTopicIdentifier)) {
                 BString topicHeader = (BString) config.getRefField(2);
                 if (topicHeader != null) {
                     webSubServicesRegistry.setTopicHeader(topicHeader.stringValue());
                 } else {
                     throw new BallerinaConnectorException("Topic Header not specified to dispatch by Header");
                 }
-            } else if (WebSubSubscriberConstants.TOPIC_ID_PAYLOAD_KEY.equals(stringTopicIdentifier)) {
+            } else if (TOPIC_ID_PAYLOAD_KEY.equals(stringTopicIdentifier)) {
                 BStringArray topicPayloadKeys = (BStringArray) config.getRefField(3);
                 if (topicPayloadKeys != null) {
                     webSubServicesRegistry.setTopicPayloadKeys(topicPayloadKeys);
@@ -86,15 +88,16 @@ public class InitWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunct
                                                                   + " by Topic Header and Payload Key");
                 }
             }
-            if (!((BMap<String, BMap<String, BString>>) config.getRefField(4)).isEmpty()) {
-                webSubServicesRegistry.setTopicResourceMap(
-                                                    (BMap<String, BMap<String, BString>>) config.getRefField(4));
+            BMap<String, BMap<String, BString>> topicResourceMap =
+                                                    (BMap<String, BMap<String, BString>>) config.getRefField(4);
+            if (!(topicResourceMap).isEmpty()) {
+                webSubServicesRegistry.setTopicResourceMap(topicResourceMap);
             } else {
                 throw new BallerinaConnectorException("Topic-Resource Map not specified to dispatch by "
                                                      + stringTopicIdentifier);
             }
         }
-        serviceEndpoint.addNativeData(WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY, webSubServicesRegistry);
+        serviceEndpoint.addNativeData(WEBSUB_SERVICE_REGISTRY, webSubServicesRegistry);
 
         context.setReturnValues();
     }

@@ -137,7 +137,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                                                                        false, completionContext).get(0);
                 completionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                       bLangPackage.symbol.getName().getValue());
-                completionContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
                 CompletionUtil.resolveSymbols(completionContext, bLangPackage);
             } catch (Exception | AssertionError e) {
                 // Fallback procedure in an exception. Currently supports the match statement only
@@ -331,14 +330,17 @@ class BallerinaTextDocumentService implements TextDocumentService {
                                                                  params.getTextDocument().getUri(),
                                                                  params.getRange().getStart().getLine()));
                 commands.add(CommandUtil.getAllDocGenerationCommand(params.getTextDocument().getUri()));
-            } else if (!params.getContext().getDiagnostics().isEmpty()) {
+            }
+            if (!params.getContext().getDiagnostics().isEmpty()) {
                 LSContextManager lsContextManager = LSContextManager.getInstance();
                 String sourceRoot = LSCompiler.getSourceRoot(Paths.get(params.getTextDocument().getUri()));
                 CompilerContext compilerContext = lsContextManager.getCompilerContext(sourceRoot);
                 LSPackageCache lsPackageCache = LSPackageCache.getInstance(compilerContext);
                 params.getContext().getDiagnostics().forEach(diagnostic -> {
-                    commands.addAll(CommandUtil
-                                            .getCommandsByDiagnostic(diagnostic, params, lsPackageCache));
+                    if (params.getRange().getStart().getLine() == diagnostic.getRange().getStart().getLine()) {
+                        commands.addAll(CommandUtil
+                                .getCommandsByDiagnostic(diagnostic, params, lsPackageCache));
+                    }
                 });
             }
             return commands;

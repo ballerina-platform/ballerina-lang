@@ -26,6 +26,8 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
+import java.util.List;
+
 /**
  * @since 0.965.0
  *
@@ -40,6 +42,8 @@ public class BLangStreamingInput extends BLangNode implements StreamingInput {
     private ExpressionNode streamReference;
     private String alias;
     private boolean isWindowTraversedAfterWhere;
+    private List<ExpressionNode> preInvocations;
+    private List<ExpressionNode> postInvocations;
 
     @Override
     public void setBeforeStreamingCondition(WhereNode where) {
@@ -100,6 +104,26 @@ public class BLangStreamingInput extends BLangNode implements StreamingInput {
     }
 
     @Override
+    public void setPreFunctionInvocations(List<ExpressionNode> functionInvocations) {
+        this.preInvocations = functionInvocations;
+    }
+
+    @Override
+    public List<ExpressionNode> getPreFunctionInvocations() {
+        return this.preInvocations;
+    }
+
+    @Override
+    public void setPostFunctionInvocations(List<ExpressionNode> functionInvocations) {
+        this.postInvocations = functionInvocations;
+    }
+
+    @Override
+    public List<ExpressionNode> getPostFunctionInvocations() {
+        return this.postInvocations;
+    }
+
+    @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
@@ -108,6 +132,4 @@ public class BLangStreamingInput extends BLangNode implements StreamingInput {
     public NodeKind getKind() {
         return NodeKind.STREAMING_INPUT;
     }
-
-
 }

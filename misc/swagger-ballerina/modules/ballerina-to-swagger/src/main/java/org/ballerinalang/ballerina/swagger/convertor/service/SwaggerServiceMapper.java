@@ -31,6 +31,7 @@ import org.ballerinalang.ballerina.swagger.convertor.service.model.Organization;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.net.http.HttpConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -53,10 +54,11 @@ public class SwaggerServiceMapper {
     private String httpAlias;
     private String swaggerAlias;
     private ObjectMapper objectMapper;
-    
+
     /**
      * Initializes a service parser for swagger.
-     * @param httpAlias The alias for ballerina/http package.
+     *
+     * @param httpAlias    The alias for ballerina/http package.
      * @param swaggerAlias The alias for ballerina.swagger package.
      */
     public SwaggerServiceMapper(String httpAlias, String swaggerAlias) {
@@ -67,6 +69,8 @@ public class SwaggerServiceMapper {
     }
 
     /**
+     * Retrieves the String definition of a Swagger object.
+     *
      * @param swagger Swagger definition
      * @return String representation of current service object.
      */
@@ -107,9 +111,10 @@ public class SwaggerServiceMapper {
         swagger.setPaths(resourceMapper.convertResourceToPath(service.getResources()));
         return swagger;
     }
-    
+
     /**
      * Parses the 'ServiceInfo' annotation and build the swagger definition for it.
+     *
      * @param service The ballerina service which has the 'ServiceInfo' annotation attachment.
      * @param swagger The swagger definition to be built up.
      */
@@ -124,32 +129,36 @@ public class SwaggerServiceMapper {
             List<BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
 
             Map<String, BLangExpression> attributes = ConverterUtils.listToMap(list);
-            if (attributes.containsKey("serviceVersion")) {
-                info.version(ConverterUtils.getStringLiteralValue(attributes.get("serviceVersion")));
+            if (attributes.containsKey(ConverterConstants.ATTR_SERVICE_VERSION)) {
+                info.version(
+                        ConverterUtils.getStringLiteralValue(attributes.get(ConverterConstants.ATTR_SERVICE_VERSION)));
             }
-            if (attributes.containsKey("title")) {
-                info.title(ConverterUtils.getStringLiteralValue(attributes.get("title")));
+            if (attributes.containsKey(ConverterConstants.ATTR_TITLE)) {
+                info.title(ConverterUtils.getStringLiteralValue(attributes.get(ConverterConstants.ATTR_TITLE)));
             }
-            if (attributes.containsKey("description")) {
-                info.description(ConverterUtils.getStringLiteralValue(attributes.get("description")));
+            if (attributes.containsKey(ConverterConstants.ATTR_DESCRIPTION)) {
+                info.description(
+                        ConverterUtils.getStringLiteralValue(attributes.get(ConverterConstants.ATTR_DESCRIPTION)));
             }
-            if (attributes.containsKey("termsOfService")) {
-                info.termsOfService(ConverterUtils.getStringLiteralValue(attributes.get("termsOfService")));
+            if (attributes.containsKey(ConverterConstants.ATTR_TERMS)) {
+                info.termsOfService(
+                        ConverterUtils.getStringLiteralValue(attributes.get(ConverterConstants.ATTR_TERMS)));
             }
             this.createContactModel(attributes.get("contact"), info);
             this.createLicenseModel(attributes.get("license"), info);
-    
+
             this.createExternalDocModel(attributes.get("externalDoc"), swagger);
             this.createTagModel(attributes.get("tags"), swagger);
             this.createOrganizationModel(attributes.get("organization"), info);
         }
         swagger.setInfo(info);
     }
-    
+
     /**
      * Creates vendor extension for organization.
+     *
      * @param annotationExpression The annotation attribute value for organization vendor extension.
-     * @param info The info definition.
+     * @param info                 The info definition.
      */
     private void createOrganizationModel(BLangExpression annotationExpression, Info info) {
         if (null != annotationExpression) {
@@ -158,35 +167,40 @@ public class SwaggerServiceMapper {
                     ConverterUtils.listToMap(orgAnnotation.getKeyValuePairs());
             Organization organization = new Organization();
 
-            if (organizationAttributes.containsKey("name")) {
-                organization.setName(ConverterUtils.getStringLiteralValue(organizationAttributes.get("name")));
+            if (organizationAttributes.containsKey(ConverterConstants.ATTR_NAME)) {
+                organization.setName(
+                        ConverterUtils.getStringLiteralValue(organizationAttributes.get(ConverterConstants.ATTR_NAME)));
             }
-            if (organizationAttributes.containsKey("url")) {
-                organization.setUrl(ConverterUtils.getStringLiteralValue(organizationAttributes.get("url")));
+            if (organizationAttributes.containsKey(ConverterConstants.ATTR_URL)) {
+                organization.setUrl(ConverterUtils
+                        .getStringLiteralValue(organizationAttributes.get(ConverterConstants.ATTR_URL)));
             }
             info.setVendorExtension("x-organization", organization);
         }
     }
-    
+
     /**
      * Creates tag swagger definition.
+     *
      * @param annotationExpression The ballerina annotation attribute value for tag.
-     * @param swagger The swagger definition which the tags needs to be build on.
+     * @param swagger              The swagger definition which the tags needs to be build on.
      */
     private void createTagModel(BLangExpression annotationExpression, Swagger swagger) {
         if (null != annotationExpression) {
             List<Tag> tags = new LinkedList<>();
-            List<? extends ExpressionNode> tagExprs = ((BLangArrayLiteral) annotationExpression).getExpressions();
-            for (ExpressionNode expr : tagExprs) {
+            BLangArrayLiteral tagArray = (BLangArrayLiteral) annotationExpression;
+
+            for (ExpressionNode expr : tagArray.getExpressions()) {
                 List<BLangRecordKeyValue> tagList = ((BLangRecordLiteral) expr).getKeyValuePairs();
                 Map<String, BLangExpression> tagAttributes = ConverterUtils.listToMap(tagList);
                 Tag tag = new Tag();
 
-                if (tagAttributes.containsKey("name")) {
-                    tag.setName(ConverterUtils.getStringLiteralValue(tagAttributes.get("name")));
+                if (tagAttributes.containsKey(ConverterConstants.ATTR_NAME)) {
+                    tag.setName(ConverterUtils.getStringLiteralValue(tagAttributes.get(ConverterConstants.ATTR_NAME)));
                 }
-                if (tagAttributes.containsKey("description")) {
-                    tag.setDescription(ConverterUtils.getStringLiteralValue(tagAttributes.get("description")));
+                if (tagAttributes.containsKey(ConverterConstants.ATTR_DESCRIPTION)) {
+                    tag.setDescription(ConverterUtils
+                            .getStringLiteralValue(tagAttributes.get(ConverterConstants.ATTR_DESCRIPTION)));
                 }
 
                 tags.add(tag);
@@ -195,11 +209,12 @@ public class SwaggerServiceMapper {
             swagger.setTags(Lists.reverse(tags));
         }
     }
-    
+
     /**
      * Creates external docs swagger definition.
+     *
      * @param annotationExpression The ballerina annotation attribute value for external docs.
-     * @param swagger The swagger definition which the external docs needs to be build on.
+     * @param swagger              The swagger definition which the external docs needs to be build on.
      */
     private void createExternalDocModel(BLangExpression annotationExpression, Swagger swagger) {
         if (null != annotationExpression) {
@@ -208,12 +223,13 @@ public class SwaggerServiceMapper {
                     ConverterUtils.listToMap(docAnnotation.getKeyValuePairs());
             ExternalDocs externalDocs = new ExternalDocs();
 
-            if (externalDocAttributes.containsKey("description")) {
-                externalDocs
-                        .setDescription(ConverterUtils.getStringLiteralValue(externalDocAttributes.get("description")));
+            if (externalDocAttributes.containsKey(ConverterConstants.ATTR_DESCRIPTION)) {
+                externalDocs.setDescription(ConverterUtils
+                        .getStringLiteralValue(externalDocAttributes.get(ConverterConstants.ATTR_DESCRIPTION)));
             }
-            if (externalDocAttributes.containsKey("url")) {
-                externalDocs.setUrl(ConverterUtils.getStringLiteralValue(externalDocAttributes.get("url")));
+            if (externalDocAttributes.containsKey(ConverterConstants.ATTR_URL)) {
+                externalDocs.setUrl(ConverterUtils
+                        .getStringLiteralValue(externalDocAttributes.get(ConverterConstants.ATTR_URL)));
             }
     
             swagger.setExternalDocs(externalDocs);
@@ -233,24 +249,27 @@ public class SwaggerServiceMapper {
                     ConverterUtils.listToMap(contactAnnotation.getKeyValuePairs());
             Contact contact = new Contact();
 
-            if (contactAttributes.containsKey("name")) {
-                contact.setName(ConverterUtils.getStringLiteralValue(contactAttributes.get("name")));
+            if (contactAttributes.containsKey(ConverterConstants.ATTR_NAME)) {
+                contact.setName(
+                        ConverterUtils.getStringLiteralValue(contactAttributes.get(ConverterConstants.ATTR_NAME)));
             }
             if (contactAttributes.containsKey("email")) {
                 contact.setEmail(ConverterUtils.getStringLiteralValue(contactAttributes.get("email")));
             }
-            if (contactAttributes.containsKey("url")) {
-                contact.setUrl(ConverterUtils.getStringLiteralValue(contactAttributes.get("url")));
+            if (contactAttributes.containsKey(ConverterConstants.ATTR_URL)) {
+                contact.setUrl(
+                        ConverterUtils.getStringLiteralValue(contactAttributes.get(ConverterConstants.ATTR_URL)));
             }
     
             info.setContact(contact);
         }
     }
-    
+
     /**
      * Creates the license swagger definition.
+     *
      * @param annotationExpression The ballerina annotation attribute value for license.
-     * @param info The info definition which the license needs to be build on.
+     * @param info                 The info definition which the license needs to be build on.
      */
     private void createLicenseModel(BLangExpression annotationExpression, Info info) {
         if (null != annotationExpression) {
@@ -259,11 +278,13 @@ public class SwaggerServiceMapper {
                     ConverterUtils.listToMap(licenseAnnotation.getKeyValuePairs());
             License license = new License();
 
-            if (licenseAttributes.containsKey("name")) {
-                license.setName(ConverterUtils.getStringLiteralValue(licenseAttributes.get("name")));
+            if (licenseAttributes.containsKey(ConverterConstants.ATTR_NAME)) {
+                license.setName(
+                        ConverterUtils.getStringLiteralValue(licenseAttributes.get(ConverterConstants.ATTR_NAME)));
             }
-            if (licenseAttributes.containsKey("url")) {
-                license.setUrl(ConverterUtils.getStringLiteralValue(licenseAttributes.get("url")));
+            if (licenseAttributes.containsKey(ConverterConstants.ATTR_URL)) {
+                license.setUrl(
+                        ConverterUtils.getStringLiteralValue(licenseAttributes.get(ConverterConstants.ATTR_URL)));
             }
             
             info.setLicense(license);
@@ -278,8 +299,9 @@ public class SwaggerServiceMapper {
      * @param swagger The swagger to build up.
      */
     private void parseConfigAnnotationAttachment(ServiceNode service, Swagger swagger) {
-        AnnotationAttachmentNode annotation = ConverterUtils.getAnnotationFromList("ServiceConfig", httpAlias,
-                service.getAnnotationAttachments());
+        AnnotationAttachmentNode annotation = ConverterUtils
+                .getAnnotationFromList(HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG, httpAlias,
+                        service.getAnnotationAttachments());
 
         if (annotation != null) {
             BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
@@ -287,8 +309,9 @@ public class SwaggerServiceMapper {
             List<BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
 
             Map<String, BLangExpression> attributes = ConverterUtils.listToMap(list);
-            if (attributes.containsKey("basePath")) {
-                swagger.setBasePath(ConverterUtils.getStringLiteralValue(attributes.get("basePath")));
+            if (attributes.containsKey(HttpConstants.ANN_CONFIG_ATTR_BASE_PATH)) {
+                swagger.setBasePath(
+                        ConverterUtils.getStringLiteralValue(attributes.get(HttpConstants.ANN_CONFIG_ATTR_BASE_PATH)));
             }
         }
     }

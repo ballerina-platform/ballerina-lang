@@ -30,7 +30,7 @@ function testSuccessScenario () returns (http:Response | error) {
     };
 
     http:Response clientResponse = new;
-    http:Failover foClient = check <http:Failover>backendClientEP.getCallerActions();
+    http:FailoverActions foClient =  backendClientEP.getCallerActions();
     MockClient mockClient1 = new;
     MockClient mockClient2 = new;
     http:CallerActions[] httpClients = [<http:CallerActions> mockClient1, <http:CallerActions> mockClient2];
@@ -60,7 +60,7 @@ function testFailureScenario () returns (http:Response | error) {
     };
 
     error err = {};
-    http:Failover foClient = check <http:Failover>backendClientEP.getCallerActions();
+    http:FailoverActions foClient = backendClientEP.getCallerActions();
     MockClient mockClient1 = new;
     MockClient mockClient2 = new;
     http:CallerActions[] httpClients = [<http:CallerActions> mockClient1, <http:CallerActions> mockClient2];

@@ -203,8 +203,8 @@
                             <value>"version": "\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion}",</value>
                         </replacement>
                         <replacement>
-                            <token>className="version"&gt;v(.*?)&lt;</token>
-                            <value>className="version"&gt;v\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion}.\${parsedVersion.qualifier}&lt;</value>
+                            <token>className='version'&gt;v(.*?)&lt;</token>
+                            <value>className='version'&gt;v\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion}.\${parsedVersion.qualifier}&lt;</value>
                         </replacement>
                         <replacement>
                             <token>https://ballerinalang.org/docs/api/(.*?)/</token>

@@ -96,10 +96,12 @@ public class PackageNameContextResolver extends AbstractItemResolver {
 
     private ArrayList<CompletionItem> getPackageNameCompletions(String orgName, List<BallerinaPackage> packagesList) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        
+        List<String> pkgNameLabels = new ArrayList<>();
+
         packagesList.forEach(ballerinaPackage -> {
-            if (orgName.equals(ballerinaPackage.getOrgName())) {
-                String label = ballerinaPackage.getPackageName();
+            String label = ballerinaPackage.getPackageName();
+            if (orgName.equals(ballerinaPackage.getOrgName()) && !pkgNameLabels.contains(label)) {
+                pkgNameLabels.add(label);
                 String insertText = label + ";";
                 fillImportCompletion(label, insertText, completionItems);
             }

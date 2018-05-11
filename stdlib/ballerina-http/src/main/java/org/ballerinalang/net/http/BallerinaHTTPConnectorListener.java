@@ -86,7 +86,11 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
                 extractPropertiesAndStartResourceExecution(inboundMessage, httpResource);
             }
         } catch (BallerinaException ex) {
-            HttpUtil.handleFailure(inboundMessage, new BallerinaConnectorException(ex.getMessage(), ex.getCause()));
+            try {
+                HttpUtil.handleFailure(inboundMessage, new BallerinaConnectorException(ex.getMessage(), ex.getCause()));
+            } catch (Exception e) {
+                log.error("Cannot handle error using the error handler for: " + e.getMessage(), e);
+            }
         }
     }
 
@@ -136,8 +140,8 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         return filterCtxtStruct;
     }
 
-    protected boolean accessed(HTTPCarbonMessage httpCarbonMessage) {
-        return httpCarbonMessage.getProperty(HTTP_RESOURCE) != null;
+    protected boolean accessed(HTTPCarbonMessage inboundMessage) {
+        return inboundMessage.getProperty(HTTP_RESOURCE) != null;
     }
 
     private Map<String, Object> collectRequestProperties(HTTPCarbonMessage inboundMessage, boolean isInfectable) {

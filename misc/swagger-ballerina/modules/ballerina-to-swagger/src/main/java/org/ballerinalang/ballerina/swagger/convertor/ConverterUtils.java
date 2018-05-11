@@ -16,6 +16,7 @@ public class ConverterUtils {
     /**
      * Converts the attributes of an annotation to a map of key being attribute key and value being an annotation
      * attachment value.
+     *
      * @param list The BLangRecord list.
      * @return A map of attributes.
      */
@@ -29,6 +30,7 @@ public class ConverterUtils {
 
     /**
      * Coverts the string value of an annotation attachment to a string.
+     *
      * @param valueNode The annotation attachment.
      * @return The string value.
      */
@@ -41,7 +43,7 @@ public class ConverterUtils {
     }
 
     /**
-     * Retrieve a specific annotation by name from a list of annotations.
+     * Retrieves a specific annotation by name from a list of annotations.
      *
      * @param name        name of the required annotation
      * @param pkg         package of the required annotation
