@@ -313,16 +313,15 @@ function performFailoverAction (string path, Request request, HttpOperation requ
     Response inResponse = new;
     Request failoverRequest = request;
     failoverActionErr.httpActionErr = [];
-
-    // When performing passthrough scenarios using Failover connector, message needs to be built before trying out the
-    // failover endpoints to keep the request message to failover the messages.
-    var binaryPayload = failoverRequest.getBinaryPayload();
-
     mime:Entity requestEntity = new;
-    var mimeEntity = failoverRequest.getEntity();
-    match mimeEntity {
-        mime:Entity entity => requestEntity = entity;
-        error err=> io:println(err.message);
+
+    if (isMultipartRequest(failoverRequest)) {
+        failoverRequest = populateMultipartRequest(failoverRequest);
+    } else {
+        // When performing passthrough scenarios using Failover connector, message needs to be built before trying
+        // out the failover endpoints to keep the request message to failover the messages.
+        var binaryPayload = failoverRequest.getBinaryPayload();
+        requestEntity = check failoverRequest.getEntity();
     }
     while (startIndex != currentIndex) {
         startIndex = initialIndex;
@@ -334,10 +333,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
                 int httpStatusCode = response.statusCode;
                 if (failoverCodeIndex[httpStatusCode] == true) {
                     if (noOfEndpoints > currentIndex) {
-                        Request newOutRequest = new;
-                        populateRequestFields(failoverRequest, newOutRequest);
-                        newOutRequest.setEntity(requestEntity);
-                        failoverRequest = newOutRequest;
+                        failoverRequest = createFailoverRequest(failoverRequest, requestEntity);
                         runtime:sleep(failoverInterval);
                         failoverClient = failoverClients[currentIndex];
                         populateFailoverErrorHttpStatusCodes(inResponse, failoverActionErr, currentIndex - 1);
@@ -350,10 +346,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
                 }
             }
             error httpConnectorErr => {
-                Request newOutRequest = new;
-                populateRequestFields(failoverRequest, newOutRequest);
-                newOutRequest.setEntity(requestEntity);
-                failoverRequest = newOutRequest;
+                failoverRequest = createFailoverRequest(failoverRequest, requestEntity);
                 if (noOfEndpoints > currentIndex) {
                     runtime:sleep(failoverInterval);
                     failoverActionErr.httpActionErr[currentIndex - 1] = httpConnectorErr;

@@ -1352,9 +1352,21 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             ((BLangWhere) beforeWhereNode).accept(this);
         }
 
+        List<ExpressionNode> preInvocations = streamingInput.getPreFunctionInvocations();
+        if (preInvocations != null) {
+            preInvocations.stream().map(expr -> (BLangExpression) expr)
+                    .forEach(expression -> expression.accept(this));
+        }
+
         WindowClauseNode windowClauseNode = streamingInput.getWindowClause();
         if (windowClauseNode != null) {
             ((BLangWindow) windowClauseNode).accept(this);
+        }
+
+        List<ExpressionNode> postInvocations = streamingInput.getPostFunctionInvocations();
+        if (postInvocations != null) {
+            postInvocations.stream().map(expressionNode -> (BLangExpression) expressionNode)
+                    .forEach(expression -> expression.accept(this));
         }
 
         WhereNode afterWhereNode = streamingInput.getAfterStreamingCondition();
