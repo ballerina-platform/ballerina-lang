@@ -857,7 +857,8 @@ setAssignmentClause
     ;
 
 streamingInput
-    :   variableReference whereClause?  windowClause? whereClause? (AS alias=Identifier)?
+    :   variableReference whereClause? functionInvocation* windowClause? functionInvocation* whereClause? (AS
+    alias=Identifier)?
     ;
 
 joinStreamingInput
@@ -902,12 +903,12 @@ joinType
     ;
 
 timeScale
-    : SECOND
-    | MINUTE
-    | HOUR
-    | DAY
-    | MONTH
-    | YEAR
+    : SECOND | SECONDS
+    | MINUTE | MINUTES
+    | HOUR | HOURS
+    | DAY | DAYS
+    | MONTH | MONTHS
+    | YEAR | YEARS
     ;
 
 // Deprecated parsing.

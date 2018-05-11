@@ -19,20 +19,23 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSPackageCache;
+import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
-import org.ballerinalang.model.elements.DocTag;
-import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.VariableNode;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Diagnostic;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangEnum;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
@@ -46,6 +49,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Utilities for the command related operations.
@@ -98,19 +103,19 @@ public class CommandUtil {
             Path openedPath = CommonUtil.getPath(sourceDocument);
             String sourceRoot = LSCompiler.getSourceRoot(openedPath);
             sourceDocument.setSourceRoot(sourceRoot);
-
-            lsPackageCache.getPackageMap().entrySet().stream()
+            List<BallerinaPackage> packagesList = new ArrayList<>();
+            Stream.of(LSPackageLoader.getSdkPackages(), LSPackageLoader.getHomeRepoPackages())
+                    .forEach(packagesList::addAll);
+            packagesList.stream()
                     .filter(pkgEntry -> {
-                        String fullPkgName = pkgEntry.getValue().packageID.orgName.getValue()
-                                + "/" + pkgEntry.getValue().packageID.getName().getValue();
+                        String fullPkgName = pkgEntry.getFullPackageNameAlias();
                         return fullPkgName.endsWith("." + packageAlias) || fullPkgName.endsWith("/" + packageAlias);
                     })
                     .forEach(pkgEntry -> {
-                        PackageID packageID = pkgEntry.getValue().packageID;
-                        String commandTitle = CommandConstants.IMPORT_PKG_TITLE + " " + packageID.getName().toString();
-                        String fullPkgName = packageID.getOrgName() + "/" + packageID.getName().getValue();
-                        CommandArgument pkgArgument =
-                                new CommandArgument(CommandConstants.ARG_KEY_PKG_NAME, fullPkgName);
+                        String commandTitle = CommandConstants.IMPORT_PKG_TITLE + " "
+                                + pkgEntry.getFullPackageNameAlias();
+                        CommandArgument pkgArgument = new CommandArgument(CommandConstants.ARG_KEY_PKG_NAME,
+                                pkgEntry.getFullPackageNameAlias());
                         CommandArgument docUriArgument = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI,
                                 params.getTextDocument().getUri());
                         commands.add(new Command(commandTitle, CommandConstants.CMD_IMPORT_PACKAGE,
@@ -125,7 +130,7 @@ public class CommandUtil {
      * Get the Documentation attachment for the function.
      * @param bLangPackage      BLangPackage built
      * @param line              Start line of the function in the source
-     * @return {@link String}   Documentation attachment for the function
+     * @return {@link DocAttachmentInfo}   Documentation attachment for the function
      */
     static DocAttachmentInfo getFunctionDocumentationByPosition(BLangPackage bLangPackage, int line) {
         List<FunctionNode> filteredFunctions = new ArrayList<>();
@@ -176,7 +181,7 @@ public class CommandUtil {
      * Get the Documentation attachment for the struct definition.
      * @param bLangPackage      BLangPackage built
      * @param line              Start line of the struct in the source
-     * @return {@link String}   Documentation attachment for the struct
+     * @return {@link DocAttachmentInfo}   Documentation attachment for the struct
      */
     static DocAttachmentInfo getStructDocumentationByPosition(BLangPackage bLangPackage, int line) {
         for (TopLevelNode topLevelNode : bLangPackage.topLevelNodes) {
@@ -203,19 +208,19 @@ public class CommandUtil {
     }
 
     /**
-     * Get the Documentation attachment for the enum.
+     * Get the Documentation attachment for the endpoint.
      * @param bLangPackage      BLangPackage built
      * @param line              Start line of the enum in the source
-     * @return {@link String}   Documentation attachment for the enum
+     * @return {@link DocAttachmentInfo}   Documentation attachment for the enum
      */
-    static DocAttachmentInfo getEnumDocumentationByPosition(BLangPackage bLangPackage, int line) {
+    static DocAttachmentInfo getEndpointDocumentationByPosition(BLangPackage bLangPackage, int line) {
         for (TopLevelNode topLevelNode : bLangPackage.topLevelNodes) {
-            if (topLevelNode instanceof BLangEnum) {
-                BLangEnum enumNode = (BLangEnum) topLevelNode;
-                DiagnosticPos enumPos = CommonUtil.toZeroBasedPosition(enumNode.getPosition());
-                int enumStart = enumPos.getStartLine();
-                if (enumStart == line) {
-                    return getEnumNodeDocumentation(enumNode, line);
+            if (topLevelNode instanceof BLangEndpoint) {
+                BLangEndpoint endpointNode = (BLangEndpoint) topLevelNode;
+                DiagnosticPos enumPos = CommonUtil.toZeroBasedPosition(endpointNode.getPosition());
+                int endpointStart = enumPos.getStartLine();
+                if (endpointStart == line) {
+                    return getEndpointNodeDocumentation(endpointNode, line);
                 }
             }
         }
@@ -223,22 +228,17 @@ public class CommandUtil {
         return null;
     }
 
-    static DocAttachmentInfo getEnumNodeDocumentation(BLangEnum bLangEnum, int replaceFrom) {
-        List<String> attributes = new ArrayList<>();
-        DiagnosticPos enumPos = CommonUtil.toZeroBasedPosition(bLangEnum.getPosition());
-        int offset = enumPos.getStartColumn();
+    static DocAttachmentInfo getEndpointNodeDocumentation(BLangEndpoint bLangEndpoint, int replaceFrom) {
+        DiagnosticPos endpointPos = CommonUtil.toZeroBasedPosition(bLangEndpoint.getPosition());
 
-        bLangEnum.getEnumerators().forEach(enumerator -> attributes
-                .add(getDocumentationAttribute(DocTag.FIELD.getValue(), enumerator.getName().getValue(), offset)));
-
-        return new DocAttachmentInfo(getDocumentationAttachment(attributes, enumPos.getStartColumn()), replaceFrom);
+        return new DocAttachmentInfo(getDocumentationAttachment(null, endpointPos.getStartColumn()), replaceFrom);
     }
 
     /**
      * Get the Documentation attachment for the transformer.
      * @param bLangPackage      BLangPackage built
      * @param line              Start line of the transformer in the source
-     * @return {@link String}   Documentation attachment for the transformer
+     * @return {@link DocAttachmentInfo}   Documentation attachment for the transformer
      */
     static DocAttachmentInfo getTransformerDocumentationByPosition(BLangPackage bLangPackage, int line) {
         for (TopLevelNode topLevelNode : bLangPackage.topLevelNodes) {
@@ -275,7 +275,7 @@ public class CommandUtil {
      * Get the Documentation attachment for the resource.
      * @param bLangPackage      BLangPackage built
      * @param line              Start line of the resource in the source
-     * @return {@link String}   Documentation attachment for the resource
+     * @return {@link DocAttachmentInfo}   Documentation attachment for the resource
      */
     static DocAttachmentInfo getResourceDocumentationByPosition(BLangPackage bLangPackage, int line) {
         // TODO: Currently resource position is invalid and we use the annotation attachment positions.
@@ -318,7 +318,7 @@ public class CommandUtil {
      * Get the Documentation attachment for the service.
      * @param bLangPackage      BLangPackage built
      * @param line              Start line of the service in the source
-     * @return {@link String}   Documentation attachment for the service
+     * @return {@link DocAttachmentInfo}   Documentation attachment for the service
      */
     static DocAttachmentInfo getServiceDocumentationByPosition(BLangPackage bLangPackage, int line) {
         // TODO: Currently resource position is invalid and we use the annotation attachment positions.
@@ -341,6 +341,45 @@ public class CommandUtil {
         }
 
         return null;
+    }
+    
+    /**
+     * Get the Documentation attachment for the type nodes.
+     * @param bLangPackage      BLangPackage built
+     * @param line              Start line of the type node in the source
+     * @return {@link DocAttachmentInfo}   Documentation attachment for the type node
+     */
+    static DocAttachmentInfo getTypeNodeDocumentationByPosition(BLangPackage bLangPackage, int line) {
+        for (TopLevelNode topLevelNode : bLangPackage.topLevelNodes) {
+            DiagnosticPos typeNodePos;
+            typeNodePos = (DiagnosticPos) topLevelNode.getPosition();
+            if ((topLevelNode instanceof BLangRecord || topLevelNode instanceof BLangObject)
+                    && typeNodePos.getStartLine() - 1 == line) {
+                return getTypeNodeDocumentation(topLevelNode, line);
+            }
+        }
+        
+        return null;
+    }
+    
+    static DocAttachmentInfo getTypeNodeDocumentation(TopLevelNode typeNode, int replaceFrom) {
+        List<String> attributes = new ArrayList<>();
+        DiagnosticPos typeNodePos = CommonUtil.toZeroBasedPosition((DiagnosticPos) typeNode.getPosition());
+        int offset = typeNodePos.getStartColumn();
+        List<VariableNode> publicFields = new ArrayList<>();
+        if (typeNode instanceof BLangObject) {
+            publicFields.addAll(((BLangObject) typeNode).getFields().stream()
+                    .filter(field -> field.getFlags().contains(Flag.PUBLIC)).collect(Collectors.toList()));
+            
+        } else if (typeNode instanceof BLangRecord) {
+            publicFields.addAll(((BLangRecord) typeNode).getFields());
+        }
+        
+        publicFields.forEach(variableNode -> {
+            attributes.add(getDocAttributeFromBLangVariable((BLangVariable) variableNode, offset));
+        });
+        
+        return new DocAttachmentInfo(getDocumentationAttachment(attributes, offset), replaceFrom);
     }
 
     static DocAttachmentInfo getServiceNodeDocumentation(BLangService bLangService, int replaceFrom) {

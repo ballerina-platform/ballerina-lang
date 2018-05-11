@@ -36,8 +36,11 @@ import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.ZonedDateTime;
@@ -68,10 +71,14 @@ public class HttpCachingClientTest {
     private CompileResult compileResult;
     
     @BeforeClass
-    public void setup() {
+    public void setup() throws IOException {
         String httpModuleSourcePath = HttpConstants.class.getProtectionDomain().getCodeSource().getLocation().getPath();
         Path sourceRoot = Paths.get(httpModuleSourcePath, "META-INF", "ballerina");
-        compileResult = BCompileUtil.compile(sourceRoot.toString(), "http", CompilerPhase.CODE_GEN);
+        if (Files.notExists(Paths.get(sourceRoot.toString(), ".ballerina"))) {
+            Files.createDirectory(Paths.get(sourceRoot.toString(), ".ballerina"));
+        }
+        compileResult = BCompileUtil.compile(sourceRoot.toString(), "http", CompilerPhase.CODE_GEN,
+                                             new FileSystemProjectDirectory(sourceRoot));
     }
 
     @Test(description = "Tests whether the Age header is parsed correctly, according to the specification",
@@ -276,8 +283,8 @@ public class HttpCachingClientTest {
         HTTPCarbonMessage cachedResponseMsg = HttpUtil.createHttpCarbonMessage(false);
         cachedResponseMsg.setProperty(HTTP_STATUS_CODE, 200);
         cachedResponseMsg.setHeader(AGE, "10");
-        ;
-        initInboundResponse(cachedResponse, responseCacheControl, cachedResponseMsg);
+        cachedResponseMsg.setHeader(CACHE_CONTROL, responseCacheControl.buildCacheControlDirectives());
+        initInboundResponse(cachedResponse, cachedResponseMsg);
 
         BValue[] inputArgs = {requestCacheControl.getStruct(), cachedResponse, new BBoolean(isSharedCache)};
         BValue[] returns = BRunUtil.invoke(compileResult, "isStaleResponseAccepted", inputArgs);
@@ -366,7 +373,8 @@ public class HttpCachingClientTest {
         cachedResponseMsg.setProperty(HTTP_STATUS_CODE, 200);
         cachedResponseMsg.setHeader(DATE, dateHeader);
         cachedResponseMsg.setHeader(EXPIRES, expiresHeader);
-        initInboundResponse(cachedResponse, responseCacheControl, cachedResponseMsg);
+        cachedResponseMsg.setHeader(CACHE_CONTROL, responseCacheControl.buildCacheControlDirectives());
+        initInboundResponse(cachedResponse, cachedResponseMsg);
 
         // Parameters: cached response and whether the cache is a shared cache
         BValue[] inputArgs = {cachedResponse, new BBoolean(true)};
@@ -428,7 +436,8 @@ public class HttpCachingClientTest {
         cachedResponseMsg.setHeader(AGE, String.valueOf(200));
         cachedResponseMsg.setHeader(DATE, dateHeader);
         cachedResponseMsg.setHeader(EXPIRES, expiresHeader);
-        initInboundResponse(cachedResponse, responseCacheControl, cachedResponseMsg);
+        cachedResponseMsg.setHeader(CACHE_CONTROL, responseCacheControl.buildCacheControlDirectives());
+        initInboundResponse(cachedResponse, cachedResponseMsg);
 
         HttpHeaders responseHeaders = cachedResponseMsg.getHeaders();
 
@@ -469,21 +478,12 @@ public class HttpCachingClientTest {
     }
 
     private void initInboundResponse(BStruct inResponse, HTTPCarbonMessage inResponseMsg) {
-        ResponseCacheControlStruct cacheControl
-                = new ResponseCacheControlStruct(compileResult.getProgFile()
-                                                         .getPackageInfo(PROTOCOL_PACKAGE_HTTP)
-                                                         .getStructInfo(RESPONSE_CACHE_CONTROL));
-        initInboundResponse(inResponse, cacheControl, inResponseMsg);
-    }
-
-    private void initInboundResponse(BStruct inResponse, ResponseCacheControlStruct cacheControl,
-                                     HTTPCarbonMessage inResponseMsg) {
         HttpUtil.addCarbonMsg(inResponse, inResponseMsg);
         BStruct entity = BCompileUtil.createAndGetStruct(compileResult.getProgFile(), Constants.PROTOCOL_PACKAGE_MIME,
                                                          Constants.ENTITY);
         BStruct mediaType = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
                                                             Constants.PROTOCOL_PACKAGE_MIME, Constants.MEDIA_TYPE);
-        HttpUtil.populateInboundResponse(inResponse, entity, mediaType, cacheControl, inResponseMsg);
+        HttpUtil.populateInboundResponse(inResponse, entity, mediaType, compileResult.getProgFile(), inResponseMsg);
     }
 
     private void initOutboundRequest(BStruct outRequest, RequestCacheControlStruct cacheControl) {

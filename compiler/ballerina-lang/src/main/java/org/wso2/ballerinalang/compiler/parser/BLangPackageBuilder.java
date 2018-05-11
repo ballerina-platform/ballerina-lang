@@ -2950,6 +2950,13 @@ public class BLangPackageBuilder {
         windowClauseNode.addWS(ws);
         windowClauseNode.setFunctionInvocation(this.exprNodeStack.pop());
 
+        if (this.exprNodeStack.size() > 1) { // contains other than the streaming input name reference
+            List<ExpressionNode> exprList = new ArrayList<>();
+            addExprToExprNodeList(exprList, this.exprNodeStack.size() - 1);
+            StreamingInput streamingInput = this.streamingInputStack.peek();
+            streamingInput.setPreFunctionInvocations(exprList);
+        }
+
         if (!this.whereClauseStack.empty()) {
             this.streamingInputStack.peek().setWindowTraversedAfterWhere(true);
         } else {
@@ -2978,6 +2985,12 @@ public class BLangPackageBuilder {
             } else {
                 streamingInput.setAfterStreamingCondition(this.whereClauseStack.pop());
             }
+        }
+
+        if (this.exprNodeStack.size() > 1) {
+            List<ExpressionNode> exprList = new ArrayList<>();
+            addExprToExprNodeList(exprList, this.exprNodeStack.size() - 1);
+            streamingInput.setPostFunctionInvocations(exprList);
         }
 
         if (!this.windowClausesStack.empty()) {
@@ -3276,14 +3289,13 @@ public class BLangPackageBuilder {
     }
 
     public void endOutputRateLimitNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isSnapshotOutputRateLimit,
-                                       boolean isEventBasedOutputRateLimit, boolean isFirst, boolean isLast,
-                                       boolean isAll, String timeScale, String rateLimitValue) {
+                                       boolean isFirst, boolean isLast, boolean isAll, String timeScale,
+                                       String rateLimitValue) {
         OutputRateLimitNode outputRateLimit = this.outputRateLimitStack.peek();
         ((BLangOutputRateLimit) outputRateLimit).pos = pos;
         outputRateLimit.addWS(ws);
 
         outputRateLimit.setSnapshot(isSnapshotOutputRateLimit);
-        outputRateLimit.setEventBasedRateLimit(isEventBasedOutputRateLimit);
         outputRateLimit.setOutputRateType(isFirst, isLast, isAll);
         outputRateLimit.setTimeScale(timeScale);
         outputRateLimit.setRateLimitValue(rateLimitValue);

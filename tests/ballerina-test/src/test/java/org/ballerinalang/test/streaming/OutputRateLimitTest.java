@@ -34,10 +34,12 @@ import org.testng.annotations.Test;
 public class OutputRateLimitTest {
 
     private CompileResult result;
+    private CompileResult resultForTimeBasedRateLimiting;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/streaming/output-rate-limiting-test.bal");
+        resultForTimeBasedRateLimiting = BCompileUtil.compile("test-src/streaming/output-rate-limiting-time-test.bal");
     }
 
     @Test(description = "Test output rate limiting query")
@@ -54,4 +56,13 @@ public class OutputRateLimitTest {
         Assert.assertEquals(employee1.getStringField(0), "Praveen");
     }
 
+    @Test(description = "Test output rate limiting query based on time")
+    public void testOutputRateLimitWithTimeQuery() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(resultForTimeBasedRateLimiting, "startOutputRateLimitQuery");
+        Assert.assertNotNull(outputEmployeeEvents);
+        Assert.assertEquals(outputEmployeeEvents.length, 1, "Expected events are not received");
+
+        BStruct employee0 = (BStruct) outputEmployeeEvents[0];
+        Assert.assertEquals(employee0.getStringField(0), "Raja");
+    }
 }

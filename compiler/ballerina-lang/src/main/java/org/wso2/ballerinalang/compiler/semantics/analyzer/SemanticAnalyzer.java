@@ -1352,9 +1352,21 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             ((BLangWhere) beforeWhereNode).accept(this);
         }
 
+        List<ExpressionNode> preInvocations = streamingInput.getPreFunctionInvocations();
+        if (preInvocations != null) {
+            preInvocations.stream().map(expr -> (BLangExpression) expr)
+                    .forEach(expression -> expression.accept(this));
+        }
+
         WindowClauseNode windowClauseNode = streamingInput.getWindowClause();
         if (windowClauseNode != null) {
             ((BLangWindow) windowClauseNode).accept(this);
+        }
+
+        List<ExpressionNode> postInvocations = streamingInput.getPostFunctionInvocations();
+        if (postInvocations != null) {
+            postInvocations.stream().map(expressionNode -> (BLangExpression) expressionNode)
+                    .forEach(expression -> expression.accept(this));
         }
 
         WhereNode afterWhereNode = streamingInput.getAfterStreamingCondition();
@@ -1675,6 +1687,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
                 if (handlerType.paramTypes.get(0).tag != TypeTags.STRING) {
                     dlog.error(transactionHanlder.pos, DiagnosticCode.INVALID_TRANSACTION_HANDLER_ARGS);
+                }
+                if (handlerType.retType.tag != TypeTags.NIL) {
+                    dlog.error(transactionHanlder.pos, DiagnosticCode.INVALID_TRANSACTION_HANDLER_SIGNATURE);
                 }
             } else {
                 dlog.error(transactionHanlder.pos, DiagnosticCode.LAMBDA_REQUIRED_FOR_TRANSACTION_HANDLER);

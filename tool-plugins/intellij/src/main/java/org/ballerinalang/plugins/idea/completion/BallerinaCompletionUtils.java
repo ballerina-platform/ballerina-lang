@@ -27,23 +27,31 @@ import com.intellij.codeInsight.template.TemplateManager;
 import com.intellij.codeInsight.template.impl.TemplateSettings;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorModificationUtil;
-import com.intellij.psi.PsiDirectory;
+import com.intellij.openapi.util.Iconable;
+import com.intellij.openapi.util.Key;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
-import org.ballerinalang.plugins.idea.documentation.BallerinaDocumentationProvider;
-import org.ballerinalang.plugins.idea.psi.EnumFieldNode;
-import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
-import org.ballerinalang.plugins.idea.psi.TypeNameNode;
-import org.ballerinalang.plugins.idea.psi.WorkerDeclarationNode;
-import org.ballerinalang.plugins.idea.util.BallerinaUtil;
+import org.ballerinalang.plugins.idea.completion.inserthandlers.BracesInsertHandler;
+import org.ballerinalang.plugins.idea.completion.inserthandlers.ParenthesisWithSemicolonInsertHandler;
+import org.ballerinalang.plugins.idea.completion.inserthandlers.SemiolonInsertHandler;
+import org.ballerinalang.plugins.idea.psi.BallerinaAnyIdentifierName;
+import org.ballerinalang.plugins.idea.psi.BallerinaCallableUnitSignature;
+import org.ballerinalang.plugins.idea.psi.BallerinaFormalParameterList;
+import org.ballerinalang.plugins.idea.psi.BallerinaFunctionDefinition;
+import org.ballerinalang.plugins.idea.psi.BallerinaObjectCallableUnitSignature;
+import org.ballerinalang.plugins.idea.psi.BallerinaObjectFunctionDefinition;
+import org.ballerinalang.plugins.idea.psi.BallerinaObjectInitializer;
+import org.ballerinalang.plugins.idea.psi.BallerinaObjectInitializerParameterList;
+import org.ballerinalang.plugins.idea.psi.BallerinaObjectParameterList;
+import org.ballerinalang.plugins.idea.psi.BallerinaReturnParameter;
+import org.ballerinalang.plugins.idea.psi.BallerinaReturnType;
+import org.ballerinalang.plugins.idea.psi.BallerinaTypeDefinition;
+import org.ballerinalang.plugins.idea.psi.BallerinaUserDefineTypeName;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaTopLevelDefinition;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Util methods and constants related to code completion.
@@ -52,61 +60,73 @@ public class BallerinaCompletionUtils {
 
     private static final int VARIABLE_PRIORITY = 20;
     private static final int FUNCTION_PRIORITY = VARIABLE_PRIORITY - 1;
-    private static final int VALUE_TYPES_PRIORITY = VARIABLE_PRIORITY - 1;
-    private static final int REFERENCE_TYPES_PRIORITY = VARIABLE_PRIORITY - 1;
+    private static final int GLOBAL_VARIABLE_PRIORITY = FUNCTION_PRIORITY - 1;
+    private static final int VALUE_TYPES_PRIORITY = VARIABLE_PRIORITY - 2;
+    private static final int REFERENCE_TYPES_PRIORITY = VARIABLE_PRIORITY - 2;
+    private static final int TYPE_PRIORITY = VARIABLE_PRIORITY - 2;
     private static final int PACKAGE_PRIORITY = VALUE_TYPES_PRIORITY - 1;
     private static final int UNIMPORTED_PACKAGE_PRIORITY = PACKAGE_PRIORITY - 1;
-    private static final int STRUCT_PRIORITY = VALUE_TYPES_PRIORITY - 1;
     private static final int CONNECTOR_PRIORITY = VALUE_TYPES_PRIORITY - 1;
     private static final int ACTION_PRIORITY = VALUE_TYPES_PRIORITY - 1;
     private static final int ANNOTATION_PRIORITY = VALUE_TYPES_PRIORITY - 1;
     private static final int ENUM_PRIORITY = VALUE_TYPES_PRIORITY - 1;
-    private static final int KEYWORDS_PRIORITY = VALUE_TYPES_PRIORITY - 2;
+    public static final int KEYWORDS_PRIORITY = VALUE_TYPES_PRIORITY - 2;
+
+
+    public static final Key<String> HAS_A_RETURN_VALUE = Key.create("HAS_A_RETURN_VALUE");
+    public static final Key<String> REQUIRE_PARAMETERS = Key.create("REQUIRE_PARAMETERS");
+
+    public static final Key<String> PUBLIC_DEFINITIONS_ONLY = Key.create("PUBLIC_DEFINITIONS_ONLY");
 
     // File level keywords
-    private static final LookupElementBuilder PUBLIC;
-    private static final LookupElementBuilder PACKAGE;
-    private static final LookupElementBuilder IMPORT;
-    private static final LookupElementBuilder CONST;
-    private static final LookupElementBuilder SERVICE;
-    private static final LookupElementBuilder RESOURCE;
-    private static final LookupElementBuilder FUNCTION;
-    private static final LookupElementBuilder CONNECTOR;
-    private static final LookupElementBuilder ACTION;
-    private static final LookupElementBuilder STRUCT;
     private static final LookupElementBuilder ANNOTATION;
-    private static final LookupElementBuilder ATTACH;
-    private static final LookupElementBuilder PARAMETER;
+    private static final LookupElementBuilder ENDPOINT;
+    private static final LookupElementBuilder FUNCTION;
+    private static final LookupElementBuilder IMPORT;
+    private static final LookupElementBuilder PUBLIC;
+    private static final LookupElementBuilder SERVICE;
+    private static final LookupElementBuilder TYPE;
     private static final LookupElementBuilder XMLNS;
-    private static final LookupElementBuilder ENUM;
-    private static final LookupElementBuilder TRANSFORMER;
 
     // Simple types
-    private static final LookupElementBuilder BOOLEAN;
-    private static final LookupElementBuilder INT;
-    private static final LookupElementBuilder FLOAT;
-    private static final LookupElementBuilder STRING;
     private static final LookupElementBuilder BLOB;
+    private static final LookupElementBuilder BOOLEAN;
+    private static final LookupElementBuilder FLOAT;
+    private static final LookupElementBuilder INT;
+    private static final LookupElementBuilder STRING;
 
     // Reference types
-    private static final LookupElementBuilder MESSAGE;
-    private static final LookupElementBuilder MAP;
-    private static final LookupElementBuilder XML;
+    private static final LookupElementBuilder ANY;
+    private static final LookupElementBuilder FUTURE;
     private static final LookupElementBuilder JSON;
-    private static final LookupElementBuilder DATATABLE;
+    private static final LookupElementBuilder MAP;
+    private static final LookupElementBuilder STREAM;
+    private static final LookupElementBuilder TABLE;
+    private static final LookupElementBuilder TYPE_DESC;
+    private static final LookupElementBuilder XML;
 
     // Other types
-    private static final LookupElementBuilder ANY;
     private static final LookupElementBuilder VAR;
-    private static final LookupElementBuilder TYPE;
+
+    // Expression keywords
+    private static final LookupElementBuilder AWAIT;
+    private static final LookupElementBuilder CHECK;
+    private static final LookupElementBuilder LENGTH_OF;
+    private static final LookupElementBuilder START;
+    private static final LookupElementBuilder UNTAINT;
+
+    private static final LookupElementBuilder BIND;
+
+    private static final LookupElementBuilder OBJECT;
+
+    private static final LookupElementBuilder NEW;
 
     // Other keywords
-    private static final LookupElementBuilder TYPE_OF;
-    private static final LookupElementBuilder LENGTH_OF;
+
     private static final LookupElementBuilder RETURN;
     private static final LookupElementBuilder IF;
     private static final LookupElementBuilder ELSE;
-    private static final LookupElementBuilder CREATE;
+    private static final LookupElementBuilder MATCH;
     private static final LookupElementBuilder FORK;
     private static final LookupElementBuilder JOIN;
     private static final LookupElementBuilder ALL;
@@ -114,7 +134,7 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder TIMEOUT;
     private static final LookupElementBuilder WORKER;
     private static final LookupElementBuilder TRANSACTION;
-    private static final LookupElementBuilder FAILED;
+    private static final LookupElementBuilder RETRY;
     private static final LookupElementBuilder ABORT;
     private static final LookupElementBuilder TRY;
     private static final LookupElementBuilder CATCH;
@@ -129,57 +149,60 @@ public class BallerinaCompletionUtils {
 
     private static final LookupElementBuilder TRUE;
     private static final LookupElementBuilder FALSE;
-    private static final LookupElementBuilder NULL;
 
 
     static {
-        PUBLIC = createKeywordLookupElement("public");
-        PACKAGE = createKeywordLookupElement("package");
-        IMPORT = createKeywordLookupElement("import");
-        CONST = createKeywordLookupElement("const");
-        SERVICE = createKeywordLookupElement("service");
-        RESOURCE = createKeywordLookupElement("resource");
-        FUNCTION = createKeywordLookupElement("function");
-        CONNECTOR = createKeywordLookupElement("connector");
-        ACTION = createKeywordLookupElement("action");
-        STRUCT = createKeywordLookupElement("struct");
         ANNOTATION = createKeywordLookupElement("annotation");
-        ATTACH = createKeywordLookupElement("attach");
-        PARAMETER = createKeywordLookupElement("parameter");
+        ENDPOINT = createKeywordLookupElement("endpoint");
+        FUNCTION = createKeywordLookupElement("function");
+        IMPORT = createKeywordLookupElement("import");
+        PUBLIC = createKeywordLookupElement("public");
+        SERVICE = createKeywordLookupElement("service");
+        TYPE = createKeywordLookupElement("type");
         XMLNS = createKeywordLookupElement("xmlns");
-        ENUM = createKeywordLookupElement("enum");
-        TRANSFORMER = createKeywordLookupElement("transformer");
 
-        BOOLEAN = createTypeLookupElement("boolean", AddSpaceInsertHandler.INSTANCE);
-        INT = createTypeLookupElement("int", AddSpaceInsertHandler.INSTANCE);
-        FLOAT = createTypeLookupElement("float", AddSpaceInsertHandler.INSTANCE);
-        STRING = createTypeLookupElement("string", AddSpaceInsertHandler.INSTANCE);
-        BLOB = createTypeLookupElement("blob", AddSpaceInsertHandler.INSTANCE);
+        BLOB = createLookupElement("blob", AddSpaceInsertHandler.INSTANCE);
+        BOOLEAN = createLookupElement("boolean", AddSpaceInsertHandler.INSTANCE);
+        FLOAT = createLookupElement("float", AddSpaceInsertHandler.INSTANCE);
+        INT = createLookupElement("int", AddSpaceInsertHandler.INSTANCE);
+        STRING = createLookupElement("string", AddSpaceInsertHandler.INSTANCE);
 
-        MESSAGE = createTypeLookupElement("message", AddSpaceInsertHandler.INSTANCE);
-        MAP = createTypeLookupElement("map", AddSpaceInsertHandler.INSTANCE);
-        XML = createTypeLookupElement("xml", AddSpaceInsertHandler.INSTANCE);
-        JSON = createTypeLookupElement("json", AddSpaceInsertHandler.INSTANCE);
-        DATATABLE = createTypeLookupElement("datatable", AddSpaceInsertHandler.INSTANCE);
+        ANY = createLookupElement("any", AddSpaceInsertHandler.INSTANCE);
+        FUTURE = createLookupElement("future", AddSpaceInsertHandler.INSTANCE);
+        JSON = createLookupElement("json", AddSpaceInsertHandler.INSTANCE);
+        MAP = createLookupElement("map", AddSpaceInsertHandler.INSTANCE);
+        STREAM = createLookupElement("stream", null);
+        TABLE = createLookupElement("table", null);
+        TYPE_DESC = createLookupElement("typedesc", AddSpaceInsertHandler.INSTANCE);
+        XML = createLookupElement("xml", AddSpaceInsertHandler.INSTANCE);
 
-        ANY = createTypeLookupElement("any", AddSpaceInsertHandler.INSTANCE);
-        VAR = createTypeLookupElement("var", AddSpaceInsertHandler.INSTANCE);
-        TYPE = createTypeLookupElement("type", AddSpaceInsertHandler.INSTANCE);
+        VAR = createLookupElement("var", AddSpaceInsertHandler.INSTANCE);
 
-        TYPE_OF = createKeywordLookupElement("typeof");
+        AWAIT = createKeywordLookupElement("await");
+        CHECK = createKeywordLookupElement("check");
         LENGTH_OF = createKeywordLookupElement("lengthof");
+        START = createKeywordLookupElement("start");
+        UNTAINT = createKeywordLookupElement("untaint");
+
+
         RETURN = createKeywordLookupElement("return");
+
         IF = createKeywordLookupElement("if");
         ELSE = createKeywordLookupElement("else");
-        CREATE = createKeywordLookupElement("create");
+
+        MATCH = createKeywordLookupElement("match");
+
         FORK = createKeywordLookupElement("fork");
         JOIN = createKeywordLookupElement("join");
         ALL = createKeywordLookupElement("all");
         SOME = createKeywordLookupElement("some");
         TIMEOUT = createKeywordLookupElement("timeout");
+
         WORKER = createKeywordLookupElement("worker");
+
         TRANSACTION = createKeywordLookupElement("transaction");
-        FAILED = createKeywordLookupElement("failed");
+
+        RETRY = createKeywordLookupElement("retry");
         ABORT = createKeywordLookupElement("abort");
         TRY = createKeywordLookupElement("try");
         CATCH = createKeywordLookupElement("catch");
@@ -192,9 +215,14 @@ public class BallerinaCompletionUtils {
         IN = createKeywordLookupElement("in");
         LOCK = createKeywordLookupElement("lock");
 
+        BIND = createKeywordLookupElement("bind");
+
+        OBJECT = createKeywordLookupElement("object");
+
+        NEW = createKeywordLookupElement("new");
+
         TRUE = createKeywordLookupElement("true", null);
         FALSE = createKeywordLookupElement("false", null);
-        NULL = createKeywordLookupElement("null", null);
     }
 
     private BallerinaCompletionUtils() {
@@ -221,7 +249,7 @@ public class BallerinaCompletionUtils {
      * @return {@link LookupElementBuilder} which will be used to create the lookup element.
      */
     @NotNull
-    private static LookupElementBuilder createKeywordLookupElement(@NotNull String name) {
+    public static LookupElementBuilder createKeywordLookupElement(@NotNull String name) {
         return createKeywordLookupElement(name, " ");
     }
 
@@ -257,43 +285,62 @@ public class BallerinaCompletionUtils {
     }
 
     /**
-     * Creates a <b>Type</b> lookup element.
-     *
-     * @param name          name of the lookup
-     * @param insertHandler insert handler of the lookup
-     * @return {@link LookupElementBuilder} which will be used to create the lookup element.
-     */
-    @NotNull
-    private static LookupElementBuilder createTypeLookupElement(@NotNull String name,
-                                                                @Nullable InsertHandler<LookupElement> insertHandler) {
-        return createLookupElement(name, insertHandler).withTypeText("Type");
-    }
-
-    /**
-     * Add type names as lookups. Types include <b>any, simple types, reference types</b>.
-     *
-     * @param resultSet result list which is used to add lookups
-     */
-    static void addTypeNamesAsLookups(@NotNull CompletionResultSet resultSet) {
-        addOtherTypeAsLookup(resultSet);
-        addXmlnsAsLookup(resultSet);
-        addValueTypesAsLookups(resultSet);
-        addReferenceTypesAsLookups(resultSet);
-    }
-
-    /**
      * Adds any type as a lookup.
      *
      * @param resultSet result list which is used to add lookups
      */
-    static void addOtherTypeAsLookup(@NotNull CompletionResultSet resultSet) {
-        resultSet.addElement(PrioritizedLookupElement.withPriority(ANY, VALUE_TYPES_PRIORITY));
+    static void addVarAsLookup(@NotNull CompletionResultSet resultSet) {
         resultSet.addElement(PrioritizedLookupElement.withPriority(VAR, VALUE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(TYPE, VALUE_TYPES_PRIORITY));
     }
 
     static void addXmlnsAsLookup(@NotNull CompletionResultSet resultSet) {
         resultSet.addElement(PrioritizedLookupElement.withPriority(XMLNS, VALUE_TYPES_PRIORITY));
+    }
+
+    static void addImportAsLookup(@NotNull CompletionResultSet resultSet) {
+        resultSet.addElement(PrioritizedLookupElement.withPriority(IMPORT, KEYWORDS_PRIORITY));
+    }
+
+    static void addPublicAsLookup(@NotNull CompletionResultSet resultSet) {
+        resultSet.addElement(PrioritizedLookupElement.withPriority(PUBLIC, KEYWORDS_PRIORITY));
+    }
+
+    static void addReturnAsLookup(@NotNull CompletionResultSet resultSet) {
+        resultSet.addElement(PrioritizedLookupElement.withPriority(RETURN, KEYWORDS_PRIORITY));
+    }
+
+    static void addLockAsLookup(@NotNull CompletionResultSet resultSet) {
+        resultSet.addElement(PrioritizedLookupElement.withPriority(LOCK, KEYWORDS_PRIORITY));
+    }
+
+    static void addBindAsLookup(@NotNull CompletionResultSet resultSet) {
+        resultSet.addElement(PrioritizedLookupElement.withPriority(BIND, KEYWORDS_PRIORITY));
+    }
+
+    static void addEndpointAsLookup(@NotNull CompletionResultSet resultSet) {
+        resultSet.addElement(PrioritizedLookupElement.withPriority(ENDPOINT, KEYWORDS_PRIORITY));
+    }
+
+    static void addEObjectAsLookup(@NotNull CompletionResultSet resultSet) {
+        resultSet.addElement(PrioritizedLookupElement.withPriority(OBJECT, KEYWORDS_PRIORITY));
+    }
+
+    static void addNewAsLookup(@NotNull CompletionResultSet resultSet,
+                               @NotNull BallerinaTypeDefinition typeDefinition) {
+        LookupElementBuilder builder = NEW.withInsertHandler(SemiolonInsertHandler.INSTANCE);
+        BallerinaObjectInitializer initializer = BallerinaPsiImplUtil.getInitializer(typeDefinition);
+        if (initializer != null) {
+            BallerinaObjectInitializerParameterList parameterList =
+                    initializer.getObjectInitializerParameterList();
+            if (parameterList != null) {
+                BallerinaObjectParameterList objectParameterList = parameterList.getObjectParameterList();
+                if (objectParameterList != null) {
+                    // Todo - parenthesis with semicolon
+                    builder = NEW.withInsertHandler(ParenthesisWithSemicolonInsertHandler.INSTANCE);
+                }
+            }
+        }
+        resultSet.addElement(PrioritizedLookupElement.withPriority(builder, KEYWORDS_PRIORITY));
     }
 
     /**
@@ -303,10 +350,10 @@ public class BallerinaCompletionUtils {
      */
     static void addValueTypesAsLookups(@NotNull CompletionResultSet resultSet) {
         resultSet.addElement(PrioritizedLookupElement.withPriority(BOOLEAN, VALUE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(INT, VALUE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(FLOAT, VALUE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(STRING, VALUE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(BLOB, VALUE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(FLOAT, VALUE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(INT, VALUE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(STRING, VALUE_TYPES_PRIORITY));
     }
 
     /**
@@ -315,58 +362,30 @@ public class BallerinaCompletionUtils {
      * @param resultSet result list which is used to add lookups
      */
     static void addReferenceTypesAsLookups(@NotNull CompletionResultSet resultSet) {
-        resultSet.addElement(PrioritizedLookupElement.withPriority(MESSAGE, REFERENCE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(MAP, REFERENCE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(XML, REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(ANY, REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(FUTURE, REFERENCE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(JSON, REFERENCE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(DATATABLE, REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(MAP, REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(STREAM, REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(TABLE, REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(TYPE_DESC, REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(XML, REFERENCE_TYPES_PRIORITY));
     }
 
-    @NotNull
-    static List<LookupElement> getFileLevelKeywordsAsLookups(boolean withPublic, boolean withPackage,
-                                                             boolean withImport) {
-        List<LookupElement> lookupElements = new LinkedList<>();
-        if (withPublic) {
-            lookupElements.add(PrioritizedLookupElement.withPriority(PUBLIC, KEYWORDS_PRIORITY));
-        }
-        if (withPackage) {
-            lookupElements.add(PrioritizedLookupElement.withPriority(PACKAGE, KEYWORDS_PRIORITY));
-        }
-        if (withImport) {
-            lookupElements.add(PrioritizedLookupElement.withPriority(IMPORT, KEYWORDS_PRIORITY));
-        }
-        lookupElements.add(PrioritizedLookupElement.withPriority(CONST, KEYWORDS_PRIORITY));
-        lookupElements.add(PrioritizedLookupElement.withPriority(SERVICE, KEYWORDS_PRIORITY));
-        lookupElements.add(PrioritizedLookupElement.withPriority(FUNCTION, KEYWORDS_PRIORITY));
-        lookupElements.add(PrioritizedLookupElement.withPriority(CONNECTOR, KEYWORDS_PRIORITY));
-        lookupElements.add(PrioritizedLookupElement.withPriority(STRUCT, KEYWORDS_PRIORITY));
-        lookupElements.add(PrioritizedLookupElement.withPriority(ANNOTATION, KEYWORDS_PRIORITY));
-        lookupElements.add(PrioritizedLookupElement.withPriority(XMLNS, KEYWORDS_PRIORITY));
-        lookupElements.add(PrioritizedLookupElement.withPriority(ENUM, KEYWORDS_PRIORITY));
-        lookupElements.add(PrioritizedLookupElement.withPriority(TRANSFORMER, KEYWORDS_PRIORITY));
-        return lookupElements;
+    static void addTopLevelDefinitionsAsLookups(@NotNull CompletionResultSet resultSet) {
+        resultSet.addElement(PrioritizedLookupElement.withPriority(ANNOTATION, REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(ENDPOINT, REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(FUNCTION, REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(SERVICE, REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(TYPE, REFERENCE_TYPES_PRIORITY));
     }
 
-    public static List<LookupElement> createAttachmentPointsAsLookups() {
-        List<LookupElement> lookupElements = new LinkedList<>();
-        lookupElements.add(createKeywordAsLookup(SERVICE));
-        lookupElements.add(createKeywordAsLookup(RESOURCE));
-        lookupElements.add(createKeywordAsLookup(CONNECTOR));
-        lookupElements.add(createKeywordAsLookup(ACTION));
-        lookupElements.add(createKeywordAsLookup(FUNCTION));
-        lookupElements.add(createKeywordAsLookup(STRUCT));
-        lookupElements.add(createKeywordAsLookup(CONST));
-        lookupElements.add(createKeywordAsLookup(PARAMETER));
-        lookupElements.add(createKeywordAsLookup(ANNOTATION));
-        return lookupElements;
-    }
-
-    @NotNull
-    static List<LookupElement> getWorkerInteractionKeywords() {
-        List<LookupElement> keywords = new LinkedList<>();
-        keywords.add(createLookupElement("fork", null));
-        keywords.add(createLookupElement("default", null));
-        return keywords;
+    static void addExpressionKeywordsAsLookups(@NotNull CompletionResultSet resultSet) {
+        resultSet.addElement(PrioritizedLookupElement.withPriority(AWAIT, KEYWORDS_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(CHECK, KEYWORDS_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(LENGTH_OF, KEYWORDS_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(START, KEYWORDS_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(UNTAINT, KEYWORDS_PRIORITY));
     }
 
     private static LookupElement createKeywordAsLookup(@NotNull LookupElement lookupElement) {
@@ -374,556 +393,217 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    static List<LookupElement> getCommonKeywords() {
-        List<LookupElement> lookupElements = new LinkedList<>();
-        lookupElements.add(createKeywordAsLookup(IF));
-        lookupElements.add(createKeywordAsLookup(ELSE));
-        lookupElements.add(createKeywordAsLookup(FORK));
-        lookupElements.add(createKeywordAsLookup(JOIN));
-        lookupElements.add(createKeywordAsLookup(TIMEOUT));
-        lookupElements.add(createKeywordAsLookup(WORKER));
-        lookupElements.add(createKeywordAsLookup(TRANSACTION));
-        lookupElements.add(createKeywordAsLookup(FAILED));
-        lookupElements.add(createKeywordAsLookup(ABORT));
-        lookupElements.add(createKeywordAsLookup(TRY));
-        lookupElements.add(createKeywordAsLookup(CATCH));
-        lookupElements.add(createKeywordAsLookup(FINALLY));
-        lookupElements.add(createKeywordAsLookup(WHILE));
-        lookupElements.add(createKeywordAsLookup(NEXT));
-        lookupElements.add(createKeywordAsLookup(BREAK));
-        lookupElements.add(createKeywordAsLookup(THROW));
-        lookupElements.add(createKeywordAsLookup(FOREACH));
-        lookupElements.add(createKeywordAsLookup(IN));
-        lookupElements.add(createKeywordAsLookup(LOCK));
-        return lookupElements;
+    static void addCommonKeywords(@NotNull CompletionResultSet resultSet) {
+        resultSet.addElement(createKeywordAsLookup(MATCH));
+        resultSet.addElement(createKeywordAsLookup(FOREACH));
+        resultSet.addElement(createKeywordAsLookup(WHILE));
+        resultSet.addElement(createKeywordAsLookup(WORKER));
+
+        resultSet.addElement(createKeywordAsLookup(TRANSACTION));
+
+        resultSet.addElement(createKeywordAsLookup(NEXT));
+        resultSet.addElement(createKeywordAsLookup(BREAK));
+
+        resultSet.addElement(createKeywordAsLookup(IF));
+        resultSet.addElement(createKeywordAsLookup(ELSE));
+
+        resultSet.addElement(createKeywordAsLookup(FORK));
+        resultSet.addElement(createKeywordAsLookup(JOIN));
+        resultSet.addElement(createKeywordAsLookup(TIMEOUT));
+        resultSet.addElement(createKeywordAsLookup(ABORT));
+        resultSet.addElement(createKeywordAsLookup(RETRY));
+
+        resultSet.addElement(createKeywordAsLookup(TRY));
+        resultSet.addElement(createKeywordAsLookup(CATCH));
+        resultSet.addElement(createKeywordAsLookup(FINALLY));
+
+        resultSet.addElement(createKeywordAsLookup(THROW));
+
+        resultSet.addElement(createKeywordAsLookup(IN));
     }
 
-    @NotNull
-    public static List<LookupElement> getValueKeywords() {
-        List<LookupElement> lookupElements = new LinkedList<>();
-        lookupElements.add(createKeywordAsLookup(TRUE));
-        lookupElements.add(createKeywordAsLookup(FALSE));
-        lookupElements.add(createKeywordAsLookup(NULL));
-        return lookupElements;
-    }
-
-    /**
-     * Returns keywords used in join conditions.
-     */
-    static List<LookupElement> getJoinConditionKeywords() {
-        List<LookupElement> lookupElements = new LinkedList<>();
-        lookupElements.add(createKeywordAsLookup(ALL));
-        lookupElements.add(createKeywordAsLookup(SOME));
-        return lookupElements;
-    }
-
-    @NotNull
-    static LookupElement getCreateKeyword() {
-        return createKeywordAsLookup(CREATE);
-    }
-
-    @NotNull
-    static LookupElement getTypeOfKeyword() {
-        return createKeywordAsLookup(TYPE_OF);
-    }
-
-    @NotNull
-    static LookupElement getLengthOfKeyword() {
-        return createKeywordAsLookup(LENGTH_OF);
-    }
-
-    @NotNull
-    static LookupElement getAttachKeyword() {
-        return createKeywordAsLookup(ATTACH);
-    }
-
-    @NotNull
-    static List<LookupElement> getFunctionSpecificKeywords() {
-        List<LookupElement> lookupElements = new LinkedList<>();
-        lookupElements.add(createKeywordAsLookup(RETURN));
-        return lookupElements;
-    }
-
-    @NotNull
-    static List<LookupElement> getResourceSpecificKeywords() {
-        List<LookupElement> lookupElements = new LinkedList<>();
-        return lookupElements;
-    }
-
-    @NotNull
-    static List<LookupElement> getServiceSpecificKeywords() {
-        List<LookupElement> lookupElements = new LinkedList<>();
-        lookupElements.add(createKeywordAsLookup(RESOURCE));
-        return lookupElements;
-    }
-
-    @NotNull
-    static List<LookupElement> getConnectorSpecificKeywords() {
-        List<LookupElement> lookupElements = new LinkedList<>();
-        lookupElements.add(createKeywordAsLookup(ACTION));
-        return lookupElements;
-    }
-
-    static LookupElement getPackageAsLookups(@NotNull PsiDirectory directory,
-                                             @Nullable InsertHandler<LookupElement> insertHandler) {
-        return LookupElementBuilder.create(directory.getName()).withTypeText("Package")
+    public static LookupElement createPackageLookup(@NotNull PsiElement identifier,
+                                                    @Nullable InsertHandler<LookupElement> insertHandler) {
+        LookupElementBuilder builder = LookupElementBuilder.create(identifier.getText()).withTypeText("Package")
                 .withIcon(BallerinaIcons.PACKAGE).withInsertHandler(insertHandler);
-    }
-
-    @NotNull
-    private static LookupElementBuilder createPackageLookupElement(@NotNull PsiDirectory directory,
-                                                                   @NotNull String name) {
-        String suggestedImportPath = BallerinaUtil.suggestPackageNameForDirectory(directory);
-        return LookupElementBuilder.createWithSmartPointer(name, directory)
-                .withTypeText("Package").withIcon(BallerinaIcons.PACKAGE)
-                .withTailText("(" + suggestedImportPath + ")", true)
-                .withInsertHandler(directory.getFiles().length == 0 ?
-                        PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP : null);
-    }
-
-    @NotNull
-    public static LookupElement createImportedPackageLookupElement(@NotNull PsiDirectory directory,
-                                                                   @NotNull String name,
-                                                                   @Nullable InsertHandler<LookupElement> handler) {
-        LookupElementBuilder builder = createPackageLookupElement(directory, name).withInsertHandler(handler);
         return PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY);
     }
 
+    // Todo - Update icon getting logic to get the icon from a util method.
     @NotNull
-    public static LookupElement createUnimportedPackageLookupElement(@NotNull PsiDirectory directory,
-                                                                     @NotNull String name,
-                                                                     @Nullable InsertHandler<LookupElement> handler) {
-        LookupElementBuilder builder = createPackageLookupElement(directory, name).withInsertHandler(handler);
-        return PrioritizedLookupElement.withPriority(builder, UNIMPORTED_PACKAGE_PRIORITY);
-    }
-
-    @NotNull
-    private static LookupElement createAnnotationLookupElement(@NotNull PsiElement element) {
-        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
-                .withTypeText("Annotation").withIcon(BallerinaIcons.ANNOTATION)
-                .withInsertHandler(BracesInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-        return PrioritizedLookupElement.withPriority(builder, ANNOTATION_PRIORITY);
-    }
-
-    @NotNull
-    public static List<LookupElement> createAnnotationLookupElements(@NotNull List<IdentifierPSINode> annotations) {
-        List<LookupElement> lookupElements = new LinkedList<>();
-        for (IdentifierPSINode annotation : annotations) {
-            if (annotation == null) {
-                continue;
-            }
-            LookupElement lookupElement = BallerinaCompletionUtils.createAnnotationLookupElement(annotation);
-            lookupElements.add(lookupElement);
-        }
-        return lookupElements;
-    }
-
-    @NotNull
-    private static LookupElement createFunctionLookupElement(@NotNull PsiElement element,
-                                                             @Nullable InsertHandler<LookupElement> insertHandler) {
-        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
-                .withTypeText("Function").withIcon(BallerinaIcons.FUNCTION).bold()
-                .withTailText(BallerinaDocumentationProvider.getParametersAndReturnTypes(element.getParent()))
+    public static LookupElement createFunctionLookupElement(@NotNull BallerinaTopLevelDefinition definition,
+                                                            @Nullable InsertHandler<LookupElement> insertHandler) {
+        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(definition.getIdentifier()
+                .getText(), definition).withIcon(definition.getIcon(Iconable.ICON_FLAG_VISIBILITY)).bold()
                 .withInsertHandler(insertHandler);
+        if (definition instanceof BallerinaFunctionDefinition) {
+            BallerinaCallableUnitSignature callableUnitSignature =
+                    ((BallerinaFunctionDefinition) definition).getCallableUnitSignature();
+            if (callableUnitSignature != null) {
+                // Add parameters.
+                BallerinaReturnParameter returnParameter = callableUnitSignature.getReturnParameter();
+                if (returnParameter != null) {
+                    BallerinaReturnType returnType = returnParameter.getReturnType();
+                    if (returnType != null) {
+                        builder = builder.withTypeText(BallerinaPsiImplUtil.formatBallerinaFunctionReturnType
+                                (returnType));
+                    }
+                } else {
+                    builder = builder.withTypeText("nil");
+                    definition.putUserData(HAS_A_RETURN_VALUE, "nil");
+                }
+                // Add return type.
+                BallerinaFormalParameterList formalParameterList = callableUnitSignature.getFormalParameterList();
+
+                builder = builder.withTailText(BallerinaPsiImplUtil.formatBallerinaFunctionParameters
+                        (formalParameterList));
+                if (formalParameterList != null) {
+                    definition.putUserData(REQUIRE_PARAMETERS, "YES");
+                }
+            }
+        }
         return PrioritizedLookupElement.withPriority(builder, FUNCTION_PRIORITY);
     }
 
     @NotNull
-    public static List<LookupElement> createFunctionLookupElements(@NotNull List<IdentifierPSINode> functions) {
-        List<LookupElement> lookupElements = new LinkedList<>();
-        for (IdentifierPSINode function : functions) {
-            if (function == null) {
-                continue;
-            }
-            LookupElement lookupElement = createFunctionLookupElement(function, ParenthesisInsertHandler.INSTANCE);
-            lookupElements.add(lookupElement);
-        }
-        return lookupElements;
-    }
+    public static LookupElement createFunctionLookupElement(@NotNull BallerinaObjectFunctionDefinition definition,
+                                                            @NotNull PsiElement owner,
+                                                            @Nullable InsertHandler<LookupElement> insertHandler) {
 
-    @NotNull
-    public static List<LookupElement> createFunctionLookupElements(@NotNull List<IdentifierPSINode> functions,
-                                                                   @Nullable InsertHandler<LookupElement>
-                                                                           insertHandler) {
-        List<LookupElement> lookupElements = new LinkedList<>();
-        for (IdentifierPSINode function : functions) {
-            if (function == null) {
-                continue;
+        BallerinaObjectCallableUnitSignature objectCallableUnitSignature = definition.getObjectCallableUnitSignature();
+        BallerinaAnyIdentifierName anyIdentifierName = objectCallableUnitSignature.getAnyIdentifierName();
+        PsiElement identifier = anyIdentifierName.getIdentifier();
+        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(identifier.getText(), identifier)
+                .withIcon(BallerinaIcons.FUNCTION).bold().withInsertHandler(insertHandler);
+        // Add parameters.
+        BallerinaReturnParameter returnParameter = objectCallableUnitSignature.getReturnParameter();
+        if (returnParameter != null) {
+            BallerinaReturnType returnType = returnParameter.getReturnType();
+            if (returnType != null) {
+                builder = builder.withTypeText(BallerinaPsiImplUtil.formatBallerinaFunctionReturnType(returnType));
             }
-            lookupElements.add(createFunctionLookupElement(function, insertHandler));
+        } else {
+            builder = builder.withTypeText("nil");
+            identifier.putUserData(HAS_A_RETURN_VALUE, "nil");
         }
-        return lookupElements;
-    }
-
-    @NotNull
-    private static LookupElement createAttachedFunctionsLookupElement(@NotNull PsiElement element,
-                                                                      @Nullable InsertHandler<LookupElement>
-                                                                              insertHandler) {
-        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
-                .withTypeText("Function").withIcon(BallerinaIcons.FUNCTION).bold()
-                .withTailText(BallerinaDocumentationProvider.getParametersAndReturnTypes(element.getParent()))
-                .withInsertHandler(insertHandler);
+        // Add return type.
+        BallerinaFormalParameterList formalParameterList = objectCallableUnitSignature.getFormalParameterList();
+        builder = builder.withTailText(BallerinaPsiImplUtil.formatBallerinaFunctionParameters(formalParameterList)
+                + " -> " + owner.getText());
+        if (formalParameterList != null) {
+            identifier.putUserData(REQUIRE_PARAMETERS, "YES");
+        }
         return PrioritizedLookupElement.withPriority(builder, FUNCTION_PRIORITY);
     }
 
     @NotNull
-    public static List<LookupElement> createAttachedFunctionsLookupElements(@NotNull Collection<IdentifierPSINode>
-                                                                                    functions) {
-        List<LookupElement> lookupElements = new LinkedList<>();
-        for (PsiElement function : functions) {
-            if (function == null) {
-                continue;
-            }
-            LookupElement lookupElement = createAttachedFunctionsLookupElement(function,
-                    ParenthesisInsertHandler.INSTANCE);
-            lookupElements.add(lookupElement);
+    public static LookupElement createGlobalVariableLookupElement(@NotNull BallerinaTopLevelDefinition definition,
+                                                                  @Nullable String type) {
+        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(definition.getIdentifier().getText(),
+                definition).withIcon(definition.getIcon(Iconable.ICON_FLAG_VISIBILITY));
+        if (type == null || type.isEmpty()) {
+            builder = builder.withTypeText("Variable");
+        } else {
+            builder = builder.withTypeText(type);
         }
-        return lookupElements;
+
+        return PrioritizedLookupElement.withPriority(builder, GLOBAL_VARIABLE_PRIORITY);
     }
 
     @NotNull
-    private static LookupElement createConnectorLookupElement(@NotNull IdentifierPSINode element,
-                                                              @Nullable InsertHandler<LookupElement> insertHandler) {
-        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
-                .withTypeText("Connector").withIcon(BallerinaIcons.CONNECTOR).bold()
-                .withTailText(BallerinaDocumentationProvider.getParameterString(element.getParent(), true))
-                .withInsertHandler(insertHandler);
-        return PrioritizedLookupElement.withPriority(builder, CONNECTOR_PRIORITY);
+    public static LookupElement createTypeLookupElement(@NotNull BallerinaTopLevelDefinition definition) {
+        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(definition.getIdentifier()
+                .getText(), definition)
+                .withTypeText("Type").withIcon(definition.getIcon(Iconable.ICON_FLAG_VISIBILITY)).bold();
+        // Todo - Add tail text
+        //                .withTailText(BallerinaDocumentationProvider.getParametersAndReturnTypes(element
+        // .getParent()));
+        return PrioritizedLookupElement.withPriority(builder, TYPE_PRIORITY);
     }
 
     @NotNull
-    public static List<LookupElement> createConnectorLookupElements(@NotNull List<IdentifierPSINode> connectors,
-                                                                    @Nullable InsertHandler<LookupElement>
-                                                                            insertHandler) {
-        List<LookupElement> lookupElements = new LinkedList<>();
-        for (IdentifierPSINode connector : connectors) {
-            if (connector == null) {
-                continue;
-            }
-            LookupElement lookupElement = createConnectorLookupElement(connector, insertHandler);
-            lookupElements.add(lookupElement);
-        }
-        return lookupElements;
-    }
-
-    @NotNull
-    private static LookupElement createActionLookupElement(@NotNull IdentifierPSINode identifier) {
-        LookupElementBuilder builder = LookupElementBuilder.create(identifier.getText())
-                .withTypeText("Action").withIcon(BallerinaIcons.ACTION).bold()
-                .withTailText(BallerinaDocumentationProvider.getParametersAndReturnTypes(identifier.getParent()))
-                .withInsertHandler(ParenthesisInsertHandler.INSTANCE);
-        return PrioritizedLookupElement.withPriority(builder, ACTION_PRIORITY);
-    }
-
-    @NotNull
-    public static List<LookupElement> createActionLookupElements(@NotNull List<IdentifierPSINode> actions) {
-        List<LookupElement> lookupElements = new LinkedList<>();
-        for (IdentifierPSINode action : actions) {
-            if (action == null) {
-                continue;
-            }
-            lookupElements.add(createActionLookupElement(action));
-        }
-        return lookupElements;
-    }
-
-    @NotNull
-    private static LookupElement createStructLookupElement(@NotNull IdentifierPSINode element) {
-        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
-                .withTypeText("Struct").withIcon(BallerinaIcons.STRUCT)
-                .withInsertHandler(AddSpaceInsertHandler.INSTANCE);
-        return PrioritizedLookupElement.withPriority(builder, STRUCT_PRIORITY);
-    }
-
-    @NotNull
-    public static List<LookupElement> createStructLookupElements(@NotNull List<IdentifierPSINode> structs) {
-        List<LookupElement> lookupElements = new LinkedList<>();
-        for (IdentifierPSINode struct : structs) {
-            if (struct == null) {
-                continue;
-            }
-            lookupElements.add(createStructLookupElement(struct));
-        }
-        return lookupElements;
-    }
-
-    @NotNull
-    private static LookupElement createEnumLookupElement(@NotNull IdentifierPSINode element,
-                                                         @Nullable InsertHandler<LookupElement> insertHandler) {
-        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
-                .withTypeText("Enum").withIcon(BallerinaIcons.ENUM)
-                .withInsertHandler(insertHandler);
-        return PrioritizedLookupElement.withPriority(builder, ENUM_PRIORITY);
-    }
-
-    @NotNull
-    public static List<LookupElement> createEnumLookupElements(@NotNull List<IdentifierPSINode> enums,
-                                                               @Nullable InsertHandler<LookupElement> insertHandler) {
-        List<LookupElement> lookupElements = new LinkedList<>();
-        for (IdentifierPSINode anEnum : enums) {
-            if (anEnum == null) {
-                continue;
-            }
-            lookupElements.add(createEnumLookupElement(anEnum, insertHandler));
-        }
-        return lookupElements;
-    }
-
-    @NotNull
-    public static LookupElement createVariableLookupElement(@NotNull IdentifierPSINode element) {
-        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
-                .withTypeText("Variable").withIcon(BallerinaIcons.VARIABLE);
+    public static LookupElement createGlobalEndpointLookupElement(@NotNull BallerinaTopLevelDefinition definition) {
+        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(definition.getIdentifier().getText(),
+                definition).withTypeText("Endpoint").withIcon(definition.getIcon(Iconable.ICON_FLAG_VISIBILITY));
         return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
     }
 
     @NotNull
-    public static List<LookupElement> createVariableLookupElements(@NotNull List<IdentifierPSINode> variables) {
-        List<LookupElement> lookupElements = new LinkedList<>();
-        for (IdentifierPSINode variable : variables) {
-            if (variable == null) {
-                continue;
-            }
-            LookupElement lookupElement = BallerinaCompletionUtils.createVariableLookupElement(variable);
-            lookupElements.add(lookupElement);
-        }
-        return lookupElements;
-    }
-
-    @NotNull
-    public static LookupElement createParameterLookupElement(@NotNull IdentifierPSINode element) {
+    public static LookupElement createVariableLookupElement(@NotNull PsiElement element, @Nullable String type) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
-                .withTypeText("Parameter").withIcon(BallerinaIcons.PARAMETER);
+                .withIcon(BallerinaIcons.VARIABLE);
+        if (type == null || type.isEmpty()) {
+            builder = builder.withTypeText("Variable");
+        } else {
+            builder = builder.withTypeText(type);
+        }
         return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
     }
 
     @NotNull
-    public static List<LookupElement> createParameterLookupElements(@NotNull List<IdentifierPSINode> parameters) {
-        List<LookupElement> lookupElements = new LinkedList<>();
-        for (IdentifierPSINode parameter : parameters) {
-            if (parameter == null) {
-                continue;
-            }
-            LookupElement lookupElement = createParameterLookupElement(parameter);
-            lookupElements.add(lookupElement);
-        }
-        return lookupElements;
-    }
-
-    @NotNull
-    private static LookupElement createConstantLookupElement(@NotNull IdentifierPSINode element) {
+    public static LookupElement createParameterLookupElement(@NotNull PsiElement element, @Nullable String type,
+                                                             @Nullable String defaultValue) {
+        // Todo - Add support to render default value
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
-                .withTypeText("Constant").withIcon(BallerinaIcons.CONSTANT);
+                .withIcon(BallerinaIcons.PARAMETER);
+        if (type == null || type.isEmpty()) {
+            builder = builder.withTypeText("Parameter");
+        } else {
+            builder = builder.withTypeText(type);
+        }
+
+        if (defaultValue != null && !defaultValue.isEmpty()) {
+            builder = builder.withTailText(" ( = " + defaultValue + " )");
+        }
+
         return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
     }
 
     @NotNull
-    public static List<LookupElement> createConstantLookupElements(@NotNull List<IdentifierPSINode> constants) {
-        List<LookupElement> lookupElements = new LinkedList<>();
-        for (IdentifierPSINode constant : constants) {
-            if (constant == null) {
-                continue;
-            }
-            LookupElement lookupElement = BallerinaCompletionUtils.createConstantLookupElement(constant);
-            lookupElements.add(lookupElement);
-        }
-        return lookupElements;
-    }
-
-    @NotNull
-    public static LookupElement createGlobalVariableLookupElement(@NotNull PsiElement element) {
-        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
-                .withTypeText("Variable").withIcon(BallerinaIcons.GLOBAL_VARIABLE);
-        return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
-    }
-
-    @NotNull
-    public static List<LookupElement> createGlobalVariableLookupElements(@NotNull List<IdentifierPSINode> variables) {
-        List<LookupElement> lookupElements = new LinkedList<>();
-        for (IdentifierPSINode variable : variables) {
-            if (variable == null) {
-                continue;
-            }
-            LookupElement lookupElement = createGlobalVariableLookupElement(variable);
-            lookupElements.add(lookupElement);
-        }
-        return lookupElements;
-    }
-
-    @NotNull
-    private static LookupElement createNamespaceLookupElement(@NotNull PsiElement element) {
-        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
-                .withTypeText("Namespace").withIcon(BallerinaIcons.NAMESPACE);
-        return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
-    }
-
-    @NotNull
-    public static List<LookupElement> createNamespaceLookupElements(@NotNull List<PsiElement> namespaces) {
-        List<LookupElement> lookupElements = new LinkedList<>();
-        for (PsiElement namespace : namespaces) {
-            if (namespace == null) {
-                continue;
-            }
-            LookupElement lookupElement = BallerinaCompletionUtils.createNamespaceLookupElement(namespace);
-            lookupElements.add(lookupElement);
-        }
-        return lookupElements;
-    }
-
-    @NotNull
-    private static LookupElement createEndpointLookupElement(@NotNull PsiElement element) {
-        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
-                .withTypeText("Endpoint").withIcon(BallerinaIcons.ENDPOINT);
-        return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
-    }
-
-    @NotNull
-    public static List<LookupElement> createEndpointLookupElements(@NotNull List<IdentifierPSINode> endpoints) {
-        List<LookupElement> lookupElements = new LinkedList<>();
-        for (PsiElement endpoint : endpoints) {
-            if (endpoint == null) {
-                continue;
-            }
-            LookupElement lookupElement = BallerinaCompletionUtils.createEndpointLookupElement(endpoint);
-            lookupElements.add(lookupElement);
-        }
-        return lookupElements;
-    }
-
-    @NotNull
-    private static LookupElement createTransformerLookupElement(@NotNull PsiElement element) {
-        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
-                .withTypeText("Transformer").withIcon(BallerinaIcons.TRANSFORMER)
-                .withInsertHandler(ParenthesisInsertHandler.INSTANCE);
-        return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
-    }
-
-    @NotNull
-    public static List<LookupElement> createTransformerLookupElements(@NotNull List<IdentifierPSINode> transformers) {
-        List<LookupElement> lookupElements = new LinkedList<>();
-        for (IdentifierPSINode transformer : transformers) {
-            if (transformer == null) {
-                continue;
-            }
-            LookupElement lookupElement = BallerinaCompletionUtils.createTransformerLookupElement(transformer);
-            lookupElements.add(lookupElement);
-        }
-        return lookupElements;
-    }
-
-    @NotNull
-    private static LookupElementBuilder createEnumFieldLookupElement(@NotNull IdentifierPSINode fieldName,
-                                                                     @NotNull IdentifierPSINode ownerName) {
-        return LookupElementBuilder.createWithSmartPointer(fieldName.getText(), fieldName)
-                .withTypeText(ownerName.getText()).withIcon(BallerinaIcons.FIELD);
-    }
-
-    @NotNull
-    public static List<LookupElement> createEnumFieldLookupElements(@NotNull Collection<EnumFieldNode> enumFieldNodes,
-                                                                    @NotNull IdentifierPSINode definitionName) {
-        List<LookupElement> lookupElements = new LinkedList<>();
-        for (EnumFieldNode fieldDefinitionNode : enumFieldNodes) {
-            IdentifierPSINode fieldName = PsiTreeUtil.getChildOfType(fieldDefinitionNode, IdentifierPSINode.class);
-            if (fieldName == null) {
-                continue;
-            }
-            LookupElement lookupElement = BallerinaCompletionUtils.createEnumFieldLookupElement(fieldName,
-                    definitionName);
-            lookupElements.add(lookupElement);
-        }
-        return lookupElements;
-    }
-
-    @NotNull
-    private static LookupElementBuilder createFieldLookupElement(@NotNull IdentifierPSINode fieldName,
-                                                                 @NotNull TypeNameNode fieldType,
-                                                                 @NotNull IdentifierPSINode ownerName) {
-        return LookupElementBuilder.createWithSmartPointer(fieldName.getText(), fieldName)
-                .withTypeText(fieldType.getText()).withIcon(BallerinaIcons.FIELD)
-                .withTailText(" -> " + ownerName.getText(), true);
-    }
-
-    @NotNull
-    private static LookupElement createFieldLookupElement(@NotNull IdentifierPSINode fieldName,
-                                                          @NotNull TypeNameNode fieldType,
-                                                          @NotNull IdentifierPSINode ownerName,
-                                                          @Nullable InsertHandler<LookupElement> insertHandler) {
-        LookupElementBuilder builder = createFieldLookupElement(fieldName, fieldType, ownerName)
-                .withInsertHandler(insertHandler);
-        return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
-    }
-
-    @NotNull
-    private static LookupElementBuilder createFieldLookupElement(@NotNull IdentifierPSINode fieldName,
-                                                                 @NotNull TypeNameNode fieldType) {
-        return LookupElementBuilder.createWithSmartPointer(fieldName.getText(), fieldName)
-                .withTypeText(fieldType.getText()).withIcon(BallerinaIcons.FIELD);
-    }
-
-    @NotNull
-    private static LookupElement createFieldLookupElement(@NotNull IdentifierPSINode fieldName,
-                                                          @NotNull TypeNameNode fieldType,
-                                                          @Nullable InsertHandler<LookupElement> insertHandler) {
-        LookupElementBuilder builder = createFieldLookupElement(fieldName, fieldType)
-                .withInsertHandler(insertHandler);
-        return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
-    }
-
-    @NotNull
-    public static List<LookupElement> createFieldLookupElements(@NotNull Collection<FieldDefinitionNode>
-                                                                        fieldDefinitionNodes,
-                                                                @NotNull IdentifierPSINode definitionName,
-                                                                @Nullable InsertHandler<LookupElement> insertHandler) {
-        List<LookupElement> lookupElements = new LinkedList<>();
-        for (FieldDefinitionNode fieldDefinitionNode : fieldDefinitionNodes) {
-            IdentifierPSINode fieldName = PsiTreeUtil.getChildOfType(fieldDefinitionNode, IdentifierPSINode.class);
-            TypeNameNode fieldType = PsiTreeUtil.getChildOfType(fieldDefinitionNode, TypeNameNode.class);
-            if (fieldName == null || fieldType == null) {
-                continue;
-            }
-            LookupElement lookupElement = BallerinaCompletionUtils.createFieldLookupElement(fieldName, fieldType,
-                    definitionName, insertHandler);
-            lookupElements.add(lookupElement);
-        }
-        return lookupElements;
-    }
-
-    @NotNull
-    public static List<LookupElement> createFieldLookupElements(@NotNull Collection<FieldDefinitionNode>
-                                                                        fieldDefinitionNodes,
-                                                                @Nullable InsertHandler<LookupElement> insertHandler) {
-        List<LookupElement> lookupElements = new LinkedList<>();
-        for (FieldDefinitionNode fieldDefinitionNode : fieldDefinitionNodes) {
-            IdentifierPSINode fieldName = PsiTreeUtil.getChildOfType(fieldDefinitionNode, IdentifierPSINode.class);
-            TypeNameNode fieldType = PsiTreeUtil.getChildOfType(fieldDefinitionNode, TypeNameNode.class);
-            if (fieldName == null || fieldType == null) {
-                continue;
-            }
-            LookupElement lookupElement = BallerinaCompletionUtils.createFieldLookupElement(fieldName, fieldType,
-                    insertHandler);
-            lookupElements.add(lookupElement);
-        }
-        return lookupElements;
-    }
-
-    @NotNull
-    private static LookupElement createWorkerLookupElement(@NotNull IdentifierPSINode workerName) {
+    public static LookupElement createWorkerLookupElement(@NotNull PsiElement workerName) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(workerName.getText(), workerName)
                 .withTypeText("Worker").withIcon(BallerinaIcons.WORKER);
         return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
     }
 
     @NotNull
-    public static List<LookupElement> createWorkerLookupElements(@NotNull Collection<WorkerDeclarationNode>
-                                                                         workerDeclarationNodes) {
-        List<LookupElement> lookupElements = new LinkedList<>();
-        for (WorkerDeclarationNode workerDeclarationNode : workerDeclarationNodes) {
-            IdentifierPSINode workerName = PsiTreeUtil.getChildOfType(workerDeclarationNode, IdentifierPSINode.class);
-            if (workerName == null) {
-                continue;
-            }
-            LookupElement lookupElement = createWorkerLookupElement(workerName);
-            lookupElements.add(lookupElement);
+    public static LookupElement createEndpointLookupElement(@NotNull PsiElement element) {
+        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
+                .withTypeText("Endpoint").withIcon(BallerinaIcons.ENDPOINT);
+        return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
+    }
+
+    @NotNull
+    public static LookupElement createFieldLookupElement(@NotNull PsiElement fieldName,
+                                                         @NotNull PsiElement ownerName,
+                                                         @NotNull String type, @Nullable String defaultValue,
+                                                         boolean isPublic) {
+        LookupElementBuilder lookupElementBuilder = LookupElementBuilder.createWithSmartPointer(fieldName.getText(),
+                fieldName).withTypeText(type).bold();
+
+        if (defaultValue == null || defaultValue.isEmpty()) {
+            lookupElementBuilder = lookupElementBuilder.withTailText(" -> " + ownerName.getText(), true);
+        } else {
+            String tailText = "(= " + defaultValue + ") -> " + ownerName.getText();
+            lookupElementBuilder = lookupElementBuilder.withTailText(tailText, true);
         }
-        return lookupElements;
+
+        if (isPublic) {
+            lookupElementBuilder = lookupElementBuilder.withIcon(BallerinaIcons.PUBLIC_FIELD);
+        } else {
+            lookupElementBuilder = lookupElementBuilder.withIcon(BallerinaIcons.PRIVATE_FIELD);
+        }
+        return PrioritizedLookupElement.withPriority(lookupElementBuilder, VARIABLE_PRIORITY);
+    }
+
+    @NotNull
+    public static LookupElement createAnnotationLookupElement(@NotNull PsiElement identifier) {
+        BallerinaUserDefineTypeName userDefineTypeName = PsiTreeUtil.getNextSiblingOfType(identifier,
+                BallerinaUserDefineTypeName.class);
+        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(identifier.getText(), identifier)
+                .withTypeText("Annotation").withIcon(BallerinaIcons.ANNOTATION)
+                .withInsertHandler(userDefineTypeName != null ? BracesInsertHandler.INSTANCE_WITH_AUTO_POPUP
+                        : AddSpaceInsertHandler.INSTANCE);
+        return PrioritizedLookupElement.withPriority(builder, ANNOTATION_PRIORITY);
     }
 }

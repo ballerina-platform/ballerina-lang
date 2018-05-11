@@ -1,6 +1,6 @@
 <templateSet group="Ballerina">
 
-    <template name="fun" value="function $NAME$ ($ARGS$) $RETURN$ {&#10;    $END$&#10;}"
+    <template name="fun" value="function $NAME$($ARGS$) $RETURN$ {&#10;    $END$&#10;}"
               description="Function template" toReformat="false" toShortenFQNames="false">
         <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
         <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
@@ -10,74 +10,20 @@
         </context>
     </template>
 
-    <template name="funm" value="function main (string[] args) {&#10;    $END$&#10;}"
+    <template name="funm" value="function main(string... args) {&#10;    $END$&#10;}"
               description="Function Template" toReformat="false" toShortenFQNames="false">
         <context>
             <option name="BALLERINA_FILE" value="true"/>
         </context>
     </template>
 
-    <template name="ser" value="$ANNOTATION$&#10;service&lt;$NOTATION$&gt; $NAME$ {&#10;    $END$&#10;}"
+    <template name="ser" value="$ANNOTATION$&#10;service$NOTATION$ $NAME$ {&#10;    $END$&#10;}"
               description="Service Template" toReformat="false" toShortenFQNames="false">
         <variable name="NOTATION" expression="" defaultValue="" alwaysStopAt="true"/>
         <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
         <variable name="ANNOTATION" expression="" defaultValue="" alwaysStopAt="true"/>
         <context>
             <option name="BALLERINA_FILE" value="true"/>
-        </context>
-    </template>
-
-    <template name="str" value="struct $NAME$ {&#10;    $END$&#10;}"
-              description="Struct Template" toReformat="false" toShortenFQNames="false">
-        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
-        <context>
-            <option name="BALLERINA_FILE" value="true"/>
-        </context>
-    </template>
-
-    <template name="wor" value="worker $NAME$ {&#10;    $END$&#10;}"
-              description="Worker Template" toReformat="false" toShortenFQNames="false">
-        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
-        <context>
-            <option name="BALLERINA_RESOURCE" value="true"/>
-            <option name="BALLERINA_FUNCTION" value="true"/>
-            <option name="BALLERINA_ACTION" value="true"/>
-            <option name="BALLERINA_FORK_JOIN" value="true"/>
-        </context>
-    </template>
-
-    <template name="fojo" value="fork {&#10;    $END$&#10;} join ($JOIN_CONDITION$) ($JOIN_ARGS$) {&#10;    &#10;}"
-              description="Fork Join Template" toReformat="false" toShortenFQNames="false">
-        <variable name="JOIN_CONDITION" expression="" defaultValue="" alwaysStopAt="true"/>
-        <variable name="JOIN_ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
-        <context>
-            <option name="BALLERINA_RESOURCE" value="true"/>
-            <option name="BALLERINA_FUNCTION" value="true"/>
-            <option name="BALLERINA_ACTION" value="true"/>
-        </context>
-    </template>
-
-    <template name="fojot"
-              value="fork {&#10;    $END$&#10;} join ($JOIN_CONDITION$) ($JOIN_ARGS$) {&#10;    &#10;} timeout ($EXPRESSION$) ($TIMEOUT_ARGS$) { &#10;     &#10;}"
-              description="Fork Join Template" toReformat="false" toShortenFQNames="false">
-        <variable name="JOIN_CONDITION" expression="" defaultValue="" alwaysStopAt="true"/>
-        <variable name="JOIN_ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
-        <variable name="EXPRESSION" expression="" defaultValue="" alwaysStopAt="true"/>
-        <variable name="TIMEOUT_ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
-        <context>
-            <option name="BALLERINA_RESOURCE" value="true"/>
-            <option name="BALLERINA_FUNCTION" value="true"/>
-            <option name="BALLERINA_ACTION" value="true"/>
-        </context>
-    </template>
-
-    <template name="tran" value="transaction with retries($COUNT$){ &#10;    $END$&#10;} failed {&#10;    &#10;}"
-              description="Transaction Template" toReformat="false" toShortenFQNames="false">
-        <variable name="COUNT" expression="" defaultValue="" alwaysStopAt="true"/>
-        <context>
-            <option name="BALLERINA_RESOURCE" value="true"/>
-            <option name="BALLERINA_FUNCTION" value="true"/>
-            <option name="BALLERINA_ACTION" value="true"/>
         </context>
     </template>
 
@@ -90,14 +36,14 @@
         </context>
     </template>
 
-    <template name="tra" value="transformer &lt;$TYPE1$, $TYPE2$&gt; $NAME$() {&#10;    $END$&#10;}"
-              description="Transformer template" toReformat="false" toShortenFQNames="false">
-        <variable name="TYPE1" expression="" defaultValue="" alwaysStopAt="true"/>
-        <variable name="TYPE2" expression="" defaultValue="" alwaysStopAt="true"/>
-        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
-        <context>
-            <option name="BALLERINA_FILE" value="true"/>
-        </context>
-    </template>
+    <!--<template name="tra" value="transformer &lt;$TYPE1$, $TYPE2$&gt; $NAME$() {&#10;    $END$&#10;}"-->
+              <!--description="Transformer template" toReformat="false" toShortenFQNames="false">-->
+        <!--<variable name="TYPE1" expression="" defaultValue="" alwaysStopAt="true"/>-->
+        <!--<variable name="TYPE2" expression="" defaultValue="" alwaysStopAt="true"/>-->
+        <!--<variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>-->
+        <!--<context>-->
+            <!--<option name="BALLERINA_FILE" value="true"/>-->
+        <!--</context>-->
+    <!--</template>-->
 
 </templateSet>
