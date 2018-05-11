@@ -19,7 +19,6 @@
 package org.ballerinalang.net.websub;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
