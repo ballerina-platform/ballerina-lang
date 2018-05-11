@@ -57,10 +57,10 @@ class AboutDialog extends React.Component {
                 title={
                     <div>
                         <div className='brand'>
-                            <i className='fw fw-ballerina-logo fw-lg'/>
-                            <i className='fw fw-composer fw-lg brand-color'/>
+                            <i className='fw fw-ballerina-logo fw-lg' />
+                            <i className='fw fw-composer fw-lg brand-color' />
                         </div>
-                        <div className='version'>v0.970.0</div>
+                        <div className='version'>v0.970.1.SNAPSHOT</div>
                     </div>
                 }
                 onHide={this.onDialogHide}
