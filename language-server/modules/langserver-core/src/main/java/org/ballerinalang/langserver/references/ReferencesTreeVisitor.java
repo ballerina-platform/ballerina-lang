@@ -296,6 +296,10 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangAssignment assignNode) {
+        if (assignNode.varRef != null) {
+            this.acceptNode(assignNode.varRef);
+        }
+
         if (assignNode.expr != null) {
             this.acceptNode(assignNode.expr);
         }
