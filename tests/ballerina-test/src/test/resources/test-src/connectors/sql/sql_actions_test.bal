@@ -2,7 +2,6 @@ import ballerina/sql;
 import ballerina/jdbc;
 import ballerina/time;
 import ballerina/io;
-import ballerina/mysql;
 
 type ResultCustomers {
     string FIRSTNAME,
@@ -48,34 +47,6 @@ type ResultDates {
     string DATETIME_TYPE,
 };
 
-type ResultDatesWithNillableStringType {
-    string? DATE_TYPE,
-    string? TIME_TYPE,
-    string? TIMESTAMP_TYPE,
-    string? DATETIME_TYPE,
-};
-
-type ResultDatesWithTimeType {
-    time:Time DATE_TYPE,
-    time:Time TIME_TYPE,
-    time:Time TIMESTAMP_TYPE,
-    time:Time DATETIME_TYPE,
-};
-
-type ResultDatesWithIntType {
-    int DATE_TYPE,
-    int TIME_TYPE,
-    int TIMESTAMP_TYPE,
-    int DATETIME_TYPE,
-};
-
-type ResultDatesWithNillableIntType {
-    int? DATE_TYPE,
-    int? TIME_TYPE,
-    int? TIMESTAMP_TYPE,
-    int? DATETIME_TYPE,
-};
-
 type ResultBalTypes {
     int INT_TYPE,
     int LONG_TYPE,
@@ -89,36 +60,10 @@ type ResultBalTypes {
     blob BLOB_TYPE,
 };
 
-type NillableDataTypes {
-    int? int_type,
-    int? long_type,
-    float? float_type,
-    float? double_type,
-    boolean? boolean_type,
-    string? string_type,
-    float? numeric_type,
-    float? decimal_type,
-    float? real_type,
-    int? tinyint_type,
-    int? smallint_type,
-    string? clob_type,
-    blob? blob_type,
-    blob? binary_type,
-    time:Time? date_type,
-    time:Time? time_type,
-    time:Time? datetime_type,
-    time:Time? timestamp_type,
-};
-
 type Employee {
     int id,
     string name,
     string address,
-};
-
-type Employee1 {
-    int id,
-    string? name,
 };
 
 function testInsertTableData() returns (int) {
@@ -1229,229 +1174,6 @@ function testLoadToMemorySelectAfterTableClose() returns (Employee[], Employee[]
     }
     testDB.stop();
     return (employeeArray1, employeeArray2, e);
-}
-
-function testMappingToNillableTypeFields() returns (int?, int?, float?, float?, boolean?, string?, float?, float?,
-        float?, int?, int?, string?, blob?, blob?, time:Time?, time:Time?, time:Time?, time:Time?) {
-    endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
-        poolOptions: { maximumPoolSize: 1 }
-    };
-    table<NillableDataTypes> dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
-    boolean_type, string_type,
-  numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, blob_type, binary_type, date_type,
-  time_type, datetime_type, timestamp_type from DataTypeTableNillable where row_id=1", NillableDataTypes);
-
-    int? int_type;
-    int? long_type;
-    float? float_type;
-    float? double_type;
-    boolean? boolean_type;
-    string? string_type;
-    float? numeric_type;
-    float? decimal_type;
-    float? real_type;
-    int? tinyint_type;
-    int? smallint_type;
-    string? clob_type;
-    blob? blob_type;
-    blob? binary_type;
-    time:Time? date_type;
-    time:Time? time_type;
-    time:Time? datetime_type;
-    time:Time? timestamp_type;
-
-    while (dt.hasNext()) {
-        NillableDataTypes rs = check <NillableDataTypes>dt.getNext();
-        int_type = rs.int_type;
-        long_type = rs.long_type;
-        float_type = rs.float_type;
-        double_type = rs.double_type;
-        boolean_type = rs.boolean_type;
-        string_type = rs.string_type;
-        numeric_type = rs.numeric_type;
-        decimal_type = rs.decimal_type;
-        real_type = rs.real_type;
-        tinyint_type = rs.tinyint_type;
-        smallint_type = rs.smallint_type;
-        clob_type = rs.clob_type;
-        blob_type = rs.blob_type;
-        binary_type = rs.binary_type;
-        date_type = rs.date_type;
-        time_type = rs.time_type;
-        datetime_type = rs.datetime_type;
-        timestamp_type = rs.timestamp_type;
-    }
-    testDB.stop();
-    return (int_type, long_type, float_type, double_type,
-                boolean_type, string_type,
-              numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, blob_type, binary_type, date_type,
-              time_type, datetime_type, timestamp_type);
-
-}
-
-function testMappingDatesToTimeType() returns (time:Time?, time:Time?, time:Time?, time:Time?) {
-    endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
-        poolOptions: { maximumPoolSize: 1 }
-    };
-
-    table<ResultDatesWithTimeType> dt = check testDB->select("SELECT DATE_TYPE, TIME_TYPE, TIMESTAMP_TYPE,
-    DATETIME_TYPE from DateTimeTypes where row_id=1", ResultDatesWithTimeType);
-
-    time:Time? dateType;
-    time:Time? timeType;
-    time:Time? timeStampType;
-    time:Time? datetimeType;
-
-    while (dt.hasNext()) {
-        ResultDatesWithTimeType rs = check <ResultDatesWithTimeType>dt.getNext();
-        dateType = rs.DATE_TYPE;
-        timeType = rs.TIME_TYPE;
-        timeStampType = rs.TIMESTAMP_TYPE;
-        datetimeType = rs.DATETIME_TYPE;
-    }
-    testDB.stop();
-    return (dateType, timeType, timeStampType, datetimeType);
-}
-
-function testMappingDatesToIntType() returns (int, int, int, int) {
-    endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
-        poolOptions: { maximumPoolSize: 1 }
-    };
-
-    table<ResultDatesWithIntType> dt = check testDB->select("SELECT DATE_TYPE, TIME_TYPE, TIMESTAMP_TYPE,
-    DATETIME_TYPE from DateTimeTypes where row_id = 1", ResultDatesWithIntType);
-
-    int dateType;
-    int timeType;
-    int timeStampType;
-    int datetimeType;
-
-    while (dt.hasNext()) {
-        ResultDatesWithIntType rs = check <ResultDatesWithIntType>dt.getNext();
-        dateType = rs.DATE_TYPE;
-        timeType = rs.TIME_TYPE;
-        timeStampType = rs.TIMESTAMP_TYPE;
-        datetimeType = rs.DATETIME_TYPE;
-    }
-    testDB.stop();
-    return (dateType, timeType, timeStampType, datetimeType);
-}
-
-function testMappingDatesToNillableIntType() returns (int?, int?, int?, int?) {
-    endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
-        poolOptions: { maximumPoolSize: 1 }
-    };
-
-    table<ResultDatesWithNillableIntType> dt = check testDB->select("SELECT DATE_TYPE, TIME_TYPE, TIMESTAMP_TYPE,
-    DATETIME_TYPE from DateTimeTypes where row_id = 1", ResultDatesWithNillableIntType);
-
-    int? dateType;
-    int? timeType;
-    int? timeStampType;
-    int? datetimeType;
-
-    while (dt.hasNext()) {
-        ResultDatesWithNillableIntType rs = check <ResultDatesWithNillableIntType>dt.getNext();
-        dateType = rs.DATE_TYPE;
-        timeType = rs.TIME_TYPE;
-        timeStampType = rs.TIMESTAMP_TYPE;
-        datetimeType = rs.DATETIME_TYPE;
-    }
-    testDB.stop();
-    return (dateType, timeType, timeStampType, datetimeType);
-}
-
-function testMappingDatesToNillableStringType() returns (string?, string?, string?, string?) {
-    endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
-        poolOptions: { maximumPoolSize: 1 }
-    };
-
-    table<ResultDatesWithNillableStringType> dt = check testDB->select("SELECT DATE_TYPE, TIME_TYPE, TIMESTAMP_TYPE,
-    DATETIME_TYPE from DateTimeTypes where row_id = 1", ResultDatesWithNillableStringType);
-
-    string? dateType;
-    string? timeType;
-    string? timeStampType;
-    string? datetimeType;
-
-    while (dt.hasNext()) {
-        ResultDatesWithNillableStringType rs = check <ResultDatesWithNillableStringType>dt.getNext();
-        dateType = rs.DATE_TYPE;
-        timeType = rs.TIME_TYPE;
-        timeStampType = rs.TIMESTAMP_TYPE;
-        datetimeType = rs.DATETIME_TYPE;
-    }
-    testDB.stop();
-    return (dateType, timeType, timeStampType, datetimeType);
-}
-
-function testMappingNullToNillableTypes() returns (int?, int?, float?, float?, boolean?, string?, float?, float?,
-            float?, int?, int?, string?, blob?, blob?, time:Time?, time:Time?, time:Time?, time:Time?) {
-    endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
-        poolOptions: { maximumPoolSize: 1 }
-    };
-    table<NillableDataTypes> dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
-    boolean_type, string_type,
-  numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, blob_type, binary_type, date_type,
-  time_type, datetime_type, timestamp_type from DataTypeTableNillable where row_id=2", NillableDataTypes);
-
-    int? int_type;
-    int? long_type;
-    float? float_type;
-    float? double_type;
-    boolean? boolean_type;
-    string? string_type;
-    float? numeric_type;
-    float? decimal_type;
-    float? real_type;
-    int? tinyint_type;
-    int? smallint_type;
-    string? clob_type;
-    blob? blob_type;
-    blob? binary_type;
-    time:Time? date_type;
-    time:Time? time_type;
-    time:Time? datetime_type;
-    time:Time? timestamp_type;
-
-    while (dt.hasNext()) {
-        NillableDataTypes rs = check <NillableDataTypes>dt.getNext();
-        int_type = rs.int_type;
-        long_type = rs.long_type;
-        float_type = rs.float_type;
-        double_type = rs.double_type;
-        boolean_type = rs.boolean_type;
-        string_type = rs.string_type;
-        numeric_type = rs.numeric_type;
-        decimal_type = rs.decimal_type;
-        real_type = rs.real_type;
-        tinyint_type = rs.tinyint_type;
-        smallint_type = rs.smallint_type;
-        clob_type = rs.clob_type;
-        blob_type = rs.blob_type;
-        binary_type = rs.binary_type;
-        date_type = rs.date_type;
-        time_type = rs.time_type;
-        datetime_type = rs.datetime_type;
-        timestamp_type = rs.timestamp_type;
-    }
-    testDB.stop();
-    return (int_type, long_type, float_type, double_type,
-    boolean_type, string_type,
-    numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, blob_type, binary_type, date_type,
-    time_type, datetime_type, timestamp_type);
 }
 
 function testCloseConnectionPool() returns (int) {

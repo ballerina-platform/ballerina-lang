@@ -61,6 +61,8 @@ public class SQLDataIterator extends TableIterator {
     private Calendar utcCalendar;
     private StructInfo timeStructInfo;
     private StructInfo zoneStructInfo;
+    private static final String UNASSIGNABLE_UNIONTYPE_EXCEPTION = "Corresponding Union type in the record is not an "
+            + "assignable nillable type";
 
     public SQLDataIterator(Calendar utcCalendar, BStructType structType, StructInfo timeStructInfo,
             StructInfo zoneStructInfo, TableResourceManager rm, ResultSet rs, List<ColumnDefinition> columnDefs)
@@ -129,12 +131,13 @@ public class SQLDataIterator extends TableIterator {
         int refRegIndex = -1;
         int index = 0;
         String columnName = null;
+        int sqlType = -1;
         try {
             for (ColumnDefinition columnDef : columnDefs) {
                 if (columnDef instanceof SQLColumnDefinition) {
                     SQLColumnDefinition def = (SQLColumnDefinition) columnDef;
                     columnName = def.getName();
-                    int sqlType = def.getSqlType();
+                    sqlType = def.getSqlType();
                     BStructType.StructField[] structFields = this.type.getStructFields();
                     ++index;
                     int fieldTypeTag = structFields[index - 1].getFieldType().getTag();
@@ -164,7 +167,7 @@ public class SQLDataIterator extends TableIterator {
                             if (sValue != null) {
                                 bStruct.setStringField(++stringRegIndex, sValue);
                             } else {
-                                handleNilToNonNilableFieldAssignment();
+                                handleNilToNonNillableFieldAssignment();
                             }
                         }
                         break;
@@ -183,7 +186,7 @@ public class SQLDataIterator extends TableIterator {
                             if (blobValue != null) {
                                 bStruct.setBlobField(++blobRegIndex, blobValue.getBytes(1L, (int) blobValue.length()));
                             } else {
-                                handleNilToNonNilableFieldAssignment();
+                                handleNilToNonNillableFieldAssignment();
                             }
                         }
                         break;
@@ -197,7 +200,7 @@ public class SQLDataIterator extends TableIterator {
                             if (clobValue != null) {
                                 bStruct.setStringField(++stringRegIndex, clobValue);
                             } else {
-                                handleNilToNonNilableFieldAssignment();
+                                handleNilToNonNillableFieldAssignment();
                             }
                         }
                         break;
@@ -211,7 +214,7 @@ public class SQLDataIterator extends TableIterator {
                             if (nClobValue != null) {
                                 bStruct.setStringField(++stringRegIndex, nClobValue);
                             } else {
-                                handleNilToNonNilableFieldAssignment();
+                                handleNilToNonNillableFieldAssignment();
                             }
                         }
                         break;
@@ -252,7 +255,7 @@ public class SQLDataIterator extends TableIterator {
                                     handleMismatchingFieldAssignment();
                                 }
                             } else {
-                                handleNilToNonNilableFieldAssignment();
+                                handleNilToNonNillableFieldAssignment();
                             }
                         }
                         break;
@@ -292,10 +295,9 @@ public class SQLDataIterator extends TableIterator {
                                     break;
                                 default:
                                     handleMismatchingFieldAssignment();
-
                                 }
                             } else {
-                                handleNilToNonNilableFieldAssignment();
+                                handleNilToNonNillableFieldAssignment();
                             }
                         }
                         break;
@@ -320,7 +322,6 @@ public class SQLDataIterator extends TableIterator {
                                 break;
                             default:
                                 handleMismatchingFieldAssignment();
-
                             }
                         } else {
                             if (timestamp != null) {
@@ -339,7 +340,7 @@ public class SQLDataIterator extends TableIterator {
                                     handleMismatchingFieldAssignment();
                                 }
                             } else {
-                                handleNilToNonNilableFieldAssignment();
+                                handleNilToNonNillableFieldAssignment();
                             }
                         }
                         break;
@@ -363,7 +364,7 @@ public class SQLDataIterator extends TableIterator {
                                     retrieveType(structFields, index - 1), refValue);
                         } else {
                             if (isOriginalValueNull) {
-                                handleNilToNonNilableFieldAssignment();
+                                handleNilToNonNillableFieldAssignment();
                             } else {
                                 bStruct.setIntField(++longRegIndex, iValue);
                             }
@@ -379,7 +380,7 @@ public class SQLDataIterator extends TableIterator {
                                     retrieveType(structFields, index - 1), refValue);
                         } else {
                             if (isOriginalValueNull) {
-                                handleNilToNonNilableFieldAssignment();
+                                handleNilToNonNillableFieldAssignment();
                             } else {
                                 bStruct.setIntField(++longRegIndex, lValue);
                             }
@@ -395,7 +396,7 @@ public class SQLDataIterator extends TableIterator {
                                     retrieveType(structFields, index - 1), refValue);
                         } else {
                             if (isOriginalValueNull) {
-                                handleNilToNonNilableFieldAssignment();
+                                handleNilToNonNillableFieldAssignment();
                             } else {
                                 bStruct.setFloatField(++doubleRegIndex, fValue);
                             }
@@ -410,7 +411,7 @@ public class SQLDataIterator extends TableIterator {
                                     retrieveType(structFields, index - 1), refValue);
                         } else {
                             if (isOriginalValueNull) {
-                                handleNilToNonNilableFieldAssignment();
+                                handleNilToNonNillableFieldAssignment();
                             } else {
                                 bStruct.setFloatField(++doubleRegIndex, dValue);
                             }
@@ -430,7 +431,7 @@ public class SQLDataIterator extends TableIterator {
                                     retrieveType(structFields, index - 1), refValue);
                         } else {
                             if (isOriginalValueNull) {
-                                handleNilToNonNilableFieldAssignment();
+                                handleNilToNonNillableFieldAssignment();
                             } else {
                                 bStruct.setFloatField(++doubleRegIndex, decimalValue);
                             }
@@ -446,7 +447,7 @@ public class SQLDataIterator extends TableIterator {
                                     retrieveType(structFields, index - 1), refValue);
                         } else {
                             if (isOriginalValueNull) {
-                                handleNilToNonNilableFieldAssignment();
+                                handleNilToNonNillableFieldAssignment();
                             } else {
                                 bStruct.setBooleanField(++booleanRegIndex, boolValue ? 1 : 0);
                             }
@@ -473,8 +474,8 @@ public class SQLDataIterator extends TableIterator {
             }
         } catch (Throwable e) {
             throw new BallerinaException(
-                    "error in retrieving next value for column: " + columnName + ": at index:" + index + ":" + e
-                            .getMessage());
+                    "error in retrieving next value for column: " + columnName + ": of SQL Type: " + sqlType + ": "
+                            + "at " + "index:" + index + ":" + e.getMessage());
         }
         return bStruct;
     }
@@ -484,11 +485,11 @@ public class SQLDataIterator extends TableIterator {
         if (expectedTypeTag == actualTypeTag) {
             bStruct.setRefField(refRegIndex, value);
         } else {
-            throw new BallerinaException("Corresponding Union type in the record is not an assignable nillable type");
+            throw new BallerinaException(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
         }
     }
 
-    private void handleNilToNonNilableFieldAssignment() {
+    private void handleNilToNonNillableFieldAssignment() {
         throw new BallerinaException("Trying to assign a Nil value to a non-nillable field");
     }
 
@@ -499,14 +500,14 @@ public class SQLDataIterator extends TableIterator {
     private int retrieveType(BStructType.StructField[] structFields, int index) {
         List<BType> members = ((BUnionType) structFields[index].getFieldType()).getMemberTypes();
         if (members.size() != 2) {
-            throw new BallerinaException("Corresponding Union type in the record is not an assignable nillable type");
+            throw new BallerinaException(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
         }
         if (members.get(0).getTag() == TypeTags.NULL_TAG) {
             return members.get(1).getTag();
         } else if (members.get(1).getTag() == TypeTags.NULL_TAG) {
             return members.get(0).getTag();
         } else {
-            throw new BallerinaException("Corresponding Union type in the record is not an assignable nillable type");
+            throw new BallerinaException(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
         }
     }
 

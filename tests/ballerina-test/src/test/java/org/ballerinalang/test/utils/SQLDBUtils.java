@@ -18,6 +18,8 @@
 package org.ballerinalang.test.utils;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -41,6 +43,7 @@ public class SQLDBUtils {
     public static final String DB_DIRECTORY = "./target/tempdb/";
     public static final String DB_DIRECTORY_H2_1 = "./target/H2_1/";
     public static final String DB_DIRECTORY_H2_2 = "./target/H2_2/";
+    private static final Logger log = LoggerFactory.getLogger(SQLDBUtils.class);
 
     /**
      * Create HyperSQL DB with the given name and initialize with given SQL file.
@@ -63,7 +66,7 @@ public class SQLDBUtils {
                 st.executeUpdate(query.trim());
             }
         } catch (ClassNotFoundException | SQLException e) {
-            //Do nothing
+            log.error("Error while initializing database: ", e);
         } finally {
             releaseResources(connection, st);
         }
