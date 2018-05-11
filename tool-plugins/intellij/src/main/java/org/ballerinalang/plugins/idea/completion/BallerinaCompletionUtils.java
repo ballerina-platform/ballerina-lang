@@ -32,6 +32,7 @@ import com.intellij.openapi.util.Key;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
+import org.ballerinalang.plugins.idea.completion.inserthandlers.BallerinaSingleCharacterInsertHandler;
 import org.ballerinalang.plugins.idea.completion.inserthandlers.BracesInsertHandler;
 import org.ballerinalang.plugins.idea.completion.inserthandlers.ParenthesisWithSemicolonInsertHandler;
 import org.ballerinalang.plugins.idea.completion.inserthandlers.SemiolonInsertHandler;
@@ -426,6 +427,13 @@ public class BallerinaCompletionUtils {
                                                     @Nullable InsertHandler<LookupElement> insertHandler) {
         LookupElementBuilder builder = LookupElementBuilder.create(identifier.getText()).withTypeText("Package")
                 .withIcon(BallerinaIcons.PACKAGE).withInsertHandler(insertHandler);
+        return PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY);
+    }
+
+    public static LookupElement createOrganizationLookup(@NotNull String organization) {
+        LookupElementBuilder builder = LookupElementBuilder.create(organization).withTypeText("Organization")
+                .withIcon(BallerinaIcons.PACKAGE)
+                .withInsertHandler(BallerinaSingleCharacterInsertHandler.ORGANIZATION_SEPARATOR);
         return PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY);
     }
 

@@ -30,6 +30,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public class BallerinaSingleCharacterInsertHandler extends BasicInsertHandler<LookupElement> {
 
+    public static final BallerinaSingleCharacterInsertHandler ORGANIZATION_SEPARATOR =
+            new BallerinaSingleCharacterInsertHandler('/');
+
     private final char myCharacter;
 
     public BallerinaSingleCharacterInsertHandler(char c) {
