@@ -18,19 +18,11 @@
 //////////////////// WebSub Subscriber Natives ////////////////////
 ///////////////////////////////////////////////////////////////////
 documentation {
-    Function to retrieve annotations specified for the WebSub Subscriber Service.
+    Function to retrieve the topic specified as an annotation.
     
-    R{{}} `SubscriberServiceConfiguration` representing the annotation
+    R{{}} `string` representing the annotation
 }
-native function retrieveAnnotations() returns SubscriberServiceConfiguration;
-
-documentation {
-    Function to retrieve annotations specified for the WebSub Subscriber Service.
-
-    P{{serviceType}} the typedesc for the service
-    R{{}} `string` The secret specified in the the annotation
-}
-native function retrieveSecret(typedesc serviceType) returns string;
+native function retrieveIntendedTopic() returns string;
 
 ///////////////////////////////////////////////////////////////////
 //////////////////// WebSub Hub Natives ///////////////////////////
