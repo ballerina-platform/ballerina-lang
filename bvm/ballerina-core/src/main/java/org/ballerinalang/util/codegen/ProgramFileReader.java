@@ -633,6 +633,9 @@ public class ProgramFileReader {
         int sigCPIndex = dataInStream.readInt();
         UTF8CPEntry sigUTF8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(sigCPIndex);
 
+        // Read and ignore flags
+        dataInStream.readInt();
+
         int globalMemIndex = dataInStream.readInt();
 
         PackageVarInfo packageVarInfo = new PackageVarInfo(nameCPIndex, nameUTF8CPEntry.getValue(),
