@@ -13,7 +13,7 @@ function main(string... args) {
     //Register a topic at the hub
     _ = webSubHub.registerTopic("http://www.websubpubtopic.com");
     //Register topic to test remote registration and rejection of intent verification for invalid topic
-    _ = websubHubClientEP->registerTopic("http://dummytopic.com");
+    _ = websubHubClientEP->registerTopic("http://websubpubtopictwo.com");
 
     //Allow for subscriber service start up and subscription
     runtime:sleep(30000);
@@ -21,6 +21,10 @@ function main(string... args) {
     io:println("Publishing update to internal Hub");
     //Publish to the internal Ballerina Hub directly
     _ = webSubHub.publishUpdate("http://www.websubpubtopic.com", {"action":"publish","mode":"internal-hub"});
+
+    io:println("Publishing update to internal Hub");
+    //Publish to the internal Ballerina Hub directly
+    _ = webSubHub.publishUpdate("http://websubpubtopictwo.com", {"action":"publish","mode":"internal-hub-two"});
 
     io:println("Publishing update to remote Hub");
     //Publish to the internal Ballerina Hub considering it as a remote hub
