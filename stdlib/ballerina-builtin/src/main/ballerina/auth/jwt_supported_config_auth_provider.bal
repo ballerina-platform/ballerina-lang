@@ -34,7 +34,7 @@ public type ConfigJwtAuthProvider object {
     public function authenticate(string username, string password) returns boolean {
         boolean isAuthenticated = configAuthProvider.authenticate(username, password);
         if (isAuthenticated){
-            setAuthToken(username, configJwtAuthProviderConfig);
+            setAuthToken(username, getScopes(username), configJwtAuthProviderConfig);
         }
         return isAuthenticated;
     }
@@ -45,9 +45,9 @@ public type ConfigJwtAuthProvider object {
 
 };
 
-function setAuthToken(string username, ConfigJwtAuthProviderConfig authConfig) {
+function setAuthToken(string username, string[] scopes, ConfigJwtAuthProviderConfig authConfig) {
     internal:JwtHeader header = createHeader(authConfig);
-    internal:JwtPayload payload = createPayload(username, authConfig);
+    internal:JwtPayload payload = createPayload(username, scopes, authConfig);
 
     internal:JWTIssuerConfig config = createJWTIssueConfig(authConfig);
     match internal:issue(header, payload, config) {
@@ -69,7 +69,9 @@ function createHeader(ConfigJwtAuthProviderConfig authConfig) returns (internal:
     return header;
 }
 
-function createPayload(string username, ConfigJwtAuthProviderConfig authConfig) returns (internal:JwtPayload) {
+function createPayload(string username, string[] inScopes, ConfigJwtAuthProviderConfig authConfig)
+    returns (internal:JwtPayload) {
+
     internal:JwtPayload payload = {};
     payload.sub = username;
     payload.iss = authConfig.issuer;
@@ -79,6 +81,9 @@ function createPayload(string username, ConfigJwtAuthProviderConfig authConfig) 
     payload.jti = system:uuid();
     string audList = authConfig.audience;
     payload.aud = audList.split(" ");
+    map claims;
+    claims.scopes = inScopes;
+    payload.customClaims = claims;
     return payload;
 }
 
