@@ -19,7 +19,9 @@ documentation {
 
     F{{connectionInitSql}} SQL statement that will be executed after every new connection creation before adding it
                              to the pool
-    F{{dataSourceClassName}} Name of the DataSource class provided by the JDBC driver
+    F{{dataSourceClassName}} Name of the DataSource class provided by the JDBC driver. This is used on following scenarios.
+       1. In JDBC client when DB specific properties are required (which are given with dbOptions)
+       2. In any data client in which XA transactions enabled by isXA property and need to provide a custom XA implementation.
     F{{autoCommit}} Auto-commit behavior of connections returned from the pool
     F{{isXA}} Whether Connections are used for a distributed transaction
     F{{maximumPoolSize}} Maximum size that the pool is allowed to reach, including both idle and in-use connections

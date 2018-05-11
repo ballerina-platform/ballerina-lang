@@ -160,3 +160,20 @@ function testConnectorWithDataSourceClassURLPriority() returns (json) {
     testDB.stop();
     return j;
 }
+
+
+function testPropertiesGetUsedOnlyIfDataSourceGiven() returns (json) {
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize: 1 },
+        dbOptions: { "invalidProperty": 109 }
+    };
+
+    table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
+
+    var j = check <json>dt;
+    testDB.stop();
+    return j;
+}

@@ -31,7 +31,7 @@ documentation {
 public type ClientEndpointConfiguration {
     string host,
     string path,
-    int port = 0,
+    int port = 9092,
     string name,
     string username,
     string password,

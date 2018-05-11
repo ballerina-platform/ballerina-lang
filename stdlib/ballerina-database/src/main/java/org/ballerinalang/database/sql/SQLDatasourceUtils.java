@@ -1072,13 +1072,12 @@ public class SQLDatasourceUtils {
         if (localTransactionInfo.isRetryPossible(context.getParentWorkerExecutionContext(), transactionBlockId)) {
             return;
         }
-
         TransactionUtils.notifyTransactionAbort(context.getParentWorkerExecutionContext(), globalTransactionId,
                 transactionBlockId);
     }
 
-    public static BStruct createServerBasedDBClient(Context context, String database,
-            org.ballerinalang.connector.api.Struct clientEndpointConfig, String dbOptions) {
+    public static BStruct createServerBasedDBClient(Context context, String dbType,
+            org.ballerinalang.connector.api.Struct clientEndpointConfig, String urlOptions) {
         String host = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);
         int port = (int) clientEndpointConfig.getIntField(Constants.EndpointConfig.PORT);
         String name = clientEndpointConfig.getStringField(Constants.EndpointConfig.NAME);
@@ -1086,14 +1085,8 @@ public class SQLDatasourceUtils {
         String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
         org.ballerinalang.connector.api.Struct options = clientEndpointConfig
                 .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
-
-        SQLDatasource datasource = new SQLDatasource();
-        datasource.init(options, "", database, host, port, username, password, name, dbOptions, null);
-
-        BStruct sqlClient = BLangConnectorSPIUtil
-                .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.CALLER_ACTIONS);
-        sqlClient.addNativeData(Constants.CALLER_ACTIONS, datasource);
-        return sqlClient;
+        return createSQLDataSource(context, options, "", dbType, host, port, username, password, name, urlOptions,
+                null);
     }
 
     public static BStruct createSQLDBClient(Context context,
@@ -1104,44 +1097,42 @@ public class SQLDatasourceUtils {
         Map<String, Value> dbOptions = clientEndpointConfig.getMapField(Constants.EndpointConfig.DB_OPTIONS);
         org.ballerinalang.connector.api.Struct options = clientEndpointConfig
                 .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
-
-        SQLDatasource datasource = new SQLDatasource();
         String dbType = url.split(":")[1].toUpperCase(Locale.getDefault());
-        datasource.init(options, url, dbType, "", 0, username, password, "", "", dbOptions);
-
-        BStruct sqlClient = BLangConnectorSPIUtil
-                .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.CALLER_ACTIONS);
-        sqlClient.addNativeData(Constants.CALLER_ACTIONS, datasource);
-        return sqlClient;
+        return createSQLDataSource(context, options, url, dbType, "", 0, username, password, "", "", dbOptions);
     }
 
-    public static BStruct createMultiModeDBClient(Context context, String database,
-            org.ballerinalang.connector.api.Struct clientEndpointConfig, String dbOptions) {
-        String dbType = Constants.SQL_MEMORY_DB_POSTFIX;
+    public static BStruct createMultiModeDBClient(Context context, String dbType,
+            org.ballerinalang.connector.api.Struct clientEndpointConfig, String urlOptions) {
+        String dbPostfix = Constants.SQL_MEMORY_DB_POSTFIX;
         String hostOrPath = "";
         String host = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);
         String path = clientEndpointConfig.getStringField(Constants.EndpointConfig.PATH);
         if (!host.isEmpty()) {
-            dbType = Constants.SQL_SERVER_DB_POSTFIX;
+            dbPostfix = Constants.SQL_SERVER_DB_POSTFIX;
             hostOrPath = host;
         } else if (!path.isEmpty()) {
-            dbType = Constants.SQL_FILE_DB_POSTFIX;
+            dbPostfix = Constants.SQL_FILE_DB_POSTFIX;
             hostOrPath = path;
         }
         if (!host.isEmpty() && !path.isEmpty()) {
-            throw new BallerinaException("error in creating db connector: Provide either host or path");
+            throw new BallerinaException("error in creating db client endpoint: Provide either host or path");
         }
-        database = database + dbType;
+        dbType = dbType + dbPostfix;
         int port = (int) clientEndpointConfig.getIntField(Constants.EndpointConfig.PORT);
         String name = clientEndpointConfig.getStringField(Constants.EndpointConfig.NAME);
         String username = clientEndpointConfig.getStringField(Constants.EndpointConfig.USERNAME);
         String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
         org.ballerinalang.connector.api.Struct options = clientEndpointConfig
                 .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
+        return createSQLDataSource(context, options, "", dbType, hostOrPath, port, username, password, name, urlOptions,
+                null);
+    }
 
+    private static BStruct createSQLDataSource(Context context, org.ballerinalang.connector.api.Struct options,
+            String url, String dbType, String hostOrPath, int port, String username, String password, String dbName,
+            String dbOptions, Map dbOptionsMap) {
         SQLDatasource datasource = new SQLDatasource();
-        datasource.init(options, "", database, hostOrPath, port, username, password, name, dbOptions, null);
-
+        datasource.init(options, url, dbType, hostOrPath, port, username, password, dbName, dbOptions, dbOptionsMap);
         BStruct sqlClient = BLangConnectorSPIUtil
                 .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.CALLER_ACTIONS);
         sqlClient.addNativeData(Constants.CALLER_ACTIONS, datasource);

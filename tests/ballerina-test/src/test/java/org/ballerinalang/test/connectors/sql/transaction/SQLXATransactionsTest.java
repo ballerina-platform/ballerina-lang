@@ -58,6 +58,20 @@ public class SQLXATransactionsTest {
     }
 
     @Test
+    public void testXAransactonSuccessWithDataSource() {
+        BValue[] returns = BRunUtil.invoke(result, "testXAransactonSuccessWithDataSource");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
+    }
+
+    @Test
+    public void testXAransactonSuccessWithH2Client() {
+        BValue[] returns = BRunUtil.invoke(result, "testXAransactonSuccessWithH2Client");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
+    }
+
+    @Test
     public void testXAransactonFailed1() {
         BValue[] returns = BRunUtil.invoke(result, "testXAransactonFailed1");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);

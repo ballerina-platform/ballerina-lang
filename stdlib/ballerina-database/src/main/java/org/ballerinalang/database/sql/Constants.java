@@ -67,15 +67,15 @@ public final class Constants {
         public static final String SQLSERVER = "SQLSERVER";
         public static final String ORACLE = "ORACLE";
         public static final String SYBASE = "SYBASE";
-        public static final String POSTGRES = "POSTGRES";
-        public static final String IBMDB2 = "IBMDB2";
+        public static final String POSTGRESQL = "POSTGRESQL";
+        public static final String IBMDB2 = "DB2";
 
         public static final String DERBY_SERVER = "DERBY_SERVER";
         public static final String DERBY_FILE = "DERBY_FILE";
 
-        public static final String HSQL = "HSQL";
-        public static final String HSQL_SERVER = "HSQL_SERVER";
-        public static final String HSQL_FILE = "HSQL_FILE";
+        public static final String HSQLDB = "HSQLDB";
+        public static final String HSQLDB_SERVER = "HSQLDB_SERVER";
+        public static final String HSQLDB_FILE = "HSQLDB_FILE";
 
         public static final String MYSQL = "MYSQL";
 

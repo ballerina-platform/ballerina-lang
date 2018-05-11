@@ -23,7 +23,7 @@ documentation {
     F{{username}} Username for the database connection
     F{{password}} Password for the database connection
     F{{poolOptions}} Properties for the connection pool configuration
-    F{{dbOptions}} Data source specific properties which are used along with the dataSourceClassName
+    F{{dbOptions}} Data source specific properties. These properties will be effect only if the dataSourceClassName is provided in poolOptions
 }
 public type ClientEndpointConfiguration {
     string url,

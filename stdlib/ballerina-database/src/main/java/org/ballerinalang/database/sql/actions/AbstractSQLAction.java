@@ -228,7 +228,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 // returned as OUT params. If there are present we cannot clean up the connection. If there is no
                 // returned result set or ref cursor OUT params we should cleanup the connection.
                 SQLDatasourceUtils.cleanupConnection(null, stmt, conn, isInTransaction);
-                context.setReturnValues(null);
+                context.setReturnValues();
             }
         } catch (Throwable e) {
             SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
