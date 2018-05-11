@@ -36,17 +36,6 @@
             <type>zip</type>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>composer-server-distribution</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-composer-web</artifactId>
-            <type>zip</type>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -64,7 +53,7 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>
-                                ballerina-tools, ballerina-composer-web
+                                ballerina-tools
                             </includeArtifactIds>
                             <outputDirectory>
                                 ${basedir}/resources
@@ -74,26 +63,6 @@
                             <useSubDirectoryPerArtifact>false</useSubDirectoryPerArtifact>
                             <stripClassifier>true</stripClassifier>
                             <stripVersion>true</stripVersion>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>copy-server-jar</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>${project.groupId}</groupId>
-                                    <artifactId>composer-server-distribution</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-                                    <overWrite>false</overWrite>
-                                    <outputDirectory>${basedir}/resources</outputDirectory>
-                                    <destFileName>composer-server-distribution.jar</destFileName>
-                                </artifactItem>
-                            </artifactItems>
                         </configuration>
                     </execution>
                 </executions>
@@ -118,13 +87,6 @@
                                     </fileset>
                                 </move>
                                 <delete dir="${basedir}/resources/ballerina-tools-${project.version}" />
-                                <move todir="${basedir}/resources/ballerina-composer-web">
-                                    <fileset
-                                            dir="${basedir}/resources/ballerina-composer-web-${project.version}">
-                                        <include name="**/*"/>
-                                    </fileset>
-                                </move>
-                                <delete dir="${basedir}/resources/ballerina-composer-web-${project.version}" />
                             </target>
                         </configuration>
                     </execution>
@@ -141,28 +103,6 @@
                     </filesets>
                 </configuration>
             </plugin>
-            <!--<plugin>-->
-                <!--<groupId>org.codehaus.mojo</groupId>-->
-                <!--<artifactId>exec-maven-plugin</artifactId>-->
-                <!--<version>1.5.0</version>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>build-philosophy-samples</id>-->
-                        <!--<goals>-->
-                            <!--<goal>exec</goal>-->
-                        <!--</goals>-->
-                        <!--<phase>package</phase>-->
-                        <!--<configuration>-->
-                            <!--<executable>sh</executable>-->
-                            <!--<arguments>-->
-                                <!--<argument>tools/build-philosophy-samples.sh</argument>-->
-                                <!--<argument>${philosophy.samples.source.dir}</argument>-->
-                                <!--<argument>${ballerina.home}</argument>-->
-                            <!--</arguments>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
         </plugins>
     </build>
 </project>
