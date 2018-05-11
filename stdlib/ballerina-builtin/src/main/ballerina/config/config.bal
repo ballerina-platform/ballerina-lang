@@ -1,4 +1,4 @@
-// Copyright (c) 2017 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -38,7 +38,7 @@ public function getAsString(@sensitive string key, string default = "") returns 
 
         match value {
             string strValue => return strValue;
-            int|float|boolean|map|any[]|()|error=> {
+            int|float|boolean|map|any[]|()|error => {
                 error err = {message:"invalid value type"};
                 throw err;
             }
@@ -62,7 +62,7 @@ public function getAsInt(@sensitive string key, int default = 0) returns int {
 
         match value {
             int intVal => return intVal;
-            string|float|boolean|map|any[]|()|error=> {
+            string|float|boolean|map|any[]|()|error => {
                 error err = {message:"invalid value type"};
                 throw err;
             }
@@ -94,7 +94,7 @@ public function getAsFloat(@sensitive string key, float default = 0.0) returns f
 
         match value {
             float floatVal => return floatVal;
-            int|string|boolean|map|any[]|()|error=> {
+            int|string|boolean|map|any[]|()|error => {
                 error err = {message:"invalid value type"};
                 throw err;
             }
@@ -126,7 +126,7 @@ public function getAsBoolean(@sensitive string key, boolean default = false) ret
 
         match value {
             boolean booleanVal => return booleanVal;
-            int|float|string|map|any[]|()|error=> {
+            int|float|string|map|any[]|()|error => {
                 error err = {message:"invalid value type"};
                 throw err;
             }
@@ -152,7 +152,7 @@ public function getAsMap(@sensitive string key) returns map {
 
     match value {
         map section => return section;
-        int|float|boolean|string|any[]|()|error=> {
+        int|float|boolean|string|any[]|()|error => {
             error err = {message:"invalid value type"};
             throw err;
         }
