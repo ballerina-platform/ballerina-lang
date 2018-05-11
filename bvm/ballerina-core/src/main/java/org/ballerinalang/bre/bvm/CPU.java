@@ -18,6 +18,7 @@
 package org.ballerinalang.bre.bvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.ballerinalang.bre.bvm.persistency.PendingCheckpoints;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
@@ -66,6 +67,8 @@ import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.model.values.StructureType;
+import org.ballerinalang.persistence.State;
+import org.ballerinalang.persistence.StateStore;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.TransactionStatus;
 import org.ballerinalang.util.codegen.AttachedFunctionInfo;
@@ -175,11 +178,21 @@ public class CPU {
                 if (debugEnabled && debug(ctx)) {
                     return;
                 }
-    
+
                 Instruction instruction = ctx.code[ctx.ip];
                 int opcode = instruction.getOpcode();
                 int[] operands = instruction.getOperands();
                 ctx.ip++;
+                Object o = ctx.globalProps.get("instance.id");
+                if (o != null && o instanceof String) {
+                    String instanceId = (String) o;
+                    if (PendingCheckpoints.isCheckpoint(instanceId, ctx.ip)) {
+                        if (ctx.callableUnitInfo.getPkgPath().equals(".")) {
+                            StateStore.getInstance().persistState(instanceId, new State(ctx));
+                        }
+                    }
+                }
+
                 WorkerData sf = ctx.workerLocal;
                 switch (opcode) {
                     case InstructionCodes.ICONST:

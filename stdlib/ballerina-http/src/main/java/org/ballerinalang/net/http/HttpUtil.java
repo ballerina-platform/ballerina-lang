@@ -29,6 +29,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.bre.bvm.persistency.ConnectionException;
 import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
@@ -473,10 +474,6 @@ public class HttpUtil {
         return new Http2PushPromise(method, path);
     }
 
-    public static void addCarbonMsg(BStruct struct, HTTPCarbonMessage httpCarbonMessage) {
-        struct.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
-    }
-
     public static void populateInboundRequest(BStruct inboundRequestStruct, BStruct entity, BStruct mediaType,
                                               HTTPCarbonMessage inboundRequestMsg,
                                               RequestCacheControlStruct requestCacheControl) {
@@ -494,6 +491,10 @@ public class HttpUtil {
             requestCacheControl.populateStruct(inboundRequestMsg.getHeader(CACHE_CONTROL.toString()));
         }
         inboundRequestStruct.setRefField(REQUEST_CACHE_CONTROL_INDEX, requestCacheControl.getStruct());
+    }
+
+    public static void addCarbonMsg(BStruct struct, HTTPCarbonMessage httpCarbonMessage) {
+        struct.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
     }
 
     private static void enrichWithInboundRequestHeaders(BStruct inboundRequestStruct,

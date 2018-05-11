@@ -22,6 +22,7 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.bre.bvm.persistency.ConnectionException;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
@@ -65,6 +66,9 @@ public class Respond extends ConnectionAction {
     public void execute(Context context, CallableUnitCallback callback) {
         BStruct connectionStruct = (BStruct) context.getRefArgument(0);
         HTTPCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionStruct, null);
+        if (inboundRequestMsg == null) {
+            throw new ConnectionException("Incoming message not available.");
+        }
         HttpUtil.checkFunctionValidity(connectionStruct, inboundRequestMsg);
         DataContext dataContext = new DataContext(context, callback, inboundRequestMsg);
         BStruct outboundResponseStruct = (BStruct) context.getRefArgument(1);

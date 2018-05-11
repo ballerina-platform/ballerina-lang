@@ -33,12 +33,21 @@ import org.ballerinalang.bre.bvm.SyncCallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
+import org.ballerinalang.bre.bvm.persistency.ConnectionException;
+import org.ballerinalang.bre.bvm.persistency.PendingCheckpoints;
+import org.ballerinalang.bre.bvm.persistency.PersistenceUtils;
 import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.model.InterruptibleNativeCallableUnit;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BCallableFuture;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.persistence.ActiveStates;
+import org.ballerinalang.persistence.CorrelationUtil;
+import org.ballerinalang.persistence.FailedStates;
+import org.ballerinalang.persistence.State;
+import org.ballerinalang.persistence.StateStore;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo.WorkerSet;
@@ -77,8 +86,8 @@ public class BLangFunctions {
     private BLangFunctions() { }
 
     /**
-     * This method calls a program callable, considering it as an entry point callable. Which means, this callable will 
-     * be invoked as the first callable in a program, and after it is called, all the cleanup will be done for it to 
+     * This method calls a program callable, considering it as an entry point callable. Which means, this callable will
+     * be invoked as the first callable in a program, and after it is called, all the cleanup will be done for it to
      * exit from the program. That is, this callable will wait for the response to be fully available, and it will wait
      * till all the workers in the system to finish executing.
      * @param bLangProgram the program file
@@ -188,6 +197,21 @@ public class BLangFunctions {
         BLangScheduler.workerWaitForResponse(parentCtx);
         WorkerExecutionContext resultCtx;
         if (callableUnitInfo.isNative()) {
+            NativeCallableUnit nativeCallable = callableUnitInfo.getNativeCallableUnit();
+            if (nativeCallable instanceof InterruptibleNativeCallableUnit) {
+                InterruptibleNativeCallableUnit interruptibleNativeCallableUnit = (InterruptibleNativeCallableUnit) nativeCallable;
+                Object o = parentCtx.globalProps.get("instance.id");
+                if (o != null && o instanceof String) {
+                    String instanceId = (String) o;
+                    WorkerExecutionContext runnableContext = PersistenceUtils.getMainPackageContext(parentCtx);
+                    if (interruptibleNativeCallableUnit.persistBeforeOperation()) {
+                        StateStore.getInstance().persistState(instanceId, new State(runnableContext));
+                    }
+                    if (interruptibleNativeCallableUnit.persistAfterOperation()) {
+                        PendingCheckpoints.addCheckpoint(instanceId, (runnableContext.ip + 1));
+                    }
+                }
+            }
             if (FunctionFlags.isAsync(flags)) {
                 invokeNativeCallableAsync(callableUnitInfo, parentCtx, argRegs, retRegs, flags);
                 resultCtx = parentCtx;
@@ -205,6 +229,11 @@ public class BLangFunctions {
         }
         resultCtx = BLangScheduler.resume(resultCtx, true);
         return resultCtx;
+    }
+
+    private static void persistState(WorkerExecutionContext ctx) {
+        String jsonPaylaod = PersistenceUtils.getJson(ctx);
+//        PersistenceUtils.saveJsonFIle(jsonPaylaod, Integer.toString(ctx.programFile.getMagicValue()));
     }
 
     private static CallableWorkerResponseContext createWorkerResponseContext(BType[] retParamTypes,
@@ -334,6 +363,13 @@ public class BLangFunctions {
         } catch (BLangNullReferenceException e) {
             return BLangVMUtils.handleNativeInvocationError(parentCtx,
                     BLangVMErrors.createNullRefException(callableUnitInfo));
+        } catch (ConnectionException e) {
+            State state = new State(parentCtx);
+            state.setIp(parentCtx.ip);
+            FailedStates.add(CorrelationUtil.getInstanceId(parentCtx), state);
+            ActiveStates.remove(CorrelationUtil.getInstanceId(parentCtx));
+            BLangScheduler.workerCountDown();
+            return null;
         } catch (Throwable e) {
             return BLangVMUtils.handleNativeInvocationError(parentCtx,
                     BLangVMErrors.createError(callableUnitInfo, e.getMessage()));
@@ -539,7 +575,7 @@ public class BLangFunctions {
                 callableUnitInfo.attachedToType.toString(), callableUnitInfo.getName(), parentCtx);
         return observerContext.orElse(null);
     }
-    
+
     /**
      * Callback handler to check for callable response availability.
      */

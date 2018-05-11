@@ -171,6 +171,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-queue</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-http</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -845,6 +850,11 @@
             </dependency>
             <dependency>
                 <groupId>io.ballerina.messaging</groupId>
+                <artifactId>broker-auth</artifactId>
+                <version>${broker.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.ballerina.messaging</groupId>
                 <artifactId>broker-amqp</artifactId>
                 <version>${broker.version}</version>
             </dependency>
@@ -1063,6 +1073,7 @@
                 <module>stdlib/transactions</module>
                 <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/ballerina-mime</module>
+                <module>stdlib/ballerina-queue</module>
                 <module>stdlib/ballerina-websub</module>
                 <module>stdlib/ballerina-jms</module>
                 <module>stdlib/ballerina-database</module>
@@ -1119,6 +1130,7 @@
                 <module>stdlib/transactions</module>
                 <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/ballerina-mime</module>
+                <module>stdlib/ballerina-queue</module>
                 <module>stdlib/ballerina-websub</module>
                 <module>stdlib/ballerina-jms</module>
                 <module>stdlib/ballerina-database</module>
@@ -1171,6 +1183,7 @@
                 <module>stdlib/transactions</module>
                 <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/ballerina-mime</module>
+                <module>stdlib/ballerina-queue</module>
                 <module>stdlib/ballerina-websub</module>
                 <module>stdlib/ballerina-jms</module>
                 <module>stdlib/ballerina-database</module>

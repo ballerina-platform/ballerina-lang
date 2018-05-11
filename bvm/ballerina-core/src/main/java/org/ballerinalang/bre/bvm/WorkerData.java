@@ -42,6 +42,8 @@ public class WorkerData {
     public byte[][] byteRegs;
     
     public BRefType<?>[] refRegs;
+
+    public WorkerData() {}
     
     public WorkerData(CodeAttributeInfo ci) {
         if (ci.maxLongRegs > 0) {

@@ -118,6 +118,8 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         });
 
         CallableUnitCallback callback = new HttpCallableUnitCallback(inboundMessage);
+        String messageId = inboundMessage.getHeader("message-id");
+        properties.put("instance.id", messageId);
         //TODO handle BallerinaConnectorException
         Executor.submit(balResource, callback, properties, observerContext.orElse(null), parentCtx, signatureParams);
     }

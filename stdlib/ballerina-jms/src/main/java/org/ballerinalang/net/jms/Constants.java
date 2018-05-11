@@ -103,6 +103,15 @@ public class Constants {
 
     public static final String MB_ICF_NAME = "org.wso2.andes.jndi.PropertiesFileInitialContextFactory";
     public static final String MB_CF_NAME_PREFIX = "connectionfactory.";
+//    public static final String PROTOCOL_PACKAGE_QUEUE = "ballerina.queue";
+//    public static final String JMS_API_MESSAGE = "q.queue.jms.message";
+//    public static final String INBOUND_REQUEST = "q.queue.inbound.request";
+//    public static final String CLIENT_CONNECTOR = "ClientConnector";
+//    public static final String B_CLIENT_CONNECTOR = "q.queue.b.client.connector";
+//    public static final String PROTOCOL_PACKAGE_JMS = "q.package.jms";
+//    public static final String JMS_SESSION_ACKNOWLEDGEMENT_MODE = "q.session.ack.mode";
+//    public static final String JMS_MESSAGE_DELIVERY_ERROR = "q.message.delivery.error";
+//    public static final String JMS_MESSAGE_DELIVERY_SUCCESS = "q.message.delivery.success";
 
     private static Map<String, String> mappingParameters;
 
