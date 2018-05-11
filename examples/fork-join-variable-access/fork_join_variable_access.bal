@@ -37,7 +37,7 @@ function main(string... args) {
         int p;
         string l;
         // Declare variables to receive the results from the forked workers W1 and W2.
-        // The `results` map contains a map of any type values from each worker defined within the `fork-join` statement
+        // The `results` map contains a map of `any` type values from each worker defined within the `fork-join` statement.
         // The tuple value received from worker W1 is de-structured and assigned to variables `p` and `l`.
         (p, l) = check <(int, string)>results["W1"];
 
@@ -57,7 +57,7 @@ function main(string... args) {
     io:println("[default worker] after fork-join: " + 
                "value of integer variable is [", i, "] ",
                "value of string variable is [", s, "]");
-    // The reference type variables' internal content have got updated since they are passed in
+    // The reference type variables' internal content has got updated since they are passed in
     // as a reference to the workers.
     name = <string>m["name"];
     era = <string>m["era"];
