@@ -978,7 +978,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
      */
     private void acceptNode(BLangNode node) {
         if (this.terminateVisitor) {
-            this.position.setLine(this.position.getLine() - 1);
             return;
         }
         node.accept(this);
