@@ -1676,6 +1676,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private void checkTransactionHandlerValidity(BLangExpression transactionHanlder) {
         if (transactionHanlder != null) {
+            BSymbol handlerSymbol = ((BLangSimpleVarRef) transactionHanlder).symbol;
+            if (handlerSymbol != null && handlerSymbol.kind != SymbolKind.FUNCTION) {
+                dlog.error(transactionHanlder.pos, DiagnosticCode.INVALID_FUNCTION_POINTER_ASSIGNMENT_FOR_HANDLER);
+            }
             if (transactionHanlder.type.tag == TypeTags.INVOKABLE) {
                 BInvokableType handlerType = (BInvokableType) transactionHanlder.type;
                 int parameterCount = handlerType.paramTypes.size();

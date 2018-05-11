@@ -262,7 +262,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     @Override
     public void visit(BLangFunction funcNode) {
-        if (((BLangFunction) funcNode).symbol.isTransactionHandler) {
+        if (funcNode.symbol.isTransactionHandler) {
             transactionWithinHandlerCheckStack.push(true);
         }
         this.returnWithintransactionCheckStack.push(true);
@@ -272,7 +272,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.visitInvocable(funcNode, funcEnv);
         this.returnWithintransactionCheckStack.pop();
         this.doneWithintransactionCheckStack.pop();
-        if (((BLangFunction) funcNode).symbol.isTransactionHandler) {
+        if (funcNode.symbol.isTransactionHandler) {
             transactionWithinHandlerCheckStack.pop();
         }
     }
