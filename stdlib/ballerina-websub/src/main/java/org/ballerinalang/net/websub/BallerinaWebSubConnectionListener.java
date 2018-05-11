@@ -46,6 +46,8 @@ import org.ballerinalang.net.uri.URIUtil;
 import org.ballerinalang.net.websub.util.WebSubUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.PrintStream;
@@ -72,6 +74,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACK
  */
 public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorListener {
 
+    private static final Logger log = LoggerFactory.getLogger(BallerinaWebSubConnectionListener.class);
     private WebSubServicesRegistry webSubServicesRegistry;
     private PrintStream console = System.out;
 
@@ -81,34 +84,38 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
     }
 
     @Override
-    public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
+    public void onMessage(HTTPCarbonMessage inboundMessage) {
         try {
             HttpResource httpResource;
-            if (accessed(httpCarbonMessage)) {
-                if (httpCarbonMessage.getProperty(HTTP_RESOURCE) instanceof String) {
-                    if (httpCarbonMessage.getProperty(HTTP_RESOURCE).equals(ANNOTATED_TOPIC)) {
-                        autoRespondToIntentVerification(httpCarbonMessage);
+            if (accessed(inboundMessage)) {
+                if (inboundMessage.getProperty(HTTP_RESOURCE) instanceof String) {
+                    if (inboundMessage.getProperty(HTTP_RESOURCE).equals(ANNOTATED_TOPIC)) {
+                        autoRespondToIntentVerification(inboundMessage);
                         return;
                     } else {
-                        httpResource = WebSubDispatcher.findResource(webSubServicesRegistry, httpCarbonMessage);
+                        httpResource = WebSubDispatcher.findResource(webSubServicesRegistry, inboundMessage);
                     }
                 } else {
-                    httpResource = (HttpResource) httpCarbonMessage.getProperty(HTTP_RESOURCE);
+                    httpResource = (HttpResource) inboundMessage.getProperty(HTTP_RESOURCE);
                 }
-                extractPropertiesAndStartResourceExecution(httpCarbonMessage, httpResource);
+                extractPropertiesAndStartResourceExecution(inboundMessage, httpResource);
                 return;
             }
-            httpResource = WebSubDispatcher.findResource(webSubServicesRegistry, httpCarbonMessage);
+            httpResource = WebSubDispatcher.findResource(webSubServicesRegistry, inboundMessage);
             //TODO: fix to avoid defering on GET, when onIntentVerification is included
-            if (httpCarbonMessage.getProperty(HTTP_RESOURCE) == null) {
-                httpCarbonMessage.setProperty(HTTP_RESOURCE, httpResource);
+            if (inboundMessage.getProperty(HTTP_RESOURCE) == null) {
+                inboundMessage.setProperty(HTTP_RESOURCE, httpResource);
                 return;
-            } else if (httpCarbonMessage.getProperty(HTTP_RESOURCE) instanceof String) {
+            } else if (inboundMessage.getProperty(HTTP_RESOURCE) instanceof String) {
                 return;
             }
-            extractPropertiesAndStartResourceExecution(httpCarbonMessage, httpResource);
+            extractPropertiesAndStartResourceExecution(inboundMessage, httpResource);
         } catch (BallerinaException ex) {
-            HttpUtil.handleFailure(httpCarbonMessage, new BallerinaConnectorException(ex.getMessage(), ex.getCause()));
+            try {
+                HttpUtil.handleFailure(inboundMessage, new BallerinaConnectorException(ex.getMessage(), ex.getCause()));
+            } catch (Exception e) {
+                log.error("Cannot handle error using the error handler for: " + e.getMessage(), e);
+            }
         }
     }
 
