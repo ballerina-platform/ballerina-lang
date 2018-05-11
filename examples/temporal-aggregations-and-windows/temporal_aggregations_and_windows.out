@@ -11,5 +11,5 @@ $ curl -X POST http://localhost:9090/requests -d "{'message' : 'request successf
 $ curl -X POST http://localhost:9090/requests -d "{'message' : 'request successfully received'}"
 $ curl -X POST http://localhost:9090/requests -d "{'message' : 'request successfully received'}"
 
-# If the number of requests from the same host is greater than six, a log would print like
-ALERT!! : Received more than 6 requests within 5 second from the host: localhost:9090
+# If the number of requests from the same host is greater than six, a log is printed. 
+ALERT!! : Received more than 6 requests from the host: localhost:9090 within 5 seconds.
