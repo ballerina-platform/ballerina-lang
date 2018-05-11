@@ -61,13 +61,13 @@ public type FailoverInferredConfig {
 };
 
 documentation {
-    Failover caller actions which provides failover capabilities to an HTTP client endpoint.
+    Failover caller actions which provides failover capabilities to the failover client endpoint.
 
     F{{serviceUri}} The URL of the remote HTTP endpoint
     F{{config}} The configurations of the client endpoint associated with this `Failover` instance
     F{{failoverInferredConfig}} Configurations derived from `FailoverConfig`
 }
-public type Failover object {
+public type FailoverActions object {
 
     public {
         string serviceUri;
@@ -218,74 +218,74 @@ public type Failover object {
     public function rejectPromise(PushPromise promise);
 };
 
-public function Failover::post(string path, Request? request = ()) returns Response|error {
+public function FailoverActions::post(string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performFailoverAction(path, req, HTTP_POST, self.failoverInferredConfig);
 }
 
-public function Failover::head(string path, Request? request = ()) returns Response|error {
+public function FailoverActions::head(string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performFailoverAction(path, req, HTTP_HEAD, self.failoverInferredConfig);
 }
 
-public function Failover::patch(string path, Request? request = ()) returns Response|error {
+public function FailoverActions::patch(string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performFailoverAction(path, req, HTTP_PATCH, self.failoverInferredConfig);
 }
 
-public function Failover::put(string path, Request? request = ()) returns Response|error {
+public function FailoverActions::put(string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performFailoverAction(path, req, HTTP_PUT, self.failoverInferredConfig);
 }
 
-public function Failover::options(string path, Request? request = ()) returns Response|error {
+public function FailoverActions::options(string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performFailoverAction(path, req, HTTP_OPTIONS, self.failoverInferredConfig);
 }
 
-public function Failover::forward(string path, Request request) returns Response|error {
+public function FailoverActions::forward(string path, Request request) returns Response|error {
     return performFailoverAction(path, request, HTTP_FORWARD, self.failoverInferredConfig);
 }
 
-public function Failover::execute(string httpVerb, string path, Request request) returns Response|error {
+public function FailoverActions::execute(string httpVerb, string path, Request request) returns Response|error {
     return performExecuteAction(path, request, httpVerb, self.failoverInferredConfig);
 }
 
-public function Failover::delete(string path, Request? request = ()) returns Response|error {
+public function FailoverActions::delete(string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performFailoverAction(path, req, HTTP_DELETE, self.failoverInferredConfig);
 }
 
-public function Failover::get(string path, Request? request = ()) returns Response|error {
+public function FailoverActions::get(string path, Request? request = ()) returns Response|error {
     Request req = request ?: new;
     return performFailoverAction(path, req, HTTP_GET, self.failoverInferredConfig);
 }
 
-public function Failover::submit(string httpVerb, string path, Request request) returns HttpFuture|error {
+public function FailoverActions::submit(string httpVerb, string path, Request request) returns HttpFuture|error {
     error err = {message:"Unsupported action for Failover client."};
     return err;
 }
 
-public function Failover::getResponse(HttpFuture httpFuture) returns (error) {
+public function FailoverActions::getResponse(HttpFuture httpFuture) returns (error) {
     error err = {message:"Unsupported action for Failover client."};
     return err;
 }
 
-public function Failover::hasPromise(HttpFuture httpFuture) returns (boolean) {
+public function FailoverActions::hasPromise(HttpFuture httpFuture) returns (boolean) {
     return false;
 }
 
-public function Failover::getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+public function FailoverActions::getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
     error err = {message:"Unsupported action for Failover client."};
     return err;
 }
 
-public function Failover::getPromisedResponse(PushPromise promise) returns Response|error {
+public function FailoverActions::getPromisedResponse(PushPromise promise) returns Response|error {
     error err = {message:"Unsupported action for Failover client."};
     return err;
 }
 
-public function Failover::rejectPromise(PushPromise promise) {
+public function FailoverActions::rejectPromise(PushPromise promise) {
 }
 
 // Performs execute action of the Failover connector. extract the corresponding http integer value representation
@@ -313,16 +313,15 @@ function performFailoverAction (string path, Request request, HttpOperation requ
     Response inResponse = new;
     Request failoverRequest = request;
     failoverActionErr.httpActionErr = [];
-
-    // When performing passthrough scenarios using Failover connector, message needs to be built before trying out the
-    // failover endpoints to keep the request message to failover the messages.
-    var binaryPayload = failoverRequest.getBinaryPayload();
-
     mime:Entity requestEntity = new;
-    var mimeEntity = failoverRequest.getEntity();
-    match mimeEntity {
-        mime:Entity entity => requestEntity = entity;
-        error err=> io:println(err.message);
+
+    if (isMultipartRequest(failoverRequest)) {
+        failoverRequest = populateMultipartRequest(failoverRequest);
+    } else {
+        // When performing passthrough scenarios using Failover connector, message needs to be built before trying
+        // out the failover endpoints to keep the request message to failover the messages.
+        var binaryPayload = failoverRequest.getBinaryPayload();
+        requestEntity = check failoverRequest.getEntity();
     }
     while (startIndex != currentIndex) {
         startIndex = initialIndex;
@@ -334,10 +333,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
                 int httpStatusCode = response.statusCode;
                 if (failoverCodeIndex[httpStatusCode] == true) {
                     if (noOfEndpoints > currentIndex) {
-                        Request newOutRequest = new;
-                        populateRequestFields(failoverRequest, newOutRequest);
-                        newOutRequest.setEntity(requestEntity);
-                        failoverRequest = newOutRequest;
+                        failoverRequest = createFailoverRequest(failoverRequest, requestEntity);
                         runtime:sleep(failoverInterval);
                         failoverClient = failoverClients[currentIndex];
                         populateFailoverErrorHttpStatusCodes(inResponse, failoverActionErr, currentIndex - 1);
@@ -350,10 +346,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
                 }
             }
             error httpConnectorErr => {
-                Request newOutRequest = new;
-                populateRequestFields(failoverRequest, newOutRequest);
-                newOutRequest.setEntity(requestEntity);
-                failoverRequest = newOutRequest;
+                failoverRequest = createFailoverRequest(failoverRequest, requestEntity);
                 if (noOfEndpoints > currentIndex) {
                     runtime:sleep(failoverInterval);
                     failoverActionErr.httpActionErr[currentIndex - 1] = httpConnectorErr;

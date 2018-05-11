@@ -60,7 +60,7 @@ html:focus, body:focus, input[readonly]:focus{
 
 @invertedBackgroundColor        : #252525;
 @invertedInputBackgroundColor   : #3a3a3a;
-@selectionInvertedBorderColor   : @orange;
+@selectionInvertedBorderColor   : @primaryColor;
 @selectionInvertedTextColor     : @off-white;
 @selectionInvertItemDivider     : @defaultColor;
 
@@ -71,7 +71,7 @@ html:focus, body:focus, input[readonly]:focus{
 
 @placeholderBackgroundOpacity   : 0.7;
 
-@highlightBackground            : @orange;
+@highlightBackground            : @primaryColor;
 
 @selectionBorderRadius          : 0;
 @noBorderRadius                 : 0;

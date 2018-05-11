@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -273,13 +274,48 @@ public class DelimitedRecordChannel {
     }
 
     /**
+     * <p>
+     * Recursively split based on given regEx.
+     * </p>
+     * <p>
+     * This operation will ignore blanks.
+     * </p>
+     *
+     * @param record record which should be separated.
+     * @param regex  condition which should be used to split.
+     * @return the list of fields
+     */
+    private String[] recursiveSplit(String record, String regex) {
+        final int recursiveIndex = 2;
+        final String empty = "";
+        ArrayList<String> records = new ArrayList<>();
+        String[] splitRecords;
+        do {
+            splitRecords = record.split(regex, recursiveIndex);
+            int numberOfFields = splitRecords.length;
+            String field = splitRecords[0];
+            record = numberOfFields == recursiveIndex ? splitRecords[1] : empty;
+            if (field.trim().isEmpty()) {
+                continue;
+            }
+            records.add(field);
+        } while (splitRecords.length == recursiveIndex);
+        return records.toArray(new String[0]);
+    }
+
+    /**
      * Get the fields identified through the record.
      *
      * @param record the record which contains all the fields.
      * @return fields which are separated as records.
      */
     private String[] getFields(String record) {
-        return record.split(getFieldSeparatorForReading());
+        String fieldSeparatorForReading = getFieldSeparatorForReading();
+        if (null != format && format.shouldIgnoreBlanks()) {
+            return recursiveSplit(record, fieldSeparatorForReading);
+        } else {
+            return record.split(fieldSeparatorForReading);
+        }
     }
 
     /**
@@ -326,6 +362,16 @@ public class DelimitedRecordChannel {
     }
 
     /**
+     * Enclose a given field with quotes.
+     *
+     * @param field field which should be enclosed.
+     * @return Enclosed field.
+     */
+    private String encloseField(String field) {
+        return "\"" + field + "\"";
+    }
+
+    /**
      * Will place the relevant fields together to/form a record.
      *
      * @param fields the list of fields in the record.
@@ -342,6 +388,9 @@ public class DelimitedRecordChannel {
         }
         for (int fieldCount = fieldStartIndex; fieldCount < numberOfFields; fieldCount++) {
             String currentFieldString = fields.get(fieldCount);
+            if (currentFieldString.contains(getFieldSeparatorForWriting())) {
+                currentFieldString = encloseField(currentFieldString);
+            }
             recordConsolidator.append(currentFieldString);
             if (fieldCount < secondLastFieldIndex) {
                 //The idea here is to omit appending the field separator after the final field

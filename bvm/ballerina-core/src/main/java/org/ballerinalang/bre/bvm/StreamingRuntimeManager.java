@@ -97,12 +97,12 @@ public class StreamingRuntimeManager {
                     AtomicInteger stringVarIndex = new AtomicInteger(-1);
                     BStruct output = new BStruct(structType);
                     for (Object field : event.getData()) {
-                        if (field instanceof Long) {
-                            output.setIntField(intVarIndex.incrementAndGet(), (Long) field);
-                        } else if (field instanceof Double) {
-                            output.setFloatField(floatVarIndex.incrementAndGet(), (Double) field);
+                        if (field instanceof Long || field instanceof Integer) {
+                            output.setIntField(intVarIndex.incrementAndGet(), ((Number) field).longValue());
+                        } else if (field instanceof Double || field instanceof Float) {
+                            output.setFloatField(floatVarIndex.incrementAndGet(), ((Number) field).doubleValue());
                         } else if (field instanceof Boolean) {
-                            output.setBooleanField(boolVarIndex.incrementAndGet(), (Integer) field);
+                            output.setBooleanField(boolVarIndex.incrementAndGet(), ((Boolean) field) ? 1 : 0);
                         } else if (field instanceof String) {
                             output.setStringField(stringVarIndex.incrementAndGet(), (String) field);
                         }

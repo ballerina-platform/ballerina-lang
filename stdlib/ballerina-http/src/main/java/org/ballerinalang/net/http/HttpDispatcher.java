@@ -19,7 +19,6 @@ package org.ballerinalang.net.http;
 
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.mime.util.Constants;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
@@ -31,10 +30,10 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
 import org.ballerinalang.net.uri.URIUtil;
 import org.ballerinalang.runtime.message.BlobDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,8 +46,12 @@ import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.ballerinalang.mime.util.Constants.ENTITY;
+import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
+import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.net.http.HttpConstants.CONNECTION;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
-import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
+import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_INDEX;
 
@@ -123,81 +126,51 @@ public class HttpDispatcher {
         return interfaceId;
     }
 
-    protected static void handleError(HTTPCarbonMessage cMsg, Throwable throwable) {
-        String errorMsg = throwable.getMessage();
-
-        // bre log should contain bre stack trace, not the ballerina stack trace
-        breLog.error("error: " + errorMsg, throwable);
-        try {
-            HttpUtil.handleFailure(cMsg, new BallerinaConnectorException(errorMsg, throwable.getCause()));
-        } catch (Exception e) {
-            breLog.error("Cannot handle error using the error handler for: " + e.getMessage(), e);
-        }
-    }
-
     /**
      * This method finds the matching resource for the incoming request.
      *
-     * @param httpCarbonMessage incoming message.
+     * @param inboundMessage incoming message.
      * @return matching resource.
      */
-    public static HttpResource findResource(HTTPServicesRegistry servicesRegistry,
-                                            HTTPCarbonMessage httpCarbonMessage) {
-        HttpResource resource = null;
-        String protocol = (String) httpCarbonMessage.getProperty(HttpConstants.PROTOCOL);
+    public static HttpResource findResource(HTTPServicesRegistry servicesRegistry, HTTPCarbonMessage inboundMessage) {
+        String protocol = (String) inboundMessage.getProperty(HttpConstants.PROTOCOL);
         if (protocol == null) {
             throw new BallerinaConnectorException("protocol not defined in the incoming request");
         }
 
         try {
             // Find the Service TODO can be improved
-            HttpService service = HttpDispatcher.findService(servicesRegistry, httpCarbonMessage);
+            HttpService service = HttpDispatcher.findService(servicesRegistry, inboundMessage);
             if (service == null) {
                 throw new BallerinaConnectorException("no Service found to handle the service request");
                 // Finer details of the errors are thrown from the dispatcher itself, Ideally we shouldn't get here.
             }
 
             // Find the Resource
-            resource = HttpResourceDispatcher.findResource(service, httpCarbonMessage);
+            return HttpResourceDispatcher.findResource(service, inboundMessage);
         } catch (Throwable throwable) {
-            handleError(httpCarbonMessage, throwable);
+            throw new BallerinaConnectorException(throwable.getMessage());
         }
-        return resource;
     }
 
     public static BValue[] getSignatureParameters(HttpResource httpResource, HTTPCarbonMessage httpCarbonMessage) {
         //TODO Think of keeping struct type globally rather than creating for each request
-        BStruct serviceEndpoint = BLangConnectorSPIUtil.createBStruct(
-                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                PROTOCOL_PACKAGE_HTTP, SERVICE_ENDPOINT);
+        ProgramFile programFile =
+                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
 
-        BStruct connection = BLangConnectorSPIUtil.createBStruct(
-                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                PROTOCOL_PACKAGE_HTTP, HttpConstants.CONNECTION);
-
-        BStruct inRequest = BLangConnectorSPIUtil.createBStruct(
-                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                PROTOCOL_PACKAGE_HTTP, HttpConstants.REQUEST);
-
-        BStruct inRequestEntity = BLangConnectorSPIUtil.createBStruct(
-                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME, Constants.ENTITY);
-
-        BStruct mediaType = BLangConnectorSPIUtil.createBStruct(
-                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME, Constants.MEDIA_TYPE);
-
-        BStruct cacheControlStruct = BLangConnectorSPIUtil.createBStruct(
-                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                PROTOCOL_PACKAGE_HTTP, REQUEST_CACHE_CONTROL);
-        RequestCacheControlStruct requestCacheControl = new RequestCacheControlStruct(cacheControlStruct);
+        BStruct serviceEndpoint = BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP,
+                                                                      SERVICE_ENDPOINT);
+        BStruct connection = BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, CONNECTION);
+        BStruct inRequest = BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, REQUEST);
+        BStruct inRequestEntity = BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_MIME, ENTITY);
+        BStruct mediaType = BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
 
         HttpUtil.enrichServiceEndpointInfo(serviceEndpoint, httpCarbonMessage, httpResource);
         HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage);
         serviceEndpoint.setRefField(SERVICE_ENDPOINT_CONNECTION_INDEX, connection);
 
         HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage);
-        HttpUtil.populateInboundRequest(inRequest, inRequestEntity, mediaType, httpCarbonMessage, requestCacheControl);
+        HttpUtil.populateInboundRequest(inRequest, inRequestEntity, mediaType, httpCarbonMessage, programFile);
 
         SignatureParams signatureParams = httpResource.getSignatureParams();
         BValue[] bValues = new BValue[signatureParams.getParamCount()];

@@ -24,6 +24,9 @@
         &:before {
           display: none;
         }
+        &:hover{
+          color: $brand-primary;
+        }
       }
     }
   }
