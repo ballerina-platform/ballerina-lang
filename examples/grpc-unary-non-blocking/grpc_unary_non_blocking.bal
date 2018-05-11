@@ -1,4 +1,4 @@
-// This is server implementation for unary blocking/unblocking scenario
+// This is the server implementation for the unary blocking/unblocking scenario.
 import ballerina/io;
 import ballerina/grpc;
 
@@ -14,12 +14,12 @@ service HelloWorld bind ep {
         io:println("Received message from : " + name);
         string message = "Hello " + name;
 
-        // Sends response message to the caller.
+        // Send a response message to the caller.
         error? err = caller->send(message);
 
         io:println(err.message but { () => "Server send response : " +
                                                                     message });
-        // Sends `completed` notification to caller.
+        // Send the `completed` notification to the caller.
         _ = caller->complete();
     }
 }

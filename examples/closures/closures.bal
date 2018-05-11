@@ -2,7 +2,7 @@ import ballerina/io;
 
 int globalA = 5;
 
-// Basic example where a lambda with a 'if' block access its outer scope
+// Basic example where a lambda with an 'if' block accesses its outer scope
 // variables.
 function basicClosure() returns (function (int) returns int) {
     int a = 3;
@@ -16,8 +16,8 @@ function basicClosure() returns (function (int) returns int) {
     return foo;
 }
 
-// Example function with multiple levels of lambda functions, which the
-// inner most lambda has access to all of its outer scope variables.
+// Example function with multiple levels of lambda functions in which the
+// innermost lambda has access to all of its outer scope variables.
 function multilevelClosure() returns (function (int) returns int) {
     int a = 2;
     var func1 = (int x) => int {
@@ -34,8 +34,8 @@ function multilevelClosure() returns (function (int) returns int) {
     return func1;
 }
 
-// Example which shows how function pointers are passes around with closures,
-// where inner scope lambdas accessing its outer scope variables.
+// Example showing how function pointers are passed around with closures
+// and inner scope lambdas access the outer scope variables.
 function functionPointers(int a) returns
                     (function (int) returns (function (int) returns int)) {
     return (int b) => (function (int) returns int) {
@@ -46,7 +46,7 @@ function functionPointers(int a) returns
 }
 
 
-// Example function where inner scope variables can shadow its outer scope
+// Example function where inner scope variables can shadow the outer scope
 // variables along with closure support.
 function variableShadow(int a) returns (function (float) returns string) {
     int b = 4;
@@ -73,14 +73,14 @@ function main(string... args) {
     int result1 = foo(3);
     io:println("Answer: " + result1);
 
-    // This function invocation shows how multiple level of lambda functions
-    // within with closure support.
+    // This function invocation shows multiple levels of lambda functions
+    // with closure support.
     var bar = multilevelClosure();
     int result2 = bar(5);
     io:println("Answer: " + result2);
 
     // This function invocation shows how function pointers with closures
-    // are passes around.
+    // are passed around.
     var baz1 = functionPointers(7);
     var baz2 = baz1(5);
     int result3 = baz2(3);

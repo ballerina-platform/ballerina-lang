@@ -1,1 +1,3 @@
-//The check is a unary expression, that is used to handle errors. Check expression removes error type from the sub expression's result and handle error case separately. Hence check can be considered as a built-in match.
+// The check is a unary expression that is used to handle errors. 
+// The check expression removes the type `error` from the sub expression's result and handles error cases separately. 
+// Hence, check can be considered as a built-in match.

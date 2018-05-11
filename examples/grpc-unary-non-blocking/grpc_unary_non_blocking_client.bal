@@ -1,4 +1,4 @@
-// This is client implementation for unary non blocking scenario.
+// This is the client implementation for the unary non blocking scenario.
 import ballerina/io;
 
 int total = 0;
@@ -8,7 +8,7 @@ function main(string... args) {
         url: "http://localhost:9090"
     };
 
-    // Executes unary non-blocking call, registering server message listener.
+    // Execute the unary non-blocking call that registers the server message listener.
     error|() result = helloWorldEp->hello("WSO2", HelloWorldMessageListener);
 
     match result {
@@ -27,19 +27,19 @@ function main(string... args) {
 // Server Message Listener.
 service<grpc:Service> HelloWorldMessageListener {
 
-    // Resource registered to receive server messages
+    // Resource registered to receive server messages.
     onMessage(string message) {
         io:println("Response received from server: " + message);
     }
 
-    // Resource registered to receive server error messages
+    // Resource registered to receive server error messages.
     onError(error err) {
         if (err != ()) {
             io:println("Error reported from server: " + err.message);
         }
     }
 
-    // Resource registered to receive server completed message.
+    // Resource registered to receive server completed messages.
     onComplete() {
         io:println("Server Complete Sending Response.");
         total = 1;

@@ -23,10 +23,10 @@ stream<TempDiffInfo> tempDiffInfoStream;
 TempDiffInfo[] tempDiffInfoArray = [];
 int index;
 
-// This is the function that contains the rules, which detect the temperature peak values. The first events temperature
-// should be greater than the temperature values that are returned with the next event, that is e2. The last
+// This is the function that contains the rules that detect the temperature peak values. The first event's temperature
+// should be greater than the temperature values that are returned with the next event, which is e2. The last
 // temperature value in e2 should be greater than the temperature value that is given in the event e3. This makes
-// the last value of e2 the peak temperature.
+// the last value of e2, the peak temperature.
 function deployPeakTempDetectionRules() {
     forever {
         from every tempStream as e1, tempStream
@@ -35,7 +35,7 @@ function deployPeakTempDetectionRules() {
         select e1.temp as initialTemp,
             e2[e2.length - 1].temp as peakTemp
         => (TempDiffInfo[] tempDiffInfos) {
-        // if the sequence is matched the data is pushed/published to the output stream.
+        // If the sequence is matched, the data is pushed/published to the output stream.
             tempDiffInfoStream.publish(tempDiffInfos);
         }
     }
@@ -47,7 +47,7 @@ function main(string... args) {
     // Deploy the streaming sequence rules.
     deployPeakTempDetectionRules();
 
-    // Subscribe to the `printInitialAndPeakTemp` function. The prints the peak temperature values.
+    // Subscribe to the `printInitialAndPeakTemp` function. This prints the peak temperature values.
     tempDiffInfoStream.subscribe(printInitalAndPeakTemp);
 
     // Simulating the data that is being sent to the `tempStream` stream.
@@ -97,7 +97,7 @@ function printInitalAndPeakTemp(TempDiffInfo tempDiff) {
     addToGlobalTempDiffArray(tempDiff);
 }
 
-// This function is used to keep track of all the temperature peak values.
+// The function that keeps track of all the temperature peak values.
 function addToGlobalTempDiffArray(TempDiffInfo s) {
     tempDiffInfoArray[index] = s;
     index = index + 1;

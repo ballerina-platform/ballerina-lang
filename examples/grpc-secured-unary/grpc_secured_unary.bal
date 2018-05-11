@@ -1,9 +1,9 @@
-// This is server implementation for secured connection (HTTPS) scenario
+// This is the server implementation for the secured connection (HTTPS) scenario.
 import ballerina/io;
 import ballerina/log;
 import ballerina/grpc;
 
-// Server endpoint configuration with SSL configurations.
+// Server endpoint configuration with the SSL configurations.
 endpoint grpc:Listener ep {
     host: "localhost",
     port: 9090,
@@ -30,12 +30,12 @@ service<grpc:Service> HelloWorld bind ep {
         io:println("name: " + name);
         string message = "Hello " + name;
 
-        // Sends response message to the caller.
+        // Send a response message to the caller.
         error? err = caller->send(message);
 
         io:println(err.message but { () => "Server send response : " +
                                                                     message });
-        // Sends `completed` notification to caller.
+        // Send the `completed` notification to the caller.
         _ = caller->complete();
 
     }

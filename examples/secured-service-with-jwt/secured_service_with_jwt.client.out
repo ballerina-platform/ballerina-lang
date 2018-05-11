@@ -1,5 +1,5 @@
 // Invoke the service using "curl".
-// Note that its required to provide the correct basic authentication header
+// Note that its required to provide the correct bearer authentication header
 // with the curl command.
 $ curl -vk -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.\
 eyJzdWIiOiJiYWxsZXJpbmEiLCJpc3MiOiJiYWxsZXJpbmEiLCJleHAiOjI4MTg0MTUwMTksIm\

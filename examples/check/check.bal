@@ -11,7 +11,7 @@ type Address {
 };
 
 function getAddress(Person p) returns (Address|error) {
-    // if address doesn't exist, return an error.
+    // If the address does not exist, return an error.
     match (p.address) {
         Address add => { return add;}
         () => {
@@ -22,18 +22,21 @@ function getAddress(Person p) returns (Address|error) {
 }
 
 function validateAddress(Person person) returns (boolean|error) {
-    //Expression "getAddress(person)!city" produces a value which is union type of string|error.
-    //The check operation validates the above expression and If it evaluates to a string, check expression produces a string,
-    //If the expression evaluates to an error, check causes to immediately return from the enclosing function with that error, because enclosing function's return type has an error as an alternative.
+    // The `getAddress(person)!city` expression produces a value which is union type of `string|error`.
+    // The `check` operation validates the above expression and if it evaluates to a string, the check expression produces a string.
+    // If the expression evaluates to an error, the `check` operation immediately exits the enlosing function with that error.
+    // The enclosing function's return type has `error` as an alternative.
     string city = check getAddress(person)!city;
-    // If check fails, this line won't print.
+    // If the check fails, this line will not be printed.
     io:println(person.name, " has a valid city");
     return true;
 }
 
 function validateAddressAgain(Person person) returns boolean {
-    //If the expression "getAddress(person)!city" evaluates an error and since enclosing function's return type doesn't have an error as an alternative (only boolean), then Check expression throws the resulted error.
-    //Else same as "validateAddress" function behaviour.
+    //The enclosing function's return type does not include `error` as an alternative (it allows only boolean).
+    //So, if the "getAddress(person)!city" expression evaluates an error, 
+    //the `check` expression throws the resulted error.
+    //Else, the function behaviour is the same as the `validateAddress` function.
     string city = check getAddress(person)!city;
     // If check fails, this line won't print.
     io:println(person.name, " has a valid city");
@@ -56,6 +59,6 @@ function main(string... args) {
     var tomResult1 = validateAddress(tom);
     io:println("Tom's result 1:", tomResult1);
     var tomResult2 = validateAddressAgain(tom);
-    // This line won't execute.
+    // This line will not be executed.
     io:println("Tom's result 2:", tomResult2);
 }

@@ -1,6 +1,6 @@
 import ballerina/io;
 
-// Defines a object called 'Person' with public fields and attached function.
+// Defines an object called 'Person' with public fields and attached function.
 public type Person object {
     public {
         int age,
@@ -12,7 +12,7 @@ public type Person object {
     }
 };
 
-// Defines a object called 'Employee' with public fields and attached functions.
+// Defines an object called 'Employee' with public fields and attached functions.
 public type Employee object {
     public {
         int age,
@@ -34,7 +34,7 @@ public type Employee object {
 };
 
 function main(string... args) {
-    // Initializing variable of object type Employee and assign that to Person type variable
+    // Initializing variable of object type Employee and assign that to Person type variable.
     Person p1 = new Employee(50, "John", "street1");
     io:println(p1);
 

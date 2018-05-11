@@ -26,7 +26,7 @@ function main(string... args) {
     };
     // Here's how you can convert a struct to a JSON object.
     // This conversion is unsafe because it may not be possible to convert some data types
-    // that are defined in the struct, to JSON.
+    // that are defined in the struct to JSON.
     json j = check <json>theRevenant;
     io:println(j);
     io:println(j.writer.lname);
