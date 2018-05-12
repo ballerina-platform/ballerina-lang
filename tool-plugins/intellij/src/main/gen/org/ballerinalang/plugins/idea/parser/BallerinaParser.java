@@ -6796,17 +6796,26 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // DOCUMENTATION_TEMPLATE_ATTRIBUTE_START identifier DOCUMENTATION_TEMPLATE_ATTRIBUTE_END docText?
+  // DOCUMENTATION_TEMPLATE_ATTRIBUTE_START identifier? DOCUMENTATION_TEMPLATE_ATTRIBUTE_END docText?
   public static boolean documentationTemplateAttributeDescription(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "documentationTemplateAttributeDescription")) return false;
     if (!nextTokenIs(b, DOCUMENTATION_TEMPLATE_ATTRIBUTE_START)) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, DOCUMENTATION_TEMPLATE_ATTRIBUTE_DESCRIPTION, null);
-    r = consumeTokens(b, 1, DOCUMENTATION_TEMPLATE_ATTRIBUTE_START, IDENTIFIER, DOCUMENTATION_TEMPLATE_ATTRIBUTE_END);
+    r = consumeToken(b, DOCUMENTATION_TEMPLATE_ATTRIBUTE_START);
     p = r; // pin = 1
-    r = r && documentationTemplateAttributeDescription_3(b, l + 1);
+    r = r && report_error_(b, documentationTemplateAttributeDescription_1(b, l + 1));
+    r = p && report_error_(b, consumeToken(b, DOCUMENTATION_TEMPLATE_ATTRIBUTE_END)) && r;
+    r = p && documentationTemplateAttributeDescription_3(b, l + 1) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
+  }
+
+  // identifier?
+  private static boolean documentationTemplateAttributeDescription_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "documentationTemplateAttributeDescription_1")) return false;
+    consumeToken(b, IDENTIFIER);
+    return true;
   }
 
   // docText?

@@ -907,7 +907,7 @@ documentationAttachment ::= DOCUMENTATION_TEMPLATE_START documentationTemplateCo
 
 documentationTemplateContent ::= docText? documentationTemplateAttributeDescription+ | docText
 
-documentationTemplateAttributeDescription ::= DOCUMENTATION_TEMPLATE_ATTRIBUTE_START identifier DOCUMENTATION_TEMPLATE_ATTRIBUTE_END docText? {pin=1}
+documentationTemplateAttributeDescription ::= DOCUMENTATION_TEMPLATE_ATTRIBUTE_START identifier? DOCUMENTATION_TEMPLATE_ATTRIBUTE_END docText? {pin=1}
 
 docText ::= documentationTemplateInlineCode (DOCUMENTATION_TEMPLATE_TEXT | documentationTemplateInlineCode)*
             | DOCUMENTATION_TEMPLATE_TEXT  (DOCUMENTATION_TEMPLATE_TEXT | documentationTemplateInlineCode)*
