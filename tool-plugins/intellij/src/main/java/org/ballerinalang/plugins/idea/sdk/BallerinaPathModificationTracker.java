@@ -29,6 +29,7 @@ import com.intellij.openapi.vfs.VirtualFileMoveEvent;
 import com.intellij.util.SystemProperties;
 import com.intellij.util.containers.ContainerUtil;
 import org.ballerinalang.plugins.idea.BallerinaConstants;
+import org.ballerinalang.plugins.idea.project.BallerinaApplicationLibrariesService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -73,6 +74,7 @@ public class BallerinaPathModificationTracker {
             Path caches = Paths.get(SystemProperties.getUserHome(), ".ballerina", "caches", "central.ballerina.io");
             pathsToTrack.add(caches.toString());
         }
+
         recalculateFiles();
 
         VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileAdapter() {
@@ -225,7 +227,10 @@ public class BallerinaPathModificationTracker {
     }
 
     private synchronized List<VirtualFile> getAllPackages(String organization) {
-        return packageMap.get(organization);
+        if (BallerinaApplicationLibrariesService.getInstance().isUseBallerinaPathFromSystemEnvironment()) {
+            return packageMap.get(organization);
+        }
+        return ContainerUtil.newArrayList();
     }
 
     public static Collection<VirtualFile> getBallerinaEnvironmentPathRoots() {
@@ -233,16 +238,21 @@ public class BallerinaPathModificationTracker {
     }
 
     public static List<VirtualFile> getAllOrganizationsInUserRepo() {
-        return ServiceManager.getService(BallerinaPathModificationTracker.class).getAllOrganizations();
+        if (BallerinaApplicationLibrariesService.getInstance().isUseBallerinaPathFromSystemEnvironment()) {
+            return ServiceManager.getService(BallerinaPathModificationTracker.class).getAllOrganizations();
+        }
+        return ContainerUtil.newArrayList();
     }
 
     @Nullable
     public static VirtualFile getOrganizationInUserRepo(String organizationName) {
-        List<VirtualFile> organizations = ServiceManager.getService(BallerinaPathModificationTracker.class)
-                .getAllOrganizations();
-        for (VirtualFile virtualFile : organizations) {
-            if (virtualFile.getName().equals(organizationName)) {
-                return virtualFile;
+        if (BallerinaApplicationLibrariesService.getInstance().isUseBallerinaPathFromSystemEnvironment()) {
+            List<VirtualFile> organizations = ServiceManager.getService(BallerinaPathModificationTracker.class)
+                    .getAllOrganizations();
+            for (VirtualFile virtualFile : organizations) {
+                if (virtualFile.getName().equals(organizationName)) {
+                    return virtualFile;
+                }
             }
         }
         return null;

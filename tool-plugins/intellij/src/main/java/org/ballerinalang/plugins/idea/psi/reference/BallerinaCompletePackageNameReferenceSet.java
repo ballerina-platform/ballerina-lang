@@ -90,8 +90,8 @@ public class BallerinaCompletePackageNameReferenceSet extends FileReferenceSet {
                     // Add source roots in SDK.
                     sourceRoots.addAll(BallerinaSdkUtil.getSourcesPathsToLookup(project, module));
                 } else {
-                    // Todo - Add Ballerina user repository.
-                    sourceRoots.add(BallerinaPathModificationTracker.getOrganizationInUserRepo(organizationName));
+                    ContainerUtil.addIfNotNull(sourceRoots,
+                            BallerinaPathModificationTracker.getOrganizationInUserRepo(organizationName));
                 }
             }
         }
