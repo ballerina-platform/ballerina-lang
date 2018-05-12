@@ -5158,7 +5158,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // VariableReference WhereClause? WindowClause? WhereClause? (as identifier)?
+  // VariableReference WhereClause? FunctionInvocation* WindowClause? FunctionInvocation* WhereClause? (as identifier)?
   public static boolean StreamingInput(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "StreamingInput")) return false;
     boolean r, p;
@@ -5168,7 +5168,9 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     r = r && report_error_(b, StreamingInput_1(b, l + 1));
     r = p && report_error_(b, StreamingInput_2(b, l + 1)) && r;
     r = p && report_error_(b, StreamingInput_3(b, l + 1)) && r;
-    r = p && StreamingInput_4(b, l + 1) && r;
+    r = p && report_error_(b, StreamingInput_4(b, l + 1)) && r;
+    r = p && report_error_(b, StreamingInput_5(b, l + 1)) && r;
+    r = p && StreamingInput_6(b, l + 1) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
@@ -5180,30 +5182,54 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return true;
   }
 
-  // WindowClause?
+  // FunctionInvocation*
   private static boolean StreamingInput_2(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "StreamingInput_2")) return false;
+    int c = current_position_(b);
+    while (true) {
+      if (!FunctionInvocation(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "StreamingInput_2", c)) break;
+      c = current_position_(b);
+    }
+    return true;
+  }
+
+  // WindowClause?
+  private static boolean StreamingInput_3(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "StreamingInput_3")) return false;
     WindowClause(b, l + 1);
     return true;
   }
 
+  // FunctionInvocation*
+  private static boolean StreamingInput_4(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "StreamingInput_4")) return false;
+    int c = current_position_(b);
+    while (true) {
+      if (!FunctionInvocation(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "StreamingInput_4", c)) break;
+      c = current_position_(b);
+    }
+    return true;
+  }
+
   // WhereClause?
-  private static boolean StreamingInput_3(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "StreamingInput_3")) return false;
+  private static boolean StreamingInput_5(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "StreamingInput_5")) return false;
     WhereClause(b, l + 1);
     return true;
   }
 
   // (as identifier)?
-  private static boolean StreamingInput_4(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "StreamingInput_4")) return false;
-    StreamingInput_4_0(b, l + 1);
+  private static boolean StreamingInput_6(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "StreamingInput_6")) return false;
+    StreamingInput_6_0(b, l + 1);
     return true;
   }
 
   // as identifier
-  private static boolean StreamingInput_4_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "StreamingInput_4_0")) return false;
+  private static boolean StreamingInput_6_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "StreamingInput_6_0")) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_);
     r = consumeTokens(b, 1, AS, IDENTIFIER);

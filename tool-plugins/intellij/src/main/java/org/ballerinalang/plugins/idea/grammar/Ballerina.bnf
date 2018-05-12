@@ -847,7 +847,7 @@ SetClause ::= set SetAssignmentClause (COMMA SetAssignmentClause)* {pin=1}
 
 SetAssignmentClause ::= VariableReference ASSIGN Expression
 
-StreamingInput ::= VariableReference WhereClause? WindowClause? WhereClause? (as identifier)? {pin(".*")=1}
+StreamingInput ::= VariableReference WhereClause? FunctionInvocation* WindowClause? FunctionInvocation* WhereClause? (as identifier)? {pin(".*")=1}
 
 JoinStreamingInput ::= (unidirectional JoinType | JoinType unidirectional | JoinType) StreamingInput on Expression
 
