@@ -116,9 +116,10 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
             return;
         }
 
-        if (this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue()
-                .equals(funcNode.symbol.pkgID.name.getValue()) && this.context.get(NodeContextKeys.NAME_OF_NODE_KEY)
-                .equals(funcNode.name.getValue())) {
+        if (this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY) != null &&
+                this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue()
+                        .equals(funcNode.symbol.pkgID.name.getValue()) && this.context.get(
+                NodeContextKeys.NAME_OF_NODE_KEY).equals(funcNode.name.getValue())) {
             addLocation(funcNode, funcNode.symbol.pkgID.name.getValue(), funcNode.symbol.pkgID.name.getValue());
         }
 
@@ -154,7 +155,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
-        if (serviceNode.symbol.pkgID.name.getValue()
+        if (this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY) != null && serviceNode.symbol.pkgID.name.getValue()
                 .equals(this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue()) &&
                 this.context.get(NodeContextKeys.NAME_OF_NODE_KEY).equals(serviceNode.name.getValue()) &&
                 this.context.get(NodeContextKeys.NODE_OWNER_KEY).equals(serviceNode.symbol.owner.name.getValue())) {
@@ -189,7 +190,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangResource resourceNode) {
-        if (resourceNode.symbol.pkgID.name.getValue()
+        if (this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY) != null && resourceNode.symbol.pkgID.name.getValue()
                 .equals(this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue()) &&
                 this.context.get(NodeContextKeys.NAME_OF_NODE_KEY).equals(resourceNode.name.getValue()) &&
                 this.context.get(NodeContextKeys.NODE_OWNER_KEY).equals(resourceNode.symbol.owner.name.getValue())) {
@@ -426,11 +427,11 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
-        if (this.context.get(NodeContextKeys.NAME_OF_NODE_KEY).equals(invocationExpr.name.getValue()) &&
-                invocationExpr.symbol.owner.name.getValue()
-                        .equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY))
-                && invocationExpr.symbol.owner.pkgID.getName().getValue()
-                .equals(this.context.get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY).name.getValue())) {
+        if (this.context.get(NodeContextKeys.NAME_OF_NODE_KEY) != null &&
+                this.context.get(NodeContextKeys.NAME_OF_NODE_KEY).equals(invocationExpr.name.getValue()) &&
+                invocationExpr.symbol.owner.name.getValue().equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY)) &&
+                invocationExpr.symbol.owner.pkgID.getName().getValue()
+                        .equals(this.context.get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY).name.getValue())) {
             addLocation(invocationExpr, invocationExpr.symbol.owner.pkgID.name.getValue(),
                         invocationExpr.pos.getSource().pkgID.name.getValue());
         }
