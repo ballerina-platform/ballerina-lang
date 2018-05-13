@@ -677,24 +677,9 @@ public class TableTest {
         BValue[] returns = BRunUtil.invoke(nillableMappingResult, "testMappingNullToNillableTypes");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 18);
-        Assert.assertNull(returns[0]);
-        Assert.assertNull(returns[1]);
-        Assert.assertNull(returns[2]);
-        Assert.assertNull(returns[3]);
-        Assert.assertNull(returns[4]);
-        Assert.assertNull(returns[5]);
-        Assert.assertNull(returns[6]);
-        Assert.assertNull(returns[7]);
-        Assert.assertNull(returns[8]);
-        Assert.assertNull(returns[9]);
-        Assert.assertNull(returns[10]);
-        Assert.assertNull(returns[11]);
-        Assert.assertNull(returns[12]);
-        Assert.assertNull(returns[13]);
-        Assert.assertNull(returns[14]);
-        Assert.assertNull(returns[15]);
-        Assert.assertNull(returns[16]);
-        Assert.assertNull(returns[17]);
+        for (BValue returnVal : returns) {
+            Assert.assertNull(returnVal);
+        }
     }
     
     //Nillable mapping negative tests
@@ -972,7 +957,8 @@ public class TableTest {
         SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY));
     }
 
-    private void assertDateStringValues(BValue[] returns, long dateInserted, long timeInserted, long timestampInserted) {
+    private void assertDateStringValues(BValue[] returns, long dateInserted, long timeInserted,
+            long timestampInserted) {
         try {
             DateFormat dfDate = new SimpleDateFormat("yyyy-MM-dd");
             String dateReturned = returns[0].stringValue();
