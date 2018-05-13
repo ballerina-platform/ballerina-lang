@@ -513,17 +513,6 @@ public class CommonUtil {
             }
             
             actionFunctionList.addAll(getActionsOfEndpoint((BEndpointVarSymbol) variable.getScopeEntry().symbol));
-
-//            BType boundType = ((BInvokableType) getClientFuncType).retType;
-//            boundType.tsymbol.scope.entries.forEach((name, scopeEntry) -> {
-//                if (scopeEntry.symbol instanceof BInvokableSymbol
-//                        && !scopeEntry.symbol.getName().getValue().equals(UtilSymbolKeys.NEW_KEYWORD_KEY)) {
-//                    String[] nameComponents = name.toString().split("\\.");
-//                    SymbolInfo actionFunctionSymbol =
-//                            new SymbolInfo(nameComponents[nameComponents.length - 1], scopeEntry);
-//                    actionFunctionList.add(actionFunctionSymbol);
-//                }
-//            });
         } else {
             if (bType instanceof BArrayType) {
                 packageID = ((BArrayType) bType).eType.tsymbol.pkgID.getName().getValue();
