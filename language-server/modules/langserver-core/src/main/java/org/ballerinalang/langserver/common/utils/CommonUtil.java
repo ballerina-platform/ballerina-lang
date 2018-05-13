@@ -503,6 +503,7 @@ public class CommonUtil {
         BType bType = variable.getScopeEntry().symbol.getType();
         String bTypeValue;
 
+        
         if (variable.getScopeEntry().symbol instanceof BEndpointVarSymbol) {
             BType getClientFuncType = ((BEndpointVarSymbol) variable.getScopeEntry().symbol)
                     .getClientFunction.type;
@@ -510,17 +511,19 @@ public class CommonUtil {
                     || !(getClientFuncType instanceof BInvokableType)) {
                 return actionFunctionList;
             }
+            
+            actionFunctionList.addAll(getActionsOfEndpoint((BEndpointVarSymbol) variable.getScopeEntry().symbol));
 
-            BType boundType = ((BInvokableType) getClientFuncType).retType;
-            boundType.tsymbol.scope.entries.forEach((name, scopeEntry) -> {
-                if (scopeEntry.symbol instanceof BInvokableSymbol
-                        && !scopeEntry.symbol.getName().getValue().equals(UtilSymbolKeys.NEW_KEYWORD_KEY)) {
-                    String[] nameComponents = name.toString().split("\\.");
-                    SymbolInfo actionFunctionSymbol =
-                            new SymbolInfo(nameComponents[nameComponents.length - 1], scopeEntry);
-                    actionFunctionList.add(actionFunctionSymbol);
-                }
-            });
+//            BType boundType = ((BInvokableType) getClientFuncType).retType;
+//            boundType.tsymbol.scope.entries.forEach((name, scopeEntry) -> {
+//                if (scopeEntry.symbol instanceof BInvokableSymbol
+//                        && !scopeEntry.symbol.getName().getValue().equals(UtilSymbolKeys.NEW_KEYWORD_KEY)) {
+//                    String[] nameComponents = name.toString().split("\\.");
+//                    SymbolInfo actionFunctionSymbol =
+//                            new SymbolInfo(nameComponents[nameComponents.length - 1], scopeEntry);
+//                    actionFunctionList.add(actionFunctionSymbol);
+//                }
+//            });
         } else {
             if (bType instanceof BArrayType) {
                 packageID = ((BArrayType) bType).eType.tsymbol.pkgID.getName().getValue();
@@ -753,5 +756,22 @@ public class CommonUtil {
                 });
 
         return returnMap;
+    }
+    
+    public static List<SymbolInfo> getActionsOfEndpoint(BEndpointVarSymbol bEndpointVarSymbol) {
+        List<SymbolInfo> endpointActions = new ArrayList<>();
+        BType getClientFuncType = bEndpointVarSymbol.getClientFunction.type;
+        BType boundType = ((BInvokableType) getClientFuncType).retType;
+        boundType.tsymbol.scope.entries.forEach((name, scopeEntry) -> {
+            if (scopeEntry.symbol instanceof BInvokableSymbol
+                    && !scopeEntry.symbol.getName().getValue().equals(UtilSymbolKeys.NEW_KEYWORD_KEY)) {
+                String[] nameComponents = name.toString().split("\\.");
+                SymbolInfo actionFunctionSymbol =
+                        new SymbolInfo(nameComponents[nameComponents.length - 1], scopeEntry);
+                endpointActions.add(actionFunctionSymbol);
+            }
+        });
+        
+        return endpointActions;
     }
 }
