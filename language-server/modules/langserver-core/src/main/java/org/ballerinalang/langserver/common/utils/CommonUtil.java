@@ -746,7 +746,12 @@ public class CommonUtil {
 
         return returnMap;
     }
-    
+
+    /**
+     * Get the actions defined over and endpoint.
+     * @param bEndpointVarSymbol    Endpoint variable symbol to evaluate
+     * @return {@link List}         List of extracted actions as Symbol Info
+     */
     public static List<SymbolInfo> getActionsOfEndpoint(BEndpointVarSymbol bEndpointVarSymbol) {
         List<SymbolInfo> endpointActions = new ArrayList<>();
         BType getClientFuncType = bEndpointVarSymbol.getClientFunction.type;
