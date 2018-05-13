@@ -15,7 +15,8 @@
 // under the License.
 
 documentation {
-    Releases the database connection.
+    Releases the database connection. If the table data is fully iterated, it will be automatically closed. This explicit
+    close is required only if it is not fully iterated.
 
     T{{dt}} The table object
 }
@@ -41,7 +42,8 @@ documentation {
     Add record to the table.
 
     T{{dt}} The table object
-    P{{data}} A struct with data
+    P{{data}} A record with data
+    R{{}} An `error` will be returned if there is any error occured during adding data or else nil is returned
 }
 public native function<table dt> add(any data) returns (error|());
 
@@ -50,6 +52,7 @@ documentation {
 
     T{{dt}} The table object
     P{{func}} The function pointer for delete crieteria
+    R{{}} An `int` the number of deleted record count or `error` if any error occured during removing data
 }
 public native function<table dt> remove(function (any) returns (boolean) func) returns (int|error);
 
