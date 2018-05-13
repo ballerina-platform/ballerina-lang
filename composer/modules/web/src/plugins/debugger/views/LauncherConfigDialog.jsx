@@ -92,7 +92,7 @@ class LauncherConfigDialog extends React.Component {
             >
                 <Form onSubmit={this.onSave}>
                     <Form.Field
-                        label='Arguments for ballerina programme command line execution'
+                        label='Arguments for ballerina program command line execution'
                         placeholder='Command line arguments'
                         value={this.state.configArguments}
                         control={TextArea}
