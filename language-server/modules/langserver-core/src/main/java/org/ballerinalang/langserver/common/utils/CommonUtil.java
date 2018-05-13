@@ -94,7 +94,7 @@ public class CommonUtil {
         // If current package path is not null and current package is not default package continue,
         // else new package path is same as the current package path.
         if (currentPkgPath != null && !currentPkgName.equals(".")) {
-            int indexOfCurrentPkgName = currentPkgPath.indexOf(currentPkgName);
+            int indexOfCurrentPkgName = currentPkgPath.lastIndexOf(currentPkgName);
             if (indexOfCurrentPkgName >= 0) {
                 newPackagePath = currentPkgPath.substring(0, indexOfCurrentPkgName);
             } else {
