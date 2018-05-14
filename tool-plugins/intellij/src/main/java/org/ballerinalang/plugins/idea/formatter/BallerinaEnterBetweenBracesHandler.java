@@ -1,17 +1,18 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  */
 
 package org.ballerinalang.plugins.idea.formatter;
@@ -21,15 +22,12 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorModificationUtil;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiWhiteSpace;
-import com.intellij.psi.impl.source.tree.LeafPsiElement;
-import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
-import org.ballerinalang.plugins.idea.BallerinaTypes;
+import org.ballerinalang.plugins.idea.psi.BallerinaTypeDefinition;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -45,52 +43,44 @@ public class BallerinaEnterBetweenBracesHandler extends EnterBetweenBracesHandle
         // We need to save the file before checking. Otherwise issues can occur when we press enter in a string.
         Project project = file.getProject();
         PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
-        if (isInsideABlock(file, editor)) {
-            // Todo - get the spacing from settings
-            EditorModificationUtil.insertStringAtCaret(editor, "    ", false, 4);
+
+        // Get the offset of the caret.
+        int caretOffset = editor.getCaretModel().getOffset();
+        // Get the element at the offset.
+        PsiElement element = file.findElementAt(caretOffset);
+        // If the element is null, return.
+        if (element == null) {
+            return Result.Continue;
+        }
+        // Check whether the semicolon is needed.
+        if (needToInsertSemicolon(element)) {
+            BallerinaTypeDefinition typeDefinition = PsiTreeUtil.getParentOfType(element,
+                    BallerinaTypeDefinition.class);
+            if (typeDefinition == null) {
+                return Result.Continue;
+            }
+            // Get the end offset of the type definition.
+            int endOffset = typeDefinition.getTextRange().getEndOffset();
+            // Calculate the caret shift.
+            int caretShift = endOffset - caretOffset;
+            // Move the caret to the right.
+            EditorModificationUtil.moveCaretRelatively(editor, caretShift);
+            // Insert the semicolon and move the caret back to the original position.
+            EditorModificationUtil.insertStringAtCaret(editor, ";", false, -(caretShift + 1));
+            // Commit the document.
             PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
         }
         return Result.Continue;
     }
 
-    private boolean isInsideABlock(PsiFile file, Editor editor) {
-        // Get the offset of the caret.
-        int caretOffset = editor.getCaretModel().getOffset();
-        // Get the element at the offset.
-        PsiElement element = file.findElementAt(caretOffset);
-        if (element == null) {
+    private boolean needToInsertSemicolon(PsiElement element) {
+        // Get the type definition.
+        BallerinaTypeDefinition typeDefinition = PsiTreeUtil.getParentOfType(element, BallerinaTypeDefinition.class);
+        if (typeDefinition == null) {
             return false;
         }
-
-        if (element instanceof LeafPsiElement) {
-            IElementType elementType = ((LeafPsiElement) element).getElementType();
-            if (elementType == BallerinaTypes.QUOTED_STRING) {
-                return false;
-            }
-        }
-
-        // Check whether the previous non whitespace element is '{'. If so, that means the caret is within a block.
-        int tempOffset = caretOffset;
-        PsiElement tempElement = element;
-        while ((tempElement instanceof PsiWhiteSpace || tempElement instanceof PsiComment) && tempOffset > 0) {
-            tempElement = file.findElementAt(--tempOffset);
-        }
-        if (tempElement != null && "{".equals(tempElement.getText())) {
-            return true;
-        }
-
-        // Check whether the next non whitespace element is '}'. If so, that means the caret is within a block.
-        tempOffset = caretOffset;
-        tempElement = element;
-        while ((tempElement instanceof PsiWhiteSpace || tempElement instanceof PsiComment) &&
-                tempOffset < file.getTextLength()) {
-            tempElement = file.findElementAt(++tempOffset);
-        }
-        if (tempOffset > caretOffset && tempElement != null && "}".equals(tempElement.getText())) {
-            return true;
-        }
-        // Return false if the above conditions are not satisfied.
-        return false;
+        // Check whether the type definition has a semicolon.
+        return typeDefinition.getSemicolon() == null;
     }
 
     @Override

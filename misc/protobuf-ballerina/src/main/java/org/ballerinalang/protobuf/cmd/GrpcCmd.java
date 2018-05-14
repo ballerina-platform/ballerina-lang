@@ -136,9 +136,11 @@ public class GrpcCmd implements BLauncherCmd {
         msg.append("Successfully generated initial files.").append(NEW_LINE_CHARACTER);
         byte[] root = BalFileGenerationUtils.getProtoByteArray(this.exePath, this.protoPath, descFile
                 .getAbsolutePath());
+        if (root.length == 0) {
+            throw new BalGenerationException("Error occurred at generating proto descriptor.");
+        }
         LOG.debug("Successfully generated root descriptor.");
-        List<byte[]> dependant;
-        dependant = org.ballerinalang.protobuf.cmd.DescriptorsGenerator.generatedependentDescriptor
+        List<byte[]> dependant = DescriptorsGenerator.generateDependentDescriptor
                 (descriptorPath, this.protoPath, new ArrayList<>(), exePath, classLoader);
         LOG.debug("Successfully generated dependent descriptor.");
         //Path balPath = Paths.get(balOutPath);
@@ -230,7 +232,7 @@ public class GrpcCmd implements BLauncherCmd {
      */
     private void downloadProtocexe() {
         if (exePath == null) {
-            exePath = "protoc-" + org.ballerinalang.protobuf.cmd.OSDetector.getDetectedClassifier() + ".exe";
+            exePath = "protoc-" + OSDetector.getDetectedClassifier() + ".exe";
             File exeFile = new File(exePath);
             exePath = exeFile.getAbsolutePath(); // if file already exists will do nothing
             if (!exeFile.isFile()) {
@@ -244,7 +246,7 @@ public class GrpcCmd implements BLauncherCmd {
                     throw new BalGenToolException("Exception occurred while creating new file for protoc exe. ", e);
                 }
                 String url = PROTOC_PLUGIN_EXE_URL_SUFFIX + protocVersion + "/" +
-                        "protoc-" + protocVersion + "-" + org.ballerinalang.protobuf.cmd.OSDetector
+                        "protoc-" + protocVersion + "-" + OSDetector
                         .getDetectedClassifier() + PROTOC_PLUGIN_EXE_PREFIX;
                 try {
                     saveFile(new URL(url), exePath);

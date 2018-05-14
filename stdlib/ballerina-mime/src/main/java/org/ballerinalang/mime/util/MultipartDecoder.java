@@ -31,9 +31,12 @@ import org.jvnet.mimepull.MIMEPart;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
+import static org.ballerinalang.mime.util.Constants.ANN_CONFIG_MEMORY_THRESHOLD;
+import static org.ballerinalang.mime.util.Constants.ANN_CONFIG_TEMP_LOCATION;
 import static org.ballerinalang.mime.util.Constants.BOUNDARY;
 import static org.ballerinalang.mime.util.Constants.BYTE_LIMIT;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_STRUCT;
@@ -60,9 +63,10 @@ public class MultipartDecoder {
      * @param contentType Content-Type of the top level message
      * @param inputStream Represent input stream coming from the request/response
      */
-    public static void parseBody(Context context, BStruct entity, String contentType, InputStream inputStream) {
+    public static void parseBody(Context context, BStruct entity, String contentType, InputStream inputStream,
+                                 Map<String, Object> overflowSettings) {
         try {
-            List<MIMEPart> mimeParts = decodeBodyParts(contentType, inputStream);
+            List<MIMEPart> mimeParts = decodeBodyParts(contentType, inputStream, overflowSettings);
             if (mimeParts != null && !mimeParts.isEmpty()) {
                 populateBallerinaParts(context, entity, mimeParts);
             }
@@ -79,12 +83,11 @@ public class MultipartDecoder {
      * @return A list of mime parts
      * @throws MimeTypeParseException When an inputstream cannot be decoded properly
      */
-    public static List<MIMEPart> decodeBodyParts(String contentType, InputStream inputStream)
-            throws MimeTypeParseException {
+    public static List<MIMEPart> decodeBodyParts(String contentType, InputStream inputStream,
+                                                 Map<String, Object> overflowSettings) throws MimeTypeParseException {
         MimeType mimeType = new MimeType(contentType);
-        final MIMEMessage mimeMessage = new MIMEMessage(inputStream,
-                mimeType.getParameter(BOUNDARY),
-                getMimeConfig());
+        final MIMEMessage mimeMessage = new MIMEMessage(inputStream, mimeType.getParameter(BOUNDARY),
+                getMimeConfig(overflowSettings));
         return mimeMessage.getAttachments();
     }
 
@@ -93,9 +96,16 @@ public class MultipartDecoder {
      *
      * @return MIMEConfig which defines configuration for MIME message parsing and storing
      */
-    private static MIMEConfig getMimeConfig() {
+    private static MIMEConfig getMimeConfig(Map<String, Object> overflowSettings) {
         MIMEConfig mimeConfig = new MIMEConfig();
-        mimeConfig.setMemoryThreshold(BYTE_LIMIT);
+        if (overflowSettings != null) {
+            String tempLocation = overflowSettings.get(ANN_CONFIG_TEMP_LOCATION) != null ?
+                    (String) overflowSettings.get(ANN_CONFIG_TEMP_LOCATION) : null;
+            mimeConfig.setMemoryThreshold((Long) overflowSettings.get(ANN_CONFIG_MEMORY_THRESHOLD));
+            mimeConfig.setDir(tempLocation);
+        } else {
+            mimeConfig.setMemoryThreshold(BYTE_LIMIT);
+        }
         return mimeConfig;
     }
 

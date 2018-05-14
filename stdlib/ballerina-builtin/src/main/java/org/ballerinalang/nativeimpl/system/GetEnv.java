@@ -44,6 +44,7 @@ public class GetEnv extends BlockingNativeCallableUnit {
         String value = System.getenv(str);
         if (value == null) {
             context.setReturnValues(BTypes.typeString.getZeroValue());
+            return;
         }
         context.setReturnValues(new BString(value));
     }

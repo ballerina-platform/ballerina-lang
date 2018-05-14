@@ -25,7 +25,6 @@ function testTransactionStmt(int i) returns (string) {
                     TrxError err = { message: " trxErr", data: "test" };
                     throw err;
                 }
-
             } catch (TrxError err) {
                 a = a + err.message;
             }

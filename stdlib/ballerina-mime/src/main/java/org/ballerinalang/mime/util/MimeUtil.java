@@ -24,6 +24,7 @@ import io.netty.util.internal.PlatformDependent;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
+import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -42,12 +43,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParameterList;
 import javax.activation.MimeTypeParseException;
 
 import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
+import static org.ballerinalang.mime.util.Constants.ANN_CONFIG_MEMORY_THRESHOLD;
+import static org.ballerinalang.mime.util.Constants.ANN_CONFIG_TEMP_LOCATION;
 import static org.ballerinalang.mime.util.Constants.ASSIGNMENT;
 import static org.ballerinalang.mime.util.Constants.BODY_PARTS;
 import static org.ballerinalang.mime.util.Constants.BUILTIN_PACKAGE;
@@ -65,6 +70,7 @@ import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_FORM_DATA;
+import static org.ballerinalang.mime.util.Constants.ONE_MB_IN_BYTES;
 import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_INDEX;
 import static org.ballerinalang.mime.util.Constants.PRIMARY_TYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.READABLE_BUFFER_SIZE;
@@ -125,6 +131,23 @@ public class MimeUtil {
             }
         }
         return contentType;
+    }
+
+    /**
+     * Get parameter value from the content-type header.
+     *
+     * @param contentType   Content-Type value as a string
+     * @param parameterName Name of the parameter
+     * @return Parameter value as a string
+     */
+    static String getContentTypeParamValue(String contentType, String parameterName) {
+        try {
+            MimeType mimeType = new MimeType(contentType);
+            MimeTypeParameterList parameterList = mimeType.getParameters();
+            return parameterList.get(parameterName);
+        } catch (MimeTypeParseException e) {
+            throw new BallerinaException("Error while parsing Content-Type value: " + e.getMessage());
+        }
     }
 
     /**
@@ -316,10 +339,11 @@ public class MimeUtil {
      * @param fileName    Temporary file name
      * @return Absolute path of the created temporary file.
      */
-    static String writeToTemporaryFile(InputStream inputStream, String fileName) {
+    static String writeToTemporaryFile(InputStream inputStream, String fileName, String userDefinedTempDir) {
         OutputStream outputStream = null;
         try {
-            File tempFile = File.createTempFile(fileName, TEMP_FILE_EXTENSION);
+            File tempDir = userDefinedTempDir != null ? new File(userDefinedTempDir) : null;
+            File tempFile = File.createTempFile(fileName, TEMP_FILE_EXTENSION, tempDir);
             outputStream = new FileOutputStream(tempFile.getAbsolutePath());
             writeInputToOutputStream(inputStream, outputStream);
             inputStream.close();
@@ -434,6 +458,22 @@ public class MimeUtil {
         String contentTypeOfChildPart = MimeUtil.getBaseType(bodyPart);
         return contentTypeOfChildPart != null && contentTypeOfChildPart.startsWith(MULTIPART_AS_PRIMARY_TYPE) &&
                 bodyPart.getNativeData(BODY_PARTS) != null;
+    }
+
+    public static Map<String, Object> getOverflowSettings(Context context, Annotation configAnn) {
+        Map<String, Object> overflowSettings = new HashMap<>();
+        overflowSettings.put(ANN_CONFIG_MEMORY_THRESHOLD, getMemoryThresholdInBytes(configAnn));
+        String tempLocation = configAnn.getValue().getRefField(ANN_CONFIG_TEMP_LOCATION).getStringValue();
+        if (tempLocation != null) {
+            overflowSettings.put(ANN_CONFIG_TEMP_LOCATION, tempLocation);
+        }
+        return overflowSettings;
+    }
+
+    private static Long getMemoryThresholdInBytes(Annotation configAnn) {
+        long memoryThrehold = configAnn.getValue().getRefField(ANN_CONFIG_MEMORY_THRESHOLD).getIntValue();
+        memoryThrehold = memoryThrehold * (ONE_MB_IN_BYTES);
+        return memoryThrehold;
     }
 
     /**

@@ -1,229 +1,383 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  */
 
 package org.ballerinalang.plugins.idea.formatter;
 
 import com.intellij.formatting.Alignment;
 import com.intellij.formatting.Block;
+import com.intellij.formatting.ChildAttributes;
 import com.intellij.formatting.Indent;
 import com.intellij.formatting.Spacing;
 import com.intellij.formatting.SpacingBuilder;
 import com.intellij.formatting.Wrap;
+import com.intellij.formatting.WrapType;
 import com.intellij.lang.ASTNode;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.TokenType;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.formatter.common.AbstractBlock;
 import com.intellij.psi.tree.IElementType;
+import com.intellij.util.containers.ContainerUtil;
+import org.ballerinalang.plugins.idea.psi.BallerinaTypes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
-
-import static org.ballerinalang.plugins.idea.BallerinaTypes.CATCH_CLAUSE;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.CATCH_CLAUSES;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.CODE_BLOCK_BODY;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.COMMENT_STATEMENT;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.ELSE_CLAUSE;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.ELSE_IF_CLAUSE;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.ENUM_FIELD_LIST;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.EXPRESSION_LIST;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.FIELD_DEFINITION;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.FINALLY_CLAUSE;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.FOREACH_STATEMENT;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.FORK_JOIN_STATEMENT;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.FUNCTION_BODY;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.FUNCTION_DEFINITION;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.IF_CLAUSE;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.IF_ELSE_STATEMENT;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.JOIN_CLAUSE;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.MATCH_PATTERN_CLAUSE;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.NON_EMPTY_CODE_BLOCK_BODY;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.OBJECT_BODY;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.OBJECT_FIELD_DEFINITION;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.OBJECT_FUNCTION_DEFINITION;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.OBJECT_INITIALIZER;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.ON_ABORT_CLAUSE;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.ON_COMMIT_CLAUSE;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.ON_RETRY_CLAUSE;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.PRIVATE_STRUCT_BODY;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.RECORD_KEY_VALUE;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.RESOURCE_DEFINITION;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.SERVICE_BODY;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.SERVICE_DEFINITION;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.STREAMING_QUERY_STATEMENT;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.STRUCT_BODY;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.STRUCT_DEFINITION;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.TIMEOUT_CLAUSE;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.TRANSACTION_STATEMENT;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.TRY_CATCH_STATEMENT;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.VARIABLE_REFERENCE;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.WHILE_STATEMENT;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.WORKER_BODY;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.WORKER_DECLARATION;
+import java.util.Map;
 
 /**
  * Represents a code block.
  */
 public class BallerinaBlock extends AbstractBlock {
 
-    private SpacingBuilder spacingBuilder;
-
     @NotNull
-    private final ASTNode node;
+    private final ASTNode myNode;
     @Nullable
-    private final Alignment alignment;
+    private final Alignment myAlignment;
     @Nullable
-    private final Indent indent;
+    private final Indent myIndent;
     @Nullable
-    private final Wrap wrap;
+    private final Wrap myWrap;
     @NotNull
     private final CodeStyleSettings mySettings;
     @NotNull
     private final SpacingBuilder mySpacingBuilder;
     @Nullable
     private List<Block> mySubBlocks;
+    @NotNull
+    private Map<ASTNode, Alignment> myAlignmentMap;
 
-
-    protected BallerinaBlock(@NotNull ASTNode node, @Nullable Alignment alignment, @Nullable Indent indent, @Nullable
-            Wrap wrap, @NotNull CodeStyleSettings settings, SpacingBuilder spacingBuilder) {
+    protected BallerinaBlock
+            (@NotNull ASTNode node, @Nullable Alignment alignment, @Nullable Indent indent, @Nullable Wrap wrap,
+             @NotNull CodeStyleSettings settings, @NotNull SpacingBuilder spacingBuilder,
+             @NotNull Map<ASTNode, Alignment> alignmentMap) {
         super(node, wrap, alignment);
 
-        this.node = node;
-        this.alignment = alignment;
-        this.indent = indent;
-        this.wrap = wrap;
+        this.myNode = node;
+        this.myAlignment = alignment;
+        this.myIndent = indent;
+        this.myWrap = wrap;
         this.mySettings = settings;
         this.mySpacingBuilder = spacingBuilder;
-        this.spacingBuilder = spacingBuilder;
+        this.myAlignmentMap = alignmentMap;
     }
 
     @Override
     protected List<Block> buildChildren() {
-        List<Block> blocks = new ArrayList<>();
-        ASTNode child = node.getFirstChildNode();
-        IElementType parentElementType = node.getElementType();
-
-        while (child != null) {
-            IElementType childElementType = child.getElementType();
-            if (childElementType != TokenType.WHITE_SPACE) {
-
-                Indent indent = Indent.getNoneIndent();
-
-                if (isInsideADefinitionElement(childElementType)) {
-                    if (child.getFirstChildNode() != null && child.getLastChildNode() != null) {
-                        indent = Indent.getSpaceIndent(4);
-                    }
-                } else if (childElementType == COMMENT_STATEMENT) {
-                    if (isADefinitionElement(parentElementType) || isACodeBlock(parentElementType)) {
-                        indent = Indent.getSpaceIndent(4);
-                    }
-                } else if (childElementType == WORKER_DECLARATION) {
-                    if (parentElementType == FORK_JOIN_STATEMENT) {
-                        indent = Indent.getSpaceIndent(4);
-                    }
-                } else if (childElementType == WORKER_BODY) {
-                    if (parentElementType == WORKER_DECLARATION) {
-                        indent = Indent.getSpaceIndent(4);
-                    }
-                } else if (childElementType == RECORD_KEY_VALUE) {
-                    indent = Indent.getSpaceIndent(4);
-                } else if (childElementType == CODE_BLOCK_BODY || childElementType == NON_EMPTY_CODE_BLOCK_BODY
-                        || childElementType == ENUM_FIELD_LIST) {
-                    indent = Indent.getSpaceIndent(4);
-                } else if (childElementType == EXPRESSION_LIST) {
-                    if (parentElementType == VARIABLE_REFERENCE) {
-                        indent = Indent.getSpaceIndent(4);
-                    }
-                } else if (childElementType == FIELD_DEFINITION) {
-                    if (parentElementType == PRIVATE_STRUCT_BODY) {
-                        indent = Indent.getSpaceIndent(4);
-                    }
-                } else if (childElementType == MATCH_PATTERN_CLAUSE) {
-                    indent = Indent.getSpaceIndent(4);
-                } else if (childElementType == OBJECT_BODY) {
-                    indent = Indent.getSpaceIndent(4);
-                } else if (childElementType == OBJECT_FIELD_DEFINITION) {
-                    indent = Indent.getSpaceIndent(4);
-                } else if (childElementType == STREAMING_QUERY_STATEMENT) {
-                    indent = Indent.getSpaceIndent(4);
-                }
-
-                // If the child node text is empty, the IDEA core will throw an exception.
-                if (!child.getText().isEmpty()) {
-                    Block block = new BallerinaBlock(
-                            child,
-                            Alignment.createAlignment(),
-                            indent,
-                            null,
-                            mySettings,
-                            spacingBuilder
-                    );
-                    blocks.add(block);
-                }
-            }
-            child = child.getTreeNext();
-        }
-        return blocks;
+        return new LinkedList<>();
     }
 
-    private static boolean isADefinitionElement(@NotNull final IElementType parentElementType) {
-        if (parentElementType == FUNCTION_DEFINITION || parentElementType == SERVICE_DEFINITION
-                || parentElementType == RESOURCE_DEFINITION || parentElementType == STRUCT_DEFINITION
-                || parentElementType == OBJECT_INITIALIZER || parentElementType == OBJECT_FUNCTION_DEFINITION) {
-            return true;
-        }
-        return false;
+    @NotNull
+    @Override
+    public ASTNode getNode() {
+        return myNode;
     }
 
-    private static boolean isInsideADefinitionElement(@NotNull final IElementType childElementType) {
-        if (childElementType == FUNCTION_BODY || childElementType == SERVICE_BODY || childElementType == STRUCT_BODY) {
-            return true;
-        }
-        return false;
+    @NotNull
+    @Override
+    public TextRange getTextRange() {
+        return myNode.getTextRange();
     }
 
-    private static boolean isACodeBlock(@NotNull final IElementType parentElementType) {
-        if (parentElementType == IF_ELSE_STATEMENT || parentElementType == FOREACH_STATEMENT
-                || parentElementType == WHILE_STATEMENT || parentElementType == WORKER_DECLARATION
-                || parentElementType == FORK_JOIN_STATEMENT || parentElementType == TRANSACTION_STATEMENT
-                || parentElementType == IF_CLAUSE || parentElementType == ELSE_IF_CLAUSE
-                || parentElementType == ELSE_CLAUSE || parentElementType == TRY_CATCH_STATEMENT
-                || parentElementType == CATCH_CLAUSE || parentElementType == CATCH_CLAUSES
-                || parentElementType == FINALLY_CLAUSE || parentElementType == JOIN_CLAUSE
-                || parentElementType == TIMEOUT_CLAUSE || parentElementType == ON_ABORT_CLAUSE
-                || parentElementType == ON_COMMIT_CLAUSE || parentElementType == ON_RETRY_CLAUSE) {
-            return true;
-        }
-        return false;
+    @Nullable
+    @Override
+    public Wrap getWrap() {
+        return myWrap;
     }
 
     @Override
     public Indent getIndent() {
-        return indent;
+        return myIndent;
+    }
+
+    @Override
+    @Nullable
+    public Alignment getAlignment() {
+        return myAlignment;
+    }
+
+    @NotNull
+    @Override
+    public List<Block> getSubBlocks() {
+        if (mySubBlocks == null) {
+            mySubBlocks = buildSubBlocks();
+        }
+        return mySubBlocks;
+    }
+
+    @NotNull
+    private List<Block> buildSubBlocks() {
+        List<Block> blocks = ContainerUtil.newArrayList();
+        for (ASTNode child = myNode.getFirstChildNode(); child != null; child = child.getTreeNext()) {
+            IElementType childType = child.getElementType();
+            if (child.getTextRange().getLength() == 0) {
+                continue;
+            }
+            if (childType == TokenType.WHITE_SPACE) {
+                continue;
+            }
+            Alignment alignment = getAlignment(child);
+            Indent indent = calculateIndent(child);
+            Wrap wrap = createWrap(child);
+            blocks.add(new BallerinaBlock(child, alignment, indent, wrap, mySettings, mySpacingBuilder,
+                    myAlignmentMap));
+        }
+        return blocks;
+    }
+
+    private Alignment getAlignment(ASTNode child) {
+        Alignment alignment = null;
+        IElementType childElementType = child.getElementType();
+        IElementType parentElementType = myNode.getElementType();
+        if ((childElementType == BallerinaTypes.PARAMETER || childElementType == BallerinaTypes.DEFAULTABLE_PARAMETER
+                || childElementType == BallerinaTypes.REST_PARAMETER)
+                && parentElementType == BallerinaTypes.FORMAL_PARAMETER_LIST) {
+            if (myAlignmentMap.containsKey(myNode)) {
+                alignment = myAlignmentMap.get(myNode);
+            } else {
+                alignment = Alignment.createAlignment(true, Alignment.Anchor.LEFT);
+                myAlignmentMap.put(myNode, alignment);
+            }
+        } else if (childElementType == BallerinaTypes.ENDPOINT_PARAMETER
+                && parentElementType == BallerinaTypes.RESOURCE_PARAMETER_LIST) {
+            if (myAlignmentMap.containsKey(myNode)) {
+                alignment = myAlignmentMap.get(myNode);
+            } else {
+                alignment = Alignment.createAlignment(true, Alignment.Anchor.LEFT);
+                myAlignmentMap.put(myNode, alignment);
+            }
+        } else if (childElementType == BallerinaTypes.PARAMETER
+                && parentElementType == BallerinaTypes.PARAMETER_LIST) {
+            ASTNode treeParent = myNode.getTreeParent().getTreeParent();
+            if (myAlignmentMap.containsKey(treeParent)) {
+                alignment = myAlignmentMap.get(treeParent);
+            } else {
+                alignment = Alignment.createAlignment(true, Alignment.Anchor.LEFT);
+                myAlignmentMap.put(treeParent, alignment);
+            }
+        } else if ((childElementType == BallerinaTypes.OBJECT_PARAMETER
+                || childElementType == BallerinaTypes.OBJECT_DEFAULTABLE_PARAMETER
+                || childElementType == BallerinaTypes.REST_PARAMETER)
+                && parentElementType == BallerinaTypes.OBJECT_PARAMETER_LIST) {
+            ASTNode treeParent = myNode.getTreeParent();
+            if (myAlignmentMap.containsKey(treeParent)) {
+                alignment = myAlignmentMap.get(treeParent);
+            } else {
+                alignment = Alignment.createAlignment(true, Alignment.Anchor.LEFT);
+                myAlignmentMap.put(treeParent, alignment);
+            }
+        } else if (childElementType == BallerinaTypes.QUESTION_MARK
+                && parentElementType == BallerinaTypes.TERNARY_EXPRESSION) {
+            alignment = Alignment.createAlignment(true, Alignment.Anchor.LEFT);
+            myAlignmentMap.put(myNode, alignment);
+        } else if (childElementType == BallerinaTypes.COLON
+                && parentElementType == BallerinaTypes.TERNARY_EXPRESSION) {
+            if (myAlignmentMap.containsKey(myNode)) {
+                alignment = myAlignmentMap.get(myNode);
+            }
+        }
+        return alignment;
+    }
+
+    @NotNull
+    private Indent calculateIndent(@NotNull ASTNode child) {
+        IElementType childElementType = child.getElementType();
+        IElementType parentElementType = myNode.getElementType();
+        // Todo - Refactor into separate helper methods
+        if (childElementType == BallerinaTypes.BLOCK) {
+            return Indent.getNormalIndent();
+        } else if (/*parentElementType == BallerinaTypes.RECORD_KEY_VALUE
+                ||*/ parentElementType == BallerinaTypes.RECORD_LITERAL_BODY) {
+            return Indent.getNormalIndent();
+        } else if (childElementType == BallerinaTypes.LINE_COMMENT
+                && (parentElementType == BallerinaTypes.CALLABLE_UNIT_BODY
+                || parentElementType == BallerinaTypes.IF_CLAUSE || parentElementType == BallerinaTypes.ELSE_IF_CLAUSE
+                || parentElementType == BallerinaTypes.ELSE_CLAUSE
+                || parentElementType == BallerinaTypes.WORKER_BODY
+                || parentElementType == BallerinaTypes.FORK_JOIN_STATEMENT
+                || parentElementType == BallerinaTypes.JOIN_CLAUSE_BODY
+                || parentElementType == BallerinaTypes.TIMEOUT_CLAUSE_BODY
+                || parentElementType == BallerinaTypes.WHILE_STATEMENT_BODY
+                || parentElementType == BallerinaTypes.MATCH_STATEMENT_BODY
+                || parentElementType == BallerinaTypes.NAMED_PATTERN
+                || parentElementType == BallerinaTypes.UNNAMED_PATTERN
+                || parentElementType == BallerinaTypes.RECORD_LITERAL
+                || parentElementType == BallerinaTypes.FOREACH_STATEMENT
+                || parentElementType == BallerinaTypes.LOCK_STATEMENT
+                || parentElementType == BallerinaTypes.OBJECT_TYPE_NAME
+                || parentElementType == BallerinaTypes.PRIVATE_OBJECT_FIELDS
+                || parentElementType == BallerinaTypes.PUBLIC_OBJECT_FIELDS
+                || parentElementType == BallerinaTypes.TRY_CATCH_STATEMENT
+                || parentElementType == BallerinaTypes.CATCH_CLAUSE
+                || parentElementType == BallerinaTypes.FINALLY_CLAUSE
+                || parentElementType == BallerinaTypes.SERVICE_BODY
+        )) {
+            return Indent.getNormalIndent();
+        } else if (parentElementType == BallerinaTypes.CALLABLE_UNIT_SIGNATURE ||
+                parentElementType == BallerinaTypes.OBJECT_CALLABLE_UNIT_SIGNATURE) {
+            return Indent.getIndent(Indent.Type.NORMAL, true, true);
+        } else if (parentElementType == BallerinaTypes.OBJECT_INITIALIZER_PARAMETER_LIST) {
+            return Indent.getIndent(Indent.Type.NORMAL, true, true);
+        } else if (childElementType == BallerinaTypes.RETURN_PARAMETER) {
+            return Indent.getNormalIndent();
+        } else if (childElementType == BallerinaTypes.RETURN_TYPE) {
+            return Indent.getIndent(Indent.Type.NORMAL, true, true);
+            //        } else if (childElementType == BallerinaTypes.TUPLE_TYPE_NAME) {
+            //            return Indent.getIndent(Indent.Type.NORMAL, true, true);
+        } else if ((childElementType == BallerinaTypes.TUPLE_TYPE_NAME
+                || childElementType == BallerinaTypes.UNION_TYPE_NAME)
+                && (parentElementType == BallerinaTypes.RETURN_TYPE)) {
+            return Indent.getIndent(Indent.Type.NORMAL, true, true);
+        } else if (parentElementType == BallerinaTypes.MATCH_PATTERN_CLAUSE) {
+            return Indent.getNormalIndent();
+        } else if (parentElementType == BallerinaTypes.SERVICE_BODY && (childElementType == BallerinaTypes.ENDPOINT_TYPE
+                || childElementType == BallerinaTypes.VARIABLE_DEFINITION_STATEMENT
+                || childElementType == BallerinaTypes.RESOURCE_DEFINITION)) {
+            return Indent.getNormalIndent();
+        } else if (childElementType == BallerinaTypes.FIELD_DEFINITION) {
+            return Indent.getNormalIndent();
+        } else if (childElementType == BallerinaTypes.INVOCATION_ARG_LIST) {
+            return Indent.getIndent(Indent.Type.NORMAL, true, true);
+        } else if (childElementType == BallerinaTypes.FORK_STATEMENT_BODY) {
+            return Indent.getNormalIndent();
+        } else if (childElementType == BallerinaTypes.JOIN_CLAUSE_BODY) {
+            return Indent.getNormalIndent();
+        } else if (childElementType == BallerinaTypes.TIMEOUT_CLAUSE_BODY) {
+            return Indent.getNormalIndent();
+        } else if (childElementType == BallerinaTypes.MATCH_STATEMENT_BODY) {
+            return Indent.getNormalIndent();
+        } else if (childElementType == BallerinaTypes.MATCH_EXPRESSION_PATTERN_CLAUSE) {
+            return Indent.getNormalIndent();
+        } else if (childElementType == BallerinaTypes.EXPRESSION_LIST &&
+                parentElementType == BallerinaTypes.ARRAY_LITERAL) {
+            return Indent.getNormalIndent();
+        } else if (childElementType == BallerinaTypes.OBJECT_BODY) {
+            return Indent.getNormalIndent();
+        } else if (childElementType == BallerinaTypes.FOREVER_STATEMENT_BODY) {
+            return Indent.getNormalIndent();
+        } else if (childElementType == BallerinaTypes.BINARY_ADD_SUB_EXPRESSION
+                || childElementType == BallerinaTypes.BINARY_DIV_MUL_MOD_EXPRESSION
+                || childElementType == BallerinaTypes.BINARY_POW_EXPRESSION
+                || childElementType == BallerinaTypes.BINARY_AND_EXPRESSION
+                || childElementType == BallerinaTypes.BINARY_OR_EXPRESSION
+                || childElementType == BallerinaTypes.BINARY_COMPARE_EXPRESSION
+                ) {
+            if (!(parentElementType == BallerinaTypes.BINARY_ADD_SUB_EXPRESSION
+                    || parentElementType == BallerinaTypes.BINARY_DIV_MUL_MOD_EXPRESSION
+                    || parentElementType == BallerinaTypes.BINARY_POW_EXPRESSION
+                    || parentElementType == BallerinaTypes.BINARY_AND_EXPRESSION
+                    || parentElementType == BallerinaTypes.BINARY_OR_EXPRESSION
+                    || parentElementType == BallerinaTypes.BINARY_COMPARE_EXPRESSION
+                    || parentElementType == BallerinaTypes.UNARY_EXPRESSION
+            )) {
+                return Indent.getIndent(Indent.Type.NORMAL, true, true);
+            }
+        } else if (childElementType == BallerinaTypes.VARIABLE_REFERENCE_EXPRESSION &&
+                (parentElementType == BallerinaTypes.ASSIGNMENT_STATEMENT ||
+                        parentElementType == BallerinaTypes.VARIABLE_DEFINITION_STATEMENT)) {
+            return Indent.getNormalIndent();
+        }
+        return Indent.getNoneIndent();
+    }
+
+    private Wrap createWrap(ASTNode child) {
+        return Wrap.createWrap(WrapType.CHOP_DOWN_IF_LONG, false);
     }
 
     @Nullable
     @Override
     public Spacing getSpacing(@Nullable Block child1, @NotNull Block child2) {
-        return spacingBuilder.getSpacing(this, child1, child2);
+        return mySpacingBuilder.getSpacing(this, child1, child2);
+    }
+
+    @NotNull
+    @Override
+    public ChildAttributes getChildAttributes(int newChildIndex) {
+        Indent childIndent = Indent.getNoneIndent();
+        if (myNode.getElementType() == BallerinaTypes.CALLABLE_UNIT_BODY) {
+            childIndent = Indent.getNormalIndent();
+        } else if (myNode.getElementType() == BallerinaTypes.SERVICE_BODY) {
+            childIndent = Indent.getNormalIndent();
+        } else if (myNode.getElementType() == BallerinaTypes.RECORD_LITERAL) {
+            childIndent = Indent.getNormalIndent();
+        } else if (myNode.getElementType() == BallerinaTypes.RECORD_LITERAL_BODY) {
+            childIndent = Indent.getNormalIndent();
+        } else if (myNode.getElementType() == BallerinaTypes.WORKER_BODY) {
+            childIndent = Indent.getNormalIndent();
+        } else if (myNode.getElementType() == BallerinaTypes.WHILE_STATEMENT_BODY) {
+            childIndent = Indent.getNormalIndent();
+        } else if (myNode.getElementType() == BallerinaTypes.FORK_JOIN_STATEMENT) {
+            childIndent = Indent.getNormalIndent();
+        } else if (myNode.getElementType() == BallerinaTypes.JOIN_CLAUSE_BODY) {
+            childIndent = Indent.getNormalIndent();
+        } else if (myNode.getElementType() == BallerinaTypes.TIMEOUT_CLAUSE_BODY) {
+            childIndent = Indent.getNormalIndent();
+        } else if (myNode.getElementType() == BallerinaTypes.MATCH_STATEMENT_BODY) {
+            childIndent = Indent.getNormalIndent();
+        } else if (myNode.getElementType() == BallerinaTypes.MATCH_EXPRESSION) {
+            childIndent = Indent.getNormalIndent();
+        } else if (myNode.getElementType() == BallerinaTypes.NAMED_PATTERN) {
+            childIndent = Indent.getNormalIndent();
+        } else if (myNode.getElementType() == BallerinaTypes.UNNAMED_PATTERN) {
+            childIndent = Indent.getNormalIndent();
+        } else if (myNode.getElementType() == BallerinaTypes.FOREACH_STATEMENT) {
+            childIndent = Indent.getNormalIndent();
+        } else if (myNode.getElementType() == BallerinaTypes.IF_CLAUSE) {
+            childIndent = Indent.getNormalIndent();
+        } else if (myNode.getElementType() == BallerinaTypes.ELSE_IF_CLAUSE) {
+            childIndent = Indent.getNormalIndent();
+        } else if (myNode.getElementType() == BallerinaTypes.ELSE_CLAUSE) {
+            childIndent = Indent.getNormalIndent();
+        } else if (myNode.getElementType() == BallerinaTypes.TRANSACTION_CLAUSE) {
+            childIndent = Indent.getNormalIndent();
+        } else if (myNode.getElementType() == BallerinaTypes.ONRETRY_CLAUSE) {
+            childIndent = Indent.getNormalIndent();
+        } else if (myNode.getElementType() == BallerinaTypes.TRY_CATCH_STATEMENT) {
+            childIndent = Indent.getNormalIndent();
+        } else if (myNode.getElementType() == BallerinaTypes.CATCH_CLAUSES) {
+            childIndent = Indent.getNormalIndent();
+        } else if (myNode.getElementType() == BallerinaTypes.CATCH_CLAUSE) {
+            childIndent = Indent.getNormalIndent();
+        } else if (myNode.getElementType() == BallerinaTypes.FINALLY_CLAUSE) {
+            childIndent = Indent.getNormalIndent();
+        } else if (myNode.getElementType() == BallerinaTypes.LOCK_STATEMENT) {
+            childIndent = Indent.getNormalIndent();
+        } else if (myNode.getElementType() == BallerinaTypes.OBJECT_TYPE_NAME) {
+            childIndent = Indent.getNormalIndent();
+        } else if (myNode.getElementType() == BallerinaTypes.PUBLIC_OBJECT_FIELDS) {
+            childIndent = Indent.getNormalIndent();
+        } else if (myNode.getElementType() == BallerinaTypes.PRIVATE_OBJECT_FIELDS) {
+            childIndent = Indent.getNormalIndent();
+        } else if (myNode.getElementType() == BallerinaTypes.FOREVER_STATEMENT) {
+            childIndent = Indent.getNormalIndent();
+        } else if (myNode.getElementType() == BallerinaTypes.RECORD_TYPE_NAME) {
+            childIndent = Indent.getNormalIndent();
+        }
+        return new ChildAttributes(childIndent, null);
+    }
+
+    @Override
+    public boolean isIncomplete() {
+        return false;
     }
 
     @Override
     public boolean isLeaf() {
-        return node.getFirstChildNode() == null;
+        return myNode.getFirstChildNode() == null;
     }
 }

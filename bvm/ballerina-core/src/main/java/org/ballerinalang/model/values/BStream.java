@@ -221,7 +221,8 @@ public class BStream implements BRefType<Object> {
                         event[index] = data.getFloatField(++floatValueIndex);
                         break;
                     case TypeTags.BOOLEAN_TAG:
-                        event[index] = data.getBooleanField(++boolValueIndex);
+                        int boolValue = data.getBooleanField(++boolValueIndex);
+                        event[index] = (boolValue == 1);
                         break;
                     case TypeTags.STRING_TAG:
                         event[index] = data.getStringField(++stringValueIndex);

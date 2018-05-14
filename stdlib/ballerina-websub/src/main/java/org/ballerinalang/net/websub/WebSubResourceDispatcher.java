@@ -18,9 +18,7 @@
 
 package org.ballerinalang.net.websub;
 
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
@@ -31,12 +29,26 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpService;
-import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
+import org.ballerinalang.net.websub.util.WebSubUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+
+import static org.ballerinalang.mime.util.Constants.MESSAGE_DATA_SOURCE;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_METHOD;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_METHOD_GET;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_METHOD_POST;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANNOTATED_TOPIC;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_TOPIC;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.DEFERRED_FOR_PAYLOAD_BASED_DISPATCHING;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ENTITY_ACCESSED_REQUEST;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.RESOURCE_NAME_ON_INTENT_VERIFICATION;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.RESOURCE_NAME_ON_NOTIFICATION;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.TOPIC_ID_HEADER;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.TOPIC_ID_PAYLOAD_KEY;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
+import static org.wso2.transport.http.netty.common.Constants.HTTP_RESOURCE;
 
 /**
  * Resource dispatcher specific for WebSub subscriber services.
@@ -49,24 +61,22 @@ class WebSubResourceDispatcher {
                                      WebSubServicesRegistry servicesRegistry)
             throws BallerinaConnectorException, ServerConnectorException {
 
-        String method = (String) inboundRequest.getProperty(HttpConstants.HTTP_METHOD);
+        String method = (String) inboundRequest.getProperty(HTTP_METHOD);
         HttpResource httpResource = null;
         String resourceName;
 
-        if (WebSubSubscriberConstants.TOPIC_ID_HEADER.equals(servicesRegistry.getTopicIdentifier())
-                                                                    && HttpConstants.HTTP_METHOD_POST.equals(method)) {
+        if (TOPIC_ID_HEADER.equals(servicesRegistry.getTopicIdentifier()) && HTTP_METHOD_POST.equals(method)) {
             String topic = inboundRequest.getHeader(servicesRegistry.getTopicHeader());
             BMap<String, BString> topicResourceMapForHeader = servicesRegistry.getTopicResourceMap()
-                                                                .get(WebSubSubscriberConstants.TOPIC_ID_HEADER);
+                                                                .get(TOPIC_ID_HEADER);
             resourceName = retrieveResourceName(topic, topicResourceMapForHeader);
-        } else if (servicesRegistry.getTopicIdentifier() != null && HttpConstants.HTTP_METHOD_POST.equals(method)) {
-            if (inboundRequest.getProperty(Constants.HTTP_RESOURCE) == null) {
-                inboundRequest.setProperty(Constants.HTTP_RESOURCE,
-                                           WebSubSubscriberConstants.DEFERRED_FOR_PAYLOAD_BASED_DISPATCHING);
+        } else if (servicesRegistry.getTopicIdentifier() != null && HTTP_METHOD_POST.equals(method)) {
+            if (inboundRequest.getProperty(HTTP_RESOURCE) == null) {
+                inboundRequest.setProperty(HTTP_RESOURCE, DEFERRED_FOR_PAYLOAD_BASED_DISPATCHING);
                 return null;
             }
             ProgramFile programFile = service.getBalService().getServiceInfo().getPackageInfo().getProgramFile();
-            if (servicesRegistry.getTopicIdentifier().equals(WebSubSubscriberConstants.TOPIC_ID_PAYLOAD_KEY)) {
+            if (servicesRegistry.getTopicIdentifier().equals(TOPIC_ID_PAYLOAD_KEY)) {
                 resourceName = retrieveResourceName(programFile, inboundRequest, servicesRegistry.getTopicPayloadKeys(),
                                                     servicesRegistry.getTopicResourceMap());
             } else {
@@ -87,18 +97,17 @@ class WebSubResourceDispatcher {
         }
 
         if (httpResource == null) {
-            if (WebSubSubscriberConstants.RESOURCE_NAME_ON_INTENT_VERIFICATION.equals(resourceName)) {
+            if (RESOURCE_NAME_ON_INTENT_VERIFICATION.equals(resourceName)) {
                 //if the request is a GET request indicating an intent verification request, and the user has not
                 //specified an onIntentVerification resource, assume auto intent verification
                 String annotatedTopic = (service.getBalService())
-                        .getAnnotationList(WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH,
-                                           WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG)
-                        .get(0).getValue().getStringField(WebSubSubscriberConstants.ANN_WEBSUB_ATTR_TOPIC);
+                        .getAnnotationList(WEBSUB_PACKAGE, ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG)
+                        .get(0).getValue().getStringField(ANN_WEBSUB_ATTR_TOPIC);
                 if (annotatedTopic.isEmpty() && service instanceof WebSubHttpService) {
                     annotatedTopic = ((WebSubHttpService) service).getTopic();
                 }
-                inboundRequest.setProperty(WebSubSubscriberConstants.ANNOTATED_TOPIC, annotatedTopic);
-                inboundRequest.setProperty(Constants.HTTP_RESOURCE, WebSubSubscriberConstants.ANNOTATED_TOPIC);
+                inboundRequest.setProperty(ANNOTATED_TOPIC, annotatedTopic);
+                inboundRequest.setProperty(HTTP_RESOURCE, ANNOTATED_TOPIC);
             } else {
                 inboundRequest.setProperty(HttpConstants.HTTP_STATUS_CODE, 404);
                 throw new BallerinaConnectorException("no matching WebSub Subscriber service  resource " + resourceName
@@ -118,10 +127,10 @@ class WebSubResourceDispatcher {
      */
     private static String retrieveResourceName(String method) {
         switch (method) {
-            case HttpConstants.HTTP_METHOD_POST:
-                return WebSubSubscriberConstants.RESOURCE_NAME_ON_NOTIFICATION;
-            case HttpConstants.HTTP_METHOD_GET:
-                return WebSubSubscriberConstants.RESOURCE_NAME_ON_INTENT_VERIFICATION;
+            case HTTP_METHOD_POST:
+                return RESOURCE_NAME_ON_NOTIFICATION;
+            case HTTP_METHOD_GET:
+                return RESOURCE_NAME_ON_INTENT_VERIFICATION;
             default:
                 throw new BallerinaConnectorException("method not allowed for WebSub Subscriber Services : " + method);
         }
@@ -142,9 +151,9 @@ class WebSubResourceDispatcher {
     private static String retrieveResourceName(ProgramFile programFile, HTTPCarbonMessage inboundRequest,
                    String topicHeader, BStringArray payloadKeys, BMap<String, BMap<String, BString>> topicResourceMap) {
         String topicHeaderPrefix = topicHeader + "::";
-        BValue httpRequest = getHttpRequest(programFile, inboundRequest);
+        BValue httpRequest = WebSubUtils.getHttpRequest(programFile, inboundRequest);
         BJSON jsonBody = retrieveJsonBody(httpRequest);
-        inboundRequest.setProperty(WebSubSubscriberConstants.ENTITY_ACCESSED_REQUEST, httpRequest);
+        inboundRequest.setProperty(ENTITY_ACCESSED_REQUEST, httpRequest);
         for (String key : payloadKeys.getStringArray()) {
             if (jsonBody.value().has(key)) {
                 BMap<String, BString> topicResourceMapForValue = topicResourceMap.get(key);
@@ -155,9 +164,8 @@ class WebSubResourceDispatcher {
                 }
             }
         }
-        if (topicResourceMap.hasKey(WebSubSubscriberConstants.TOPIC_ID_HEADER)) {
-            BMap<String, BString> topicResourceMapForHeader = topicResourceMap.get(
-                                                                            WebSubSubscriberConstants.TOPIC_ID_HEADER);
+        if (topicResourceMap.hasKey(TOPIC_ID_HEADER)) {
+            BMap<String, BString> topicResourceMapForHeader = topicResourceMap.get(TOPIC_ID_HEADER);
             if (topicResourceMapForHeader.hasKey(topicHeader)) {
                 return retrieveResourceName(topicHeader, topicResourceMapForHeader);
             }
@@ -179,9 +187,9 @@ class WebSubResourceDispatcher {
      */
     private static String retrieveResourceName(ProgramFile programFile, HTTPCarbonMessage inboundRequest,
                                        BStringArray payloadKeys, BMap<String, BMap<String, BString>> topicResourceMap) {
-        BValue httpRequest = getHttpRequest(programFile, inboundRequest);
+        BValue httpRequest = WebSubUtils.getHttpRequest(programFile, inboundRequest);
         BJSON jsonBody = retrieveJsonBody(httpRequest);
-        inboundRequest.setProperty(WebSubSubscriberConstants.ENTITY_ACCESSED_REQUEST, httpRequest);
+        inboundRequest.setProperty(ENTITY_ACCESSED_REQUEST, httpRequest);
         for (String key : payloadKeys.getStringArray()) {
             if (jsonBody.value().has(key)) {
                 BMap<String, BString> topicResourceMapForValue = topicResourceMap.get(key);
@@ -204,9 +212,8 @@ class WebSubResourceDispatcher {
     private static BJSON retrieveJsonBody(BValue httpRequest) {
         BStruct entityStruct = MimeUtil.extractEntity((BStruct) httpRequest);
         if (entityStruct != null) {
-            if (entityStruct.getNativeData(
-                    org.ballerinalang.mime.util.Constants.MESSAGE_DATA_SOURCE) instanceof BJSON) {
-                return (BJSON) (entityStruct.getNativeData(org.ballerinalang.mime.util.Constants.MESSAGE_DATA_SOURCE));
+            if (entityStruct.getNativeData(MESSAGE_DATA_SOURCE) instanceof BJSON) {
+                return (BJSON) (entityStruct.getNativeData(MESSAGE_DATA_SOURCE));
             } else {
                 throw new BallerinaConnectorException("Non-JSON payload received for payload key based dispatching");
             }
@@ -229,32 +236,6 @@ class WebSubResourceDispatcher {
         } else {
             throw new BallerinaConnectorException("resource not specified for topic : " + topic);
         }
-    }
-
-    private static BStruct getHttpRequest(ProgramFile programFile, HTTPCarbonMessage httpCarbonMessage) {
-        BStruct httpRequest = createBStruct(programFile, HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.REQUEST);
-        BStruct inRequestEntity = createBStruct(programFile,
-                                                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
-                                                org.ballerinalang.mime.util.Constants.ENTITY);
-        BStruct mediaType = createBStruct(programFile,
-                                          org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
-                                          org.ballerinalang.mime.util.Constants.MEDIA_TYPE);
-        BStruct cacheControlStruct = createBStruct(programFile,
-                                                   HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                                                   HttpConstants.REQUEST_CACHE_CONTROL);
-        RequestCacheControlStruct requestCacheControl = new RequestCacheControlStruct(cacheControlStruct);
-        HttpUtil.populateInboundRequest(httpRequest, inRequestEntity, mediaType, httpCarbonMessage,
-                                        requestCacheControl);
-        HttpUtil.populateEntityBody(null, httpRequest, inRequestEntity, true);
-        EntityBodyHandler.addMessageDataSource(inRequestEntity,
-                                               EntityBodyHandler.constructJsonDataSource(inRequestEntity));
-        //Set byte channel to null, once the message data source has been constructed
-        inRequestEntity.addNativeData(org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL, null);
-        return httpRequest;
-    }
-
-    private static BStruct createBStruct(ProgramFile programFile, String packagePath, String structName) {
-        return BLangConnectorSPIUtil.createBStruct(programFile, packagePath, structName);
     }
 
 }

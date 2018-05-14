@@ -22,14 +22,14 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.docgen.Generator;
 import org.ballerinalang.docgen.model.ActionDoc;
 import org.ballerinalang.docgen.model.AnnotationDoc;
-import org.ballerinalang.docgen.model.ConnectorDoc;
-import org.ballerinalang.docgen.model.EnumDoc;
+import org.ballerinalang.docgen.model.EndpointDoc;
 import org.ballerinalang.docgen.model.FunctionDoc;
 import org.ballerinalang.docgen.model.GlobalVariableDoc;
 import org.ballerinalang.docgen.model.Link;
 import org.ballerinalang.docgen.model.PackageName;
 import org.ballerinalang.docgen.model.Page;
 import org.ballerinalang.docgen.model.RecordDoc;
+import org.ballerinalang.docgen.model.TypeDefinitionDoc;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
@@ -88,6 +88,22 @@ public class HtmlDocTest {
                 "to return type");
     }
 
+    @Test(description = "Param links should be generated correctly")
+    public void testComplexReturn() throws Exception {
+        BLangPackage bLangPackage = createPackage("public function hello(string name) returns ((string[],int) | error)"
+                + "{return (\"a\", 2);}");
+        Page page = generatePage(bLangPackage);
+        Assert.assertEquals(page.constructs.size(), 1);
+        Assert.assertEquals(page.constructs.get(0).name, "hello");
+        Assert.assertTrue(page.constructs.get(0) instanceof FunctionDoc, "Invalid documentable type");
+        FunctionDoc functionDoc = (FunctionDoc) page.constructs.get(0);
+        Assert.assertEquals(functionDoc.parameters.get(0).toString(), "string name", "Invalid parameter string value");
+        Assert.assertEquals(functionDoc.returnParams.get(0).toString(), "(string[],int) | error", "Invalid return " +
+                "type");
+        Assert.assertEquals(functionDoc.returnParams.get(0).href, "primitive-types.html#string,primitive-types" + "" +
+                ".html#int,builtin.html#error", "Invalid link to return type");
+    }
+
     @Test(description = "Connectors in a package should be shown in the constructs")
     public void testConnectors() throws Exception {
         String source = "@Description {value:\"GitHub client\n" +
@@ -116,20 +132,20 @@ public class HtmlDocTest {
         Assert.assertEquals(page.constructs.size(), 1);
         Assert.assertEquals(page.constructs.get(0).name, "TestConnector");
         Assert.assertEquals(page.constructs.get(0).icon, "fw-struct");
-        Assert.assertTrue(page.constructs.get(0) instanceof ConnectorDoc, "Invalid documentable type");
-        ConnectorDoc connectorDoc = (ConnectorDoc) page.constructs.get(0);
-        Assert.assertEquals(connectorDoc.fields.size(), 2);
-        Assert.assertEquals(connectorDoc.fields.get(0).toString(), "string url");
-        Assert.assertEquals(connectorDoc.children.size(), 2);
-        Assert.assertTrue(connectorDoc.children.get(0) instanceof FunctionDoc, "Invalid documentable type");
-        FunctionDoc functionDoc1 = (FunctionDoc) connectorDoc.children.get(0);
+        Assert.assertTrue(page.constructs.get(0) instanceof EndpointDoc, "Invalid documentable type");
+        EndpointDoc endpointDoc = (EndpointDoc) page.constructs.get(0);
+        Assert.assertEquals(endpointDoc.fields.size(), 2);
+        Assert.assertEquals(endpointDoc.fields.get(0).toString(), "string url");
+        Assert.assertEquals(endpointDoc.children.size(), 2);
+        Assert.assertTrue(endpointDoc.children.get(0) instanceof FunctionDoc, "Invalid documentable type");
+        FunctionDoc functionDoc1 = (FunctionDoc) endpointDoc.children.get(0);
         Assert.assertEquals(functionDoc1.name, "testAction", "Invalid function name testAction");
         Assert.assertEquals(functionDoc1.icon, "fw-function", "testAction function is not detected as an action");
         Assert.assertEquals(functionDoc1.parameters.size(), 0);
         Assert.assertEquals(functionDoc1.returnParams.get(0).toString(), "boolean", "Invalid return type");
         Assert.assertEquals(functionDoc1.returnParams.get(0).description, "whether successful or not");
 
-        FunctionDoc functionDoc2 = (FunctionDoc) connectorDoc.children.get(1);
+        FunctionDoc functionDoc2 = (FunctionDoc) endpointDoc.children.get(1);
         Assert.assertEquals(functionDoc2.name, "testSend", "Invalid function name testSend");
         Assert.assertEquals(functionDoc2.icon, "fw-function", "testSend function is not detected as an action");
         Assert.assertEquals(functionDoc2.parameters.size(), 1);
@@ -170,21 +186,21 @@ public class HtmlDocTest {
         Assert.assertEquals(page.constructs.get(1).name, "Client");
         Assert.assertEquals(page.constructs.get(1).icon, "fw-endpoint");
         Assert.assertEquals(page.constructs.get(1).description, "<p>GitHub client</p>\n");
-        Assert.assertTrue(page.constructs.get(1) instanceof ConnectorDoc, "Invalid documentable type");
+        Assert.assertTrue(page.constructs.get(1) instanceof EndpointDoc, "Invalid documentable type");
 
-        ConnectorDoc connectorDoc = (ConnectorDoc) page.constructs.get(1);
-        Assert.assertEquals(connectorDoc.fields.size(), 2);
-        Assert.assertEquals(connectorDoc.fields.get(0).toString(), "string url");
-        Assert.assertEquals(connectorDoc.children.size(), 2);
-        Assert.assertTrue(connectorDoc.children.get(0) instanceof FunctionDoc, "Invalid documentable type");
-        FunctionDoc functionDoc1 = (FunctionDoc) connectorDoc.children.get(0);
+        EndpointDoc endpointDoc = (EndpointDoc) page.constructs.get(1);
+        Assert.assertEquals(endpointDoc.fields.size(), 2);
+        Assert.assertEquals(endpointDoc.fields.get(0).toString(), "string url");
+        Assert.assertEquals(endpointDoc.children.size(), 2);
+        Assert.assertTrue(endpointDoc.children.get(0) instanceof FunctionDoc, "Invalid documentable type");
+        FunctionDoc functionDoc1 = (FunctionDoc) endpointDoc.children.get(0);
         Assert.assertEquals(functionDoc1.name, "testAction", "Invalid function name testAction");
         Assert.assertEquals(functionDoc1.icon, "fw-action", "testAction function is not detected as an action");
         Assert.assertEquals(functionDoc1.parameters.size(), 0);
         Assert.assertEquals(functionDoc1.returnParams.get(0).toString(), "boolean", "Invalid return type");
         Assert.assertEquals(functionDoc1.returnParams.get(0).description, "<p>whether successful or not</p>\n");
 
-        FunctionDoc functionDoc2 = (FunctionDoc) connectorDoc.children.get(1);
+        FunctionDoc functionDoc2 = (FunctionDoc) endpointDoc.children.get(1);
         Assert.assertEquals(functionDoc2.name, "testSend", "Invalid function name testSend");
         Assert.assertEquals(functionDoc2.icon, "fw-action", "testSend function is not detected as an action");
         Assert.assertEquals(functionDoc2.parameters.size(), 1);
@@ -224,20 +240,20 @@ public class HtmlDocTest {
         Assert.assertEquals(page.constructs.size(), 1);
         Assert.assertEquals(page.constructs.get(0).name, "Test");
         Assert.assertEquals(page.constructs.get(0).icon, "fw-struct");
-        Assert.assertTrue(page.constructs.get(0) instanceof ConnectorDoc, "Invalid documentable type");
-        ConnectorDoc connectorDoc = (ConnectorDoc) page.constructs.get(0);
-        Assert.assertEquals(connectorDoc.fields.size(), 2);
-        Assert.assertEquals(connectorDoc.fields.get(0).toString(), "string url");
-        Assert.assertEquals(connectorDoc.children.size(), 2);
-        Assert.assertTrue(connectorDoc.children.get(0) instanceof FunctionDoc, "Invalid documentable type");
-        FunctionDoc functionDoc1 = (FunctionDoc) connectorDoc.children.get(0);
+        Assert.assertTrue(page.constructs.get(0) instanceof EndpointDoc, "Invalid documentable type");
+        EndpointDoc endpointDoc = (EndpointDoc) page.constructs.get(0);
+        Assert.assertEquals(endpointDoc.fields.size(), 2);
+        Assert.assertEquals(endpointDoc.fields.get(0).toString(), "string url");
+        Assert.assertEquals(endpointDoc.children.size(), 2);
+        Assert.assertTrue(endpointDoc.children.get(0) instanceof FunctionDoc, "Invalid documentable type");
+        FunctionDoc functionDoc1 = (FunctionDoc) endpointDoc.children.get(0);
         Assert.assertEquals(functionDoc1.name, "test1", "Invalid function name. Should be test1");
         Assert.assertEquals(functionDoc1.icon, "fw-function", "test1 function is not detected as a function");
         Assert.assertEquals(functionDoc1.parameters.size(), 0);
         Assert.assertEquals(functionDoc1.returnParams.get(0).toString(), "boolean", "Invalid return type");
         Assert.assertEquals(functionDoc1.returnParams.get(0).description, "whether successful or not");
 
-        FunctionDoc functionDoc2 = (FunctionDoc) connectorDoc.children.get(1);
+        FunctionDoc functionDoc2 = (FunctionDoc) endpointDoc.children.get(1);
         Assert.assertEquals(functionDoc2.name, "test2", "Invalid function name test2");
         Assert.assertEquals(functionDoc2.parameters.size(), 1);
         Assert.assertEquals(functionDoc2.icon, "fw-function", "test2 function is not detected as a function");
@@ -268,14 +284,14 @@ public class HtmlDocTest {
         Assert.assertEquals(page.constructs.get(0).name, "Test");
         Assert.assertEquals(page.constructs.get(0).icon, "fw-struct");
         Assert.assertEquals(page.constructs.get(0).description, "<p>Object Test</p>\n<p>Description.</p>\n");
-        Assert.assertTrue(page.constructs.get(0) instanceof ConnectorDoc, "Invalid documentable type");
-        ConnectorDoc connectorDoc = (ConnectorDoc) page.constructs.get(0);
-        Assert.assertEquals(connectorDoc.fields.size(), 2);
-        Assert.assertEquals(connectorDoc.fields.get(0).description, "<p>endpoint url</p>\n");
-        Assert.assertEquals(connectorDoc.fields.get(1).description, "<p>a valid path</p>\n");
-        Assert.assertEquals(connectorDoc.children.size(), 3);
-        Assert.assertTrue(connectorDoc.children.get(0) instanceof FunctionDoc, "Invalid documentable type");
-        FunctionDoc functionDoc0 = (FunctionDoc) connectorDoc.children.get(0);
+        Assert.assertTrue(page.constructs.get(0) instanceof EndpointDoc, "Invalid documentable type");
+        EndpointDoc endpointDoc = (EndpointDoc) page.constructs.get(0);
+        Assert.assertEquals(endpointDoc.fields.size(), 2);
+        Assert.assertEquals(endpointDoc.fields.get(0).description, "<p>endpoint url</p>\n");
+        Assert.assertEquals(endpointDoc.fields.get(1).description, "<p>a valid path</p>\n");
+        Assert.assertEquals(endpointDoc.children.size(), 3);
+        Assert.assertTrue(endpointDoc.children.get(0) instanceof FunctionDoc, "Invalid documentable type");
+        FunctionDoc functionDoc0 = (FunctionDoc) endpointDoc.children.get(0);
         Assert.assertEquals(functionDoc0.name, "new", "Invalid function name. Should be new");
         Assert.assertEquals(functionDoc0.icon, "fw-constructor", "new function is not detected as a constructor");
         Assert.assertEquals(functionDoc0.parameters.size(), 2);
@@ -285,7 +301,7 @@ public class HtmlDocTest {
         Assert.assertEquals(functionDoc0.parameters.get(1).defaultValue, "def");
         Assert.assertEquals(functionDoc0.returnParams.size(), 0);
 
-        FunctionDoc functionDoc1 = (FunctionDoc) connectorDoc.children.get(1);
+        FunctionDoc functionDoc1 = (FunctionDoc) endpointDoc.children.get(1);
         Assert.assertEquals(functionDoc1.name, "test1", "Invalid function name. Should be test1");
         Assert.assertEquals(functionDoc1.icon, "fw-function", "test1 function is not detected as a function");
         Assert.assertEquals(functionDoc1.parameters.size(), 1);
@@ -293,7 +309,7 @@ public class HtmlDocTest {
         Assert.assertEquals(functionDoc1.returnParams.get(0).toString(), "boolean", "Invalid return type");
         Assert.assertEquals(functionDoc1.returnParams.get(0).description, "<p>is success?</p>\n");
 
-        FunctionDoc functionDoc2 = (FunctionDoc) connectorDoc.children.get(2);
+        FunctionDoc functionDoc2 = (FunctionDoc) endpointDoc.children.get(2);
         Assert.assertEquals(functionDoc2.name, "test2", "Invalid function name test2");
         Assert.assertEquals(functionDoc2.parameters.size(), 0);
         Assert.assertEquals(functionDoc2.icon, "fw-function", "test2 function is not detected as a function");
@@ -425,7 +441,7 @@ public class HtmlDocTest {
                         "@Param { value:\"serviceUri: Url of the service\" }\n" +
                         "@Param { value:\"n: connector options\" }" +
                         "connector HttpClient (string serviceUri, int n) {" +
-                        "@Description { value:\"The POST action implementation of the HTTP ConnectorDoc\"}\n" +
+                        "@Description { value:\"The POST action implementation of the HTTP EndpointDoc\"}\n" +
                         "@Param { value:\"path: Resource path \" }\n" +
                         "@Param { value:\"req: An HTTP Request struct\" }\n" +
                         "@Return { value:\"The response message\" }\n" +
@@ -433,19 +449,19 @@ public class HtmlDocTest {
                         "action post(string path, string req) (string, int) { return \"value within filter\"; }}";
         BLangPackage bLangPackage = createPackage(source);
 
-        ConnectorDoc connectorDoc = Generator.createDocForNode(bLangPackage.getObjects().get(0), true);
-        Assert.assertEquals(connectorDoc.name, "HttpClient", "Connector name should be extracted");
-        Assert.assertEquals(connectorDoc.description, "Http client connector for outbound HTTP requests",
+        EndpointDoc endpointDoc = Generator.createDocForNode(bLangPackage.getObjects().get(0), true);
+        Assert.assertEquals(endpointDoc.name, "HttpClient", "Connector name should be extracted");
+        Assert.assertEquals(endpointDoc.description, "Http client connector for outbound HTTP requests",
                 "Description of the connector should be extracted");
-        Assert.assertEquals(connectorDoc.fields.get(0).name, "serviceUri", "Parameter name should be extracted");
-        Assert.assertEquals(connectorDoc.fields.get(0).dataType, "string", "Parameter type should be extracted");
-        Assert.assertEquals(connectorDoc.fields.get(0).description, "Url of the service",
+        Assert.assertEquals(endpointDoc.fields.get(0).name, "serviceUri", "Parameter name should be extracted");
+        Assert.assertEquals(endpointDoc.fields.get(0).dataType, "string", "Parameter type should be extracted");
+        Assert.assertEquals(endpointDoc.fields.get(0).description, "Url of the service",
                 "Description of the parameter type should be extracted");
 
         // For actions inside the connector
-        ActionDoc actionDoc = (ActionDoc) connectorDoc.children.get(0);
+        ActionDoc actionDoc = (ActionDoc) endpointDoc.children.get(0);
         Assert.assertEquals(actionDoc.name, "post", "Action name should be extracted");
-        Assert.assertEquals(actionDoc.description, "The POST action implementation of the HTTP ConnectorDoc",
+        Assert.assertEquals(actionDoc.description, "The POST action implementation of the HTTP EndpointDoc",
                 "Description of the action should be extracted");
         Assert.assertEquals(actionDoc.parameters.get(0).name, "path", "Parameter name should be extracted");
         Assert.assertEquals(actionDoc.parameters.get(0).dataType, "string", "Parameter type should be extracted");
@@ -479,15 +495,15 @@ public class HtmlDocTest {
     @Test(description = "Enum properties should be available via construct")
     public void testEnumPropertiesExtracted() throws Exception {
         String source = "" + "documentation{ Http operations }" + "public type HttpOperation \"FORWARD\" | \"GET\" | " +
-                "" + "\"POST\";";
+                "" + "" + "\"POST\";";
         BLangPackage bLangPackage = createPackage(source);
 
-        EnumDoc enumDoc = Generator.createDocForNode(bLangPackage.getTypeDefinitions().get(0));
-        Assert.assertEquals(enumDoc.name, "HttpOperation", "Type name should be extracted");
-        Assert.assertEquals(enumDoc.description, "<p>Http operations</p>\n", "Description of the " + "enum should be " +
-                "" + "extracted");
+        TypeDefinitionDoc typeDefinitionDoc = Generator.createDocForNode(bLangPackage.getTypeDefinitions().get(0));
+        Assert.assertEquals(typeDefinitionDoc.name, "HttpOperation", "Type name should be extracted");
+        Assert.assertEquals(typeDefinitionDoc.description, "<p>Http operations</p>\n", "Description of the " + "enum " +
+                "should be " + "" + "extracted");
         // TODO order gets reversed - needs to fix
-        Assert.assertEquals(enumDoc.valueSet, "POST | GET | FORWARD", "values should be extracted");
+        Assert.assertEquals(typeDefinitionDoc.valueSet, "POST | GET | FORWARD", "values should be extracted");
     }
 
     @Test(description = "Global variables should be available via construct")

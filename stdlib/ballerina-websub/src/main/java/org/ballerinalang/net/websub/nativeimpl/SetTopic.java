@@ -29,7 +29,12 @@ import org.ballerinalang.net.http.HttpService;
 import org.ballerinalang.net.http.serviceendpoint.AbstractHttpNativeFunction;
 import org.ballerinalang.net.websub.WebSubHttpService;
 import org.ballerinalang.net.websub.WebSubServicesRegistry;
-import org.ballerinalang.net.websub.WebSubSubscriberConstants;
+
+import java.util.Optional;
+
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_HTTP_ENDPOINT;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY;
 
 /**
  * Set the hub and topic the service is subscribing, if the resource URL was specified as an annotation.
@@ -40,27 +45,32 @@ import org.ballerinalang.net.websub.WebSubSubscriberConstants;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
         functionName = "setTopic",
-        args = {@Argument(name = "topic", type = TypeKind.STRING)},
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener",
-                structPackage = WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH),
+        args = {@Argument(name = "webSubServiceName", type = TypeKind.STRING),
+                @Argument(name = "topic", type = TypeKind.STRING)},
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener", structPackage = WEBSUB_PACKAGE),
         isPublic = true
 )
 public class SetTopic extends AbstractHttpNativeFunction {
 
     @Override
     public void execute(Context context) {
-
         Struct subscriberServiceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        Struct serviceEndpoint = subscriberServiceEndpoint.getStructField("serviceEndpoint");
+        Struct serviceEndpoint = subscriberServiceEndpoint.getStructField(WEBSUB_HTTP_ENDPOINT);
+        String webSubServiceName = context.getStringArgument(0);
 
-        HttpService httpService = ((HttpService) ((WebSubServicesRegistry) serviceEndpoint.getNativeData(
-                WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY)).getServicesInfoByInterface()
-                .values().toArray()[0]);
+        Optional<HttpService> webSubHttpService =
+                ((WebSubServicesRegistry) serviceEndpoint.getNativeData(WEBSUB_SERVICE_REGISTRY))
+                        .getServicesInfoByInterface().values().stream().filter(
+                                httpService -> webSubServiceName.equals(httpService.getBalService().getServiceInfo()
+                                                                              .getType().getName()))
+                        .findFirst();
 
-        String topic = context.getStringArgument(0);
-        ((WebSubHttpService) httpService).setTopic(topic);
+        HttpService httpService = webSubHttpService.get();
+        String topic = context.getStringArgument(1);
+        if (httpService instanceof WebSubHttpService) {
+            ((WebSubHttpService) httpService).setTopic(topic);
+        }
         context.setReturnValues();
-
     }
 
 }

@@ -101,6 +101,8 @@ public class Constants {
     public static final String BODY_PARTS = "body_parts";
     public static final String ENTITY_HEADERS = "entity_headers";
 
+    public static final String CHARSET = "charset";
+
     public static final String ANN_CONFIG_MEMORY_THRESHOLD = "memoryThresholdInMB";
     public static final String ANN_CONFIG_TEMP_LOCATION = "tempLocation";
     public static final String DEFAULT_TEMP_DIRECTORY = "java.io.tmpdir";
