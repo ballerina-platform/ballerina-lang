@@ -51,7 +51,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -70,7 +69,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Common utils to be reuse in language server implementation.
@@ -772,22 +770,5 @@ public class CommonUtil {
         });
         
         return endpointActions;
-    }
-    
-    public static String getMatchMemberTypesSnippet(BUnionType bUnionType) {
-        Set<BType> memberTypes = bUnionType.getMemberTypes();
-        StringBuilder fieldsSnippet = new StringBuilder("");
-
-        memberTypes.forEach(bType -> {
-            fieldsSnippet
-                    .append("\t").append(bType.toString()).append(" => {")
-                    .append(LINE_SEPARATOR)
-                    .append("\t\t")
-                    .append(LINE_SEPARATOR)
-                    .append("\t").append("}")
-                    .append(LINE_SEPARATOR);
-        });
-
-        return fieldsSnippet.toString();
     }
 }
