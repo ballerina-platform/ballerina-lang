@@ -151,11 +151,12 @@ public class TargetChannel {
         this.chunkConfig = chunkConfig;
     }
 
-    public void configTargetHandler(HTTPCarbonMessage httpCarbonMessage, HttpResponseFuture httpInboundResponseFuture) {
+    public void configTargetHandler(HTTPCarbonMessage outboundRequestMessage,
+                                    HttpResponseFuture httpInboundResponseFuture) {
         this.setTargetHandler(this.getHttpClientChannelInitializer().getTargetHandler());
         TargetHandler targetHandler = this.getTargetHandler();
         targetHandler.setHttpResponseFuture(httpInboundResponseFuture);
-        targetHandler.setIncomingMsg(httpCarbonMessage);
+        targetHandler.setOutboundRequestMessage(outboundRequestMessage);
         targetHandler.setConnectionManager(connectionManager);
         targetHandler.setTargetChannel(this);
 
@@ -228,8 +229,6 @@ public class TargetChannel {
 
             writeOutboundRequestBody(httpContent);
 
-            resetState(httpOutboundRequest);
-
             if (handlerExecutor != null) {
                 handlerExecutor.executeAtTargetRequestSending(httpOutboundRequest);
             }
@@ -274,7 +273,7 @@ public class TargetChannel {
         });
     }
 
-    private void resetState(HTTPCarbonMessage httpOutboundRequest) {
+    public void resetState(HTTPCarbonMessage httpOutboundRequest) {
         httpOutboundRequest.removeHttpContentAsyncFuture();
         contentList.clear();
         contentLength = 0;
