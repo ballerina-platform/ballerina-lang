@@ -407,13 +407,8 @@ public function WebSubHub::publishUpdate(string topic, json payload) returns err
         error webSubError = {message:"Internal Ballerina Hub not initialized or incorrectly referenced"};
         return webSubError;
     } else {
-        string errorMessage = validateAndPublishToInternalHub(self.hubUrl, topic, payload);
-        if (errorMessage != "") {
-            error webSubError = {message:errorMessage};
-            return webSubError;
-        }
+        return validateAndPublishToInternalHub(self.hubUrl, topic, payload);
     }
-    return;
 }
 
 public function WebSubHub::registerTopic(string topic) returns error? {

@@ -145,7 +145,10 @@ service<http:Service> hubService {
                         match (fetchTopicUpdate(topic)) {
                             http:Response fetchResp => { reqJsonPayload = fetchResp.getJsonPayload(); }
                             error err => {
-                                log:printError("Error fetching updates for topic URL [" + topic + "]: " + err.message);
+                                string errorMessage = "Error fetching updates for topic URL [" + topic + "]: "
+                                                        + err.message;
+                                log:printError(errorMessage);
+                                response.setTextPayload(errorMessage);
                                 response.statusCode = http:BAD_REQUEST_400;
                                 _ = client->respond(response);
                                 done;
@@ -155,8 +158,6 @@ service<http:Service> hubService {
 
                     match (reqJsonPayload) {
                         json payload => {
-                            response.statusCode = http:ACCEPTED_202;
-                            _ = client->respond(response);
                             if (hubTopicRegistrationRequired) {
                                 string secret = retrievePublisherSecret(topic);
                                 if (secret != "") {
@@ -167,31 +168,49 @@ service<http:Service> hubService {
                                             strPayload, secret);
                                         match (signatureValidation) {
                                             error err => {
-                                                log:printWarn("Signature validation failed for publish request for "
-                                                        + "topic[" + topic + "]: " + err.message);
+                                                string errorMessage = "Signature validation failed for publish request"
+                                                                        + "for topic[" + topic + "]: " + err.message;
+                                                log:printError(errorMessage);
+                                                response.statusCode = http:BAD_REQUEST_400;
+                                                response.setTextPayload(errorMessage);
+                                                _ = client->respond(response);
                                                 done;
                                             }
                                             () => {
-                                                log:printInfo("Signature validation successful for publish request "
+                                                log:printDebug("Signature validation successful for publish request "
                                                         + "for Topic [" + topic + "]");
                                             }
                                         }
                                     }
                                 }
                             }
-                            string errorMessage = publishToInternalHub(topic, payload);
-                            if (errorMessage == "") {
-                                log:printInfo("Event notification done for Topic [" + topic + "]");
-                            } else {
-                                log:printError("Event notification failed for Topic [" + topic + "]: " + errorMessage);
+                            error? publishError = publishToInternalHub(topic, payload);
+                            match(publishError) {
+                                error err => {
+                                    string errorMessage = "Event notification failed for Topic [" + topic + "]: "
+                                                            + err.message;
+                                    response.setTextPayload(errorMessage);
+                                    log:printError(errorMessage);
+                                }
+                                () => {
+                                    log:printInfo("Event notification done for Topic [" + topic + "]");
+                                    response.statusCode = http:ACCEPTED_202;
+                                    _ = client->respond(response);
+                                    done;
+                                }
                             }
-                            done;
                         }
                         error payloadError => {
-                            log:printError("Error retreiving payload for WebSub publish request: "
-                                    + payloadError.message);
+                            string errorMessage = "Error retreiving payload for WebSub publish request: "
+                                                    + payloadError.message;
+                            log:printError(errorMessage);
+                            response.setTextPayload(errorMessage);
                         }
                     }
+                } else {
+                    string errorMessage = "Publish request denied for unregistered topic[" + topic + "]";
+                    log:printDebug(errorMessage);
+                    response.setTextPayload(errorMessage);
                 }
                 response.statusCode = http:BAD_REQUEST_400;
                 _ = client->respond(response);

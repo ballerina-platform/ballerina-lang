@@ -56,9 +56,9 @@ documentation {
 
     P{{topic}} The topic for which the update should happen
     P{{payload}} The update payload
-    R{{}} `string` Error Message if an error occurred with publishing
+    R{{}} `error` if an error occurred during publishing
 }
-native function publishToInternalHub(string topic, json payload) returns string;
+native function publishToInternalHub(string topic, json payload) returns error?;
 
 documentation {
     Removes a subscription added for the specified topic in the Ballerina Hub.
@@ -112,6 +112,6 @@ documentation {
     P{{hubUrl}} The URL of the Ballerina WebSub Hub as included in the WebSubHub struct
     P{{topic}} The topic for which the update should happen
     P{{payload}} The update payload
-    R{{}} `string` String indicating the error, if an error occurred
+    R{{}} `error` if an error occurred during publishing
 }
-native function validateAndPublishToInternalHub(string hubUrl, string topic, json payload) returns string;
+native function validateAndPublishToInternalHub(string hubUrl, string topic, json payload) returns error?;
