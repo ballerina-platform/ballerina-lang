@@ -314,12 +314,11 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
                     string redirected_hub = httpResponse.getHeader("Location");
                     return invokeClientConnectorOnRedirection(redirected_hub, mode, subscriptionChangeRequest,
                                                                 httpClientEndpoint.config.auth, remainingRedirects - 1);
-                } else {
-                    error subscriptionError = { message: "Redirection response received for subscription change request"
-                    + " made with followRedirects disabled or after maxCount exceeded: Hub [" + hub + "], Topic [" +
-                        subscriptionChangeRequest.topic + "]" };
-                    return subscriptionError;
                 }
+                error subscriptionError = { message: "Redirection response received for subscription change request"
+                                            + " made with followRedirects disabled or after maxCount exceeded: Hub ["
+                                            + hub + "], Topic [" + subscriptionChangeRequest.topic + "]" };
+                return subscriptionError;
             } else if (responseStatusCode != http:ACCEPTED_202) {
                 var responsePayload = httpResponse.getTextPayload();
                 string errorMessage = "Error in request: Mode[" + mode + "] at Hub[" + hub + "]";
