@@ -24,6 +24,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompiledPackage;
 import org.ballerinalang.repository.CompilerOutputEntry;
 import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -121,18 +122,20 @@ public class BinaryFileWriter {
 
     public void writeLibraryPackage(BLangPackage packageNode) {
         String fileName = getOutputFileName(packageNode, BLANG_COMPILED_PKG_EXT);
-        writeLibraryPackage(packageNode, fileName);
+        writeLibraryPackage(packageNode.symbol, fileName);
     }
 
-    public void writeLibraryPackage(BLangPackage packageNode, String compiledPackageFileName) {
+    public void writeLibraryPackage(BPackageSymbol symbol, String compiledPackageFileName) {
+        PackageID packageID = symbol.pkgID;
+
         // Filter out packages which loaded from BALOs
-        CompiledPackage compiledPackage = packageNode.symbol.compiledPackage;
+        CompiledPackage compiledPackage = symbol.compiledPackage;
         if (compiledPackage.getKind() == CompiledPackage.Kind.FROM_BINARY) {
             return;
         }
 
         // Filter out unnamed packages
-        if (packageNode.packageID.isUnnamed) {
+        if (packageID.isUnnamed) {
             return;
         }
 
@@ -144,14 +147,13 @@ public class BinaryFileWriter {
             compiledPackageFileName += BLANG_COMPILED_PKG_EXT;
         }
 
-        Path destDirPath = getPackageDirPathInProjectRepo(packageNode.packageID);
+        Path destDirPath = getPackageDirPathInProjectRepo(packageID);
         try {
-            addPackageBinaryContent(packageNode.packageID,
-                    packageNode.symbol.packageFile, compiledPackage);
+            addPackageBinaryContent(packageID, symbol.packageFile, compiledPackage);
             this.sourceDirectory.saveCompiledPackage(compiledPackage, destDirPath, compiledPackageFileName);
         } catch (IOException e) {
             String msg = "error writing the compiled package(balo) of '" +
-                    packageNode.packageID + "' to '" + destDirPath + "': " + e.getMessage();
+                         packageID + "' to '" + destDirPath + "': " + e.getMessage();
             throw new BLangCompilerException(msg, e);
         }
     }
