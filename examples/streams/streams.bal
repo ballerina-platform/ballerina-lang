@@ -23,7 +23,7 @@ function main(string... args) {
     employeeStream.publish(e2);
     employeeStream.publish(e3);
 
-    // Allow for receipt by subscribers. The `printEmployeeName` function is invoked for each published event.
+    // Allow for receipt by subscribers. The `printEmployeeName` function should be invoked for each published event.
     runtime:sleep(1000);
 
 
