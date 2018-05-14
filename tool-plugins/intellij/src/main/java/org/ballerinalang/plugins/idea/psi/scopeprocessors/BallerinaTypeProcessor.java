@@ -1,6 +1,7 @@
 package org.ballerinalang.plugins.idea.psi.scopeprocessors;
 
 import com.intellij.codeInsight.completion.CompletionResultSet;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.ResolveState;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
@@ -34,9 +35,11 @@ public class BallerinaTypeProcessor extends BallerinaScopeProcessorBase {
 
     @Override
     public boolean execute(@NotNull PsiElement element, @NotNull ResolveState state) {
+        ProgressManager.checkCanceled();
         if (accept(element)) {
             List<BallerinaDefinition> definitions = ((BallerinaFile) element).getDefinitions();
             for (BallerinaDefinition definition : definitions) {
+                ProgressManager.checkCanceled();
                 PsiElement lastChild = definition.getLastChild();
                 if (lastChild instanceof BallerinaTypeDefinition) {
                     BallerinaTypeDefinition child = (BallerinaTypeDefinition) lastChild;

@@ -1,6 +1,7 @@
 package org.ballerinalang.plugins.idea.psi.scopeprocessors;
 
 import com.intellij.codeInsight.completion.CompletionResultSet;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveState;
@@ -43,6 +44,7 @@ public class BallerinaActionInvocationProcessor extends BallerinaScopeProcessorB
 
     @Override
     public boolean execute(@NotNull PsiElement element, @NotNull ResolveState state) {
+        ProgressManager.checkCanceled();
         if (accept(element)) {
             PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(myElement);
             if (prevVisibleLeaf != null && prevVisibleLeaf instanceof LeafPsiElement) {

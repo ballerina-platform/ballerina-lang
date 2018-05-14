@@ -1,6 +1,7 @@
 package org.ballerinalang.plugins.idea.psi.scopeprocessors;
 
 import com.intellij.codeInsight.completion.CompletionResultSet;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveState;
@@ -49,6 +50,7 @@ public class BallerinaEndpointFieldProcessor extends BallerinaScopeProcessorBase
 
     @Override
     public boolean execute(@NotNull PsiElement element, @NotNull ResolveState state) {
+        ProgressManager.checkCanceled();
         if (accept(element)) {
             BallerinaRecordLiteralExpression recordLiteralExpression = PsiTreeUtil.getParentOfType(myElement,
                     BallerinaRecordLiteralExpression.class);

@@ -1,11 +1,12 @@
 package org.ballerinalang.plugins.idea.psi.scopeprocessors;
 
 import com.intellij.codeInsight.completion.CompletionResultSet;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.ResolveState;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
-import org.ballerinalang.plugins.idea.completion.inserthandlers.ParenthesisInsertHandler;
+import org.ballerinalang.plugins.idea.completion.inserthandlers.SmartParenthesisInsertHandler;
 import org.ballerinalang.plugins.idea.psi.BallerinaObjectCallableUnitSignature;
 import org.ballerinalang.plugins.idea.psi.BallerinaObjectFunctionDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeDefinition;
@@ -37,6 +38,7 @@ public class BallerinaObjectFunctionProcessor extends BallerinaScopeProcessorBas
 
     @Override
     public boolean execute(@NotNull PsiElement element, @NotNull ResolveState state) {
+        ProgressManager.checkCanceled();
         if (accept(element)) {
             PsiElement owner = ((BallerinaTypeDefinition) element).getIdentifier();
             if (owner == null) {
@@ -56,7 +58,7 @@ public class BallerinaObjectFunctionProcessor extends BallerinaScopeProcessorBas
                 if (identifier != null) {
                     if (myResult != null) {
                         myResult.addElement(BallerinaCompletionUtils.createFunctionLookupElement
-                                (objectFunctionDefinition, owner, ParenthesisInsertHandler.INSTANCE));
+                                (objectFunctionDefinition, owner, SmartParenthesisInsertHandler.INSTANCE));
                     } else if (myElement.getText().equals(identifier.getText())) {
                         add(identifier);
                     }
