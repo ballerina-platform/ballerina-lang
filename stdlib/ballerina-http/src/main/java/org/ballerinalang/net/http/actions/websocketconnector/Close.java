@@ -42,7 +42,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
                 @Argument(name = "wsConnector", type = TypeKind.STRUCT),
                 @Argument(name = "statusCode", type = TypeKind.INT),
                 @Argument(name = "reason", type = TypeKind.STRING),
-                @Argument(name = "timeoutInSec", type = TypeKind.INT)
+                @Argument(name = "timeoutInSecs", type = TypeKind.INT)
         }
 )
 public class Close implements NativeCallableUnit {
@@ -53,11 +53,11 @@ public class Close implements NativeCallableUnit {
             BStruct webSocketConnector = (BStruct) context.getRefArgument(0);
             int statusCode = (int) context.getIntArgument(0);
             String reason = context.getStringArgument(0);
-            int timeoutInSec = (int) context.getIntArgument(1);
+            int timeoutInSecs = (int) context.getIntArgument(1);
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) webSocketConnector
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
             WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
-            webSocketConnection.initiateConnectionClosure(statusCode, reason, timeoutInSec)
+            webSocketConnection.initiateConnectionClosure(statusCode, reason, timeoutInSecs)
                     .addListener((ChannelFutureListener) future -> {
                 Throwable cause = future.cause();
                 if (!future.isSuccess() && cause != null) {

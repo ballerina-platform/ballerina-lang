@@ -61,7 +61,7 @@ public type WebSocketConnector object {
 
         P{{statusCode}} Status code for closing the connection
         P{{reason}} Reason for closing the connection
-        P{{timeoutInSec}} timeout which waits for the close frame from remote endpoint to close the connection.
+        P{{timeoutInSecs}} timeout which waits for the close frame from remote endpoint to close the connection.
                            If the timeout exceeds then the connection will be terminated even though a close frame
                            is not received from the remote backend. If the value is -1 the connection will wait until
                            a close frame is received.
@@ -69,7 +69,7 @@ public type WebSocketConnector object {
                            (Timeout is 0).
         R{{}} `error` if an error occurs when sending
     }
-    public native function close(int statusCode, string reason, int timeoutInSec = 0) returns error|();
+    public native function close(int statusCode, string reason, int timeoutInSecs = 0) returns error|();
 
     documentation {
         Called when the endpoint is ready to receive messages. Can be called only once per endpoint. For the
