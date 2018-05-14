@@ -30,7 +30,7 @@ function main(string... args) {
     // Declare a stream constrained by `float` values.
     stream<float> temperatureStream;
 
-    // Subscribe to the `temperature` stream with a function that accepts `float` events.
+    // Subscribe to the `temperatureStream` using a function that accepts `float` events.
     temperatureStream.subscribe(printTemperature);
 
     // Publish `float` events to the stream, indicating temperature.
