@@ -20,30 +20,32 @@ package org.ballerinalang.nativeimpl.observe.tracing;
 
 import io.opentracing.Span;
 import io.opentracing.Tracer;
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserverContext;
+import org.ballerinalang.util.tracer.TraceConstants;
 import org.ballerinalang.util.tracer.TracersStore;
 
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
+import static org.ballerinalang.util.tracer.TraceConstants.KEY_USER_SPAN;
 
 /**
  * This class wraps opentracing apis and exposes native functions to use within ballerina.
  */
 public class OpenTracerBallerinaWrapper {
 
-    private static final String DEFAULT_TRACER = "default";
     private static OpenTracerBallerinaWrapper instance = new OpenTracerBallerinaWrapper();
     private TracersStore tracerStore;
-    private SpanStore spanStore;
     private final boolean enabled;
 
     public OpenTracerBallerinaWrapper() {
         enabled = ConfigRegistry.getInstance().getAsBoolean(CONFIG_TRACING_ENABLED);
-        if (enabled) {
-            tracerStore = TracersStore.getInstance();
-            spanStore = new SpanStore();
-        }
+        tracerStore = TracersStore.getInstance();
     }
 
     public static OpenTracerBallerinaWrapper getInstance() {
@@ -53,49 +55,65 @@ public class OpenTracerBallerinaWrapper {
     /**
      * Method to start a span using parent span context.
      *
-     * @param serviceName  name of the service the span should belong to
-     * @param spanName     name of the span
-     * @param tags         key value paired tags to attach to the span
-     * @param invocationId
+     * @param serviceName name of the service the span should belong to
+     * @param spanName    name of the span
+     * @param tags        key value paired tags to attach to the span
+     * @param context     native context
      * @return unique id of the created span
      */
-    public String startSpan(String serviceName, String spanName, Map<String, String> tags, String invocationId) {
-        if (enabled) {
-            BSpan bSpan = null;
-            Tracer tracer = tracerStore.getTracer(serviceName);
-            if (tracer != null) {
-                Tracer.SpanBuilder spanBuilder = tracer.buildSpan(spanName);
-                for (Map.Entry<String, String> tag : tags.entrySet()) {
-                    spanBuilder = spanBuilder.withTag(tag.getKey(), tag.getValue());
-                }
-
-                BSpan activeSpan = spanStore.getActiveSpan(invocationId);
-                if (activeSpan != null) {
-                    spanBuilder.asChildOf(activeSpan.getSpan());
-                }
-
-                Span span = spanBuilder.start();
-                bSpan = new BSpan(invocationId, span, activeSpan);
-                spanStore.addSpan(bSpan);
-            }
-            if (bSpan != null) {
-                return bSpan.getSpanId();
-            }
+    public String startSpan(String serviceName, String spanName, Map<String, String> tags, Context context) {
+        if (!enabled) {
+            return null;
         }
-        return null;
+
+        Tracer tracer = tracerStore.getTracer(serviceName);
+        if (tracer == null) {
+            return null;
+        }
+
+        Tracer.SpanBuilder spanBuilder = tracer.buildSpan(spanName);
+        for (Map.Entry<String, String> tag : tags.entrySet()) {
+            spanBuilder.withTag(tag.getKey(), tag.getValue());
+        }
+        AtomicReference<SpanStore> spanStore = new AtomicReference<>(
+                (SpanStore) context.getParentWorkerExecutionContext().localProps.get(KEY_USER_SPAN));
+        BSpan parentSpan = null;
+        if (spanStore.get() != null) {
+            parentSpan = spanStore.get().getActiveBSpan();
+            if (parentSpan != null) {
+                spanBuilder.asChildOf(parentSpan.getSpan());
+            }
+        } else {
+            Optional<ObserverContext> optionalObserverContext = ObservabilityUtils.getParentContext(context);
+            optionalObserverContext.ifPresent(observerContext -> {
+                spanStore.set(new SpanStore());
+                org.ballerinalang.util.tracer.BSpan bSpan =
+                        (org.ballerinalang.util.tracer.BSpan) observerContext.getProperty(TraceConstants.KEY_SPAN);
+                if (bSpan != null) {
+                    spanBuilder.asChildOf(bSpan.getSpan());
+                }
+            });
+        }
+        Span span = spanBuilder.start();
+        BSpan bSpan = new BSpan(span, parentSpan);
+        spanStore.get().addSpan(bSpan);
+        context.getParentWorkerExecutionContext().localProps.put(KEY_USER_SPAN, spanStore.get());
+        return bSpan.getSpanId();
+
     }
 
     /**
      * Method to mark a span as finished.
      *
-     * @param spanId the id of the span to finish
+     * @param spanId  the id of the span to finish
+     * @param context native context
      */
-    public void finishSpan(String invocationId, String spanId) {
+    public void finishSpan(String spanId, Context context) {
         if (enabled) {
-            BSpan bSpan = spanStore.finishAndRemoveSpan(invocationId, spanId);
-            if (bSpan != null) {
-                bSpan.getSpan().finish();
-            }
+            SpanStore spanStore =
+                    (SpanStore) context.getParentWorkerExecutionContext().localProps.get(KEY_USER_SPAN);
+            BSpan bSpan = spanStore.finishAndRemoveSpan(spanId);
+            bSpan.getSpan().finish();
         }
     }
 
@@ -105,13 +123,13 @@ public class OpenTracerBallerinaWrapper {
      * @param spanId   the id of the span
      * @param tagKey   the key of the tag
      * @param tagValue the value of the tag
+     * @param context  native context
      */
-    public void addTags(String spanId, String tagKey, String tagValue) {
+    public void addTags(String spanId, String tagKey, String tagValue, Context context) {
         if (enabled) {
-            BSpan bSpan = spanStore.getSpan(spanId);
-            if (bSpan != null) {
-                bSpan.getSpan().setTag(tagKey, tagValue);
-            }
+            SpanStore spanStore =
+                    (SpanStore) context.getParentWorkerExecutionContext().localProps.get(KEY_USER_SPAN);
+            spanStore.getSpan(spanId).getSpan().setTag(tagKey, tagValue);
         }
     }
 }

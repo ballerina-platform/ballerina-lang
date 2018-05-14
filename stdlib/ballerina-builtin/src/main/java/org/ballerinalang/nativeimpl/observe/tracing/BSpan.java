@@ -28,16 +28,13 @@ import java.util.UUID;
  */
 public class BSpan {
 
-    private String invocationId;
-
     private String spanId;
 
     private Span span;
 
     private BSpan parentSpan;
 
-    public BSpan(String invocationId, Span span, BSpan parentSpan) {
-        this.invocationId = invocationId;
+    public BSpan(Span span, BSpan parentSpan) {
         this.spanId = UUID.randomUUID().toString();
         this.span = span;
         this.parentSpan = parentSpan;
@@ -57,10 +54,6 @@ public class BSpan {
 
     public String getSpanId() {
         return spanId;
-    }
-
-    public String getInvocationId() {
-        return invocationId;
     }
 
 }

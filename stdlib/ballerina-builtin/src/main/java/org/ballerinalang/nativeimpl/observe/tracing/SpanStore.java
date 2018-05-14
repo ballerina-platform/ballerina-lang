@@ -27,12 +27,10 @@ import java.util.Map;
 public class SpanStore {
 
     private Map<String, BSpan> bSpans;
-    //Invocation Id, SpanId
-    private Map<String, String> activeSpanMap;
+    private String activeSpanId = null;
 
     public SpanStore() {
         bSpans = new HashMap<>();
-        activeSpanMap = new HashMap<>();
     }
 
     BSpan getSpan(String spanId) {
@@ -41,21 +39,22 @@ public class SpanStore {
 
     void addSpan(BSpan span) {
         bSpans.put(span.getSpanId(), span);
-        activeSpanMap.put(span.getInvocationId(), span.getSpanId());
+        activeSpanId = span.getSpanId();
     }
 
-    BSpan finishAndRemoveSpan(String invocationId, String spanId) {
-        if (spanId.equals(activeSpanMap.get(invocationId))) {
-            activeSpanMap.remove(invocationId);
+    BSpan finishAndRemoveSpan(String spanId) {
+        if (spanId.equals(activeSpanId)) {
             BSpan parentBSpan = bSpans.get(spanId).getParentSpan();
             if (parentBSpan != null) {
-                activeSpanMap.put(parentBSpan.getInvocationId(), parentBSpan.getSpanId());
+                activeSpanId = parentBSpan.getSpanId();
+            } else {
+                activeSpanId = null;
             }
         }
         return bSpans.remove(spanId);
     }
 
-    public BSpan getActiveBSpan(String invocationId) {
-        return bSpans.get(activeSpanMap.get(invocationId));
+    public BSpan getActiveBSpan() {
+        return bSpans.get(activeSpanId);
     }
 }

@@ -22,13 +22,9 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.nativeimpl.runtime.InvocationContext;
-import org.ballerinalang.nativeimpl.runtime.InvocationContextUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-
-import java.io.PrintStream;
 
 /**
  * This function which implements the startSpan method for tracing.
@@ -53,16 +49,9 @@ public class StartSpan extends BlockingNativeCallableUnit {
         String serviceName = context.getStringArgument(0);
         String spanName = context.getStringArgument(1);
         BMap tags = (BMap) context.getNullableRefArgument(0);
-        PrintStream err = System.err;
-        InvocationContext invocationContext = InvocationContextUtils.getInvocationContext(context);
         String spanId = OpenTracerBallerinaWrapper.getInstance()
-                .startSpan(serviceName, spanName, Utils.toStringMap(tags), invocationContext.getId());
+                .startSpan(serviceName, spanName, Utils.toStringMap(tags), context);
 
-        if (spanId != null) {
-            context.setReturnValues(Utils.createSpanStruct(context, spanId));
-        } else {
-            context.setReturnValues(Utils.createSpanStruct(context, null));
-            err.println("ballerina: Can not use tracing API when tracing is disabled");
-        }
+        context.setReturnValues(Utils.createSpanStruct(context, spanId));
     }
 }

@@ -57,6 +57,6 @@ public class AddTag extends BlockingNativeCallableUnit {
         }
         String tagKey = context.getStringArgument(0);
         String tagValue = context.getStringArgument(1);
-        OpenTracerBallerinaWrapper.getInstance().addTags(spanId, tagKey, tagValue);
+        OpenTracerBallerinaWrapper.getInstance().addTags(spanId, tagKey, tagValue, context);
     }
 }
