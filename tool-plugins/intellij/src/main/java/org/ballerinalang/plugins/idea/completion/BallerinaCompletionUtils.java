@@ -32,6 +32,7 @@ import com.intellij.openapi.util.Key;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
+import org.ballerinalang.plugins.idea.completion.inserthandlers.BallerinaSingleCharacterInsertHandler;
 import org.ballerinalang.plugins.idea.completion.inserthandlers.BracesInsertHandler;
 import org.ballerinalang.plugins.idea.completion.inserthandlers.ParenthesisWithSemicolonInsertHandler;
 import org.ballerinalang.plugins.idea.completion.inserthandlers.SemiolonInsertHandler;
@@ -429,6 +430,13 @@ public class BallerinaCompletionUtils {
         return PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY);
     }
 
+    public static LookupElement createOrganizationLookup(@NotNull String organization) {
+        LookupElementBuilder builder = LookupElementBuilder.create(organization).withTypeText("Organization")
+                .withIcon(BallerinaIcons.PACKAGE)
+                .withInsertHandler(BallerinaSingleCharacterInsertHandler.ORGANIZATION_SEPARATOR);
+        return PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY);
+    }
+
     // Todo - Update icon getting logic to get the icon from a util method.
     @NotNull
     public static LookupElement createFunctionLookupElement(@NotNull BallerinaTopLevelDefinition definition,
@@ -514,6 +522,7 @@ public class BallerinaCompletionUtils {
     public static LookupElement createTypeLookupElement(@NotNull BallerinaTopLevelDefinition definition) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(definition.getIdentifier()
                 .getText(), definition)
+                .withInsertHandler(AddSpaceInsertHandler.INSTANCE)
                 .withTypeText("Type").withIcon(definition.getIcon(Iconable.ICON_FLAG_VISIBILITY)).bold();
         // Todo - Add tail text
         //                .withTailText(BallerinaDocumentationProvider.getParametersAndReturnTypes(element
@@ -577,9 +586,10 @@ public class BallerinaCompletionUtils {
     public static LookupElement createFieldLookupElement(@NotNull PsiElement fieldName,
                                                          @NotNull PsiElement ownerName,
                                                          @NotNull String type, @Nullable String defaultValue,
+                                                         @Nullable InsertHandler<LookupElement> insertHandler,
                                                          boolean isPublic) {
         LookupElementBuilder lookupElementBuilder = LookupElementBuilder.createWithSmartPointer(fieldName.getText(),
-                fieldName).withTypeText(type).bold();
+                fieldName).withInsertHandler(insertHandler).withTypeText(type).bold();
 
         if (defaultValue == null || defaultValue.isEmpty()) {
             lookupElementBuilder = lookupElementBuilder.withTailText(" -> " + ownerName.getText(), true);

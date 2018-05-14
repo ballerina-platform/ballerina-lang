@@ -88,7 +88,7 @@ public class BallerinaStatementProcessor extends BallerinaScopeProcessorBase {
                                     myResult.addElement(BallerinaCompletionUtils.createFieldLookupElement(identifier,
                                             resolvedElement, type,
                                             BallerinaPsiImplUtil.getObjectFieldDefaultValue(ballerinaFieldDefinition),
-                                            false));
+                                            null, false));
                                 } else if (myElement.getText().equals(identifier.getText())) {
                                     add(identifier);
                                 }
