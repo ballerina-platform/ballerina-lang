@@ -123,7 +123,6 @@ function testMappingToNillableTypeFields() returns (int?, int?, float?, float?, 
     return (int_type, long_type, float_type, double_type,
     boolean_type, string_type,
     numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, blob_type, binary_type);
-
 }
 
 function testMappingDatesToNillableTimeType() returns (int, int, int, int, int, int, int, int) {
@@ -201,8 +200,8 @@ function testMappingDatesToNillableIntType(int datein, int timein, int timestamp
         (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
         para0, para1, para2, para3, para4);
 
-    table<ResultDatesWithNillableIntType> dt = check testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type
-                from DateTimeTypes where row_id = 151", ResultDatesWithNillableIntType);
+    table<ResultDatesWithNillableIntType> dt = check testDB->select("SELECT date_type, time_type, timestamp_type,
+    datetime_type from DateTimeTypes where row_id = 151", ResultDatesWithNillableIntType);
 
     while (dt.hasNext()) {
         ResultDatesWithNillableIntType rs = check <ResultDatesWithNillableIntType>dt.getNext();
@@ -215,7 +214,8 @@ function testMappingDatesToNillableIntType(int datein, int timein, int timestamp
     return (date, time, timestamp, datetime);
 }
 
-function testMappingDatesToNillableStringType(int datein, int timein, int timestampin) returns (string, string, string, string) {
+function testMappingDatesToNillableStringType(int datein, int timein, int timestampin) returns (string, string, string,
+        string) {
     endpoint jdbc:Client testDB {
         url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
         username: "SA",
@@ -258,9 +258,9 @@ function testMappingNullToNillableTypes() returns (int?, int?, float?, float?, b
         poolOptions: { maximumPoolSize: 1 }
     };
     table<NillableDataTypes> dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
-    boolean_type, string_type,
-  numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, blob_type, binary_type, date_type,
-  time_type, datetime_type, timestamp_type from DataTypeTableNillable where row_id=2", NillableDataTypes);
+    boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type,
+    blob_type, binary_type, date_type, time_type, datetime_type, timestamp_type from DataTypeTableNillable where
+    row_id=2", NillableDataTypes);
 
     int? int_type;
     int? long_type;
@@ -303,8 +303,7 @@ function testMappingNullToNillableTypes() returns (int?, int?, float?, float?, b
         timestamp_type = rs.timestamp_type;
     }
     testDB.stop();
-    return (int_type, long_type, float_type, double_type,
-    boolean_type, string_type,
-    numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, blob_type, binary_type, date_type,
-    time_type, datetime_type, timestamp_type);
+    return (int_type, long_type, float_type, double_type, boolean_type, string_type, numeric_type, decimal_type,
+    real_type, tinyint_type, smallint_type, clob_type, blob_type, binary_type, date_type, time_type, datetime_type,
+    timestamp_type);
 }

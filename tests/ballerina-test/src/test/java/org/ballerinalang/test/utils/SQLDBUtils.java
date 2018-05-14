@@ -94,7 +94,7 @@ public class SQLDBUtils {
             }
             connection.commit();
         } catch (ClassNotFoundException | SQLException e) {
-            //Do nothing
+            log.error("Error while initializing database: ", e);
         } finally {
             releaseResources(connection, st);
         }

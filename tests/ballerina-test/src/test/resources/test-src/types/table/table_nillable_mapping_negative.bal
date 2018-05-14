@@ -90,9 +90,8 @@ type NonNillableTimeStamp {
 };
 
 type InvalidUnion {
-    (int | string) val;
+    (int|string) val;
 };
-
 
 function testAssignNilToNonNillableInt() {
     testAssignNilToNonNillableField("int_type", NonNillableInt);

@@ -511,7 +511,6 @@ public class SQLDataIterator extends TableIterator {
         BStructType.StructField[] structFields = getStructFields();
         boolean isOriginalValueNull = rs.wasNull();
         int fieldTypeTag = getFieldTypeTag(structFields, index);
-
         if (fieldTypeTag == TypeTags.UNION_TAG) {
             BRefType refValue = isOriginalValueNull ? null : new BFloat(fValue);
             validateAndSetRefRecordField(bStruct, refRegIndex.incrementAndGet(), TypeTags.FLOAT_TAG,

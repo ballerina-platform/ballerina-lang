@@ -65,8 +65,7 @@ public class TableTest {
         result = BCompileUtil.compile("test-src/types/table/table_type.bal");
         nillableMappingNegativeResult = BCompileUtil.compile("test-src/types/table/table_nillable_mapping_negative"
                 + ".bal");
-        nillableMappingResult = BCompileUtil.compile
-                ("test-src/types/table/table_nillable_mapping.bal");
+        nillableMappingResult = BCompileUtil.compile("test-src/types/table/table_nillable_mapping.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/DataTableDataFile.sql");
     }
@@ -596,7 +595,6 @@ public class TableTest {
         Assert.assertEquals(((BInteger) returns[2]).intValue(), ((BInteger) returns[3]).intValue());
         Assert.assertEquals(((BInteger) returns[4]).intValue(), ((BInteger) returns[5]).intValue());
         Assert.assertEquals(((BInteger) returns[6]).intValue(), ((BInteger) returns[7]).intValue());
-
     }
 
     @Test(groups = "TableTest",
