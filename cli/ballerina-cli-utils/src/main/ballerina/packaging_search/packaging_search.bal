@@ -6,21 +6,12 @@ import ballerina/time;
 documentation {
     This function searches packages from ballerina central.
 
+    P{{definedEndpoint}} Endpoint defined with the proxy configurations
     P{{url}} Endpoint url to be invoked
     P{{querySearched}} Text searched for
 }
-function search (string url, string querySearched) {
-    endpoint http:Client httpEndpoint {
-        url: url,
-        secureSocket:{
-            trustStore:{
-                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                password: "ballerina"
-            },
-            verifyHostname: false,
-            shareSession: true
-        }
-    };
+function search (http:Client definedEndpoint, string url, string querySearched) {
+    endpoint http:Client httpEndpoint = definedEndpoint;
     http:Request req = new;
     var result = httpEndpoint -> get(untaint querySearched, request=req);
     http:Response httpResponse = new;
@@ -47,17 +38,15 @@ function search (string url, string querySearched) {
             
             printTitle("Ballerina Central");
 
-            printInCLI("NAME", 16);
-            printInCLI("DESCRIPTION", 25);
-            printInCLI("AUTHOR", 7);
+            printInCLI("|NAME", 18);
+            printInCLI("DESCRIPTION", 32);
             printInCLI("DATE", 15);
             printInCLI("VERSION", 8);
 
             io:println("");
 
-            printCharacter("-", 16, "-");
-            printCharacter("-", 25, "-");
-            printCharacter("-", 7, "-");
+            printCharacter("|-", 18, "-");
+            printCharacter("-", 32, "-");
             printCharacter("-", 15, "-");
             printCharacter("-", 8, "-");
 
@@ -68,21 +57,10 @@ function search (string url, string querySearched) {
                 json jsonElement = artifacts[i];
                 string orgName = jsonElement.orgName.toString();
                 string packageName = jsonElement.packageName.toString();
-                printInCLI(orgName + "/" + packageName, 16);
+                printInCLI("|"+ orgName + "/" + packageName, 18);
                 
                 string summary = jsonElement.summary.toString();
-                printInCLI(summary, 25);
-                
-                string authors = "";
-                json authorsArr = jsonElement.authors;
-                foreach authorIndex in [0..lengthof authorsArr - 1] {
-                    if (authorIndex == lengthof authorsArr - 1) {
-                        authors = authors + authorsArr[authorIndex].toString();
-                    } else {
-                        authors = authors + " , " + authorsArr[authorIndex].toString();
-                    }
-                }
-                printInCLI(authors, 7);
+                printInCLI(summary, 32);
 
                 json createTimeJson = <json> jsonElement.createdDate;
                 printInCLI(getDateCreated(createTimeJson), 15);
@@ -97,6 +75,53 @@ function search (string url, string querySearched) {
             io:println("no packages found");
         }
     }
+}
+
+documentation {
+    This function defines an endpoint with proxy configurations.
+
+    P{{url}} URL to be invoked
+    P{{hostname}} Host name of the proxy
+    P{{port}} Port of the proxy
+    P{{username}} Username of the proxy
+    P{{password}} Password of the proxy
+    R{{}} Endpoint defined
+}
+function defineEndpointWithProxy (string url, string hostname, string port, string username, string password) returns http:Client{
+    endpoint http:Client httpEndpoint {
+        url: url,
+        secureSocket:{
+            trustStore:{
+                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                password: "ballerina"
+            },
+            verifyHostname: false,
+            shareSession: true
+        },
+        proxy : getProxyConfigurations(hostname, port, username, password)
+    };
+    return httpEndpoint;
+}
+
+documentation {
+    This function defines an endpoint without proxy configurations.
+
+    P{{url}} URL to be invoked
+    R{{}} Endpoint defined
+}
+function defineEndpointWithoutProxy (string url) returns http:Client{
+    endpoint http:Client httpEndpoint {
+        url: url,
+        secureSocket:{
+            trustStore:{
+                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                password: "ballerina"
+            },
+            verifyHostname: false,
+            shareSession: true
+        }
+    };
+    return httpEndpoint;
 }
 
 documentation {
@@ -163,5 +188,36 @@ documentation {
     This function invokes the method to search for packages.
 }
 function main (string... args) {
-    search(args[0], args[1]);
+    http:Client httpEndpoint;
+    string host = args[2];
+    string port = args[3];
+    if (host != "" && port != "") {
+        try {
+            httpEndpoint = defineEndpointWithProxy(args[0], host, port, args[4], args[5]);
+        } catch (error err) {
+            io:println("failed to resolve host : " + host + " with port " + port);
+            return;
+        }
+    } else  if (host != "" || port != "") {
+        io:println("both host and port should be provided to enable proxy");     
+        return;   
+    } else {
+        httpEndpoint = defineEndpointWithoutProxy(args[0]);
+    }        
+    search(httpEndpoint, args[0], args[1]);
+}
+
+documentation {
+    This function sets the proxy configurations for the endpoint.
+
+    P{{hostName}} Host name of the proxy
+    P{{port}} Port of the proxy
+    P{{username}} Username of the proxy
+    P{{password}} Password of the proxy
+    R{{}} Proxy configurations for the endpoint
+}
+function getProxyConfigurations(string hostName, string port, string username, string password) returns http:ProxyConfig {
+    int portInt = check <int> port;
+    http:ProxyConfig proxy = { host : hostName, port : portInt , userName: username, password : password };
+    return proxy;
 }

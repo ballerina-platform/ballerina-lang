@@ -15,7 +15,7 @@
 // under the License.
 
 documentation {
-    Defines the possible values for the chunking configuration in the HTTP client endpoint.
+    Defines the possible values for the chunking configuration in HTTP services and clients.
 
     `AUTO`: If the payload is less than 8KB, content-length header is set in the outbound request/response,
             otherwise chunking header is set in the outbound request/response

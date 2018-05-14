@@ -34,6 +34,7 @@ import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.CompletionCustomErrorStrategy;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.definition.util.DefinitionUtil;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
@@ -129,20 +130,20 @@ class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 completionContext.put(DocumentServiceKeys.POSITION_KEY, position);
                 completionContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
+                completionContext.put(CompletionKeys.DOC_MANAGER_KEY, documentManager);
                 // TODO: Remove passing completion context after introducing a proper fix for _=.... issue
                 BLangPackage bLangPackage = LSCompiler.getBLangPackage(completionContext, documentManager, false,
                                                                        CompletionCustomErrorStrategy.class,
                                                                        false, completionContext).get(0);
                 completionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                       bLangPackage.symbol.getName().getValue());
-                completionContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
                 CompletionUtil.resolveSymbols(completionContext, bLangPackage);
             } catch (Exception | AssertionError e) {
                 // Fallback procedure in an exception. Currently supports the match statement only
                 CompletionUtil.resolveSymbols(completionContext, null);
             } finally {
-                completions = CompletionUtil.getCompletionItems(completionContext);
                 lock.ifPresent(Lock::unlock);
+                completions = CompletionUtil.getCompletionItems(completionContext);
             }
             return Either.forLeft(completions);
         });
@@ -329,14 +330,17 @@ class BallerinaTextDocumentService implements TextDocumentService {
                                                                  params.getTextDocument().getUri(),
                                                                  params.getRange().getStart().getLine()));
                 commands.add(CommandUtil.getAllDocGenerationCommand(params.getTextDocument().getUri()));
-            } else if (!params.getContext().getDiagnostics().isEmpty()) {
+            }
+            if (!params.getContext().getDiagnostics().isEmpty()) {
                 LSContextManager lsContextManager = LSContextManager.getInstance();
                 String sourceRoot = LSCompiler.getSourceRoot(Paths.get(params.getTextDocument().getUri()));
                 CompilerContext compilerContext = lsContextManager.getCompilerContext(sourceRoot);
                 LSPackageCache lsPackageCache = LSPackageCache.getInstance(compilerContext);
                 params.getContext().getDiagnostics().forEach(diagnostic -> {
-                    commands.addAll(CommandUtil
-                                            .getCommandsByDiagnostic(diagnostic, params, lsPackageCache));
+                    if (params.getRange().getStart().getLine() == diagnostic.getRange().getStart().getLine()) {
+                        commands.addAll(CommandUtil
+                                .getCommandsByDiagnostic(diagnostic, params, lsPackageCache));
+                    }
                 });
             }
             return commands;

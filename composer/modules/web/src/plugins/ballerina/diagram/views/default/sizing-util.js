@@ -1671,7 +1671,10 @@ class SizingUtil {
                 viewState.displayText = displayText.text;
             }
             if (TreeUtil.isAssignment(node)) {
-                const exp = node.getExpression();
+                let exp = node.getExpression();
+                if (TreeUtil.isMatchExpression(exp)) {
+                    exp = exp.getExpression();
+                }
                 const argExpSource = exp.getArgumentExpressions().map((arg) => {
                     return arg.getSource(true, true);
                 }).join(', ');

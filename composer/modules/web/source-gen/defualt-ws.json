@@ -473,6 +473,18 @@
     "before ]": "",
     "after ]": ""
   },
+  "IntRangeExpr": {
+    "before [": " ",
+    "after [": "",
+    "before (": "",
+    "after (": "",
+    "before ..": "",
+    "after ..": "",
+    "before )": "",
+    "after )": "",
+    "before ]": "",
+    "after ]": ""
+  },
   "Invocation": {
     "before start": "",
     "after start": " ",
@@ -978,9 +990,9 @@
     "after typeKind": ""
   },
   "Variable": {
-    "before typeNode": "",
-    "after typeNode": " ",
-    "before name": "",
+    "before endpoint": "",
+    "after endpoint": "",
+    "before name": " ",
     "after name": " ",
     "before {": "",
     "after {": "",

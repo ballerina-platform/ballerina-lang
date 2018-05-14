@@ -20,7 +20,7 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
@@ -33,21 +33,16 @@ import java.util.HashMap;
  */
 public class ConfigAnnotationTest {
 
-    @BeforeClass
-    public void setup() {
-    }
-
     @Test
     public void testBefore() {
-        cleanup();
         BTestRunner runner = new BTestRunner();
         runner.runTest("src/test/resources/annotations-test", new Path[]{Paths.get("config-test.bal")}, new
                 ArrayList<>());
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 9);
     }
 
+    @AfterMethod
     private void cleanup() {
-
         TesterinaRegistry.getInstance().setProgramFiles(new ArrayList<>());
         TesterinaRegistry.getInstance().setTestSuites(new HashMap<>());
     }

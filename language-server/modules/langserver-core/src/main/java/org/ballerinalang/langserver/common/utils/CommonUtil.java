@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.model.elements.PackageID;
@@ -93,7 +94,7 @@ public class CommonUtil {
         // If current package path is not null and current package is not default package continue,
         // else new package path is same as the current package path.
         if (currentPkgPath != null && !currentPkgName.equals(".")) {
-            int indexOfCurrentPkgName = currentPkgPath.indexOf(currentPkgName);
+            int indexOfCurrentPkgName = currentPkgPath.lastIndexOf(currentPkgName);
             if (indexOfCurrentPkgName >= 0) {
                 newPackagePath = currentPkgPath.substring(0, indexOfCurrentPkgName);
             } else {
@@ -283,11 +284,10 @@ public class CommonUtil {
     public static String topLevelNodeTypeInLine(TextDocumentIdentifier identifier, Position startPosition,
                                                 WorkspaceDocumentManager docManager) {
         // TODO: Need to support service and resources as well.
-        List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "struct", "enum",
-                                                      "transformer", "object");
+        List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "endpoint", "type");
         LSDocument document = new LSDocument(identifier.getUri());
         String fileContent = docManager.getFileContent(getPath(document));
-        String[] splitedFileContent = fileContent.split("\\n|\\r\\n|\\r");
+        String[] splitedFileContent = fileContent.split(LINE_SEPARATOR);
         if ((splitedFileContent.length - 1) >= startPosition.getLine()) {
             String lineContent = splitedFileContent[startPosition.getLine()];
             List<String> alphaNumericTokens = new ArrayList<>(Arrays.asList(lineContent.split("[^\\w']+")));
@@ -477,10 +477,19 @@ public class CommonUtil {
     public static ArrayList<SymbolInfo> invocationsAndFieldsOnIdentifier(LSServiceOperationContext context,
                                                                          int delimiterIndex) {
         ArrayList<SymbolInfo> actionFunctionList = new ArrayList<>();
+        String lineSegment = context.get(CompletionKeys.CURRENT_LINE_SEGMENT_KEY);
+        String variableName;
+        String delimiter;
         TokenStream tokenStream = context.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
+        if (tokenStream == null) {
+            variableName = CompletionUtil.getPreviousTokenFromLineSegment(lineSegment, delimiterIndex);
+            delimiter = CompletionUtil.getDelimiterTokenFromLineSegment(context, lineSegment);
+        } else {
+            variableName = CommonUtil.getPreviousDefaultToken(tokenStream, delimiterIndex).getText();
+            delimiter = tokenStream.get(delimiterIndex).getText();
+        }
         List<SymbolInfo> symbols = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
         SymbolTable symbolTable = context.get(DocumentServiceKeys.SYMBOL_TABLE_KEY);
-        String variableName = CommonUtil.getPreviousDefaultToken(tokenStream, delimiterIndex).getText();
         SymbolInfo variable = CommonUtil.getVariableByName(variableName, symbols);
         String builtinPkgName = symbolTable.builtInPackageSymbol.pkgID.name.getValue();
         Map<Name, Scope.ScopeEntry> entries = new HashMap<>();
@@ -494,24 +503,16 @@ public class CommonUtil {
         BType bType = variable.getScopeEntry().symbol.getType();
         String bTypeValue;
 
+        
         if (variable.getScopeEntry().symbol instanceof BEndpointVarSymbol) {
             BType getClientFuncType = ((BEndpointVarSymbol) variable.getScopeEntry().symbol)
                     .getClientFunction.type;
-            if (!UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(tokenStream.get(delimiterIndex).getText())
+            if (!UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(delimiter)
                     || !(getClientFuncType instanceof BInvokableType)) {
                 return actionFunctionList;
             }
-
-            BType boundType = ((BInvokableType) getClientFuncType).retType;
-            boundType.tsymbol.scope.entries.forEach((name, scopeEntry) -> {
-                if (scopeEntry.symbol instanceof BInvokableSymbol
-                        && !scopeEntry.symbol.getName().getValue().equals(UtilSymbolKeys.NEW_KEYWORD_KEY)) {
-                    String[] nameComponents = name.toString().split("\\.");
-                    SymbolInfo actionFunctionSymbol =
-                            new SymbolInfo(nameComponents[nameComponents.length - 1], scopeEntry);
-                    actionFunctionList.add(actionFunctionSymbol);
-                }
-            });
+            
+            actionFunctionList.addAll(getActionsOfEndpoint((BEndpointVarSymbol) variable.getScopeEntry().symbol));
         } else {
             if (bType instanceof BArrayType) {
                 packageID = ((BArrayType) bType).eType.tsymbol.pkgID.getName().getValue();
@@ -744,5 +745,27 @@ public class CommonUtil {
                 });
 
         return returnMap;
+    }
+
+    /**
+     * Get the actions defined over and endpoint.
+     * @param bEndpointVarSymbol    Endpoint variable symbol to evaluate
+     * @return {@link List}         List of extracted actions as Symbol Info
+     */
+    public static List<SymbolInfo> getActionsOfEndpoint(BEndpointVarSymbol bEndpointVarSymbol) {
+        List<SymbolInfo> endpointActions = new ArrayList<>();
+        BType getClientFuncType = bEndpointVarSymbol.getClientFunction.type;
+        BType boundType = ((BInvokableType) getClientFuncType).retType;
+        boundType.tsymbol.scope.entries.forEach((name, scopeEntry) -> {
+            if (scopeEntry.symbol instanceof BInvokableSymbol
+                    && !scopeEntry.symbol.getName().getValue().equals(UtilSymbolKeys.NEW_KEYWORD_KEY)) {
+                String[] nameComponents = name.toString().split("\\.");
+                SymbolInfo actionFunctionSymbol =
+                        new SymbolInfo(nameComponents[nameComponents.length - 1], scopeEntry);
+                endpointActions.add(actionFunctionSymbol);
+            }
+        });
+        
+        return endpointActions;
     }
 }

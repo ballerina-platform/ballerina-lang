@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Implementation of {@link BracedOrTupleExpression}
+ * Implementation of {@link BracedOrTupleExpression}.
  *
  * @since 0.966.0
  */

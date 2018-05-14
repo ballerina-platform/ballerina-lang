@@ -32,7 +32,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Annotation cache for Language server.
@@ -61,8 +60,10 @@ public class LSAnnotationCache {
         if (lsAnnotationCache == null) {
             lsAnnotationCache = new LSAnnotationCache();
             CompilerContext context = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
-            Map<String, BLangPackage> packages = loadPackagesMap(context);
-            loadAnnotations(packages.values().stream().collect(Collectors.toList()));
+            new Thread(() -> {
+                Map<String, BLangPackage> packages = loadPackagesMap(context);
+                loadAnnotations(new ArrayList<>(packages.values()));
+            }).start();
         }
     }
 
@@ -147,8 +148,9 @@ public class LSAnnotationCache {
      * @return {@link Boolean}  whether annotations are loaded or not
      */
     public static boolean containsAnnotationsForPackage(PackageID packageID) {
-        return serviceAnnotations.containsKey(packageID) || resourceAnnotations.containsKey(packageID)
-                || functionAnnotations.containsKey(packageID);
+        return containsPackageWithBvmAlias(packageID, serviceAnnotations)
+                || containsPackageWithBvmAlias(packageID, resourceAnnotations)
+                || containsPackageWithBvmAlias(packageID, functionAnnotations);
     }
 
     /**
@@ -173,5 +175,13 @@ public class LSAnnotationCache {
                 }
             });
         });
+    }
+    
+    private static boolean containsPackageWithBvmAlias(PackageID packageID, HashMap<PackageID,
+            List<BLangAnnotation>> map) {
+        return map.entrySet().stream()
+                .filter(entry -> entry.getKey().bvmAlias().equals(packageID.bvmAlias()))
+                .findFirst()
+                .orElse(null) != null;
     }
 }
