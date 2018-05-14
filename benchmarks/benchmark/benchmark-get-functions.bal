@@ -11,6 +11,18 @@ function getFunction(string name) returns (function()) {
 
 function addFunctions() {
 
+    addJSONFunctions();
+    addIntFunctions();
+    addFloatFunctions();
+    addTimeFunctions();
+    addSprintfFunctions();
+    addIoFunctions();
+    addStringFunctions();
+
+}
+
+function addJSONFunctions() {
+
     functions["benchmarkTypeAnyJSONCasting"] = benchmarktypes:benchmarkTypeAnyJSONCasting;
     functions["benchmarkJsonStructConstraint"] = benchmarktypes:benchmarkJsonStructConstraint;
     functions["benchmarkJsonInitializationWithStructConstraint"] = benchmarktypes:benchmarkJsonInitializationWithStructConstraint;
@@ -32,8 +44,9 @@ function addFunctions() {
     functions["benchmarkConstrainedJsonWithFunctions"] = benchmarktypes:benchmarkConstrainedJsonWithFunctions;
     functions["benchmarkConstrainedJsonWithFunctionGetKeys"] = benchmarktypes:benchmarkConstrainedJsonWithFunctionGetKeys;
 
-    functions["benchmarkPrintAnyVal"] = benchmarktypes:benchmarkPrintAnyVal;
-    functions["benchmarkPrintlnAnyVal"] = benchmarktypes:benchmarkPrintlnAnyVal;
+}
+
+function addIntFunctions() {
 
     functions["benchmarkIntAddition"] = benchmarktypes:benchmarkIntAddition;
     functions["benchmarkIntSubtraction"] = benchmarktypes:benchmarkIntSubtraction;
@@ -44,6 +57,17 @@ function addFunctions() {
     functions["benchmarkIntegerTypesMultiplication"] = benchmarktypes:benchmarkIntegerTypesMultiplication;
     functions["benchmarkIntegerTypesDivision"] = benchmarktypes:benchmarkIntegerTypesDivision;
 
+}
+
+function addPrintFunctions() {
+
+    functions["benchmarkPrintAnyVal"] = benchmarktypes:benchmarkPrintAnyVal;
+    functions["benchmarkPrintlnAnyVal"] = benchmarktypes:benchmarkPrintlnAnyVal;
+
+}
+
+function addFloatFunctions() {
+
     functions["benchmarkFloatAddition"] = benchmarktypes:benchmarkFloatAddition;
     functions["benchmarkFloatAdditionWithReturn"] = benchmarktypes:benchmarkFloatAdditionWithReturn;
     functions["benchmarkFloatMultiplication"] = benchmarktypes:benchmarkFloatMultiplication;
@@ -52,6 +76,10 @@ function addFunctions() {
     functions["benchmarkFloatSubtractionWithReturn"] = benchmarktypes:benchmarkFloatSubtractionWithReturn;
     functions["benchmarkFloatDivision"] = benchmarktypes:benchmarkFloatDivision;
     functions["benchmarkFloatDivisionWithReturn"] = benchmarktypes:benchmarkFloatDivisionWithReturn;
+
+}
+
+function addTimeFunctions() {
 
     functions["benchmarkCurrentTimeFunction"] = benchmarktypes:benchmarkCurrentTimeFunction;
     functions["benchmarkCreateTimeWithZoneIDFunction"] = benchmarktypes:benchmarkCreateTimeWithZoneIDFunction;
@@ -73,8 +101,16 @@ function addFunctions() {
     functions["benchmarkManualTimeCreateFunctionWithEmptyZone"] = benchmarktypes:benchmarkManualTimeCreateFunctionWithEmptyZone;
     functions["benchmarkParseTimeFunctionWithDifferentFormats"] = benchmarktypes:benchmarkParseTimeFunctionWithDifferentFormats;
 
+}
+
+function addSprintfFunctions() {
+
     functions["benchmarkSprintfWithFloat"] = benchmarksprintf:benchmarkSprintfWithFloat;
     functions["benchmarkSprintfWithString"] = benchmarksprintf:benchmarkSprintfWithString;
+
+}
+
+function addIoFunctions() {
 
     functions["benchmarkInitFileChannelReadMode"] = benchmarkio:benchmarkInitFileChannelReadMode;
     functions["benchmarkInitFileChannelWriteMode"] = benchmarkio:benchmarkInitFileChannelWriteMode;
@@ -84,3 +120,30 @@ function addFunctions() {
 
 }
 
+function addStringFunctions() {
+
+    functions["benchmarkStringContains"] = benchmarktypes:benchmarkStringContains;
+    functions["benchmarkStringEqualsIgnoreCase"] = benchmarktypes:benchmarkStringEqualsIgnoreCase;
+    functions["benchmarkStringConcat"] = benchmarktypes:benchmarkStringConcat;
+    functions["benchmarkStringHasPrefix"] = benchmarktypes:benchmarkStringHasPrefix;
+    functions["benchmarkStringHasSuffix"] = benchmarktypes:benchmarkStringHasSuffix;
+    functions["benchmarkStringIndexOf"] = benchmarktypes:benchmarkStringIndexOf;
+    functions["benchmarkStringLastIndexOf"] = benchmarktypes:benchmarkStringLastIndexOf;
+    functions["benchmarkStringReplace"] = benchmarktypes:benchmarkStringReplace;
+    functions["benchmarkStringReplaceAll"] = benchmarktypes:benchmarkStringReplaceAll;
+    functions["benchmarkStringReplaceFirst"] = benchmarktypes:benchmarkStringReplaceFirst;
+    functions["benchmarkStringSubstring"] = benchmarktypes:benchmarkStringSubstring;
+    functions["benchmarkStringToLower"] = benchmarktypes:benchmarkStringToLower;
+    functions["benchmarkStringToUpper"] = benchmarktypes:benchmarkStringToUpper;
+    functions["benchmarkStringTrim"] = benchmarktypes:benchmarkStringTrim;
+    functions["benchmarkStringIntValueOf"] = benchmarktypes:benchmarkStringIntValueOf;
+    functions["benchmarkStringFloatValueOf"] = benchmarktypes:benchmarkStringFloatValueOf;
+    functions["benchmarkStringBooleanValueOf"] = benchmarktypes:benchmarkStringBooleanValueOf;
+    functions["benchmarkStringValueOf"] = benchmarktypes:benchmarkStringValueOf;
+    functions["benchmarkXmlValueOf"] = benchmarktypes:benchmarkXmlValueOf;
+    functions["benchmarkStringJsonValueOf"] = benchmarktypes:benchmarkStringJsonValueOf;
+    functions["benchmarkStringLength"] = benchmarktypes:benchmarkStringLength;
+    functions["benchmarkStringSplit"] = benchmarktypes:benchmarkStringSplit;
+    functions["benchmarkStringUnescape"] = benchmarktypes:benchmarkStringUnescape;
+
+}

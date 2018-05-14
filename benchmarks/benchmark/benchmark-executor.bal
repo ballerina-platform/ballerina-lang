@@ -39,8 +39,6 @@ function executeBenchmark(function () f, string functionName, int warmupIteratio
     io:print(io:sprintf("%10.2f,", totalTimeMilli));
 
     float avgLatency = (<float>totalTime / <float>benchmarkIterations);
-    io:print(io:sprintf("%10.2f,", avgLatency));
-
     float tps = (1000000000.0 / avgLatency);
     io:println(io:sprintf("%10.2f", tps));
 }

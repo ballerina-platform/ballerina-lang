@@ -14,7 +14,7 @@ if [ ! -d "$resultsFolderName" ]; then
  mkdir ${resultsFolderName}
 fi
 
-echo "Function_Name,Total Time (ms),Average Latency (ns),Throughput (operations/second)" > ${resultsFileName}
+echo "Function_Name,Total Time (ms),Throughput (operations/second)" > ${resultsFileName}
 
 ballerina build benchmark
 
