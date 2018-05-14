@@ -90,6 +90,13 @@ if $os400; then
   export QIBM_MULTI_THREADED
 fi
 
+if ! type "tput" > /dev/null; then
+  BALLERINA_CLI_WIDTH="80"
+else
+  BALLERINA_CLI_WIDTH=`tput cols`
+fi
+export BALLERINA_CLI_WIDTH
+
 # For Migwn, ensure paths are in UNIX format before anything is touched
 if $mingw ; then
   [ -n "$BALLERINA_HOME" ] &&

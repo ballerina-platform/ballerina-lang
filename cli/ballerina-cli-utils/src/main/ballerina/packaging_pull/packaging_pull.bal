@@ -15,8 +15,9 @@ documentation {
     P{{dirPath}} Path of the directory to save the pulled package
     P{{pkgPath}} Package path
     P{{fileSeparator}} File separator based on the operating system
+    P{{terminalWidth}} Width of the terminal
 }
-function pullPackage (http:Client definedEndpoint, string url, string dirPath, string pkgPath, string fileSeparator) {
+function pullPackage (http:Client definedEndpoint, string url, string dirPath, string pkgPath, string fileSeparator, string terminalWidth) {
     endpoint http:Client httpEndpoint = definedEndpoint;
     string fullPkgPath = pkgPath;
     string destDirPath = dirPath;
@@ -89,8 +90,8 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
 
             io:ByteChannel destDirChannel = getFileChannel(destArchivePath, io:WRITE);
             string toAndFrom = " [central.ballerina.io -> home repo]";
-
-            copy(pkgSize, sourceChannel, destDirChannel, fullPkgPath, toAndFrom);
+            int width = (check <int> terminalWidth) - 3;
+            copy(pkgSize, sourceChannel, destDirChannel, fullPkgPath, toAndFrom, width);
                                 
             closeChannel(destDirChannel);
             closeChannel(sourceChannel);
@@ -120,7 +121,7 @@ function main(string... args){
     } else {
         httpEndpoint = defineEndpointWithoutProxy(args[0]);
     }
-    pullPackage(httpEndpoint, args[0], args[1], args[2], args[3]);
+    pullPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[8]);
 }
 
 documentation {
@@ -219,9 +220,11 @@ documentation {
     P{{dest}} Byte channel of the destination folder
     P{{fullPkgPath}} Full package path
     P{{toAndFrom}} Pulled package details
+    P{{width}} Width of the terminal
 }
-function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string fullPkgPath, string toAndFrom) {
+function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string fullPkgPath, string toAndFrom, int width) {
     string truncatedFullPkgPath = truncateString(fullPkgPath);
+    int terminalWidth = width;
     string msg = truncatedFullPkgPath + toAndFrom;
     int bytesChunk = 8;
     blob readContent;
@@ -232,6 +235,12 @@ function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string full
     string equals = "==========";
     string tabspaces = "          ";
     boolean completed = false;
+    int rightpadLength = terminalWidth / 2;  
+    int rightPadFinalLog = 115; 
+    if (terminalWidth <= 100) {
+        rightpadLength = terminalWidth / 4;
+        rightPadFinalLog = 66;
+    }
     try {
         while (!completed) {
             (readContent, readCount) = readBytes(src, bytesChunk);
@@ -245,13 +254,13 @@ function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string full
             float percentage = totalCount / pkgSize;
             noOfBytesRead = totalCount + "/" + pkgSize;
             string bar = equals.substring(0, <int> (percentage * 10));
-            string spaces = tabspaces.substring(0, 10 - <int>(percentage * 10));
-            io:print("\r" + rightPad(msg, 100) + "[" + bar + ">" + spaces + "] " + <int>totalCount + "/" + pkgSize);
+            string spaces = tabspaces.substring(0, 10 - <int>(percentage * 10));           
+            io:print("\r" + rightPad(msg, rightpadLength) + "[" + bar + ">" + spaces + "] " + <int>totalCount + "/" + pkgSize);
         }
     } catch (error err) {
         io:println("");
     }
-    io:print("\r" + rightPad(fullPkgPath + toAndFrom, (115 + noOfBytesRead.length())) + "\n");
+    io:println("\r" + rightPad(fullPkgPath + toAndFrom, (rightPadFinalLog + noOfBytesRead.length())));
 }
 
 documentation {
@@ -284,7 +293,7 @@ function truncateString (string text) returns (string) {
     int indexOfVersion = text.lastIndexOf(":");
     string withoutVersion = text.substring(0, indexOfVersion);
     string versionOfPkg = text.substring(indexOfVersion, text.length());
-    int minLength = 57;
+    int minLength = 50;
     int lengthWithoutVersion = withoutVersion.length();
     if (lengthWithoutVersion > minLength) {
         int noOfCharactersToBeRemoved = lengthWithoutVersion - minLength;

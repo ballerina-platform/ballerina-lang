@@ -2,6 +2,7 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
 import ballerina/time;
+import ballerina/math;
 
 documentation {
     This function searches packages from ballerina central.
@@ -9,8 +10,9 @@ documentation {
     P{{definedEndpoint}} Endpoint defined with the proxy configurations
     P{{url}} Endpoint url to be invoked
     P{{querySearched}} Text searched for
+    P{{terminalWidth}} Width of the terminal
 }
-function search (http:Client definedEndpoint, string url, string querySearched) {
+function search (http:Client definedEndpoint, string url, string querySearched, string terminalWidth) {
     endpoint http:Client httpEndpoint = definedEndpoint;
     http:Request req = new;
     var result = httpEndpoint -> get(untaint querySearched, request=req);
@@ -35,20 +37,46 @@ function search (http:Client definedEndpoint, string url, string querySearched) 
         json[] artifacts = check <json[]> jsonResponse.artifacts;
         if (artifacts == null || lengthof artifacts > 0) {
             int artifactsLength = lengthof artifacts;
-            
             printTitle("Ballerina Central");
 
-            printInCLI("|NAME", 18);
-            printInCLI("DESCRIPTION", 32);
-            printInCLI("DATE", 15);
-            printInCLI("VERSION", 8);
+            int width = (check <int> terminalWidth) - 3;
+        
+            int dateColWidth = 15;
+            int versionColWidth = 8;
+            int authorsColWidth = 15;
+            float nameColFactor = 9;
+            float descColFactor = 16;
+
+            float remainingWidth = width - (dateColWidth + versionColWidth + 7);  
+            
+            int nameColWidth = math:round(remainingWidth * (nameColFactor / (nameColFactor + descColFactor)));
+            int descColWidth = math:round(remainingWidth * (descColFactor / (nameColFactor + descColFactor)));  
+            
+            printInCLI("|NAME", nameColWidth);
+
+            if (descColWidth >= 60) {
+                printInCLI("DESCRIPTION", descColWidth - authorsColWidth);
+                printInCLI("AUTHOR", authorsColWidth);
+            } else {
+                printInCLI("DESCRIPTION", descColWidth);
+            }
+            
+            printInCLI("DATE", dateColWidth);
+            printInCLI("VERSION", versionColWidth);
 
             io:println("");
 
-            printCharacter("|-", 18, "-");
-            printCharacter("-", 32, "-");
-            printCharacter("-", 15, "-");
-            printCharacter("-", 8, "-");
+            printCharacter("|-", nameColWidth, "-");
+            
+            if (descColWidth >= 60) {
+                printCharacter("-", descColWidth - authorsColWidth, "-");
+                printCharacter("-", authorsColWidth, "-");
+            } else {
+                printCharacter("-", descColWidth, "-");
+            }
+
+            printCharacter("-", dateColWidth, "-");
+            printCharacter("-", versionColWidth, "-");
 
             io:println("");
 
@@ -57,16 +85,31 @@ function search (http:Client definedEndpoint, string url, string querySearched) 
                 json jsonElement = artifacts[i];
                 string orgName = jsonElement.orgName.toString();
                 string packageName = jsonElement.packageName.toString();
-                printInCLI("|"+ orgName + "/" + packageName, 18);
+                printInCLI("|"+ orgName + "/" + packageName, nameColWidth);
                 
                 string summary = jsonElement.summary.toString();
-                printInCLI(summary, 32);
+                                
+                if (descColWidth >= 60) {
+                    printInCLI(summary, descColWidth - authorsColWidth);
+                    string authors = "";
+                    json authorsArr = jsonElement.authors;
+                    foreach authorIndex in [0..lengthof authorsArr - 1] {
+                        if (authorIndex == lengthof authorsArr - 1) {
+                            authors = authors + authorsArr[authorIndex].toString();
+                        } else {
+                            authors = authors + " , " + authorsArr[authorIndex].toString();
+                        }
+                    }
+                    printInCLI(authors, authorsColWidth);
+                } else {
+                    printInCLI(summary, descColWidth);
+                }
 
                 json createTimeJson = <json> jsonElement.createdDate;
-                printInCLI(getDateCreated(createTimeJson), 15);
+                printInCLI(getDateCreated(createTimeJson), dateColWidth);
                 
                 string packageVersion = jsonElement.packageVersion.toString();
-                printInCLI(packageVersion, 8);
+                printInCLI(packageVersion, versionColWidth);
                 i = i + 1;
                 io:println("");
             }
@@ -204,7 +247,7 @@ function main (string... args) {
     } else {
         httpEndpoint = defineEndpointWithoutProxy(args[0]);
     }        
-    search(httpEndpoint, args[0], args[1]);
+    search(httpEndpoint, args[0], args[1], args[6]);
 }
 
 documentation {
