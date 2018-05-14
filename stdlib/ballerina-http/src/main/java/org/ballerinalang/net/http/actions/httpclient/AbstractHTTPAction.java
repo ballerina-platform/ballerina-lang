@@ -271,11 +271,11 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         try {
             send(dataContext, outboundRequestMsg, async);
         } catch (BallerinaConnectorException e) {
-            dataContext.notifyReply(null, HttpUtil.getHttpConnectorError(dataContext.context, e));
+            dataContext.notifyInboundResponseStatus(null, HttpUtil.getHttpConnectorError(dataContext.context, e));
         } catch (Exception e) {
             BallerinaException exception = new BallerinaException("Failed to send outboundRequestMsg to the backend",
                                                                   e, dataContext.context);
-            dataContext.notifyReply(null, HttpUtil.getHttpConnectorError(dataContext.context, exception));
+            dataContext.notifyInboundResponseStatus(null, HttpUtil.getHttpConnectorError(dataContext.context, exception));
         }
     }
 
@@ -427,7 +427,8 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         @Override
         public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
             this.outboundMsgDataStreamer.setIoException(new IOException("Response message already received"));
-            this.dataContext.notifyReply(createResponseStruct(this.dataContext.context, httpCarbonMessage), null);
+            this.dataContext.notifyInboundResponseStatus
+                    (createResponseStruct(this.dataContext.context, httpCarbonMessage), null);
         }
 
         @Override
@@ -435,7 +436,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
             BStruct httpFuture = createStruct(this.dataContext.context, HttpConstants.HTTP_FUTURE,
                                               HttpConstants.PROTOCOL_PACKAGE_HTTP);
             httpFuture.addNativeData(HttpConstants.TRANSPORT_HANDLE, responseHandle);
-            this.dataContext.notifyReply(httpFuture, null);
+            this.dataContext.notifyInboundResponseStatus(httpFuture, null);
         }
 
         @Override
@@ -452,7 +453,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
                 httpConnectorError = HttpUtil.getHttpConnectorError(this.dataContext.context, throwable);
             }
             httpConnectorError.setStringField(0, throwable.getMessage());
-            this.dataContext.notifyReply(null, httpConnectorError);
+            this.dataContext.notifyInboundResponseStatus(null, httpConnectorError);
         }
     }
 
