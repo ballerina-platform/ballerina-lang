@@ -411,14 +411,24 @@ public class IOTest {
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "close");
     }
 
-    @Test(description = "Test function to wrap and read json string")
-    public void testStringChannel() throws URISyntaxException {
+    @Test(description = "Test function to convert string to json")
+    public void convertStringToJsonTest() throws URISyntaxException {
         String content = "{\n" +
                 "  \"test\": { \"name\": \"Foo\" }\n" +
                 "}";
         BValue[] args = {new BString(content), new BString("UTF-8")};
         BValue[] result = BRunUtil.invokeStateful(stringInputOutputProgramFile, "getJson", args);
         Assert.assertTrue(((BJSON) result[0]).getMessageAsString().contains("Foo"));
+    }
+
+    @Test(description = "Test function to convert xml to string")
+    public void convertStringToXmlTest() throws URISyntaxException {
+        String content = "\t<test>\n" +
+                "\t\t<name>Foo</name>\n" +
+                "\t</test>";
+        BValue[] args = {new BString(content), new BString("UTF-8")};
+        BValue[] result = BRunUtil.invokeStateful(stringInputOutputProgramFile, "getXml", args);
+        Assert.assertTrue(result[0].stringValue().contains("Foo"));
     }
 
     private String readFileContent(String filePath) throws URISyntaxException {
