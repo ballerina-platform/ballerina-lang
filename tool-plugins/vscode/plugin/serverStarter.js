@@ -21,7 +21,7 @@ const net = require('net');
 const path = require('path');
 const { spawn } = require('child_process');
 const openport = require('openport');
-const { workspace } = require('vscode');
+const { workspace, window } = require('vscode');
 
 let serverProcess;
 const libPath = '/bre/lib/*'
@@ -30,6 +30,11 @@ const main = 'org.ballerinalang.vscode.server.Main';
 
 let LSService;
 let parserService;
+let outputChannel = {
+    // By default just ignore all calls to outputchannel
+    append: () => {},
+    show: () => {},
+};
 
 function getClassPath() {
     const customClassPath = workspace.getConfiguration('ballerina').get('classpath');
@@ -73,16 +78,19 @@ function startServices() {
             server.close();
             onLSStarted({ reader: stream, writer: stream });
             console.log('Ballerina Language Server connected on port: ', LSPort);
+            outputChannel.append('Ballerina Language Server connected on port: ' + LSPort + '\n');
         });
         server.on('error', onLSError);
         server.listen(LSPort, () => {
             console.log('Listening for Ballerina Language Server on: ', LSPort);
+            outputChannel.append('Listening for Ballerina Language Server on: ' + LSPort + '\n');
             server.removeListener('error', onLSError);
 
             const args = ['-cp', getClassPath()]
 
             if (process.env.LSDEBUG === "true") {
                 console.log('LSDEBUG is set to "true". Services will run on debug mode');
+                outputChannel.append('LSDEBUG is set to "true". Services will run on debug mode\n');
                 args.push('-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005,quiet=y')
             }
 
@@ -92,9 +100,17 @@ function startServices() {
             console.log('Starting parser service on: ', parserPort);
             serverProcess = spawn('java', [balHomeSysProp, ...args, main, LSPort, parserPort]);
 
+            serverProcess.on('error', (e) => {
+                outputChannel.append(`Could not start services ${e}\n`);
+                outputChannel.show();
+                onParserError(e);
+                onLSError(e);
+            });
+            
             serverProcess.stdout.on('data', (data) => {
                 console.log(`ls: ${data}`);
                 if (`${data}`.indexOf('Parser started successfully') > -1) {
+                    outputChannel.append('Parser started successfully on port: ' + parserPort + '\n');
                     onParserStarted({port: parserPort});
                 }
             });
@@ -121,8 +137,13 @@ function getParserService() {
     return parserService;
 }
 
+function setOutputChannel(out) {
+    outputChannel = out;
+}
+
 module.exports = {
     getLSService,
     getParserService,
     startServices,
+    setOutputChannel,
 }

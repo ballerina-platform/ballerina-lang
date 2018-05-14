@@ -142,6 +142,32 @@ public class XMLUtils {
     }
 
     /**
+     * Create a XML sequence from string inputstream with a given charset.
+     *
+     * @param xmlStream XML imput stream
+     * @param charset   Charset to be used for parsing
+     * @return XML Sequence
+     */
+    @SuppressWarnings("unchecked")
+    public static BXML<?> parse(InputStream xmlStream, String charset) {
+        BRefValueArray elementsSeq = new BRefValueArray();
+        OMDocument doc;
+        try {
+            doc = OMXMLBuilderFactory.createOMBuilder(xmlStream, charset).getDocument();
+            Iterator<OMNode> docChildItr = doc.getChildren();
+            int index = 0;
+            while (docChildItr.hasNext()) {
+                elementsSeq.add(index++, new BXMLItem(docChildItr.next()));
+            }
+        } catch (DeferredParsingException e) {
+            throw new BallerinaException(e.getCause().getMessage());
+        } catch (Throwable e) {
+            throw new BallerinaException("failed to create xml: " + e.getMessage());
+        }
+        return new BXMLSequence(elementsSeq);
+    }
+
+    /**
      * Create a XML sequence from string reader.
      *
      * @param reader XML reader

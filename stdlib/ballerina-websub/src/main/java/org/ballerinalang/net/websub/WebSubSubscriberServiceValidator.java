@@ -72,16 +72,16 @@ class WebSubSubscriberServiceValidator {
     private static void validateOnIntentVerificationResource(Resource resource) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         validateParamNumber(paramDetails, 2, resource.getName());
-        validateStructType(resource.getName(), paramDetails.get(0), WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH,
+        validateStructType(resource.getName(), paramDetails.get(0), WebSubSubscriberConstants.WEBSUB_PACKAGE,
                            WebSubSubscriberConstants.SERVICE_ENDPOINT);
-        validateStructType(resource.getName(), paramDetails.get(1), WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH,
+        validateStructType(resource.getName(), paramDetails.get(1), WebSubSubscriberConstants.WEBSUB_PACKAGE,
                            WebSubSubscriberConstants.STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST);
     }
 
     private static void validateOnNotificationResource(Resource resource) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         validateParamNumber(paramDetails, 1, resource.getName());
-        validateStructType(resource.getName(), paramDetails.get(0), WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH,
+        validateStructType(resource.getName(), paramDetails.get(0), WebSubSubscriberConstants.WEBSUB_PACKAGE,
                            WebSubSubscriberConstants.STRUCT_WEBSUB_NOTIFICATION_REQUEST);
     }
 

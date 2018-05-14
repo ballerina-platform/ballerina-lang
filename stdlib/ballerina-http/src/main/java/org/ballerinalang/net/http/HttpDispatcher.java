@@ -126,46 +126,31 @@ public class HttpDispatcher {
         return interfaceId;
     }
 
-    protected static void handleError(HTTPCarbonMessage cMsg, Throwable throwable) {
-        String errorMsg = throwable.getMessage();
-
-        // bre log should contain bre stack trace, not the ballerina stack trace
-        breLog.error("error: " + errorMsg, throwable);
-        try {
-            HttpUtil.handleFailure(cMsg, new BallerinaConnectorException(errorMsg, throwable.getCause()));
-        } catch (Exception e) {
-            breLog.error("Cannot handle error using the error handler for: " + e.getMessage(), e);
-        }
-    }
-
     /**
      * This method finds the matching resource for the incoming request.
      *
-     * @param httpCarbonMessage incoming message.
+     * @param inboundMessage incoming message.
      * @return matching resource.
      */
-    public static HttpResource findResource(HTTPServicesRegistry servicesRegistry,
-                                            HTTPCarbonMessage httpCarbonMessage) {
-        HttpResource resource = null;
-        String protocol = (String) httpCarbonMessage.getProperty(HttpConstants.PROTOCOL);
+    public static HttpResource findResource(HTTPServicesRegistry servicesRegistry, HTTPCarbonMessage inboundMessage) {
+        String protocol = (String) inboundMessage.getProperty(HttpConstants.PROTOCOL);
         if (protocol == null) {
             throw new BallerinaConnectorException("protocol not defined in the incoming request");
         }
 
         try {
             // Find the Service TODO can be improved
-            HttpService service = HttpDispatcher.findService(servicesRegistry, httpCarbonMessage);
+            HttpService service = HttpDispatcher.findService(servicesRegistry, inboundMessage);
             if (service == null) {
                 throw new BallerinaConnectorException("no Service found to handle the service request");
                 // Finer details of the errors are thrown from the dispatcher itself, Ideally we shouldn't get here.
             }
 
             // Find the Resource
-            resource = HttpResourceDispatcher.findResource(service, httpCarbonMessage);
+            return HttpResourceDispatcher.findResource(service, inboundMessage);
         } catch (Throwable throwable) {
-            handleError(httpCarbonMessage, throwable);
+            throw new BallerinaConnectorException(throwable.getMessage());
         }
-        return resource;
     }
 
     public static BValue[] getSignatureParameters(HttpResource httpResource, HTTPCarbonMessage httpCarbonMessage) {
