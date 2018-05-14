@@ -20,6 +20,7 @@ package org.wso2.transport.http.netty.sender.http2;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http2.Http2Error;
 import io.netty.handler.codec.http2.Http2EventAdapter;
 import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
@@ -30,6 +31,7 @@ import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
+import org.wso2.transport.http.netty.message.Http2Reset;
 
 /**
  * {@code ClientFrameListener} listen to HTTP/2 Events received from the HTTP/2 backend service
@@ -96,11 +98,8 @@ public class ClientFrameListener extends Http2EventAdapter {
     public void onRstStreamRead(ChannelHandlerContext ctx, int streamId, long errorCode) throws Http2Exception {
         log.warn("RST received on channel: {} for streamId: {} errorCode: {}",
                  http2ClientChannel.toString(), streamId, errorCode);
-        OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
-        if (outboundMsgHolder != null) {
-            outboundMsgHolder.getResponseFuture().
-                    notifyHttpListener(new Exception("HTTP/2 stream " + streamId + " reset by the remote peer"));
-        }
+        Http2Reset http2Reset = new Http2Reset(streamId, Http2Error.valueOf(errorCode));
+        ctx.fireChannelRead(http2Reset);
     }
 
     @Override

@@ -289,10 +289,12 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
             onDataRead((Http2DataFrame) msg);
         } else if (msg instanceof Http2PushPromise) {
             onPushPromiseRead((Http2PushPromise) msg);
+        } else if (msg instanceof Http2Reset) {
+            onResetRead((Http2Reset) msg);
         }
     }
 
-    public void onHeadersRead(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame) throws Http2Exception {
+    private void onHeadersRead(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame) throws Http2Exception {
 
         int streamId = http2HeadersFrame.getStreamId();
         boolean endStream = http2HeadersFrame.isEndOfStream();
@@ -327,7 +329,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
         }
     }
 
-    public void onDataRead(Http2DataFrame dataFrame) throws Http2Exception {
+    private void onDataRead(Http2DataFrame dataFrame) throws Http2Exception {
         int streamId = dataFrame.getStreamId();
         ByteBuf data = dataFrame.getData();
         boolean endOfStream = dataFrame.isEndOfStream();
@@ -363,7 +365,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
         }
     }
 
-    public void onPushPromiseRead(Http2PushPromise pushPromise) throws Http2Exception {
+    private void onPushPromiseRead(Http2PushPromise pushPromise) throws Http2Exception {
 
         int streamId = pushPromise.getStreamId();
         int promisedStreamId = pushPromise.getPromisedStreamId();
@@ -382,6 +384,15 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
         http2ClientChannel.putPromisedMessage(promisedStreamId, outboundMsgHolder);
         pushPromise.setOutboundMsgHolder(outboundMsgHolder);
         outboundMsgHolder.addPromise(pushPromise);
+    }
+
+    private void onResetRead(Http2Reset http2Reset) {
+        int streamId = http2Reset.getStreamId();
+        OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
+        if (outboundMsgHolder != null) {
+            outboundMsgHolder.getResponseFuture().
+                    notifyHttpListener(new Exception("HTTP/2 stream " + streamId + " reset by the remote peer"));
+        }
     }
 
     private HttpCarbonResponse setupResponseCarbonMessage(ChannelHandlerContext ctx, int streamId,
