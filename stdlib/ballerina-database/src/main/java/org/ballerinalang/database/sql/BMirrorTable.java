@@ -54,8 +54,8 @@ public class BMirrorTable extends BTable {
     private StructInfo timeZoneStructInfo;
     private Calendar utcCalendar;
 
-    public BMirrorTable(SQLDatasource datasource, String tableName, BStructType constraintType, StructInfo
-            timeStructInfo, StructInfo timeZoneStructInfo, Calendar utcCalendar) {
+    public BMirrorTable(SQLDatasource datasource, String tableName, BStructType constraintType,
+            StructInfo timeStructInfo, StructInfo timeZoneStructInfo, Calendar utcCalendar) {
         super(tableName, constraintType);
         this.datasource = datasource;
         this.tableName = tableName;
@@ -95,17 +95,14 @@ public class BMirrorTable extends BTable {
         Connection connection = null;
         boolean isInTransaction = context.isInTransaction();
         try {
-            connection = SQLDatasourceUtils
-                    .getDatabaseConnection(context, this.datasource, isInTransaction);
+            connection = SQLDatasourceUtils.getDatabaseConnection(context, this.datasource, isInTransaction);
             if (!isInTransaction) {
                 connection.setAutoCommit(false);
             }
             while (this.hasNext(false)) {
                 BStruct data = this.getNext();
                 BValue[] args = { data };
-                BValue[] returns = BLangFunctions
-                        .invokeCallable(lambdaFunction.value().getFunctionInfo(),
-                                args);
+                BValue[] returns = BLangFunctions.invokeCallable(lambdaFunction.value().getFunctionInfo(), args);
                 if (((BBoolean) returns[0]).booleanValue()) {
                     ++deletedCount;
                     this.removeData(data, connection);
@@ -138,7 +135,7 @@ public class BMirrorTable extends BTable {
             String sqlStmt = TableUtils.generateDeleteDataStatment(tableName, data);
             stmt = conn.prepareStatement(sqlStmt);
             TableUtils.prepareAndExecuteStatement(stmt, data);
-        }  finally {
+        } finally {
             // Shouldn't close the connection at this point, as it has to be handled at the higher level to delete
             // data transactional way
             if (stmt != null) {
@@ -165,8 +162,8 @@ public class BMirrorTable extends BTable {
             rs = preparedStmt.executeQuery();
             TableResourceManager rm = new TableResourceManager(conn, preparedStmt);
             List<ColumnDefinition> columnDefs = SQLDatasourceUtils.getColumnDefinitions(rs);
-            this.iterator = new SQLDataIterator(utcCalendar, constraintType, timeStructInfo,
-                    timeZoneStructInfo, rm, rs, columnDefs);
+            this.iterator = new SQLDataIterator(utcCalendar, constraintType, timeStructInfo, timeZoneStructInfo, rm, rs,
+                    columnDefs);
         } catch (SQLException e) {
             SQLDatasourceUtils.cleanupConnection(rs, preparedStmt, conn, false);
             throw new BallerinaException("error in populating iterator for table : " + e.getMessage());

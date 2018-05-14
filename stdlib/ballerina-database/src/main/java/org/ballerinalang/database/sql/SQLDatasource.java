@@ -55,7 +55,8 @@ public class SQLDatasource implements BValue {
     private String connectorId;
     private boolean xaConn;
 
-    public SQLDatasource() {}
+    public SQLDatasource() {
+    }
 
     public boolean init(Struct options, String url, String dbType, String hostOrPath, int port, String username,
             String password, String dbName, String dbOptions, Map dbOptionsMap) {
@@ -103,10 +104,10 @@ public class SQLDatasource implements BValue {
 
     public Connection getSQLConnection() {
         try {
-           return  hikariDataSource.getConnection();
+            return hikariDataSource.getConnection();
         } catch (SQLException e) {
-            throw new BallerinaException(
-                    "error in get connection: " + Constants.CONNECTOR_NAME + ": " + e.getMessage(), e);
+            throw new BallerinaException("error in get connection: " + Constants.CONNECTOR_NAME + ": " + e.getMessage(),
+                    e);
         }
     }
 
@@ -233,9 +234,8 @@ public class SQLDatasource implements BValue {
         return mapProperties;
     }
 
-    private BMap<String, BRefType> setDataSourcePropertiesMap(BMap<String, BRefType>  dataSourceConfigMap,
-     String jdbcurl,
-            String username, String password) {
+    private BMap<String, BRefType> setDataSourcePropertiesMap(BMap<String, BRefType> dataSourceConfigMap,
+            String jdbcurl, String username, String password) {
         if (dataSourceConfigMap != null) {
             if (!dataSourceConfigMap.hasKey(Constants.URL)) {
                 dataSourceConfigMap.put(Constants.URL, new BString(jdbcurl));
@@ -387,7 +387,6 @@ public class SQLDatasource implements BValue {
         return xaDataSource;
     }
 
-
     private void setDataSourceProperties(BMap options, HikariConfig config) {
         Set<String> keySet = options.keySet();
         for (String key : keySet) {
@@ -418,7 +417,7 @@ public class SQLDatasource implements BValue {
     public BValue copy() {
         return null;
     }
-    
+
     private boolean isXADataSource() {
         try {
             return hikariDataSource.isWrapperFor(XADataSource.class);

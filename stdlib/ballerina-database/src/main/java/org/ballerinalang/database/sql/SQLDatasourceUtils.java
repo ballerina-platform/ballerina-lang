@@ -392,8 +392,8 @@ public class SQLDatasourceUtils {
     public static void setDateValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
         Date val = null;
         if (value != null) {
-            if (value instanceof BStruct && value.getType().getName().equals(Constants.STRUCT_TIME) && value
-                    .getType().getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
+            if (value instanceof BStruct && value.getType().getName().equals(Constants.STRUCT_TIME) && value.getType()
+                    .getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
                 val = new Date(((BStruct) value).getIntField(0));
             } else if (value instanceof BInteger) {
                 val = new Date(((BInteger) value).intValue());
@@ -431,8 +431,8 @@ public class SQLDatasourceUtils {
             Calendar utcCalendar) {
         Timestamp val = null;
         if (value != null) {
-            if (value instanceof BStruct && value.getType().getName().equals(Constants.STRUCT_TIME) && value
-                    .getType().getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
+            if (value instanceof BStruct && value.getType().getName().equals(Constants.STRUCT_TIME) && value.getType()
+                    .getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
                 val = new Timestamp(((BStruct) value).getIntField(0));
             } else if (value instanceof BInteger) {
                 val = new Timestamp(((BInteger) value).intValue());
@@ -470,8 +470,8 @@ public class SQLDatasourceUtils {
             Calendar utcCalendar) {
         Time val = null;
         if (value != null) {
-            if (value instanceof BStruct && value.getType().getName().equals(Constants.STRUCT_TIME) && value
-                    .getType().getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
+            if (value instanceof BStruct && value.getType().getName().equals(Constants.STRUCT_TIME) && value.getType()
+                    .getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
                 val = new Time(((BStruct) value).getIntField(0));
             } else if (value instanceof BInteger) {
                 val = new Time(((BInteger) value).intValue());
@@ -504,14 +504,7 @@ public class SQLDatasourceUtils {
     }
 
     public static void setBinaryValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
-        byte[] val = null;
-        if (value != null) {
-            if (value instanceof BBlob) {
-                val = ((BBlob) value).blobValue();
-            } else if (value instanceof BString) {
-                val = getBytesFromBase64String(value.stringValue());
-            }
-        }
+        byte[] val = getByteArray(value);
         try {
             if (Constants.QueryParamDirection.IN == direction) {
                 if (val == null) {
@@ -537,14 +530,7 @@ public class SQLDatasourceUtils {
     }
 
     public static void setBlobValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
-        byte[] val = null;
-        if (value != null) {
-            if (value instanceof BBlob) {
-                val = ((BBlob) value).blobValue();
-            } else if (value instanceof BString) {
-                val = getBytesFromBase64String(value.stringValue());
-            }
-        }
+        byte[] val = getByteArray(value);
         try {
             if (Constants.QueryParamDirection.IN == direction) {
                 if (val == null) {
@@ -567,6 +553,18 @@ public class SQLDatasourceUtils {
         } catch (SQLException e) {
             throw new BallerinaException("error in set binary value to statement: " + e.getMessage(), e);
         }
+    }
+
+    private static byte[] getByteArray(BValue value) {
+        byte[] val = null;
+        if (value != null) {
+            if (value instanceof BBlob) {
+                val = ((BBlob) value).blobValue();
+            } else if (value instanceof BString) {
+                val = getBytesFromBase64String(value.stringValue());
+            }
+        }
+        return val;
     }
 
     public static void setClobValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
@@ -627,8 +625,7 @@ public class SQLDatasourceUtils {
         }
     }
 
-    public static void setRefCursorValue(Connection connection, PreparedStatement stmt, int index, int direction,
-            String databaseProductName) {
+    public static void setRefCursorValue(PreparedStatement stmt, int index, int direction, String databaseProductName) {
         try {
             if (Constants.QueryParamDirection.OUT == direction) {
                 if (ORACLE_DATABASE_NAME.equals(databaseProductName)) {
@@ -851,7 +848,7 @@ public class SQLDatasourceUtils {
      * @param sqlType SQL type in column
      * @return TypeKind that represent respective ballerina type.
      */
-    public static TypeKind getColumnType(int sqlType) {
+    private static TypeKind getColumnType(int sqlType) {
         switch (sqlType) {
         case Types.ARRAY:
             return TypeKind.ARRAY;
@@ -918,7 +915,7 @@ public class SQLDatasourceUtils {
     /**
      * This will retrieve the string value for the given clob.
      *
-     * @param data   clob data
+     * @param data clob data
      */
     public static String getString(Clob data) {
         if (data == null) {
@@ -1420,7 +1417,7 @@ public class SQLDatasourceUtils {
         } else {
             timeZoneOffSet = getTimeZoneOffset(fractionStr);
         }
-        return new int[] {miliSecond, timeZoneOffSet};
+        return new int[] { miliSecond, timeZoneOffSet };
     }
 
     private static int getTimeZoneOffset(String timezoneStr) {
@@ -1443,8 +1440,7 @@ public class SQLDatasourceUtils {
         return timeZoneOffSet;
     }
 
-    public static List<ColumnDefinition> getColumnDefinitions(ResultSet rs)
-            throws SQLException {
+    public static List<ColumnDefinition> getColumnDefinitions(ResultSet rs) throws SQLException {
         List<ColumnDefinition> columnDefs = new ArrayList<>();
         Set<String> columnNames = new HashSet<>();
         ResultSetMetaData rsMetaData = rs.getMetaData();

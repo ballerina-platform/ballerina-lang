@@ -255,7 +255,7 @@ public class SQLDataIterator extends TableIterator {
                     }
                 }
             }
-        }  catch (Throwable e) {
+        } catch (Throwable e) {
             throw new BallerinaException(
                     "error in retrieving next value for column: " + columnName + ": at index:" + index + ":" + e
                             .getMessage());

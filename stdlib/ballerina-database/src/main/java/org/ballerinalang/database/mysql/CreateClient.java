@@ -52,9 +52,8 @@ public class CreateClient extends BlockingNativeCallableUnit {
         Map<String, Value> dbOptions = clientEndpointConfig.getMapField(Constants.EndpointConfig.DB_OPTIONS);
         String urlOptions = "";
         if (dbOptions != null) {
-            urlOptions = SQLDatasourceUtils
-                    .createJDBCDbOptions(Constants.JDBCUrlSeparators.MYSQL_PROPERTY_BEGIN_SYMBOL,
-                            Constants.JDBCUrlSeparators.MYSQL_SEPARATOR, dbOptions);
+            urlOptions = SQLDatasourceUtils.createJDBCDbOptions(Constants.JDBCUrlSeparators.MYSQL_PROPERTY_BEGIN_SYMBOL,
+                    Constants.JDBCUrlSeparators.MYSQL_SEPARATOR, dbOptions);
         }
         BStruct sqlClient = SQLDatasourceUtils
                 .createServerBasedDBClient(context, Constants.DBTypes.MYSQL, clientEndpointConfig, urlOptions);

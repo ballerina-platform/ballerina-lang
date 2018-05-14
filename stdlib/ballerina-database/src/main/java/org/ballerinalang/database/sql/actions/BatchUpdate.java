@@ -52,6 +52,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         }
 )
 public class BatchUpdate extends AbstractSQLAction {
+
     @Override
     public void execute(Context context) {
         try {
