@@ -5,7 +5,7 @@ type ResultCount {
     int COUNTVAL,
 };
 
-function testXAransactonSuccess() returns (int, int) {
+function testXATransactonSuccess() returns (int, int) {
     endpoint jdbc:Client testDB1 {
         url: "jdbc:h2:file:./target/H2_1/TestDB1",
         username: "SA",
@@ -43,7 +43,7 @@ function testXAransactonSuccess() returns (int, int) {
     return (count1, count2);
 }
 
-function testXAransactonSuccessWithDataSource() returns (int, int) {
+function testXATransactonSuccessWithDataSource() returns (int, int) {
     endpoint jdbc:Client testDB1 {
         url: "jdbc:h2:file:./target/H2_1/TestDB1",
         username: "SA",
@@ -81,7 +81,7 @@ function testXAransactonSuccessWithDataSource() returns (int, int) {
     return (count1, count2);
 }
 
-function testXAransactonSuccessWithH2Client() returns (int, int) {
+function testXATransactonSuccessWithH2Client() returns (int, int) {
     endpoint h2:Client testDB1 {
         path: "./target/H2_1/",
         name: "TestDB1",
@@ -123,7 +123,7 @@ function testXAransactonSuccessWithH2Client() returns (int, int) {
     return (count1, count2);
 }
 
-function testXAransactonFailed1() returns (int, int) {
+function testXATransactonFailed1() returns (int, int) {
 
     endpoint jdbc:Client testDB1 {
         url: "jdbc:h2:file:./target/H2_1/TestDB1",
@@ -166,7 +166,7 @@ function testXAransactonFailed1() returns (int, int) {
     return (count1, count2);
 }
 
-function testXAransactonFailed2() returns (int, int) {
+function testXATransactonFailed2() returns (int, int) {
 
     endpoint jdbc:Client testDB1 {
         url: "jdbc:h2:file:./target/H2_1/TestDB1",
@@ -208,7 +208,7 @@ function testXAransactonFailed2() returns (int, int) {
     return (count1, count2);
 }
 
-function testXAransactonRetry() returns (int, int) {
+function testXATransactonRetry() returns (int, int) {
 
     endpoint jdbc:Client testDB1 {
         url: "jdbc:h2:file:./target/H2_1/TestDB1",

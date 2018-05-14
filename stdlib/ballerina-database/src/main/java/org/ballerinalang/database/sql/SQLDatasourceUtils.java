@@ -557,12 +557,10 @@ public class SQLDatasourceUtils {
 
     private static byte[] getByteArray(BValue value) {
         byte[] val = null;
-        if (value != null) {
-            if (value instanceof BBlob) {
-                val = ((BBlob) value).blobValue();
-            } else if (value instanceof BString) {
-                val = getBytesFromBase64String(value.stringValue());
-            }
+        if (value instanceof BBlob) {
+            val = ((BBlob) value).blobValue();
+        } else if (value instanceof BString) {
+            val = getBytesFromBase64String(value.stringValue());
         }
         return val;
     }
