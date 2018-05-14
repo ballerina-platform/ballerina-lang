@@ -50,7 +50,7 @@ documentation {
     F{{tempLocation}} Temporary directory to store large payloads
 }
 public type PayloadOverflowConfig {
-    int memoryThresholdInMB = 2,
+    float memoryThresholdInMB = 2,
     string tempLocation,
 };
 

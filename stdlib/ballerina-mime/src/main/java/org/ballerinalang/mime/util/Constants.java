@@ -103,6 +103,7 @@ public class Constants {
 
     public static final String CHARSET = "charset";
 
+    public static final String ANN_CONFIG_OVERFLOW_CONFIG = "overflowConfig";
     public static final String ANN_CONFIG_MEMORY_THRESHOLD = "memoryThresholdInMB";
     public static final String ANN_CONFIG_TEMP_LOCATION = "tempLocation";
     public static final String DEFAULT_TEMP_DIRECTORY = "java.io.tmpdir";

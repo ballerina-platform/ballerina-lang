@@ -26,6 +26,7 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.ConnectorUtils;
+import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -52,6 +53,7 @@ import javax.activation.MimeTypeParseException;
 
 import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.mime.util.Constants.ANN_CONFIG_MEMORY_THRESHOLD;
+import static org.ballerinalang.mime.util.Constants.ANN_CONFIG_OVERFLOW_CONFIG;
 import static org.ballerinalang.mime.util.Constants.ANN_CONFIG_TEMP_LOCATION;
 import static org.ballerinalang.mime.util.Constants.ASSIGNMENT;
 import static org.ballerinalang.mime.util.Constants.BODY_PARTS;
@@ -342,7 +344,8 @@ public class MimeUtil {
     static String writeToTemporaryFile(InputStream inputStream, String fileName, String userDefinedTempDir) {
         OutputStream outputStream = null;
         try {
-            File tempDir = userDefinedTempDir != null ? new File(userDefinedTempDir) : null;
+            File tempDir = (userDefinedTempDir != null && !userDefinedTempDir.isEmpty()) ?
+                    new File(userDefinedTempDir) : null;
             File tempFile = File.createTempFile(fileName, TEMP_FILE_EXTENSION, tempDir);
             outputStream = new FileOutputStream(tempFile.getAbsolutePath());
             writeInputToOutputStream(inputStream, outputStream);
@@ -463,17 +466,23 @@ public class MimeUtil {
     public static Map<String, Object> getOverflowSettings(Context context, Annotation configAnn) {
         Map<String, Object> overflowSettings = new HashMap<>();
         overflowSettings.put(ANN_CONFIG_MEMORY_THRESHOLD, getMemoryThresholdInBytes(configAnn));
-        String tempLocation = configAnn.getValue().getRefField(ANN_CONFIG_TEMP_LOCATION).getStringValue();
+        String tempLocation = getTempLocation(configAnn);
         if (tempLocation != null) {
             overflowSettings.put(ANN_CONFIG_TEMP_LOCATION, tempLocation);
         }
         return overflowSettings;
     }
 
+    private static String getTempLocation(Annotation configAnn) {
+        Struct overflowConfig = configAnn.getValue().getRefField(ANN_CONFIG_OVERFLOW_CONFIG).getStructValue();
+        return overflowConfig.getStringField(ANN_CONFIG_TEMP_LOCATION);
+    }
+
     private static Long getMemoryThresholdInBytes(Annotation configAnn) {
-        long memoryThrehold = configAnn.getValue().getRefField(ANN_CONFIG_MEMORY_THRESHOLD).getIntValue();
-        memoryThrehold = memoryThrehold * (ONE_MB_IN_BYTES);
-        return memoryThrehold;
+        Struct overflowConfig = configAnn.getValue().getRefField(ANN_CONFIG_OVERFLOW_CONFIG).getStructValue();
+        double memoryThreshold = overflowConfig.getFloatField(ANN_CONFIG_MEMORY_THRESHOLD);
+        memoryThreshold = memoryThreshold * (ONE_MB_IN_BYTES);
+        return Double.valueOf(memoryThreshold).longValue();
     }
 
     /**
