@@ -448,11 +448,18 @@ public abstract class AbstractItemResolver {
             populateCompletionItemList(filteredConnectorInitSuggestions, completionItems);
         }
 
-        // Add the create keyword
+        // Add the check keyword
         CompletionItem createKeyword = new CompletionItem();
         createKeyword.setInsertText(Snippet.CHECK_KEYWORD_SNIPPET.toString());
         createKeyword.setLabel(ItemResolverConstants.CHECK_KEYWORD);
         createKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
+        
+        // Add But keyword item
+        CompletionItem butKeyword = new CompletionItem();
+        butKeyword.setInsertText(Snippet.BUT.toString());
+        butKeyword.setLabel(ItemResolverConstants.BUT);
+        butKeyword.setInsertTextFormat(InsertTextFormat.Snippet);
+        butKeyword.setDetail(ItemResolverConstants.STATEMENT_TYPE);
 
         List<SymbolInfo> filteredList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
                 .stream()
@@ -473,6 +480,7 @@ public abstract class AbstractItemResolver {
         });
         populateCompletionItemList(filteredList, completionItems);
         completionItems.add(createKeyword);
+        completionItems.add(butKeyword);
         
         return completionItems;
     }

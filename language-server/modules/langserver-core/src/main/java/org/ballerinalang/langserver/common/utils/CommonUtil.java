@@ -51,6 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -69,6 +70,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Common utils to be reuse in language server implementation.
@@ -79,7 +81,7 @@ public class CommonUtil {
 
     private static final String OPEN_BRACKET_KEY_WORD = "(";
     
-    private static final String LINE_SEPARATOR = System.lineSeparator();
+    public static final String LINE_SEPARATOR = System.lineSeparator();
 
     /**
      * Get the package URI to the given package name.
@@ -405,6 +407,9 @@ public class CommonUtil {
      */
     public static String getDefaultValueForType(BType bType) {
         String typeString;
+        if (bType == null) {
+            return "null";
+        }
         switch (bType.getKind()) {
             case INT:
                 typeString = Integer.toString(0);
@@ -767,5 +772,22 @@ public class CommonUtil {
         });
         
         return endpointActions;
+    }
+    
+    public static String getMatchMemberTypesSnippet(BUnionType bUnionType) {
+        Set<BType> memberTypes = bUnionType.getMemberTypes();
+        StringBuilder fieldsSnippet = new StringBuilder("");
+
+        memberTypes.forEach(bType -> {
+            fieldsSnippet
+                    .append("\t").append(bType.toString()).append(" => {")
+                    .append(LINE_SEPARATOR)
+                    .append("\t\t")
+                    .append(LINE_SEPARATOR)
+                    .append("\t").append("}")
+                    .append(LINE_SEPARATOR);
+        });
+
+        return fieldsSnippet.toString();
     }
 }

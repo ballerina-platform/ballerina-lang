@@ -132,6 +132,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 completionContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
                 completionContext.put(CompletionKeys.DOC_MANAGER_KEY, documentManager);
                 // TODO: Remove passing completion context after introducing a proper fix for _=.... issue
+
                 BLangPackage bLangPackage = LSCompiler.getBLangPackage(completionContext, documentManager, false,
                                                                        CompletionCustomErrorStrategy.class,
                                                                        false, completionContext).get(0);
