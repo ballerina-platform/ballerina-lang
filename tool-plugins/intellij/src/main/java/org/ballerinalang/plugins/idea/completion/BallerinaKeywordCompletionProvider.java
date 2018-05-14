@@ -50,7 +50,6 @@ public class BallerinaKeywordCompletionProvider extends CompletionProvider<Compl
             return;
         }
 
-
         BallerinaTransactionStatement transactionStatement = PsiTreeUtil.getParentOfType(position,
                 BallerinaTransactionStatement.class);
         if (transactionStatement != null) {
