@@ -57,7 +57,7 @@ public type CallerActions object {
         R{{}} An `int[]` array of updated row count by each of statements in batch and
                 else `error` will be returned if there is any error
     }
-    public native function batchUpdate(@sensitive string sqlQuery, Parameter[]... parameters) returns int[]|error;
+    public native function batchUpdate(@sensitive string sqlQuery, Param[]... parameters) returns int[]|error;
 
     documentation {
         The updateWithGeneratedKeys action implementation for SQL connector which returns the auto

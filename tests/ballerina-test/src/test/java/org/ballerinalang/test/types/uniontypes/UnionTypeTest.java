@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -69,5 +70,19 @@ public class UnionTypeTest {
         BValue[] returns = BRunUtil.invoke(result, "testNullableTypeBasics2", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
         Assert.assertNull(returns[0]);
+    }
+
+    @Test(description = "Test union type arrays")
+    public void testUnionTypeArrays() {
+        BValue[] returns = BRunUtil.invoke(result, "testUnionTypeArrays");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+    }
+
+    @Test(description = "Test union type arrays")
+    public void testUnionTypeArrayWithValueTypeArrayAssignment() {
+        BValue[] returns = BRunUtil.invoke(result, "testUnionTypeArrayWithValueTypeArrayAssignment");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
     }
 }

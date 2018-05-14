@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
 
 /**
  * The Ballerina WebSub Hub.
@@ -84,7 +84,7 @@ public class Hub {
             topics.put(topic, secret);
             if (hubPersistenceEnabled && !loadingOnStartUp) {
                 BValue[] args = { new BString("register"), new BString(topic), new BString(secret) };
-                BLangFunctions.invokeCallable(hubProgramFile.getPackageInfo(WEBSUB_PACKAGE_PATH)
+                BLangFunctions.invokeCallable(hubProgramFile.getPackageInfo(WEBSUB_PACKAGE)
                                               .getFunctionInfo("changeTopicRegistrationInDatabase"), args);
             }
         }
@@ -104,7 +104,7 @@ public class Hub {
             topics.remove(topic);
             if (hubPersistenceEnabled) {
                 BValue[] args = { new BString("unregister"), new BString(topic), new BString(secret) };
-                BLangFunctions.invokeCallable(hubProgramFile.getPackageInfo(WEBSUB_PACKAGE_PATH)
+                BLangFunctions.invokeCallable(hubProgramFile.getPackageInfo(WEBSUB_PACKAGE)
                                               .getFunctionInfo("changeTopicRegistrationInDatabase"), args);
             }
         }
@@ -207,7 +207,7 @@ public class Hub {
     public String startUpHubService(ProgramFile hubProgramFile, BInteger port) {
         synchronized (this) {
             if (!isStarted()) {
-                PackageInfo hubPackageInfo = hubProgramFile.getPackageInfo(WEBSUB_PACKAGE_PATH);
+                PackageInfo hubPackageInfo = hubProgramFile.getPackageInfo(WEBSUB_PACKAGE);
                 if (hubPackageInfo != null) {
                     BValue[] args = {port};
                     BLangFunctions.invokeCallable(hubPackageInfo.getFunctionInfo("startHubService"), args);

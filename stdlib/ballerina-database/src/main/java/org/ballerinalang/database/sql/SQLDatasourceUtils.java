@@ -973,43 +973,24 @@ public class SQLDatasourceUtils {
         }
     }
 
-    /**
-     * This will retrieve the string value for the given date value.
-     */
-    public static String getString(Date value) {
+    public static String getString(java.util.Date value) {
         if (value == null) {
             return null;
         }
         Calendar calendar = Calendar.getInstance();
         calendar.clear();
-        calendar.setTime(value);
-        return getString(calendar, "date");
-    }
-
-    /**
-     * This will retrieve the string value for the given timestamp value.
-     */
-    public static String getString(Timestamp value) {
-        if (value == null) {
-            return null;
+        String type;
+        if (value instanceof Time) {
+            calendar.setTimeInMillis(value.getTime());
+            type = "time";
+        } else if (value instanceof Timestamp) {
+            calendar.setTimeInMillis(value.getTime());
+            type = "datetime";
+        } else {
+            calendar.setTime(value);
+            type = "time";
         }
-        Calendar calendar = Calendar.getInstance();
-        calendar.clear();
-        calendar.setTimeInMillis(value.getTime());
-        return getString(calendar, "datetime");
-    }
-
-    /**
-     * This will retrieve the string value for the given time data.
-     */
-    public static String getString(Time value) {
-        if (value == null) {
-            return null;
-        }
-        Calendar calendar = Calendar.getInstance();
-        calendar.clear();
-        calendar.setTimeInMillis(value.getTime());
-        return getString(calendar, "time");
+        return getString(calendar, type);
     }
 
     /**
