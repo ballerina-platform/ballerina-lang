@@ -16,9 +16,12 @@
  * under the License.
  */
 
-package org.ballerinalang.database.sql;
+package org.ballerinalang.database.table;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.database.sql.SQLDataIterator;
+import org.ballerinalang.database.sql.SQLDatasource;
+import org.ballerinalang.database.sql.SQLDatasourceUtils;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BBoolean;
@@ -121,12 +124,8 @@ public class BMirrorTable extends BTable {
         }
     }
 
-    public void reset(boolean isInTransaction) {
-        if (iterator != null) {
-            iterator.reset(isInTransaction);
-            iterator = null;
-        }
-        resetIterationHelperAttributes();
+    public String stringValue() {
+        return "";
     }
 
     private void removeData(BStruct data, Connection conn) throws SQLException {
@@ -142,14 +141,6 @@ public class BMirrorTable extends BTable {
                 stmt.close();
             }
         }
-    }
-
-    protected boolean isIteratorGenerationConditionMet() {
-        return iterator == null;
-    }
-
-    protected boolean iteratorResetRequired() {
-        return true;
     }
 
     protected void generateIterator() {

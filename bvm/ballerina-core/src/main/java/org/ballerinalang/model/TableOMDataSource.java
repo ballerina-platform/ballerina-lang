@@ -60,7 +60,7 @@ public class TableOMDataSource extends AbstractPushOMDataSource {
     public void serialize(XMLStreamWriter xmlStreamWriter) throws XMLStreamException {
         xmlStreamWriter.writeStartElement("", this.rootWrapper, "");
         while (table.hasNext(this.isInTransaction)) {
-            table.next();
+            table.moveToNext();
             xmlStreamWriter.writeStartElement("", this.rowWrapper, "");
             BStructType structType = table.getStructType();
             BStructType.StructField[] structFields = null;

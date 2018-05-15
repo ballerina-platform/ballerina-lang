@@ -20,7 +20,7 @@
         <Package name="org.ballerinalang.database.sql.actions"/>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.database.sql.BMirrorTable"/>
+        <Class name="org.ballerinalang.database.table.BMirrorTable"/>
     </Match>
     <Match>
         <Package name="org.ballerinalang.database.h2"/>
