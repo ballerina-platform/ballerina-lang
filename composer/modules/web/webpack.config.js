@@ -200,7 +200,8 @@ const config = [{
         new HtmlWebpackPlugin({
             template: 'src/index.ejs',
             inject: false,
-        })
+        }),
+        new webpack.ExtendedAPIPlugin()
         /*
         new CircularDependencyPlugin({
             exclude: /a\.css|node_modules/,
