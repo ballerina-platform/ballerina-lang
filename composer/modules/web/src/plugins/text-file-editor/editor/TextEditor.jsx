@@ -23,7 +23,7 @@ const MONACO_OPTIONS = {
     lineNumbersMinChars: 2,
 };
 
-const webpackHash = __webpack_hash__();
+const webpackHash = process.env.NODE_ENV === 'production' ? __webpack_hash__ : __webpack_hash__();
 
 self.MonacoEnvironment = {
     getWorkerUrl: function (moduleId, label) {
