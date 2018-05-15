@@ -243,7 +243,7 @@ public class HttpUtil {
             try {
                 contentLength = lengthStr != null ? Long.parseLong(lengthStr) : contentLength;
                 if (contentLength == NO_CONTENT_LENGTH_FOUND) {
-                    contentLength = httpCarbonMessage.countMessageLengthTill((Long)overflowSettings
+                    contentLength = httpCarbonMessage.countMessageLengthTill((Long) overflowSettings
                             .get(ANN_CONFIG_MEMORY_THRESHOLD));
                 }
             } catch (NumberFormatException e) {

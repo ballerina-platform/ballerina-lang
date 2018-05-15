@@ -121,7 +121,7 @@ public class OverflowConfigurationTest {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             MimeUtil.writeInputToOutputStream(inputStream, outputStream);
             Assert.assertEquals(outputStream.size(), content.getBytes().length);
-            Path userDefinedTempLocation = Paths.get("testOverFlow").toAbsolutePath();
+            Path userDefinedTempLocation = Paths.get("testBallerinaOverFlow").toAbsolutePath();
             Assert.assertTrue(Files.exists(userDefinedTempLocation));
             Files.delete(userDefinedTempLocation);
             Assert.assertFalse(Files.exists(userDefinedTempLocation));

@@ -94,9 +94,9 @@ public class EntityBodyHandler {
 
     /**
      * Handle discrete media type content. This method populates ballerina entity with a byte channel from a given
-     * inputstream. If the payload size exceeds 2MB limit, write the stream to a temp file and get a reference to
-     * a file channel. After that delete the temp file. If the size does not exceed, then wrap the inputstream with an
-     * EntityBodyChannel.
+     * inputstream. If the payload size exceeds the given memory threshold, write the stream to a temp file and get
+     * a reference to a file channel. After that delete the temp file. If the size does not exceed, then wrap
+     * the inputstream with an EntityBodyChannel.
      *
      * @param entityStruct      Represent an 'Entity'
      * @param inputStream       Represent input stream coming from the request/response

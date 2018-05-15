@@ -346,9 +346,9 @@ public class MimeUtil {
         try {
             File tempDir = (userDefinedTempDir != null && !userDefinedTempDir.isEmpty()) ?
                     new File(userDefinedTempDir) : null;
-            if(tempDir != null && !tempDir.exists()) {
+            if (tempDir != null && !tempDir.exists()) {
                 boolean isDirectoryCreated = tempDir.mkdirs();
-                if(log.isDebugEnabled() && isDirectoryCreated) {
+                if (log.isDebugEnabled() && isDirectoryCreated) {
                     log.debug("Temporary directory or directories have been created for ballerina overflow data");
                 }
             }

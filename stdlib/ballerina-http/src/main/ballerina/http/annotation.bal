@@ -46,7 +46,7 @@ public type HttpServiceConfig {
 documentation {
     Configuration to control payload location(memory/temp file) based on a given threshold value.
 
-    F{{memoryThreshold}} Maximum size of the payload to be kept in memory
+    F{{memoryThresholdInMB}} Maximum size of the payload to be kept in memory in MB
     F{{tempLocation}} Temporary directory to store large payloads
 }
 public type PayloadOverflowConfig {
