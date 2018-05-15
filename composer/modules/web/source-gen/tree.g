@@ -27,8 +27,11 @@ Annotation
 
 AnnotationAttachment
    : <builtin?> @                        <annotationName.value> <expression.source>
+   : <builtin?> @                        <annotationName.value>
    :            @ <packageAlias.value> : <annotationName.value> <expression.source>
-   |            @ <annotationName.value>                        <expression.source>
+   :            @ <packageAlias.value> : <annotationName.value>
+   |            @                        <annotationName.value> <expression.source>
+   |            @                        <annotationName.value>
    ;
 
 ArrayLiteralExpr

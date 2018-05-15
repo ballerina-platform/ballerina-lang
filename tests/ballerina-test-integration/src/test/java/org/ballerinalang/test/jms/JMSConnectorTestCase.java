@@ -166,6 +166,23 @@ public class JMSConnectorTestCase extends IntegrationTestCase {
         serviceHandler.stop();
         clientHandler.stop();
     }
+    @Test(description = "Test MB Connector simple topic subscriber and publisher")
+    public void testJMSMapMessagePublisherAndSubscriber() throws Exception {
+        BallerinaServiceHandler serviceHandler = new BallerinaServiceHandler("jms_map_message_subscriber.bal",
+                "1abctrue1.2abcde");
+        serviceHandler.start();
+
+        BallerinaClientHandler clientHandler
+                = new BallerinaClientHandler("jms_map_message_publisher.bal",
+                "Message successfully sent by TopicPublisher");
+        clientHandler.start();
+
+        serviceHandler.waitForText(TimeUnit.SECONDS, 20);
+        clientHandler.waitForText(TimeUnit.SECONDS, 20);
+
+        serviceHandler.stop();
+        clientHandler.stop();
+    }
 
     @AfterClass()
     private void cleanup() throws Exception {

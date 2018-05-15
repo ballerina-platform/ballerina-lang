@@ -41,9 +41,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
         receiver = @Receiver(type = TypeKind.STRUCT, structType = Constants.CALLER_ACTIONS),
         args = {
                 @Argument(name = "sqlQuery", type = TypeKind.STRING),
-                @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.STRUCT,
-                          structType = "Parameter"),
-                @Argument(name = "keyColumns", type = TypeKind.ARRAY, elementType = TypeKind.STRING)
+                @Argument(name = "keyColumns", type = TypeKind.ARRAY, elementType = TypeKind.STRING),
+                @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.UNION,
+                          structType = "Param")
         },
         returnType = {
                 @ReturnType(type = TypeKind.INT),
