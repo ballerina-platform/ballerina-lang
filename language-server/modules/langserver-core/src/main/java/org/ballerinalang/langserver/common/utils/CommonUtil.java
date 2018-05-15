@@ -79,7 +79,7 @@ public class CommonUtil {
 
     private static final String OPEN_BRACKET_KEY_WORD = "(";
     
-    private static final String LINE_SEPARATOR = System.lineSeparator();
+    public static final String LINE_SEPARATOR = System.lineSeparator();
 
     /**
      * Get the package URI to the given package name.
@@ -405,6 +405,9 @@ public class CommonUtil {
      */
     public static String getDefaultValueForType(BType bType) {
         String typeString;
+        if (bType == null) {
+            return "()";
+        }
         switch (bType.getKind()) {
             case INT:
                 typeString = Integer.toString(0);
@@ -435,7 +438,7 @@ public class CommonUtil {
                 break;
             case STREAM:
             default:
-                typeString = "null";
+                typeString = "()";
                 break;
         }
         return typeString;
