@@ -20,11 +20,12 @@ package org.ballerinalang.database.sql.actions;
 import com.sun.rowset.CachedRowSetImpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.database.sql.BMirrorTable;
 import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDataIterator;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.SQLDatasourceUtils;
+import org.ballerinalang.database.table.BCursorTable;
+import org.ballerinalang.database.table.BMirrorTable;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
@@ -900,7 +901,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
 
     private BTable constructTable(TableResourceManager rm, Context context, ResultSet rs, BStructType structType,
             boolean loadSQLTableToMemory, List<ColumnDefinition> columnDefinitions) throws SQLException {
-        return new BTable(new SQLDataIterator(rm, rs, utcCalendar, columnDefinitions, structType,
+        return new BCursorTable(new SQLDataIterator(rm, rs, utcCalendar, columnDefinitions, structType,
                 Utils.getTimeStructInfo(context), Utils.getTimeZoneStructInfo(context)), loadSQLTableToMemory);
     }
 
@@ -949,6 +950,5 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             }
         }
         return direction;
-
     }
 }
