@@ -9,6 +9,7 @@ import org.ballerinalang.plugins.idea.completion.inserthandlers.ColonInsertHandl
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.BallerinaImportDeclaration;
 import org.ballerinalang.plugins.idea.psi.BallerinaPackageReference;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,6 +55,11 @@ public class BallerinaPackageNameProcessor extends BallerinaScopeProcessorBase {
                         add(identifier);
                     }
                 }
+            }
+            // Todo - Add all un-imported imports.
+            if (myResult != null) {
+                myResult.addAllElements(BallerinaPsiImplUtil.getAllUnImportedImports(element.getProject(),
+                        cachedImports));
             }
         }
         return true;

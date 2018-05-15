@@ -17,6 +17,7 @@
 
 package org.ballerinalang.plugins.idea.psi.impl;
 
+import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.Project;
@@ -24,7 +25,6 @@ import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -34,7 +34,6 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveState;
-import com.intellij.psi.SmartPsiElementPointer;
 import com.intellij.psi.scope.PsiScopeProcessor;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
@@ -42,6 +41,8 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.containers.MultiMap;
+import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
+import org.ballerinalang.plugins.idea.completion.inserthandlers.AutoImportInsertHandler;
 import org.ballerinalang.plugins.idea.psi.BallerinaActionInvocation;
 import org.ballerinalang.plugins.idea.psi.BallerinaActionInvocationExpression;
 import org.ballerinalang.plugins.idea.psi.BallerinaAlias;
@@ -109,6 +110,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaVariableReferenceList;
 import org.ballerinalang.plugins.idea.psi.BallerinaXmlTypeName;
 import org.ballerinalang.plugins.idea.psi.reference.BallerinaCompletePackageNameReferenceSet;
 import org.ballerinalang.plugins.idea.psi.reference.BallerinaPackageNameReference;
+import org.ballerinalang.plugins.idea.sdk.BallerinaPathModificationTracker;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
 import org.ballerinalang.plugins.idea.stubs.BallerinaPackageVersionStub;
 import org.jetbrains.annotations.NotNull;
@@ -124,8 +126,6 @@ import java.util.List;
  * Util class which contains methods related to PSI manipulation.
  */
 public class BallerinaPsiImplUtil {
-
-    private static final Key<SmartPsiElementPointer<PsiElement>> CONTEXT = Key.create("CONTEXT");
 
     private static final List<String> BUILTIN_DIRECTORIES = new LinkedList<>();
 
@@ -1519,5 +1519,72 @@ public class BallerinaPsiImplUtil {
         }
         int index = filePath.indexOf(File.separator);
         return filePath.substring(index + 1);
+    }
+
+    public static boolean isAlreadyImported(@NotNull List<BallerinaImportDeclaration> allImportsInPackage,
+                                            @NotNull String currentPackageName) {
+        for (BallerinaImportDeclaration ballerinaImportDeclaration : allImportsInPackage) {
+            BallerinaCompletePackageName completePackageName = ballerinaImportDeclaration.getCompletePackageName();
+            if (completePackageName == null) {
+                continue;
+            }
+            if (completePackageName.getText().equalsIgnoreCase(currentPackageName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isAlreadyImported(@NotNull List<BallerinaImportDeclaration> allImportsInPackage,
+                                            @NotNull String organization, @NotNull String packageName) {
+        for (BallerinaImportDeclaration importDeclaration : allImportsInPackage) {
+            BallerinaOrgName orgName = importDeclaration.getOrgName();
+            if (orgName == null) {
+                continue;
+            }
+            BallerinaCompletePackageName completePackageName = importDeclaration.getCompletePackageName();
+            if (completePackageName == null) {
+                continue;
+            }
+            if (orgName.getText().equalsIgnoreCase(organization) && completePackageName.getText().equals(packageName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private List<VirtualFile> getPackagesFromSDK() {
+        List<VirtualFile> packages = ContainerUtil.emptyList();
+        return packages;
+    }
+
+    public static List<LookupElement> getAllUnImportedImports(@NotNull Project project,
+                                                              @NotNull List<BallerinaImportDeclaration>
+                                                                      allImportedPackages) {
+        List<LookupElement> imports = new LinkedList<>();
+        // From local project
+
+        // From SDK
+
+        // From user repository
+        List<VirtualFile> organizations = BallerinaPathModificationTracker.getAllOrganizationsInUserRepo();
+        for (VirtualFile organization : organizations) {
+            String organizationName = organization.getName();
+            List<VirtualFile> packages = BallerinaPathModificationTracker.getPackagesFromOrganization(organizationName);
+            for (VirtualFile aPackage : packages) {
+                PsiDirectory directory = PsiManager.getInstance(project).findDirectory(aPackage);
+                if (directory == null) {
+                    continue;
+                }
+                String packageName = directory.getName();
+                if (isAlreadyImported(allImportedPackages, organizationName, packageName)) {
+                    continue;
+                }
+                LookupElement lookup = BallerinaCompletionUtils.createUnImportedPackageLookup(organizationName,
+                        packageName, directory, AutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+                imports.add(lookup);
+            }
+        }
+        return imports;
     }
 }
