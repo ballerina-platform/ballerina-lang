@@ -108,6 +108,19 @@ public type SimpleTopicSubscriber object {
             }
         }
     }
+
+    documentation { Create JMS map message
+        P{{message}} A message body to create a map message
+    }
+    public function createMapMessage(map message) returns Message|error {
+        match (session) {
+            Session s => return s.createMapMessage(message);
+            () => {
+                error e = {message:"Session cannot be nil"};
+                throw e;
+            }
+        }
+    }
 };
 
 documentation { Configuration related to simple topic subscriber endpoint

@@ -16,9 +16,12 @@
  * under the License.
  */
 
-package org.ballerinalang.database.sql;
+package org.ballerinalang.database.table;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.database.sql.SQLDataIterator;
+import org.ballerinalang.database.sql.SQLDatasource;
+import org.ballerinalang.database.sql.SQLDatasourceUtils;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BBoolean;
@@ -54,8 +57,8 @@ public class BMirrorTable extends BTable {
     private StructInfo timeZoneStructInfo;
     private Calendar utcCalendar;
 
-    public BMirrorTable(SQLDatasource datasource, String tableName, BStructType constraintType, StructInfo
-            timeStructInfo, StructInfo timeZoneStructInfo, Calendar utcCalendar) {
+    public BMirrorTable(SQLDatasource datasource, String tableName, BStructType constraintType,
+            StructInfo timeStructInfo, StructInfo timeZoneStructInfo, Calendar utcCalendar) {
         super(tableName, constraintType);
         this.datasource = datasource;
         this.tableName = tableName;
@@ -95,17 +98,14 @@ public class BMirrorTable extends BTable {
         Connection connection = null;
         boolean isInTransaction = context.isInTransaction();
         try {
-            connection = SQLDatasourceUtils
-                    .getDatabaseConnection(context, this.datasource, isInTransaction);
+            connection = SQLDatasourceUtils.getDatabaseConnection(context, this.datasource, isInTransaction);
             if (!isInTransaction) {
                 connection.setAutoCommit(false);
             }
             while (this.hasNext(false)) {
                 BStruct data = this.getNext();
                 BValue[] args = { data };
-                BValue[] returns = BLangFunctions
-                        .invokeCallable(lambdaFunction.value().getFunctionInfo(),
-                                args);
+                BValue[] returns = BLangFunctions.invokeCallable(lambdaFunction.value().getFunctionInfo(), args);
                 if (((BBoolean) returns[0]).booleanValue()) {
                     ++deletedCount;
                     this.removeData(data, connection);
@@ -124,12 +124,8 @@ public class BMirrorTable extends BTable {
         }
     }
 
-    public void reset(boolean isInTransaction) {
-        if (iterator != null) {
-            iterator.reset(isInTransaction);
-            iterator = null;
-        }
-        resetIterationHelperAttributes();
+    public String stringValue() {
+        return "";
     }
 
     private void removeData(BStruct data, Connection conn) throws SQLException {
@@ -138,21 +134,13 @@ public class BMirrorTable extends BTable {
             String sqlStmt = TableUtils.generateDeleteDataStatment(tableName, data);
             stmt = conn.prepareStatement(sqlStmt);
             TableUtils.prepareAndExecuteStatement(stmt, data);
-        }  finally {
+        } finally {
             // Shouldn't close the connection at this point, as it has to be handled at the higher level to delete
             // data transactional way
             if (stmt != null) {
                 stmt.close();
             }
         }
-    }
-
-    protected boolean isIteratorGenerationConditionMet() {
-        return iterator == null;
-    }
-
-    protected boolean iteratorResetRequired() {
-        return true;
     }
 
     protected void generateIterator() {
@@ -165,8 +153,8 @@ public class BMirrorTable extends BTable {
             rs = preparedStmt.executeQuery();
             TableResourceManager rm = new TableResourceManager(conn, preparedStmt);
             List<ColumnDefinition> columnDefs = SQLDatasourceUtils.getColumnDefinitions(rs);
-            this.iterator = new SQLDataIterator(utcCalendar, constraintType, timeStructInfo,
-                    timeZoneStructInfo, rm, rs, columnDefs);
+            this.iterator = new SQLDataIterator(utcCalendar, constraintType, timeStructInfo, timeZoneStructInfo, rm, rs,
+                    columnDefs);
         } catch (SQLException e) {
             SQLDatasourceUtils.cleanupConnection(rs, preparedStmt, conn, false);
             throw new BallerinaException("error in populating iterator for table : " + e.getMessage());

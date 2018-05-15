@@ -392,8 +392,8 @@ public class SQLDatasourceUtils {
     public static void setDateValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
         Date val = null;
         if (value != null) {
-            if (value instanceof BStruct && value.getType().getName().equals(Constants.STRUCT_TIME) && value
-                    .getType().getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
+            if (value instanceof BStruct && value.getType().getName().equals(Constants.STRUCT_TIME) && value.getType()
+                    .getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
                 val = new Date(((BStruct) value).getIntField(0));
             } else if (value instanceof BInteger) {
                 val = new Date(((BInteger) value).intValue());
@@ -431,8 +431,8 @@ public class SQLDatasourceUtils {
             Calendar utcCalendar) {
         Timestamp val = null;
         if (value != null) {
-            if (value instanceof BStruct && value.getType().getName().equals(Constants.STRUCT_TIME) && value
-                    .getType().getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
+            if (value instanceof BStruct && value.getType().getName().equals(Constants.STRUCT_TIME) && value.getType()
+                    .getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
                 val = new Timestamp(((BStruct) value).getIntField(0));
             } else if (value instanceof BInteger) {
                 val = new Timestamp(((BInteger) value).intValue());
@@ -470,8 +470,8 @@ public class SQLDatasourceUtils {
             Calendar utcCalendar) {
         Time val = null;
         if (value != null) {
-            if (value instanceof BStruct && value.getType().getName().equals(Constants.STRUCT_TIME) && value
-                    .getType().getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
+            if (value instanceof BStruct && value.getType().getName().equals(Constants.STRUCT_TIME) && value.getType()
+                    .getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
                 val = new Time(((BStruct) value).getIntField(0));
             } else if (value instanceof BInteger) {
                 val = new Time(((BInteger) value).intValue());
@@ -504,14 +504,7 @@ public class SQLDatasourceUtils {
     }
 
     public static void setBinaryValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
-        byte[] val = null;
-        if (value != null) {
-            if (value instanceof BBlob) {
-                val = ((BBlob) value).blobValue();
-            } else if (value instanceof BString) {
-                val = getBytesFromBase64String(value.stringValue());
-            }
-        }
+        byte[] val = getByteArray(value);
         try {
             if (Constants.QueryParamDirection.IN == direction) {
                 if (val == null) {
@@ -537,14 +530,7 @@ public class SQLDatasourceUtils {
     }
 
     public static void setBlobValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
-        byte[] val = null;
-        if (value != null) {
-            if (value instanceof BBlob) {
-                val = ((BBlob) value).blobValue();
-            } else if (value instanceof BString) {
-                val = getBytesFromBase64String(value.stringValue());
-            }
-        }
+        byte[] val = getByteArray(value);
         try {
             if (Constants.QueryParamDirection.IN == direction) {
                 if (val == null) {
@@ -567,6 +553,16 @@ public class SQLDatasourceUtils {
         } catch (SQLException e) {
             throw new BallerinaException("error in set binary value to statement: " + e.getMessage(), e);
         }
+    }
+
+    private static byte[] getByteArray(BValue value) {
+        byte[] val = null;
+        if (value instanceof BBlob) {
+            val = ((BBlob) value).blobValue();
+        } else if (value instanceof BString) {
+            val = getBytesFromBase64String(value.stringValue());
+        }
+        return val;
     }
 
     public static void setClobValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
@@ -627,8 +623,7 @@ public class SQLDatasourceUtils {
         }
     }
 
-    public static void setRefCursorValue(Connection connection, PreparedStatement stmt, int index, int direction,
-            String databaseProductName) {
+    public static void setRefCursorValue(PreparedStatement stmt, int index, int direction, String databaseProductName) {
         try {
             if (Constants.QueryParamDirection.OUT == direction) {
                 if (ORACLE_DATABASE_NAME.equals(databaseProductName)) {
@@ -851,7 +846,7 @@ public class SQLDatasourceUtils {
      * @param sqlType SQL type in column
      * @return TypeKind that represent respective ballerina type.
      */
-    public static TypeKind getColumnType(int sqlType) {
+    private static TypeKind getColumnType(int sqlType) {
         switch (sqlType) {
         case Types.ARRAY:
             return TypeKind.ARRAY;
@@ -918,7 +913,7 @@ public class SQLDatasourceUtils {
     /**
      * This will retrieve the string value for the given clob.
      *
-     * @param data   clob data
+     * @param data clob data
      */
     public static String getString(Clob data) {
         if (data == null) {
@@ -1053,13 +1048,12 @@ public class SQLDatasourceUtils {
         if (localTransactionInfo.isRetryPossible(context.getParentWorkerExecutionContext(), transactionBlockId)) {
             return;
         }
-
         TransactionUtils.notifyTransactionAbort(context.getParentWorkerExecutionContext(), globalTransactionId,
                 transactionBlockId);
     }
 
-    public static BStruct createServerBasedDBClient(Context context, String database,
-            org.ballerinalang.connector.api.Struct clientEndpointConfig, String dbOptions) {
+    public static BStruct createServerBasedDBClient(Context context, String dbType,
+            org.ballerinalang.connector.api.Struct clientEndpointConfig, String urlOptions) {
         String host = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);
         int port = (int) clientEndpointConfig.getIntField(Constants.EndpointConfig.PORT);
         String name = clientEndpointConfig.getStringField(Constants.EndpointConfig.NAME);
@@ -1067,14 +1061,8 @@ public class SQLDatasourceUtils {
         String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
         org.ballerinalang.connector.api.Struct options = clientEndpointConfig
                 .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
-
-        SQLDatasource datasource = new SQLDatasource();
-        datasource.init(options, "", database, host, port, username, password, name, dbOptions, null);
-
-        BStruct sqlClient = BLangConnectorSPIUtil
-                .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.CALLER_ACTIONS);
-        sqlClient.addNativeData(Constants.CALLER_ACTIONS, datasource);
-        return sqlClient;
+        return createSQLDataSource(context, options, "", dbType, host, port, username, password, name, urlOptions,
+                null);
     }
 
     public static BStruct createSQLDBClient(Context context,
@@ -1085,44 +1073,42 @@ public class SQLDatasourceUtils {
         Map<String, Value> dbOptions = clientEndpointConfig.getMapField(Constants.EndpointConfig.DB_OPTIONS);
         org.ballerinalang.connector.api.Struct options = clientEndpointConfig
                 .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
-
-        SQLDatasource datasource = new SQLDatasource();
         String dbType = url.split(":")[1].toUpperCase(Locale.getDefault());
-        datasource.init(options, url, dbType, "", 0, username, password, "", "", dbOptions);
-
-        BStruct sqlClient = BLangConnectorSPIUtil
-                .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.CALLER_ACTIONS);
-        sqlClient.addNativeData(Constants.CALLER_ACTIONS, datasource);
-        return sqlClient;
+        return createSQLDataSource(context, options, url, dbType, "", 0, username, password, "", "", dbOptions);
     }
 
-    public static BStruct createMultiModeDBClient(Context context, String database,
-            org.ballerinalang.connector.api.Struct clientEndpointConfig, String dbOptions) {
-        String dbType = Constants.SQL_MEMORY_DB_POSTFIX;
+    public static BStruct createMultiModeDBClient(Context context, String dbType,
+            org.ballerinalang.connector.api.Struct clientEndpointConfig, String urlOptions) {
+        String dbPostfix = Constants.SQL_MEMORY_DB_POSTFIX;
         String hostOrPath = "";
         String host = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);
         String path = clientEndpointConfig.getStringField(Constants.EndpointConfig.PATH);
         if (!host.isEmpty()) {
-            dbType = Constants.SQL_SERVER_DB_POSTFIX;
+            dbPostfix = Constants.SQL_SERVER_DB_POSTFIX;
             hostOrPath = host;
         } else if (!path.isEmpty()) {
-            dbType = Constants.SQL_FILE_DB_POSTFIX;
+            dbPostfix = Constants.SQL_FILE_DB_POSTFIX;
             hostOrPath = path;
         }
         if (!host.isEmpty() && !path.isEmpty()) {
-            throw new BallerinaException("error in creating db connector: Provide either host or path");
+            throw new BallerinaException("error in creating db client endpoint: Provide either host or path");
         }
-        database = database + dbType;
+        dbType = dbType + dbPostfix;
         int port = (int) clientEndpointConfig.getIntField(Constants.EndpointConfig.PORT);
         String name = clientEndpointConfig.getStringField(Constants.EndpointConfig.NAME);
         String username = clientEndpointConfig.getStringField(Constants.EndpointConfig.USERNAME);
         String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
         org.ballerinalang.connector.api.Struct options = clientEndpointConfig
                 .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
+        return createSQLDataSource(context, options, "", dbType, hostOrPath, port, username, password, name, urlOptions,
+                null);
+    }
 
+    private static BStruct createSQLDataSource(Context context, org.ballerinalang.connector.api.Struct options,
+            String url, String dbType, String hostOrPath, int port, String username, String password, String dbName,
+            String dbOptions, Map dbOptionsMap) {
         SQLDatasource datasource = new SQLDatasource();
-        datasource.init(options, "", database, hostOrPath, port, username, password, name, dbOptions, null);
-
+        datasource.init(options, url, dbType, hostOrPath, port, username, password, dbName, dbOptions, dbOptionsMap);
         BStruct sqlClient = BLangConnectorSPIUtil
                 .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.CALLER_ACTIONS);
         sqlClient.addNativeData(Constants.CALLER_ACTIONS, datasource);
@@ -1410,7 +1396,7 @@ public class SQLDatasourceUtils {
         } else {
             timeZoneOffSet = getTimeZoneOffset(fractionStr);
         }
-        return new int[] {miliSecond, timeZoneOffSet};
+        return new int[] { miliSecond, timeZoneOffSet };
     }
 
     private static int getTimeZoneOffset(String timezoneStr) {
@@ -1433,8 +1419,7 @@ public class SQLDatasourceUtils {
         return timeZoneOffSet;
     }
 
-    public static List<ColumnDefinition> getColumnDefinitions(ResultSet rs)
-            throws SQLException {
+    public static List<ColumnDefinition> getColumnDefinitions(ResultSet rs) throws SQLException {
         List<ColumnDefinition> columnDefs = new ArrayList<>();
         Set<String> columnNames = new HashSet<>();
         ResultSetMetaData rsMetaData = rs.getMetaData();

@@ -117,7 +117,7 @@ public class BallerinaFieldProcessor extends BallerinaScopeProcessorBase {
                                 // Note - Child is passed here instead of identifier because it is is top level
                                 // definition.
                                 myResult.addElement(BallerinaCompletionUtils.createFieldLookupElement(
-                                        definitionIdentifier, ownerName, typeName, null, false));
+                                        definitionIdentifier, ownerName, typeName, null, null, false));
                             } else if (myElement.getText().equals(definitionIdentifier.getText())) {
                                 add(definitionIdentifier);
                             }

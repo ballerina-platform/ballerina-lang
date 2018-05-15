@@ -27,6 +27,8 @@ import com.intellij.util.Producer;
 import com.intellij.util.TextFieldCompletionProvider;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+
 /**
  * Provides support to lists packages in settings UIs.
  */
@@ -61,7 +63,7 @@ public class BallerinaPackageFieldCompletionProvider extends TextFieldCompletion
                     continue;
                 }
                 // Path delimiter will be '/' on Linux and Windows OS.
-                String relativePath = child.getPath().replaceFirst(root + "/", "");
+                String relativePath = child.getPath().replaceFirst(root + File.separator, "");
                 result.addElement(LookupElementBuilder.create(relativePath));
                 addDirectories(result, root, child);
             }

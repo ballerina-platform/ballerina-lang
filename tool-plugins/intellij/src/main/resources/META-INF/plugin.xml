@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>org.ballerinalang</id>
     <name>Ballerina</name>
-    <version>0.970.1-SNAPSHOT</version>
+    <version>0.970.1</version>
     <vendor email="ballerinalang@wso2.com" url="http://wso2.org">WSO2 Inc.</vendor>
 
     <description><![CDATA[
@@ -11,6 +11,7 @@
     <change-notes><![CDATA[
       <ul>
         <li>Supports Ballerina v0.970.1 grammar.</li>
+        <li>Improved Ballerina user repository support.</li>
       </ul>
     ]]>
     </change-notes>
@@ -23,6 +24,14 @@
     <!-- uncomment to enable plugin in all products -->
     <depends>com.intellij.modules.lang</depends>
     <depends optional="true" config-file="java-deps.xml">com.intellij.modules.java</depends>
+
+    <module-components>
+        <component>
+            <implementation-class>
+                org.ballerinalang.plugins.idea.project.BallerinaModuleLibrariesInitializer
+            </implementation-class>
+        </component>
+    </module-components>
 
     <extensions defaultExtensionNs="com.intellij">
 
@@ -130,9 +139,6 @@
         <editorNotificationProvider
                 implementation="org.ballerinalang.plugins.idea.inspections.WrongModuleTypeNotificationProvider"/>
 
-        <!--project-->
-        <projectExtension implementation="org.ballerinalang.plugins.idea.project.BallerinaProjectExtension"/>
-
         <!-- run application -->
         <programRunner id="ballerinaRunner" implementation="org.ballerinalang.plugins.idea.runconfig.BallerinaRunner"/>
 
@@ -148,6 +154,12 @@
 
         <console.folding implementation="org.ballerinalang.plugins.idea.runconfig.BallerinaConsoleFolding"/>
 
+        <!--remote-->
+        <configurationType
+                implementation="org.ballerinalang.plugins.idea.runconfig.remote.BallerinaRemoteRunConfigurationType"/>
+        <runConfigurationProducer
+                implementation="org.ballerinalang.plugins.idea.runconfig.remote.BallerinaRemoteRunConfigurationProducer"/>
+
         <!-- debugger -->
         <programRunner id="ballerinaDebugger"
                        implementation="org.ballerinalang.plugins.idea.runconfig.BallerinaDebugger"/>
@@ -156,6 +168,23 @@
 
         <codeInsight.template.postfixTemplateProvider language="Ballerina"
                                                       implementationClass="org.ballerinalang.plugins.idea.codeinsight.template.postfix.BallerinaPostfixTemplateProvider"/>
+
+        <!--project-->
+        <applicationService
+                serviceImplementation="org.ballerinalang.plugins.idea.project.BallerinaApplicationLibrariesService"/>
+        <projectService
+                serviceImplementation="org.ballerinalang.plugins.idea.project.BallerinaProjectLibrariesService"/>
+        <projectConfigurable id="Ballerina" groupId="language"
+                             provider="org.ballerinalang.plugins.idea.configuration.BallerinaConfigurableProvider"
+                             dynamic="true"/>
+        <projectExtension implementation="org.ballerinalang.plugins.idea.project.BallerinaProjectExtension"/>
+        <applicationService
+                serviceImplementation="org.ballerinalang.plugins.idea.codeinsight.imports.BallerinaCodeInsightSettings"/>
+        <projectStructureDetector
+                implementation="org.ballerinalang.plugins.idea.project.BallerinaProjectStructureDetector"/>
+        <directoryProjectGenerator
+                implementation="org.ballerinalang.plugins.idea.BallerinaProjectGenerator"/> <!-- for small IDEs-->
+
 
     </extensions>
     <actions>
