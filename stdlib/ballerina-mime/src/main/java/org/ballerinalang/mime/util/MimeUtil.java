@@ -346,6 +346,12 @@ public class MimeUtil {
         try {
             File tempDir = (userDefinedTempDir != null && !userDefinedTempDir.isEmpty()) ?
                     new File(userDefinedTempDir) : null;
+            if(tempDir != null && !tempDir.exists()) {
+                boolean isDirectoryCreated = tempDir.mkdirs();
+                if(log.isDebugEnabled() && isDirectoryCreated) {
+                    log.debug("Temporary directory or directories have been created for ballerina overflow data");
+                }
+            }
             File tempFile = File.createTempFile(fileName, TEMP_FILE_EXTENSION, tempDir);
             outputStream = new FileOutputStream(tempFile.getAbsolutePath());
             writeInputToOutputStream(inputStream, outputStream);
