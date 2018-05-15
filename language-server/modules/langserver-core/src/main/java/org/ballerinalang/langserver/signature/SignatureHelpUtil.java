@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.model.elements.DocTag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.eclipse.lsp4j.ParameterInformation;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SignatureHelp;
@@ -28,11 +29,8 @@ import org.eclipse.lsp4j.SignatureInformation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
@@ -162,54 +160,36 @@ public class SignatureHelpUtil {
      */
     private static SignatureInfoModel getSignatureInfoModel(BInvokableSymbol bInvokableSymbol,
                                                              LSServiceOperationContext signatureContext) {
+        List<BLangFunction> functionList;
         Map<String, String> paramDescMap = new HashMap<>();
         SignatureInfoModel signatureInfoModel = new SignatureInfoModel();
         List<ParameterInfoModel> paramModels = new ArrayList<>();
         String functionName = signatureContext.get(SignatureKeys.CALLABLE_ITEM_NAME);
         CompilerContext compilerContext = signatureContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         BLangPackage bLangPackage = LSPackageLoader.getPackageById(compilerContext, bInvokableSymbol.pkgID);
-        BLangFunction blangFunction = bLangPackage.getFunctions().stream()
+        
+        if (bInvokableSymbol.owner.kind.equals(SymbolKind.OBJECT)) {
+            BLangObject filteredObject = bLangPackage.getObjects().stream()
+                    .filter(object -> object.name.getValue().equals(bInvokableSymbol.owner.name.getValue()))
+                    .findFirst()
+                    .orElse(null);
+            functionList = filteredObject.getFunctions();
+        } else {
+            functionList = bLangPackage.getFunctions();
+        }
+        
+        BLangFunction blangFunction = functionList.stream()
                 .filter(bLangFunction -> bLangFunction.getName().getValue().equals(functionName))
                 .findFirst()
                 .orElse(null);
 
-
-        if (!blangFunction.getDocumentationAttachments().isEmpty()) {
+        if (blangFunction != null && !blangFunction.getDocumentationAttachments().isEmpty()) {
             // Get the first documentation attachment
             BLangDocumentation bLangDocumentation = blangFunction.getDocumentationAttachments().get(0);
             signatureInfoModel.setSignatureDescription(bLangDocumentation.documentationText.trim());
             bLangDocumentation.attributes.forEach(attribute -> {
                 if (attribute.docTag.equals(DocTag.PARAM)) {
                     paramDescMap.put(attribute.documentationField.getValue(), attribute.documentationText.trim());
-                }
-            });
-        } else {
-            // TODO: Should be deprecated in due course
-            // Iterate over the attachments list and extract the attachment Description Map
-            blangFunction.getAnnotationAttachments().forEach(annotationAttachment -> {
-                BLangExpression expr = annotationAttachment.expr;
-                if (expr instanceof BLangRecordLiteral) {
-                    List<BLangRecordLiteral.BLangRecordKeyValue> recordKeyValues =
-                            ((BLangRecordLiteral) expr).keyValuePairs;
-                    for (BLangRecordLiteral.BLangRecordKeyValue recordKeyValue : recordKeyValues) {
-                        BLangExpression key = recordKeyValue.key.expr;
-                        BLangExpression value = recordKeyValue.getValue();
-                        if (key instanceof BLangSimpleVarRef
-                                && ((BLangSimpleVarRef) key).getVariableName().getValue().equals("value")
-                                && value instanceof BLangLiteral) {
-                            String annotationValue = ((BLangLiteral) value).getValue().toString();
-                            if (annotationAttachment.getAnnotationName().getValue().equals("Param")) {
-                                String paramName = annotationValue
-                                        .substring(0, annotationValue.indexOf(UtilSymbolKeys.PKG_DELIMITER_KEYWORD));
-                                String annotationDesc = annotationValue
-                                        .substring(annotationValue.indexOf(UtilSymbolKeys.PKG_DELIMITER_KEYWORD) + 1)
-                                        .trim();
-                                paramDescMap.put(paramName, annotationDesc);
-                            } else if (annotationAttachment.getAnnotationName().getValue().equals("Description")) {
-                                signatureInfoModel.setSignatureDescription(annotationValue);
-                            }
-                        }
-                    }
                 }
             });
         }
@@ -240,7 +220,11 @@ public class SignatureHelpUtil {
                     || TERMINAL_CHARACTERS.contains(Character.toString(c))) {
                 callableItemName = line.substring(counter + 1, startPosition + 1);
                 delimiter = String.valueOf(line.charAt(counter));
-                captureIdentifierAgainst(line, counter, signatureContext);
+                if (">".equals(delimiter) && "-".equals(String.valueOf(line.charAt(counter - 1)))) {
+                    counter--;
+                    delimiter = String.valueOf(line.charAt(counter)) + delimiter;
+                }
+                captureIdentifierAgainst(line, counter, signatureContext, delimiter);
                 break;
             }
             counter--;
@@ -256,11 +240,12 @@ public class SignatureHelpUtil {
      * @param signatureContext  Signature help context
      */
     private static void captureIdentifierAgainst(String line, int startPosition,
-                                                 LSServiceOperationContext signatureContext) {
+                                                 LSServiceOperationContext signatureContext, String delimiter) {
         int counter = startPosition;
         String identifier = "";
-        if (".".equals(Character.toString(line.charAt(counter)))
-                || ":".equals(Character.toString(line.charAt(counter)))) {
+        if (UtilSymbolKeys.DOT_SYMBOL_KEY.equals(delimiter)
+                || UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(delimiter)
+                || UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(delimiter)) {
             counter--;
             while (true) {
                 if (counter < 0) {
