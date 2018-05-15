@@ -34,9 +34,8 @@ import java.util.List;
  * suppose to be delivered to a client.
  * A PUSH_PROMISE should not be sent by a client.
  */
-public class Http2PushPromise {
+public class Http2PushPromise extends Http2Frame {
 
-    private int streamId;
     private int promisedStreamId;
     private boolean rejected = false;
     private HttpRequest httpRequest;
@@ -156,24 +155,6 @@ public class Http2PushPromise {
      */
     public int getPromisedStreamId() {
         return promisedStreamId;
-    }
-
-    /**
-     * Gets the id of the stream which push promise belongs to.
-     *
-     * @return  id of the stream which the push promise is received or delivered
-     */
-    public int getStreamId() {
-        return streamId;
-    }
-
-    /**
-     * Sets the id of the stream which push promise belongs to.
-     *
-     * @param streamId id of the stream which the push promise is received or delivered
-     */
-    public void setStreamId(int streamId) {
-        this.streamId = streamId;
     }
 
     /**
