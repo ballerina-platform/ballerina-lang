@@ -73,7 +73,7 @@ function testInsertTableData() returns (int) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    var insertCount = check testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    int insertCount = check testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                          values ('James', 'Clerk', 2, 5000.75, 'USA')");
     testDB.stop();
     return insertCount;
@@ -98,7 +98,7 @@ function testUpdateTableData() returns (int) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    var updateCount = check testDB->update("Update Customers set country = 'UK' where registrationID = 1");
+    int updateCount = check testDB->update("Update Customers set country = 'UK' where registrationID = 1");
     testDB.stop();
     return updateCount;
 }
@@ -617,7 +617,7 @@ function testINParametersWithDirectValues() returns (int, int, float, float, boo
     blob blobReturn;
 
     while (dt.hasNext()) {
-        var rs = check <ResultBalTypes>dt.getNext();
+        ResultBalTypes rs = check <ResultBalTypes>dt.getNext();
         i = rs.INT_TYPE;
         l = rs.LONG_TYPE;
         f = rs.FLOAT_TYPE;
@@ -974,7 +974,7 @@ function testBatchUpdateWithFailure() returns (int[], int) {
         ResultCount);
 
     while (dt.hasNext()) {
-        var rs = check <ResultCount>dt.getNext();
+        ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
 
@@ -1064,7 +1064,7 @@ function testDateTimeNullInValues() returns (string) {
 
     string data;
 
-    var j = check <json>dt;
+    json j = check <json>dt;
     data = io:sprintf("%j", j);
 
     testDB.stop();
@@ -1181,15 +1181,15 @@ function testComplexTypeRetrieval() returns (string, string, string, string) {
     string s4;
 
     table dt = check testDB->select("SELECT * from DataTypeTable where row_id = 1", ());
-    var x1 = check <xml>dt;
+    xml x1 = check <xml>dt;
     s1 = io:sprintf("%l", x1);
 
     dt = check testDB->select("SELECT * from DateTimeTypes where row_id = 1", ());
-    var x2 = check <xml>dt;
+    xml x2 = check <xml>dt;
     s2 = io:sprintf("%l", x2);
 
     dt = check testDB->select("SELECT * from DataTypeTable where row_id = 1", ());
-    var j = check <json>dt;
+    json j = check <json>dt;
     s3 = io:sprintf("%j", j);
 
     dt = check testDB->select("SELECT * from DateTimeTypes where row_id = 1", ());
@@ -1214,7 +1214,7 @@ function testSelectLoadToMemory() returns (Employee[], Employee[], Employee[]) {
     Employee[] employeeArray3;
     int i = 0;
     while (dt.hasNext()) {
-        var rs = check <Employee>dt.getNext();
+        Employee rs = check <Employee>dt.getNext();
         Employee e = { id: rs.id, name: rs.name, address: rs.address };
         employeeArray1[i] = e;
         i++;
@@ -1222,7 +1222,7 @@ function testSelectLoadToMemory() returns (Employee[], Employee[], Employee[]) {
 
     i = 0;
     while (dt.hasNext()) {
-        var rs = check <Employee>dt.getNext();
+        Employee rs = check <Employee>dt.getNext();
         Employee e = { id: rs.id, name: rs.name, address: rs.address };
         employeeArray2[i] = e;
         i++;
@@ -1230,7 +1230,7 @@ function testSelectLoadToMemory() returns (Employee[], Employee[], Employee[]) {
 
     i = 0;
     while (dt.hasNext()) {
-        var rs = check <Employee>dt.getNext();
+        Employee rs = check <Employee>dt.getNext();
         Employee e = { id: rs.id, name: rs.name, address: rs.address };
         employeeArray3[i] = e;
         i++;
@@ -1254,14 +1254,14 @@ function testLoadToMemorySelectAfterTableClose() returns (Employee[], Employee[]
     Employee[] employeeArray3;
     int i = 0;
     while (dt.hasNext()) {
-        var rs = check <Employee>dt.getNext();
+        Employee rs = check <Employee>dt.getNext();
         Employee e = { id: rs.id, name: rs.name, address: rs.address };
         employeeArray1[i] = e;
         i++;
     }
     i = 0;
     while (dt.hasNext()) {
-        var rs = check <Employee>dt.getNext();
+        Employee rs = check <Employee>dt.getNext();
         Employee e = { id: rs.id, name: rs.name, address: rs.address };
         employeeArray2[i] = e;
         i++;
@@ -1271,7 +1271,7 @@ function testLoadToMemorySelectAfterTableClose() returns (Employee[], Employee[]
     error e;
     try {
         while (dt.hasNext()) {
-            var rs = check <Employee>dt.getNext();
+            Employee rs = check <Employee>dt.getNext();
             Employee e = { id: rs.id, name: rs.name, address: rs.address };
             employeeArray3[i] = e;
             i++;

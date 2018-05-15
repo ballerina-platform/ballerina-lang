@@ -236,11 +236,9 @@ public class BallerinaModuleLibrariesInitializer implements ModuleComponent {
                     }
                 }
             };
-            Notification notification = BallerinaConstants.BALLERINA_NOTIFICATION_GROUP.createNotification
-                    ("BALLERINA_REPOSITORY was detected",
-                            "We've detected some packages from your BALLERINA_REPOSITORY.\n" +
-                                    "You may want to add extra packages in <a href='configure'>Ballerina Packages " +
-                                    "configuration</a>.",
+            Notification notification =
+                    BallerinaConstants.BALLERINA_NOTIFICATION_GROUP.createNotification("BALLERINA_REPOSITORY was " +
+                                    "detected", "We've detected some packages from your BALLERINA_REPOSITORY.\n",
                             NotificationType.INFORMATION, notificationListener);
             Notifications.Bus.notify(notification, project);
         }

@@ -27,6 +27,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
+import org.ballerinalang.plugins.idea.psi.BallerinaEndpointDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeDefinition;
 import org.jetbrains.annotations.NotNull;
 
@@ -54,13 +55,15 @@ public class BallerinaEnterBetweenBracesHandler extends EnterBetweenBracesHandle
         }
         // Check whether the semicolon is needed.
         if (needToInsertSemicolon(element)) {
-            BallerinaTypeDefinition typeDefinition = PsiTreeUtil.getParentOfType(element,
-                    BallerinaTypeDefinition.class);
-            if (typeDefinition == null) {
+            PsiElement definition = PsiTreeUtil.getParentOfType(element, BallerinaTypeDefinition.class);
+            if (definition == null) {
+                definition = PsiTreeUtil.getParentOfType(element, BallerinaEndpointDefinition.class);
+            }
+            if (definition == null) {
                 return Result.Continue;
             }
             // Get the end offset of the type definition.
-            int endOffset = typeDefinition.getTextRange().getEndOffset();
+            int endOffset = definition.getTextRange().getEndOffset();
             // Calculate the caret shift.
             int caretShift = endOffset - caretOffset;
             // Move the caret to the right.
@@ -74,13 +77,20 @@ public class BallerinaEnterBetweenBracesHandler extends EnterBetweenBracesHandle
     }
 
     private boolean needToInsertSemicolon(PsiElement element) {
-        // Get the type definition.
+        // Check for type definition.
         BallerinaTypeDefinition typeDefinition = PsiTreeUtil.getParentOfType(element, BallerinaTypeDefinition.class);
-        if (typeDefinition == null) {
-            return false;
+        if (typeDefinition != null) {
+            // Check whether the type definition has a semicolon.
+            return typeDefinition.getSemicolon() == null;
         }
-        // Check whether the type definition has a semicolon.
-        return typeDefinition.getSemicolon() == null;
+        // Check for endpoint definition.
+        BallerinaEndpointDefinition ballerinaEndpointDefinition = PsiTreeUtil.getParentOfType(element,
+                BallerinaEndpointDefinition.class);
+        if (ballerinaEndpointDefinition != null) {
+            // Check whether the endpoint definition has a semicolon.
+            return ballerinaEndpointDefinition.getSemicolon() == null;
+        }
+        return false;
     }
 
     @Override

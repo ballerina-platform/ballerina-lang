@@ -20,7 +20,7 @@ function testIterateMirrorTable() returns (Employee[], Employee[]) {
     Employee[] employeeArray2;
     int i = 0;
     while (dt.hasNext()) {
-        var rs = check <Employee>dt.getNext();
+        Employee rs = check <Employee>dt.getNext();
         Employee e = { id: rs.id, name: rs.name, address: rs.address };
         employeeArray1[i] = e;
         i++;
@@ -28,7 +28,7 @@ function testIterateMirrorTable() returns (Employee[], Employee[]) {
 
     i = 0;
     while (dt.hasNext()) {
-        var rs = check <Employee>dt.getNext();
+        Employee rs = check <Employee>dt.getNext();
         Employee e = { id: rs.id, name: rs.name, address: rs.address };
         employeeArray2[i] = e;
         i++;
@@ -53,7 +53,7 @@ function testIterateMirrorTableAfterClose() returns (Employee[], Employee[], err
 
     int i = 0;
     while (dt.hasNext()) {
-        var rs = check <Employee>dt.getNext();
+        Employee rs = check <Employee>dt.getNext();
         Employee e = { id: rs.id, name: rs.name, address: rs.address };
         employeeArray1[i] = e;
         i++;
@@ -61,7 +61,7 @@ function testIterateMirrorTableAfterClose() returns (Employee[], Employee[], err
 
     i = 0;
     while (dt.hasNext()) {
-        var rs = check <Employee>dt.getNext();
+        Employee rs = check <Employee>dt.getNext();
         Employee e = { id: rs.id, name: rs.name, address: rs.address };
         employeeArray2[i] = e;
         i++;
@@ -72,7 +72,7 @@ function testIterateMirrorTableAfterClose() returns (Employee[], Employee[], err
     error e;
     try {
         while (dt.hasNext()) {
-            var rs = check <Employee>dt.getNext();
+            Employee rs = check <Employee>dt.getNext();
             Employee e = { id: rs.id, name: rs.name, address: rs.address };
             employeeArray3[i] = e;
             i++;
@@ -104,7 +104,7 @@ function testAddToMirrorTable() returns (Employee[]) {
     Employee[] employeeArray;
     int i = 0;
     while (dt2.hasNext()) {
-        var rs = check <Employee>dt2.getNext();
+        Employee rs = check <Employee>dt2.getNext();
         Employee e = { id: rs.id, name: rs.name, address: rs.address };
         employeeArray[i] = e;
         i++;

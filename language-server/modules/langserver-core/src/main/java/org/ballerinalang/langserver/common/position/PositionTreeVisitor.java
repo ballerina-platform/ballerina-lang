@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -66,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -396,6 +398,14 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
         if (ifNode.elseStmt != null) {
             acceptNode(ifNode.elseStmt);
+        }
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess indexBasedAccess) {
+        setPreviousNode(indexBasedAccess);
+        if (indexBasedAccess.expr != null) {
+            this.acceptNode(indexBasedAccess.expr);
         }
     }
 
@@ -806,6 +816,14 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         setPreviousNode(unionTypeNode);
         if (unionTypeNode.memberTypeNodes != null) {
             unionTypeNode.memberTypeNodes.forEach(this::acceptNode);
+        }
+    }
+
+    @Override
+    public void visit(BLangUnaryExpr unaryExpr) {
+        setPreviousNode(unaryExpr);
+        if (unaryExpr.expr != null) {
+            this.acceptNode(unaryExpr.expr);
         }
     }
 

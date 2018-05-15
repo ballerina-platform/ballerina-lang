@@ -237,11 +237,11 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
 
                 // Highlight the range according to the diagnostic kind.
                 if (diagnostic.getKind() == Diagnostic.Kind.ERROR) {
-                    holder.createErrorAnnotation(textRange, diagnostic.getMessage());
+                    holder.createErrorAnnotation(textRange, "Compiler: " + diagnostic.getMessage());
                 } else if (diagnostic.getKind() == Diagnostic.Kind.WARNING) {
-                    holder.createWarningAnnotation(textRange, diagnostic.getMessage());
+                    holder.createWarningAnnotation(textRange, "Compiler: " + diagnostic.getMessage());
                 } else if (diagnostic.getKind() == Diagnostic.Kind.NOTE) {
-                    holder.createInfoAnnotation(textRange, diagnostic.getMessage());
+                    holder.createInfoAnnotation(textRange, "Compiler: " + diagnostic.getMessage());
                 }
             }
         } catch (ClassCastException e) {

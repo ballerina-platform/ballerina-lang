@@ -24,8 +24,8 @@ documentation {
     F{{name}} The name of the database to connect
     F{{username}} Username for the database connection
     F{{password}} Password for the database connection
-    F{{poolOptions}} Properties for the connection pool configuration
-    F{{dbOptions}} DB specific properties
+    F{{poolOptions}} Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
+    F{{dbOptions}} A map of DB specific properties
 }
 public type ClientEndpointConfiguration {
     string host,
