@@ -19,7 +19,6 @@
 package org.ballerinalang.net.http;
 
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
@@ -98,7 +97,6 @@ public abstract class WebSocketUtil {
                 webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO,
                                                  connectionInfo);
                 if (context != null && callback != null) {
-                    webSocketEndpoint.setBooleanField(0, 1);
                     context.setReturnValues(webSocketEndpoint);
                     callback.notifySuccess();
                 } else {
@@ -106,7 +104,7 @@ public abstract class WebSocketUtil {
                     if (onOpenResource != null) {
                         executeOnOpenResource(onOpenResource, webSocketEndpoint, webSocketConnection);
                     } else {
-                        webSocketConnection.readNextFrame();
+                        readFirstFrame(webSocketConnection, webSocketConnector);
                     }
                 }
             }
@@ -140,24 +138,20 @@ public abstract class WebSocketUtil {
             @Override
             public void notifySuccess() {
                 if (webSocketConnector.getBooleanField(0) == 0) {
-                    webSocketConnection.readNextFrame();
-                    webSocketConnector.setBooleanField(0, 1);
+                    readFirstFrame(webSocketConnection, webSocketConnector);
                 }
             }
 
             @Override
             public void notifyFailure(BStruct error) {
                 if (webSocketConnector.getBooleanField(0) == 0) {
-                    webSocketConnection.readNextFrame();
-                    webSocketConnector.setBooleanField(0, 1);
+                    readFirstFrame(webSocketConnection, webSocketConnector);
                 }
                 ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
             }
         };
-
         //TODO handle BallerinaConnectorException
-        Executor.submit(onOpenResource, onOpenCallableUnitCallback,
-                        null, null, bValues);
+        Executor.submit(onOpenResource, onOpenCallableUnitCallback, null, null, bValues);
     }
 
     public static void populateEndpoint(WebSocketConnection webSocketConnection, BStruct webSocketEndpoint) {
@@ -169,7 +163,7 @@ public abstract class WebSocketUtil {
 
     public static void handleWebSocketCallback(Context context, CallableUnitCallback callback,
                                                ChannelFuture webSocketChannelFuture) {
-        webSocketChannelFuture.addListener((ChannelFutureListener) future -> {
+        webSocketChannelFuture.addListener(future -> {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
                 context.setReturnValues(createWebSocketConnectorError(context, future.cause().getMessage()));
@@ -202,5 +196,10 @@ public abstract class WebSocketUtil {
             uri = uri.substring(0, uri.length() - 1);
         }
         return uri;
+    }
+
+    public static void readFirstFrame(WebSocketConnection webSocketConnection, BStruct webSocketConnector) {
+        webSocketConnection.readNextFrame();
+        webSocketConnector.setBooleanField(0, 1);
     }
 }
