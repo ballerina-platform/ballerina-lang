@@ -119,8 +119,11 @@ public class ClientFrameListener extends Http2EventAdapter {
                 new Http2PushPromise(Util.createHttpRequestFromHttp2Headers(headers, streamId));
         pushPromise.setPromisedStreamId(promisedStreamId);
         pushPromise.setStreamId(streamId);
-        http2ClientChannel.getDataEventListeners().
-                forEach(dataEventListener -> dataEventListener.onStreamInit(ctx, promisedStreamId));
+        for (Http2DataEventListener listener : http2ClientChannel.getDataEventListeners()) {
+            if (!listener.onStreamInit(ctx, promisedStreamId)) {
+                return;
+            }
+        }
         ctx.fireChannelRead(pushPromise);
     }
 

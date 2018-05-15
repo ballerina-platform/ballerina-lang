@@ -59,7 +59,7 @@ import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 import java.util.Locale;
 
 /**
- * {@code Http2TargetHandler} is responsible for sending and receiving HTTP/2 frames over a connection.
+ * {@code Http2TargetHandler} is responsible for sending and receiving HTTP/2 frames over an outbound connection.
  */
 public class Http2TargetHandler extends ChannelDuplexHandler {
 
@@ -282,6 +282,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
         ctx.flush();
     }
 
+    @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof Http2HeadersFrame) {
             onHeadersRead(ctx, (Http2HeadersFrame) msg);
@@ -295,10 +296,8 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
     }
 
     private void onHeadersRead(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame) throws Http2Exception {
-
         int streamId = http2HeadersFrame.getStreamId();
-        boolean endStream = http2HeadersFrame.isEndOfStream();
-        Http2Headers headers = http2HeadersFrame.getHeaders();
+        boolean endOfStream = http2HeadersFrame.isEndOfStream();
 
         OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
         boolean isServerPush = false;
@@ -313,15 +312,16 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
             }
         }
         // Create response carbon message
-        HttpCarbonResponse responseMessage = setupResponseCarbonMessage(ctx, streamId, headers, outboundMsgHolder);
+        HttpCarbonResponse responseMessage =
+                setupResponseCarbonMessage(ctx, streamId, http2HeadersFrame.getHeaders(), outboundMsgHolder);
         if (isServerPush) {
             outboundMsgHolder.addPushResponse(streamId, responseMessage);
-            if (endStream) {
+            if (endOfStream) {
                 responseMessage.addHttpContent(new DefaultLastHttpContent());
                 http2ClientChannel.removePromisedMessage(streamId);
             }
         } else {
-            if (endStream) {
+            if (endOfStream) {
                 responseMessage.addHttpContent(new DefaultLastHttpContent());
                 http2ClientChannel.removeInFlightMessage(streamId);
             }
@@ -366,7 +366,6 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
     }
 
     private void onPushPromiseRead(Http2PushPromise pushPromise) throws Http2Exception {
-
         int streamId = pushPromise.getStreamId();
         int promisedStreamId = pushPromise.getPromisedStreamId();
 

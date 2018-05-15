@@ -25,14 +25,26 @@ import io.netty.buffer.ByteBuf;
  */
 public class Http2DataFrame extends Http2Frame {
 
-   private ByteBuf data;
+    private ByteBuf data;
 
+    /**
+     * Constructs an {@code Http2DataFrame} with a given {@link ByteBuf} that holds data.
+     *
+     * @param streamId    id of the stream
+     * @param data        the {@code ByteBuf} that holds data
+     * @param endOfStream whether this frame marks the end of the stream
+     */
     public Http2DataFrame(int streamId, ByteBuf data, boolean endOfStream) {
         setStreamId(streamId);
         setEndOfStream(endOfStream);
         this.data = data;
     }
 
+    /**
+     * Gets the {@code ByteBuf} that holds data.
+     *
+     * @return the {@code ByteBuf} that holds data
+     */
     public ByteBuf getData() {
         return data;
     }

@@ -24,20 +24,41 @@ package org.wso2.transport.http.netty.message;
 public abstract class Http2Frame {
 
     private int streamId;
+
     private boolean endOfStream;
 
+    /**
+     * Gets the id of the stream that the {@code Http2Frame} belongs to.
+     *
+     * @return id of the stream
+     */
     public int getStreamId() {
         return streamId;
     }
 
+    /**
+     * Sets the id of the stream that the {@code Http2Frame} belongs to.
+     *
+     * @param streamId id of the stream
+     */
     public void setStreamId(int streamId) {
         this.streamId = streamId;
     }
 
+    /**
+     * Checks whether this frame has the END_STREAM flag.
+     *
+     * @return {@code true} if the END_STREAM flag is set, else {@code false}
+     */
     public boolean isEndOfStream() {
         return endOfStream;
     }
 
+    /**
+     * Sets whether this frame marks the end of the stream.
+     *
+     * @param endOfStream whether to set END_STREAM flag
+     */
     public void setEndOfStream(boolean endOfStream) {
         this.endOfStream = endOfStream;
     }

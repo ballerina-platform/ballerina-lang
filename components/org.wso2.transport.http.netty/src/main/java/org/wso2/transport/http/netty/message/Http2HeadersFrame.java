@@ -21,18 +21,30 @@ package org.wso2.transport.http.netty.message;
 import io.netty.handler.codec.http2.Http2Headers;
 
 /**
- * {@code Http2Headers} represents HTTP2 header frame.
+ * {@code Http2Headers} represents an HTTP2 header frame.
  */
 public class Http2HeadersFrame extends Http2Frame {
 
     private Http2Headers headers;
 
+    /**
+     * Constructs an HTTP/2 header frame with the given HTTP/2 headers.
+     *
+     * @param streamId    id of the stream
+     * @param headers     the http2 headers
+     * @param endOfStream whether this frame marks the end of the stream
+     */
     public Http2HeadersFrame(int streamId, Http2Headers headers, boolean endOfStream) {
         setStreamId(streamId);
         setEndOfStream(endOfStream);
         this.headers = headers;
     }
 
+    /**
+     * Gets the {@code Http2Headers} belongs to this header frame.
+     *
+     * @return the {@code Http2Headers} belongs to this header frame
+     */
     public Http2Headers getHeaders() {
         return headers;
     }
