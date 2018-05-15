@@ -104,21 +104,35 @@ public interface WebSocketConnection {
     ChannelFuture pong(ByteBuffer data);
 
     /**
-     * Close connection with close frame.
+     * Initiate connection closure.
+     *
+     * @param statusCode Status code to indicate the reason of closure
+     *                   @see <a href="https://tools.ietf.org/html/rfc6455">WebSocket Protocol</a>
+     * @param reason Reason to close the connection.
+     * @param timeoutInSecs timeout which waits for the close frame from remote endpoint to close the connection.
+     *                      <p>If the timeout exceeds then the connection will be terminated even though a close frame
+     *                      is not received from the remote backend. If the value is -1 the connection will wait until
+     *                      a close frame is received.</p>
+     * @return Future to represent the completion of asynchronous frame sending.
+     */
+    ChannelFuture initiateConnectionClosure(int statusCode, String reason, int timeoutInSecs);
+
+    /**
+     * Finish the connection closure if a close frame has been received without this connection sending a close frame.
      *
      * @param statusCode Status code to indicate the reason of closure
      *                   @see <a href="https://tools.ietf.org/html/rfc6455">WebSocket Protocol</a>
      * @param reason Reason to close the connection.
      * @return Future to represent the completion of asynchronous frame sending.
      */
-    ChannelFuture close(int statusCode, String reason);
+    ChannelFuture finishConnectionClosure(int statusCode, String reason);
 
     /**
      * Close connection without close frame.
      *
      * @return Future to represent the completion of closure asynchronously.
      */
-    ChannelFuture close();
+    ChannelFuture closeForcefully();
 
     /**
      * Check whether a close frame is sent.

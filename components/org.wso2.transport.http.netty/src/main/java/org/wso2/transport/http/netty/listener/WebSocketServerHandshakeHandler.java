@@ -29,6 +29,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpRequestDecoder;
+import io.netty.handler.codec.http.HttpVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
@@ -36,7 +37,11 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnection;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketInitMessage;
 import org.wso2.transport.http.netty.internal.websocket.WebSocketUtil;
+import org.wso2.transport.http.netty.message.DefaultListener;
+import org.wso2.transport.http.netty.message.HttpCarbonRequest;
+import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
+import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -113,7 +118,7 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
         }
 
         String connectionHeaderValues = headers.get(HttpHeaderNames.CONNECTION);
-        for (String connectionValue: connectionHeaderValues.split(",")) {
+        for (String connectionValue : connectionHeaderValues.split(",")) {
             if (HttpHeaderNames.UPGRADE.toString().equalsIgnoreCase(connectionValue.trim())) {
                 return true;
             }
@@ -133,15 +138,16 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
             isSecured = true;
         }
         String uri = fullHttpRequest.uri();
-        DefaultWebSocketConnection webSocketConnection = WebSocketUtil.getWebSocketConnection(ctx, isSecured, uri);
 
         Map<String, String> headers = new HashMap<>();
         fullHttpRequest.headers().forEach(
                 header -> headers.put(header.getKey(), header.getValue())
         );
         WebSocketSourceHandler webSocketSourceHandler =
-                new WebSocketSourceHandler(serverConnectorFuture, isSecured, webSocketConnection, fullHttpRequest,
+                new WebSocketSourceHandler(serverConnectorFuture, isSecured, fullHttpRequest,
                                            headers, ctx, interfaceId);
+        DefaultWebSocketConnection webSocketConnection = WebSocketUtil.getWebSocketConnection(webSocketSourceHandler,
+                                                                                              isSecured, uri);
         DefaultWebSocketInitMessage initMessage = new DefaultWebSocketInitMessage(ctx, fullHttpRequest,
                                                                                   webSocketSourceHandler, headers);
 
@@ -152,9 +158,45 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
         initMessage.setListenerInterface(interfaceId);
         initMessage.setProperty(Constants.SRC_HANDLER, webSocketSourceHandler);
         initMessage.setIsConnectionSecured(isSecured);
-        initMessage.setHttpRequest(fullHttpRequest);
+
+        initMessage.setHttpCarbonRequest(setupHttpCarbonRequest(fullHttpRequest, ctx));
 
         ctx.channel().config().setAutoRead(false);
         serverConnectorFuture.notifyWSListener(initMessage);
+    }
+
+    private HttpCarbonRequest setupHttpCarbonRequest(HttpRequest httpRequest, ChannelHandlerContext ctx) {
+
+        HttpCarbonRequest sourceReqCmsg = new HttpCarbonRequest(httpRequest, new DefaultListener(ctx));
+        sourceReqCmsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
+
+        sourceReqCmsg.setProperty(Constants.CHNL_HNDLR_CTX, ctx);
+        sourceReqCmsg.setProperty(Constants.SRC_HANDLER, this);
+        HttpVersion protocolVersion = httpRequest.protocolVersion();
+        sourceReqCmsg.setProperty(Constants.HTTP_VERSION,
+                                  protocolVersion.majorVersion() + "." + protocolVersion.minorVersion());
+        sourceReqCmsg.setProperty(Constants.HTTP_METHOD, httpRequest.method().name());
+        InetSocketAddress localAddress = null;
+
+        //This check was added because in case of netty embedded channel, this could be of type 'EmbeddedSocketAddress'.
+        if (ctx.channel().localAddress() instanceof InetSocketAddress) {
+            localAddress = (InetSocketAddress) ctx.channel().localAddress();
+        }
+        sourceReqCmsg.setProperty(Constants.LISTENER_PORT, localAddress != null ? localAddress.getPort() : null);
+        sourceReqCmsg.setProperty(Constants.LISTENER_INTERFACE_ID, interfaceId);
+        sourceReqCmsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
+
+        boolean isSecuredConnection = false;
+        if (ctx.channel().pipeline().get(Constants.SSL_HANDLER) != null) {
+            isSecuredConnection = true;
+        }
+        sourceReqCmsg.setProperty(Constants.IS_SECURED_CONNECTION, isSecuredConnection);
+
+        sourceReqCmsg.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
+        sourceReqCmsg.setProperty(Constants.REMOTE_ADDRESS, ctx.channel().remoteAddress());
+        sourceReqCmsg.setProperty(Constants.REQUEST_URL, httpRequest.uri());
+        sourceReqCmsg.setProperty(Constants.TO, httpRequest.uri());
+
+        return sourceReqCmsg;
     }
 }

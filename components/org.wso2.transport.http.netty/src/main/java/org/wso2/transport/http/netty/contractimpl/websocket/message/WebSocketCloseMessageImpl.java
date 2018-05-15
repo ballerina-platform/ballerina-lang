@@ -30,6 +30,10 @@ public class WebSocketCloseMessageImpl extends WebSocketMessageImpl implements W
     private final int closeCode;
     private final String closeReason;
 
+    public WebSocketCloseMessageImpl(int closeCode) {
+        this(closeCode, null);
+    }
+
     public WebSocketCloseMessageImpl(int closeCode, String closeReason) {
         this.closeCode = closeCode;
         this.closeReason = closeReason;
