@@ -163,30 +163,42 @@ public class TransactionHandlerTest {
     @Test(description = "Test transaction handler function with invalid argument")
     public void testInvalidHandlers() {
         CompileResult res = BCompileUtil.compile("test-src/statements/transaction/transaction_handler_negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 12);
+        Assert.assertEquals(res.getErrorCount(), 17);
         BAssertUtil.validateError(res, 0,
                 "transaction handler function required single string parameter which is transaction id", 4, 50);
         BAssertUtil.validateError(res, 1,
                 "transaction handler function required single string parameter which is transaction id", 4, 76);
         BAssertUtil.validateError(res, 2,
-                "transaction handler function required single string parameter which is transaction id", 29, 50);
+                "transaction handler function required single string parameter which is transaction id", 27, 50);
         BAssertUtil.validateError(res, 3,
-                "transaction handler function required single string parameter which is transaction id", 29, 77);
-        BAssertUtil.validateError(res, 4, "undefined symbol 'commitFunction3'", 54, 50);
+                "transaction handler function required single string parameter which is transaction id", 27, 77);
+        BAssertUtil.validateError(res, 4, "undefined symbol 'commitFunction3'", 49, 50);
         BAssertUtil
                 .validateError(res, 5, "lambda function with string input parameter is required as transaction handler",
-                        54, 50);
-        BAssertUtil.validateError(res, 6, "undefined symbol 'abortFunction3'", 54, 77);
+                        49, 50);
+        BAssertUtil.validateError(res, 6, "undefined symbol 'abortFunction3'", 49, 77);
         BAssertUtil
                 .validateError(res, 7, "lambda function with string input parameter is required as transaction handler",
-                        54, 77);
+                        49, 77);
         BAssertUtil
-                .validateError(res, 8, "lambda function with string input parameter is required as transaction handler",
-                        71, 50);
+                .validateError(res, 8, "invalid function pointer assignment for the transaction handler function", 65,
+                        50);
         BAssertUtil
                 .validateError(res, 9, "lambda function with string input parameter is required as transaction handler",
-                        71, 63);
-        BAssertUtil.validateError(res, 10, "transaction handler function cannot have a return type", 86, 50);
-        BAssertUtil.validateError(res, 11, "transaction handler function cannot have a return type", 86, 77);
+                        65, 50);
+        BAssertUtil
+                .validateError(res, 10, "invalid function pointer assignment for the transaction handler function", 65,
+                        63);
+        BAssertUtil.validateError(res, 11,
+                "lambda function with string input parameter is required as transaction handler", 65, 63);
+        BAssertUtil.validateError(res, 12, "transaction handler function cannot have a return type", 79, 50);
+        BAssertUtil.validateError(res, 13, "transaction handler function cannot have a return type", 79, 77);
+        BAssertUtil.validateError(res, 14, "transaction statement cannot be used within a transaction handler function",
+                116, 5);
+        BAssertUtil.validateError(res, 15, "transaction statement cannot be used within a transaction handler function",
+                123, 5);
+        BAssertUtil
+                .validateError(res, 16, "invalid function pointer assignment for the transaction handler function", 133,
+                        50);
     }
 }

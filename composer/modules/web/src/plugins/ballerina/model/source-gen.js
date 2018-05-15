@@ -175,14 +175,22 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                          && node.expression) {
                 return w() + '@' + w() + node.annotationName.valueWithBar + b(' ')
                  + getSourceOf(node.expression, pretty, l, replaceLambda);
+            } else if (node.builtin && node.annotationName.valueWithBar) {
+                return w() + '@' + w() + node.annotationName.valueWithBar;
             } else if (node.packageAlias.valueWithBar
                          && node.annotationName.valueWithBar && node.expression) {
                 return w() + '@' + w() + node.packageAlias.valueWithBar + w() + ':'
                  + w() + node.annotationName.valueWithBar + b(' ')
                  + getSourceOf(node.expression, pretty, l, replaceLambda);
-            } else {
+            } else if (node.packageAlias.valueWithBar
+                         && node.annotationName.valueWithBar) {
+                return w() + '@' + w() + node.packageAlias.valueWithBar + w() + ':'
+                 + w() + node.annotationName.valueWithBar;
+            } else if (node.annotationName.valueWithBar && node.expression) {
                 return w() + '@' + w() + node.annotationName.valueWithBar + b(' ')
                  + getSourceOf(node.expression, pretty, l, replaceLambda);
+            } else {
+                return w() + '@' + w() + node.annotationName.valueWithBar;
             }
         case 'ArrayLiteralExpr':
             return w() + '['

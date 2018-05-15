@@ -19,7 +19,9 @@ documentation {
 
     F{{connectionInitSql}} SQL statement that will be executed after every new connection creation before adding it
                              to the pool
-    F{{dataSourceClassName}} Name of the DataSource class provided by the JDBC driver
+    F{{dataSourceClassName}} Name of the DataSource class provided by the JDBC driver. This is used on following scenarios.
+       1. In JDBC client when DB specific properties are required (which are given with dbOptions)
+       2. In any data client in which XA transactions enabled by isXA property and need to provide a custom XA implementation.
     F{{autoCommit}} Auto-commit behavior of connections returned from the pool
     F{{isXA}} Whether Connections are used for a distributed transaction
     F{{maximumPoolSize}} Maximum size that the pool is allowed to reach, including both idle and in-use connections
@@ -135,8 +137,8 @@ documentation {
     Parameter represents a parameter for the SQL actions when a variable parameter needs to pass to the action.
 
     F{{sqlType}} The data type of the corresponding SQL parameter
-    F{{value}} Value of paramter pass into the SQL query
-    F{{direction}} Direction of the SQL Parameter OUT, or INOUT - Default value is IN
+    F{{value}} Value of paramter pass into the SQL statement
+    F{{direction}} Direction of the SQL Parameter IN, OUT, or INOUT - Default value is IN
     F{{recordType}} In case of OUT direction, if the sqlType is REFCURSOR, this represents the record type to map a
                       result row
 }
@@ -150,4 +152,4 @@ public type Parameter {
 documentation {
     The parameter passed into the operations.
 }
-public type Param string|int|boolean|float|blob|Parameter;
+type Param string|int|boolean|float|blob|Parameter;

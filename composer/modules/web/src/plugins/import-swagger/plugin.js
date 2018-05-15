@@ -73,7 +73,7 @@ class ImportSwaggerPlugin extends Plugin {
                 })
                 .catch((err) => {
                     console.log(err);
-                    reject('Error occured while importing Swagger definition. Make sure the swagger definition is ' +
+                    reject('Error occurred while importing Swagger definition. Make sure the swagger definition is ' +
                             'valid.');
                 });
         });

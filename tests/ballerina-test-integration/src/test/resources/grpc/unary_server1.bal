@@ -25,7 +25,12 @@ service HelloWorld bind ep {
     hello(endpoint caller, string name) {
         io:println("name: " + name);
         string message = "Hello " + name;
-        error? err = caller->send(message);
+        error? err;
+        if (name == "invalid") {
+            err = caller->sendError(grpc:ABORTED, "Operation aborted");
+        } else {
+            err = caller->send(message);
+        }
         io:println(err.message but { () => ("Server send response : " + message) });
         _ = caller->complete();
     }

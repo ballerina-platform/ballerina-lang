@@ -298,6 +298,10 @@ public class Types {
             return true;
         }
 
+        if (target.tag == TypeTags.UNION) {
+            return isAssignable(source, target);
+        }
+
         // In this case, lhs type should be of type 'any' and the rhs type cannot be a value type
         return target.tag == TypeTags.ANY && !isValueType(source);
     }

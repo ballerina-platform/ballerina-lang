@@ -19,6 +19,7 @@
 package org.ballerinalang.net.websub.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
@@ -28,9 +29,10 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.serviceendpoint.AbstractHttpNativeFunction;
 import org.ballerinalang.net.websub.WebSubServicesRegistry;
-import org.ballerinalang.net.websub.WebSubSubscriberConstants;
+
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY;
 
 /**
  * Register a WebSub Subscriber service.
@@ -41,12 +43,11 @@ import org.ballerinalang.net.websub.WebSubSubscriberConstants;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
         functionName = "registerWebSubSubscriberServiceEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener",
-                structPackage = WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener", structPackage = WEBSUB_PACKAGE),
         args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC)},
         isPublic = true
 )
-public class RegisterWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunction {
+public class RegisterWebSubSubscriberServiceEndpoint extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
@@ -55,8 +56,8 @@ public class RegisterWebSubSubscriberServiceEndpoint extends AbstractHttpNativeF
         Struct subscriberServiceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         Struct serviceEndpoint = ConnectorSPIModelHelper.createStruct(
                 (BStruct) ((BStruct) (subscriberServiceEndpoint.getVMValue())).getRefField(1));
-        WebSubServicesRegistry webSubServicesRegistry = (WebSubServicesRegistry)
-                serviceEndpoint.getNativeData(WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY);
+        WebSubServicesRegistry webSubServicesRegistry =
+                (WebSubServicesRegistry) serviceEndpoint.getNativeData(WEBSUB_SERVICE_REGISTRY);
         webSubServicesRegistry.registerWebSubSubscriberService(service);
         context.setReturnValues();
 

@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.970.1-SNAPSHOT</version>
+        <version>0.970.2-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -122,6 +122,11 @@
                     <argLine>-Dfile.encoding=UTF-8 ${jacoco.agent.argLine}</argLine>
                     <environmentVariables>
                         <testEnvironmentVariable>EnvironmentVariable</testEnvironmentVariable>
+                        <user_name>b7auser</user_name>
+                        <password>b7apw</password>
+                        <hello_http_port>5656</hello_http_port>
+                        <hello_cache_enabled>true</hello_cache_enabled>
+                        <hello_eviction_fac>0.2333333</hello_eviction_fac>
                     </environmentVariables>
                     <systemPropertyVariables>
                         <java.util.logging.config.file>${project.build.testOutputDirectory}/logging.properties

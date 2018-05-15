@@ -21,9 +21,9 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.model.Proxy;
 import org.ballerinalang.toml.model.Settings;
 import org.ballerinalang.toml.parser.ManifestProcessor;
-import org.ballerinalang.toml.parser.SettingsProcessor;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
@@ -57,11 +57,11 @@ import java.util.zip.ZipFile;
  */
 public class PushUtils {
 
+    private static final String BALLERINA_CENTRAL_CLI_TOKEN = "https://central.ballerina.io/cli-token";
+    private static final PrintStream SYS_ERR = System.err;
     private static final Path BALLERINA_HOME_PATH = RepoUtils.createAndGetHomeReposPath();
     private static final Path SETTINGS_TOML_FILE_PATH = BALLERINA_HOME_PATH.resolve(
             ProjectDirConstants.SETTINGS_FILE_NAME);
-    public static final String BALLERINA_CENTRAL_CLI_TOKEN = "https://central.ballerina.io/cli-token";
-    public static final PrintStream SYS_ERR = System.err;
     private static PrintStream outStream = System.err;
     private static EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
 
@@ -119,9 +119,12 @@ public class PushUtils {
             // Push package to central
             String resourcePath = resolvePkgPathInRemoteRepo(packageID);
             String msg = orgName + "/" + packageName + ":" + version + " [project repo -> central]";
+            Proxy proxy = RepoUtils.readSettings().getProxy();
+
             executor.execute("packaging_push/packaging_push.balx", true, accessToken, mdFileContent,
                              description, homepageURL, repositoryURL, apiDocURL, authors, keywords, license,
-                             resourcePath, pkgPathFromPrjtDir.toString(), msg);
+                             resourcePath, pkgPathFromPrjtDir.toString(), msg, proxy.getHost(), proxy.getPort(),
+                             proxy.getUserName(), proxy.getPassword());
 
         } else {
             if (!installToRepo.equals("home")) {
@@ -264,26 +267,12 @@ public class PushUtils {
     }
 
     /**
-     * Read Settings.toml to populate the configurations.
-     *
-     * @return settings object
-     */
-    private static Settings readSettings() {
-        String tomlFilePath = SETTINGS_TOML_FILE_PATH.toString();
-        try {
-            return SettingsProcessor.parseTomlContentFromFile(tomlFilePath);
-        } catch (IOException e) {
-            return new Settings();
-        }
-    }
-
-    /**
      * Read the access token generated for the CLI.
      *
      * @return access token for generated for the CLI
      */
     private static String getAccessTokenOfCLI() {
-        Settings settings = readSettings();
+        Settings settings = RepoUtils.readSettings();
         if (settings.getCentral() != null) {
             return settings.getCentral().getAccessToken();
         }

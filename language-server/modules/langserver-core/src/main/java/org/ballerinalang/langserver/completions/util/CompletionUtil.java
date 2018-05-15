@@ -41,9 +41,6 @@ import java.util.concurrent.locks.Lock;
  * Common utility methods for the completion operation.
  */
 public class CompletionUtil {
-    
-    private static final String LINE_SEPERATOR = System.lineSeparator();
-
     // In case of there are any specific error scenarios, then the fallback BLang package will be used
     // to get completions
     private static BLangPackage fallbackBLangPackage = null;
@@ -110,7 +107,7 @@ public class CompletionUtil {
         String fileContent = documentManager.getFileContent(completionPath);
         lock.ifPresent(Lock::unlock);
         
-        return fileContent.split(LINE_SEPERATOR)[line];
+        return fileContent.split(CommonUtil.LINE_SEPARATOR)[line];
     }
 
     /**

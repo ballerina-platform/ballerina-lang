@@ -1,17 +1,18 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  */
 
 package org.ballerinalang.plugins.idea.configuration;
@@ -60,8 +61,8 @@ public class BallerinaLibrariesConfigurable implements SearchableConfigurable, C
     private final String myDisplayName;
     private final BallerinaLibrariesService<?> myLibrariesService;
     private final String[] myReadOnlyPaths;
-    private final JBCheckBox myUseEnvBallerinaPathCheckBox = new JBCheckBox("Use BALLERINA_REPOSITORY that's " +
-            "defined in system environment");
+    private final JBCheckBox myUseEnvBallerinaPathCheckBox =
+            new JBCheckBox("Detect and show packages from BALLERINA_REPOSITORY");
     private final JPanel myPanel = new JPanel(new BorderLayout());
     private final CollectionListModel<ListItem> myListModel = new CollectionListModel<>();
 

@@ -43,11 +43,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
         args = {
                 @Argument(name = "client", type = TypeKind.STRUCT),
                 @Argument(name = "sqlQuery", type = TypeKind.STRING),
-                @Argument(name = "parameters",
-                          type = TypeKind.ARRAY,
-                          elementType = TypeKind.STRUCT,
-                          arrayDimensions = 2,
-                          structType = "Parameter")
+                @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.UNION,
+                          structType = "Param")
         },
         returnType = {
                 @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.INT),
@@ -55,6 +52,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         }
 )
 public class BatchUpdate extends AbstractSQLAction {
+
     @Override
     public void execute(Context context) {
         try {
