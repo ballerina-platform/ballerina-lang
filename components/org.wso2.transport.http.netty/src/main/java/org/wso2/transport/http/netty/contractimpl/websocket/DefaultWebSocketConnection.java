@@ -15,6 +15,8 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketFrameType;
 import org.wso2.transport.http.netty.internal.websocket.DefaultWebSocketSession;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import javax.websocket.Session;
 
 /**
@@ -22,14 +24,16 @@ import javax.websocket.Session;
  */
 public class DefaultWebSocketConnection implements WebSocketConnection {
 
+    private final WebSocketInboundFrameHandler frameHandler;
     private final ChannelHandlerContext ctx;
     private final DefaultWebSocketSession session;
     private WebSocketFrameType continuationFrameType = null;
     private boolean closeFrameSent = false;
     private boolean closeFrameReceived = false;
 
-    public DefaultWebSocketConnection(ChannelHandlerContext ctx, DefaultWebSocketSession session) {
-        this.ctx = ctx;
+    public DefaultWebSocketConnection(WebSocketInboundFrameHandler frameHandler, DefaultWebSocketSession session) {
+        this.frameHandler = frameHandler;
+        this.ctx = frameHandler.getChannelHandlerContext();
         this.session = session;
     }
 
@@ -96,7 +100,6 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
         if (closeFrameSent) {
             throw new IllegalStateException("Already sent close frame. Cannot push binary data!");
         }
-
         if (continuationFrameType != null) {
             if (finalFrame) {
                 continuationFrameType = null;
@@ -120,13 +123,39 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
     }
 
     @Override
-    public ChannelFuture close(int statusCode, String reason) {
+    public ChannelFuture initiateConnectionClosure(int statusCode, String reason, int timeoutInSecs) {
+        if (closeFrameSent) {
+            throw new IllegalStateException("Already sent close frame. Cannot send close frame again!");
+        }
         closeFrameSent = true;
-        return ctx.writeAndFlush(new CloseWebSocketFrame(statusCode, reason));
+        CountDownLatch closeCountDownLatch = new CountDownLatch(1);
+        frameHandler.setCloseCountDownLatch(closeCountDownLatch);
+        return ctx.writeAndFlush(new CloseWebSocketFrame(statusCode, reason)).addListener(future -> {
+            if (timeoutInSecs == -1) {
+                closeCountDownLatch.await();
+            } else if (timeoutInSecs > 0) {
+                closeCountDownLatch.await(timeoutInSecs, TimeUnit.SECONDS);
+            }
+            if (ctx.channel().isOpen()) {
+                ctx.channel().close();
+            }
+        });
     }
 
     @Override
-    public ChannelFuture close() {
+    public ChannelFuture finishConnectionClosure(int statusCode, String reason) {
+        if (!frameHandler.isCloseFrameReceived()) {
+            throw new IllegalStateException("Cannot finish a connection closure without receiving a close frame");
+        }
+        return ctx.channel().writeAndFlush(new CloseWebSocketFrame(statusCode, reason)).addListener(future -> {
+            if (ctx.channel().isOpen()) {
+                ctx.channel().close();
+            }
+        });
+    }
+
+    @Override
+    public ChannelFuture closeForcefully() {
         return ctx.close();
     }
 

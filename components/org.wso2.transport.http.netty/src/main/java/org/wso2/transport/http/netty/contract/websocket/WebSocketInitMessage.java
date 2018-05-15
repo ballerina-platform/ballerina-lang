@@ -86,7 +86,7 @@ public interface WebSocketInitMessage extends WebSocketMessage {
                               HttpHeaders responseHeaders, int maxFramePayloadLength);
 
     /**
-     * Cancel the handshake.
+     * Cancel the handshake with HTTP response.
      *
      * @param closeCode close code for cancelling the handshake.
      * @param closeReason reason for canceling the handshake.
