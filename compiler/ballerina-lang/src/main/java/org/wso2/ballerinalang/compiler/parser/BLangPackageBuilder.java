@@ -604,6 +604,7 @@ public class BLangPackageBuilder {
         functionTypeNode.returnsKeywordExists = true;
 
         if (retParamsAvail) {
+            functionTypeNode.addWS(this.varStack.peek().getWS());
             functionTypeNode.returnTypeNode = (BLangType) this.varStack.pop().getTypeNode();
         } else {
             BLangValueType nilTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
