@@ -106,6 +106,13 @@ public class SQLConnectorInitTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
+    @Test
+    public void testPropertiesGetUsedOnlyIfDataSourceGiven() {
+        BValue[] returns = BRunUtil.invoke(result, "testPropertiesGetUsedOnlyIfDataSourceGiven");
+        final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
+        Assert.assertEquals(returns[0].stringValue(), expected);
+    }
+
 
     @AfterSuite
     public void cleanup() {
