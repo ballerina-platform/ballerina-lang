@@ -16,7 +16,7 @@
 
 documentation {
     Represents the auth store provider. Any type of implementation, such as
-    ldap, jdbc, file based, etc. should be object-wise similar
+    LDAP, JDBC, file based, etc. should be object-wise similar
 }
 public type AuthStoreProvider object {
 

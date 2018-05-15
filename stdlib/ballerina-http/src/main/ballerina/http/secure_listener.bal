@@ -98,7 +98,7 @@ documentation {
 
     F{{scheme}} Authentication scheme
     F{{id}} Authentication provider instance id
-    F{{authStoreProvider}} Authentication store provider (file, ldap, etc.) implementation
+    F{{authStoreProvider}} Authentication store provider (file, LDAP, etc.) implementation
     F{{issuer}} Identifier of the token issuer
     F{{audience}} Identifier of the token recipients
     F{{trustStore}} Trustore configurations
