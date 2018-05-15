@@ -17,13 +17,17 @@
  */
 package org.ballerinalang.net.grpc.builder.utils;
 
+import java.io.File;
+
 /**
  * Constants that use in .bal file generation.
  */
 public class BalGenConstants {
     public static final String NEW_LINE_CHARACTER = System.getProperty("line.separator");
     
-    public static final String FILE_SEPARATOR = System.getProperty("file.separator");
+    public static final String FILE_SEPARATOR = File.separator;
+    
+    public static final String RESOURCE_SEPARATOR = "/";
     
     public static final int SERVICE_INDEX = 0;
     

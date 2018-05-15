@@ -61,7 +61,6 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.writeB
  * Class is responsible of generating the ballerina stub which is mapping proto definition.
  */
 public class BallerinaFileBuilder {
-    
     public static final Logger LOG = LoggerFactory.getLogger(BallerinaFileBuilder.class);
     private byte[] rootDescriptor;
     private List<byte[]> dependentDescriptors;

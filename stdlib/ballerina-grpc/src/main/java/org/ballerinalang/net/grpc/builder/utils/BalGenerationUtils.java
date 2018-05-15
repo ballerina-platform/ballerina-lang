@@ -27,7 +27,6 @@ import com.github.jknack.handlebars.io.FileTemplateLoader;
 import com.google.protobuf.DescriptorProtos;
 import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -36,15 +35,17 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.RESOURCE_SEPARATOR;
+
 /**
  * Util functions which are use when generating . bal stub
  */
 public class BalGenerationUtils {
     private static final String TEMPLATES_SUFFIX = ".mustache";
     private static final String TEMPLATES_DIR_PATH_KEY = "templates.dir.path";
-    private static final String DEFAULT_TEMPLATE_DIR = File.separator + "templates";
-    public static final String DEFAULT_SKELETON_DIR = DEFAULT_TEMPLATE_DIR + File.separator + "skeleton";
-    public static final String DEFAULT_SAMPLE_DIR = DEFAULT_TEMPLATE_DIR + File.separator + "skeleton";
+    private static final String DEFAULT_TEMPLATE_DIR = RESOURCE_SEPARATOR + "templates";
+    public static final String DEFAULT_SKELETON_DIR = DEFAULT_TEMPLATE_DIR + RESOURCE_SEPARATOR + "skeleton";
+    public static final String DEFAULT_SAMPLE_DIR = DEFAULT_TEMPLATE_DIR + RESOURCE_SEPARATOR + "skeleton";
     public static final String SKELETON_TEMPLATE_NAME = "clientStub";
     public static final String SAMPLE_TEMPLATE_NAME = "sample";
     
@@ -166,6 +167,7 @@ public class BalGenerationUtils {
             }
         }
     }
+    
     /**
      * Method is for getting ballerina data type which is map to the .proto data type.
      *
@@ -189,6 +191,7 @@ public class BalGenerationUtils {
             }
         }
     }
+    
     /**
      * Write ballerina definition of a <code>object</code> to a file as described by <code>template.</code>
      *
