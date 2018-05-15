@@ -32,12 +32,12 @@ type ResultCount {
 };
 
 type ResultArrayType {
-    map INT_ARRAY,
-    map LONG_ARRAY,
-    map DOUBLE_ARRAY,
-    map BOOLEAN_ARRAY,
-    map STRING_ARRAY,
-    map FLOAT_ARRAY,
+    int[] INT_ARRAY,
+    int[] LONG_ARRAY,
+    float[] DOUBLE_ARRAY,
+    boolean[] BOOLEAN_ARRAY,
+    string[] STRING_ARRAY,
+    float[] FLOAT_ARRAY,
 };
 
 type ResultDates {
@@ -436,7 +436,7 @@ function testBoolArrayofQueryParameters() returns (int) {
     return value;
 }
 
-function testArrayInParameters() returns (int, map, map, map, map, map, map) {
+function testArrayInParameters() returns (int, int[], int[], float[], string[], boolean[], float[]) {
     endpoint jdbc:Client testDB {
         url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
@@ -457,12 +457,12 @@ function testArrayInParameters() returns (int, map, map, map, map, map, map) {
     sql:Parameter para7 = { sqlType: sql:TYPE_ARRAY, value: stringArray };
 
     int insertCount;
-    map int_arr;
-    map long_arr;
-    map double_arr;
-    map string_arr;
-    map boolean_arr;
-    map float_arr;
+    int[] int_arr;
+    int[] long_arr;
+    float[] double_arr;
+    string[] string_arr;
+    boolean[] boolean_arr;
+    float[] float_arr;
 
     insertCount = check testDB->update("INSERT INTO ArrayTypes (row_id, int_array, long_array,
         float_array, double_array, boolean_array, string_array) values (?,?,?,?,?,?,?)", 2, para2, para3, para4,
