@@ -37,6 +37,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.PathUtil;
+import org.ballerinalang.plugins.idea.codeinsight.semanticanalyzer.BallerinaSemanticAnalyzerSettings;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
 import org.ballerinalang.util.diagnostic.Diagnostic;
@@ -71,6 +72,10 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
     @Override
     @Nullable
     public Data collectInformation(@NotNull PsiFile file, @NotNull Editor editor, boolean hasErrors) {
+        if (!BallerinaSemanticAnalyzerSettings.getInstance().useSemanticAnalyzer()) {
+            return null;
+        }
+
         this.editor = editor;
         VirtualFile virtualFile = file.getVirtualFile();
         String packageNameNode = getPackageName(file);
@@ -119,6 +124,9 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
     @Nullable
     @Override
     public List<Diagnostic> doAnnotate(final Data data) {
+        if (!BallerinaSemanticAnalyzerSettings.getInstance().useSemanticAnalyzer()) {
+            return null;
+        }
         if (method != null) {
             // We need to save all documents before getting diagnostics. Otherwise diagnostic will be incorrect.
             ApplicationManager.getApplication().invokeAndWait(() -> {
@@ -187,6 +195,10 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
      */
     @Override
     public void apply(@NotNull PsiFile file, List<Diagnostic> diagnostics, @NotNull AnnotationHolder holder) {
+        if (!BallerinaSemanticAnalyzerSettings.getInstance().useSemanticAnalyzer()) {
+            return;
+        }
+
         String packageName = getPackageName(file);
         String fileName = file.getVirtualFile().getName();
 
