@@ -36,9 +36,9 @@ If you are unsure whether you have found a bug, please consider searching existi
 
 To file non-security issues:
 
-1. Click the Issues tab in the github repository,
+1. Click the **Issues** tab in the github repository,
 
-2. Click the New Issue button,
+2. Click the **New Issue** button,
 
 3. Fill out all sections in the issue template and submit.
 
@@ -69,9 +69,9 @@ Building Ballerina requires a Java SE Development Kit (JDK) version 8 to be inst
 
 > NOTE: Set an environment variable `JAVA_HOME` to the path name of the directory into which you installed the JDK release.
 
-**Prerequisite 2** - Install Maven 3.3+ or later 
+**Prerequisite 2** - Install Maven 3.5.0 or later 
 
-Install Apache Maven 3.5.3 or a later version: [https://maven.apache.org/install.html](https://maven.apache.org/install.html)
+Install Apache Maven 3.5.0 or a later version: [https://maven.apache.org/install.html](https://maven.apache.org/install.html)
 
 Set the `MAVEN_OPTS` environment variable to avoid the `Maven OutOfMemoryError`.
 
