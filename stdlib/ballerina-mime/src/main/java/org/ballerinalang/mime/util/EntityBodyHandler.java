@@ -18,6 +18,8 @@
 
 package org.ballerinalang.mime.util;
 
+import io.netty.handler.codec.http.DefaultHttpHeaders;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.util.StringUtils;
@@ -53,6 +55,7 @@ import java.util.Set;
 
 import static org.ballerinalang.mime.util.Constants.BALLERINA_TEMP_FILE;
 import static org.ballerinalang.mime.util.Constants.BODY_PARTS;
+import static org.ballerinalang.mime.util.Constants.CHARSET;
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.FIRST_BODY_PART_INDEX;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_DATA_SOURCE;
@@ -164,11 +167,22 @@ public class EntityBodyHandler {
      */
     public static BJSON constructJsonDataSource(BStruct entityStruct) {
         try {
+            BJSON jsonData;
             Channel byteChannel = getByteChannel(entityStruct);
             if (byteChannel == null) {
                 return null;
             }
-            BJSON jsonData = new BJSON(byteChannel.getInputStream());
+            String contentTypeValue = HeaderUtil.getHeaderValue(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString());
+            if (contentTypeValue != null && !contentTypeValue.isEmpty()) {
+                String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
+                if (charsetValue != null && !charsetValue.isEmpty()) {
+                    jsonData = new BJSON(byteChannel.getInputStream(), null, charsetValue);
+                } else {
+                    jsonData = new BJSON(byteChannel.getInputStream());
+                }
+            } else {
+                jsonData = new BJSON(byteChannel.getInputStream());
+            }
             byteChannel.close();
             return jsonData;
         } catch (IOException e) {
@@ -184,11 +198,22 @@ public class EntityBodyHandler {
      */
     public static BXML constructXmlDataSource(BStruct entityStruct) {
         try {
+            BXML xmlContent;
             Channel byteChannel = getByteChannel(entityStruct);
             if (byteChannel == null) {
                 throw new BallerinaIOException("Empty xml payload");
             }
-            BXML xmlContent = XMLUtils.parse(byteChannel.getInputStream());
+            String contentTypeValue = HeaderUtil.getHeaderValue(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString());
+            if (contentTypeValue != null && !contentTypeValue.isEmpty()) {
+                String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
+                if (charsetValue != null && !charsetValue.isEmpty()) {
+                    xmlContent = XMLUtils.parse(byteChannel.getInputStream(), charsetValue);
+                } else {
+                    xmlContent = XMLUtils.parse(byteChannel.getInputStream());
+                }
+            } else {
+                xmlContent = XMLUtils.parse(byteChannel.getInputStream());
+            }
             byteChannel.close();
             return xmlContent;
         } catch (IOException e) {
@@ -204,11 +229,22 @@ public class EntityBodyHandler {
      */
     public static StringDataSource constructStringDataSource(BStruct entityStruct) {
         try {
+            String textContent;
             Channel byteChannel = getByteChannel(entityStruct);
             if (byteChannel == null) {
                 throw new BallerinaIOException("String payload is null");
             }
-            String textContent = StringUtils.getStringFromInputStream(byteChannel.getInputStream());
+            String contentTypeValue = HeaderUtil.getHeaderValue(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString());
+            if (contentTypeValue != null && !contentTypeValue.isEmpty()) {
+                String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
+                if (charsetValue != null && !charsetValue.isEmpty()) {
+                    textContent = StringUtils.getStringFromInputStream(byteChannel.getInputStream(), charsetValue);
+                } else {
+                    textContent = StringUtils.getStringFromInputStream(byteChannel.getInputStream());
+                }
+            } else {
+                textContent = StringUtils.getStringFromInputStream(byteChannel.getInputStream());
+            }
             byteChannel.close();
             return new StringDataSource(textContent);
         } catch (IOException e) {

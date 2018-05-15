@@ -126,6 +126,23 @@ public class MimeUtil {
     }
 
     /**
+     * Get parameter value from the content-type header.
+     *
+     * @param contentType   Content-Type value as a string
+     * @param parameterName Name of the parameter
+     * @return Parameter value as a string
+     */
+    static String getContentTypeParamValue(String contentType, String parameterName) {
+        try {
+            MimeType mimeType = new MimeType(contentType);
+            MimeTypeParameterList parameterList = mimeType.getParameters();
+            return parameterList.get(parameterName);
+        } catch (MimeTypeParseException e) {
+            throw new BallerinaException("Error while parsing Content-Type value: " + e.getMessage());
+        }
+    }
+
+    /**
      * Construct 'MediaType' struct with the given Content-Type and set it into the given 'Entity'.
      *
      * @param mediaType    Represent 'MediaType' struct

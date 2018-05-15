@@ -124,7 +124,14 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
                 isPong = true;
                 bufferReceived = pongFrame.content().nioBuffer();
             } else if (frame instanceof CloseWebSocketFrame) {
-                ch.close().sync();
+                int statusCode = ((CloseWebSocketFrame) frame).statusCode();
+                if (ch.isOpen()) {
+                    ch.writeAndFlush(new CloseWebSocketFrame(statusCode, null)).addListener(future -> {
+                        if (ch.isOpen()) {
+                            ch.close();
+                        }
+                    }).sync();
+                }
                 isOpen = false;
             }
 

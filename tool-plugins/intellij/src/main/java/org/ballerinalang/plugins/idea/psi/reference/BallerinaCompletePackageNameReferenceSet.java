@@ -34,6 +34,7 @@ import com.intellij.util.containers.ContainerUtil;
 import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.ballerinalang.plugins.idea.psi.BallerinaImportDeclaration;
 import org.ballerinalang.plugins.idea.psi.BallerinaOrgName;
+import org.ballerinalang.plugins.idea.sdk.BallerinaPathModificationTracker;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -83,11 +84,15 @@ public class BallerinaCompletePackageNameReferenceSet extends FileReferenceSet {
                         sourceRoots.add(moduleFile.getParent());
                     }
                 }
-            } else if (BallerinaConstants.BALLERINA_ORG_NAME.equals(ballerinaOrgName.getText())) {
-                // Add source roots in SDK.
-                sourceRoots.addAll(BallerinaSdkUtil.getSourcesPathsToLookup(project, module));
             } else {
-                // Todo - Add Ballerina user repository.
+                String organizationName = ballerinaOrgName.getText();
+                if (BallerinaConstants.BALLERINA_ORG_NAME.equals(organizationName)) {
+                    // Add source roots in SDK.
+                    sourceRoots.addAll(BallerinaSdkUtil.getSourcesPathsToLookup(project, module));
+                } else {
+                    ContainerUtil.addIfNotNull(sourceRoots,
+                            BallerinaPathModificationTracker.getOrganizationInUserRepo(organizationName));
+                }
             }
         }
         return ContainerUtil.mapNotNull(sourceRoots, psiManager::findDirectory);

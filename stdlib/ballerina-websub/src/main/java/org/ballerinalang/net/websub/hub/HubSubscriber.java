@@ -59,7 +59,7 @@ class HubSubscriber extends Consumer {
         BValue[] args = {new BString(callback),
                 subscriptionDetails,
                 new BJSON(new String(bytes, StandardCharsets.UTF_8))};
-        BLangFunctions.invokeCallable(programFile.getPackageInfo(WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH)
+        BLangFunctions.invokeCallable(programFile.getPackageInfo(WebSubSubscriberConstants.WEBSUB_PACKAGE)
                                      .getFunctionInfo("distributeContent"), args);
     }
 

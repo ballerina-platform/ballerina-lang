@@ -57,6 +57,7 @@ import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -334,14 +335,14 @@ public class BallerinaDebugProcess extends XDebugProcess {
         // If the package is ".", full path of the file will be sent as the filename.
         if (".".equals(packagePath)) {
             // Then we need to get the actual filename from the path.
-            int index = fileName.lastIndexOf("/");
+            int index = fileName.lastIndexOf(File.separator);
             if (index <= -1) {
                 return null;
             }
             relativeFilePathInProject = fileName.substring(index);
         } else {
             // If the absolute path is not sent, we need to construct the relative file path in the project.
-            relativeFilePathInProject = packagePath.replaceAll("\\.", "/") + "/" + fileName;
+            relativeFilePathInProject = packagePath.replaceAll("\\.", File.separator) + File.separator + fileName;
         }
         int lineNumber = breakPoint.getLineNumber();
         for (XBreakpoint<BallerinaBreakpointProperties> breakpoint : breakpoints) {

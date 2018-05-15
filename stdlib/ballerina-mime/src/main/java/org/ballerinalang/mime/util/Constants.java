@@ -100,6 +100,8 @@ public class Constants {
     public static final String BODY_PARTS = "body_parts";
     public static final String ENTITY_HEADERS = "entity_headers";
 
+    public static final String CHARSET = "charset";
+
     public static final int REQUEST_ENTITY_INDEX = 1;
     public static final int RESPONSE_ENTITY_INDEX = 1;
 

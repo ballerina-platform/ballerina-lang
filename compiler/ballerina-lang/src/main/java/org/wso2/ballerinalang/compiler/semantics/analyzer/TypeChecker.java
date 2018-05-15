@@ -379,6 +379,13 @@ public class TypeChecker extends BLangNodeVisitor {
         } else if (varRefExpr.pkgSymbol != symTable.notFoundSymbol) {
             BSymbol symbol = symResolver.lookupSymbolInPackage(varRefExpr.pos, env,
                     names.fromIdNode(varRefExpr.pkgAlias), varName, SymTag.VARIABLE_NAME);
+            // if no symbol, check same for object attached function
+            if (symbol == symTable.notFoundSymbol && env.enclObject != null) {
+                Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(env.enclObject.name.value,
+                        varName.value));
+                symbol = symResolver.resolveStructField(varRefExpr.pos, env, objFuncName,
+                        env.enclObject.symbol.type.tsymbol);
+            }
             if ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) {
                 BVarSymbol varSym = (BVarSymbol) symbol;
                 checkSefReferences(varRefExpr.pos, env, varSym);
