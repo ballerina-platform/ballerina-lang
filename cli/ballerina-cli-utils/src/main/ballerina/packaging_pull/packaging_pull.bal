@@ -223,9 +223,7 @@ documentation {
     P{{width}} Width of the terminal
 }
 function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string fullPkgPath, string toAndFrom, int width) {
-    string truncatedFullPkgPath = truncateString(fullPkgPath);
     int terminalWidth = width;
-    string msg = truncatedFullPkgPath + toAndFrom;
     int bytesChunk = 8;
     blob readContent;
     int readCount = -1;
@@ -235,12 +233,7 @@ function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string full
     string equals = "==========";
     string tabspaces = "          ";
     boolean completed = false;
-    int rightpadLength = terminalWidth / 2;  
-    int rightPadFinalLog = 115; 
-    if (terminalWidth <= 100) {
-        rightpadLength = terminalWidth / 4;
-        rightPadFinalLog = 66;
-    }
+    int rightpadLength = terminalWidth - equals.length() - tabspaces.length() - 5;
     try {
         while (!completed) {
             (readContent, readCount) = readBytes(src, bytesChunk);
@@ -254,13 +247,16 @@ function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string full
             float percentage = totalCount / pkgSize;
             noOfBytesRead = totalCount + "/" + pkgSize;
             string bar = equals.substring(0, <int> (percentage * 10));
-            string spaces = tabspaces.substring(0, 10 - <int>(percentage * 10));           
-            io:print("\r" + rightPad(msg, rightpadLength) + "[" + bar + ">" + spaces + "] " + <int>totalCount + "/" + pkgSize);
+            string spaces = tabspaces.substring(0, 10 - <int>(percentage * 10));   
+            string size = "[" + bar + ">" + spaces + "] " + <int>totalCount + "/" + pkgSize;            
+            string msg = truncateString(fullPkgPath + toAndFrom, terminalWidth - size.length());
+            io:print("\r" + rightPad(msg, rightpadLength) + size);
         }
     } catch (error err) {
         io:println("");
     }
-    io:println("\r" + rightPad(fullPkgPath + toAndFrom, (rightPadFinalLog + noOfBytesRead.length())));
+    int rightPadFinalLog = terminalWidth + 2;
+    io:println("\r" + rightPad(fullPkgPath + toAndFrom, (rightPadFinalLog)));
 }
 
 documentation {
@@ -287,26 +283,18 @@ documentation {
     This function truncates the string.
 
     P{{text}} String to be truncated
+    P{{maxSize}} Maximum size of the log message printed
     R{{}} Truncated string.
 }
-function truncateString (string text) returns (string) {
-    int indexOfVersion = text.lastIndexOf(":");
-    string withoutVersion = text.substring(0, indexOfVersion);
-    string versionOfPkg = text.substring(indexOfVersion, text.length());
-    int minLength = 50;
-    int lengthWithoutVersion = withoutVersion.length();
-    if (lengthWithoutVersion > minLength) {
-        int noOfCharactersToBeRemoved = lengthWithoutVersion - minLength;
-        int half = noOfCharactersToBeRemoved / 2;
-        int middleOfWithoutVersion = lengthWithoutVersion / 2;
-        int leftFromMiddle = middleOfWithoutVersion - half;
-        int rightFromMiddle = middleOfWithoutVersion + half;
-
-        string truncatedLeftStr = withoutVersion.substring(0, leftFromMiddle);
-        string truncatedRightStr = withoutVersion.substring(rightFromMiddle, lengthWithoutVersion);
-
-        string truncatedStr = truncatedLeftStr + "…" + truncatedRightStr;
-        return truncatedStr + versionOfPkg;
+function truncateString (string text, int maxSize) returns (string) {
+    int lengthOfText = text.length();
+    if (lengthOfText > maxSize) {
+        int endIndex = 3;
+        if (maxSize > endIndex) {
+            endIndex = maxSize - endIndex;
+        }
+        string truncatedStr = text.substring(0, endIndex);
+        return truncatedStr + "…";
     }
     return text;
 }
