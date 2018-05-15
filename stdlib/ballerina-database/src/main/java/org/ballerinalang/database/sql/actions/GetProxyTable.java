@@ -40,7 +40,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         receiver = @Receiver(type = TypeKind.STRUCT, structType = Constants.CALLER_ACTIONS),
         args = {
                 @Argument(name = "tableName", type = TypeKind.STRING),
-                @Argument(name = "recordType", type = TypeKind.STRING)
+                @Argument(name = "recordType", type = TypeKind.TYPEDESC)
         },
         returnType = {
                 @ReturnType(type = TypeKind.TABLE),

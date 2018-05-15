@@ -37,6 +37,11 @@ public type Session object {
     }
     public native function createTextMessage(string content) returns Message|error;
 
+    documentation { Creates a JMS message which holds Map content
+        P{{content}} the Map content used to initialize this message
+    }
+    public native function createMapMessage(map content) returns Message|error;
+
     documentation { Unsubscribes a durable subscription that has been created by a client.
         It is erroneous for a client to delete a durable subscription while there is an active (not closed) consumer
         for the subscription, or while a consumed message is part of a pending transaction or has not been

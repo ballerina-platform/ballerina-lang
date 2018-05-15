@@ -27,7 +27,7 @@ function testLocalTransacton() returns (int, int) {
     table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 200", ResultCount
     );
     while (dt.hasNext()) {
-        var rs = check <ResultCount>dt.getNext();
+        ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     testDB.stop();
@@ -60,7 +60,7 @@ function testTransactonRollback() returns (int, int) {
     );
 
     while (dt.hasNext()) {
-        var rs = check <ResultCount>dt.getNext();
+        ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     testDB.stop();
@@ -94,7 +94,7 @@ function testTransactonAbort() returns (int, int) {
     table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 220", ResultCount
     );
     while (dt.hasNext()) {
-        var rs = check <ResultCount>dt.getNext();
+        ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     testDB.stop();
@@ -130,7 +130,7 @@ function testTransactonErrorThrow() returns (int, int, int) {
     table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 260", ResultCount
     );
     while (dt.hasNext()) {
-        var rs = check <ResultCount>dt.getNext();
+        ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     testDB.stop();

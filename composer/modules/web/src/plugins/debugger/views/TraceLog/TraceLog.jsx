@@ -88,7 +88,7 @@ class LogsConsole extends React.Component {
 
     onFilteredMessages(filteredMessages) {
         this.setState({
-            filteredMessages,
+            filteredMessages: this.mergeRelatedMessages(filteredMessages),
         });
     }
 

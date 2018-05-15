@@ -23,7 +23,7 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaAnnotationAttachment extends BallerinaCompositeElement {
 
-  @NotNull
+  @Nullable
   BallerinaNameReference getNameReference();
 
   @Nullable

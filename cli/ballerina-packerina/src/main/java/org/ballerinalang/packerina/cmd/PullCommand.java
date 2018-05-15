@@ -89,6 +89,10 @@ public class PullCommand implements BLauncherCmd {
         int orgNameIndex = resourceName.indexOf("/");
         if (orgNameIndex != -1) {
             orgName = resourceName.substring(0, orgNameIndex);
+            if (orgName.equals("ballerina")) {
+                throw new BLangCompilerException("`Ballerina` is the builtin organization and its packages are " +
+                                                         "included in the runtime.");
+            }
         } else {
             throw new BLangCompilerException("no package-name provided");
         }

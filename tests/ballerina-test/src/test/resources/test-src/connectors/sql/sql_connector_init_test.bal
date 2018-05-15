@@ -28,7 +28,7 @@ function testConnectionPoolProperties1() returns (json) {
 
     table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
-    var j = check <json>dt;
+    json j = check <json>dt;
     testDB.stop();
     return j;
 }
@@ -40,10 +40,9 @@ function testConnectionPoolProperties2() returns (json) {
         poolOptions: properties
     };
 
-    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
-    table dt = check dtRet;
+    table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
-    var j = check <json>dt;
+    json j = check <json>dt;
     testDB.stop();
     return j;
 }
@@ -56,7 +55,7 @@ function testConnectionPoolProperties3() returns (json) {
 
     table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
-    var j = check <json>dt;
+    json j = check <json>dt;
     testDB.stop();
     return j;
 }
@@ -69,10 +68,9 @@ function testConnectorWithDefaultPropertiesForListedDB() returns (json) {
         poolOptions: {}
     };
 
-    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
-    table dt = check dtRet;
+    table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
-    var j = check <json>dt;
+    json j = check <json>dt;
     testDB.stop();
     return j;
 }
@@ -90,7 +88,7 @@ function testConnectorWithWorkers() returns (json) {
 
         table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
-        var j = check <json>dt;
+        json j = check <json>dt;
         testDB.stop();
         return j;
     }
@@ -109,7 +107,7 @@ function testConnectorWithDataSourceClass() returns (json) {
 
     table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
-    var j = check <json>dt;
+    json j = check <json>dt;
     testDB.stop();
     return j;
 }
@@ -125,7 +123,7 @@ function testConnectorWithDataSourceClassAndProps() returns (json) {
 
     table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
-    var j = check <json>dt;
+    json j = check <json>dt;
     testDB.stop();
     return j;
 }
@@ -140,7 +138,7 @@ function testConnectorWithDataSourceClassWithoutURL() returns (json) {
 
     table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
-    var j = check <json>dt;
+    json j = check <json>dt;
     testDB.stop();
     return j;
 }
@@ -156,7 +154,24 @@ function testConnectorWithDataSourceClassURLPriority() returns (json) {
 
     table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
-    var j = check <json>dt;
+    json j = check <json>dt;
+    testDB.stop();
+    return j;
+}
+
+
+function testPropertiesGetUsedOnlyIfDataSourceGiven() returns (json) {
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize: 1 },
+        dbOptions: { "invalidProperty": 109 }
+    };
+
+    table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
+
+    json j = check <json>dt;
     testDB.stop();
     return j;
 }

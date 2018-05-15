@@ -384,7 +384,7 @@ XmlNamespaceName ::= QUOTED_STRING_LITERAL
 XmlLocalName ::= identifier
 
 // Todo - Cache
-AnnotationAttachment ::= AT NameReference RecordLiteral?
+AnnotationAttachment ::= AT NameReference RecordLiteral? {pin=1}
 
 
 // STATEMENTS / BLOCKS =================================================================================================
@@ -847,7 +847,7 @@ SetClause ::= set SetAssignmentClause (COMMA SetAssignmentClause)* {pin=1}
 
 SetAssignmentClause ::= VariableReference ASSIGN Expression
 
-StreamingInput ::= VariableReference WhereClause? WindowClause? WhereClause? (as identifier)? {pin(".*")=1}
+StreamingInput ::= VariableReference WhereClause? FunctionInvocation* WindowClause? FunctionInvocation* WhereClause? (as identifier)? {pin(".*")=1}
 
 JoinStreamingInput ::= (unidirectional JoinType | JoinType unidirectional | JoinType) StreamingInput on Expression
 
@@ -907,7 +907,7 @@ documentationAttachment ::= DOCUMENTATION_TEMPLATE_START documentationTemplateCo
 
 documentationTemplateContent ::= docText? documentationTemplateAttributeDescription+ | docText
 
-documentationTemplateAttributeDescription ::= DOCUMENTATION_TEMPLATE_ATTRIBUTE_START identifier DOCUMENTATION_TEMPLATE_ATTRIBUTE_END docText? {pin=1}
+documentationTemplateAttributeDescription ::= DOCUMENTATION_TEMPLATE_ATTRIBUTE_START identifier? DOCUMENTATION_TEMPLATE_ATTRIBUTE_END docText? {pin=1}
 
 docText ::= documentationTemplateInlineCode (DOCUMENTATION_TEMPLATE_TEXT | documentationTemplateInlineCode)*
             | DOCUMENTATION_TEMPLATE_TEXT  (DOCUMENTATION_TEMPLATE_TEXT | documentationTemplateInlineCode)*

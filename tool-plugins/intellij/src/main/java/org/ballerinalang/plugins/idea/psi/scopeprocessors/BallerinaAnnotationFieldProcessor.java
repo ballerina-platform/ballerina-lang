@@ -6,6 +6,7 @@ import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveState;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
+import org.ballerinalang.plugins.idea.completion.inserthandlers.ColonInsertHandler;
 import org.ballerinalang.plugins.idea.psi.BallerinaAnnotationAttachment;
 import org.ballerinalang.plugins.idea.psi.BallerinaAnnotationDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaExpression;
@@ -130,8 +131,8 @@ public class BallerinaAnnotationFieldProcessor extends BallerinaScopeProcessorBa
                     // Todo - Conside oncommit, onabort, etc and set the insert handler
                     // Note - Child is passed here instead of identifier because it is is top level
                     // definition.
-                    myResult.addElement(BallerinaCompletionUtils.createFieldLookupElement(
-                            definitionIdentifier, ownerName, typeName, null, true));
+                    myResult.addElement(BallerinaCompletionUtils.createFieldLookupElement(definitionIdentifier,
+                            ownerName, typeName, null, ColonInsertHandler.INSTANCE_WITH_AUTO_POPUP, true));
                 } else if (myElement.getText().equals(definitionIdentifier.getText())) {
                     add(definitionIdentifier);
                 }
