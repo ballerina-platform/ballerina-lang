@@ -84,7 +84,7 @@ public class Continue100TestCase {
 
         // 100-continue response
         Assert.assertEquals(responses.get(0).status(), HttpResponseStatus.CONTINUE);
-        Assert.assertEquals(responses.get(0).headers().get(HttpHeaderNames.CONTENT_LENGTH), "0");
+        Assert.assertEquals(Integer.parseInt(responses.get(0).headers().get(HttpHeaderNames.CONTENT_LENGTH)), 0);
 
         // Actual response
         String responsePayload = TestUtil.getEntityBodyFrom(responses.get(1));
