@@ -20,14 +20,16 @@ package org.ballerinalang.net.websub;
 
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpService;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -42,8 +44,8 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
 
     private String topicIdentifier;
     private String topicHeader;
-    private BStringArray topicPayloadKeys;
-    private BMap<String, BMap<String, BString>> topicResourceMap;
+    private List<String> topicPayloadKeys;
+    private BMap<String, BMap<String, BValue>> topicResourceMap;
 
     public WebSubServicesRegistry(WebSocketServicesRegistry webSocketServicesRegistry) {
         super(webSocketServicesRegistry);
@@ -92,7 +94,7 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
      *
      * @return the payload keys to consider
      */
-    BStringArray getTopicPayloadKeys() {
+    List<String> getTopicPayloadKeys() {
         return topicPayloadKeys;
     }
 
@@ -102,7 +104,7 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
      * @param topicPayloadKeys the payload keys to consider
      */
     public void setTopicPayloadKeys(BStringArray topicPayloadKeys) {
-        this.topicPayloadKeys = topicPayloadKeys;
+        this.topicPayloadKeys = Arrays.asList(topicPayloadKeys.getStringArray());
     }
 
     /**
@@ -110,7 +112,7 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
      *
      * @param topicResourceMap topic-resource map specified for the service
      */
-    public void setTopicResourceMap(BMap<String, BMap<String, BString>> topicResourceMap) {
+    public void setTopicResourceMap(BMap<String, BMap<String, BValue>> topicResourceMap) {
         this.topicResourceMap = topicResourceMap;
     }
 
@@ -119,7 +121,7 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
      *
      * @return the topic-resource map specified for the service
      */
-    BMap<String, BMap<String, BString>> getTopicResourceMap() {
+    BMap<String, BMap<String, BValue>> getTopicResourceMap() {
         return topicResourceMap;
     }
 
@@ -146,7 +148,7 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
         sortedServiceURIs.add(httpService.getBasePath());
         sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
 
-        WebSubSubscriberServiceValidator.validateResources(httpService, topicHeader, topicResourceMap);
+        WebSubSubscriberServiceValidator.validateResources(httpService, topicIdentifier, topicHeader, topicResourceMap);
     }
 
 }

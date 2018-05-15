@@ -104,23 +104,23 @@ documentation {
 documentation {
     The identifier to be used to identify the topic for dispatching with custom subscriber services.
 }
-type TopicIdentifier "TOPIC_ID_HEADER"|"TOPIC_ID_PAYLOAD_KEY"|"TOPIC_ID_HEADER_AND_PAYLOAD";
+public type TopicIdentifier "TOPIC_ID_HEADER"|"TOPIC_ID_PAYLOAD_KEY"|"TOPIC_ID_HEADER_AND_PAYLOAD";
 
 documentation {
     `TopicIdentifier` indicating dispatching based solely on a header of the request.
 }
-@final TopicIdentifier TOPIC_ID_HEADER = "TOPIC_ID_HEADER";
+@final public TopicIdentifier TOPIC_ID_HEADER = "TOPIC_ID_HEADER";
 
 documentation {
     `TopicIdentifier` indicating dispatching based solely on a value for a key in the JSON payload of the request.
 }
-@final TopicIdentifier TOPIC_ID_PAYLOAD_KEY = "TOPIC_ID_PAYLOAD_KEY";
+@final public TopicIdentifier TOPIC_ID_PAYLOAD_KEY = "TOPIC_ID_PAYLOAD_KEY";
 
 documentation {
     `TopicIdentifier` indicating dispatching based on a combination of header and values specified for a key/key(s) in
     the JSON payload of the request.
 }
-@final TopicIdentifier TOPIC_ID_HEADER_AND_PAYLOAD = "TOPIC_ID_HEADER_AND_PAYLOAD";
+@final public TopicIdentifier TOPIC_ID_HEADER_AND_PAYLOAD = "TOPIC_ID_HEADER_AND_PAYLOAD";
 
 ///////////////////////////////////////////////////////////////////
 //////////////////// WebSub Subscriber Commons ////////////////////

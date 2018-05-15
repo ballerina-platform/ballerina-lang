@@ -69,11 +69,11 @@ public class WebSubSubscriberConstants {
     static final String DEFERRED_FOR_PAYLOAD_BASED_DISPATCHING = "deferredForPayloadBasedDispatching";
     static final String ENTITY_ACCESSED_REQUEST = "entityAccessedRequest";
 
-    static final String STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST = "IntentVerificationRequest";
-    static final String STRUCT_WEBSUB_NOTIFICATION_REQUEST = "Notification";
+    public static final String STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST = "IntentVerificationRequest";
+    public static final String STRUCT_WEBSUB_NOTIFICATION_REQUEST = "Notification";
 
-    static final String RESOURCE_NAME_ON_INTENT_VERIFICATION = "onIntentVerification";
-    static final String RESOURCE_NAME_ON_NOTIFICATION = "onNotification";
+    public static final String RESOURCE_NAME_ON_INTENT_VERIFICATION = "onIntentVerification";
+    public static final String RESOURCE_NAME_ON_NOTIFICATION = "onNotification";
 
     static final String PATH_FIELD = "path";
 

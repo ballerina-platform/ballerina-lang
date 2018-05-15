@@ -95,8 +95,8 @@ public class InitWebSubSubscriberServiceEndpoint extends BlockingNativeCallableU
                                                                   + " by Topic Header and Payload Key");
                 }
             }
-            BMap<String, BMap<String, BString>> topicResourceMap =
-                    (BMap<String, BMap<String, BString>>) config.get(SERVICE_CONFIG_TOPIC_RESOURCE_MAP);
+            BMap<String, BMap<String, BValue>> topicResourceMap =
+                                    (BMap<String, BMap<String, BValue>>) config.get(SERVICE_CONFIG_TOPIC_RESOURCE_MAP);
             if (!(topicResourceMap).isEmpty()) {
                 webSubServicesRegistry.setTopicResourceMap(topicResourceMap);
             } else {

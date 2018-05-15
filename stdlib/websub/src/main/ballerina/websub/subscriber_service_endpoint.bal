@@ -208,7 +208,7 @@ public type SubscriberServiceEndpointConfiguration record {
     TopicIdentifier? topicIdentifier;
     string? topicHeader;
     string[]? topicPayloadKeys;
-    map<map<string>>? topicResourceMap;
+    map<map<map<(string, typedesc)>|(string, typedesc)>>? topicResourceMap;
 };
 
 documentation {
