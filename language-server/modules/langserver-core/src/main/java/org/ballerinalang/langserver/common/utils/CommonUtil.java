@@ -406,7 +406,7 @@ public class CommonUtil {
     public static String getDefaultValueForType(BType bType) {
         String typeString;
         if (bType == null) {
-            return "null";
+            return "()";
         }
         switch (bType.getKind()) {
             case INT:
@@ -438,7 +438,7 @@ public class CommonUtil {
                 break;
             case STREAM:
             default:
-                typeString = "null";
+                typeString = "()";
                 break;
         }
         return typeString;

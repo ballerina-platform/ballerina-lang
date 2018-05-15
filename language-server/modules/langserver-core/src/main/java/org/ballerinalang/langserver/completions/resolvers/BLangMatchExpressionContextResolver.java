@@ -17,9 +17,12 @@
 */
 package org.ballerinalang.langserver.completions.resolvers;
 
+import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.util.Priority;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
@@ -35,7 +38,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -58,31 +62,60 @@ public class BLangMatchExpressionContextResolver extends AbstractItemResolver {
         }
         
         if (bType instanceof BUnionType) {
-            CompletionItem completionItem = new CompletionItem();
-            String memberTypesSnippet = getMatchExpressionMemberTypesSnippet((BUnionType) bType,
-                    getExpectedReturnType(symbolEnvNode.parent));
-            completionItem.setInsertText(memberTypesSnippet);
-            completionItem.setLabel(bType.toString());
-            completionItem.setDetail(bType.toString());
-            completionItem.setKind(CompletionItemKind.Unit);
-            completionItem.setInsertTextFormat(InsertTextFormat.Snippet);
-            completionItems.add(completionItem);
+            String matchSnippet = "Match ";
+            CompletionItem allFillerItem = new CompletionItem();
+            CompletionItem anyFillerItem = new CompletionItem();
+            String defaultType = CommonUtil.getDefaultValueForType(getExpectedReturnType(symbolEnvNode.parent));
+            Map<String, String> memberTypesSnippets = getMatchExpressionMemberTypesSnippets((BUnionType) bType,
+                    defaultType);
+            String allFieldFiller = String.join("," + CommonUtil.LINE_SEPARATOR, memberTypesSnippets.values());
+            String anyFieldFiller = UtilSymbolKeys.ANY_KEYWORD_KEY + " => ${1:" + defaultType + "}";
+            
+            memberTypesSnippets.entrySet().forEach(entry -> {
+                CompletionItem memberItem = new CompletionItem();
+                memberItem.setLabel(matchSnippet + entry.getKey());
+                memberItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
+                memberItem.setInsertText(entry.getValue());
+                memberItem.setKind(CompletionItemKind.Unit);
+                memberItem.setInsertTextFormat(InsertTextFormat.Snippet);
+                memberItem.setSortText(Priority.PRIORITY130.toString());
+                completionItems.add(memberItem);
+            });
+            
+            // Set the all field Filler completion Item
+            allFillerItem.setInsertText(allFieldFiller);
+            allFillerItem.setLabel(matchSnippet + bType.toString());
+            allFillerItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
+            allFillerItem.setKind(CompletionItemKind.Unit);
+            allFillerItem.setInsertTextFormat(InsertTextFormat.Snippet);
+            allFillerItem.setSortText(Priority.PRIORITY110.toString());
+
+            // Set the any field Filler completion Item
+            anyFillerItem.setInsertText(anyFieldFiller);
+            anyFillerItem.setLabel(matchSnippet + UtilSymbolKeys.ANY_KEYWORD_KEY);
+            anyFillerItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
+            anyFillerItem.setKind(CompletionItemKind.Unit);
+            anyFillerItem.setInsertTextFormat(InsertTextFormat.Snippet);
+            anyFillerItem.setSortText(Priority.PRIORITY120.toString());
+            
+            completionItems.add(allFillerItem);
+            completionItems.add(anyFillerItem);
         }
 
         return completionItems;
     }
 
-    private String getMatchExpressionMemberTypesSnippet(BUnionType bUnionType, BType parentType) {
+    private Map<String, String> getMatchExpressionMemberTypesSnippets(BUnionType bUnionType, String defaultType) {
         Set<BType> memberTypes = bUnionType.getMemberTypes();
-        List<String> memberTypeSnippets = new ArrayList<>();
+        Map<String, String> memberSnippets = new LinkedHashMap<>();
         int placeholderCounter = 1;
         for (BType bType : memberTypes) {
-            String defaultType = CommonUtil.getDefaultValueForType(parentType);
-            memberTypeSnippets.add(bType.toString() + " => ${" + placeholderCounter + ":" + defaultType + "}");
+            memberSnippets.put(bType.toString(),
+                    bType.toString() + " => ${" + placeholderCounter + ":" + defaultType + "}");
             placeholderCounter++;
         }
 
-        return String.join("," + CommonUtil.LINE_SEPARATOR, memberTypeSnippets);
+        return memberSnippets;
     }
     
     private BType getExpectedReturnType(BLangNode parentNode) {

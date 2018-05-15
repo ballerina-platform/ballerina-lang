@@ -50,6 +50,8 @@ public class UtilSymbolKeys {
     public static final String ANON_STRUCT_CHECKER = "$anon";
 
     public static final String ACTION_KEYWORD_KEY = "action";
+
+    public static final String ANY_KEYWORD_KEY = "any";
     
     public static final String CONNECTOR_KEYWORD_KEY = "connector";
 
