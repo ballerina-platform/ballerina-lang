@@ -275,7 +275,8 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         } catch (Exception e) {
             BallerinaException exception = new BallerinaException("Failed to send outboundRequestMsg to the backend",
                                                                   e, dataContext.context);
-            dataContext.notifyInboundResponseStatus(null, HttpUtil.getHttpConnectorError(dataContext.context, exception));
+            dataContext.notifyInboundResponseStatus(null,
+                    HttpUtil.getHttpConnectorError(dataContext.context, exception));
         }
     }
 
