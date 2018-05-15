@@ -1,12 +1,13 @@
 package org.ballerinalang.plugins.idea.psi.scopeprocessors;
 
 import com.intellij.codeInsight.completion.CompletionResultSet;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveState;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
-import org.ballerinalang.plugins.idea.completion.inserthandlers.ParenthesisInsertHandler;
+import org.ballerinalang.plugins.idea.completion.inserthandlers.SmartParenthesisInsertHandler;
 import org.ballerinalang.plugins.idea.psi.BallerinaArrayTypeName;
 import org.ballerinalang.plugins.idea.psi.BallerinaAttachedObject;
 import org.ballerinalang.plugins.idea.psi.BallerinaBuiltInReferenceTypeName;
@@ -50,6 +51,7 @@ public class BallerinaFieldProcessor extends BallerinaScopeProcessorBase {
 
     @Override
     public boolean execute(@NotNull PsiElement element, @NotNull ResolveState state) {
+        ProgressManager.checkCanceled();
         if (accept(element)) {
             PsiElement parent = element.getParent();
             PsiElement prevSibling = parent.getPrevSibling();
@@ -155,7 +157,7 @@ public class BallerinaFieldProcessor extends BallerinaScopeProcessorBase {
                                 // Note - Child is passed here instead of identifier because it is is top level
                                 // definition.
                                 myResult.addElement(BallerinaCompletionUtils.createFunctionLookupElement(
-                                        functionDefinition, ParenthesisInsertHandler.INSTANCE));
+                                        functionDefinition, SmartParenthesisInsertHandler.INSTANCE));
                             } else if (myElement.getText().equals(identifier.getText())) {
                                 add(identifier);
                             }
@@ -175,7 +177,7 @@ public class BallerinaFieldProcessor extends BallerinaScopeProcessorBase {
                                     // Note - Child is passed here instead of identifier because it is is top level
                                     // definition.
                                     myResult.addElement(BallerinaCompletionUtils.createFunctionLookupElement(
-                                            functionDefinition, ParenthesisInsertHandler.INSTANCE));
+                                            functionDefinition, SmartParenthesisInsertHandler.INSTANCE));
                                 } else if (myElement.getText().equals(identifier.getText())) {
                                     add(identifier);
                                 }
@@ -194,7 +196,7 @@ public class BallerinaFieldProcessor extends BallerinaScopeProcessorBase {
                                 // Note - Child is passed here instead of identifier because it is is top level
                                 // definition.
                                 myResult.addElement(BallerinaCompletionUtils.createFunctionLookupElement(
-                                        functionDefinition, ParenthesisInsertHandler.INSTANCE));
+                                        functionDefinition, SmartParenthesisInsertHandler.INSTANCE));
                             } else if (myElement.getText().equals(identifier.getText())) {
                                 add(identifier);
                             }

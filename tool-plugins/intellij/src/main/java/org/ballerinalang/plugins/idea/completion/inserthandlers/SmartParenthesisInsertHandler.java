@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,24 +26,28 @@ import com.intellij.openapi.editor.EditorModificationUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.PsiElement;
+
+import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.HAS_A_RETURN_VALUE;
+import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.REQUIRE_PARAMETERS;
 
 /**
- * Provides parenthesis completion support.
+ * Provides smart parenthesis completion support which will add semicolon if necessary.
  */
-public class ParenthesisInsertHandler implements InsertHandler<LookupElement> {
+public class SmartParenthesisInsertHandler implements InsertHandler<LookupElement> {
 
-    public static final InsertHandler<LookupElement> INSTANCE = new ParenthesisInsertHandler(false);
+    public static final InsertHandler<LookupElement> INSTANCE = new SmartParenthesisInsertHandler(false);
     public static final InsertHandler<LookupElement> INSTANCE_WITH_AUTO_POPUP =
-            new ParenthesisInsertHandler(true);
+            new SmartParenthesisInsertHandler(true);
 
     private final String myIgnoreOnChars;
     private final boolean myTriggerAutoPopup;
 
-    public ParenthesisInsertHandler(boolean triggerAutoPopup) {
+    public SmartParenthesisInsertHandler(boolean triggerAutoPopup) {
         this("", triggerAutoPopup);
     }
 
-    public ParenthesisInsertHandler(String ignoreOnChars, boolean triggerAutoPopup) {
+    public SmartParenthesisInsertHandler(String ignoreOnChars, boolean triggerAutoPopup) {
         myIgnoreOnChars = ignoreOnChars;
         myTriggerAutoPopup = triggerAutoPopup;
     }
@@ -58,7 +62,25 @@ public class ParenthesisInsertHandler implements InsertHandler<LookupElement> {
         if (project != null) {
             int completionCharOffset = getCompletionCharOffset(editor);
             if (completionCharOffset == -1) {
-                EditorModificationUtil.insertStringAtCaret(editor, "()", false, 1);
+                PsiElement psiElement = item.getPsiElement();
+                if (psiElement != null) {
+                    String hasAReturnValue = psiElement.getUserData(HAS_A_RETURN_VALUE);
+                    String requireParameters = psiElement.getUserData(REQUIRE_PARAMETERS);
+                    int caretShift = 1;
+                    if (hasAReturnValue != null) {
+                        if (requireParameters == null) {
+                            caretShift += 2;
+                        }
+                        EditorModificationUtil.insertStringAtCaret(editor, "();", false, caretShift);
+                    } else {
+                        if (requireParameters == null) {
+                            caretShift += 1;
+                        }
+                        EditorModificationUtil.insertStringAtCaret(editor, "()", false, caretShift);
+                    }
+                } else {
+                    EditorModificationUtil.insertStringAtCaret(editor, "()", false, 1);
+                }
                 PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
             } else {
                 editor.getCaretModel().moveToOffset(editor.getCaretModel().getOffset() + completionCharOffset + 1);

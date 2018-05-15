@@ -1,17 +1,25 @@
 package org.ballerinalang.plugins.idea.psi.scopeprocessors;
 
 import com.intellij.codeInsight.completion.CompletionResultSet;
+import com.intellij.codeInsight.completion.InsertHandler;
+import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.ResolveState;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.completion.inserthandlers.ParenthesisInsertHandler;
+import org.ballerinalang.plugins.idea.completion.inserthandlers.SmartParenthesisInsertHandler;
 import org.ballerinalang.plugins.idea.psi.BallerinaAnnotationAttachment;
 import org.ballerinalang.plugins.idea.psi.BallerinaAnnotationDefinition;
+import org.ballerinalang.plugins.idea.psi.BallerinaCompositeElement;
 import org.ballerinalang.plugins.idea.psi.BallerinaDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.BallerinaFunctionDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaGlobalEndpointDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaGlobalVariableDefinition;
+import org.ballerinalang.plugins.idea.psi.BallerinaOncommitStatement;
+import org.ballerinalang.plugins.idea.psi.BallerinaOnretryClause;
 import org.ballerinalang.plugins.idea.psi.BallerinaPackageReference;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeDefinition;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
@@ -45,6 +53,7 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
 
     @Override
     public boolean execute(@NotNull PsiElement element, @NotNull ResolveState state) {
+        ProgressManager.checkCanceled();
         if (accept(element)) {
             List<BallerinaDefinition> definitions = ((BallerinaFile) element).getDefinitions();
 
@@ -55,6 +64,7 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
                     List<BallerinaAnnotationDefinition> annotationDefinitions =
                             BallerinaPsiImplUtil.suggestBuiltInAnnotations(element);
                     for (BallerinaAnnotationDefinition definition : annotationDefinitions) {
+                        ProgressManager.checkCanceled();
                         PsiElement identifier = definition.getIdentifier();
                         if (identifier != null) {
                             if (myResult != null) {
@@ -67,6 +77,7 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
                     }
                 }
                 for (BallerinaDefinition definition : definitions) {
+                    ProgressManager.checkCanceled();
                     PsiElement lastChild = definition.getLastChild();
                     if (lastChild instanceof BallerinaAnnotationDefinition) {
                         BallerinaAnnotationDefinition child = (BallerinaAnnotationDefinition) lastChild;
@@ -91,6 +102,7 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
                     BallerinaPsiImplUtil.suggestBuiltInTypes(element);
             if (!ballerinaTypeDefinitions.isEmpty()) {
                 for (BallerinaTypeDefinition definition : ballerinaTypeDefinitions) {
+                    ProgressManager.checkCanceled();
                     PsiElement identifier = definition.getIdentifier();
                     if (identifier != null) {
                         if (myResult != null) {
@@ -116,6 +128,7 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
             }
 
             for (BallerinaDefinition definition : definitions) {
+                ProgressManager.checkCanceled();
                 PsiElement lastChild = definition.getLastChild();
                 if (lastChild instanceof BallerinaFunctionDefinition) {
                     BallerinaFunctionDefinition child = (BallerinaFunctionDefinition) lastChild;
@@ -127,15 +140,22 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
                                 // Note - Child is passed here instead of identifier because it is is top level
                                 // definition.
                                 String publicFieldsOnly = state.get(BallerinaCompletionUtils.PUBLIC_DEFINITIONS_ONLY);
+                                InsertHandler<LookupElement> insertHandler = SmartParenthesisInsertHandler.INSTANCE;
+                                BallerinaCompositeElement compositeElement = PsiTreeUtil.getParentOfType(myElement,
+                                        BallerinaOncommitStatement.class, BallerinaOnretryClause.class);
+                                if (compositeElement != null) {
+                                    insertHandler = ParenthesisInsertHandler.INSTANCE;
+                                }
                                 if (publicFieldsOnly != null) {
                                     if (child.isPublic()) {
                                         myResult.addElement(BallerinaCompletionUtils.createFunctionLookupElement(child,
-                                                ParenthesisInsertHandler.INSTANCE));
+                                                insertHandler));
                                         lookupElementsFound = true;
                                     }
                                 } else {
+
                                     myResult.addElement(BallerinaCompletionUtils.createFunctionLookupElement(child,
-                                            ParenthesisInsertHandler.INSTANCE));
+                                            insertHandler));
                                     lookupElementsFound = true;
                                 }
                             } else if (myElement.getText().equals(identifier.getText())) {
