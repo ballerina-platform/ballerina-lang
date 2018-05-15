@@ -60,9 +60,7 @@ import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_PARA_MAP
 import static org.ballerinalang.mime.util.Constants.DISPOSITION_INDEX;
 import static org.ballerinalang.mime.util.Constants.DOUBLE_QUOTE;
 import static org.ballerinalang.mime.util.Constants.FORM_DATA_PARAM;
-import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE_INDEX;
-import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_FORM_DATA;
 import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_INDEX;
@@ -316,14 +314,6 @@ public class MimeUtil {
      */
     public static void setContentLength(BStruct entityStruct, long length) {
         entityStruct.setIntField(SIZE_INDEX, length);
-    }
-
-    public static BStruct extractEntity(BStruct httpMessageStruct) {
-        Object isEntityBodyAvailable = httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET);
-        if (isEntityBodyAvailable == null || !((Boolean) isEntityBodyAvailable)) {
-            return null;
-        }
-        return (BStruct) httpMessageStruct.getNativeData(MESSAGE_ENTITY);
     }
 
     /**
