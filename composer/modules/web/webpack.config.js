@@ -48,13 +48,17 @@ const config = [{
         tree: './src/plugins/ballerina/model/tree-builder.js',
         bundle: './src/index.js',
         testable: './src/plugins/ballerina/tests/testable.js',
+        "editor.worker": 'monaco-editor/esm/vs/editor/editor.worker.js',
+        "json.worker": 'monaco-editor/esm/vs/language/json/json.worker',
+        "css.worker": 'monaco-editor/esm/vs/language/css/css.worker',
+        "html.worker": 'monaco-editor/esm/vs/language/html/html.worker',
+        "ts.worker": 'monaco-editor/esm/vs/language/typescript/ts.worker',
     },
     output: {
         filename: '[name]-[hash].js',
         path: path.resolve(__dirname, 'dist'),
     },
     module: {
-        noParse: /vscode-languageserver-types/,
         rules: [{
             test: /\.js$/,
             exclude: /(node_modules|modules\/web\/lib\/scss)/,
@@ -191,10 +195,6 @@ const config = [{
         new CopyWebpackPlugin([
             {
                 from: 'public',
-            },
-            {
-                from: 'node_modules/monaco-editor/min/vs',
-                to: 'vs',
             },
         ]),
         new HtmlWebpackPlugin({
