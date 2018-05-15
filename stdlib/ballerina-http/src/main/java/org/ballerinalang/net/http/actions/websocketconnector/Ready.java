@@ -51,7 +51,7 @@ public class Ready implements NativeCallableUnit {
         BStruct webSocketConnector = (BStruct) context.getRefArgument(0);
         WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) webSocketConnector
                 .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
-        if (webSocketConnector.getBooleanField(0) == 0) {
+        if (webSocketConnector.getBooleanField(WebSocketConstants.CONNECTOR_IS_READY_INDEX) == 0) {
             WebSocketUtil.readFirstFrame(connectionInfo.getWebSocketConnection(), webSocketConnector);
             context.setReturnValues();
         } else {

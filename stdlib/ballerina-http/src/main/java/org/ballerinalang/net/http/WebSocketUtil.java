@@ -137,14 +137,14 @@ public abstract class WebSocketUtil {
         CallableUnitCallback onOpenCallableUnitCallback = new CallableUnitCallback() {
             @Override
             public void notifySuccess() {
-                if (webSocketConnector.getBooleanField(0) == 0) {
+                if (webSocketConnector.getBooleanField(WebSocketConstants.CONNECTOR_IS_READY_INDEX) == 0) {
                     readFirstFrame(webSocketConnection, webSocketConnector);
                 }
             }
 
             @Override
             public void notifyFailure(BStruct error) {
-                if (webSocketConnector.getBooleanField(0) == 0) {
+                if (webSocketConnector.getBooleanField(WebSocketConstants.CONNECTOR_IS_READY_INDEX) == 0) {
                     readFirstFrame(webSocketConnection, webSocketConnector);
                 }
                 ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
@@ -155,10 +155,13 @@ public abstract class WebSocketUtil {
     }
 
     public static void populateEndpoint(WebSocketConnection webSocketConnection, BStruct webSocketEndpoint) {
-        webSocketEndpoint.setStringField(0, webSocketConnection.getId());
-        webSocketEndpoint.setStringField(1, webSocketConnection.getSession().getNegotiatedSubprotocol());
-        webSocketEndpoint.setBooleanField(0, webSocketConnection.getSession().isSecure() ? 1 : 0);
-        webSocketEndpoint.setBooleanField(1, webSocketConnection.getSession().isOpen() ? 1 : 0);
+        webSocketEndpoint.setStringField(WebSocketConstants.LISTENER_ID_INDEX, webSocketConnection.getId());
+        webSocketEndpoint.setStringField(WebSocketConstants.LISTENER_NEGOTIATED_SUBPROTOCOLS_INDEX,
+                                         webSocketConnection.getSession().getNegotiatedSubprotocol());
+        webSocketEndpoint.setBooleanField(WebSocketConstants.LISTENER_IS_SECURE_INDEX,
+                                          webSocketConnection.getSession().isSecure() ? 1 : 0);
+        webSocketEndpoint.setBooleanField(WebSocketConstants.LISTENER_IS_OPEN_INDEX,
+                                          webSocketConnection.getSession().isOpen() ? 1 : 0);
     }
 
     public static void handleWebSocketCallback(Context context, CallableUnitCallback callback,

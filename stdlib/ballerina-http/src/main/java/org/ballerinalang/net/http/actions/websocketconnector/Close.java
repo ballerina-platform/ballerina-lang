@@ -65,7 +65,7 @@ public class Close implements NativeCallableUnit {
                             WebSocketUtil.createWebSocketConnectorError(context, future.cause().getMessage()));
                 } else {
                     connectionInfo.setCloseStatusCode(statusCode);
-                    connectionInfo.getWebSocketEndpoint().setBooleanField(0, 0);
+                    connectionInfo.getWebSocketEndpoint().setBooleanField(WebSocketConstants.LISTENER_IS_OPEN_INDEX, 0);
                     context.setReturnValues();
                 }
                 callback.notifySuccess();
