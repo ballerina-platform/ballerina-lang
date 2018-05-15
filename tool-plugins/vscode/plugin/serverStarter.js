@@ -98,6 +98,7 @@ function startServices() {
             const balHomeSysProp = `-Dballerina.home=${balHomePath}`;
 
             console.log('Starting parser service on: ', parserPort);
+            outputChannel.append('Starting parser service on port: ' + parserPort + '\n');
             serverProcess = spawn('java', [balHomeSysProp, ...args, main, LSPort, parserPort]);
 
             serverProcess.on('error', (e) => {
@@ -106,16 +107,33 @@ function startServices() {
                 onParserError(e);
                 onLSError(e);
             });
-            
+
+            let parserStarted = false;
+            let aggregatedStdout = '';
+            const logLevelDebug = workspace.getConfiguration('ballerina').get('debugLog') === true;
+
             serverProcess.stdout.on('data', (data) => {
                 console.log(`ls: ${data}`);
-                if (`${data}`.indexOf('Parser started successfully') > -1) {
+                if (logLevelDebug) {
+                    outputChannel.append(`${data}`);
+                }
+
+                if (parserStarted) {
+                    return;
+                }
+
+                aggregatedStdout = `${aggregatedStdout}${data}`;
+                if (aggregatedStdout.indexOf('Parser started successfully') > -1) {
                     outputChannel.append('Parser started successfully on port: ' + parserPort + '\n');
                     onParserStarted({port: parserPort});
+                    parserStarted = true;
                 }
             });
             serverProcess.stderr.on('data', (data) => {
                 console.log(`ls: ${data}`);
+                if (logLevelDebug) {
+                    outputChannel.append(`${data}`);
+                }
             });
         });
     });

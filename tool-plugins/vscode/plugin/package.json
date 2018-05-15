@@ -61,6 +61,13 @@
                     ],
                     "default": false,
                     "description": "If set to true the language server's error log will be printed in the plugins console"
+                },
+                "ballerina.debugLog": {
+                    "type": [
+                        "boolean"
+                    ],
+                    "default": false,
+                    "description": "If set to true the stdout and stderr of back end services will be printed in the plugins output channel"
                 }
             }
         },
