@@ -28,7 +28,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiDocumentManager;
 
 /**
- * Provides parenthesis with semicolon completion support.
+ * Provides parenthesis completion support.
  */
 public class ParenthesisInsertHandler implements InsertHandler<LookupElement> {
 

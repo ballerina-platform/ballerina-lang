@@ -163,20 +163,20 @@ public class BallerinaCompletionUtils {
         TYPE = createKeywordLookupElement("type");
         XMLNS = createKeywordLookupElement("xmlns");
 
-        BLOB = createLookupElement("blob", AddSpaceInsertHandler.INSTANCE);
-        BOOLEAN = createLookupElement("boolean", AddSpaceInsertHandler.INSTANCE);
-        FLOAT = createLookupElement("float", AddSpaceInsertHandler.INSTANCE);
-        INT = createLookupElement("int", AddSpaceInsertHandler.INSTANCE);
-        STRING = createLookupElement("string", AddSpaceInsertHandler.INSTANCE);
+        BLOB = createLookupElement("blob");
+        BOOLEAN = createLookupElement("boolean");
+        FLOAT = createLookupElement("float");
+        INT = createLookupElement("int");
+        STRING = createLookupElement("string");
 
-        ANY = createLookupElement("any", AddSpaceInsertHandler.INSTANCE);
-        FUTURE = createLookupElement("future", AddSpaceInsertHandler.INSTANCE);
-        JSON = createLookupElement("json", AddSpaceInsertHandler.INSTANCE);
-        MAP = createLookupElement("map", AddSpaceInsertHandler.INSTANCE);
-        STREAM = createLookupElement("stream", null);
-        TABLE = createLookupElement("table", null);
-        TYPE_DESC = createLookupElement("typedesc", AddSpaceInsertHandler.INSTANCE);
-        XML = createLookupElement("xml", AddSpaceInsertHandler.INSTANCE);
+        ANY = createLookupElement("any");
+        FUTURE = createLookupElement("future");
+        JSON = createLookupElement("json");
+        MAP = createLookupElement("map");
+        STREAM = createLookupElement("stream");
+        TABLE = createLookupElement("table");
+        TYPE_DESC = createLookupElement("typedesc");
+        XML = createLookupElement("xml");
 
         VAR = createLookupElement("var", AddSpaceInsertHandler.INSTANCE);
 
@@ -235,14 +235,24 @@ public class BallerinaCompletionUtils {
     /**
      * Creates a lookup element.
      *
+     * @param name name of the lookup
+     * @return {@link LookupElementBuilder} which will be used to create the lookup element.
+     */
+    @NotNull
+    private static LookupElementBuilder createLookupElement(@NotNull String name) {
+        return LookupElementBuilder.create(name).withBoldness(true);
+    }
+
+    /**
+     * Creates a lookup element.
+     *
      * @param name          name of the lookup
      * @param insertHandler insert handler of the lookup
      * @return {@link LookupElementBuilder} which will be used to create the lookup element.
      */
-    @NotNull
     private static LookupElementBuilder createLookupElement(@NotNull String name,
                                                             @Nullable InsertHandler<LookupElement> insertHandler) {
-        return LookupElementBuilder.create(name).withBoldness(true).withInsertHandler(insertHandler);
+        return createLookupElement(name).withInsertHandler(insertHandler);
     }
 
     /**
@@ -351,12 +361,21 @@ public class BallerinaCompletionUtils {
      *
      * @param resultSet result list which is used to add lookups
      */
-    static void addValueTypesAsLookups(@NotNull CompletionResultSet resultSet) {
-        resultSet.addElement(PrioritizedLookupElement.withPriority(BOOLEAN, VALUE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(BLOB, VALUE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(FLOAT, VALUE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(INT, VALUE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(STRING, VALUE_TYPES_PRIORITY));
+    static void addValueTypesAsLookups(@NotNull CompletionResultSet resultSet, boolean addTraileringSpace) {
+        InsertHandler<LookupElement> insertHandler = null;
+        if (addTraileringSpace) {
+            insertHandler = AddSpaceInsertHandler.INSTANCE;
+        }
+        resultSet.addElement(PrioritizedLookupElement.withPriority(BOOLEAN.withInsertHandler(insertHandler),
+                VALUE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(BLOB.withInsertHandler(insertHandler),
+                VALUE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(FLOAT.withInsertHandler(insertHandler),
+                VALUE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(INT.withInsertHandler(insertHandler),
+                VALUE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(STRING.withInsertHandler(insertHandler),
+                VALUE_TYPES_PRIORITY));
     }
 
     /**
@@ -364,15 +383,27 @@ public class BallerinaCompletionUtils {
      *
      * @param resultSet result list which is used to add lookups
      */
-    static void addReferenceTypesAsLookups(@NotNull CompletionResultSet resultSet) {
-        resultSet.addElement(PrioritizedLookupElement.withPriority(ANY, REFERENCE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(FUTURE, REFERENCE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(JSON, REFERENCE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(MAP, REFERENCE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(STREAM, REFERENCE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(TABLE, REFERENCE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(TYPE_DESC, REFERENCE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(XML, REFERENCE_TYPES_PRIORITY));
+    static void addReferenceTypesAsLookups(@NotNull CompletionResultSet resultSet, boolean addTraileringSpace) {
+        InsertHandler<LookupElement> insertHandler = null;
+        if (addTraileringSpace) {
+            insertHandler = AddSpaceInsertHandler.INSTANCE;
+        }
+        resultSet.addElement(PrioritizedLookupElement.withPriority(ANY.withInsertHandler(insertHandler),
+                REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(FUTURE.withInsertHandler(insertHandler),
+                REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(JSON.withInsertHandler(insertHandler),
+                REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(MAP.withInsertHandler(insertHandler),
+                REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(STREAM.withInsertHandler(insertHandler),
+                REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(TABLE.withInsertHandler(insertHandler),
+                REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(TYPE_DESC.withInsertHandler(insertHandler),
+                REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(XML.withInsertHandler(insertHandler),
+                REFERENCE_TYPES_PRIORITY));
     }
 
     static void addTopLevelDefinitionsAsLookups(@NotNull CompletionResultSet resultSet) {

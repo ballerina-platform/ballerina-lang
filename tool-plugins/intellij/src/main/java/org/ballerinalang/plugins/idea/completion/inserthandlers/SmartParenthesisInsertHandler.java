@@ -32,7 +32,7 @@ import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils
 import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.REQUIRE_PARAMETERS;
 
 /**
- * Provides parenthesis completion support.
+ * Provides smart parenthesis completion support which will add semicolon if necessary.
  */
 public class SmartParenthesisInsertHandler implements InsertHandler<LookupElement> {
 
