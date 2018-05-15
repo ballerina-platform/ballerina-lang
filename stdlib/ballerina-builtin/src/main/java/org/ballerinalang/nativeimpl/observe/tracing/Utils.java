@@ -23,11 +23,14 @@ import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
+import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 
 /**
  * This provides the util functions to tracing related functions.
@@ -49,9 +52,9 @@ public class Utils {
         return returnMap;
     }
 
-    public static BStruct createSpanStruct(Context context, String spanId) {
-        PackageInfo observePackage = context.getProgramFile().getPackageInfo("ballerina.observe");
-        StructInfo spanStructInfo = observePackage.getStructInfo("Span");
-        return BLangVMStructs.createBStruct(spanStructInfo, spanId, false);
+    public static BStruct createErrorStruct(Context context, String message) {
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_BUILTIN);
+        StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
+        return BLangVMStructs.createBStruct(errorStructInfo, message);
     }
 }

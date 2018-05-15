@@ -15,48 +15,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-package org.ballerinalang.nativeimpl.observe.tracing;
+package org.ballerinalang.nativeimpl.observe.metrics;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-
-import java.io.PrintStream;
+import org.ballerinalang.util.metrics.Summary;
 
 /**
- * This function adds tags to a span.
+ * Returns the total amount of all recorded events.
  */
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
-        functionName = "addTag",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Span", structPackage = "ballerina.observe"),
-        args = {
-                @Argument(name = "tagKey", type = TypeKind.STRING),
-                @Argument(name = "tagValue", type = TypeKind.STRING)
-        },
-        returnType = @ReturnType(type = TypeKind.VOID),
+        functionName = "getSum",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = Constants.SUMMARY,
+                structPackage = Constants.OBSERVE_PACKAGE_PATH),
+        returnType = @ReturnType(type = TypeKind.INT),
         isPublic = true
 )
-public class AddTag extends BlockingNativeCallableUnit {
+public class SummarySum extends BlockingNativeCallableUnit {
+
     @Override
     public void execute(Context context) {
-        BStruct span = (BStruct) context.getRefArgument(0);
-        String spanId = span.getStringField(0);
-        boolean isFinished = span.getBooleanField(0) == 1;
-        PrintStream err = System.err;
-        if (isFinished) {
-            err.println("ballerina: Can not add tags to already finished span");
-            return;
-        }
-        String tagKey = context.getStringArgument(0);
-        String tagValue = context.getStringArgument(1);
-        OpenTracerBallerinaWrapper.getInstance().addTags(spanId, tagKey, tagValue, context);
+        BStruct bSummary = (BStruct) context.getRefArgument(0);
+        Summary summary = (Summary) bSummary.getNativeData(Constants.SUMMARY);
+        context.setReturnValues(new BInteger(summary.getSum()));
     }
 }
