@@ -21,10 +21,10 @@ Ballerina allows you to code with a statically-typed, interaction-centric progra
 
 You can use one of the following options to try out Ballerina.
 
-* Getting Started 
-* [Quick Tour](https://github.com/ballerina-platform/ballerina-lang/blob/master/docs/quick-tour.md)
-* [Ballerina by Example](https://ballerina.io/) 
-* [Ballerina by Guide](https://ballerina.io/)
+* [Getting Started](https://ballerina.io/learn/getting-started/)
+* [Quick Tour](https://ballerina.io/learn/quick-tour/)
+* [Ballerina by Example](https://ballerina.io/learn/by-example/) 
+* [Ballerina by Guide](https://ballerina.io/learn/by-guide/)
 
 ## Download and install
 
@@ -38,7 +38,7 @@ Alternatively, you can install Ballerina from the source using the following ins
 
 #### Prerequisites
 
-* [Maven](https://maven.apache.org/download.cgi)
+* [Maven 3.5.0 or later](https://maven.apache.org/download.cgi)
 * [Node (v8.9.x or latest LTS release) + npm (v5.6.0 or later)](https://nodejs.org/en/download/)
 * [Docker](https://www.docker.com/get-docker)
 
