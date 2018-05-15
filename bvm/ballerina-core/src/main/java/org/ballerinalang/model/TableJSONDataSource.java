@@ -61,7 +61,7 @@ public class TableJSONDataSource implements JSONDataSource {
     public void serialize(JsonGenerator gen) throws IOException {
         gen.writeStartArray();
         while (this.df.hasNext(this.isInTransaction)) {
-            this.df.next();
+            this.df.moveToNext();
             this.objGen.transform(this.df).serialize(gen);
         }
         gen.writeEndArray();

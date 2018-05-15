@@ -1,6 +1,7 @@
 package org.ballerinalang.plugins.idea.psi.scopeprocessors;
 
 import com.intellij.codeInsight.completion.CompletionResultSet;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.ResolveState;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
@@ -36,6 +37,7 @@ public class BallerinaPackageNameProcessor extends BallerinaScopeProcessorBase {
 
     @Override
     public boolean execute(@NotNull PsiElement element, @NotNull ResolveState state) {
+        ProgressManager.checkCanceled();
         if (accept(element)) {
             // If we are looking for annotations in a package, don't suggest packages.
             if (myElement.getPrevSibling() instanceof BallerinaPackageReference) {

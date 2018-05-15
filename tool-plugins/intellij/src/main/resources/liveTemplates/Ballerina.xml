@@ -1,15 +1,5 @@
 <templateSet group="Ballerina">
 
-    <template name="fun" value="function $NAME$($ARGS$) $RETURN$ {&#10;    $END$&#10;}"
-              description="Function template" toReformat="false" toShortenFQNames="false">
-        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
-        <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
-        <variable name="RETURN" expression="" defaultValue="" alwaysStopAt="true"/>
-        <context>
-            <option name="BALLERINA_FILE" value="true"/>
-        </context>
-    </template>
-
     <template name="funm" value="function main(string... args) {&#10;    $END$&#10;}"
               description="Function Template" toReformat="false" toShortenFQNames="false">
         <context>
@@ -17,33 +7,13 @@
         </context>
     </template>
 
-    <template name="ser" value="$ANNOTATION$&#10;service$NOTATION$ $NAME$ {&#10;    $END$&#10;}"
-              description="Service Template" toReformat="false" toShortenFQNames="false">
-        <variable name="NOTATION" expression="" defaultValue="" alwaysStopAt="true"/>
-        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
-        <variable name="ANNOTATION" expression="" defaultValue="" alwaysStopAt="true"/>
-        <context>
-            <option name="BALLERINA_FILE" value="true"/>
-        </context>
-    </template>
-
-    <template name="sout" value="println($END$);"
-              description="system:println" toReformat="false" toShortenFQNames="false">
+    <template name="sout" value="io:println($END$);"
+              description="System Out" toReformat="false" toShortenFQNames="false">
         <context>
             <option name="BALLERINA_RESOURCE" value="true"/>
             <option name="BALLERINA_FUNCTION" value="true"/>
             <option name="BALLERINA_ACTION" value="true"/>
         </context>
     </template>
-
-    <!--<template name="tra" value="transformer &lt;$TYPE1$, $TYPE2$&gt; $NAME$() {&#10;    $END$&#10;}"-->
-              <!--description="Transformer template" toReformat="false" toShortenFQNames="false">-->
-        <!--<variable name="TYPE1" expression="" defaultValue="" alwaysStopAt="true"/>-->
-        <!--<variable name="TYPE2" expression="" defaultValue="" alwaysStopAt="true"/>-->
-        <!--<variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>-->
-        <!--<context>-->
-            <!--<option name="BALLERINA_FILE" value="true"/>-->
-        <!--</context>-->
-    <!--</template>-->
 
 </templateSet>

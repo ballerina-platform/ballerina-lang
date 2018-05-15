@@ -103,6 +103,15 @@ public class BallerinaIdentifier extends LeafPsiElement implements PsiNameIdenti
             return new BallerinaNameReferenceReference(this);
         } else if (parent instanceof BallerinaResourceDefinition) {
             return new BallerinaNameReferenceReference(this);
+        } else if (parent instanceof BallerinaPackageName) {
+            BallerinaImportDeclaration importDeclaration = PsiTreeUtil.getParentOfType(parent,
+                    BallerinaImportDeclaration.class);
+            if (importDeclaration != null) {
+                BallerinaOrgName orgName = importDeclaration.getOrgName();
+                if (orgName == null) {
+                    return new BallerinaOrgReference(this);
+                }
+            }
         }
         return null;
     }

@@ -34,4 +34,10 @@
             <Bug pattern="NP_NULL_PARAM_DEREF" />
         </OR>
     </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.BallerinaTextDocumentService" />
+        <OR>
+            <Bug pattern="REC_CATCH_EXCEPTION" />
+        </OR>
+    </Match>
 </FindBugsFilter>

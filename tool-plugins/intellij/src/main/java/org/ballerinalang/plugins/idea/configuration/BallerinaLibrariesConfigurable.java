@@ -61,8 +61,8 @@ public class BallerinaLibrariesConfigurable implements SearchableConfigurable, C
     private final String myDisplayName;
     private final BallerinaLibrariesService<?> myLibrariesService;
     private final String[] myReadOnlyPaths;
-    private final JBCheckBox myUseEnvBallerinaPathCheckBox = new JBCheckBox("Use BALLERINA_REPOSITORY that's " +
-            "defined in system environment");
+    private final JBCheckBox myUseEnvBallerinaPathCheckBox =
+            new JBCheckBox("Detect and show packages from BALLERINA_REPOSITORY");
     private final JPanel myPanel = new JPanel(new BorderLayout());
     private final CollectionListModel<ListItem> myListModel = new CollectionListModel<>();
 

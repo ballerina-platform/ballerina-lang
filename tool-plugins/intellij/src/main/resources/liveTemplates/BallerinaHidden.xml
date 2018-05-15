@@ -16,194 +16,155 @@
 
 <templateSet group="BallerinaHidden">
 
+    <template description='Function Definition' id='ballerina_lang_function' name='ballerina_lang_function'
+              toReformat='true' toShortenFQNames='true' value='function $NAME$($ARGS$) returns $RETURN$ {&#10;    $END$&#10;}'>
+
+        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="RETURN" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="END" expression='' defaultValue="" alwaysStopAt="true"/>
+
+        <context>
+            <option name="BALLERINA_FILE" value="true"/>
+        </context>
+    </template>
+
+    <template description='Service Definition' id='ballerina_lang_service' name='ballerina_lang_service'
+              toReformat="false" toShortenFQNames="false"
+              value="$ANNOTATION$&#10;service&lt;$NOTATION$&gt; $NAME$ {&#10;    $END$&#10;}">
+
+        <variable name="NOTATION" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="ANNOTATION" expression="" defaultValue="" alwaysStopAt="true"/>
+
+        <context>
+            <option name="BALLERINA_FILE" value="true"/>
+        </context>
+    </template>
+
+    <template description='Endpoint Declaration' id='ballerina_lang_endpoint' name='ballerina_lang_endpoint'
+              toReformat="false" toShortenFQNames="false"
+              value="endpoint $TYPE$ $NAME$ {&#10;    $END$&#10;};">
+
+        <variable name="TYPE" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+
+        <context>
+            <option name="BALLERINA_FILE" value="true"/>
+        </context>
+    </template>
+
     <template description='Lock Statement' id='ballerina_lang_lock' name='ballerina_lang_lock'
               toReformat='true' toShortenFQNames='true' value='lock {&#10;    $END$&#10;}'>
-        <!--<variable name="END" expression='complete()' defaultValue="" alwaysStopAt="true"/>-->
-        <!--<context>-->
-            <!--<option name="BALLERINA_RESOURCE" value="true"/>-->
-            <!--<option name="BALLERINA_FUNCTION" value="true"/>-->
-            <!--<option name="BALLERINA_ACTION" value="true"/>-->
-        <!--</context>-->
     </template>
 
     <template description='Match Statement' id='ballerina_lang_match' name='ballerina_lang_match'
               toReformat='true' toShortenFQNames='true' value='match $EXPRESSION$ {&#10;    $END$&#10;}'>
-        <variable name="EXPRESSION" expression='complete()' defaultValue="" alwaysStopAt="true"/>
-        <!--<context>-->
-        <!--<option name="BALLERINA_RESOURCE" value="true"/>-->
-        <!--<option name="BALLERINA_FUNCTION" value="true"/>-->
-        <!--<option name="BALLERINA_ACTION" value="true"/>-->
-        <!--</context>-->
+        <variable name="EXPRESSION" expression='' defaultValue="" alwaysStopAt="true"/>
     </template>
 
-    <!--<template description='Import Declaration' id='ballerina_lang_import' name='ballerina_lang_import'-->
-              <!--toReformat='false' toShortenFQNames='true' value='import $PATH$'>-->
-        <!--<variable name="PATH" expression='complete()' defaultValue="" alwaysStopAt="true"/>-->
-        <!--<context>-->
-            <!--<option name="BALLERINA_RESOURCE" value="true"/>-->
-            <!--<option name="BALLERINA_FUNCTION" value="true"/>-->
-            <!--<option name="BALLERINA_ACTION" value="true"/>-->
-        <!--</context>-->
-    <!--</template>-->
+    <template description='If Statement' id='ballerina_lang_if' name='ballerina_lang_if'
+              toReformat='false' toShortenFQNames='true' value='if ($CONDITION$) {&#10;    $END$&#10;}'>
+        <variable name="CONDITION" expression="" defaultValue="" alwaysStopAt="true"/>
+    </template>
 
-    <!--<template description='If Statement' id='ballerina_lang_if' name='ballerina_lang_if'-->
-              <!--toReformat='false' toShortenFQNames='true' value='if ($CONDITION$) {&#10;    $END$&#10;}'>-->
-        <!--<variable name="CONDITION" expression="" defaultValue="" alwaysStopAt="true"/>-->
-        <!--<context>-->
-            <!--<option name="BALLERINA_RESOURCE" value="true"/>-->
-            <!--<option name="BALLERINA_FUNCTION" value="true"/>-->
-            <!--<option name="BALLERINA_ACTION" value="true"/>-->
-        <!--</context>-->
-    <!--</template>-->
+    <template description='Fork-Join Statement' id='ballerina_lang_fork' name='ballerina_lang_fork'
+              toReformat='false' toShortenFQNames='true'
+              value='fork {&#10;    $STATEMENTS$&#10;} join ($CONDITION$) ($ARGS$) {&#10;    $END$&#10;}'>
+        <variable name="STATEMENTS" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="CONDITION" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
+    </template>
 
-    <!--<template description='Fork Statement' id='ballerina_lang_fork' name='ballerina_lang_fork'-->
-              <!--toReformat='false' toShortenFQNames='true' value='fork {&#10;    $END$&#10;}'>-->
-        <!--<context>-->
-            <!--<option name="BALLERINA_RESOURCE" value="true"/>-->
-            <!--<option name="BALLERINA_FUNCTION" value="true"/>-->
-            <!--<option name="BALLERINA_ACTION" value="true"/>-->
-        <!--</context>-->
-    <!--</template>-->
+    <template description='Join Clause' id='ballerina_lang_join' name='ballerina_lang_join'
+              toReformat='false' toShortenFQNames='true' value='join ($CONDITION$) ($ARGS$) {&#10;    $END$&#10;}'>
+        <variable name="CONDITION" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
+    </template>
 
-    <!--<template description='Join Statement' id='ballerina_lang_join' name='ballerina_lang_join'-->
-              <!--toReformat='false' toShortenFQNames='true'-->
-              <!--value='join ($CONDITION$) ($ARGS$) {&#10;    $END$&#10;}'>-->
-        <!--<variable name="CONDITION" expression="" defaultValue="" alwaysStopAt="true"/>-->
-        <!--<variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>-->
-        <!--<context>-->
-            <!--<option name="BALLERINA_RESOURCE" value="true"/>-->
-            <!--<option name="BALLERINA_FUNCTION" value="true"/>-->
-            <!--<option name="BALLERINA_ACTION" value="true"/>-->
-        <!--</context>-->
-    <!--</template>-->
+    <template description='Timeout Clause' id='ballerina_lang_timeout' name='ballerina_lang_timeout'
+              toReformat='false' toShortenFQNames='true' value='timeout ($VALUE$) ($ARGS$) {&#10;    $END$&#10;}'>
+        <variable name="VALUE" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
+    </template>
 
-    <!--<template description='Timeout Statement' id='ballerina_lang_timeout' name='ballerina_lang_timeout'-->
-              <!--toReformat='false' toShortenFQNames='true'-->
-              <!--value='timeout ($VALUE$) ($ARGS$) {&#10;    $END$&#10;}'>-->
-        <!--<variable name="VALUE" expression="" defaultValue="" alwaysStopAt="true"/>-->
-        <!--<variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>-->
-        <!--<context>-->
-            <!--<option name="BALLERINA_RESOURCE" value="true"/>-->
-            <!--<option name="BALLERINA_FUNCTION" value="true"/>-->
-            <!--<option name="BALLERINA_ACTION" value="true"/>-->
-        <!--</context>-->
-    <!--</template>-->
+    <template description='Worker Statement' id='ballerina_lang_worker' name='ballerina_lang_worker'
+              toReformat='false' toShortenFQNames='true' value='worker $NAME$ {&#10;    $END$&#10;}'>
+        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+    </template>
 
-    <!--<template description='Worker Statement' id='ballerina_lang_worker' name='ballerina_lang_worker'-->
-              <!--toReformat='false' toShortenFQNames='true' value='worker $NAME$ {&#10;    $END$&#10;}'>-->
-        <!--<variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>-->
-        <!--<context>-->
-            <!--<option name="BALLERINA_RESOURCE" value="true"/>-->
-            <!--<option name="BALLERINA_FUNCTION" value="true"/>-->
-            <!--<option name="BALLERINA_ACTION" value="true"/>-->
-        <!--</context>-->
-    <!--</template>-->
+    <template description='Transaction clause' id='ballerina_lang_transaction' name='ballerina_lang_transaction'
+              toReformat='false' toShortenFQNames='true'
+              value='transaction with retries = $RETRIES$, oncommit = $ON_COMMIT$, onabort = $ON_ABORT$ {&#10;    $END$&#10;}'>
+        <variable name="RETRIES" expression="" defaultValue="3" alwaysStopAt="true"/>
+        <variable name="ON_COMMIT" expression="complete()" defaultValue="" alwaysStopAt="true"/>
+        <variable name="ON_ABORT" expression="complete()" defaultValue="" alwaysStopAt="true"/>
+    </template>
 
-    <!--<template description='Transaction clause' id='ballerina_lang_transaction' name='ballerina_lang_transaction'-->
-              <!--toReformat='false' toShortenFQNames='true' value='transaction {&#10;    $END$&#10;}'>-->
-        <!--<context>-->
-            <!--<option name="BALLERINA_RESOURCE" value="true"/>-->
-            <!--<option name="BALLERINA_FUNCTION" value="true"/>-->
-            <!--<option name="BALLERINA_ACTION" value="true"/>-->
-        <!--</context>-->
-    <!--</template>-->
+    <template description='Onretry clause' id='ballerina_lang_onretry' name='ballerina_lang_onretry'
+              toReformat='false' toShortenFQNames='true' value='onretry {&#10;    $END$&#10;}'>
+    </template>
 
-    <!--<template description='Failed clause' id='ballerina_lang_failed' name='ballerina_lang_failed'-->
-              <!--toReformat='false' toShortenFQNames='true' value='failed {&#10;    $END$&#10;}'>-->
-        <!--<context>-->
-            <!--<option name="BALLERINA_RESOURCE" value="true"/>-->
-            <!--<option name="BALLERINA_FUNCTION" value="true"/>-->
-            <!--<option name="BALLERINA_ACTION" value="true"/>-->
-        <!--</context>-->
-    <!--</template>-->
+    <template description='Try Clause' id='ballerina_lang_try' name='ballerina_lang_try'
+              toReformat='false' toShortenFQNames='true'
+              value='try {&#10;    $END$&#10;} catch ($VAR$) {&#10;    $END$&#10;} finally {&#10;    $END$&#10;}'>
+        <variable name="VAR" expression="" defaultValue="" alwaysStopAt="true"/>
+    </template>
 
-    <!--<template description='Try Statement' id='ballerina_lang_try' name='ballerina_lang_try'-->
-              <!--toReformat='false' toShortenFQNames='true' value='try {&#10;    $END$&#10;}'>-->
-        <!--<context>-->
-            <!--<option name="BALLERINA_RESOURCE" value="true"/>-->
-            <!--<option name="BALLERINA_FUNCTION" value="true"/>-->
-            <!--<option name="BALLERINA_ACTION" value="true"/>-->
-        <!--</context>-->
-    <!--</template>-->
+    <template description='Catch Clause' id='ballerina_lang_catch' name='ballerina_lang_catch'
+              toReformat='false' toShortenFQNames='true' value='catch ($VAR$) {&#10;    $END$&#10;}'>
+        <variable name="VAR" expression="" defaultValue="" alwaysStopAt="true"/>
+    </template>
 
-    <!--<template description='Catch Statement' id='ballerina_lang_catch' name='ballerina_lang_catch'-->
-              <!--toReformat='false' toShortenFQNames='true' value='catch ($VAR$) {&#10;    $END$&#10;}'>-->
-        <!--<variable name="VAR" expression="" defaultValue="" alwaysStopAt="true"/>-->
-        <!--<context>-->
-            <!--<option name="BALLERINA_RESOURCE" value="true"/>-->
-            <!--<option name="BALLERINA_FUNCTION" value="true"/>-->
-            <!--<option name="BALLERINA_ACTION" value="true"/>-->
-        <!--</context>-->
-    <!--</template>-->
+    <template description='Finally Clause' id='ballerina_lang_finally' name='ballerina_lang_finally'
+              toReformat='false' toShortenFQNames='true' value='finally {&#10;    $END$&#10;}'>
+    </template>
 
-    <!--<template description='Finally Statement' id='ballerina_lang_finally' name='ballerina_lang_finally'-->
-              <!--toReformat='false' toShortenFQNames='true' value='finally {&#10;    $END$&#10;}'>-->
-        <!--<context>-->
-            <!--<option name="BALLERINA_RESOURCE" value="true"/>-->
-            <!--<option name="BALLERINA_FUNCTION" value="true"/>-->
-            <!--<option name="BALLERINA_ACTION" value="true"/>-->
-        <!--</context>-->
-    <!--</template>-->
+    <template description='Foreach Statement' id='ballerina_lang_foreach' name='ballerina_lang_foreach'
+              toReformat='false' toShortenFQNames='true'
+              value='foreach $REFERENCE$ in $EXPRESSION$ {&#10;    $END$&#10;}'>
+        <variable name="REFERENCE" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="EXPRESSION" expression="" defaultValue="" alwaysStopAt="true"/>
+    </template>
 
-    <!--<template description='ForEach Statement' id='ballerina_lang_foreach' name='ballerina_lang_foreach'-->
-              <!--toReformat='false' toShortenFQNames='true' value='foreach $REFERENCE$ in $EXPRESSION$ {&#10;    $END$&#10;}'>-->
-        <!--<variable name="REFERENCE" expression="" defaultValue="" alwaysStopAt="true"/>-->
-        <!--<variable name="EXPRESSION" expression="" defaultValue="" alwaysStopAt="true"/>-->
-        <!--<context>-->
-            <!--<option name="BALLERINA_RESOURCE" value="true"/>-->
-            <!--<option name="BALLERINA_FUNCTION" value="true"/>-->
-            <!--<option name="BALLERINA_ACTION" value="true"/>-->
-        <!--</context>-->
-    <!--</template>-->
+    <template description='While Loop' id='ballerina_lang_while' name='ballerina_lang_while'
+              toReformat='false' toShortenFQNames='true' value='while ($CONDITION$) {&#10;    $END$&#10;}'>
+        <variable name="CONDITION" expression="" defaultValue="" alwaysStopAt="true"/>
+    </template>
 
-    <!--<template description='While Loop' id='ballerina_lang_while' name='ballerina_lang_while'-->
-              <!--toReformat='false' toShortenFQNames='true' value='while ($CONDITION$) {&#10;    $END$&#10;}'>-->
-        <!--<variable name="CONDITION" expression="" defaultValue="" alwaysStopAt="true"/>-->
-        <!--<context>-->
-            <!--<option name="BALLERINA_RESOURCE" value="true"/>-->
-            <!--<option name="BALLERINA_FUNCTION" value="true"/>-->
-            <!--<option name="BALLERINA_ACTION" value="true"/>-->
-        <!--</context>-->
-    <!--</template>-->
+    <template description='Next Statement' id='ballerina_lang_next' name='ballerina_lang_next'
+              toReformat='false' toShortenFQNames='true' value='next;'>
+    </template>
 
-    <!--<template description='Next Statement' id='ballerina_lang_next' name='ballerina_lang_next'-->
-              <!--toReformat='false' toShortenFQNames='true' value='next;'>-->
-        <!--<context>-->
-            <!--<option name="BALLERINA_RESOURCE" value="true"/>-->
-            <!--<option name="BALLERINA_FUNCTION" value="true"/>-->
-            <!--<option name="BALLERINA_ACTION" value="true"/>-->
-        <!--</context>-->
-    <!--</template>-->
+    <template description='Break Statement' id='ballerina_lang_break' name='ballerina_lang_break'
+              toReformat='false' toShortenFQNames='true' value='break;'>
+    </template>
 
-    <!--<template description='Break Statement' id='ballerina_lang_break' name='ballerina_lang_break'-->
-              <!--toReformat='false' toShortenFQNames='true' value='break;'>-->
-        <!--<context>-->
-            <!--<option name="BALLERINA_RESOURCE" value="true"/>-->
-            <!--<option name="BALLERINA_FUNCTION" value="true"/>-->
-            <!--<option name="BALLERINA_ACTION" value="true"/>-->
-        <!--</context>-->
-    <!--</template>-->
+    <template description='Done Statement' id='ballerina_lang_done' name='ballerina_lang_done'
+              toReformat='false' toShortenFQNames='true' value='done;'>
+    </template>
 
-    <!--<template description='Throw Statement' id='ballerina_lang_throw' name='ballerina_lang_throw'-->
-              <!--toReformat='false' toShortenFQNames='true' value='throw $EXPRESSION$;'>-->
-        <!--<variable name="EXPRESSION" expression="" defaultValue="" alwaysStopAt="true"/>-->
-        <!--<context>-->
-            <!--<option name="BALLERINA_RESOURCE" value="true"/>-->
-            <!--<option name="BALLERINA_FUNCTION" value="true"/>-->
-            <!--<option name="BALLERINA_ACTION" value="true"/>-->
-        <!--</context>-->
-    <!--</template>-->
+    <template description='Abort Statement' id='ballerina_lang_abort' name='ballerina_lang_abort'
+              toReformat='false' toShortenFQNames='true' value='abort;'>
+    </template>
 
-    <!--<template description='XML Namespace Declaration Statement' id='ballerina_lang_xmlns' name='ballerina_lang_xmlns'-->
-              <!--toReformat='false' toShortenFQNames='true' value='xmlns "$NAMESPACE$" as $ALIAS$;'>-->
-        <!--<variable name="NAMESPACE" expression="" defaultValue="" alwaysStopAt="true"/>-->
-        <!--<variable name="ALIAS" expression="" defaultValue="" alwaysStopAt="true"/>-->
-        <!--<context>-->
-            <!--<option name="BALLERINA_FILE" value="true"/>-->
-            <!--<option name="BALLERINA_RESOURCE" value="true"/>-->
-            <!--<option name="BALLERINA_FUNCTION" value="true"/>-->
-            <!--<option name="BALLERINA_ACTION" value="true"/>-->
-        <!--</context>-->
-    <!--</template>-->
+    <template description='Retry Statement' id='ballerina_lang_retry' name='ballerina_lang_retry'
+              toReformat='false' toShortenFQNames='true' value='abort;'>
+    </template>
+
+    <template description='Throw Statement' id='ballerina_lang_throw' name='ballerina_lang_throw'
+              toReformat='false' toShortenFQNames='true' value='throw $EXPRESSION$;'>
+        <variable name="EXPRESSION" expression="" defaultValue="" alwaysStopAt="true"/>
+    </template>
+
+    <template description='Forever Statement' id='ballerina_lang_forever' name='ballerina_lang_forever'
+              toReformat='false' toShortenFQNames='true' value='forever {&#10;    $END$&#10;}'>
+    </template>
+
+    <template description='XML Namespace Declaration Statement' id='ballerina_lang_xmlns' name='ballerina_lang_xmlns'
+              toReformat='false' toShortenFQNames='true' value='xmlns "$NAMESPACE$" as $ALIAS$;'>
+        <variable name="NAMESPACE" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="ALIAS" expression="" defaultValue="" alwaysStopAt="true"/>
+    </template>
 
 </templateSet>

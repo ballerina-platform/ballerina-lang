@@ -85,17 +85,17 @@ type ResultTest {
 
 type ResultSignedInt {
     int ID;
-    int TINYINTDATA;
-    int SMALLINTDATA;
-    int INTDATA;
-    int BIGINTDATA;
+    int? TINYINTDATA;
+    int? SMALLINTDATA;
+    int? INTDATA;
+    int? BIGINTDATA;
 };
 
 type ResultComplexTypes {
     int ROW_ID;
-    blob BLOB_TYPE;
-    string CLOB_TYPE;
-    blob BINARY_TYPE;
+    blob? BLOB_TYPE;
+    string? CLOB_TYPE;
+    blob? BINARY_TYPE;
 };
 
 type TestTypeData {
@@ -1034,8 +1034,8 @@ function testSignedIntMaxMinValues() returns (int, int, int, string, string, str
     str = "";
     while (dt.hasNext()) {
         var result = check <ResultSignedInt>dt.getNext();
-        str = str + result.ID + "|" + result.TINYINTDATA + "|" + result.SMALLINTDATA + "|" + result.INTDATA + "|" +
-            result.BIGINTDATA + "#";
+        str = str + result.ID + "|" + (result.TINYINTDATA but { () => -1 }) + "|" + (result.SMALLINTDATA but { () =>
+            -1 }) + "|" + (result.INTDATA but { () => -1 }) + "|" + (result.BIGINTDATA but { () => -1 }) + "#";
     }
     testDB.stop();
     return (maxInsert, minInsert, nullInsert, jsonStr, xmlStr, str);
@@ -1091,7 +1091,12 @@ function testComplexTypeInsertAndRetrieval() returns (int, int, string, string, 
     str = "";
     while (dt.hasNext()) {
         var result = check <ResultComplexTypes>dt.getNext();
-        str = str + result.ROW_ID + "|" + result.BLOB_TYPE.toString("UTF-8") + "|" + result.CLOB_TYPE + "|";
+        string blobType;
+        match result.BLOB_TYPE {
+            blob b => blobType = b.toString("UTF-8");
+            () => blobType = "nil";
+        }
+        str = str + result.ROW_ID + "|" + blobType + "|" + (result.CLOB_TYPE but { () => "nil" }) + "|";
     }
     testDB.stop();
     return (retDataInsert, retNullInsert, jsonStr, xmlStr, str);

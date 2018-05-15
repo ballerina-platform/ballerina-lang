@@ -132,7 +132,7 @@ public class BallerinaPsiImplUtil {
     private static final List<String> BUILTIN_VARIABLE_TYPES = new LinkedList<>();
 
     static {
-        BUILTIN_DIRECTORIES.add("/builtin");
+        BUILTIN_DIRECTORIES.add(File.separator + "builtin");
 
         BUILTIN_VARIABLE_TYPES.add("future"); //async
         BUILTIN_VARIABLE_TYPES.add("blob");

@@ -24,6 +24,7 @@ import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.options.UnnamedConfigurable;
 import com.intellij.openapi.project.Project;
 import org.ballerinalang.plugins.idea.codeinsight.imports.BallerinaAutoImportConfigurable;
+import org.ballerinalang.plugins.idea.codeinsight.semanticanalyzer.BallerinaSemanticAnalyzerConfigurable;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -48,9 +49,14 @@ public class BallerinaConfigurableProvider extends ConfigurableProvider {
         Configurable librariesConfigurable = new BallerinaLibrariesConfigurableProvider(myProject).createConfigurable();
         Configurable sdkConfigurable = BallerinaSdkService.getInstance(myProject).createSdkConfigurable();
         Configurable autoImportConfigurable = new BallerinaAutoImportConfigurable(myProject, false);
-        return sdkConfigurable != null
-                ? new BallerinaCompositeConfigurable(sdkConfigurable, librariesConfigurable, autoImportConfigurable)
-                : new BallerinaCompositeConfigurable(librariesConfigurable, autoImportConfigurable);
+        Configurable semanticAnalyzerConfigurable = new BallerinaSemanticAnalyzerConfigurable(myProject, false);
+
+        BallerinaCompositeConfigurable configurableWithSDK = new BallerinaCompositeConfigurable(sdkConfigurable,
+                librariesConfigurable, autoImportConfigurable, semanticAnalyzerConfigurable);
+        BallerinaCompositeConfigurable configurableWithoutSDK = new BallerinaCompositeConfigurable
+                (librariesConfigurable, autoImportConfigurable, semanticAnalyzerConfigurable);
+
+        return sdkConfigurable != null ? configurableWithSDK : configurableWithoutSDK;
     }
 
     private static class BallerinaCompositeConfigurable extends SearchableConfigurable.Parent.Abstract {
