@@ -32,6 +32,16 @@ type Person object {
         };
         return fooOut;
     }
+
+    function attachedFn6(int a, float b) returns (int) {
+        var foo = attachedFn3;
+        return a + <int>b + foo(43, 10.8);
+    }
+
+    function attachedFn7(int a, float b) returns (int) {
+        var foo = self.attachedFn3;
+        return a + <int>b + foo(43, 10.8);
+    }
 };
 
 
@@ -78,4 +88,16 @@ function test5() returns (int) {
     var bar = foo(43, 10.8);
     var baz = bar(5.8);
     return baz(true);
+}
+
+function test6() returns (int) {
+    Person p = new;
+    var foo = p.attachedFn6;
+    return foo(43, 10.8);
+}
+
+function test7() returns (int) {
+    Person p = new;
+    var foo = p.attachedFn7;
+    return foo(43, 10.8);
 }

@@ -604,6 +604,7 @@ public class BLangPackageBuilder {
         functionTypeNode.returnsKeywordExists = true;
 
         if (retParamsAvail) {
+            functionTypeNode.addWS(this.varStack.peek().getWS());
             functionTypeNode.returnTypeNode = (BLangType) this.varStack.pop().getTypeNode();
         } else {
             BLangValueType nilTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
@@ -699,6 +700,10 @@ public class BLangPackageBuilder {
         return var;
     }
 
+    public void endFormalParameterList(Set<Whitespace> ws) {
+        this.commaWsStack.push(ws);
+    }
+
     public BLangVariable addReturnParam(DiagnosticPos pos,
                                         Set<Whitespace> ws,
                                         String identifier,
@@ -750,6 +755,8 @@ public class BLangPackageBuilder {
             if (restParamAvail) {
                 invNode.setRestParameter(this.restParamStack.pop());
             }
+
+            invNode.addWS(this.commaWsStack.pop());
         }
     }
 
@@ -1474,7 +1481,7 @@ public class BLangPackageBuilder {
 
     }
 
-    void addObjectFieldsBlock (Set<Whitespace> ws) {
+    void addObjectFieldsBlock(Set<Whitespace> ws) {
         BLangObject objectNode = (BLangObject) this.objectStack.peek();
         objectNode.addWS(ws);
     }

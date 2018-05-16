@@ -46,7 +46,6 @@ public class CreateClient extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStruct configBStruct = (BStruct) context.getRefArgument(0);
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(configBStruct);
-
         BStruct sqlClient = SQLDatasourceUtils.createSQLDBClient(context, clientEndpointConfig);
         context.setReturnValues(sqlClient);
     }
