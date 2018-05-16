@@ -623,14 +623,17 @@ public class CPU {
                         typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
                         sf.refRegs[i] = new BJSON("{}", typeRefCPEntry.getType());
                         break;
-                    case InstructionCodes.NEWTABLE:
-                        i = operands[0];
-                        cpIndex = operands[1];
-                        j = operands[2];
-                        BStruct configStruct = (BStruct) sf.refRegs[j];
-                        typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
-                        sf.refRegs[i] = new BTable(typeRefCPEntry.getType(), configStruct);
-                        break;
+                case InstructionCodes.NEWTABLE:
+                    i = operands[0];
+                    cpIndex = operands[1];
+                    j = operands[2];
+                    BStruct configStruct = null;
+                    if (j != -1) {
+                        configStruct = (BStruct) sf.refRegs[j];
+                    }
+                    typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
+                    sf.refRegs[i] = new BTable(typeRefCPEntry.getType(), configStruct);
+                    break;
                     case InstructionCodes.NEWSTREAM:
                         i = operands[0];
                         cpIndex = operands[1];

@@ -762,8 +762,11 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTableLiteral tableLiteral) {
-        genNode(tableLiteral.configurationExpr, this.env);
-        Operand varRefRegIndex = tableLiteral.configurationExpr.regIndex;
+        Operand varRefRegIndex = getOperand(-1);
+        if (tableLiteral.configurationExpr != null) {
+            genNode(tableLiteral.configurationExpr, this.env);
+            varRefRegIndex = tableLiteral.configurationExpr.regIndex;
+        }
 
         tableLiteral.regIndex = calcAndGetExprRegIndex(tableLiteral);
         Operand typeCPIndex = getTypeCPIndex(tableLiteral.type);
