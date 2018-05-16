@@ -42,8 +42,8 @@ public class BallerinaTestListener implements ISuiteListener {
 
     private static final String BALLERINA_HOME = "ballerina.home";
     private static Logger log = LoggerFactory.getLogger(BallerinaTestListener.class);
-    private static Path stdlibs = Paths.get("target", "libs");
-    private static String ballerinaHome;
+    private Path stdlibs = Paths.get("target", "libs");
+    private String ballerinaHome;
 
     @Override
     public void onStart(ISuite iSuite) {

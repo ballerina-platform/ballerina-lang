@@ -19,7 +19,6 @@ package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.debugger.DebugCommand;
-import org.ballerinalang.util.debugger.Debugger;
 
 import java.util.ArrayList;
 import java.util.HashMap;

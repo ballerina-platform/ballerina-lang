@@ -27,13 +27,13 @@ import org.testng.ISuiteListener;
 import java.util.logging.LogManager;
 
 /**
- * A listener for listening to the test suite events. Using this to configure logging prior to running the tests.
+ * A test suit listener for configuring logger, prior to running the tests.
  *
  * @since 0.964.0
  */
-public class TestLogListener implements ISuiteListener {
+public class BLogInitializer implements ISuiteListener {
 
-    private static Logger log = LoggerFactory.getLogger(TestLogListener.class);
+    private static Logger log = LoggerFactory.getLogger(BLogInitializer.class);
 
     @Override
     public void onStart(ISuite iSuite) {
