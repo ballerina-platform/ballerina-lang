@@ -17,11 +17,10 @@
 */
 package org.ballerinalang.langserver.completions.resolvers;
 
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.eclipse.lsp4j.CompletionItem;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
@@ -44,7 +43,6 @@ public class BLangEndpointContextResolver extends AbstractItemResolver {
     public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         BLangNode bLangEndpoint = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        ArrayList<SymbolInfo> configurationFields = new ArrayList<>();
         List<BStructSymbol.BAttachedFunction> attachedFunctions = new ArrayList<>();
         
         if (((BLangEndpoint) bLangEndpoint).type.tsymbol instanceof BStructSymbol) {
@@ -60,11 +58,11 @@ public class BLangEndpointContextResolver extends AbstractItemResolver {
 
         BType configSymbolType = configSymbol.getType();
         if (configSymbolType instanceof BStructType) {
-            ((BStructType) configSymbolType).getFields().forEach(bStructField -> configurationFields.add(
-                    new SymbolInfo(bStructField.getName().getValue(), new Scope.ScopeEntry(bStructField.symbol, null))
-            ));
+            completionItems.addAll(
+                    CommonUtil.getStructFieldPopulateCompletionItems(((BStructType) configSymbolType).getFields())
+            );
+            completionItems.add(CommonUtil.getFillAllStructFieldsItem(((BStructType) configSymbolType).getFields()));
         }
-        this.populateCompletionItemList(configurationFields, completionItems);
 
         return completionItems;
     }
