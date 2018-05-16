@@ -3111,6 +3111,8 @@ public class BLangPackageBuilder {
         StreamActionNode streamActionNode = this.streamActionNodeStack.peek();
         ((BLangStreamAction) streamActionNode).pos = pos;
         streamActionNode.addWS(ws);
+        this.varListStack.push(new ArrayList<>());
+        this.varListStack.peek().add(this.varStack.pop());
         this.addLambdaFunctionDef(pos, ws, true, false, false);
         streamActionNode.setInvokableBody((BLangLambdaFunction) this.exprNodeStack.pop());
     }

@@ -53,10 +53,13 @@ public class StreamingActionTest {
 
     @Test(description = "Test streaming action query with errors")
     public void testStreamingActionNegativeArgumentCount() {
-        Assert.assertEquals(resultNegativeInvalidArgumentCount.getErrorCount(), 1);
+        Assert.assertEquals(resultNegativeInvalidArgumentCount.getErrorCount(), 3);
         BAssertUtil.validateError(resultNegativeInvalidArgumentCount, 0,
-                "Invalid number of arguments found for stream action function. " +
-                        "found '2' argument but required exactly 1 argument", 44, 9);
+                "mismatched input ','. expecting {'group', 'having', 'order', OUTPUT, '=>'}", 43, 25);
+        BAssertUtil.validateError(resultNegativeInvalidArgumentCount, 1,
+                                  "mismatched input ','. expecting ')'", 44, 27);
+        BAssertUtil.validateError(resultNegativeInvalidArgumentCount, 2,
+                                  "mismatched input ')'. expecting ';'", 44, 34);
     }
 
 }
