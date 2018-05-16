@@ -54,6 +54,8 @@ public class WebSocketServerTestCase {
     private final int latchCountDownInSecs = 10;
     private DefaultHttpWsConnectorFactory httpConnectorFactory = new DefaultHttpWsConnectorFactory();
     private ServerConnector serverConnector;
+    private final int defaultStatusCode = 1001;
+    private final String defaultCloseReason = "Going away";
 
     @BeforeClass
     public void setup() throws InterruptedException {
@@ -70,7 +72,7 @@ public class WebSocketServerTestCase {
     public void handshakeTest() throws URISyntaxException, SSLException, InterruptedException, ProtocolException {
         WebSocketTestClient primaryClient = new WebSocketTestClient();
         assertTrue(primaryClient.handhshake());
-        primaryClient.shutDown();
+        primaryClient.sendCloseFrame(defaultStatusCode, defaultCloseReason).closeChannel();
     }
 
     @Test
@@ -82,7 +84,7 @@ public class WebSocketServerTestCase {
         primaryClient.sendText(textSent);
         latch.await(latchCountDownInSecs, TimeUnit.SECONDS);
         Assert.assertEquals(primaryClient.getTextReceived(), textSent);
-        primaryClient.shutDown();
+        primaryClient.sendCloseFrame(defaultStatusCode, defaultCloseReason).closeChannel();
     }
 
     @Test
@@ -95,7 +97,7 @@ public class WebSocketServerTestCase {
         primaryClient.sendBinary(bufferSent);
         latch.await(latchCountDownInSecs, TimeUnit.SECONDS);
         Assert.assertEquals(primaryClient.getBufferReceived(), bufferSent);
-        primaryClient.shutDown();
+        primaryClient.sendCloseFrame(defaultStatusCode, defaultCloseReason).closeChannel();
     }
 
     /**
@@ -112,8 +114,8 @@ public class WebSocketServerTestCase {
         secondaryClient.handhshake();
         latch.await(latchCountDownInSecs, TimeUnit.SECONDS);
         Assert.assertEquals(primaryClient.getTextReceived(), WebSocketTestConstants.PAYLOAD_NEW_CLIENT_CONNECTED);
-        secondaryClient.shutDown();
-        primaryClient.shutDown();
+        secondaryClient.sendCloseFrame(defaultStatusCode, defaultCloseReason).closeChannel();
+        primaryClient.sendCloseFrame(defaultStatusCode, defaultCloseReason).closeChannel();
     }
 
     /**
@@ -129,10 +131,10 @@ public class WebSocketServerTestCase {
         WebSocketTestClient secondaryClient = new WebSocketTestClient();
         primaryClient.handhshake();
         secondaryClient.handhshake();
-        secondaryClient.shutDown();
+        secondaryClient.sendCloseFrame(defaultStatusCode, defaultCloseReason).closeChannel();
         latch.await(latchCountDownInSecs, TimeUnit.SECONDS);
         Assert.assertEquals(primaryClient.getTextReceived(), WebSocketTestConstants.PAYLOAD_CLIENT_LEFT);
-        primaryClient.shutDown();
+        primaryClient.sendCloseFrame(defaultStatusCode, defaultCloseReason).closeChannel();
     }
 
     @Test
@@ -147,7 +149,7 @@ public class WebSocketServerTestCase {
         ByteBuffer expectedBuffer = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
         Assert.assertTrue(pingCheckClient.isPingReceived(), "Should receive a ping from the server");
         Assert.assertEquals(pingCheckClient.getBufferReceived(), expectedBuffer);
-        pingCheckClient.shutDown();
+        pingCheckClient.sendCloseFrame(defaultStatusCode, defaultCloseReason).closeChannel();
 
         // Check the pong receive.
         CountDownLatch pongLatch = new CountDownLatch(1);
@@ -159,7 +161,7 @@ public class WebSocketServerTestCase {
         pongLatch.await(latchCountDownInSecs, TimeUnit.SECONDS);
         Assert.assertTrue(pongCheckClient.isPongReceived(), "Should receive a pong from the server");
         Assert.assertEquals(pongCheckClient.getBufferReceived(), bufferSent);
-        pongCheckClient.shutDown();
+        pongCheckClient.sendCloseFrame(defaultStatusCode, defaultCloseReason).closeChannel();
     }
 
     @Test(priority = 1)

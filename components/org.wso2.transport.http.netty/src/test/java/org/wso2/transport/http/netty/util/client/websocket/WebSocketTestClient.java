@@ -212,7 +212,7 @@ public class WebSocketTestClient {
      */
     public void sendBinary(ByteBuffer buf) throws IOException {
         if (channel == null) {
-            logger.error("Channel is null. Cannot send text.");
+            logger.error("Channel is null. Cannot send binary frame.");
             throw new IllegalArgumentException("Cannot find the channel to write");
         }
         channel.writeAndFlush(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(buf)));
@@ -224,10 +224,19 @@ public class WebSocketTestClient {
      */
     public void sendPing(ByteBuffer buf) throws IOException {
         if (channel == null) {
-            logger.error("Channel is null. Cannot send text.");
+            logger.error("Channel is null. Cannot send ping.");
             throw new IllegalArgumentException("Cannot find the channel to write");
         }
         channel.writeAndFlush(new PingWebSocketFrame(Unpooled.wrappedBuffer(buf)));
+    }
+
+    public WebSocketTestClient sendCloseFrame(int statusCode, String reason) throws InterruptedException {
+        if (channel == null) {
+            logger.error("Channel is null. Cannot send text.");
+            throw new IllegalArgumentException("Cannot find the channel to write");
+        }
+        channel.writeAndFlush(new CloseWebSocketFrame(statusCode, reason)).sync();
+        return this;
     }
 
     /**
@@ -272,15 +281,13 @@ public class WebSocketTestClient {
     }
 
     /**
-     * Shutdown the WebSocket Client.
+     * Forcefully shutdown WebSocket client.
+     *
+     * @throws InterruptedException if the connection is interrupted when closing channel.
      */
-    public void shutDown() throws InterruptedException {
+    public void closeChannel() throws InterruptedException {
         if (channel.isOpen()) {
-            channel.writeAndFlush(new CloseWebSocketFrame(1001, "Going away")).addListener(future -> {
-                if (channel.isOpen()) {
-                    channel.close();
-                }
-            }).sync();
+            channel.close().sync();
         }
     }
 

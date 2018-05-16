@@ -77,7 +77,7 @@ public class WebSocketMessagePropertiesTestCase {
             Assert.assertTrue(false);
         }
         wsClient.sendText("Hi backend");
-        wsClient.shutDown();
+        wsClient.sendCloseFrame(1001, "Going away").closeChannel();
 
 
         // Testing invalid subprotocol
