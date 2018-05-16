@@ -60,6 +60,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttrib
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -322,7 +324,7 @@ public class Generator {
         if (typeNode instanceof BLangUserDefinedType) {
             BLangUserDefinedType type = (BLangUserDefinedType) typeNode;
             String pkg = type.pkgAlias.getValue();
-            BTypeSymbol tsymbol = ((BLangUserDefinedType) type).type.tsymbol;
+            BTypeSymbol tsymbol = type.type.tsymbol;
             if (tsymbol instanceof BStructSymbol) {
                 pkg = ((BStructSymbol) tsymbol).pkgID.getName().getValue();
             }
@@ -335,10 +337,16 @@ public class Generator {
             }
         } else if (typeNode instanceof BLangUnionTypeNode) {
             BLangUnionTypeNode union = (BLangUnionTypeNode) typeNode;
-            return union.memberTypeNodes.stream().map(member -> extractLink(member)).collect(Collectors.joining("|"));
+            return union.memberTypeNodes.stream().map(member -> extractLink(member)).collect(Collectors.joining(","));
         } else if (typeNode instanceof BLangTupleTypeNode) {
             BLangTupleTypeNode tuple = (BLangTupleTypeNode) typeNode;
             return tuple.memberTypeNodes.stream().map(member -> extractLink(member)).collect(Collectors.joining(","));
+        } else if (typeNode instanceof BLangBuiltInRefTypeNode) {
+            BLangBuiltInRefTypeNode builtInRefTypeNode = (BLangBuiltInRefTypeNode) typeNode;
+            return BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_HREF + ".html#" + builtInRefTypeNode.type.tsymbol
+                    .getName().value;
+        } else if (typeNode instanceof BLangArrayType) {
+            return extractLink(((BLangArrayType) typeNode).elemtype);
         } else {
             // TODO
             return "";
@@ -351,7 +359,8 @@ public class Generator {
             return "";
         }
         String pkg = type.tsymbol.pkgID.getName().getValue();
-        return pkg != null && !pkg.isEmpty() ? pkg + ".html#" + type.toString() : "#" + type.toString();
+        return pkg != null && !pkg.isEmpty() ? pkg + ".html#" + type.tsymbol.getName().getValue() : "#" + type
+                .tsymbol.getName().getValue();
     }
 
     /**

@@ -62,7 +62,8 @@ public class CommonUtil {
                 TextDocumentIdentifier identifier = new TextDocumentIdentifier();
                 identifier.setUri(Paths.get(file).toUri().toString());
                 positionParams.setTextDocument(identifier);
-                positionParams.setPosition(position);
+
+                positionParams.setPosition(new Position(position.getLine(), position.getCharacter()));
 
                 DidOpenTextDocumentParams documentParams = new DidOpenTextDocumentParams();
                 TextDocumentItem textDocumentItem = new TextDocumentItem();
@@ -82,7 +83,7 @@ public class CommonUtil {
                 ReferenceContext referenceContext = new ReferenceContext();
                 referenceContext.setIncludeDeclaration(true);
 
-                referenceParams.setPosition(position);
+                referenceParams.setPosition(new Position(position.getLine(), position.getCharacter()));
                 referenceParams.setTextDocument(textDocumentIdentifier);
                 referenceParams.setContext(referenceContext);
 

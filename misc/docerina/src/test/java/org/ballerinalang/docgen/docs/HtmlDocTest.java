@@ -88,6 +88,22 @@ public class HtmlDocTest {
                 "to return type");
     }
 
+    @Test(description = "Param links should be generated correctly")
+    public void testComplexReturn() throws Exception {
+        BLangPackage bLangPackage = createPackage("public function hello(string name) returns ((string[],int) | error)"
+                + "{return (\"a\", 2);}");
+        Page page = generatePage(bLangPackage);
+        Assert.assertEquals(page.constructs.size(), 1);
+        Assert.assertEquals(page.constructs.get(0).name, "hello");
+        Assert.assertTrue(page.constructs.get(0) instanceof FunctionDoc, "Invalid documentable type");
+        FunctionDoc functionDoc = (FunctionDoc) page.constructs.get(0);
+        Assert.assertEquals(functionDoc.parameters.get(0).toString(), "string name", "Invalid parameter string value");
+        Assert.assertEquals(functionDoc.returnParams.get(0).toString(), "(string[],int) | error", "Invalid return " +
+                "type");
+        Assert.assertEquals(functionDoc.returnParams.get(0).href, "primitive-types.html#string,primitive-types" + "" +
+                ".html#int,builtin.html#error", "Invalid link to return type");
+    }
+
     @Test(description = "Connectors in a package should be shown in the constructs")
     public void testConnectors() throws Exception {
         String source = "@Description {value:\"GitHub client\n" +

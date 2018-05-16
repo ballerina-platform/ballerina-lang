@@ -29,6 +29,7 @@ import org.ballerinalang.test.util.HttpsClientRequest;
 import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -65,32 +66,26 @@ public class WebSubWithSecretTestCase extends IntegrationTestCase {
     private static final String REMOTE_HUB_NOTIFICATION_FROM_REQUEST_SUBSCRIBER_LOG =
             "WebSub Notification from Request: {\"action\":\"publish\",\"mode\":\"remote-hub\"}";
 
-    private LogLeecher internalHubNotificationLogLeecher;
-    private LogLeecher remoteHubNotificationLogLeecher;
-    private LogLeecher internalHubNotificationFromRequestLogLeecher;
-    private LogLeecher remoteHubNotificationFromRequestLogLeecher;
+    private LogLeecher intentVerificationLogLeecher = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_LOG);
+    private LogLeecher internalHubNotificationLogLeecher = new LogLeecher(INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_LOG);
+    private LogLeecher remoteHubNotificationLogLeecher = new LogLeecher(REMOTE_HUB_NOTIFICATION_SUBSCRIBER_LOG);
+    private LogLeecher internalHubNotificationFromRequestLogLeecher = new LogLeecher(
+                                                                INTERNAL_HUB_NOTIFICATION_FROM_REQUEST_SUBSCRIBER_LOG);
+    private LogLeecher remoteHubNotificationFromRequestLogLeecher = new LogLeecher(
+                                                                REMOTE_HUB_NOTIFICATION_FROM_REQUEST_SUBSCRIBER_LOG);
 
     private ServerInstance ballerinaWebSubSubscriber;
     private ServerInstance ballerinaWebSubPublisher;
 
-    @Test
-    public void testStartUpAndIntentVerification() throws BallerinaTestException, InterruptedException {
+    @BeforeClass
+    public void setup() throws BallerinaTestException, InterruptedException {
         String[] clientArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
-                          + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath(),
-                          "-e b7a.websub.hub.remotepublish=true", "-e test.hub.url=" + hubUrl};
+                + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath(),
+                "-e b7a.websub.hub.remotepublish=true", "-e test.hub.url=" + hubUrl};
         ballerinaWebSubPublisher = ServerInstance.initBallerinaServer();
 
-        LogLeecher intentVerificationLogLeecher = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_LOG);
-        internalHubNotificationLogLeecher = new LogLeecher(INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_LOG);
-        remoteHubNotificationLogLeecher = new LogLeecher(REMOTE_HUB_NOTIFICATION_SUBSCRIBER_LOG);
-        internalHubNotificationFromRequestLogLeecher =
-                new LogLeecher(INTERNAL_HUB_NOTIFICATION_FROM_REQUEST_SUBSCRIBER_LOG);
-        remoteHubNotificationFromRequestLogLeecher =
-                new LogLeecher(REMOTE_HUB_NOTIFICATION_FROM_REQUEST_SUBSCRIBER_LOG);
-
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
-                        + File.separator + "websub" + File.separator + "websub_test_subscriber_with_secret.bal")
-                .getAbsolutePath();
+            + File.separator + "websub" + File.separator + "websub_test_subscriber_with_secret.bal").getAbsolutePath();
         ballerinaWebSubSubscriber = ServerInstance.initBallerinaServer(8181);
         ballerinaWebSubSubscriber.addLogLeecher(intentVerificationLogLeecher);
         ballerinaWebSubSubscriber.addLogLeecher(internalHubNotificationLogLeecher);
@@ -126,11 +121,14 @@ public class WebSubWithSecretTestCase extends IntegrationTestCase {
                     headers);
             return response.getResponseCode() == 202;
         });
+    }
 
+    @Test
+    public void testSubscriptionAndIntentVerification() throws BallerinaTestException, InterruptedException {
         intentVerificationLogLeecher.waitForText(10000);
     }
 
-    @Test(dependsOnMethods = "testStartUpAndIntentVerification")
+    @Test(dependsOnMethods = "testSubscriptionAndIntentVerification")
     public void testContentReceiptForDirectHubNotification() throws BallerinaTestException {
         internalHubNotificationLogLeecher.waitForText(30000);
     }
@@ -140,17 +138,17 @@ public class WebSubWithSecretTestCase extends IntegrationTestCase {
         internalHubNotificationFromRequestLogLeecher.waitForText(30000);
     }
 
-    @Test(dependsOnMethods = "testStartUpAndIntentVerification")
+    @Test(dependsOnMethods = "testSubscriptionAndIntentVerification")
     public void testContentReceiptForRemoteHubNotification() throws BallerinaTestException {
         remoteHubNotificationLogLeecher.waitForText(30000);
     }
 
-    @Test(dependsOnMethods = "testStartUpAndIntentVerification")
+    @Test(dependsOnMethods = "testSubscriptionAndIntentVerification")
     public void testContentReceiptAsRequestForRemoteHubNotification() throws BallerinaTestException {
         remoteHubNotificationFromRequestLogLeecher.waitForText(30000);
     }
 
-    @Test(dependsOnMethods = "testStartUpAndIntentVerification")
+    @Test(dependsOnMethods = "testSubscriptionAndIntentVerification")
     public void testSignatureValidationFailure() throws BallerinaTestException, IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put("X-Hub-Signature", "SHA256=incorrect583e9dc7eaf63aede0abac8e15212e06320bb021c433a20f27d553");
@@ -162,7 +160,7 @@ public class WebSubWithSecretTestCase extends IntegrationTestCase {
         Assert.assertEquals(response.getData(), "request failed: validation failed for notification");
     }
 
-    @Test(dependsOnMethods = "testStartUpAndIntentVerification")
+    @Test(dependsOnMethods = "testSubscriptionAndIntentVerification")
     public void testRejectionIfNoSignature() throws BallerinaTestException, IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);

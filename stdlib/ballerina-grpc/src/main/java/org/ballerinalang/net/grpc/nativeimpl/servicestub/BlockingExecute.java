@@ -163,9 +163,11 @@ public class BlockingExecute extends AbstractExecute {
                 } else {
                     notifyErrorReply(context, "Error while executing the client call. Method type " +
                             methodType.name() + " not supported");
+                    return;
                 }
             } catch (RuntimeException | GrpcClientException e) {
                 notifyErrorReply(context, "gRPC Client Connector Error :" + e.getMessage());
+                return;
             }
         }
         notifyErrorReply(context, "Error while processing the request message. Connection Sub " +

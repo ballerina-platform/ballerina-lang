@@ -294,10 +294,15 @@ function performLoadBalanceAction(LoadBalancerActions lb, string path, Request r
     mime:Entity requestEntity = new;
 
     if (lb.failover) {
-        // When performing passthrough scenarios using Load Balance connector, message needs to be built before trying out the
-        // load balance endpoints to keep the request message to load balance the messages in case of failure.
-        var binaryPayload = loadBlancerInRequest.getBinaryPayload();
-        requestEntity = check loadBlancerInRequest.getEntity();
+        if (isMultipartRequest(loadBlancerInRequest)) {
+            loadBlancerInRequest = populateMultipartRequest(loadBlancerInRequest);
+        } else {
+            // When performing passthrough scenarios using Load Balance connector,
+            // message needs to be built before trying out the load balance endpoints to keep the request message
+            // to load balance the messages in case of failure.
+            var binaryPayload = loadBlancerInRequest.getBinaryPayload();
+            requestEntity = check loadBlancerInRequest.getEntity();
+        }
     }
 
     while (loadBalanceTermination < lengthof lb.loadBalanceClientsArray) {
@@ -310,10 +315,7 @@ function performLoadBalanceAction(LoadBalancerActions lb, string path, Request r
                 if (!lb.failover) {
                     return httpActionErr;
                 } else {
-                    Request newOutRequest = new;
-                    populateRequestFields(loadBlancerInRequest, newOutRequest);
-                    newOutRequest.setEntity(requestEntity);
-                    loadBlancerInRequest = newOutRequest;
+                    loadBlancerInRequest = createFailoverRequest(loadBlancerInRequest, requestEntity);
                     loadBalanceActionError.httpActionErr[lb.nextIndex] = httpActionErr;
                     loadBalanceTermination = loadBalanceTermination + 1;
                 }

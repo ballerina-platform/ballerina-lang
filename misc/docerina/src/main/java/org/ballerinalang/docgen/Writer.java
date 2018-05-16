@@ -41,7 +41,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Generates the HTML pages from the Page objects.
@@ -120,32 +124,28 @@ public class Writer {
                 @Override
                 public Object apply(String dataType, Options options) throws IOException {
                     String href = options.param(0);
+                    Map<String, String> typeToLink = new HashMap<>();
                     String[] types, hrefs;
-                    String tupleDelimiter = ",";
-                    String unionDelimiter = "|";
-                    String delimiter;
-                    StringBuilder linkHtmlBuilder = new StringBuilder();
-                    if (dataType.contains(tupleDelimiter)) {
-                        delimiter = tupleDelimiter;
-                    } else if (dataType.contains(unionDelimiter)) {
-                        delimiter = "\\|";
-                    } else {
-                        delimiter = "NULL_DELIMITER";
+                    hrefs = href.split(",");
+                    types = dataType.split("\\(|\\)|,|\\|");
+                    int idx = 0;
+                    for (String type : types) {
+                        type = type.trim();
+                        if (!type.isEmpty()) {
+                            if (idx >= hrefs.length) {
+                                break;
+                            }
+                            typeToLink.putIfAbsent(type, getHtmlLink(type, hrefs[idx]));
+                            idx++;
+                        }
                     }
-                    types = dataType.split(delimiter);
-                    hrefs = href.split(delimiter);
+                    final String[] dataTypesWithLinks = {dataType};
+                    typeToLink.forEach((type, link) -> {
+                        dataTypesWithLinks[0] = dataTypesWithLinks[0].replaceAll(Pattern.quote(type), Matcher
+                                .quoteReplacement(link));
+                    });
 
-                    for (int i = 0; i < types.length; i++) {
-                        if (i > 0) {
-                            linkHtmlBuilder.append(delimiter.contains("|") ? "|" : delimiter);
-                        }
-                        if (i >= hrefs.length) {
-                            linkHtmlBuilder.append(getHtmlLink(types[i], "#" + types[i]));
-                        } else {
-                            linkHtmlBuilder.append(getHtmlLink(types[i], hrefs[i]));
-                        }
-                    }
-                    return linkHtmlBuilder.toString();
+                    return dataTypesWithLinks[0];
                 }
             });
             Template template = handlebars.compile(packageTemplateName);
