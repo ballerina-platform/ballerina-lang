@@ -30,6 +30,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
+import org.ballerinalang.net.http.WebSocketUtil;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -50,8 +51,8 @@ public class Ready implements NativeCallableUnit {
         BStruct webSocketConnector = (BStruct) context.getRefArgument(0);
         WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) webSocketConnector
                 .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
-        if (webSocketConnector.getBooleanField(0) == 0) {
-            connectionInfo.getWebSocketConnection().readNextFrame();
+        if (webSocketConnector.getBooleanField(WebSocketConstants.CONNECTOR_IS_READY_INDEX) == 0) {
+            WebSocketUtil.readFirstFrame(connectionInfo.getWebSocketConnection(), webSocketConnector);
             context.setReturnValues();
         } else {
             context.setReturnValues(BLangConnectorSPIUtil.createBStruct(context, HttpConstants.PROTOCOL_PACKAGE_HTTP,

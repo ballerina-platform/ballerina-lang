@@ -40,18 +40,18 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.DEFAULT_SAMPLE_DIR;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.DEFAULT_SKELETON_DIR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.EMPTY_DATA_TYPE;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.EMPTY_STRING;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.FILE_SEPARATOR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.PACKAGE_SEPARATOR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.PACKAGE_SEPARATOR_REGEX;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_FILE_PREFIX;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_TEMPLATE_NAME;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SERVICE_INDEX;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SKELETON_TEMPLATE_NAME;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.STUB_FILE_PREFIX;
-import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.DEFAULT_SAMPLE_DIR;
-import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.DEFAULT_SKELETON_DIR;
-import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.SAMPLE_TEMPLATE_NAME;
-import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.SKELETON_TEMPLATE_NAME;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.getLabelName;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.getMappingBalType;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.getTypeName;
@@ -61,7 +61,6 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.writeB
  * Class is responsible of generating the ballerina stub which is mapping proto definition.
  */
 public class BallerinaFileBuilder {
-    
     public static final Logger LOG = LoggerFactory.getLogger(BallerinaFileBuilder.class);
     private byte[] rootDescriptor;
     private List<byte[]> dependentDescriptors;
