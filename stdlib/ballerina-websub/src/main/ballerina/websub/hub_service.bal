@@ -190,8 +190,7 @@ service<http:Service> hubService {
                                     }
                                 }
                             }
-                            error? publishError = publishToInternalHub(topic, payload);
-                            match(publishError) {
+                            match(publishToInternalHub(topic, payload)) {
                                 error err => {
                                     string errorMessage = "Event notification failed for Topic [" + topic + "]: "
                                                             + err.message;

@@ -60,9 +60,8 @@ public class ValidateAndPublishToInternalHub extends BlockingNativeCallableUnit 
                 context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));
             }
         } else {
-            context.setReturnValues(
-                    BLangVMErrors.createError(context,
-                                              "Internal Ballerina Hub not initialized or incorrectly referenced"));
+            context.setReturnValues(BLangVMErrors.createError(context,
+                                          "Internal Ballerina Hub not initialized or incorrectly referenced"));
         }
     }
 
