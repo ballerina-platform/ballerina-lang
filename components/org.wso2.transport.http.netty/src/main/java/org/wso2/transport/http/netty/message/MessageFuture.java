@@ -28,8 +28,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class MessageFuture {
 
     private MessageListener messageListener;
-    private HTTPCarbonMessage httpCarbonMessage;
     private ConcurrentLinkedQueue<HttpContent> pendingPayload;
+    private final HTTPCarbonMessage httpCarbonMessage;
 
      public MessageFuture(HTTPCarbonMessage httpCarbonMessage) {
         this.httpCarbonMessage = httpCarbonMessage;
@@ -38,12 +38,14 @@ public class MessageFuture {
 
     public synchronized void setMessageListener(MessageListener messageListener) {
         this.messageListener = messageListener;
-        while (!httpCarbonMessage.isEmpty()) {
-            HttpContent httpContent = httpCarbonMessage.getHttpContent();
-            notifyMessageListener(httpContent);
-        }
-        while (!pendingPayload.isEmpty()) {
-            notifyMessageListener(pendingPayload.poll());
+        synchronized (httpCarbonMessage) {
+            while (!httpCarbonMessage.isEmpty()) {
+                HttpContent httpContent = httpCarbonMessage.getHttpContent();
+                notifyMessageListener(httpContent);
+            }
+            while (!pendingPayload.isEmpty()) {
+                notifyMessageListener(pendingPayload.poll());
+            }
         }
     }
 

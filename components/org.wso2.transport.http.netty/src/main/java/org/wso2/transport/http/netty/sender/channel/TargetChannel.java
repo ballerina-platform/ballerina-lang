@@ -155,7 +155,7 @@ public class TargetChannel {
         this.setTargetHandler(this.getHttpClientChannelInitializer().getTargetHandler());
         TargetHandler targetHandler = this.getTargetHandler();
         targetHandler.setHttpResponseFuture(httpInboundResponseFuture);
-        targetHandler.setIncomingMsg(httpCarbonMessage);
+        targetHandler.setOutboundRequestMsg(httpCarbonMessage);
         targetHandler.setConnectionManager(connectionManager);
         targetHandler.setTargetChannel(this);
 
@@ -274,7 +274,7 @@ public class TargetChannel {
         });
     }
 
-    private void resetState(HTTPCarbonMessage httpOutboundRequest) {
+    public void resetState(HTTPCarbonMessage httpOutboundRequest) {
         httpOutboundRequest.removeHttpContentAsyncFuture();
         contentList.clear();
         contentLength = 0;
