@@ -255,8 +255,7 @@ function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string full
     } catch (error err) {
         io:println("");
     }
-    int rightPadFinalLog = terminalWidth + 2;
-    io:println("\r" + rightPad(fullPkgPath + toAndFrom, (rightPadFinalLog)));
+    io:println("\r" + rightPad(fullPkgPath + toAndFrom, terminalWidth));
 }
 
 documentation {
