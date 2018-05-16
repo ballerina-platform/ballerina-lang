@@ -333,10 +333,10 @@ public class BLangFunctions {
             }
         } catch (BLangNullReferenceException e) {
             return BLangVMUtils.handleNativeInvocationError(parentCtx,
-                    BLangVMErrors.createNullRefException(callableUnitInfo));
+                    BLangVMErrors.createNullRefException(parentCtx));
         } catch (Throwable e) {
             return BLangVMUtils.handleNativeInvocationError(parentCtx,
-                    BLangVMErrors.createError(callableUnitInfo, e.getMessage()));
+                    BLangVMErrors.createError(parentCtx, e.getMessage()));
         }
     }
 

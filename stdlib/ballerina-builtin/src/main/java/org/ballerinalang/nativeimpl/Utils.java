@@ -101,7 +101,7 @@ public class Utils {
     }
 
     public static BStruct createConversionError(Context context, String msg) {
-        return BLangVMErrors.createError(context, -1, msg);
+        return BLangVMErrors.createError(context, msg);
     }
 
     private static BStruct createBase64Error(Context context, String msg, boolean isMimeSpecific, boolean isEncoder) {
@@ -209,7 +209,7 @@ public class Utils {
             }
             context.setReturnValues(new BString(new String(encodedValue, StandardCharsets.ISO_8859_1)));
         } catch (UnsupportedEncodingException e) {
-            context.setReturnValues(BLangVMErrors.createError(context, -1, e.getMessage()));
+            context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));
         }
     }
 
@@ -256,7 +256,7 @@ public class Utils {
             }
             context.setReturnValues(new BString(new String(decodedValue, charset)));
         } catch (UnsupportedEncodingException e) {
-            context.setReturnValues(BLangVMErrors.createError(context, -1, e.getMessage()));
+            context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));
         }
     }
 

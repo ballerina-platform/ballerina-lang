@@ -60,17 +60,9 @@ public class BLangVMErrors {
     public static BStruct createError(Context context, String message) {
         return createError(context, true, message);
     }
-    
-    public static BStruct createError(Context context, int ip, String message) {
-        return createError(context, true, message);
-    }
 
     public static BStruct createError(WorkerExecutionContext context, String message) {
         return generateError(context, true, message);
-    }
-
-    public static BStruct createError(CallableUnitInfo callableUnitInfo, String message) {
-        return generateError(callableUnitInfo, true, message);
     }
 
     /**
@@ -94,9 +86,8 @@ public class BLangVMErrors {
      * @param cause           caused error struct
      * @return generated ballerina.lang.errors:Error struct
      */
-    public static BStruct createError(Context context, boolean attachCallStack, String message, 
-            BStruct cause) {
-        return generateError(context.getCallableUnitInfo(), attachCallStack, message, cause);
+    public static BStruct createError(Context context, boolean attachCallStack, String message, BStruct cause) {
+        return generateError(context.getProgramFile(), context.getCallableUnitInfo(), attachCallStack, message, cause);
     }
 
     /**
@@ -110,7 +101,8 @@ public class BLangVMErrors {
      */
     public static BStruct createError(Context context, boolean attachCallStack, StructInfo errorType,
                                       Object... values) {
-        return generateError(context.getCallableUnitInfo(), attachCallStack, errorType, values);
+        return generateError(context.getProgramFile(), context.getCallableUnitInfo(), attachCallStack, errorType,
+                values);
     }
 
     /* Custom errors messages */
@@ -130,20 +122,13 @@ public class BLangVMErrors {
     public static BStruct createNullRefException(Context context) {
         PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_RUNTIME);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_NULL_REF_EXCEPTION);
-        return generateError(context.getCallableUnitInfo(), true, errorStructInfo, "");
+        return generateError(context.getProgramFile(), context.getCallableUnitInfo(), true, errorStructInfo, "");
     }
 
     public static BStruct createNullRefException(WorkerExecutionContext context) {
         PackageInfo errorPackageInfo = context.programFile.getPackageInfo(PACKAGE_RUNTIME);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_NULL_REF_EXCEPTION);
         return generateError(context, true, errorStructInfo);
-    }
-
-    public static BStruct createNullRefException(CallableUnitInfo callableUnitInfo) {
-        ProgramFile progFile = callableUnitInfo.getPackageInfo().getProgramFile();
-        PackageInfo errorPackageInfo = progFile.getPackageInfo(PACKAGE_RUNTIME);
-        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_NULL_REF_EXCEPTION);
-        return generateError(callableUnitInfo, true, errorStructInfo);
     }
 
     public static BStruct createCallFailedException(WorkerExecutionContext context, Map<String, BStruct> errors) {
@@ -153,11 +138,8 @@ public class BLangVMErrors {
             errors.values().iterator().next(), createErrorCauseArray(errors));
     }
     
-    public static BStruct createCallCancelledException(CallableUnitInfo callableUnitInfo) {
-        PackageInfo errorPackageInfo = callableUnitInfo.getPackageInfo().getProgramFile().getPackageInfo(
-                PACKAGE_RUNTIME);
-        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_CALL_FAILED_EXCEPTION);
-        return generateError(callableUnitInfo, true, errorStructInfo, MSG_CALL_CANCELLED);
+    public static BStruct createCallCancelledException(WorkerExecutionContext context) {
+        return generateError(context, true, MSG_CALL_CANCELLED);
     }
 
     public static BStruct createIllegalStateException(Context context, String msg) {
@@ -184,12 +166,12 @@ public class BLangVMErrors {
         return generateError(context, attachCallStack, errorStructInfo, values);
     }
 
-    private static BStruct generateError(CallableUnitInfo callableUnitInfo, boolean attachCallStack,
+    private static BStruct generateError(ProgramFile programFile, CallableUnitInfo callableUnitInfo, boolean attachCallStack,
                                          Object... values) {
         ProgramFile progFile = callableUnitInfo.getPackageInfo().getProgramFile();
         PackageInfo errorPackageInfo = progFile.getPackageInfo(PACKAGE_BUILTIN);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
-        return generateError(callableUnitInfo, attachCallStack, errorStructInfo, values);
+        return generateError(programFile, callableUnitInfo, attachCallStack, errorStructInfo, values);
     }
 
     private static BStruct generateError(WorkerExecutionContext context,
@@ -201,11 +183,11 @@ public class BLangVMErrors {
         return error;
     }
 
-    private static BStruct generateError(CallableUnitInfo callableUnitInfo, boolean attachCallStack, 
+    private static BStruct generateError(ProgramFile programFile, CallableUnitInfo callableUnitInfo, boolean attachCallStack, 
             StructInfo structInfo, Object... values) {
         BStruct error = BLangVMStructs.createBStruct(structInfo, values);
         if (attachCallStack) {
-            attachStackFrame(error, callableUnitInfo);
+            attachStackFrame(programFile, error, callableUnitInfo);
         }
         return error;
     }
@@ -214,15 +196,15 @@ public class BLangVMErrors {
         error.addNativeData(STRUCT_CALL_STACK_ELEMENT, getStackFrame(context));
     }
 
-    public static void attachStackFrame(BStruct error, CallableUnitInfo callableUnitInfo) {
-        error.addNativeData(STRUCT_CALL_STACK_ELEMENT, getStackFrame(callableUnitInfo, 0));
+    public static void attachStackFrame(ProgramFile programFile, BStruct error, CallableUnitInfo callableUnitInfo) {
+        error.addNativeData(STRUCT_CALL_STACK_ELEMENT, getStackFrame(programFile, callableUnitInfo, 0));
     }
 
     public static BRefValueArray generateCallStack(WorkerExecutionContext context, CallableUnitInfo nativeCUI) {
         BRefValueArray callStack = new BRefValueArray();
         long index = 0;
         if (nativeCUI != null) {
-            callStack.add(index, getStackFrame(nativeCUI, 0));
+            callStack.add(index, getStackFrame(context.programFile, nativeCUI, 0));
             index++;
         }
         while (!context.isRootContext()) {
@@ -233,13 +215,12 @@ public class BLangVMErrors {
         return callStack;
     }
 
-    public static BStruct getStackFrame(CallableUnitInfo callableUnitInfo, int ip) {
+    public static BStruct getStackFrame(ProgramFile programFile, CallableUnitInfo callableUnitInfo, int ip) {
         if (callableUnitInfo == null) {
             return null;
         }
         
-        ProgramFile progFile = callableUnitInfo.getPackageInfo().getProgramFile();
-        PackageInfo runtimePackage = progFile.getPackageInfo(PACKAGE_RUNTIME);
+        PackageInfo runtimePackage = programFile.getPackageInfo(PACKAGE_RUNTIME);
         StructInfo callStackElement = runtimePackage.getStructInfo(STRUCT_CALL_STACK_ELEMENT);
 
         int currentIP = ip - 1;
@@ -271,7 +252,7 @@ public class BLangVMErrors {
         if (context == null) {
             return null;
         }
-        return getStackFrame(context.callableUnitInfo, context.ip);
+        return getStackFrame(context.programFile, context.callableUnitInfo, context.ip);
     }
     
     private static boolean isCFE(BStruct error) {

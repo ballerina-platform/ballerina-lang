@@ -31,9 +31,9 @@ import java.util.logging.LogManager;
  *
  * @since 0.964.0
  */
-public class TestSuiteListener implements ISuiteListener {
+public class TestLogListener implements ISuiteListener {
 
-    private static Logger log = LoggerFactory.getLogger(TestSuiteListener.class);
+    private static Logger log = LoggerFactory.getLogger(TestLogListener.class);
 
     @Override
     public void onStart(ISuite iSuite) {

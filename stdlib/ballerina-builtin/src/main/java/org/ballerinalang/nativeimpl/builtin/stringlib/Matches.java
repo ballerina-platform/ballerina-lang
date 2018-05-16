@@ -52,7 +52,7 @@ public class Matches extends AbstractRegexFunction {
             BBoolean matches = new BBoolean(matcher.matches());
             context.setReturnValues(matches);
         } catch (PatternSyntaxException e) {
-            context.setReturnValues(BLangVMErrors.createError(context, 0, e.getMessage()));
+            context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));
         }
     }
 }

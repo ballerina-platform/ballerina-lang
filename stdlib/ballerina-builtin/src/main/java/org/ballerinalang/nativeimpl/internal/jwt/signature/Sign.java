@@ -72,7 +72,7 @@ public class Sign extends BlockingNativeCallableUnit {
             context.setReturnValues(new BString(signature));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            context.setReturnValues(new BString(null), BLangVMErrors.createError(context, 0, e.getMessage()));
+            context.setReturnValues(new BString(null), BLangVMErrors.createError(context, e.getMessage()));
         }
     }
 }

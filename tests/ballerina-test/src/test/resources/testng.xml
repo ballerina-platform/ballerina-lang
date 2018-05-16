@@ -22,7 +22,8 @@ under the License.
 <suite name="ballerina-test-suite">
 
     <listeners>
-        <listener class-name="org.ballerinalang.test.utils.TestSuiteListener"/>
+        <listener class-name="org.ballerinalang.test.utils.TestLogListener"/>
+        <listener class-name="org.ballerinalang.launcher.util.BallerinaTestListener"/>
         <!--<listener class-name="org.ballerinalang.test.utils.TestNGListener"/>-->
     </listeners>
 
