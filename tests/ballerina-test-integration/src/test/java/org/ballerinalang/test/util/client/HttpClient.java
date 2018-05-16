@@ -110,8 +110,8 @@ public class HttpClient {
 
     public List<FullHttpResponse> sendExpectContinueRequest(DefaultHttpRequest httpRequest,
                                                             DefaultLastHttpContent httpContent) {
-        CountDownLatch latch = new CountDownLatch(2);
-        this.waitForConnectionClosureLatch = new CountDownLatch(2);
+        CountDownLatch latch = new CountDownLatch(1);
+        this.waitForConnectionClosureLatch = new CountDownLatch(1);
         this.responseHandler.setLatch(latch);
         this.responseHandler.setWaitForConnectionClosureLatch(this.waitForConnectionClosureLatch);
 
@@ -120,7 +120,7 @@ public class HttpClient {
         this.connectedChannel.writeAndFlush(httpRequest);
 
         try {
-            latch.await(3000, TimeUnit.MILLISECONDS);
+            latch.await();
         } catch (InterruptedException e) {
             log.warn("Interrupted before receiving the response.");
         }
@@ -128,9 +128,11 @@ public class HttpClient {
         FullHttpResponse response100Continue = this.responseHandler.getHttpFullResponse();
 
         if (response100Continue.status().equals(HttpResponseStatus.CONTINUE)) {
+            latch = new CountDownLatch(1);
+            this.responseHandler.setLatch(latch);
             this.connectedChannel.writeAndFlush(httpContent);
             try {
-                latch.await(3000, TimeUnit.MILLISECONDS);
+                latch.await();
             } catch (InterruptedException e) {
                 log.warn("Interrupted before receiving the response.");
             }
