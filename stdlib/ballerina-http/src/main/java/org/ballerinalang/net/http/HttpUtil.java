@@ -271,8 +271,8 @@ public class HttpUtil {
             } catch (NumberFormatException e) {
                 throw new BallerinaException("Invalid content length");
             }
-            setDiscreteMediaTypeBodyContent(entity, httpMessageDataStreamer.getInputStream(),
-                    contentLength, overflowSettings);
+            setDiscreteMediaTypeBodyContent(entity, httpMessageDataStreamer.getInputStream(), contentLength,
+                    overflowSettings);
         }
         httpMessageStruct.setRefField(isRequest ? REQUEST_ENTITY_INDEX : RESPONSE_ENTITY_INDEX, entity);
         httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);

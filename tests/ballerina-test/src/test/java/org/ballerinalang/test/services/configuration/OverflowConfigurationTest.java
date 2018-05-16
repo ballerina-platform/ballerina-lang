@@ -84,7 +84,8 @@ public class OverflowConfigurationTest {
         }
     }
 
-    @Test(description = "Test custom overflow settings (memory threshold 0.00002MB) without actual overflow")
+    @Test(description = "Test custom overflow settings (memory threshold 0.00002MB) and tempLocation='testOverFlow')" +
+            "without actual overflow")
     public void testCustomWithoutOverflow() {
         String path = "/customOverflow";
         try {

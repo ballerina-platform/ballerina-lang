@@ -460,6 +460,13 @@ public class MimeUtil {
                 bodyPart.getNativeData(BODY_PARTS) != null;
     }
 
+    /**
+     * Extract overflow configuration settings from server annotations or get the default settings.
+     *
+     * @param context   Represent ballerina context
+     * @param configAnn Server configs
+     * @return A map with overflow settings
+     */
     public static Map<String, Object> getOverflowSettings(Context context, Annotation configAnn) {
         if (configAnn == null) {
             return getDefaultOverflowSettings();
