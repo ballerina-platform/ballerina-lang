@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.websub.BallerinaWebSubException;
 import org.ballerinalang.net.websub.hub.Hub;
 
 /**
@@ -40,7 +41,7 @@ import org.ballerinalang.net.websub.hub.Hub;
         args = {@Argument(name = "hubUrl", type = TypeKind.STRING),
                 @Argument(name = "topic", type = TypeKind.STRING),
                 @Argument(name = "payload", type = TypeKind.JSON)},
-        returnType = {@ReturnType(type = TypeKind.STRING)}
+        returnType = {@ReturnType(type = TypeKind.STRUCT)}
 )
 public class ValidateAndPublishToInternalHub extends BlockingNativeCallableUnit {
 
@@ -52,11 +53,11 @@ public class ValidateAndPublishToInternalHub extends BlockingNativeCallableUnit 
         Hub hubInstance = Hub.getInstance();
         if (hubInstance.isStarted() && hubInstance.retrieveHubUrl().equals(hubUrl)) {
             String payload = jsonPayload.stringValue();
-            String errorMessage = Hub.getInstance().publish(topic, payload);
-            if (errorMessage.isEmpty()) {
+            try {
+                Hub.getInstance().publish(topic, payload);
                 context.setReturnValues();
-            } else {
-                context.setReturnValues(BLangVMErrors.createError(context, errorMessage));
+            } catch (BallerinaWebSubException e) {
+                context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));
             }
         } else {
             context.setReturnValues(

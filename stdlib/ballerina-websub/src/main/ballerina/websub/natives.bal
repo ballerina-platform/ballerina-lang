@@ -74,18 +74,18 @@ documentation {
     P{{topic}} The topic to register
     P{{secret}} The secret to use to identify the registration
     P{{loadingOnStartUp}} Whether registration is being called on loading from the database at start up
-    R{{}} `string` Error Message if an error occurred with registration
+    R{{}} `error` if an error occurred with registration
 }
-native function registerTopicAtHub(string topic, string secret, boolean loadingOnStartUp = false) returns string;
+native function registerTopicAtHub(string topic, string secret, boolean loadingOnStartUp = false) returns error?;
 
 documentation {
     Unregisters a topic in the Ballerina Hub.
 
     P{{topic}} The topic to unregister
     P{{secret}} The secret specified at registration
-    R{{}} `string` Error Message if an error occurred with unregistration
+    R{{}} `error` if an error occurred with unregistration
 }
-native function unregisterTopicAtHub(string topic, string secret) returns string;
+native function unregisterTopicAtHub(string topic, string secret) returns error?;
 
 documentation {
     Retrieves whether a topic is registered with the Ballerina Hub.

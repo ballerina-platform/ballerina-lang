@@ -97,14 +97,17 @@ service<http:Service> hubService {
             if (params.hasKey(PUBLISHER_SECRET)) {
                 secret = params[PUBLISHER_SECRET];
             }
-            string errorMessage = registerTopicAtHub(topic, secret);
-            if (errorMessage != "") {
-                response.statusCode = http:BAD_REQUEST_400;
-                response.setTextPayload(errorMessage);
-                log:printWarn("Topic registration unsuccessful at Hub for Topic[" + topic + "]: " + errorMessage);
-            } else {
-                response.statusCode = http:ACCEPTED_202;
-                log:printInfo("Topic registration successful at Hub, for topic[" + topic + "]");
+            match(registerTopicAtHub(topic, secret)) {
+                error e => {
+                    string errorMessage = e.message;
+                    response.statusCode = http:BAD_REQUEST_400;
+                    response.setTextPayload(errorMessage);
+                    log:printWarn("Topic registration unsuccessful at Hub for Topic[" + topic + "]: " + errorMessage);
+                }
+                () => {
+                    response.statusCode = http:ACCEPTED_202;
+                    log:printInfo("Topic registration successful at Hub, for topic[" + topic + "]");
+                }
             }
             _ = client->respond(response);
         } else if (mode == MODE_UNREGISTER) {
@@ -120,14 +123,17 @@ service<http:Service> hubService {
             if (params.hasKey(PUBLISHER_SECRET)) {
                 secret = params[PUBLISHER_SECRET];
             }
-            string errorMessage = unregisterTopicAtHub(topic, secret);
-            if (errorMessage != "") {
-                response.statusCode = http:BAD_REQUEST_400;
-                response.setTextPayload(errorMessage);
-                log:printWarn("Topic unregistration unsuccessful at Hub for Topic[" + topic + "]: " + errorMessage);
-            } else {
-                response.statusCode = http:ACCEPTED_202;
-                log:printInfo("Topic unregistration successful at Hub, for topic[" + topic + "]");
+            match(unregisterTopicAtHub(topic, secret)) {
+                error e => {
+                    string errorMessage = e.message;
+                    response.statusCode = http:BAD_REQUEST_400;
+                    response.setTextPayload(errorMessage);
+                    log:printWarn("Topic unregistration unsuccessful at Hub for Topic[" + topic + "]: " + errorMessage);
+                }
+                () => {
+                    response.statusCode = http:ACCEPTED_202;
+                    log:printInfo("Topic unregistration successful at Hub, for topic[" + topic + "]");
+                }
             }
             _ = client->respond(response);
         } else {
@@ -446,10 +452,11 @@ function addTopicRegistrationsOnStartup() {
     while (dt.hasNext()) {
         match (<TopicRegistration>dt.getNext()) {
             TopicRegistration registrationDetails => {
-                string errorMessage = registerTopicAtHub(registrationDetails.topic, registrationDetails.secret,
-                    loadingOnStartUp = true);
-                if (errorMessage != "") {
-                    log:printError("Error registering topic details retrieved from the database: " + errorMessage);
+                match(registerTopicAtHub(registrationDetails.topic, registrationDetails.secret,
+                        loadingOnStartUp = true)) {
+                    error e => log:printError("Error registering topic details retrieved from the database: "
+                                                + e.message);
+                    () => {}
                 }
             }
             error convError => {

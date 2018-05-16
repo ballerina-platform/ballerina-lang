@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.websub.BallerinaWebSubException;
 import org.ballerinalang.net.websub.hub.Hub;
 
 /**
@@ -48,11 +49,11 @@ public class PublishToInternalHub extends BlockingNativeCallableUnit {
         String topic = context.getStringArgument(0);
         BJSON jsonPayload = (BJSON) context.getRefArgument(0);
         String payload = jsonPayload.stringValue();
-        String errorMessage = Hub.getInstance().publish(topic, payload);
-        if (errorMessage.isEmpty()) {
+        try {
+            Hub.getInstance().publish(topic, payload);
             context.setReturnValues();
-        } else {
-            context.setReturnValues(BLangVMErrors.createError(context, errorMessage));
+        } catch (BallerinaWebSubException e) {
+            context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));
         }
     }
 

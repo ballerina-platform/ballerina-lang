@@ -412,21 +412,11 @@ public function WebSubHub::publishUpdate(string topic, json payload) returns err
 }
 
 public function WebSubHub::registerTopic(string topic) returns error? {
-    string errorMessage = registerTopicAtHub(topic, "");
-    if (errorMessage != "") {
-        error webSubError = {message:errorMessage};
-        return webSubError;
-    }
-    return;
+    return registerTopicAtHub(topic, "");
 }
 
 public function WebSubHub::unregisterTopic(string topic) returns error? {
-    string errorMessage = unregisterTopicAtHub(topic, "");
-    if (errorMessage != "") {
-        error webSubError = {message:errorMessage};
-        return webSubError;
-    }
-    return;
+    return unregisterTopicAtHub(topic, "");
 }
 
 ///////////////////////////////////////////////////////////////////
