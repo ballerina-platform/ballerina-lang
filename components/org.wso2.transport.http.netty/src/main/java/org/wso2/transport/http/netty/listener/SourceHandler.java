@@ -274,6 +274,11 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         } else if (evt instanceof SslCloseCompletionEvent) {
             log.debug("SSL close completion event received");
         } else if (evt instanceof ChannelInputShutdownReadComplete) {
+            // When you try to read from a channel which has already been closed by the peer,
+            // 'java.io.IOException: Connection reset by peer' is thrown and it is a harmless exception.
+            // We can ignore this most of the time. see 'https://github.com/netty/netty/issues/2332'.
+            // As per the code, when an IOException is thrown when reading from a channel, it closes the channel.
+            // When closing the channel, if it is already closed it will trigger this event. So we can ignore this.
             log.debug("Input side of the connection is already shutdown");
         } else {
             log.warn("Unexpected user event {} triggered", evt.toString());
