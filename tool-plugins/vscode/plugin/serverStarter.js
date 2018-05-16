@@ -22,9 +22,11 @@ const path = require('path');
 const { spawn } = require('child_process');
 const openport = require('openport');
 const { workspace, window } = require('vscode');
+const glob = require('glob');
 
 let serverProcess;
-const libPath = '/bre/lib/*'
+const libPath = '/bre/lib/*';
+const jrePath = '/bre/lib/jre*';
 const composerlibPath = '/lib/resources/composer/services/*';
 const main = 'org.ballerinalang.vscode.server.Main';
 const log = require('./logger');
@@ -44,6 +46,24 @@ function getClassPath() {
         classpath =  customClassPath + sep + classpath;
     }
     return classpath;
+}
+
+function getExcecutable() {
+    var glob = require("glob")
+
+    let excecutable = 'java';
+    const { JAVA_HOME } = process.env;
+    const sdkPath = workspace.getConfiguration('ballerina').get('home');
+    const files = glob.sync(path.join(sdkPath, jrePath));
+
+    if (files[0]) {
+        log(`Using java from ballerina.home: ${files[0]}`);
+        excecutable = path.join(files[0], 'bin', 'java');
+    } else if (JAVA_HOME) {
+        log(`Using java from JAVA_HOME: ${JAVA_HOME}`);
+        excecutable = path.join(JAVA_HOME, 'bin', 'java');
+    }
+    return excecutable;
 }
 
 function startServices() {
@@ -90,7 +110,8 @@ function startServices() {
             const balHomeSysProp = `-Dballerina.home=${balHomePath}`;
 
             log(`Starting parser service on: ${parserPort}`);
-            serverProcess = spawn('java', [balHomeSysProp, ...args, main, LSPort, parserPort]);
+
+            serverProcess = spawn(getExcecutable(), [balHomeSysProp, ...args, main, LSPort, parserPort]);
 
             serverProcess.on('error', (e) => {
                 log(`Could not start services ${e}\n`, true);

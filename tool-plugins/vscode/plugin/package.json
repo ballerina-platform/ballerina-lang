@@ -177,6 +177,7 @@
         "package": "vsce package"
     },
     "dependencies": {
+        "glob": "^7.1.2",
         "lodash": "^4.17.5",
         "openport": "0.0.4",
         "request-promise": "^4.2.2",
