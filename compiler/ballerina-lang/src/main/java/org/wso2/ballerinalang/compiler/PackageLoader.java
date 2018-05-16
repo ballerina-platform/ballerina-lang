@@ -270,6 +270,7 @@ public class PackageLoader {
         }
 
         this.symbolEnter.definePackage(bLangPackage);
+        bLangPackage.symbol.compiledPackage = createInMemoryCompiledPackage(bLangPackage);
         return bLangPackage;
     }
 
@@ -379,10 +380,6 @@ public class PackageLoader {
 
     private CompiledPackage createInMemoryCompiledPackage(BLangPackage pkgNode) {
         PackageID packageID = pkgNode.packageID;
-        // TODO find a better solution
-        if (Names.BUILTIN_ORG.value.equals(packageID.getOrgName().value)) {
-            return null;
-        }
         InMemoryCompiledPackage compiledPackage = new InMemoryCompiledPackage(packageID);
 
         // Get the list of source entries.
@@ -394,7 +391,7 @@ public class PackageLoader {
             compiledPackage.srcEntries = srcPathStream
                     .filter(path -> Files.exists(path, LinkOption.NOFOLLOW_LINKS))
                     .map(projectPath::relativize)
-                    .map(path -> new PathBasedCompiledPackageEntry(path, CompilerOutputEntry.Kind.SRC))
+                    .map(path -> new PathBasedCompiledPackageEntry(projectPath, path, CompilerOutputEntry.Kind.SRC))
                     .collect(Collectors.toList());
 
             // Get the Package.md file
@@ -402,8 +399,8 @@ public class PackageLoader {
             pkgMDPattern.convert(projectSourceRepo.getConverterInstance())
                     .filter(pkgMDPath -> Files.exists(pkgMDPath, LinkOption.NOFOLLOW_LINKS))
                     .map(projectPath::relativize)
-                    .map(pkgMDPath -> new PathBasedCompiledPackageEntry(pkgMDPath,
-                            CompilerOutputEntry.Kind.ROOT))
+                    .map(pkgMDPath -> new PathBasedCompiledPackageEntry(projectPath, pkgMDPath,
+                                                                        CompilerOutputEntry.Kind.ROOT))
                     .findAny()
                     .ifPresent(pkgEntry -> compiledPackage.pkgMDEntry = pkgEntry);
         }

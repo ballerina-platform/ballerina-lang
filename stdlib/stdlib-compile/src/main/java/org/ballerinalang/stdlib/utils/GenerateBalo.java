@@ -19,12 +19,19 @@ package org.ballerinalang.stdlib.utils;
 
 
 import org.ballerinalang.compiler.CompilerPhase;
-import org.wso2.ballerinalang.compiler.Compiler;
+import org.ballerinalang.repository.CompiledPackage;
+import org.wso2.ballerinalang.compiler.BinaryFileWriter;
+import org.wso2.ballerinalang.compiler.CompilerDriver;
+import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
@@ -39,19 +46,40 @@ public class GenerateBalo {
 
     public static void main(String[] args) throws IOException {
         String sourceRoot = args[0];
+        String targetDir = args[1];
+        String fileName = args[2];
         Files.createDirectories(Paths.get(sourceRoot).resolve(".ballerina"));
 
         CompilerContext context = new CompilerContext();
+        context.put(SourceDirectory.class, new MvnSourceDirectory(sourceRoot, targetDir));
+
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
 
-        Compiler compiler = Compiler.getInstance(context);
-        try {
-            compiler.build();
-        } catch (Exception ex) {
-            // TODO: remove exception catching after fixing
-            ex.printStackTrace();
+        SymbolTable symbolTable = SymbolTable.getInstance(context);
+        CompilerDriver driver = CompilerDriver.getInstance(context);
+
+        driver.loadBuiltinPackage();
+        BinaryFileWriter writer = BinaryFileWriter.getInstance(context);
+        BPackageSymbol symbol = symbolTable.builtInPackageSymbol;
+        writer.writeLibraryPackage(symbol, fileName);
+    }
+
+    private static class MvnSourceDirectory extends FileSystemProjectDirectory {
+
+        private final String targetDir;
+
+        MvnSourceDirectory(String sourceRoot, String targetDir) {
+            super(Paths.get(sourceRoot));
+            this.targetDir = targetDir;
+        }
+
+        @Override
+        public void saveCompiledPackage(CompiledPackage compiledPackage,
+                                        Path dirPath,
+                                        String fileName) throws IOException {
+            super.saveCompiledPackage(compiledPackage, Paths.get(targetDir), fileName);
         }
     }
 }
