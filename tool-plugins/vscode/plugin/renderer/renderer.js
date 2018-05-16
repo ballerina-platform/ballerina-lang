@@ -1,15 +1,11 @@
 const request = require('request-promise');
-const { getParserService, setOutputChannel } = require('../serverStarter');
+const { getParserService } = require('../serverStarter');
+const log = require('../logger');
 
 const RETRY_COUNT = 5;
 const RETRY_WAIT = 1000;
 
 let jsonModel;
-let outputChannel = {
-    // By default just ignore all calls to outputchannel
-    append: () => {},
-    show: () => {},
-};
 
 
 function render (content, retries=1) {
@@ -37,18 +33,16 @@ function render (content, retries=1) {
         return renderDiagram(jsonModel, stale);
     })
     .catch((e) => {
-        outputChannel.append(`Error in parser service ${e} \n`);
+        log(`Error in parser service`);
         return new Promise((res, rej) => {
             if (retries > RETRY_COUNT) {
-                outputChannel.append('Could not render\n');
-                outputChannel.show();
+                log.append('Could not render');
                 res(renderError());
                 return;
             }
 
             setTimeout(() => {
-                console.log(`Retrying rendering ${retries}/${RETRY_COUNT}\n`);
-                outputChannel.append(`Retrying rendering ${retries}/${RETRY_COUNT}\n`);
+                log(`Retrying rendering ${retries}/${RETRY_COUNT}\n`);
                 res(render(content, retries + 1));
             }, RETRY_WAIT);
         });
@@ -183,8 +177,6 @@ function renderError() {
 }
 
 module.exports.render = render;
-module.exports.activate = (out) => {
-    outputChannel = out;
-    setOutputChannel(out);
+module.exports.activate = () => {
     return getParserService();
 }
