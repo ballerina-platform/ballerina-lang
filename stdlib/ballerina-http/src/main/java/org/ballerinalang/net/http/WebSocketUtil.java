@@ -203,6 +203,6 @@ public abstract class WebSocketUtil {
 
     public static void readFirstFrame(WebSocketConnection webSocketConnection, BStruct webSocketConnector) {
         webSocketConnection.readNextFrame();
-        webSocketConnector.setBooleanField(0, 1);
+        webSocketConnector.setBooleanField(WebSocketConstants.CONNECTOR_IS_READY_INDEX, 1);
     }
 }

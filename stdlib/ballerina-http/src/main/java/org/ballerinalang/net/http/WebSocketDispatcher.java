@@ -236,7 +236,7 @@ public class WebSocketDispatcher {
         WebSocketConnection webSocketConnection = controlMessage.getWebSocketConnection();
         webSocketConnection.pong(controlMessage.getPayload()).addListener(future -> {
             Throwable cause = future.cause();
-            if (cause != null) {
+            if (!future.isSuccess() && cause != null) {
                 ErrorHandlerUtils.printError(cause);
             }
             webSocketConnection.readNextFrame();
