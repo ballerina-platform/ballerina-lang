@@ -274,7 +274,7 @@ public class TargetChannel {
         });
     }
 
-    private void resetState(HTTPCarbonMessage httpOutboundRequest) {
+    public void resetState(HTTPCarbonMessage httpOutboundRequest) {
         httpOutboundRequest.removeHttpContentAsyncFuture();
         contentList.clear();
         contentLength = 0;

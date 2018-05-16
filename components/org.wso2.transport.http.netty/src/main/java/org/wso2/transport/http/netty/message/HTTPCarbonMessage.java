@@ -76,13 +76,13 @@ public class HTTPCarbonMessage {
      * @param httpContent chunks of the payload.
      */
     public synchronized void addHttpContent(HttpContent httpContent) {
-        if (this.messageFuture != null) {
-            this.messageFuture.notifyMessageListener(httpContent);
-            this.contentObservable.notifyAddListener(httpContent);
-            this.contentObservable.notifyGetListener(httpContent);
+        contentObservable.notifyAddListener(httpContent);
+        if (messageFuture != null) {
+            contentObservable.notifyGetListener(httpContent);
+            blockingEntityCollector.addHttpContent(httpContent);
+            messageFuture.notifyMessageListener(blockingEntityCollector.getHttpContent());
         } else {
-            this.blockingEntityCollector.addHttpContent(httpContent);
-            this.contentObservable.notifyAddListener(httpContent);
+            blockingEntityCollector.addHttpContent(httpContent);
         }
     }
 
