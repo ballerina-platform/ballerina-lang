@@ -43,7 +43,7 @@ let exportConfig = {};
 const codepoints = {}
 
 const config = [{
-    target: 'web',
+    target: 'electron-renderer',
     entry: {
         tree: './src/plugins/ballerina/model/tree-builder.js',
         bundle: './src/index.js',
@@ -219,7 +219,6 @@ const config = [{
         'react/lib/ExecutionEnvironment': true,
         'react/lib/ReactContext': true,
     },
-    node: { module: 'empty', net: 'empty', fs: 'empty' },
     devtool: 'source-map',
     resolve: {
         extensions: ['.js', '.json', '.jsx'],

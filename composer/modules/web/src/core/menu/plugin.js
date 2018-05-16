@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { ipcRenderer } from 'electron';
 import log from 'log';
 import _ from 'lodash';
 import Plugin from './../plugin/plugin';
@@ -27,6 +28,7 @@ import { getHandlerDefinitions } from './handlers';
 import { PLUGIN_ID, VIEW_IDS, MENU_DEF_TYPES } from './constants';
 
 import AppMenuView from './views/AppMenu';
+import { isOnElectron } from '../utils/client-info';
 
 /**
  * MenuPlugin is responsible for rendering menu items.
@@ -108,6 +110,12 @@ class MenuPlugin extends Plugin {
     activate(appContext) {
         super.activate(appContext);
         this.generateMenuFromDefinitions();
+        if (isOnElectron()) {
+            ipcRenderer.send('main-menu-loaded', this.roots);
+            ipcRenderer.on('menu-item-clicked', (e, commandId) => {
+                this.appContext.command.dispatch(commandId);
+            });
+        }
     }
 
     /**

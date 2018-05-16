@@ -20,6 +20,7 @@ const url = require('url');
 const path = require('path');
 const electron = require('electron');
 const setupNativeWizards = require('./workspace.js');
+const setupMenu = require('./menu');
 
 function createWindow (pageURL, show = true) {
 
@@ -33,7 +34,8 @@ function createWindow (pageURL, show = true) {
         show
     });
 
-    //setupNativeWizards(win);
+    setupMenu();
+    setupNativeWizards(win);
 
     win.loadURL(pageURL);
 

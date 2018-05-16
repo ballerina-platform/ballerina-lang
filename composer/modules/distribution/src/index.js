@@ -16,7 +16,7 @@
  * under the License.
  *
  */
-const { app } = require('electron');
+const { app, ipcMain } = require('electron');
 const path = require('path');
 const os = require('os');
 const process = require('process');

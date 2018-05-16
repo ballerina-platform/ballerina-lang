@@ -23,33 +23,24 @@ function registerMenuLoader() {
     // remove the stock menu
     Menu.setApplicationMenu(Menu.buildFromTemplate([]));
 
-    ipcMain.on('main-menu-loaded', (event, menu) => {
-        _addClickHandlers(menu, event.sender);
-        Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
-    });
-}
-
-function _addClickHandlers(menus, webContents) {
-    Object.keys(menus).forEach(menuId => {
-        const menu = menus[menuId];
-        _addClickHandler(menu, webContents);
-    });
-}
-
-function _addClickHandler(menuItem, webContents) {
-    if(menuItem.submenu){
-        menuItem.submenu.map(subItem => {
-            return _addClickHandler(subItem, webContents);
+    ipcMain.on('main-menu-loaded', (event, menus) => {
+        
+        const template = menus.map((menu) => {
+            return {
+                label: menu.label,
+                submenu: menu.children.map((childMenu) => {
+                    console.log(childMenu);
+                    return {
+                        label: childMenu.label,
+                        click: () => {
+                            event.sender.send('menu-item-clicked', childMenu.command);
+                        }
+                    }
+                })
+            }
         });
-    }
-
-    if(menuItem.commandId){
-        var commandId = menuItem.commandId;
-        menuItem.click = () => {
-            webContents.send('menu-item-clicked', commandId);
-        };
-        delete menuItem.commandId;
-    }
+        Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+    });
 }
 
 module.exports = registerMenuLoader;
