@@ -112,6 +112,7 @@ import org.ballerinalang.plugins.idea.psi.reference.BallerinaCompletePackageName
 import org.ballerinalang.plugins.idea.psi.reference.BallerinaPackageNameReference;
 import org.ballerinalang.plugins.idea.sdk.BallerinaPathModificationTracker;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
+import org.ballerinalang.plugins.idea.sdk.BallerinaSdkUtil;
 import org.ballerinalang.plugins.idea.stubs.BallerinaPackageVersionStub;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -119,6 +120,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -1468,6 +1470,15 @@ public class BallerinaPsiImplUtil {
         return null;
     }
 
+    @Nullable
+    public static VirtualFile getSDKSrcRoot(@NotNull Project project, @Nullable Module module) {
+        LinkedHashSet<VirtualFile> sources = BallerinaSdkUtil.getSourcesPathsToLookup(project, module);
+        if (sources.isEmpty()) {
+            return null;
+        }
+        return ContainerUtil.getFirstItem(sources);
+    }
+
     /**
      * Find the specified file in the project and returns the corresponding {@link PsiFile}.
      *
@@ -1536,41 +1547,90 @@ public class BallerinaPsiImplUtil {
     }
 
     public static boolean isAlreadyImported(@NotNull List<BallerinaImportDeclaration> allImportsInPackage,
-                                            @NotNull String organization, @NotNull String packageName) {
+                                            @Nullable String organization, @NotNull String packageName) {
         for (BallerinaImportDeclaration importDeclaration : allImportsInPackage) {
-            BallerinaOrgName orgName = importDeclaration.getOrgName();
-            if (orgName == null) {
-                continue;
-            }
-            BallerinaCompletePackageName completePackageName = importDeclaration.getCompletePackageName();
-            if (completePackageName == null) {
-                continue;
-            }
-            if (orgName.getText().equalsIgnoreCase(organization) && completePackageName.getText().equals(packageName)) {
-                return true;
+            // Organization can be null if the package is in the project.
+            if (organization == null) {
+                // If the organization is null, imported package should not have any organization.
+                BallerinaOrgName orgName = importDeclaration.getOrgName();
+                if (orgName != null) {
+                    continue;
+                }
+                // Get the package name.
+                BallerinaCompletePackageName completePackageName = importDeclaration.getCompletePackageName();
+                if (completePackageName == null) {
+                    continue;
+                }
+                // Check the package name. If they match, we have already imported that package.
+                if (completePackageName.getText().equals(packageName)) {
+                    return true;
+                }
+            } else {
+                // Get the organization name. It should not be empty. If it is empty, we continue with the next
+                // import declaration.
+                BallerinaOrgName orgName = importDeclaration.getOrgName();
+                if (orgName == null) {
+                    continue;
+                }
+                // Get the package name from import declaration.
+                BallerinaCompletePackageName completePackageName = importDeclaration.getCompletePackageName();
+                if (completePackageName == null) {
+                    continue;
+                }
+                // Check the organization and the package name.
+                if (orgName.getText().equalsIgnoreCase(organization)
+                        && completePackageName.getText().equals(packageName)) {
+                    return true;
+                }
             }
         }
         return false;
     }
 
-    private List<VirtualFile> getPackagesFromSDK() {
-        List<VirtualFile> packages = ContainerUtil.emptyList();
+    private static List<VirtualFile> getPackagesFromSDK(@NotNull Project project, @Nullable Module module) {
+        List<VirtualFile> packages = ContainerUtil.newArrayList();
+        VirtualFile sourceRoot = getSDKSrcRoot(project, module);
+        if (sourceRoot == null) {
+            return packages;
+        }
+        VirtualFile[] children = sourceRoot.getChildren();
+        for (VirtualFile child : children) {
+            if (!child.isDirectory()) {
+                continue;
+            }
+            packages.add(child);
+        }
         return packages;
     }
 
-    public static List<LookupElement> getAllUnImportedImports(@NotNull Project project,
+    public static List<LookupElement> getAllUnImportedImports(@NotNull Project project, @Nullable Module module,
                                                               @NotNull List<BallerinaImportDeclaration>
                                                                       allImportedPackages) {
         List<LookupElement> imports = new LinkedList<>();
         // From local project
 
-        // From SDK
+        // Get packages from SDK.
+        List<VirtualFile> packages = getPackagesFromSDK(project, module);
+        String organizationName = "ballerina";
+        for (VirtualFile aPackage : packages) {
+            PsiDirectory directory = PsiManager.getInstance(project).findDirectory(aPackage);
+            if (directory == null) {
+                continue;
+            }
+            String packageName = directory.getName();
+            if (isAlreadyImported(allImportedPackages, organizationName, packageName)) {
+                continue;
+            }
+            LookupElement lookup = BallerinaCompletionUtils.createUnImportedPackageLookup(organizationName,
+                    packageName, directory, AutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+            imports.add(lookup);
+        }
 
-        // From user repository
+        // Get packages from user repository.
         List<VirtualFile> organizations = BallerinaPathModificationTracker.getAllOrganizationsInUserRepo();
         for (VirtualFile organization : organizations) {
-            String organizationName = organization.getName();
-            List<VirtualFile> packages = BallerinaPathModificationTracker.getPackagesFromOrganization(organizationName);
+            organizationName = organization.getName();
+            packages = BallerinaPathModificationTracker.getPackagesFromOrganization(organizationName);
             for (VirtualFile aPackage : packages) {
                 PsiDirectory directory = PsiManager.getInstance(project).findDirectory(aPackage);
                 if (directory == null) {

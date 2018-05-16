@@ -1,6 +1,8 @@
 package org.ballerinalang.plugins.idea.psi.scopeprocessors;
 
 import com.intellij.codeInsight.completion.CompletionResultSet;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.ResolveState;
@@ -58,8 +60,11 @@ public class BallerinaPackageNameProcessor extends BallerinaScopeProcessorBase {
             }
             // Todo - Add all un-imported imports.
             if (myResult != null) {
-                myResult.addAllElements(BallerinaPsiImplUtil.getAllUnImportedImports(element.getProject(),
-                        cachedImports));
+                Module module = ModuleUtilCore.findModuleForPsiElement(element);
+                if (module != null) {
+                    myResult.addAllElements(BallerinaPsiImplUtil.getAllUnImportedImports(element.getProject(), module,
+                            cachedImports));
+                }
             }
         }
         return true;
