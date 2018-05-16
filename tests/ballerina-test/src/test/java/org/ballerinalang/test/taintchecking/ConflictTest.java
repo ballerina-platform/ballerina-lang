@@ -39,7 +39,7 @@ public class ConflictTest {
         Assert.assertTrue(result.getDiagnostics().length == 0);
     }
 
-    @Test
+    @Test (enabled = false)
     public void testRecursionNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/conflicts/recursion-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length == 1);
@@ -55,7 +55,7 @@ public class ConflictTest {
         Assert.assertTrue(result.getDiagnostics().length == 0);
     }
 
-    @Test
+    @Test (enabled = false)
     public void testRecursionWithinAttachedExternalFunctionsNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/conflicts/recursion-within-attached-external-function-negative.bal");
@@ -77,7 +77,7 @@ public class ConflictTest {
         Assert.assertTrue(result.getDiagnostics().length == 0);
     }
 
-    @Test
+    @Test (enabled = false)
     public void testCyclicCallNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/conflicts/cyclic-call-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length == 3);
