@@ -167,9 +167,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -220,7 +218,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private static final int ALL_UNTAINTED_TABLE_ENTRY_INDEX = -1;
     private static final int RETURN_TAINTED_STATUS_COLUMN_INDEX = 0;
 
-    private enum AnalyzerPhase { INITIAL_ANALYSIS, BLOCKED_NODE_ANALYSIS };
+    private enum AnalyzerPhase { INITIAL_ANALYSIS, BLOCKED_NODE_ANALYSIS }
     private AnalyzerPhase analyzerPhase;
 
     public static TaintAnalyzer getInstance(CompilerContext context) {
@@ -530,7 +528,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             nonOverridingAnalysis = false;
         } else if (varRefExpr instanceof BLangFieldBasedAccess) {
             BLangFieldBasedAccess fieldBasedAccessExpr = (BLangFieldBasedAccess) varRefExpr;
-            // Propagate tainted status to fields, when field symbols are present (Example: structs).
+            // Propagate tainted status to fields, when field symbols are present (Example: struct).
             if (fieldBasedAccessExpr.symbol != null) {
                 setTaintedStatus(fieldBasedAccessExpr, varTaintedStatus);
             }
@@ -812,8 +810,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (taintedStatus == null) {
             workerInteractionTaintedStatusMap.put(workerSendNode.workerIdentifier, getObservedTaintedStatus());
         } else if (getObservedTaintedStatus()) {
-            taintedStatus = getObservedTaintedStatus();
-            workerInteractionTaintedStatusMap.put(workerSendNode.workerIdentifier, taintedStatus);
+            workerInteractionTaintedStatusMap.put(workerSendNode.workerIdentifier, true);
         }
     }
 
@@ -858,7 +855,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             if (keyValuePair.key.fieldSymbol != null) {
                 if (!nonOverridingAnalysis) {
                     keyValuePair.key.fieldSymbol.tainted = getObservedTaintedStatus();
-                } else if (nonOverridingAnalysis && !keyValuePair.key.fieldSymbol.tainted) {
+                } else if (!keyValuePair.key.fieldSymbol.tainted) {
                     keyValuePair.key.fieldSymbol.tainted = getObservedTaintedStatus();
                 }
             }
@@ -1033,18 +1030,15 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLAttribute xmlAttribute) {
-        SymbolEnv xmlAttributeEnv = SymbolEnv.getXMLAttributeEnv(xmlAttribute, env);
         xmlAttribute.name.accept(this);
-        boolean attrNameTainedStatus = getObservedTaintedStatus();
+        boolean attrNameTaintedStatus = getObservedTaintedStatus();
         xmlAttribute.value.accept(this);
-        boolean attrValueTainedStatus = getObservedTaintedStatus();
-        this.taintedStatus = attrNameTainedStatus || attrValueTainedStatus;
+        boolean attrValueTaintedStatus = getObservedTaintedStatus();
+        this.taintedStatus = attrNameTaintedStatus || attrValueTaintedStatus;
     }
 
     @Override
     public void visit(BLangXMLElementLiteral xmlElementLiteral) {
-        SymbolEnv xmlElementEnv = SymbolEnv.getXMLElementEnv(xmlElementLiteral, env);
-
         // Visit in-line namespace declarations
         boolean inLineNamespaceTainted = false;
         for (BLangXMLAttribute attribute : xmlElementLiteral.attributes) {
@@ -1373,8 +1367,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean hasAnnotation(List<BLangAnnotationAttachment> annotationAttachmentList, String expectedAnnotation) {
-        return annotationAttachmentList.stream()
-                .filter(annotation -> annotation.annotationName.value.equals(expectedAnnotation)).count() > 0;
+        return annotationAttachmentList.stream().anyMatch(annotation ->
+                annotation.annotationName.value.equals(expectedAnnotation));
     }
 
 
@@ -1389,7 +1383,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private void setTaintedStatus(BLangVariable varNode, boolean taintedStatus) {
         if (!nonOverridingAnalysis) {
             varNode.symbol.tainted = taintedStatus;
-        } else if (nonOverridingAnalysis && !varNode.symbol.tainted) {
+        } else if (!varNode.symbol.tainted) {
             varNode.symbol.tainted = taintedStatus;
         }
     }
@@ -1405,7 +1399,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private void setTaintedStatus(BLangVariableReference varNode, boolean taintedStatus) {
         if (!nonOverridingAnalysis) {
             varNode.symbol.tainted = taintedStatus;
-        } else if (nonOverridingAnalysis && !varNode.symbol.tainted) {
+        } else if (!varNode.symbol.tainted) {
             varNode.symbol.tainted = taintedStatus;
         }
     }
@@ -1423,16 +1417,15 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private void visitEntryPoint(BLangInvokableNode invNode, SymbolEnv funcEnv) {
         // Entry point input parameters are all tainted, since they contain user controlled data.
         // If any value has been marked "sensitive" generate an error.
-        if (!isEntryPointParamsValid(invNode.requiredParams)) {
+        if (isEntryPointParamsInvalid(invNode.requiredParams)) {
             return;
         }
         List<BLangVariable> defaultableParamsVarList = new ArrayList<>();
         invNode.defaultableParams.forEach(defaultableParam -> defaultableParamsVarList.add(defaultableParam.var));
-        if (!isEntryPointParamsValid(defaultableParamsVarList)) {
+        if (isEntryPointParamsInvalid(defaultableParamsVarList)) {
             return;
         }
-        if (invNode.restParam != null && !isEntryPointParamsValid(
-                Arrays.asList(new BLangVariable[] { invNode.restParam }))) {
+        if (invNode.restParam != null && isEntryPointParamsInvalid(Collections.singletonList(invNode.restParam))) {
             return;
         }
         // Perform end point analysis.
@@ -1446,25 +1439,23 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
         entryPointAnalysis = false;
         // Display errors only if scan of was fully complete, so that errors will not get duplicated.
-        taintErrorSet.forEach(error -> {
-            this.dlog.error(error.pos, error.diagnosticCode, error.paramName);
-        });
+        taintErrorSet.forEach(error -> this.dlog.error(error.pos, error.diagnosticCode, error.paramName));
         taintErrorSet.clear();
         invNode.symbol.taintTable = new HashMap<>();
     }
 
-    private boolean isEntryPointParamsValid(List<BLangVariable> params) {
+    private boolean isEntryPointParamsInvalid(List<BLangVariable> params) {
         if (params != null) {
             for (BLangVariable param : params) {
                 param.symbol.tainted = true;
                 if (hasAnnotation(param, ANNOTATION_SENSITIVE)) {
                     this.dlog.error(param.pos, DiagnosticCode.ENTRY_POINT_PARAMETERS_CANNOT_BE_SENSITIVE,
                             param.name.value);
-                    return false;
+                    return true;
                 }
             }
         }
-        return true;
+        return false;
     }
 
     private void visitInvokable(BLangInvokableNode invNode, SymbolEnv symbolEnv) {
@@ -1544,7 +1535,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         resetTaintedStatusOfVariables(invokableNode.requiredParams);
         resetTaintedStatusOfVariableDef(invokableNode.defaultableParams);
         if (invokableNode.restParam != null) {
-            resetTaintedStatusOfVariables(Arrays.asList(new BLangVariable[] { invokableNode.restParam }));
+            resetTaintedStatusOfVariables(Collections.singletonList(invokableNode.restParam));
         }
         // Mark the given parameter "tainted".
         if (paramIndex != ALL_UNTAINTED_TABLE_ENTRY_INDEX) {
@@ -1619,7 +1610,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     private void attachTaintTableBasedOnAnnotations(BLangInvokableNode invokableNode) {
         if (invokableNode.symbol.taintTable == null) {
-            // Extract tainted status of the function by lookint at annotations added to returns.
+            // Extract tainted status of the function by looking at annotations added to returns.
             List<Boolean> retParamsTaintedStatus = new ArrayList<>();
             retParamsTaintedStatus.add(hasAnnotation(invokableNode.returnTypeAnnAttachments, ANNOTATION_TAINTED));
 
@@ -1733,7 +1724,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     private void addToBlockedList(BLangInvocation invocationExpr) {
         BlockingNode blockingNode = new BlockingNode(invocationExpr.symbol.pkgID, invocationExpr.symbol.name);
-        this.blockedNode = new BlockedNode(this.currPkgEnv, null, invocationExpr.pos, blockingNode);
+        this.blockedNode = new BlockedNode(this.currPkgEnv, invocationExpr.pos, blockingNode);
         taintedStatus = false;
         throw new InvokableAnalysisBlockedOnDependencyException();
     }
@@ -1751,8 +1742,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             addTaintError(allParamsUntaintedRecord.taintError);
         } else {
             if (taintTable.get(ALL_UNTAINTED_TABLE_ENTRY_INDEX).retParamTaintedStatus.size() > 0) {
-                returnTaintedStatus = new Boolean(taintTable.get(ALL_UNTAINTED_TABLE_ENTRY_INDEX).retParamTaintedStatus
-                        .get(RETURN_TAINTED_STATUS_COLUMN_INDEX));
+                returnTaintedStatus = taintTable.get(ALL_UNTAINTED_TABLE_ENTRY_INDEX).retParamTaintedStatus
+                        .get(RETURN_TAINTED_STATUS_COLUMN_INDEX);
             }
         }
         if (invocationExpr.argExprs != null) {
@@ -1768,14 +1759,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 BLangExpression argExpr = invocationExpr.namedArgs.get(argIndex);
                 if (argExpr instanceof BLangNamedArgsExpression) {
                     String currentNamedArgExprName = ((BLangNamedArgsExpression) argExpr).name.value;
-                    int defaultableParamsInitialIndex = requiredParamCount;
                     // Pick the index of this defaultable parameter in the invokable definition.
                     int paramIndex = 0;
                     for (int defaultableParamIndex = 0; defaultableParamIndex < invokableSymbol.defaultableParams
                             .size(); defaultableParamIndex++) {
                         BVarSymbol defaultableParam = invokableSymbol.defaultableParams.get(defaultableParamIndex);
                         if (defaultableParam.name.value.equals(currentNamedArgExprName)) {
-                            paramIndex = defaultableParamsInitialIndex + defaultableParamIndex;
+                            paramIndex = requiredParamCount + defaultableParamIndex;
                             break;
                         }
                     }
@@ -1835,10 +1825,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                             DiagnosticCode.TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER);
                 }
             } else {
-                if (taintRecord.retParamTaintedStatus.size() > 0
-                        && taintRecord.retParamTaintedStatus.get(RETURN_TAINTED_STATUS_COLUMN_INDEX)) {
-                    return true;
-                }
+                return taintRecord.retParamTaintedStatus.size() > 0
+                        && taintRecord.retParamTaintedStatus.get(RETURN_TAINTED_STATUS_COLUMN_INDEX);
             }
         }
         return false;
@@ -1866,7 +1854,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 }
                 // If there are blocked nodes remaining, add them to the new map.
                 if (remainingBlockedNodeList.size() > 0) {
-                    blockingNode.blockedNodeCount = remainingBlockedNodeList.size();
                     remainingBlockedNodeMap.put(blockingNode, remainingBlockedNodeList);
                 } else {
                     remainingBlockedNodeMap.remove(blockingNode);
@@ -1953,19 +1940,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private static Map<BlockingNode, List<BlockedNode>> sortBlockingNodesByBlockedNodeCount(
             Map<BlockingNode, List<BlockedNode>> unsortMap) {
         List<Map.Entry<BlockingNode, List<BlockedNode>>> blockedNodeList = new LinkedList<>(unsortMap.entrySet());
-        Collections.sort(blockedNodeList, new Comparator<Map.Entry<BlockingNode, List<BlockedNode>>>() {
-            @Override
-            public int compare(Map.Entry<BlockingNode, List<BlockedNode>> o1,
-                               Map.Entry<BlockingNode, List<BlockedNode>> o2) {
-                if (o1.getValue().size() == o2.getValue().size()) {
-                    return 0;
-                } else if (o1.getValue().size() > o2.getValue().size()) {
-                    return -1;
-                } else {
-                    return 1;
-                }
-            }
-        });
+        blockedNodeList.sort((o1, o2) -> Integer.compare(o2.getValue().size(), o1.getValue().size()));
         Map<BlockingNode, List<BlockedNode>> sortedMap = new LinkedHashMap<>();
         for (Map.Entry<BlockingNode, List<BlockedNode>> entry : blockedNodeList) {
             sortedMap.put(entry.getKey(), entry.getValue());
@@ -1975,11 +1950,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     private class BlockingNode {
 
-        public PackageID packageID;
-        public Name name;
-        public int blockedNodeCount;
+        PackageID packageID;
+        Name name;
 
-        public BlockingNode(PackageID packageID, Name name) {
+        BlockingNode(PackageID packageID, Name name) {
             this.packageID = packageID;
             this.name = name;
         }
@@ -2011,15 +1985,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     private class BlockedNode {
 
-        public SymbolEnv pkgSymbol;
-        public BLangInvokableNode invokableNode;
-        public DiagnosticPos blockedPos;
-        public BlockingNode blockingNode;
+        SymbolEnv pkgSymbol;
+        BLangInvokableNode invokableNode;
+        DiagnosticPos blockedPos;
+        BlockingNode blockingNode;
 
-        public BlockedNode(SymbolEnv pkgSymbol, BLangInvokableNode invokableNode, DiagnosticPos blockedPos,
-                           BlockingNode blockingNode) {
+        BlockedNode(SymbolEnv pkgSymbol, DiagnosticPos blockedPos, BlockingNode blockingNode) {
             this.pkgSymbol = pkgSymbol;
-            this.invokableNode = invokableNode;
             this.blockedPos = blockedPos;
             this.blockingNode = blockingNode;
         }
