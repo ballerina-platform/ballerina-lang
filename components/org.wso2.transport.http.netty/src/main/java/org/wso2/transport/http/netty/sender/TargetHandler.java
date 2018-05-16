@@ -136,7 +136,8 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     private HTTPCarbonMessage setUpCarbonMessage(ChannelHandlerContext ctx, Object msg) {
         inboundResponseMsg = new HttpCarbonResponse((HttpResponse) msg, new DefaultListener(ctx));
-        inboundResponseMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
+        inboundResponseMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY,
+                new PooledDataStreamerFactory(ctx.alloc()));
 
         inboundResponseMsg.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
         HttpResponse httpResponse = (HttpResponse) msg;
@@ -318,7 +319,8 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     private boolean isKeepAlive(KeepAliveConfig keepAliveConfig) {
         switch (keepAliveConfig) {
             case AUTO:
-                if (Float.valueOf((String) getOutboundRequestMsg().getProperty(Constants.HTTP_VERSION)) > Constants.HTTP_1_0) {
+                if (Float.valueOf((String) getOutboundRequestMsg()
+                        .getProperty(Constants.HTTP_VERSION)) > Constants.HTTP_1_0) {
                     return true;
                 } else {
                     return false;
