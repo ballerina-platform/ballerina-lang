@@ -58,7 +58,7 @@ public class BallerinaPackageNameProcessor extends BallerinaScopeProcessorBase {
                     }
                 }
             }
-            // Todo - Add all un-imported imports.
+            // Add un-imported packages. These will be auto-imported.
             if (myResult != null) {
                 Module module = ModuleUtilCore.findModuleForPsiElement(element);
                 if (module != null) {

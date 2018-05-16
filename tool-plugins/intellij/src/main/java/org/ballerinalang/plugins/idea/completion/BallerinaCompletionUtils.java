@@ -470,10 +470,13 @@ public class BallerinaCompletionUtils {
         return PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY);
     }
 
-    public static LookupElement createUnImportedPackageLookup(@NotNull String organization, @NotNull String packageName,
+    public static LookupElement createUnImportedPackageLookup(@Nullable String organization,
+                                                              @NotNull String packageName,
                                                               @NotNull PsiElement element,
                                                               @Nullable InsertHandler<LookupElement> insertHandler) {
-        element.putUserData(ORGANIZATION_NAME, organization);
+        if (organization != null) {
+            element.putUserData(ORGANIZATION_NAME, organization);
+        }
         LookupElementBuilder builder = LookupElementBuilder.create(element, packageName).withTypeText("Package")
                 .withIcon(BallerinaIcons.PACKAGE).withInsertHandler(insertHandler);
         return PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY);

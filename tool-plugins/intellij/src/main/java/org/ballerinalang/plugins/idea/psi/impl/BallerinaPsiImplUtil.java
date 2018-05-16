@@ -1587,6 +1587,19 @@ public class BallerinaPsiImplUtil {
         return false;
     }
 
+    private static List<VirtualFile> getPackagesFromProject(@NotNull Project project) {
+        List<VirtualFile> packages = ContainerUtil.newArrayList();
+        VirtualFile projectBaseDir = project.getBaseDir();
+        VirtualFile[] children = projectBaseDir.getChildren();
+        for (VirtualFile child : children) {
+            if (!child.isDirectory() && child.getName().startsWith(".")) {
+                continue;
+            }
+            packages.add(child);
+        }
+        return packages;
+    }
+
     private static List<VirtualFile> getPackagesFromSDK(@NotNull Project project, @Nullable Module module) {
         List<VirtualFile> packages = ContainerUtil.newArrayList();
         VirtualFile sourceRoot = getSDKSrcRoot(project, module);
@@ -1608,9 +1621,23 @@ public class BallerinaPsiImplUtil {
                                                                       allImportedPackages) {
         List<LookupElement> imports = new LinkedList<>();
         // From local project
+        List<VirtualFile> packages = getPackagesFromProject(project);
+        for (VirtualFile aPackage : packages) {
+            PsiDirectory directory = PsiManager.getInstance(project).findDirectory(aPackage);
+            if (directory == null) {
+                continue;
+            }
+            String packageName = directory.getName();
+            if (isAlreadyImported(allImportedPackages, null, packageName)) {
+                continue;
+            }
+            LookupElement lookup = BallerinaCompletionUtils.createUnImportedPackageLookup(null, packageName,
+                    directory, AutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+            imports.add(lookup);
+        }
 
         // Get packages from SDK.
-        List<VirtualFile> packages = getPackagesFromSDK(project, module);
+        packages = getPackagesFromSDK(project, module);
         String organizationName = "ballerina";
         for (VirtualFile aPackage : packages) {
             PsiDirectory directory = PsiManager.getInstance(project).findDirectory(aPackage);
