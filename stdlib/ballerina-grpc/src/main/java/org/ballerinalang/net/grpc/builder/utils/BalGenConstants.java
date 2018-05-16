@@ -54,4 +54,18 @@ public class BalGenConstants {
     public static final String PACKAGE_SEPARATOR = ".";
     
     public static final String PACKAGE_SEPARATOR_REGEX = "\\.";
+    
+    static final String TEMPLATES_SUFFIX = ".mustache";
+    
+    static final String TEMPLATES_DIR_PATH_KEY = "templates.dir.path";
+    
+    private static final String DEFAULT_TEMPLATE_DIR = RESOURCE_SEPARATOR + "templates";
+    
+    public static final String DEFAULT_SKELETON_DIR = DEFAULT_TEMPLATE_DIR + RESOURCE_SEPARATOR + "skeleton";
+    
+    public static final String DEFAULT_SAMPLE_DIR = DEFAULT_TEMPLATE_DIR + RESOURCE_SEPARATOR + "skeleton";
+    
+    public static final String SKELETON_TEMPLATE_NAME = "clientStub";
+    
+    public static final String SAMPLE_TEMPLATE_NAME = "sample";
 }
