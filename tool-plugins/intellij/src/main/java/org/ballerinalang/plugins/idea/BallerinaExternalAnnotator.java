@@ -66,6 +66,9 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaExternalAnnotator.class);
 
+    private static String lastFileContent;
+    private static Data lastData;
+
     /**
      * This is called first to collect information.
      */
@@ -75,13 +78,25 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
         if (!BallerinaSemanticAnalyzerSettings.getInstance().useSemanticAnalyzer()) {
             return null;
         }
-
+        // Get the file content and cleanup newlines and spaces.
+        String content = file.getText().replaceAll("\n", "").replaceAll("\\s+", " ");
+        // If the contents are equal, that means that the user pressed enter or added some spaces. In that case, we
+        // don't need to call semantic analyzer again.
+        if (content.equals(lastFileContent)) {
+            return lastData;
+        }
         this.editor = editor;
+        // Update the last file content.
+        lastFileContent = content;
+
         VirtualFile virtualFile = file.getVirtualFile();
         String packageNameNode = getPackageName(file);
         // If method is not null, that means we have already loaded jars.
+        Data data = new Data(editor, file, packageNameNode);
+        lastData = data;
+
         if (method != null) {
-            return new Data(editor, file, packageNameNode);
+            return data;
         }
         Module module = ModuleUtilCore.findModuleForFile(virtualFile, file.getProject());
         if (module == null) {
@@ -115,7 +130,7 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
         } catch (MalformedURLException | NoSuchMethodException | ClassNotFoundException e) {
             LOGGER.debug(e.getMessage(), e);
         }
-        return new Data(editor, file, packageNameNode);
+        return data;
     }
 
     /**
