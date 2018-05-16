@@ -254,7 +254,7 @@ public class TableIterator implements DataIterator {
             return null;
         }
 
-        ArrayElementNullabilityAttributes nullabilityAttributes = getArrayElementNullabilityInfo(dataArray);
+        ArrayElementAttributes nullabilityAttributes = getArrayElementNullabilityInfo(dataArray);
         Object firstNonNullElement = nullabilityAttributes.getFirstNonNullElement();
         boolean containsNull = nullabilityAttributes.containsNull();
 
@@ -359,30 +359,33 @@ public class TableIterator implements DataIterator {
         return new BRefValueArray(new BRefType[length], unionType);
     }
 
-    private ArrayElementNullabilityAttributes getArrayElementNullabilityInfo(Object[] objects) {
-        ArrayElementNullabilityAttributes arrayElementNullabilityAttributes = new ArrayElementNullabilityAttributes();
+    private ArrayElementAttributes getArrayElementNullabilityInfo(Object[] objects) {
+        ArrayElementAttributes arrayElementAttributes = new ArrayElementAttributes();
         int i = 0;
         while (i < objects.length) {
             if (objects[i] != null) {
-                arrayElementNullabilityAttributes.setFirstNonNullElement(objects[i]);
+                arrayElementAttributes.setFirstNonNullElement(objects[i]);
                 if (i > 0) {
-                    arrayElementNullabilityAttributes.setContainsNull(true);
+                    // If the very first element is not the very first non-null element, that means the array
+                    // contains null elements
+                    arrayElementAttributes.setContainsNull(true);
                 }
                 i++;
                 break;
             }
             i++;
         }
-        if (!arrayElementNullabilityAttributes.containsNull()) {
+        // If we did not find out whether the array contains null, resume the loop here
+        if (!arrayElementAttributes.containsNull()) {
             while (i < objects.length) {
                 if (objects[i] == null) {
-                    arrayElementNullabilityAttributes.setContainsNull(true);
+                    arrayElementAttributes.setContainsNull(true);
                     break;
                 }
                 i++;
             }
         }
-        return arrayElementNullabilityAttributes;
+        return arrayElementAttributes;
     }
 
     private void generateColumnDefinitions() {
@@ -422,7 +425,7 @@ public class TableIterator implements DataIterator {
         }
     }
 
-    private static class ArrayElementNullabilityAttributes {
+    private static class ArrayElementAttributes {
         private Object firstNonNullElement;
         private boolean containsNull;
 

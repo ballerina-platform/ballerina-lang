@@ -56,11 +56,11 @@ public class TableTest {
     private CompileResult nillableMappingResult;
     private static final String DB_NAME = "TEST_DATA_TABLE_DB";
     private static final String TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD =
-            ".*Trying to assign a Nil value to a " + "non-nillable field.*";
+            ".*Trying to assign a Nil value to a non-nillable field.*";
     private static final String INVALID_UNION_FIELD_ASSIGNMENT =
-            ".*Corresponding Union type in the record is not an " + "assignable nillable type.*";
+            ".*Corresponding Union type in the record is not an assignable nillable type.*";
     private static final String TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_ARRAY_FIELD =
-            ".*Trying to assign an array " + "containing NULL values to an array of a non-nillable element type.*";
+            ".*Trying to assign an array containing NULL values to an array of a non-nillable element type.*";
     private static final double DELTA = 0.01;
 
     @BeforeClass

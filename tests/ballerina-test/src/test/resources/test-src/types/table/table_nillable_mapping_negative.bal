@@ -353,7 +353,7 @@ function testAssignArrayToInvalidField(typedesc invalidType, int id) {
     };
 
     table dt = check testDB->select("SELECT int_array, long_array, float_array, boolean_array,
-              string_array from ArrayTypes where row_id = " + id, invalidType);
+              string_array from ArrayTypes where row_id = ?", invalidType, id);
 
     try {
         while (dt.hasNext()) {
