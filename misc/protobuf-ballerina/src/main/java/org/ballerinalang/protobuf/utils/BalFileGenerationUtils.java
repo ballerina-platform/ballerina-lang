@@ -75,7 +75,7 @@ public class BalFileGenerationUtils {
                 .toLowerCase(Locale.ENGLISH).startsWith("windows");
         ProcessBuilder builder = new ProcessBuilder();
         if (isWindows) {
-            builder.command("cmd.exe", "/c", "dir");
+            builder.command("cmd.exe", "/c", command);
         } else {
             builder.command("sh", "-c", command);
         }

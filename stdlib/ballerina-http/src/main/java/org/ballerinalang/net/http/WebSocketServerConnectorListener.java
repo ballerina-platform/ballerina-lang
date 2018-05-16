@@ -128,11 +128,13 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                         WebSocketOpenConnectionInfo connectionInfo =
                                 connectionManager.getConnectionInfo(webSocketInitMessage.getSessionID());
                         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
+                        BStruct webSocketEndpoint = connectionInfo.getWebSocketEndpoint();
+                        BStruct webSocketConnector =
+                                (BStruct) webSocketEndpoint.getRefField(WebSocketConstants.LISTENER_CONNECTOR_INDEX);
                         if (onOpenResource != null) {
-                            BStruct webSocketEndpoint = connectionInfo.getWebSocketEndpoint();
                             WebSocketUtil.executeOnOpenResource(onOpenResource, webSocketEndpoint, webSocketConnection);
                         } else {
-                            connectionInfo.getWebSocketConnection().readNextFrame();
+                            WebSocketUtil.readFirstFrame(webSocketConnection, webSocketConnector);
                         }
                     }
                 }

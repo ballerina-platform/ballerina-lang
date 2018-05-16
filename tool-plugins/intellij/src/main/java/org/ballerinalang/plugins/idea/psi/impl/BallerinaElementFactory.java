@@ -20,11 +20,14 @@ package org.ballerinalang.plugins.idea.psi.impl;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFileFactory;
+import com.intellij.psi.impl.PsiParserFacadeImpl;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.BallerinaFunctionDefinition;
+import org.ballerinalang.plugins.idea.psi.BallerinaImportDeclaration;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Element factory which creates PSI nodes.
@@ -43,5 +46,24 @@ public class BallerinaElementFactory {
         BallerinaFunctionDefinition functionDefinition = PsiTreeUtil.findChildOfType(file,
                 BallerinaFunctionDefinition.class);
         return functionDefinition.getIdentifier();
+    }
+
+    @NotNull
+    public static PsiElement createNewLine(@NotNull Project project) {
+        return PsiParserFacadeImpl.SERVICE.getInstance(project).createWhiteSpaceFromText("\n");
+    }
+
+    @NotNull
+    public static PsiElement createDoubleNewLine(@NotNull Project project) {
+        return PsiParserFacadeImpl.SERVICE.getInstance(project).createWhiteSpaceFromText("\n\n");
+    }
+
+    @NotNull
+    public static BallerinaImportDeclaration createImportDeclaration(@NotNull Project project,
+                                                                     @NotNull String importString,
+                                                                     @Nullable String alias) {
+        BallerinaFile file = createFileFromText(project, "import " + importString +
+                (alias != null ? " as " + alias : "") + ";");
+        return PsiTreeUtil.findChildOfType(file, BallerinaImportDeclaration.class);
     }
 }
