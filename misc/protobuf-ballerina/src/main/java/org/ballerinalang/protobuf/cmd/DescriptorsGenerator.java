@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static org.ballerinalang.protobuf.BalGenerationConstants.DESC_SUFFIX;
 import static org.ballerinalang.protobuf.BalGenerationConstants.EMPTY_STRING;
@@ -54,9 +55,13 @@ public class DescriptorsGenerator {
                                                            List<byte[]> list,
                                                            String exePath, ClassLoader classLoader) {
         File initialFile = new File(parentDescPath);
-        try (InputStream targetStream = new FileInputStream(initialFile);) {
+        try (InputStream targetStream = new FileInputStream(initialFile)) {
             DescriptorProtos.FileDescriptorSet descSet = DescriptorProtos.FileDescriptorSet.parseFrom(targetStream);
             for (String depPath : descSet.getFile(0).getDependencyList()) {
+                if (System.getProperty("os.name")
+                        .toLowerCase(Locale.ENGLISH).startsWith("windows")) {
+                    depPath = depPath.replaceAll("/", "\\\\");
+                }
                 String path = BalGenerationConstants.META_DEPENDENCY_LOCATION + depPath.substring(
                         depPath.lastIndexOf(BalGenerationConstants.FILE_SEPARATOR)
                         , depPath.length()).replace(PROTO_SUFFIX, EMPTY_STRING) + DESC_SUFFIX;
