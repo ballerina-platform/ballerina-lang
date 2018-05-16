@@ -1,13 +1,14 @@
 package org.ballerinalang.plugins.idea.psi.scopeprocessors;
 
 import com.intellij.codeInsight.completion.CompletionResultSet;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveState;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
-import org.ballerinalang.plugins.idea.completion.inserthandlers.ParenthesisInsertHandler;
+import org.ballerinalang.plugins.idea.completion.inserthandlers.SmartParenthesisInsertHandler;
 import org.ballerinalang.plugins.idea.psi.BallerinaAnyIdentifierName;
 import org.ballerinalang.plugins.idea.psi.BallerinaAttachedObject;
 import org.ballerinalang.plugins.idea.psi.BallerinaFunctionDefinition;
@@ -44,6 +45,7 @@ public class BallerinaInvocationProcessor extends BallerinaScopeProcessorBase {
 
     @Override
     public boolean execute(@NotNull PsiElement element, @NotNull ResolveState state) {
+        ProgressManager.checkCanceled();
         if (accept(element)) {
             PsiElement parent = element.getParent();
             if (parent == null) {
@@ -71,7 +73,7 @@ public class BallerinaInvocationProcessor extends BallerinaScopeProcessorBase {
                                     if (myResult != null) {
                                         myResult.addElement(BallerinaCompletionUtils
                                                 .createFunctionLookupElement(definition,
-                                                        ParenthesisInsertHandler.INSTANCE));
+                                                        SmartParenthesisInsertHandler.INSTANCE));
                                     } else if (myElement.getText().equals(identifier.getText())) {
                                         add(identifier);
                                     }

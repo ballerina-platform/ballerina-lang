@@ -35,6 +35,7 @@ import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -85,8 +86,9 @@ public class BallerinaStackFrame extends XStackFrame {
         Project project = myProcess.getSession().getProject();
         String projectBasePath = project.getBaseDir().getPath();
         // if the package path is ".", full path of the file will be sent as the file name.
-        if (".".equals(packageName) && fileName.contains("/")) {
-            String filePath = constructFilePath(projectBasePath, "", fileName.substring(fileName.lastIndexOf("/")));
+        if (".".equals(packageName) && fileName.contains(File.separator)) {
+            String filePath = constructFilePath(projectBasePath, "",
+                    fileName.substring(fileName.lastIndexOf(File.separator)));
             return LocalFileSystem.getInstance().findFileByPath(filePath);
         } else {
             String filePath = constructFilePath(projectBasePath, packageName, fileName);
@@ -94,15 +96,16 @@ public class BallerinaStackFrame extends XStackFrame {
             if (virtualFile != null) {
                 return virtualFile;
             }
-            String path = Paths.get(packageName.replaceAll("\\.", "/"), fileName).toString();
+            String path = Paths.get(packageName.replaceAll("\\.", File.separator), fileName).toString();
             return BallerinaPsiImplUtil.findFileInProjectSDK(project, path);
         }
     }
 
     private String constructFilePath(@NotNull String projectBasePath, @NotNull String packagePath,
                                      @NotNull String fileName) {
-        StringBuilder stringBuilder = new StringBuilder(projectBasePath).append("/");
-        stringBuilder = stringBuilder.append(packagePath.replaceAll("\\.", "/")).append("/");
+        StringBuilder stringBuilder = new StringBuilder(projectBasePath).append(File.separator);
+        stringBuilder = stringBuilder.append(packagePath.replaceAll("\\.", File.separator))
+                .append(File.separator);
         stringBuilder = stringBuilder.append(fileName);
         return stringBuilder.toString();
     }

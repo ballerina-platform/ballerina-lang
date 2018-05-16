@@ -15,7 +15,8 @@
 // under the License.
 
 documentation {
-    Releases the database connection.
+    Releases the database connection. If the table data is fully iterated, it will be automatically closed. This explicit
+    close is required only if it is not fully iterated.
 
     T{{dt}} The table object
 }
@@ -27,7 +28,7 @@ documentation {
     T{{dt}} The table object
     R{{}} True if there is a new row; false otherwise
 }
-public native function<table dt> hasNext() returns (boolean);
+public native function<table dt> hasNext() returns boolean;
 
 documentation {
     Retrives the current row and return a record with the data in the columns.
@@ -35,23 +36,25 @@ documentation {
     T{{dt}} The table object
     R{{}} The resulting row as a record
 }
-public native function<table dt> getNext() returns (any);
+public native function<table dt> getNext() returns any;
 
 documentation {
     Add record to the table.
 
     T{{dt}} The table object
-    P{{data}} A struct with data
+    P{{data}} A record with data
+    R{{}} An `error` will be returned if there is any error occured during adding data or else nil is returned
 }
-public native function<table dt> add(any data) returns (error|());
+public native function<table dt> add(any data) returns error|();
 
 documentation {
     Remove data from the table.
 
     T{{dt}} The table object
     P{{func}} The function pointer for delete crieteria
+    R{{}} An `int` the number of deleted record count or `error` if any error occured during removing data
 }
-public native function<table dt> remove(function (any) returns (boolean) func) returns (int|error);
+public native function<table dt> remove(function (any) returns (boolean) func) returns int|error;
 
 documentation {
     Execute the given sql query to fetch the records and return as a new in memory table.
@@ -63,7 +66,7 @@ documentation {
     P{{retType}} return type of the resultant table instance
 }
 native function queryTableWithJoinClause(string sqlQuery, table fromTable, table joinTable, any parameters,
-                                         any retType) returns (table);
+                                         any retType) returns table;
 
 documentation {
     Execute the given sql query to fetch the records and return as a new in memory table.
@@ -74,7 +77,7 @@ documentation {
     P{{retType}} return type of the resultant table instance
 }
 native function queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters,
-                                            any retType) returns (table);
+                                            any retType) returns table;
 
 documentation {
     TableConfig represents properties used during table initialization.

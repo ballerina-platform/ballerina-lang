@@ -41,8 +41,10 @@ import org.ballerinalang.natives.annotations.ReturnType;
         receiver = @Receiver(type = TypeKind.STRUCT, structType = Constants.CALLER_ACTIONS),
         args = {
                 @Argument(name = "sqlQuery", type = TypeKind.STRING),
-                @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.STRUCT,
-                        structType = "Parameter")
+                @Argument(name = "recordType", type = TypeKind.TYPEDESC),
+                @Argument(name = "loadToMemory", type = TypeKind.BOOLEAN),
+                @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.UNION,
+                          structType = "Param")
         },
         returnType = {
                 @ReturnType(type = TypeKind.TABLE),

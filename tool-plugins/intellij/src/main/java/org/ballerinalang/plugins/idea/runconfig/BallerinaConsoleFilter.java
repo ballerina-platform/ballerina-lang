@@ -37,6 +37,7 @@ import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -109,8 +110,8 @@ public class BallerinaConsoleFilter implements Filter {
                     : VirtualFileManager.getInstance().refreshAndFindFileByUrl(VfsUtilCore.pathToUrl(fileName));
         } else {
             if (myWorkingDirectoryUrl != null) {
-                virtualFile = VirtualFileManager.getInstance().refreshAndFindFileByUrl(myWorkingDirectoryUrl + "/" +
-                        fileName);
+                virtualFile = VirtualFileManager.getInstance().refreshAndFindFileByUrl(myWorkingDirectoryUrl +
+                        File.separator + fileName);
             }
             if (virtualFile == null && myModule != null) {
                 virtualFile = findInBallerinaPath(fileName);

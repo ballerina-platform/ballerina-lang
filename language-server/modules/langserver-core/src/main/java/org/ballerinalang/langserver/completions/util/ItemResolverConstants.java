@@ -24,6 +24,7 @@ package org.ballerinalang.langserver.completions.util;
 public class ItemResolverConstants {
 
     // Start of Basic Constructs
+    public static final String BUT = "but";
     public static final String RETURN = "return";
     public static final String IF = "if";
     public static final String FORK = "fork";

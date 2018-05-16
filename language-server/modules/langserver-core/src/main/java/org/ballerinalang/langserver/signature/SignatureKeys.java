@@ -19,6 +19,8 @@ package org.ballerinalang.langserver.signature;
 
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.List;
 
@@ -39,9 +41,11 @@ class SignatureKeys {
      */
     static final LSContext.Key<String> IDENTIFIER_AGAINST
             = new LSContext.Key<>();
-    static final LSContext.Key<String> IDENTIFIER_TYPE
+    static final LSContext.Key<BType> IDENTIFIER_TYPE
             = new LSContext.Key<>();
     static final LSContext.Key<String> IDENTIFIER_PKGID
+            = new LSContext.Key<>();
+    static final LSContext.Key<BSymbol> IDENTIFIER_SYMBOL
             = new LSContext.Key<>();
     static final LSContext.Key<Integer> PARAMETER_COUNT
             = new LSContext.Key<>();

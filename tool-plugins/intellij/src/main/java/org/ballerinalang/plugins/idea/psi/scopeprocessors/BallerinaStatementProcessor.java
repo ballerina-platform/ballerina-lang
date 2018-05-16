@@ -1,6 +1,7 @@
 package org.ballerinalang.plugins.idea.psi.scopeprocessors;
 
 import com.intellij.codeInsight.completion.CompletionResultSet;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.ResolveState;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -46,6 +47,7 @@ public class BallerinaStatementProcessor extends BallerinaScopeProcessorBase {
 
     @Override
     public boolean execute(@NotNull PsiElement scopeElement, @NotNull ResolveState state) {
+        ProgressManager.checkCanceled();
         if (accept(scopeElement)) {
             BallerinaStatement statement = (BallerinaStatement) scopeElement;
 
@@ -88,7 +90,7 @@ public class BallerinaStatementProcessor extends BallerinaScopeProcessorBase {
                                     myResult.addElement(BallerinaCompletionUtils.createFieldLookupElement(identifier,
                                             resolvedElement, type,
                                             BallerinaPsiImplUtil.getObjectFieldDefaultValue(ballerinaFieldDefinition),
-                                            false));
+                                            null, false));
                                 } else if (myElement.getText().equals(identifier.getText())) {
                                     add(identifier);
                                 }
