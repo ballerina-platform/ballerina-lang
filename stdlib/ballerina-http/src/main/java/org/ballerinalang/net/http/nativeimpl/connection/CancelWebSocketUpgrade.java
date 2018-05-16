@@ -19,7 +19,6 @@ package org.ballerinalang.net.http.nativeimpl.connection;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.model.NativeCallableUnit;
@@ -29,8 +28,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketConstants;
-import org.ballerinalang.net.http.WebSocketUtil;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 
 /**
@@ -65,7 +64,7 @@ public class CancelWebSocketUpgrade implements NativeCallableUnit {
             future.addListener((ChannelFutureListener) channelFuture -> {
                 Throwable cause = future.cause();
                 if (!future.isSuccess() && cause != null) {
-                    context.setReturnValues(BLangVMErrors.createError(context, cause.getMessage()));
+                    context.setReturnValues(HttpUtil.getError(context, cause));
                 } else {
                     context.setReturnValues();
                 }
@@ -76,7 +75,7 @@ public class CancelWebSocketUpgrade implements NativeCallableUnit {
             });
         } catch (Throwable throwable) {
             //Return this error.
-            context.setReturnValues(WebSocketUtil.createWebSocketConnectorError(context, throwable.getMessage()));
+            context.setReturnValues(HttpUtil.getError(context, throwable));
             callback.notifySuccess();
         }
     }

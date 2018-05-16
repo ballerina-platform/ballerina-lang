@@ -25,9 +25,9 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
-import org.ballerinalang.net.http.WebSocketUtil;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 /**
@@ -61,8 +61,7 @@ public class Close implements NativeCallableUnit {
                     .addListener((ChannelFutureListener) future -> {
                 Throwable cause = future.cause();
                 if (!future.isSuccess() && cause != null) {
-                    context.setReturnValues(
-                            WebSocketUtil.createWebSocketConnectorError(context, future.cause().getMessage()));
+                    context.setReturnValues(HttpUtil.getError(context, cause));
                 } else {
                     connectionInfo.setCloseStatusCode(statusCode);
                     connectionInfo.getWebSocketEndpoint().setBooleanField(WebSocketConstants.LISTENER_IS_OPEN_INDEX, 0);
@@ -71,7 +70,7 @@ public class Close implements NativeCallableUnit {
                 callback.notifySuccess();
             });
         } catch (Throwable throwable) {
-            context.setReturnValues(WebSocketUtil.createWebSocketConnectorError(context, throwable.getMessage()));
+            context.setReturnValues(HttpUtil.getError(context, throwable));
             callback.notifySuccess();
         }
     }
