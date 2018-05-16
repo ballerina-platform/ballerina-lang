@@ -115,11 +115,8 @@ public abstract class WebSocketUtil {
                     context.setReturnValues();
                 }
                 if (callback != null) {
-                    callback.notifyFailure(BLangConnectorSPIUtil
-                                                   .createBStruct(context, HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                                                                  WebSocketConstants.WEBSOCKET_CONNECTOR_ERROR,
-                                                                  "Unable to complete handshake: " +
-                                                                          throwable.getMessage()));
+                    callback.notifyFailure(
+                            HttpUtil.getError(context, "Unable to complete handshake:" + throwable.getMessage()));
                 }
                 throw new BallerinaConnectorException("Unable to complete handshake", throwable);
             }
@@ -169,19 +166,12 @@ public abstract class WebSocketUtil {
         webSocketChannelFuture.addListener(future -> {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
-                context.setReturnValues(createWebSocketConnectorError(context, future.cause().getMessage()));
+                context.setReturnValues(HttpUtil.getError(context, cause));
             } else {
                 context.setReturnValues();
             }
             callback.notifySuccess();
         });
-    }
-
-    public static BStruct createWebSocketConnectorError(Context context, String errorMsg) {
-        return BLangConnectorSPIUtil
-                .createBStruct(context, HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                               WebSocketConstants.WEBSOCKET_CONNECTOR_ERROR, errorMsg,
-                               new BValue[]{});
     }
 
     /**

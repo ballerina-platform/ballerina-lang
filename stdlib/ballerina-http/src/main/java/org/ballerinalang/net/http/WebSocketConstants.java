@@ -28,7 +28,6 @@ public class WebSocketConstants {
     public static final String WEBSOCKET_CONNECTOR = "WebSocketConnector";
     public static final String WEBSOCKET_ENDPOINT = "WebSocketListener";
     public static final String WEBSOCKET_CLIENT_ENDPOINT = "WebSocketClient";
-    public static final String WEBSOCKET_CONNECTOR_ERROR = "WebSocketConnectorError";
     public static final String WEBSOCKET_SERVICE = "WebSocketService";
     public static final String WEBSOCKET_CLIENT_SERVICE = "WebSocketClientService";
 

@@ -20,14 +20,13 @@ package org.ballerinalang.net.http.actions.websocketconnector;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
 import org.ballerinalang.net.http.WebSocketUtil;
@@ -55,9 +54,7 @@ public class Ready implements NativeCallableUnit {
             WebSocketUtil.readFirstFrame(connectionInfo.getWebSocketConnection(), webSocketConnector);
             context.setReturnValues();
         } else {
-            context.setReturnValues(BLangConnectorSPIUtil.createBStruct(context, HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                                                                        WebSocketConstants.WEBSOCKET_CONNECTOR_ERROR,
-                                                                        "Already started reading frames"));
+            context.setReturnValues(HttpUtil.getError(context, "Already started reading frames"));
         }
         callback.notifySuccess();
     }

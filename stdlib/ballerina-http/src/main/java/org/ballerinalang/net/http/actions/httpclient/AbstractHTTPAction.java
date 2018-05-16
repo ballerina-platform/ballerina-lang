@@ -271,11 +271,11 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         try {
             send(dataContext, outboundRequestMsg, async);
         } catch (BallerinaConnectorException e) {
-            dataContext.notifyReply(null, HttpUtil.getHttpConnectorError(dataContext.context, e));
+            dataContext.notifyReply(null, HttpUtil.getError(dataContext.context, e));
         } catch (Exception e) {
             BallerinaException exception = new BallerinaException("Failed to send outboundRequestMsg to the backend",
                                                                   e, dataContext.context);
-            dataContext.notifyReply(null, HttpUtil.getHttpConnectorError(dataContext.context, exception));
+            dataContext.notifyReply(null, HttpUtil.getError(dataContext.context, exception));
         }
     }
 
@@ -445,10 +445,10 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
                         HttpConstants.PROTOCOL_PACKAGE_HTTP);
             } else if (throwable instanceof IOException) {
                 this.outboundMsgDataStreamer.setIoException((IOException) throwable);
-                httpConnectorError = HttpUtil.getHttpConnectorError(this.dataContext.context, throwable);
+                httpConnectorError = HttpUtil.getError(this.dataContext.context, throwable);
             } else {
                 this.outboundMsgDataStreamer.setIoException(new IOException(throwable.getMessage()));
-                httpConnectorError = HttpUtil.getHttpConnectorError(this.dataContext.context, throwable);
+                httpConnectorError = HttpUtil.getError(this.dataContext.context, throwable);
             }
             httpConnectorError.setStringField(0, throwable.getMessage());
             this.dataContext.notifyReply(null, httpConnectorError);
