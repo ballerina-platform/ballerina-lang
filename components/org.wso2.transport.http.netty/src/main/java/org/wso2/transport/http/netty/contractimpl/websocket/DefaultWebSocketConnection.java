@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
@@ -130,16 +131,27 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
         closeFrameSent = true;
         CountDownLatch closeCountDownLatch = new CountDownLatch(1);
         frameHandler.setCloseCountDownLatch(closeCountDownLatch);
-        return ctx.writeAndFlush(new CloseWebSocketFrame(statusCode, reason)).addListener(future -> {
+        ChannelPromise channelPromise = ctx.newPromise();
+        ctx.writeAndFlush(new CloseWebSocketFrame(statusCode, reason)).addListener(future -> {
+            Throwable cause = future.cause();
+            if (!future.isSuccess() && cause != null) {
+                channelPromise.setFailure(cause);
+                return;
+            }
+
             if (timeoutInSecs == -1) {
                 closeCountDownLatch.await();
             } else if (timeoutInSecs > 0) {
                 closeCountDownLatch.await(timeoutInSecs, TimeUnit.SECONDS);
             }
+
             if (ctx.channel().isOpen()) {
-                ctx.channel().close();
+                ctx.channel().close().addListener(closeFuture -> channelPromise.setSuccess());
+            } else {
+                channelPromise.setSuccess();
             }
         });
+        return channelPromise;
     }
 
     @Override
@@ -147,11 +159,20 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
         if (!frameHandler.isCloseFrameReceived()) {
             throw new IllegalStateException("Cannot finish a connection closure without receiving a close frame");
         }
-        return ctx.channel().writeAndFlush(new CloseWebSocketFrame(statusCode, reason)).addListener(future -> {
+        ChannelPromise channelPromise = ctx.newPromise();
+        ctx.channel().writeAndFlush(new CloseWebSocketFrame(statusCode, reason)).addListener(future -> {
+            Throwable cause = future.cause();
+            if (!future.isSuccess() && cause != null) {
+                channelPromise.setFailure(cause);
+                return;
+            }
             if (ctx.channel().isOpen()) {
-                ctx.channel().close();
+                ctx.channel().close().addListener(closeFuture -> channelPromise.setSuccess());
+            } else {
+                channelPromise.setSuccess();
             }
         });
+        return channelPromise;
     }
 
     @Override
