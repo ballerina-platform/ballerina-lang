@@ -172,24 +172,13 @@ public final class Constants {
     public static final String LOCALHOST = "localhost";
 
 
-    public static final String WEBSOCKET_SERVER_SESSION = "WEBSOCKET_SERVER_SESSION";
-    public static final String WEBSOCKET_CLIENT_SESSION = "WEBSOCKET_CLIENT_SESSION";
-    public static final String WEBSOCKET_CLIENT_SESSIONS_LIST = "WEBSOCKET_CLIENT_SESSIONS_LIST";
     public static final String WEBSOCKET_PROTOCOL = "ws";
     public static final String WEBSOCKET_PROTOCOL_SECURED = "wss";
     public static final String WEBSOCKET_UPGRADE = "websocket";
-    public static final String WEBSOCKET_CLIENT_ID = "WEBSOCKET_CLIENT_ID";
-    public static final String IS_WEBSOCKET_SERVER = "IS_WEBSOCKET_SERVER";
-    public static final String WEBSOCKET_SUBPROTOCOLS = "WEBSOCKET_SUBPROTOCOLS";
-    public static final String WEBSOCKET_ALLOW_EXTENSIONS = "WEBSOCKET_ALLOW_EXTENSIONS";
-    public static final String WEBSOCKET_CLOSE_CODE = "WEBSOCKET_CLOSE_CODE";
-    public static final String WEBSOCKET_CLOSE_REASON = "WEBSOCKET_CLOSE_REASON";
-    public static final String WEBSOCKET_TARGET = "WEBSOCKET_TARGET";
-    public static final String WEBSOCKET_MESSAGE = "WEBSOCKET_MESSAGE";
-    public static final String WEBSOCKET_HEADER_SUBPROTOCOL = "Sec-WebSocket-Protocol";
-
+    public static final String WEBSOCKET_SOURCE_HANDLER = "ws_handler";
     public static final int WEBSOCKET_STATUS_CODE_NORMAL_CLOSURE = 1000;
     public static final int WEBSOCKET_STATUS_CODE_GOING_AWAY = 1001;
+    public static final int WEBSOCKET_STATUS_CODE_ABNORMAL_CLOSURE = 1006;
 
     // Callback related parameters
     public static final String HTTP_CONNECTION_CLOSE = "close";
@@ -218,7 +207,6 @@ public final class Constants {
     public static final String HTTP_DECODER = "decoder";
     public static final String HTTP_CLIENT_CODEC = "codec";
     public static final String HTTP_SERVER_CODEC = "ServerCodec";
-    public static final String WEBSOCKET_SOURCE_HANDLER = "ws_handler";
     public static final String HTTP2_SOURCE_HANDLER = "Http2SourceHandler";
     public static final String HTTP2_ALPN_HANDLER = "Http2ALPNHandler";
     public static final String PROXY_HANDLER = "proxyServerHandler";

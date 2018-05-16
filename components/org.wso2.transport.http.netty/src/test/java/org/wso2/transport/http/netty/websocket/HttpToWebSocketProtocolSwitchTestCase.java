@@ -67,12 +67,28 @@ public class HttpToWebSocketProtocolSwitchTestCase {
         urlConn.setRequestProperty("upgrade", "websocket");
         urlConn.setRequestProperty("Sec-WebSocket-Key", "dGhlIHNhbXBsZSBub25jZQ==");
         urlConn.setRequestProperty("Sec-WebSocket-Version", "13");
+        urlConn.setRequestProperty("Command", "handshake");
 
         Assert.assertEquals(urlConn.getResponseCode(), 101);
         Assert.assertEquals(urlConn.getResponseMessage(), "Switching Protocols");
         Assert.assertEquals(urlConn.getHeaderField("upgrade"), "websocket");
         Assert.assertEquals(urlConn.getHeaderField("connection"), "upgrade");
         Assert.assertTrue(urlConn.getHeaderField("sec-websocket-accept") != null);
+    }
+
+    @Test
+    public void testWebSocketGetUpgradeFail() throws IOException {
+        URL url = baseURI.resolve("/websocket").toURL();
+        HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
+        urlConn.setRequestMethod("GET");
+        urlConn.setRequestProperty("connection", "upgrade");
+        urlConn.setRequestProperty("upgrade", "websocket");
+        urlConn.setRequestProperty("Sec-WebSocket-Key", "dGhlIHNhbXBsZSBub25jZQ==");
+        urlConn.setRequestProperty("Sec-WebSocket-Version", "13");
+        urlConn.setRequestProperty("Command", "fail");
+
+        Assert.assertEquals(urlConn.getResponseCode(), 404);
+        Assert.assertEquals(urlConn.getResponseMessage(), "Not Found");
     }
 
     @Test

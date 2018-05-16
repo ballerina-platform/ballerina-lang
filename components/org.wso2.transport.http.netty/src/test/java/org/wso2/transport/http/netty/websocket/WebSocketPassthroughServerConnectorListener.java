@@ -107,7 +107,7 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
     public void onMessage(WebSocketCloseMessage closeMessage) {
         WebSocketConnection clientConnection = WebSocketPassThroughTestConnectionManager.getInstance()
                 .getClientConnection(closeMessage.getWebSocketConnection());
-        clientConnection.close();
+        clientConnection.closeForcefully();
     }
 
     @Override
