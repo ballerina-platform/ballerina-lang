@@ -25,6 +25,9 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import java.util.LinkedList;
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * A Netty handler for reading the responses sent by the server.
+ */
 public class ResponseHandler extends ChannelInboundHandlerAdapter {
 
     private CountDownLatch latch;
