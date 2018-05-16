@@ -39,11 +39,9 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import javax.websocket.Session;
 
 /**
  * {@code WebSocketDispatcher} This is the web socket request dispatcher implementation which finds best matching
@@ -100,7 +98,6 @@ public class WebSocketDispatcher {
         if (paramDetails.size() == 3) {
             bValues[2] = new BBoolean(textMessage.isFinalFragment());
         }
-        //TODO handle BallerinaConnectorException
         Executor.submit(onTextMessageResource, new WebSocketResourceCallableUnitCallback(webSocketConnection), null,
                         null, bValues);
     }
@@ -122,7 +119,6 @@ public class WebSocketDispatcher {
         if (paramDetails.size() == 3) {
             bValues[2] = new BBoolean(binaryMessage.isFinalFragment());
         }
-        //TODO handle BallerinaConnectorException
         Executor.submit(onBinaryMessageResource, new WebSocketResourceCallableUnitCallback(webSocketConnection), null,
                         null, bValues);
     }
@@ -145,14 +141,12 @@ public class WebSocketDispatcher {
         Resource onPingMessageResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_PING);
         if (onPingMessageResource == null) {
             pingAutomatically(controlMessage);
-            webSocketConnection.readNextFrame();
             return;
         }
         List<ParamDetail> paramDetails = onPingMessageResource.getParamDetails();
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
         bValues[1] = new BBlob(controlMessage.getByteArray());
-        //TODO handle BallerinaConnectorException
         Executor.submit(onPingMessageResource, new WebSocketResourceCallableUnitCallback(webSocketConnection), null,
                         null, bValues);
     }
@@ -170,7 +164,6 @@ public class WebSocketDispatcher {
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
         bValues[1] = new BBlob(controlMessage.getByteArray());
-        //TODO handle BallerinaConnectorException
         Executor.submit(onPongMessageResource, new WebSocketResourceCallableUnitCallback(webSocketConnection), null,
                         null, bValues);
     }
@@ -193,11 +186,9 @@ public class WebSocketDispatcher {
         bValues[0] = connectionInfo.getWebSocketEndpoint();
         bValues[1] = new BInteger(closeCode);
         bValues[2] = new BString(closeReason);
-        //TODO handle BallerinaConnectorException
         CallableUnitCallback onCloseCallback = new CallableUnitCallback() {
             @Override
             public void notifySuccess() {
-                //TODO: Need to wait until the connection is closed from the other side
                 if (closeMessage.getCloseCode() != WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE
                         && webSocketConnection.getSession().isOpen()) {
                     webSocketConnection.finishConnectionClosure(closeCode, null).addListener(
@@ -226,17 +217,30 @@ public class WebSocketDispatcher {
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
         //TODO handle BallerinaConnectorException
-        Executor.submit(onIdleTimeoutResource, new WebSocketResourceCallableUnitCallback(webSocketConnection), null,
+        CallableUnitCallback onIdleTimeoutCallback = new CallableUnitCallback() {
+            @Override
+            public void notifySuccess() {
+                // Do nothing.
+            }
+
+            @Override
+            public void notifyFailure(BStruct error) {
+                ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+            }
+        };
+        Executor.submit(onIdleTimeoutResource, onIdleTimeoutCallback, null,
                         null, bValues);
     }
 
     private static void pingAutomatically(WebSocketControlMessage controlMessage) {
-        Session session = controlMessage.getWebSocketConnection().getSession();
-        try {
-            session.getAsyncRemote().sendPong(controlMessage.getPayload());
-        } catch (IOException ex) {
-            ErrorHandlerUtils.printError(ex);
-        }
+        WebSocketConnection webSocketConnection = controlMessage.getWebSocketConnection();
+        webSocketConnection.pong(controlMessage.getPayload()).addListener(future -> {
+            Throwable cause = future.cause();
+            if (!future.isSuccess() && cause != null) {
+                ErrorHandlerUtils.printError(cause);
+            }
+            webSocketConnection.readNextFrame();
+        });
     }
 
     public static void setPathParams(BValue[] bValues, List<ParamDetail> paramDetails, Map<String, String> pathParams,

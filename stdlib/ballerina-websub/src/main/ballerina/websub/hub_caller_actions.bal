@@ -107,18 +107,20 @@ public function CallerActions::subscribe(SubscriptionChangeRequest subscriptionR
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_SUBSCRIBE, subscriptionRequest);
     var response = httpClientEndpoint->post("", request = builtSubscriptionRequest);
+    int redirectCount = getRedirectionMaxCount(self.followRedirects);
     return processHubResponse(self.hubUrl, MODE_SUBSCRIBE, subscriptionRequest, response, httpClientEndpoint,
-                              self.followRedirects);
+                              redirectCount);
 }
 
 public function CallerActions::unsubscribe(SubscriptionChangeRequest unsubscriptionRequest)
-    returns @tainted (SubscriptionChangeResponse|error) {
+    returns @tainted SubscriptionChangeResponse|error {
 
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request builtUnsubscriptionRequest = buildSubscriptionChangeRequest(MODE_UNSUBSCRIBE, unsubscriptionRequest);
     var response = httpClientEndpoint->post("", request = builtUnsubscriptionRequest);
+    int redirectCount = getRedirectionMaxCount(self.followRedirects);
     return processHubResponse(self.hubUrl, MODE_UNSUBSCRIBE, unsubscriptionRequest, response, httpClientEndpoint,
-                              self.followRedirects);
+                              redirectCount);
 }
 
 public function CallerActions::registerTopic(string topic, string? secret = ()) returns error? {
@@ -293,7 +295,7 @@ documentation {
 function processHubResponse(@sensitive string hub, @sensitive string mode,
                             SubscriptionChangeRequest subscriptionChangeRequest,
                             http:Response|error response, http:Client httpClientEndpoint,
-                            http:FollowRedirects? followRedirects)
+                            int remainingRedirects)
     returns @tainted SubscriptionChangeResponse|error {
 
     string topic = subscriptionChangeRequest.topic;
@@ -308,19 +310,14 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
             int responseStatusCode = httpResponse.statusCode;
             if (responseStatusCode == http:TEMPORARY_REDIRECT_307
                     || responseStatusCode == http:PERMANENT_REDIRECT_308) {
-                match (followRedirects) {
-                    http:FollowRedirects redirectionConfig => {
-                        if (redirectionConfig.enabled) {
-                            //TODO: Fix to honour redirect configs specified (maxCount)
-                            string redirected_hub = httpResponse.getHeader("Location");
-                            return invokeClientConnectorOnRedirection(redirected_hub, mode, subscriptionChangeRequest,
-                                httpClientEndpoint.config.auth);
-                        }
-                    }
-                    () => {}
+                if (remainingRedirects > 0) {
+                    string redirected_hub = httpResponse.getHeader("Location");
+                    return invokeClientConnectorOnRedirection(redirected_hub, mode, subscriptionChangeRequest,
+                                                                httpClientEndpoint.config.auth, remainingRedirects - 1);
                 }
-                error subscriptionError = { message: "Redirection response received for subscription change request at"
-                                        + " Hub [" + hub + "], for Topic [" + subscriptionChangeRequest.topic + "]" };
+                error subscriptionError = { message: "Redirection response received for subscription change request"
+                                            + " made with followRedirects disabled or after maxCount exceeded: Hub ["
+                                            + hub + "], Topic [" + subscriptionChangeRequest.topic + "]" };
                 return subscriptionError;
             } else if (responseStatusCode != http:ACCEPTED_202) {
                 var responsePayload = httpResponse.getTextPayload();
@@ -352,17 +349,49 @@ documentation {
     R{{}} `SubscriptionChangeResponse` indicating subscription/unsubscription details, if the request was successful
             else `error` if an error occurred
 }
-function invokeClientConnectorOnRedirection(@sensitive string hub, @sensitive string mode,
-                                            SubscriptionChangeRequest subscriptionChangeRequest,
-                                            http:AuthConfig? auth)
+function invokeClientConnectorOnRedirection(@sensitive string hub, @sensitive string mode, SubscriptionChangeRequest
+                                            subscriptionChangeRequest, http:AuthConfig? auth, int remainingRedirects)
     returns @tainted SubscriptionChangeResponse|error {
 
-    endpoint Client websubHubClientEP {url:hub, auth:auth};
     if (mode == MODE_SUBSCRIBE) {
-        var response = websubHubClientEP->subscribe(subscriptionChangeRequest);
-        return response;
+        return subscribeWithRetries(hub, subscriptionChangeRequest, auth, remainingRedirects = remainingRedirects);
     } else {
-        var response = websubHubClientEP->unsubscribe(subscriptionChangeRequest);
-        return response;
+        return unsubscribeWithRetries(hub, subscriptionChangeRequest, auth, remainingRedirects = remainingRedirects);
     }
+}
+
+function subscribeWithRetries(string hubUrl, SubscriptionChangeRequest subscriptionRequest, http:AuthConfig? auth,
+                              int remainingRedirects = 0) returns @tainted SubscriptionChangeResponse| error {
+    endpoint http:Client clientEndpoint {
+        url:hubUrl,
+        auth:auth
+    };
+    http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_SUBSCRIBE, subscriptionRequest);
+    var response = clientEndpoint->post("", request = builtSubscriptionRequest);
+    return processHubResponse(hubUrl, MODE_SUBSCRIBE, subscriptionRequest, response, clientEndpoint,
+                              remainingRedirects);
+}
+
+function unsubscribeWithRetries(string hubUrl, SubscriptionChangeRequest unsubscriptionRequest, http:AuthConfig? auth,
+                                int remainingRedirects = 0) returns @tainted SubscriptionChangeResponse|error {
+    endpoint http:Client clientEndpoint {
+        url:hubUrl,
+        auth:auth
+    };
+    http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_UNSUBSCRIBE, unsubscriptionRequest);
+    var response = clientEndpoint->post("", request = builtSubscriptionRequest);
+    return processHubResponse(hubUrl, MODE_UNSUBSCRIBE, unsubscriptionRequest, response, clientEndpoint,
+                              remainingRedirects);
+}
+
+function getRedirectionMaxCount(http:FollowRedirects? followRedirects) returns int {
+    match(followRedirects) {
+        http:FollowRedirects followRedirects => {
+            if (followRedirects.enabled) {
+                return followRedirects.maxCount;
+            }
+        }
+        () => {}
+    }
+    return 0;
 }

@@ -61,9 +61,8 @@ public type HttpSecureClient object {
         Response response = check httpClient.post(path, request = req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
-            Request newOutRequest = check cloneRequest(req);
-            check updateRequestAndConfig(newOutRequest, config);
-            return httpClient.post(path, request = newOutRequest);
+            check updateRequestAndConfig(req, config);
+            return httpClient.post(path, request = req);
         }
         return response;
     }
@@ -82,9 +81,8 @@ public type HttpSecureClient object {
         Response response = check httpClient.head(path, request = req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
-            Request newOutRequest = check cloneRequest(req);
-            check updateRequestAndConfig(newOutRequest, config);
-            return httpClient.head(path, request = newOutRequest);
+            check updateRequestAndConfig(req, config);
+            return httpClient.head(path, request = req);
         }
         return response;
     }
@@ -103,9 +101,8 @@ public type HttpSecureClient object {
         Response response = check httpClient.put(path, request = req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
-            Request newOutRequest = check cloneRequest(req);
-            check updateRequestAndConfig(newOutRequest, config);
-            return httpClient.put(path, request = newOutRequest);
+            check updateRequestAndConfig(req, config);
+            return httpClient.put(path, request = req);
         }
         return response;
     }
@@ -120,14 +117,12 @@ public type HttpSecureClient object {
         R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
     }
     public function execute(string httpVerb, string path, Request request) returns (Response|error) {
-        var details = generateSecureRequest(request, config);
         check generateSecureRequest(request, config);
         Response response = check httpClient.execute(httpVerb, path, request);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
-            Request newOutRequest = check cloneRequest(request);
-            check updateRequestAndConfig(newOutRequest, config);
-            return httpClient.execute(httpVerb, path, newOutRequest);
+            check updateRequestAndConfig(request, config);
+            return httpClient.execute(httpVerb, path, request);
         }
         return response;
     }
@@ -146,9 +141,8 @@ public type HttpSecureClient object {
         Response response = check httpClient.patch(path, request = req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
-            Request newOutRequest = check cloneRequest(req);
-            check updateRequestAndConfig(newOutRequest, config);
-            return httpClient.patch(path, request = newOutRequest);
+            check updateRequestAndConfig(req, config);
+            return httpClient.patch(path, request = req);
         }
         return response;
     }
@@ -167,9 +161,8 @@ public type HttpSecureClient object {
         Response response = check httpClient.delete(path, request = req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
-            Request newOutRequest = check cloneRequest(req);
-            check updateRequestAndConfig(newOutRequest, config);
-            return httpClient.delete(path, request = newOutRequest);
+            check updateRequestAndConfig(req, config);
+            return httpClient.delete(path, request = req);
         }
         return response;
     }
@@ -188,9 +181,8 @@ public type HttpSecureClient object {
         Response response = check httpClient.get(path, request = req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
-            Request newOutRequest = check cloneRequest(req);
-            check updateRequestAndConfig(newOutRequest, config);
-            return httpClient.get(path, request = newOutRequest);
+            check updateRequestAndConfig(req, config);
+            return httpClient.get(path, request = req);
         }
         return response;
     }
@@ -209,9 +201,8 @@ public type HttpSecureClient object {
         Response response = check httpClient.options(path, request = req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
-            Request newOutRequest = check cloneRequest(req);
-            check updateRequestAndConfig(newOutRequest, config);
-            return httpClient.options(path, request = newOutRequest);
+            check updateRequestAndConfig(req, config);
+            return httpClient.options(path, request = req);
         }
         return response;
     }
@@ -229,9 +220,8 @@ public type HttpSecureClient object {
         Response response = check httpClient.forward(path, request);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
-            Request newOutRequest = check cloneRequest(request);
-            check updateRequestAndConfig(newOutRequest, config);
-            return httpClient.forward(path, newOutRequest);
+            check updateRequestAndConfig(request, config);
+            return httpClient.forward(path, request);
         }
         return response;
     }
@@ -338,25 +328,22 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
     } else if (scheme == OAUTH_SCHEME) {
         string accessToken = config.auth.accessToken but { () => EMPTY_STRING };
         if (accessToken == EMPTY_STRING) {
-            string refreshToken = config.auth.refreshToken but { () => EMPTY_STRING };
-            string clientId = config.auth.clientId but { () => EMPTY_STRING };
-            string clientSecret = config.auth.clientSecret but { () => EMPTY_STRING };
-            string refreshUrl = config.auth.refreshUrl but { () => EMPTY_STRING };
-
-            if (refreshToken != EMPTY_STRING && clientId != EMPTY_STRING && clientSecret != EMPTY_STRING) {
-                return updateRequestAndConfig(req, config);
-            } else {
-                error err = {};
-                err.message = "Valid accessToken or refreshToken is not available to process the request"
-                ;
-                return err;
-            }
+            return updateRequestAndConfig(req, config);
         } else {
             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
         }
     } else if (scheme == JWT_SCHEME){
         string authToken = runtime:getInvocationContext().authContext.authToken;
+        if (authToken == EMPTY_STRING) {
+            error err;
+            err.message = "Authentication token is not set at invocation context";
+            return err;
+        }
         req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
+    } else {
+        error err;
+        err.message = "Invalid authentication scheme. It should be basic, oauth or jwt";
+        return err;
     }
     return ();
 }
@@ -391,7 +378,14 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     string clientSecret = config.auth.clientSecret but { () => EMPTY_STRING };
     string refreshUrl = config.auth.refreshUrl but { () => EMPTY_STRING };
 
-    CallerActions refreshTokenClient = createHttpSecureClient(refreshUrl, {});
+    if (refreshToken == EMPTY_STRING || clientId == EMPTY_STRING || clientSecret == EMPTY_STRING || refreshUrl == EMPTY_STRING) {
+        error err;
+        err.message = "Failed to generate new access token since one or more of refresh token, client id, client secret,
+        refresh url are not provided";
+        return err;
+    }
+
+    CallerActions refreshTokenClient = createSimpleHttpClient(refreshUrl, {});
 
     string clientIdSecret = clientId + ":" + clientSecret;
     string base64ClientIdSecret = check clientIdSecret.base64Encode();
@@ -406,23 +400,10 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     if (refreshTokenResponse.statusCode == OK_200) {
         return generatedToken.access_token.toString();
     } else {
-        error err = {};
+        error err;
         err.message = "Failed to generate new access token from the given refresh token";
         return err;
     }
-}
-
-documentation {
-    Clone the given request into a new request with request entity.
-
-    P{{req}} `Request` object to be cloned
-    R{{}} New request object created or `error` if entity construction failed
-}
-function cloneRequest(Request req) returns (Request|error) {
-    mime:Entity mimeEntity = check req.getEntity();
-    Request newOutRequest = new;
-    newOutRequest.setEntity(mimeEntity);
-    return newOutRequest;
 }
 
 documentation {

@@ -1,6 +1,8 @@
 package org.ballerinalang.plugins.idea.psi.scopeprocessors;
 
 import com.intellij.codeInsight.completion.CompletionResultSet;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.ResolveState;
@@ -9,6 +11,7 @@ import org.ballerinalang.plugins.idea.completion.inserthandlers.ColonInsertHandl
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.BallerinaImportDeclaration;
 import org.ballerinalang.plugins.idea.psi.BallerinaPackageReference;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,6 +56,14 @@ public class BallerinaPackageNameProcessor extends BallerinaScopeProcessorBase {
                     } else if (myElement.getText().equals(identifier.getText())) {
                         add(identifier);
                     }
+                }
+            }
+            // Add un-imported packages. These will be auto-imported.
+            if (myResult != null) {
+                Module module = ModuleUtilCore.findModuleForPsiElement(element);
+                if (module != null) {
+                    myResult.addAllElements(BallerinaPsiImplUtil.getAllUnImportedImports(element.getProject(), module,
+                            cachedImports));
                 }
             }
         }
