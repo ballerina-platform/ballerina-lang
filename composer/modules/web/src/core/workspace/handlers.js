@@ -16,12 +16,14 @@
  * under the License.
  *
  */
-
+import { ipcRenderer } from 'electron';
 import _ from 'lodash';
 import log from 'log';
 import { COMMANDS, DIALOGS, EVENTS } from './constants';
 import { COMMANDS as LAYOUT_COMMANDS } from './../layout/constants';
 import { createOrUpdate } from './fs-util';
+import { isOnElectron } from '../utils/client-info';
+
 
 /**
  * Provides command handler definitions of workspace plugin.
@@ -108,13 +110,17 @@ export function getHandlerDefinitions(workspaceManager) {
                 const id = DIALOGS.SAVE_FILE;
                 const activeEditor = editor.getActiveEditor();
                 if (activeEditor && activeEditor.file) {
-                    dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
-                        id,
-                        additionalProps: {
-                            file: activeEditor.file,
-                            mode: 'SAVE_FILE_AS',
-                        },
-                    });
+                    if (isOnElectron()) {
+                        ipcRenderer.send('show-file-save-dialog');
+                    } else {
+                        dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
+                            id,
+                            additionalProps: {
+                                file: activeEditor.file,
+                                mode: 'SAVE_FILE_AS',
+                            },
+                        });
+                    }
                 }
             },
         },
@@ -122,16 +128,36 @@ export function getHandlerDefinitions(workspaceManager) {
             cmdID: COMMANDS.SHOW_FILE_OPEN_WIZARD,
             handler: () => {
                 const { command: { dispatch } } = workspaceManager.appContext;
-                const id = DIALOGS.OPEN_FILE;
-                dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, { id });
+                if (isOnElectron()) {
+                    ipcRenderer.send('show-file-open-dialog');
+                    ipcRenderer.once('file-open-wizard-closed', (e, file) => {
+                        if (file) {
+                            dispatch(COMMANDS.OPEN_FILE, {
+                                filePath: file,
+                            });
+                        }
+                    });
+                } else {
+                    const id = DIALOGS.OPEN_FILE;
+                    dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, { id });
+                }
             },
         },
         {
             cmdID: COMMANDS.SHOW_FOLDER_OPEN_WIZARD,
             handler: () => {
                 const { command: { dispatch } } = workspaceManager.appContext;
-                const id = DIALOGS.OPEN_FOLDER;
-                dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, { id });
+                if (isOnElectron()) {
+                    ipcRenderer.send('show-folder-open-dialog');
+                    ipcRenderer.once('folder-open-wizard-closed', (e, folder) => {
+                        if (folder) {
+                            dispatch(COMMANDS.OPEN_FOLDER, { folderPath: folder });
+                        }
+                    });
+                } else {
+                    const id = DIALOGS.OPEN_FOLDER;
+                    dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, { id });
+                }
             },
         },
         {

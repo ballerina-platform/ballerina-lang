@@ -29,7 +29,6 @@ function registerMenuLoader() {
             return {
                 label: menu.label,
                 submenu: menu.children.map((childMenu) => {
-                    console.log(childMenu);
                     return {
                         label: childMenu.label,
                         click: () => {

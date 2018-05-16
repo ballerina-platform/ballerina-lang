@@ -25,12 +25,13 @@ function setupNativeWizards(mainWindow) {
           mainWindow,
             {
                 title: 'Open Ballerina File',
+                message: 'choose ballerina file to open',
                 filters: [
                     {name: 'Ballerina Files (*.bal) ', extensions: ['bal']},
                 ],
                 properties: ['openFile', 'promptToCreate']
             }, function (file) {
-                if (file) event.sender.send('file-opened', file);
+                event.sender.send('file-open-wizard-closed', file)
             }
         );
     });
@@ -40,11 +41,12 @@ function setupNativeWizards(mainWindow) {
           mainWindow,
             {
                 title: 'Save Ballerina File',
+                message: 'select where to save the ballerina file',
                 filters: [
                     {name: 'Ballerina Files (*.bal) ', extensions: ['bal']},
                 ]
             }, function (file) {
-                if (file) event.sender.send('file-save-path-selected', file);
+                event.sender.send('file-save-wizard-closed', file);
             }
         );
     });
@@ -54,9 +56,10 @@ function setupNativeWizards(mainWindow) {
           mainWindow,
             {
                 title: 'Open Ballerina Folder',
+                message: 'select a ballerina project folder',
                 properties: ['openDirectory', 'createDirectory']
-            }, function (folder) {
-                if (folder) event.sender.send('folder-opened', folder);
+            }, function (folders) {
+                event.sender.send('folder-open-wizard-closed', folders ? folders[0] : undefined);
             }
         );
     });
