@@ -58,6 +58,7 @@ import static org.ballerinalang.mime.util.Constants.ANN_CONFIG_TEMP_LOCATION;
 import static org.ballerinalang.mime.util.Constants.ASSIGNMENT;
 import static org.ballerinalang.mime.util.Constants.BODY_PARTS;
 import static org.ballerinalang.mime.util.Constants.BUILTIN_PACKAGE;
+import static org.ballerinalang.mime.util.Constants.BYTE_LIMIT;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILENAME_INDEX;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILE_NAME;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_INDEX;
@@ -460,6 +461,9 @@ public class MimeUtil {
     }
 
     public static Map<String, Object> getOverflowSettings(Context context, Annotation configAnn) {
+        if (configAnn == null) {
+            return getDefaultOverflowSettings();
+        }
         Map<String, Object> overflowSettings = new HashMap<>();
         overflowSettings.put(ANN_CONFIG_MEMORY_THRESHOLD, getMemoryThresholdInBytes(configAnn));
         String tempLocation = getTempLocation(configAnn);
@@ -479,6 +483,12 @@ public class MimeUtil {
         double memoryThreshold = overflowConfig.getFloatField(ANN_CONFIG_MEMORY_THRESHOLD);
         memoryThreshold = memoryThreshold * (ONE_MB_IN_BYTES);
         return Double.valueOf(memoryThreshold).longValue();
+    }
+
+    private static Map<String, Object> getDefaultOverflowSettings() {
+        Map<String, Object> overflowSettings = new HashMap<>();
+        overflowSettings.put(ANN_CONFIG_MEMORY_THRESHOLD, (long) BYTE_LIMIT);
+        return overflowSettings;
     }
 
     /**

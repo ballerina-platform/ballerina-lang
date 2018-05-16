@@ -82,7 +82,6 @@ import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.mime.util.Constants.ANN_CONFIG_MEMORY_THRESHOLD;
 import static org.ballerinalang.mime.util.Constants.BOUNDARY;
-import static org.ballerinalang.mime.util.Constants.BYTE_LIMIT;
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
@@ -289,6 +288,9 @@ public class HttpUtil {
     }
 
     private static Annotation getServiceConfigAnnotation(Context context) {
+        if (context == null || context.getServiceInfo() == null) {
+            return null;
+        }
         Service serviceInstance = BLangConnectorSPIUtil.getService(context.getProgramFile(),
                 context.getServiceInfo().getType());
         return getServiceConfigAnnotation(serviceInstance, PROTOCOL_PACKAGE_HTTP);
