@@ -7218,12 +7218,13 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   // TypeName identifier
   public static boolean parameterWithType(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "parameterWithType")) return false;
-    boolean r;
+    boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, PARAMETER_WITH_TYPE, "<parameter with type>");
     r = TypeName(b, l + 1, -1);
+    p = r; // pin = 1
     r = r && consumeToken(b, IDENTIFIER);
-    exit_section_(b, l, m, r, false, null);
-    return r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   /* ********************************************************** */

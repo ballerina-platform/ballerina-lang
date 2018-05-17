@@ -733,7 +733,7 @@ Parameter ::= SimpleParameter | TupleParameter
 private SimpleParameter ::= AnnotationAttachment* parameterWithType /*{pin=2}*/
 private TupleParameter ::= AnnotationAttachment* LEFT_PARENTHESIS parameterWithType (COMMA parameterWithType)* RIGHT_PARENTHESIS
 
-parameterWithType ::= TypeName identifier
+parameterWithType ::= TypeName identifier {pin=1}
 
 DefaultableParameter ::= Parameter ASSIGN Expression
 
