@@ -789,6 +789,23 @@ public class TreeVisitor extends LSNodeVisitor {
         }
     }
 
+    @Override
+    public void visit(BLangMatchExpression.BLangMatchExprPatternClause matchExprPatternClause) {
+        if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
+                .isCursorBeforeNode(matchExprPatternClause.getPosition(), matchExprPatternClause, this,
+                                    this.documentServiceContext)) {
+            if (matchExprPatternClause.expr != null) {
+                this.acceptNode(matchExprPatternClause.expr, symbolEnv);
+            }
+        }
+    }
+
+    @Override
+    public void visit(BLangSimpleVarRef simpleVarRef) {
+        ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
+                .isCursorBeforeNode(simpleVarRef.getPosition(), simpleVarRef, this, this.documentServiceContext);
+    }
+
     public void setPreviousNode(BLangNode previousNode) {
         this.previousNode = previousNode;
     }
