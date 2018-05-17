@@ -100,7 +100,7 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
             if (parent instanceof BallerinaPackageReference) {
                 reference = parent.getReference();
                 if (reference == null || reference.resolve() == null) {
-                    // Todo - Add new quick fixes.
+                    availableFixes = new LocalQuickFix[]{new BallerinaImportPackageQuickFix(identifier)};
                     problemDescriptors.add(createProblemDescriptor(manager, identifier, isOnTheFly, availableFixes));
                 }
             }

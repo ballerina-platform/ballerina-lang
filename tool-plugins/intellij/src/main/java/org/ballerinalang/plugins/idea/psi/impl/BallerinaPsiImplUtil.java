@@ -123,6 +123,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Util class which contains methods related to PSI manipulation.
@@ -145,6 +146,8 @@ public class BallerinaPsiImplUtil {
         BUILTIN_VARIABLE_TYPES.add("table");
         BUILTIN_VARIABLE_TYPES.add("xml");
     }
+
+    public static final String LOCAL_PACKAGE_PLACEHOLDER = "$LOCAL_PROJECT$";
 
     @Nullable
     public static String getName(@NotNull BallerinaPackageName ballerinaPackageName) {
@@ -1620,7 +1623,7 @@ public class BallerinaPsiImplUtil {
                                                               @NotNull List<BallerinaImportDeclaration>
                                                                       allImportedPackages) {
         List<LookupElement> imports = new LinkedList<>();
-        // From local project
+        // From local project.
         List<VirtualFile> packages = getPackagesFromProject(project);
         for (VirtualFile aPackage : packages) {
             PsiDirectory directory = PsiManager.getInstance(project).findDirectory(aPackage);
@@ -1673,5 +1676,58 @@ public class BallerinaPsiImplUtil {
             }
         }
         return imports;
+    }
+
+    @NotNull
+    public static Map<String, List<String>> getAllPackagesInResolvableScopes(@NotNull Project project,
+                                                                             @Nullable Module module) {
+        Map<String, List<String>> packageMap = ContainerUtil.newHashMap();
+
+        // From local project.
+        List<VirtualFile> packages = getPackagesFromProject(project);
+        // This is used to identify that the package is in the local project.
+        String organizationName = LOCAL_PACKAGE_PLACEHOLDER;
+        for (VirtualFile aPackage : packages) {
+            String name = aPackage.getName();
+            if (packageMap.containsKey(name)) {
+                packageMap.get(name).add(organizationName);
+            } else {
+                List<String> list = ContainerUtil.newArrayList();
+                list.add(organizationName);
+                packageMap.put(name, list);
+            }
+        }
+
+        // Get packages from SDK.
+        packages = getPackagesFromSDK(project, module);
+        organizationName = "ballerina";
+        for (VirtualFile aPackage : packages) {
+            String name = aPackage.getName();
+            if (packageMap.containsKey(name)) {
+                packageMap.get(name).add(organizationName);
+            } else {
+                List<String> list = ContainerUtil.newArrayList();
+                list.add(organizationName);
+                packageMap.put(name, list);
+            }
+        }
+
+        // Get packages from user repository.
+        List<VirtualFile> organizations = BallerinaPathModificationTracker.getAllOrganizationsInUserRepo();
+        for (VirtualFile organization : organizations) {
+            organizationName = organization.getName();
+            packages = BallerinaPathModificationTracker.getPackagesFromOrganization(organizationName);
+            for (VirtualFile aPackage : packages) {
+                String name = aPackage.getName();
+                if (packageMap.containsKey(name)) {
+                    packageMap.get(name).add(organizationName);
+                } else {
+                    List<String> list = ContainerUtil.newArrayList();
+                    list.add(organizationName);
+                    packageMap.put(name, list);
+                }
+            }
+        }
+        return packageMap;
     }
 }
