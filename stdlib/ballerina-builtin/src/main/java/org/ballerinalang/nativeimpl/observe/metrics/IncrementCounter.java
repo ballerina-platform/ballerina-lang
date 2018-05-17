@@ -48,7 +48,7 @@ public class IncrementCounter extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStruct bCounter = (BStruct) context.getRefArgument(0);
         Counter counter = (Counter) bCounter.getNativeData(Constants.COUNTER);
-        int amount = (int) context.getIntArgument(0);
+        long amount = context.getIntArgument(0);
         counter.increment(amount);
     }
 }
