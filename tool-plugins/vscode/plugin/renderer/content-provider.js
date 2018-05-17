@@ -5,10 +5,9 @@ const { render, activate } = require('./renderer');
 
 class DiagramProvider {
 
-    constructor(outputChannel) {
+    constructor() {
         this._onDidChange = new vscode.EventEmitter();
         this.onDidChange = this._onDidChange.event;
-        this.outputChannel = outputChannel;
     }
 
     update(uri) {
@@ -29,7 +28,7 @@ class DiagramProvider {
     }
 
     activate() {
-        return activate(this.outputChannel);
+        return activate();
     }
 }
 
