@@ -47,9 +47,7 @@ import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
 import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.observability.ObservabilityUtils;
 import org.ballerinalang.util.observability.ObserverContext;
@@ -78,8 +76,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
-import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
-import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.mime.util.Constants.BOUNDARY;
 import static org.ballerinalang.mime.util.Constants.BYTE_LIMIT;
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
@@ -444,16 +440,30 @@ public class HttpUtil {
         response.setProperty(org.wso2.transport.http.netty.common.Constants.HTTP_STATUS_CODE, statusCode);
     }
 
-    public static BStruct getHttpConnectorError(Context context, Throwable throwable) {
-        PackageInfo filePkg = context.getProgramFile().getPackageInfo(PACKAGE_BUILTIN);
-        StructInfo entityErrInfo = filePkg.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
-        BStruct genericError = new BStruct(entityErrInfo.getType());
+    /**
+     * Get error struct.
+     *
+     * @param context Represent ballerina context
+     * @param errMsg  Error message
+     * @return Error struct
+     */
+    public static BStruct getError(Context context, String errMsg) {
+        return BLangVMErrors.createError(context, errMsg);
+    }
+
+    /**
+     * Get error struct from throwable.
+     *
+     * @param context   Represent ballerina context
+     * @param throwable Throwable representing the error.
+     * @return Error struct
+     */
+    public static BStruct getError(Context context, Throwable throwable) {
         if (throwable.getMessage() == null) {
-            genericError.setStringField(0, IO_EXCEPTION_OCCURED);
+            return BLangVMErrors.createError(context, IO_EXCEPTION_OCCURED);
         } else {
-            genericError.setStringField(0, throwable.getMessage());
+            return BLangVMErrors.createError(context, throwable.getMessage());
         }
-        return genericError;
     }
 
     public static HTTPCarbonMessage getCarbonMsg(BStruct struct, HTTPCarbonMessage defaultMsg) {
@@ -1111,22 +1121,6 @@ public class HttpUtil {
                     boundaryString);
         }
         return boundaryString;
-    }
-
-    /**
-     * Extract generic error message.
-     *
-     * @param context Represent ballerina context.
-     * @param errMsg  Error message.
-     * @return Generic error message.
-     */
-    public static BStruct getGenericError(Context context, String errMsg) {
-        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_BUILTIN);
-        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
-
-        BStruct genericError = new BStruct(errorStructInfo.getType());
-        genericError.setStringField(0, errMsg);
-        return genericError;
     }
 
     public static HttpWsConnectorFactory createHttpWsConnectionFactory() {

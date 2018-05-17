@@ -46,7 +46,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"cancelWebSocketUpgrade(int status, string reason)",
+      "label":"cancelWebSocketUpgrade(int status, string reason)(error?)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",

@@ -170,6 +170,16 @@ workspace.onDidChangeConfiguration(params => {
 		});
 	}
 
+	if (newConfig.debugLog != oldConfig.debugLog) {
+		const msg = msgs.DEBUG_LOG_CHANGED;
+		const action = 'Restart Now';
+		window.showWarningMessage(msg, action).then((selection) => {
+			if (action === selection) {
+				commands.executeCommand('workbench.action.reloadWindow');
+			}
+		});
+	}
+
 	oldConfig = newConfig;
 });
 

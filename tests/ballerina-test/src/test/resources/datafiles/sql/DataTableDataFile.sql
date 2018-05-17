@@ -65,7 +65,17 @@ INSERT INTO ArrayTypes (row_id, int_array, long_array, float_array, double_array
   VALUES 1, ARRAY[1, 2, 3], ARRAY [100000000, 200000000, 300000000], ARRAY [245.23, 5559.49, 8796.123],
   ARRAY [245.23, 5559.49, 8796.123], ARRAY [TRUE, FALSE, TRUE], ARRAY ['Hello', 'Ballerina'];
 /
-
+INSERT INTO ArrayTypes (row_id, int_array, long_array, float_array, double_array, boolean_array, string_array)
+  VALUES 2, ARRAY[NULL, 2, 3], ARRAY [100000000, NULL, 300000000], ARRAY [NULL, 5559.49, NULL],
+  ARRAY [NULL, NULL, 8796.123], ARRAY [NULL , NULL, TRUE], ARRAY [NULL, 'Ballerina'];
+/
+INSERT INTO ArrayTypes (row_id, int_array, long_array, float_array, double_array, boolean_array, string_array)
+  VALUES 3, NULL, NULL, NULL, NULL, NULL, NULL;
+/
+INSERT INTO ArrayTypes (row_id, int_array, long_array, float_array, double_array, boolean_array, string_array)
+  VALUES 5, ARRAY[NULL, NULL, NULL], ARRAY [NULL, NULL, NULL], ARRAY [NULL, NULL, NULL],
+  ARRAY [NULL, NULL, NULL], ARRAY [NULL , NULL, NULL], ARRAY [NULL, NULL];
+/
 CREATE TABLE IF NOT EXISTS MixTypes (
   row_id INTEGER NOT NULL,
   int_type INTEGER,
