@@ -19,6 +19,20 @@
 
 const {ipcMain, dialog} = require('electron');
 
+const extensions = [
+    { name: 'Ballerina files', extensions: ['bal']}, 
+    { name: 'XML files ', extensions: ['xml']},
+    { name: 'JSON files', extensions: ['json']}, 
+    { name: 'TOML files', extensions: ['toml']}, 
+    { name: 'Conf files', extensions: ['conf']},
+    { name: 'Text files', extensions: ['txt']}, 
+    { name: 'YAML files', extensions: ['yml']}, 
+    { name: 'Markdown files', extensions: ['md']},
+    { name: 'SQL files', extensions: ['sql']}, 
+    { name: 'Shell scripts', extensions: ['sh']}, 
+    { name: 'Bat scripts', extensions: ['bat']}
+];
+
 function setupNativeWizards(mainWindow) {
     ipcMain.on('show-file-open-dialog', function (event) {
         dialog.showOpenDialog(
@@ -26,9 +40,7 @@ function setupNativeWizards(mainWindow) {
             {
                 title: 'Open Ballerina File',
                 message: 'choose ballerina file to open',
-                filters: [
-                    {name: 'Ballerina Files (*.bal) ', extensions: ['bal']},
-                ],
+                filters: extensions,
                 properties: ['openFile', 'promptToCreate']
             }, function (file) {
                 event.sender.send('file-open-wizard-closed', file)
@@ -42,9 +54,7 @@ function setupNativeWizards(mainWindow) {
             {
                 title: 'Save Ballerina File',
                 message: 'select where to save the ballerina file',
-                filters: [
-                    {name: 'Ballerina Files (*.bal) ', extensions: ['bal']},
-                ]
+                filters: extensions
             }, function (file) {
                 event.sender.send('file-save-wizard-closed', file);
             }

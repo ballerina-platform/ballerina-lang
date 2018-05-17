@@ -31,6 +31,7 @@ function createWindow (pageURL, show = true) {
         height, 
         frame: true,
         icon: path.join(__dirname, '../icons/png/64x64.png'),
+        title: 'Composer',
         show
     });
 
@@ -53,6 +54,7 @@ function createSplashWindow(show = true) {
         height: 480,
         frame: false,
         icon: path.join(__dirname, '../icons/png/64x64.png'),
+        title: 'Composer',
         show,
     });
     const splashScreenUrl = url.format({

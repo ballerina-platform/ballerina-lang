@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>composer</artifactId>
-        <version>0.970.1-SNAPSHOT</version>
+        <version>0.970.2-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>ballerina-composer-standalone</artifactId>
@@ -32,7 +32,7 @@
     <dependencies>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-tools</artifactId>
+            <artifactId>ballerina-platform</artifactId>
             <type>zip</type>
             <version>${project.version}</version>
         </dependency>
@@ -53,7 +53,7 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>
-                                ballerina-tools
+                                ballerina-platform
                             </includeArtifactIds>
                             <outputDirectory>
                                 ${basedir}/resources
@@ -80,13 +80,13 @@
                         </goals>
                         <configuration>
                             <target name="stripe version name from resources">
-                                <move todir="${basedir}/resources/ballerina-tools">
+                                <move todir="${basedir}/resources/ballerina-platform">
                                     <fileset
-                                            dir="${basedir}/resources/ballerina-tools-${project.version}">
+                                            dir="${basedir}/resources/ballerina-platform-${project.version}">
                                         <include name="**/*"/>
                                     </fileset>
                                 </move>
-                                <delete dir="${basedir}/resources/ballerina-tools-${project.version}" />
+                                <delete dir="${basedir}/resources/ballerina-platform-${project.version}" />
                             </target>
                         </configuration>
                     </execution>

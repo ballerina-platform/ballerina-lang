@@ -34,7 +34,7 @@ let win,
     logger = new log('info'),
     appDir = app.getAppPath(),
     logsDir = path.join(os.homedir(),'.composer', 'logs'),
-    balHome = path.join(appDir, 'resources', 'ballerina-tools')
+    balHome = path.join(appDir, 'resources', 'ballerina-platform')
                     .replace('app.asar', 'app.asar.unpacked'),
     composerHome = path.join(balHome, 'lib', 'resources', 'composer')
     composerPublicPath = path.join(composerHome, 'web', 'public'),
