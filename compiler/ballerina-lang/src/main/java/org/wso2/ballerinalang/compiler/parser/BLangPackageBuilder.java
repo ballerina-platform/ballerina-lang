@@ -3120,6 +3120,7 @@ public class BLangPackageBuilder {
         streamActionNode.addWS(ws);
         this.varListStack.push(new ArrayList<>());
         this.varListStack.peek().add(this.varStack.pop());
+        this.commaWsStack.push(ws);
         this.addLambdaFunctionDef(pos, ws, true, false, false);
         streamActionNode.setInvokableBody((BLangLambdaFunction) this.exprNodeStack.pop());
     }
