@@ -188,6 +188,13 @@
         <applicationService
                 serviceImplementation="org.ballerinalang.plugins.idea.codeinsight.semanticanalyzer.BallerinaSemanticAnalyzerSettings"/>
 
+        <!--inspections-->
+        <localInspection language="Ballerina" displayName="Unresolved reference inspection" groupPath="Ballerina"
+                         groupName="General" enabledByDefault="true" level="ERROR"
+                         shortName="BallerinaUnresolvedReference"
+                         implementationClass="org.ballerinalang.plugins.idea.codeinspection.BallerinaUnresolvedReferenceInspection"/>
+
+
     </extensions>
     <actions>
         <!-- Add your actions here -->
