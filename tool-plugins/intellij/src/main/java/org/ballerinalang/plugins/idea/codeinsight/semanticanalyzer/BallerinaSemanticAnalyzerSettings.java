@@ -21,8 +21,8 @@ import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.components.StoragePathMacros;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import com.intellij.util.xmlb.annotations.Attribute;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -30,10 +30,11 @@ import org.jetbrains.annotations.Nullable;
  */
 @State(
         name = "BallerinaSemanticAnalyzer",
-        storages = @Storage(file = StoragePathMacros.APP_CONFIG + "/editor.semanticAnalyzer.xml")
+        storages = @Storage(file = "editor.semantic.analyzer.xml")
 )
 public class BallerinaSemanticAnalyzerSettings implements PersistentStateComponent<BallerinaSemanticAnalyzerSettings> {
 
+    @Attribute
     private boolean myUseSemanticAnalyzer = true;
 
     public static BallerinaSemanticAnalyzerSettings getInstance() {
