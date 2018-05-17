@@ -664,6 +664,7 @@ simpleLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral
     |   emptyTupleLiteral
+    |   blobLiteral
     |   NullLiteral
     ;
 
@@ -677,6 +678,11 @@ integerLiteral
 
 emptyTupleLiteral
     :   LEFT_PARENTHESIS RIGHT_PARENTHESIS
+    ;
+
+blobLiteral
+    : Base16BlobLiteral
+    | Base64BlobLiteral
     ;
 
 namedArgs

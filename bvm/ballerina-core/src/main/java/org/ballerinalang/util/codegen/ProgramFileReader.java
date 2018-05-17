@@ -60,6 +60,7 @@ import org.ballerinalang.util.codegen.attributes.ParamDefaultValueAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.TaintTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
+import org.ballerinalang.util.codegen.cpentries.BlobCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPool;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
@@ -202,6 +203,14 @@ public class ProgramFileReader {
                     strValue = dataInStream.readUTF();
                 }
                 return new UTF8CPEntry(strValue);
+            case CP_ENTRY_BLOB:
+                short blobLength = dataInStream.readShort();
+                byte[] blobValue = null;
+                if (blobLength >= 0) {
+                    blobValue = new byte[blobLength];
+                    dataInStream.readFully(blobValue);
+                }
+                return new BlobCPEntry(blobValue);
 
             case CP_ENTRY_INTEGER:
                 long longVal = dataInStream.readLong();
@@ -1386,6 +1395,7 @@ public class ProgramFileReader {
                 case InstructionCodes.ICONST:
                 case InstructionCodes.FCONST:
                 case InstructionCodes.SCONST:
+                case InstructionCodes.LCONST:
                 case InstructionCodes.IMOVE:
                 case InstructionCodes.FMOVE:
                 case InstructionCodes.SMOVE:

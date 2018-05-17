@@ -43,6 +43,7 @@ public interface InstructionCodes {
     int BCONST_0 = 17;
     int BCONST_1 = 18;
     int RCONST_NULL = 19;
+    int LCONST = 20;
 
     int IMOVE = 21;
     int FMOVE = 22;
