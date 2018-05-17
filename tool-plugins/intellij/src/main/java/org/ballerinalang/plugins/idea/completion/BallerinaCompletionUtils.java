@@ -409,10 +409,8 @@ public class BallerinaCompletionUtils {
     }
 
     static void addTopLevelDefinitionsAsLookups(@NotNull CompletionResultSet resultSet) {
+        // Note - Other top level definitions are added as live templates.
         resultSet.addElement(PrioritizedLookupElement.withPriority(ANNOTATION, REFERENCE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(ENDPOINT, REFERENCE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(FUNCTION, REFERENCE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(SERVICE, REFERENCE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(TYPE, REFERENCE_TYPES_PRIORITY));
     }
 
