@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.metrics.Counter;
 
 /**
- * This function implements the getCounterInstance method for metrics.
+ * Get a Counter instance using name and tags.
  */
 @BallerinaFunction(
         orgName = "ballerina",
@@ -48,6 +48,10 @@ public class GetCounterInstance extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         String name = context.getStringArgument(0);
         String description = context.getStringArgument(1);
+        if (description == null) {
+            // Make description optional
+            description = "";
+        }
         BMap tags = (BMap) context.getNullableRefArgument(0);
         try {
             Counter.Builder builder = Counter.builder(name).description(description);

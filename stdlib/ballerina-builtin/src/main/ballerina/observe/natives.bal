@@ -47,7 +47,7 @@ documentation {
     P{{description}} The description string of the metric.
     R{{Counter}} An instance of the counter
 }
-public native function getCounterInstance(string name, map<string>? tags = (), string description = "")
+public native function getCounterInstance(string name, map<string>? tags = (), string description = ())
                            returns Counter|error;
 
 documentation {
