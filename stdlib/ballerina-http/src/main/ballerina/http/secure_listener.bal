@@ -98,7 +98,7 @@ documentation {
 
     F{{scheme}} Authentication scheme
     F{{id}} Authentication provider instance id
-    F{{authProvider}} Authentication scheme implementation
+    F{{authStoreProvider}} Authentication store provider (file, LDAP, etc.) implementation
     F{{issuer}} Identifier of the token issuer
     F{{audience}} Identifier of the token recipients
     F{{trustStore}} Trustore configurations
@@ -114,7 +114,7 @@ documentation {
 public type AuthProvider {
     string scheme,
     string id,
-    string authProvider,
+    string authStoreProvider,
     string issuer,
     string audience,
     TrustStore? trustStore,
@@ -186,9 +186,9 @@ function createAuthFiltersForSecureListener(SecureEndpointConfiguration config) 
     AuthnHandlerChain authnHandlerChain = new(registry);
     AuthnFilter authnFilter = new(authnHandlerChain);
     cache:Cache authzCache = new(expiryTimeMillis = 300000);
-    auth:ConfigAuthProvider configAuthProvider = new;
-    auth:AuthProvider authProvider = <auth:AuthProvider>configAuthProvider;
-    HttpAuthzHandler authzHandler = new(authProvider, authzCache);
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
+    auth:AuthStoreProvider authStoreProvider = <auth:AuthStoreProvider>configAuthStoreProvider;
+    HttpAuthzHandler authzHandler = new(authStoreProvider, authzCache);
     AuthzFilter authzFilter = new(authzHandler);
     authFilters[0] = <Filter>authnFilter;
     authFilters[1] = <Filter>authzFilter;
@@ -196,29 +196,29 @@ function createAuthFiltersForSecureListener(SecureEndpointConfiguration config) 
 }
 
 function createBasicAuthHandler() returns HttpAuthnHandler {
-    auth:ConfigAuthProvider configAuthProvider = new;
-    auth:AuthProvider authProvider1 = <auth:AuthProvider>configAuthProvider;
-    HttpBasicAuthnHandler basicAuthHandler = new(authProvider1);
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
+    auth:AuthStoreProvider authStoreProvider = <auth:AuthStoreProvider>configAuthStoreProvider;
+    HttpBasicAuthnHandler basicAuthHandler = new(authStoreProvider);
     return <HttpAuthnHandler>basicAuthHandler;
 }
 
 function createAuthHandler(AuthProvider authProvider) returns HttpAuthnHandler {
     if (authProvider.scheme == AUTHN_SCHEME_BASIC) {
-        auth:AuthProvider authProvider1;
-        if (authProvider.authProvider == AUTH_PROVIDER_CONFIG) {
+        auth:AuthStoreProvider authStoreProvider;
+        if (authProvider.authStoreProvider == AUTH_PROVIDER_CONFIG) {
             if (authProvider.propagateToken) {
                 auth:ConfigJwtAuthProvider configAuthProvider = new(getConfigJwtAuthProviderConfig(authProvider));
-                authProvider1 = <auth:AuthProvider>configAuthProvider;
+                authStoreProvider = <auth:AuthStoreProvider>configAuthProvider;
             } else {
-                auth:ConfigAuthProvider configAuthProvider = new;
-                authProvider1 = <auth:AuthProvider>configAuthProvider;
+                auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
+                authStoreProvider = <auth:AuthStoreProvider>configAuthStoreProvider;
             }
         } else {
             // other auth providers are unsupported yet
-            error e = {message: "Invalid auth provider: " + authProvider.authProvider};
+            error e = {message: "Invalid auth provider: " + authProvider.authStoreProvider };
             throw e;
         }
-        HttpBasicAuthnHandler basicAuthHandler = new(authProvider1);
+        HttpBasicAuthnHandler basicAuthHandler = new(authStoreProvider);
         return <HttpAuthnHandler>basicAuthHandler;
     } else if (authProvider.scheme == AUTH_SCHEME_JWT){
         auth:JWTAuthProviderConfig jwtConfig = {};

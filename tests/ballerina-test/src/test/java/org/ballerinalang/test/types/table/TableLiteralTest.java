@@ -345,15 +345,24 @@ public class TableLiteralTest {
     @Test(priority = 1, description = "Test add data with  mismatched types")
     public void testTableAddInvalid() {
         BValue[] returns = BRunUtil.invoke(result, "testTableAddInvalid");
-        Assert.assertEquals((returns[0]).stringValue(), "incompatible types: struct of type:Company cannot be added "
+        Assert.assertEquals((returns[0]).stringValue(), "incompatible types: record of type:Company cannot be added "
                 + "to a table with type:Person");
     }
 
-    @Test(priority = 1, description = "Test add data with  mismatched types")
-    public void testTableRemoveInvalidFunction() {
-        BValue[] returns = BRunUtil.invoke(result, "testTableRemoveInvalidFunction");
-        Assert.assertEquals((returns[0]).stringValue(), "incompatible types: struct of type:Company cannot be added "
-                + "to a table with type:Person");
+    @Test(priority = 1, description = "Test remove data with mismatched record types")
+    public void testRemoveWithInvalidRecordType() {
+        BValue[] returns = BRunUtil.invoke(result, "testRemoveWithInvalidRecordType");
+        Assert.assertEquals((returns[0]).stringValue(),
+                "incompatible types: function with record type:Company cannot be used to remove records"
+                        + " from a table with type:Person");
+    }
+
+    @Test(priority = 1, description = "Test remove data with mismatched input parameter types")
+    public void testRemoveWithInvalidParamType() {
+        BValue[] returns = BRunUtil.invoke(result, "testRemoveWithInvalidParamType");
+        Assert.assertEquals((returns[0]).stringValue(),
+                "incompatible types: function with record type:int cannot be used to remove records from a "
+                        + "table with type:Person");
     }
 
     @Test(priority = 3, enabled = false) //Issue #5106
@@ -363,10 +372,10 @@ public class TableLiteralTest {
     }
 
     @Test(description = "Test table remove with function pointer of invalid return type")
-    public void testTransactionNegativeCases() {
+    public void testTableReturnNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
         BAssertUtil.validateError(resultNegative, 0,
            "incompatible types: expected 'function (any) returns (boolean)', found 'function (Person) returns (())'",
-           21, 33);
+           20, 33);
     }
 }

@@ -21,7 +21,6 @@ package org.ballerinalang.net.http.nativeimpl.connection;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
-import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -39,6 +38,8 @@ import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
+
+import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 
 /**
  * {@code {@link ConnectionAction}} represents a Abstract implementation of Native Ballerina Connection Function.
@@ -62,7 +63,7 @@ public abstract class ConnectionAction implements NativeCallableUnit {
         outboundRespStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
 
         OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
-        BStruct entityStruct = MimeUtil.extractEntity(outboundResponseStruct);
+        BStruct entityStruct = extractEntity(outboundResponseStruct);
         if (entityStruct != null) {
             if (boundaryString != null) {
                 serializeMultiparts(boundaryString, entityStruct, messageOutputStream);

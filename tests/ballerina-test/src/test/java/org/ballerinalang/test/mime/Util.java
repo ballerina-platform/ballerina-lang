@@ -71,11 +71,11 @@ import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_STRUCT;
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
-import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_ENCODER;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_MIXED;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_IO;
+import static org.ballerinalang.mime.util.Constants.REQUEST_ENTITY_INDEX;
 import static org.ballerinalang.mime.util.Constants.TEMP_FILE_EXTENSION;
 import static org.ballerinalang.mime.util.Constants.TEMP_FILE_NAME;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
@@ -395,7 +395,7 @@ public class Util {
         BStruct request = (BStruct) messageMap.get(BALLERINA_REQUEST);
         BStruct entity = (BStruct) messageMap.get(MULTIPART_ENTITY);
         entity.addNativeData(BODY_PARTS, bodyParts);
-        request.addNativeData(MESSAGE_ENTITY, entity);
+        request.setRefField(REQUEST_ENTITY_INDEX, entity);
         setCarbonMessageWithMultiparts(request, cMsg);
         return cMsg;
     }
@@ -439,8 +439,8 @@ public class Util {
      * @param requestStruct   Ballerina request struct which contains multipart data
      */
     private static void prepareRequestWithMultiparts(HTTPCarbonMessage outboundRequest, BStruct requestStruct) {
-        BStruct entityStruct = requestStruct.getNativeData(MESSAGE_ENTITY) != null ?
-                (BStruct) requestStruct.getNativeData(MESSAGE_ENTITY) : null;
+        BStruct entityStruct = requestStruct.getRefField(REQUEST_ENTITY_INDEX) != null ?
+                                (BStruct) requestStruct.getRefField(REQUEST_ENTITY_INDEX) : null;
         if (entityStruct != null) {
             BRefValueArray bodyParts = entityStruct.getNativeData(BODY_PARTS) != null ?
                     (BRefValueArray) entityStruct.getNativeData(BODY_PARTS) : null;

@@ -261,12 +261,19 @@ function getInitiatorClient(string registerAtURL) returns InitiatorClientEP {
         InitiatorClientEP initiatorEP = check <InitiatorClientEP>httpClientCache.get(registerAtURL);
         return initiatorEP;
     } else {
-        InitiatorClientEP initiatorEP = new;
-        InitiatorClientConfig config = {registerAtURL:registerAtURL,
-            timeoutMillis:120000, retryConfig:{count:5, interval:5000}};
-        initiatorEP.init(config);
-        httpClientCache.put(registerAtURL, initiatorEP);
-        return initiatorEP;
+        lock {
+            if (httpClientCache.hasKey(registerAtURL)) {
+                InitiatorClientEP initiatorEP = check <InitiatorClientEP>httpClientCache.get(registerAtURL);
+                return initiatorEP;
+            }
+            InitiatorClientEP initiatorEP = new;
+            InitiatorClientConfig config = { registerAtURL: registerAtURL,
+                timeoutMillis: 15000, retryConfig: { count: 2, interval: 5000 }
+            };
+            initiatorEP.init(config);
+            httpClientCache.put(registerAtURL, initiatorEP);
+            return initiatorEP;
+        }
     }
 }
 
@@ -275,12 +282,20 @@ function getParticipant2pcClient(string participantURL) returns Participant2pcCl
         Participant2pcClientEP participantEP = check <Participant2pcClientEP>httpClientCache.get(participantURL);
         return participantEP;
     } else {
-        Participant2pcClientEP participantEP = new;
-        Participant2pcClientConfig config = {participantURL:participantURL,
-            timeoutMillis:120000, retryConfig:{count:5, interval:5000}};
-        participantEP.init(config);
-        httpClientCache.put(participantURL, participantEP);
-        return participantEP;
+        lock {
+            if (httpClientCache.hasKey(participantURL)) {
+                Participant2pcClientEP participantEP = check <
+                Participant2pcClientEP>httpClientCache.get(participantURL);
+                return participantEP;
+            }
+            Participant2pcClientEP participantEP = new;
+            Participant2pcClientConfig config = { participantURL: participantURL,
+                timeoutMillis: 15000, retryConfig: { count: 2, interval: 5000 }
+            };
+            participantEP.init(config);
+            httpClientCache.put(participantURL, participantEP);
+            return participantEP;
+        }
     }
 }
 

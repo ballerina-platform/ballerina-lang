@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * {@code Close} is the Close action implementation of the SQL Connector Connection pool.
+ * {@code Close} is the Close function implementation of the SQL Connector Connection pool.
  *
  * @since 0.8.4
  */
@@ -34,7 +34,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         orgName = "ballerina", packageName = "sql",
         functionName = "close",
         args = {
-                @Argument(name = "parameters", type = TypeKind.STRUCT, structType = Constants.CALLER_ACTIONS ,
+                @Argument(name = "callerActions", type = TypeKind.STRUCT, structType = Constants.CALLER_ACTIONS ,
                           structPackage = "ballerina.sql")
         }
 )

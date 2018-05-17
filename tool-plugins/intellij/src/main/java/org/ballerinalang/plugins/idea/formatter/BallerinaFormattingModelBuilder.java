@@ -75,6 +75,7 @@ import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.ELSE_CLAUSE;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.ELSE_IF_CLAUSE;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.ELVIS;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.ENDPOINT;
+import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.ENDPOINT_INITIALIZATION;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.ENUM;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.EQUAL;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.EQUAL_GT;
@@ -465,6 +466,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(FORK).spaceIf(true)
 
                 .between(IDENTIFIER, FINITE_TYPE).spaceIf(true)
+                .between(IDENTIFIER, ENDPOINT_INITIALIZATION).spaceIf(true)
 
                 .around(ARRAY_TYPE_NAME).spaceIf(false)
 

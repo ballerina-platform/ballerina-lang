@@ -22,19 +22,17 @@ const path = require('path');
 const { spawn } = require('child_process');
 const openport = require('openport');
 const { workspace, window } = require('vscode');
+const glob = require('glob');
 
 let serverProcess;
-const libPath = '/bre/lib/*'
+const libPath = '/bre/lib/*';
+const jrePath = '/bre/lib/jre*';
 const composerlibPath = '/lib/resources/composer/services/*';
 const main = 'org.ballerinalang.vscode.server.Main';
+const log = require('./logger');
 
 let LSService;
 let parserService;
-let outputChannel = {
-    // By default just ignore all calls to outputchannel
-    append: () => {},
-    show: () => {},
-};
 
 function getClassPath() {
     const customClassPath = workspace.getConfiguration('ballerina').get('classpath');
@@ -48,6 +46,24 @@ function getClassPath() {
         classpath =  customClassPath + sep + classpath;
     }
     return classpath;
+}
+
+function getExcecutable() {
+    var glob = require("glob")
+
+    let excecutable = 'java';
+    const { JAVA_HOME } = process.env;
+    const sdkPath = workspace.getConfiguration('ballerina').get('home');
+    const files = glob.sync(path.join(sdkPath, jrePath));
+
+    if (files[0]) {
+        log(`Using java from ballerina.home: ${files[0]}`);
+        excecutable = path.join(files[0], 'bin', 'java');
+    } else if (JAVA_HOME) {
+        log(`Using java from JAVA_HOME: ${JAVA_HOME}`);
+        excecutable = path.join(JAVA_HOME, 'bin', 'java');
+    }
+    return excecutable;
 }
 
 function startServices() {
@@ -73,49 +89,55 @@ function startServices() {
 
     openport.find({count: 2}, (err, [LSPort, parserPort]) => {
         let server = net.createServer(stream => {
-            console.log('Ballerina Language Server connected');
             // Server is closed so that no more connections will be accepted
             server.close();
             onLSStarted({ reader: stream, writer: stream });
-            console.log('Ballerina Language Server connected on port: ', LSPort);
-            outputChannel.append('Ballerina Language Server connected on port: ' + LSPort + '\n');
+            log(`Ballerina Language Server connected on port: ${LSPort}`);
         });
         server.on('error', onLSError);
         server.listen(LSPort, () => {
-            console.log('Listening for Ballerina Language Server on: ', LSPort);
-            outputChannel.append('Listening for Ballerina Language Server on: ' + LSPort + '\n');
+            log(`Listening for Ballerina Language Server on: ${LSPort}`);
             server.removeListener('error', onLSError);
 
             const args = ['-cp', getClassPath()]
 
             if (process.env.LSDEBUG === "true") {
-                console.log('LSDEBUG is set to "true". Services will run on debug mode');
-                outputChannel.append('LSDEBUG is set to "true". Services will run on debug mode\n');
-                args.push('-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005,quiet=y')
+                log('LSDEBUG is set to "true". Services will run on debug mode');
+                args.push('-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005,quiet=y');
             }
 
             const balHomePath = workspace.getConfiguration('ballerina').get('home');
             const balHomeSysProp = `-Dballerina.home=${balHomePath}`;
 
-            console.log('Starting parser service on: ', parserPort);
-            serverProcess = spawn('java', [balHomeSysProp, ...args, main, LSPort, parserPort]);
+            log(`Starting parser service on: ${parserPort}`);
+
+            serverProcess = spawn(getExcecutable(), [balHomeSysProp, ...args, main, LSPort, parserPort]);
 
             serverProcess.on('error', (e) => {
-                outputChannel.append(`Could not start services ${e}\n`);
-                outputChannel.show();
+                log(`Could not start services ${e}\n`, true);
                 onParserError(e);
                 onLSError(e);
             });
-            
+
+            let parserStarted = false;
+            let aggregatedStdout = '';
+
             serverProcess.stdout.on('data', (data) => {
-                console.log(`ls: ${data}`);
-                if (`${data}`.indexOf('Parser started successfully') > -1) {
-                    outputChannel.append('Parser started successfully on port: ' + parserPort + '\n');
+                log(`${data}`);
+
+                if (parserStarted) {
+                    return;
+                }
+
+                aggregatedStdout = `${aggregatedStdout}${data}`;
+                if (aggregatedStdout.indexOf('Parser started successfully') > -1) {
+                    log(`Parser started successfully on port: ${parserPort}`);
                     onParserStarted({port: parserPort});
+                    parserStarted = true;
                 }
             });
             serverProcess.stderr.on('data', (data) => {
-                console.log(`ls: ${data}`);
+                log(`${data}`);
             });
         });
     });
@@ -137,13 +159,8 @@ function getParserService() {
     return parserService;
 }
 
-function setOutputChannel(out) {
-    outputChannel = out;
-}
-
 module.exports = {
     getLSService,
     getParserService,
     startServices,
-    setOutputChannel,
 }
