@@ -40,11 +40,12 @@
     </template>
 
     <template description='Service Definition' name='service'
-              value="$ANNOTATION$&#10;service&lt;$NOTATION$&gt; $NAME$ {&#10;    $END$&#10;}"
+              value="&#10;$ANNOTATION$&#10;service&lt;$NOTATION$&gt; $NAME$ bind { $PROPERTIES$ } {&#10;    $END$&#10;}"
               toReformat="false" toShortenFQNames="false">
 
         <variable name="NOTATION" expression="" defaultValue="" alwaysStopAt="true"/>
         <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="PROPERTIES" expression="" defaultValue="" alwaysStopAt="true"/>
         <variable name="ANNOTATION" expression="" defaultValue="" alwaysStopAt="true"/>
 
         <context>
@@ -61,6 +62,18 @@
 
         <context>
             <option name="BALLERINA_FILE" value="true"/>
+        </context>
+    </template>
+
+    <template description='Resource Declaration' name="resource"
+              value="$NAME$($PARAM$) {&#10;    $END$&#10;}"
+              toReformat="false" toShortenFQNames="false">
+
+        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="PARAM" expression="" defaultValue="" alwaysStopAt="true"/>
+
+        <context>
+            <option name="BALLERINA_SERVICE" value="true"/>
         </context>
     </template>
 
