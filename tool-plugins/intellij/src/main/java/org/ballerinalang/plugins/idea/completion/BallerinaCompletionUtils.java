@@ -77,6 +77,8 @@ public class BallerinaCompletionUtils {
     public static final Key<String> HAS_A_RETURN_VALUE = Key.create("HAS_A_RETURN_VALUE");
     public static final Key<String> REQUIRE_PARAMETERS = Key.create("REQUIRE_PARAMETERS");
 
+    public static final Key<String> ORGANIZATION_NAME = Key.create("ORGANIZATION_NAME");
+
     public static final Key<String> PUBLIC_DEFINITIONS_ONLY = Key.create("PUBLIC_DEFINITIONS_ONLY");
 
     // File level keywords
@@ -464,6 +466,18 @@ public class BallerinaCompletionUtils {
     public static LookupElement createPackageLookup(@NotNull PsiElement identifier,
                                                     @Nullable InsertHandler<LookupElement> insertHandler) {
         LookupElementBuilder builder = LookupElementBuilder.create(identifier.getText()).withTypeText("Package")
+                .withIcon(BallerinaIcons.PACKAGE).withInsertHandler(insertHandler);
+        return PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY);
+    }
+
+    public static LookupElement createUnImportedPackageLookup(@Nullable String organization,
+                                                              @NotNull String packageName,
+                                                              @NotNull PsiElement element,
+                                                              @Nullable InsertHandler<LookupElement> insertHandler) {
+        if (organization != null) {
+            element.putUserData(ORGANIZATION_NAME, organization);
+        }
+        LookupElementBuilder builder = LookupElementBuilder.create(element, packageName).withTypeText("Package")
                 .withIcon(BallerinaIcons.PACKAGE).withInsertHandler(insertHandler);
         return PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY);
     }

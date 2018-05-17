@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.net.http.actions.websocketconnector;
+package org.ballerinalang.net.http.nativeimpl.connection;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import org.ballerinalang.bre.Context;
