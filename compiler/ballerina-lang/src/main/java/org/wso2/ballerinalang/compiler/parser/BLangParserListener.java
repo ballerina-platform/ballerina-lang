@@ -3020,18 +3020,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         return null;
     }
 
-
     private byte[] getBlobLiteral(BallerinaParser.BlobLiteralContext blobLiteralContext) {
         if (blobLiteralContext.Base16BlobLiteral() != null) {
-            return hexStringToByteArray(getBlobTextValue(blobLiteralContext));
+            return hexStringToByteArray(getBlobTextValue(blobLiteralContext.getText()));
         } else if (blobLiteralContext.Base64BlobLiteral() != null) {
-            return Base64.getDecoder().decode(getBlobTextValue(blobLiteralContext).getBytes(StandardCharsets.UTF_8));
+            return Base64.getDecoder().decode(getBlobTextValue(blobLiteralContext.getText()).
+                    getBytes(StandardCharsets.UTF_8));
         }
         return null;
     }
 
-    private String getBlobTextValue(BallerinaParser.BlobLiteralContext blobLiteralContext) {
-        String nodeText = blobLiteralContext.getText().replaceAll(" ", "");
+    private String getBlobTextValue(String blobLiteralNodeText) {
+        String nodeText = blobLiteralNodeText.replaceAll(" ", "");
         return nodeText.substring(nodeText.indexOf('`') + 1, nodeText.lastIndexOf('`'));
     }
 
