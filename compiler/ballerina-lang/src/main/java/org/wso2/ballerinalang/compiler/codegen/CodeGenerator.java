@@ -762,8 +762,15 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTableLiteral tableLiteral) {
-        Operand varRefRegIndex = getOperand(-1);
-        if (tableLiteral.configurationExpr != null) {
+        Operand varRefRegIndex;
+        if (tableLiteral.configurationExpr == null) {
+            BLangLiteral nullLiteral = new BLangLiteral();
+            nullLiteral.pos = tableLiteral.pos;
+            nullLiteral.value = null;
+            nullLiteral.type = symTable.nilType;
+            genNode(nullLiteral, this.env);
+            varRefRegIndex = nullLiteral.regIndex;
+        } else {
             genNode(tableLiteral.configurationExpr, this.env);
             varRefRegIndex = tableLiteral.configurationExpr.regIndex;
         }
