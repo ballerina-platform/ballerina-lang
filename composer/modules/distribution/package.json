@@ -15,6 +15,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "build": {
+    "productName": "Ballerina Composer",
     "appId": "org.ballerinalang.composer",
     "asar": true,
     "asarUnpack": [
@@ -54,7 +55,14 @@
           ]
         }
       ]
-    }
+    },
+    "fileAssociations":[
+      { 
+        "ext": "bal",
+        "name": "Ballerina File",
+        "description": "A ballerina source file"
+      }
+    ]
   },
   "repository": {
     "type": "git",
