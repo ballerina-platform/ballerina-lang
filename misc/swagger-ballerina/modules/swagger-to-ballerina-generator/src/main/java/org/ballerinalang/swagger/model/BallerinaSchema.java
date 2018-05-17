@@ -198,7 +198,11 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
             childSchemas.add(new BallerinaSchema().buildContext(schema, openAPI));
         }
 
-        childSchemas.forEach(schema -> this.properties.addAll(schema.getProperties()));
+        childSchemas.forEach(schema -> {
+            if (schema.getProperties() != null) {
+                this.properties.addAll(schema.getProperties());
+            }
+        });
     }
 
     /**
