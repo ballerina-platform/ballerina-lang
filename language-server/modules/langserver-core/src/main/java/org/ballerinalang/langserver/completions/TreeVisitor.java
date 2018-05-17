@@ -29,6 +29,8 @@ import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.util.ScopeResolverConstants;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.BlockStatementScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ConnectorScopeResolver;
+import org.ballerinalang.langserver.completions.util.positioning.resolvers.CursorPositionResolver;
+import org.ballerinalang.langserver.completions.util.positioning.resolvers.InvocationParameterScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.MatchStatementScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ObjectTypeScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.PackageNodeScopeResolver;
@@ -71,6 +73,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
@@ -308,8 +311,36 @@ public class TreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
-        ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
-                .isCursorBeforeNode(exprStmtNode.getPosition(), exprStmtNode, this, this.documentServiceContext);
+        if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
+                .isCursorBeforeNode(exprStmtNode.getPosition(), exprStmtNode, this, this.documentServiceContext)) {
+            if (exprStmtNode.expr instanceof BLangInvocation) {
+                this.acceptNode(exprStmtNode.expr, symbolEnv);
+            }
+        }
+    }
+
+    @Override
+    public void visit(BLangInvocation invocationNode) {
+        DiagnosticPos invocationNodePosition = invocationNode.getPosition();
+        CursorPositionResolver resolver = ScopeResolverConstants.getResolverByClass(cursorPositionResolver);
+        if (!resolver.isCursorBeforeNode(invocationNodePosition, invocationNode, this, this.documentServiceContext)) {
+            int curLine = documentServiceContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
+            if (curLine != invocationNodePosition.getStartLine() - 1) {
+                return;
+            }
+            final TreeVisitor visitor = this;
+            this.cursorPositionResolver = InvocationParameterScopeResolver.class;
+            // Visit all arguments
+            invocationNode.getArgumentExpressions().forEach(expressionNode -> {
+                BLangNode node = ((BLangNode) expressionNode);
+                this.blockOwnerStack.push(invocationNode);
+                CursorPositionResolver posResolver = ScopeResolverConstants.getResolverByClass(cursorPositionResolver);
+                posResolver.isCursorBeforeNode(node.getPosition(), node, visitor, visitor.documentServiceContext);
+                visitor.acceptNode(node, symbolEnv);
+                this.blockOwnerStack.pop();
+            });
+            this.cursorPositionResolver = BlockStatementScopeResolver.class;
+        }
     }
 
     @Override
@@ -764,7 +795,7 @@ public class TreeVisitor extends LSNodeVisitor {
     public void populateSymbols(Map<Name, Scope.ScopeEntry> symbolEntries, SymbolEnv symbolEnv) {
         List<SymbolInfo> visibleSymbols = new ArrayList<>();
         BLangNode symbolEnvNode = symbolEnv != null ? symbolEnv.node : this.symbolEnv.node;
-        
+
         this.populateSymbolEnvNode(symbolEnvNode);
         symbolEntries.forEach((k, v) -> {
             SymbolInfo symbolInfo = new SymbolInfo(k.getValue(), v);
@@ -858,7 +889,7 @@ public class TreeVisitor extends LSNodeVisitor {
         
         return false;
     }
-    
+
     /**
      * Check whether the cursor resides within the given node type's parameter context.
      * Node name is used to identify the correct node
@@ -979,7 +1010,7 @@ public class TreeVisitor extends LSNodeVisitor {
         
         return line == nodeSLine;
     }
-    
+
     private void populateSymbolEnvNode(BLangNode node) {
         documentServiceContext.put(CompletionKeys.SYMBOL_ENV_NODE_KEY, node);
     }

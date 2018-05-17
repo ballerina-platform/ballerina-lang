@@ -47,7 +47,10 @@ public class BallerinaPackageNameReference extends BallerinaCachedReference<Ball
     @Nullable
     @Override
     public PsiElement resolveInner() {
-        return reference.resolve();
+        if (reference != null) {
+            return reference.resolve();
+        }
+        return null;
     }
 
     @NotNull
