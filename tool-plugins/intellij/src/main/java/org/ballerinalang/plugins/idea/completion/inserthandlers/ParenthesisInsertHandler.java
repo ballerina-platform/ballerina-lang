@@ -26,10 +26,6 @@ import com.intellij.openapi.editor.EditorModificationUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.PsiElement;
-
-import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.HAS_A_RETURN_VALUE;
-import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.REQUIRE_PARAMETERS;
 
 /**
  * Provides parenthesis completion support.
@@ -62,25 +58,7 @@ public class ParenthesisInsertHandler implements InsertHandler<LookupElement> {
         if (project != null) {
             int completionCharOffset = getCompletionCharOffset(editor);
             if (completionCharOffset == -1) {
-                PsiElement psiElement = item.getPsiElement();
-                if (psiElement != null) {
-                    String hasAReturnValue = psiElement.getUserData(HAS_A_RETURN_VALUE);
-                    String requireParameters = psiElement.getUserData(REQUIRE_PARAMETERS);
-                    int caretShift = 1;
-                    if (hasAReturnValue != null) {
-                        if (requireParameters == null) {
-                            caretShift += 2;
-                        }
-                        EditorModificationUtil.insertStringAtCaret(editor, "();", false, caretShift);
-                    } else {
-                        if (requireParameters == null) {
-                            caretShift += 1;
-                        }
-                        EditorModificationUtil.insertStringAtCaret(editor, "()", false, caretShift);
-                    }
-                } else {
-                    EditorModificationUtil.insertStringAtCaret(editor, "()", false, 1);
-                }
+                EditorModificationUtil.insertStringAtCaret(editor, "()", false, 1);
                 PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
             } else {
                 editor.getCaretModel().moveToOffset(editor.getCaretModel().getOffset() + completionCharOffset + 1);

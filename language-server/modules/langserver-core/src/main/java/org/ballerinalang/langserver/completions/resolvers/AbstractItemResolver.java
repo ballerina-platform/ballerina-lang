@@ -28,7 +28,6 @@ import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.ballerinalang.langserver.completions.util.filters.ConnectorInitExpressionItemFilter;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.TypeConstants;
 import org.eclipse.lsp4j.CompletionItem;
@@ -441,12 +440,6 @@ public abstract class AbstractItemResolver {
      */
     protected List<CompletionItem> getVariableDefinitionCompletionItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        ConnectorInitExpressionItemFilter connectorInitItemFilter = new ConnectorInitExpressionItemFilter();
-        // Fill completions if user is writing a connector init
-        List<SymbolInfo> filteredConnectorInitSuggestions = connectorInitItemFilter.filterItems(completionContext);
-        if (!filteredConnectorInitSuggestions.isEmpty()) {
-            populateCompletionItemList(filteredConnectorInitSuggestions, completionItems);
-        }
 
         // Add the check keyword
         CompletionItem createKeyword = new CompletionItem();

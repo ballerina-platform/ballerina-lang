@@ -329,7 +329,7 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
                 return false;
             }
             PsiElement resolvedElement = reference.resolve();
-            if (resolvedElement == null || !(resolvedElement instanceof PsiDirectory)) {
+            if (!(resolvedElement instanceof PsiDirectory)) {
                 return true;
             }
             return recursivelyFindInPackage(processor, ((PsiDirectory) resolvedElement));
