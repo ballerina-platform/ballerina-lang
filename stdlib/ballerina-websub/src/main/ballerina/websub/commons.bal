@@ -238,9 +238,8 @@ function processWebSubNotification(http:Request request, typedesc serviceType) r
             error webSubError = {message:X_HUB_SIGNATURE + " header not present for subscription added" +
                 " specifying " + HUB_SECRET};
             return webSubError;
-        } else {
-            return;
         }
+        return;
     }
 
     json payload;
@@ -256,10 +255,8 @@ function processWebSubNotification(http:Request request, typedesc serviceType) r
     if (secret == "" && xHubSignature != "") {
         log:printWarn("Ignoring " + X_HUB_SIGNATURE + " value since secret is not specified.");
         return;
-    } else {
-        string strPayload = payload.toString();
-        return validateSignature(xHubSignature, strPayload, secret);
     }
+    return validateSignature(xHubSignature, payload.toString(), secret);
 }
 
 documentation {
@@ -406,9 +403,8 @@ public function WebSubHub::publishUpdate(string topic, json payload) returns err
     if (self.hubUrl == "") {
         error webSubError = {message:"Internal Ballerina Hub not initialized or incorrectly referenced"};
         return webSubError;
-    } else {
-        return validateAndPublishToInternalHub(self.hubUrl, topic, payload);
     }
+    return validateAndPublishToInternalHub(self.hubUrl, topic, payload);
 }
 
 public function WebSubHub::registerTopic(string topic) returns error? {

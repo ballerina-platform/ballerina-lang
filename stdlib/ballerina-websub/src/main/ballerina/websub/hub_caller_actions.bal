@@ -202,8 +202,7 @@ public function CallerActions::publishUpdate(string topic, json payload, string?
     var response = httpClientEndpoint->post(untaint ("?" + queryParams), request = request);
     match (response) {
         http:Response response => {
-            string respStatusCode = <string>response.statusCode;
-            if (!respStatusCode.hasPrefix("2")) {
+            if (!isSuccessStatusCode(response.statusCode)) {
                 string payload = response.getTextPayload() but { error => "" };
                 error webSubError = {message:"Error occured publishing update: " + payload};
                 return webSubError;
@@ -234,8 +233,7 @@ public function CallerActions::notifyUpdate(string topic, map<string>? headers =
     var response = httpClientEndpoint->post(untaint ("?" + queryParams), request = request);
     match (response) {
         http:Response response => {
-            string respStatusCode = <string>response.statusCode;
-            if (!respStatusCode.hasPrefix("2")) {
+            if (!isSuccessStatusCode(response.statusCode)) {
                 string payload = response.getTextPayload() but { error => "" };
                 error webSubError = {message:"Error occured notifying update availability: " + payload};
                 return webSubError;
@@ -411,4 +409,8 @@ function getRedirectionMaxCount(http:FollowRedirects? followRedirects) returns i
         () => {}
     }
     return 0;
+}
+
+function isSuccessStatusCode(int statusCode) returns boolean {
+    return (200 <= statusCode && statusCode < 300);
 }
