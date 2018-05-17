@@ -94,8 +94,14 @@ function startServer(){
                     openFilePath = undefined;
                 }
             });
-            win.on('closed', () => {
+            win.on('closed', (evt) => {
                 win = null;
+            });
+            win.on('close', (evt) => {
+                if (process.platform === 'darwin' && !app.quitting) {
+                    evt.preventDefault();
+                    win.hide();
+                }
             });
         } else {
             logger.info('Server Log: ' + data);
@@ -157,6 +163,7 @@ app.on('open-file', (evt, filePath) => {
         if (win.isMinimized()){
             win.restore();
         }
+        win.show();
         win.focus();
         win.webContents.send('open-file', filePath);
     } else {
@@ -204,6 +211,7 @@ app.on('window-all-closed', () => {
 
 // kill server before quitting
 app.on('before-quit', () => {
+    app.quitting = true;
     logger.info('Quitting composer app');
     if (serverProcess !== undefined) {
         logger.info('kill server process with pid ' + serverProcess.pid);
@@ -228,6 +236,8 @@ app.on('activate', () => {
         win.on('closed', () => {
             win = null;
         });
+    } else {
+        win.show();
     }
 });
 
