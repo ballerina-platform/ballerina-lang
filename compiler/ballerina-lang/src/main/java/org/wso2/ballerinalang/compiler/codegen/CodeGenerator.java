@@ -3028,21 +3028,24 @@ public class CodeGenerator extends BLangNodeVisitor {
         int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, funcSymbol.pkgID);
         int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, funcSymbol.name.value);
         FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
+        Operand typeCPIndex = getTypeCPIndex(funcSymbol.type);
 
         int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
         RegIndex nextIndex = calcAndGetExprRegIndex(fpExpr);
         Operand[] operands;
         if (!(fpExpr instanceof BLangLambdaFunction)) {
-            operands = new Operand[3];
+            operands = new Operand[4];
             operands[0] = getOperand(funcRefCPIndex);
             operands[1] = nextIndex;
-            operands[2] = new Operand(0);
+            operands[2] = typeCPIndex;
+            operands[3] = new Operand(0);
         } else {
             Operand[] closureIndexes = calcAndGetClosureIndexes(((BLangLambdaFunction) fpExpr).function);
-            operands = new Operand[2 + closureIndexes.length];
+            operands = new Operand[3 + closureIndexes.length];
             operands[0] = getOperand(funcRefCPIndex);
             operands[1] = nextIndex;
-            System.arraycopy(closureIndexes, 0, operands, 2, closureIndexes.length);
+            operands[2] = typeCPIndex;
+            System.arraycopy(closureIndexes, 0, operands, 3, closureIndexes.length);
         }
         emit(InstructionCodes.FPLOAD, operands);
     }

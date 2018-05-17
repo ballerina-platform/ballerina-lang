@@ -23,6 +23,7 @@ import { EVENTS as EDITOR_EVENTS } from 'core/editor/constants';
 import Editor from 'core/editor/model/Editor';
 import ModelRenderer from './ModelRenderer';
 import './CodeExplorer.scss';
+import ErrorBoundary from 'core/editor/views/ErrorBoundary';
 
 /**
  * Code Explorer
@@ -87,11 +88,13 @@ class CodeExplorerPanel extends React.Component {
         }
         return (
             <div className='code-explorer'>
-                <ModelRenderer
-                    model={ast}
-                    goToNode={node => this.props.codeExplorerPlugin.appContext.command.dispatch('go-to-node', node)}
-                    scrollPosition={this.state.scrollPosition}
-                />
+                <ErrorBoundary>
+                    <ModelRenderer
+                        model={ast}
+                        goToNode={node => this.props.codeExplorerPlugin.appContext.command.dispatch('go-to-node', node)}
+                        scrollPosition={this.state.scrollPosition}
+                    />
+                </ErrorBoundary>
             </div>
         );
     }

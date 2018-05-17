@@ -696,6 +696,9 @@ public class ProgramFileReader {
         int sigCPIndex = dataInStream.readInt();
         UTF8CPEntry sigUTF8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(sigCPIndex);
 
+        // Read and ignore flags
+        dataInStream.readInt();
+
         int globalMemIndex = dataInStream.readInt();
 
         PackageVarInfo packageVarInfo = new PackageVarInfo(nameCPIndex, nameUTF8CPEntry.getValue(),
@@ -853,13 +856,36 @@ public class ProgramFileReader {
     }
 
     private BFunctionType getFunctionType(String sig, PackageInfo packageInfo) {
-        int indexOfSep = sig.indexOf(")(");
-        String paramSig = sig.substring(1, indexOfSep);
-        String retParamSig = sig.substring(indexOfSep + 2, sig.length() - 1);
+        char[] chars = sig.toCharArray();
+        Stack<BType> typeStack = new Stack<>();
+        createFunctionType(chars, 0, typeStack, packageInfo);
+        return (BFunctionType) typeStack.pop();
+    }
 
-        BType[] paramTypes = getParamTypes(paramSig, packageInfo);
-        BType[] retParamTypes = getParamTypes(retParamSig, packageInfo);
-        return new BFunctionType(paramTypes, retParamTypes);
+    private int createFunctionType(char[] chars, int index, Stack<BType> typeStack, PackageInfo packageInfo) {
+        // Skip the first parenthesis
+        index++;
+
+        // Read function parameters
+        Stack<BType> funcParamsStack = new Stack<>();
+        while (chars[index] != ')' || chars[index + 1] != '(') {
+            index = createBTypeFromSig(chars, index, funcParamsStack, packageInfo);
+        }
+        BType[] paramTypes = funcParamsStack.toArray(new BType[funcParamsStack.size()]);
+
+        // Read function return type.
+        // Skip the two parenthesis ')(', which separate params and return params
+        index += 2;
+        BType[] retType;
+        if (chars[index] == ')') {
+            retType = new BType[] {};
+        } else {
+            index = createBTypeFromSig(chars, index, funcParamsStack, packageInfo);
+            retType = new BType[] { funcParamsStack.pop() };
+        }
+
+        typeStack.push(new BFunctionType(paramTypes, retType));
+        return index;
     }
 
     private BType[] getParamTypes(String signature, PackageInfo packageInfo) {
@@ -983,8 +1009,8 @@ public class ProgramFileReader {
                 typeStack.push(new BStreamType(streamConstraintType));
                 return index;
             case 'U':
-                // TODO : Fix this for type casting.
-                typeStack.push(new BFunctionType());
+                index++;
+                index = createFunctionType(chars, index, typeStack, packageInfo);
                 return index + 1;
             case 'O':
             case 'P':
@@ -1080,8 +1106,6 @@ public class ProgramFileReader {
                 BType elemType = getBTypeFromDescriptor(desc.substring(1));
                 return new BArrayType(elemType);
             case 'U':
-                // TODO : Fix this for type casting.
-                return new BFunctionType();
             case 'O':
             case 'P':
                 Stack<BType> typeStack = new Stack<BType>();
@@ -1439,15 +1463,17 @@ public class ProgramFileReader {
                     break;
 
                 case InstructionCodes.FPLOAD: {
+                    h = codeStream.readInt();
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
-                    int[] operands = new int[3 + (k * 2)];
-                    operands[0] = i;
-                    operands[1] = j;
-                    operands[2] = k;
+                    int[] operands = new int[4 + (k * 2)];
+                    operands[0] = h;
+                    operands[1] = i;
+                    operands[2] = j;
+                    operands[3] = k;
                     for (int x = 0; x < (k * 2); x++) {
-                        operands[x + 3] = codeStream.readInt();
+                        operands[x + 4] = codeStream.readInt();
                     }
                     packageInfo.addInstruction(InstructionFactory.get(opcode, operands));
                     break;

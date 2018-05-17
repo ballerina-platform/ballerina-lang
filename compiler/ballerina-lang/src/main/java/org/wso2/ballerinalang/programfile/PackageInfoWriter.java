@@ -214,6 +214,7 @@ public class PackageInfoWriter {
         for (PackageVarInfo packageVarInfo : packageVarInfoEntry) {
             dataOutStream.writeInt(packageVarInfo.nameCPIndex);
             dataOutStream.writeInt(packageVarInfo.signatureCPIndex);
+            dataOutStream.writeInt(packageVarInfo.flags);
             dataOutStream.writeInt(packageVarInfo.globalMemIndex);
 
             writeAttributeInfoEntries(dataOutStream, packageVarInfo.getAttributeInfoEntries());

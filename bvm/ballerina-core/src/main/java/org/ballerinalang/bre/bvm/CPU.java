@@ -487,8 +487,10 @@ public class CPU {
                     case InstructionCodes.FPLOAD:
                         i = operands[0];
                         j = operands[1];
+                        k = operands[2];
                         funcRefCPEntry = (FunctionRefCPEntry) ctx.constPool[i];
-                        BFunctionPointer functionPointer = new BFunctionPointer(funcRefCPEntry);
+                        typeEntry = (TypeRefCPEntry) ctx.constPool[k];
+                        BFunctionPointer functionPointer = new BFunctionPointer(funcRefCPEntry, typeEntry.getType());
                         sf.refRegs[j] = functionPointer;
                         findAndAddClosureVarRegIndexes(ctx, operands, functionPointer);
                         break;
@@ -914,14 +916,14 @@ public class CPU {
     private static void findAndAddClosureVarRegIndexes(WorkerExecutionContext ctx, int[] operands,
                                                        BFunctionPointer fp) {
 
-        int h = operands[2];
+        int h = operands[3];
 
         if (h == 0) {
             return;
         }
 
         for (int i = 0; i < h; i++) {
-            int operandIndex = (i * 2) + 3;
+            int operandIndex = (i * 2) + 4;
             int type = operands[operandIndex];
             int index = operands[++operandIndex];
             switch (type) {
@@ -3175,6 +3177,10 @@ public class CPU {
             return checkFiniteTypeAssignable(rhsValue, lhsType);
         }
 
+        if (lhsType.getTag() == TypeTags.FUNCTION_POINTER_TAG) {
+            return checkFunctionCast(rhsValue, lhsType);
+        }
+
         return false;
     }
 
@@ -4028,5 +4034,12 @@ public class CPU {
 
         return false;
     }
-    
+
+    private static boolean checkFunctionCast(BValue value, BType lhsType) {
+        if (value.getType().getTag() != TypeTags.FUNCTION_POINTER_TAG) {
+            return false;
+        }
+
+        return checkFunctionTypeEquality((BFunctionType) value.getType(), (BFunctionType) lhsType);
+    }
 }
