@@ -40,6 +40,8 @@ let win,
     composerPublicPath = path.join(composerHome, 'web', 'public'),
     pageURL = `file://${composerPublicPath}/index.html`;
 
+let  openFilePath = '';
+
 function createLogger(){
     fs.ensureDirSync(logsDir);
     let accessError = fs.accessSync(logsDir, fs.W_OK);
@@ -84,9 +86,13 @@ function startServer(){
             pageURL = (data + '').substring(sucessMsgPrefix.length - 1);
             logger.info('Backend server is properly started at ' + pageURL + ', starting composer UI');
             win = createWindow(pageURL, false);
-            win.once('ready-to-show', () => {
+            ipcMain.once('composer-rendered', () => {
                 splashWin.destroy();
                 win.show();
+                if (openFilePath) {
+                    win.webContents.send('open-file', openFilePath);
+                    openFilePath = undefined;
+                }
             });
             win.on('closed', () => {
                 win = null;
@@ -141,6 +147,23 @@ function checkJava(callback) {
         }
     });
 }
+
+if (process.platform == 'win32' && process.argv.length >= 2) {
+    openFilePath = process.argv[1];
+}
+
+app.on('open-file', (evt, filePath) => {
+    if (win) {
+        if (win.isMinimized()){
+            win.restore();
+        }
+        win.focus();
+        win.webContents.send('open-file', filePath);
+    } else {
+        openFilePath = filePath;
+    }
+    evt.preventDefault();
+});
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -208,13 +231,20 @@ app.on('activate', () => {
     }
 });
 
-const isSecondInstance = app.makeSingleInstance((commandLine, workingDirectory) => {
+const isSecondInstance = app.makeSingleInstance((argv, workingDirectory) => {
     // Someone tried to run a second instance, we should focus our window.
     if (win) {
-      if (win.isMinimized()){
-        win.restore();
-      }
-      win.focus();
+        if (win.isMinimized()){
+            win.restore();
+        }
+        win.focus();
+        if (process.platform == 'win32' && argv.length >= 2) {
+            win.webContents.send('open-file', argv[1]);
+        }
+    } else {
+        if (process.platform == 'win32' && argv.length >= 2) {
+            openFilePath = argv[1];
+        }
     }
   });
   
