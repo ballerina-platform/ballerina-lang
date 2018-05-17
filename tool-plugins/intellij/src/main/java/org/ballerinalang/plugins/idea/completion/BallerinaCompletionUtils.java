@@ -477,6 +477,11 @@ public class BallerinaCompletionUtils {
         }
         LookupElementBuilder builder = LookupElementBuilder.create(element, packageName).withTypeText("Package")
                 .withIcon(BallerinaIcons.PACKAGE).withInsertHandler(insertHandler);
+        if (organization != null) {
+            builder = builder.withTailText("(" + organization + "/" + packageName + ")", true);
+        } else {
+            builder = builder.withTailText("(" + packageName + ")", true);
+        }
         return PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY);
     }
 
