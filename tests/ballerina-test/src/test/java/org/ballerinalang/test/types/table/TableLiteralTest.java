@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.test.types.table;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -49,11 +50,13 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public class TableLiteralTest {
 
     private CompileResult result;
+    private CompileResult resultNegative;
     private CompileResult resultHelper;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/table/table_literal.bal");
+        resultNegative = BCompileUtil.compile("test-src/types/table/table_literal_negative.bal");
         resultHelper = BCompileUtil.compile("test-src/types/table/table_test_helper.bal");
     }
 
@@ -346,9 +349,24 @@ public class TableLiteralTest {
                 + "to a table with type:Person");
     }
 
+    @Test(priority = 1, description = "Test add data with  mismatched types")
+    public void testTableRemoveInvalidFunction() {
+        BValue[] returns = BRunUtil.invoke(result, "testTableRemoveInvalidFunction");
+        Assert.assertEquals((returns[0]).stringValue(), "incompatible types: struct of type:Company cannot be added "
+                + "to a table with type:Person");
+    }
+
     @Test(priority = 3, enabled = false) //Issue #5106
     public void testSessionCount() {
         BValue[] returns = BRunUtil.invoke(resultHelper, "getSessionCount");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+    }
+
+    @Test(description = "Test table remove with function pointer of invalid return type")
+    public void testTransactionNegativeCases() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BAssertUtil.validateError(resultNegative, 0,
+           "incompatible types: expected 'function (any) returns (boolean)', found 'function (Person) returns (())'",
+           21, 33);
     }
 }

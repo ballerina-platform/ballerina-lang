@@ -583,6 +583,7 @@ public class TableTest {
         BValue[] returns = BRunUtil.invoke(result, "testTableRemoveInvalid");
         Assert.assertEquals((returns[0]).stringValue(), "data cannot be deleted from a table returned from a database");
     }
+
     @AfterSuite
     public void cleanup() {
         SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY));
