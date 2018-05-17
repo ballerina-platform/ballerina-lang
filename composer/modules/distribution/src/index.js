@@ -100,6 +100,9 @@ function startServer(){
         let errorWindowLoaded = false,
             logsBuffer = [];
         if (!errorWin) {
+            if (splashWin) {
+                splashWin.destroy();
+            }
             errorWin = createErrorWindow({errorCode: ErrorCodes.SERVICE_FAILED,
                 errorMessage: data});
         }
@@ -160,6 +163,7 @@ app.on('ready', () => {
         } else {
             logger.error('Failed verifying availability of java runtime in path');
             logger.error('Error: ' + message);
+            splashWin.destroy();
             let errorWin = createErrorWindow({errorCode: ErrorCodes.JAVA_NOT_FOUND,
                 errorMessage: message});
         }
@@ -203,3 +207,17 @@ app.on('activate', () => {
         });
     }
 });
+
+const isSecondInstance = app.makeSingleInstance((commandLine, workingDirectory) => {
+    // Someone tried to run a second instance, we should focus our window.
+    if (win) {
+      if (win.isMinimized()){
+        win.restore();
+      }
+      win.focus();
+    }
+  });
+  
+if (isSecondInstance) {
+    app.quit();
+}
