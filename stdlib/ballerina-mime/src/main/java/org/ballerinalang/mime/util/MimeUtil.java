@@ -43,6 +43,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -463,11 +464,10 @@ public class MimeUtil {
     /**
      * Extract overflow configuration settings from server annotations or get the default settings.
      *
-     * @param context   Represent ballerina context
      * @param configAnn Server configs
      * @return A map with overflow settings
      */
-    public static Map<String, Object> getOverflowSettings(Context context, Annotation configAnn) {
+    public static Map<String, Object> getOverflowSettings(Annotation configAnn) {
         if (configAnn == null) {
             return getDefaultOverflowSettings();
         }
@@ -493,9 +493,7 @@ public class MimeUtil {
     }
 
     private static Map<String, Object> getDefaultOverflowSettings() {
-        Map<String, Object> overflowSettings = new HashMap<>();
-        overflowSettings.put(ANN_CONFIG_MEMORY_THRESHOLD, (long) BYTE_LIMIT);
-        return overflowSettings;
+        return Collections.singletonMap(ANN_CONFIG_MEMORY_THRESHOLD, (long) BYTE_LIMIT);
     }
 
     /**

@@ -1,3 +1,20 @@
+/*
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*  http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing,
+*  software distributed under the License is distributed on an
+*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+*  KIND, either express or implied.  See the License for the
+*  specific language governing permissions and limitations
+*  under the License.
+*/
 package org.ballerinalang.test.services.configuration;
 
 import org.ballerinalang.launcher.util.BServiceUtil;
@@ -46,16 +63,10 @@ public class OverflowConfigurationTest {
         String path = "/defaultOverflow";
         try {
             String content = "ballerina";
-            HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", content);
-            HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
-            Assert.assertNotNull(response, "Response message not found");
-            InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
-            Assert.assertNotNull(inputStream, "Inputstream is null");
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            MimeUtil.writeInputToOutputStream(inputStream, outputStream);
+            ByteArrayOutputStream outputStream = getByteArrayOutputStream(path, content);
             Assert.assertEquals(outputStream.size(), content.getBytes().length);
         } catch (IOException e) {
-            log.error("Error occurred in testLargePayload", e.getMessage());
+            log.error("Error occurred in testDefaultWithoutOverflow", e.getMessage());
         }
     }
 
@@ -70,17 +81,10 @@ public class OverflowConfigurationTest {
             CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
             String responseValue = characterChannel.readAll();
             characterChannel.close();
-            HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST",
-                    responseValue);
-            HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
-            Assert.assertNotNull(response, "Response message not found");
-            InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
-            Assert.assertNotNull(inputStream, "Inputstream is null");
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            MimeUtil.writeInputToOutputStream(inputStream, outputStream);
+            ByteArrayOutputStream outputStream = getByteArrayOutputStream(path, responseValue);
             Assert.assertEquals(outputStream.size(), 2323779);
         } catch (IOException | URISyntaxException e) {
-            log.error("Error occurred in testLargePayload", e.getMessage());
+            log.error("Error occurred in testDefaultWithOverflow", e.getMessage());
         }
     }
 
@@ -90,16 +94,10 @@ public class OverflowConfigurationTest {
         String path = "/customOverflow";
         try {
             String content = "ballerina";
-            HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", content);
-            HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
-            Assert.assertNotNull(response, "Response message not found");
-            InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
-            Assert.assertNotNull(inputStream, "Inputstream is null");
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            MimeUtil.writeInputToOutputStream(inputStream, outputStream);
+            ByteArrayOutputStream outputStream = getByteArrayOutputStream(path, content);
             Assert.assertEquals(outputStream.size(), content.getBytes().length);
         } catch (IOException e) {
-            log.error("Error occurred in testLargePayload", e.getMessage());
+            log.error("Error occurred in testCustomWithoutOverflow", e.getMessage());
         }
     }
 
@@ -114,20 +112,25 @@ public class OverflowConfigurationTest {
                     "ballerina ballerina ballerina ballerina ballerina ballerina ballerina ballerina ballerina " +
                     "ballerina ballerina ballerina ballerina ballerina ballerina ballerina ballerina ballerina" +
                     "ballerina ballerina ballerina ballerina ballerina ballerina ballerina ballerina ballerina";
-            HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", content);
-            HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
-            Assert.assertNotNull(response, "Response message not found");
-            InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
-            Assert.assertNotNull(inputStream, "Inputstream is null");
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            MimeUtil.writeInputToOutputStream(inputStream, outputStream);
+            ByteArrayOutputStream outputStream = getByteArrayOutputStream(path, content);
             Assert.assertEquals(outputStream.size(), content.getBytes().length);
             Path userDefinedTempLocation = Paths.get("testBallerinaOverFlow").toAbsolutePath();
             Assert.assertTrue(Files.exists(userDefinedTempLocation));
             Files.delete(userDefinedTempLocation);
             Assert.assertFalse(Files.exists(userDefinedTempLocation));
         } catch (IOException e) {
-            log.error("Error occurred in testLargePayload", e.getMessage());
+            log.error("Error occurred in testCustomWithOverflow", e.getMessage());
         }
+    }
+
+    private ByteArrayOutputStream getByteArrayOutputStream(String path, String content) throws IOException {
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", content);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
+        Assert.assertNotNull(inputStream, "Inputstream is null");
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        MimeUtil.writeInputToOutputStream(inputStream, outputStream);
+        return outputStream;
     }
 }
