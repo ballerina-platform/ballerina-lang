@@ -575,13 +575,15 @@ public class BallerinaCompletionUtils {
 
     @NotNull
     public static LookupElement createTypeLookupElement(@NotNull BallerinaTopLevelDefinition definition) {
+        return createTypeLookupElement(definition, AddSpaceInsertHandler.INSTANCE);
+    }
+
+    @NotNull
+    public static LookupElement createTypeLookupElement(@NotNull BallerinaTopLevelDefinition definition,
+                                                        @Nullable InsertHandler<LookupElement> insertHandler) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(definition.getIdentifier()
-                .getText(), definition)
-                .withInsertHandler(AddSpaceInsertHandler.INSTANCE)
-                .withTypeText("Type").withIcon(definition.getIcon(Iconable.ICON_FLAG_VISIBILITY)).bold();
-        // Todo - Add tail text
-        //                .withTailText(BallerinaDocumentationProvider.getParametersAndReturnTypes(element
-        // .getParent()));
+                .getText(), definition).withInsertHandler(insertHandler).withTypeText("Type")
+                .withIcon(definition.getIcon(Iconable.ICON_FLAG_VISIBILITY)).bold();
         return PrioritizedLookupElement.withPriority(builder, TYPE_PRIORITY);
     }
 

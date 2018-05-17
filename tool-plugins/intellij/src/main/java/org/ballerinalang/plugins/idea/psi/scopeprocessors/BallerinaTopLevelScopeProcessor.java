@@ -1,5 +1,6 @@
 package org.ballerinalang.plugins.idea.psi.scopeprocessors;
 
+import com.intellij.codeInsight.completion.AddSpaceInsertHandler;
 import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.lookup.LookupElement;
@@ -20,9 +21,11 @@ import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.BallerinaFunctionDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaGlobalEndpointDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaGlobalVariableDefinition;
+import org.ballerinalang.plugins.idea.psi.BallerinaNameReference;
 import org.ballerinalang.plugins.idea.psi.BallerinaOncommitStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaOnretryClause;
 import org.ballerinalang.plugins.idea.psi.BallerinaPackageReference;
+import org.ballerinalang.plugins.idea.psi.BallerinaServiceDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
@@ -109,14 +112,26 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
                     PsiElement identifier = definition.getIdentifier();
                     if (identifier != null) {
                         if (myResult != null) {
+
+                            InsertHandler<LookupElement> insertHandler = AddSpaceInsertHandler.INSTANCE;
+                            BallerinaNameReference nameReference = PsiTreeUtil.getParentOfType(myElement,
+                                    BallerinaNameReference.class);
+                            if (nameReference != null) {
+                                if (nameReference.getParent() instanceof BallerinaServiceDefinition) {
+                                    insertHandler = null;
+                                }
+                            }
+
                             String publicFieldsOnly = state.get(BallerinaCompletionUtils.PUBLIC_DEFINITIONS_ONLY);
                             if (publicFieldsOnly != null) {
                                 if (definition.isPublic()) {
-                                    myResult.addElement(BallerinaCompletionUtils.createTypeLookupElement(definition));
+                                    myResult.addElement(BallerinaCompletionUtils.createTypeLookupElement(definition,
+                                            insertHandler));
                                     lookupElementsFound = true;
                                 }
                             } else {
-                                myResult.addElement(BallerinaCompletionUtils.createTypeLookupElement(definition));
+                                myResult.addElement(BallerinaCompletionUtils.createTypeLookupElement(definition,
+                                        insertHandler));
                                 lookupElementsFound = true;
                             }
                         } else if (myElement.getText().equals(identifier.getText())) {
@@ -221,14 +236,24 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
                     PsiElement identifier = child.getIdentifier();
                     if (identifier != null) {
                         if (myResult != null) {
+                            InsertHandler<LookupElement> insertHandler = AddSpaceInsertHandler.INSTANCE;
+                            BallerinaNameReference nameReference = PsiTreeUtil.getParentOfType(myElement,
+                                    BallerinaNameReference.class);
+                            if (nameReference != null) {
+                                if (nameReference.getParent() instanceof BallerinaServiceDefinition) {
+                                    insertHandler = null;
+                                }
+                            }
                             String publicFieldsOnly = state.get(BallerinaCompletionUtils.PUBLIC_DEFINITIONS_ONLY);
                             if (publicFieldsOnly != null) {
                                 if (child.isPublic()) {
-                                    myResult.addElement(BallerinaCompletionUtils.createTypeLookupElement(child));
+                                    myResult.addElement(BallerinaCompletionUtils.createTypeLookupElement(child,
+                                            insertHandler));
                                     lookupElementsFound = true;
                                 }
                             } else {
-                                myResult.addElement(BallerinaCompletionUtils.createTypeLookupElement(child));
+                                myResult.addElement(BallerinaCompletionUtils.createTypeLookupElement(child,
+                                        insertHandler));
                                 lookupElementsFound = true;
                             }
                         } else if (myElement.getText().equals(identifier.getText())) {
