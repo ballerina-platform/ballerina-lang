@@ -18,6 +18,7 @@
 package org.ballerinalang.database.sql;
 
 import org.ballerinalang.model.ColumnDefinition;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BUnionType;
@@ -27,6 +28,7 @@ import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -64,6 +66,7 @@ public class SQLDataIterator extends TableIterator {
     private StructInfo zoneStructInfo;
     private static final String UNASSIGNABLE_UNIONTYPE_EXCEPTION =
             "Corresponding Union type in the record is not an " + "assignable nillable type";
+    private static final String MISMATCHING_FIELD_ASSIGNMENT = "Trying to assign to a mismatching type";
 
     public SQLDataIterator(Calendar utcCalendar, BStructType structType, StructInfo timeStructInfo,
             StructInfo zoneStructInfo, TableResourceManager rm, ResultSet rs, List<ColumnDefinition> columnDefs) {
@@ -219,11 +222,11 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private void validateAndSetRefRecordField(BStruct bStruct, int refRegIndex, int expectedTypeTag, int actualTypeTag,
-            BRefType value) {
+            BRefType value, String exceptionMessage) {
         if (expectedTypeTag == actualTypeTag) {
             bStruct.setRefField(refRegIndex, value);
         } else {
-            throw new BallerinaException(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
+            throw new BallerinaException(exceptionMessage);
         }
     }
 
@@ -232,21 +235,12 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private void handleMismatchingFieldAssignment() {
-        throw new BallerinaException("Trying to assign to a mismatching field");
+        throw new BallerinaException("Trying to assign to a mismatching type");
     }
 
-    private int retrieveType(BStructType.StructField[] structFields, int index) {
+    private int retrieveNonNilTypeTag(BStructType.StructField[] structFields, int index) {
         List<BType> members = ((BUnionType) structFields[index].getFieldType()).getMemberTypes();
-        if (members.size() != 2) {
-            throw new BallerinaException(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
-        }
-        if (members.get(0).getTag() == TypeTags.NULL_TAG) {
-            return members.get(1).getTag();
-        } else if (members.get(1).getTag() == TypeTags.NULL_TAG) {
-            return members.get(0).getTag();
-        } else {
-            throw new BallerinaException(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
-        }
+        return retrieveNonNilType(members).getTag();
     }
 
     private BStruct createTimeStruct(long millis) {
@@ -313,13 +307,86 @@ public class SQLDataIterator extends TableIterator {
 
     private void handleArrayValue(BStruct bStruct, RegistryIndex refRegIndex, int index) throws SQLException {
         BStructType.StructField[] structFields = getStructFields();
-        int fieldTypeTag = getFieldTypeTag(structFields, index);
-        Array dataArray = rs.getArray(index);
-        if (fieldTypeTag == TypeTags.UNION_TAG) {
-            validateAndSetRefRecordField(bStruct, refRegIndex.incrementAndGet(), TypeTags.ARRAY_TAG,
-                    retrieveType(structFields, index - 1), getDataArray(dataArray));
+        BType fieldType = structFields[index - 1].getFieldType();
+        int fieldTypeTag = fieldType.getTag();
+        Array data = rs.getArray(index);
+        BNewArray dataArray = getDataArray(data);
+        if (dataArray != null) {
+            BType nonNilType = fieldType;
+            if (fieldTypeTag == TypeTags.UNION_TAG) {
+                nonNilType = retrieveNonNilType(((BUnionType) fieldType).getMemberTypes());
+            }
+            // The dataArray is created from the array returned from the database. There, a Union Type is
+            // created only if the array includes NULL elements.
+            boolean containsNull = dataArray.getType().getTag() == TypeTags.UNION_TAG;
+            handleMappingArrayValue(nonNilType, bStruct, dataArray, refRegIndex, containsNull);
         } else {
-            bStruct.setRefField(refRegIndex.incrementAndGet(), getDataArray(dataArray));
+            if (fieldTypeTag == TypeTags.UNION_TAG) {
+                bStruct.setRefField(refRegIndex.incrementAndGet(), null);
+            } else {
+                handleNilToNonNillableFieldAssignment();
+            }
+        }
+    }
+
+    private void handleMappingArrayValue(BType nonNilType, BStruct bStruct, BNewArray dataArray,
+            RegistryIndex refRegIndex, boolean containsNull) {
+        if (nonNilType.getTag() == TypeTags.ARRAY_TAG) {
+            BArrayType expectedArrayType = (BArrayType) nonNilType;
+            if (((BArrayType) nonNilType).getElementType().getTag() == TypeTags.UNION_TAG) {
+                handleMappingArrayElementToUnionType(expectedArrayType, dataArray, refRegIndex, bStruct);
+            } else {
+                handleMappingArrayElementToNonUnionType(containsNull, nonNilType, dataArray, bStruct, refRegIndex);
+            }
+        } else {
+            handleMismatchingFieldAssignment();
+        }
+    }
+
+    private void handleMappingArrayElementToNonUnionType(boolean containsNull, BType nonNilType, BNewArray newArray,
+            BStruct bStruct, RegistryIndex refRegIndex) {
+        if (containsNull) {
+            throw new BallerinaException(
+                    "Trying to assign an array containing NULL values to an array of a non-nillable element type");
+        } else {
+            validateAndSetRefRecordField(bStruct, refRegIndex.incrementAndGet(), ((BArrayType) nonNilType)
+                    .getElementType().getTag(), ((BArrayType) newArray.getType()).getElementType().getTag(),
+                    newArray, MISMATCHING_FIELD_ASSIGNMENT);
+        }
+    }
+
+    private void handleMappingArrayElementToUnionType(BArrayType expectedArrayType, BNewArray arrayTobeSet,
+            RegistryIndex refRegIndex, BStruct bStruct) {
+        BType actualArrayElementType = arrayTobeSet.getType();
+        if (actualArrayElementType.getTag() == TypeTags.NULL_TAG) {
+            bStruct.setRefField(refRegIndex.incrementAndGet(), arrayTobeSet);
+        } else {
+            BUnionType expectedArrayElementUnionType = (BUnionType) expectedArrayType.getElementType();
+            BType expectedNonNilArrayElementType = retrieveNonNilType(expectedArrayElementUnionType.getMemberTypes());
+            BType actualNonNilArrayElementType = getActualNonNilArrayElementType(actualArrayElementType);
+            validateAndSetRefRecordField(bStruct, refRegIndex.incrementAndGet(), expectedNonNilArrayElementType
+                    .getTag(), actualNonNilArrayElementType.getTag(), arrayTobeSet, UNASSIGNABLE_UNIONTYPE_EXCEPTION);
+        }
+    }
+
+    private BType getActualNonNilArrayElementType(BType actualArrayElementType) {
+        if (actualArrayElementType.getTag() == TypeTags.UNION_TAG) {
+            return (((BUnionType) actualArrayElementType).getMemberTypes()).get(0);
+        } else {
+            return ((BArrayType) actualArrayElementType).getElementType();
+        }
+    }
+
+    private BType retrieveNonNilType(List<BType> members) {
+        if (members.size() != 2) {
+            throw new BallerinaException(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
+        }
+        if (members.get(0).getTag() == TypeTags.NULL_TAG) {
+            return members.get(1);
+        } else if (members.get(1).getTag() == TypeTags.NULL_TAG) {
+            return members.get(0);
+        } else {
+            throw new BallerinaException(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
         }
     }
 
@@ -338,7 +405,8 @@ public class SQLDataIterator extends TableIterator {
         BStructType structFieldType = ((BStructType) structFields[index - 1].getFieldType());
         if (fieldTypeTag == TypeTags.UNION_TAG) {
             validateAndSetRefRecordField(bStruct, refRegIndex.incrementAndGet(), TypeTags.STRUCT_TAG,
-                    retrieveType(structFields, index - 1), createUserDefinedType(structData, structFieldType));
+                    retrieveNonNilTypeTag(structFields, index - 1), createUserDefinedType(structData,
+                            structFieldType), UNASSIGNABLE_UNIONTYPE_EXCEPTION);
         } else if (fieldTypeTag == TypeTags.STRUCT_TAG) {
             bStruct.setRefField(refRegIndex.incrementAndGet(), createUserDefinedType(structData, structFieldType));
         } else {
@@ -355,7 +423,7 @@ public class SQLDataIterator extends TableIterator {
         if (fieldTypeTag == TypeTags.UNION_TAG) {
             BRefType refValue = isOriginalValueNull ? null : new BBoolean(boolValue);
             validateAndSetRefRecordField(bStruct, refRegIndex.incrementAndGet(), TypeTags.BOOLEAN_TAG,
-                    retrieveType(structFields, index - 1), refValue);
+                    retrieveNonNilTypeTag(structFields, index - 1), refValue, UNASSIGNABLE_UNIONTYPE_EXCEPTION);
         } else {
             if (isOriginalValueNull) {
                 handleNilToNonNillableFieldAssignment();
@@ -403,7 +471,7 @@ public class SQLDataIterator extends TableIterator {
         if (fieldTypeTag == TypeTags.UNION_TAG) {
             BRefType refValue = blobValue == null ? null : new BBlob(blobValue.getBytes(1L, (int) blobValue.length()));
             validateAndSetRefRecordField(bStruct, refRegIndex.incrementAndGet(), TypeTags.BLOB_TAG,
-                    retrieveType(structFields, index - 1), refValue);
+                    retrieveNonNilTypeTag(structFields, index - 1), refValue, UNASSIGNABLE_UNIONTYPE_EXCEPTION);
         } else {
             if (blobValue != null) {
                 bStruct.setBlobField(blobRegIndex.incrementAndGet(), blobValue.getBytes(1L, (int) blobValue.length()));
@@ -444,7 +512,7 @@ public class SQLDataIterator extends TableIterator {
         if (fieldTypeTag == TypeTags.UNION_TAG) {
             BRefType refValue = stringValue == null ? null : new BString(stringValue);
             validateAndSetRefRecordField(bStruct, refRegIndex.incrementAndGet(), TypeTags.STRING_TAG,
-                    retrieveType(structFields, index - 1), refValue);
+                    retrieveNonNilTypeTag(structFields, index - 1), refValue, UNASSIGNABLE_UNIONTYPE_EXCEPTION);
         } else {
             if (stringValue != null) {
                 bStruct.setStringField(stringRegIndex.incrementAndGet(), stringValue);
@@ -474,7 +542,7 @@ public class SQLDataIterator extends TableIterator {
         if (fieldTypeTag == TypeTags.UNION_TAG) {
             BRefType refValue = isOriginalValueNull ? null : new BInteger(longValue);
             validateAndSetRefRecordField(bStruct, refRegIndex.incrementAndGet(), TypeTags.INT_TAG,
-                    retrieveType(structFields, index - 1), refValue);
+                    retrieveNonNilTypeTag(structFields, index - 1), refValue, UNASSIGNABLE_UNIONTYPE_EXCEPTION);
         } else {
             if (isOriginalValueNull) {
                 handleNilToNonNillableFieldAssignment();
@@ -514,7 +582,7 @@ public class SQLDataIterator extends TableIterator {
         if (fieldTypeTag == TypeTags.UNION_TAG) {
             BRefType refValue = isOriginalValueNull ? null : new BFloat(fValue);
             validateAndSetRefRecordField(bStruct, refRegIndex.incrementAndGet(), TypeTags.FLOAT_TAG,
-                    retrieveType(structFields, index - 1), refValue);
+                    retrieveNonNilTypeTag(structFields, index - 1), refValue, UNASSIGNABLE_UNIONTYPE_EXCEPTION);
         } else {
             if (isOriginalValueNull) {
                 handleNilToNonNillableFieldAssignment();
@@ -526,7 +594,7 @@ public class SQLDataIterator extends TableIterator {
 
     private void handleMappingDateValueToUnionType(BStructType.StructField[] structFields, int index, BStruct bStruct,
             RegistryIndex refRegIndex, java.util.Date date) {
-        int type = retrieveType(structFields, index - 1);
+        int type = retrieveNonNilTypeTag(structFields, index - 1);
         switch (type) {
         case TypeTags.STRING_TAG:
             String dateValue = SQLDatasourceUtils.getString(date);

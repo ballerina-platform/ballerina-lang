@@ -21,13 +21,21 @@ import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.DataIterator;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BNewArray;
+import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BXMLItem;
@@ -53,8 +61,7 @@ public class TableIterator implements DataIterator {
     protected BStructType type;
     protected List<ColumnDefinition> columnDefs;
 
-    public TableIterator(TableResourceManager rm, ResultSet rs, BStructType type,
-            List<ColumnDefinition> columnDefs) {
+    public TableIterator(TableResourceManager rm, ResultSet rs, BStructType type, List<ColumnDefinition> columnDefs) {
         this.resourceManager = rm;
         this.rs = rs;
         this.type = type;
@@ -246,47 +253,139 @@ public class TableIterator implements DataIterator {
         if (dataArray == null || dataArray.length == 0) {
             return null;
         }
-        Object obj = dataArray[0];
+
+        ArrayElementAttributes nullabilityAttributes = getArrayElementNullabilityInfo(dataArray);
+        Object firstNonNullElement = nullabilityAttributes.getFirstNonNullElement();
+        boolean containsNull = nullabilityAttributes.containsNull();
+
         int length = dataArray.length;
-        if (obj instanceof String) {
+        if (firstNonNullElement == null) {
+            // Each element is null so a nil element array is returned
+            return new BRefValueArray(new BRefType[length], BTypes.typeNull);
+        } else if (containsNull) {
+            // If there are some null elements, return a union-type element array
+            return createAndPopulateRefValueArray(firstNonNullElement, dataArray);
+        } else {
+            // If there are no null elements, return a ballerina primitive-type array
+            return createAndPopulatePrimitiveValueArray(firstNonNullElement, dataArray);
+        }
+    }
+
+    private BNewArray createAndPopulatePrimitiveValueArray(Object firstNonNullElement, Object[] dataArray) {
+        int length = dataArray.length;
+        if (firstNonNullElement instanceof String) {
             BStringArray stringDataArray = new BStringArray();
             for (int i = 0; i < length; i++) {
                 stringDataArray.add(i, (String) dataArray[i]);
             }
             return stringDataArray;
-        } else if (obj instanceof Boolean) {
+        } else if (firstNonNullElement instanceof Boolean) {
             BBooleanArray boolDataArray = new BBooleanArray();
             for (int i = 0; i < length; i++) {
                 boolDataArray.add(i, ((Boolean) dataArray[i]) ? 1 : 0);
             }
             return boolDataArray;
-        } else if (obj instanceof Integer) {
+        } else if (firstNonNullElement instanceof Integer) {
             BIntArray intDataArray = new BIntArray();
             for (int i = 0; i < length; i++) {
                 intDataArray.add(i, ((Integer) dataArray[i]));
             }
             return intDataArray;
-        } else if (obj instanceof Long) {
+        } else if (firstNonNullElement instanceof Long) {
             BIntArray longDataArray = new BIntArray();
             for (int i = 0; i < length; i++) {
                 longDataArray.add(i, (Long) dataArray[i]);
             }
             return longDataArray;
-        } else if (obj instanceof Float) {
+        } else if (firstNonNullElement instanceof Float) {
             BFloatArray floatDataArray = new BFloatArray();
             for (int i = 0; i < length; i++) {
                 floatDataArray.add(i, (Float) dataArray[i]);
             }
             return floatDataArray;
-        } else if (obj instanceof Double) {
+        } else if (firstNonNullElement instanceof Double) {
             BFloatArray doubleDataArray = new BFloatArray();
             for (int i = 0; i < dataArray.length; i++) {
                 doubleDataArray.add(i, (Double) dataArray[i]);
             }
             return doubleDataArray;
         } else {
-            return  null;
+            return null;
         }
+    }
+
+    private BRefValueArray createAndPopulateRefValueArray(Object firstNonNullElement, Object[] dataArray) {
+        BRefValueArray refValueArray = null;
+        int length = dataArray.length;
+        if (firstNonNullElement instanceof String) {
+            refValueArray = createEmptyRefValueArray(BTypes.typeString, length);
+            for (int i = 0; i < length; i++) {
+                refValueArray.add(i, dataArray[i] != null ? new BString((String) dataArray[i]) : null);
+            }
+        } else if (firstNonNullElement instanceof Boolean) {
+            refValueArray = createEmptyRefValueArray(BTypes.typeBoolean, length);
+            for (int i = 0; i < length; i++) {
+                refValueArray.add(i, dataArray[i] != null ? new BBoolean((Boolean) dataArray[i]) : null);
+            }
+        } else if (firstNonNullElement instanceof Integer) {
+            refValueArray = createEmptyRefValueArray(BTypes.typeInt, length);
+            for (int i = 0; i < length; i++) {
+                refValueArray.add(i, dataArray[i] != null ? new BInteger((Integer) dataArray[i]) : null);
+            }
+        } else if (firstNonNullElement instanceof Long) {
+            refValueArray = createEmptyRefValueArray(BTypes.typeInt, length);
+            for (int i = 0; i < length; i++) {
+                refValueArray.add(i, dataArray[i] != null ? new BInteger((Long) dataArray[i]) : null);
+            }
+        } else if (firstNonNullElement instanceof Float) {
+            refValueArray = createEmptyRefValueArray(BTypes.typeFloat, length);
+            for (int i = 0; i < length; i++) {
+                refValueArray.add(i, dataArray[i] != null ? new BFloat((Float) dataArray[i]) : null);
+            }
+        } else if (firstNonNullElement instanceof Double) {
+            refValueArray = createEmptyRefValueArray(BTypes.typeFloat, length);
+            for (int i = 0; i < length; i++) {
+                refValueArray.add(i, dataArray[i] != null ? new BFloat((Double) dataArray[i]) : null);
+            }
+        }
+        return refValueArray;
+    }
+
+    private BRefValueArray createEmptyRefValueArray(BType type, int length) {
+        List<BType> memberTypes = new ArrayList<>(2);
+        memberTypes.add(type);
+        memberTypes.add(BTypes.typeNull);
+        BUnionType unionType = new BUnionType(memberTypes);
+        return new BRefValueArray(new BRefType[length], unionType);
+    }
+
+    private ArrayElementAttributes getArrayElementNullabilityInfo(Object[] objects) {
+        ArrayElementAttributes arrayElementAttributes = new ArrayElementAttributes();
+        int i = 0;
+        while (i < objects.length) {
+            if (objects[i] != null) {
+                arrayElementAttributes.setFirstNonNullElement(objects[i]);
+                if (i > 0) {
+                    // If the very first element is not the very first non-null element, that means the array
+                    // contains null elements
+                    arrayElementAttributes.setContainsNull(true);
+                }
+                i++;
+                break;
+            }
+            i++;
+        }
+        // If we did not find out whether the array contains null, resume the loop here
+        if (!arrayElementAttributes.containsNull()) {
+            while (i < objects.length) {
+                if (objects[i] == null) {
+                    arrayElementAttributes.setContainsNull(true);
+                    break;
+                }
+                i++;
+            }
+        }
+        return arrayElementAttributes;
     }
 
     private void generateColumnDefinitions() {
@@ -323,6 +422,27 @@ public class TableIterator implements DataIterator {
             }
             ColumnDefinition def = new ColumnDefinition(sf.fieldName, typeKind);
             columnDefs.add(def);
+        }
+    }
+
+    private static class ArrayElementAttributes {
+        private Object firstNonNullElement;
+        private boolean containsNull;
+
+        private void setFirstNonNullElement(Object firstNonNullElement) {
+            this.firstNonNullElement = firstNonNullElement;
+        }
+
+        private void setContainsNull(boolean containsNull) {
+            this.containsNull = containsNull;
+        }
+
+        private Object getFirstNonNullElement() {
+            return firstNonNullElement;
+        }
+
+        private boolean containsNull() {
+            return containsNull;
         }
     }
 }
