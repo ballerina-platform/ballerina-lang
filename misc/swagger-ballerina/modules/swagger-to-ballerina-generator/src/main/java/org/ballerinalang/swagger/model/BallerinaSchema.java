@@ -202,8 +202,13 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
     }
 
     /**
-     * Verify if {@code origName} is reserved ballerina keyword and prefix the {@code origName} with an '_'.
-     * Ex: toPropertyName("type") will return "_type".
+     * Change the provided property name to ballerina property name.
+     * <p>Following actions will be taken for the conversion</p>
+     * <ol>
+     * <li>Verify if {@code origName} is reserved ballerina keyword and prefix the {@code origName} with an '_'.
+     * Ex: toPropertyName("type") will return "_type".</li>
+     * <li>Escape invalid special characters</li>
+     * </ol>
      *
      * @param origName original property name
      * @return keyword escaped property name
@@ -215,6 +220,7 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
             escapedName = '_' + origName;
         }
 
+        escapedName = escapedName.replaceAll("[^a-zA-Z0-9_]+", "_");
         return escapedName;
     }
 
