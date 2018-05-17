@@ -12,20 +12,15 @@ import org.ballerinalang.plugins.idea.psi.BallerinaEndpointDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaEndpointType;
 import org.ballerinalang.plugins.idea.psi.BallerinaExpression;
 import org.ballerinalang.plugins.idea.psi.BallerinaFieldDefinition;
-import org.ballerinalang.plugins.idea.psi.BallerinaFormalParameterList;
-import org.ballerinalang.plugins.idea.psi.BallerinaParameter;
-import org.ballerinalang.plugins.idea.psi.BallerinaParameterWithType;
 import org.ballerinalang.plugins.idea.psi.BallerinaRecordKey;
 import org.ballerinalang.plugins.idea.psi.BallerinaRecordKeyValue;
 import org.ballerinalang.plugins.idea.psi.BallerinaRecordLiteralExpression;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeDefinition;
-import org.ballerinalang.plugins.idea.psi.BallerinaTypeName;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Responsible for resolving and completing endpoint fields.
@@ -114,28 +109,7 @@ public class BallerinaEndpointFieldProcessor extends BallerinaScopeProcessorBase
                     return true;
                 }
 
-                BallerinaFormalParameterList parameterListNode =
-                        BallerinaPsiImplUtil.getParameterFromObjectFunction(((BallerinaTypeDefinition) parent), "init");
-                if (parameterListNode == null || parameterListNode.getParameterList().isEmpty()) {
-                    return true;
-                }
-
-                BallerinaParameter firstParameter = parameterListNode.getParameterList().get(0);
-
-                List<BallerinaParameterWithType> parameterWithTypeList = firstParameter.getParameterWithTypeList();
-
-                if (parameterWithTypeList.isEmpty()) {
-                    return true;
-                }
-                BallerinaParameterWithType parameterWithType = parameterWithTypeList.get(0);
-
-                BallerinaTypeName typeName = parameterWithType.getTypeName();
-
-                PsiReference reference = typeName.findReferenceAt(typeName.getTextLength());
-                if (reference == null) {
-                    return true;
-                }
-                ownerName = reference.resolve();
+                ownerName = BallerinaPsiImplUtil.getConfigTypeDefinition(((BallerinaTypeDefinition) parent));
                 if (ownerName == null || !(ownerName.getParent() instanceof BallerinaTypeDefinition)) {
                     return true;
                 }

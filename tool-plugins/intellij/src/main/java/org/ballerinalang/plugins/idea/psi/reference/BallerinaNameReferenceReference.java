@@ -41,6 +41,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaRecordKey;
 import org.ballerinalang.plugins.idea.psi.BallerinaRecordKeyValue;
 import org.ballerinalang.plugins.idea.psi.BallerinaRecordLiteralExpression;
 import org.ballerinalang.plugins.idea.psi.BallerinaRecordTypeName;
+import org.ballerinalang.plugins.idea.psi.BallerinaServiceEndpointAttachments;
 import org.ballerinalang.plugins.idea.psi.BallerinaStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeInitExpr;
@@ -95,6 +96,15 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
                     }
                     return null;
                 }
+            }
+        }
+
+        BallerinaServiceEndpointAttachments serviceEndpointAttachments = PsiTreeUtil.getParentOfType(myElement,
+                BallerinaServiceEndpointAttachments.class);
+        if (serviceEndpointAttachments != null) {
+            result = BallerinaPsiImplUtil.resolveConfig(myElement);
+            if (result != null) {
+                return result;
             }
         }
 
