@@ -17,6 +17,7 @@ function base16Test() {
     blob e = base16 `afcd341a4bdfaaabcfccadabcd89 12df`;
     blob f = base16 `afcd34abcdef123abc234bcd1a4bdfaaabadabcd892312df`;
     blob x = base16 ``;
+    blob y = base16`12ac 34f c56bcdf 78`;
     blob z = base16 `      `;
 }
 
@@ -32,6 +33,7 @@ function base64Test() {
     blob i = base64 `afcd34aBNhIbF  Ref+dfg123ab+w234bcd1a4bdfaTNJGdabcd8923as=`;
     blob j = base64 `afcd34abcdef+dfginermkmf123w/bc234cd/1a4bdfaaFGTdaKMN8923as=`;
     blob x = base64 ``;
+    blob y = base64`aFRdfvfF34aVFdef+dfg12334cd/1a4bdfaaabadabcd8923as==`;
     blob z = base64 `    `;
 }
 
