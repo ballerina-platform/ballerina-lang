@@ -58,11 +58,9 @@ public class RequestResponseTransformListener implements HttpConnectorListener {
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     private String responseValue;
     private String requestValue;
-    private TransportsConfiguration configuration;
 
-    public RequestResponseTransformListener(String responseValue, TransportsConfiguration configuration) {
+    public RequestResponseTransformListener(String responseValue) {
         this.responseValue = responseValue;
-        this.configuration = configuration;
     }
 
     @Override
@@ -84,21 +82,9 @@ public class RequestResponseTransformListener implements HttpConnectorListener {
                     httpRequest.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
                 }
 
-                Map<String, Object> transportProperties = new HashMap<>();
-                Set<TransportProperty> transportPropertiesSet = configuration.getTransportProperties();
-                if (transportPropertiesSet != null && !transportPropertiesSet.isEmpty()) {
-                    transportProperties = transportPropertiesSet.stream().collect(
-                            Collectors.toMap(TransportProperty::getName, TransportProperty::getValue));
-
-                }
-
-                String scheme = (String) httpRequest.getProperty(Constants.PROTOCOL);
-                SenderConfiguration senderConfiguration = HTTPConnectorUtil
-                        .getSenderConfiguration(configuration, scheme);
-
                 HttpWsConnectorFactory httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
                 HttpClientConnector clientConnector =
-                        httpWsConnectorFactory.createHttpClientConnector(transportProperties, senderConfiguration);
+                        httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), new SenderConfiguration());
                 HttpResponseFuture future = clientConnector.send(httpRequest);
                 future.setHttpConnectorListener(new HttpConnectorListener() {
                     @Override

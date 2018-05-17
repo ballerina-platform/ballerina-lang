@@ -18,51 +18,53 @@
 
 package org.wso2.transport.http.netty.contentaware;
 
-import io.netty.handler.codec.http.HttpMethod;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.config.TransportsConfiguration;
-import org.wso2.transport.http.netty.config.YAMLTransportConfigurationBuilder;
 import org.wso2.transport.http.netty.contentaware.listeners.RequestResponseCreationListener;
 import org.wso2.transport.http.netty.contentaware.listeners.RequestResponseCreationStreamingListener;
 import org.wso2.transport.http.netty.contentaware.listeners.RequestResponseTransformListener;
 import org.wso2.transport.http.netty.contentaware.listeners.RequestResponseTransformStreamingListener;
-import org.wso2.transport.http.netty.contentaware.listeners.ResponseStreamingWithoutBufferingListener;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
+import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.passthrough.PassthroughMessageProcessorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpServer;
 import org.wso2.transport.http.netty.util.server.initializers.EchoServerInitializer;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.wso2.transport.http.netty.common.Constants.CONNECTION;
+import static org.wso2.transport.http.netty.common.Constants.CONNECTION_KEEP_ALIVE;
 
 /**
  * A test case for echo message from MessageProcessor level.
  */
 public class ContentAwareMessageProcessorTestCase {
 
-    private List<ServerConnector> serverConnectors;
+    private ServerConnector serverConnector;
     private HttpConnectorListener httpConnectorListener;
-    private TransportsConfiguration configuration;
-
     private HttpServer httpServer;
     private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
 
     @BeforeClass
     public void setUp() {
-        configuration = YAMLTransportConfigurationBuilder
-                .build("src/test/resources/simple-test-config/netty-transports.yml");
-        serverConnectors = TestUtil.startConnectors(
-                configuration, new PassthroughMessageProcessorListener(new SenderConfiguration()));
+        ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
+        listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
+        serverConnector = TestUtil.startConnectors(listenerConfiguration,
+                new ServerBootstrapConfiguration(new HashMap<>()),
+                new PassthroughMessageProcessorListener(new SenderConfiguration()));
         httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new EchoServerInitializer());
     }
 
@@ -70,14 +72,12 @@ public class ContentAwareMessageProcessorTestCase {
     public void messageEchoingFromProcessorTestCase() {
         String testValue = "Test Message";
         try {
-            HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
-            TestUtil.writeContent(urlConn, testValue);
-            assertEquals(200, urlConn.getResponseCode());
-            String content = TestUtil.getContent(urlConn);
-            assertEquals(testValue, content);
-            urlConn.disconnect();
-        } catch (IOException e) {
-            TestUtil.handleException("IOException occurred while running messageEchoingFromProcessorTestCase", e);
+            HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString())
+                    .header(CONNECTION, CONNECTION_KEEP_ALIVE).body(testValue).asString();
+            assertEquals(200, response.getStatus());
+            assertEquals(testValue, response.getBody());
+        } catch (UnirestException e) {
+            TestUtil.handleException("Exception occurred while running messageEchoingFromProcessorTestCase", e);
         }
     }
 
@@ -88,17 +88,15 @@ public class ContentAwareMessageProcessorTestCase {
         String responseValue = "YYYYYYY";
         String expectedValue = responseValue + ":" + requestValue;
         try {
-            httpConnectorListener = new RequestResponseTransformListener(responseValue, configuration);
+            httpConnectorListener = new RequestResponseTransformListener(responseValue);
             TestUtil.updateMessageProcessor(httpConnectorListener);
-            HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
-            TestUtil.writeContent(urlConn, requestValue);
-            assertEquals(200, urlConn.getResponseCode());
-            String content = TestUtil.getContent(urlConn);
-            assertEquals(expectedValue, content);
-            urlConn.disconnect();
-        } catch (IOException e) {
+            HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString())
+                    .header(CONNECTION, CONNECTION_KEEP_ALIVE).body(requestValue).asString();
+            assertEquals(200, response.getStatus());
+            assertEquals(expectedValue, response.getBody());
+        } catch (UnirestException e) {
             TestUtil.handleException(
-                    "IOException occurred while running requestResponseTransformFromProcessorTestCase", e);
+                    "Exception occurred while running requestResponseTransformFromProcessorTestCase", e);
         }
     }
 
@@ -108,17 +106,15 @@ public class ContentAwareMessageProcessorTestCase {
         String responseValue = "YYYYYYY";
         String expectedValue = responseValue + ":" + requestValue;
         try {
-            httpConnectorListener = new RequestResponseCreationListener(responseValue, configuration);
+            httpConnectorListener = new RequestResponseCreationListener(responseValue);
             TestUtil.updateMessageProcessor(httpConnectorListener);
-            HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
-            TestUtil.writeContent(urlConn, requestValue);
-            assertEquals(200, urlConn.getResponseCode());
-            String content = TestUtil.getContent(urlConn);
-            assertEquals(expectedValue, content);
-            urlConn.disconnect();
-        } catch (IOException e) {
+            HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString())
+                    .header(CONNECTION, CONNECTION_KEEP_ALIVE).body(requestValue).asString();
+            assertEquals(200, response.getStatus());
+            assertEquals(expectedValue, response.getBody());
+        } catch (UnirestException e) {
             TestUtil.handleException(
-                    "IOException occurred while running requestResponseCreationFromProcessorTestCase", e);
+                    "Exception occurred while running requestResponseCreationFromProcessorTestCase", e);
         }
     }
 
@@ -126,17 +122,15 @@ public class ContentAwareMessageProcessorTestCase {
     public void requestResponseStreamingFromProcessorTestCase() {
         String requestValue = "<A><B><C>Test Message</C></B></A>";
         try {
-            httpConnectorListener = new RequestResponseCreationStreamingListener(configuration);
+            httpConnectorListener = new RequestResponseCreationStreamingListener();
             TestUtil.updateMessageProcessor(httpConnectorListener);
-            HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
-            TestUtil.writeContent(urlConn, requestValue);
-            assertEquals(200, urlConn.getResponseCode());
-            String content = TestUtil.getContent(urlConn);
-            assertEquals(requestValue, content);
-            urlConn.disconnect();
-        } catch (IOException e) {
+            HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString())
+                    .header(CONNECTION, CONNECTION_KEEP_ALIVE).body(requestValue).asString();
+            assertEquals(200, response.getStatus());
+            assertEquals(requestValue, response.getBody());
+        } catch (UnirestException e) {
             TestUtil.handleException(
-                    "IOException occurred while running requestResponseStreamingFromProcessorTestCase", e);
+                    "Exception occurred while running requestResponseStreamingFromProcessorTestCase", e);
         }
     }
 
@@ -144,40 +138,22 @@ public class ContentAwareMessageProcessorTestCase {
     public void requestResponseTransformStreamingFromProcessorTestCase() {
         String requestValue = "<A><B><C>Test Message</C></B></A>";
         try {
-            httpConnectorListener = new RequestResponseTransformStreamingListener(configuration);
+            httpConnectorListener = new RequestResponseTransformStreamingListener();
             TestUtil.updateMessageProcessor(httpConnectorListener);
-            HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
-            TestUtil.writeContent(urlConn, requestValue);
-            assertEquals(200, urlConn.getResponseCode());
-            String content = TestUtil.getContent(urlConn);
-            assertEquals(requestValue, content);
-            urlConn.disconnect();
-        } catch (IOException e) {
+            HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString())
+                    .header(CONNECTION, CONNECTION_KEEP_ALIVE).body(requestValue).asString();
+            assertEquals(200, response.getStatus());
+            assertEquals(requestValue, response.getBody());
+        } catch (UnirestException e) {
             TestUtil.handleException(
-                    "IOException occurred while running requestResponseTransformStreamingFromProcessorTestCase", e);
-        }
-    }
-
-    @Test
-    public void responseStreamingWithoutBufferingTestCase() {
-        String requestValue = "<A><B><C>Test Message</C></B></A>";
-        try {
-            httpConnectorListener = new ResponseStreamingWithoutBufferingListener();
-            TestUtil.updateMessageProcessor(httpConnectorListener);
-            HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
-            urlConn.setChunkedStreamingMode(-1); // Enable Chunking
-            TestUtil.writeContent(urlConn, requestValue);
-            assertEquals(200, urlConn.getResponseCode());
-            String content = TestUtil.getContent(urlConn);
-            assertEquals(requestValue, content);
-            urlConn.disconnect();
-        } catch (IOException e) {
-            TestUtil.handleException("IOException occurred while running responseStreamingWithoutBufferingTestCase", e);
+                    "Exception occurred while running requestResponseTransformStreamingFromProcessorTestCase", e);
         }
     }
 
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
-        TestUtil.cleanUp(serverConnectors, httpServer);
+        List connectors = new ArrayList<>();
+        connectors.add(serverConnector);
+        TestUtil.cleanUp(connectors, httpServer);
     }
 }

@@ -18,7 +18,9 @@
 
 package org.wso2.transport.http.netty.passthrough;
 
-import io.netty.handler.codec.http.HttpMethod;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
@@ -36,8 +38,6 @@ import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpsServer;
 import org.wso2.transport.http.netty.util.server.initializers.MockServerInitializer;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.URI;
 import java.util.Properties;
 
@@ -89,12 +89,11 @@ public class PassThroughHttpsTestCase {
     public void passthroughTest() {
         try {
             setSslSystemProperties();
-            HttpURLConnection urlConn = TestUtil.httpsRequest(baseURI, "/", HttpMethod.GET.name(), true);
-            String content = TestUtil.getContent(urlConn);
-            assertEquals(testValue, content);
-            urlConn.disconnect();
-        } catch (IOException e) {
-            TestUtil.handleException("IOException occurred while running passthroughGetTest", e);
+            HttpResponse<String> response = Unirest.get(baseURI.resolve("/").toString())
+                    .header("Connection", "Keep-Alive").asString();
+            assertEquals(testValue, response.getBody());
+        } catch (UnirestException e) {
+            TestUtil.handleException("Exception occurred while running passthroughGetTest", e);
         }
     }
 

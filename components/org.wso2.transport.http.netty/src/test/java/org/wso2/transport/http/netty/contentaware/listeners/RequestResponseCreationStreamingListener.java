@@ -54,12 +54,7 @@ public class RequestResponseCreationStreamingListener implements HttpConnectorLi
 
     private static final Logger logger = LoggerFactory.getLogger(RequestResponseCreationStreamingListener.class);
 
-    private TransportsConfiguration configuration;
     private ExecutorService executor = Executors.newSingleThreadExecutor();
-
-    public RequestResponseCreationStreamingListener(TransportsConfiguration configuration) {
-        this.configuration = configuration;
-    }
 
     @Override
     public void onMessage(HTTPCarbonMessage httpRequest) {
@@ -77,21 +72,9 @@ public class RequestResponseCreationStreamingListener implements HttpConnectorLi
                 newMsg.setProperty(Constants.HTTP_HOST, TestUtil.TEST_HOST);
                 newMsg.setProperty(Constants.HTTP_PORT, TestUtil.HTTP_SERVER_PORT);
 
-                Map<String, Object> transportProperties = new HashMap<>();
-                Set<TransportProperty> transportPropertiesSet = configuration.getTransportProperties();
-                if (transportPropertiesSet != null && !transportPropertiesSet.isEmpty()) {
-                    transportProperties = transportPropertiesSet.stream().collect(
-                            Collectors.toMap(TransportProperty::getName, TransportProperty::getValue));
-
-                }
-
-                String scheme = (String) httpRequest.getProperty(Constants.PROTOCOL);
-                SenderConfiguration senderConfiguration = HTTPConnectorUtil
-                        .getSenderConfiguration(configuration, scheme);
-
                 HttpWsConnectorFactory httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
                 HttpClientConnector clientConnector =
-                        httpWsConnectorFactory.createHttpClientConnector(transportProperties, senderConfiguration);
+                        httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), new SenderConfiguration());
                 HttpResponseFuture future = clientConnector.send(newMsg);
                 future.setHttpConnectorListener(new HttpConnectorListener() {
                     @Override

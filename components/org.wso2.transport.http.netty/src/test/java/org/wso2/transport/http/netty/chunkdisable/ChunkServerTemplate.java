@@ -50,7 +50,7 @@ public class ChunkServerTemplate {
     protected ListenerConfiguration listenerConfiguration;
     protected HttpWsConnectorFactory httpWsConnectorFactory;
 
-    private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
+    public URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
 
     public ChunkServerTemplate() {
         listenerConfiguration = new ListenerConfiguration();

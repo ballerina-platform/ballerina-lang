@@ -18,6 +18,10 @@
 
 package org.wso2.transport.http.netty.passthrough;
 
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import com.mashape.unirest.request.GetRequest;
 import io.netty.handler.codec.http.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,24 +86,22 @@ public class PassThroughHttpTestCase {
     @Test
     public void passthroughGetTest() {
         try {
-            HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.GET.name(), true);
-            String content = TestUtil.getContent(urlConn);
-            assertEquals(testValue, content);
-            urlConn.disconnect();
-        } catch (IOException e) {
-            TestUtil.handleException("IOException occurred while running passthroughGetTest", e);
+            HttpResponse<String> response = Unirest.get(baseURI.resolve("/").toString())
+                    .header("Connection", "Keep-Alive").asString();
+            assertEquals(testValue, response.getBody());
+        } catch (UnirestException e) {
+            TestUtil.handleException("Exception occurred while running passthroughGetTest", e);
         }
     }
 
     @Test
     public void passthroughPostTest() {
         try {
-            HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
-            String content = TestUtil.getContent(urlConn);
-            assertEquals(testValue, content);
-            urlConn.disconnect();
-        } catch (IOException e) {
-            TestUtil.handleException("IOException occurred while running passthroughPostTest", e);
+            HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString())
+                    .header("Connection", "Keep-Alive").asString();
+            assertEquals(testValue, response.getBody());
+        } catch (UnirestException e) {
+            TestUtil.handleException("Exception occurred while running passthroughPostTest", e);
         }
     }
 

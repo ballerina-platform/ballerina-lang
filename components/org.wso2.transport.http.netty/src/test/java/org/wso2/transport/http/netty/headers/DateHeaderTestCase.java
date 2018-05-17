@@ -18,6 +18,9 @@
 
 package org.wso2.transport.http.netty.headers;
 
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMethod;
 import org.slf4j.Logger;
@@ -67,15 +70,18 @@ public class DateHeaderTestCase {
     }
 
     @Test
-    public void testDateHeaderFormatAndExistence() throws IOException {
-        URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
-        HttpURLConnection connection = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), false);
+    public void testDateHeaderFormatAndExistence() {
+        try {
+            URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
+            HttpResponse<String> response =  Unirest.post(baseURI.resolve("/").toString())
+                    .header("Connection", "Close").body(TestUtil.smallEntity).asString();
 
-        connection.getOutputStream().write(TestUtil.smallEntity.getBytes());
-        String date = connection.getHeaderField(HttpHeaderNames.DATE.toString());
-
-        Assert.assertEquals(connection.getResponseCode(), HttpURLConnection.HTTP_OK);
-        Assert.assertNotNull(DateTimeFormatter.RFC_1123_DATE_TIME.parse(date));
+            String date = response.getHeaders().getFirst(HttpHeaderNames.DATE.toString());
+            Assert.assertEquals(response.getStatus(), HttpURLConnection.HTTP_OK);
+            Assert.assertNotNull(DateTimeFormatter.RFC_1123_DATE_TIME.parse(date));
+        } catch (UnirestException e) {
+            TestUtil.handleException("Exception occurred while running postTest", e);
+        }
     }
 
     @AfterClass

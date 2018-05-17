@@ -55,12 +55,10 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
     private Logger logger = LoggerFactory.getLogger(RequestResponseCreationListener.class);
 
     private String responseValue;
-    private TransportsConfiguration configuration;
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    public RequestResponseCreationListener(String responseValue, TransportsConfiguration configuration) {
+    public RequestResponseCreationListener(String responseValue) {
         this.responseValue = responseValue;
-        this.configuration = configuration;
     }
 
     @Override
@@ -82,21 +80,9 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
                 newMsg.setProperty(Constants.HTTP_HOST, TestUtil.TEST_HOST);
                 newMsg.setProperty(Constants.HTTP_PORT, TestUtil.HTTP_SERVER_PORT);
 
-                Map<String, Object> transportProperties = new HashMap<>();
-                Set<TransportProperty> transportPropertiesSet = configuration.getTransportProperties();
-                if (transportPropertiesSet != null && !transportPropertiesSet.isEmpty()) {
-                    transportProperties = transportPropertiesSet.stream().collect(
-                            Collectors.toMap(TransportProperty::getName, TransportProperty::getValue));
-
-                }
-
-                String scheme = (String) httpRequest.getProperty(Constants.PROTOCOL);
-                SenderConfiguration senderConfiguration = HTTPConnectorUtil
-                        .getSenderConfiguration(configuration, scheme);
-
                 HttpWsConnectorFactory httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
                 HttpClientConnector clientConnector =
-                        httpWsConnectorFactory.createHttpClientConnector(transportProperties, senderConfiguration);
+                        httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), new SenderConfiguration());
 
                 HttpResponseFuture future = clientConnector.send(newMsg);
                 future.setHttpConnectorListener(new HttpConnectorListener() {

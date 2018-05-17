@@ -18,12 +18,16 @@
 
 package org.wso2.transport.http.netty.connectionpool;
 
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import io.netty.handler.codec.http.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
@@ -123,12 +127,10 @@ public class ConnectionPoolTimeoutProxyTestCase {
         public String call() throws Exception {
             try {
                 URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
-                HttpURLConnection urlConn = TestUtil
-                        .request(baseURI, "/", HttpMethod.POST.name(), true);
-                urlConn.getOutputStream().write(TestUtil.smallEntity.getBytes());
-                response = TestUtil.getContent(urlConn);
-                urlConn.disconnect();
-            } catch (IOException e) {
+                HttpResponse<String> httpResponse = Unirest.post(baseURI.resolve("/").toString())
+                    .header(Constants.CONNECTION, Constants.CONNECTION_KEEP_ALIVE).body(TestUtil.smallEntity).asString();
+                response = httpResponse.getBody();
+            } catch (UnirestException e) {
                 logger.error("Couldn't get the response", e);
             }
 

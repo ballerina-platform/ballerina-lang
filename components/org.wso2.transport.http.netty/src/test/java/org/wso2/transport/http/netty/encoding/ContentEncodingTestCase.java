@@ -18,6 +18,9 @@
 
 package org.wso2.transport.http.netty.encoding;
 
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import io.netty.handler.codec.http.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,15 +82,12 @@ public class ContentEncodingTestCase {
     public void messageEchoingFromProcessorTestCase() {
         String testValue = "Test Message";
         try {
-            HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
-            TestUtil.writeContent(urlConn, testValue);
-            assertEquals(200, urlConn.getResponseCode());
-            TestUtil.getContent(urlConn);
-            urlConn.disconnect();
-        } catch (IOException e) {
-            TestUtil.handleException("IOException occurred while running the messageEchoingFromProcessorTestCase", e);
+            HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString())
+                    .header("Connection", "Keep-Alive").body(testValue).asString();
+            assertEquals(200, response.getStatus());
+        } catch (UnirestException e) {
+            TestUtil.handleException("Exception occurred while running the messageEchoingFromProcessorTestCase", e);
         }
-
     }
 
     @AfterClass

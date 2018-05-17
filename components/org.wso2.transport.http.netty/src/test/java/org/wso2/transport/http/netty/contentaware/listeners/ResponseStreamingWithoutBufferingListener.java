@@ -32,6 +32,7 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -45,22 +46,22 @@ public class ResponseStreamingWithoutBufferingListener implements HttpConnectorL
     private ExecutorService executor = Executors.newCachedThreadPool();
 
     @Override
-    public void onMessage(HTTPCarbonMessage httpRequestMessage) {
+    public void onMessage(HTTPCarbonMessage inboundRequest) {
         executor.execute(() -> {
-            HTTPCarbonMessage cMsg =
+            HTTPCarbonMessage outboundResponse =
                     new HTTPCarbonMessage(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
-            cMsg.setHeader(HttpHeaderNames.CONNECTION.toString(), HttpHeaderValues.KEEP_ALIVE.toString());
-            cMsg.setHeader(HttpHeaderNames.TRANSFER_ENCODING.toString(), HttpHeaderValues.CHUNKED.toString());
-            cMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), HttpHeaderValues.TEXT_PLAIN.toString());
-            cMsg.setProperty(Constants.HTTP_STATUS_CODE, HttpResponseStatus.OK.code());
+            outboundResponse.setHeader(HttpHeaderNames.CONNECTION.toString(), HttpHeaderValues.KEEP_ALIVE.toString());
+//            cMsg.setHeader(HttpHeaderNames.TRANSFER_ENCODING.toString(), HttpHeaderValues.CHUNKED.toString());
+            outboundResponse.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), HttpHeaderValues.TEXT_PLAIN.toString());
+            outboundResponse.setProperty(Constants.HTTP_STATUS_CODE, HttpResponseStatus.OK.code());
             try {
-                httpRequestMessage.respond(cMsg);
+                inboundRequest.respond(outboundResponse);
             } catch (ServerConnectorException e) {
                 logger.error("Error occurred during message notification: " + e.getMessage());
             }
             while (true) {
-                HttpContent httpContent = httpRequestMessage.getHttpContent();
-                cMsg.addHttpContent(httpContent);
+                HttpContent httpContent = inboundRequest.getHttpContent();
+                outboundResponse.addHttpContent(httpContent);
                 if (httpContent instanceof LastHttpContent) {
                     break;
                 }

@@ -54,11 +54,6 @@ public class RequestResponseTransformStreamingListener implements HttpConnectorL
 
     private static final Logger logger = LoggerFactory.getLogger(RequestResponseTransformStreamingListener.class);
     private ExecutorService executor = Executors.newSingleThreadExecutor();
-    private TransportsConfiguration configuration;
-
-    public RequestResponseTransformStreamingListener(TransportsConfiguration configuration) {
-        this.configuration = configuration;
-    }
 
     @Override
     public void onMessage(HTTPCarbonMessage httpRequestMessage) {
@@ -72,21 +67,21 @@ public class RequestResponseTransformStreamingListener implements HttpConnectorL
                 httpRequestMessage.setProperty(Constants.HTTP_HOST, TestUtil.TEST_HOST);
                 httpRequestMessage.setProperty(Constants.HTTP_PORT, TestUtil.HTTP_SERVER_PORT);
 
-                Map<String, Object> transportProperties = new HashMap<>();
-                Set<TransportProperty> transportPropertiesSet = configuration.getTransportProperties();
-                if (transportPropertiesSet != null && !transportPropertiesSet.isEmpty()) {
-                    transportProperties = transportPropertiesSet.stream().collect(
-                            Collectors.toMap(TransportProperty::getName, TransportProperty::getValue));
+//                Map<String, Object> transportProperties = new HashMap<>();
+//                Set<TransportProperty> transportPropertiesSet = configuration.getTransportProperties();
+//                if (transportPropertiesSet != null && !transportPropertiesSet.isEmpty()) {
+//                    transportProperties = transportPropertiesSet.stream().collect(
+//                            Collectors.toMap(TransportProperty::getName, TransportProperty::getValue));
+//
+//                }
 
-                }
-
-                String scheme = (String) httpRequestMessage.getProperty(Constants.PROTOCOL);
-                SenderConfiguration senderConfiguration = HTTPConnectorUtil
-                        .getSenderConfiguration(configuration, scheme);
+//                String scheme = (String) httpRequestMessage.getProperty(Constants.PROTOCOL);
+//                SenderConfiguration senderConfiguration = HTTPConnectorUtil
+//                        .getSenderConfiguration(configuration, scheme);
 
                 HttpWsConnectorFactory httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
                 HttpClientConnector clientConnector =
-                        httpWsConnectorFactory.createHttpClientConnector(transportProperties, senderConfiguration);
+                        httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), new SenderConfiguration());
                 HttpResponseFuture future = clientConnector.send(httpRequestMessage);
                 future.setHttpConnectorListener(new HttpConnectorListener() {
                     @Override
