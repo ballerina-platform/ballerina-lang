@@ -157,13 +157,13 @@ public class Util {
             outboundRequestMsg.setProperty(Constants.TO, "");
         }
         // Return absolute url if proxy is enabled
-        if (outboundRequestMsg.getProperty(Constants.IS_PROXY_ENABLED) != null) {
-            if ((boolean) outboundRequestMsg.getProperty(Constants.IS_PROXY_ENABLED)) {
-                return outboundRequestMsg.getProperty(Constants.PROTOCOL) + Constants.URL_AUTHORITY
-                        + outboundRequestMsg.getProperty(Constants.HTTP_HOST) + Constants.COLON
-                        + outboundRequestMsg.getProperty(Constants.HTTP_PORT)
-                        + outboundRequestMsg.getProperty(Constants.TO);
-            }
+        if (outboundRequestMsg.getProperty(Constants.IS_PROXY_ENABLED) != null &&
+                (boolean) outboundRequestMsg.getProperty(Constants.IS_PROXY_ENABLED)) {
+            return outboundRequestMsg.getProperty(Constants.PROTOCOL) + Constants.URL_AUTHORITY
+                    + outboundRequestMsg.getProperty(Constants.HTTP_HOST) + Constants.COLON
+                    + outboundRequestMsg.getProperty(Constants.HTTP_PORT)
+                    + outboundRequestMsg.getProperty(Constants.TO);
+
         }
         return (String) outboundRequestMsg.getProperty(Constants.TO);
     }
