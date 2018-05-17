@@ -18,10 +18,6 @@
 package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.model.types.BObjectType;
-import org.ballerinalang.util.codegen.attributes.AttributeInfo;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * {@code ObjectTypeInfo} contains metadata of a Ballerina object entry in the program file.
