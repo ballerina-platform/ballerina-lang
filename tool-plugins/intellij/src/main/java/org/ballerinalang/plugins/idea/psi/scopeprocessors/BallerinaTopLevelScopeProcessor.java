@@ -6,6 +6,8 @@ import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.ResolveState;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
+import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.completion.inserthandlers.ParenthesisInsertHandler;
@@ -22,6 +24,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaOncommitStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaOnretryClause;
 import org.ballerinalang.plugins.idea.psi.BallerinaPackageReference;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeDefinition;
+import org.ballerinalang.plugins.idea.psi.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -145,6 +148,15 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
                                         BallerinaOncommitStatement.class, BallerinaOnretryClause.class);
                                 if (compositeElement != null) {
                                     insertHandler = ParenthesisInsertHandler.INSTANCE;
+                                }
+                                // Todo - Fix the transaction properties grammar.
+                                PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(myElement);
+                                if (nextVisibleLeaf instanceof LeafPsiElement) {
+                                    IElementType elementType = ((LeafPsiElement) nextVisibleLeaf).getElementType();
+                                    if (elementType == BallerinaTypes.COMMA
+                                            || elementType == BallerinaTypes.LEFT_BRACE) {
+                                        insertHandler = ParenthesisInsertHandler.INSTANCE;
+                                    }
                                 }
                                 if (publicFieldsOnly != null) {
                                     if (child.isPublic()) {

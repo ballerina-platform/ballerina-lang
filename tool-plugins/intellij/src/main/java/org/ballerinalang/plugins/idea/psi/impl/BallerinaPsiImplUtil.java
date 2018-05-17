@@ -1595,7 +1595,8 @@ public class BallerinaPsiImplUtil {
         VirtualFile projectBaseDir = project.getBaseDir();
         VirtualFile[] children = projectBaseDir.getChildren();
         for (VirtualFile child : children) {
-            if (!child.isDirectory() && child.getName().startsWith(".")) {
+            // If the child is not a directory or the name starts with ".", we ignore it.
+            if (!child.isDirectory() || child.getName().startsWith(".")) {
                 continue;
             }
             packages.add(child);
