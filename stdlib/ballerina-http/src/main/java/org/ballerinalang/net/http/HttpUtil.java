@@ -48,7 +48,7 @@ import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.TypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.observability.ObservabilityUtils;
 import org.ballerinalang.util.observability.ObserverContext;
@@ -406,7 +406,7 @@ public class HttpUtil {
 
     public static BStruct getHttpConnectorError(Context context, Throwable throwable) {
         PackageInfo filePkg = context.getProgramFile().getPackageInfo(PACKAGE_BUILTIN);
-        StructInfo entityErrInfo = filePkg.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
+        TypeInfo entityErrInfo = filePkg.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
         BStruct genericError = new BStruct(entityErrInfo.getType());
         if (throwable.getMessage() == null) {
             genericError.setStringField(0, IO_EXCEPTION_OCCURED);
@@ -1073,7 +1073,7 @@ public class HttpUtil {
      */
     public static BStruct getGenericError(Context context, String errMsg) {
         PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_BUILTIN);
-        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
+        TypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
 
         BStruct genericError = new BStruct(errorStructInfo.getType());
         genericError.setStringField(0, errMsg);

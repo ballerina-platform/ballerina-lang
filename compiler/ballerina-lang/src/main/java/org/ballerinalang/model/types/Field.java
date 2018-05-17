@@ -15,27 +15,17 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree;
+package org.ballerinalang.model.types;
 
-import java.util.List;
+import org.ballerinalang.model.Name;
 
 /**
- * @since 0.966.0
+ * {@code Field} represents field in a structure type in Ballerina.
+ *
+ * @since 0.971.0
  */
-public interface ObjectNode extends AnnotatableNode, DocumentableNode, TopLevelNode {
-    
-    IdentifierNode getName();
-    
-    void setName(IdentifierNode name);
+public interface Field {
+    Name getName();
 
-    List<? extends VariableNode> getFields();
-    
-    void addField(VariableNode field);
-
-    List<? extends FunctionNode> getFunctions();
-
-    void addFunction(FunctionNode function);
-
-    FunctionNode getInitFunction();
-
+    Type getType();
 }

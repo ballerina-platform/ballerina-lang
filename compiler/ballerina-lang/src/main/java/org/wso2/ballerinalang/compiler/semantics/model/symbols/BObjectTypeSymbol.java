@@ -18,44 +18,28 @@
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 /**
  * {@code BStructSymbol} represents a struct symbol in a scope.
  *
  * @since 0.964.0
  */
-public class BStructSymbol extends BTypeSymbol {
+public class BObjectTypeSymbol extends BStructureTypeSymbol {
 
-    public List<BAttachedFunction> attachedFuncs;
-    public BAttachedFunction initializerFunc;
-    public BAttachedFunction defaultsValuesInitFunc;
-
-    public BStructSymbol(int kind, int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
+    public BObjectTypeSymbol(int kind, int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
         super(kind, flags, name, pkgID, type, owner);
-        this.attachedFuncs = new ArrayList<>(0);
     }
 
-    /**
-     * A wrapper class which hold an attached function of a struct.
-     *
-     * @since 0.95.7
-     */
-    public static class BAttachedFunction {
-        public Name funcName;
-        public BInvokableType type;
-        public BInvokableSymbol symbol;
-
-        public BAttachedFunction(Name funcName, BInvokableSymbol symbol,
-                                 BInvokableType type) {
-            this.funcName = funcName;
-            this.type = type;
-            this.symbol = symbol;
-        }
+    @Override
+    public BObjectTypeSymbol copy() {
+        BObjectTypeSymbol copy = (BObjectTypeSymbol) Symbols
+                .createObjectSymbol(flags, Names.EMPTY, pkgID, type, owner);
+        copy.attachedFuncs = attachedFuncs;
+        copy.initializerFunc = initializerFunc;
+        copy.defaultsValuesInitFunc = defaultsValuesInitFunc;
+        return copy;
     }
 }

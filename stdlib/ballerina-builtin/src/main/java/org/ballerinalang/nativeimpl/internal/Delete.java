@@ -43,11 +43,11 @@ import java.util.Comparator;
         orgName = "ballerina", packageName = "internal",
         functionName = "delete",
         args = {
-                @Argument(name = "path", type = TypeKind.STRUCT, structType = "Path", structPackage = "ballerina.file")
+                @Argument(name = "path", type = TypeKind.RECORD, structType = "Path", structPackage = "ballerina.file")
         },
         returnType = {
                 @ReturnType(type = TypeKind.BOOLEAN),
-                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.file")
+                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina.file")
         },
         isPublic = true
 )

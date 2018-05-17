@@ -28,7 +28,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.TypeInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -137,7 +137,7 @@ public class SecureClientSocketTest {
     @Test(description = "Test connection open with properties")
     public void testOpenSecureClientSocket() throws URISyntaxException {
         PackageInfo ioPackageInfo = socketClient.getProgFile().getPackageInfo("ballerina.io");
-        StructInfo socketProperties = ioPackageInfo.getStructInfo("SocketProperties");
+        TypeInfo socketProperties = ioPackageInfo.getStructInfo("SocketProperties");
         BStruct propertyStruct = BLangVMStructs.createBStruct(socketProperties);
         URL resource = getClass().getClassLoader().
                 getResource("datafiles/security/keyStore/ballerinaTruststore.p12");

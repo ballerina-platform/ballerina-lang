@@ -214,28 +214,28 @@ public class TreeVisitor extends LSNodeVisitor {
         }
     }
 
-    @Override
-    public void visit(BLangRecord bLangRecord) {
-        if (!bLangRecord.getName().getValue().contains("$")
-                && !ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
-                .isCursorBeforeNode(bLangRecord.getPosition(), bLangRecord, this, this.documentServiceContext)) {
-            BSymbol structSymbol = bLangRecord.symbol;
-            SymbolEnv recordEnv = SymbolEnv.createPkgLevelSymbolEnv(bLangRecord, structSymbol.scope, symbolEnv);
-            if (bLangRecord.fields.isEmpty() && isCursorWithinBlock(bLangRecord.getPosition(), recordEnv)) {
-                symbolEnv = recordEnv;
-                Map<Name, Scope.ScopeEntry> visibleSymbolEntries = this.resolveAllVisibleSymbols(symbolEnv);
-                this.populateSymbols(visibleSymbolEntries, null);
-                this.setTerminateVisitor(true);
-            } else if (!bLangRecord.fields.isEmpty()) {
-                // Since the record definition do not have a block statement within, we push null
-                cursorPositionResolver = RecordScopeResolver.class;
-                this.blockOwnerStack.push(bLangRecord);
-                bLangRecord.fields.forEach(field -> acceptNode(field, recordEnv));
-                cursorPositionResolver = TopLevelNodeScopeResolver.class;
-                this.blockOwnerStack.pop();
-            }
-        }
-    }
+//    @Override
+//    public void visit(BLangRecord bLangRecord) {
+//        if (!bLangRecord.getName().getValue().contains("$")
+//                && !ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
+//                .isCursorBeforeNode(bLangRecord.getPosition(), bLangRecord, this, this.documentServiceContext)) {
+//            BSymbol structSymbol = bLangRecord.symbol;
+//            SymbolEnv recordEnv = SymbolEnv.createPkgLevelSymbolEnv(bLangRecord, structSymbol.scope, symbolEnv);
+//            if (bLangRecord.fields.isEmpty() && isCursorWithinBlock(bLangRecord.getPosition(), recordEnv)) {
+//                symbolEnv = recordEnv;
+//                Map<Name, Scope.ScopeEntry> visibleSymbolEntries = this.resolveAllVisibleSymbols(symbolEnv);
+//                this.populateSymbols(visibleSymbolEntries, null);
+//                this.setTerminateVisitor(true);
+//            } else if (!bLangRecord.fields.isEmpty()) {
+//                // Since the record definition do not have a block statement within, we push null
+//                cursorPositionResolver = RecordScopeResolver.class;
+//                this.blockOwnerStack.push(bLangRecord);
+//                bLangRecord.fields.forEach(field -> acceptNode(field, recordEnv));
+//                cursorPositionResolver = TopLevelNodeScopeResolver.class;
+//                this.blockOwnerStack.pop();
+//            }
+//        }
+//    }
 
     @Override
     public void visit(BLangAnnotation annotationNode) {
@@ -659,26 +659,26 @@ public class TreeVisitor extends LSNodeVisitor {
         }
     }
 
-    @Override
-    public void visit(BLangObject objectNode) {
-        BSymbol objectSymbol = objectNode.symbol;
-        SymbolEnv objectEnv = SymbolEnv.createPkgLevelSymbolEnv(objectNode, objectSymbol.scope, symbolEnv);
-        blockOwnerStack.push(objectNode);
-        if (objectNode.fields.isEmpty() && objectNode.functions.isEmpty()) {
-            this.isCursorWithinBlock(objectNode.getPosition(), objectEnv);
-        }
-        objectNode.fields.forEach(field -> {
-            this.cursorPositionResolver = ObjectTypeScopeResolver.class;
-            acceptNode(field, objectEnv);
-        });
-        // TODO: visit annotation and doc attachments
-        objectNode.functions.forEach(f -> {
-            this.cursorPositionResolver = ObjectTypeScopeResolver.class;
-            acceptNode(f, objectEnv);
-        });
-        blockOwnerStack.pop();
-        this.cursorPositionResolver = TopLevelNodeScopeResolver.class;
-    }
+//    @Override
+//    public void visit(BLangObject objectNode) {
+//        BSymbol objectSymbol = objectNode.symbol;
+//        SymbolEnv objectEnv = SymbolEnv.createPkgLevelSymbolEnv(objectNode, objectSymbol.scope, symbolEnv);
+//        blockOwnerStack.push(objectNode);
+//        if (objectNode.fields.isEmpty() && objectNode.functions.isEmpty()) {
+//            this.isCursorWithinBlock(objectNode.getPosition(), objectEnv);
+//        }
+//        objectNode.fields.forEach(field -> {
+//            this.cursorPositionResolver = ObjectTypeScopeResolver.class;
+//            acceptNode(field, objectEnv);
+//        });
+//        // TODO: visit annotation and doc attachments
+//        objectNode.functions.forEach(f -> {
+//            this.cursorPositionResolver = ObjectTypeScopeResolver.class;
+//            acceptNode(f, objectEnv);
+//        });
+//        blockOwnerStack.pop();
+//        this.cursorPositionResolver = TopLevelNodeScopeResolver.class;
+//    }
 
     @Override
     public void visit(BLangMatch matchNode) {

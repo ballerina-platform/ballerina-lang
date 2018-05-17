@@ -391,30 +391,30 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
         }
     }
 
-    @Override
-    public void visit(BLangObject objectNode) {
-        if (objectNode.name.getValue()
-                .equals(this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY))) {
-            this.context.put(NodeContextKeys.NODE_KEY, objectNode);
-            terminateVisitor = true;
-        }
-
-        if (objectNode.fields != null) {
-            objectNode.fields.forEach(this::acceptNode);
-        }
-
-        if (objectNode.functions != null) {
-            objectNode.functions.forEach(this::acceptNode);
-        }
-
-        if (objectNode.initFunction != null) {
-            this.acceptNode(objectNode.initFunction);
-        }
-
-        if (objectNode.receiver != null) {
-            this.acceptNode(objectNode.receiver);
-        }
-    }
+//    @Override
+//    public void visit(BLangObject objectNode) {
+//        if (objectNode.name.getValue()
+//                .equals(this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY))) {
+//            this.context.put(NodeContextKeys.NODE_KEY, objectNode);
+//            terminateVisitor = true;
+//        }
+//
+//        if (objectNode.fields != null) {
+//            objectNode.fields.forEach(this::acceptNode);
+//        }
+//
+//        if (objectNode.functions != null) {
+//            objectNode.functions.forEach(this::acceptNode);
+//        }
+//
+//        if (objectNode.initFunction != null) {
+//            this.acceptNode(objectNode.initFunction);
+//        }
+//
+//        if (objectNode.receiver != null) {
+//            this.acceptNode(objectNode.receiver);
+//        }
+//    }
 
     @Override
     public void visit(BLangTypeInit connectorInitExpr) {
@@ -456,23 +456,23 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
         }
     }
 
-    @Override
-    public void visit(BLangRecord record) {
-        if (record.name.getValue()
-                .equals(this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY))) {
-            this.context.put(NodeContextKeys.NODE_KEY, record);
-            terminateVisitor = true;
-        }
-
-        if (record.fields != null) {
-            record.fields.forEach(this::acceptNode);
-        }
-
-        if (record.initFunction != null &&
-                !(record.initFunction.returnTypeNode.type instanceof BNilType)) {
-            this.acceptNode(record.initFunction);
-        }
-    }
+//    @Override
+//    public void visit(BLangRecord record) {
+//        if (record.name.getValue()
+//                .equals(this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY))) {
+//            this.context.put(NodeContextKeys.NODE_KEY, record);
+//            terminateVisitor = true;
+//        }
+//
+//        if (record.fields != null) {
+//            record.fields.forEach(this::acceptNode);
+//        }
+//
+//        if (record.initFunction != null &&
+//                !(record.initFunction.returnTypeNode.type instanceof BNilType)) {
+//            this.acceptNode(record.initFunction);
+//        }
+//    }
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
@@ -501,9 +501,9 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
             this.acceptNode(typeDefinition.typeNode);
         }
 
-        if (typeDefinition.valueSpace != null) {
-            typeDefinition.valueSpace.forEach(this::acceptNode);
-        }
+//        if (typeDefinition.valueSpace != null) {
+//            typeDefinition.valueSpace.forEach(this::acceptNode);
+//        }
     }
 
     /**

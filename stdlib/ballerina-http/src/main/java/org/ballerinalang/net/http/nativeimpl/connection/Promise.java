@@ -38,12 +38,12 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "promise",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Connection",
                              structPackage = "ballerina.http"),
-        args = {@Argument(name = "promise", type = TypeKind.STRUCT, structType = "PushPromise",
+        args = {@Argument(name = "promise", type = TypeKind.OBJECT, structType = "PushPromise",
                         structPackage = "ballerina.http")
         },
-        returnType = @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
+        returnType = @ReturnType(type = TypeKind.RECORD, structType = "HttpConnectorError",
                                  structPackage = "ballerina.http"),
         isPublic = true
 )

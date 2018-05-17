@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.OrderByVariableNode;
@@ -30,12 +29,15 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.Types.RecordKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTransformerSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -50,7 +52,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -312,7 +314,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         if (expTypeTag == TypeTags.ANY
                 || (expTypeTag == TypeTags.MAP && recordLiteral.keyValuePairs.isEmpty())
-                || (expTypeTag == TypeTags.STRUCT && originalExpType.tsymbol.kind == SymbolKind.OBJECT)) {
+                || expTypeTag == TypeTags.OBJECT) {
             dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_RECORD_LITERAL, originalExpType);
             resultType = symTable.errType;
             return;
@@ -330,7 +332,7 @@ public class TypeChecker extends BLangNodeVisitor {
             actualType = matchedTypeList.get(0);
 
             // TODO Following check can be moved the code analyzer.
-            if (expTypeTag == TypeTags.STRUCT) {
+            if (expTypeTag == TypeTags.RECORD) {
                 validateStructInitalizer(recordLiteral.pos);
             }
         }
@@ -348,8 +350,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return expTypes.stream()
                 .filter(type -> type.tag == TypeTags.JSON ||
                         type.tag == TypeTags.MAP ||
-                        (type.tag == TypeTags.STRUCT && type.tsymbol != null
-                                && type.tsymbol.kind == SymbolKind.RECORD) ||
+                        type.tag == TypeTags.RECORD ||
                         type.tag == TypeTags.NONE ||
                         type.tag == TypeTags.ANY)
                 .collect(Collectors.toList());
@@ -481,11 +482,12 @@ public class TypeChecker extends BLangNodeVisitor {
         BType varRefType = iExpr.expr.type;
         varRefType = getSafeType(varRefType, iExpr.safeNavigate, iExpr.pos);
         switch (varRefType.tag) {
-            case TypeTags.STRUCT:
+            case TypeTags.OBJECT:
+            case TypeTags.RECORD:
                 // Invoking a function bound to a struct
                 // First check whether there exist a function with this name
                 // Then perform arg and param matching
-                checkFunctionInvocationExpr(iExpr, (BStructType) varRefType);
+                checkFunctionInvocationExpr(iExpr, (BStructureType) varRefType);
                 break;
             case TypeTags.CONNECTOR:
                 dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION_SYNTAX);
@@ -540,7 +542,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangTypeInit cIExpr) {
         if ((expType.tag == TypeTags.ANY && cIExpr.userDefinedType == null)
-                || (expType.tag == TypeTags.STRUCT && expType.tsymbol.kind != SymbolKind.OBJECT)) {
+                || expType.tag == TypeTags.RECORD) {
             dlog.error(cIExpr.pos, DiagnosticCode.INVALID_TYPE_NEW_LITERAL, expType);
             resultType = symTable.errType;
             return;
@@ -558,20 +560,20 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        if (actualType.tag != TypeTags.STRUCT) {
+        if (actualType.tag != TypeTags.OBJECT) {
             dlog.error(cIExpr.pos, DiagnosticCode.CANNOT_INFER_OBJECT_TYPE_FROM_LHS, actualType);
             resultType = symTable.errType;
             return;
         }
 
         //TODO cache this in symbol as a flag?
-        ((BStructSymbol) actualType.tsymbol).attachedFuncs.forEach(f -> {
+        ((BObjectTypeSymbol) actualType.tsymbol).attachedFuncs.forEach(f -> {
             if ((f.symbol.flags & Flags.INTERFACE) == Flags.INTERFACE) {
                 dlog.error(cIExpr.pos, DiagnosticCode.CANNOT_INITIALIZE_OBJECT, actualType.tsymbol, f.symbol);
             }
         });
 
-        cIExpr.objectInitInvocation.symbol = ((BStructSymbol) actualType.tsymbol).initializerFunc.symbol;
+        cIExpr.objectInitInvocation.symbol = ((BObjectTypeSymbol) actualType.tsymbol).initializerFunc.symbol;
         cIExpr.objectInitInvocation.type = symTable.nilType;
         checkInvocationParam(cIExpr.objectInitInvocation);
 
@@ -1162,11 +1164,11 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BSymbol funcSymbol = symTable.notFoundSymbol;
         // if no package alias, check for same object attached function
-        if (pkgAlias == Names.EMPTY && env.enclObject != null) {
+        if (pkgAlias == Names.EMPTY && env.enclTypeDefinition != null) {
             Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(
-                    env.enclObject.name.value, iExpr.name.value));
+                    env.enclTypeDefinition.name.value, iExpr.name.value));
             funcSymbol = symResolver.resolveStructField(iExpr.pos, env, objFuncName,
-                    env.enclObject.symbol.type.tsymbol);
+                    env.enclTypeDefinition.symbol.type.tsymbol);
             if (funcSymbol != symTable.notFoundSymbol) {
                 iExpr.exprSymbol = symResolver.lookupSymbol(env, Names.SELF, SymTag.VARIABLE);
             }
@@ -1192,7 +1194,7 @@ public class TypeChecker extends BLangNodeVisitor {
         checkInvocationParamAndReturnType(iExpr);
     }
 
-    private void checkFunctionInvocationExpr(BLangInvocation iExpr, BStructType structType) {
+    private void checkFunctionInvocationExpr(BLangInvocation iExpr, BStructureType structType) {
         // check for same object attached function
         Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(structType
                 .tsymbol.name.value, iExpr.name.value));
@@ -1217,9 +1219,11 @@ public class TypeChecker extends BLangNodeVisitor {
         } else {
             // Attached function found
             // Check for the explicit initializer function invocation
-            BStructSymbol.BAttachedFunction initializerFunc = ((BStructSymbol) structType.tsymbol).initializerFunc;
-            if (initializerFunc != null && initializerFunc.funcName.value.equals(iExpr.name.value)) {
-                dlog.error(iExpr.pos, DiagnosticCode.STRUCT_INITIALIZER_INVOKED, structType.tsymbol.toString());
+            if (structType.tag == TypeTags.RECORD) {
+                BAttachedFunction initializerFunc = ((BRecordTypeSymbol) structType.tsymbol).initializerFunc;
+                if (initializerFunc != null && initializerFunc.funcName.value.equals(iExpr.name.value)) {
+                    dlog.error(iExpr.pos, DiagnosticCode.STRUCT_INITIALIZER_INVOKED, structType.tsymbol.toString());
+                }
             }
         }
         iExpr.symbol = funcSymbol;
@@ -1384,7 +1388,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkActionInvocationExpr(BLangInvocation iExpr, BType conType) {
         BType actualType = symTable.errType;
-        if (conType == symTable.errType || conType.tag != TypeTags.STRUCT || iExpr.expr.symbol.tag != SymTag.ENDPOINT) {
+        if (conType == symTable.errType || conType.tag != TypeTags.OBJECT
+                || iExpr.expr.symbol.tag != SymTag.ENDPOINT) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION);
             resultType = actualType;
             return;
@@ -1401,7 +1406,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (conSymbol == null
                 || conSymbol == symTable.notFoundSymbol
                 || conSymbol == symTable.errSymbol
-                || !(conSymbol.tag == SymTag.OBJECT || conSymbol.tag == SymTag.STRUCT)) {
+                || !(conSymbol.type.tag == TypeTags.OBJECT || conSymbol.type.tag == TypeTags.RECORD)) {
             // TODO : Remove struct dependency.
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION);
             resultType = actualType;
@@ -1430,7 +1435,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BType fieldType = symTable.errType;
         BLangExpression valueExpr = keyValuePair.valueExpr;
         switch (recType.tag) {
-            case TypeTags.STRUCT:
+            case TypeTags.RECORD:
                 fieldType = checkStructLiteralKeyExpr(keyValuePair.key, recType, RecordKind.STRUCT);
                 break;
             case TypeTags.MAP:
@@ -1440,7 +1445,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 fieldType = checkJSONLiteralKeyExpr(keyValuePair.key, recType, RecordKind.JSON);
 
                 // If the field is again a struct, treat that literal expression as another constraint JSON.
-                if (fieldType.tag == TypeTags.STRUCT) {
+                if (fieldType.tag == TypeTags.OBJECT || fieldType.tag == TypeTags.RECORD) {
                     fieldType = new BJSONType(TypeTags.JSON, fieldType, symTable.jsonType.tsymbol);
                 }
 
@@ -1747,8 +1752,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void validateStructInitalizer(DiagnosticPos pos) {
-        BStructType bStructType = (BStructType) expType;
-        BStructSymbol bStructSymbol = (BStructSymbol) bStructType.tsymbol;
+        BStructureType bStructType = (BStructureType) expType;
+        BStructureTypeSymbol bStructSymbol = (BStructureTypeSymbol) bStructType.tsymbol;
         if (bStructSymbol.initializerFunc == null) {
             return;
         }
@@ -1813,7 +1818,8 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType checkFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType, Name fieldName) {
         BType actualType = symTable.errType;
         switch (varRefType.tag) {
-            case TypeTags.STRUCT:
+            case TypeTags.OBJECT:
+            case TypeTags.RECORD:
                 actualType = checkStructFieldAccess(fieldAccessExpr, fieldName, varRefType);
                 break;
             case TypeTags.MAP:
@@ -1821,11 +1827,11 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             case TypeTags.JSON:
                 BType constraintType = ((BJSONType) varRefType).constraint;
-                if (constraintType.tag == TypeTags.STRUCT) {
+                if (constraintType.tag == TypeTags.OBJECT || constraintType.tag == TypeTags.RECORD) {
                     BType fieldType = checkStructFieldAccess(fieldAccessExpr, fieldName, constraintType);
 
                     // If the type of the field is struct, treat it as constraint JSON type.
-                    if (fieldType.tag == TypeTags.STRUCT) {
+                    if (fieldType.tag == TypeTags.OBJECT || fieldType.tag == TypeTags.RECORD) {
                         actualType = new BJSONType(TypeTags.JSON, fieldType, symTable.jsonType.tsymbol);
                         break;
                     }
@@ -1875,7 +1881,8 @@ public class TypeChecker extends BLangNodeVisitor {
         BType actualType = symTable.errType;
         BType indexExprType;
         switch (varRefType.tag) {
-            case TypeTags.STRUCT:
+            case TypeTags.OBJECT:
+            case TypeTags.RECORD:
                 indexExprType = checkIndexExprForStructFieldAccess(indexExpr);
                 if (indexExprType.tag == TypeTags.STRING) {
                     String fieldName = (String) ((BLangLiteral) indexExpr).value;
@@ -1890,7 +1897,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             case TypeTags.JSON:
                 BType constraintType = ((BJSONType) varRefType).constraint;
-                if (constraintType.tag == TypeTags.STRUCT) {
+                if (constraintType.tag == TypeTags.OBJECT || constraintType.tag == TypeTags.RECORD) {
                     indexExprType = checkIndexExprForStructFieldAccess(indexExpr);
                     if (indexExprType.tag != TypeTags.STRING) {
                         break;
@@ -1900,7 +1907,7 @@ public class TypeChecker extends BLangNodeVisitor {
                             checkStructFieldAccess(indexBasedAccessExpr, names.fromString(fieldName), constraintType);
 
                     // If the type of the field is struct, treat it as constraint JSON type.
-                    if (fieldType.tag == TypeTags.STRUCT) {
+                    if (fieldType.tag == TypeTags.OBJECT || fieldType.tag == TypeTags.RECORD) {
                         actualType = new BJSONType(TypeTags.JSON, fieldType, symTable.jsonType.tsymbol);
                         break;
                     }

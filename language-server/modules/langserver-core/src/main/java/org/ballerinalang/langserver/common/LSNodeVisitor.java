@@ -187,20 +187,20 @@ public class LSNodeVisitor extends BLangNodeVisitor {
         // No implementation
     }
 
-    @Override
-    public void visit(BLangStruct structNode) {
-        // No implementation
-    }
+//    @Override
+//    public void visit(BLangStruct structNode) {
+//        // No implementation
+//    }
 
-    @Override
-    public void visit(BLangObject objectNode) {
-        // No implementation
-    }
-
-    @Override
-    public void visit(BLangRecord record) {
-        // No implementation
-    }
+//    @Override
+//    public void visit(BLangObject objectNode) {
+//        // No implementation
+//    }
+//
+//    @Override
+//    public void visit(BLangRecord record) {
+//        // No implementation
+//    }
 
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {

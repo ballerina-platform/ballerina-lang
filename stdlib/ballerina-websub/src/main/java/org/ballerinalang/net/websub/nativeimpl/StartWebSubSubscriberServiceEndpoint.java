@@ -44,7 +44,7 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
         functionName = "startWebSubSubscriberServiceEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener",
                 structPackage = WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH),
         isPublic = true
 )

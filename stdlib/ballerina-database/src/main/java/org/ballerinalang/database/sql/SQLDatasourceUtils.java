@@ -23,7 +23,8 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
@@ -38,7 +39,7 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.TypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.transactions.BallerinaTransactionContext;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
@@ -767,11 +768,12 @@ public class SQLDatasourceUtils {
     }
 
     private static Object[] getStructData(BValue value, Connection conn) throws SQLException {
-        if (value == null || value.getType().getTag() != TypeTags.STRUCT_TAG) {
+        if (value == null || (value.getType().getTag() != TypeTags.OBJECT_TYPE_TAG
+                && value.getType().getTag() != TypeTags.RECORD_TYPE_TAG)) {
             return new Object[] { null, null };
         }
         String structuredSQLType = value.getType().getName().toUpperCase(Locale.getDefault());
-        BStructType.StructField[] structFields = ((BStructType) value.getType()).getStructFields();
+        BField[] structFields = ((BStructureType) value.getType()).getFields();
         int fieldCount = structFields.length;
         Object[] structData = new Object[fieldCount];
         int intFieldIndex = 0;
@@ -781,7 +783,7 @@ public class SQLDatasourceUtils {
         int blobFieldIndex = 0;
         int refFieldIndex = 0;
         for (int i = 0; i < fieldCount; ++i) {
-            BStructType.StructField field = structFields[i];
+            BField field = structFields[i];
             int typeTag = field.getFieldType().getTag();
             switch (typeTag) {
             case TypeTags.INT_TAG:
@@ -804,7 +806,8 @@ public class SQLDatasourceUtils {
                 structData[i] = ((BStruct) value).getBlobField(blobFieldIndex);
                 ++blobFieldIndex;
                 break;
-            case TypeTags.STRUCT_TAG:
+            case TypeTags.OBJECT_TYPE_TAG:
+            case TypeTags.RECORD_TYPE_TAG:
                 Object structValue = ((BStruct) value).getRefField(refFieldIndex);
                 if (structValue instanceof BStruct) {
                     Object[] internalStructData = getStructData((BStruct) structValue, conn);
@@ -890,7 +893,7 @@ public class SQLDatasourceUtils {
         case Types.LONGVARBINARY:
             return TypeKind.BLOB;
         case Types.STRUCT:
-            return TypeKind.STRUCT;
+            return TypeKind.RECORD;
         default:
             return TypeKind.NONE;
         }
@@ -1045,7 +1048,7 @@ public class SQLDatasourceUtils {
 
     public static BStruct getSQLConnectorError(Context context, Throwable throwable) {
         PackageInfo sqlPackageInfo = context.getProgramFile().getPackageInfo(Constants.BUILTIN_PACKAGE_PATH);
-        StructInfo errorStructInfo = sqlPackageInfo.getStructInfo(Constants.SQL_CONNECTOR_ERROR);
+        TypeInfo errorStructInfo = sqlPackageInfo.getStructInfo(Constants.SQL_CONNECTOR_ERROR);
         BStruct sqlConnectorError = new BStruct(errorStructInfo.getType());
         if (throwable.getMessage() == null) {
             sqlConnectorError.setStringField(0, Constants.SQL_EXCEPTION_OCCURED);

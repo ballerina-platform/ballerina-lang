@@ -34,7 +34,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "cancelWebSocketUpgrade",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.CONNECTION,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.CONNECTION,
                              structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "status", type = TypeKind.INT),

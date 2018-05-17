@@ -584,6 +584,12 @@ public class BLangPackageBuilder {
         startEndpointDeclarationScope(((BLangFunction) functionNode).endpoints);
     }
 
+    void startObjectFunctionDef() {
+        FunctionNode functionNode = TreeBuilder.createFunctionNode();
+        this.invokableNodeStack.push(functionNode);
+        startEndpointDeclarationScope(((BLangFunction) functionNode).endpoints);
+    }
+
     void startBlock() {
         this.blockNodeStack.push(TreeBuilder.createBlockNode());
     }
@@ -1374,20 +1380,38 @@ public class BLangPackageBuilder {
 
         BLangUnionTypeNode members = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
 
-        if (!exprNodeStack.isEmpty()) {
-            BLangFiniteTypeNode finiteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
-            while (!exprNodeStack.isEmpty()) {
-                finiteTypeNode.valueSpace.add((BLangExpression) exprNodeStack.pop());
-            }
-            members.memberTypeNodes.add(finiteTypeNode);
-        }
-
         while (!typeNodeStack.isEmpty()) {
             BLangType memberType = (BLangType) typeNodeStack.pop();
             if (memberType.getKind() == NodeKind.UNION_TYPE_NODE) {
                 members.memberTypeNodes.addAll(((BLangUnionTypeNode) memberType).memberTypeNodes);
             } else {
                 members.memberTypeNodes.add(memberType);
+            }
+        }
+
+        if (!exprNodeStack.isEmpty()) {
+            BLangFiniteTypeNode finiteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
+            while (!exprNodeStack.isEmpty()) {
+                finiteTypeNode.valueSpace.add((BLangExpression) exprNodeStack.pop());
+            }
+
+            if (!members.memberTypeNodes.isEmpty()) {
+                BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+                // Generate a name for the anonymous object
+                String genName = anonymousModelHelper.getNextAnonymousTypeKey(pos.src.pkgID);
+                IdentifierNode anonTypeGenName = createIdentifier(genName);
+                typeDef.setName(anonTypeGenName);
+                typeDef.flagSet.add(Flag.PUBLIC);
+
+                typeDef.typeNode = finiteTypeNode;
+                typeDef.pos = pos;
+                typeDef.addWS(ws);
+                this.compUnit.addTopLevelNode(typeDef);
+
+                members.memberTypeNodes.add(createUserDefinedType(pos, ws,
+                        (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name));
+            } else {
+                members.memberTypeNodes.add(finiteTypeNode);
             }
         }
 
@@ -1432,7 +1456,8 @@ public class BLangPackageBuilder {
     }
 
     void endObjectInitFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
-                                  boolean publicFunc, boolean bodyExists) {
+                                  boolean publicFunc, boolean bodyExists, boolean docPresent,
+                                  boolean deprecatedDocPresent, int annCount) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         endEndpointDeclarationScope();
         function.setName(this.createIdentifier(identifier));
@@ -1447,6 +1472,14 @@ public class BLangPackageBuilder {
             function.body = null;
         }
 
+        attachAnnotations(function, annCount);
+        if (docPresent) {
+            attachDocumentations(function);
+        }
+        if (deprecatedDocPresent) {
+            attachDeprecatedNode(function);
+        }
+
         if (!function.deprecatedAttachments.isEmpty()) {
             function.flagSet.add(Flag.DEPRECATED);
         }
@@ -1456,16 +1489,14 @@ public class BLangPackageBuilder {
         nillTypeNode.typeKind = TypeKind.NIL;
         function.returnTypeNode = nillTypeNode;
 
-        attachDocumentations(function);
-        attachDeprecatedNode(function);
-
         function.objInitFunction = true;
 
         this.objFunctionListStack.peek().add(function);
     }
 
     void endObjectAttachedFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc,
-                                      boolean nativeFunc, boolean bodyExists) {
+                                      boolean nativeFunc, boolean bodyExists, boolean docPresent,
+                                      boolean deprecatedDocPresent, int annCount) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         endEndpointDeclarationScope();
         function.pos = pos;
@@ -1491,6 +1522,14 @@ public class BLangPackageBuilder {
         }
 
         function.attachedFunction = true;
+
+        attachAnnotations(function, annCount);
+        if (docPresent) {
+            attachDocumentations(function);
+        }
+        if (deprecatedDocPresent) {
+            attachDeprecatedNode(function);
+        }
 
         if (!function.deprecatedAttachments.isEmpty()) {
             function.flagSet.add(Flag.DEPRECATED);

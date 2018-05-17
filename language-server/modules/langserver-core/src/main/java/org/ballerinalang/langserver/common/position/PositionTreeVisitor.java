@@ -369,17 +369,17 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         }
     }
 
-    public void visit(BLangStruct structNode) {
-        addTopLevelNodeToContext(structNode, structNode.name.getValue(), structNode.symbol.pkgID,
-                structNode.symbol.kind.name(), structNode.symbol.kind.name(),
-                structNode.symbol.owner.name.getValue(), structNode.symbol.owner.pkgID);
-        setPreviousNode(structNode);
-        this.addToNodeStack(structNode);
-
-        if (structNode.fields != null) {
-            structNode.fields.forEach(this::acceptNode);
-        }
-    }
+//    public void visit(BLangStruct structNode) {
+//        addTopLevelNodeToContext(structNode, structNode.name.getValue(), structNode.symbol.pkgID,
+//                structNode.symbol.kind.name(), structNode.symbol.kind.name(),
+//                structNode.symbol.owner.name.getValue(), structNode.symbol.owner.pkgID);
+//        setPreviousNode(structNode);
+//        this.addToNodeStack(structNode);
+//
+//        if (structNode.fields != null) {
+//            structNode.fields.forEach(this::acceptNode);
+//        }
+//    }
 
     public void visit(BLangWhile whileNode) {
         setPreviousNode(whileNode);
@@ -807,26 +807,26 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         }
     }
 
-    @Override
-    public void visit(BLangObject objectNode) {
-        setPreviousNode(objectNode);
-
-        if (objectNode.fields != null) {
-            objectNode.fields.forEach(this::acceptNode);
-        }
-
-        if (objectNode.functions != null) {
-            objectNode.functions.forEach(this::acceptNode);
-        }
-
-        if (objectNode.initFunction != null) {
-            this.acceptNode(objectNode.initFunction);
-        }
-
-        if (objectNode.receiver != null) {
-            this.acceptNode(objectNode.receiver);
-        }
-    }
+//    @Override
+//    public void visit(BLangObject objectNode) {
+//        setPreviousNode(objectNode);
+//
+//        if (objectNode.fields != null) {
+//            objectNode.fields.forEach(this::acceptNode);
+//        }
+//
+//        if (objectNode.functions != null) {
+//            objectNode.functions.forEach(this::acceptNode);
+//        }
+//
+//        if (objectNode.initFunction != null) {
+//            this.acceptNode(objectNode.initFunction);
+//        }
+//
+//        if (objectNode.receiver != null) {
+//            this.acceptNode(objectNode.receiver);
+//        }
+//    }
 
     @Override
     public void visit(BLangMatch matchNode) {
@@ -852,21 +852,21 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         }
     }
 
-    @Override
-    public void visit(BLangRecord record) {
-        addTopLevelNodeToContext(record, record.name.getValue(), record.symbol.pkgID,
-                record.symbol.kind.name(), record.symbol.kind.name(),
-                record.symbol.owner.name.getValue(), record.symbol.owner.pkgID);
-        setPreviousNode(record);
-        if (record.fields != null) {
-            record.fields.forEach(this::acceptNode);
-        }
-
-        if (record.initFunction != null &&
-                !(record.initFunction.returnTypeNode.type instanceof BNilType)) {
-            this.acceptNode(record.initFunction);
-        }
-    }
+//    @Override
+//    public void visit(BLangRecord record) {
+//        addTopLevelNodeToContext(record, record.name.getValue(), record.symbol.pkgID,
+//                record.symbol.kind.name(), record.symbol.kind.name(),
+//                record.symbol.owner.name.getValue(), record.symbol.owner.pkgID);
+//        setPreviousNode(record);
+//        if (record.fields != null) {
+//            record.fields.forEach(this::acceptNode);
+//        }
+//
+//        if (record.initFunction != null &&
+//                !(record.initFunction.returnTypeNode.type instanceof BNilType)) {
+//            this.acceptNode(record.initFunction);
+//        }
+//    }
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
@@ -926,9 +926,9 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             this.acceptNode(typeDefinition.typeNode);
         }
 
-        if (typeDefinition.valueSpace != null) {
-            typeDefinition.valueSpace.forEach(this::acceptNode);
-        }
+//        if (typeDefinition.valueSpace != null) {
+//            typeDefinition.valueSpace.forEach(this::acceptNode);
+//        }
 
     }
 

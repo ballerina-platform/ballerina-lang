@@ -44,9 +44,9 @@ import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
         orgName = ORG_NAME,
         packageName = GrpcConstants.PROTOCOL_PACKAGE_GRPC,
         functionName = "complete",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = GrpcConstants.GRPC_CLIENT,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = GrpcConstants.GRPC_CLIENT,
                 structPackage = GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC),
-        returnType = @ReturnType(type = TypeKind.STRUCT, structType = STRUCT_GENERIC_ERROR, structPackage =
+        returnType = @ReturnType(type = TypeKind.RECORD, structType = STRUCT_GENERIC_ERROR, structPackage =
                 PACKAGE_BUILTIN),
         isPublic = true
 )

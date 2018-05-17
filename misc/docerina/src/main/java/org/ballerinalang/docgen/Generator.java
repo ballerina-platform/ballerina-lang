@@ -45,7 +45,7 @@ import org.ballerinalang.model.tree.DocumentationNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.DocumentationAttributeNode;
 import org.ballerinalang.model.tree.types.TypeNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -323,8 +323,8 @@ public class Generator {
             BLangUserDefinedType type = (BLangUserDefinedType) typeNode;
             String pkg = type.pkgAlias.getValue();
             BTypeSymbol tsymbol = ((BLangUserDefinedType) type).type.tsymbol;
-            if (tsymbol instanceof BStructSymbol) {
-                pkg = ((BStructSymbol) tsymbol).pkgID.getName().getValue();
+            if (tsymbol instanceof BObjectTypeSymbol) {
+                pkg = ((BObjectTypeSymbol) tsymbol).pkgID.getName().getValue();
             }
             return pkg != null && !pkg.isEmpty() ? pkg + ".html#" + type.typeName.getValue() : "#" + type.typeName
                     .getValue();

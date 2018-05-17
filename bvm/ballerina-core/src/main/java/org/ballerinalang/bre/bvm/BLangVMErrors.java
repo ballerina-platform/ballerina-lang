@@ -25,7 +25,7 @@ import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.TypeInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -108,7 +108,7 @@ public class BLangVMErrors {
      * @param values          values of the error
      * @return generated error struct
      */
-    public static BStruct createError(Context context, boolean attachCallStack, StructInfo errorType,
+    public static BStruct createError(Context context, boolean attachCallStack, TypeInfo errorType,
                                       Object... values) {
         return generateError(context.getCallableUnitInfo(), attachCallStack, errorType, values);
     }
@@ -129,26 +129,26 @@ public class BLangVMErrors {
 
     public static BStruct createNullRefException(Context context) {
         PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_RUNTIME);
-        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_NULL_REF_EXCEPTION);
+        TypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_NULL_REF_EXCEPTION);
         return generateError(context.getCallableUnitInfo(), true, errorStructInfo, "");
     }
 
     public static BStruct createNullRefException(WorkerExecutionContext context) {
         PackageInfo errorPackageInfo = context.programFile.getPackageInfo(PACKAGE_RUNTIME);
-        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_NULL_REF_EXCEPTION);
+        TypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_NULL_REF_EXCEPTION);
         return generateError(context, true, errorStructInfo);
     }
 
     public static BStruct createNullRefException(CallableUnitInfo callableUnitInfo) {
         ProgramFile progFile = callableUnitInfo.getPackageInfo().getProgramFile();
         PackageInfo errorPackageInfo = progFile.getPackageInfo(PACKAGE_RUNTIME);
-        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_NULL_REF_EXCEPTION);
+        TypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_NULL_REF_EXCEPTION);
         return generateError(callableUnitInfo, true, errorStructInfo);
     }
 
     public static BStruct createCallFailedException(WorkerExecutionContext context, Map<String, BStruct> errors) {
         PackageInfo errorPackageInfo = context.programFile.getPackageInfo(PACKAGE_RUNTIME);
-        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_CALL_FAILED_EXCEPTION);
+        TypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_CALL_FAILED_EXCEPTION);
         return generateError(context, true, errorStructInfo, MSG_CALL_FAILED, errors.isEmpty() ? null : 
             errors.values().iterator().next(), createErrorCauseArray(errors));
     }
@@ -156,13 +156,13 @@ public class BLangVMErrors {
     public static BStruct createCallCancelledException(CallableUnitInfo callableUnitInfo) {
         PackageInfo errorPackageInfo = callableUnitInfo.getPackageInfo().getProgramFile().getPackageInfo(
                 PACKAGE_RUNTIME);
-        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_CALL_FAILED_EXCEPTION);
+        TypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_CALL_FAILED_EXCEPTION);
         return generateError(callableUnitInfo, true, errorStructInfo, MSG_CALL_CANCELLED);
     }
 
     public static BStruct createIllegalStateException(Context context, String msg) {
         PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_RUNTIME);
-        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_ILLEGAL_STATE_EXCEPTION);
+        TypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_ILLEGAL_STATE_EXCEPTION);
         return createError(context, true, errorStructInfo, msg);
     }
 
@@ -180,7 +180,7 @@ public class BLangVMErrors {
 
     private static BStruct generateError(WorkerExecutionContext context, boolean attachCallStack, Object... values) {
         PackageInfo errorPackageInfo = context.programFile.getPackageInfo(PACKAGE_BUILTIN);
-        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
+        TypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
         return generateError(context, attachCallStack, errorStructInfo, values);
     }
 
@@ -188,12 +188,12 @@ public class BLangVMErrors {
                                          Object... values) {
         ProgramFile progFile = callableUnitInfo.getPackageInfo().getProgramFile();
         PackageInfo errorPackageInfo = progFile.getPackageInfo(PACKAGE_BUILTIN);
-        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
+        TypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
         return generateError(callableUnitInfo, attachCallStack, errorStructInfo, values);
     }
 
     private static BStruct generateError(WorkerExecutionContext context,
-                                         boolean attachCallStack, StructInfo structInfo, Object... values) {
+                                         boolean attachCallStack, TypeInfo structInfo, Object... values) {
         BStruct error = BLangVMStructs.createBStruct(structInfo, values);
         if (attachCallStack) {
             attachStackFrame(error, context);
@@ -201,8 +201,8 @@ public class BLangVMErrors {
         return error;
     }
 
-    private static BStruct generateError(CallableUnitInfo callableUnitInfo, boolean attachCallStack, 
-            StructInfo structInfo, Object... values) {
+    private static BStruct generateError(CallableUnitInfo callableUnitInfo, boolean attachCallStack,
+                                         TypeInfo structInfo, Object... values) {
         BStruct error = BLangVMStructs.createBStruct(structInfo, values);
         if (attachCallStack) {
             attachStackFrame(error, callableUnitInfo);
@@ -240,7 +240,7 @@ public class BLangVMErrors {
         
         ProgramFile progFile = callableUnitInfo.getPackageInfo().getProgramFile();
         PackageInfo runtimePackage = progFile.getPackageInfo(PACKAGE_RUNTIME);
-        StructInfo callStackElement = runtimePackage.getStructInfo(STRUCT_CALL_STACK_ELEMENT);
+        TypeInfo callStackElement = runtimePackage.getStructInfo(STRUCT_CALL_STACK_ELEMENT);
 
         int currentIP = ip - 1;
         Object[] values;

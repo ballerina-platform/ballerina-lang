@@ -20,7 +20,7 @@ package org.ballerinalang.net.http.caching;
 
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.TypeInfo;
 
 import java.util.Map;
 
@@ -44,7 +44,7 @@ public class RequestCacheControlStruct {
 
     private BStruct requestCacheControl;
 
-    public RequestCacheControlStruct(StructInfo structInfo) {
+    public RequestCacheControlStruct(TypeInfo structInfo) {
         requestCacheControl = BLangVMStructs.createBStruct(structInfo);
 
         // Initialize the struct fields to default values we use

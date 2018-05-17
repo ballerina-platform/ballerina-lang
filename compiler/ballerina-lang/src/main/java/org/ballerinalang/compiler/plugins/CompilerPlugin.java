@@ -24,13 +24,11 @@ import org.ballerinalang.model.tree.ConnectorNode;
 import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.FunctionNode;
-import org.ballerinalang.model.tree.ObjectNode;
 import org.ballerinalang.model.tree.PackageNode;
-import org.ballerinalang.model.tree.RecordNode;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.TransformerNode;
+import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -103,28 +101,12 @@ public interface CompilerPlugin {
     void process(ActionNode actionNode, List<AnnotationAttachmentNode> annotations);
 
     /**
-     * Processes a list of annotations attached to a struct node.
-     *
-     * @param structNode  the struct node being annotated
-     * @param annotations a list of annotations attached to the struct node
-     */
-    void process(StructNode structNode, List<AnnotationAttachmentNode> annotations);
-
-    /**
      * Processes a list of annotations attached to a object node.
      *
-     * @param objectNode  the object node being annotated
+     * @param typeDefinition  the object node being annotated
      * @param annotations a list of annotations attached to the object node
      */
-    void process(ObjectNode objectNode, List<AnnotationAttachmentNode> annotations);
-
-    /**
-     * Processes a list of annotations attached to a record node.
-     *
-     * @param recordNode  the record node being annotated
-     * @param annotations a list of annotations attached to the record node
-     */
-    void process(RecordNode recordNode, List<AnnotationAttachmentNode> annotations);
+    void process(TypeDefinition typeDefinition, List<AnnotationAttachmentNode> annotations);
 
     /**
      * Processes a list of annotations attached to a enum node.

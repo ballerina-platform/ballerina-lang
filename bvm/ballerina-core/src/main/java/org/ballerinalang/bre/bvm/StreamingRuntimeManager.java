@@ -19,7 +19,7 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BClosure;
 import org.ballerinalang.model.values.BFunctionPointer;
@@ -81,7 +81,7 @@ public class StreamingRuntimeManager {
             closureArgs.add(closure.value());
         }
 
-        BStructType structType = (BStructType) ((BArrayType) parameters[parameters.length - 1]).getElementType();
+        BStructureType structType = (BStructureType) ((BArrayType) parameters[parameters.length - 1]).getElementType();
         if (!(parameters[parameters.length - 1] instanceof BArrayType)) {
             throw new BallerinaException("incompatible function: inline function needs to be a function accepting"
                     + " an object array");

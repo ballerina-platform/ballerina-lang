@@ -22,7 +22,7 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -45,13 +45,13 @@ public class BLangEndpointContextResolver extends AbstractItemResolver {
         BLangNode bLangEndpoint = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         ArrayList<SymbolInfo> configurationFields = new ArrayList<>();
-        List<BStructSymbol.BAttachedFunction> attachedFunctions = new ArrayList<>();
+        List<BObjectTypeSymbol.BAttachedFunction> attachedFunctions = new ArrayList<>();
         
-        if (((BLangEndpoint) bLangEndpoint).type.tsymbol instanceof BStructSymbol) {
-            attachedFunctions.addAll(((BStructSymbol) ((BLangEndpoint) bLangEndpoint).type.tsymbol).attachedFuncs);
+        if (((BLangEndpoint) bLangEndpoint).type.tsymbol instanceof BObjectTypeSymbol) {
+            attachedFunctions.addAll(((BObjectTypeSymbol) ((BLangEndpoint) bLangEndpoint).type.tsymbol).attachedFuncs);
         }
 
-        BStructSymbol.BAttachedFunction initFunction = attachedFunctions.stream()
+        BObjectTypeSymbol.BAttachedFunction initFunction = attachedFunctions.stream()
                 .filter(bAttachedFunction -> bAttachedFunction.funcName.getValue().equals(INIT))
                 .findFirst()
                 .orElseGet(null);

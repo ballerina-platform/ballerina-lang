@@ -21,7 +21,7 @@ package org.ballerinalang.net.http.caching;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.TypeInfo;
 
 import java.util.Map;
 import java.util.StringJoiner;
@@ -49,7 +49,7 @@ public class ResponseCacheControlStruct {
 
     private BStruct responseCacheControl;
 
-    public ResponseCacheControlStruct(StructInfo structInfo) {
+    public ResponseCacheControlStruct(TypeInfo structInfo) {
         responseCacheControl = BLangVMStructs.createBStruct(structInfo);
         init();
     }

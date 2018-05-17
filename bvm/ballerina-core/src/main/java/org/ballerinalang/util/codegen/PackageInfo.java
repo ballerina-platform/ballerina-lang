@@ -59,17 +59,15 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     private Map<String, FunctionInfo> functionInfoMap = new LinkedHashMap<>();
 
-    private Map<String, StructInfo> structInfoMap = new HashMap<>();
-
     private Map<String, ServiceInfo> serviceInfoMap = new HashMap<>();
 
-    private Map<String, StructureTypeInfo> structureTypeInfoMap = new HashMap<>();
+    private Map<String, CustomTypeInfo> structureTypeInfoMap = new HashMap<>();
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
     private Map<String, TransformerInfo> transformerInfoMap = new LinkedHashMap<>();
 
-    public Map<String, TypeDefinitionInfo> typeDefInfoMap = new HashMap<>();
+    public Map<String, TypeDefInfo> typeDefInfoMap = new HashMap<>();
 
     // cache values.
     ProgramFile programFile;
@@ -147,29 +145,20 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
         return functionInfoMap.values().toArray(new FunctionInfo[0]);
     }
 
-    public StructInfo getStructInfo(String structName) {
-        return structInfoMap.get(structName);
+    public TypeInfo getStructInfo(String name) {
+        return typeDefInfoMap.get(name).typeInfo;
     }
 
-    public void addStructInfo(String structName, StructInfo structInfo) {
-        structInfoMap.put(structName, structInfo);
-        structureTypeInfoMap.put(structName, structInfo);
-    }
-
-    public StructInfo[] getStructInfoEntries() {
-        return structInfoMap.values().toArray(new StructInfo[0]);
-    }
-
-    public void addTypeDefinitionInfo(String typeDefinitionName, TypeDefinitionInfo typeDefinitionInfo) {
+    public void addTypeDefInfo(String typeDefinitionName, TypeDefInfo typeDefinitionInfo) {
         typeDefInfoMap.put(typeDefinitionName, typeDefinitionInfo);
         structureTypeInfoMap.put(typeDefinitionName, typeDefinitionInfo);
     }
 
-    public TypeDefinitionInfo[] getTypeDefinitionInfoEntries() {
-        return typeDefInfoMap.values().toArray(new TypeDefinitionInfo[0]);
+    public TypeDefInfo[] getTypeDefInfoEntries() {
+        return typeDefInfoMap.values().toArray(new TypeDefInfo[0]);
     }
 
-    public TypeDefinitionInfo getTypeDefinitionInfo(String typeDefName) {
+    public TypeDefInfo getTypeDefInfo(String typeDefName) {
         return typeDefInfoMap.get(typeDefName);
     }
 
@@ -187,7 +176,7 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
         structureTypeInfoMap.put(serviceName, serviceInfo);
     }
 
-    public StructureTypeInfo getStructureTypeInfo(String structureTypeName) {
+    public CustomTypeInfo getStructureTypeInfo(String structureTypeName) {
         return structureTypeInfoMap.get(structureTypeName);
     }
 

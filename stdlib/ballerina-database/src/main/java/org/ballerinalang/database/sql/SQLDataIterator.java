@@ -18,7 +18,8 @@
 package org.ballerinalang.database.sql;
 
 import org.ballerinalang.model.ColumnDefinition;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
@@ -28,7 +29,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.Utils;
 import org.ballerinalang.util.TableIterator;
 import org.ballerinalang.util.TableResourceManager;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.math.BigDecimal;
@@ -54,11 +55,12 @@ import javax.sql.rowset.CachedRowSet;
 public class SQLDataIterator extends TableIterator {
 
     private Calendar utcCalendar;
-    private StructInfo timeStructInfo;
-    private StructInfo zoneStructInfo;
+    private StructureTypeInfo timeStructInfo;
+    private StructureTypeInfo zoneStructInfo;
 
-    public SQLDataIterator(Calendar utcCalendar, BStructType structType, StructInfo timeStructInfo,
-            StructInfo zoneStructInfo, TableResourceManager rm, ResultSet rs, List<ColumnDefinition> columnDefs)
+    public SQLDataIterator(Calendar utcCalendar, BStructureType structType, StructureTypeInfo timeStructInfo,
+                           StructureTypeInfo zoneStructInfo, TableResourceManager rm,
+                           ResultSet rs, List<ColumnDefinition> columnDefs)
             throws SQLException {
         super(rm, rs, structType, columnDefs);
         this.utcCalendar = utcCalendar;
@@ -67,8 +69,8 @@ public class SQLDataIterator extends TableIterator {
     }
 
     public SQLDataIterator(TableResourceManager rm, ResultSet rs, Calendar utcCalendar,
-            List<ColumnDefinition> columnDefs, BStructType structType, StructInfo timeStructInfo,
-            StructInfo zoneStructInfo) throws SQLException {
+            List<ColumnDefinition> columnDefs, BStructureType structType, StructureTypeInfo timeStructInfo,
+                           StructureTypeInfo zoneStructInfo) throws SQLException {
         super(rm, rs, structType, columnDefs);
         this.utcCalendar = utcCalendar;
         this.timeStructInfo = timeStructInfo;
@@ -166,11 +168,11 @@ public class SQLDataIterator extends TableIterator {
                         break;
                     case Types.DATE:
                         Date date = rs.getDate(index);
-                        int fieldType = this.type.getStructFields()[index - 1].getFieldType().getTag();
+                        int fieldType = this.type.getFields()[index - 1].getFieldType().getTag();
                         if (fieldType == TypeTags.STRING_TAG) {
                             String dateValue = SQLDatasourceUtils.getString(date);
                             bStruct.setStringField(++stringRegIndex, dateValue);
-                        } else if (fieldType == TypeTags.STRUCT_TAG) {
+                        } else if (fieldType == TypeTags.OBJECT_TYPE_TAG || fieldType == TypeTags.RECORD_TYPE_TAG) {
                             bStruct.setRefField(++refRegIndex, createTimeStruct(date.getTime()));
                         } else if (fieldType == TypeTags.INT_TAG) {
                             bStruct.setIntField(++longRegIndex, date.getTime());
@@ -179,11 +181,11 @@ public class SQLDataIterator extends TableIterator {
                     case Types.TIME:
                     case Types.TIME_WITH_TIMEZONE:
                         Time time = rs.getTime(index, utcCalendar);
-                        fieldType = this.type.getStructFields()[index - 1].getFieldType().getTag();
+                        fieldType = this.type.getFields()[index - 1].getFieldType().getTag();
                         if (fieldType == TypeTags.STRING_TAG) {
                             String timeValue = SQLDatasourceUtils.getString(time);
                             bStruct.setStringField(++stringRegIndex, timeValue);
-                        } else if (fieldType == TypeTags.STRUCT_TAG) {
+                        } else if (fieldType == TypeTags.OBJECT_TYPE_TAG || fieldType == TypeTags.RECORD_TYPE_TAG) {
                             bStruct.setRefField(++refRegIndex, createTimeStruct(time.getTime()));
                         } else if (fieldType == TypeTags.INT_TAG) {
                             bStruct.setIntField(++longRegIndex, time.getTime());
@@ -192,11 +194,11 @@ public class SQLDataIterator extends TableIterator {
                     case Types.TIMESTAMP:
                     case Types.TIMESTAMP_WITH_TIMEZONE:
                         Timestamp timestamp = rs.getTimestamp(index, utcCalendar);
-                        fieldType = this.type.getStructFields()[index - 1].getFieldType().getTag();
+                        fieldType = this.type.getFields()[index - 1].getFieldType().getTag();
                         if (fieldType == TypeTags.STRING_TAG) {
                             String timestmpValue = SQLDatasourceUtils.getString(timestamp);
                             bStruct.setStringField(++stringRegIndex, timestmpValue);
-                        } else if (fieldType == TypeTags.STRUCT_TAG) {
+                        } else if (fieldType == TypeTags.OBJECT_TYPE_TAG || fieldType == TypeTags.RECORD_TYPE_TAG) {
                             bStruct.setRefField(++refRegIndex, createTimeStruct(timestamp.getTime()));
                         } else if (fieldType == TypeTags.INT_TAG) {
                             bStruct.setIntField(++longRegIndex, timestamp.getTime());
@@ -241,11 +243,11 @@ public class SQLDataIterator extends TableIterator {
                         break;
                     case Types.STRUCT:
                         Struct structdata = (Struct) rs.getObject(index);
-                        BType structFieldType = this.type.getStructFields()[index - 1].getFieldType();
+                        BType structFieldType = this.type.getFields()[index - 1].getFieldType();
                         fieldType = structFieldType.getTag();
-                        if (fieldType == TypeTags.STRUCT_TAG) {
+                        if (fieldType == TypeTags.OBJECT_TYPE_TAG || fieldType == TypeTags.RECORD_TYPE_TAG) {
                             bStruct.setRefField(++refRegIndex,
-                                    createUserDefinedType(structdata, (BStructType) structFieldType));
+                                    createUserDefinedType(structdata, (BStructureType) structFieldType));
                         }
                         break;
                     default:
@@ -267,11 +269,11 @@ public class SQLDataIterator extends TableIterator {
         return Utils.createTimeStruct(zoneStructInfo, timeStructInfo, millis, Constants.TIMEZONE_UTC);
     }
 
-    private BStruct createUserDefinedType(Struct structValue, BStructType structType) {
+    private BStruct createUserDefinedType(Struct structValue, BStructureType structType) {
         if (structValue == null) {
             return null;
         }
-        BStructType.StructField[] internalStructFields = structType.getStructFields();
+        BField[] internalStructFields = structType.getFields();
         BStruct struct = new BStruct(structType);
         try {
             Object[] dataArray = structValue.getAttributes();
@@ -285,7 +287,7 @@ public class SQLDataIterator extends TableIterator {
                 int booleanRegIndex = -1;
                 int refRegIndex = -1;
                 int index = 0;
-                for (BStructType.StructField internalField : internalStructFields) {
+                for (BField internalField : internalStructFields) {
                     int type = internalField.getFieldType().getTag();
                     Object value = dataArray[index];
                     switch (type) {
@@ -309,9 +311,10 @@ public class SQLDataIterator extends TableIterator {
                     case TypeTags.BOOLEAN_TAG:
                         struct.setBooleanField(++booleanRegIndex, (int) value);
                         break;
-                    case TypeTags.STRUCT_TAG:
+                    case TypeTags.OBJECT_TYPE_TAG:
+                    case TypeTags.RECORD_TYPE_TAG:
                         struct.setRefField(++refRegIndex,
-                                createUserDefinedType((Struct) value, (BStructType) internalField.fieldType));
+                                createUserDefinedType((Struct) value, (BStructureType) internalField.fieldType));
                         break;
                     default:
                         throw new BallerinaException("error in retrieving UDT data for unsupported type:" + type);

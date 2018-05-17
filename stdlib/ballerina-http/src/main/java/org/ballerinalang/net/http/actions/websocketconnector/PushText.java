@@ -35,10 +35,10 @@ import org.ballerinalang.net.http.WebSocketUtil;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "pushText",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
                              structPackage = "ballerina.http"),
         args = {
-                @Argument(name = "wsConnector", type = TypeKind.STRUCT),
+                @Argument(name = "wsConnector", type = TypeKind.OBJECT),
                 @Argument(name = "text", type = TypeKind.STRING),
                 @Argument(name = "final", type = TypeKind.BOOLEAN)
         }

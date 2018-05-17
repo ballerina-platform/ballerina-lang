@@ -23,7 +23,7 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
@@ -76,7 +76,7 @@ public class BLangMatchContextResolver extends AbstractItemResolver {
                 List<SymbolInfo> structSymbols = visibleSymbols.stream()
                         .filter(symbolInfo -> {
                             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-                            return bSymbol instanceof BStructSymbol
+                            return bSymbol instanceof BObjectTypeSymbol
                                     && !bSymbol.getName().getValue().startsWith(UtilSymbolKeys.ANON_STRUCT_CHECKER);
                         })
                         .collect(Collectors.toList());

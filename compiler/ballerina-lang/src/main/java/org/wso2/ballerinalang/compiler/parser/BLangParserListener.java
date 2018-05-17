@@ -427,7 +427,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean isFieldAnalyseRequired =
                 (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
-                        ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext);
+                        ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext) ||
+                        ctx.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
         this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous);
     }
 
@@ -471,7 +472,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startFunctionDef();
+        this.pkgBuilder.startObjectFunctionDef();
     }
 
     /**
@@ -487,8 +488,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean publicFunc = ctx.PUBLIC() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
+        boolean docExists = ctx.documentationAttachment() != null;
         this.pkgBuilder.endObjectInitFunctionDef(getCurrentPos(ctx), getWS(ctx), ctx.NEW().getText(),
-                publicFunc, bodyExists);
+                publicFunc, bodyExists, docExists, false, ctx.annotationAttachment().size());
     }
 
     /**
@@ -524,6 +526,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.parent instanceof BallerinaParser.PrivateObjectFieldsContext) {
             this.pkgBuilder.addFieldVariable(currentPos, ws, name, exprAvailable,
                     ctx.annotationAttachment().size(), true);
+            return;
         }
         this.pkgBuilder.addFieldVariable(currentPos, ws, name, exprAvailable,
                 ctx.annotationAttachment().size(), false);
@@ -556,7 +559,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean isField = ctx.typeName() == null;
         this.pkgBuilder.addObjectParameter(getCurrentPos(ctx), getWS(ctx), isField, ctx.Identifier().getText(),
-                false, ctx.annotationAttachment().size());
+                ctx.annotationAttachment().size());
     }
 
     /**
@@ -584,7 +587,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startFunctionDef();
+        this.pkgBuilder.startObjectFunctionDef();
     }
 
     /**
@@ -598,15 +601,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        int nativeKWTokenIndex = 0;
-        boolean publicFunc = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
-        if (publicFunc) {
-            nativeKWTokenIndex = 1;
-        }
-        boolean nativeFunc = KEYWORD_NATIVE.equals(ctx.getChild(nativeKWTokenIndex).getText());
+        boolean publicFunc = ctx.PUBLIC() != null;
+        boolean nativeFunc = ctx.NATIVE() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
-        this.pkgBuilder.endObjectAttachedFunctionDef(getCurrentPos(ctx), getWS(ctx),
-                publicFunc, nativeFunc, bodyExists);
+        boolean docExists = ctx.documentationAttachment() != null;
+        boolean deprecatedDocExists = ctx.deprecatedAttachment() != null;
+        this.pkgBuilder.endObjectAttachedFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, nativeFunc,
+                bodyExists, docExists, deprecatedDocExists, ctx.annotationAttachment().size());
     }
 
     /**
@@ -781,7 +782,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean isFieldAnalyseRequired =
                 (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
-                        ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext);
+                        ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext) ||
+                        ctx.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
         this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous);
     }
 
@@ -853,7 +855,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             retParamAvail = true;
         }
 
-        this.pkgBuilder.addFunctionType(getCurrentPos(ctx), getWS(ctx), paramsAvail, paramsTypeOnly, retParamAvail);
+        this.pkgBuilder.addFunctionType(getCurrentPos(ctx), getWS(ctx), paramsAvail, retParamAvail);
     }
 
     /**
@@ -1967,7 +1969,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addReturnParam(getCurrentPos(ctx), getWS(ctx), null, false, ctx.annotationAttachment().size());
+        this.pkgBuilder.addReturnParam(getCurrentPos(ctx), getWS(ctx), ctx.annotationAttachment().size());
     }
 
     @Override
@@ -1976,7 +1978,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addReturnParam(getCurrentPos(ctx), getWS(ctx), null, false, ctx.annotationAttachment().size());
+        this.pkgBuilder.addReturnParam(getCurrentPos(ctx), getWS(ctx), ctx.annotationAttachment().size());
     }
 
     @Override

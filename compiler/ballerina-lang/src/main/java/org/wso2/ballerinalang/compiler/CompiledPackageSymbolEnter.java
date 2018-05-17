@@ -22,11 +22,12 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -37,7 +38,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -299,61 +299,61 @@ public class CompiledPackageSymbolEnter {
     }
 
     private void defineObject(DataInputStream dataInStream) throws IOException {
-        String objectName = getUTF8CPEntryValue(dataInStream);
-        int flags = dataInStream.readInt();
-
-        BStructSymbol symbol;
-
-        if (Symbols.isFlagOn(flags, Flags.RECORD)) {
-            symbol = (BStructSymbol) Symbols.createRecordSymbol(flags, names.fromString(objectName),
-                    this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol);
-        } else {
-            symbol = (BStructSymbol) Symbols.createObjectSymbol(flags, names.fromString(objectName),
-                    this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol);
-        }
-
-        symbol.scope = new Scope(symbol);
-        BStructType type = new BStructType(symbol);
-        symbol.type = type;
-        this.env.pkgSymbol.scope.define(symbol.name, symbol);
-
-        // Define Object Fields
-        defineSymbols(dataInStream, rethrow(dataInputStream ->
-                defineObjectField(dataInStream, symbol, type)));
-
-        // Define attached functions.
-        // TODO define attached functions..
-        // Define Object Fields
-        defineSymbols(dataInStream, rethrow(dataInputStream ->
-                defineObjectAttachedFunction(dataInStream)));
-
-        // Read and ignore attributes
-        readAttributes(dataInStream);
+//        String objectName = getUTF8CPEntryValue(dataInStream);
+//        int flags = dataInStream.readInt();
+//
+//        BObjectTypeSymbol symbol;
+//
+//        if (Symbols.isFlagOn(flags, Flags.RECORD)) {
+//            symbol = (BObjectTypeSymbol) Symbols.createRecordSymbol(flags, names.fromString(objectName),
+//                    this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol);
+//        } else {
+//            symbol = (BObjectTypeSymbol) Symbols.createObjectSymbol(flags, names.fromString(objectName),
+//                    this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol);
+//        }
+//
+//        symbol.scope = new Scope(symbol);
+//        BStructureType type = new BStructureType(symbol);
+//        symbol.type = type;
+//        this.env.pkgSymbol.scope.define(symbol.name, symbol);
+//
+//        // Define Object Fields
+//        defineSymbols(dataInStream, rethrow(dataInputStream ->
+//                defineObjectField(dataInStream, symbol, type)));
+//
+//        // Define attached functions.
+//        // TODO define attached functions..
+//        // Define Object Fields
+//        defineSymbols(dataInStream, rethrow(dataInputStream ->
+//                defineObjectAttachedFunction(dataInStream)));
+//
+//        // Read and ignore attributes
+//        readAttributes(dataInStream);
     }
 
-    private void defineObjectField(DataInputStream dataInStream,
-                                   BTypeSymbol objectSymbol,
-                                   BStructType objectType) throws IOException {
-        String fieldName = getUTF8CPEntryValue(dataInStream);
-        String typeSig = getUTF8CPEntryValue(dataInStream);
-        int flags = dataInStream.readInt();
-
-        BVarSymbol varSymbol = new BVarSymbol(flags, names.fromString(fieldName),
-                objectSymbol.pkgID, null, objectSymbol.scope.owner);
-        objectSymbol.scope.define(varSymbol.name, varSymbol);
-
-        // Read the default value attribute
-        Map<AttributeInfo.Kind, byte[]> attrData = readAttributes(dataInStream);
-
-        // The object field type cannot be resolved now. Hence add it to the unresolved type list.
-        UnresolvedType unresolvedFieldType = new UnresolvedType(typeSig, type -> {
-            varSymbol.type = type;
-            BStructType.BStructField structField = new BStructType.BStructField(varSymbol.name,
-                    varSymbol, varSymbol.defaultValue != null);
-            objectType.fields.add(structField);
-        });
-        this.env.unresolvedTypes.add(unresolvedFieldType);
-    }
+//    private void defineObjectField(DataInputStream dataInStream,
+//                                   BTypeSymbol objectSymbol,
+//                                   BStructType objectType) throws IOException {
+//        String fieldName = getUTF8CPEntryValue(dataInStream);
+//        String typeSig = getUTF8CPEntryValue(dataInStream);
+//        int flags = dataInStream.readInt();
+//
+//        BVarSymbol varSymbol = new BVarSymbol(flags, names.fromString(fieldName),
+//                objectSymbol.pkgID, null, objectSymbol.scope.owner);
+//        objectSymbol.scope.define(varSymbol.name, varSymbol);
+//
+//        // Read the default value attribute
+//        Map<AttributeInfo.Kind, byte[]> attrData = readAttributes(dataInStream);
+//
+//        // The object field type cannot be resolved now. Hence add it to the unresolved type list.
+//        UnresolvedType unresolvedFieldType = new UnresolvedType(typeSig, type -> {
+//            varSymbol.type = type;
+//            BStructType.BStructField structField = new BStructType.BStructField(varSymbol.name,
+//                    varSymbol, varSymbol.defaultValue != null);
+//            objectType.fields.add(structField);
+//        });
+//        this.env.unresolvedTypes.add(unresolvedFieldType);
+//    }
 
     private void defineObjectAttachedFunction(DataInputStream dataInStream) throws IOException {
         // Consider attached functions.. remove the first variable
@@ -380,7 +380,7 @@ public class CompiledPackageSymbolEnter {
             TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) this.env.constantPool[attachedToTypeRefCPIndex];
             UTF8CPEntry typeSigCPEntry = (UTF8CPEntry) this.env.constantPool[typeRefCPEntry.typeSigCPIndex];
             BType bType = getBTypeFromDescriptor(typeSigCPEntry.getValue());
-            if (bType.tag == TypeTags.STRUCT) {
+            if (bType.tag == TypeTags.OBJECT || bType.tag == TypeTags.RECORD) {
                 invokableSymbol = Symbols.createFunctionSymbol(flags, names.fromString(Symbols
                                 .getAttachedFuncSymbolName(bType.tsymbol.name.value, funcName)),
                         this.env.pkgSymbol.pkgID, null, bType.tsymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
@@ -392,7 +392,7 @@ public class CompiledPackageSymbolEnter {
                 scopeToDefine = bType.tsymbol.scope;
 
                 if (Names.OBJECT_INIT_SUFFIX.value.equals(funcName)) {
-                    ((BStructSymbol) bType.tsymbol).initializerFunc = new BAttachedFunction(invokableSymbol.name,
+                    ((BObjectTypeSymbol) bType.tsymbol).initializerFunc = new BAttachedFunction(invokableSymbol.name,
                             invokableSymbol, funcType);
                 }
             }

@@ -105,7 +105,7 @@ objectInitializerParameterList
     ;
 
 objectFunctions
-    :   (annotationAttachment* documentationAttachment? deprecatedAttachment? objectFunctionDefinition)+
+    :   objectFunctionDefinition+
     ;
 
 // TODO merge with fieldDefinition later
@@ -131,7 +131,7 @@ objectDefaultableParameter
 
 // TODO merge with functionDefinition later
 objectFunctionDefinition
-    :   (PUBLIC)? (NATIVE)? FUNCTION objectCallableUnitSignature (callableUnitBody | SEMICOLON)
+    :   annotationAttachment* documentationAttachment? deprecatedAttachment? (PUBLIC)? (NATIVE)? FUNCTION objectCallableUnitSignature (callableUnitBody | SEMICOLON)
     ;
 
 //TODO merge with callableUnitSignature later

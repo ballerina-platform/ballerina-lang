@@ -79,7 +79,7 @@ public class BLangObjectTypeNode extends BLangType implements ObjectTypeNode {
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
-//        visitor.visit(this);
+        visitor.visit(this);
     }
 
     @Override

@@ -38,8 +38,8 @@ import org.slf4j.LoggerFactory;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "init",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "CharacterChannel", structPackage = "ballerina.io"),
-        args = {@Argument(name = "byteChannel", type = TypeKind.STRUCT, structType = "ByteChannel",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "CharacterChannel", structPackage = "ballerina.io"),
+        args = {@Argument(name = "byteChannel", type = TypeKind.OBJECT, structType = "ByteChannel",
                 structPackage = "ballerina.io"),
                 @Argument(name = "encoding", type = TypeKind.STRING)},
         isPublic = true

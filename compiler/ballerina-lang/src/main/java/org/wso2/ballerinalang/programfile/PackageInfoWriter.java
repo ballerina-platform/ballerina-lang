@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.programfile;
 
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.programfile.Instruction.Operand;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.CodeAttributeInfo;
@@ -158,18 +159,11 @@ public class PackageInfoWriter {
             dataOutStream.writeInt(importPkgInfo.versionCPIndex);
         }
 
-        // Emit struct info entries
-        StructInfo[] structTypeInfoEntries = packageInfo.getStructInfoEntries();
-        dataOutStream.writeShort(structTypeInfoEntries.length);
-        for (StructInfo structInfo : structTypeInfoEntries) {
-            writeStructInfo(dataOutStream, structInfo);
-        }
-
         // Write Type Definition entries
-        TypeDefinitionInfo[] typeDefEntries = packageInfo.getTypeDefinitionInfoEntries();
+        TypeDefInfo[] typeDefEntries = packageInfo.getTypeDefInfoEntries();
         dataOutStream.writeShort(typeDefEntries.length);
-        for (TypeDefinitionInfo typeDefInfo : typeDefEntries) {
-            writeTypeDefinitionInfo(dataOutStream, typeDefInfo);
+        for (TypeDefInfo typeDefInfo : typeDefEntries) {
+            writeTypeDefInfo(dataOutStream, typeDefInfo);
         }
 
         // TODO Emit service info entries
@@ -274,27 +268,6 @@ public class PackageInfoWriter {
         dataOutStream.writeInt(dataChannelInfo.getDataChannelRefIndex());
     }
 
-    private static void writeStructInfo(DataOutputStream dataOutStream,
-                                        StructInfo structInfo) throws IOException {
-        dataOutStream.writeInt(structInfo.nameCPIndex);
-        dataOutStream.writeInt(structInfo.flags);
-
-        // Write struct field info entries
-        dataOutStream.writeShort(structInfo.fieldInfoEntries.size());
-        for (StructFieldInfo structFieldInfoEntry : structInfo.fieldInfoEntries) {
-            writeStructFieldInfo(dataOutStream, structFieldInfoEntry);
-        }
-
-        // Write attached function info entries
-        dataOutStream.writeShort(structInfo.attachedFuncInfoEntries.size());
-        for (AttachedFunctionInfo attachedFuncInfo : structInfo.attachedFuncInfoEntries) {
-            writeAttachedFunctionInfo(dataOutStream, attachedFuncInfo);
-        }
-
-        // Write attribute info
-        writeAttributeInfoEntries(dataOutStream, structInfo.getAttributeInfoEntries());
-    }
-
     private static void writeTypeDefinitionInfo(DataOutputStream dataOutStream,
                                                 TypeDefinitionInfo typeDefinitionInfo) throws IOException {
         dataOutStream.writeInt(typeDefinitionInfo.nameCPIndex);
@@ -309,6 +282,75 @@ public class PackageInfoWriter {
 
         // Write attribute info
         writeAttributeInfoEntries(dataOutStream, typeDefinitionInfo.getAttributeInfoEntries());
+    }
+
+    private static void writeTypeDefInfo(DataOutputStream dataOutStream,
+                                                TypeDefInfo typeDefInfo) throws IOException {
+        dataOutStream.writeInt(typeDefInfo.nameCPIndex);
+        dataOutStream.writeInt(typeDefInfo.flags);
+        dataOutStream.writeInt(typeDefInfo.typeTag);
+        switch (typeDefInfo.typeTag) {
+            case TypeTags.OBJECT:
+                writeObjectTypeDefInfo(dataOutStream, (ObjectTypeInfo) typeDefInfo.typeInfo);
+                break;
+            case TypeTags.RECORD:
+                writeRecordTypeDefInfo(dataOutStream, (RecordTypeInfo) typeDefInfo.typeInfo);
+                break;
+            case TypeTags.FINITE:
+                writeFiniteTypeDefInfo(dataOutStream, (FiniteTypeInfo) typeDefInfo.typeInfo);
+                break;
+        }
+
+    }
+
+    private static void writeObjectTypeDefInfo(DataOutputStream dataOutStream,
+                                         ObjectTypeInfo objectInfo) throws IOException {
+        // Write struct field info entries
+        dataOutStream.writeShort(objectInfo.fieldInfoEntries.size());
+        for (StructFieldInfo structFieldInfoEntry : objectInfo.fieldInfoEntries) {
+            writeStructFieldInfo(dataOutStream, structFieldInfoEntry);
+        }
+
+        // Write attached function info entries
+        dataOutStream.writeShort(objectInfo.attachedFuncInfoEntries.size());
+        for (AttachedFunctionInfo attachedFuncInfo : objectInfo.attachedFuncInfoEntries) {
+            writeAttachedFunctionInfo(dataOutStream, attachedFuncInfo);
+        }
+
+        // Write attribute info
+        writeAttributeInfoEntries(dataOutStream, objectInfo.getAttributeInfoEntries());
+    }
+
+    private static void writeRecordTypeDefInfo(DataOutputStream dataOutStream,
+                                               RecordTypeInfo recordInfo) throws IOException {
+        // Write struct field info entries
+        dataOutStream.writeShort(recordInfo.fieldInfoEntries.size());
+        for (StructFieldInfo structFieldInfoEntry : recordInfo.fieldInfoEntries) {
+            writeStructFieldInfo(dataOutStream, structFieldInfoEntry);
+        }
+
+        // Write attached function info entries TODO remove below segment once record init function removed
+        dataOutStream.writeShort(recordInfo.attachedFuncInfoEntries.size());
+        for (AttachedFunctionInfo attachedFuncInfo : recordInfo.attachedFuncInfoEntries) {
+            writeAttachedFunctionInfo(dataOutStream, attachedFuncInfo);
+        }
+
+        // Write attribute info
+        writeAttributeInfoEntries(dataOutStream, recordInfo.getAttributeInfoEntries());
+    }
+
+    private static void writeFiniteTypeDefInfo(DataOutputStream dataOutStream,
+                                                FiniteTypeInfo finiteTypeDefInfo) throws IOException {
+        ValueSpaceItemInfo[] valueSpaceItemInfos = finiteTypeDefInfo.
+                valueSpaceItemInfos.toArray(new ValueSpaceItemInfo[0]);
+
+        dataOutStream.writeShort(valueSpaceItemInfos.length);
+        for (ValueSpaceItemInfo valueSpaceItem : valueSpaceItemInfos) {
+            writeDefaultValue(dataOutStream, valueSpaceItem.value);
+        }
+
+        // Write attribute info
+        writeAttributeInfoEntries(dataOutStream, finiteTypeDefInfo.getAttributeInfoEntries());
     }
 
     private static void writeServiceInfo(DataOutputStream dataOutStream,
@@ -530,11 +572,13 @@ public class PackageInfoWriter {
     private static byte[] writeInstructions(Instruction[] instructions) throws IOException {
         ByteArrayOutputStream byteAOS = new ByteArrayOutputStream();
         DataOutputStream dataOutStream = new DataOutputStream(byteAOS);
+        int count = 0;
         for (Instruction instruction : instructions) {
             dataOutStream.write(instruction.opcode);
             for (Operand operand : instruction.ops) {
                 dataOutStream.writeInt(operand.value);
             }
+            count++;
         }
         return byteAOS.toByteArray();
     }

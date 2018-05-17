@@ -36,7 +36,7 @@ import org.ballerinalang.util.codegen.ResourceInfo;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
         functionName = "retrieveAnnotations",
-        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "SubscriberServiceConfiguration",
+        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "SubscriberServiceConfiguration",
                 structPackage = WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH)}
 )
 public class RetrieveAnnotations extends BlockingNativeCallableUnit {

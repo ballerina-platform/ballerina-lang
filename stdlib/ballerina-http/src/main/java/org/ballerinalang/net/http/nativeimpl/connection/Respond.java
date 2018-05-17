@@ -51,11 +51,11 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "respond",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Connection",
                 structPackage = "ballerina.http"),
-        args = {@Argument(name = "res", type = TypeKind.STRUCT, structType = "Response",
+        args = {@Argument(name = "res", type = TypeKind.OBJECT, structType = "Response",
                 structPackage = "ballerina.http")},
-        returnType = @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
+        returnType = @ReturnType(type = TypeKind.RECORD, structType = "HttpConnectorError",
                 structPackage = "ballerina.http"),
         isPublic = true
 )

@@ -522,21 +522,21 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
         }
     }
 
-    @Override
-    public void visit(BLangStruct structNode) {
-        if (structNode.symbol.owner.name.getValue().equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY)) &&
-                structNode.symbol.owner.pkgID.name.getValue()
-                        .equals(this.context.get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY).name.getValue()) &&
-                this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue()
-                        .equals(structNode.symbol.pkgID.name.getValue()) &&
-                this.context.get(NodeContextKeys.NAME_OF_NODE_KEY).equals(structNode.name.getValue())) {
-            addLocation(structNode, structNode.symbol.owner.pkgID.name.getValue(),
-                        structNode.pos.getSource().pkgID.name.getValue());
-        }
-        if (structNode.fields != null) {
-            structNode.fields.forEach(this::acceptNode);
-        }
-    }
+//    @Override
+//    public void visit(BLangStruct structNode) {
+//        if (structNode.symbol.owner.name.getValue().equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY)) &&
+//                structNode.symbol.owner.pkgID.name.getValue()
+//                        .equals(this.context.get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY).name.getValue()) &&
+//                this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue()
+//                        .equals(structNode.symbol.pkgID.name.getValue()) &&
+//                this.context.get(NodeContextKeys.NAME_OF_NODE_KEY).equals(structNode.name.getValue())) {
+//            addLocation(structNode, structNode.symbol.owner.pkgID.name.getValue(),
+//                        structNode.pos.getSource().pkgID.name.getValue());
+//        }
+//        if (structNode.fields != null) {
+//            structNode.fields.forEach(this::acceptNode);
+//        }
+//    }
 
     @Override
     public void visit(BLangTransformer transformerNode) {
@@ -664,26 +664,26 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
         }
     }
 
-    @Override
-    public void visit(BLangObject objectNode) {
-        if (objectNode.symbol.owner.name.getValue().equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY)) &&
-                objectNode.symbol.owner.pkgID.name.getValue()
-                        .equals(this.context.get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY).name.getValue()) &&
-                this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue()
-                        .equals(objectNode.symbol.pkgID.name.getValue()) &&
-                this.context.get(NodeContextKeys.NAME_OF_NODE_KEY).equals(objectNode.name.getValue())) {
-            addLocation(objectNode, objectNode.symbol.owner.pkgID.name.getValue(),
-                        objectNode.pos.getSource().pkgID.name.getValue());
-        }
-
-        if (objectNode.fields != null) {
-            objectNode.fields.forEach(this::acceptNode);
-        }
-
-        if (objectNode.functions != null) {
-            objectNode.functions.forEach(this::acceptNode);
-        }
-    }
+//    @Override
+//    public void visit(BLangObject objectNode) {
+//        if (objectNode.symbol.owner.name.getValue().equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY)) &&
+//                objectNode.symbol.owner.pkgID.name.getValue()
+//                        .equals(this.context.get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY).name.getValue()) &&
+//                this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue()
+//                        .equals(objectNode.symbol.pkgID.name.getValue()) &&
+//                this.context.get(NodeContextKeys.NAME_OF_NODE_KEY).equals(objectNode.name.getValue())) {
+//            addLocation(objectNode, objectNode.symbol.owner.pkgID.name.getValue(),
+//                        objectNode.pos.getSource().pkgID.name.getValue());
+//        }
+//
+//        if (objectNode.fields != null) {
+//            objectNode.fields.forEach(this::acceptNode);
+//        }
+//
+//        if (objectNode.functions != null) {
+//            objectNode.functions.forEach(this::acceptNode);
+//        }
+//    }
 
     @Override
     public void visit(BLangMatch matchNode) {
@@ -718,27 +718,27 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
         }
     }
 
-    @Override
-    public void visit(BLangRecord record) {
-        if (record.symbol.owner.name.getValue().equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY)) &&
-                record.symbol.owner.pkgID.name.getValue()
-                        .equals(this.context.get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY).name.getValue()) &&
-                this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue()
-                        .equals(record.symbol.pkgID.name.getValue()) &&
-                this.context.get(NodeContextKeys.NAME_OF_NODE_KEY).equals(record.name.getValue())) {
-            addLocation(record, record.symbol.owner.pkgID.name.getValue(),
-                        record.pos.getSource().pkgID.name.getValue());
-        }
-
-        if (record.fields != null) {
-            record.fields.forEach(this::acceptNode);
-        }
-
-        if (record.initFunction != null &&
-                !(record.initFunction.returnTypeNode.type instanceof BNilType)) {
-            this.acceptNode(record.initFunction);
-        }
-    }
+//    @Override
+//    public void visit(BLangRecord record) {
+//        if (record.symbol.owner.name.getValue().equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY)) &&
+//                record.symbol.owner.pkgID.name.getValue()
+//                        .equals(this.context.get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY).name.getValue()) &&
+//                this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue()
+//                        .equals(record.symbol.pkgID.name.getValue()) &&
+//                this.context.get(NodeContextKeys.NAME_OF_NODE_KEY).equals(record.name.getValue())) {
+//            addLocation(record, record.symbol.owner.pkgID.name.getValue(),
+//                        record.pos.getSource().pkgID.name.getValue());
+//        }
+//
+//        if (record.fields != null) {
+//            record.fields.forEach(this::acceptNode);
+//        }
+//
+//        if (record.initFunction != null &&
+//                !(record.initFunction.returnTypeNode.type instanceof BNilType)) {
+//            this.acceptNode(record.initFunction);
+//        }
+//    }
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
@@ -797,9 +797,9 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
             this.acceptNode(typeDefinition.typeNode);
         }
 
-        if (typeDefinition.valueSpace != null) {
-            typeDefinition.valueSpace.forEach(this::acceptNode);
-        }
+//        if (typeDefinition.valueSpace != null) {
+//            typeDefinition.valueSpace.forEach(this::acceptNode);
+//        }
 
     }
 

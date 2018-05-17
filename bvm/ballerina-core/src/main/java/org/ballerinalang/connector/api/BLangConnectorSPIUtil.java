@@ -28,7 +28,7 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.PackageVarInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.TypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
@@ -47,7 +47,7 @@ public final class BLangConnectorSPIUtil {
      */
     public static Struct getConnectorEndpointStruct(Context context) {
         BValue result = context.getRefArgument(0);
-        if (result == null || result.getType().getTag() != TypeTags.STRUCT_TAG) {
+        if (result == null || result.getType().getTag() != TypeTags.OBJECT_TYPE_TAG) {
             throw new BallerinaException("Can't get connector endpoint struct");
         }
         return ConnectorSPIModelHelper.createStruct((BStruct) result);
@@ -92,7 +92,7 @@ public final class BLangConnectorSPIUtil {
         if (packageInfo == null) {
             throw new BallerinaConnectorException("package - " + pkgPath + " does not exist");
         }
-        StructInfo structInfo = packageInfo.getStructInfo(structName);
+        TypeInfo structInfo = packageInfo.getStructInfo(structName);
         if (structInfo == null) {
             throw new BallerinaConnectorException("struct - " + structName + " does not exist");
         }
@@ -109,11 +109,11 @@ public final class BLangConnectorSPIUtil {
         if (packageInfo == null) {
             throw new BallerinaConnectorException("package - " + pkgPath + " does not exist");
         }
-        StructInfo structInfo = packageInfo.getStructInfo(structName);
-        if (structInfo == null) {
+        TypeInfo typeInfo = packageInfo.getStructInfo(structName);
+        if (typeInfo == null) {
             throw new BallerinaConnectorException("struct - " + structName + " does not exist");
         }
-        return BLangVMStructs.createObject(structInfo, values);
+        return BLangVMStructs.createObject(typeInfo, values);
     }
 
     /**

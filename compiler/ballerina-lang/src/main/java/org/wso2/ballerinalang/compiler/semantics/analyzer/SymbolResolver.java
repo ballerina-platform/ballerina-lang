@@ -36,10 +36,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -47,10 +50,15 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -63,11 +71,13 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
+import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -258,7 +268,8 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         int opcode = (opKind == OperatorKind.EQUAL) ? InstructionCodes.REQ_NULL : InstructionCodes.RNE_NULL;
         if (lhsType.tag == TypeTags.NIL &&
-                (rhsType.tag == TypeTags.STRUCT ||
+                (rhsType.tag == TypeTags.OBJECT ||
+                        rhsType.tag == TypeTags.RECORD ||
                         rhsType.tag == TypeTags.CONNECTOR ||
                         rhsType.tag == TypeTags.ENUM ||
                         rhsType.tag == TypeTags.INVOKABLE)) {
@@ -266,7 +277,8 @@ public class SymbolResolver extends BLangNodeVisitor {
             return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
         }
 
-        if ((lhsType.tag == TypeTags.STRUCT ||
+        if ((lhsType.tag == TypeTags.OBJECT ||
+                lhsType.tag == TypeTags.RECORD ||
                 lhsType.tag == TypeTags.CONNECTOR ||
                 lhsType.tag == TypeTags.ENUM ||
                 lhsType.tag == TypeTags.INVOKABLE)
@@ -593,15 +605,69 @@ public class SymbolResolver extends BLangNodeVisitor {
                                 ((BUnionType) memBType).memberTypes.stream() :
                                 Stream.of(memBType))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
-        resultType = new BUnionType(null, memberTypes,
+
+        BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+                Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
+
+        BUnionType unionType = new BUnionType(unionTypeSymbol, memberTypes,
                 memberTypes.contains(symTable.nilType));
+        unionTypeSymbol.type = unionType;
+
+        resultType = unionType;
+    }
+
+    public void visit(BLangObjectTypeNode objectTypeNode) {
+        BTypeSymbol objectSymbol = Symbols.createObjectSymbol(Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+                Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        BObjectType objectType = new BObjectType(objectSymbol);
+        objectSymbol.type = objectType;
+
+        objectTypeNode.symbol = objectSymbol;
+
+        resultType = objectType;
+    }
+
+    public void visit(BLangRecordTypeNode recordTypeNode) {
+        BTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+                Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
+
+        BRecordType recordType = new BRecordType(recordSymbol);
+        recordSymbol.type = recordType;
+
+        recordTypeNode.symbol = recordSymbol;
+
+        resultType = recordType;
+    }
+
+    public void visit(BLangFiniteTypeNode finiteTypeNode) {
+        HashSet<BLangExpression> valueSpace = new HashSet<>();
+
+        for (BLangExpression literal : finiteTypeNode.valueSpace) {
+            ((BLangLiteral) literal).type = symTable.getTypeFromTag(((BLangLiteral) literal).typeTag);
+            valueSpace.add(literal);
+        }
+
+        BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.asMask(EnumSet
+                .of(Flag.PUBLIC)), Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
+
+        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol, valueSpace);
+        finiteTypeSymbol.type = finiteType;
+
+        resultType = finiteType;
     }
 
     public void visit(BLangTupleTypeNode tupleTypeNode) {
         List<BType> memberTypes = tupleTypeNode.memberTypeNodes.stream()
                 .map(memTypeNode -> resolveTypeNode(memTypeNode, env))
                 .collect(Collectors.toList());
-        resultType = new BTupleType(memberTypes);
+
+        BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+                Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
+
+        BTupleType tupleType = new BTupleType(tupleTypeSymbol, memberTypes);
+        tupleTypeSymbol.type = tupleType;
+
+        resultType = tupleType;
     }
 
     public void visit(BLangConstrainedType constrainedTypeNode) {

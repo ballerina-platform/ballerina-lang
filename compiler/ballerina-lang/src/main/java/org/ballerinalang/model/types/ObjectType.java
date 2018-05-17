@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -17,25 +17,13 @@
 */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.Name;
-
 import java.util.List;
 
 /**
- * {@code StructType} represents the type of a struct in Ballerina.
+ * {@code ObjectType} represents the type of a object in Ballerina.
  *
- * @since 0.94
+ * @since 0.971.0
  */
-public interface StructType extends ReferenceType {
-
-    /**
-     * @since 0.94
-     */
-    interface Field {
-        Name getName();
-
-        Type getType();
-    }
-
+public interface ObjectType extends ReferenceType {
     List<? extends Field> getFields();
 }

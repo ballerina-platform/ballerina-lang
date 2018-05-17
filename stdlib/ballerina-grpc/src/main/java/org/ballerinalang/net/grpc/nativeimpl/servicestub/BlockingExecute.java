@@ -67,18 +67,18 @@ import static org.ballerinalang.net.grpc.MessageUtils.getMessageHeaders;
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "blockingExecute",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = SERVICE_STUB,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = SERVICE_STUB,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         args = {
                 @Argument(name = "methodID", type = TypeKind.STRING),
                 @Argument(name = "payload", type = TypeKind.ANY),
-                @Argument(name = "headers", type = TypeKind.STRUCT, structType = "Headers",
+                @Argument(name = "headers", type = TypeKind.OBJECT, structType = "Headers",
                         structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC)
             
         },
         returnType = {
                 @ReturnType(type = TypeKind.ANY),
-                @ReturnType(type = TypeKind.STRUCT, structType = STRUCT_GENERIC_ERROR, structPackage = PACKAGE_BUILTIN),
+                @ReturnType(type = TypeKind.RECORD, structType = STRUCT_GENERIC_ERROR, structPackage = PACKAGE_BUILTIN),
         },
         isPublic = true
 )

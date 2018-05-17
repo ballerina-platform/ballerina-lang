@@ -15,21 +15,28 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree;
+package org.ballerinalang.util.codegen;
 
-import java.util.List;
+import org.ballerinalang.model.types.BRecordType;
 
 /**
- * @since 0.970.0
+ * {@code RecordTypeInfo} contains metadata of a Ballerina record entry in the program file.
+ *
+ * @since 0.971.0
  */
-public interface RecordNode extends AnnotatableNode, DocumentableNode, TopLevelNode {
-    
-    IdentifierNode getName();
-    
-    void setName(IdentifierNode name);
+public class RecordTypeInfo extends StructureTypeInfo {
 
-    List<? extends VariableNode> getFields();
+    private BRecordType recordType;
 
-    void addField(VariableNode field);
-    
+    public RecordTypeInfo() {
+    }
+
+    public BRecordType getType() {
+        return recordType;
+    }
+
+    public void setType(BRecordType structType) {
+        this.recordType = structType;
+    }
+
 }

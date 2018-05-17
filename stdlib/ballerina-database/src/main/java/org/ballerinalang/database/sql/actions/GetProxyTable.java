@@ -21,7 +21,7 @@ package org.ballerinalang.database.sql.actions;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDatasource;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
@@ -37,14 +37,14 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "sql",
         functionName = "getProxyTable",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = Constants.CALLER_ACTIONS),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.CALLER_ACTIONS),
         args = {
                 @Argument(name = "tableName", type = TypeKind.STRING),
                 @Argument(name = "recordType", type = TypeKind.STRING)
         },
         returnType = {
                 @ReturnType(type = TypeKind.TABLE),
-                @ReturnType(type = TypeKind.STRUCT, structType = "error", structPackage = "ballerina.builtin")
+                @ReturnType(type = TypeKind.RECORD, structType = "error", structPackage = "ballerina.builtin")
         }
 )
 public class GetProxyTable extends AbstractSQLAction {
@@ -54,7 +54,7 @@ public class GetProxyTable extends AbstractSQLAction {
 
         BStruct bConnector = (BStruct) context.getRefArgument(0);
         String tableName = context.getStringArgument(0);
-        BStructType structType = getStructType(context, 1);
+        BStructureType structType = getStructType(context, 1);
         SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CALLER_ACTIONS);
         try {
             checkAndObserveSQLAction(context, datasource, tableName);

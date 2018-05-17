@@ -26,7 +26,7 @@ import java.util.Objects;
 /**
  * Represent serializable unit of defined type Definition item.
  */
-public class TypeDefinitionInfo extends StructureTypeInfo {
+public class TypeDefinitionInfo extends CustomTypeInfo {
     private BFiniteType finiteType;
 
 

@@ -66,4 +66,17 @@ public class BPackageSymbol extends BTypeSymbol {
     public int hashCode() {
         return pkgID.hashCode();
     }
+
+    @Override
+    public BPackageSymbol copy() {
+        BPackageSymbol copy = new BPackageSymbol(pkgID, owner);
+        copy.initFunctionSymbol = initFunctionSymbol;
+        copy.startFunctionSymbol = startFunctionSymbol;
+        copy.stopFunctionSymbol = stopFunctionSymbol;
+        copy.packageFile = packageFile;
+        copy.compiledPackage = compiledPackage;
+        copy.entryPointExists = entryPointExists;
+        copy.initFunctionsInvoked = initFunctionsInvoked;
+        return copy;
+    }
 }

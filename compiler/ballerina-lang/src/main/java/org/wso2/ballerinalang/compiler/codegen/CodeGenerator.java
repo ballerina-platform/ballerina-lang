@@ -30,10 +30,11 @@ import org.ballerinalang.util.TransactionStatus;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -44,7 +45,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
@@ -59,12 +61,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -153,6 +152,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
@@ -165,6 +167,7 @@ import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 import org.wso2.ballerinalang.programfile.DefaultValue;
 import org.wso2.ballerinalang.programfile.ErrorTableEntry;
+import org.wso2.ballerinalang.programfile.FiniteTypeInfo;
 import org.wso2.ballerinalang.programfile.ForkjoinInfo;
 import org.wso2.ballerinalang.programfile.FunctionInfo;
 import org.wso2.ballerinalang.programfile.ImportPackageInfo;
@@ -175,15 +178,16 @@ import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.programfile.InstructionFactory;
 import org.wso2.ballerinalang.programfile.LineNumberInfo;
 import org.wso2.ballerinalang.programfile.LocalVariableInfo;
+import org.wso2.ballerinalang.programfile.ObjectTypeInfo;
 import org.wso2.ballerinalang.programfile.PackageInfo;
 import org.wso2.ballerinalang.programfile.PackageInfoWriter;
 import org.wso2.ballerinalang.programfile.PackageVarInfo;
+import org.wso2.ballerinalang.programfile.RecordTypeInfo;
 import org.wso2.ballerinalang.programfile.ResourceInfo;
 import org.wso2.ballerinalang.programfile.ServiceInfo;
 import org.wso2.ballerinalang.programfile.StructFieldInfo;
-import org.wso2.ballerinalang.programfile.StructInfo;
 import org.wso2.ballerinalang.programfile.TransformerInfo;
-import org.wso2.ballerinalang.programfile.TypeDefinitionInfo;
+import org.wso2.ballerinalang.programfile.TypeDefInfo;
 import org.wso2.ballerinalang.programfile.ValueSpaceItemInfo;
 import org.wso2.ballerinalang.programfile.WorkerDataChannelInfo;
 import org.wso2.ballerinalang.programfile.WorkerInfo;
@@ -410,7 +414,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                 new LocalVariableAttributeInfo(pkgVarAttrNameIndex));
 
         pkgNode.globalVars.forEach(this::createPackageVarInfo);
-        pkgNode.structs.forEach(this::createStructInfoEntry);
         pkgNode.typeDefinitions.forEach(this::createTypeDefinitionInfoEntry);
         pkgNode.functions.forEach(this::createFunctionInfoEntry);
         pkgNode.services.forEach(this::createServiceInfoEntry);
@@ -712,7 +715,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStructLiteral structLiteral) {
-        BStructSymbol structSymbol = (BStructSymbol) structLiteral.type.tsymbol;
+        BRecordTypeSymbol structSymbol = (BRecordTypeSymbol) structLiteral.type.tsymbol;
         int pkgCPIndex = addPackageRefCPEntry(currentPkgInfo, structSymbol.pkgID);
         int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
         StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
@@ -1132,7 +1135,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public void visit(BLangAttachedFunctionInvocation iExpr) {
         Operand[] operands = getFuncOperands(iExpr);
-        if (iExpr.expr.type.tag == TypeTags.STRUCT) {
+        if (iExpr.expr.type.tag == TypeTags.OBJECT) {
             Operand[] vCallOperands = new Operand[operands.length + 1];
             vCallOperands[0] = iExpr.expr.regIndex;
             System.arraycopy(operands, 0, vCallOperands, 1, operands.length);
@@ -1788,46 +1791,114 @@ public class CodeGenerator extends BLangNodeVisitor {
         addDocumentAttachmentAttrInfo(varNode.docAttachments, pkgVarInfo);
     }
 
-    private void createStructInfoEntry(BLangStruct structNode) {
-        BStructSymbol structSymbol = (BStructSymbol) structNode.symbol;
-        // Add Struct name as an UTFCPEntry to the constant pool
-        int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
-        StructInfo structInfo = new StructInfo(currentPackageRefCPIndex, structNameCPIndex, structSymbol.flags);
-        currentPkgInfo.addStructInfo(structSymbol.name.value, structInfo);
-        structInfo.structType = (BStructType) structSymbol.type;
+    public void visit(BLangTypeDefinition typeDefinition) {
+        //TODO
+    }
 
-        List<BLangVariable> structFields = structNode.fields;
-        for (BLangVariable structField : structFields) {
-            // Create StructFieldInfo Entry
-            int fieldNameCPIndex = addUTF8CPEntry(currentPkgInfo, structField.name.value);
-            int sigCPIndex = addUTF8CPEntry(currentPkgInfo, structField.type.getDesc());
+    private void createTypeDefinitionInfoEntry(BLangTypeDefinition typeDefinition) {
+        if (typeDefinition.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
+            return;
+        }
+        BTypeSymbol typeDefSymbol = typeDefinition.symbol;
+        int typeDefNameCPIndex = addUTF8CPEntry(currentPkgInfo, typeDefSymbol.name.value);
+        TypeDefInfo typeDefInfo = new TypeDefInfo(currentPackageRefCPIndex,
+                typeDefNameCPIndex, typeDefSymbol.flags);
+        typeDefInfo.typeTag = typeDefSymbol.type.tag;
+        if (typeDefinition.symbol.tag == SymTag.OBJECT) {
+            ObjectTypeInfo objInfo = new ObjectTypeInfo();
+            BObjectTypeSymbol objectSymbol = (BObjectTypeSymbol) typeDefSymbol;
+            // Add Struct name as an UTFCPEntry to the constant pool
+            objInfo.objectType = (BObjectType) objectSymbol.type;
 
-            StructFieldInfo structFieldInfo = new StructFieldInfo(fieldNameCPIndex,
-                    sigCPIndex, structField.symbol.flags);
-            structFieldInfo.fieldType = structField.type;
+            BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeDefinition.typeNode;
 
-            // Populate default values
-            if (structField.expr != null && structField.expr.getKind() == NodeKind.LITERAL) {
-                DefaultValueAttributeInfo defaultVal = getDefaultValueAttributeInfo((BLangLiteral) structField.expr);
-                structFieldInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, defaultVal);
+            List<BLangVariable> objFields = objectTypeNode.fields;
+            for (BLangVariable objField : objFields) {
+                // Create StructFieldInfo Entry
+                int fieldNameCPIndex = addUTF8CPEntry(currentPkgInfo, objField.name.value);
+                int sigCPIndex = addUTF8CPEntry(currentPkgInfo, objField.type.getDesc());
+
+                StructFieldInfo objFieldInfo = new StructFieldInfo(fieldNameCPIndex,
+                        sigCPIndex, objField.symbol.flags);
+                objFieldInfo.fieldType = objField.type;
+
+                // Populate default values
+                if (objField.expr != null && objField.expr.getKind() == NodeKind.LITERAL) {
+                    DefaultValueAttributeInfo defaultVal = getDefaultValueAttributeInfo((BLangLiteral) objField.expr);
+                    objFieldInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, defaultVal);
+                }
+
+                objInfo.fieldInfoEntries.add(objFieldInfo);
+                objField.symbol.varIndex = getFieldIndex(objField.symbol.type.tag);
+
+                // Add documentation attributes
+                addDocumentAttachmentAttrInfo(objField.docAttachments, objFieldInfo);
             }
 
-            structInfo.fieldInfoEntries.add(structFieldInfo);
-            structField.symbol.varIndex = getFieldIndex(structField.symbol.type.tag);
+            // Create variable count attribute info
+            prepareIndexes(fieldIndexes);
+            int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat,
+                    fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tBlob, fieldIndexes.tRef};
+            addVariableCountAttributeInfo(currentPkgInfo, objInfo, fieldCount);
+            fieldIndexes = new VariableIndex(FIELD);
 
+            // Create attached function info entries
+            for (BAttachedFunction attachedFunc : objectSymbol.attachedFuncs) {
+                int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, attachedFunc.funcName.value);
+
+                // Remove the first type. The first type is always the type to which the function is attached to
+                BType[] paramTypes = attachedFunc.type.paramTypes.toArray(new BType[0]);
+                int sigCPIndex = addUTF8CPEntry(currentPkgInfo,
+                        generateFunctionSig(paramTypes, attachedFunc.type.retType));
+                int flags = attachedFunc.symbol.flags;
+                objInfo.attachedFuncInfoEntries.add(new AttachedFunctionInfo(funcNameCPIndex, sigCPIndex, flags));
+            }
+
+            typeDefInfo.typeInfo = objInfo;
             // Add documentation attributes
-            addDocumentAttachmentAttrInfo(structField.docAttachments, structFieldInfo);
-        }
+            addDocumentAttachmentAttrInfo(typeDefinition.docAttachments, objInfo);
+            currentPkgInfo.addTypeDefInfo(typeDefSymbol.name.value, typeDefInfo);
+        } else if (typeDefinition.symbol.tag == SymTag.RECORD) {
+            RecordTypeInfo recordInfo = new RecordTypeInfo();
+            BRecordTypeSymbol recordSymbol = (BRecordTypeSymbol) typeDefSymbol;
+            // Add Struct name as an UTFCPEntry to the constant pool
+            recordInfo.recordType = (BRecordType) recordSymbol.type;
 
-        // Create variable count attribute info
-        prepareIndexes(fieldIndexes);
-        int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat,
-                fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tBlob, fieldIndexes.tRef};
-        addVariableCountAttributeInfo(currentPkgInfo, structInfo, fieldCount);
-        fieldIndexes = new VariableIndex(FIELD);
+            BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDefinition.typeNode;
 
-        // Create attached function info entries
-        for (BAttachedFunction attachedFunc : structSymbol.attachedFuncs) {
+            List<BLangVariable> recordFields = recordTypeNode.fields;
+            for (BLangVariable recordField : recordFields) {
+                // Create StructFieldInfo Entry
+                int fieldNameCPIndex = addUTF8CPEntry(currentPkgInfo, recordField.name.value);
+                int sigCPIndex = addUTF8CPEntry(currentPkgInfo, recordField.type.getDesc());
+
+                StructFieldInfo recordFieldInfo = new StructFieldInfo(fieldNameCPIndex,
+                        sigCPIndex, recordField.symbol.flags);
+                recordFieldInfo.fieldType = recordField.type;
+
+                // Populate default values
+                if (recordField.expr != null && recordField.expr.getKind() == NodeKind.LITERAL) {
+                    DefaultValueAttributeInfo defaultVal
+                            = getDefaultValueAttributeInfo((BLangLiteral) recordField.expr);
+                    recordFieldInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, defaultVal);
+                }
+
+                recordInfo.fieldInfoEntries.add(recordFieldInfo);
+                recordField.symbol.varIndex = getFieldIndex(recordField.symbol.type.tag);
+
+                // Add documentation attributes
+                addDocumentAttachmentAttrInfo(recordField.docAttachments, recordFieldInfo);
+            }
+
+            // Create variable count attribute info
+            prepareIndexes(fieldIndexes);
+            int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat,
+                    fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tBlob, fieldIndexes.tRef};
+            addVariableCountAttributeInfo(currentPkgInfo, recordInfo, fieldCount);
+            fieldIndexes = new VariableIndex(FIELD);
+
+            // ----- TODO remove below block once record init function removed ------------
+            BAttachedFunction attachedFunc = recordSymbol.initializerFunc;
             int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, attachedFunc.funcName.value);
 
             // Remove the first type. The first type is always the type to which the function is attached to
@@ -1835,33 +1906,30 @@ public class CodeGenerator extends BLangNodeVisitor {
             int sigCPIndex = addUTF8CPEntry(currentPkgInfo,
                     generateFunctionSig(paramTypes, attachedFunc.type.retType));
             int flags = attachedFunc.symbol.flags;
-            structInfo.attachedFuncInfoEntries.add(new AttachedFunctionInfo(funcNameCPIndex, sigCPIndex, flags));
+            recordInfo.attachedFuncInfoEntries.add(new AttachedFunctionInfo(funcNameCPIndex, sigCPIndex, flags));
+            // ------------- end of temp block--------------
+
+            typeDefInfo.typeInfo = recordInfo;
+            // Add documentation attributes
+            addDocumentAttachmentAttrInfo(typeDefinition.docAttachments, typeDefInfo);
+            currentPkgInfo.addTypeDefInfo(typeDefSymbol.name.value, typeDefInfo);
+        } else if (typeDefinition.symbol.tag == SymTag.FINITE_TYPE) {
+
+            BLangFiniteTypeNode typeNode = (BLangFiniteTypeNode) typeDefinition.typeNode;
+            FiniteTypeInfo typeInfo = new FiniteTypeInfo();
+
+            Iterator<BLangExpression> valueSpaceIterator = typeNode.valueSpace.iterator();
+            while (valueSpaceIterator.hasNext()) {
+                BLangExpression literal = valueSpaceIterator.next();
+                typeInfo.valueSpaceItemInfos.add(new ValueSpaceItemInfo(getDefaultValue((BLangLiteral) literal)));
+            }
+
+            typeDefInfo.typeInfo = typeInfo;
+
+            // Add documentation attributes
+            addDocumentAttachmentAttrInfo(typeDefinition.docAttachments, typeDefInfo);
+            currentPkgInfo.addTypeDefInfo(typeDefSymbol.name.value, typeDefInfo);
         }
-
-        // Add documentation attributes
-        addDocumentAttachmentAttrInfo(structNode.docAttachments, structInfo);
-    }
-
-    public void visit(BLangTypeDefinition typeDefinition) {
-        //TODO
-    }
-
-    private void createTypeDefinitionInfoEntry(BLangTypeDefinition typeDefinition) {
-        BTypeSymbol typeDefSymbol = (BTypeSymbol) typeDefinition.symbol;
-
-        int typeDefNameCPIndex = addUTF8CPEntry(currentPkgInfo, typeDefSymbol.name.value);
-        TypeDefinitionInfo typeDefInfo = new TypeDefinitionInfo(currentPackageRefCPIndex,
-                typeDefNameCPIndex, typeDefSymbol.flags);
-        currentPkgInfo.addTypeDefinitionInfo(typeDefSymbol.name.value, typeDefInfo);
-
-        Iterator<BLangExpression> valueSpaceIterator = typeDefinition.valueSpace.iterator();
-        while (valueSpaceIterator.hasNext()) {
-            BLangExpression literal = valueSpaceIterator.next();
-            typeDefInfo.valueSpaceItemInfos.add(new ValueSpaceItemInfo(getDefaultValue((BLangLiteral) literal)));
-        }
-
-        // Add documentation attributes
-        addDocumentAttachmentAttrInfo(typeDefinition.docAttachments, typeDefInfo);
     }
 
     /**
@@ -2348,17 +2416,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangSimpleVarRef varRefExpr) {
-        /* ignore */
-    }
-
-    public void visit(BLangStruct structNode) {
-    }
-
-    public void visit(BLangObject objectNode) {
-        /* ignore */
-    }
-
-    public void visit(BLangRecord recordNode) {
         /* ignore */
     }
 

@@ -39,7 +39,7 @@ import java.util.regex.PatternSyntaxException;
         args = {@Argument(name = "s", type = TypeKind.STRING),
                 @Argument(name = "reg", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING),
-                @ReturnType(type = TypeKind.STRUCT)},
+                @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
 public class FindAll extends AbstractRegexFunction {

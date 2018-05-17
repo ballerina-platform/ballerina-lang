@@ -38,17 +38,17 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "sql",
         functionName = "updateWithGeneratedKeys",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = Constants.CALLER_ACTIONS),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.CALLER_ACTIONS),
         args = {
                 @Argument(name = "sqlQuery", type = TypeKind.STRING),
-                @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.STRUCT,
+                @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.RECORD,
                           structType = "Parameter"),
                 @Argument(name = "keyColumns", type = TypeKind.ARRAY, elementType = TypeKind.STRING)
         },
         returnType = {
                 @ReturnType(type = TypeKind.INT),
                 @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING),
-                @ReturnType(type = TypeKind.STRUCT, structType = "error", structPackage = "ballerina.builtin")
+                @ReturnType(type = TypeKind.RECORD, structType = "error", structPackage = "ballerina.builtin")
         }
 )
 public class UpdateWithGeneratedKeys extends AbstractSQLAction {
