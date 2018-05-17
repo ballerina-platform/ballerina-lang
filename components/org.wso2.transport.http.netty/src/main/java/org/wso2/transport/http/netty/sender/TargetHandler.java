@@ -61,11 +61,11 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     private static final Logger log = LoggerFactory.getLogger(TargetHandler.class);
 
     private HttpResponseFuture httpResponseFuture;
-    private HTTPCarbonMessage inboundResponseMessage;
+    private HTTPCarbonMessage inboundResponseMsg;
     private ConnectionManager connectionManager;
     private TargetChannel targetChannel;
     private ClientOutboundHandler http2ClientOutboundHandler;
-    private HTTPCarbonMessage outboundRequestMessage;
+    private HTTPCarbonMessage outboundRequestMsg;
     private HandlerExecutor handlerExecutor;
     private KeepAliveConfig keepAliveConfig;
     private boolean idleTimeoutTriggered;
@@ -86,10 +86,10 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         if (targetChannel.isRequestHeaderWritten()) {
             if (msg instanceof HttpResponse) {
                 HttpResponse httpInboundResponse = (HttpResponse) msg;
-                inboundResponseMessage = setUpCarbonMessage(ctx, msg);
+                inboundResponseMsg = setUpCarbonMessage(ctx, msg);
 
                 if (handlerExecutor != null) {
-                    handlerExecutor.executeAtTargetResponseReceiving(inboundResponseMessage);
+                    handlerExecutor.executeAtTargetResponseReceiving(inboundResponseMsg);
                 }
                 OutboundMsgHolder msgHolder = http2ClientOutboundHandler.
                         getHttp2ClientChannel().getInFlightMessage(Http2CodecUtil.HTTP_UPGRADE_STREAM_ID);
@@ -98,8 +98,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                     msgHolder.markNoPromisesReceived();
                 }
                 if (this.httpResponseFuture != null) {
-                    targetChannel.resetState(outboundRequestMessage);
-                    httpResponseFuture.notifyHttpListener(inboundResponseMessage);
+                    httpResponseFuture.notifyHttpListener(inboundResponseMsg);
                 } else {
                     log.error("Cannot notify the response to client as there is no associated responseFuture");
                 }
@@ -108,15 +107,15 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                     log.warn(httpInboundResponse.decoderResult().cause().getMessage());
                 }
             } else {
-                if (inboundResponseMessage != null) {
+                if (inboundResponseMsg != null) {
                     HttpContent httpContent = (HttpContent) msg;
-                    inboundResponseMessage.addHttpContent(httpContent);
+                    inboundResponseMsg.addHttpContent(httpContent);
 
                     if (Util.isLastHttpContent(httpContent)) {
                         if (handlerExecutor != null) {
-                            handlerExecutor.executeAtTargetResponseSending(inboundResponseMessage);
+                            handlerExecutor.executeAtTargetResponseSending(inboundResponseMsg);
                         }
-                        this.inboundResponseMessage = null;
+                        this.inboundResponseMsg = null;
                         targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
 
                         if (!isKeepAlive(keepAliveConfig)) {
@@ -136,24 +135,24 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     }
 
     private HTTPCarbonMessage setUpCarbonMessage(ChannelHandlerContext ctx, Object msg) {
-        inboundResponseMessage = new HttpCarbonResponse((HttpResponse) msg, new DefaultListener(ctx));
-        inboundResponseMessage.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY,
+        inboundResponseMsg = new HttpCarbonResponse((HttpResponse) msg, new DefaultListener(ctx));
+        inboundResponseMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY,
                 new PooledDataStreamerFactory(ctx.alloc()));
 
-        inboundResponseMessage.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
+        inboundResponseMsg.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
         HttpResponse httpResponse = (HttpResponse) msg;
-        inboundResponseMessage.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.status().code());
+        inboundResponseMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.status().code());
 
         //copy required properties for service chaining from incoming carbon message to the response carbon message
         //copy shared worker pool
-        inboundResponseMessage.setProperty(Constants.EXECUTOR_WORKER_POOL, outboundRequestMessage
+        inboundResponseMsg.setProperty(Constants.EXECUTOR_WORKER_POOL, outboundRequestMsg
                 .getProperty(Constants.EXECUTOR_WORKER_POOL));
 
         if (handlerExecutor != null) {
-            handlerExecutor.executeAtTargetResponseReceiving(inboundResponseMessage);
+            handlerExecutor.executeAtTargetResponseReceiving(inboundResponseMsg);
         }
 
-        return inboundResponseMessage;
+        return inboundResponseMsg;
     }
 
     @Override
@@ -178,7 +177,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
             if (targetChannel.isRequestHeaderWritten()) {
                 httpResponseFuture.notifyHttpListener(new ClientConnectorException(channelID,
                         Constants.REMOTE_SERVER_CLOSE_RESPONSE_CONNECTION_AFTER_REQUEST_READ));
-            } else if (inboundResponseMessage != null) {
+            } else if (inboundResponseMsg != null) {
                 handleIncompleteInboundResponse(Constants.REMOTE_SERVER_ABRUPTLY_CLOSE_RESPONSE_CONNECTION);
             }
         }
@@ -189,7 +188,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         log.error("Exception occurred in TargetHandler for channel " + ctx.channel().id().asLongText(), cause);
 
         httpResponseFuture.notifyHttpListener(cause);
-        if (inboundResponseMessage != null) {
+        if (inboundResponseMsg != null) {
             handleIncompleteInboundResponse(Constants.EXCEPTION_CAUGHT_WHILE_READING_RESPONSE);
         }
         closeChannel(ctx);
@@ -218,6 +217,11 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         } else if (evt instanceof SslCloseCompletionEvent) {
             log.debug("SSL close completion event received");
         } else if (evt instanceof ChannelInputShutdownReadComplete) {
+            // When you try to read from a channel which has already been closed by the peer,
+            // 'java.io.IOException: Connection reset by peer' is thrown and it is a harmless exception.
+            // We can ignore this most of the time. see 'https://github.com/netty/netty/issues/2332'.
+            // As per the code, when an IOException is thrown when reading from a channel, it closes the channel.
+            // When closing the channel, if it is already closed it will trigger this event. So we can ignore this.
             log.debug("Input side of the connection is already shutdown");
         } else {
             log.warn("Unexpected user event {} triggered", evt.toString());
@@ -251,7 +255,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void handleErrorIdleScenarios(String channelID) {
-        if (inboundResponseMessage == null) {
+        if (inboundResponseMsg == null) {
             httpResponseFuture.notifyHttpListener(new EndpointTimeOutException(channelID,
                     Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_RESPONSE,
                     HttpResponseStatus.GATEWAY_TIMEOUT.code()));
@@ -272,7 +276,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     private void handleIncompleteInboundResponse(String errorMessage) {
         LastHttpContent lastHttpContent = new DefaultLastHttpContent();
         lastHttpContent.setDecoderResult(DecoderResult.failure(new DecoderException(errorMessage)));
-        inboundResponseMessage.addHttpContent(lastHttpContent);
+        inboundResponseMsg.addHttpContent(lastHttpContent);
         log.warn(errorMessage);
     }
 
@@ -284,12 +288,12 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         this.connectionManager = connectionManager;
     }
 
-    public HTTPCarbonMessage getOutboundRequestMessage() {
-        return outboundRequestMessage;
+    public HTTPCarbonMessage getOutboundRequestMsg() {
+        return outboundRequestMsg;
     }
 
-    public void setOutboundRequestMessage(HTTPCarbonMessage outboundRequestMessage) {
-        this.outboundRequestMessage = outboundRequestMessage;
+    public void setOutboundRequestMsg(HTTPCarbonMessage outboundRequestMsg) {
+        this.outboundRequestMsg = outboundRequestMsg;
     }
 
     public void setTargetChannel(TargetChannel targetChannel) {
@@ -315,8 +319,8 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     private boolean isKeepAlive(KeepAliveConfig keepAliveConfig) {
         switch (keepAliveConfig) {
             case AUTO:
-                if (Float.valueOf((String) getOutboundRequestMessage().getProperty(Constants.HTTP_VERSION)) >
-                        Constants.HTTP_1_0) {
+                if (Float.valueOf((String) getOutboundRequestMsg()
+                        .getProperty(Constants.HTTP_VERSION)) > Constants.HTTP_1_0) {
                     return true;
                 } else {
                     return false;

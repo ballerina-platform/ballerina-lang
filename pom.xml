@@ -25,7 +25,7 @@
     <packaging>pom</packaging>
     <groupId>org.wso2.transport.http</groupId>
     <artifactId>http-parent</artifactId>
-    <version>6.0.170-SNAPSHOT</version>
+    <version>6.0.174-SNAPSHOT</version>
     <name>WSO2 Carbon Transport Parent</name>
 
     <modules>
@@ -169,6 +169,36 @@
                 <groupId>commons-net</groupId>
                 <artifactId>commons-net</artifactId>
                 <version>${commons-net.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.mashape.unirest</groupId>
+                <artifactId>unirest-java</artifactId>
+                <version>${unirest.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${httpclient.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpasyncclient</artifactId>
+                <version>${httpasyncclient.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpmime</artifactId>
+                <version>${httpmime.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.atomikos.wso2</groupId>
@@ -327,6 +357,12 @@
         <bcprov-jdk15on.version>1.59</bcprov-jdk15on.version>
         <bcpkix-jdk15on.version>1.59</bcpkix-jdk15on.version>
         <netty-tcnative-boringssl-static.version>2.0.7.Final</netty-tcnative-boringssl-static.version>
+
+        <unirest.version>1.4.9</unirest.version>
+        <httpclient.version>4.3.6</httpclient.version>
+        <httpasyncclient.version>4.0.2</httpasyncclient.version>
+        <httpmime.version>4.3.6</httpmime.version>
+        <commons-io.version>2.4</commons-io.version>
     </properties>
 
 </project>
