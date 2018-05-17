@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.completions.util;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.BlockStatementScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ConnectorScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.CursorPositionResolver;
+import org.ballerinalang.langserver.completions.util.positioning.resolvers.InvocationParameterScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.MatchStatementScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ObjectTypeScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.PackageNodeScopeResolver;
@@ -37,6 +38,7 @@ import java.util.Map;
  */
 public enum ScopeResolverConstants {
     BLOCK_STMT_SCOPE(BlockStatementScopeResolver.class, new BlockStatementScopeResolver()),
+    INVOCATION_SCOPE(InvocationParameterScopeResolver.class, new InvocationParameterScopeResolver()),
     CONNECTOR_DEF_SCOPE(ConnectorScopeResolver.class, new ConnectorScopeResolver()),
     PACKAGE_NODE_SCOPE(PackageNodeScopeResolver.class, new PackageNodeScopeResolver()),
     RESOURCE_PARAM_SCOPE(ResourceParamScopeResolver.class, new ResourceParamScopeResolver()),

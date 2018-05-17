@@ -7,17 +7,23 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
+import org.ballerinalang.plugins.idea.psi.BallerinaCompositeElement;
 import org.ballerinalang.plugins.idea.psi.BallerinaDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaExpression;
 import org.ballerinalang.plugins.idea.psi.BallerinaFiniteType;
+import org.ballerinalang.plugins.idea.psi.BallerinaForeachStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaGlobalVariableDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaResourceDefinition;
+import org.ballerinalang.plugins.idea.psi.BallerinaReturnType;
 import org.ballerinalang.plugins.idea.psi.BallerinaSimpleVariableReference;
 import org.ballerinalang.plugins.idea.psi.BallerinaStatement;
+import org.ballerinalang.plugins.idea.psi.BallerinaTransactionStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.BallerinaUserDefineTypeName;
 import org.ballerinalang.plugins.idea.psi.BallerinaVariableDefinitionStatement;
+import org.ballerinalang.plugins.idea.psi.BallerinaVariableReferenceList;
+import org.ballerinalang.plugins.idea.psi.BallerinaWhileStatement;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,6 +41,33 @@ public class BallerinaKeywordCompletionProvider extends CompletionProvider<Compl
                                   @NotNull CompletionResultSet result) {
         PsiElement position = parameters.getPosition();
         PsiElement parent = position.getParent();
+
+        BallerinaReturnType returnType = PsiTreeUtil.getParentOfType(parent, BallerinaReturnType.class);
+        if (returnType != null) {
+            BallerinaCompletionUtils.addValueTypesAsLookups(result, false);
+            BallerinaCompletionUtils.addReferenceTypesAsLookups(result, false);
+        }
+
+        BallerinaVariableReferenceList referenceList = PsiTreeUtil.getParentOfType(position,
+                BallerinaVariableReferenceList.class);
+        BallerinaForeachStatement foreachStatement = PsiTreeUtil.getParentOfType(referenceList,
+                BallerinaForeachStatement.class, true);
+        if (foreachStatement != null) {
+            result.stopHere();
+            return;
+        }
+
+        BallerinaTransactionStatement transactionStatement = PsiTreeUtil.getParentOfType(position,
+                BallerinaTransactionStatement.class);
+        if (transactionStatement != null) {
+            BallerinaCompletionUtils.addTransactionKeywordsAsLookups(result);
+        }
+
+        BallerinaCompositeElement loopTypes = PsiTreeUtil.getParentOfType(position,
+                BallerinaWhileStatement.class, BallerinaForeachStatement.class);
+        if (loopTypes != null) {
+            BallerinaCompletionUtils.addLoopKeywordsAsLookups(result);
+        }
 
         // Todo - Add bind
         //        if (parent instanceof BallerinaServiceEndpointAttachments) {
@@ -95,8 +128,8 @@ public class BallerinaKeywordCompletionProvider extends CompletionProvider<Compl
                             || ((LeafPsiElement) prevVisibleLeaf).getElementType() ==
                             BallerinaTypes.DECIMAL_INTEGER_LITERAL
                             || ((LeafPsiElement) prevVisibleLeaf).getElementType() == BallerinaTypes.COLON))) {
-                        BallerinaCompletionUtils.addValueTypesAsLookups(result);
-                        BallerinaCompletionUtils.addReferenceTypesAsLookups(result);
+                        BallerinaCompletionUtils.addValueTypesAsLookups(result, true);
+                        BallerinaCompletionUtils.addReferenceTypesAsLookups(result, true);
                         BallerinaCompletionUtils.addVarAsLookup(result);
                         BallerinaCompletionUtils.addReturnAsLookup(result);
                         BallerinaCompletionUtils.addLockAsLookup(result);
@@ -132,8 +165,8 @@ public class BallerinaKeywordCompletionProvider extends CompletionProvider<Compl
                     if (!(prevVisibleLeaf instanceof LeafPsiElement
                             && (((LeafPsiElement) prevVisibleLeaf).getElementType() ==
                             BallerinaTypes.DECIMAL_INTEGER_LITERAL))) {
-                        BallerinaCompletionUtils.addValueTypesAsLookups(result);
-                        BallerinaCompletionUtils.addReferenceTypesAsLookups(result);
+                        BallerinaCompletionUtils.addValueTypesAsLookups(result, true);
+                        BallerinaCompletionUtils.addReferenceTypesAsLookups(result, true);
                         BallerinaCompletionUtils.addTopLevelDefinitionsAsLookups(result);
                     }
                 }

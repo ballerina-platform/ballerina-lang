@@ -118,6 +118,12 @@ public class LaunchManager {
                 pushMessageToClient(launchSession, debugMessage);
             }
 
+            new Thread(new Runnable() {
+                public void run() {
+                    LogParser.getLogParserInstance().startListner(launchManagerInstance);
+                }
+            }).start();
+
             // start a new thread to stream command output.
             Runnable output = new Runnable() {
                 public void run() {
@@ -131,12 +137,6 @@ public class LaunchManager {
                 }
             };
             (new Thread(error)).start();
-
-            new Thread(new Runnable() {
-                public void run() {
-                    LogParser.getLogParserInstance().startListner(launchManagerInstance);
-                }
-            }).start();
 
         } catch (IOException e) {
             pushMessageToClient(launchSession, LauncherConstants.EXIT, LauncherConstants.ERROR, e.getMessage());
