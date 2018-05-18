@@ -169,7 +169,7 @@ public class PackagingPushTestCase extends IntegrationTestCase {
         variables.add(ProjectDirConstants.HOME_REPO_ENV_KEY + "=" + tempHomeDirectory.toString());
         variables.add("BALLERINA_DEV_STAGE_CENTRAL" + "=" + "true");
 
-        return variables.stream().toArray(String[]::new);
+        return variables.toArray(new String[variables.size()]);
     }
 
     /**
