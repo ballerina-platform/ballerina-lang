@@ -32,17 +32,19 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.StringJoiner;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 /**
  * Testing pushing a package to central.
@@ -223,23 +225,27 @@ public class PackagingPushTestCase extends IntegrationTestCase {
      * @throws IOException throw I/O exception if an issue occurs
      */
     private static void compressFiles(Path sourceDirPath, Path zipFilePath) throws IOException {
-        Path p = Files.createFile(zipFilePath);
-        try (ZipOutputStream zs = new ZipOutputStream(Files.newOutputStream(p))) {
+        Files.deleteIfExists(zipFilePath);
+        Map<String, String> env = new HashMap<>();
+        env.put("create", "true");
+        URI uri = URI.create("jar:" + zipFilePath.toUri());
+        try (FileSystem zipfs = FileSystems.newFileSystem(uri, env)) {
             Files.walk(sourceDirPath)
-                 .filter(path -> !Files.isDirectory(path))
-                 .forEach(path -> {
-                     StringJoiner joiner = new StringJoiner("/");
-                     for (Path newPath : sourceDirPath.relativize(path)) {
-                         joiner.add(newPath.toString());
+                 .filter(d -> !d.equals(sourceDirPath))
+                 .forEach(fileToZip -> {
+                     Path pathInZipFile = zipfs.getPath("/");
+                     for (Path part : sourceDirPath.relativize(fileToZip)) {
+                         pathInZipFile = pathInZipFile.resolve(part.toString());
                      }
-                     ZipEntry zipEntry = new ZipEntry(joiner.toString());
                      try {
-                         zs.putNextEntry(zipEntry);
-                         Files.copy(path, zs);
-                         zs.closeEntry();
-                     } catch (IOException ignore) {
+                         Files.copy(fileToZip, pathInZipFile);
+                     } catch (IOException e) {
+                         Assert.fail(e.getMessage(), e);
                      }
                  });
+        } catch (UncheckedIOException e) {
+            Assert.fail(e.getMessage(), e);
         }
+
     }
 }
