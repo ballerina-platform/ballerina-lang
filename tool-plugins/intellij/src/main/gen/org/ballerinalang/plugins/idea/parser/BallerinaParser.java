@@ -3245,15 +3245,16 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   // AnyIdentifierName LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHESIS ReturnParameter?
   public static boolean ObjectCallableUnitSignature(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ObjectCallableUnitSignature")) return false;
-    boolean r;
+    boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, OBJECT_CALLABLE_UNIT_SIGNATURE, "<object callable unit signature>");
     r = AnyIdentifierName(b, l + 1);
-    r = r && consumeToken(b, LEFT_PARENTHESIS);
-    r = r && ObjectCallableUnitSignature_2(b, l + 1);
-    r = r && consumeToken(b, RIGHT_PARENTHESIS);
-    r = r && ObjectCallableUnitSignature_4(b, l + 1);
-    exit_section_(b, l, m, r, false, null);
-    return r;
+    p = r; // pin = 1
+    r = r && report_error_(b, consumeToken(b, LEFT_PARENTHESIS));
+    r = p && report_error_(b, ObjectCallableUnitSignature_2(b, l + 1)) && r;
+    r = p && report_error_(b, consumeToken(b, RIGHT_PARENTHESIS)) && r;
+    r = p && ObjectCallableUnitSignature_4(b, l + 1) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // FormalParameterList?
@@ -7215,13 +7216,14 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // TypeName identifier
+  // <<isNotARestParameter>>TypeName identifier
   public static boolean parameterWithType(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "parameterWithType")) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, PARAMETER_WITH_TYPE, "<parameter with type>");
-    r = TypeName(b, l + 1, -1);
-    p = r; // pin = 1
+    r = isNotARestParameter(b, l + 1);
+    r = r && TypeName(b, l + 1, -1);
+    p = r; // pin = 2
     r = r && consumeToken(b, IDENTIFIER);
     exit_section_(b, l, m, r, p, null);
     return r || p;

@@ -271,7 +271,7 @@ ObjectDefaultableParameter ::= ObjectParameter ASSIGN Expression
 ObjectFunctionDefinition ::= (public)? (native)? function ObjectCallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=3}
 
 //TODO merge with callableUnitSignature later
-ObjectCallableUnitSignature ::= AnyIdentifierName LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHESIS ReturnParameter?
+ObjectCallableUnitSignature ::= AnyIdentifierName LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHESIS ReturnParameter? {pin=1}
 
 
 AnnotationDefinition ::= (public)? annotation (LT AttachmentPoint (COMMA AttachmentPoint)* GT)? identifier UserDefineTypeName? SEMICOLON {
@@ -733,7 +733,7 @@ Parameter ::= SimpleParameter | TupleParameter
 private SimpleParameter ::= AnnotationAttachment* parameterWithType /*{pin=2}*/
 private TupleParameter ::= AnnotationAttachment* LEFT_PARENTHESIS parameterWithType (COMMA parameterWithType)* RIGHT_PARENTHESIS
 
-parameterWithType ::= TypeName identifier {pin=1}
+parameterWithType ::= <<isNotARestParameter>>TypeName identifier {pin=2}
 
 DefaultableParameter ::= Parameter ASSIGN Expression
 

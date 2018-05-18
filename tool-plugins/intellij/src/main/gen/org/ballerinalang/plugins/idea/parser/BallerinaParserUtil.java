@@ -198,7 +198,13 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
         }
         return false;
     }
-
+    public static boolean isNotARestParameter(PsiBuilder builder, int level) {
+        IElementType lookAhead = builder.lookAhead(1);
+        if (lookAhead == BallerinaTypes.ELLIPSIS) {
+            return false;
+        }
+        return true;
+    }
     private static boolean isWhiteSpaceOrComment(IElementType rawLookup) {
         return rawLookup == TokenType.WHITE_SPACE || rawLookup == BallerinaTypes.COMMENT;
     }
