@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -19,16 +19,24 @@
 
 package org.wso2.transport.http.netty.contract.websocket;
 
+import org.wso2.transport.http.netty.message.HttpCarbonResponse;
+
 /**
- * Client Connector for WebSocket.
+ * Future listener for WebSocket handshake.
  */
-public interface WebSocketClientConnector {
+public interface ClientHandshakeListener {
 
     /**
-     * Connect to the remote server.
+     * Notify the success of the handshake.
      *
-     * @param connectorListener {@link WebSocketConnectorListener} to listen incoming messages.
-     * @return ClientHandshakeFuture for the newly created connection.
+     * @param webSocketConnection {@link WebSocketConnection} for the successful handshake.
      */
-    ClientHandshakeFuture connect(WebSocketConnectorListener connectorListener);
+    void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse response);
+
+    /**
+     * Notify error on handshake.
+     * @param t error occurred during handshake.
+     */
+    void onError(Throwable t, HttpCarbonResponse response);
+
 }

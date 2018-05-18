@@ -42,8 +42,6 @@ import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
 import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * WebSocket handshake handler for carbon transports.
@@ -61,7 +59,7 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) {
 
         if (msg instanceof HttpRequest) {
             HttpRequest httpRequest = (HttpRequest) msg;
@@ -86,14 +84,14 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
                     }
 
                     @Override
-                    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+                    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
                         // Remove ourselves and fail the handshake
                         ctx.pipeline().remove(this);
                         ctx.fireExceptionCaught(cause);
                     }
 
                     @Override
-                    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+                    public void channelInactive(ChannelHandlerContext ctx) {
                         ctx.fireChannelInactive();
                     }
                 });
@@ -139,17 +137,13 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
         }
         String uri = fullHttpRequest.uri();
 
-        Map<String, String> headers = new HashMap<>();
-        fullHttpRequest.headers().forEach(
-                header -> headers.put(header.getKey(), header.getValue())
-        );
         WebSocketSourceHandler webSocketSourceHandler =
                 new WebSocketSourceHandler(serverConnectorFuture, isSecured, fullHttpRequest,
-                                           headers, ctx, interfaceId);
+                                           ctx, interfaceId);
         DefaultWebSocketConnection webSocketConnection = WebSocketUtil.getWebSocketConnection(webSocketSourceHandler,
                                                                                               isSecured, uri);
         DefaultWebSocketInitMessage initMessage = new DefaultWebSocketInitMessage(ctx, fullHttpRequest,
-                                                                                  webSocketSourceHandler, headers);
+                                                                                  webSocketSourceHandler);
 
         // Setting common properties for init message
         initMessage.setWebSocketConnection(webSocketConnection);

@@ -20,7 +20,7 @@
 package org.wso2.transport.http.netty.contractimpl.websocket;
 
 import io.netty.channel.EventLoopGroup;
-import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
+import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
@@ -51,7 +51,7 @@ public class DefaultWebSocketClientConnector implements WebSocketClientConnector
     }
 
     @Override
-    public HandshakeFuture connect(WebSocketConnectorListener connectorListener) {
+    public ClientHandshakeFuture connect(WebSocketConnectorListener connectorListener) {
         WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, subProtocols, idleTimeout,
                 wsClientEventLoopGroup, customHeaders, connectorListener, autoRead);
         return webSocketClient.handshake();

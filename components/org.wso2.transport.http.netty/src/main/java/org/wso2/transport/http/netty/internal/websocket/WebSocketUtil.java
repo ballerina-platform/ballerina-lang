@@ -25,11 +25,11 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnection;
+import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketInboundFrameHandler;
-import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
-import org.wso2.transport.http.netty.contractimpl.websocket.message.WebSocketBinaryMessageImpl;
-import org.wso2.transport.http.netty.contractimpl.websocket.message.WebSocketControlMessageImpl;
-import org.wso2.transport.http.netty.contractimpl.websocket.message.WebSocketTextMessageImpl;
+import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketBinaryMessage;
+import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketControlMessage;
+import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketTextMessage;
 
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
@@ -55,21 +55,24 @@ public class WebSocketUtil {
                                                                      WebSocketControlSignal controlSignal) {
         ByteBuf content = webSocketFrame.content();
         ByteBuffer clonedContent = getClonedByteBuf(content);
-        WebSocketControlMessage webSocketControlMessage = new WebSocketControlMessageImpl(controlSignal, clonedContent);
+        WebSocketControlMessage webSocketControlMessage = new DefaultWebSocketControlMessage(controlSignal,
+                                                                                             clonedContent);
         webSocketFrame.release();
         return webSocketControlMessage;
     }
 
-    public static WebSocketMessageImpl getWebSocketMessage(WebSocketFrame frame, String text, boolean isFinalFragment) {
-        WebSocketMessageImpl webSocketTextMessage = new WebSocketTextMessageImpl(text, isFinalFragment);
+    public static DefaultWebSocketMessage getWebSocketMessage(WebSocketFrame frame, String text,
+                                                              boolean isFinalFragment) {
+        DefaultWebSocketMessage webSocketTextMessage = new DefaultWebSocketTextMessage(text, isFinalFragment);
         frame.release();
         return webSocketTextMessage;
     }
 
-    public static WebSocketMessageImpl getWebSocketMessage(WebSocketFrame webSocketFrame, ByteBuf content,
-                                                           boolean finalFragment) {
+    public static DefaultWebSocketMessage getWebSocketMessage(WebSocketFrame webSocketFrame, ByteBuf content,
+                                                              boolean finalFragment) {
         ByteBuffer clonedContent = getClonedByteBuf(content);
-        WebSocketMessageImpl webSocketBinaryMessage = new WebSocketBinaryMessageImpl(clonedContent, finalFragment);
+        DefaultWebSocketMessage webSocketBinaryMessage = new DefaultWebSocketBinaryMessage(clonedContent,
+                                                                                           finalFragment);
         webSocketFrame.release();
         return webSocketBinaryMessage;
     }

@@ -22,8 +22,8 @@ package org.wso2.transport.http.netty.websocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
-import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
-import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
+import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeFuture;
+import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
@@ -56,9 +56,9 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
 
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {
-        HandshakeFuture future = initMessage.handshake(null, true, 3000);
+        ServerHandshakeFuture future = initMessage.handshake(null, true, 3000);
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        future.setHandshakeListener(new HandshakeListener() {
+        future.setHandshakeListener(new ServerHandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection) {
                 connectionList.forEach(
@@ -71,7 +71,7 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
             @Override
             public void onError(Throwable throwable) {
                 log.error(throwable.getMessage());
-                Assert.assertTrue(false, "Error: " + throwable.getMessage());
+                Assert.fail("Error: " + throwable.getMessage());
                 countDownLatch.countDown();
             }
         });
@@ -108,8 +108,8 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
             WebSocketConnection webSocketConnection = controlMessage.getWebSocketConnection();
             webSocketConnection.pong(controlMessage.getPayload()).addListener(future -> {
                 if (!future.isSuccess()) {
-                    Assert.assertTrue(false, "Could not send the message. "
-                            + future.cause().getMessage());
+                    Assert.fail("Could not send the message. "
+                                        + future.cause().getMessage());
                 }
             });
         }

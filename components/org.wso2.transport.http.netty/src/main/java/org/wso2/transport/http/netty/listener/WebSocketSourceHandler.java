@@ -42,17 +42,16 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketFrameType;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnection;
+import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketInboundFrameHandler;
-import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
-import org.wso2.transport.http.netty.contractimpl.websocket.message.WebSocketCloseMessageImpl;
-import org.wso2.transport.http.netty.contractimpl.websocket.message.WebSocketControlMessageImpl;
+import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketCloseMessage;
+import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketControlMessage;
 import org.wso2.transport.http.netty.exception.UnknownWebSocketFrameTypeException;
 import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.websocket.WebSocketUtil;
 
 import java.net.InetSocketAddress;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -66,7 +65,6 @@ public class WebSocketSourceHandler extends WebSocketInboundFrameHandler {
     private final ChannelHandlerContext ctx;
     private final boolean isSecured;
     private final ServerConnectorFuture connectorFuture;
-    private final Map<String, String> headers;
     private final String interfaceId;
     private String subProtocol = null;
     private HandlerExecutor handlerExecutor;
@@ -79,18 +77,16 @@ public class WebSocketSourceHandler extends WebSocketInboundFrameHandler {
      * @param connectorFuture {@link ServerConnectorFuture} to notify messages to application.
      * @param isSecured       indication of whether the connection is secured or not.
      * @param httpRequest     {@link FullHttpRequest} which contains the details of WebSocket Upgrade.
-     * @param headers         Headers obtained from HTTP WebSocket upgrade request.
      * @param ctx             {@link ChannelHandlerContext} of WebSocket connection.
      * @param interfaceId     given ID for the socket interface.
      */
     public WebSocketSourceHandler(ServerConnectorFuture connectorFuture, boolean isSecured, FullHttpRequest httpRequest,
-                                  Map<String, String> headers, ChannelHandlerContext ctx, String interfaceId) {
+                                  ChannelHandlerContext ctx, String interfaceId) {
         this.connectorFuture = connectorFuture;
         this.isSecured = isSecured;
         this.ctx = ctx;
         this.interfaceId = interfaceId;
         this.target = httpRequest.uri();
-        this.headers = headers;
     }
 
     /**
@@ -157,8 +153,8 @@ public class WebSocketSourceHandler extends WebSocketInboundFrameHandler {
 
         if (!(this.closeFrameReceived || webSocketConnection.closeFrameSent())) {
             // Notify abnormal closure.
-            WebSocketMessageImpl webSocketCloseMessage =
-                    new WebSocketCloseMessageImpl(Constants.WEBSOCKET_STATUS_CODE_ABNORMAL_CLOSURE);
+            DefaultWebSocketMessage webSocketCloseMessage =
+                    new DefaultWebSocketCloseMessage(Constants.WEBSOCKET_STATUS_CODE_ABNORMAL_CLOSURE);
             setupCommonProperties(webSocketCloseMessage);
             connectorFuture.notifyWSListener((WebSocketCloseMessage) webSocketCloseMessage);
         }
@@ -208,14 +204,15 @@ public class WebSocketSourceHandler extends WebSocketInboundFrameHandler {
 
     private void notifyTextMessage(WebSocketFrame frame, String text, boolean finalFragment)
             throws ServerConnectorException {
-        WebSocketMessageImpl webSocketTextMessage = WebSocketUtil.getWebSocketMessage(frame, text, finalFragment);
+        DefaultWebSocketMessage webSocketTextMessage = WebSocketUtil.getWebSocketMessage(frame, text, finalFragment);
         setupCommonProperties(webSocketTextMessage);
         connectorFuture.notifyWSListener((WebSocketTextMessage) webSocketTextMessage);
     }
 
     private void notifyBinaryMessage(WebSocketFrame frame, ByteBuf content, boolean finalFragment)
             throws ServerConnectorException {
-        WebSocketMessageImpl webSocketBinaryMessage = WebSocketUtil.getWebSocketMessage(frame, content, finalFragment);
+        DefaultWebSocketMessage webSocketBinaryMessage = WebSocketUtil.getWebSocketMessage(frame, content,
+                                                                                           finalFragment);
         setupCommonProperties(webSocketBinaryMessage);
         connectorFuture.notifyWSListener((WebSocketBinaryMessage) webSocketBinaryMessage);
     }
@@ -226,7 +223,7 @@ public class WebSocketSourceHandler extends WebSocketInboundFrameHandler {
 
         // closeCountDownLatch == null means that WebSocketConnection has not yet initiated a connection closure.
         if (closeCountDownLatch == null) {
-            WebSocketMessageImpl webSocketCloseMessage = new WebSocketCloseMessageImpl(statusCode, reasonText);
+            DefaultWebSocketMessage webSocketCloseMessage = new DefaultWebSocketCloseMessage(statusCode, reasonText);
             setupCommonProperties(webSocketCloseMessage);
             connectorFuture.notifyWSListener((WebSocketCloseMessage) webSocketCloseMessage);
             closeFrameReceived = true;
@@ -240,32 +237,31 @@ public class WebSocketSourceHandler extends WebSocketInboundFrameHandler {
     private void notifyPingMessage(PingWebSocketFrame pingWebSocketFrame) throws ServerConnectorException {
         WebSocketControlMessage webSocketControlMessage = WebSocketUtil.
                 getWebsocketControlMessage(pingWebSocketFrame, WebSocketControlSignal.PING);
-        setupCommonProperties((WebSocketMessageImpl) webSocketControlMessage);
+        setupCommonProperties((DefaultWebSocketMessage) webSocketControlMessage);
         connectorFuture.notifyWSListener(webSocketControlMessage);
     }
 
     private void notifyPongMessage(PongWebSocketFrame pongWebSocketFrame) throws ServerConnectorException {
         WebSocketControlMessage webSocketControlMessage = WebSocketUtil.
                 getWebsocketControlMessage(pongWebSocketFrame, WebSocketControlSignal.PONG);
-        setupCommonProperties((WebSocketMessageImpl) webSocketControlMessage);
+        setupCommonProperties((DefaultWebSocketMessage) webSocketControlMessage);
         connectorFuture.notifyWSListener(webSocketControlMessage);
     }
 
     private void notifyIdleTimeout() throws ServerConnectorException {
-        WebSocketMessageImpl websocketControlMessage = new WebSocketControlMessageImpl(
+        DefaultWebSocketMessage websocketControlMessage = new DefaultWebSocketControlMessage(
                 WebSocketControlSignal.IDLE_TIMEOUT, null);
         setupCommonProperties(websocketControlMessage);
         connectorFuture.notifyWSIdleTimeout((WebSocketControlMessage) websocketControlMessage);
     }
 
-    private void setupCommonProperties(WebSocketMessageImpl webSocketMessage) {
+    private void setupCommonProperties(DefaultWebSocketMessage webSocketMessage) {
         webSocketMessage.setSubProtocol(subProtocol);
         webSocketMessage.setTarget(target);
         webSocketMessage.setListenerInterface(interfaceId);
         webSocketMessage.setIsConnectionSecured(isSecured);
         webSocketMessage.setIsServerMessage(true);
         webSocketMessage.setWebSocketConnection(webSocketConnection);
-        webSocketMessage.setHeaders(headers);
         webSocketMessage.setSessionlID(webSocketConnection.getId());
 
         webSocketMessage.setProperty(Constants.SRC_HANDLER, this);
@@ -278,8 +274,7 @@ public class WebSocketSourceHandler extends WebSocketInboundFrameHandler {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        ctx.channel().writeAndFlush(new CloseWebSocketFrame(1011,
-                "Encountered an unexpected condition"));
+        ctx.channel().writeAndFlush(new CloseWebSocketFrame(1011, "Encountered an unexpected condition"));
         ctx.close();
         connectorFuture.notifyWSListener(cause);
     }

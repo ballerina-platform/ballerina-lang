@@ -41,10 +41,10 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
+import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
+import org.wso2.transport.http.netty.contractimpl.websocket.DefaultClientHandshakeFuture;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnection;
-import org.wso2.transport.http.netty.contractimpl.websocket.HandshakeFutureImpl;
 
 import java.net.URI;
 import java.util.Map;
@@ -95,8 +95,8 @@ public class WebSocketClient {
      *
      * @return handshake future for connection.
      */
-    public HandshakeFuture handshake() {
-        HandshakeFutureImpl handshakeFuture = new HandshakeFutureImpl();
+    public ClientHandshakeFuture handshake() {
+        ClientHandshakeFuture handshakeFuture = new DefaultClientHandshakeFuture();
         try {
             URI uri = new URI(url);
             String scheme = uri.getScheme() == null ? "ws" : uri.getScheme();
@@ -152,13 +152,17 @@ public class WebSocketClient {
                     String actualSubProtocol = websocketHandshaker.actualSubprotocol();
                     webSocketTargetHandler.setActualSubProtocol(actualSubProtocol);
                     webSocketConnection.getDefaultWebSocketSession().setNegotiatedSubProtocol(actualSubProtocol);
-                    handshakeFuture.notifySuccess(webSocketConnection);
+                    handshakeFuture.notifySuccess(webSocketConnection, webSocketTargetHandler.getHttpCarbonResponse());
                 } else {
-                    handshakeFuture.notifyError(cause);
+                    handshakeFuture.notifyError(cause, webSocketTargetHandler.getHttpCarbonResponse());
                 }
             });
         } catch (Throwable t) {
-            handshakeFuture.notifyError(t);
+            if (webSocketTargetHandler != null) {
+                handshakeFuture.notifyError(t, webSocketTargetHandler.getHttpCarbonResponse());
+            } else {
+              handshakeFuture.notifyError(t, null);
+            }
         }
         return handshakeFuture;
     }
