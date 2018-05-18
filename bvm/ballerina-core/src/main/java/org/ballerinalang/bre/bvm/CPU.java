@@ -3852,6 +3852,8 @@ public class CPU {
                         blobRegIndex++;
                         if (containsField && mapVal != null) {
                             bStruct.setBlobField(blobRegIndex, ((BBlob) mapVal).blobValue());
+                        } else if (defaultValAttrInfo != null) {
+                            bStruct.setBlobField(blobRegIndex, defaultValAttrInfo.getDefaultValue().getBlobValue());
                         }
                         break;
                     default:

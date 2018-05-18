@@ -1755,6 +1755,10 @@ public class CodeGenerator extends BLangNodeVisitor {
             case TypeTags.BOOLEAN:
                 defaultValue.booleanValue = (Boolean) literalExpr.value;
                 break;
+            case TypeTags.BLOB:
+                defaultValue.blobValue = (byte[]) literalExpr.value;
+                defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new BlobCPEntry(defaultValue.blobValue));
+                break;
             case TypeTags.NIL:
                 break;
             default:

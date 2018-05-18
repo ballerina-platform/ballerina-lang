@@ -9,6 +9,20 @@ type BinaryData {
     blob blobField;
 };
 
+type TestRec {
+    blob a = base16 `aa ab`;
+    blob b = base64 `aGVsbG8gYmFsbGVyaW5hICEhIQ==`;
+    blob c;
+};
+
+type TestObj object {
+    public {
+        blob a = base16 `aa ab`;
+        blob b = base64 `aGVsbG8gYmFsbGVyaW5hICEhIQ==`;
+        blob c;
+    }
+};
+
 function base16Test() {
     blob a = base16 `aa ab cc ad af df 1a d2 f3 a4`;
     blob b = base16 `aaab ccad afcd 1a4b abcd 12df 345d`;
@@ -114,4 +128,12 @@ function testBlobAssign() returns (blob, blob) {
     a = b;
     b = c;
     return (a, b);
+}
+
+function testBlobDefaultValue() returns (blob, blob, blob, blob, blob, blob, blob, blob) {
+    blob a;
+    blob b = a;
+    TestRec testRec = {};
+    TestObj testObj = new;
+    return (a, b, testRec.a, testRec.b, testRec.c, testObj.a, testObj.b, testObj.c);
 }

@@ -49,9 +49,7 @@ public class BBlobValueTest {
         BValue[] args = {new BBlob(bytes)};
         BValue[] returns = BRunUtil.invoke(result, "testBlobParameter", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBlob.class);
-        BBlob blob = (BBlob) returns[0];
-        Assert.assertEquals(blob.blobValue(), bytes, "Invalid byte value returned.");
+        assertResult(bytes, returns[0]);
     }
 
     @Test(description = "Test blob array")
@@ -75,9 +73,7 @@ public class BBlobValueTest {
         BValue[] args = {new BBlob(bytes)};
         BValue[] returns = BRunUtil.invoke(result, "testGlobalVariable1", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBlob.class);
-        BBlob blob = (BBlob) returns[0];
-        Assert.assertEquals(blob.blobValue(), bytes, "Invalid byte value returned.");
+        assertResult(bytes, returns[0]);
     }
 
     @Test(description = "Test blob global variable2")
@@ -86,9 +82,7 @@ public class BBlobValueTest {
         byte[] bytes = hexStringToByteArray(b16);
         BValue[] returns = BRunUtil.invoke(result, "testGlobalVariable2", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBlob.class);
-        BBlob blob = (BBlob) returns[0];
-        Assert.assertEquals(blob.blobValue(), bytes, "Invalid byte value returned.");
+        assertResult(bytes, returns[0]);
     }
 
     @Test(description = "Test blob global variable3")
@@ -97,9 +91,7 @@ public class BBlobValueTest {
         byte[] bytes = decode(b64);
         BValue[] returns = BRunUtil.invoke(result, "testGlobalVariable3", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBlob.class);
-        BBlob blob = (BBlob) returns[0];
-        Assert.assertEquals(blob.blobValue(), bytes, "Invalid byte value returned.");
+        assertResult(bytes, returns[0]);
     }
 
     @Test(description = "Test blob tuple return 1")
@@ -120,28 +112,26 @@ public class BBlobValueTest {
 
     @Test(description = "Test blob tuple return 2")
     public void testBlobReturnTuple2() {
-        String b1 = "aaab";
-        String b2 = "a4f5";
-        String b3 = "aeeecdefabcd12345567888822";
-        String b4 = "aGVsbG8gYmFsbGVyaW5hICEhIQ==";
-        byte[] bytes1 = hexStringToByteArray(b1);
-        byte[] bytes2 = decode(b2);
-        byte[] bytes3 = hexStringToByteArray(b3);
-        byte[] bytes4 = decode(b4);
+        String b0 = "aaab";
+        String b1 = "a4f5";
+        String b2 = "aeeecdefabcd12345567888822";
+        String b3 = "aGVsbG8gYmFsbGVyaW5hICEhIQ==";
+        byte[] bytes0 = hexStringToByteArray(b0);
+        byte[] bytes1 = decode(b1);
+        byte[] bytes2 = hexStringToByteArray(b2);
+        byte[] bytes3 = decode(b3);
         BValue[] returns = BRunUtil.invoke(result, "testBlobReturnTuple2", new BValue[]{});
         Assert.assertEquals(returns.length, 4);
-        Assert.assertSame(returns[0].getClass(), BBlob.class);
-        Assert.assertSame(returns[1].getClass(), BBlob.class);
-        Assert.assertSame(returns[2].getClass(), BBlob.class);
-        Assert.assertSame(returns[3].getClass(), BBlob.class);
-        BBlob blob1 = (BBlob) returns[0];
-        BBlob blob2 = (BBlob) returns[1];
-        BBlob blob3 = (BBlob) returns[2];
-        BBlob blob4 = (BBlob) returns[3];
-        Assert.assertEquals(blob1.blobValue(), bytes1, "Invalid byte value returned.");
-        Assert.assertEquals(blob2.blobValue(), bytes2, "Invalid byte value returned.");
-        Assert.assertEquals(blob3.blobValue(), bytes3, "Invalid byte value returned.");
-        Assert.assertEquals(blob4.blobValue(), bytes4, "Invalid byte value returned.");
+        assertResult(bytes0, returns[0]);
+        assertResult(bytes1, returns[1]);
+        assertResult(bytes2, returns[2]);
+        assertResult(bytes3, returns[3]);
+    }
+
+    private void assertResult(byte[] bytes, BValue aReturn) {
+        Assert.assertSame(aReturn.getClass(), BBlob.class);
+        BBlob blob = (BBlob) aReturn;
+        Assert.assertEquals(blob.blobValue(), bytes, "Invalid byte value returned.");
     }
 
     @Test(description = "Test return blob array")
@@ -164,9 +154,7 @@ public class BBlobValueTest {
         BValue[] args = {new BBlob(bytes)};
         BValue[] returns = BRunUtil.invoke(result, "testBlobField1", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBlob.class);
-        BBlob blob = (BBlob) returns[0];
-        Assert.assertEquals(blob.blobValue(), bytes, "Invalid byte value returned.");
+        assertResult(bytes, returns[0]);
     }
 
     @Test(description = "Test blob global variable 2")
@@ -175,9 +163,7 @@ public class BBlobValueTest {
         byte[] bytes = hexStringToByteArray(b16);
         BValue[] returns = BRunUtil.invoke(result, "testBlobField2", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBlob.class);
-        BBlob blob = (BBlob) returns[0];
-        Assert.assertEquals(blob.blobValue(), bytes, "Invalid byte value returned.");
+        assertResult(bytes, returns[0]);
     }
 
     @Test(description = "Test blob hexadecimal format")
@@ -207,6 +193,25 @@ public class BBlobValueTest {
         BBlob blob2 = (BBlob) returns[1];
         Assert.assertEquals(blob1.blobValue(), bytes2, "Invalid value returned.");
         Assert.assertEquals(blob2.blobValue(), bytes1, "Invalid value returned.");
+    }
+
+    @Test(description = "Test blob default value")
+    public void testBlobDefaultValue() {
+        String b0 = "aaab";
+        String b1 = "aGVsbG8gYmFsbGVyaW5hICEhIQ==";
+        byte[] empty = new byte[0];
+        byte[] bytes0 = hexStringToByteArray(b0);
+        byte[] bytes1 = decode(b1);
+        BValue[] returns = BRunUtil.invoke(result, "testBlobDefaultValue", new BValue[]{});
+        Assert.assertEquals(returns.length, 8);
+        assertResult(empty, returns[0]);
+        assertResult(empty, returns[1]);
+        assertResult(bytes0, returns[2]);
+        assertResult(bytes1, returns[3]);
+        assertResult(empty, returns[4]);
+        assertResult(bytes0, returns[5]);
+        assertResult(bytes1, returns[6]);
+        assertResult(empty, returns[7]);
     }
 
     private static byte[] decode(String b64) {

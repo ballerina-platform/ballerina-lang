@@ -34,6 +34,7 @@ import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeSignature;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.Flags;
+import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -1832,6 +1833,11 @@ public class ProgramFileReader {
                 UTF8CPEntry stringCPEntry = (UTF8CPEntry) constantPool.getCPEntry(valueCPIndex);
                 defaultValue.setStringValue(stringCPEntry.getValue());
                 break;
+            case TypeSignature.SIG_BLOB:
+                valueCPIndex = dataInStream.readInt();
+                BlobCPEntry blobCPEntry = (BlobCPEntry) constantPool.getCPEntry(valueCPIndex);
+                defaultValue.setBlobValue(blobCPEntry.getValue());
+                break;
             case TypeSignature.SIG_NULL:
                 break;
             default:
@@ -1861,6 +1867,10 @@ public class ProgramFileReader {
             case TypeSignature.SIG_STRING:
                 String stringValue = defaultValue.getStringValue();
                 value = new BString(stringValue);
+                break;
+            case TypeSignature.SIG_BLOB:
+                byte[] blobValue = defaultValue.getBlobValue();
+                value = new BBlob(blobValue);
                 break;
             case TypeSignature.SIG_NULL:
                 value = null;
