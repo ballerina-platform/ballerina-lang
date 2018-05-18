@@ -1214,66 +1214,63 @@ public class BallerinaPsiImplUtil {
     }
 
     public static PsiElement getConfigTypeDefinition(@NotNull BallerinaTypeDefinition serviceType) {
+        return CachedValuesManager.getCachedValue(serviceType, () -> {
+            BallerinaTypeDefinition listenerType = BallerinaPsiImplUtil.getReturnTypeFromObjectFunction(serviceType,
+                    "getEndpoint");
+            if (listenerType == null) {
+                return CachedValueProvider.Result.create(null, serviceType);
+            }
 
-        BallerinaTypeDefinition listenerType = BallerinaPsiImplUtil.getReturnTypeFromObjectFunction(serviceType,
-                "getEndpoint");
-        if (listenerType == null) {
-            return null;
-        }
+            BallerinaFormalParameterList parameterListNode =
+                    BallerinaPsiImplUtil.getParameterFromObjectFunction(listenerType, "init");
+            if (parameterListNode == null || parameterListNode.getParameterList().isEmpty()) {
+                return CachedValueProvider.Result.create(null, serviceType);
+            }
 
-        BallerinaFormalParameterList parameterListNode =
-                BallerinaPsiImplUtil.getParameterFromObjectFunction(listenerType, "init");
-        if (parameterListNode == null || parameterListNode.getParameterList().isEmpty()) {
-            return null;
-        }
+            BallerinaParameter firstParameter = parameterListNode.getParameterList().get(0);
+            List<BallerinaParameterWithType> parameterWithTypeList = firstParameter.getParameterWithTypeList();
+            if (parameterWithTypeList.isEmpty()) {
+                return CachedValueProvider.Result.create(null, serviceType);
+            }
 
-        BallerinaParameter firstParameter = parameterListNode.getParameterList().get(0);
+            BallerinaParameterWithType parameterWithType = parameterWithTypeList.get(0);
+            BallerinaTypeName typeName = parameterWithType.getTypeName();
+            PsiReference reference = typeName.findReferenceAt(typeName.getTextLength());
+            if (reference == null) {
+                return CachedValueProvider.Result.create(null, serviceType);
+            }
 
-        List<BallerinaParameterWithType> parameterWithTypeList = firstParameter.getParameterWithTypeList();
-
-        if (parameterWithTypeList.isEmpty()) {
-            return null;
-        }
-        BallerinaParameterWithType parameterWithType = parameterWithTypeList.get(0);
-
-        BallerinaTypeName typeName = parameterWithType.getTypeName();
-
-        PsiReference reference = typeName.findReferenceAt(typeName.getTextLength());
-        if (reference == null) {
-            return null;
-        }
-        return reference.resolve();
+            return CachedValueProvider.Result.create(reference.resolve(), serviceType);
+        });
     }
 
-    @Nullable
-    public static PsiElement resolveConfig(@NotNull PsiElement element) {
-        BallerinaServiceDefinition ballerinaServiceDefinition =
-                PsiTreeUtil.getParentOfType(element, BallerinaServiceDefinition.class);
-        if (ballerinaServiceDefinition == null) {
-            return null;
-        }
-        BallerinaNameReference nameReference = ballerinaServiceDefinition.getNameReference();
-        if (nameReference == null) {
-            return null;
-        }
-        PsiElement typeDefinition = BallerinaPsiImplUtil.getCachedType(nameReference);
-        if (typeDefinition instanceof BallerinaTypeDefinition) {
-            BallerinaTypeDefinition typeName = (BallerinaTypeDefinition) typeDefinition;
-            PsiElement ownerName = getConfigTypeDefinition(typeName);
-            if (ownerName == null || !(ownerName.getParent() instanceof BallerinaTypeDefinition)) {
-                return null;
+    @NotNull
+    public static List<BallerinaFieldDefinition> resolveConfig(@NotNull PsiElement element) {
+        return CachedValuesManager.getCachedValue(element, () -> {
+            BallerinaServiceDefinition ballerinaServiceDefinition =
+                    PsiTreeUtil.getParentOfType(element, BallerinaServiceDefinition.class);
+            if (ballerinaServiceDefinition == null) {
+                return CachedValueProvider.Result.create(ContainerUtil.newArrayList(), element);
             }
-            PsiElement configType = ownerName.getParent();
-            Collection<BallerinaFieldDefinition> fieldDefinitions = PsiTreeUtil.findChildrenOfType(configType,
-                    BallerinaFieldDefinition.class);
-            for (BallerinaFieldDefinition fieldDefinition : fieldDefinitions) {
-                PsiElement identifier = fieldDefinition.getIdentifier();
-                if (identifier.getText().equals(element.getText())) {
-                    return identifier;
+            BallerinaNameReference nameReference = ballerinaServiceDefinition.getNameReference();
+            if (nameReference == null) {
+                return CachedValueProvider.Result.create(ContainerUtil.newArrayList(), element);
+            }
+            PsiElement typeDefinition = BallerinaPsiImplUtil.getCachedType(nameReference);
+            if (typeDefinition instanceof BallerinaTypeDefinition) {
+                BallerinaTypeDefinition typeName = (BallerinaTypeDefinition) typeDefinition;
+                PsiElement ownerName = getConfigTypeDefinition(typeName);
+                if (ownerName == null || !(ownerName.getParent() instanceof BallerinaTypeDefinition)) {
+                    return CachedValueProvider.Result.create(ContainerUtil.newArrayList(), element);
                 }
+                PsiElement configType = ownerName.getParent();
+                LinkedList<BallerinaFieldDefinition> results =
+                        new LinkedList<>(PsiTreeUtil.findChildrenOfType(configType, BallerinaFieldDefinition.class));
+                return CachedValueProvider.Result.create(results, element);
+
             }
-        }
-        return null;
+            return CachedValueProvider.Result.create(null, ContainerUtil.newArrayList());
+        });
     }
 
     @NotNull
