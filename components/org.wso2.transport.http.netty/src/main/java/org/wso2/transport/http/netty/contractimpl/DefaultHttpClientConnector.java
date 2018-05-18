@@ -56,6 +56,9 @@ import org.wso2.transport.http.netty.sender.http2.TimeoutHandler;
 
 import java.util.NoSuchElementException;
 
+import static org.wso2.transport.http.netty.common.Constants.HTTP_SCHEME;
+import static org.wso2.transport.http.netty.common.Constants.COLON;
+
 /**
  * Implementation of the client connector.
  */
@@ -342,7 +345,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                 break;
         }
         // Add proxy-authorization header if proxy is enabled and scheme is http
-        if (senderConfiguration.getScheme().equals(Constants.HTTP_SCHEME) &&
+        if (senderConfiguration.getScheme().equals(HTTP_SCHEME) &&
                 senderConfiguration.getProxyServerConfiguration() != null &&
                 senderConfiguration.getProxyServerConfiguration().getProxyUsername() != null &&
                 senderConfiguration.getProxyServerConfiguration().getProxyPassword() != null) {
@@ -352,7 +355,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
 
     private void setProxyAuthorizationHeader(HTTPCarbonMessage httpOutboundRequest) {
         ByteBuf authz = Unpooled.copiedBuffer(
-                senderConfiguration.getProxyServerConfiguration().getProxyUsername() + Constants.COLON
+                senderConfiguration.getProxyServerConfiguration().getProxyUsername() + COLON
                         + senderConfiguration.getProxyServerConfiguration().getProxyPassword(), CharsetUtil.UTF_8);
         ByteBuf authzBase64 = Base64.encode(authz, false);
         CharSequence authorization = new AsciiString("Basic " + authzBase64.toString(CharsetUtil.US_ASCII));
