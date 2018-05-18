@@ -17,7 +17,7 @@
  *
  */
 
-const { ipcMain, Menu } = require('electron');
+const { ipcMain, Menu, app } = require('electron');
 
 function registerMenuLoader() {
     // remove the stock menu
@@ -38,6 +38,29 @@ function registerMenuLoader() {
                 })
             }
         });
+        if (process.platform === 'darwin') {
+            template.splice(0, 0, {
+                label: 'Ballerina Composer',
+                submenu: [
+                    {
+                        label: 'About',
+                        click: () => {
+                            event.sender.send('menu-item-clicked', 'help-about');
+                        }
+                    },
+                    {
+                        type: 'separator'
+                    },
+                    {
+                        label: 'Quit Composer',
+                        role: 'quit',
+                        click: () => {
+                            app.quit();
+                        }
+                    }
+                ]
+            });
+        }
         Menu.setApplicationMenu(Menu.buildFromTemplate(template));
     });
 }
