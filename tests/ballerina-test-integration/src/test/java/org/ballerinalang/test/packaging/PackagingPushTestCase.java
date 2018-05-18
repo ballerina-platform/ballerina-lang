@@ -169,7 +169,7 @@ public class PackagingPushTestCase extends IntegrationTestCase {
         variables.add(ProjectDirConstants.HOME_REPO_ENV_KEY + "=" + tempHomeDirectory.toString());
         variables.add("BALLERINA_DEV_STAGE_CENTRAL" + "=" + "true");
 
-        return variables.toArray(new String[0]);
+        return variables.stream().toArray(String[]::new);
     }
 
     /**
@@ -178,7 +178,7 @@ public class PackagingPushTestCase extends IntegrationTestCase {
      * @param count number of characters required
      * @return generated name
      */
-    public String randomPackageName(int count) {
+    private String randomPackageName(int count) {
         String upperCaseAlpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         String lowerCaseAlpha = "abcdefghijklmnopqrstuvwxyz";
         String alpha = upperCaseAlpha + lowerCaseAlpha;
