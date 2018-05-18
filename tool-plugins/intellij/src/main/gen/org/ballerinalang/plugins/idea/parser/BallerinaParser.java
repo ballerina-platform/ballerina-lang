@@ -1339,7 +1339,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // (ImportDeclaration | NamespaceDeclaration)* Definition* <<eof>>
+  // (ImportDeclaration | NamespaceDeclaration)* (DefinitionWithoutAnnotationAttachments |  DefinitionWithMultipleAnnotationAttachments | DefinitionWithSingleAnnotationAttachment)* <<eof>>
   static boolean CompilationUnit(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "CompilationUnit")) return false;
     boolean r;
@@ -1374,16 +1374,28 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // Definition*
+  // (DefinitionWithoutAnnotationAttachments |  DefinitionWithMultipleAnnotationAttachments | DefinitionWithSingleAnnotationAttachment)*
   private static boolean CompilationUnit_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "CompilationUnit_1")) return false;
     int c = current_position_(b);
     while (true) {
-      if (!Definition(b, l + 1)) break;
+      if (!CompilationUnit_1_0(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "CompilationUnit_1", c)) break;
       c = current_position_(b);
     }
     return true;
+  }
+
+  // DefinitionWithoutAnnotationAttachments |  DefinitionWithMultipleAnnotationAttachments | DefinitionWithSingleAnnotationAttachment
+  private static boolean CompilationUnit_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "CompilationUnit_1_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = DefinitionWithoutAnnotationAttachments(b, l + 1);
+    if (!r) r = DefinitionWithMultipleAnnotationAttachments(b, l + 1);
+    if (!r) r = DefinitionWithSingleAnnotationAttachment(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
   }
 
   /* ********************************************************** */
@@ -1528,70 +1540,126 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // documentationAttachment? deprecatedAttachment? AnnotationAttachment*
-  //                ( TypeDefinition
-  //                | GlobalVariableDefinition
-  //                | ServiceDefinition
-  //                | FunctionDefinition
-  //                | AnnotationDefinition
-  //                | GlobalEndpointDefinition
-  //                )
-  public static boolean Definition(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "Definition")) return false;
-    boolean r;
-    Marker m = enter_section_(b, l, _NONE_, DEFINITION, "<definition>");
-    r = Definition_0(b, l + 1);
-    r = r && Definition_1(b, l + 1);
-    r = r && Definition_2(b, l + 1);
-    r = r && Definition_3(b, l + 1);
-    exit_section_(b, l, m, r, false, TopLevelDefinitionRecover_parser_);
-    return r;
-  }
-
-  // documentationAttachment?
-  private static boolean Definition_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "Definition_0")) return false;
-    documentationAttachment(b, l + 1);
-    return true;
-  }
-
-  // deprecatedAttachment?
-  private static boolean Definition_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "Definition_1")) return false;
-    deprecatedAttachment(b, l + 1);
-    return true;
-  }
-
-  // AnnotationAttachment*
-  private static boolean Definition_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "Definition_2")) return false;
-    int c = current_position_(b);
-    while (true) {
-      if (!AnnotationAttachment(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "Definition_2", c)) break;
-      c = current_position_(b);
-    }
-    return true;
-  }
-
   // TypeDefinition
   //                | GlobalVariableDefinition
   //                | ServiceDefinition
   //                | FunctionDefinition
   //                | AnnotationDefinition
   //                | GlobalEndpointDefinition
-  private static boolean Definition_3(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "Definition_3")) return false;
+  public static boolean Definition(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "Definition")) return false;
     boolean r;
-    Marker m = enter_section_(b);
+    Marker m = enter_section_(b, l, _NONE_, DEFINITION, "<definition>");
     r = TypeDefinition(b, l + 1);
     if (!r) r = GlobalVariableDefinition(b, l + 1);
     if (!r) r = ServiceDefinition(b, l + 1);
     if (!r) r = FunctionDefinition(b, l + 1);
     if (!r) r = AnnotationDefinition(b, l + 1);
     if (!r) r = GlobalEndpointDefinition(b, l + 1);
+    exit_section_(b, l, m, r, false, TopLevelDefinitionRecover_parser_);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // documentationAttachment? deprecatedAttachment? AnnotationAttachment AnnotationAttachment+ Definition
+  public static boolean DefinitionWithMultipleAnnotationAttachments(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "DefinitionWithMultipleAnnotationAttachments")) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, DEFINITION, "<definition with multiple annotation attachments>");
+    r = DefinitionWithMultipleAnnotationAttachments_0(b, l + 1);
+    r = r && DefinitionWithMultipleAnnotationAttachments_1(b, l + 1);
+    r = r && AnnotationAttachment(b, l + 1);
+    r = r && DefinitionWithMultipleAnnotationAttachments_3(b, l + 1);
+    p = r; // pin = 4
+    r = r && Definition(b, l + 1);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // documentationAttachment?
+  private static boolean DefinitionWithMultipleAnnotationAttachments_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "DefinitionWithMultipleAnnotationAttachments_0")) return false;
+    documentationAttachment(b, l + 1);
+    return true;
+  }
+
+  // deprecatedAttachment?
+  private static boolean DefinitionWithMultipleAnnotationAttachments_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "DefinitionWithMultipleAnnotationAttachments_1")) return false;
+    deprecatedAttachment(b, l + 1);
+    return true;
+  }
+
+  // AnnotationAttachment+
+  private static boolean DefinitionWithMultipleAnnotationAttachments_3(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "DefinitionWithMultipleAnnotationAttachments_3")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = AnnotationAttachment(b, l + 1);
+    int c = current_position_(b);
+    while (r) {
+      if (!AnnotationAttachment(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "DefinitionWithMultipleAnnotationAttachments_3", c)) break;
+      c = current_position_(b);
+    }
     exit_section_(b, m, null, r);
     return r;
+  }
+
+  /* ********************************************************** */
+  // documentationAttachment? deprecatedAttachment? AnnotationAttachment Definition
+  public static boolean DefinitionWithSingleAnnotationAttachment(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "DefinitionWithSingleAnnotationAttachment")) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, DEFINITION, "<definition with single annotation attachment>");
+    r = DefinitionWithSingleAnnotationAttachment_0(b, l + 1);
+    r = r && DefinitionWithSingleAnnotationAttachment_1(b, l + 1);
+    r = r && AnnotationAttachment(b, l + 1);
+    p = r; // pin = 3
+    r = r && Definition(b, l + 1);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // documentationAttachment?
+  private static boolean DefinitionWithSingleAnnotationAttachment_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "DefinitionWithSingleAnnotationAttachment_0")) return false;
+    documentationAttachment(b, l + 1);
+    return true;
+  }
+
+  // deprecatedAttachment?
+  private static boolean DefinitionWithSingleAnnotationAttachment_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "DefinitionWithSingleAnnotationAttachment_1")) return false;
+    deprecatedAttachment(b, l + 1);
+    return true;
+  }
+
+  /* ********************************************************** */
+  // documentationAttachment? deprecatedAttachment? Definition
+  public static boolean DefinitionWithoutAnnotationAttachments(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "DefinitionWithoutAnnotationAttachments")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _COLLAPSE_, DEFINITION, "<definition without annotation attachments>");
+    r = DefinitionWithoutAnnotationAttachments_0(b, l + 1);
+    r = r && DefinitionWithoutAnnotationAttachments_1(b, l + 1);
+    r = r && Definition(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  // documentationAttachment?
+  private static boolean DefinitionWithoutAnnotationAttachments_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "DefinitionWithoutAnnotationAttachments_0")) return false;
+    documentationAttachment(b, l + 1);
+    return true;
+  }
+
+  // deprecatedAttachment?
+  private static boolean DefinitionWithoutAnnotationAttachments_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "DefinitionWithoutAnnotationAttachments_1")) return false;
+    deprecatedAttachment(b, l + 1);
+    return true;
   }
 
   /* ********************************************************** */

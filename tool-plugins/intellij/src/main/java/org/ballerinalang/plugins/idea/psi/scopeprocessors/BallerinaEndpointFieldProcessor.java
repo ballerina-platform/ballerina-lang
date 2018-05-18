@@ -125,7 +125,7 @@ public class BallerinaEndpointFieldProcessor extends BallerinaScopeProcessorBase
                     return true;
                 }
 
-                ownerName = BallerinaPsiImplUtil.getConfigTypeDefinitionFromListerner((BallerinaTypeDefinition) parent);
+                ownerName = BallerinaPsiImplUtil.getConfigTypeDefinitionFromListener((BallerinaTypeDefinition) parent);
                 if (ownerName == null || !(ownerName.getParent() instanceof BallerinaTypeDefinition)) {
                     return true;
                 }

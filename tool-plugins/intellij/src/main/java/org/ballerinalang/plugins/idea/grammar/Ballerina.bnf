@@ -150,7 +150,11 @@
     generateTokenAccessors = true
 }
 
-CompilationUnit ::= (ImportDeclaration | NamespaceDeclaration)* Definition* <<eof>>
+CompilationUnit ::=(ImportDeclaration | NamespaceDeclaration)* (DefinitionWithoutAnnotationAttachments |  DefinitionWithMultipleAnnotationAttachments | DefinitionWithSingleAnnotationAttachment)* <<eof>>
+
+DefinitionWithMultipleAnnotationAttachments ::= documentationAttachment? deprecatedAttachment? AnnotationAttachment AnnotationAttachment+ Definition {pin=4 elementType=Definition}
+DefinitionWithSingleAnnotationAttachment ::= documentationAttachment? deprecatedAttachment? AnnotationAttachment Definition {pin=3 elementType=Definition}
+DefinitionWithoutAnnotationAttachments ::= documentationAttachment? deprecatedAttachment? Definition {elementType=Definition}
 
 //PackageDeclaration ::= package CompletePackageName PackageVersion? SEMICOLON {
 //    pin=1
@@ -187,8 +191,7 @@ Alias ::= as identifier {
 }
 
 // Note - Global variable definition should be the first definition since it can contain identifier as type.
-Definition ::= documentationAttachment? deprecatedAttachment? AnnotationAttachment*
-               ( TypeDefinition
+Definition ::= ( TypeDefinition
                | GlobalVariableDefinition
                | ServiceDefinition
                | FunctionDefinition

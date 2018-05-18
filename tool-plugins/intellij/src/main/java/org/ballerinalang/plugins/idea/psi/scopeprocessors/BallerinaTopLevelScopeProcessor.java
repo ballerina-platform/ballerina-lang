@@ -101,6 +101,9 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
                 for (BallerinaDefinition definition : definitions) {
                     ProgressManager.checkCanceled();
                     PsiElement lastChild = definition.getLastChild();
+                    if (lastChild instanceof BallerinaDefinition) {
+                        lastChild = lastChild.getLastChild();
+                    }
                     if (lastChild instanceof BallerinaAnnotationDefinition) {
                         BallerinaAnnotationDefinition child = (BallerinaAnnotationDefinition) lastChild;
                         PsiElement identifier = child.getIdentifier();
@@ -164,6 +167,9 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
             for (BallerinaDefinition definition : definitions) {
                 ProgressManager.checkCanceled();
                 PsiElement lastChild = definition.getLastChild();
+                if (lastChild instanceof BallerinaDefinition) {
+                    lastChild = lastChild.getLastChild();
+                }
                 if (lastChild instanceof BallerinaFunctionDefinition) {
                     BallerinaFunctionDefinition child = (BallerinaFunctionDefinition) lastChild;
                     if (child.getAttachedObject() == null) {

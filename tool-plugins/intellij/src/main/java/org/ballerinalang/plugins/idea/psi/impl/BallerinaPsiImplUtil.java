@@ -1213,6 +1213,7 @@ public class BallerinaPsiImplUtil {
         });
     }
 
+    @Nullable
     public static PsiElement getConfigTypeDefinitionFromServiceType(@NotNull BallerinaTypeDefinition serviceType) {
         return CachedValuesManager.getCachedValue(serviceType, () -> {
             BallerinaTypeDefinition listenerType = BallerinaPsiImplUtil.getReturnTypeFromObjectFunction(serviceType,
@@ -1220,11 +1221,12 @@ public class BallerinaPsiImplUtil {
             if (listenerType == null) {
                 return CachedValueProvider.Result.create(null, serviceType);
             }
-            return CachedValueProvider.Result.create(getConfigTypeDefinitionFromListerner(listenerType), serviceType);
+            return CachedValueProvider.Result.create(getConfigTypeDefinitionFromListener(listenerType), serviceType);
         });
     }
 
-    public static PsiElement getConfigTypeDefinitionFromListerner(@NotNull BallerinaTypeDefinition listenerType) {
+    @Nullable
+    public static PsiElement getConfigTypeDefinitionFromListener(@NotNull BallerinaTypeDefinition listenerType) {
         return CachedValuesManager.getCachedValue(listenerType, () -> {
             BallerinaFormalParameterList parameterListNode =
                     BallerinaPsiImplUtil.getParameterFromObjectFunction(listenerType, "init");
@@ -1273,7 +1275,7 @@ public class BallerinaPsiImplUtil {
                 return CachedValueProvider.Result.create(results, element);
 
             }
-            return CachedValueProvider.Result.create(null, ContainerUtil.newArrayList());
+            return CachedValueProvider.Result.create(ContainerUtil.newArrayList(), element);
         });
     }
 

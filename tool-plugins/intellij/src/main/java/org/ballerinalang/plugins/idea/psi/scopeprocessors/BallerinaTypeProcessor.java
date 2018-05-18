@@ -57,6 +57,9 @@ public class BallerinaTypeProcessor extends BallerinaScopeProcessorBase {
             for (BallerinaDefinition definition : definitions) {
                 ProgressManager.checkCanceled();
                 PsiElement lastChild = definition.getLastChild();
+                if (lastChild instanceof BallerinaDefinition) {
+                    lastChild = lastChild.getLastChild();
+                }
                 if (lastChild instanceof BallerinaTypeDefinition) {
                     BallerinaTypeDefinition child = (BallerinaTypeDefinition) lastChild;
                     PsiElement identifier = child.getIdentifier();
