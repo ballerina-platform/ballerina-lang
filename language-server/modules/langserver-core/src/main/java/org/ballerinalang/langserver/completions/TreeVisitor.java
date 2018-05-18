@@ -31,6 +31,7 @@ import org.ballerinalang.langserver.completions.util.positioning.resolvers.Block
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ConnectorScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.CursorPositionResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.InvocationParameterScopeResolver;
+import org.ballerinalang.langserver.completions.util.positioning.resolvers.MatchExpressionScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.MatchStatementScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ObjectTypeScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.PackageNodeScopeResolver;
@@ -75,6 +76,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -329,17 +331,18 @@ public class TreeVisitor extends LSNodeVisitor {
                 return;
             }
             final TreeVisitor visitor = this;
+            Class fallbackCursorPositionResolver = this.cursorPositionResolver;
             this.cursorPositionResolver = InvocationParameterScopeResolver.class;
+            this.blockOwnerStack.push(invocationNode);
             // Visit all arguments
             invocationNode.getArgumentExpressions().forEach(expressionNode -> {
                 BLangNode node = ((BLangNode) expressionNode);
-                this.blockOwnerStack.push(invocationNode);
                 CursorPositionResolver posResolver = ScopeResolverConstants.getResolverByClass(cursorPositionResolver);
                 posResolver.isCursorBeforeNode(node.getPosition(), node, visitor, visitor.documentServiceContext);
                 visitor.acceptNode(node, symbolEnv);
-                this.blockOwnerStack.pop();
             });
-            this.cursorPositionResolver = BlockStatementScopeResolver.class;
+            this.blockOwnerStack.pop();
+            this.cursorPositionResolver = fallbackCursorPositionResolver;
         }
     }
 
@@ -764,11 +767,43 @@ public class TreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangMatchExpression bLangMatchExpression) {
-        // Current symbol environment should be block statement
-        if (this.isCursorWithinBlock(bLangMatchExpression.getPosition(), symbolEnv)) {
+        if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
+                .isCursorBeforeNode(bLangMatchExpression.getPosition(), bLangMatchExpression, this,
+                                    this.documentServiceContext)) {
+            final TreeVisitor visitor = this;
+            Class fallbackCursorPositionResolver = this.cursorPositionResolver;
+            this.cursorPositionResolver = MatchExpressionScopeResolver.class;
+            this.blockOwnerStack.push(bLangMatchExpression);
+            // Visit all pattern clauses
+            bLangMatchExpression.getPatternClauses().forEach(patternClause -> {
+                BLangNode node = patternClause;
+                CursorPositionResolver posResolver = ScopeResolverConstants.getResolverByClass(cursorPositionResolver);
+                posResolver.isCursorBeforeNode(node.getPosition(), node, visitor, visitor.documentServiceContext);
+                visitor.acceptNode(node, symbolEnv);
+            });
+            this.blockOwnerStack.pop();
+            this.cursorPositionResolver = fallbackCursorPositionResolver;
+        } else {
             // We consider this as a special case and override the symbol environment node to be the match expression
             this.populateSymbolEnvNode(bLangMatchExpression);
         }
+    }
+
+    @Override
+    public void visit(BLangMatchExpression.BLangMatchExprPatternClause matchExprPatternClause) {
+        if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
+                .isCursorBeforeNode(matchExprPatternClause.getPosition(), matchExprPatternClause, this,
+                                    this.documentServiceContext)) {
+            if (matchExprPatternClause.expr != null) {
+                this.acceptNode(matchExprPatternClause.expr, symbolEnv);
+            }
+        }
+    }
+
+    @Override
+    public void visit(BLangSimpleVarRef simpleVarRef) {
+        ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
+                .isCursorBeforeNode(simpleVarRef.getPosition(), simpleVarRef, this, this.documentServiceContext);
     }
 
     public void setPreviousNode(BLangNode previousNode) {
