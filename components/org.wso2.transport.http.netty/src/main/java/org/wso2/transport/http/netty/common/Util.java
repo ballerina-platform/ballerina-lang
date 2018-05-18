@@ -163,7 +163,6 @@ public class Util {
                     + outboundRequestMsg.getProperty(Constants.HTTP_HOST) + Constants.COLON
                     + outboundRequestMsg.getProperty(Constants.HTTP_PORT)
                     + outboundRequestMsg.getProperty(Constants.TO);
-
         }
         return (String) outboundRequestMsg.getProperty(Constants.TO);
     }

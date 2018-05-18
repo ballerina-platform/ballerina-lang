@@ -74,7 +74,6 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
     private KeepAliveConfig keepAliveConfig;
     private boolean isHttp2;
     private ForwardedExtensionConfig forwardedExtensionConfig;
-    private CharSequence authorization;
 
     public DefaultHttpClientConnector(ConnectionManager connectionManager, SenderConfiguration senderConfiguration) {
         this.connectionManager = connectionManager;
@@ -347,17 +346,17 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                 senderConfiguration.getProxyServerConfiguration() != null &&
                 senderConfiguration.getProxyServerConfiguration().getProxyUsername() != null &&
                 senderConfiguration.getProxyServerConfiguration().getProxyPassword() != null) {
-            setProxyAuthorizationHeader();
-            httpOutboundRequest.setHeader(HttpHeaderNames.PROXY_AUTHORIZATION.toString(), authorization);
+            setProxyAuthorizationHeader(httpOutboundRequest);
         }
     }
 
-    private void setProxyAuthorizationHeader() {
+    private void setProxyAuthorizationHeader(HTTPCarbonMessage httpOutboundRequest) {
         ByteBuf authz = Unpooled.copiedBuffer(
-                senderConfiguration.getProxyServerConfiguration().getProxyUsername() + ':'
+                senderConfiguration.getProxyServerConfiguration().getProxyUsername() + Constants.COLON
                         + senderConfiguration.getProxyServerConfiguration().getProxyPassword(), CharsetUtil.UTF_8);
         ByteBuf authzBase64 = Base64.encode(authz, false);
-        authorization = new AsciiString("Basic " + authzBase64.toString(CharsetUtil.US_ASCII));
+        CharSequence authorization = new AsciiString("Basic " + authzBase64.toString(CharsetUtil.US_ASCII));
+        httpOutboundRequest.setHeader(HttpHeaderNames.PROXY_AUTHORIZATION.toString(), authorization);
         authz.release();
         authzBase64.release();
     }
