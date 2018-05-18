@@ -31,7 +31,6 @@ import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.time.Duration;
-import java.time.format.DateTimeParseException;
 
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TABLE_METRICS;
 
@@ -113,7 +112,6 @@ public class PrometheusMeterRegistryProvider implements MeterRegistryProvider {
 
     private static class BallerinaPrometheusConfig implements PrometheusConfig {
         private final ConfigRegistry configRegistry;
-        private final PrintStream consoleErr = System.err;
 
         public BallerinaPrometheusConfig() {
             configRegistry = ConfigRegistry.getInstance();
@@ -126,17 +124,8 @@ public class PrometheusMeterRegistryProvider implements MeterRegistryProvider {
 
         @Override
         public Duration step() {
-            String v = get(prefix() + ".step");
-            Duration step = null;
-            if (v != null) {
-                try {
-                    step = Duration.parse(v);
-                } catch (DateTimeParseException e) {
-                    step = null;
-                    consoleErr.println("ballerina: error parsing duration for Prometheus step configuration");
-                }
-            }
-            return step != null ? step : Duration.ofMinutes(1);
+            // The step duration configuration is a part of Ballerina Metrics API
+            return Duration.ofMinutes(1);
         }
 
         @Override

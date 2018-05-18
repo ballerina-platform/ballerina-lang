@@ -22,6 +22,7 @@ import org.ballerinalang.util.metrics.CallbackGauge;
 import org.ballerinalang.util.metrics.Counter;
 import org.ballerinalang.util.metrics.Gauge;
 import org.ballerinalang.util.metrics.MetricId;
+import org.ballerinalang.util.metrics.StatisticConfig;
 import org.ballerinalang.util.metrics.Summary;
 import org.ballerinalang.util.metrics.Timer;
 import org.ballerinalang.util.metrics.spi.MetricProvider;
@@ -60,12 +61,12 @@ public class NoOpMetricProvider implements MetricProvider {
     }
 
     @Override
-    public Summary newSummary(MetricId metricId) {
+    public Summary newSummary(MetricId metricId, StatisticConfig statisticConfig) {
         return new NoOpSummary(metricId);
     }
 
     @Override
-    public Timer newTimer(MetricId metricId) {
+    public Timer newTimer(MetricId metricId, StatisticConfig statisticConfig) {
         return new NoOpTimer(metricId);
     }
 

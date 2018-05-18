@@ -49,6 +49,8 @@ public interface Timer extends Metric {
         private final Set<Tag> tags = new HashSet<>(10);
         private String description;
 
+        private StatisticConfig.Builder statisticConfigBuilder = StatisticConfig.builder();
+
         private Builder(String name) {
             this.name = name;
         }
@@ -83,6 +85,27 @@ public interface Timer extends Metric {
             return this;
         }
 
+        /**
+         * @param percentiles Percentiles to compute and publish. Percentile is in the domain [0,1].
+         *                    For example, the 95th percentile should be expressed as {@code 0.95}.
+         * @return This builder instance.
+         * @see StatisticConfig.Builder#percentiles(double...)
+         */
+        public Builder percentiles(double... percentiles) {
+            statisticConfigBuilder.percentiles(percentiles);
+            return this;
+        }
+
+        /**
+         * @param expiry The duration of samples used to compute statistics.
+         * @return This builder instance.
+         * @see StatisticConfig.Builder#expiry(Duration)
+         */
+        public Builder expiry(Duration expiry) {
+            statisticConfigBuilder.expiry(expiry);
+            return this;
+        }
+
         @Override
         public Timer register() {
             return register(DefaultMetricRegistry.getInstance());
@@ -90,7 +113,7 @@ public interface Timer extends Metric {
 
         @Override
         public Timer register(MetricRegistry registry) {
-            return registry.timer(new MetricId(name, description, tags));
+            return registry.timer(new MetricId(name, description, tags), statisticConfigBuilder.build());
         }
     }
 

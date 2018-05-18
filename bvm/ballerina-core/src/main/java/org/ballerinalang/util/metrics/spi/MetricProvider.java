@@ -22,6 +22,7 @@ import org.ballerinalang.util.metrics.Counter;
 import org.ballerinalang.util.metrics.Gauge;
 import org.ballerinalang.util.metrics.MetricId;
 import org.ballerinalang.util.metrics.MetricRegistry;
+import org.ballerinalang.util.metrics.StatisticConfig;
 import org.ballerinalang.util.metrics.Summary;
 import org.ballerinalang.util.metrics.Timer;
 
@@ -51,8 +52,8 @@ public interface MetricProvider {
 
     <T> CallbackGauge newCallbackGauge(MetricId metricId, T obj, ToDoubleFunction<T> toDoubleFunction);
 
-    Summary newSummary(MetricId metricId);
+    Summary newSummary(MetricId metricId, StatisticConfig statisticConfig);
 
-    Timer newTimer(MetricId metricId);
+    Timer newTimer(MetricId metricId, StatisticConfig statisticConfig);
 
 }

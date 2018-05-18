@@ -23,6 +23,7 @@ import io.micrometer.core.instrument.distribution.HistogramSnapshot;
 import io.micrometer.core.instrument.distribution.ValueAtPercentile;
 import org.ballerinalang.util.metrics.AbstractMetric;
 import org.ballerinalang.util.metrics.MetricId;
+import org.ballerinalang.util.metrics.StatisticConfig;
 import org.ballerinalang.util.metrics.Summary;
 
 import java.util.Collections;
@@ -37,13 +38,14 @@ public class MicrometerSummary extends AbstractMetric implements Summary {
 
     private final io.micrometer.core.instrument.DistributionSummary summary;
 
-    public MicrometerSummary(MeterRegistry meterRegistry, MetricId id) {
+    public MicrometerSummary(MeterRegistry meterRegistry, MetricId id, StatisticConfig statisticConfig) {
         super(id);
         summary = io.micrometer.core.instrument.DistributionSummary.builder(id.getName())
                 .description(id.getDescription())
                 .tags(id.getTags().stream().map(tag -> Tag.of(tag.getKey(), tag.getValue()))
                         .collect(Collectors.toList()))
-                .publishPercentiles(0.5, 0.75, 0.98, 0.99, 0.999)
+                .publishPercentiles(statisticConfig.getPercentiles())
+                .distributionStatisticExpiry(statisticConfig.getExpiry())
                 .register(meterRegistry);
     }
 

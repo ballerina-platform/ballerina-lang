@@ -81,21 +81,23 @@ public class MetricRegistry {
     /**
      * Use {@link Summary#builder(String)}.
      *
-     * @param id The {@link MetricId}.
+     * @param id              The {@link MetricId}.
+     * @param statisticConfig Configuration for published distribution statistics.
      * @return A existing or a new {@link Summary} metric.
      */
-    public Summary summary(MetricId id) {
-        return getOrCreate(id, Summary.class, () -> metricProvider.newSummary(id));
+    public Summary summary(MetricId id, StatisticConfig statisticConfig) {
+        return getOrCreate(id, Summary.class, () -> metricProvider.newSummary(id, statisticConfig));
     }
 
     /**
      * Use {@link Timer#builder(String)}.
      *
-     * @param id The {@link MetricId}.
+     * @param id              The {@link MetricId}.
+     * @param statisticConfig Configuration for published distribution statistics.
      * @return A existing or a new {@link Timer} metric.
      */
-    public Timer timer(MetricId id) {
-        return getOrCreate(id, Timer.class, () -> metricProvider.newTimer(id));
+    public Timer timer(MetricId id, StatisticConfig statisticConfig) {
+        return getOrCreate(id, Timer.class, () -> metricProvider.newTimer(id, statisticConfig));
     }
 
     private <M extends Metric> M getOrCreate(MetricId id, Class<M> metricClass, Supplier<M> metricSupplier) {
