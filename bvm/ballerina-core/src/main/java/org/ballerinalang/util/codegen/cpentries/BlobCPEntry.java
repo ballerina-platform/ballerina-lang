@@ -22,7 +22,7 @@ import java.util.Arrays;
 /**
  * {@code BlobCPEntry} represents a Ballerina blob value in the constant pool.
  *
- * @since 0.970.2
+ * @since 0.975.0
  */
 public class BlobCPEntry implements ConstantPoolEntry {
 
