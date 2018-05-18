@@ -358,9 +358,12 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
         }
     }
 
-    private void processObjectFields(@NotNull PsiElement typeName,
+    private void processObjectFields(@Nullable PsiElement typeName,
                                      @NotNull List<BallerinaFieldDefinition> fieldDefinitionList,
                                      boolean isPublic) {
+        if (typeName == null) {
+            return;
+        }
         for (BallerinaFieldDefinition ballerinaFieldDefinition : fieldDefinitionList) {
             PsiElement identifier = ballerinaFieldDefinition.getIdentifier();
             if (myResult != null) {
@@ -421,6 +424,9 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
                     .getParameterWithTypeList();
             for (BallerinaParameterWithType ballerinaParameterWithType : parameterWithTypeList) {
                 PsiElement identifier = ballerinaParameterWithType.getIdentifier();
+                if (identifier == null) {
+                    continue;
+                }
                 if (myResult != null) {
                     myResult.addElement(BallerinaCompletionUtils.createParameterLookupElement(identifier, null, null));
                 } else if (myElement.getText().equals(identifier.getText())) {
@@ -432,10 +438,12 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
         BallerinaRestParameter restParameter = formalParameterList.getRestParameter();
         if (restParameter != null) {
             PsiElement identifier = restParameter.getIdentifier();
-            if (myResult != null) {
-                myResult.addElement(BallerinaCompletionUtils.createParameterLookupElement(identifier, null, null));
-            } else if (myElement.getText().equals(identifier.getText())) {
-                add(identifier);
+            if (identifier != null) {
+                if (myResult != null) {
+                    myResult.addElement(BallerinaCompletionUtils.createParameterLookupElement(identifier, null, null));
+                } else if (myElement.getText().equals(identifier.getText())) {
+                    add(identifier);
+                }
             }
         }
     }
@@ -445,6 +453,9 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
             List<BallerinaParameterWithType> parameterWithTypeList = parameter.getParameterWithTypeList();
             for (BallerinaParameterWithType ballerinaParameterWithType : parameterWithTypeList) {
                 PsiElement identifier = ballerinaParameterWithType.getIdentifier();
+                if (identifier == null) {
+                    continue;
+                }
                 if (myResult != null) {
                     myResult.addElement(BallerinaCompletionUtils.createParameterLookupElement(identifier,
                             BallerinaPsiImplUtil.formatBallerinaTypeName(ballerinaParameterWithType.getTypeName()),
