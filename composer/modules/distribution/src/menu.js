@@ -26,9 +26,28 @@ function registerMenuLoader() {
     ipcMain.on('main-menu-loaded', (event, menus) => {
         
         const template = menus.map((menu) => {
+            const childrenWithSeparators = menu.children.reduce((r, e) => {
+                if (e.divider) {
+                    if (e.divider.before) {
+                        r.push({ separator: true });
+                        r.push(e);
+                    } else if (e.divider.after) {
+                        r.push(e);
+                        r.push({ separator: true });
+                    }
+                } else {
+                    r.push(e);
+                }
+                return r;
+            }, []);
             return {
                 label: menu.label,
-                submenu: menu.children.map((childMenu) => {
+                submenu: childrenWithSeparators.map((childMenu) => {
+                    if (childMenu.separator) {
+                        return {
+                            type: 'separator'
+                        };
+                    }
                     return {
                         label: childMenu.label,
                         click: () => {
